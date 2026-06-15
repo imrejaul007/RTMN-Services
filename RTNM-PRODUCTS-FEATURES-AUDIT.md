@@ -231,6 +231,144 @@
 
 ---
 
+### HOJAI AI - Leverge AI Business Intelligence Suite (5 Services)
+
+**Client:** Leverge | **Status:** ✅ COMPLETE | **June 15, 2026**
+
+**Overview:** Leverge is an AI-powered business intelligence suite providing comprehensive services for analytics, memory management, digital twins, agent orchestration, and business copilot capabilities.
+
+| Product | Port | Purpose |
+|---------|------|---------|
+| leverge-intelligence | 4761 | Business analytics, insights, metrics, reporting |
+| leverge-memory | 4762 | Personal AI memory, semantic search, context |
+| leverge-twin | 4763 | Digital twins, state, relationships, snapshots |
+| leverge-agents | 4764 | AI agent orchestration, task queue |
+| leverge-copilot | 4765 | Business copilot, conversations, suggestions |
+
+#### Leverge Intelligence (4761) - Features
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/ready` | GET | Readiness check |
+| `/api/v1/insights` | GET | List insights with pagination |
+| `/api/v1/insights` | POST | Create insight (trend, anomaly, prediction, recommendation) |
+| `/api/v1/insights/:id` | GET | Get insight by ID |
+| `/api/v1/insights/:id` | PATCH | Update insight |
+| `/api/v1/insights/:id` | DELETE | Delete insight |
+| `/api/v1/analytics/summary` | GET | Analytics summary (total, byType, active) |
+| `/api/v1/analytics/trends` | GET | Trend data over days |
+| `/api/v1/analytics/query` | POST | Custom analytics query |
+| `/api/v1/metrics/performance` | GET | Performance metrics (uptime, memory, CPU) |
+| `/api/v1/metrics/track` | POST | Track custom metric |
+| `/api/v1/metrics/list` | GET | List tracked metrics |
+| `/api/v1/reports/generate` | POST | Generate report (insights, trends) |
+
+#### Leverge Memory (4762) - Features
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/api/v1/memories` | GET | List memories (filter by type, tag) |
+| `/api/v1/memories` | POST | Create memory (conversation, preference, fact, event, context) |
+| `/api/v1/memories/:id` | GET | Get memory by ID |
+| `/api/v1/memories/:id` | PATCH | Update memory |
+| `/api/v1/memories/:id` | DELETE | Delete memory |
+| `/api/v1/search` | GET | Search memories (text, type, tag) |
+| `/api/v1/search/advanced` | POST | Advanced search with filters |
+| `/api/v1/context/recent` | GET | Get recent context memories |
+| `/api/v1/context/preferences` | GET | Get user preferences |
+| `/api/v1/context/facts` | GET | Get user facts |
+| `/api/v1/context/snapshot` | POST | Create context snapshot |
+
+#### Leverge Twin (4763) - Features
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/api/v1/twins` | GET | List digital twins |
+| `/api/v1/twins` | POST | Create twin (user, agent, object, place) |
+| `/api/v1/twins/:twinId` | GET | Get twin by ID |
+| `/api/v1/twins/:twinId` | PATCH | Update twin |
+| `/api/v1/twins/:twinId` | DELETE | Delete twin |
+| `/api/v1/twins/:twinId/state` | GET | Get current state |
+| `/api/v1/twins/:twinId/state` | PUT | Update state (with optional snapshot) |
+| `/api/v1/twins/:twinId/state/snapshots` | GET | List state snapshots |
+| `/api/v1/twins/:twinId/state/restore` | POST | Restore from snapshot |
+| `/api/v1/twins/:twinId/relationships` | GET | List relationships |
+| `/api/v1/twins/:twinId/relationships` | POST | Create relationship |
+
+#### Leverge Agents (4764) - Features
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/api/v1/agents` | GET | List AI agents |
+| `/api/v1/agents` | POST | Create agent (assistant, analyst, automation, custom) |
+| `/api/v1/agents/:agentId` | GET | Get agent by ID |
+| `/api/v1/agents/:agentId` | PATCH | Update agent |
+| `/api/v1/agents/:agentId` | DELETE | Delete agent |
+| `/api/v1/tasks` | GET | List tasks |
+| `/api/v1/tasks` | POST | Create task (with priority) |
+| `/api/v1/tasks/:taskId` | GET | Get task by ID |
+| `/api/v1/tasks/:taskId/cancel` | POST | Cancel task |
+| `/api/v1/executions/stats` | GET | Execution statistics |
+| `/api/v1/executions/recent` | GET | Recent executions |
+
+#### Leverge Copilot (4765) - Features
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/api/v1/conversations` | GET | List conversations |
+| `/api/v1/conversations` | POST | Create conversation |
+| `/api/v1/conversations/:id` | GET | Get conversation |
+| `/api/v1/conversations/:id` | PATCH | Update conversation |
+| `/api/v1/conversations/:id` | DELETE | Delete conversation |
+| `/api/v1/conversations/:id/messages` | GET | List messages |
+| `/api/v1/conversations/:id/messages` | POST | Send message (returns user + AI response) |
+| `/api/v1/suggestions` | GET | List suggestions |
+| `/api/v1/suggestions` | POST | Create suggestion |
+| `/api/v1/suggestions/:id/accept` | POST | Accept suggestion |
+| `/api/v1/suggestions/:id/dismiss` | POST | Dismiss suggestion |
+
+#### Leverge - Technical Details
+
+| Feature | Implementation |
+|---------|---------------|
+| **Database** | MongoDB (Mongoose ODM) |
+| **Cache** | Redis (ioredis) |
+| **Auth** | JWT (RABTUL Auth 4002) |
+| **Language** | TypeScript |
+| **Runtime** | Node.js 20+ |
+| **Framework** | Express.js |
+| **Rate Limiting** | 100 req/min (API), 1000 req/min (health) |
+| **Health Checks** | Built-in /health and /ready endpoints |
+| **Error Handling** | Centralized error middleware |
+| **Logging** | Winston with file + console transport |
+| **Docker** | Multi-stage Dockerfile + docker-compose |
+
+#### Leverge - SDK & Integration
+
+```javascript
+// Initialize client
+const client = new LevergeClient({ token: '...' });
+
+// Create memory
+await client.memory.create({ type: 'preference', content: '...' });
+
+// Create digital twin
+const twin = await client.twin.create({ type: 'user', name: 'John', state: {} });
+
+// Queue AI task
+await client.agents.createTask({ agentId: '...', input: 'Analyze data', priority: 'high' });
+
+// Chat with copilot
+await client.copilot.sendMessage(convId, 'What should I prioritize?');
+```
+
+---
+
 ### HOJAI AI - Port Mapping
 
 | Port Range | Products |
