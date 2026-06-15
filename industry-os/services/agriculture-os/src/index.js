@@ -39,9 +39,21 @@ const RTMN_SERVICES = {
   crmHub: process.env.CRM_HUB_URL || 'http://localhost:4056',
   buzzLocal: process.env.BUZZLOCAL_URL || 'http://localhost:4020',
   
-  // Layer 3: Commerce (Nexha)
+  // Layer 3: Commerce (Nexha + REZ-Merchant)
   nexha: process.env.NEXHA_URL || 'http://localhost:5002',
   procurement: process.env.PROCUREMENT_URL || 'http://localhost:4320',
+
+  // REZ-Merchant Integration (Layer 3 Extension)
+  merchantPOS: process.env.MERCHANT_POS_URL || 'http://localhost:4800',
+  merchantRestaurant: process.env.MERCHANT_RESTAURANT_URL || 'http://localhost:4801',
+  merchantMenu: process.env.MERCHANT_MENU_URL || 'http://localhost:4802',
+  merchantPayment: process.env.MERCHANT_PAYMENT_URL || 'http://localhost:4803',
+  merchantLoyalty: process.env.MERCHANT_LOYALTY_URL || 'http://localhost:4804',
+  merchantInventory: process.env.MERCHANT_INVENTORY_URL || 'http://localhost:4805',
+  merchantStaff: process.env.MERCHANT_STAFF_URL || 'http://localhost:4806',
+  merchantReservations: process.env.MERCHANT_RESERVATIONS_URL || 'http://localhost:4807',
+  merchantDashboard: process.env.MERCHANT_DASHBOARD_URL || 'http://localhost:4808',
+  merchantGenie: process.env.MERCHANT_GENIE_URL || 'http://localhost:4809',
   
   // Layer 4: Financial (RABTUL + RIDZA + AssetMind)
   wallet: process.env.WALLET_URL || 'http://localhost:4004',
@@ -445,15 +457,116 @@ app.get('/api/layer/commerce', requireAuth, async (req, res) => {
     
     res.json({
       layer: 3,
-      name: 'Commerce (Nexha)',
+      name: 'Commerce (Nexha + REZ-Merchant)',
       services: {
         nexha: nexha.status || 'online',
         procurement: RTMN_SERVICES.procurement,
+        merchantPOS: RTMN_SERVICES.merchantPOS,
+        merchantRestaurant: RTMN_SERVICES.merchantRestaurant,
+        merchantMenu: RTMN_SERVICES.merchantMenu,
+        merchantPayment: RTMN_SERVICES.merchantPayment,
       },
-      capabilities: ['Procurement', 'Distribution', 'Manufacturing', 'Franchise', 'Trade Finance'],
+      capabilities: ['Procurement', 'Distribution', 'Manufacturing', 'Franchise', 'Trade Finance', 'POS', 'Orders', 'Menu', 'Payments'],
     });
   } catch (err) {
     res.json({ layer: 3, name: 'Commerce', status: 'offline', error: err.message });
+  }
+});
+
+// REZ-Merchant Integration Endpoints
+app.get('/api/merchant/pos', requireAuth, async (req, res) => {
+  try {
+    const posRes = await fetch(RTMN_SERVICES.merchantPOS + '/health');
+    res.json({ status: 'online', service: 'REZ-Merchant POS', url: RTMN_SERVICES.merchantPOS });
+  } catch (err) {
+    res.json({ status: 'offline', service: 'REZ-Merchant POS', error: err.message });
+  }
+});
+
+app.get('/api/merchant/orders', requireAuth, async (req, res) => {
+  try {
+    const ordersRes = await fetch(RTMN_SERVICES.merchantRestaurant + '/api/orders');
+    const orders = await ordersRes.json();
+    res.json({ orders, source: 'REZ-Merchant' });
+  } catch (err) {
+    res.json({ error: 'REZ-Merchant orders unavailable', details: err.message });
+  }
+});
+
+app.post('/api/merchant/orders', requireAuth, async (req, res) => {
+  try {
+    const response = await fetch(RTMN_SERVICES.merchantRestaurant + '/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'Order creation failed' });
+  }
+});
+
+app.get('/api/merchant/menu', requireAuth, async (req, res) => {
+  try {
+    const menuRes = await fetch(RTMN_SERVICES.merchantMenu + '/api/menu');
+    const menu = await menuRes.json();
+    res.json({ menu, source: 'REZ-Merchant' });
+  } catch (err) {
+    res.json({ error: 'REZ-Merchant menu unavailable', details: err.message });
+  }
+});
+
+app.get('/api/merchant/payments', requireAuth, async (req, res) => {
+  try {
+    const payRes = await fetch(RTMN_SERVICES.merchantPayment + '/health');
+    res.json({ status: 'online', service: 'REZ-Merchant Payment Gateway' });
+  } catch (err) {
+    res.json({ status: 'offline', service: 'REZ-Merchant Payment Gateway' });
+  }
+});
+
+app.get('/api/merchant/loyalty', requireAuth, async (req, res) => {
+  try {
+    const loyaltyRes = await fetch(RTMN_SERVICES.merchantLoyalty + '/api/loyalty');
+    res.json({ loyalty: await loyaltyRes.json(), source: 'REZ-Merchant' });
+  } catch (err) {
+    res.json({ error: 'Loyalty service unavailable' });
+  }
+});
+
+app.get('/api/merchant/inventory', requireAuth, async (req, res) => {
+  try {
+    const invRes = await fetch(RTMN_SERVICES.merchantInventory + '/api/inventory');
+    res.json({ inventory: await invRes.json(), source: 'REZ-Merchant' });
+  } catch (err) {
+    res.json({ error: 'Inventory service unavailable' });
+  }
+});
+
+app.get('/api/merchant/staff', requireAuth, async (req, res) => {
+  try {
+    const staffRes = await fetch(RTMN_SERVICES.merchantStaff + '/api/staff');
+    res.json({ staff: await staffRes.json(), source: 'REZ-Merchant' });
+  } catch (err) {
+    res.json({ error: 'Staff service unavailable' });
+  }
+});
+
+app.get('/api/merchant/reservations', requireAuth, async (req, res) => {
+  try {
+    const resRes = await fetch(RTMN_SERVICES.merchantReservations + '/api/reservations');
+    res.json({ reservations: await resRes.json(), source: 'REZ-Merchant' });
+  } catch (err) {
+    res.json({ error: 'Reservations service unavailable' });
+  }
+});
+
+app.get('/api/merchant/genie', requireAuth, async (req, res) => {
+  try {
+    const genieRes = await fetch(RTMN_SERVICES.merchantGenie + '/health');
+    res.json({ status: 'online', service: 'REZ-Merchant Genie' });
+  } catch (err) {
+    res.json({ status: 'offline', service: 'REZ-Merchant Genie' });
   }
 });
 
