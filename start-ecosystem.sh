@@ -36,6 +36,23 @@ declare -A SERVICES=(
   ["5150"]="manufacturing-os:Manufacturing OS"
   ["5230"]="realestate-os:RealEstate OS"
   ["5600"]="media-os:Media OS"
+  # FinanceOS - AI Agents (4900-4906)
+  ["4900"]="finance-cfo:Finance CFO AI"
+  ["4901"]="finance-accountant:Finance Accountant"
+  ["4902"]="finance-compliance:Finance Compliance"
+  ["4903"]="finance-auditor:Finance Auditor"
+  ["4904"]="finance-collections:Finance Collections"
+  ["4905"]="finance-payables:Finance Payables"
+  ["4906"]="finance-budget-coach:Finance Budget Coach"
+  # FinanceOS - Core (5220)
+  ["5220"]="financial-os:Financial OS"
+  # FinanceOS - Suite (5250-5290)
+  ["5250"]="expense-os:ExpenseOS"
+  ["5255"]="approval-workflow:Approval Workflow"
+  ["5260"]="reimbursement-os:Reimbursement OS"
+  ["5270"]="finance-twin-hub:Finance Twin Hub"
+  ["5280"]="spend-intelligence:Spend Intelligence"
+  ["5290"]="corporate-card-os:Corporate Card OS"
 )
 
 # Service directories
@@ -59,6 +76,23 @@ declare -A DIRS=(
   ["5150"]="/Users/rejaulkarim/Documents/RTMN/manufacturing-os"
   ["5230"]="/Users/rejaulkarim/Documents/RTMN/realestate-os"
   ["5600"]="/Users/rejaulkarim/Documents/RTMN/media-os"
+  # FinanceOS - AI Agents (4900-4906)
+  ["4900"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/finance-cfo"
+  ["4901"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/finance-accountant"
+  ["4902"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/finance-compliance"
+  ["4903"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/finance-auditor"
+  ["4904"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/finance-collections"
+  ["4905"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/finance-payables"
+  ["4906"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/finance-budget-coach"
+  # FinanceOS - Core (5220)
+  ["5220"]="/Users/rejaulkarim/Documents/RTMN/industry-os/services/financial-os"
+  # FinanceOS - Suite (5250-5290)
+  ["5250"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/services/expense-os"
+  ["5255"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/services/approval-workflow"
+  ["5260"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/services/reimbursement-os"
+  ["5270"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/services/finance-twin-hub"
+  ["5280"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/services/spend-intelligence"
+  ["5290"]="/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/services/corporate-card-os"
 )
 
 check_port() {
