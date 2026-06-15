@@ -5,6 +5,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 import winston from 'winston';
+import crypto from 'crypto';
 
 const app = express();
 const PORT = process.env.PORT || 5010;
@@ -84,6 +85,113 @@ initializeSampleData();
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', service: 'restaurant-os', version: '1.0.0', timestamp: new Date().toISOString() });
 });
+
+// ============= AUTH ENDPOINTS =============
+
+// In-memory auth stores
+const authBusinesses = new Map();
+const authUsers = new Map();
+const authSessions = new Map();
+
+function genToken() { return crypto.randomBytes(32).toString('hex'); }
+
+// Register business
+app.post('/auth/register', (req, res) => {
+  const { businessName, ownerName, email, phone, password, plan } = req.body;
+  if (!businessName || !ownerName || !email || !password) {
+    return res.status(400).json({ success: false, error: 'businessName, ownerName, email, password required' });
+  }
+
+  for (const [, u] of authUsers) {
+    if (u.email === email && u.industry === 'restaurant') {
+      return res.status(409).json({ success: false, error: 'Email already registered' });
+    }
+  }
+
+  const businessId = `BIZ_RESTAURANT_${Date.now()}`;
+  const ownerId = `OWN_RESTAURANT_${Date.now()}`;
+  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+  const token = genToken();
+
+  authBusinesses.set(businessId, {
+    id: businessId, name: businessName, industry: 'restaurant', email, phone: phone || '',
+    plan: plan || 'starter', status: 'active', createdAt: new Date().toISOString()
+  });
+
+  authUsers.set(ownerId, {
+    id: ownerId, businessId, industry: 'restaurant', email, name: ownerName,
+    role: 'owner', passwordHash, status: 'active', createdAt: new Date().toISOString()
+  });
+
+  authSessions.set(token, {
+    userId: ownerId, businessId, industry: 'restaurant', role: 'owner',
+    createdAt: Date.now(), expiresAt: Date.now() + 2592000000
+  });
+
+  res.status(201).json({
+    success: true, message: 'Restaurant registered',
+    business: { id: businessId, name: businessName, industry: 'restaurant' },
+    user: { id: ownerId, name: ownerName, email, role: 'owner' },
+    token
+  });
+});
+
+// Login
+app.post('/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
+
+  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+  for (const [userId, user] of authUsers) {
+    if (user.email === email && user.industry === 'restaurant') {
+      if (user.passwordHash !== passwordHash) {
+        return res.status(401).json({ success: false, error: 'Invalid password' });
+      }
+      const token = genToken();
+      authSessions.set(token, {
+        userId, businessId: user.businessId, industry: 'restaurant', role: user.role,
+        createdAt: Date.now(), expiresAt: Date.now() + 2592000000
+      });
+      return res.json({
+        success: true, message: 'Login successful',
+        user: { id: userId, name: user.name, email, role: user.role, businessId: user.businessId },
+        business: authBusinesses.get(user.businessId),
+        token
+      });
+    }
+  }
+  res.status(401).json({ success: false, error: 'User not found' });
+});
+
+// Verify token
+app.get('/auth/verify', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'No token' });
+
+  const token = authHeader.substring(7);
+  const session = authSessions.get(token);
+  if (!session || session.expiresAt < Date.now()) {
+    if (session) authSessions.delete(token);
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+
+  const user = authUsers.get(session.userId);
+  res.json({ success: true, valid: true, user: { id: session.userId, name: user?.name, email: user?.email, role: session.role }, businessId: session.businessId });
+});
+
+// Auth middleware for protected routes
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+  const token = authHeader.substring(7);
+  const session = authSessions.get(token);
+  if (!session || session.expiresAt < Date.now()) {
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+  req.session = session;
+  next();
+}
 
 // ============= MENU ENDPOINTS =============
 
