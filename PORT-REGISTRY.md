@@ -702,3 +702,62 @@ This document consolidates all port allocations across the 24 industry verticals
 ## Related Documents
 
 - [INDUSTRY-OS-MASTER-INDEX.md](./INDUSTRY-OS-MASTER-INDEX.md) - Master index with all industry specs
+
+---
+
+## Industry OS Services (industry-os/services/)
+
+### Foundation Services (industry-os/shared/)
+
+| Port | Service | Industry | Status |
+|------|---------|----------|--------|
+| 4702 | corpid-service | Identity | Active |
+| 4703 | memory-os | Memory | Active |
+| 4705 | twinos-hub | Twins | Active |
+| 4242 | goal-os | Goals | Active |
+| 4240 | decision-engine | Policy | Active |
+| 4251 | agent-economy | Economy | Active |
+
+### Digital Twins (industry-os/shared/)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 3011 | agent-twin | Agent profiles, karma |
+| 3015 | property-twin | Properties, listings |
+| 3016 | referral-twin | Referrals, rewards |
+| 3017 | buyer-twin | Buyer profiles |
+| 3018 | deal-twin | Deal management |
+| 3019 | area-twin | Area/Region data |
+
+### Industry Operating Systems (industry-os/services/)
+
+| Port | Service | Industry | Digital Twins |
+|------|---------|----------|--------------|
+| 5010 | restaurant-os | Restaurant | Menu, Order, Kitchen, Table, Customer |
+| 5020 | healthcare-os | Healthcare | Patient, Appointment, Doctor, Prescription |
+| 5025 | hotel-os | Hotel | Room, Booking, Guest, Service, Revenue |
+| 5030 | retail-os | Retail | Product, Inventory, Customer, Cart, Supplier |
+| 5035 | legal-os | Legal | Client, Case, Lawyer, Document |
+| 5060 | education-os | Education | Course, Student, Instructor, Enrollment |
+| 5070 | agriculture-os | Agriculture | Farm, Crop, Livestock |
+| 5080 | automotive-os | Automotive | Vehicle, Customer, Service |
+| 5090 | beauty-os | Beauty | Client, Service, Staff, Appointment |
+| 5095 | fashion-os | Fashion | Product, Collection |
+| 5110 | fitness-os | Fitness | Member, Trainer, Class, Membership |
+| 5120 | gaming-os | Gaming | Game, Player, Tournament |
+| 5130 | government-os | Government | Citizen, Service, Department |
+| 5140 | home-services-os | Home Services | Provider, Customer, Booking |
+| 5150 | manufacturing-os | Manufacturing | Product, Machine, Production, Quality |
+| 5160 | non-profit-os | Non-Profit | Donor, Campaign, Beneficiary |
+| 5170 | professional-os | Professional | Consultant, Client, Project |
+| 5180 | sports-os | Sports | Team, Player, Match |
+| 5190 | travel-os | Travel | Destination, Package |
+| 5200 | entertainment-os | Entertainment | Event, Venue, Ticket |
+| 5210 | construction-os | Construction | Project, Contractor |
+| 5220 | financial-os | Financial | Account, Transaction |
+| 5230 | realestate-os | Real Estate | Property, Listing, Lead, Agent |
+| 5240 | transport-os | Transport | Vehicle, Driver, Rider |
+
+---
+
+*Last Updated: June 16, 2026*
