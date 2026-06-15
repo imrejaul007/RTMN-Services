@@ -104,7 +104,7 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 | **REZ-Merchant** | Merchant services, POS, Industry OS | 100+ services | 4800-4899 |
 | **REZ-Consumer** | Consumer app, Genie, DO | 80+ services | 3000-4100 |
 | **Nexha** | Commerce, Procurement, Distribution | 50+ services | 8000+ |
-| **AdBazaar** | Ads, QR, Creator Studio | 30+ services | 5000-5001 |
+| **AdBazaar** | Ads, QR, Creator Studio | 1 prod-ready (REZ-crm-hub) | 4056, 5000-5009 |
 | **KHAIRMOVE** | Ride, Delivery, Airzy | 40+ services | 4500-4600 |
 | **Axom** | BuzzLocal, Community Intelligence | 30+ services | 4000-4027 |
 | **CorpPerks** | HR, Payroll, Benefits | 50+ services | 4006 |
@@ -208,6 +208,7 @@ curl http://localhost:5010/health  # Restaurant OS
 curl http://localhost:5025/health  # Hotel OS
 curl http://localhost:4702/health  # CorpID
 curl http://localhost:4703/health  # MemoryOS
+curl http://localhost:4056/health  # AdBazaar / REZ-crm-hub
 ```
 
 ---

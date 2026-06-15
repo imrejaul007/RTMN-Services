@@ -1,13 +1,22 @@
 {
   "name": "@rtmn/shared",
   "version": "1.0.0",
-  "description": "RTMN Shared Modules - Auth, Utils, etc",
+  "description": "RTMN Shared Modules - Database, CRM, Auth, Utils",
   "main": "index.js",
+  "type": "module",
   "exports": {
+    "./lib/database": "./lib/database.js",
+    "./lib/crm": "./lib/crm.js",
     "./auth": "./auth/index.js",
     "./auth/routes": "./auth/routes.js"
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "keywords": [
+    "rtmn",
+    "shared",
+    "database",
+    "crm"
+  ]
 }

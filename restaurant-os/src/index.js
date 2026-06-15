@@ -7,6 +7,50 @@ import { v4 as uuidv4 } from 'uuid';
 import winston from 'winston';
 import crypto from 'crypto';
 
+// MongoDB support (optional)
+let mongoose = null;
+let dbConnected = false;
+const MONGODB_URI = process.env.MONGODB_URI;
+const CRM_HUB_URL = process.env.CRM_HUB_URL || process.env.REZ_CRM_HUB || 'http://localhost:4056';
+
+// Initialize MongoDB if URI is provided
+async function initDatabase() {
+  if (!MONGODB_URI) {
+    console.log('⚠️  MONGODB_URI not set. Running in demo mode (in-memory).');
+    return;
+  }
+  try {
+    mongoose = (await import('mongoose')).default;
+    await mongoose.connect(MONGODB_URI);
+    dbConnected = true;
+    console.log('✅ MongoDB connected for Restaurant OS');
+  } catch (err) {
+    console.error('MongoDB connection failed:', err.message);
+  }
+}
+
+// CRM Hub connection for customer sync
+async function syncCustomerToCRM(customer, businessId) {
+  if (!dbConnected) return;
+  try {
+    await fetch(`${CRM_HUB_URL}/api/contacts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        industry: 'restaurant',
+        businessId,
+        loyaltyPoints: customer.loyaltyPoints,
+        tier: customer.tier,
+      }),
+    });
+  } catch (err) {
+    console.warn('CRM sync failed:', err.message);
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 5010;
 
@@ -83,7 +127,14 @@ initializeSampleData();
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'restaurant-os', version: '1.0.0', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'healthy',
+    service: 'restaurant-os',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    database: dbConnected ? 'connected' : 'demo (in-memory)',
+    crm: CRM_HUB_URL
+  });
 });
 
 // ============= AUTH ENDPOINTS =============
@@ -519,6 +570,9 @@ app.post('/api/customers', (req, res) => {
   customers.set(customer.id, customer);
   twins.customer.loyalty.push(customer);
 
+  // Sync to CRM Hub
+  syncCustomerToCRM(customer, null).catch(console.warn);
+
   logger.info(`New customer: ${customer.name}`);
   res.status(201).json({ success: true, customer, isNew: true });
 });
@@ -673,8 +727,15 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  logger.info(`🍽️  Restaurant OS running on port ${PORT}`);
-});
+async function start() {
+  await initDatabase();
+  app.listen(PORT, () => {
+    logger.info(`🍽️  Restaurant OS running on port ${PORT}`);
+    logger.info(`   Health: http://localhost:${PORT}/health`);
+    logger.info(`   CRM: ${CRM_HUB_URL}`);
+  });
+}
+
+start();
 
 export default app;

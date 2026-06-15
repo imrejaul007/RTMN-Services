@@ -14,6 +14,145 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const app = express();
 const PORT = process.env.PORT || 4005;
 
+// === WEBHOOK RETRY QUEUE ===
+interface QueuedWebhook {
+  id: string;
+  event: Stripe.Event;
+  attempts: number;
+  nextRetry: number;
+  lastError?: string;
+  createdAt: number;
+}
+
+const webhookQueue: Map<string, QueuedWebhook> = new Map();
+const MAX_RETRY_ATTEMPTS = 5;
+const BASE_RETRY_DELAY_MS = 5000; // 5 seconds
+
+// Calculate exponential backoff delay
+function getRetryDelay(attempt: number): number {
+  return Math.min(BASE_RETRY_DELAY_MS * Math.pow(2, attempt - 1), 300000); // Max 5 minutes
+}
+
+// Add event to retry queue
+function queueWebhook(event: Stripe.Event, error?: string): void {
+  const queueId = event.id;
+  const existing = webhookQueue.get(queueId);
+
+  if (existing) {
+    existing.attempts += 1;
+    existing.nextRetry = Date.now() + getRetryDelay(existing.attempts);
+    existing.lastError = error;
+  } else {
+    webhookQueue.set(queueId, {
+      id: event.id,
+      event,
+      attempts: 1,
+      nextRetry: Date.now() + getRetryDelay(1),
+      lastError: error,
+      createdAt: Date.now(),
+    });
+  }
+
+  console.log(`Webhook ${event.id} queued for retry (attempt ${webhookQueue.get(queueId)!.attempts})`);
+}
+
+// Process webhook with retry logic
+async function processWebhook(event: Stripe.Event): Promise<{ success: boolean; error?: string }> {
+  try {
+    switch (event.type) {
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted':
+        await handleSubscriptionUpdate(event.data.object as Stripe.Subscription);
+        break;
+      case 'invoice.payment_succeeded':
+        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
+        break;
+      case 'invoice.payment_failed':
+        await handlePaymentFailed(event.data.object as Stripe.Invoice);
+        break;
+      case 'checkout.session.completed':
+        await handleCheckoutComplete(event.data.object as Stripe.Checkout.Session);
+        break;
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Webhook retry processor (runs every 10 seconds)
+setInterval(async () => {
+  const now = Date.now();
+  const dueWebhooks: QueuedWebhook[] = [];
+
+  for (const [id, webhook] of webhookQueue) {
+    if (webhook.nextRetry <= now) {
+      dueWebhooks.push(webhook);
+    }
+  }
+
+  for (const webhook of dueWebhooks) {
+    if (webhook.attempts >= MAX_RETRY_ATTEMPTS) {
+      console.error(`Webhook ${webhook.id} failed after ${MAX_RETRY_ATTEMPTS} attempts. Last error: ${webhook.lastError}`);
+      webhookQueue.delete(webhook.id);
+      continue;
+    }
+
+    console.log(`Retrying webhook ${webhook.id} (attempt ${webhook.attempts + 1})`);
+    const result = await processWebhook(webhook.event);
+
+    if (result.success) {
+      console.log(`Webhook ${webhook.id} processed successfully on retry`);
+      webhookQueue.delete(webhook.id);
+    } else {
+      queueWebhook(webhook.event, result.error);
+    }
+  }
+}, 10000);
+
+// Webhook status endpoint
+app.get('/api/v1/webhooks/queue', (req, res) => {
+  const queue = Array.from(webhookQueue.values()).map(w => ({
+    id: w.id,
+    type: w.event.type,
+    attempts: w.attempts,
+    nextRetry: new Date(w.nextRetry).toISOString(),
+    lastError: w.lastError,
+    createdAt: new Date(w.createdAt).toISOString(),
+  }));
+  res.json({ data: { queue, count: queue.length } });
+});
+
+// Manually retry a specific webhook
+app.post('/api/v1/webhooks/:eventId/retry', async (req, res) => {
+  const { eventId } = req.params;
+  const webhook = webhookQueue.get(eventId);
+
+  if (!webhook) {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Webhook not found in queue' } });
+  }
+
+  const result = await processWebhook(webhook.event);
+
+  if (result.success) {
+    webhookQueue.delete(eventId);
+    res.json({ data: { success: true, message: 'Webhook processed successfully' } });
+  } else {
+    queueWebhook(webhook.event, result.error);
+    res.json({ data: { success: false, message: 'Webhook re-queued for retry', attempts: webhook.attempts } });
+  }
+});
+
+// Clear webhook queue
+app.delete('/api/v1/webhooks/queue', (req, res) => {
+  const count = webhookQueue.size;
+  webhookQueue.clear();
+  res.json({ data: { cleared: count } });
+});
+
 // Middleware
 app.use(helmet());
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
@@ -32,25 +171,18 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     return res.status(400).send('Webhook Error');
   }
 
-  // Handle events
-  switch (event.type) {
-    case 'customer.subscription.created':
-    case 'customer.subscription.updated':
-    case 'customer.subscription.deleted':
-      await handleSubscriptionUpdate(event.data.object as Stripe.Subscription);
-      break;
-    case 'invoice.payment_succeeded':
-      await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
-      break;
-    case 'invoice.payment_failed':
-      await handlePaymentFailed(event.data.object as Stripe.Invoice);
-      break;
-    case 'checkout.session.completed':
-      await handleCheckoutComplete(event.data.object as Stripe.Checkout.Session);
-      break;
-  }
+  // Immediately acknowledge receipt
+  res.json({ received: true, eventId: event.id });
 
-  res.json({ received: true });
+  // Process asynchronously with retry queue
+  const result = await processWebhook(event);
+
+  if (!result.success) {
+    console.error(`Webhook processing failed for ${event.id}: ${result.error}`);
+    queueWebhook(event, result.error);
+  } else {
+    console.log(`Webhook ${event.id} (${event.type}) processed successfully`);
+  }
 });
 
 // === PRICING PLANS ===

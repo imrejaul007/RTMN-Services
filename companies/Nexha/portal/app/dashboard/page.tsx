@@ -139,8 +139,8 @@ export default function DashboardPage() {
               <h3 className="text-sm font-medium text-gray-500 mb-4">API Status</h3>
               <div className="space-y-3">
                 {[
-                  ['Commerce Identity', 'http://localhost:8000', true],
-                  ['SUTAR Mock', 'http://localhost:4799', true],
+                  ['Commerce Identity', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000', true],
+                  ['SUTAR Mock', process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(':8000', ':4799') : 'http://localhost:4799', true],
                   ['MongoDB', 'localhost:27017', true],
                 ].map(([name, url, ok]) => (
                   <div key={name as string} className="flex items-center justify-between">
