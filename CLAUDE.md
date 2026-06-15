@@ -1,8 +1,68 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Last Updated:** June 15, 2026  
-**Status:** ✅ COMPLETE - 24 Industry OS + 35+ Digital Twins + Foundation Services
+**Status:** ✅ COMPLETE - 24 Industry OS + 35+ Digital Twins + Foundation Services + Pilot Onboarding
+
+---
+
+## Deployment Architecture
+
+```
+                          ┌──────────────────────┐
+                          │   VERCEL (Frontend)   │
+                          │  rtmn-pilot-portal   │
+                          │  Next.js 14 (port 3000)│
+                          └──────────┬───────────┘
+                                     │ HTTPS
+                          ┌──────────▼───────────┐
+                          │  RENDER (Backend)    │
+                          │ rtmn-pilot-onboarding│
+                          │  Express (port 4399)  │
+                          └──────────┬───────────┘
+                                     │
+                 ┌───────────────────┼───────────────────┐
+                 │                   │                   │
+          ┌──────▼──────┐    ┌───────▼──────┐   ┌──────▼──────┐
+          │ Hotel OS    │    │ Restaurant OS│   │ Healthcare  │
+          │ :5025       │    │ :5010        │   │ :5020       │
+          └─────────────┘    └─────────────┘   └─────────────┘
+                 + 21 more Industry OS services on Render
+```
+
+### Deploy Targets
+
+| Layer | Platform | Service | URL |
+|-------|----------|---------|-----|
+| **Frontend** | Vercel | rtmn-pilot-portal | `https://rtmn.vercel.app` |
+| **Backend/Gateway** | Render | rtmn-pilot-onboarding | `https://rtmn-api.onrender.com` |
+| **Industry OS** | Render | rtmn-hotel-os, rtmn-restaurant-os, etc. | per-service URLs |
+
+### Quick Deploy
+
+```bash
+# Frontend → Vercel
+cd frontend
+vercel                              # Interactive deploy
+vercel --prod                       # Direct to production
+
+# Backend → Render
+render blueprint create --spec render.yaml
+# Or: Import render.yaml in Render dashboard
+```
+
+### Environment Variables
+
+**Vercel (Frontend):**
+- `NEXT_PUBLIC_API_URL` → Render backend URL (e.g. `https://rtmn-api.onrender.com`)
+
+**Render (Backend):**
+- `JWT_SECRET` → Generate with `openssl rand -hex 32`
+- `STRIPE_SECRET_KEY` → Stripe publishable key
+- `STRIPE_WEBHOOK_SECRET` → Stripe webhook secret
+- `RESEND_API_KEY` → Resend email API key
+- `ALLOWED_ORIGINS` → Vercel frontend URL
+- `PUBLIC_URL` → Vercel frontend URL
 
 ---
 
