@@ -33,10 +33,9 @@ services:
       - key: EMAIL_REPLY_TO
         value: support@rtmn.io
       - key: ALLOWED_ORIGINS
-        # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
-        sync: false
+        value: https://rtmn-pilot-portal.vercel.app
       - key: PUBLIC_URL
-        sync: false
+        value: https://rtmn-pilot-portal.vercel.app
 
   # ============================================
   # FOUNDATION SERVICES
