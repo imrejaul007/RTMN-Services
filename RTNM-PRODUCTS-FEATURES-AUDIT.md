@@ -382,6 +382,7 @@ await client.copilot.sendMessage(convId, 'What should I prioritize?');
 | 4701-4731 | Genie Personal AI (gateway, dashboard, 5 twins, memory, briefing, bots, connectors) |
 | 4725 | RAZO Keyboard Intent Router |
 | 4750-4759 | Business Intelligence |
+| **4761-4765** | **Leverge Suite** (Intelligence, Memory, Twin, Agents, Copilot) |
 | 4770 | BrandPulse |
 | 4800-4801 | Command Center |
 | 4850 | Voice OS |
