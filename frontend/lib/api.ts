@@ -1,5 +1,10 @@
 // API client for RTMN backend
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4399';
+const API_URL = process.env.NEXT_PUBLIC_API_URL; // Must be set in Vercel env vars
+
+function getApiUrl() {
+  if (!API_URL) throw new Error('NEXT_PUBLIC_API_URL is not set. Configure it in Vercel dashboard.');
+  return API_URL;
+}
 
 interface ApiOptions {
   method?: string;
@@ -8,11 +13,12 @@ interface ApiOptions {
 }
 
 export async function apiRequest<T = unknown>(path: string, opts: ApiOptions = {}): Promise<T> {
+  const baseUrl = getApiUrl();
   const { method = 'GET', body, token } = opts;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  const res = await fetch(`${baseUrl}${path}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
   return data as T;

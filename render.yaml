@@ -408,3 +408,65 @@ services:
         value: 3016
       - key: NODE_ENV
         value: production
+
+  # ============================================
+  # ADBAZAAR / CRM SERVICES
+  # ============================================
+
+  - type: web
+    name: rez-crm-hub
+    env: node
+    region: singapore
+    plan: free
+    rootDir: companies/AdBazaar/REZ-crm-hub
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 4056
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+
+  # ============================================
+  # RTNM-DIGITAL / SALESMIND SERVICES
+  # ============================================
+
+  - type: web
+    name: rez-salesmind
+    env: node
+    region: singapore
+    plan: free
+    rootDir: companies/RTNM-Digital/REZ-SalesMind
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 5170
+      - key: NODE_ENV
+        value: production
+      - key: INTERNAL_SERVICE_TOKEN
+        # Must match CRM Hub's INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: CRM_HUB_TOKEN
+        # Must match CRM Hub's INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: REZ_CRM_HUB
+        value: https://rez-crm-hub.onrender.com
+      - key: ALLOWED_ORIGINS
+        # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
+        sync: false
