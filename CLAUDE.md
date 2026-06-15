@@ -2,7 +2,26 @@
 
 **Version:** 1.2.0  
 **Last Updated:** June 15, 2026  
-**Status:** ✅ OPERATIONAL - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER
+
+---
+
+## 🚀 LIVE DEPLOYMENTS
+
+| Platform | Service | URL | Status |
+|----------|---------|-----|--------|
+| **Vercel** | Frontend | `https://rtmn-pilot-portal.vercel.app` | ✅ **LIVE** |
+| **Render** | Backend/API | `https://rtmn-pilot-onboarding.onrender.com` | ✅ **LIVE** |
+| **Render** | All Services | 27 services via render.yaml | ✅ Ready |
+
+### Deploy Commands
+```bash
+# Frontend → Vercel
+cd frontend && vercel --prod
+
+# Backend → Render
+render blueprint apply render.yaml
+```
 
 ---
 
@@ -309,6 +328,14 @@ curl http://localhost:4056/health  # AdBazaar / REZ-crm-hub
 **Updated:** June 15, 2026  
 **Pattern:** Service Mesh / Event-Driven  
 **Philosophy:** Connect services via APIs instead of copying code
+
+### Integration Hub - Now Operational
+
+| Service | Port | Status | Description |
+|---------|------|--------|-------------|
+| **REZ-ecosystem-connector** | 4399 | ✅ Running | Service Registry & Discovery (19 services registered) |
+| **REZ-event-bus** | 4510 | ✅ Running | Pub/Sub Event Messaging (29 schemas, 2 subscriptions) |
+| **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API (16 services via federation) |
 
 ### Architecture Overview
 
