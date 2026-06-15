@@ -88,14 +88,24 @@ const RTMN_SERVICES = {
   // Layer 13: Automation (FlowOS)
   flow: process.env.FLOW_URL || 'http://localhost:4200',
 
-  // Layer 14: Autonomous (SUTAR OS)
+  // Layer 14: Autonomous (SUTAR OS + Karma Foundation)
   sutar: process.env.SUTAR_URL || 'http://localhost:4140',
   goalOS: process.env.GOAL_URL || 'http://localhost:4242',
   decision: process.env.DECISION_URL || 'http://localhost:4240',
   negotiation: process.env.NEGOTIATION_URL || 'http://localhost:4191',
-  
-  // Layer 15: Consumer (REZ Consumer)
+  karmaFoundation: process.env.KARMA_URL || 'http://localhost:4250',
+
+  // Layer 15: Consumer (REZ Consumer + Axom)
   rezConsumer: process.env.REZ_CONSUMER_URL || 'http://localhost:3000',
+  axom: process.env.AXOM_URL || 'http://localhost:4000',
+  buzzLocal: process.env.BUZZLOCAL_URL || 'http://localhost:4020',
+
+  // Additional Services
+  // StayOwn-Hospitality (Layer 7 - PMS)
+  stayOwnPMS: process.env.STAYOWN_PMS_URL || 'http://localhost:6000',
+
+  // RidZa (Layer 4 - Financial Services)
+  ridZa: process.env.RIDZA_URL || 'http://localhost:4255',
 };
 
 // ============================================
@@ -597,12 +607,13 @@ app.get('/api/layer/finance', requireAuth, async (req, res) => {
     
     res.json({
       layer: 4,
-      name: 'Financial (RIDZA + AssetMind + RABTUL)',
+      name: 'Financial (RIDZA + AssetMind + RABTUL + RidZa)',
       services: {
         wallet: walletRes.status === 'fulfilled' ? 'online' : 'offline',
         auth: authRes.status === 'fulfilled' ? 'online' : 'offline',
+        ridZa: RTMN_SERVICES.ridZa,
       },
-      capabilities: ['Accounting', 'Banking', 'Lending', 'Insurance', 'Investment'],
+      capabilities: ['Accounting', 'Banking', 'Lending', 'Insurance', 'Investment', 'Wealth Management', 'Financial Planning'],
     });
   } catch (err) {
     res.json({ layer: 4, name: 'Finance', status: 'offline', error: err.message });
@@ -667,12 +678,13 @@ app.get('/api/layer/property', requireAuth, async (req, res) => {
     
     res.json({
       layer: 7,
-      name: 'Property (RisnaEstate + StayOwn)',
+      name: 'Property (RisnaEstate + StayOwn-Hospitality)',
       services: {
         risnaEstate: risnaRes.status === 'fulfilled' ? 'online' : 'offline',
         stayOwn: stayRes.status === 'fulfilled' ? 'online' : 'offline',
+        stayOwnPMS: RTMN_SERVICES.stayOwnPMS,
       },
-      capabilities: ['Expansion', 'Property', 'Facility', 'Hospitality'],
+      capabilities: ['Expansion', 'Property', 'Facility', 'Hospitality', 'PMS', 'Booking Engine'],
     });
   } catch (err) {
     res.json({ layer: 7, name: 'Property', status: 'offline', error: err.message });
@@ -879,13 +891,14 @@ app.get('/api/layer/autonomous', requireAuth, async (req, res) => {
     
     res.json({
       layer: 14,
-      name: 'Autonomous (SUTAR OS)',
+      name: 'Autonomous (SUTAR OS + Karma Foundation)',
       services: {
         sutar: sutarRes.status === 'fulfilled' ? 'online' : 'offline',
         goalOS: goalRes.status === 'fulfilled' ? 'online' : 'offline',
         decisionEngine: decisionRes.status === 'fulfilled' ? 'online' : 'offline',
+        karmaFoundation: RTMN_SERVICES.karmaFoundation,
       },
-      capabilities: ['Goal Management', 'Decision Engine', 'Negotiation', 'Contracts', 'Autonomous Execution'],
+      capabilities: ['Goal Management', 'Decision Engine', 'Negotiation', 'Contracts', 'Autonomous Execution', 'Agent Economy', 'Karma Scoring'],
     });
   } catch (err) {
     res.json({ layer: 14, name: 'Autonomous', status: 'offline', error: err.message });
@@ -917,9 +930,13 @@ app.get('/api/layer/network', requireAuth, async (req, res) => {
     
     res.json({
       layer: 15,
-      name: 'Consumer Network (REZ Consumer + Axom)',
-      services: { rezConsumer: consumer.status || 'online' },
-      capabilities: ['Customers', 'Referrals', 'Communities', 'Events', 'Creators', 'Discovery'],
+      name: 'Consumer Network (REZ Consumer + Axom + BuzzLocal)',
+      services: {
+        rezConsumer: consumer.status || 'online',
+        axom: RTMN_SERVICES.axom,
+        buzzLocal: RTMN_SERVICES.buzzLocal,
+      },
+      capabilities: ['Customers', 'Referrals', 'Communities', 'Events', 'Creators', 'Discovery', 'Local Business', 'Reviews'],
     });
   } catch (err) {
     res.json({ layer: 15, name: 'Consumer Network', status: 'offline', error: err.message });
