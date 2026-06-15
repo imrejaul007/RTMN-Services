@@ -32,6 +32,18 @@ services:
       - key: NEXHA_URL
         value: https://nexha.onrender.com
       - key: WALLET_URL
+      - key: MERCHANT_POS_URL
+        value: https://rez-merchant-pos.onrender.com
+      - key: MERCHANT_RESTAURANT_URL
+        value: https://rez-restaurant-service.onrender.com
+      - key: MERCHANT_MENU_URL
+        value: https://rez-menu-service.onrender.com
+      - key: MERCHANT_PAYMENT_URL
+        value: https://rez-payment-gateway.onrender.com
+      - key: MERCHANT_LOYALTY_URL
+        value: https://rez-loyalty-service.onrender.com
+      - key: MERCHANT_GENIE_URL
+        value: https://rez-merchant-genie.onrender.com
         value: https://rez-wallet.onrender.com
 
   # ============================================
