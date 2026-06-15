@@ -67,7 +67,8 @@ export class ReputationService {
     }
 
     const ratingId = generateRatingId();
-    const subject: RatingSubject = await this.resolveSubject(input.subjectCorpId);
+    const subject = await this.resolveSubject(input.subjectCorpId);
+    if (!subject) throw new Error(`Unknown corpId: ${input.subjectCorpId} — must be registered as supplier or buyer first`);
     const source: RatingSource = input.source || (input.raterRole === 'system' ? 'system' : input.raterRole);
 
     const rating = await Rating.create({
@@ -119,7 +120,16 @@ export class ReputationService {
       breakdown[r.type].count += 1;
     }
 
+    // Compute the overall score as a weighted blend of per-type averages.
+    // Each type contributes its normalized score * its weight.
+    // When only a subset of types have ratings, their weights are renormalized
+    // so the overall score is still on a 0-100 scale.
+    const totalWeight = (Object.entries(breakdown) as Array<[RatingType, typeof breakdown.delivery]>)
+      .filter(([, agg]) => agg.count > 0)
+      .reduce((acc, [type, agg]) => acc + WEIGHTS[type], 0);
+
     const overallPct =
+      totalWeight === 0 ? 0 :
       (Object.entries(breakdown) as Array<[RatingType, typeof breakdown.delivery]>).reduce(
         (acc, [type, agg]) => {
           if (agg.count === 0) return acc;
@@ -128,7 +138,7 @@ export class ReputationService {
           return acc + normalized * WEIGHTS[type];
         },
         0
-      );
+      ) / totalWeight * 100;
 
     const overallScore = Math.round(Math.max(0, Math.min(100, overallPct)));
     const toPct = (agg: { sumWeighted: number; sumWeight: number }) =>
@@ -165,6 +175,7 @@ export class ReputationService {
    */
   static async getSummary(corpId: string): Promise<ReputationSummary | null> {
     const subject = await this.resolveSubject(corpId);
+    if (!subject) return null;
     const since = new Date(Date.now() - DEFAULT_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
     const ratings = await Rating.find({ subjectCorpId: corpId, createdAt: { $gte: since } });
     if (ratings.length === 0) return null;
@@ -193,7 +204,7 @@ export class ReputationService {
 
     return {
       corpId,
-      subject,
+      subject: subject!,       // safe: null case handled above
       overallScore,
       breakdown,
       recentTrend: this.computeTrend(ratings),
@@ -275,13 +286,13 @@ export class ReputationService {
 
   // -- internals --
 
-  private static async resolveSubject(corpId: string): Promise<RatingSubject> {
+  private static async resolveSubject(corpId: string): Promise<RatingSubject | null> {
     if (corpId === 'system') return 'supplier';
     const supplier = await Supplier.exists({ corpId });
     if (supplier) return 'supplier';
     const buyer = await Buyer.exists({ corpId });
     if (buyer) return 'buyer';
-    throw new Error(`Unknown corpId: ${corpId}`);
+    return null;
   }
 
   private static computeTrend(ratings: IRating[]): 'improving' | 'stable' | 'declining' {

@@ -2,6 +2,8 @@
 
 **Complete unified platform combining 24 industries with Digital Twins, AI Agents, and Business Copilot.**
 
+> **Ready to onboard clients?** See our [Client Ready Guide](CLIENT-ONBOARDING.md) and [Quick Start](docs/getting-started/QUICKSTART.md).
+
 ---
 
 ## 🚀 Quick Start
@@ -316,11 +318,85 @@ See [RTNM-SERVICE-INTEGRATION-ARCHITECTURE.md](RTNM-SERVICE-INTEGRATION-ARCHITEC
 4. Add REZ CRM integration
 5. Submit pull request
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
+
+---
+
+## 📋 Client-Ready Documentation
+
+This repository contains the **documentation hub** for RTMN. All code lives in company-specific repositories under `companies/`.
+
+### For Clients & Prospects
+
+| Document | Purpose |
+|----------|---------|
+| [PRICING.md](PRICING.md) | Pricing plans and billing |
+| [TERMS.md](TERMS.md) | Terms of Service |
+| [PRIVACY.md](PRIVACY.md) | Privacy Policy |
+| [DPA.md](DPA.md) | Data Processing Agreement |
+| [COOKIES.md](COOKIES.md) | Cookie Policy |
+| [SUPPORT.md](SUPPORT.md) | Support options and SLAs |
+| [CLIENT-ONBOARDING.md](CLIENT-ONBOARDING.md) | Client onboarding guide |
+| [API-KEY-MANAGEMENT.md](API-KEY-MANAGEMENT.md) | API key setup and security |
+| [ROI-CALCULATOR.md](ROI-CALCULATOR.md) | ROI calculation for proposals |
+| [DEMO-SCRIPT.md](DEMO-SCRIPT.md) | BrandPulse demo script |
+| [docs/getting-started/QUICKSTART.md](docs/getting-started/QUICKSTART.md) | 5-minute quick start |
+| [docs/tutorials/BRAND-DASHBOARD.md](docs/tutorials/BRAND-DASHBOARD.md) | Build your first dashboard |
+| [docs/tutorials/SENTIMENT-ALERTS.md](docs/tutorials/SENTIMENT-ALERTS.md) | Set up alerts |
+| [docs/tutorials/CONNECT-SOURCES.md](docs/tutorials/CONNECT-SOURCES.md) | Connect review sources |
+
+### For Operations & DevOps
+
+| Document | Purpose |
+|----------|---------|
+| [SECURITY.md](SECURITY.md) | Security policy and practices |
+| [STATUS-PAGE.md](STATUS-PAGE.md) | Service status and SLA credits |
+| [INCIDENT-RESPONSE.md](INCIDENT-RESPONSE.md) | Incident response playbook |
+| [RUNBOOK.md](RUNBOOK.md) | Operations runbook |
+| [MONITORING.md](MONITORING.md) | Monitoring and observability |
+| [docs/deploy/PRODUCTION.md](docs/deploy/PRODUCTION.md) | Production deployment guide |
+| [docs/compliance/GDPR.md](docs/compliance/GDPR.md) | GDPR compliance guide |
+| [docs/compliance/SOC2.md](docs/compliance/SOC2.md) | SOC 2 readiness |
+| [docs/compliance/DATA-CLASSIFICATION.md](docs/compliance/DATA-CLASSIFICATION.md) | Data classification |
+
+### For Sales & Marketing
+
+| Document | Purpose |
+|----------|---------|
+| [PITCH-DECK.md](PITCH-DECK.md) | Sales pitch deck |
+| [PROPOSAL-TEMPLATE.md](PROPOSAL-TEMPLATE.md) | Proposal template |
+| [CASE-STUDY-TEMPLATE.md](CASE-STUDY-TEMPLATE.md) | Case study template |
+| [ROI-CALCULATOR.md](ROI-CALCULATOR.md) | ROI calculator |
+| [BILLING.md](BILLING.md) | Billing and payments |
+| [SUB-PROCESSORS.md](SUB-PROCESSORS.md) | Sub-processor list |
+
+### For Developers
+
+| Document | Purpose |
+|----------|---------|
+| [docs/SITE-INDEX.md](docs/SITE-INDEX.md) | Documentation index |
+| [docs/api-reference/OVERVIEW.md](docs/api-reference/OVERVIEW.md) | API reference |
+| [docs/getting-started/CORE-CONCEPTS.md](docs/getting-started/CORE-CONCEPTS.md) | Core concepts |
+| [docs/tutorials/HOTEL-INTEGRATION.md](docs/tutorials/HOTEL-INTEGRATION.md) | Hotel OS integration |
+| [docs/tutorials/CUSTOM-WORKFLOW.md](docs/tutorials/CUSTOM-WORKFLOW.md) | Custom workflows |
+| [PORT-REGISTRY.md](PORT-REGISTRY.md) | Port assignments |
+| [RTNM-COMPANIES-AUDIT.md](RTNM-COMPANIES-AUDIT.md) | Company registry |
+| [RTNM-PRODUCTS-FEATURES-AUDIT.md](RTNM-PRODUCTS-FEATURES-AUDIT.md) | Product features |
+
+### For Community
+
+| Document | Purpose |
+|----------|---------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community code of conduct |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+| [CLAUDE.md](CLAUDE.md) | Developer guide |
+
 ---
 
 ## 📄 License
 
-Proprietary - RTMN Technologies
+Proprietary - RTMN Group. See [LICENSE](LICENSE) for details.
 
 ---
 

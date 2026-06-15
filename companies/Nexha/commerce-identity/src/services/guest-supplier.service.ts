@@ -12,6 +12,7 @@ import { Supplier } from '../models/supplier.model';
 import { generateGuestId, generateOtp, generatePromoCode } from '../utils/id-generator';
 import { isValidPhone, isValidPincode, normalizePhone } from '../utils/validators';
 import { logger } from '../config/logger';
+import { sendOtp } from './whatsapp.service';
 
 const DEFAULT_VALIDITY_DAYS = Number(process.env.GUEST_DEFAULT_VALIDITY_DAYS) || 30;
 const OTP_TTL_MINUTES = 10;
@@ -100,8 +101,14 @@ export class GuestSupplierService {
       expiresAt,
     });
 
-    // In production: dispatch WhatsApp OTP via WhatsApp Business API
-    logger.info(`[DEV] Guest OTP for ${whatsapp}: ${otp} (guestId=${guestId})`);
+    // Dispatch OTP via WhatsApp (falls back to console log in dev)
+    const whatsappResult = await sendOtp({ phone: whatsapp, otp, guestId });
+    if (!whatsappResult.success) {
+      logger.warn('WhatsApp OTP dispatch failed, falling back to console', {
+        guestId,
+        error: whatsappResult.error,
+      });
+    }
 
     return guest;
   }
@@ -131,7 +138,10 @@ export class GuestSupplierService {
     });
     await guest.save();
 
-    logger.info(`[DEV] Resent guest OTP for ${guest.whatsapp}: ${otp} (guestId=${guestId})`);
+    const whatsappResult = await sendOtp({ phone: guest.whatsapp, otp, guestId });
+    if (!whatsappResult.success) {
+      logger.warn('WhatsApp OTP resend failed', { guestId, error: whatsappResult.error });
+    }
     return guest;
   }
 

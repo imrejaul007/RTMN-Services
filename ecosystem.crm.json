@@ -1,0 +1,56 @@
+{
+  "apps": [
+    {
+      "name": "rez-crm-hub",
+      "script": "/Users/rejaulkarim/Documents/RTMN/companies/AdBazaar/REZ-crm-hub/dist/index.js",
+      "cwd": "/Users/rejaulkarim/Documents/RTMN/companies/AdBazaar/REZ-crm-hub",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 4056
+      },
+      "instances": 1,
+      "exec_mode": "cluster",
+      "watch": false,
+      "max_memory_restart": "512M",
+      "autorestart": true,
+      "restart_delay": 4000,
+      "max_restarts": 10,
+      "min_uptime": "10s",
+      "exp_backoff_restart_delay": 100,
+      "kill_timeout": 5000,
+      "wait_ready": true,
+      "listen_timeout": 8000,
+      "shutdown_with_message": true,
+      "error_file": "/Users/rejaulkarim/Documents/RTMN/logs/crm-hub-error.log",
+      "out_file": "/Users/rejaulkarim/Documents/RTMN/logs/crm-hub-out.log",
+      "time": true,
+      "merge_logs": true
+    },
+    {
+      "name": "rez-salesmind",
+      "script": "/Users/rejaulkarim/Documents/RTMN/companies/RTNM-Digital/REZ-SalesMind/dist/index.js",
+      "cwd": "/Users/rejaulkarim/Documents/RTMN/companies/RTNM-Digital/REZ-SalesMind",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 5170
+      },
+      "instances": 1,
+      "exec_mode": "cluster",
+      "watch": false,
+      "max_memory_restart": "512M",
+      "autorestart": true,
+      "restart_delay": 4000,
+      "max_restarts": 10,
+      "min_uptime": "10s",
+      "exp_backoff_restart_delay": 100,
+      "kill_timeout": 5000,
+      "wait_ready": true,
+      "listen_timeout": 8000,
+      "shutdown_with_message": true,
+      "error_file": "/Users/rejaulkarim/Documents/RTMN/logs/salesmind-error.log",
+      "out_file": "/Users/rejaulkarim/Documents/RTMN/logs/salesmind-out.log",
+      "time": true,
+      "merge_logs": true
+    }
+  ]
+}
