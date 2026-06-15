@@ -566,3 +566,157 @@ services:
       - key: ALLOWED_ORIGINS
         # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
         sync: false
+
+  # ============================================
+  # SUTAR OS SERVICES (Built June 15, 2026)
+  # ============================================
+
+  - type: web
+    name: rtmn-boa-os
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RTNM-Group/boa-os
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4100
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-boa-sutar-bridge
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RTNM-Group/boa-sutar-bridge
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4110
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-intent-graph
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/hojai-intent-graph
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4018
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-simulation-engine
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/hojai-simulation-engine
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4241
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-discovery-engine
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/hojai-discovery-engine
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4256
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-economy-os
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-economy-os
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4251
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-trust-scorer
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-trust-scorer
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4180
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-sla-monitor
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-SLA-monitor
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4195
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-breach-detector
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-breach-detector
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4196
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-negotiation-engine
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine
+    buildCommand: npm install
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4191
+      - key: NODE_ENV
+        value: production

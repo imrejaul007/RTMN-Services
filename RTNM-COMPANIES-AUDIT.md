@@ -49,7 +49,7 @@
 | **HOJAI Genie** | Personal AI OS (Memory, Calendar, Email, Briefing) | ✅ Ready | 100% |
 | **HOJAI ExpertOS** | Professional AI marketplace (Doctors, CAs, Coaches) | ✅ Ready | 100% |
 | **HOJAI BrandPulse** | Brand intelligence & sentiment analysis | ✅ **10/10 Ready** | 100% |
-| **HOJAI SkillNet** | AI Skill Marketplace & Lifecycle | ✅ **10/10 Ready** | 100% |
+| **Leverge** | AI-powered business intelligence suite (Intelligence, Memory, Twin, Agents, Copilot) | ✅ **10/10 Ready** | 100% |
 | **HOJAI Waitron** | Restaurant OS - "The Restaurant That Never Stopped Learning" | ✅ **10/10 Ready** | 100% |
 | **HOJAI SUTAR OS** | Autonomous Economic Infrastructure (25 services) | ✅ Ready | 100% |
 | **HOJAI Business Copilot** | 24 industry skill packs | ✅ Ready | 100% |
@@ -223,7 +223,67 @@ RAZO Keyboard, web dashboard).
 
 ---
 
-### 6. Infrastructure & Platform (20 Products)
+### 6. Leverge - AI Business Intelligence Suite (5 Products)
+
+**Location:** `companies/hojai-ai/services/leverge-*`  
+**Status:** ✅ **10/10 COMPLETE** | **June 15, 2026**  
+**Client:** Leverge (Hojai AI customer)
+
+**Overview:** Leverge is a comprehensive AI-powered business intelligence suite providing analytics, memory, digital twins, agent orchestration, and copilot capabilities.
+
+| Product | Port | Features |
+|---------|------|----------|
+| **leverge-intelligence** | 4761 | Business analytics, insights, metrics, reporting, trend analysis |
+| **leverge-memory** | 4762 | Personal AI memory storage, semantic search, context retrieval |
+| **leverge-twin** | 4763 | Digital twin management, state tracking, relationships, snapshots |
+| **leverge-agents** | 4764 | AI agent orchestration, task queue, priority scheduling, execution tracking |
+| **leverge-copilot** | 4765 | Business AI copilot, conversations, suggestions, recommendations |
+
+#### Leverge Services Features
+
+**Intelligence (4761):**
+- Insight CRUD (trend, anomaly, prediction, recommendation)
+- Analytics summary and trends
+- Custom query support
+- Performance metrics tracking
+- Report generation (insights, trends)
+
+**Memory (4762):**
+- Memory CRUD (conversation, preference, fact, event, context)
+- Text search and advanced search
+- Context retrieval (recent, preferences, facts)
+- Memory snapshots
+
+**Twin (4763):**
+- Twin CRUD (user, agent, object, place)
+- State management with auto-snapshots
+- State history and restore
+- Relationship management
+
+**Agents (4764):**
+- Agent CRUD (assistant, analyst, automation, custom)
+- Task queue with priority (low, normal, high, urgent)
+- Execution statistics
+- Task cancellation
+
+**Copilot (4765):**
+- Conversation management
+- Message exchange with AI responses
+- Suggestion system (action, insight, reminder, question)
+- Accept/dismiss suggestions
+
+#### RABTUL Integration
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| RABTUL Auth | 4002 | JWT authentication |
+| RABTUL Payment | 4001 | Payment processing |
+| RABTUL Wallet | 4004 | Balance management |
+| RABTUL Notification | 4005 | Notifications |
+
+---
+
+### 7. Infrastructure & Platform (20 Products)
 
 | Product | Features |
 |---------|----------|
