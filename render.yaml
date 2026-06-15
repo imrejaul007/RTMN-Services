@@ -55,6 +55,10 @@ services:
         value: 4702
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: CorpID
 
   - type: web
     name: rtmn-memory-os
@@ -70,6 +74,10 @@ services:
         value: 4703
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: MemoryOS
 
   - type: web
     name: rtmn-twinos-hub
@@ -85,6 +93,10 @@ services:
         value: 4705
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: TwinOS Hub
 
   - type: web
     name: rtmn-goal-os
@@ -100,6 +112,10 @@ services:
         value: 4242
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: GoalOS
 
   - type: web
     name: rtmn-decision-engine
@@ -115,6 +131,10 @@ services:
         value: 4240
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: DecisionEngine
 
   - type: web
     name: rtmn-agent-economy
@@ -130,9 +150,13 @@ services:
         value: 4251
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: AgentEconomy
 
   # ============================================
-  # INDUSTRY OS SERVICES
+  # INDUSTRY OS SERVICES (All with MongoDB + Auth + CRM)
   # ============================================
 
   - type: web
@@ -155,21 +179,6 @@ services:
         value: https://rez-crm-hub.onrender.com
 
   - type: web
-    name: rtmn-healthcare-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: healthcare-os
-    healthCheckPath: /health
-    ports:
-      - 5020
-    envVars:
-      - key: PORT
-        value: 5020
-      - key: NODE_ENV
-        value: production
-
-  - type: web
     name: rtmn-hotel-os
     env: node
     region: singapore
@@ -183,6 +192,29 @@ services:
         value: 5025
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-healthcare-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: healthcare-os
+    healthCheckPath: /health
+    ports:
+      - 5020
+    envVars:
+      - key: PORT
+        value: 5020
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-retail-os
@@ -198,6 +230,10 @@ services:
         value: 5030
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-legal-os
@@ -213,6 +249,10 @@ services:
         value: 5035
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-hospitality-os
@@ -228,6 +268,10 @@ services:
         value: 5050
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-education-os
@@ -243,6 +287,10 @@ services:
         value: 5060
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-automotive-os
@@ -258,6 +306,10 @@ services:
         value: 5080
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-beauty-os
@@ -273,6 +325,10 @@ services:
         value: 5090
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-fitness-os
@@ -288,6 +344,10 @@ services:
         value: 5110
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-manufacturing-os
@@ -303,6 +363,10 @@ services:
         value: 5150
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-realestate-os
@@ -318,9 +382,13 @@ services:
         value: 5230
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   # ============================================
-  # DIGITAL TWIN SERVICES
+  # DIGITAL TWIN SERVICES (All with MongoDB + Auth)
   # ============================================
 
   - type: web
@@ -337,6 +405,10 @@ services:
         value: 3011
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: AgentTwin
 
   - type: web
     name: rtmn-area-twin
@@ -352,6 +424,10 @@ services:
         value: 3012
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: AreaTwin
 
   - type: web
     name: rtmn-buyer-twin
@@ -367,6 +443,10 @@ services:
         value: 3013
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: BuyerTwin
 
   - type: web
     name: rtmn-deal-twin
@@ -382,6 +462,10 @@ services:
         value: 3014
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: DealTwin
 
   - type: web
     name: rtmn-property-twin
@@ -397,6 +481,10 @@ services:
         value: 3015
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: PropertyTwin
 
   - type: web
     name: rtmn-referral-twin
@@ -412,6 +500,10 @@ services:
         value: 3016
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SERVICE_NAME
+        value: ReferralTwin
 
   # ============================================
   # ADBAZAAR / CRM SERVICES
