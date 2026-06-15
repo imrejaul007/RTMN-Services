@@ -250,8 +250,44 @@ await genie.sendWhatsAppMessage(phone, body);
 
 **Location:** `companies/REZ-Merchant/rez-merchant-genie/`  
 **Port:** 4801  
-**Status:** ✅ **PRODUCTION READY** | **June 15, 2026**  
+**Status:** ✅ **PRODUCTION READY** | **June 16, 2026**  
 **Tagline:** *"Your business deserves a Genie."*
+
+### Consumer Integration ✅ NEW!
+
+**Location:** `companies/REZ-Merchant/rez-merchant-integration-service/`  
+**Port:** 4800  
+**Purpose:** Bridge between REZ Consumer Apps and Merchant Services
+
+```
+REZ Consumer App
+       │
+       │  Place Order, Track Order, Get Menu
+       ▼
+Merchant Integration (4800) ──→ REZ Consumer App
+       │
+       ├──▶ Merchant Service (4801)  - Store order
+       ├──▶ Menu Service (4810)       - Verify items
+       ├──▶ Industry OS (5010+)      - Kitchen sync
+       ├──▶ Wallet Service (4004)     - Process payment
+       └──▶ Event Bus (4510)         - Publish events
+```
+
+### Consumer API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/merchants/nearby` | Get nearby merchants |
+| GET | `/api/v1/merchants/:id` | Get merchant details |
+| GET | `/api/v1/merchants/:id/menu` | Get merchant menu |
+| GET | `/api/v1/merchants/:id/reviews` | Get merchant reviews |
+| POST | `/api/v1/orders` | Place order |
+| GET | `/api/v1/orders/:id` | Get order status |
+| POST | `/api/v1/orders/:id/cancel` | Cancel order |
+| GET | `/api/v1/consumers/:id/orders` | Get consumer orders |
+| GET | `/api/v1/genie/merchant/:id` | DO Genie merchant insights |
+| GET | `/api/v1/genie/orders/:id` | DO Genie order status |
+| POST | `/api/v1/genie/query` | Natural language query |
 
 ### Architecture
 

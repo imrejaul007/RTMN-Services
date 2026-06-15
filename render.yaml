@@ -1,25 +1,25 @@
-# Render Blueprint - All RTMN Services
-# Deploy all 24 services to Render
+# Render Blueprint - RTMN Services
+# Deploy to: render blueprint create --spec render.yaml
+# Docs: https://render.com/docs/blueprint-spec
 
 services:
-  # ============================================
-  # PILOT ONBOARDING (Client-facing gateway)
-  # ============================================
-
+  # ── PILOT ONBOARDING (Client-facing gateway) ────────────────────
   - type: web
     name: rtmn-pilot-onboarding
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: services/pilot-onboarding
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
     envVars:
       - key: PORT
-        value: 4399
+        value: "10000"
       - key: NODE_ENV
         value: production
       - key: JWT_SECRET
-        generateValue: true
+        sync: false
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: STRIPE_SECRET_KEY
@@ -33,941 +33,249 @@ services:
       - key: EMAIL_REPLY_TO
         value: support@rtmn.io
       - key: ALLOWED_ORIGINS
-        value: https://rtmn-pilot-portal.vercel.app
+        sync: false
       - key: PUBLIC_URL
-        value: https://rtmn-pilot-portal.vercel.app
-
-  # ============================================
-  # FOUNDATION SERVICES
-  # ============================================
-
-  - type: web
-    name: rtmn-corpid-service
-    env: node
-    region: singapore
-    plan: free
-    rootDir: corpid-service
-    healthCheckPath: /health
-    ports:
-      - 4702
-    envVars:
-      - key: PORT
-        value: 4702
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
         sync: false
-      - key: SERVICE_NAME
-        value: CorpID
 
-  - type: web
-    name: rtmn-memory-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: memory-os
-    healthCheckPath: /health
-    ports:
-      - 4703
-    envVars:
-      - key: PORT
-        value: 4703
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: MemoryOS
-
-  - type: web
-    name: rtmn-twinos-hub
-    env: node
-    region: singapore
-    plan: free
-    rootDir: twinos-hub
-    healthCheckPath: /health
-    ports:
-      - 4705
-    envVars:
-      - key: PORT
-        value: 4705
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: TwinOS Hub
-
-  - type: web
-    name: rtmn-goal-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: goal-os
-    healthCheckPath: /health
-    ports:
-      - 4242
-    envVars:
-      - key: PORT
-        value: 4242
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: GoalOS
-
-  - type: web
-    name: rtmn-decision-engine
-    env: node
-    region: singapore
-    plan: free
-    rootDir: decision-engine
-    healthCheckPath: /health
-    ports:
-      - 4240
-    envVars:
-      - key: PORT
-        value: 4240
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: DecisionEngine
-
-  - type: web
-    name: rtmn-agent-economy
-    env: node
-    region: singapore
-    plan: free
-    rootDir: agent-economy
-    healthCheckPath: /health
-    ports:
-      - 4251
-    envVars:
-      - key: PORT
-        value: 4251
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: AgentEconomy
-
-  # ============================================
-  # INDUSTRY OS SERVICES (All with MongoDB + Auth + CRM)
-  # ============================================
-
-  - type: web
-    name: rtmn-restaurant-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: restaurant-os
-    healthCheckPath: /health
-    ports:
-      - 5010
-    envVars:
-      - key: PORT
-        value: 5010
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
+  # ── INDUSTRY OS (Pilot-ready services) ───────────────────────────
   - type: web
     name: rtmn-hotel-os
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: hotel-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5025
     envVars:
       - key: PORT
-        value: 5025
+        value: "10001"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-restaurant-os
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: restaurant-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10002"
+      - key: NODE_ENV
+        value: production
 
   - type: web
     name: rtmn-healthcare-os
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: healthcare-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5020
     envVars:
       - key: PORT
-        value: 5020
+        value: "10003"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-retail-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: retail-os
-    healthCheckPath: /health
-    ports:
-      - 5030
-    envVars:
-      - key: PORT
-        value: 5030
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-legal-os
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: legal-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5035
     envVars:
       - key: PORT
-        value: 5035
+        value: "10004"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-hospitality-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: hospitality-os
-    healthCheckPath: /health
-    ports:
-      - 5050
-    envVars:
-      - key: PORT
-        value: 5050
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-education-os
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: education-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5060
     envVars:
       - key: PORT
-        value: 5060
+        value: "10005"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-automotive-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: automotive-os
-    healthCheckPath: /health
-    ports:
-      - 5080
-    envVars:
-      - key: PORT
-        value: 5080
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-beauty-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: beauty-os
-    healthCheckPath: /health
-    ports:
-      - 5090
-    envVars:
-      - key: PORT
-        value: 5090
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-fitness-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: fitness-os
-    healthCheckPath: /health
-    ports:
-      - 5110
-    envVars:
-      - key: PORT
-        value: 5110
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-manufacturing-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: manufacturing-os
-    healthCheckPath: /health
-    ports:
-      - 5150
-    envVars:
-      - key: PORT
-        value: 5150
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-realestate-os
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: realestate-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5230
     envVars:
       - key: PORT
-        value: 5230
+        value: "10006"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  # ============================================
-  # NEW INDUSTRY OS SERVICES (All with MongoDB + Auth + CRM)
-  # ============================================
 
   - type: web
-    name: rtmn-agriculture-os
-    env: node
+    name: rtmn-manufacturing-os
+    runtime: node
     region: singapore
     plan: free
-    rootDir: agriculture-os
+    rootDir: manufacturing-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5070
     envVars:
       - key: PORT
-        value: 5070
+        value: "10007"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
+
+  # ── FOUNDATION SERVICES ────────────────────────────────────────────
+  - type: web
+    name: rtmn-corpid
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: corpid-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10020"
+      - key: NODE_ENV
+        value: production
 
   - type: web
-    name: rtmn-fashion-os
-    env: node
+    name: rtmn-memory-os
+    runtime: node
     region: singapore
     plan: free
-    rootDir: fashion-os
+    rootDir: memory-os
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5095
     envVars:
       - key: PORT
-        value: 5095
+        value: "10021"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
 
   - type: web
-    name: rtmn-gaming-os
-    env: node
+    name: rtmn-twinos-hub
+    runtime: node
     region: singapore
     plan: free
-    rootDir: gaming-os
+    rootDir: twinos-hub
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 5120
     envVars:
       - key: PORT
-        value: 5120
+        value: "10023"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
 
-  - type: web
-    name: rtmn-government-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: government-os
-    healthCheckPath: /health
-    ports:
-      - 5130
-    envVars:
-      - key: PORT
-        value: 5130
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-home-services-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: home-services-os
-    healthCheckPath: /health
-    ports:
-      - 5140
-    envVars:
-      - key: PORT
-        value: 5140
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-non-profit-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: non-profit-os
-    healthCheckPath: /health
-    ports:
-      - 5160
-    envVars:
-      - key: PORT
-        value: 5160
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-professional-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: professional-os
-    healthCheckPath: /health
-    ports:
-      - 5170
-    envVars:
-      - key: PORT
-        value: 5170
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-sports-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: sports-os
-    healthCheckPath: /health
-    ports:
-      - 5180
-    envVars:
-      - key: PORT
-        value: 5180
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-travel-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: travel-os
-    healthCheckPath: /health
-    ports:
-      - 5190
-    envVars:
-      - key: PORT
-        value: 5190
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-entertainment-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: entertainment-os
-    healthCheckPath: /health
-    ports:
-      - 5200
-    envVars:
-      - key: PORT
-        value: 5200
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-construction-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: construction-os
-    healthCheckPath: /health
-    ports:
-      - 5210
-    envVars:
-      - key: PORT
-        value: 5210
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-financial-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: financial-os
-    healthCheckPath: /health
-    ports:
-      - 5220
-    envVars:
-      - key: PORT
-        value: 5220
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  - type: web
-    name: rtmn-transport-os
-    env: node
-    region: singapore
-    plan: free
-    rootDir: transport-os
-    healthCheckPath: /health
-    ports:
-      - 5240
-    envVars:
-      - key: PORT
-        value: 5240
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: CRM_HUB_URL
-        value: https://rez-crm-hub.onrender.com
-
-  # ============================================
-  # DIGITAL TWIN SERVICES (All with MongoDB + Auth)
-  # ============================================
-
+  # ── DIGITAL TWINS ─────────────────────────────────────────────────
   - type: web
     name: rtmn-agent-twin
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: agent-twin
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 3011
     envVars:
       - key: PORT
-        value: 3011
+        value: "10030"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: AgentTwin
-
-  - type: web
-    name: rtmn-area-twin
-    env: node
-    region: singapore
-    plan: free
-    rootDir: area-twin
-    healthCheckPath: /health
-    ports:
-      - 3012
-    envVars:
-      - key: PORT
-        value: 3012
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: AreaTwin
-
-  - type: web
-    name: rtmn-buyer-twin
-    env: node
-    region: singapore
-    plan: free
-    rootDir: buyer-twin
-    healthCheckPath: /health
-    ports:
-      - 3013
-    envVars:
-      - key: PORT
-        value: 3013
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: BuyerTwin
-
-  - type: web
-    name: rtmn-deal-twin
-    env: node
-    region: singapore
-    plan: free
-    rootDir: deal-twin
-    healthCheckPath: /health
-    ports:
-      - 3014
-    envVars:
-      - key: PORT
-        value: 3014
-      - key: NODE_ENV
-        value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: DealTwin
 
   - type: web
     name: rtmn-property-twin
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: property-twin
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 3015
     envVars:
       - key: PORT
-        value: 3015
+        value: "10031"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: PropertyTwin
 
   - type: web
     name: rtmn-referral-twin
-    env: node
+    runtime: node
     region: singapore
     plan: free
     rootDir: referral-twin
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
     healthCheckPath: /health
-    ports:
-      - 3016
     envVars:
       - key: PORT
-        value: 3016
+        value: "10032"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: SERVICE_NAME
-        value: ReferralTwin
-
-  # ============================================
-  # ADBAZAAR / CRM SERVICES
-  # ============================================
 
   - type: web
-    name: rez-crm-hub
-    env: node
+    name: rtmn-buyer-twin
+    runtime: node
     region: singapore
     plan: free
-    rootDir: companies/AdBazaar/REZ-crm-hub
-    buildCommand: npm install && npm run build
+    rootDir: buyer-twin
+    buildCommand: npm install --legacy-peer-deps
     startCommand: npm start
-    healthCheckPath: /api/health
+    healthCheckPath: /health
     envVars:
       - key: PORT
-        value: 4056
+        value: "10033"
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: JWT_SECRET
-        generateValue: true
-      - key: INTERNAL_SERVICE_TOKEN
-        generateValue: true
-      - key: ALLOWED_ORIGINS
-        # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
-        sync: false
-      - key: PUBLIC_URL
-        sync: false
-
-  # ============================================
-  # RTNM-DIGITAL / SALESMIND SERVICES
-  # ============================================
 
   - type: web
-    name: rez-salesmind
-    env: node
+    name: rtmn-deal-twin
+    runtime: node
     region: singapore
     plan: free
-    rootDir: companies/RTNM-Digital/REZ-SalesMind
-    buildCommand: npm install && npm run build
+    rootDir: deal-twin
+    buildCommand: npm install --legacy-peer-deps
     startCommand: npm start
     healthCheckPath: /health
     envVars:
       - key: PORT
-        value: 5170
+        value: "10034"
       - key: NODE_ENV
         value: production
-      - key: INTERNAL_SERVICE_TOKEN
-        # Must match CRM Hub's INTERNAL_SERVICE_TOKEN
-        generateValue: true
-      - key: CRM_HUB_TOKEN
-        # Must match CRM Hub's INTERNAL_SERVICE_TOKEN
-        generateValue: true
-      - key: REZ_CRM_HUB
-        value: https://rez-crm-hub.onrender.com
-      - key: ALLOWED_ORIGINS
-        # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
-        sync: false
-
-  # ============================================
-  # SUTAR OS SERVICES (Built June 15, 2026)
-  # ============================================
 
   - type: web
-    name: rtmn-boa-os
-    env: node
+    name: rtmn-area-twin
+    runtime: node
     region: singapore
-    plan: starter
-    rootDir: companies/RTNM-Group/boa-os
-    buildCommand: npm install && npm run build
+    plan: free
+    rootDir: area-twin
+    buildCommand: npm install --legacy-peer-deps
     startCommand: npm start
     healthCheckPath: /health
     envVars:
       - key: PORT
-        value: 4100
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-boa-sutar-bridge
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/RTNM-Group/boa-sutar-bridge
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4110
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-intent-graph
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/hojai-ai/services/hojai-intent-graph
-    buildCommand: npm install
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4018
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-simulation-engine
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/hojai-ai/services/hojai-simulation-engine
-    buildCommand: npm install
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4241
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-discovery-engine
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/hojai-ai/services/hojai-discovery-engine
-    buildCommand: npm install
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4256
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-economy-os
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/RABTUL-Technologies/REZ-economy-os
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4251
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-trust-scorer
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/RABTUL-Technologies/REZ-trust-scorer
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4180
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-sla-monitor
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/RABTUL-Technologies/REZ-SLA-monitor
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4195
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-breach-detector
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/RABTUL-Technologies/REZ-breach-detector
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4196
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-negotiation-engine
-    env: node
-    region: singapore
-    plan: starter
-    rootDir: companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine
-    buildCommand: npm install
-    startCommand: node dist/index.js
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: 4191
+        value: "10035"
       - key: NODE_ENV
         value: production
