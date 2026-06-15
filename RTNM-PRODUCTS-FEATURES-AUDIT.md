@@ -5242,44 +5242,18 @@ OFFER, CASHBACK, PERSONALIZATION, ROUTING, FRAUD, PRICING, NEXT_ACTION, RETENTIO
 
 ## Nexha - Commerce & Procurement OS
 
-**Location:** `companies/Nexha/`
-**Status:** ✅ 10+ MICROSERVICES + Buyer/Seller Agents + Nexha-SUTAR Bridge
-**Built:** June 15, 2026
+**Location:** `companies/Nexha/`  
+**Status:** ✅ 10+ MICROSERVICES (Port 8000+)
 
-### Products
-
-| Product | Port | Description |
-|---------|------|-------------|
-| Nexha Gateway | 5002 | Unified API gateway (HOJAI Bridge entry) |
-| DistributionOS | 4300 | Distributor & wholesaler management |
-| FranchiseOS | 4310 | Multi-location franchise operations |
-| ProcurementOS | 4320 | B2B marketplace, Buyer/Seller Agents, Commerce Memory |
-| ManufacturingOS | 4330 | Production & BOM management |
-| TradeFinance | 4340 | BNPL, credit lines, FX conversion |
-| Intelligence | 4350 | AI predictions (Exponential Smoothing), fraud detection |
-| Ecosystem Connector | 4399 | Event bus, Nexha-SUTAR bridge |
-| Portal | 4388 | B2B Marketplace (Next.js) |
-| NextaBizz | 3000 | B2B Procurement Platform (Supabase-backed) |
-
-### Buyer Agent Features
-- Supplier Directory - Registration, verification
-- Supplier Agent - Multi-channel communication (Email, SMS, WhatsApp, API)
-- RFQ Management - Create, invitations, awards
-- Deal State Machine - 17 states
-- Capability Matching - 7-dimension scoring
-- Negotiation Tracking - Multi-round sessions
-
-### Seller Agent Features (Built June 15, 2026)
-- Supplier Buyer Agent - Guest suppliers, auto-quote, counter-offers
-- Guest Model - No GST required, temporary IDs, WhatsApp onboarding
-- Auto-Quote Generation - From pricing DB + inventory check
-- Counter-Offer Workflow - Buyer can counter, seller responds
-
-### Commerce Intelligence (Built June 15, 2026)
-- Commerce Memory - Transaction history, seasonal patterns
-- Commerce Feed - LinkedIn-style activity stream
-- Auto-Reputation Pipeline - Delivery/quality/payment scoring
-- Nexha-SUTAR Bridge - Full SUTAR event integration
+| Service | Port | Purpose |
+|---------|------|---------|
+| nexha-commerce-gateway | 8000 | API Gateway |
+| NexhaBizz | 8001 | B2B Commerce |
+| NexhaProcurementOS | 8002 | Procurement automation |
+| NexhaDistributionOS | 8003 | Distribution |
+| NexhaSupplierPortal | 8004 | Supplier portal |
+| NexhaInventoryOS | 8005 | Inventory intelligence |
+| NexhaRFQEngine | 8008 | RFQ management |
 
 ---
 
