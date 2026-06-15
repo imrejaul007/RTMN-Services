@@ -3,7 +3,7 @@
  * 
  * financial OS upgraded with all 15 layers of RTMN ecosystem.
  * 
- * Port: 5010
+ * Port: 5220
  * Industry: Restaurant
  */
 
@@ -13,7 +13,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 
 const app = express();
-const PORT = process.env.PORT || 5010;
+const PORT = process.env.PORT || 5220;
 
 // Middleware
 app.use(helmet());
