@@ -1,0 +1,387 @@
+# =============================================================================
+# RTMN BrandPulse Dashboard - Kubernetes Deployment Manifest
+# =============================================================================
+# Contains: ConfigMap, Deployment, HPA, Service, Ingress
+# =============================================================================
+
+---
+# ConfigMap - Dashboard configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: brandpulse-dashboard-config
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard
+    tier: frontend
+    environment: production
+data:
+  NODE_ENV: "production"
+  PORT: "4780"
+  # API URL for frontend
+  VITE_API_URL: "https://api.rtmn.io"
+  VITE_WS_URL: "wss://api.rtmn.io"
+  VITE_ENVIRONMENT: "production"
+  # Analytics
+  VITE_GA_ID: "G-XXXXXXXXXX"
+  VITE_SEGMENT_KEY: "xxxxx"
+---
+# Secret - Dashboard secrets
+apiVersion: v1
+kind: Secret
+metadata:
+  name: brandpulse-dashboard-secrets
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard
+    tier: frontend
+    environment: production
+type: Opaque
+data:
+  # Placeholder values - replace with actual base64 encoded values
+  SENTRY_DSN: aHR0cHM6Ly94eHh4QHNlbnRyeS5pby94eHh4
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: brandpulse-dashboard
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard
+    tier: frontend
+    environment: production
+    version: "1.0.0"
+spec:
+  # Number of replicas
+  replicas: 2
+
+  # Rolling update strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  # Selector for pods
+  selector:
+    matchLabels:
+      app: brandpulse-dashboard
+      tier: frontend
+
+  # Pod template
+  template:
+    metadata:
+      labels:
+        app: brandpulse-dashboard
+        tier: frontend
+        environment: production
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4780"
+    spec:
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Service account
+      serviceAccountName: brandpulse-dashboard
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 30
+
+      # Main container
+      containers:
+        - name: brandpulse-dashboard
+          image: ghcr.io/rtmn-group/brandpulse-dashboard:latest
+          imagePullPolicy: Always
+
+          # Ports
+          ports:
+            - name: http
+              containerPort: 4780
+              protocol: TCP
+
+          # Environment variables
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "4780"
+            - name: VITE_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: brandpulse-dashboard-config
+                  key: VITE_API_URL
+            - name: VITE_WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: brandpulse-dashboard-config
+                  key: VITE_WS_URL
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+
+          # Liveness probe
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # Startup probe
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+
+          # Security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          # Volume mounts
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+
+      # Volumes
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 50Mi
+
+      # Affinity rules
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - brandpulse-dashboard
+                topologyKey: kubernetes.io/hostname
+
+      # Tolerations
+      tolerations:
+        - key: "node.kubernetes.io/not-ready"
+          operator: "Exists"
+          effect: "NoExecute"
+          tolerationSeconds: 300
+        - key: "node.kubernetes.io/unreachable"
+          operator: "Exists"
+          effect: "NoExecute"
+          tolerationSeconds: 300
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: brandpulse-dashboard-hpa
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard
+    tier: frontend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: brandpulse-dashboard
+
+  # Scaling boundaries
+  minReplicas: 2
+  maxReplicas: 10
+
+  # Metrics for scaling
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+  # Scaling behavior
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 15
+        - type: Percent
+          value: 50
+          periodSeconds: 15
+      selectPolicy: Max
+
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: brandpulse-dashboard
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard
+    tier: frontend
+    environment: production
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "4780"
+spec:
+  type: ClusterIP
+
+  selector:
+    app: brandpulse-dashboard
+    tier: frontend
+
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+
+---
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: brandpulse-dashboard
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard
+    tier: frontend
+  annotations:
+    # NGINX Ingress Controller
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # SPA fallback
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      try_files $uri $uri/ /index.html;
+
+    # Cache control for static assets
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      location ~* \.(jpg|jpeg|png|gif|ico|svg|webp|avif)$ {
+        add_header Cache-Control "public, max-age=30d";
+      }
+      location ~* \.(woff|woff2|ttf|otf|eot)$ {
+        add_header Cache-Control "public, max-age=30d";
+      }
+      location /_next/static {
+        add_header Cache-Control "public, immutable";
+      }
+
+    # Cert-manager
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+spec:
+  ingressClassName: nginx
+
+  tls:
+    - hosts:
+        - dashboard.rtmn.io
+      secretName: brandpulse-dashboard-tls
+
+  rules:
+    - host: dashboard.rtmn.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: brandpulse-dashboard
+                port:
+                  number: 80
+
+---
+# PodDisruptionBudget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: brandpulse-dashboard-pdb
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: brandpulse-dashboard
+
+---
+# ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: brandpulse-dashboard
+  namespace: rtmn
+  labels:
+    app: brandpulse-dashboard

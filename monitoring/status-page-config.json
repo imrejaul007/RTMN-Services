@@ -1,0 +1,186 @@
+{
+  "name": "RTMN Platform",
+  "website_url": "https://rtmn.io",
+  "timezone": "America/New_York",
+  "about_url": "https://rtmn.io/about",
+  "subscribe_url": "https://status.rtmn.io/subscribe",
+  "notification_frequency": 0,
+  "components": [
+    {
+      "name": "BrandPulse API",
+      "description": "Brand intelligence and sentiment analysis API",
+      "status": "operational",
+      "position": 1,
+      "group_id": "brandpulse",
+      "auto_reboot": false
+    },
+    {
+      "name": "BrandPulse Dashboard",
+      "description": "BrandPulse web dashboard",
+      "status": "operational",
+      "position": 2,
+      "group_id": "brandpulse",
+      "auto_reboot": false
+    },
+    {
+      "name": "Hotel OS",
+      "description": "Hotel management platform",
+      "status": "operational",
+      "position": 3,
+      "group_id": "industry-os",
+      "auto_reboot": false
+    },
+    {
+      "name": "Restaurant OS",
+      "description": "Restaurant management platform",
+      "status": "operational",
+      "position": 4,
+      "group_id": "industry-os",
+      "auto_reboot": false
+    },
+    {
+      "name": "Healthcare OS",
+      "description": "Healthcare management platform",
+      "status": "operational",
+      "position": 5,
+      "group_id": "industry-os",
+      "auto_reboot": false
+    },
+    {
+      "name": "Retail OS",
+      "description": "Retail management platform",
+      "status": "operational",
+      "position": 6,
+      "group_id": "industry-os",
+      "auto_reboot": false
+    },
+    {
+      "name": "CorpID",
+      "description": "Universal identity service",
+      "status": "operational",
+      "position": 7,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "MemoryOS",
+      "description": "Personal AI memory service",
+      "status": "operational",
+      "position": 8,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "GoalOS",
+      "description": "Autonomous goal decomposition",
+      "status": "operational",
+      "position": 9,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "Decision Engine",
+      "description": "Policy-based authorization",
+      "status": "operational",
+      "position": 10,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "Agent Economy",
+      "description": "Karma scoring and micro-payments",
+      "status": "operational",
+      "position": 11,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "TwinOS Hub",
+      "description": "Digital twin registry",
+      "status": "operational",
+      "position": 12,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "Event Bus",
+      "description": "Pub/Sub event messaging",
+      "status": "operational",
+      "position": 13,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "GraphQL Federation",
+      "description": "Unified GraphQL API",
+      "status": "operational",
+      "position": 14,
+      "group_id": "foundation",
+      "auto_reboot": false
+    },
+    {
+      "name": "RTNM SDK",
+      "description": "Unified SDK services",
+      "status": "operational",
+      "position": 15,
+      "group_id": "sdk",
+      "auto_reboot": false
+    },
+    {
+      "name": "Billing Service",
+      "description": "Stripe billing integration",
+      "status": "operational",
+      "position": 16,
+      "group_id": "platform",
+      "auto_reboot": false
+    },
+    {
+      "name": "Onboarding Portal",
+      "description": "Client self-service portal",
+      "status": "operational",
+      "position": 17,
+      "group_id": "platform",
+      "auto_reboot": false
+    }
+  ],
+  "groups": [
+    {
+      "name": "BrandPulse",
+      "description": "Brand intelligence and sentiment analysis",
+      "position": 1
+    },
+    {
+      "name": "Industry OS",
+      "description": "24 industry operating systems",
+      "position": 2
+    },
+    {
+      "name": "Foundation Services",
+      "description": "Core platform infrastructure",
+      "position": 3
+    },
+    {
+      "name": "RTNM SDK",
+      "description": "Unified SDK and integrations",
+      "position": 4
+    },
+    {
+      "name": "Platform Services",
+      "description": "Billing, onboarding, and support",
+      "position": 5
+    }
+  ],
+  "status_pages": [
+    {
+      "title": "RTMN Platform",
+      "domain": "status.rtmn.io",
+      "timezone": "America/New_York",
+      "notifications_enabled": true,
+      "seo": {
+        "title": "RTMN Platform Status",
+        "description": "Real-time status of RTMN platform services",
+        "google_analytics": "G-XXXXXXXXXX"
+      }
+    }
+  ]
+}

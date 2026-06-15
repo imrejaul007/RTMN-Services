@@ -1,0 +1,68 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs-site/**'
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: docs-site/package.json
+
+      - name: Install dependencies
+        working-directory: docs-site
+        run: npm ci
+
+      - name: Build VitePress site
+        working-directory: docs-site
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs-site/.vitepress/dist
+          publish_branch: gh-pages
+
+  copy-markdown-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy markdown docs to VitePress site
+        run: |
+          cp -r docs/* docs-site/docs/
+          mkdir -p docs-site/docs/tutorials
+          cp docs/tutorials/*.md docs-site/docs/tutorials/ 2>/dev/null || true
+          mkdir -p docs-site/docs/getting-started
+          cp docs/getting-started/*.md docs-site/docs/getting-started/ 2>/dev/null || true
+          mkdir -p docs-site/docs/api-reference
+          cp docs/api-reference/*.md docs-site/docs/api-reference/ 2>/dev/null || true
+          mkdir -p docs-site/docs/compliance
+          cp docs/compliance/*.md docs-site/docs/compliance/ 2>/dev/null || true
+          mkdir -p docs-site/docs/deploy
+          cp docs/deploy/*.md docs-site/docs/deploy/ 2>/dev/null || true
+
+      - name: Commit and push copied docs
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git diff --staged --quiet || git commit -m "docs: Sync markdown docs to VitePress"
+          git push

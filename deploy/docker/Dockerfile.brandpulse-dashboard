@@ -1,0 +1,139 @@
+# =============================================================================
+# RTMN BrandPulse Dashboard - Multi-stage Production Dockerfile
+# =============================================================================
+# Stage 1: Builder - Install dependencies and build React app
+# Stage 2: Production - Serve static files with serve
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Builder
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    curl \
+    git
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies needed for build)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build arguments
+ARG VITE_API_URL=https://api.rtmn.io
+ARG VITE_WS_URL=wss://api.rtmn.io
+ARG VITE_ENVIRONMENT=production
+
+# Set build-time environment variables
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_WS_URL=${VITE_WS_URL}
+ENV VITE_ENVIRONMENT=${VITE_ENVIRONMENT}
+ENV NODE_ENV=production
+
+# Build the React application
+RUN npm run build
+
+# Verify build output exists
+RUN ls -la dist/ || { echo "Build failed - dist directory not found"; exit 1; }
+
+# -----------------------------------------------------------------------------
+# Stage 2: Production
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS production
+
+# Add labels
+LABEL maintainer="RTMN Engineering <engineering@rtmn.io>"
+LABEL description="RTMN BrandPulse Dashboard"
+LABEL version="1.0.0"
+
+# Install serve for static file serving
+RUN npm install -g serve
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    tini \
+    dumb-init \
+    curl
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+
+# Set ownership
+RUN chown -R nodejs:nodejs /app
+
+# Switch to non-root user
+USER nodejs
+
+# Expose application port
+EXPOSE 4780
+
+# Environment variables
+ENV NODE_ENV=production \
+    PORT=4780 \
+    # Disable Docker signals interference
+    DOCKER_HOST=
+
+# Health check using serve's built-in health check or wget
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:4780 || \
+       curl -sf http://localhost:4780 || \
+       exit 1
+
+# Use tini as init system
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start serve to serve static files
+# -s: serve in SPA mode (all routes serve index.html)
+# -l: listen on specified port
+# -p: proxy to backend if needed
+CMD ["serve", "-s", "dist", "-l", "4780", "--no-clipboard"]
+
+# =============================================================================
+# Build Instructions:
+# =============================================================================
+# Development build:
+#   docker build -t brandpulse-dashboard:dev \
+#     --build-arg VITE_API_URL=http://localhost:4770 \
+#     -f Dockerfile.brandpulse-dashboard .
+#
+# Production build:
+#   docker build \
+#     --build-arg VITE_API_URL=https://api.rtmn.io \
+#     --build-arg VITE_WS_URL=wss://api.rtmn.io \
+#     -t ghcr.io/rtmn-group/brandpulse-dashboard:latest \
+#     -f Dockerfile.brandpulse-dashboard .
+#
+# Build with multi-platform support:
+#   docker buildx build \
+#     --platform linux/amd64,linux/arm64 \
+#     -t ghcr.io/rtmn-group/brandpulse-dashboard:latest \
+#     -f Dockerfile.brandpulse-dashboard .
+#
+# =============================================================================
+# Runtime Instructions:
+# =============================================================================
+# Run container:
+#   docker run -p 4780:4780 brandpulse-dashboard:prod
+#
+# Run with Docker Compose:
+#   docker-compose -f docker-compose.prod.yml up brandpulse-dashboard
+#
+# =============================================================================

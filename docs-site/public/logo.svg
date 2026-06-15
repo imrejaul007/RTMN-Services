@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="10" y="10" width="35" height="35" fill="#3b82f6"/>
+  <rect x="55" y="10" width="35" height="35" fill="#3b82f6" opacity="0.7"/>
+  <rect x="10" y="55" width="35" height="35" fill="#3b82f6" opacity="0.7"/>
+  <rect x="55" y="55" width="35" height="35" fill="#3b82f6" opacity="0.5"/>
+  <text x="50" y="58" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle">RT</text>
+</svg>

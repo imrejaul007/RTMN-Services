@@ -1,0 +1,695 @@
+# =============================================================================
+# RTMN BrandPulse - Monitoring Stack (Datadog)
+# =============================================================================
+# Contains: ConfigMap, DaemonSet, ServiceAccount, ClusterRole, ClusterRoleBinding
+# =============================================================================
+
+---
+# ConfigMap - Datadog Agent Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datadog-agent-config
+  namespace: rtmn
+  labels:
+    app: datadog-agent
+    tier: monitoring
+data:
+  datadog.yaml: |
+    # Datadog Agent Configuration
+    # Documentation: https://docs.datadoghq.com/agent/guide/agent-configuration-files/
+
+    # Init configuration
+    init_config:
+      # Number of metrics to buffer during agent startup
+      buffer_size: 10
+      # Timeout for dogstatsd
+      dogstatsd_origin_detection: true
+      # Enable entity ID pre-generation
+      entity_id_preference: "container_name"
+
+    # Logs configuration
+    logs:
+      enabled: true
+      port: 10516
+      logs_no_ssl: false
+      # Container collect all logs from all containers
+      container_collect_all: true
+      # Path to container log files
+      container_logs_path: /var/lib/docker/containers
+
+    # APM configuration
+    apm:
+      enabled: true
+      port: 8126
+      max_traces_per_second: 100
+      connection_limit: 1000
+      max_memory: 300m
+      max_cpu_pct: 50
+
+    # Process configuration
+    process_config:
+      enabled: "true"
+      process_collection:
+        enabled: true
+      container_collection:
+        enabled: true
+      ebpf_check:
+        enabled: true
+
+    # Network configuration
+    network_config:
+      enabled: true
+      connections_pool_size: 10
+
+    # Security configuration
+    security:
+      compliance:
+        enabled: true
+
+    # Dogstatsd configuration
+    dogstatsd:
+      enabled: true
+      port: 8125
+      # Enable origin detection for container tags
+      origin_detection: true
+      # Unix socket for dogstatsd
+      # dogstatsd_socket: /var/run/datadog/dsd.socket
+      # Buffer size for dogstatsd packets
+      buffer_size: 4096
+
+    # Orchestrator explorer
+    orchestrator_explorer:
+      enabled: true
+      # Container scrubbing
+      container_scrubbing:
+        enabled: true
+        defaults:
+          - env
+          - container_env
+          - annotations
+          - kubernetes_container_resource_limits
+          - kubernetes_container_resource_requests
+
+    # Runtime security
+    runtime_security_config:
+      enabled: true
+      socket: /var/run/datadog/runtime-security.sock
+
+    # Enable metric collection
+    enable_ecs_metadata: true
+    enable_kubernetes_metadata: true
+    enable_kubernetes_tags: true
+
+    # Kubernetes configuration
+    kubernetes:
+      # Collect node labels as tags
+      collect_node_labels_as_tags: true
+      # Collect pod labels as tags
+      collect_pod_labels_as_tags: true
+      # Exclude pods by name
+      # excluded_pods:
+      #   - my-pod
+      #   - my-other-pod
+
+    # Tags
+    tags:
+      - environment:production
+      - service:brandpulse
+      - team:rtmn-engineering
+
+---
+# ServiceAccount - Datadog Agent
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: datadog-agent
+  namespace: rtmn
+  labels:
+    app: datadog-agent
+    tier: monitoring
+---
+# ClusterRole - Datadog Agent Permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: datadog-agent
+  labels:
+    app: datadog-agent
+    tier: monitoring
+rules:
+  # Node access
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+      - nodes/metrics
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Pod access
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/exec
+      - pods/log
+      - podspec
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Service discovery
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - configmaps
+      - endpoints
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Secrets (for sensitive data)
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Events
+  - apiGroups:
+      - ""
+    resources:
+      - events
+      - events/events
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+
+  # DaemonSet access
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+      - deployments
+      - replicasets
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Autoscaling
+  - apiGroups:
+      - autoscaling
+    resources:
+      - horizontalpodautoscalers
+    verbs:
+      - get
+      - list
+      - watch
+
+  # RBAC
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterrolebindings
+      - rolebindings
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Volumes
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumes
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Kubernetes metrics
+  - nonResourceURLs:
+      - "/metrics"
+    verbs:
+      - get
+
+  # Kubernetes API
+  - nonResourceURLs:
+      - "/api"
+      - "/api/*"
+      - "/apis"
+      - "/apis/*"
+      - "/healthz"
+      - "/healthz/*"
+      - "/version"
+      - "/version/*"
+    verbs:
+      - get
+
+  # Certificates
+  - apiGroups:
+      - certificates.k8s.io
+    resources:
+      - certificatesigningrequests
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Network policies
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - networkpolicies
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Ingresses
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+
+  # CronJobs
+  - apiGroups:
+      - batch
+    resources:
+      - cronjobs
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Storage
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - storageclasses
+      - volumeattachments
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Custom resources (for metrics)
+  - apiGroups:
+      - custom.metrics.k8s.io
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+
+  # External metrics
+  - apiGroups:
+      - external.metrics.k8s.io
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# ClusterRoleBinding - Datadog Agent
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: datadog-agent
+  labels:
+    app: datadog-agent
+    tier: monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: datadog-agent
+subjects:
+  - kind: ServiceAccount
+    name: datadog-agent
+    namespace: rtmn
+
+---
+# DaemonSet - Datadog Agent
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: datadog-agent
+  namespace: rtmn
+  labels:
+    app: datadog-agent
+    tier: monitoring
+    version: "7"
+spec:
+  # Selector
+  selector:
+    matchLabels:
+      app: datadog-agent
+      tier: monitoring
+
+  # Update strategy
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+
+  # Template
+  template:
+    metadata:
+      labels:
+        app: datadog-agent
+        tier: monitoring
+        version: "7"
+      annotations:
+        # Promethus metrics scraping
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9126"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Service account
+      serviceAccountName: datadog-agent
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 60
+
+      # Host network mode for better metrics collection
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+
+      # Init container to wait for required directories
+      initContainers:
+        - name: init-checks
+          image: datadog/agent:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for required directories..."
+              until [ -d /host/proc ]; do sleep 1; done
+              until [ -d /host/sys ]; do sleep 1; done
+              echo "Required directories ready."
+          volumeMounts:
+            - name: procdir
+              mountPath: /host/proc
+              readOnly: true
+            - name: sysdir
+              mountPath: /host/sys
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
+      # Main container
+      containers:
+        - name: datadog
+          image: datadog/agent:latest
+          imagePullPolicy: Always
+
+          # Ports
+          ports:
+            # DogStatsD
+            - name: dogstatsd
+              containerPort: 8125
+              protocol: UDP
+            # APM
+            - name: apm
+              containerPort: 8126
+              protocol: TCP
+            # Metrics
+            - name: metrics
+              containerPort: 9126
+              protocol: TCP
+            # Logs
+            - name: logs
+              containerPort: 10516
+              protocol: TCP
+
+          # Environment variables from secrets
+          envFrom:
+            - secretRef:
+                name: datadog-api-key
+
+          # Environment variables
+          env:
+            # Datadog site
+            - name: DD_SITE
+              value: "datadoghq.com"
+
+            # API Key (from secret - placeholder)
+            - name: DD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: datadog-api-key
+                  key: api-key
+                  optional: true
+
+            # Hostname
+            - name: DD_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+            # Enable ECS metadata
+            - name: DD_ECS_METADATA_ENABLED
+              value: "false"
+
+            # Enable Kubernetes metadata
+            - name: DD_KUBERNETES_METADATA_ENABLED
+              value: "true"
+
+            # Enable Kubernetes tags
+            - name: DD_KUBERNETES_COLLECT_LABELS_TAGS
+              value: "true"
+
+            # Enable APM
+            - name: DD_APM_ENABLED
+              value: "true"
+
+            # Enable logs
+            - name: DD_LOGS_ENABLED
+              value: "true"
+
+            # Enable process collection
+            - name: DD_PROCESS_AGENT_ENABLED
+              value: "true"
+
+            # Enable container collection
+            - name: DD_CONTAINER_EXCLUDE
+              value: "name:datadog-agent"
+
+            # Enable runtime security
+            - name: DD_RUNTIME_SECURITY_CONFIG_ENABLED
+              value: "true"
+
+            # Enable network monitoring
+            - name: DD_NETWORK_ENABLED
+              value: "true"
+
+            # Enable orchestrator explorer
+            - name: DD_ORCHESTRATOR_EXPLORER_ENABLED
+              value: "true"
+
+            # Log level
+            - name: DD_LOG_LEVEL
+              value: "info"
+
+            # Enable heroku style tags
+            - name: DD_HEROKU_APP_NAME
+              value: "brandpulse"
+
+            # Tags
+            - name: DD_TAGS
+              value: "environment:production service:brandpulse team:rtmn-engineering"
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          # Volume mounts
+          volumeMounts:
+            # Docker socket
+            - name: dockersocket
+              mountPath: /var/run/docker.sock
+              readOnly: true
+            # Proc directory
+            - name: procdir
+              mountPath: /host/proc
+              readOnly: true
+            # Sys directory
+            - name: sysdir
+              mountPath: /host/sys
+              readOnly: true
+            # Config
+            - name: config
+              mountPath: /etc/datadog-agent/conf.d
+              readOnly: true
+            # Run directory
+            - name: run
+              mountPath: /var/run/datadog
+            # Log directory
+            - name: log
+              mountPath: /var/log/datadog
+            # OS release info
+            - name: os-release
+              mountPath: /host/etc/os-release
+              readOnly: true
+            # System-probe
+            - name: sysprobe
+              mountPath: /sys/kernel/debug
+
+          # Liveness probe
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  ls /var/run/datadog/agent.sock || exit 1
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
+
+          # Readiness probe
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  curl -f http://localhost:9126/metrics || exit 1
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Security context
+          securityContext:
+            runAsUser: 0
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              add:
+                - SYS_ADMIN
+                - SYS_RESOURCE
+                - SYS_PTRACE
+                - NET_ADMIN
+                - NET_BROADCAST
+                - NET_RAW
+                - IPC_LOCK
+                - CHOWN
+                - DAC_READ_SEARCH
+                - FOWNER
+                - DAC_OVERRIDE
+                - KILL
+                - SETGID
+                - SETUID
+                - SETFCAP
+                - SETPCAP
+                - SYS_CHROOT
+                - AUDIT_CONTROL
+                - AUDIT_READ
+
+      # Volumes
+      volumes:
+        # Docker socket
+        - hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+          name: dockersocket
+        # Proc directory
+        - hostPath:
+            path: /proc
+            type: Directory
+          name: procdir
+        # Sys directory
+        - hostPath:
+            path: /sys
+            type: Directory
+          name: sysdir
+        # Config
+        - hostPath:
+            path: /etc/datadog-agent/conf.d
+            type: DirectoryOrCreate
+          name: config
+        # Run directory
+        - hostPath:
+            path: /var/run/datadog
+            type: DirectoryOrCreate
+          name: run
+        # Log directory
+        - hostPath:
+            path: /var/log/datadog
+            type: DirectoryOrCreate
+          name: log
+        # OS release
+        - hostPath:
+            path: /etc/os-release
+            type: File
+          name: os-release
+        # System probe
+        - hostPath:
+            path: /sys/kernel/debug
+            type: Directory
+          name: sysprobe
+
+      # Tolerations
+      tolerations:
+        - key: "node.kubernetes.io/not-ready"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - key: "node.kubernetes.io/unreachable"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
+
+---
+# Secret - Datadog API Key
+apiVersion: v1
+kind: Secret
+metadata:
+  name: datadog-api-key
+  namespace: rtmn
+  labels:
+    app: datadog-agent
+    tier: monitoring
+type: Opaque
+stringData:
+  # Replace with your actual Datadog API key
+  api-key: "REPLACE_WITH_YOUR_DATADOG_API_KEY"
