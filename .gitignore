@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Large binary files
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.exe
+*.tar.gz
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Companies folder (each has its own repo)
+companies/
+
+# RTMN subfolder (separate repo)
+RTMN/
