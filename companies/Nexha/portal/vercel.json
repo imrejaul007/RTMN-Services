@@ -1,0 +1,11 @@
+{
+  "name": "nexha-portal",
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@nexha-api-url"
+  }
+}

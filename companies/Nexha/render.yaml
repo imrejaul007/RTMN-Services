@@ -1,0 +1,132 @@
+# NeXha Commerce Network - Render Blueprint
+# Deploy all backend services to Render
+#
+# Usage:
+#   render blueprint create --spec render.yaml
+#
+# IMPORTANT: Set the following environment variables in Render dashboard:
+#   - JWT_SECRET (generate with: openssl rand -hex 32)
+#   - INTERNAL_API_KEY (generate with: openssl rand -hex 32)
+#   - NEXT_PUBLIC_API_URL (https://nexha-portal.onrender.com after portal deploy)
+
+services:
+  # ─────────────────────────────────────────────────────────────────
+  # 1. SUTAR Mock Service
+  # ─────────────────────────────────────────────────────────────────
+  - type: web
+    name: nexha-sutar-mock
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install && npx tsc
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    repo: https://github.com/imrejaul007/RTMN-Services
+    branch: main
+    path: companies/Nexha/sutar-mock
+    envVars:
+      - key: PORT
+        value: "4799"
+      - key: NODE_ENV
+        value: production
+
+  # ─────────────────────────────────────────────────────────────────
+  # 2. Commerce Identity API
+  # ─────────────────────────────────────────────────────────────────
+  - type: web
+    name: nexha-commerce-identity
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    repo: https://github.com/imrejaul007/RTMN-Services
+    branch: main
+    path: companies/Nexha/commerce-identity
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: MONGODB_URI
+        # Render MongoDB plugin: add via Render dashboard > Add-ons > MongoDB
+        # Or use Atlas: mongodb+srv://user:pass@cluster.mongodb.net/nexha_commerce_identity
+        sync: false
+      - key: SUTAR_BASE_URL
+        fromService:
+          type: web
+          name: nexha-sutar-mock
+          envVarKey: RENDER_EXTERNAL_URL
+        suffix: ""
+      - key: SUTAR_IDENTITY_URL
+        fromService:
+          type: web
+          name: nexha-sutar-mock
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SUTAR_REPUTATION_URL
+        fromService:
+          type: web
+          name: nexha-sutar-mock
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SUTAR_DECISION_URL
+        fromService:
+          type: web
+          name: nexha-sutar-mock
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SUTAR_EVENT_BUS_URL
+        fromService:
+          type: web
+          name: nexha-sutar-mock
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: "7d"
+      - key: JWT_ISSUER
+        value: nexha-commerce-identity
+      - key: JWT_AUDIENCE
+        value: nexha-portal
+      - key: INTERNAL_API_KEY
+        generateValue: true
+      - key: GUEST_ID_PREFIX
+        value: "GST-"
+      - key: GUEST_DEFAULT_VALIDITY_DAYS
+        value: "30"
+      - key: WHATSAPP_VERIFICATION_REQUIRED
+        value: "true"
+      # Leave WHATSAPP_ vars empty for dev mode (console logging)
+      - key: WHATSAPP_PROVIDER
+        value: ""
+    autoDeploy: true
+    dependsOn:
+      - - nexha-sutar-mock
+
+  # ─────────────────────────────────────────────────────────────────
+  # 3. Commerce Identity Worker (optional: background job processor)
+  # ─────────────────────────────────────────────────────────────────
+  # - type: worker
+  #   name: nexha-identity-worker
+  #   env: node
+  #   region: singapore
+  #   plan: free
+  #   buildCommand: npm install && npm run build
+  #   startCommand: node dist/worker.js
+  #   repo: https://github.com/imrejaul007/RTMN-Services
+  #   branch: main
+  #   path: companies/Nexha/commerce-identity
+  #   envVars:
+  #     - key: NODE_ENV
+  #       value: production
+  #     - key: MONGODB_URI
+  #       sync: false
+  #     - key: JWT_SECRET
+  #       fromService:
+  #         type: web
+  #         name: nexha-commerce-identity
+  #         envVarKey: JWT_SECRET
+  #   autoDeploy: true
+  #   dependsOn:
+  #     - - nexha-commerce-identity
