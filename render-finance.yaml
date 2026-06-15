@@ -1,0 +1,313 @@
+# Render Blueprint - HOJAI FinanceOS Services
+# Deploy all 14 FinanceOS services to Render
+
+services:
+  # ============================================
+  # FINANCE AI AGENTS (Ports 4900-4906)
+  # ============================================
+
+  - type: web
+    name: rtmn-finance-cfo
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/finance-cfo
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 4900
+    envVars:
+      - key: PORT
+        value: 4900
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-finance-accountant
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/finance-accountant
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 4901
+    envVars:
+      - key: PORT
+        value: 4901
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-finance-compliance
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/finance-compliance
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 4902
+    envVars:
+      - key: PORT
+        value: 4902
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-finance-auditor
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/finance-auditor
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 4903
+    envVars:
+      - key: PORT
+        value: 4903
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-finance-collections
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/finance-collections
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 4904
+    envVars:
+      - key: PORT
+        value: 4904
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-finance-payables
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/finance-payables
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 4905
+    envVars:
+      - key: PORT
+        value: 4905
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-finance-budget-coach
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/finance-budget-coach
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 4906
+    envVars:
+      - key: PORT
+        value: 4906
+      - key: NODE_ENV
+        value: production
+
+  # ============================================
+  # FINANCIAL OS (Port 5220)
+  # ============================================
+
+  - type: web
+    name: rtmn-financial-os
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: industry-os/services/financial-os
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    ports:
+      - 5220
+    envVars:
+      - key: PORT
+        value: 5220
+      - key: NODE_ENV
+        value: production
+
+  # ============================================
+  # FINANCE OS SUITE (Ports 5250-5290)
+  # ============================================
+
+  - type: web
+    name: rtmn-expense-os
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/expense-os
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    ports:
+      - 5250
+    envVars:
+      - key: PORT
+        value: 5250
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: REZ_INVOICE_OCR_URL
+        value: https://rtmn-invoice-ocr.onrender.com
+      - key: REZ_TRUST_SCORER_URL
+        value: https://rtmn-trust-scorer.onrender.com
+      - key: REZ_WALLET_URL
+        value: https://rtmn-wallet.onrender.com
+      - key: REZ_EVENT_BUS_URL
+        value: https://rtmn-event-bus.onrender.com
+      - key: APPROVAL_WORKFLOW_URL
+        value: https://rtmn-approval-workflow.onrender.com
+      - key: FINANCE_TWIN_HUB_URL
+        value: https://rtmn-finance-twin-hub.onrender.com
+
+  - type: web
+    name: rtmn-approval-workflow
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/approval-workflow
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    ports:
+      - 5255
+    envVars:
+      - key: PORT
+        value: 5255
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: REZ_EVENT_BUS_URL
+        value: https://rtmn-event-bus.onrender.com
+      - key: EXPENSE_OS_URL
+        value: https://rtmn-expense-os.onrender.com
+      - key: FINANCE_TWIN_HUB_URL
+        value: https://rtmn-finance-twin-hub.onrender.com
+
+  - type: web
+    name: rtmn-reimbursement-os
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/reimbursement-os
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    ports:
+      - 5260
+    envVars:
+      - key: PORT
+        value: 5260
+      - key: NODE_ENV
+        value: production
+      - key: REZ_WALLET_URL
+        value: https://rtmn-wallet.onrender.com
+      - key: REZ_PAYMENT_URL
+        value: https://rtmn-payment.onrender.com
+
+  - type: web
+    name: rtmn-finance-twin-hub
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/finance-twin-hub
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    ports:
+      - 5270
+    envVars:
+      - key: PORT
+        value: 5270
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: TWIN_OS_HUB_URL
+        value: https://rtmn-twinos-hub.onrender.com
+      - key: EXPENSE_OS_URL
+        value: https://rtmn-expense-os.onrender.com
+      - key: REZ_TRUST_SCORER_URL
+        value: https://rtmn-trust-scorer.onrender.com
+      - key: REZ_EVENT_BUS_URL
+        value: https://rtmn-event-bus.onrender.com
+      - key: AI_CFO_URL
+        value: https://rtmn-finance-cfo.onrender.com
+
+  - type: web
+    name: rtmn-spend-intelligence
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/spend-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    ports:
+      - 5280
+    envVars:
+      - key: PORT
+        value: 5280
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: EXPENSE_OS_URL
+        value: https://rtmn-expense-os.onrender.com
+      - key: FINANCE_TWIN_HUB_URL
+        value: https://rtmn-finance-twin-hub.onrender.com
+      - key: REZ_TRUST_SCORER_URL
+        value: https://rtmn-trust-scorer.onrender.com
+
+  - type: web
+    name: rtmn-corporate-card-os
+    env: node
+    region: singapore
+    plan: starter
+    rootDir: companies/hojai-ai/services/corporate-card-os
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    ports:
+      - 5290
+    envVars:
+      - key: PORT
+        value: 5290
+      - key: NODE_ENV
+        value: production
+      - key: REZ_TRUST_SCORER_URL
+        value: https://rtmn-trust-scorer.onrender.com
+      - key: EXPENSE_OS_URL
+        value: https://rtmn-expense-os.onrender.com
+      - key: REZ_WALLET_URL
+        value: https://rtmn-wallet.onrender.com
+      - key: REZ_EVENT_BUS_URL
+        value: https://rtmn-event-bus.onrender.com
+      - key: FINANCE_TWIN_HUB_URL
+        value: https://rtmn-finance-twin-hub.onrender.com

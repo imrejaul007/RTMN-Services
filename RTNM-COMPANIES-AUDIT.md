@@ -69,8 +69,10 @@ render blueprint apply render.yaml
 | Company | Description | Status | Score |
 |---------|-------------|--------|-------|
 | **HOJAI AI** | Unified AI intelligence platform (190+ products) | ✅ **10/10 Ready** | 100% |
+| **REZ-Consumer** | Consumer apps + DO Genie AI assistant (port 3001) | ✅ Ready | 100% |
+| **REZ-Merchant** | Merchant services + REZ Merchant Genie (port 4801) | ✅ Ready | 100% |
+| **HOJAI Genie** | Personal AI OS (5 Twins: Personal, Relationship, Financial, Health, Founder) | ✅ Ready | 100% |
 | **Leverge** | AI business intelligence suite (Intelligence, Memory, Twin, Agents, Copilot) | ✅ **10/10 Ready** | 100% |
-| **HOJAI Genie** | Personal AI OS (Memory, Calendar, Email, Briefing) | ✅ Ready | 100% |
 | **HOJAI ExpertOS** | Professional AI marketplace (Doctors, CAs, Coaches) | ✅ Ready | 100% |
 | **HOJAI BrandPulse** | Brand intelligence & sentiment analysis | ✅ **10/10 Ready** | 100% |
 | **Leverge** | AI-powered business intelligence suite (Intelligence, Memory, Twin, Agents, Copilot) | ✅ **10/10 Ready** | 100% |
