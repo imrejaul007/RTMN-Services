@@ -1,0 +1,21 @@
+# Render Blueprint - BOA-SUTAR Bridge
+services:
+  - type: web
+    name: rtmn-boa-sutar-bridge
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4110
+      - key: BOA_OS_URL
+        value: http://localhost:4100
+      - key: GOAL_OS_URL
+        value: http://localhost:4242
+      - key: SUTAR_GATEWAY_URL
+        value: http://localhost:4140

@@ -1,0 +1,21 @@
+# Render Blueprint - REZ Trust Scorer
+services:
+  - type: web
+    name: rtmn-trust-scorer
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4180
+      - key: ECONOMY_OS_URL
+        value: http://localhost:4251
+      - key: CONTRACT_OS_URL
+        value: http://localhost:4190
+      - key: EVENT_BUS_URL
+        value: http://localhost:4510

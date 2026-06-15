@@ -1,0 +1,21 @@
+# Render Blueprint - RABTUL Breach Detector
+services:
+  - type: web
+    name: rtmn-breach-detector
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4196
+      - key: SLA_MONITOR_URL
+        value: http://localhost:4195
+      - key: TRUST_SCORER_URL
+        value: http://localhost:4180
+      - key: EVENT_BUS_URL
+        value: http://localhost:4510

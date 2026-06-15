@@ -1,0 +1,21 @@
+# Render Blueprint - BOA OS (Business Objective Alignment)
+services:
+  - type: web
+    name: rtmn-boa-os
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4100
+      - key: GOAL_OS_URL
+        value: http://localhost:4242
+      - key: MEMORY_OS_URL
+        value: http://localhost:4703
+      - key: EVENT_BUS_URL
+        value: http://localhost:4510
