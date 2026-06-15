@@ -1,0 +1,9 @@
+{
+  "name": "rtmn-api-gateway",
+  "version": "1.0.0",
+  "description": "RTMN API Gateway for Vercel",
+  "main": "api/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,375 @@
+# Render Blueprint - All RTMN Services
+# Deploy all 24 services to Render
+
+services:
+  # ============================================
+  # FOUNDATION SERVICES
+  # ============================================
+
+  - type: web
+    name: rtmn-corpid-service
+    env: node
+    region: singapore
+    plan: free
+    rootDir: corpid-service
+    healthCheckPath: /health
+    ports:
+      - 4702
+    envVars:
+      - key: PORT
+        value: 4702
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-memory-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: memory-os
+    healthCheckPath: /health
+    ports:
+      - 4703
+    envVars:
+      - key: PORT
+        value: 4703
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-twinos-hub
+    env: node
+    region: singapore
+    plan: free
+    rootDir: twinos-hub
+    healthCheckPath: /health
+    ports:
+      - 4705
+    envVars:
+      - key: PORT
+        value: 4705
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-goal-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: goal-os
+    healthCheckPath: /health
+    ports:
+      - 4242
+    envVars:
+      - key: PORT
+        value: 4242
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-decision-engine
+    env: node
+    region: singapore
+    plan: free
+    rootDir: decision-engine
+    healthCheckPath: /health
+    ports:
+      - 4240
+    envVars:
+      - key: PORT
+        value: 4240
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-agent-economy
+    env: node
+    region: singapore
+    plan: free
+    rootDir: agent-economy
+    healthCheckPath: /health
+    ports:
+      - 4251
+    envVars:
+      - key: PORT
+        value: 4251
+      - key: NODE_ENV
+        value: production
+
+  # ============================================
+  # INDUSTRY OS SERVICES
+  # ============================================
+
+  - type: web
+    name: rtmn-restaurant-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: restaurant-os
+    healthCheckPath: /health
+    ports:
+      - 5010
+    envVars:
+      - key: PORT
+        value: 5010
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-healthcare-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: healthcare-os
+    healthCheckPath: /health
+    ports:
+      - 5020
+    envVars:
+      - key: PORT
+        value: 5020
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-hotel-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: hotel-os
+    healthCheckPath: /health
+    ports:
+      - 5025
+    envVars:
+      - key: PORT
+        value: 5025
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-retail-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: retail-os
+    healthCheckPath: /health
+    ports:
+      - 5030
+    envVars:
+      - key: PORT
+        value: 5030
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-legal-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: legal-os
+    healthCheckPath: /health
+    ports:
+      - 5035
+    envVars:
+      - key: PORT
+        value: 5035
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-hospitality-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: hospitality-os
+    healthCheckPath: /health
+    ports:
+      - 5050
+    envVars:
+      - key: PORT
+        value: 5050
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-education-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: education-os
+    healthCheckPath: /health
+    ports:
+      - 5060
+    envVars:
+      - key: PORT
+        value: 5060
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-automotive-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: automotive-os
+    healthCheckPath: /health
+    ports:
+      - 5080
+    envVars:
+      - key: PORT
+        value: 5080
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-beauty-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: beauty-os
+    healthCheckPath: /health
+    ports:
+      - 5090
+    envVars:
+      - key: PORT
+        value: 5090
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-fitness-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: fitness-os
+    healthCheckPath: /health
+    ports:
+      - 5110
+    envVars:
+      - key: PORT
+        value: 5110
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-manufacturing-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: manufacturing-os
+    healthCheckPath: /health
+    ports:
+      - 5150
+    envVars:
+      - key: PORT
+        value: 5150
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-realestate-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: realestate-os
+    healthCheckPath: /health
+    ports:
+      - 5230
+    envVars:
+      - key: PORT
+        value: 5230
+      - key: NODE_ENV
+        value: production
+
+  # ============================================
+  # DIGITAL TWIN SERVICES
+  # ============================================
+
+  - type: web
+    name: rtmn-agent-twin
+    env: node
+    region: singapore
+    plan: free
+    rootDir: agent-twin
+    healthCheckPath: /health
+    ports:
+      - 3011
+    envVars:
+      - key: PORT
+        value: 3011
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-area-twin
+    env: node
+    region: singapore
+    plan: free
+    rootDir: area-twin
+    healthCheckPath: /health
+    ports:
+      - 3012
+    envVars:
+      - key: PORT
+        value: 3012
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-buyer-twin
+    env: node
+    region: singapore
+    plan: free
+    rootDir: buyer-twin
+    healthCheckPath: /health
+    ports:
+      - 3013
+    envVars:
+      - key: PORT
+        value: 3013
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-deal-twin
+    env: node
+    region: singapore
+    plan: free
+    rootDir: deal-twin
+    healthCheckPath: /health
+    ports:
+      - 3014
+    envVars:
+      - key: PORT
+        value: 3014
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-property-twin
+    env: node
+    region: singapore
+    plan: free
+    rootDir: property-twin
+    healthCheckPath: /health
+    ports:
+      - 3015
+    envVars:
+      - key: PORT
+        value: 3015
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-referral-twin
+    env: node
+    region: singapore
+    plan: free
+    rootDir: referral-twin
+    healthCheckPath: /health
+    ports:
+      - 3016
+    envVars:
+      - key: PORT
+        value: 3016
+      - key: NODE_ENV
+        value: production
