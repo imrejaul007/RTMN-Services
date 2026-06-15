@@ -2734,6 +2734,50 @@ docker-compose up
 | 4258 | sutar-reputation-aggregator | Discovery |
 | 4259 | sutar-roi-calculator | Discovery |
 
+### SUTAR OS 10 NEW SERVICES - Built June 15, 2026
+
+**Status:** ✅ **10/10 COMPLETE** | **127 files** | **11,446 lines**
+
+| # | Service | Port | Features |
+|---|---------|------|----------|
+| 1 | **boa-os** | 4100 | Strategic pillars, objectives, roadmaps, KPI tracking, SWOT analysis |
+| 2 | **boa-sutar-bridge** | 4110 | Goal mapping, sync service, alignment checking, conflict resolution |
+| 3 | **hojai-intent-graph** | 4018 | Intent parsing, entity extraction, context building, goal decomposition |
+| 4 | **REZ-SLA-monitor** | 4195 | SLA definition, monitoring, compliance tracking, violation alerts |
+| 5 | **REZ-breach-detector** | 4196 | Breach detection, incident management, root cause analysis |
+| 6 | **REZ-economy-os** | 4251 | Karma (5 tiers), credit scoring (25/25/25/25), double-entry ledger, escrow |
+| 7 | **hojai-simulation-engine** | 4241 | Monte Carlo (6 distributions), what-if scenarios, risk metrics (VaR/CVaR) |
+| 8 | **hojai-discovery-engine** | 4256 | Agent registry, capability indexing, fuzzy matching, multi-factor scoring |
+| 9 | **REZ-trust-scorer** | 4180 | Trust scoring (25/25/25/25), 16 event types, tier system, audit log |
+| 10 | **sutar-negotiation-engine** | 4191 | RFQ lifecycle, multi-party negotiation, counter-offers, AXP Protocol |
+
+#### Key Features Summary
+
+**Karma System (REZ-economy-os)**
+| Tier | Points | Multiplier |
+|------|--------|------------|
+| Bronze | 0-99 | 1.0x |
+| Silver | 100-499 | 1.25x |
+| Gold | 500-1999 | 1.5x |
+| Platinum | 2000-9999 | 2.0x |
+| Diamond | 10000+ | 3.0x |
+
+**Trust Scoring (REZ-trust-scorer)**
+- 25% Credit History (account age, credit mix, new credit, payment patterns)
+- 25% Payment History (on-time rate, late payments, disputes)
+- 25% Dispute Rate (dispute frequency, resolution time, severity)
+- 25% Delivery Success (fulfillment rate, quality, returns)
+
+**Monte Carlo Distributions (hojai-simulation-engine)**
+- uniform, normal, exponential, poisson, binomial, triangular
+
+**Quick Start**
+```bash
+cd companies/RTNM-Group/boa-os && npm install && npm start
+cd companies/hojai-ai/services/hojai-simulation-engine && npm install && npm start
+cd companies/RABTUL-Technologies/REZ-economy-os && npm install && npm start
+```
+
 ### Docker Integration
 
 **Location:** `companies/hojai-ai/hojai-sutar-os/docker-compose.yml`
