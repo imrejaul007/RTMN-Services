@@ -1,36 +1,19 @@
-/**
- * Government OS
- * Port: 5130
- * Industry: government
- */
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import { v4 as uuidv4 } from 'uuid';
+import winston from 'winston';
+import crypto from 'crypto';
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const compression = require('compression');
-
-const app = express();
-const PORT = process.env.PORT || 5130;
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(compression());
-app.use(express.json());
-
-
-// ============= AUTH + DATABASE =============
-const authBusinesses = new Map();
-const authUsers = new Map();
-const authSessions = new Map();
-const crypto = require('crypto');
-
+// MongoDB support (optional)
 let mongoose = null;
 let dbConnected = false;
 const MONGODB_URI = process.env.MONGODB_URI;
-const CRM_HUB_URL = process.env.CRM_HUB_URL || 'http://localhost:4056';
-const SERVICE_NAME = process.env.SERVICE_NAME || 'Government OS';
+const CRM_HUB_URL = process.env.CRM_HUB_URL || process.env.REZ_CRM_HUB || 'http://localhost:4056';
 
+// Initialize MongoDB if URI is provided
 async function initDatabase() {
   if (!MONGODB_URI) {
     console.log('⚠️  MONGODB_URI not set. Running in demo mode (in-memory).');
@@ -40,81 +23,13 @@ async function initDatabase() {
     mongoose = (await import('mongoose')).default;
     await mongoose.connect(MONGODB_URI);
     dbConnected = true;
-    console.log('✅ MongoDB connected for', SERVICE_NAME);
+    console.log('✅ MongoDB connected for Government OS');
   } catch (err) {
     console.error('MongoDB connection failed:', err.message);
   }
 }
 
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
-function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-app.post('/auth/register', (req, res) => {
-  const { businessId, email, password, role, businessName } = req.body;
-  if (!email || !password || !businessId) {
-    return res.status(400).json({ error: 'businessId, email, password required' });
-  }
-  if (authUsers.has(email)) {
-    return res.status(409).json({ error: 'User already exists' });
-  }
-  const user = {
-    id: 'user_' + Date.now(),
-    businessId,
-    email,
-    passwordHash: hashPassword(password),
-    role: role || 'owner',
-    name: businessName || email.split('@')[0],
-    createdAt: new Date().toISOString()
-  };
-  authUsers.set(email, user);
-  const token = generateToken();
-  authSessions.set(token, { userId: user.id, email, businessId, createdAt: Date.now() });
-  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
-});
-
-app.post('/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  const user = authUsers.get(email);
-  if (!user || user.passwordHash !== hashPassword(password)) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-  const token = generateToken();
-  authSessions.set(token, { userId: user.id, email: user.email, businessId: user.businessId, createdAt: Date.now() });
-  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
-});
-
-app.get('/auth/verify', (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  const token = authHeader.slice(7);
-  const session = authSessions.get(token);
-  if (!session) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  res.json({ valid: true, ...session });
-});
-
-function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  const token = authHeader.slice(7);
-  const session = authSessions.get(token);
-  if (!session) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  req.session = session;
-  next();
-}
-
+// CRM Hub connection for customer sync
 async function syncCustomerToCRM(customer, businessId) {
   if (!dbConnected) return;
   try {
@@ -125,10 +40,10 @@ async function syncCustomerToCRM(customer, businessId) {
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
-        industry: 'government',
+        industry: 'restaurant',
         businessId,
-        loyaltyPoints: customer.loyaltyPoints || 0,
-        tier: customer.tier || 'bronze',
+        loyaltyPoints: customer.loyaltyPoints,
+        tier: customer.tier,
       }),
     });
   } catch (err) {
@@ -136,178 +51,691 @@ async function syncCustomerToCRM(customer, businessId) {
   }
 }
 
-// ============= END AUTH + DATABASE =============
+const app = express();
+const PORT = process.env.PORT || 5010;
 
-// ============= GOVERNMENT OS DATA =============
-const citizens = new Map();
-const services = new Map();
-const applications = new Map();
-const departments = new Map();
-
-// ============= END DATA =============
-
-// ============= TWINS =============
-const citizenTwin = new Map();
-const serviceTwin = new Map();
-const departmentTwin = new Map();
-
-// ============= END TWINS =============
-
-// ============= API ROUTES =============
-
-app.get('/api/citizens', (req, res) => {
-  res.json({ citizens: Array.from(citizens.values()) });
+// Winston logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(winston.format.colorize(), winston.format.simple())
+    })
+  ]
 });
 
-app.post('/api/citizens', requireAuth, (req, res) => {
-  const citizen = { id: 'citizen_' + Date.now(), ...req.body, tenantId: req.session.businessId, createdAt: new Date().toISOString() };
-  citizens.set(citizen.id, citizen);
-  res.json(citizen);
-});
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(compression());
+app.use(morgan('combined'));
+app.use(express.json());
 
-app.get('/api/citizens/:id', (req, res) => {
-  const citizen = citizens.get(req.params.id);
-  if (!citizen) return res.status(404).json({ error: 'Not found' });
-  res.json(citizen);
-});
+// In-memory data stores
+const menuItems = new Map();
+const orders = new Map();
+const tables = new Map();
+const kitchenQueue = [];
+const reservations = new Map();
+const customers = new Map();
+const reviews = new Map();
 
-app.put('/api/citizens/:id', requireAuth, (req, res) => {
-  const citizen = citizens.get(req.params.id);
-  if (!citizen) return res.status(404).json({ error: 'Not found' });
-  if (citizen.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  citizens.set(req.params.id, { ...citizen, ...req.body });
-  res.json(citizens.get(req.params.id));
-});
+// Digital Twins
+const twins = {
+  menu: { id: 'menu-twin', status: 'active', items: [] },
+  order: { id: 'order-twin', status: 'active', activeOrders: [] },
+  kitchen: { id: 'kitchen-twin', status: 'active', queue: [] },
+  table: { id: 'table-twin', status: 'active', occupancy: [] },
+  customer: { id: 'customer-twin', status: 'active', loyalty: [] }
+};
 
-app.delete('/api/citizens/:id', requireAuth, (req, res) => {
-  const citizen = citizens.get(req.params.id);
-  if (!citizen) return res.status(404).json({ error: 'Not found' });
-  if (citizen.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  citizens.delete(req.params.id);
-  res.json({ success: true });
-});
+// Initialize sample data
+function initializeSampleData() {
+  // Sample menu items
+  const sampleMenu = [
+    { id: 'm1', name: 'Margherita Pizza', category: 'pizza', price: 12.99, prepTime: 15 },
+    { id: 'm2', name: 'Chicken Alfredo', category: 'pasta', price: 14.99, prepTime: 18 },
+    { id: 'm3', name: 'Caesar Salad', category: 'salad', price: 8.99, prepTime: 5 },
+    { id: 'm4', name: 'Grilled Salmon', category: 'seafood', price: 22.99, prepTime: 20 },
+    { id: 'm5', name: 'BBQ Ribs', category: 'meat', price: 19.99, prepTime: 25 }
+  ];
+  sampleMenu.forEach(item => menuItems.set(item.id, item));
 
+  // Sample tables (20 tables)
+  for (let i = 1; i <= 20; i++) {
+    const table = {
+      id: `t${i}`,
+      capacity: i <= 10 ? 4 : 6,
+      status: 'available',
+      section: i <= 10 ? 'main' : 'patio'
+    };
+    tables.set(table.id, table);
+  }
 
-app.get('/api/ervicess', (req, res) => {
-  res.json({ ervicess: Array.from(ervicess.values()) });
-});
+  // Update twins
+  twins.menu.items = Array.from(menuItems.values());
+  twins.table.occupancy = Array.from(tables.values());
 
-app.post('/api/ervicess', requireAuth, (req, res) => {
-  const ervices = { id: 'ervices_' + Date.now(), ...req.body, tenantId: req.session.businessId, createdAt: new Date().toISOString() };
-  ervicess.set(ervices.id, ervices);
-  res.json(ervices);
-});
+  logger.info('Sample data initialized');
+}
 
-app.get('/api/ervicess/:id', (req, res) => {
-  const ervices = ervicess.get(req.params.id);
-  if (!ervices) return res.status(404).json({ error: 'Not found' });
-  res.json(ervices);
-});
-
-app.put('/api/ervicess/:id', requireAuth, (req, res) => {
-  const ervices = ervicess.get(req.params.id);
-  if (!ervices) return res.status(404).json({ error: 'Not found' });
-  if (ervices.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  ervicess.set(req.params.id, { ...ervices, ...req.body });
-  res.json(ervicess.get(req.params.id));
-});
-
-app.delete('/api/ervicess/:id', requireAuth, (req, res) => {
-  const ervices = ervicess.get(req.params.id);
-  if (!ervices) return res.status(404).json({ error: 'Not found' });
-  if (ervices.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  ervicess.delete(req.params.id);
-  res.json({ success: true });
-});
-
-
-app.get('/api/applications', (req, res) => {
-  res.json({ applications: Array.from(applications.values()) });
-});
-
-app.post('/api/applications', requireAuth, (req, res) => {
-  const application = { id: 'application_' + Date.now(), ...req.body, tenantId: req.session.businessId, createdAt: new Date().toISOString() };
-  applications.set(application.id, application);
-  res.json(application);
-});
-
-app.get('/api/applications/:id', (req, res) => {
-  const application = applications.get(req.params.id);
-  if (!application) return res.status(404).json({ error: 'Not found' });
-  res.json(application);
-});
-
-app.put('/api/applications/:id', requireAuth, (req, res) => {
-  const application = applications.get(req.params.id);
-  if (!application) return res.status(404).json({ error: 'Not found' });
-  if (application.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  applications.set(req.params.id, { ...application, ...req.body });
-  res.json(applications.get(req.params.id));
-});
-
-app.delete('/api/applications/:id', requireAuth, (req, res) => {
-  const application = applications.get(req.params.id);
-  if (!application) return res.status(404).json({ error: 'Not found' });
-  if (application.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  applications.delete(req.params.id);
-  res.json({ success: true });
-});
-
-
-app.get('/api/departments', (req, res) => {
-  res.json({ departments: Array.from(departments.values()) });
-});
-
-app.post('/api/departments', requireAuth, (req, res) => {
-  const department = { id: 'department_' + Date.now(), ...req.body, tenantId: req.session.businessId, createdAt: new Date().toISOString() };
-  departments.set(department.id, department);
-  res.json(department);
-});
-
-app.get('/api/departments/:id', (req, res) => {
-  const department = departments.get(req.params.id);
-  if (!department) return res.status(404).json({ error: 'Not found' });
-  res.json(department);
-});
-
-app.put('/api/departments/:id', requireAuth, (req, res) => {
-  const department = departments.get(req.params.id);
-  if (!department) return res.status(404).json({ error: 'Not found' });
-  if (department.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  departments.set(req.params.id, { ...department, ...req.body });
-  res.json(departments.get(req.params.id));
-});
-
-app.delete('/api/departments/:id', requireAuth, (req, res) => {
-  const department = departments.get(req.params.id);
-  if (!department) return res.status(404).json({ error: 'Not found' });
-  if (department.tenantId !== req.session.businessId) return res.status(403).json({ error: 'Access denied' });
-  departments.delete(req.params.id);
-  res.json({ success: true });
-});
-
-
-// Analytics
-app.get('/api/analytics', (req, res) => {
-  res.json({
-    citizenCount: citizens.size, ervicesCount: ervicess.size, applicationCount: applications.size, departmentCount: departments.size
-  });
-});
-
-// Twins sync
-app.post('/api/twins/sync', requireAuth, (req, res) => {
-  const twinData = { citizen: Array.from(citizenTwin.values()), service: Array.from(serviceTwin.values()), department: Array.from(departmentTwin.values()) };
-  res.json({ success: true, synced: twinData });
-});
-
-// ============= END ROUTES =============
+initializeSampleData();
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: SERVICE_NAME, version: '1.0.0', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'healthy',
+    service: 'government-os',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    database: dbConnected ? 'connected' : 'demo (in-memory)',
+    crm: CRM_HUB_URL
+  });
+});
+
+// ============= AUTH ENDPOINTS =============
+
+// In-memory auth stores
+const authBusinesses = new Map();
+const authUsers = new Map();
+const authSessions = new Map();
+
+function genToken() { return crypto.randomBytes(32).toString('hex'); }
+
+// Register business
+app.post('/auth/register', (req, res) => {
+  const { businessName, ownerName, email, phone, password, plan } = req.body;
+  if (!businessName || !ownerName || !email || !password) {
+    return res.status(400).json({ success: false, error: 'businessName, ownerName, email, password required' });
+  }
+
+  for (const [, u] of authUsers) {
+    if (u.email === email && u.industry === 'restaurant') {
+      return res.status(409).json({ success: false, error: 'Email already registered' });
+    }
+  }
+
+  const businessId = `BIZ_RESTAURANT_${Date.now()}`;
+  const ownerId = `OWN_RESTAURANT_${Date.now()}`;
+  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+  const token = genToken();
+
+  authBusinesses.set(businessId, {
+    id: businessId, name: businessName, industry: 'restaurant', email, phone: phone || '',
+    plan: plan || 'starter', status: 'active', createdAt: new Date().toISOString()
+  });
+
+  authUsers.set(ownerId, {
+    id: ownerId, businessId, industry: 'restaurant', email, name: ownerName,
+    role: 'owner', passwordHash, status: 'active', createdAt: new Date().toISOString()
+  });
+
+  authSessions.set(token, {
+    userId: ownerId, businessId, industry: 'restaurant', role: 'owner',
+    createdAt: Date.now(), expiresAt: Date.now() + 2592000000
+  });
+
+  res.status(201).json({
+    success: true, message: 'Restaurant registered',
+    business: { id: businessId, name: businessName, industry: 'restaurant' },
+    user: { id: ownerId, name: ownerName, email, role: 'owner' },
+    token
+  });
+});
+
+// Login
+app.post('/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
+
+  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+  for (const [userId, user] of authUsers) {
+    if (user.email === email && user.industry === 'restaurant') {
+      if (user.passwordHash !== passwordHash) {
+        return res.status(401).json({ success: false, error: 'Invalid password' });
+      }
+      const token = genToken();
+      authSessions.set(token, {
+        userId, businessId: user.businessId, industry: 'restaurant', role: user.role,
+        createdAt: Date.now(), expiresAt: Date.now() + 2592000000
+      });
+      return res.json({
+        success: true, message: 'Login successful',
+        user: { id: userId, name: user.name, email, role: user.role, businessId: user.businessId },
+        business: authBusinesses.get(user.businessId),
+        token
+      });
+    }
+  }
+  res.status(401).json({ success: false, error: 'User not found' });
+});
+
+// Verify token
+app.get('/auth/verify', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'No token' });
+
+  const token = authHeader.substring(7);
+  const session = authSessions.get(token);
+  if (!session || session.expiresAt < Date.now()) {
+    if (session) authSessions.delete(token);
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+
+  const user = authUsers.get(session.userId);
+  res.json({ success: true, valid: true, user: { id: session.userId, name: user?.name, email: user?.email, role: session.role }, businessId: session.businessId });
+});
+
+// Auth middleware for protected routes
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+  const token = authHeader.substring(7);
+  const session = authSessions.get(token);
+  if (!session || session.expiresAt < Date.now()) {
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+  req.session = session;
+  next();
+}
+
+// ============= MENU ENDPOINTS =============
+
+// Get full menu
+app.get('/api/menu', (req, res) => {
+  const { category, minPrice, maxPrice } = req.query;
+  let items = Array.from(menuItems.values());
+
+  if (category) items = items.filter(i => i.category === category);
+  if (minPrice) items = items.filter(i => i.price >= parseFloat(minPrice));
+  if (maxPrice) items = items.filter(i => i.price <= parseFloat(maxPrice));
+
+  res.json({ success: true, count: items.length, items });
+});
+
+// Get menu item
+app.get('/api/menu/:id', (req, res) => {
+  const item = menuItems.get(req.params.id);
+  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
+  res.json({ success: true, item });
+});
+
+// Create menu item
+app.post('/api/menu', (req, res) => {
+  const { name, category, price, prepTime, description, ingredients, calories, available } = req.body;
+
+  if (!name || !category || !price) {
+    return res.status(400).json({ success: false, error: 'Name, category, and price required' });
+  }
+
+  const item = {
+    id: uuidv4(),
+    name,
+    category,
+    price: parseFloat(price),
+    prepTime: prepTime || 15,
+    description: description || '',
+    ingredients: ingredients || [],
+    calories: calories || 0,
+    available: available !== false,
+    createdAt: new Date().toISOString()
+  };
+
+  menuItems.set(item.id, item);
+  twins.menu.items.push(item);
+
+  logger.info(`Menu item created: ${item.name}`);
+  res.status(201).json({ success: true, item });
+});
+
+// Update menu item
+app.put('/api/menu/:id', (req, res) => {
+  const item = menuItems.get(req.params.id);
+  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
+
+  const updated = { ...item, ...req.body, id: item.id, updatedAt: new Date().toISOString() };
+  menuItems.set(item.id, updated);
+
+  const twinIndex = twins.menu.items.findIndex(i => i.id === item.id);
+  if (twinIndex >= 0) twins.menu.items[twinIndex] = updated;
+
+  logger.info(`Menu item updated: ${updated.name}`);
+  res.json({ success: true, item: updated });
+});
+
+// Delete menu item
+app.delete('/api/menu/:id', (req, res) => {
+  const item = menuItems.get(req.params.id);
+  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
+
+  menuItems.delete(req.params.id);
+  twins.menu.items = twins.menu.items.filter(i => i.id !== req.params.id);
+
+  logger.info(`Menu item deleted: ${item.name}`);
+  res.json({ success: true, message: 'Menu item deleted' });
+});
+
+// ============= ORDER ENDPOINTS =============
+
+// Create order
+app.post('/api/orders', (req, res) => {
+  const { tableId, items, customerId, notes, orderType } = req.body;
+
+  if (!items || items.length === 0) {
+    return res.status(400).json({ success: false, error: 'Order items required' });
+  }
+
+  const orderItems = items.map(i => {
+    const menuItem = menuItems.get(i.itemId);
+    if (!menuItem) throw new Error(`Item ${i.itemId} not found`);
+    return { ...i, menuItem, subtotal: menuItem.price * (i.quantity || 1) };
+  });
+
+  const subtotal = orderItems.reduce((sum, i) => sum + i.subtotal, 0);
+  const tax = subtotal * 0.08;
+  const total = subtotal + tax;
+
+  const order = {
+    id: uuidv4(),
+    orderNumber: `ORD-${Date.now().toString(36).toUpperCase()}`,
+    tableId: tableId || null,
+    customerId: customerId || null,
+    items: orderItems,
+    subtotal,
+    tax,
+    total,
+    status: 'pending',
+    priority: 'normal',
+    notes: notes || '',
+    orderType: orderType || 'dine-in',
+    createdAt: new Date().toISOString(),
+    estimatedReady: new Date(Date.now() + 20 * 60000).toISOString()
+  };
+
+  orders.set(order.id, order);
+  kitchenQueue.push({ orderId: order.id, ...order });
+  twins.order.activeOrders.push(order);
+
+  // Update table status
+  if (tableId && tables.has(tableId)) {
+    const table = tables.get(tableId);
+    table.status = 'occupied';
+    table.currentOrder = order.id;
+  }
+
+  logger.info(`Order created: ${order.orderNumber}, total: $${total.toFixed(2)}`);
+  res.status(201).json({ success: true, order });
+});
+
+// Get orders
+app.get('/api/orders', (req, res) => {
+  const { status, tableId, date } = req.query;
+  let allOrders = Array.from(orders.values());
+
+  if (status) allOrders = allOrders.filter(o => o.status === status);
+  if (tableId) allOrders = allOrders.filter(o => o.tableId === tableId);
+  if (date) allOrders = allOrders.filter(o => o.createdAt.startsWith(date));
+
+  res.json({ success: true, count: allOrders.length, orders: allOrders });
+});
+
+// Get order by ID
+app.get('/api/orders/:id', (req, res) => {
+  const order = orders.get(req.params.id);
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+  res.json({ success: true, order });
+});
+
+// Update order status
+app.patch('/api/orders/:id/status', (req, res) => {
+  const order = orders.get(req.params.id);
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+  const { status, priority } = req.body;
+  const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
+
+  if (status && !validStatuses.includes(status)) {
+    return res.status(400).json({ success: false, error: `Invalid status. Valid: ${validStatuses.join(', ')}` });
+  }
+
+  if (status) order.status = status;
+  if (priority) order.priority = priority;
+  order.updatedAt = new Date().toISOString();
+
+  // Update kitchen queue
+  const kqIndex = kitchenQueue.findIndex(q => q.orderId === order.id);
+  if (kqIndex >= 0) {
+    if (status === 'completed' || status === 'cancelled') {
+      kitchenQueue.splice(kqIndex, 1);
+    } else {
+      kitchenQueue[kqIndex].status = status;
+    }
+  }
+
+  // Update twin
+  const twinIndex = twins.order.activeOrders.findIndex(o => o.id === order.id);
+  if (twinIndex >= 0) twins.order.activeOrders[twinIndex] = order;
+
+  logger.info(`Order ${order.orderNumber} status: ${status || order.status}`);
+  res.json({ success: true, order });
+});
+
+// Cancel order
+app.delete('/api/orders/:id', (req, res) => {
+  const order = orders.get(req.params.id);
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+  order.status = 'cancelled';
+  order.cancelledAt = new Date().toISOString();
+
+  const kqIndex = kitchenQueue.findIndex(q => q.orderId === order.id);
+  if (kqIndex >= 0) kitchenQueue.splice(kqIndex, 1);
+
+  twins.order.activeOrders = twins.order.activeOrders.filter(o => o.id !== order.id);
+
+  logger.info(`Order cancelled: ${order.orderNumber}`);
+  res.json({ success: true, order });
+});
+
+// ============= TABLE ENDPOINTS =============
+
+// Get all tables
+app.get('/api/tables', (req, res) => {
+  const { status, section, minCapacity } = req.query;
+  let allTables = Array.from(tables.values());
+
+  if (status) allTables = allTables.filter(t => t.status === status);
+  if (section) allTables = allTables.filter(t => t.section === section);
+  if (minCapacity) allTables = allTables.filter(t => t.capacity >= parseInt(minCapacity));
+
+  res.json({ success: true, count: allTables.length, tables: allTables });
+});
+
+// Get table
+app.get('/api/tables/:id', (req, res) => {
+  const table = tables.get(req.params.id);
+  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
+  res.json({ success: true, table });
+});
+
+// Update table
+app.put('/api/tables/:id', (req, res) => {
+  const table = tables.get(req.params.id);
+  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
+
+  const updated = { ...table, ...req.body, id: table.id };
+  tables.set(table.id, updated);
+  twins.table.occupancy = Array.from(tables.values());
+
+  res.json({ success: true, table: updated });
+});
+
+// Reserve table
+app.post('/api/tables/:id/reserve', (req, res) => {
+  const table = tables.get(req.params.id);
+  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
+
+  const { customerId, guestCount, date, time, duration } = req.body;
+  if (!customerId || !date || !time) {
+    return res.status(400).json({ success: false, error: 'customerId, date, and time required' });
+  }
+
+  const reservation = {
+    id: uuidv4(),
+    tableId: table.id,
+    customerId,
+    guestCount: guestCount || table.capacity,
+    date,
+    time,
+    duration: duration || 90,
+    status: 'confirmed',
+    createdAt: new Date().toISOString()
+  };
+
+  reservations.set(reservation.id, reservation);
+  logger.info(`Table ${table.id} reserved for ${date} at ${time}`);
+  res.status(201).json({ success: true, reservation });
+});
+
+// ============= KITCHEN QUEUE =============
+
+// Get kitchen queue
+app.get('/api/kitchen', (req, res) => {
+  const { status } = req.query;
+  let queue = kitchenQueue;
+
+  if (status) queue = queue.filter(q => q.status === status);
+
+  const stats = {
+    pending: kitchenQueue.filter(q => q.status === 'pending').length,
+    preparing: kitchenQueue.filter(q => q.status === 'preparing').length,
+    ready: kitchenQueue.filter(q => q.status === 'ready').length,
+    total: kitchenQueue.length
+  };
+
+  res.json({ success: true, queue, stats });
+});
+
+// Update kitchen item
+app.patch('/api/kitchen/:orderId', (req, res) => {
+  const queueItem = kitchenQueue.find(q => q.orderId === req.params.orderId);
+  if (!queueItem) return res.status(404).json({ success: false, error: 'Order not in kitchen queue' });
+
+  const { status, prepNotes } = req.body;
+  if (status) queueItem.status = status;
+  if (prepNotes) queueItem.prepNotes = prepNotes;
+
+  res.json({ success: true, item: queueItem });
+});
+
+// ============= CUSTOMERS =============
+
+// Create/Update customer
+app.post('/api/customers', (req, res) => {
+  const { name, email, phone, preferences } = req.body;
+
+  if (!name && !email && !phone) {
+    return res.status(400).json({ success: false, error: 'Name, email, or phone required' });
+  }
+
+  // Check if customer exists
+  const existing = Array.from(customers.values()).find(
+    c => (email && c.email === email) || (phone && c.phone === phone)
+  );
+
+  if (existing) {
+    Object.assign(existing, req.body, { updatedAt: new Date().toISOString() });
+    customers.set(existing.id, existing);
+    return res.json({ success: true, customer: existing, isNew: false });
+  }
+
+  const customer = {
+    id: uuidv4(),
+    name: name || 'Guest',
+    email: email || null,
+    phone: phone || null,
+    loyaltyPoints: 0,
+    tier: 'bronze',
+    preferences: preferences || {},
+    visitCount: 1,
+    totalSpent: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  customers.set(customer.id, customer);
+  twins.customer.loyalty.push(customer);
+
+  // Sync to CRM Hub
+  syncCustomerToCRM(customer, null).catch(console.warn);
+
+  logger.info(`New customer: ${customer.name}`);
+  res.status(201).json({ success: true, customer, isNew: true });
+});
+
+// Get customers
+app.get('/api/customers', (req, res) => {
+  const { tier, minVisits, minSpent } = req.query;
+  let allCustomers = Array.from(customers.values());
+
+  if (tier) allCustomers = allCustomers.filter(c => c.tier === tier);
+  if (minVisits) allCustomers = allCustomers.filter(c => c.visitCount >= parseInt(minVisits));
+  if (minSpent) allCustomers = allCustomers.filter(c => c.totalSpent >= parseFloat(minSpent));
+
+  res.json({ success: true, count: allCustomers.length, customers: allCustomers });
+});
+
+// Add loyalty points
+app.post('/api/customers/:id/points', (req, res) => {
+  const customer = customers.get(req.params.id);
+  if (!customer) return res.status(404).json({ success: false, error: 'Customer not found' });
+
+  const { points, amount } = req.body;
+  const earned = amount ? Math.floor(amount * 10) : (points || 0);
+  customer.loyaltyPoints += earned;
+  customer.totalSpent += amount || 0;
+  customer.visitCount++;
+
+  // Update tier
+  if (customer.loyaltyPoints >= 5000) customer.tier = 'platinum';
+  else if (customer.loyaltyPoints >= 2000) customer.tier = 'gold';
+  else if (customer.loyaltyPoints >= 500) customer.tier = 'silver';
+
+  customers.set(customer.id, customer);
+  res.json({ success: true, customer });
+});
+
+// ============= REVIEWS =============
+
+// Create review
+app.post('/api/reviews', (req, res) => {
+  const { customerId, orderId, rating, comment, service } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    return res.status(400).json({ success: false, error: 'Rating 1-5 required' });
+  }
+
+  const review = {
+    id: uuidv4(),
+    customerId: customerId || null,
+    orderId: orderId || null,
+    rating,
+    comment: comment || '',
+    service: service || 3,
+    food: service || 3,
+    ambiance: service || 3,
+    status: 'published',
+    createdAt: new Date().toISOString()
+  };
+
+  reviews.set(review.id, review);
+  logger.info(`New review: ${rating} stars`);
+  res.status(201).json({ success: true, review });
+});
+
+// Get reviews
+app.get('/api/reviews', (req, res) => {
+  const { minRating, maxRating } = req.query;
+  let allReviews = Array.from(reviews.values());
+
+  if (minRating) allReviews = allReviews.filter(r => r.rating >= parseInt(minRating));
+  if (maxRating) allReviews = allReviews.filter(r => r.rating <= parseInt(maxRating));
+
+  const avgRating = allReviews.length > 0
+    ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+    : 0;
+
+  res.json({ success: true, count: allReviews.length, reviews: allReviews, averageRating: avgRating.toFixed(1) });
+});
+
+// ============= ANALYTICS =============
+
+// Get analytics
+app.get('/api/analytics', (req, res) => {
+  const today = new Date().toISOString().split('T')[0];
+  const todayOrders = Array.from(orders.values()).filter(o => o.createdAt.startsWith(today));
+
+  const totalRevenue = todayOrders
+    .filter(o => o.status !== 'cancelled')
+    .reduce((sum, o) => sum + o.total, 0);
+
+  const orderCount = todayOrders.filter(o => o.status !== 'cancelled').length;
+  const avgOrderValue = orderCount > 0 ? totalRevenue / orderCount : 0;
+
+  const availableTables = Array.from(tables.values()).filter(t => t.status === 'available').length;
+  const occupiedTables = Array.from(tables.values()).filter(t => t.status === 'occupied').length;
+
+  const topItems = {};
+  todayOrders.forEach(order => {
+    order.items.forEach(item => {
+      topItems[item.menuItem?.name || item.name] = (topItems[item.menuItem?.name || item.name] || 0) + item.quantity;
+    });
+  });
+
+  const topMenuItems = Object.entries(topItems)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
+
+  res.json({
+    success: true,
+    analytics: {
+      date: today,
+      revenue: { total: totalRevenue.toFixed(2), avgPerOrder: avgOrderValue.toFixed(2) },
+      orders: { count: orderCount, pending: kitchenQueue.length },
+      tables: { available: availableTables, occupied: occupiedTables, total: tables.size },
+      kitchen: { queue: kitchenQueue.length, avgPrepTime: 18 },
+      topMenuItems
+    }
+  });
+});
+
+// ============= DIGITAL TWINS =============
+
+// Get all twins
+app.get('/api/twins', (req, res) => {
+  res.json({ success: true, twins });
+});
+
+// Get specific twin
+app.get('/api/twins/:name', (req, res) => {
+  const twin = twins[req.params.name];
+  if (!twin) return res.status(404).json({ success: false, error: 'Twin not found' });
+  res.json({ success: true, twin });
+});
+
+// Sync twins
+app.post('/api/twins/sync', (req, res) => {
+  twins.menu.items = Array.from(menuItems.values());
+  twins.order.activeOrders = Array.from(orders.values()).filter(o => !['completed', 'cancelled'].includes(o.status));
+  twins.kitchen.queue = kitchenQueue;
+  twins.table.occupancy = Array.from(tables.values());
+  twins.customer.loyalty = Array.from(customers.values());
+
+  logger.info('All twins synchronized');
+  res.json({ success: true, twins });
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+  logger.error(err);
+  res.status(500).json({ success: false, error: err.message });
 });
 
 // Start server
-initDatabase().catch(console.warn);
-app.listen(PORT, () => console.log(`✅ Government OS running on port ${PORT}`));
+async function start() {
+  await initDatabase();
+  app.listen(PORT, () => {
+    logger.info(`🍽️  Government OS running on port ${PORT}`);
+    logger.info(`   Health: http://localhost:${PORT}/health`);
+    logger.info(`   CRM: ${CRM_HUB_URL}`);
+  });
+}
 
+start();
+
+export default app;

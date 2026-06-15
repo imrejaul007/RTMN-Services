@@ -1,232 +1,153 @@
-# Automotive OS - Complete Features
-
-**Port:** 5080  
-**Type:** Industry OS (Automotive Service Management)  
-**Tagline:** "Complete automotive service management"
-**Status:** ✅ PRODUCTION READY
-
----
+# Restaurant OS - Features
 
 ## Core Features
 
-### 1. Vehicle Management
-- [x] **Vehicle CRUD** - Create, read, update, delete vehicle records
-- [x] **VIN Tracking** - Vehicle Identification Number tracking and validation
-- [x] **Make/Model/Year** - Comprehensive vehicle identification
-- [x] **License Plate** - Optional license plate registration
-- [x] **Mileage Tracking** - Current odometer reading
-- [x] **Status Management** - active, in_service, sold, retired
-- [x] **Customer Association** - Link vehicles to customers
-- [x] **Filtering** - Filter by status, brand, year
+### 1. Menu Management
+- [x] Full CRUD operations for menu items
+- [x] Category-based filtering
+- [x] Price range filtering
+- [x] Prep time tracking
+- [x] Ingredient listing
+- [x] Calorie information
+- [x] Availability toggle
+- [x] Menu item images (via URL)
 
-### 2. Customer Management
-- [x] **Customer CRUD** - Create, read, update, delete customer records
-- [x] **Contact Information** - Name, email, phone
-- [x] **Address Management** - Full address with street, city, state, zip
-- [x] **Status Tracking** - active, inactive
-- [x] **Vehicle Association** - Link multiple vehicles to customer
-- [x] **CRM Sync** - Automatic sync to REZ CRM Hub
+### 2. Order Management
+- [x] Multi-item order creation
+- [x] Automatic price calculation
+- [x] Tax calculation (8%)
+- [x] Order number generation
+- [x] Status workflow (pending → confirmed → preparing → ready → served → completed)
+- [x] Order priority (normal/rush)
+- [x] Order notes/special instructions
+- [x] Order types (dine-in, takeout, delivery)
+- [x] Order cancellation
+- [x] Date-based filtering
 
-### 3. Service Catalog
-- [x] **Service CRUD** - Create, read, update, delete services
-- [x] **Category Management** - oil_change, tire_service, brake_service, engine_repair, transmission, electrical, body_work, inspection, detailing, other
-- [x] **Pricing** - Service pricing with currency
-- [x] **Duration Tracking** - Estimated service time in minutes
-- [x] **Description** - Service description
-- [x] **Status Management** - active, inactive
-- [x] **Category Filtering** - Filter services by category
+### 3. Kitchen Queue System
+- [x] Automatic queue addition on order
+- [x] Status tracking per item
+- [x] Priority ordering
+- [x] Prep notes
+- [x] Queue statistics
+- [x] Real-time queue view
 
-### 4. Appointment Scheduling
-- [x] **Appointment CRUD** - Create, read, update, delete appointments
-- [x] **Vehicle Association** - Link to specific vehicle
-- [x] **Service Association** - Link to specific service
-- [x] **Date/Time Scheduling** - Date and time selection
-- [x] **Status Tracking** - scheduled, in_progress, completed, cancelled
-- [x] **Notes** - Additional appointment notes
-- [x] **List Filtering** - Filter appointments by status, date
+### 4. Table Management
+- [x] Table creation (20 sample tables)
+- [x] Capacity management
+- [x] Section assignment (main/patio)
+- [x] Status tracking (available/occupied/reserved)
+- [x] Table reservations
+- [x] Guest count validation
+- [x] Duration tracking
 
-### 5. Analytics Dashboard
-- [x] **Total Counts** - Vehicles, customers, services, appointments
-- [x] **Scheduled Appointments** - Count of upcoming appointments
-- [x] **Real-time Metrics** - Live data from in-memory store
+### 5. Customer Loyalty Program
+- [x] Customer profiles (name, email, phone)
+- [x] Loyalty points system (10 points per $1)
+- [x] Tier system (bronze → silver → gold → platinum)
+- [x] Visit tracking
+- [x] Total spend tracking
+- [x] Customer preferences
+- [x] Duplicate detection
+
+### 6. Review System
+- [x] Rating (1-5 stars)
+- [x] Comment submission
+- [x] Service rating
+- [x] Food rating
+- [x] Ambiance rating
+- [x] Average rating calculation
+- [x] Rating-based filtering
+
+### 7. Analytics Dashboard
+- [x] Daily revenue tracking
+- [x] Average order value
+- [x] Order count
+- [x] Pending orders
+- [x] Table occupancy rate
+- [x] Kitchen queue length
+- [x] Top selling items (top 5)
+- [x] Prep time averages
+
+### 8. Digital Twins
+- [x] Menu Twin - Real-time menu state
+- [x] Order Twin - Active orders
+- [x] Kitchen Twin - Kitchen queue
+- [x] Table Twin - Occupancy map
+- [x] Customer Twin - Loyalty data
+- [x] Twin synchronization
+
+## API Features
+
+### Request/Response Format
+- JSON-only API
+- Consistent success/error format
+- Proper HTTP status codes
+- Request validation
+
+### Filtering & Query
+- Category filtering
+- Price range filtering
+- Status filtering
+- Date filtering
+- Capacity filtering
+- Rating filtering
+
+### Error Handling
+- 400 Bad Request - Validation errors
+- 404 Not Found - Resource not found
+- 500 Internal Server Error - Server errors
+- Winston logging for all errors
+
+## Security Features
+- Helmet.js security headers
+- CORS support
+- Request compression
+- Morgan HTTP logging
+
+## Integration Points
+
+### Internal Services
+- TwinOS Hub - Twin sync
+- MemoryOS - Customer persistence
+- API Gateway - Request routing
+- RABTUL - Payment processing
+
+### External
+- Webhook notifications (future)
+- Payment gateways (future)
+- Delivery service integration (future)
+
 
 ---
 
 ## Authentication & Database Features
 
 ### Authentication System
-- [x] **User Registration** - `POST /auth/register` - Create business/account
-- [x] **Login** - `POST /auth/login` - Authenticate with email/password
-- [x] **Token Verification** - `GET /auth/verify` - Validate JWT token
-- [x] **requireAuth Middleware** - Protects API endpoints
-- [x] **Session Management** - Token expiry and refresh
-- [x] **Password Hashing** - SHA-256 hashing for security
-- [x] **Secure Token Generation** - Crypto-based token generation
+- [x] User registration with businessId
+- [x] Login with email/password
+- [x] JWT token generation
+- [x] Token verification endpoint
+- [x] requireAuth middleware for protected routes
+- [x] Session management with expiry
 
 ### Database Features
-- [x] **MongoDB Integration** - Full persistence via MONGODB_URI
-- [x] **Mongoose ODM** - Schema-based MongoDB models
-- [x] **Automatic Connection** - Connect on startup
-- [x] **Demo Mode** - Runs in-memory without MongoDB
-- [x] **Multi-tenancy** - Data isolation by tenantId/businessId
-- [x] **Business-scoped Isolation** - Each business sees only its data
+- [x] MongoDB integration via Mongoose
+- [x] Automatic connection on startup
+- [x] Graceful fallback to in-memory (demo mode)
+- [x] Multi-tenancy support via tenantId
+- [x] Business-scoped data isolation
 
 ### CRM Integration
-- [x] **Customer Sync** - Automatic sync to REZ CRM Hub
-- [x] **Contact Creation** - Create contacts on registration
-- [x] **Industry Tagging** - Automatic industry classification (automotive)
-- [x] **Unified Records** - Central customer management
+- [x] Customer sync to REZ CRM Hub
+- [x] Contact creation on registration
+- [x] Industry tagging (restaurant, hotel, etc.)
+- [x] Loyalty points sync
+- [x] Customer tier sync
 
----
-
-## Security Features
-- [x] **Password Hashing** - SHA-256
-- [x] **Secure Token Generation** - Crypto module
-- [x] **Authorization Header** - Bearer token validation
-- [x] **CORS Support** - Cross-Origin Resource Sharing
-- [x] **Helmet Security Headers** - Security middleware
-
----
-
-## API Endpoints
-
-### Health & Status
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-
-### Vehicle Management
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/vehicles` | List all vehicles |
-| GET | `/api/vehicles?status=active` | Filter by status |
-| GET | `/api/vehicles?brand=Toyota` | Filter by brand |
-| POST | `/api/vehicles` | Create vehicle |
-| GET | `/api/vehicles/:id` | Get vehicle |
-| PUT | `/api/vehicles/:id` | Update vehicle |
-| DELETE | `/api/vehicles/:id` | Delete vehicle |
-
-### Customer Management
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/customers` | List all customers |
-| POST | `/api/customers` | Create customer |
-| GET | `/api/customers/:id` | Get customer |
-| PUT | `/api/customers/:id` | Update customer |
-| DELETE | `/api/customers/:id` | Delete customer |
-
-### Service Catalog
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/services` | List all services |
-| GET | `/api/services?category=oil_change` | Filter by category |
-| POST | `/api/services` | Create service |
-| GET | `/api/services/:id` | Get service |
-| PUT | `/api/services/:id` | Update service |
-| DELETE | `/api/services/:id` | Delete service |
-
-### Appointments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/appointments` | List all appointments |
-| POST | `/api/appointments` | Create appointment |
-| GET | `/api/appointments/:id` | Get appointment |
-| PUT | `/api/appointments/:id` | Update appointment |
-| PATCH | `/api/appointments/:id/status` | Update status |
-| DELETE | `/api/appointments/:id` | Delete appointment |
-
-### Analytics
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/analytics` | Get analytics dashboard |
-
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/register` | Register business |
-| POST | `/auth/login` | Login |
-| GET | `/auth/verify` | Verify token |
-
----
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| PORT | Service port (default: 5080) | No |
-| MONGODB_URI | MongoDB connection string | No |
-| CRM_HUB_URL | REZ CRM Hub URL | No |
-| SERVICE_NAME | Service identifier for logs | No |
-
----
-
-## Testing
-
-```bash
-# Health check
-curl http://localhost:5080/health
-
-# Register
-curl -X POST http://localhost:5080/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"businessId":"biz_123","email":"owner@autoshop.com","password":"secret"}'
-
-# Login
-curl -X POST http://localhost:5080/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"owner@autoshop.com","password":"secret"}'
-
-# Create vehicle
-curl -X POST http://localhost:5080/api/vehicles \
-  -H "Content-Type: application/json" \
-  -d '{"make":"Toyota","model":"Camry","year":2024,"vin":"1HGBH41JXMN109186","mileage":15000}'
-
-# List vehicles
-curl http://localhost:5080/api/vehicles
-
-# Create customer
-curl -X POST http://localhost:5080/api/customers \
-  -H "Content-Type: application/json" \
-  -d '{"name":"John Doe","email":"john@example.com","phone":"+1234567890"}'
-
-# Create service
-curl -X POST http://localhost:5080/api/services \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Oil Change","category":"oil_change","price":49.99,"duration":30}'
-
-# Create appointment
-curl -X POST http://localhost:5080/api/appointments \
-  -H "Content-Type: application/json" \
-  -d '{"vehicleId":"vehicle-uuid","serviceId":"service-uuid","date":"2026-06-20","time":"10:00"}'
-
-# Get analytics
-curl http://localhost:5080/api/analytics
-```
-
----
-
-## Digital Twin Integration
-
-Automotive OS supports Digital Twin architecture for real-time state management:
-
-- **Vehicle Twin** - Real-time vehicle state tracking
-- **Customer Twin** - Customer relationship mapping
-- **Service Twin** - Service catalog state
-- **Appointment Twin** - Scheduling coordination
-
----
-
-## Industry Integration
-
-Automotive OS connects with other RTNM ecosystem services:
-
-| Service | Integration | Purpose |
-|---------|-------------|---------|
-| REZ CRM Hub | Customer sync | Unified customer records |
-| CorpID | Business identity | Universal business ID |
-| GoalOS | Service goals | Auto-set service targets |
-| MemoryOS | Service history | Vehicle service memory |
-
----
-
-**Last Updated:** June 15, 2026
+### Security Features
+- [x] Password hashing (SHA-256)
+- [x] Secure token generation (crypto)
+- [x] Authorization header validation
+- [x] CORS support
+- [x] Helmet security headers

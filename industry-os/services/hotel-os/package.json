@@ -1,7 +1,7 @@
 {
   "name": "rtmn-hotel-os",
   "version": "1.0.0",
-  "description": "Hotel OS - Industry-specific digital twin for hospitality",
+  "description": "Restaurant OS - Industry-specific digital twin for food service",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -18,7 +18,13 @@
     "uuid": "^9.0.0",
     "winston": "^3.11.0"
   },
-  "keywords": ["hotel", "hospitality", "digital-twin", "guest-management", "rtmn"],
+  "keywords": [
+    "restaurant",
+    "food-service",
+    "digital-twin",
+    "hospitality",
+    "rtmn"
+  ],
   "author": "RTMN",
   "license": "MIT"
 }

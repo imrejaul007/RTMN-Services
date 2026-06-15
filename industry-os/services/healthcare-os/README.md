@@ -1,32 +1,85 @@
-# Healthcare OS
+# Restaurant OS
 
-Industry-specific digital twin for healthcare management within RTMN.
+Industry-specific digital twin service for the restaurant and food service industry within RTMN.
 
-## Port
+## Overview
 
-**5020** - Healthcare OS
+Restaurant OS provides comprehensive management capabilities for restaurants including menu management, order processing, table reservations, kitchen queue management, customer loyalty, and analytics.
+
+## Quick Start
+
+```bash
+# Install dependencies
+cd services/restaurant-os
+npm install
+
+# Run locally
+npm start
+
+# Run with Docker
+docker build -t rtmn-restaurant-os .
+docker run -p 5010:5010 rtmn-restaurant-os
+```
 
 ## API Endpoints
 
-### Patients
-- `GET /api/patients` - List patients
-- `GET /api/patients/:id` - Get patient
-- `POST /api/patients` - Create patient
-- `PUT /api/patients/:id` - Update patient
+### Menu Management
+- `GET /api/menu` - Get all menu items (with optional filters)
+- `GET /api/menu/:id` - Get specific menu item
+- `POST /api/menu` - Create menu item
+- `PUT /api/menu/:id` - Update menu item
+- `DELETE /api/menu/:id` - Delete menu item
 
-### Doctors
-- `GET /api/doctors` - List doctors
-- `GET /api/doctors/:id` - Get doctor
-- `POST /api/doctors` - Add doctor
+### Order Management
+- `POST /api/orders` - Create new order
+- `GET /api/orders` - List orders (filterable)
+- `GET /api/orders/:id` - Get order details
+- `PATCH /api/orders/:id/status` - Update order status
+- `DELETE /api/orders/:id` - Cancel order
 
-### Appointments
-- `GET /api/appointments` - List appointments
-- `POST /api/appointments` - Create appointment
-- `PATCH /api/appointments/:id/status` - Update status
+### Table Management
+- `GET /api/tables` - List all tables
+- `GET /api/tables/:id` - Get table details
+- `PUT /api/tables/:id` - Update table
+- `POST /api/tables/:id/reserve` - Reserve table
 
-### Prescriptions & Records
-- `GET/POST /api/prescriptions` - Prescription management
-- `GET/POST /api/records` - Medical records
+### Kitchen Queue
+- `GET /api/kitchen` - Get kitchen queue
+- `PATCH /api/kitchen/:orderId` - Update preparation status
+
+### Customer Management
+- `POST /api/customers` - Create/update customer
+- `GET /api/customers` - List customers
+- `POST /api/customers/:id/points` - Add loyalty points
+
+### Reviews
+- `POST /api/reviews` - Create review
+- `GET /api/reviews` - List reviews
 
 ### Analytics
-- `GET /api/analytics` - Dashboard stats
+- `GET /api/analytics` - Get daily analytics
+
+### Digital Twins
+- `GET /api/twins` - All twins status
+- `GET /api/twins/:name` - Specific twin
+- `POST /api/twins/sync` - Sync all twins
+
+## Digital Twins
+
+| Twin | Purpose |
+|------|---------|
+| menu-twin | Real-time menu item catalog |
+| order-twin | Active order tracking |
+| kitchen-twin | Kitchen queue management |
+| table-twin | Table occupancy tracking |
+| customer-twin | Customer loyalty data |
+
+## Port
+
+**5010** - Restaurant OS Port
+
+## Health Check
+
+```bash
+curl http://localhost:5010/health
+```

@@ -1,52 +1,85 @@
-# Sports OS
+# Restaurant OS
 
-**Port:** 5180  
-**Industry:** sports
+Industry-specific digital twin service for the restaurant and food service industry within RTMN.
 
-Sports OS provides complete management for sports businesses.
+## Overview
+
+Restaurant OS provides comprehensive management capabilities for restaurants including menu management, order processing, table reservations, kitchen queue management, customer loyalty, and analytics.
 
 ## Quick Start
 
 ```bash
-cd sports-os
+# Install dependencies
+cd services/restaurant-os
 npm install
+
+# Run locally
 npm start
+
+# Run with Docker
+docker build -t rtmn-restaurant-os .
+docker run -p 5010:5010 rtmn-restaurant-os
 ```
 
 ## API Endpoints
 
-### Authentication
-- `POST /auth/register` - Register
-- `POST /auth/login` - Login
-- `GET /auth/verify` - Verify token
+### Menu Management
+- `GET /api/menu` - Get all menu items (with optional filters)
+- `GET /api/menu/:id` - Get specific menu item
+- `POST /api/menu` - Create menu item
+- `PUT /api/menu/:id` - Update menu item
+- `DELETE /api/menu/:id` - Delete menu item
 
-### Sports Management
-- `GET /api/conts` - List conts
-- `POST /api/conts` - Create cont
-- `GET /api/conts/:id` - Get cont
-- `PUT /api/conts/:id` - Update cont
-- `DELETE /api/conts/:id` - Delete cont
-- `GET /api/conts` - List conts
-- `POST /api/conts` - Create cont
-- `GET /api/conts/:id` - Get cont
-- `PUT /api/conts/:id` - Update cont
-- `DELETE /api/conts/:id` - Delete cont
-- `GET /api/conts` - List conts
-- `POST /api/conts` - Create cont
-- `GET /api/conts/:id` - Get cont
-- `PUT /api/conts/:id` - Update cont
-- `DELETE /api/conts/:id` - Delete cont
-- `GET /api/conts` - List conts
-- `POST /api/conts` - Create cont
-- `GET /api/conts/:id` - Get cont
-- `PUT /api/conts/:id` - Update cont
-- `DELETE /api/conts/:id` - Delete cont
+### Order Management
+- `POST /api/orders` - Create new order
+- `GET /api/orders` - List orders (filterable)
+- `GET /api/orders/:id` - Get order details
+- `PATCH /api/orders/:id/status` - Update order status
+- `DELETE /api/orders/:id` - Cancel order
+
+### Table Management
+- `GET /api/tables` - List all tables
+- `GET /api/tables/:id` - Get table details
+- `PUT /api/tables/:id` - Update table
+- `POST /api/tables/:id/reserve` - Reserve table
+
+### Kitchen Queue
+- `GET /api/kitchen` - Get kitchen queue
+- `PATCH /api/kitchen/:orderId` - Update preparation status
+
+### Customer Management
+- `POST /api/customers` - Create/update customer
+- `GET /api/customers` - List customers
+- `POST /api/customers/:id/points` - Add loyalty points
+
+### Reviews
+- `POST /api/reviews` - Create review
+- `GET /api/reviews` - List reviews
 
 ### Analytics
-- `GET /api/analytics` - Get analytics
+- `GET /api/analytics` - Get daily analytics
 
-### Twins
-- `POST /api/twins/sync` - Sync twins
+### Digital Twins
+- `GET /api/twins` - All twins status
+- `GET /api/twins/:name` - Specific twin
+- `POST /api/twins/sync` - Sync all twins
 
-### Health
-- `GET /health` - Health check
+## Digital Twins
+
+| Twin | Purpose |
+|------|---------|
+| menu-twin | Real-time menu item catalog |
+| order-twin | Active order tracking |
+| kitchen-twin | Kitchen queue management |
+| table-twin | Table occupancy tracking |
+| customer-twin | Customer loyalty data |
+
+## Port
+
+**5010** - Restaurant OS Port
+
+## Health Check
+
+```bash
+curl http://localhost:5010/health
+```

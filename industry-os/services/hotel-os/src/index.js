@@ -5,9 +5,54 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 import winston from 'winston';
+import crypto from 'crypto';
+
+// MongoDB support (optional)
+let mongoose = null;
+let dbConnected = false;
+const MONGODB_URI = process.env.MONGODB_URI;
+const CRM_HUB_URL = process.env.CRM_HUB_URL || process.env.REZ_CRM_HUB || 'http://localhost:4056';
+
+// Initialize MongoDB if URI is provided
+async function initDatabase() {
+  if (!MONGODB_URI) {
+    console.log('⚠️  MONGODB_URI not set. Running in demo mode (in-memory).');
+    return;
+  }
+  try {
+    mongoose = (await import('mongoose')).default;
+    await mongoose.connect(MONGODB_URI);
+    dbConnected = true;
+    console.log('✅ MongoDB connected for Hotel OS');
+  } catch (err) {
+    console.error('MongoDB connection failed:', err.message);
+  }
+}
+
+// CRM Hub connection for customer sync
+async function syncCustomerToCRM(customer, businessId) {
+  if (!dbConnected) return;
+  try {
+    await fetch(`${CRM_HUB_URL}/api/contacts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        industry: 'restaurant',
+        businessId,
+        loyaltyPoints: customer.loyaltyPoints,
+        tier: customer.tier,
+      }),
+    });
+  } catch (err) {
+    console.warn('CRM sync failed:', err.message);
+  }
+}
 
 const app = express();
-const PORT = process.env.PORT || 5025;
+const PORT = process.env.PORT || 5010;
 
 // Winston logger
 const logger = winston.createLogger({
@@ -31,533 +76,580 @@ app.use(morgan('combined'));
 app.use(express.json());
 
 // In-memory data stores
-const rooms = new Map();
-const bookings = new Map();
-const guests = new Map();
-const services = new Map();
-const invoices = new Map();
-const amenities = new Map();
+const menuItems = new Map();
+const orders = new Map();
+const tables = new Map();
+const kitchenQueue = [];
+const reservations = new Map();
+const customers = new Map();
+const reviews = new Map();
 
 // Digital Twins
 const twins = {
-  room: { id: 'room-twin', status: 'active', rooms: [], occupancyRate: 0 },
-  booking: { id: 'booking-twin', status: 'active', activeBookings: [] },
-  guest: { id: 'guest-twin', status: 'active', guests: [] },
-  service: { id: 'service-twin', status: 'active', activeServices: [] },
-  revenue: { id: 'revenue-twin', status: 'active', today: 0 }
+  menu: { id: 'menu-twin', status: 'active', items: [] },
+  order: { id: 'order-twin', status: 'active', activeOrders: [] },
+  kitchen: { id: 'kitchen-twin', status: 'active', queue: [] },
+  table: { id: 'table-twin', status: 'active', occupancy: [] },
+  customer: { id: 'customer-twin', status: 'active', loyalty: [] }
 };
 
 // Initialize sample data
 function initializeSampleData() {
-  // Sample rooms (50 rooms)
-  const roomTypes = ['standard', 'deluxe', 'suite', 'presidential'];
-  const floors = [1, 2, 3, 4, 5];
-  let roomNum = 101;
+  // Sample menu items
+  const sampleMenu = [
+    { id: 'm1', name: 'Margherita Pizza', category: 'pizza', price: 12.99, prepTime: 15 },
+    { id: 'm2', name: 'Chicken Alfredo', category: 'pasta', price: 14.99, prepTime: 18 },
+    { id: 'm3', name: 'Caesar Salad', category: 'salad', price: 8.99, prepTime: 5 },
+    { id: 'm4', name: 'Grilled Salmon', category: 'seafood', price: 22.99, prepTime: 20 },
+    { id: 'm5', name: 'BBQ Ribs', category: 'meat', price: 19.99, prepTime: 25 }
+  ];
+  sampleMenu.forEach(item => menuItems.set(item.id, item));
 
-  for (const floor of floors) {
-    for (let i = 0; i < 10; i++) {
-      const type = roomTypes[i < 6 ? 0 : i < 8 ? 1 : i < 9 ? 2 : 3];
-      const price = type === 'standard' ? 99 : type === 'deluxe' ? 149 : type === 'suite' ? 249 : 499;
-      const room = {
-        id: `R${roomNum}`,
-        number: roomNum,
-        floor,
-        type,
-        price,
-        capacity: type === 'standard' ? 2 : type === 'deluxe' ? 2 : type === 'suite' ? 4 : 6,
-        amenities: ['wifi', 'tv', 'ac'],
-        status: Math.random() > 0.7 ? 'occupied' : 'available',
-        view: i % 2 === 0 ? 'city' : 'ocean'
-      };
-      rooms.set(room.id, room);
-      roomNum++;
-    }
+  // Sample tables (20 tables)
+  for (let i = 1; i <= 20; i++) {
+    const table = {
+      id: `t${i}`,
+      capacity: i <= 10 ? 4 : 6,
+      status: 'available',
+      section: i <= 10 ? 'main' : 'patio'
+    };
+    tables.set(table.id, table);
   }
 
-  // Sample services
-  const sampleServices = [
-    { id: 's1', name: 'Room Service', category: 'food', price: 15, available: true },
-    { id: 's2', name: 'Spa Treatment', category: 'wellness', price: 80, available: true },
-    { id: 's3', name: 'Gym Access', category: 'wellness', price: 25, available: true },
-    { id: 's4', name: 'Airport Transfer', category: 'transport', price: 45, available: true },
-    { id: 's5', name: 'Laundry', category: 'housekeeping', price: 20, available: true },
-    { id: 's6', name: 'Restaurant', category: 'food', price: 0, available: true },
-    { id: 's7', name: 'Bar', category: 'food', price: 0, available: true },
-    { id: 's8', name: 'Concierge', category: 'service', price: 0, available: true }
-  ];
-  sampleServices.forEach(s => services.set(s.id, s));
-
   // Update twins
-  twins.room.rooms = Array.from(rooms.values());
-  updateOccupancy();
+  twins.menu.items = Array.from(menuItems.values());
+  twins.table.occupancy = Array.from(tables.values());
 
-  logger.info('Hotel OS sample data initialized');
-}
-
-function updateOccupancy() {
-  const allRooms = Array.from(rooms.values());
-  const occupied = allRooms.filter(r => r.status === 'occupied').length;
-  twins.room.occupancyRate = allRooms.length > 0 ? (occupied / allRooms.length * 100).toFixed(1) : 0;
+  logger.info('Sample data initialized');
 }
 
 initializeSampleData();
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'hotel-os', version: '1.0.0', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'healthy',
+    service: 'hotel-os',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    database: dbConnected ? 'connected' : 'demo (in-memory)',
+    crm: CRM_HUB_URL
+  });
 });
 
-// ============= ROOM ENDPOINTS =============
+// ============= AUTH ENDPOINTS =============
 
-// Get all rooms
-app.get('/api/rooms', (req, res) => {
-  const { status, type, floor, minPrice, maxPrice } = req.query;
-  let allRooms = Array.from(rooms.values());
+// In-memory auth stores
+const authBusinesses = new Map();
+const authUsers = new Map();
+const authSessions = new Map();
 
-  if (status) allRooms = allRooms.filter(r => r.status === status);
-  if (type) allRooms = allRooms.filter(r => r.type === type);
-  if (floor) allRooms = allRooms.filter(r => r.floor === parseInt(floor));
-  if (minPrice) allRooms = allRooms.filter(r => r.price >= parseFloat(minPrice));
-  if (maxPrice) allRooms = allRooms.filter(r => r.price <= parseFloat(maxPrice));
+function genToken() { return crypto.randomBytes(32).toString('hex'); }
 
-  res.json({ success: true, count: allRooms.length, rooms: allRooms });
-});
-
-// Get room
-app.get('/api/rooms/:id', (req, res) => {
-  const room = rooms.get(req.params.id);
-  if (!room) return res.status(404).json({ success: false, error: 'Room not found' });
-  res.json({ success: true, room });
-});
-
-// Create room
-app.post('/api/rooms', (req, res) => {
-  const { number, floor, type, price, capacity, amenities, view } = req.body;
-
-  if (!number || !floor || !type) {
-    return res.status(400).json({ success: false, error: 'Number, floor, and type required' });
+// Register business
+app.post('/auth/register', (req, res) => {
+  const { businessName, ownerName, email, phone, password, plan } = req.body;
+  if (!businessName || !ownerName || !email || !password) {
+    return res.status(400).json({ success: false, error: 'businessName, ownerName, email, password required' });
   }
 
-  const room = {
-    id: `R${number}`,
-    number: parseInt(number),
-    floor: parseInt(floor),
-    type: type || 'standard',
-    price: price || 99,
-    capacity: capacity || 2,
-    amenities: amenities || [],
-    view: view || 'city',
-    status: 'available',
+  for (const [, u] of authUsers) {
+    if (u.email === email && u.industry === 'restaurant') {
+      return res.status(409).json({ success: false, error: 'Email already registered' });
+    }
+  }
+
+  const businessId = `BIZ_RESTAURANT_${Date.now()}`;
+  const ownerId = `OWN_RESTAURANT_${Date.now()}`;
+  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+  const token = genToken();
+
+  authBusinesses.set(businessId, {
+    id: businessId, name: businessName, industry: 'restaurant', email, phone: phone || '',
+    plan: plan || 'starter', status: 'active', createdAt: new Date().toISOString()
+  });
+
+  authUsers.set(ownerId, {
+    id: ownerId, businessId, industry: 'restaurant', email, name: ownerName,
+    role: 'owner', passwordHash, status: 'active', createdAt: new Date().toISOString()
+  });
+
+  authSessions.set(token, {
+    userId: ownerId, businessId, industry: 'restaurant', role: 'owner',
+    createdAt: Date.now(), expiresAt: Date.now() + 2592000000
+  });
+
+  res.status(201).json({
+    success: true, message: 'Restaurant registered',
+    business: { id: businessId, name: businessName, industry: 'restaurant' },
+    user: { id: ownerId, name: ownerName, email, role: 'owner' },
+    token
+  });
+});
+
+// Login
+app.post('/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
+
+  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+  for (const [userId, user] of authUsers) {
+    if (user.email === email && user.industry === 'restaurant') {
+      if (user.passwordHash !== passwordHash) {
+        return res.status(401).json({ success: false, error: 'Invalid password' });
+      }
+      const token = genToken();
+      authSessions.set(token, {
+        userId, businessId: user.businessId, industry: 'restaurant', role: user.role,
+        createdAt: Date.now(), expiresAt: Date.now() + 2592000000
+      });
+      return res.json({
+        success: true, message: 'Login successful',
+        user: { id: userId, name: user.name, email, role: user.role, businessId: user.businessId },
+        business: authBusinesses.get(user.businessId),
+        token
+      });
+    }
+  }
+  res.status(401).json({ success: false, error: 'User not found' });
+});
+
+// Verify token
+app.get('/auth/verify', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'No token' });
+
+  const token = authHeader.substring(7);
+  const session = authSessions.get(token);
+  if (!session || session.expiresAt < Date.now()) {
+    if (session) authSessions.delete(token);
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+
+  const user = authUsers.get(session.userId);
+  res.json({ success: true, valid: true, user: { id: session.userId, name: user?.name, email: user?.email, role: session.role }, businessId: session.businessId });
+});
+
+// Auth middleware for protected routes
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+  const token = authHeader.substring(7);
+  const session = authSessions.get(token);
+  if (!session || session.expiresAt < Date.now()) {
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+  req.session = session;
+  next();
+}
+
+// ============= MENU ENDPOINTS =============
+
+// Get full menu
+app.get('/api/menu', (req, res) => {
+  const { category, minPrice, maxPrice } = req.query;
+  let items = Array.from(menuItems.values());
+
+  if (category) items = items.filter(i => i.category === category);
+  if (minPrice) items = items.filter(i => i.price >= parseFloat(minPrice));
+  if (maxPrice) items = items.filter(i => i.price <= parseFloat(maxPrice));
+
+  res.json({ success: true, count: items.length, items });
+});
+
+// Get menu item
+app.get('/api/menu/:id', (req, res) => {
+  const item = menuItems.get(req.params.id);
+  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
+  res.json({ success: true, item });
+});
+
+// Create menu item
+app.post('/api/menu', (req, res) => {
+  const { name, category, price, prepTime, description, ingredients, calories, available } = req.body;
+
+  if (!name || !category || !price) {
+    return res.status(400).json({ success: false, error: 'Name, category, and price required' });
+  }
+
+  const item = {
+    id: uuidv4(),
+    name,
+    category,
+    price: parseFloat(price),
+    prepTime: prepTime || 15,
+    description: description || '',
+    ingredients: ingredients || [],
+    calories: calories || 0,
+    available: available !== false,
     createdAt: new Date().toISOString()
   };
 
-  rooms.set(room.id, room);
-  twins.room.rooms.push(room);
-  updateOccupancy();
+  menuItems.set(item.id, item);
+  twins.menu.items.push(item);
 
-  logger.info(`Room created: ${room.id}`);
-  res.status(201).json({ success: true, room });
+  logger.info(`Menu item created: ${item.name}`);
+  res.status(201).json({ success: true, item });
 });
 
-// Update room
-app.put('/api/rooms/:id', (req, res) => {
-  const room = rooms.get(req.params.id);
-  if (!room) return res.status(404).json({ success: false, error: 'Room not found' });
+// Update menu item
+app.put('/api/menu/:id', (req, res) => {
+  const item = menuItems.get(req.params.id);
+  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
 
-  const updated = { ...room, ...req.body, id: room.id, updatedAt: new Date().toISOString() };
-  rooms.set(room.id, updated);
+  const updated = { ...item, ...req.body, id: item.id, updatedAt: new Date().toISOString() };
+  menuItems.set(item.id, updated);
 
-  const twinIndex = twins.room.rooms.findIndex(r => r.id === room.id);
-  if (twinIndex >= 0) twins.room.rooms[twinIndex] = updated;
+  const twinIndex = twins.menu.items.findIndex(i => i.id === item.id);
+  if (twinIndex >= 0) twins.menu.items[twinIndex] = updated;
 
-  res.json({ success: true, room: updated });
+  logger.info(`Menu item updated: ${updated.name}`);
+  res.json({ success: true, item: updated });
 });
 
-// Delete room
-app.delete('/api/rooms/:id', (req, res) => {
-  if (!rooms.has(req.params.id)) {
-    return res.status(404).json({ success: false, error: 'Room not found' });
-  }
-  rooms.delete(req.params.id);
-  twins.room.rooms = twins.room.rooms.filter(r => r.id !== req.params.id);
-  updateOccupancy();
-  res.json({ success: true, message: 'Room deleted' });
+// Delete menu item
+app.delete('/api/menu/:id', (req, res) => {
+  const item = menuItems.get(req.params.id);
+  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
+
+  menuItems.delete(req.params.id);
+  twins.menu.items = twins.menu.items.filter(i => i.id !== req.params.id);
+
+  logger.info(`Menu item deleted: ${item.name}`);
+  res.json({ success: true, message: 'Menu item deleted' });
 });
 
-// ============= BOOKING ENDPOINTS =============
+// ============= ORDER ENDPOINTS =============
 
-// Create booking
-app.post('/api/bookings', (req, res) => {
-  const { roomId, guestId, checkIn, checkOut, guests, specialRequests, paymentMethod } = req.body;
+// Create order
+app.post('/api/orders', (req, res) => {
+  const { tableId, items, customerId, notes, orderType } = req.body;
 
-  if (!roomId || !checkIn || !checkOut) {
-    return res.status(400).json({ success: false, error: 'Room ID, check-in, and check-out dates required' });
+  if (!items || items.length === 0) {
+    return res.status(400).json({ success: false, error: 'Order items required' });
   }
 
-  const room = rooms.get(roomId);
-  if (!room) return res.status(404).json({ success: false, error: 'Room not found' });
-
-  // Check availability
-  const checkInDate = new Date(checkIn);
-  const checkOutDate = new Date(checkOut);
-  if (checkInDate >= checkOutDate) {
-    return res.status(400).json({ success: false, error: 'Check-out must be after check-in' });
-  }
-
-  const conflicting = Array.from(bookings.values()).find(b => {
-    if (b.roomId !== roomId || b.status === 'cancelled') return false;
-    const bIn = new Date(b.checkIn);
-    const bOut = new Date(b.checkOut);
-    return (checkInDate < bOut && checkOutDate > bIn);
+  const orderItems = items.map(i => {
+    const menuItem = menuItems.get(i.itemId);
+    if (!menuItem) throw new Error(`Item ${i.itemId} not found`);
+    return { ...i, menuItem, subtotal: menuItem.price * (i.quantity || 1) };
   });
 
-  if (conflicting) {
-    return res.status(409).json({ success: false, error: 'Room not available for selected dates' });
-  }
-
-  // Calculate nights and total
-  const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-  const subtotal = room.price * nights;
-  const tax = subtotal * 0.12;
+  const subtotal = orderItems.reduce((sum, i) => sum + i.subtotal, 0);
+  const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
-  const booking = {
+  const order = {
     id: uuidv4(),
-    bookingNumber: `BK-${Date.now().toString(36).toUpperCase()}`,
-    roomId,
-    guestId: guestId || null,
-    guestCount: guests || 1,
-    checkIn: checkInDate.toISOString(),
-    checkOut: checkOutDate.toISOString(),
-    nights,
-    roomPrice: room.price,
+    orderNumber: `ORD-${Date.now().toString(36).toUpperCase()}`,
+    tableId: tableId || null,
+    customerId: customerId || null,
+    items: orderItems,
     subtotal,
     tax,
     total,
-    status: 'confirmed',
-    specialRequests: specialRequests || '',
-    paymentMethod: paymentMethod || 'credit_card',
-    createdAt: new Date().toISOString()
+    status: 'pending',
+    priority: 'normal',
+    notes: notes || '',
+    orderType: orderType || 'dine-in',
+    createdAt: new Date().toISOString(),
+    estimatedReady: new Date(Date.now() + 20 * 60000).toISOString()
   };
 
-  bookings.set(booking.id, booking);
-  twins.booking.activeBookings.push(booking);
+  orders.set(order.id, order);
+  kitchenQueue.push({ orderId: order.id, ...order });
+  twins.order.activeOrders.push(order);
 
-  // Update room status
-  room.status = 'occupied';
-  rooms.set(room.id, room);
+  // Update table status
+  if (tableId && tables.has(tableId)) {
+    const table = tables.get(tableId);
+    table.status = 'occupied';
+    table.currentOrder = order.id;
+  }
 
-  logger.info(`Booking created: ${booking.bookingNumber}, Room ${roomId}, ${nights} nights, $${total.toFixed(2)}`);
-  res.status(201).json({ success: true, booking });
+  logger.info(`Order created: ${order.orderNumber}, total: $${total.toFixed(2)}`);
+  res.status(201).json({ success: true, order });
 });
 
-// Get bookings
-app.get('/api/bookings', (req, res) => {
-  const { status, roomId, guestId, fromDate, toDate } = req.query;
-  let allBookings = Array.from(bookings.values());
+// Get orders
+app.get('/api/orders', (req, res) => {
+  const { status, tableId, date } = req.query;
+  let allOrders = Array.from(orders.values());
 
-  if (status) allBookings = allBookings.filter(b => b.status === status);
-  if (roomId) allBookings = allBookings.filter(b => b.roomId === roomId);
-  if (guestId) allBookings = allBookings.filter(b => b.guestId === guestId);
-  if (fromDate) allBookings = allBookings.filter(b => new Date(b.checkIn) >= new Date(fromDate));
-  if (toDate) allBookings = allBookings.filter(b => new Date(b.checkOut) <= new Date(toDate));
+  if (status) allOrders = allOrders.filter(o => o.status === status);
+  if (tableId) allOrders = allOrders.filter(o => o.tableId === tableId);
+  if (date) allOrders = allOrders.filter(o => o.createdAt.startsWith(date));
 
-  res.json({ success: true, count: allBookings.length, bookings: allBookings });
+  res.json({ success: true, count: allOrders.length, orders: allOrders });
 });
 
-// Get booking
-app.get('/api/bookings/:id', (req, res) => {
-  const booking = bookings.get(req.params.id);
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' });
-  res.json({ success: true, booking });
+// Get order by ID
+app.get('/api/orders/:id', (req, res) => {
+  const order = orders.get(req.params.id);
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+  res.json({ success: true, order });
 });
 
-// Update booking
-app.put('/api/bookings/:id', (req, res) => {
-  const booking = bookings.get(req.params.id);
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' });
+// Update order status
+app.patch('/api/orders/:id/status', (req, res) => {
+  const order = orders.get(req.params.id);
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
 
-  const { checkIn, checkOut, specialRequests, guestCount } = req.body;
-  const updates = {};
+  const { status, priority } = req.body;
+  const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
 
-  if (checkIn) updates.checkIn = new Date(checkIn).toISOString();
-  if (checkOut) updates.checkOut = new Date(checkOut).toISOString();
-  if (specialRequests) updates.specialRequests = specialRequests;
-  if (guestCount) updates.guestCount = guestCount;
-
-  const updated = { ...booking, ...updates, updatedAt: new Date().toISOString() };
-  bookings.set(booking.id, updated);
-
-  res.json({ success: true, booking: updated });
-});
-
-// Update booking status
-app.patch('/api/bookings/:id/status', (req, res) => {
-  const booking = bookings.get(req.params.id);
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' });
-
-  const { status } = req.body;
-  const validStatuses = ['confirmed', 'checked-in', 'checked-out', 'cancelled', 'no-show'];
-
-  if (!validStatuses.includes(status)) {
+  if (status && !validStatuses.includes(status)) {
     return res.status(400).json({ success: false, error: `Invalid status. Valid: ${validStatuses.join(', ')}` });
   }
 
-  booking.status = status;
-  booking.updatedAt = new Date().toISOString();
+  if (status) order.status = status;
+  if (priority) order.priority = priority;
+  order.updatedAt = new Date().toISOString();
 
-  // Update room status
-  if (status === 'checked-in') {
-    rooms.get(booking.roomId).status = 'occupied';
-  } else if (status === 'checked-out' || status === 'cancelled') {
-    rooms.get(booking.roomId).status = 'available';
-    twins.booking.activeBookings = twins.booking.activeBookings.filter(b => b.id !== booking.id);
-  }
-
-  logger.info(`Booking ${booking.bookingNumber} status: ${status}`);
-  res.json({ success: true, booking });
-});
-
-// Cancel booking
-app.delete('/api/bookings/:id', (req, res) => {
-  const booking = bookings.get(req.params.id);
-  if (!booking) return res.status(404).json({ success: false, error: 'Booking not found' });
-
-  booking.status = 'cancelled';
-  booking.cancelledAt = new Date().toISOString();
-
-  rooms.get(booking.roomId).status = 'available';
-  twins.booking.activeBookings = twins.booking.activeBookings.filter(b => b.id !== booking.id);
-  updateOccupancy();
-
-  logger.info(`Booking cancelled: ${booking.bookingNumber}`);
-  res.json({ success: true, booking });
-});
-
-// ============= GUEST ENDPOINTS =============
-
-// Create guest
-app.post('/api/guests', (req, res) => {
-  const { name, email, phone, address, idType, idNumber, preferences } = req.body;
-
-  if (!name) return res.status(400).json({ success: false, error: 'Name required' });
-
-  // Check for existing guest
-  if (email) {
-    const existing = Array.from(guests.values()).find(g => g.email === email);
-    if (existing) {
-      Object.assign(existing, req.body, { updatedAt: new Date().toISOString() });
-      guests.set(existing.id, existing);
-      return res.json({ success: true, guest: existing, isNew: false });
+  // Update kitchen queue
+  const kqIndex = kitchenQueue.findIndex(q => q.orderId === order.id);
+  if (kqIndex >= 0) {
+    if (status === 'completed' || status === 'cancelled') {
+      kitchenQueue.splice(kqIndex, 1);
+    } else {
+      kitchenQueue[kqIndex].status = status;
     }
   }
 
-  const guest = {
+  // Update twin
+  const twinIndex = twins.order.activeOrders.findIndex(o => o.id === order.id);
+  if (twinIndex >= 0) twins.order.activeOrders[twinIndex] = order;
+
+  logger.info(`Order ${order.orderNumber} status: ${status || order.status}`);
+  res.json({ success: true, order });
+});
+
+// Cancel order
+app.delete('/api/orders/:id', (req, res) => {
+  const order = orders.get(req.params.id);
+  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
+
+  order.status = 'cancelled';
+  order.cancelledAt = new Date().toISOString();
+
+  const kqIndex = kitchenQueue.findIndex(q => q.orderId === order.id);
+  if (kqIndex >= 0) kitchenQueue.splice(kqIndex, 1);
+
+  twins.order.activeOrders = twins.order.activeOrders.filter(o => o.id !== order.id);
+
+  logger.info(`Order cancelled: ${order.orderNumber}`);
+  res.json({ success: true, order });
+});
+
+// ============= TABLE ENDPOINTS =============
+
+// Get all tables
+app.get('/api/tables', (req, res) => {
+  const { status, section, minCapacity } = req.query;
+  let allTables = Array.from(tables.values());
+
+  if (status) allTables = allTables.filter(t => t.status === status);
+  if (section) allTables = allTables.filter(t => t.section === section);
+  if (minCapacity) allTables = allTables.filter(t => t.capacity >= parseInt(minCapacity));
+
+  res.json({ success: true, count: allTables.length, tables: allTables });
+});
+
+// Get table
+app.get('/api/tables/:id', (req, res) => {
+  const table = tables.get(req.params.id);
+  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
+  res.json({ success: true, table });
+});
+
+// Update table
+app.put('/api/tables/:id', (req, res) => {
+  const table = tables.get(req.params.id);
+  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
+
+  const updated = { ...table, ...req.body, id: table.id };
+  tables.set(table.id, updated);
+  twins.table.occupancy = Array.from(tables.values());
+
+  res.json({ success: true, table: updated });
+});
+
+// Reserve table
+app.post('/api/tables/:id/reserve', (req, res) => {
+  const table = tables.get(req.params.id);
+  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
+
+  const { customerId, guestCount, date, time, duration } = req.body;
+  if (!customerId || !date || !time) {
+    return res.status(400).json({ success: false, error: 'customerId, date, and time required' });
+  }
+
+  const reservation = {
     id: uuidv4(),
-    name,
-    email: email || null,
-    phone: phone || null,
-    address: address || {},
-    idType: idType || null,
-    idNumber: idNumber || null,
-    preferences: preferences || {},
-    loyaltyPoints: 0,
-    tier: 'bronze',
-    stayCount: 0,
-    totalSpent: 0,
-    notes: '',
+    tableId: table.id,
+    customerId,
+    guestCount: guestCount || table.capacity,
+    date,
+    time,
+    duration: duration || 90,
+    status: 'confirmed',
     createdAt: new Date().toISOString()
   };
 
-  guests.set(guest.id, guest);
-  twins.guest.guests.push(guest);
-
-  logger.info(`Guest registered: ${guest.name}`);
-  res.status(201).json({ success: true, guest, isNew: true });
+  reservations.set(reservation.id, reservation);
+  logger.info(`Table ${table.id} reserved for ${date} at ${time}`);
+  res.status(201).json({ success: true, reservation });
 });
 
-// Get guests
-app.get('/api/guests', (req, res) => {
-  const { tier, minStays } = req.query;
-  let allGuests = Array.from(guests.values());
+// ============= KITCHEN QUEUE =============
 
-  if (tier) allGuests = allGuests.filter(g => g.tier === tier);
-  if (minStays) allGuests = allGuests.filter(g => g.stayCount >= parseInt(minStays));
+// Get kitchen queue
+app.get('/api/kitchen', (req, res) => {
+  const { status } = req.query;
+  let queue = kitchenQueue;
 
-  res.json({ success: true, count: allGuests.length, guests: allGuests });
+  if (status) queue = queue.filter(q => q.status === status);
+
+  const stats = {
+    pending: kitchenQueue.filter(q => q.status === 'pending').length,
+    preparing: kitchenQueue.filter(q => q.status === 'preparing').length,
+    ready: kitchenQueue.filter(q => q.status === 'ready').length,
+    total: kitchenQueue.length
+  };
+
+  res.json({ success: true, queue, stats });
 });
 
-// Get guest
-app.get('/api/guests/:id', (req, res) => {
-  const guest = guests.get(req.params.id);
-  if (!guest) return res.status(404).json({ success: false, error: 'Guest not found' });
-  res.json({ success: true, guest });
+// Update kitchen item
+app.patch('/api/kitchen/:orderId', (req, res) => {
+  const queueItem = kitchenQueue.find(q => q.orderId === req.params.orderId);
+  if (!queueItem) return res.status(404).json({ success: false, error: 'Order not in kitchen queue' });
+
+  const { status, prepNotes } = req.body;
+  if (status) queueItem.status = status;
+  if (prepNotes) queueItem.prepNotes = prepNotes;
+
+  res.json({ success: true, item: queueItem });
 });
 
-// Update guest
-app.put('/api/guests/:id', (req, res) => {
-  const guest = guests.get(req.params.id);
-  if (!guest) return res.status(404).json({ success: false, error: 'Guest not found' });
+// ============= CUSTOMERS =============
 
-  const updated = { ...guest, ...req.body, id: guest.id, updatedAt: new Date().toISOString() };
-  guests.set(guest.id, updated);
+// Create/Update customer
+app.post('/api/customers', (req, res) => {
+  const { name, email, phone, preferences } = req.body;
 
-  const twinIndex = twins.guest.guests.findIndex(g => g.id === guest.id);
-  if (twinIndex >= 0) twins.guest.guests[twinIndex] = updated;
+  if (!name && !email && !phone) {
+    return res.status(400).json({ success: false, error: 'Name, email, or phone required' });
+  }
 
-  res.json({ success: true, guest: updated });
+  // Check if customer exists
+  const existing = Array.from(customers.values()).find(
+    c => (email && c.email === email) || (phone && c.phone === phone)
+  );
+
+  if (existing) {
+    Object.assign(existing, req.body, { updatedAt: new Date().toISOString() });
+    customers.set(existing.id, existing);
+    return res.json({ success: true, customer: existing, isNew: false });
+  }
+
+  const customer = {
+    id: uuidv4(),
+    name: name || 'Guest',
+    email: email || null,
+    phone: phone || null,
+    loyaltyPoints: 0,
+    tier: 'bronze',
+    preferences: preferences || {},
+    visitCount: 1,
+    totalSpent: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  customers.set(customer.id, customer);
+  twins.customer.loyalty.push(customer);
+
+  // Sync to CRM Hub
+  syncCustomerToCRM(customer, null).catch(console.warn);
+
+  logger.info(`New customer: ${customer.name}`);
+  res.status(201).json({ success: true, customer, isNew: true });
+});
+
+// Get customers
+app.get('/api/customers', (req, res) => {
+  const { tier, minVisits, minSpent } = req.query;
+  let allCustomers = Array.from(customers.values());
+
+  if (tier) allCustomers = allCustomers.filter(c => c.tier === tier);
+  if (minVisits) allCustomers = allCustomers.filter(c => c.visitCount >= parseInt(minVisits));
+  if (minSpent) allCustomers = allCustomers.filter(c => c.totalSpent >= parseFloat(minSpent));
+
+  res.json({ success: true, count: allCustomers.length, customers: allCustomers });
 });
 
 // Add loyalty points
-app.post('/api/guests/:id/points', (req, res) => {
-  const guest = guests.get(req.params.id);
-  if (!guest) return res.status(404).json({ success: false, error: 'Guest not found' });
+app.post('/api/customers/:id/points', (req, res) => {
+  const customer = customers.get(req.params.id);
+  if (!customer) return res.status(404).json({ success: false, error: 'Customer not found' });
 
   const { points, amount } = req.body;
   const earned = amount ? Math.floor(amount * 10) : (points || 0);
-  guest.loyaltyPoints += earned;
-  guest.totalSpent += amount || 0;
-  guest.stayCount++;
+  customer.loyaltyPoints += earned;
+  customer.totalSpent += amount || 0;
+  customer.visitCount++;
 
   // Update tier
-  if (guest.loyaltyPoints >= 10000) guest.tier = 'platinum';
-  else if (guest.loyaltyPoints >= 5000) guest.tier = 'gold';
-  else if (guest.loyaltyPoints >= 1000) guest.tier = 'silver';
+  if (customer.loyaltyPoints >= 5000) customer.tier = 'platinum';
+  else if (customer.loyaltyPoints >= 2000) customer.tier = 'gold';
+  else if (customer.loyaltyPoints >= 500) customer.tier = 'silver';
 
-  guests.set(guest.id, guest);
-  res.json({ success: true, guest });
+  customers.set(customer.id, customer);
+  res.json({ success: true, customer });
 });
 
-// ============= SERVICES ENDPOINTS =============
+// ============= REVIEWS =============
 
-// Get services
-app.get('/api/services', (req, res) => {
-  const { category, available } = req.query;
-  let allServices = Array.from(services.values());
+// Create review
+app.post('/api/reviews', (req, res) => {
+  const { customerId, orderId, rating, comment, service } = req.body;
 
-  if (category) allServices = allServices.filter(s => s.category === category);
-  if (available !== undefined) allServices = allServices.filter(s => s.available === (available === 'true'));
+  if (!rating || rating < 1 || rating > 5) {
+    return res.status(400).json({ success: false, error: 'Rating 1-5 required' });
+  }
 
-  res.json({ success: true, services: allServices });
-});
-
-// Request service
-app.post('/api/services/request', (req, res) => {
-  const { serviceId, bookingId, roomId, quantity, notes } = req.body;
-
-  const service = services.get(serviceId);
-  if (!service) return res.status(404).json({ success: false, error: 'Service not found' });
-  if (!service.available) return res.status(400).json({ success: false, error: 'Service not available' });
-
-  const request = {
+  const review = {
     id: uuidv4(),
-    serviceId,
-    serviceName: service.name,
-    bookingId: bookingId || null,
-    roomId: roomId || null,
-    quantity: quantity || 1,
-    price: service.price,
-    total: service.price * (quantity || 1),
-    status: 'pending',
-    notes: notes || '',
+    customerId: customerId || null,
+    orderId: orderId || null,
+    rating,
+    comment: comment || '',
+    service: service || 3,
+    food: service || 3,
+    ambiance: service || 3,
+    status: 'published',
     createdAt: new Date().toISOString()
   };
 
-  twins.service.activeServices.push(request);
-  logger.info(`Service requested: ${service.name}`);
-  res.status(201).json({ success: true, request });
+  reviews.set(review.id, review);
+  logger.info(`New review: ${rating} stars`);
+  res.status(201).json({ success: true, review });
 });
 
-// Get service requests
-app.get('/api/services/requests', (req, res) => {
-  const { status, roomId } = req.query;
-  let requests = twins.service.activeServices;
+// Get reviews
+app.get('/api/reviews', (req, res) => {
+  const { minRating, maxRating } = req.query;
+  let allReviews = Array.from(reviews.values());
 
-  if (status) requests = requests.filter(r => r.status === status);
-  if (roomId) requests = requests.filter(r => r.roomId === roomId);
+  if (minRating) allReviews = allReviews.filter(r => r.rating >= parseInt(minRating));
+  if (maxRating) allReviews = allReviews.filter(r => r.rating <= parseInt(maxRating));
 
-  res.json({ success: true, requests });
-});
+  const avgRating = allReviews.length > 0
+    ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+    : 0;
 
-// Update service request
-app.patch('/api/services/requests/:id', (req, res) => {
-  const request = twins.service.activeServices.find(r => r.id === req.params.id);
-  if (!request) return res.status(404).json({ success: false, error: 'Request not found' });
-
-  const { status } = req.body;
-  if (status) {
-    request.status = status;
-    if (status === 'completed' || status === 'cancelled') {
-      twins.service.activeServices = twins.service.activeServices.filter(r => r.id !== request.id);
-    }
-  }
-
-  res.json({ success: true, request });
-});
-
-// ============= INVOICE ENDPOINTS =============
-
-// Create invoice
-app.post('/api/invoices', (req, res) => {
-  const { bookingId, items, paymentMethod } = req.body;
-
-  if (!items || items.length === 0) {
-    return res.status(400).json({ success: false, error: 'Invoice items required' });
-  }
-
-  const subtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-  const tax = subtotal * 0.12;
-  const total = subtotal + tax;
-
-  const invoice = {
-    id: uuidv4(),
-    invoiceNumber: `INV-${Date.now().toString(36).toUpperCase()}`,
-    bookingId: bookingId || null,
-    items,
-    subtotal,
-    tax,
-    total,
-    status: 'pending',
-    paymentMethod: paymentMethod || 'credit_card',
-    paidAt: null,
-    createdAt: new Date().toISOString()
-  };
-
-  invoices.set(invoice.id, invoice);
-  logger.info(`Invoice created: ${invoice.invoiceNumber}, $${total.toFixed(2)}`);
-  res.status(201).json({ success: true, invoice });
-});
-
-// Get invoices
-app.get('/api/invoices', (req, res) => {
-  const { status, bookingId } = req.query;
-  let allInvoices = Array.from(invoices.values());
-
-  if (status) allInvoices = allInvoices.filter(i => i.status === status);
-  if (bookingId) allInvoices = allInvoices.filter(i => i.bookingId === bookingId);
-
-  res.json({ success: true, invoices: allInvoices });
-});
-
-// Get invoice
-app.get('/api/invoices/:id', (req, res) => {
-  const invoice = invoices.get(req.params.id);
-  if (!invoice) return res.status(404).json({ success: false, error: 'Invoice not found' });
-  res.json({ success: true, invoice });
-});
-
-// Pay invoice
-app.post('/api/invoices/:id/pay', (req, res) => {
-  const invoice = invoices.get(req.params.id);
-  if (!invoice) return res.status(404).json({ success: false, error: 'Invoice not found' });
-
-  invoice.status = 'paid';
-  invoice.paidAt = new Date().toISOString();
-
-  twins.revenue.today += invoice.total;
-
-  logger.info(`Invoice paid: ${invoice.invoiceNumber}`);
-  res.json({ success: true, invoice });
+  res.json({ success: true, count: allReviews.length, reviews: allReviews, averageRating: avgRating.toFixed(1) });
 });
 
 // ============= ANALYTICS =============
@@ -565,24 +657,39 @@ app.post('/api/invoices/:id/pay', (req, res) => {
 // Get analytics
 app.get('/api/analytics', (req, res) => {
   const today = new Date().toISOString().split('T')[0];
-  const todayBookings = Array.from(bookings.values()).filter(b => b.createdAt.startsWith(today));
-  const checkedIn = Array.from(bookings.values()).filter(b => b.status === 'checked-in');
+  const todayOrders = Array.from(orders.values()).filter(o => o.createdAt.startsWith(today));
 
-  const totalRevenue = Array.from(invoices.values())
-    .filter(i => i.paidAt && i.paidAt.startsWith(today))
-    .reduce((sum, i) => sum + i.total, 0);
+  const totalRevenue = todayOrders
+    .filter(o => o.status !== 'cancelled')
+    .reduce((sum, o) => sum + o.total, 0);
 
-  const occupancy = Array.from(rooms.values()).filter(r => r.status === 'occupied').length;
+  const orderCount = todayOrders.filter(o => o.status !== 'cancelled').length;
+  const avgOrderValue = orderCount > 0 ? totalRevenue / orderCount : 0;
+
+  const availableTables = Array.from(tables.values()).filter(t => t.status === 'available').length;
+  const occupiedTables = Array.from(tables.values()).filter(t => t.status === 'occupied').length;
+
+  const topItems = {};
+  todayOrders.forEach(order => {
+    order.items.forEach(item => {
+      topItems[item.menuItem?.name || item.name] = (topItems[item.menuItem?.name || item.name] || 0) + item.quantity;
+    });
+  });
+
+  const topMenuItems = Object.entries(topItems)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
 
   res.json({
     success: true,
     analytics: {
       date: today,
-      rooms: { total: rooms.size, occupied: occupancy, available: rooms.size - occupancy, occupancyRate: `${((occupancy / rooms.size) * 100).toFixed(1)}%` },
-      bookings: { today: todayBookings.length, active: checkedIn.length },
-      revenue: { today: totalRevenue.toFixed(2), perRoom: (totalRevenue / Math.max(1, occupancy)).toFixed(2) },
-      services: { active: twins.service.activeServices.length },
-      guests: { total: guests.size, vip: guests.size }
+      revenue: { total: totalRevenue.toFixed(2), avgPerOrder: avgOrderValue.toFixed(2) },
+      orders: { count: orderCount, pending: kitchenQueue.length },
+      tables: { available: availableTables, occupied: occupiedTables, total: tables.size },
+      kitchen: { queue: kitchenQueue.length, avgPrepTime: 18 },
+      topMenuItems
     }
   });
 });
@@ -603,12 +710,13 @@ app.get('/api/twins/:name', (req, res) => {
 
 // Sync twins
 app.post('/api/twins/sync', (req, res) => {
-  twins.room.rooms = Array.from(rooms.values());
-  twins.booking.activeBookings = Array.from(bookings.values()).filter(b => !['completed', 'cancelled'].includes(b.status));
-  twins.guest.guests = Array.from(guests.values());
-  updateOccupancy();
+  twins.menu.items = Array.from(menuItems.values());
+  twins.order.activeOrders = Array.from(orders.values()).filter(o => !['completed', 'cancelled'].includes(o.status));
+  twins.kitchen.queue = kitchenQueue;
+  twins.table.occupancy = Array.from(tables.values());
+  twins.customer.loyalty = Array.from(customers.values());
 
-  logger.info('Hotel twins synchronized');
+  logger.info('All twins synchronized');
   res.json({ success: true, twins });
 });
 
@@ -619,140 +727,15 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-
-// ============= AUTH + DATABASE =============
-
-const authBusinesses = new Map();
-const authUsers = new Map();
-const authSessions = new Map();
-const crypto = import('crypto');
-
-function genToken() { return crypto.randomBytes(32).toString('hex'); }
-
-// MongoDB support
-let mongoose = null;
-let dbConnected = false;
-const MONGODB_URI = process.env.MONGODB_URI;
-const CRM_HUB_URL = process.env.CRM_HUB_URL || 'http://localhost:4056';
-
-async function initDatabase() {
-  if (!MONGODB_URI) return;
-  try {
-    mongoose = (await import('mongoose')).default;
-    await mongoose.connect(MONGODB_URI);
-    dbConnected = true;
-    console.log('✅ MongoDB connected');
-  } catch (err) {
-    console.warn('MongoDB failed:', err.message);
-  }
+async function start() {
+  await initDatabase();
+  app.listen(PORT, () => {
+    logger.info(`🍽️  Hotel OS running on port ${PORT}`);
+    logger.info(`   Health: http://localhost:${PORT}/health`);
+    logger.info(`   CRM: ${CRM_HUB_URL}`);
+  });
 }
 
-async function syncToCRM(endpoint, data) {
-  if (!dbConnected) return;
-  try {
-    await fetch(`${CRM_HUB_URL}/api${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-  } catch (err) {
-    console.warn('CRM sync failed:', err.message);
-  }
-}
-
-// Register business
-app.post('/auth/register', (req, res) => {
-  const { businessName, ownerName, email, phone, password, plan } = req.body;
-  if (!businessName || !ownerName || !email || !password) {
-    return res.status(400).json({ success: false, error: 'businessName, ownerName, email, password required' });
-  }
-  for (const [, u] of authUsers) {
-    if (u.email === email && u.industry === 'hotel') {
-      return res.status(409).json({ success: false, error: 'Email already registered' });
-    }
-  }
-  const businessId = 'BIZ_hotel_' + Date.now();
-  const ownerId = 'OWN_hotel_' + Date.now();
-  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
-  const token = genToken();
-  authBusinesses.set(businessId, {
-    id: businessId, name: businessName, industry: 'hotel', email, phone: phone || '',
-    plan: plan || 'starter', status: 'active', createdAt: new Date().toISOString()
-  });
-  authUsers.set(ownerId, {
-    id: ownerId, businessId, industry: 'hotel', email, name: ownerName,
-    role: 'owner', passwordHash, status: 'active', createdAt: new Date().toISOString()
-  });
-  authSessions.set(token, {
-    userId: ownerId, businessId, industry: 'hotel', role: 'owner',
-    createdAt: Date.now(), expiresAt: Date.now() + 2592000000
-  });
-  res.status(201).json({
-    success: true, message: 'hotel registered',
-    business: { id: businessId, name: businessName, industry: 'hotel' },
-    user: { id: ownerId, name: ownerName, email, role: 'owner' },
-    token
-  });
-});
-
-// Login
-app.post('/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
-  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
-  for (const [userId, user] of authUsers) {
-    if (user.email === email && user.industry === 'hotel') {
-      if (user.passwordHash !== passwordHash) {
-        return res.status(401).json({ success: false, error: 'Invalid password' });
-      }
-      const token = genToken();
-      authSessions.set(token, {
-        userId, businessId: user.businessId, industry: 'hotel', role: user.role,
-        createdAt: Date.now(), expiresAt: Date.now() + 2592000000
-      });
-      return res.json({
-        success: true, message: 'Login successful',
-        user: { id: userId, name: user.name, email, role: user.role, businessId: user.businessId },
-        business: authBusinesses.get(user.businessId),
-        token
-      });
-    }
-  }
-  res.status(401).json({ success: false, error: 'User not found' });
-});
-
-// Verify token
-app.get('/auth/verify', (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'No token' });
-  const token = authHeader.substring(7);
-  const session = authSessions.get(token);
-  if (!session || session.expiresAt < Date.now()) {
-    if (session) authSessions.delete(token);
-    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
-  }
-  const user = authUsers.get(session.userId);
-  res.json({ success: true, valid: true, user: { id: session.userId, name: user?.name, email: user?.email, role: session.role }, businessId: session.businessId });
-});
-
-// Auth middleware
-function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'Authentication required' });
-  const token = authHeader.substring(7);
-  const session = authSessions.get(token);
-  if (!session || session.expiresAt < Date.now()) {
-    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
-  }
-  req.session = session;
-  next();
-}
-
-// Initialize database
-initDatabase().catch(console.warn);
-
-app.listen(PORT, () => {
-  logger.info(`🏨 Hotel OS running on port ${PORT}`);
-});
+start();
 
 export default app;
