@@ -77,6 +77,17 @@ companies/RABTUL-Technologies/REZ-economy-os/node_modules/
 companies/RABTUL-Technologies/REZ-economy-os/dist/
 companies/RABTUL-Technologies/REZ-trust-scorer/node_modules/
 companies/RABTUL-Technologies/REZ-trust-scorer/dist/
+# Keep render.yaml files (deployment configs)
+!companies/RTNM-Group/boa-os/render.yaml
+!companies/RTNM-Group/boa-sutar-bridge/render.yaml
+!companies/hojai-ai/services/hojai-intent-graph/render.yaml
+!companies/hojai-ai/services/hojai-simulation-engine/render.yaml
+!companies/hojai-ai/services/hojai-discovery-engine/render.yaml
+!companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/render.yaml
+!companies/RABTUL-Technologies/REZ-SLA-monitor/render.yaml
+!companies/RABTUL-Technologies/REZ-breach-detector/render.yaml
+!companies/RABTUL-Technologies/REZ-economy-os/render.yaml
+!companies/RABTUL-Technologies/REZ-trust-scorer/render.yaml
 
 # RTMN subfolder (separate repo)
 RTMN/
