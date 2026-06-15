@@ -1,0 +1,228 @@
+# GENIE AI - Personal Intelligence OS
+# Complete Docker Compose for all Genie services
+# Version: 1.0.0 | June 15, 2026
+#
+# This file lives at /docker/docker-compose.genie.yml in the RTMN monorepo.
+# Source code for each service lives at:
+#   /companies/hojai-ai/<service-name>/
+
+version: '3.8'
+
+services:
+  # ============================================
+  # GENIE FOUNDATION (Ports 4701-4710)
+  # ============================================
+
+  genie-gateway:
+    build:
+      context: ../companies/hojai-ai/genie
+      dockerfile: Dockerfile
+    container_name: genie-gateway
+    ports:
+      - "4701:4701"
+    environment:
+      - PORT=4701
+      - NODE_ENV=production
+      - GENIE_PERSONAL_TWIN_URL=http://genie-personal-twin:4708
+      - GENIE_RELATIONSHIP_TWIN_URL=http://genie-relationship-twin:4705
+      - GENIE_FINANCIAL_TWIN_URL=http://genie-financial-twin:4715
+      - GENIE_HEALTH_TWIN_URL=http://genie-health-twin:4717
+      - GENIE_FOUNDER_TWIN_URL=http://genie-founder-twin:4716
+      - GENIE_MEMORY_URL=http://genie-memory:4703
+      - GENIE_BRIEFING_URL=http://genie-briefing:4706
+      - GENIE_WHATSAPP_URL=http://genie-whatsapp:4718
+    networks:
+      - genie-net
+    depends_on:
+      - genie-personal-twin
+      - genie-relationship-twin
+      - genie-memory
+      - genie-briefing
+
+  genie-dashboard:
+    build:
+      context: ../companies/hojai-ai/genie-dashboard-service
+      dockerfile: Dockerfile
+    container_name: genie-dashboard
+    ports:
+      - "4720:4720"
+    environment:
+      - PORT=4720
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-personal-twin:
+    build:
+      context: ../companies/hojai-ai/genie-personal-twin-service
+      dockerfile: Dockerfile
+    container_name: genie-personal-twin
+    ports:
+      - "4708:4708"
+    environment:
+      - PORT=4708
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-relationship-twin:
+    build:
+      context: ../companies/hojai-ai/genie-relationship-twin-service
+      dockerfile: Dockerfile
+    container_name: genie-relationship-twin
+    ports:
+      - "4705:4705"
+    environment:
+      - PORT=4705
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-financial-twin:
+    build:
+      context: ../companies/hojai-ai/genie-financial-twin-service
+      dockerfile: Dockerfile
+    container_name: genie-financial-twin
+    ports:
+      - "4715:4715"
+    environment:
+      - PORT=4715
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-health-twin:
+    build:
+      context: ../companies/hojai-ai/genie-health-twin-service
+      dockerfile: Dockerfile
+    container_name: genie-health-twin
+    ports:
+      - "4717:4717"
+    environment:
+      - PORT=4717
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-founder-twin:
+    build:
+      context: ../companies/hojai-ai/genie-founder-twin-service
+      dockerfile: Dockerfile
+    container_name: genie-founder-twin
+    ports:
+      - "4716:4716"
+    environment:
+      - PORT=4716
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-memory:
+    build:
+      context: ../companies/hojai-ai/genie-memory-service
+      dockerfile: Dockerfile
+    container_name: genie-memory
+    ports:
+      - "4703:4703"
+    environment:
+      - PORT=4703
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-briefing:
+    build:
+      context: ../companies/hojai-ai/genie-briefing-service
+      dockerfile: Dockerfile
+    container_name: genie-briefing
+    ports:
+      - "4706:4706"
+    environment:
+      - PORT=4706
+      - NODE_ENV=production
+      - GENIE_PERSONAL_TWIN_URL=http://genie-personal-twin:4708
+      - GENIE_MEMORY_URL=http://genie-memory:4703
+    networks:
+      - genie-net
+    depends_on:
+      - genie-personal-twin
+      - genie-memory
+
+  genie-whatsapp:
+    build:
+      context: ../companies/hojai-ai/genie-whatsapp-bot-service
+      dockerfile: Dockerfile
+    container_name: genie-whatsapp
+    ports:
+      - "4718:4718"
+    environment:
+      - PORT=4718
+      - NODE_ENV=production
+      - GENIE_PERSONAL_TWIN_URL=http://genie-personal-twin:4708
+      - GENIE_RELATIONSHIP_TWIN_URL=http://genie-relationship-twin:4705
+      - GENIE_FINANCIAL_TWIN_URL=http://genie-financial-twin:4715
+      - GENIE_HEALTH_TWIN_URL=http://genie-health-twin:4717
+      - GENIE_FOUNDER_TWIN_URL=http://genie-founder-twin:4716
+      - GENIE_MEMORY_URL=http://genie-memory:4703
+      - GENIE_BRIEFING_URL=http://genie-briefing:4706
+    networks:
+      - genie-net
+    depends_on:
+      - genie-personal-twin
+      - genie-relationship-twin
+      - genie-briefing
+
+  genie-privacy:
+    build:
+      context: ../companies/hojai-ai/genie-privacy-service
+      dockerfile: Dockerfile
+    container_name: genie-privacy
+    ports:
+      - "4719:4719"
+    environment:
+      - PORT=4719
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  genie-project:
+    build:
+      context: ../companies/hojai-ai/genie-project-service
+      dockerfile: Dockerfile
+    container_name: genie-project
+    ports:
+      - "4712:4712"
+    environment:
+      - PORT=4712
+      - NODE_ENV=production
+    networks:
+      - genie-net
+
+  razo-intent-router:
+    build:
+      context: ../companies/hojai-ai/RAZO-Keyboard/INTENT-ROUTER
+      dockerfile: Dockerfile
+    container_name: razo-intent-router
+    ports:
+      - "4725:4725"
+    environment:
+      - PORT=4725
+      - NODE_ENV=production
+      - GENIE_URL=http://genie-gateway:4701
+      - GENIE_PERSONAL_TWIN_URL=http://genie-personal-twin:4708
+      - GENIE_RELATIONSHIP_TWIN_URL=http://genie-relationship-twin:4705
+      - GENIE_MEMORY_URL=http://genie-memory:4703
+      - GENIE_BRIEFING_URL=http://genie-briefing:4706
+      - GENIE_WHATSAPP_URL=http://genie-whatsapp:4718
+      - DO_BACKEND_URL=http://do-backend:3000
+    networks:
+      - genie-net
+    depends_on:
+      - genie-personal-twin
+      - genie-memory
+      - genie-briefing
+      - genie-whatsapp
+
+networks:
+  genie-net:
+    driver: bridge

@@ -249,14 +249,62 @@ All 24 industries connect to **REZ CRM** for unified customer management:
 
 ---
 
-## 📚 Documentation
+## 🔗 Service Integration Architecture (Connect, Don't Copy)
+
+**Pattern:** Service Mesh / Event-Driven  
+**Philosophy:** Connect services via APIs instead of copying code
+
+### Core Integration Hub
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **REZ-ecosystem-connector** | 4399 | Service Registry & Discovery |
+| **REZ-event-bus** | 4510 | Pub/Sub Event Messaging |
+| **REZ-integration-connector** | 4314 | Multi-service API Gateway |
+
+### Integration Patterns
+
+#### REST API (Synchronous)
+```typescript
+const response = await fetch('http://localhost:4330/api/manufacturing/orders', {
+  method: 'POST',
+  headers: { 'Authorization': `Bearer ${token}` }
+});
+```
+
+#### Event Bus (Asynchronous)
+```typescript
+eventBus.publish('order.created', { orderId: 'MO-123' });
+eventBus.subscribe('order.*', (event) => { /* handle */ });
+```
+
+### RABTUL Services Available
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| rez-auth-service | 4002 | Authentication |
+| rez-wallet-service | 4004 | Payments |
+| REZ-manufacturing-os | 4330 | Manufacturing |
+| REZ-workflow-executor | TBD | Workflows |
+| REZ-knowledge-search | TBD | RAG/Search |
+
+### Full Documentation
+
+See [RTNM-SERVICE-INTEGRATION-ARCHITECTURE.md](RTNM-SERVICE-INTEGRATION-ARCHITECTURE.md)
+
+---
+
+## 📚 Additional Documentation
 
 - [Master Product Map](RTMN-24-INDUSTRY-PRODUCT-MAP.md)
-- [CRM Integration Summary](RTMN-CRM-INTEGRATION-SUMMARY.md)
-- [Architecture Visual](RTMN-ARCHITECTURE-VISUAL.md)
-- [Implementation Roadmap](RTMN-IMPLEMENTATION-ROADMAP.md)
+- [CRM Integration Summary](RTNM-CRM-INTEGRATION-SUMMARY.md)
+- [Architecture Visual](RTNM-ARCHITECTURE-VISUAL.md)
+- [Implementation Roadmap](RTNM-IMPLEMENTATION-ROADMAP.md)
 - [Port Registry](PORT-REGISTRY.md)
 - [Industry Master Index](INDUSTRY-OS-MASTER-INDEX.md)
+- [Service Integration Architecture](RTNM-SERVICE-INTEGRATION-ARCHITECTURE.md)
+- [RTNM Companies Audit](RTNM-COMPANIES-AUDIT.md)
+- [RTNM Products & Features Audit](RTNM-PRODUCTS-FEATURES-AUDIT.md)
 
 ---
 

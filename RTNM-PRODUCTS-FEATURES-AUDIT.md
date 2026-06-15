@@ -49,85 +49,103 @@
 
 ---
 
-### HOJAI AI - Genie Personal AI (27 Products)
+### HOJAI AI - Genie Personal AI (27+ Products)
 
-**Tagline:** "You don't use Genie. You talk to Genie."
+**Tagline:** "Your Personal Intelligence, Simplified." / "You don't use Genie. You talk to Genie."
 
-#### Genie Twin Services (Personal AI Brains)
+#### The Five Twins — Personal AI Brains
 
-| Product | Port | Purpose |
-|---------|------|---------|
-| genie-personal-twin | 4708 | **Personal Digital Twin** - Identity, preferences, goals, timeline, behavioral patterns |
-| genie-relationship-twin | 4705 | **Relationship Twin** - Health score, interactions, neglected relationships |
-| genie-founder-twin | 4709 | **Founder Twin** - Companies, investments, decisions, team metrics |
-| genie-health-twin | 4730 | **Health Twin** - Fitness, conditions, health goals |
-| genie-financial-twin | 4731 | **Financial Twin** - Income, expenses, investments, budgets |
+| Twin | Port | What it tracks | Key endpoints |
+|------|------|----------------|---------------|
+| **Personal Twin**       | 4708 | Identity, profile, preferences, behavior, goals, timeline, predictive | 13 endpoints (CRUD + summary + recommendations + goals + timeline) |
+| **Relationship Twin**   | 4705 | People graph, interactions, health/intimacy/trust scores, birthdays, anniversaries, sentiment | 15 endpoints (CRUD + interactions + insights + health metrics + search) |
+| **Financial Twin**      | 4715 | Accounts, transactions, budgets, savings goals, net worth, cash flow | 15 endpoints (CRUD + summary + insights + recommendations) |
+| **Health Twin**         | 4717 | Vitals, activity, sleep, mood, medications, conditions, composite health score | 18 endpoints (CRUD + summary + insights) |
+| **Founder Twin**        | 4716 | Ventures, KPIs, customers, team, decisions, focus blocks, founder principles | 15 endpoints (CRUD + summary) |
+
+**Composite Health Score (Health Twin):** Sleep 30% + Steps 25% + Mood 20% + Active minutes 25%
+**Health Score (Relationship Twin):** Linear decay from 100 to 0 over 3× the frequency target window
+**Intimacy Score (Relationship Twin):** Recency 40% + Frequency 30% + Importance 30%
 
 #### Genie Core Services
 
 | Product | Port | Purpose |
 |---------|------|---------|
-| genie-gateway | 4702 | **API Orchestrator** - Unified API entry point |
-| genie-dashboard | 4701 | **Vellum-like Dashboard** - Single view of all intelligence |
+| genie-gateway | 4701 | **API Orchestrator** - Unified API entry point |
+| genie-dashboard | 4720 | **Vellum-like Dashboard** - Single view of all intelligence |
 | genie-memory | 4703 | **Personal Memory** - Remember preferences, facts, events, transactions |
-| genie-relationship | 4704 | **Relationships** - Track 100+ types, interaction history |
+| genie-relationship | 4704 | Legacy relationship service (superseded by twin) |
 | genie-briefing | 4706 | **Daily Briefings** - Morning/evening summaries, weather, tasks |
 | genie-calendar | 4709 | **Calendar** - Events, scheduling, conflict detection |
 | genie-email | 4710 | **Email** - Threads, labels, attachments, search |
 | genie-meeting | 4713 | **Meeting Intelligence** - Summaries, action items, transcripts |
-| genie-sync | 4707 | **Cross-service Sync** - Unified memory across channels |
-| genie-project | 4721 | **Project Management** - Tasks, deadlines, milestones |
+| genie-sync | 4729 | **Cross-twin Sync** - Unified memory across channels, conflict resolution |
+| genie-project | 4712 | **Project Management** - Tasks, deadlines, milestones |
 
 #### Genie Communication Services
 
 | Product | Port | Purpose |
 |---------|------|---------|
-| genie-whatsapp-bot | 4718 | **WhatsApp Genie** - Talk to Genie on WhatsApp |
-| genie-whatsapp | 4717 | WhatsApp integration |
-| genie-telegram | 4712 | Telegram bot, commands |
-| genie-slack | 4711 | Slack integration, notifications |
-| genie-discord | 4716 | Discord integration |
-| HOJAI-VOICE-PLATFORM | 4033 | **Voice Platform** - STT, TTS, voice agents |
+| genie-whatsapp-bot | 4718 | **WhatsApp Genie** - Talk to Genie on WhatsApp, 15 intents, fans out to all twins |
+| genie-discord | 4721 | Discord integration, bot |
+| genie-telegram | 4722 | Telegram bot, commands |
+| genie-slack | 4723 | Slack integration, notifications |
+| HOJAI-VOICE-PLATFORM | 4850 | **Voice Platform** - STT, TTS, voice agents, voice cloning |
 
 #### Genie Productivity Services
 
 | Product | Port | Purpose |
 |---------|------|---------|
-| genie-household | 4722 | **Family/Household** - Shared calendars, chores, shopping lists |
-| genie-privacy | 4720 | **Privacy Controls** - GDPR, consent, data export |
-| genie-memory-review | 4723 | **Memory Consolidation** - Auto-prioritize, archive |
-| genie-business | 4725 | **Business Intelligence** - NL queries, reports |
+| genie-household | 4728 | **Family/Household** - Shared calendars, chores, shopping lists |
+| genie-privacy | 4719 | **Privacy Controls** - GDPR, consent, data export, audit |
+| genie-memory-review | 4730 | **Memory Consolidation** - Auto-prioritize, archive, dedup |
 
-#### Genie Integration Services
+#### Genie Integration Services (Connector Twins)
 
 | Product | Port | Purpose |
 |---------|------|---------|
 | genie-drive | 4726 | **Google Drive** - File sync, sharing |
-| genie-browser-history | 4724 | **Browser Context** - Browsing patterns |
-| genie-obsidian | 4708 | Obsidian vault sync |
-| genie-notion | 4719 | Notion integration |
+| genie-browser-history | 4727 | **Browser Context** - Browsing patterns |
+| genie-obsidian | 4725 | Obsidian vault sync |
+| genie-notion | 4724 | Notion integration |
+| genie-dental-health | 4731 | Dental health twin |
 
 #### DO App Integration
 
-**Hook:** `useGenie.ts` - Connects DO App to Genie services
+**Hook:** `REZ-Consumer/do/src/hooks/useGenie.ts`
 
 | Method | Purpose |
 |--------|---------|
-| getDashboard() | Get all Genie data |
-| getPersonalTwin() | Personal preferences, goals |
-| getRelationships() | Relationship health |
-| getAllTwins() | All twin services |
-| searchGenie() | Unified search |
+| `getDashboard()` | Aggregated dashboard from all 5 twins + briefing |
+| `getAllTwins()` | All twin services in parallel |
+| `getPersonalTwin()` | Personal preferences, goals |
+| `getRelationshipTwinSummary()` | Relationship health |
+| `getHealthTwin()` | Composite health score |
+| `getFinancialTwin()` | Net worth + cash flow |
+| `getFounderTwin()` | Ventures, KPIs, decisions |
+| `recallMemory(query)` | Search Genie memory |
+| `getBriefing()` | Today's briefing |
+| `askGenie(message)` | Conversational surface (via WhatsApp bot) |
+| `sendWhatsAppMessage(phone, body)` | Send WhatsApp message |
 
 #### RAZO Keyboard Integration
 
-**File:** `RAZO-Keyboard/INTENT-ROUTER/index.ts`
+**File:** `hojai-ai/RAZO-Keyboard/INTENT-ROUTER/index.ts` (port 4725)
 
-- Routes to Genie services
-- Uses Personal Twin for smart suggestions
-- Wake words: "Hey Genie", "OK Razo"
+- 11 intent types: greeting, question, search, reminder, order, call, message, translate, tone, genie, unknown
+- Routes to Genie services (Personal Twin, Memory, Briefing, WhatsApp bot)
+- Smart suggestions + autocomplete
+- Personalizes greetings using Personal Twin
+- Actions: open app, deep links, contact actions
+
+#### Intent Catalog (WhatsApp Bot — 15 intents)
+
+`greeting`, `briefing`, `memory`, `call`, `schedule`, `order`, `reminder`,
+`business`, `relationship`, `health`, `finance`, `goal`, `task`, `help`, `general`
+
+| Other / Legacy | Port | Purpose |
+|----------------|------|---------|
 | genie-demo-ui | - | Demo interface |
-| genie-dashboard-service | - | Personal dashboard |
 | genie-standalone-services | - | Standalone services |
 
 ---
@@ -223,7 +241,8 @@
 | 4180-4191 | SUTAR Trust |
 | 4240-4244 | SUTAR Decision |
 | 4500-4610 | HOJAI Core |
-| 4700-4712 | Genie Personal AI |
+| 4701-4731 | Genie Personal AI (gateway, dashboard, 5 twins, memory, briefing, bots, connectors) |
+| 4725 | RAZO Keyboard Intent Router |
 | 4750-4759 | Business Intelligence |
 | 4770 | BrandPulse |
 | 4800-4801 | Command Center |

@@ -633,6 +633,46 @@ This document consolidates all port allocations across the 24 industry verticals
 
 ---
 
+## Integration Services (Service Mesh)
+
+**Architecture:** Service Mesh / Event-Driven  
+**Pattern:** Connect, Don't Copy
+
+| Port | Service | Description |
+|------|---------|-------------|
+| 4000 | REZ-graphql-federation | Unified GraphQL API |
+| 4314 | REZ-integration-connector | Multi-service API Gateway |
+| 4399 | REZ-ecosystem-connector | Service Registry & Discovery |
+| 4510 | REZ-event-bus | Pub/Sub Event Messaging |
+| 4310 | REZ-franchise-os | Franchise management |
+| 4300 | REZ-distribution-os | Distribution OS |
+| 4330 | REZ-manufacturing-os | Manufacturing OS |
+| 50051 | gRPC Gateway | High-perf RPC |
+
+### RABTUL Authentication & Security
+
+| Port | Service | Description |
+|------|---------|-------------|
+| 4001 | RABTUL Payment | Payment processing |
+| 4002 | RABTUL Auth | JWT, OAuth |
+| 4004 | RABTUL Wallet | Balance management |
+| 4005 | RABTUL Notification | Push/email/SMS |
+
+### RABTUL Business Services
+
+| Port | Service | Description |
+|------|---------|-------------|
+| TBD | REZ-workflow-executor | Workflow execution |
+| TBD | REZ-contract-management | Contracts |
+| TBD | REZ-knowledge-search | RAG/Search |
+| TBD | REZ-memory-cloud | Vector storage |
+| TBD | REZ-graph-service | Graph queries |
+| TBD | REZ-agent-marketplace | Agent registry |
+| TBD | REZ-agent-observability | Monitoring |
+| TBD | REZ-unified-hub | Employee/HR |
+
+---
+
 ## Related Documents
 
 - [INDUSTRY-OS-MASTER-INDEX.md](./INDUSTRY-OS-MASTER-INDEX.md) - Master index with all industry specs

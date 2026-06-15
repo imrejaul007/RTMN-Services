@@ -71,36 +71,61 @@
 
 ### 1. Genie Personal AI (27 Products)
 
-**Personal AI OS for individuals**
+**Personal AI OS for individuals — "Your Personal Intelligence, Simplified"**
+
+GENIE is the flagship personal AI OS of HOJAI. It is built around **five
+twins** that model the user across every dimension of their life, plus 25+
+microservices and a unified multi-surface experience (voice, WhatsApp, DO,
+RAZO Keyboard, web dashboard).
+
+**The Five Twins:**
+
+| Twin | Port | What it tracks |
+|------|------|----------------|
+| **Personal Twin**       | 4708 | Identity, profile, preferences, behavior, goals, timeline |
+| **Relationship Twin**   | 4705 | People graph (family/friends/colleagues/clients/...), interactions, health/intimacy/trust, birthdays, anniversaries |
+| **Financial Twin**      | 4715 | Accounts, transactions, budgets, savings goals, net worth |
+| **Health Twin**         | 4717 | Vitals, activity, sleep, mood, medications, conditions |
+| **Founder Twin**        | 4716 | Ventures, KPIs, customers, team, decisions, focus |
+
+**Consumer Triangle:** GENIE (thinks) + DO (acts) + RAZO (communicates)
 
 | Product | Port | Features |
 |---------|------|----------|
-| genie-personal-os-gateway | 4702 | Personal AI gateway, unified interface |
-| genie-memory-service | 4703 | Memory storage, semantic search, recall |
-| genie-relationship-service | 4704 | 100+ relationship types, interaction tracking |
-| genie-sync-service | 4707 | Cross-device AI sync |
-| genie-calendar-service | 4709 | Calendar integration, scheduling |
-| genie-email-service | 4710 | Email management, smart replies |
-| genie-project-service | 4708 | Task management, deadlines |
-| genie-briefing-service | 4706 | Daily briefings, weather, tasks, reminders |
-| genie-slack-service | 4711 | Slack integration, notifications |
-| genie-telegram-service | 4712 | Telegram bot, commands |
-| genie-discord-service | - | Discord integration |
-| genie-drive-connector | - | Google Drive sync |
-| genie-notion-service | - | Notion sync |
-| genie-obsidian-service | - | Obsidian vault |
-| genie-whatsapp-service | - | WhatsApp integration |
+| genie-gateway | 4701 | API gateway for GENIE stack |
+| genie-dashboard-service | 4720 | Web dashboard |
+| genie-personal-twin-service | 4708 | **Personal Twin** — identity, profile, preferences, behavior, goals, timeline, predictive |
+| genie-relationship-twin-service | 4705 | **Relationship Twin** — people graph, interactions, health/intimacy/trust, insights |
+| genie-financial-twin-service | 4715 | **Financial Twin** — accounts, transactions, budgets, goals, net worth, insights |
+| genie-health-twin-service | 4717 | **Health Twin** — vitals, activity, sleep, mood, meds, conditions, composite health score |
+| genie-founder-twin-service | 4716 | **Founder Twin** — ventures, KPIs, customers, team, decisions, focus blocks |
+| genie-memory-service | 4703 | Personal memory store, semantic search, recall |
+| genie-briefing-service | 4706 | Daily briefings, contextual updates |
+| genie-whatsapp-bot-service | 4718 | WhatsApp conversational surface (15 intents, fans out to all twins) |
+| genie-privacy-service | 4719 | Consent management, data export, deletion |
+| genie-project-service | 4712 | Project & task management |
+| genie-discord-service | 4721 | Discord bot |
+| genie-telegram-service | 4722 | Telegram bot |
+| genie-slack-service | 4723 | Slack bot |
+| genie-notion-service | 4724 | Notion connector twin |
+| genie-obsidian-service | 4725 | Obsidian connector twin |
+| genie-drive-connector | 4726 | Google Drive connector twin |
+| genie-browser-history-service | 4727 | Browser history twin |
+| genie-household-service | 4728 | Household twin (chores, groceries, family) |
+| genie-sync-service | 4729 | Cross-twin sync engine |
+| genie-memory-review-service | 4730 | Memory audit & cleanup |
+| genie-dental-health-service | 4731 | Dental health twin |
+| razo-intent-router | 4725 | RAZO Keyboard intent router (11 intents, Genie integration) |
+| genie-personal-os-gateway | 4702 | Legacy gateway (kept for compat) |
+| genie-relationship-service | 4704 | Legacy relationship service (superseded by twin) |
+| genie-calendar-service | 4709 | Calendar integration |
+| genie-email-service | 4710 | Email management |
 | genie-voice-service | - | Voice commands |
 | genie-meeting-service | - | Meeting summaries |
 | genie-call-service | - | Call logging |
 | genie-document-service | - | Document handling |
 | genie-wake-word-service | - | Wake word detection |
-| genie-browser-history-service | - | History analysis |
-| genie-memory-review-service | - | Memory recall |
-| genie-privacy-service | - | Privacy controls |
-| genie-household-service | - | Family management |
 | genie-demo-ui | - | Demo interface |
-| genie-dashboard-service | - | Personal dashboard |
 | genie-standalone-services | - | Standalone mode |
 
 ---
@@ -619,7 +644,8 @@ Restaurant Twin, Order Twin, Kitchen Twin, Inventory Twin, Customer Twin, Staff 
 | 4240-4244 | SUTAR Decision |
 | 4250-4259 | SUTAR Marketplace |
 | 4500-4610 | HOJAI Core |
-| 4700-4712 | Genie Personal AI |
+| 4701-4731 | Genie Personal AI (Personal OS gateway, twins, memory, briefing, bots, connectors) |
+| 4725 | RAZO Keyboard Intent Router |
 | 4750-4759 | Business Intelligence |
 | 4770 | BrandPulse |
 | 4800-4801 | Command Center |
