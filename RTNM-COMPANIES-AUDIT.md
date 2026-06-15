@@ -4515,3 +4515,106 @@ Each Industry OS exposes these endpoints:
 ---
 
 *Last Updated: June 16, 2026*
+
+---
+
+## AdBazaar Full Integration (157 Services)
+
+AdBazaar provides the complete customer growth platform for all RTMN Industry OS. Connected via Layer 2 (Customer Growth).
+
+### Connected Services (30)
+
+#### CRM & Customer (2)
+- **crmHub** (4056) - Customer database, contact management
+- **leadIntelligence** (4057) - Lead scoring, intent signals
+
+#### Ads & Campaigns (6)
+- **adsApi** (4060) - Ad campaign management
+- **adAi** (4061) - AI-powered ad optimization
+- **aiCampaignBuilder** (4062) - Drag-and-drop campaign builder
+- **dspPortal** (4063) - DSP portal for ad buying
+- **programmaticBidding** (4064) - Automated bidding
+- **emailCampaign** (4065) - Email marketing
+
+#### Loyalty & Rewards (5)
+- **loyaltyService** (4070) - Points system
+- **anniversaryRewards** (4071) - Anniversary celebrations
+- **birthdayRewards** (4072) - Birthday rewards
+- **gamification** (4073) - Game mechanics
+- **referralGraph** (4074) - Referral tracking
+
+#### Creator & Influencer (3)
+- **creatorStudio** (4080) - Creator campaign management
+- **creatorCommerce** (4081) - Creator storefront
+- **ugcManagement** (4082) - User generated content
+
+#### Analytics & Intelligence (4)
+- **marketingAnalytics** (4090) - Marketing dashboard
+- **mediaAnalytics** (4091) - Social media analytics
+- **intelligenceBridge** (4092) - Cross-platform intelligence
+- **revenueIntelligence** (4093) - Revenue attribution
+
+#### DOOH & Display (3)
+- **doohService** (4100) - Digital signage network
+- **doohSdk** (4101) - DOOH integration SDK
+- **videoAds** (4102) - Video ad serving
+
+#### Chat & Widgets (2)
+- **liveChat** (4110) - Live chat widget
+- **feedbackService** (4111) - Feedback collection
+
+#### Intent & Audience (2)
+- **intentExchange** (4120) - Purchase intent signals
+- **audienceMarketplace** (4121) - Audience segments
+
+### RTMN OS Endpoints
+
+```
+GET  /api/crm/contacts        - Get all contacts
+POST /api/crm/contacts        - Create contact
+GET  /api/crm/leads           - Get leads
+
+GET  /api/ads/campaigns       - Get ad campaigns
+POST /api/ads/campaigns       - Create campaign
+GET  /api/ads/budget         - Get ad budget
+POST /api/ads/ai-optimize     - AI optimization
+
+GET  /api/loyalty/points      - Get loyalty points
+POST /api/loyalty/points      - Update points
+GET  /api/loyalty/rewards     - Get rewards
+GET  /api/loyalty/gamification - Get games
+GET  /api/loyalty/referrals   - Get referrals
+
+GET  /api/creator/campaigns   - Get campaigns
+GET  /api/creator/influencers - Get influencers
+GET  /api/creator/commerce    - Get products
+GET  /api/creator/ugc         - Get UGC
+
+GET  /api/analytics/marketing - Marketing dashboard
+GET  /api/analytics/media     - Media insights
+GET  /api/analytics/revenue  - Revenue report
+
+GET  /api/dooh/screens       - Get screens
+GET  /api/dooh/campaigns     - DOOH campaigns
+GET  /api/dooh/video-ads     - Video ads
+
+GET  /api/chat/widget        - Chat widget config
+POST /api/chat/message        - Send message
+GET  /api/feedback           - Get feedback
+
+GET  /api/audience/targets   - Get audiences
+GET  /api/intent/signals     - Get intent signals
+```
+
+### Available but Not Connected (127)
+
+These AdBazaar services exist but are not yet connected to RTMN OS:
+- adBazaar-service, adBazaar-backend, adBazaar-creator
+- adbazaar-api-gateway, adbazaar-cdp, adbazaar-clean-room
+- DOOH integrations, social integrations
+- Partner SDKs, OEM SDKs
+- (See companies/AdBazaar/ for full list)
+
+---
+
+*Last Updated: June 16, 2026*

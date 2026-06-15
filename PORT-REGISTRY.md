@@ -897,3 +897,78 @@ This document consolidates all port allocations across the 24 industry verticals
 ---
 
 *Last Updated: June 16, 2026*
+
+---
+
+## AdBazaar Integration (Layer 2 - Customer Growth)
+
+### CRM & Customer
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4056 | crmHub | Customer Relationship Management |
+| 4057 | leadIntelligence | Lead Generation & Scoring |
+
+### Ads & Campaigns
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4060 | adsApi | Ad Campaign Management |
+| 4061 | adAi | AI-Powered Ad Optimization |
+| 4062 | aiCampaignBuilder | Campaign Builder |
+| 4063 | dspPortal | Demand Side Platform |
+| 4064 | programmaticBidding | Programmatic Ad Buying |
+| 4065 | emailCampaign | Email Campaign Service |
+
+### Loyalty & Rewards
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4070 | loyaltyService | Loyalty Points System |
+| 4071 | anniversaryRewards | Anniversary Rewards |
+| 4072 | birthdayRewards | Birthday Rewards |
+| 4073 | gamification | Gamification Engine |
+| 4074 | referralGraph | Referral Tracking |
+
+### Creator & Influencer
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4080 | creatorStudio | Creator Campaign Platform |
+| 4081 | creatorCommerce | Creator Commerce |
+| 4082 | ugcManagement | User Generated Content |
+
+### Analytics & Intelligence
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4090 | marketingAnalytics | Marketing Dashboard |
+| 4091 | mediaAnalytics | Media Performance |
+| 4092 | intelligenceBridge | Intelligence Bridge |
+| 4093 | revenueIntelligence | Revenue Analytics |
+
+### DOOH & Display
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4100 | doohService | Digital Out-of-Home |
+| 4101 | doohSdk | DOOH SDK |
+| 4102 | videoAds | Video Advertising |
+
+### Chat & Widgets
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4110 | liveChat | Live Chat Widget |
+| 4111 | feedbackService | Feedback Collection |
+
+### Intent & Audience
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4120 | intentExchange | Intent Signal Exchange |
+| 4121 | audienceMarketplace | Audience Marketplace |
+
+---
+
+*Last Updated: June 16, 2026*
