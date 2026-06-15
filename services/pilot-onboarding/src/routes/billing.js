@@ -165,12 +165,27 @@ router.get('/payments', authMiddleware, async (req, res) => {
 
 async function activateService({ req, res, serviceId, plan, paymentId, mode }) {
   const c = await store.getClientById(req.client.id);
-  const selection = c?.services.find(s => s.serviceId === serviceId);
-  if (selection) {
-    selection.status = 'active';
-    selection.activatedAt = new Date().toISOString();
-    selection.paymentId = paymentId;
+  let selection = c?.services.find(s => s.serviceId === serviceId);
+
+  // If no prior selection (checkout without select), create one now
+  if (!selection) {
+    const svc = findService(serviceId);
+    const pricing = priceFor(serviceId, plan);
+    selection = {
+      serviceId,
+      plan,
+      port: svc?.port || 0,
+      status: 'active',
+      provisionedAt: new Date().toISOString(),
+      pricing: pricing || { monthly: 0, currency: 'USD', plan }
+    };
+    await store.addServiceToClient(req.client.id, selection);
   }
+
+  selection.status = 'active';
+  selection.activatedAt = new Date().toISOString();
+  selection.paymentId = paymentId;
+
   logger.info(`Service activated: client=${req.client.id} service=${serviceId} mode=${mode}`);
   res.json({
     ok: true,

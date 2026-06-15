@@ -53,14 +53,22 @@ export default function AuthPage() {
       setSuccess(`Account created! ${data.devVerifyUrl ? `\nVerification link: ${data.devVerifyUrl}` : ' Check your email.'}`);
       if (data.devVerifyUrl) {
         setSuccess('');
-        // Auto-verify in dev
-        try {
-          await auth.verify(data.devVerifyUrl.split('token=')[1]);
-          const loginData = await auth.login({ email: sEmail, password: sPass });
-          setToken(loginData.token);
-          router.push('/dashboard');
-        } catch {
-          setSuccess('Account created! Verify your email to continue.');
+        // Auto-verify in dev (extract token from devVerifyUrl)
+        const verifyToken = data.devVerifyUrl.includes('token=')
+          ? data.devVerifyUrl.split('token=')[1].split('&')[0].split('?')[0]
+          : null;
+        if (verifyToken) {
+          try {
+            await auth.verify(verifyToken);
+            const loginData = await auth.login({ email: sEmail, password: sPass });
+            setToken(loginData.token);
+            router.push('/dashboard');
+            return;
+          } catch (err: any) {
+            setSuccess(`Account created! Check your email or use: ${data.devVerifyUrl}`);
+          }
+        } else {
+          setSuccess('Account created! Check your email to verify.');
         }
       }
     } catch (err: any) {
