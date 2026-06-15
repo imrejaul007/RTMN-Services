@@ -5,8 +5,12 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import logger from './utils/logger.js';
 import store from './utils/store.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import authRoutes from './routes/auth.js';
 import servicesRoutes from './routes/services.js';
@@ -58,22 +62,7 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({
-    service: 'RTMN Pilot Onboarding',
-    docs: '/v1/services',
-    endpoints: [
-      'POST /v1/auth/signup',
-      'GET  /v1/auth/verify/:token',
-      'POST /v1/auth/login',
-      'GET  /v1/auth/me',
-      'GET  /v1/services',
-      'POST /v1/services/select',
-      'POST /v1/billing/checkout',
-      'POST /v1/billing/mock-confirm/:paymentId  (dev only)',
-      'POST /v1/billing/webhook                   (Stripe)',
-      'ALL  /v1/proxy/:industry/*'
-    ]
-  });
+  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
 });
 
 // Routes
@@ -83,6 +72,16 @@ app.use('/v1/billing', billingRoutes);
 app.use('/v1/proxy', proxyRoutes);
 
 // 404
+app.use((req, res, next) => {
+  // Serve static files from public/ (dashboard.html)
+  if (req.method === 'GET' && !req.path.startsWith('/v1/')) {
+    const filePath = path.join(__dirname, '..', 'public', req.path === '/' ? 'dashboard.html' : req.path);
+    return res.sendFile(filePath, err => {
+      if (err) next(); // fall through to 404
+    });
+  }
+  next();
+});
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Error handler

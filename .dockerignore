@@ -1,0 +1,17 @@
+node_modules
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+coverage
+.DS_Store
+.vscode
+.claude
+*.md
+!README.md
+!CLAUDE.md
+!FEATURES.md
+docs
