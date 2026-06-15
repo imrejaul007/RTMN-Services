@@ -388,6 +388,257 @@ services:
         value: https://rez-crm-hub.onrender.com
 
   # ============================================
+  # NEW INDUSTRY OS SERVICES (All with MongoDB + Auth + CRM)
+  # ============================================
+
+  - type: web
+    name: rtmn-agriculture-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: agriculture-os
+    healthCheckPath: /health
+    ports:
+      - 5070
+    envVars:
+      - key: PORT
+        value: 5070
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-fashion-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: fashion-os
+    healthCheckPath: /health
+    ports:
+      - 5095
+    envVars:
+      - key: PORT
+        value: 5095
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-gaming-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: gaming-os
+    healthCheckPath: /health
+    ports:
+      - 5120
+    envVars:
+      - key: PORT
+        value: 5120
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-government-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: government-os
+    healthCheckPath: /health
+    ports:
+      - 5130
+    envVars:
+      - key: PORT
+        value: 5130
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-home-services-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: home-services-os
+    healthCheckPath: /health
+    ports:
+      - 5140
+    envVars:
+      - key: PORT
+        value: 5140
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-non-profit-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: non-profit-os
+    healthCheckPath: /health
+    ports:
+      - 5160
+    envVars:
+      - key: PORT
+        value: 5160
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-professional-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: professional-os
+    healthCheckPath: /health
+    ports:
+      - 5170
+    envVars:
+      - key: PORT
+        value: 5170
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-sports-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: sports-os
+    healthCheckPath: /health
+    ports:
+      - 5180
+    envVars:
+      - key: PORT
+        value: 5180
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-travel-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: travel-os
+    healthCheckPath: /health
+    ports:
+      - 5190
+    envVars:
+      - key: PORT
+        value: 5190
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-entertainment-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: entertainment-os
+    healthCheckPath: /health
+    ports:
+      - 5200
+    envVars:
+      - key: PORT
+        value: 5200
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-construction-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: construction-os
+    healthCheckPath: /health
+    ports:
+      - 5210
+    envVars:
+      - key: PORT
+        value: 5210
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-financial-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: financial-os
+    healthCheckPath: /health
+    ports:
+      - 5220
+    envVars:
+      - key: PORT
+        value: 5220
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  - type: web
+    name: rtmn-transport-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: transport-os
+    healthCheckPath: /health
+    ports:
+      - 5240
+    envVars:
+      - key: PORT
+        value: 5240
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
   # DIGITAL TWIN SERVICES (All with MongoDB + Auth)
   # ============================================
 

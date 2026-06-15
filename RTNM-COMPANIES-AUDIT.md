@@ -3764,6 +3764,355 @@ Updated with:
 
 ---
 
+## REZ CRM Hub (Port 4056) ✅ Production Ready
+
+**Location:** `companies/AdBazaar/REZ-crm-hub/`  
+**Status:** ✅ **PRODUCTION READY** | **Deployed on Render** | **June 15, 2026**
+
+### REZ CRM Hub Overview
+
+REZ CRM Hub is a unified CRM platform providing contact management, deal pipeline tracking, and integrations with HubSpot and Zoho CRM. It serves as the central CRM layer for the RTMN/AdBazaar advertising ecosystem.
+
+### REZ CRM Hub Features
+
+| Category | Feature | Status |
+|----------|---------|--------|
+| **Contact Management** | CRUD, search, filter, deduplication, bulk import | ✅ |
+| **Deal Pipeline** | Stage tracking, value/probability, analytics | ✅ |
+| **HubSpot Integration** | OAuth 2.0, bi-directional sync, webhooks, field mapping | ✅ |
+| **Zoho CRM Integration** | OAuth 2.0, multi-datacenter (.in/.com/.eu/.au), sync | ✅ |
+| **Connection Management** | Status, disconnect, multi-provider support | ✅ |
+| **Sync Engine** | Trigger, history, per-provider/entity, force sync | ✅ |
+| **WebSocket** | Real-time sync status updates | ✅ |
+| **Rate Limiting** | 100 req/min general, 20 req/min write-specific | ✅ |
+| **Security** | Service-to-service auth via X-Internal-Token | ✅ |
+
+### REZ CRM Hub API Endpoints (20+)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Basic health check |
+| `/api/crm/hubspot/connect` | GET | Initiate HubSpot OAuth |
+| `/api/crm/hubspot/callback` | GET | HubSpot OAuth callback |
+| `/api/crm/zoho/connect` | GET | Initiate Zoho OAuth |
+| `/api/crm/zoho/callback` | GET | Zoho OAuth callback |
+| `/api/connections` | GET | Get all connection statuses |
+| `/api/connections/:provider` | GET | Get provider status |
+| `/api/connections/:provider` | DELETE | Disconnect provider |
+| `/api/contacts` | GET/POST | List/create contacts |
+| `/api/contacts/:id` | GET | Get contact by ID |
+| `/api/contacts/:id/sync` | POST | Force sync contact |
+| `/api/contacts/link` | POST | Link contact to ReZ user |
+| `/api/contacts/:id/unlink` | POST | Unlink contact |
+| `/api/deals` | GET/POST | List/create deals |
+| `/api/deals/stats` | GET | Get pipeline statistics |
+| `/api/deals/contact/:contactId` | GET | Get deals by contact |
+| `/api/deals/:id` | GET | Get deal by ID |
+| `/api/deals/:id/stage` | PATCH | Update deal stage |
+| `/api/sync/status` | GET | Get sync status |
+| `/api/sync/trigger` | POST | Trigger sync |
+| `/api/sync/history` | GET | Get sync history |
+
+### REZ CRM Hub Data Models
+
+**Contact Fields:** email, firstName, lastName, phone, phones[], emails[], company, jobTitle, lifecycleStage, leadSource, tags, customFields, hubspotId, zohoId, linkedRezUserId, syncStatus, provider, createdAt, updatedAt
+
+**Deal Fields:** title, amount, currency, stage (lead/qualified/proposal/negotiation/closed_won/closed_lost), probability, contactId, companyName, description, closeDate, provider, createdAt, updatedAt
+
+### REZ CRM Hub Deployment
+
+| Platform | Service | URL | Status |
+|----------|---------|-----|--------|
+| **Render** | REZ CRM Hub | `https://rez-crm-hub.onrender.com` | ✅ Live |
+
+**Environment Variables:**
+- `MONGODB_URI` — MongoDB connection URI
+- `REDIS_URL` — Redis connection URL
+- `JWT_SECRET` — JWT signing secret
+- `INTERNAL_SERVICE_TOKEN` — Service-to-service auth token
+- `ALLOWED_ORIGINS` — Comma-separated CORS origins
+- `PUBLIC_URL` — Public URL for OAuth redirects
+- `HUBSPOT_API_KEY`, `HUBSPOT_REDIRECT_URI` — HubSpot integration
+- `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`, `ZOHO_REFRESH_TOKEN`, `ZOHO_DATACENTER` — Zoho integration
+
+### REZ CRM Hub Bug Fixes Applied
+
+| Bug | Fix |
+|-----|-----|
+| `/deals/stats` returning 400 | Moved `/deals/stats` and `/deals/contact/:id` routes BEFORE `/deals/:id` wildcard (Express route order) |
+| Auth wide open | Auth middleware now requires `X-Internal-Token` on all `/api/*` routes except health |
+| CORS wide open | CORS origins now driven by `ALLOWED_ORIGINS` env var |
+| Hardcoded OAuth redirect URIs | Redirect URIs now use `PUBLIC_URL` env var |
+| Stale token headers | Added axios request interceptors for dynamic token injection |
+
+---
+
+## REZ SalesMind (Port 5170) ✅ Production Ready
+
+**Location:** `companies/RTNM-Digital/REZ-SalesMind/`  
+**Status:** ✅ **PRODUCTION READY** | **Deployed on Render** | **June 15, 2026**
+
+### REZ SalesMind Overview
+
+REZ SalesMind is an AI-powered sales intelligence platform that provides lead scoring, sales forecasting, pipeline analytics, and AI-generated emails/proposals. It integrates with HOJAI AI, AdBazaar, and REZ CRM Hub to deliver real-time sales signals and insights.
+
+**Formerly:** REZ Atlas — Renamed to reflect AI-powered sales intelligence
+
+### REZ SalesMind Integrations
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **HOJAI AI** | 4700+ | Web Intelligence, Merchant Intelligence, Lead Service, Knowledge Graph, TwinOS |
+| **REZ CRM Hub** | 4056 | Unified CRM data (contacts, deals, pipeline) |
+| **REZ Identity Hub** | 4702 | Unified identity |
+| **Genie Voice** | 4760 | Communication |
+| **AssetMind** | 5200 | Financial forecasting |
+| **AdBazaar** | 4300 | Campaign management |
+
+### REZ SalesMind Features
+
+| Category | Feature | Status |
+|----------|---------|--------|
+| **Ecosystem Integration** | Service registry, heartbeat, real-time signals | ✅ |
+| **Lead Management** | CRUD, scoring, source tracking, enrichment | ✅ |
+| **Sales Pipeline** | Stage tracking, value analysis, trends | ✅ |
+| **Dashboard** | KPI cards, charts, pipeline summaries | ✅ |
+| **Insights Engine** | Trend analysis, deal health, risk detection | ✅ |
+| **AI Email Writer** | Outreach, follow-up, nurture, thank-you templates | ✅ |
+| **AI Proposal Generator** | Proposal generation with product/pricing defaults | ✅ |
+| **AI Sales Forecasting** | Revenue forecasting, risk analysis, trend detection | ✅ |
+| **CRM Integration** | Real-time CRM sync, bidirectional data flow | ✅ |
+| **WebSocket** | Real-time signal broadcasting | ✅ |
+| **Rate Limiting** | 100 req/min API, 20 req/min write-specific | ✅ |
+| **Security** | Service-to-service auth via X-Internal-Token | ✅ |
+
+### REZ SalesMind API Endpoints (30+)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check with real integration probes |
+| `/ws` | WS | WebSocket for real-time signals |
+| `/api/ecosystem/services` | GET | List registered services |
+| `/api/ecosystem/heartbeat` | POST | Register service heartbeat |
+| `/api/ecosystem/signals` | GET/POST | Get/broadcast signals |
+| `/api/leads` | GET/POST | List/create leads |
+| `/api/leads/:id` | GET/PUT/DELETE | Lead CRUD |
+| `/api/leads/:id/enrich` | POST | Enrich lead from CRM |
+| `/api/leads/:id/score` | GET | Get lead score |
+| `/api/leads/:id/convert` | POST | Convert lead to deal |
+| `/api/sales/pipeline` | GET | Get pipeline overview |
+| `/api/sales/deals` | GET/POST | List/create deals |
+| `/api/sales/deals/:id` | GET/PUT | Deal CRUD |
+| `/api/sales/deals/:id/stage` | PATCH | Update deal stage |
+| `/api/sales/forecasting` | GET | Revenue forecasting |
+| `/api/sales/analytics` | GET | Sales analytics |
+| `/api/dashboard/kpis` | GET | Dashboard KPIs |
+| `/api/dashboard/charts` | GET | Dashboard charts |
+| `/api/dashboard/pipeline` | GET | Pipeline summary |
+| `/api/insights/trends` | GET | Trend analysis |
+| `/api/insights/deal-health` | GET | Deal health scores |
+| `/api/insights/risks` | GET | Risk detection |
+| `/api/ai/email` | POST | Generate email (outreach/follow-up/nurture/thank-you) |
+| `/api/ai/proposal` | POST | Generate proposal |
+| `/api/ai/forecast` | POST | Sales forecasting |
+| `/api/integrations/crm/status` | GET | CRM connection status |
+| `/api/integrations/crm/sync` | POST | Trigger CRM sync |
+
+### REZ SalesMind AI Features
+
+| Feature | Description |
+|---------|-------------|
+| **Email Generation** | 4 templates: outreach, follow-up, nurture, thank-you. Guards against unknown types. |
+| **Proposal Generation** | Generates professional proposals with company/product/pricing defaults when data is missing |
+| **Sales Forecasting** | Revenue forecasting with trend analysis, risk detection, confidence scores. Handles null/undefined deal data gracefully. |
+
+### REZ SalesMind Deployment
+
+| Platform | Service | URL | Status |
+|----------|---------|-----|--------|
+| **Render** | REZ SalesMind | `https://rez-salesmind.onrender.com` | ✅ Live |
+
+**Environment Variables:**
+- `PORT` — HTTP server port (default: 5170)
+- `NODE_ENV` — Environment (development/production)
+- `CRM_HUB_URL` — REZ CRM Hub URL (default: http://localhost:4056)
+- `CRM_HUB_TOKEN` — CRM Hub auth token
+- `INTERNAL_SERVICE_TOKEN` — Service-to-service auth token
+- `ALLOWED_ORIGINS` — Comma-separated CORS origins
+- `HOJAI_API_KEY`, `HOJAI_API_URL` — HOJAI AI integration
+- `ADBazaar_API_KEY`, `ADBazaar_API_URL` — AdBazaar integration
+
+### REZ SalesMind Bug Fixes Applied
+
+| Bug | Fix |
+|-----|-----|
+| Auth wide open | Auth middleware rewritten to require `X-Internal-Token` on ALL `/api/*` routes except health/ws |
+| Rate limit 429 on GET /api/sales/pipeline | Removed blanket `writeLimiter` from `/api/sales` prefix (was counting GETs as writes) |
+| Stale token headers in CRM client | Added axios request interceptor for dynamic token injection at call time |
+| Email generate 500 for 'outreach' type | Added missing `outreach` email template + better error messages |
+| Proposal generator crash on missing fields | Added defensive defaults throughout for all fields |
+| Sales forecasting NaN from undefined engagementScore | Added `normalizeDeal()` with null guards for all deal fields |
+| Health check not probing real services | Added `getRealIntegrationStatus()` for real connectivity probes |
+
+### REZ SalesMind Cross-Service Auth Flow
+
+```
+REZ SalesMind (port 5170)
+    │
+    ├── Reads CRM_HUB_TOKEN env var
+    ├── Request interceptor injects X-Internal-Token at call time
+    │
+    ▼
+REZ CRM Hub (port 4056)
+    │
+    ├── Validates X-Internal-Token via timing-safe comparison
+    ├── Returns 401 if token missing/invalid
+    └── Returns CRM data (contacts, deals, pipeline)
+```
+
+---
+
 *Last Updated: June 15, 2026*
 *RTMN-Services - MongoDB + Auth + CRM Update Complete*
 *Status: ✅ ALL 24 INDUSTRY OS + FOUNDATION + TWINS UPDATED*
+
+---
+
+## All 24 Industry Operating Systems (Complete as of June 15, 2026)
+
+**Status:** ✅ ALL 24 INDUSTRY OS SERVICES CREATED & DOCUMENTED
+
+### Complete Industry OS List
+
+| # | Industry | Service | Port | Digital Twins | MongoDB | Auth | CRM |
+|---|----------|---------|------|---------------|---------|------|-----|
+| 1 | Hospitality | Restaurant OS | 5010 | Menu, Order, Kitchen, Table, Customer | ✅ | ✅ | ✅ |
+| 2 | Healthcare | Healthcare OS | 5020 | Patient, Doctor, Appointment, Prescription | ✅ | ✅ | ✅ |
+| 3 | Retail | Retail OS | 5030 | Product, Inventory, Customer, Cart, Supplier | ✅ | ✅ | ✅ |
+| 4 | Hotel | Hotel OS | 5025 | Room, Booking, Guest, Service, Revenue | ✅ | ✅ | ✅ |
+| 5 | Legal | Legal OS | 5035 | Client, Case, Lawyer, Document | ✅ | ✅ | ✅ |
+| 6 | Education | Education OS | 5060 | Course, Student, Instructor, Enrollment | ✅ | ✅ | ✅ |
+| 7 | Agriculture | Agriculture OS | 5070 | Farm, Crop, Livestock, Harvest | ✅ | ✅ | ✅ |
+| 8 | Automotive | Automotive OS | 5080 | Vehicle, Customer, Service, Appointment | ✅ | ✅ | ✅ |
+| 9 | Beauty | Beauty OS | 5090 | Client, Service, Staff, Appointment | ✅ | ✅ | ✅ |
+| 10 | Fashion | Fashion OS | 5095 | Product, Collection, Order, Customer | ✅ | ✅ | ✅ |
+| 11 | Fitness | Fitness OS | 5110 | Member, Trainer, Class, Membership | ✅ | ✅ | ✅ |
+| 12 | Gaming | Gaming OS | 5120 | Game, Player, Tournament, Match | ✅ | ✅ | ✅ |
+| 13 | Government | Government OS | 5130 | Citizen, Service, Application, Department | ✅ | ✅ | ✅ |
+| 14 | Home Services | HomeServices OS | 5140 | Provider, Service, Booking, Customer | ✅ | ✅ | ✅ |
+| 15 | Manufacturing | Manufacturing OS | 5150 | Product, Order, Machine, Material | ✅ | ✅ | ✅ |
+| 16 | Non-Profit | NonProfit OS | 5160 | Donor, Campaign, Beneficiary, Donation | ✅ | ✅ | ✅ |
+| 17 | Professional | Professional OS | 5170 | Consultant, Client, Project, Invoice | ✅ | ✅ | ✅ |
+| 18 | Sports | Sports OS | 5180 | Team, Player, Match, Ticket | ✅ | ✅ | ✅ |
+| 19 | Travel | Travel OS | 5190 | Destination, Package, Booking, Traveler | ✅ | ✅ | ✅ |
+| 20 | Entertainment | Entertainment OS | 5200 | Event, Venue, Ticket, Attendee | ✅ | ✅ | ✅ |
+| 21 | Construction | Construction OS | 5210 | Project, Contractor, Material, Worker | ✅ | ✅ | ✅ |
+| 22 | Financial | Financial OS | 5220 | Account, Transaction, Budget, Customer | ✅ | ✅ | ✅ |
+| 23 | Real Estate | RealEstate OS | 5230 | Property, Listing, Lead, Agent | ✅ | ✅ | ✅ |
+| 24 | Transport | Transport OS | 5240 | Vehicle, Driver, Rider, Trip | ✅ | ✅ | ✅ |
+
+---
+
+### New Industry OS Services (Created June 15, 2026)
+
+#### Agriculture OS (Port 5070)
+**Location:** `agriculture-os/`  
+**Entities:** Farm, Crop, Livestock, Harvest  
+**Features:** Farm management, crop health, livestock tracking, harvest records
+
+#### Fashion OS (Port 5095)
+**Location:** `fashion-os/`  
+**Entities:** Product, Collection, Order, Customer  
+**Features:** Product catalog, collections, orders, customer management
+
+#### Gaming OS (Port 5120)
+**Location:** `gaming-os/`  
+**Entities:** Game, Player, Tournament, Match  
+**Features:** Game management, player tracking, tournament scheduling
+
+#### Government OS (Port 5130)
+**Location:** `government-os/`  
+**Entities:** Citizen, Service, Application, Department  
+**Features:** Citizen services, application processing, department management
+
+#### HomeServices OS (Port 5140)
+**Location:** `home-services-os/`  
+**Entities:** Provider, Service, Booking, Customer  
+**Features:** Service provider management, booking system, customer tracking
+
+#### NonProfit OS (Port 5160)
+**Location:** `non-profit-os/`  
+**Entities:** Donor, Campaign, Beneficiary, Donation  
+**Features:** Donor management, campaign tracking, beneficiary records
+
+#### Professional OS (Port 5170)
+**Location:** `professional-os/`  
+**Entities:** Consultant, Client, Project, Invoice  
+**Features:** Consultant profiles, client management, project tracking
+
+#### Sports OS (Port 5180)
+**Location:** `sports-os/`  
+**Entities:** Team, Player, Match, Ticket  
+**Features:** Team management, player stats, match scheduling, ticketing
+
+#### Travel OS (Port 5190)
+**Location:** `travel-os/`  
+**Entities:** Destination, Package, Booking, Traveler  
+**Features:** Destination management, travel packages, booking system
+
+#### Entertainment OS (Port 5200)
+**Location:** `entertainment-os/`  
+**Entities:** Event, Venue, Ticket, Attendee  
+**Features:** Event management, venue booking, ticketing
+
+#### Construction OS (Port 5210)
+**Location:** `construction-os/`  
+**Entities:** Project, Contractor, Material, Worker  
+**Features:** Project management, contractor tracking, material inventory
+
+#### Financial OS (Port 5220)
+**Location:** `financial-os/`  
+**Entities:** Account, Transaction, Budget, Customer  
+**Features:** Account management, transaction tracking, budgeting
+
+#### Transport OS (Port 5240)
+**Location:** `transport-os/`  
+**Entities:** Vehicle, Driver, Rider, Trip  
+**Features:** Vehicle management, driver tracking, ride management
+
+---
+
+### Port Registry - All 24 Industry OS
+
+| Port | Service | Industry | Status |
+|------|---------|----------|---------|
+| 5010 | restaurant-os | Restaurant | ✅ Active |
+| 5020 | healthcare-os | Healthcare | ✅ Active |
+| 5025 | hotel-os | Hotel | ✅ Active |
+| 5030 | retail-os | Retail | ✅ Active |
+| 5035 | legal-os | Legal | ✅ Active |
+| 5060 | education-os | Education | ✅ Active |
+| 5070 | agriculture-os | Agriculture | ✅ Active |
+| 5080 | automotive-os | Automotive | ✅ Active |
+| 5090 | beauty-os | Beauty | ✅ Active |
+| 5095 | fashion-os | Fashion | ✅ Active |
+| 5110 | fitness-os | Fitness | ✅ Active |
+| 5120 | gaming-os | Gaming | ✅ Active |
+| 5130 | government-os | Government | ✅ Active |
+| 5140 | home-services-os | Home Services | ✅ Active |
+| 5150 | manufacturing-os | Manufacturing | ✅ Active |
+| 5160 | non-profit-os | Non-Profit | ✅ Active |
+| 5170 | professional-os | Professional | ✅ Active |
+| 5180 | sports-os | Sports | ✅ Active |
+| 5190 | travel-os | Travel | ✅ Active |
+| 5200 | entertainment-os | Entertainment | ✅ Active |
+| 5210 | construction-os | Construction | ✅ Active |
+| 5220 | financial-os | Financial | ✅ Active |
+| 5230 | realestate-os | Real Estate | ✅ Active |
+| 5240 | transport-os | Transport | ✅ Active |
+
+---
+
+*Last Updated: June 15, 2026*
+*RTMN-Services - ALL 24 INDUSTRY OS COMPLETE*
+*Status: ✅ 24/24 INDUSTRY OS SERVICES CREATED*
