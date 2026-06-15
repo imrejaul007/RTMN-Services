@@ -2,7 +2,7 @@
 # Deploy all backend services to Render
 #
 # Usage:
-#   render blueprint create --spec render.yaml
+#   render blueprints create --file render.yaml --workspace <workspace-id>
 #
 # IMPORTANT: Set the following environment variables in Render dashboard:
 #   - JWT_SECRET (generate with: openssl rand -hex 32)
@@ -16,7 +16,7 @@ services:
   # ─────────────────────────────────────────────────────────────────
   - type: web
     name: nexha-sutar-mock
-    env: node
+    runtime: node
     region: singapore
     plan: free
     buildCommand: npm install && npx tsc
@@ -24,7 +24,7 @@ services:
     healthCheckPath: /health
     repo: https://github.com/imrejaul007/RTMN-Services
     branch: main
-    path: companies/Nexha/sutar-mock
+    rootDir: companies/Nexha/sutar-mock
     envVars:
       - key: PORT
         value: "4799"
@@ -36,7 +36,7 @@ services:
   # ─────────────────────────────────────────────────────────────────
   - type: web
     name: nexha-commerce-identity
-    env: node
+    runtime: node
     region: singapore
     plan: free
     buildCommand: npm install && npm run build
@@ -44,7 +44,7 @@ services:
     healthCheckPath: /health
     repo: https://github.com/imrejaul007/RTMN-Services
     branch: main
-    path: companies/Nexha/commerce-identity
+    rootDir: companies/Nexha/commerce-identity
     envVars:
       - key: PORT
         value: "8000"
@@ -58,14 +58,13 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         # IMPORTANT: Update this AFTER deploying Vercel portal
-        # Format: http://localhost:3000,https://nexha-portal.vercel.app
+        # Format: http://localhost:3000,https://portal-re-z.vercel.app
         value: "http://localhost:3000,http://localhost:3001"
       - key: SUTAR_BASE_URL
         fromService:
           type: web
           name: nexha-sutar-mock
           envVarKey: RENDER_EXTERNAL_URL
-        suffix: ""
       - key: SUTAR_IDENTITY_URL
         fromService:
           type: web
@@ -106,5 +105,3 @@ services:
       - key: WHATSAPP_PROVIDER
         value: ""
     autoDeploy: true
-    dependsOn:
-      - - nexha-sutar-mock
