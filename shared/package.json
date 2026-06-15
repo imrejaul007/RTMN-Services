@@ -1,0 +1,13 @@
+{
+  "name": "@rtmn/shared",
+  "version": "1.0.0",
+  "description": "RTMN Shared Modules - Auth, Utils, etc",
+  "main": "index.js",
+  "exports": {
+    "./auth": "./auth/index.js",
+    "./auth/routes": "./auth/routes.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

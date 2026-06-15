@@ -3,6 +3,42 @@
 
 services:
   # ============================================
+  # PILOT ONBOARDING (Client-facing gateway)
+  # ============================================
+
+  - type: web
+    name: rtmn-pilot-onboarding
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/pilot-onboarding
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4399
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: noreply@rtmn.io
+      - key: EMAIL_REPLY_TO
+        value: support@rtmn.io
+      - key: ALLOWED_ORIGINS
+        # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+
+  # ============================================
   # FOUNDATION SERVICES
   # ============================================
 
