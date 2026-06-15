@@ -1,0 +1,19 @@
+{
+  "name": "@rtmn/media-os",
+  "version": "1.0.0",
+  "description": "RTMN Media OS - Digital Media & Content Management Platform",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
+  }
+}

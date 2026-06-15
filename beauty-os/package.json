@@ -1,0 +1,10 @@
+{
+  "name": "rtmn-beauty-os",
+  "version": "1.0.0",
+  "description": "Beauty OS - Industry-specific digital twin for beauty services",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.18.2", "cors": "^2.8.5", "helmet": "^7.1.0", "uuid": "^9.0.0", "winston": "^3.11.0" },
+  "author": "RTMN"
+}
