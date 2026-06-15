@@ -158,6 +158,7 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 | Company | Purpose | Services | Port Range |
 |---------|---------|----------|------------|
 | **HOJAI AI** | AI Infrastructure, Genie, SUTAR OS | 190+ products | 4500-4700 |
+| **Leverge** | AI Business Intelligence Suite (Intelligence, Memory, Twin, Agents, Copilot) | 5 services | 4761-4765 |
 | **RABTUL Technologies** | Auth, Payment, Wallet, Order | 40+ services | 4001-4040 |
 | **REZ-Merchant** | Merchant services, POS, Industry OS | 100+ services | 4800-4899 |
 | **REZ-Consumer** | Consumer app, Genie, DO | 80+ services | 3000-4100 |
@@ -247,6 +248,16 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 | hospitality-os | 5050 | General hospitality | [hospitality-os/](hospitality-os/) |
 | realestate-os | 5230 | Real estate management | [realestate-os/](realestate-os/) |
 
+### Leverge AI Business Intelligence Suite
+
+| Service | Port | Purpose | Files |
+|---------|------|---------|-------|
+| leverge-intelligence | 4761 | Business analytics, insights, metrics | [leverge-intelligence/](companies/hojai-ai/services/leverge-intelligence/) |
+| leverge-memory | 4762 | Personal AI memory, context | [leverge-memory/](companies/hojai-ai/services/leverge-memory/) |
+| leverge-twin | 4763 | Digital twin management | [leverge-twin/](companies/hojai-ai/services/leverge-twin/) |
+| leverge-agents | 4764 | AI agent orchestration | [leverge-agents/](companies/hojai-ai/services/leverge-agents/) |
+| leverge-copilot | 4765 | Business AI copilot | [leverge-copilot/](companies/hojai-ai/services/leverge-copilot/) |
+
 ---
 
 ## Quick Start
@@ -267,6 +278,11 @@ curl http://localhost:5025/health  # Hotel OS
 curl http://localhost:4702/health  # CorpID
 curl http://localhost:4703/health  # MemoryOS
 curl http://localhost:4056/health  # AdBazaar / REZ-crm-hub
+curl http://localhost:4761/health  # Leverge Intelligence
+curl http://localhost:4762/health  # Leverge Memory
+curl http://localhost:4763/health  # Leverge Twin
+curl http://localhost:4764/health  # Leverge Agents
+curl http://localhost:4765/health  # Leverge Copilot
 ```
 
 ---
@@ -283,6 +299,7 @@ curl http://localhost:4056/health  # AdBazaar / REZ-crm-hub
 | 4300-4399 | Axom/BuzzLocal |
 | 4500-4550 | HOJAI AI |
 | 4702-4725 | Genie AI / Foundation |
+| **4761-4765** | **Leverge Suite** |
 | 4800-4899 | REZ-Merchant |
 | 4900-4999 | Industry-specific |
 | 5000-5240 | Industry OS (24) |
