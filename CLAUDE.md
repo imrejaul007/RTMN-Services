@@ -207,6 +207,65 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 
 ---
 
+## 15-Layer Industry AI Company Platform
+
+Each Industry OS provides access to all 15 layers of the RTMN ecosystem:
+
+| Layer | Name | Powered By | Capabilities |
+|-------|------|-----------|--------------|
+| 1 | Intelligence | HOJAI AI | Genie, CoPilot, Agents, Twins |
+| 2 | Customer Growth | AdBazaar + REZ Consumer + Axom | CRM, Ads, Loyalty, Community |
+| 3 | Commerce | Nexha + REZ-Merchant | Procurement, POS, Orders, Menu, Payments |
+| 4 | Financial | RABTUL + RIDZA + AssetMind + RidZa | Wallet, Banking, Lending, Investment |
+| 5 | Workforce | CorpPerks | HR, Payroll, Recruitment, Learning |
+| 6 | Legal & Trust | LawGens | Contracts, Compliance, Risk |
+| 7 | Property | RisnaEstate + StayOwn-Hospitality | Property, PMS, Booking |
+| 8 | Health | RisaCare | Health, Wellness |
+| 9 | Mobility | KHAIRMOVE | Delivery, Transport, Logistics |
+| 10 | Identity | CorpID | Universal Identity, Verification |
+| 11 | Memory | MemoryOS | Business Memory, Relationship Memory |
+| 12 | Twins | TwinOS Hub | Digital Twins, Sync |
+| 13 | Automation | FlowOS | Workflows, Approval Chains |
+| 14 | Autonomous | SUTAR OS + Karma Foundation | Goals, Decisions, Agent Economy |
+| 15 | Consumer Network | REZ Consumer + Axom + BuzzLocal | Customers, Referrals, Discovery |
+
+### Layer Endpoints
+
+```
+GET /api/layer/intelligence    # Layer 1
+GET /api/layer/customer-growth # Layer 2
+GET /api/layer/commerce        # Layer 3
+GET /api/layer/finance        # Layer 4
+GET /api/layer/workforce      # Layer 5
+GET /api/layer/legal          # Layer 6
+GET /api/layer/property       # Layer 7
+GET /api/layer/health         # Layer 8
+GET /api/layer/mobility       # Layer 9
+GET /api/layer/identity       # Layer 10
+GET /api/layer/memory         # Layer 11
+GET /api/layer/twins          # Layer 12
+GET /api/layer/automation     # Layer 13
+GET /api/layer/autonomous     # Layer 14
+GET /api/layer/network        # Layer 15
+GET /api/layers               # All 15 layers
+```
+
+### REZ-Merchant Integration (Layer 3)
+
+| Endpoint | Service | Port |
+|----------|---------|------|
+| `/api/merchant/pos` | POS | 4800 |
+| `/api/merchant/orders` | Orders | 4801 |
+| `/api/merchant/menu` | Menu | 4802 |
+| `/api/merchant/payments` | Payments | 4803 |
+| `/api/merchant/loyalty` | Loyalty | 4804 |
+| `/api/merchant/inventory` | Inventory | 4805 |
+| `/api/merchant/staff` | Staff | 4806 |
+| `/api/merchant/reservations` | Reservations | 4807 |
+| `/api/merchant/genie` | Genie | 4809 |
+
+---
+
 ## Services in This Repo
 
 ### Foundation Services
