@@ -149,6 +149,10 @@ services:
         value: 5010
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
 
   - type: web
     name: rtmn-healthcare-os

@@ -676,6 +676,27 @@ This document consolidates all port allocations across the 24 industry verticals
 | TBD | REZ-agent-observability | Monitoring |
 | TBD | REZ-unified-hub | Employee/HR |
 
+### AdBazaar (Advertising & Creator Commerce)
+
+> ⚠️ Updated June 15, 2026. Only `REZ-crm-hub` is production-ready. All other ports are planned/scaffolded.
+
+| Port | Service | Status | Description |
+|------|---------|--------|-------------|
+| 4056 | REZ-crm-hub | ✅ Ready | CRM hub — contacts, deals, HubSpot/Zoho sync |
+| 5000 | REZ-ads-api | 🚧 Planned | Ads API gateway (empty scaffold) |
+| 5001 | REZ-ads-service | 🚧 Planned | Ad serving, campaigns (dist only) |
+| 5002 | REZ-decision-service | 🚧 Planned | Ad decisioning (dist only) |
+| 5003 | REZ-economic-engine | 🚧 Planned | Revenue/economic engine (dist only) |
+| 5004 | REZ-ads-gateway | 🚧 Planned | Ad exchange gateway (empty) |
+| 5005 | adbazaar-api-gateway | 🚧 Planned | API gateway (dist only) |
+| 5006 | adbazaar-pixel | 🚧 Planned | Tracking pixel (empty) |
+| 5007 | REZ-creator-studio | 🚧 Planned | Creator tools (empty) |
+| 5008 | REZ-qr-service | 🚧 Planned | QR generation (empty) |
+| 5009 | REZ-dooh-service | 🚧 Planned | DOOH billboard management (dist only) |
+| TBD | adbazaar-cdp | 🚧 Planned | Customer Data Platform (empty) |
+| TBD | adbazaar-clean-room | 🚧 Planned | Privacy-safe data sharing (empty) |
+| TBD | adbazaar-intelligence-graph | 🚧 Planned | Audience intelligence (empty) |
+
 ---
 
 ## Related Documents

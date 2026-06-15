@@ -15,7 +15,27 @@ export function createApp() {
   const app = express();
 
   app.use(helmet());
-  app.use(cors());
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:3001,https://*.vercel.app')
+    .split(',')
+    .map((o) => o.trim());
+
+  app.use(cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin || allowedOrigins.some((pattern) => {
+        if (pattern.startsWith('https://*.') || pattern.startsWith('http://*.')) {
+          const domain = pattern.replace('https://', '').replace('http://', '').replace('*.', '');
+          return origin.endsWith(domain) || origin.includes(domain);
+        }
+        return origin === pattern;
+      })) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS policy`));
+      }
+    },
+    credentials: true,
+  }));
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true }));
 

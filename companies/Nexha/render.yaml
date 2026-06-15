@@ -7,7 +7,8 @@
 # IMPORTANT: Set the following environment variables in Render dashboard:
 #   - JWT_SECRET (generate with: openssl rand -hex 32)
 #   - INTERNAL_API_KEY (generate with: openssl rand -hex 32)
-#   - NEXT_PUBLIC_API_URL (https://nexha-portal.onrender.com after portal deploy)
+#   - MONGODB_URI (MongoDB Atlas connection string OR Render MongoDB add-on)
+#   - ALLOWED_ORIGINS (Vercel frontend URL after deployment)
 
 services:
   # ─────────────────────────────────────────────────────────────────
@@ -52,9 +53,13 @@ services:
       - key: LOG_LEVEL
         value: info
       - key: MONGODB_URI
-        # Render MongoDB plugin: add via Render dashboard > Add-ons > MongoDB
-        # Or use Atlas: mongodb+srv://user:pass@cluster.mongodb.net/nexha_commerce_identity
+        # IMPORTANT: Set this in Render dashboard or use Render MongoDB add-on
+        # Format: mongodb+srv://user:password@cluster.mongodb.net/nexha_commerce_identity
         sync: false
+      - key: ALLOWED_ORIGINS
+        # IMPORTANT: Update this AFTER deploying Vercel portal
+        # Format: http://localhost:3000,https://nexha-portal.vercel.app
+        value: "http://localhost:3000,http://localhost:3001"
       - key: SUTAR_BASE_URL
         fromService:
           type: web
@@ -103,30 +108,3 @@ services:
     autoDeploy: true
     dependsOn:
       - - nexha-sutar-mock
-
-  # ─────────────────────────────────────────────────────────────────
-  # 3. Commerce Identity Worker (optional: background job processor)
-  # ─────────────────────────────────────────────────────────────────
-  # - type: worker
-  #   name: nexha-identity-worker
-  #   env: node
-  #   region: singapore
-  #   plan: free
-  #   buildCommand: npm install && npm run build
-  #   startCommand: node dist/worker.js
-  #   repo: https://github.com/imrejaul007/RTMN-Services
-  #   branch: main
-  #   path: companies/Nexha/commerce-identity
-  #   envVars:
-  #     - key: NODE_ENV
-  #       value: production
-  #     - key: MONGODB_URI
-  #       sync: false
-  #     - key: JWT_SECRET
-  #       fromService:
-  #         type: web
-  #         name: nexha-commerce-identity
-  #         envVarKey: JWT_SECRET
-  #   autoDeploy: true
-  #   dependsOn:
-  #     - - nexha-commerce-identity
