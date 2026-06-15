@@ -1,9 +1,9 @@
 /**
- * Restaurant AI Company Platform
+ * government-os AI Company Platform
  * 
- * government OS upgraded with all 15 layers of RTMN ecosystem.
+ * restaurant OS upgraded with all 15 layers of RTMN ecosystem.
  * 
- * Port: 5130
+ * Port: 5010
  * Industry: Restaurant
  */
 
@@ -13,7 +13,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 
 const app = express();
-const PORT = process.env.PORT || 5130;
+const PORT = process.env.PORT || 5010;
 
 // Middleware
 app.use(helmet());
@@ -25,7 +25,7 @@ app.use(express.json());
 // LAYER CONFIGURATION
 // ============================================
 
-const INDUSTRY = 'restaurant';
+const INDUSTRY = 'government';
 const LAYERS_ENABLED = process.env.LAYERS ? process.env.LAYERS.split(',') : 'all';
 
 // Service URLs for Layer Integration
@@ -72,7 +72,10 @@ const RTMN_SERVICES = {
   
   // Layer 12: Twins (TwinOS Hub)
   twinos: process.env.TWINOS_URL || 'http://localhost:4705',
-  
+
+  // Layer 13: Automation (FlowOS)
+  flow: process.env.FLOW_URL || 'http://localhost:4200',
+
   // Layer 14: Autonomous (SUTAR OS)
   sutar: process.env.SUTAR_URL || 'http://localhost:4140',
   goalOS: process.env.GOAL_URL || 'http://localhost:4242',
@@ -688,6 +691,68 @@ app.post('/api/twins/sync', requireAuth, async (req, res) => {
 });
 
 // ============================================
+// LAYER 13: AUTOMATION (FlowOS)
+// ============================================
+
+app.get('/api/layer/automation', requireAuth, async (req, res) => {
+  try {
+    const flowRes = await fetch(RTMN_SERVICES.flow + '/health');
+    const flow = await flowRes.json();
+
+    res.json({
+      layer: 13,
+      name: 'Automation (FlowOS)',
+      services: { flowOS: flow.status || 'online' },
+      capabilities: {
+        workflows: true,
+        approvalChains: true,
+        businessProcesses: true,
+        agentCoordination: true,
+        triggers: ['on_order', 'on_payment', 'on_booking', 'on_customer'],
+        templates: [
+          'order_to_kitchen',
+          'booking_confirmation',
+          'customer_onboarding',
+          'invoice_generation',
+          'inventory_reorder',
+        ],
+      },
+    });
+  } catch (err) {
+    res.json({ layer: 13, name: 'Automation', status: 'offline', error: err.message });
+  }
+});
+
+app.post('/api/automation/workflows', requireAuth, async (req, res) => {
+  try {
+    const { workflowId, trigger, data } = req.body;
+
+    // Execute workflow via FlowOS
+    const flowRes = await fetch(RTMN_SERVICES.flow + '/api/workflows/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workflowId, trigger, data }),
+    });
+
+    res.json({ success: true, executedAt: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ error: 'Workflow execution failed' });
+  }
+});
+
+app.get('/api/automation/workflows', requireAuth, async (req, res) => {
+  res.json({
+    workflows: [
+      { id: 'wf_001', name: 'Order to Kitchen', trigger: 'on_order', status: 'active' },
+      { id: 'wf_002', name: 'Booking Confirmation', trigger: 'on_booking', status: 'active' },
+      { id: 'wf_003', name: 'Customer Onboarding', trigger: 'on_customer', status: 'active' },
+      { id: 'wf_004', name: 'Inventory Reorder', trigger: 'on_stock_low', status: 'active' },
+      { id: 'wf_005', name: 'Payment Processing', trigger: 'on_payment', status: 'active' },
+    ],
+  });
+});
+
+// ============================================
 // LAYER 14: AUTONOMOUS (SUTAR OS)
 // ============================================
 
@@ -766,6 +831,7 @@ app.get('/api/layers', requireAuth, async (req, res) => {
     { layer: 10, name: 'Identity', endpoint: '/api/layer/identity' },
     { layer: 11, name: 'Memory', endpoint: '/api/layer/memory' },
     { layer: 12, name: 'Twins', endpoint: '/api/layer/twins' },
+    { layer: 13, name: 'Automation', endpoint: '/api/layer/automation' },
     { layer: 14, name: 'Autonomous', endpoint: '/api/layer/autonomous' },
     { layer: 15, name: 'Consumer Network', endpoint: '/api/layer/network' },
   ];
@@ -806,6 +872,6 @@ app.get('/health', (req, res) => {
 
 initDatabase().catch(console.warn);
 app.listen(PORT, () => {
-  console.log('✅ Restaurant AI Company Platform running on port ' + PORT);
+  console.log('✅ government-os AI Company Platform running on port ' + PORT);
   console.log('📦 15 Layers: Intelligence, Growth, Commerce, Finance, Workforce, Legal, Property, Health, Mobility, Identity, Memory, Twins, Autonomous, Network');
 });
