@@ -775,3 +775,125 @@ This document consolidates all port allocations across the 24 industry verticals
 ---
 
 *Last Updated: June 16, 2026*
+
+---
+
+## RTMN Ecosystem Integration (15 Layers)
+
+### Layer 1: Intelligence (HOJAI AI)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4701 | Genie | Personal/Business AI |
+| 4600 | CoPilot | Business Intelligence |
+| 4580 | Agent Marketplace | AI Agent Registry |
+
+### Layer 2: Customer Growth (AdBazaar + REZ Consumer + Axom)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4056 | AdBazaar CRM | Customer Management |
+| 4020 | BuzzLocal | Local Discovery |
+| 3000 | REZ Consumer | Customer Network |
+
+### Layer 3: Commerce (Nexha + REZ-Merchant)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 5002 | Nexha | Procurement, Distribution |
+| 4320 | Procurement | RFQ, Supplier |
+| **4800** | **REZ-Merchant POS** | **Point of Sale** |
+| **4801** | **REZ-Merchant Restaurant** | **Restaurant Service** |
+| **4802** | **REZ-Merchant Menu** | **Menu Management** |
+| **4803** | **REZ-Merchant Payment** | **Payment Gateway** |
+| **4804** | **REZ-Merchant Loyalty** | **Loyalty Programs** |
+| **4805** | **REZ-Merchant Inventory** | **Inventory Management** |
+| **4806** | **REZ-Merchant Staff** | **Staff Management** |
+| **4807** | **REZ-Merchant Reservations** | **Reservations** |
+| **4808** | **REZ-Merchant Dashboard** | **Dashboard** |
+| **4809** | **REZ-Merchant Genie** | **Merchant AI Genie** |
+
+### Layer 4: Financial (RABTUL + RIDZA + AssetMind + RidZa)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4002 | RABTUL Auth | Authentication |
+| 4004 | RABTUL Wallet | Payments |
+| 4255 | RidZa | Financial Services |
+| 5200+ | AssetMind | Wealth Management |
+
+### Layer 5: Workforce (CorpPerks)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4450 | CorpPerks | HR, Payroll, Recruitment |
+
+### Layer 6: Legal & Trust (LawGens)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 5035 | Legal OS | Contracts, Compliance |
+
+### Layer 7: Property (RisnaEstate + StayOwn-Hospitality)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4300 | RisnaEstate | Property Management |
+| **6000** | **StayOwn PMS** | **Property Management System** |
+
+### Layer 8: Health (RisaCare)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 7000+ | RisaCare | Health, Wellness |
+
+### Layer 9: Mobility (KHAIRMOVE)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4500+ | KHAIRMOVE | Delivery, Transport |
+
+### Layer 10: Identity (CorpID)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4702 | CorpID | Universal Identity |
+
+### Layer 11: Memory (MemoryOS)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4703 | MemoryOS | Business Memory |
+
+### Layer 12: Twins (TwinOS Hub)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4705 | TwinOS Hub | Digital Twins |
+
+### Layer 13: Automation (FlowOS)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4200 | FlowOS | Workflows, Automation |
+
+### Layer 14: Autonomous (SUTAR OS + Karma Foundation)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4140 | SUTAR OS | Autonomous Operations |
+| 4242 | Goal OS | Goal Management |
+| 4240 | Decision Engine | Policy Decisions |
+| **4250** | **Karma Foundation** | **Agent Economy** |
+
+### Layer 15: Consumer Network (REZ Consumer + Axom + BuzzLocal)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 3000 | REZ Consumer | Customer Network |
+| 4000 | Axom | Community Intelligence |
+| 4020 | BuzzLocal | Local Discovery |
+
+---
+
+*Last Updated: June 16, 2026*
