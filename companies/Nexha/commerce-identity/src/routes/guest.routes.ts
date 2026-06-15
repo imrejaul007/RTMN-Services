@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { GuestSupplierService } from '../services/guest-supplier.service';
 import { SutarBridgeService } from '../services/sutar-bridge.service';
+import { issueGuestToken } from '../services/auth.service';
 import { requireAuth } from '../middleware/auth.middleware';
 import { asyncHandler, HttpError } from '../middleware/error.middleware';
 
@@ -57,12 +58,18 @@ router.post(
       businessName: result.guest?.businessName,
       city: result.guest?.city,
     });
+
+    // Issue a short-lived guest JWT so they can immediately call protected endpoints
+    const tokenResult = await issueGuestToken(result.guest!.guestId, result.guest!.whatsapp);
+
     res.json({
       success: true,
       data: {
         guestId: result.guest?.guestId,
         status: result.guest?.status,
         message: result.message,
+        token: tokenResult.token,
+        tokenExpiresAt: tokenResult.expiresAt,
       },
     });
   })

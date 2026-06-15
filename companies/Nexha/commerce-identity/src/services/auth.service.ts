@@ -93,7 +93,7 @@ export async function issueLoginToken(
     aud: JWT_AUDIENCE,
   };
 
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
   logger.info('JWT issued', { corpId, role, expiresAt });
   return { success: true, token, expiresAt: expiresAt.toISOString() };
 }
@@ -113,7 +113,7 @@ export async function issueGuestToken(guestId: string, phone: string): Promise<L
     aud: JWT_AUDIENCE,
   };
 
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn });
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' as jwt.SignOptions['expiresIn'] });
   const expiresAt = new Date(Date.now() + ms(expiresIn));
   logger.info('Guest JWT issued', { guestId, phone });
   return { success: true, token, expiresAt: expiresAt.toISOString() };
@@ -129,7 +129,7 @@ export function issueSystemToken(serviceName: string): string {
     iss: JWT_ISSUER,
     aud: JWT_AUDIENCE,
   };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' as jwt.SignOptions['expiresIn'] });
 }
 
 // --- JWT verification ---
@@ -162,6 +162,7 @@ function ms(str: string): number {
   const match = str.match(/^(\d+)([dhms])$/);
   if (!match) return 7 * 24 * 60 * 60 * 1000; // default 7d
   const n = Number(match[1]);
-  const u = match[2];
-  return n * { d: 86400000, h: 3600000, m: 60000, s: 1000 }[u];
+  const u = match[2] as 'd' | 'h' | 'm' | 's';
+  const table: Record<string, number> = { d: 86400000, h: 3600000, m: 60000, s: 1000 };
+  return n * table[u];
 }

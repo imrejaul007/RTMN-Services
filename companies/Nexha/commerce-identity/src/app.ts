@@ -6,6 +6,7 @@ import { buyerRouter } from './routes/buyer.routes';
 import { guestSupplierRouter } from './routes/guest.routes';
 import { ratingRouter } from './routes/rating.routes';
 import { corpidRouter } from './routes/corpid.routes';
+import { authRouter } from './routes/auth.routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import { logger } from './config/logger';
 import { disconnectDatabase } from './config/database';
@@ -46,6 +47,7 @@ export function createApp() {
   app.use('/api/guest-suppliers', guestSupplierRouter);
   app.use('/api/ratings', ratingRouter);
   app.use('/api/corpid', corpidRouter);
+  app.use('/api/auth', authRouter);
 
   // Root info
   app.get('/', (_req: Request, res: Response) => {

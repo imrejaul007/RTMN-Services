@@ -1,0 +1,151 @@
+// API client for commerce-identity service
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('nexha_token') : undefined;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> || {}),
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const json = await res.json() as { success: boolean; data?: T; error?: string };
+
+  if (!json.success) {
+    throw new Error(json.error || `Request failed: ${res.status}`);
+  }
+  return (json.data ?? json) as T;
+}
+
+// --- CorpID ---
+
+export async function issueCorpId(payload: { type: string; businessName: string; phone: string; email?: string }) {
+  return request<{ corpId: string }>('/api/corpid/issue', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+// --- Auth ---
+
+export async function login(corpId: string, password: string) {
+  return request<{ token: string; expiresAt: string; corpId: string }>('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ corpId, password }),
+  });
+}
+
+export async function setPassword(password: string) {
+  return request<{ message: string }>('/api/auth/password', {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+  });
+}
+
+export async function getMe() {
+  return request<{ corpId: string; role: string; guestId?: string }>('/api/auth/me', {
+    method: 'GET',
+  });
+}
+
+// --- Suppliers ---
+
+export async function registerSupplier(payload: {
+  corpId: string;
+  businessName: string;
+  legalName: string;
+  email: string;
+  phone: string;
+  categories: string[];
+  address: { line1: string; city: string; state: string; pincode: string };
+  documents?: Array<{ type: string; number: string }>;
+}) {
+  return request<Record<string, unknown>>('/api/suppliers', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getSupplier(corpId: string) {
+  return request<Record<string, unknown>>(`/api/suppliers/${corpId}`);
+}
+
+export async function updateSupplierStatus(corpId: string, status: string, reason?: string) {
+  return request<Record<string, unknown>>(`/api/suppliers/${corpId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, reason }),
+  });
+}
+
+// --- Guest ---
+
+export async function onboardGuest(payload: {
+  businessName: string;
+  ownerName: string;
+  phone: string;
+  whatsapp?: string;
+  email?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  categories?: string[];
+  promoCode?: string;
+}) {
+  return request<{ guestId: string; status: string; expiresAt: string; promoCode: string }>('/api/guest-suppliers/onboard', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function resendOtp(guestId: string) {
+  return request<{ guestId: string; status: string }>('/api/guest-suppliers/' + guestId + '/resend-otp', {
+    method: 'POST',
+  });
+}
+
+export async function verifyOtp(guestId: string, code: string) {
+  return request<{ guestId: string; status: string; token?: string; tokenExpiresAt?: string }>(
+    '/api/guest-suppliers/' + guestId + '/verify-otp',
+    { method: 'POST', body: JSON.stringify({ code }) }
+  );
+}
+
+export async function getGuest(guestId: string) {
+  return request<Record<string, unknown>>('/api/guest-suppliers/' + guestId);
+}
+
+export async function convertGuest(guestId: string, corpId: string, documents: { gstin?: string; pan?: string }) {
+  return request<{ corpId: string }>('/api/guest-suppliers/' + guestId + '/convert', {
+    method: 'POST',
+    body: JSON.stringify({ corpId, documents }),
+  });
+}
+
+// --- Ratings ---
+
+export async function submitRating(payload: {
+  type: string;
+  subjectCorpId: string;
+  score: number;
+  feedback?: string;
+  dealId?: string;
+}) {
+  return request<{ ratingId: string }>('/api/ratings', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getReputation(corpId: string) {
+  return request<{ overallScore: number; breakdown: Record<string, unknown>; recentTrend: string }>(
+    '/api/suppliers/' + corpId + '/reputation'
+  );
+}
+
+// --- Health ---
+
+export async function getHealth() {
+  return request<{ status: string; version: string }>('/health');
+}
