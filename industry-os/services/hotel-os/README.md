@@ -1,61 +1,60 @@
-# Hotel OS
+# Restaurant OS
 
-Industry-specific digital twin service for the hotel and hospitality industry within RTMN.
+Industry-specific digital twin service for the restaurant and food service industry within RTMN.
 
 ## Overview
 
-Hotel OS provides comprehensive management capabilities for hotels including room management, booking system, guest profiles, hotel services, invoicing, and analytics.
+Restaurant OS provides comprehensive management capabilities for restaurants including menu management, order processing, table reservations, kitchen queue management, customer loyalty, and analytics.
 
 ## Quick Start
 
 ```bash
 # Install dependencies
-cd services/hotel-os
+cd services/restaurant-os
 npm install
 
 # Run locally
 npm start
 
 # Run with Docker
-docker build -t rtmn-hotel-os .
-docker run -p 5025:5025 rtmn-hotel-os
+docker build -t rtmn-restaurant-os .
+docker run -p 5010:5010 rtmn-restaurant-os
 ```
 
 ## API Endpoints
 
-### Room Management
-- `GET /api/rooms` - List rooms (with filters)
-- `GET /api/rooms/:id` - Get room details
-- `POST /api/rooms` - Create room
-- `PUT /api/rooms/:id` - Update room
-- `DELETE /api/rooms/:id` - Delete room
+### Menu Management
+- `GET /api/menu` - Get all menu items (with optional filters)
+- `GET /api/menu/:id` - Get specific menu item
+- `POST /api/menu` - Create menu item
+- `PUT /api/menu/:id` - Update menu item
+- `DELETE /api/menu/:id` - Delete menu item
 
-### Booking Management
-- `POST /api/bookings` - Create booking
-- `GET /api/bookings` - List bookings
-- `GET /api/bookings/:id` - Get booking
-- `PUT /api/bookings/:id` - Update booking
-- `PATCH /api/bookings/:id/status` - Update status
-- `DELETE /api/bookings/:id` - Cancel booking
+### Order Management
+- `POST /api/orders` - Create new order
+- `GET /api/orders` - List orders (filterable)
+- `GET /api/orders/:id` - Get order details
+- `PATCH /api/orders/:id/status` - Update order status
+- `DELETE /api/orders/:id` - Cancel order
 
-### Guest Management
-- `POST /api/guests` - Register guest
-- `GET /api/guests` - List guests
-- `GET /api/guests/:id` - Get guest
-- `PUT /api/guests/:id` - Update guest
-- `POST /api/guests/:id/points` - Add loyalty points
+### Table Management
+- `GET /api/tables` - List all tables
+- `GET /api/tables/:id` - Get table details
+- `PUT /api/tables/:id` - Update table
+- `POST /api/tables/:id/reserve` - Reserve table
 
-### Hotel Services
-- `GET /api/services` - List services
-- `POST /api/services/request` - Request service
-- `GET /api/services/requests` - Get service requests
-- `PATCH /api/services/requests/:id` - Update request
+### Kitchen Queue
+- `GET /api/kitchen` - Get kitchen queue
+- `PATCH /api/kitchen/:orderId` - Update preparation status
 
-### Invoicing
-- `POST /api/invoices` - Create invoice
-- `GET /api/invoices` - List invoices
-- `GET /api/invoices/:id` - Get invoice
-- `POST /api/invoices/:id/pay` - Pay invoice
+### Customer Management
+- `POST /api/customers` - Create/update customer
+- `GET /api/customers` - List customers
+- `POST /api/customers/:id/points` - Add loyalty points
+
+### Reviews
+- `POST /api/reviews` - Create review
+- `GET /api/reviews` - List reviews
 
 ### Analytics
 - `GET /api/analytics` - Get daily analytics
@@ -63,24 +62,24 @@ docker run -p 5025:5025 rtmn-hotel-os
 ### Digital Twins
 - `GET /api/twins` - All twins status
 - `GET /api/twins/:name` - Specific twin
-- `POST /api/twins/sync` - Sync twins
+- `POST /api/twins/sync` - Sync all twins
 
 ## Digital Twins
 
 | Twin | Purpose |
 |------|---------|
-| room-twin | Real-time room inventory |
-| booking-twin | Active bookings |
-| guest-twin | Guest profiles |
-| service-twin | Active services |
-| revenue-twin | Revenue tracking |
+| menu-twin | Real-time menu item catalog |
+| order-twin | Active order tracking |
+| kitchen-twin | Kitchen queue management |
+| table-twin | Table occupancy tracking |
+| customer-twin | Customer loyalty data |
 
 ## Port
 
-**5025** - Hotel OS Port
+**5010** - Restaurant OS Port
 
 ## Health Check
 
 ```bash
-curl http://localhost:5025/health
+curl http://localhost:5010/health
 ```

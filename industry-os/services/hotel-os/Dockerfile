@@ -8,9 +8,9 @@ RUN npm install --production
 
 COPY src/ ./src/
 
-EXPOSE 5025
+EXPOSE 5010
 
 ENV NODE_ENV=production
-ENV PORT=5025
+ENV PORT=5010
 
 CMD ["node", "src/index.js"]

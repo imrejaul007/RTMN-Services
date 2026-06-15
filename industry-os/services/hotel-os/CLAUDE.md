@@ -1,57 +1,58 @@
-# Hotel OS - Development Guide
+# Restaurant OS - Development Guide
 
-**Port:** 5025  
-**Type:** Industry OS (Hospitality)
+**Port:** 5010  
+**Type:** Industry OS (Food Service)
 
 ## Architecture
 
-Hotel OS manages the complete hotel lifecycle from room inventory to booking management, guest services, and revenue tracking.
+Restaurant OS manages the complete restaurant lifecycle from menu creation to order fulfillment, table management, and customer loyalty.
 
 ### Core Components
 
-1. **Room Manager** - Room inventory, types, pricing, availability
-2. **Booking Engine** - Reservation management, conflict detection, pricing
-3. **Guest Manager** - Guest profiles, loyalty program, preferences
-4. **Service Request** - Room service, spa, transport, housekeeping
-5. **Invoice System** - Billing, payments, refunds
-6. **Analytics** - Occupancy, revenue, guest insights
+1. **Menu Engine** - CRUD operations for menu items with categories, pricing, and prep times
+2. **Order Processor** - Order creation, status tracking, tax calculation
+3. **Kitchen Queue** - FIFO queue management for kitchen operations
+4. **Table Manager** - Table availability, capacity, and reservations
+5. **Customer Loyalty** - Points system, tier management (bronze/silver/gold/platinum)
+6. **Review System** - Customer feedback collection
+7. **Analytics** - Real-time sales, popular items, table occupancy
 
 ### Data Models
 
-#### Room
+#### Menu Item
 ```javascript
 {
   id: string,
-  number: number,
-  floor: number,
-  type: 'standard'|'deluxe'|'suite'|'presidential',
+  name: string,
+  category: string,
   price: number,
-  capacity: number,
-  amenities: string[],
-  view: 'city'|'ocean',
-  status: 'available'|'occupied'|'maintenance'|'reserved'
+  prepTime: number,
+  description: string,
+  ingredients: string[],
+  calories: number,
+  available: boolean
 }
 ```
 
-#### Booking
+#### Order
 ```javascript
 {
   id: string,
-  bookingNumber: string,
-  roomId: string,
-  guestId: string,
-  checkIn: ISO8601,
-  checkOut: ISO8601,
-  nights: number,
-  roomPrice: number,
+  orderNumber: string,
+  tableId: string,
+  customerId: string,
+  items: [{ itemId, quantity, menuItem, subtotal }],
   subtotal: number,
   tax: number,
   total: number,
-  status: 'confirmed'|'checked-in'|'checked-out'|'cancelled'|'no-show'
+  status: 'pending'|'confirmed'|'preparing'|'ready'|'served'|'completed'|'cancelled',
+  priority: 'normal'|'rush',
+  notes: string,
+  orderType: 'dine-in'|'takeout'|'delivery'
 }
 ```
 
-#### Guest
+#### Customer
 ```javascript
 {
   id: string,
@@ -60,39 +61,37 @@ Hotel OS manages the complete hotel lifecycle from room inventory to booking man
   phone: string,
   loyaltyPoints: number,
   tier: 'bronze'|'silver'|'gold'|'platinum',
-  stayCount: number,
-  totalSpent: number,
-  preferences: object
+  visitCount: number,
+  totalSpent: number
 }
 ```
 
 ### Digital Twins Sync
 
 All twins are automatically updated on:
-- Room status changes
-- Booking creation/cancellation
-- Guest check-in/out
-- Service completions
-- Invoice payments
+- Menu changes (create/update/delete)
+- Order status changes
+- Table status changes
+- Customer point updates
 
 ### Integration Points
 
-- **API Gateway** (port 3000) - Routes hotel requests
+- **API Gateway** (port 3000) - Routes restaurant requests
 - **TwinOS Hub** - Central twin synchronization
-- **MemoryOS** - Guest data persistence
-- **RABTUL Payment** - Invoice payment processing
+- **MemoryOS** - Persistent customer data
+- **RABTUL Payment** - Order payment processing
 
 ### Testing
 
 ```bash
 # Health check
-curl http://localhost:5025/health
+curl http://localhost:5010/health
 
-# Create booking
-curl -X POST http://localhost:5025/api/bookings \
+# Create order
+curl -X POST http://localhost:5010/api/orders \
   -H "Content-Type: application/json" \
-  -d '{"roomId":"R101","checkIn":"2026-06-15","checkOut":"2026-06-18"}'
+  -d '{"tableId":"t1","items":[{"itemId":"m1","quantity":2}]}'
 
 # Get analytics
-curl http://localhost:5025/api/analytics
+curl http://localhost:5010/api/analytics
 ```
