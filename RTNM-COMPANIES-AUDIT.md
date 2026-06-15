@@ -984,11 +984,142 @@ Restaurant Twin, Order Twin, Kitchen Twin, Inventory Twin, Customer Twin, Staff 
 
 ---
 
+## REZ Merchant Genie - AI-Powered Business Intelligence ✅ NEW!
+
+**Location:** `companies/REZ-Merchant/rez-merchant-genie/`  
+**Port:** 4801  
+**Status:** ✅ **PRODUCTION READY** | **June 15, 2026**  
+**Tagline:** *"Your business deserves a Genie."*
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    REZ Merchant Genie                          │
+│                         (Port 4801)                              │
+├─────────────────────────────────────────────────────────────────┤
+│  Routes: /api/merchant/*                                         │
+│  Services:                                                      │
+│    - merchantDataService.ts (Merchant Copilot + Intelligence)  │
+│    - genieTwinService.ts (Personal Twin + Founder Twin)        │
+│    - insightService.ts (AI insight generation)                  │
+│    - alertService.ts (Business alert generation)                │
+└─────────────────────────────────────────────────────────────────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+   ┌────▼─────┐      ┌─────▼─────┐      ┌─────▼─────┐
+   │ Merchant │      │  Genie    │      │  Genie    │
+   │ Copilot  │      │  Twins    │      │ Briefing  │
+   │  (4022)  │      │ (4708,16)│      │  (4704)   │
+   └──────────┘      └───────────┘      └───────────┘
+```
+
+### Connected Services
+
+| From | To | Purpose |
+|------|-----|---------|
+| Merchant Genie | REZ Merchant Copilot (4022) | Sales, orders, customers |
+| Merchant Genie | REZ Merchant Intelligence (4012) | Analytics, trends |
+| Merchant Genie | Genie Personal Twin (4708) | Business owner profile |
+| Merchant Genie | Genie Founder Twin (4716) | Company & venture data |
+| Merchant Genie | Genie Briefing (4704) | AI-generated daily summary |
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/merchant/:id` | GET | Full Genie dashboard |
+| `/api/merchant/:id/insights` | GET | AI-generated insights |
+| `/api/merchant/:id/alerts` | GET | Business alerts (critical/warning/info) |
+| `/api/merchant/:id/recommendations` | GET | AI recommendations |
+| `/api/merchant/:id/briefing` | GET | Daily Genie briefing |
+| `/api/merchant/:id/ask` | POST | Ask Genie about your business |
+| `/api/merchant/:id/twins` | GET | Connected twins data |
+| `/api/merchant/:id/sales` | GET | Sales analytics |
+| `/api/merchant/:id/customers` | GET | Customer insights |
+| `/api/merchant/:id/financial` | GET | Financial summary |
+
+### Insight Types
+
+| Type | Description |
+|------|-------------|
+| Sales | Revenue trends, average order value, peak hours |
+| Customer | Retention rate, churn prediction, LTV analysis |
+| Inventory | Low stock alerts, demand forecasting |
+| Financial | Profit margins, cost analysis, cash flow |
+| Operational | Process optimization, efficiency gains |
+
+### Alert Types
+
+| Severity | Examples |
+|----------|----------|
+| 🚨 Critical | Revenue dropped >20%, compliance violations |
+| ⚠️ Warning | Revenue down 5-20%, inventory below threshold |
+| ℹ️ Info | Daily summary, new customer milestones |
+
+---
+
+## DO App - Consumer Genie AI ✅ NEW!
+
+**Location:** `companies/REZ-Consumer/do/`  
+**Status:** ✅ **PRODUCTION READY** | **June 15, 2026**
+
+### Structure
+
+```
+do/
+├── app/                    # Expo Router mobile app
+│   ├── app/(auth)/        # Login, signup
+│   ├── app/(onboarding)/  # Name, twin, complete
+│   └── app/(tabs)/        # Chat, twins, health, finance, settings
+└── do-backend/             # Express API (port 3001)
+    └── src/
+        ├── routes/        # auth, genie, onboarding
+        ├── services/      # Genie client
+        └── middleware/    # JWT auth
+```
+
+### DO Backend API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/signup` | POST | Create account |
+| `/api/auth/login` | POST | Login |
+| `/api/auth/me` | GET | Get current user |
+| `/api/onboarding/create-twin` | POST | Create Personal Twin |
+| `/api/genie/ask` | POST | Ask Genie |
+| `/api/genie/dashboard` | GET | Get dashboard |
+| `/api/genie/briefing` | GET | Get daily briefing |
+| `/api/genie/whatsapp/send` | POST | Send WhatsApp message |
+
+### Genie AI Integration
+
+**Hook:** `do/src/hooks/useGenie.ts`
+
+| Method | Purpose |
+|--------|---------|
+| `getDashboard()` | Aggregated dashboard from all 5 twins + briefing |
+| `getAllTwins()` | All twin services in parallel |
+| `getPersonalTwin()` | Personal preferences, goals |
+| `getRelationshipTwinSummary()` | Relationship health |
+| `getHealthTwin()` | Composite health score |
+| `getFinancialTwin()` | Net worth + cash flow |
+| `getFounderTwin()` | Ventures, KPIs, decisions |
+| `recallMemory(query)` | Search Genie memory |
+| `getBriefing()` | Today's briefing |
+| `askGenie(message)` | Conversational surface |
+| `sendWhatsAppMessage(phone, body)` | Send WhatsApp message |
+
+---
+
 ## Integration Status
 
 | Company | HOJAI Integration |
 |---------|-------------------|
 | HOJAI Genie | ✅ Native |
+| DO App (REZ-Consumer) | ✅ Native |
+| REZ Merchant Genie | ✅ Native |
 | HOJAI BrandPulse | ✅ Native |
 | HOJAI ExpertOS | ✅ Native |
 | HOJAI SkillNet | ✅ Native |

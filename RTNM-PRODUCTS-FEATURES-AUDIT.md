@@ -167,6 +167,149 @@
 
 ---
 
+## DO App - Consumer Genie AI Assistant ✅ NEW!
+
+**Location:** `companies/REZ-Consumer/do/`  
+**Status:** ✅ **PRODUCTION READY** | **June 15, 2026**
+
+### Structure
+
+```
+do/
+├── app/                    # Expo Router mobile app
+│   ├── app/(auth)/        # Login, signup
+│   ├── app/(onboarding)/  # Name, twin, complete
+│   └── app/(tabs)/        # Chat, twins, health, finance, settings
+└── do-backend/             # Express API (port 3001)
+    └── src/
+        ├── routes/        # auth, genie, onboarding
+        ├── services/      # Genie client
+        └── middleware/    # JWT auth
+```
+
+### DO Backend API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/signup` | POST | Create account |
+| `/api/auth/login` | POST | Login |
+| `/api/auth/me` | GET | Get current user |
+| `/api/auth/logout` | POST | Logout |
+| `/api/onboarding/create-twin` | POST | Create Personal Twin |
+| `/api/onboarding/twin-status` | GET | Get twin creation status |
+| `/api/onboarding/complete` | POST | Complete onboarding |
+| `/api/genie/ask` | POST | Ask Genie |
+| `/api/genie/dashboard` | GET | Get dashboard |
+| `/api/genie/briefing` | GET | Get daily briefing |
+| `/api/genie/whatsapp/send` | POST | Send WhatsApp message |
+
+### Mobile App Screens
+
+| Screen | Description |
+|--------|-------------|
+| `(auth)/login` | Login with email/password |
+| `(auth)/signup` | Sign up for new account |
+| `(onboarding)/index` | Start onboarding flow |
+| `(onboarding)/name` | Enter user name |
+| `(onboarding)/twin` | Create Personal Twin |
+| `(onboarding)/complete` | Onboarding complete |
+| `(tabs)/index` | Genie Chat interface |
+| `(tabs)/twins` | View all digital twins |
+| `(tabs)/health` | Health Twin dashboard |
+| `(tabs)/finance` | Financial Twin dashboard |
+| `(tabs)/settings` | User settings |
+
+### Genie AI Hook (useGenie.ts)
+
+```typescript
+const genie = useGenie();
+
+// Dashboard
+await genie.getDashboard();         // All twins + briefing
+await genie.getAllTwins();         // Parallel twin fetch
+
+// Twins
+await genie.getPersonalTwin();     // Identity, goals, preferences
+await genie.getRelationshipTwinSummary(); // Relationship health
+await genie.getHealthTwin();       // Composite health score
+await genie.getFinancialTwin();    // Net worth, cash flow
+await genie.getFounderTwin();       // Ventures, KPIs
+
+// Memory & Chat
+await genie.recallMemory(query);   // Search memories
+await genie.getBriefing();         // Today's briefing
+await genie.askGenie(message);     // Conversational AI
+
+// Communication
+await genie.sendWhatsAppMessage(phone, body);
+```
+
+---
+
+## REZ Merchant Genie - AI-Powered Business Intelligence ✅ NEW!
+
+**Location:** `companies/REZ-Merchant/rez-merchant-genie/`  
+**Port:** 4801  
+**Status:** ✅ **PRODUCTION READY** | **June 15, 2026**  
+**Tagline:** *"Your business deserves a Genie."*
+
+### Architecture
+
+```
+REZ Merchant Genie (Port 4801)
+         │
+         ├── merchantDataService.ts
+         │      ├── REZ Merchant Copilot (4022)
+         │      └── REZ Merchant Intelligence (4012)
+         │
+         ├── genieTwinService.ts
+         │      ├── Genie Personal Twin (4708)
+         │      ├── Genie Founder Twin (4716)
+         │      └── Genie Briefing (4704)
+         │
+         ├── insightService.ts       # AI insights
+         └── alertService.ts         # Business alerts
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/merchant/:id` | GET | Full Genie dashboard |
+| `/api/merchant/:id/insights` | GET | AI-generated insights |
+| `/api/merchant/:id/alerts` | GET | Business alerts |
+| `/api/merchant/:id/recommendations` | GET | AI recommendations |
+| `/api/merchant/:id/briefing` | GET | Daily Genie briefing |
+| `/api/merchant/:id/ask` | POST | Ask Genie about business |
+| `/api/merchant/:id/twins` | GET | Connected twins data |
+| `/api/merchant/:id/sales` | GET | Sales analytics |
+| `/api/merchant/:id/customers` | GET | Customer insights |
+| `/api/merchant/:id/financial` | GET | Financial summary |
+
+### Insight Types
+
+| Type | Description |
+|------|-------------|
+| Sales | Revenue trends, average order value, peak hours |
+| Customer | Retention rate, churn prediction, LTV analysis |
+| Inventory | Low stock alerts, demand forecasting |
+| Financial | Profit margins, cost analysis, cash flow |
+| Operational | Process optimization, efficiency gains |
+
+### Alert Types
+
+| Severity | Examples |
+|----------|----------|
+| 🚨 Critical | Revenue dropped >20%, compliance violations |
+| ⚠️ Warning | Revenue down 5-20%, inventory below threshold |
+| ℹ️ Info | Daily summary, new customer milestones |
+
+---
+
+### HOJAI AI - Business Intelligence (11 Products)
+
+---
+
 ### HOJAI AI - Business Intelligence (11 Products)
 
 | Product | Port | Purpose |
