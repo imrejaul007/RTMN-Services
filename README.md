@@ -6,19 +6,41 @@
 
 ---
 
+## 🚀 LIVE DEPLOYMENTS
+
+| Platform | Service | URL | Status |
+|----------|---------|-----|--------|
+| **Vercel** | Frontend | `https://rtmn-pilot-portal.vercel.app` | ✅ **LIVE** |
+| **Render** | Backend/API | `https://rtmn-pilot-onboarding.onrender.com` | ✅ **LIVE** |
+| **Render** | All Services | 27 services via render.yaml | ✅ Ready |
+
+### Quick Deploy
+```bash
+# Frontend → Vercel
+cd frontend && vercel --prod
+
+# Backend → Render
+render blueprint apply render.yaml
+```
+
+---
+
 ## 🚀 Quick Start
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/RTMN.git
-cd RTMN
+git clone https://github.com/imrejaul007/RTMN-Services.git
+cd RTMN-Services
 
-# Deploy Hotel OS (complete example)
-cd industries/hotel-os/deployment
-docker-compose -f docker-compose.staging.yml up -d
+# Frontend → Vercel
+cd frontend && vercel --prod
 
-# Access Hotel OS API
-curl http://localhost:3001/health
+# Backend → Render
+render blueprint apply render.yaml
+
+# Local Development
+npm install
+cd services/restaurant-os && npm install && npm start
 ```
 
 ---

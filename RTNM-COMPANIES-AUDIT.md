@@ -3455,3 +3455,315 @@ curl http://localhost:4510/health/ready
 *RTMN Ecosystem - All 19 Services Running & Operational*
 *Status: ✅ 100% OPERATIONAL*
 
+
+---
+
+## RTMN Industry OS - MongoDB + Auth + CRM Update (June 15, 2026)
+
+**Last Updated:** June 15, 2026  
+**Status:** ✅ ALL 24 INDUSTRY OS + FOUNDATION + TWINS UPDATED
+
+### Update Summary
+
+All RTMN services have been updated with:
+- **MongoDB Integration** - Full persistence via MONGODB_URI
+- **Authentication System** - Register, Login, Verify, requireAuth middleware
+- **CRM Integration** - Customer sync to REZ CRM Hub
+- **Multi-tenancy** - Business-scoped data isolation
+
+---
+
+### Updated Services
+
+#### Industry Operating Systems (12 Services)
+
+| Service | Port | MongoDB | Auth | CRM | Digital Twins |
+|---------|------|---------|------|-----|---------------|
+| Restaurant OS | 5010 | ✅ | ✅ | ✅ | Menu, Order, Kitchen, Table, Customer |
+| Hotel OS | 5025 | ✅ | ✅ | ✅ | Room, Booking, Guest, Service, Revenue |
+| Healthcare OS | 5020 | ✅ | ✅ | ✅ | Patient, Doctor, Appointment, Prescription |
+| Retail OS | 5030 | ✅ | ✅ | ✅ | Product, Inventory, Customer, Cart, Supplier |
+| Legal OS | 5035 | ✅ | ✅ | ✅ | Client, Case, Lawyer, Document |
+| Hospitality OS | 5050 | ✅ | ✅ | ✅ | Establishment, Staff, Customer, Transaction |
+| Education OS | 5060 | ✅ | ✅ | ✅ | Course, Student, Instructor, Enrollment |
+| Automotive OS | 5080 | ✅ | ✅ | ✅ | Vehicle, Customer, Service, Appointment |
+| Beauty OS | 5090 | ✅ | ✅ | ✅ | Client, Service, Staff, Appointment |
+| Fitness OS | 5110 | ✅ | ✅ | ✅ | Member, Trainer, Class, Membership |
+| Manufacturing OS | 5150 | ✅ | ✅ | ✅ | Product, Order, Machine, Material |
+| RealEstate OS | 5230 | ✅ | ✅ | ✅ | Property, Listing, Lead, Agent |
+
+#### Foundation Services (6 Services)
+
+| Service | Port | MongoDB | Auth | Purpose |
+|---------|------|---------|------|---------|
+| CorpID | 4702 | ✅ | ✅ | Universal Identity |
+| MemoryOS | 4703 | ✅ | ✅ | Personal AI Memory |
+| GoalOS | 4242 | ✅ | ✅ | Autonomous Goals |
+| Decision Engine | 4240 | ✅ | ✅ | Policy & Authorization |
+| Agent Economy | 4251 | ✅ | ✅ | Karma & Payments |
+| TwinOS Hub | 4705 | ✅ | ✅ | Twin Registry (35+ twins) |
+
+#### Digital Twin Services (6 Services)
+
+| Service | Port | MongoDB | Auth | Purpose |
+|---------|------|---------|------|---------|
+| Agent Twin | 3011 | ✅ | ✅ | Agent profiles, karma |
+| Area Twin | 3012 | ✅ | ✅ | Geographic areas |
+| Buyer Twin | 3013 | ✅ | ✅ | Buyer profiles |
+| Deal Twin | 3014 | ✅ | ✅ | Sales pipeline |
+| Property Twin | 3015 | ✅ | ✅ | Properties, listings |
+| Referral Twin | 3016 | ✅ | ✅ | Referrals, rewards |
+
+---
+
+### Authentication System
+
+#### Auth Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/auth/register` | POST | Register new business/user |
+| `/auth/login` | POST | Login and get JWT token |
+| `/auth/verify` | GET | Verify token validity |
+
+#### Auth Flow
+
+```bash
+# 1. Register a new business
+curl -X POST http://localhost:5010/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "businessId": "biz_123",
+    "email": "owner@restaurant.com",
+    "password": "secret123",
+    "businessName": "My Restaurant",
+    "role": "owner"
+  }'
+
+# Response: { "token": "abc123...", "user": { "id": "user_xxx", "email": "...", "role": "owner" } }
+
+# 2. Login
+curl -X POST http://localhost:5010/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "owner@restaurant.com", "password": "secret123"}'
+
+# Response: { "token": "xyz789...", "user": { "id": "user_xxx", "email": "...", "role": "owner" } }
+
+# 3. Use token in requests
+curl -H "Authorization: Bearer xyz789..." http://localhost:5010/api/menu
+```
+
+#### Middleware Usage
+
+```javascript
+// Protect any endpoint with requireAuth
+app.get('/api/protected', requireAuth, (req, res) => {
+  // req.session contains: { userId, email, businessId, createdAt }
+  res.json({ message: 'Protected data', session: req.session });
+});
+```
+
+---
+
+### Database Integration
+
+#### MongoDB Connection
+
+```javascript
+// Automatic connection on startup
+const MONGODB_URI = process.env.MONGODB_URI;
+
+async function initDatabase() {
+  if (!MONGODB_URI) {
+    console.log('⚠️  MONGODB_URI not set. Running in demo mode (in-memory).');
+    return;
+  }
+  try {
+    mongoose = (await import('mongoose')).default;
+    await mongoose.connect(MONGODB_URI);
+    dbConnected = true;
+    console.log('✅ MongoDB connected');
+  } catch (err) {
+    console.error('MongoDB connection failed:', err.message);
+  }
+}
+```
+
+#### Demo Mode
+
+When `MONGODB_URI` is not set, services run in-memory with:
+- All CRUD operations work
+- Data persists until service restart
+- No external dependencies
+
+#### Multi-tenancy
+
+All data is scoped by `tenantId`/`businessId`:
+```javascript
+// Every query includes tenant isolation
+const customer = customers.get(id);
+if (customer?.tenantId !== req.session?.businessId) {
+  return res.status(403).json({ error: 'Access denied' });
+}
+```
+
+---
+
+### CRM Integration
+
+#### Customer Sync
+
+On business registration, customer data is synced to REZ CRM Hub:
+
+```javascript
+async function syncCustomerToCRM(customer, businessId) {
+  if (!dbConnected) return;
+  try {
+    await fetch(`${CRM_HUB_URL}/api/contacts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        industry: 'restaurant',  // Industry-specific tag
+        businessId,
+        loyaltyPoints: customer.loyaltyPoints,
+        tier: customer.tier,
+      }),
+    });
+  } catch (err) {
+    console.warn('CRM sync failed:', err.message);
+  }
+}
+```
+
+#### REZ CRM Hub
+
+| Field | Description |
+|-------|-------------|
+| Name | Business/contact name |
+| Email | Email address |
+| Phone | Phone number |
+| Industry | Industry classification (restaurant, hotel, etc.) |
+| BusinessId | Unique business identifier |
+| LoyaltyPoints | Loyalty program points |
+| Tier | Loyalty tier level |
+
+---
+
+### Environment Variables
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| PORT | Service port | No | Service default |
+| MONGODB_URI | MongoDB connection string | No | Demo mode |
+| CRM_HUB_URL | REZ CRM Hub URL | No | http://localhost:4056 |
+| SERVICE_NAME | Service identifier for logs | No | "service" |
+| NODE_ENV | Environment (production/development) | No | development |
+
+---
+
+### Deployment
+
+#### Render Blueprint
+
+All services are configured in `render.yaml` with:
+- MongoDB URI (sync: false - set manually)
+- CRM Hub URL
+- Service name for logging
+
+```bash
+# Deploy all services
+render blueprint apply render.yaml
+
+# Or import render.yaml in Render dashboard
+```
+
+#### Manual Deployment
+
+```bash
+# Set environment variables
+export MONGODB_URI="mongodb+srv://user:pass@cluster.mongodb.net/rtmn"
+export CRM_HUB_URL="https://rez-crm-hub.onrender.com"
+export SERVICE_NAME="RestaurantOS"
+
+# Start service
+cd restaurant-os && npm install && npm start
+```
+
+---
+
+### Port Registry (Updated)
+
+| Port | Service | Industry | MongoDB | Auth | CRM |
+|------|---------|----------|---------|------|-----|
+| 4702 | corpid-service | Foundation | ✅ | ✅ | - |
+| 4703 | memory-os | Foundation | ✅ | ✅ | - |
+| 4705 | twinos-hub | Foundation | ✅ | ✅ | - |
+| 4240 | decision-engine | Foundation | ✅ | ✅ | - |
+| 4242 | goal-os | Foundation | ✅ | ✅ | - |
+| 4251 | agent-economy | Foundation | ✅ | ✅ | - |
+| 3011 | agent-twin | Twin | ✅ | ✅ | - |
+| 3012 | area-twin | Twin | ✅ | ✅ | - |
+| 3013 | buyer-twin | Twin | ✅ | ✅ | - |
+| 3014 | deal-twin | Twin | ✅ | ✅ | - |
+| 3015 | property-twin | Twin | ✅ | ✅ | - |
+| 3016 | referral-twin | Twin | ✅ | ✅ | - |
+| 5010 | restaurant-os | Restaurant | ✅ | ✅ | ✅ |
+| 5020 | healthcare-os | Healthcare | ✅ | ✅ | ✅ |
+| 5025 | hotel-os | Hotel | ✅ | ✅ | ✅ |
+| 5030 | retail-os | Retail | ✅ | ✅ | ✅ |
+| 5035 | legal-os | Legal | ✅ | ✅ | ✅ |
+| 5050 | hospitality-os | Hospitality | ✅ | ✅ | ✅ |
+| 5060 | education-os | Education | ✅ | ✅ | ✅ |
+| 5080 | automotive-os | Automotive | ✅ | ✅ | ✅ |
+| 5090 | beauty-os | Beauty | ✅ | ✅ | ✅ |
+| 5110 | fitness-os | Fitness | ✅ | ✅ | ✅ |
+| 5150 | manufacturing-os | Manufacturing | ✅ | ✅ | ✅ |
+| 5230 | realestate-os | Real Estate | ✅ | ✅ | ✅ |
+
+---
+
+### Quick Start
+
+```bash
+# Clone and install
+cd /Users/rejaulkarim/Documents/RTMN
+npm install
+
+# Run Restaurant OS (demo mode - no MongoDB needed)
+cd restaurant-os && npm start
+
+# Test auth endpoints
+curl http://localhost:5010/health
+curl -X POST http://localhost:5010/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"businessId":"test","email":"test@test.com","password":"test","businessName":"Test Restaurant"}'
+
+# Run with MongoDB
+export MONGODB_URI="mongodb+srv://..."
+export CRM_HUB_URL="https://rez-crm-hub.onrender.com"
+npm start
+```
+
+---
+
+### Documentation Files
+
+Each service includes:
+- **CLAUDE.md** - Development guide with architecture, testing, integration
+- **FEATURES.md** - Complete feature checklist
+- **README.md** - Quick start guide
+
+Updated with:
+- Authentication & Database sections
+- Environment variables
+- API authentication flow
+- CRM integration details
+
+---
+
+*Last Updated: June 15, 2026*
+*RTMN-Services - MongoDB + Auth + CRM Update Complete*
+*Status: ✅ ALL 24 INDUSTRY OS + FOUNDATION + TWINS UPDATED*
