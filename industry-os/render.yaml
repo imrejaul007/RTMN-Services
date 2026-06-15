@@ -1,0 +1,611 @@
+# Render Blueprint - RTMN Industry Operating Systems
+# All 24 Industry OS with MongoDB + Auth + CRM + 15 Layers
+
+services:
+  # ============================================
+  # RESTAURANT (Port 5010)
+  # ============================================
+  - type: web
+    name: rtmn-restaurant-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/restaurant-os
+    healthCheckPath: /health
+    ports:
+      - 5010
+    envVars:
+      - key: PORT
+        value: 5010
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: restaurant
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+      - key: GENIE_URL
+        value: https://hojai-genie.onrender.com
+      - key: COPILOT_URL
+        value: https://hojai-copilot.onrender.com
+      - key: NEXHA_URL
+        value: https://nexha.onrender.com
+      - key: WALLET_URL
+        value: https://rez-wallet.onrender.com
+
+  # ============================================
+  # HEALTHCARE (Port 5020)
+  # ============================================
+  - type: web
+    name: rtmn-healthcare-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/healthcare-os
+    healthCheckPath: /health
+    ports:
+      - 5020
+    envVars:
+      - key: PORT
+        value: 5020
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: healthcare
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # HOTEL (Port 5025)
+  # ============================================
+  - type: web
+    name: rtmn-hotel-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/hotel-os
+    healthCheckPath: /health
+    ports:
+      - 5025
+    envVars:
+      - key: PORT
+        value: 5025
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: hotel
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # RETAIL (Port 5030)
+  # ============================================
+  - type: web
+    name: rtmn-retail-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/retail-os
+    healthCheckPath: /health
+    ports:
+      - 5030
+    envVars:
+      - key: PORT
+        value: 5030
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: retail
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # LEGAL (Port 5035)
+  # ============================================
+  - type: web
+    name: rtmn-legal-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/legal-os
+    healthCheckPath: /health
+    ports:
+      - 5035
+    envVars:
+      - key: PORT
+        value: 5035
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: legal
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # HOSPITALITY (Port 5050)
+  # ============================================
+  - type: web
+    name: rtmn-hospitality-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/hospitality-os
+    healthCheckPath: /health
+    ports:
+      - 5050
+    envVars:
+      - key: PORT
+        value: 5050
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: hospitality
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # EDUCATION (Port 5060)
+  # ============================================
+  - type: web
+    name: rtmn-education-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/education-os
+    healthCheckPath: /health
+    ports:
+      - 5060
+    envVars:
+      - key: PORT
+        value: 5060
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: education
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # AGRICULTURE (Port 5070)
+  # ============================================
+  - type: web
+    name: rtmn-agriculture-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/agriculture-os
+    healthCheckPath: /health
+    ports:
+      - 5070
+    envVars:
+      - key: PORT
+        value: 5070
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: agriculture
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # AUTOMOTIVE (Port 5080)
+  # ============================================
+  - type: web
+    name: rtmn-automotive-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/automotive-os
+    healthCheckPath: /health
+    ports:
+      - 5080
+    envVars:
+      - key: PORT
+        value: 5080
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: automotive
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # BEAUTY (Port 5090)
+  # ============================================
+  - type: web
+    name: rtmn-beauty-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/beauty-os
+    healthCheckPath: /health
+    ports:
+      - 5090
+    envVars:
+      - key: PORT
+        value: 5090
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: beauty
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # FASHION (Port 5095)
+  # ============================================
+  - type: web
+    name: rtmn-fashion-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/fashion-os
+    healthCheckPath: /health
+    ports:
+      - 5095
+    envVars:
+      - key: PORT
+        value: 5095
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: fashion
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # FITNESS (Port 5110)
+  # ============================================
+  - type: web
+    name: rtmn-fitness-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/fitness-os
+    healthCheckPath: /health
+    ports:
+      - 5110
+    envVars:
+      - key: PORT
+        value: 5110
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: fitness
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # GAMING (Port 5120)
+  # ============================================
+  - type: web
+    name: rtmn-gaming-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/gaming-os
+    healthCheckPath: /health
+    ports:
+      - 5120
+    envVars:
+      - key: PORT
+        value: 5120
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: gaming
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # GOVERNMENT (Port 5130)
+  # ============================================
+  - type: web
+    name: rtmn-government-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/government-os
+    healthCheckPath: /health
+    ports:
+      - 5130
+    envVars:
+      - key: PORT
+        value: 5130
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: government
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # HOME SERVICES (Port 5140)
+  # ============================================
+  - type: web
+    name: rtmn-home-services-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/home-services-os
+    healthCheckPath: /health
+    ports:
+      - 5140
+    envVars:
+      - key: PORT
+        value: 5140
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: home_services
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # MANUFACTURING (Port 5150)
+  # ============================================
+  - type: web
+    name: rtmn-manufacturing-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/manufacturing-os
+    healthCheckPath: /health
+    ports:
+      - 5150
+    envVars:
+      - key: PORT
+        value: 5150
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: manufacturing
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # NON-PROFIT (Port 5160)
+  # ============================================
+  - type: web
+    name: rtmn-non-profit-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/non-profit-os
+    healthCheckPath: /health
+    ports:
+      - 5160
+    envVars:
+      - key: PORT
+        value: 5160
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: non_profit
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # PROFESSIONAL (Port 5170)
+  # ============================================
+  - type: web
+    name: rtmn-professional-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/professional-os
+    healthCheckPath: /health
+    ports:
+      - 5170
+    envVars:
+      - key: PORT
+        value: 5170
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: professional
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # SPORTS (Port 5180)
+  # ============================================
+  - type: web
+    name: rtmn-sports-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/sports-os
+    healthCheckPath: /health
+    ports:
+      - 5180
+    envVars:
+      - key: PORT
+        value: 5180
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: sports
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # TRAVEL (Port 5190)
+  # ============================================
+  - type: web
+    name: rtmn-travel-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/travel-os
+    healthCheckPath: /health
+    ports:
+      - 5190
+    envVars:
+      - key: PORT
+        value: 5190
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: travel
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # ENTERTAINMENT (Port 5200)
+  # ============================================
+  - type: web
+    name: rtmn-entertainment-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/entertainment-os
+    healthCheckPath: /health
+    ports:
+      - 5200
+    envVars:
+      - key: PORT
+        value: 5200
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: entertainment
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # CONSTRUCTION (Port 5210)
+  # ============================================
+  - type: web
+    name: rtmn-construction-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/construction-os
+    healthCheckPath: /health
+    ports:
+      - 5210
+    envVars:
+      - key: PORT
+        value: 5210
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: construction
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # FINANCIAL (Port 5220)
+  # ============================================
+  - type: web
+    name: rtmn-financial-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/financial-os
+    healthCheckPath: /health
+    ports:
+      - 5220
+    envVars:
+      - key: PORT
+        value: 5220
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: financial
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # REAL ESTATE (Port 5230)
+  # ============================================
+  - type: web
+    name: rtmn-realestate-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/realestate-os
+    healthCheckPath: /health
+    ports:
+      - 5230
+    envVars:
+      - key: PORT
+        value: 5230
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: realestate
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
+
+  # ============================================
+  # TRANSPORT (Port 5240)
+  # ============================================
+  - type: web
+    name: rtmn-transport-os
+    env: node
+    region: singapore
+    plan: free
+    rootDir: services/transport-os
+    healthCheckPath: /health
+    ports:
+      - 5240
+    envVars:
+      - key: PORT
+        value: 5240
+      - key: NODE_ENV
+        value: production
+      - key: INDUSTRY
+        value: transport
+      - key: MONGODB_URI
+        sync: false
+      - key: CRM_HUB_URL
+        value: https://rez-crm-hub.onrender.com
