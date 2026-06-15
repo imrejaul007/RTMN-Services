@@ -1,0 +1,18 @@
+# =============================================================================
+# RTMN BrandPulse - Kubernetes Namespace Manifest
+# =============================================================================
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rtmn
+  labels:
+    name: rtmn
+    environment: production
+    managed-by: kubectl
+    team: rtmn-engineering
+    cost-center: brandpulse
+  annotations:
+    description: "RTMN BrandPulse production namespace"
+    created-at: "2026-06-15"
