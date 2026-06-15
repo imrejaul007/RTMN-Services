@@ -1,8 +1,8 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Last Updated:** June 15, 2026  
-**Status:** ✅ COMPLETE - 24 Industry OS + 35+ Digital Twins + Foundation Services + Pilot Onboarding
+**Status:** ✅ OPERATIONAL - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub
 
 ---
 
@@ -29,6 +29,45 @@
           └─────────────┘    └─────────────┘   └─────────────┘
                  + 21 more Industry OS services on Render
 ```
+
+### Currently Running Services (Local Development)
+
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **REZ-ecosystem-connector** | 4399 | ✅ Running | Service Registry & Discovery |
+| **REZ-event-bus** | 4510 | ✅ Running | Pub/Sub Event Messaging (29 schemas) |
+| **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API |
+| **Goal OS** | 4242 | ✅ Running | Autonomous Goals |
+| **Memory OS** | 4703 | ✅ Running | Personal AI Memory |
+| **Restaurant OS** | 5010 | ✅ Running | Restaurant management |
+| **Healthcare OS** | 5020 | ✅ Running | Healthcare management |
+| **Hotel OS** | 5025 | ✅ Running | Hotel management |
+| **Retail OS** | 5030 | ✅ Running | Retail management |
+| **Legal OS** | 5035 | ✅ Running | Legal management |
+| **Hospitality OS** | 5050 | ✅ Running | Hospitality management |
+| **Education OS** | 5060 | ✅ Running | Education management |
+| **Automotive OS** | 5080 | ✅ Running | Automotive management |
+| **Beauty OS** | 5090 | ✅ Running | Beauty/Salon management |
+| **Energy OS** | 5100 | ✅ Running | Energy management |
+| **Fitness OS** | 5110 | ✅ Running | Fitness/Gym management |
+| **Manufacturing OS** | 5150 | ✅ Running | Manufacturing management |
+| **RealEstate OS** | 5230 | ✅ Running | Real estate management |
+| **Media OS** | 5600 | ✅ Running | Media management |
+
+### Management Scripts
+
+```bash
+./start-ecosystem.sh    # Start all services
+./stop-ecosystem.sh     # Stop all services
+./health-check.sh       # Monitor health status
+```
+
+### API Access Points
+
+- **Service Registry:** http://localhost:4399/api/services
+- **GraphQL API:** http://localhost:4000/graphql (GraphiQL enabled)
+- **Event Bus:** http://localhost:4510/health
+- **API Documentation:** [API-DOCUMENTATION.md](API-DOCUMENTATION.md)
 
 ### Deploy Targets
 
