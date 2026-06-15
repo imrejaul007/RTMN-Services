@@ -1,0 +1,108 @@
+# ===================================================================
+# Prometheus Configuration for RTMN
+# ===================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'rtmn-production'
+    environment: 'production'
+
+# ---- Alertmanager ----
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+# ---- Load Alert Rules ----
+rule_files:
+  - "alerts/*.yml"
+
+# ---- Scrape Configurations ----
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # SutAR OS Services
+  - job_name: 'sutar-os'
+    static_configs:
+      - targets:
+          - 'sutar-gateway:4140'
+          - 'sutar-agent-network:4155'
+          - 'sutar-intent-bus:4154'
+          - 'sutar-decision-engine:4240'
+          - 'sutar-simulation-os:4241'
+          - 'sutar-goal-os:4242'
+          - 'sutar-discovery-engine:4256'
+          - 'sutar-exploration-engine:4255'
+          - 'sutar-negotiation-engine:4191'
+          - 'sutar-trust-engine:4180'
+          - 'sutar-contract-os:4190'
+          - 'sutar-economy-os:4251'
+          - 'sutar-marketplace:4250'
+          - 'sutar-flow-os:4244'
+          - 'sutar-monitoring:3100'
+
+  # HOJAI AI Services
+  - job_name: 'hojai-ai'
+    static_configs:
+      - targets:
+          - 'hojai-business-copilot:4600'
+          - 'hojai-company-intelligence:4770'
+          - 'hojai-competitive-intelligence:4756'
+          - 'hojai-revenue-intelligence:4757'
+          - 'hojai-product-intelligence:4755'
+          - 'hojai-customer-intelligence:4752'
+          - 'hojai-goal-os:4242'
+          - 'hojai-meeting-intelligence:4700'
+          - 'hojai-founder-os:4260'
+          - 'hojai-flow-os:4244'
+          - 'hojai-command-center:4801'
+
+  # RABTUL Services
+  - job_name: 'rabtul-services'
+    static_configs:
+      - targets:
+          - 'rez-auth-service:4002'
+          - 'rez-payment-service:4001'
+          - 'rez-wallet-service:4004'
+          - 'rez-notifications-service:4005'
+          - 'rez-ecosystem-connector:4399'
+          - 'rez-event-bus:4510'
+          - 'rez-integration-connector:4314'
+          - 'rez-graphql-federation:4000'
+          - 'rez-manufacturing-os:4330'
+          - 'rez-franchise-os:4310'
+          - 'rez-distribution-os:4300'
+          - 'rez-workflow-executor:4331'
+          - 'rez-knowledge-search:4332'
+          - 'rez-memory-cloud:4333'
+          - 'rez-agent-marketplace:4335'
+          - 'rez-agent-observability:4336'
+
+  # Core Infrastructure
+  - job_name: 'core'
+    static_configs:
+      - targets:
+          - 'api-gateway:3000'
+          - 'twinos-hub:4705'
+          - 'agentos-hub:3011'
+          - 'business-copilot:4002'
+
+  # Node Exporter (System Metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # MongoDB Exporter
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']

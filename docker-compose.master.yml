@@ -1,0 +1,606 @@
+# ===================================================================
+# RTMN Master Docker Compose - All Services
+# ===================================================================
+# Brings up: 26 SutAR + 13 HOJAI + 60+ RABTUL + Monitoring
+# Use: docker-compose -f docker-compose.master.yml up -d
+# ===================================================================
+
+version: '3.9'
+
+# ---- Networks ----
+networks:
+  rtmn-network:
+    driver: bridge
+    name: rtmn-network
+
+# ---- Volumes ----
+volumes:
+  mongo-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+# ---- Services ----
+services:
+  # ============================================
+  # INFRASTRUCTURE
+  # ============================================
+  mongo:
+    image: mongo:7
+    container_name: rtmn-mongo
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER:-rtmn_dev}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-dev_password}
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-rtmn_dev}
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7
+    container_name: rtmn-redis
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ============================================
+  # MONITORING STACK
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rtmn-prometheus
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alerts:/etc/prometheus/alerts
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rtmn-grafana
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: rtmn-node-exporter
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "9100:9100"
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:latest
+    container_name: rtmn-mongodb-exporter
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "9216:9216"
+    environment:
+      MONGODB_URI: mongodb://${MONGODB_USER:-rtmn_dev}:${MONGODB_PASSWORD:-dev_password}@mongo:27017
+    depends_on:
+      - mongo
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: rtmn-redis-exporter
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "9121:9121"
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    depends_on:
+      - redis
+
+  # ============================================
+  # RABTUL TECHNOLOGIES - Core Infrastructure
+  # ============================================
+  rez-ecosystem-connector:
+    build: ./companies/RABTUL-Technologies/REZ-ecosystem-connector
+    container_name: rtmn-ecosystem-connector
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4399:4399"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4399
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4399/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-event-bus:
+    build: ./companies/RABTUL-Technologies/REZ-event-bus
+    container_name: rtmn-event-bus
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4510:4510"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4510
+      MONGODB_URI: mongodb://mongo:27017/rtmn_events
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4510/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-integration-connector:
+    build: ./companies/RABTUL-Technologies/REZ-integration-connector
+    container_name: rtmn-integration-connector
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4314:4314"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4314
+
+  rez-graphql-federation:
+    build: ./companies/RABTUL-Technologies/REZ-graphql-federation
+    container_name: rtmn-graphql-federation
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4000
+
+  # ---- RABTUL Auth/Security ----
+  rez-auth-service:
+    build: ./companies/RABTUL-Technologies/rez-auth-service
+    container_name: rtmn-auth
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4002:4002"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4002
+      MONGODB_URI: mongodb://mongo:27017/rtmn_auth
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - mongo
+
+  rez-payment-service:
+    build: ./companies/RABTUL-Technologies/rez-payment-service
+    container_name: rtmn-payment
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4001:4001"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4001
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+
+  rez-wallet-service:
+    build: ./companies/RABTUL-Technologies/rez-wallet-service
+    container_name: rtmn-wallet
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4004:4004"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4004
+      MONGODB_URI: mongodb://mongo:27017/rtmn_wallet
+
+  rez-notifications-service:
+    build: ./companies/RABTUL-Technologies/rez-notifications-service
+    container_name: rtmn-notifications
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4005:4005"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4005
+      SMTP_HOST: ${SMTP_HOST}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+
+  # ---- RABTUL Business Services ----
+  rez-manufacturing-os:
+    build: ./companies/RABTUL-Technologies/REZ-manufacturing-os
+    container_name: rtmn-manufacturing-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4330:4330"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4330
+      MONGODB_URI: mongodb://mongo:27017/rtmn_manufacturing
+
+  rez-franchise-os:
+    build: ./companies/RABTUL-Technologies/REZ-franchise-os
+    container_name: rtmn-franchise-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4310:4310"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4310
+      MONGODB_URI: mongodb://mongo:27017/rtmn_franchise
+
+  rez-distribution-os:
+    build: ./companies/RABTUL-Technologies/REZ-distribution-os
+    container_name: rtmn-distribution-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4300:4300"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4300
+      MONGODB_URI: mongodb://mongo:27017/rtmn_distribution
+
+  rez-knowledge-search:
+    build: ./companies/RABTUL-Technologies/REZ-knowledge-search
+    container_name: rtmn-knowledge-search
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4332:4332"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4332
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+  rez-memory-cloud:
+    build: ./companies/RABTUL-Technologies/REZ-memory-cloud
+    container_name: rtmn-memory-cloud
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4333:4333"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4333
+      MONGODB_URI: mongodb://mongo:27017/rtmn_memory
+
+  rez-agent-marketplace:
+    build: ./companies/RABTUL-Technologies/REZ-agent-marketplace
+    container_name: rtmn-agent-marketplace
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4335:4335"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4335
+      MONGODB_URI: mongodb://mongo:27017/rtmn_agents
+
+  rez-agent-observability:
+    build: ./companies/RABTUL-Technologies/REZ-agent-observability
+    container_name: rtmn-agent-observability
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4336:4336"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4336
+
+  rez-unified-hub:
+    build: ./companies/RABTUL-Technologies/REZ-unified-hub
+    container_name: rtmn-unified-hub
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4301:4301"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4301
+      MONGODB_URI: mongodb://mongo:27017/rtmn_hr
+
+  rez-workflow-executor:
+    build: ./companies/RABTUL-Technologies/REZ-workflow-executor
+    container_name: rtmn-workflow-executor
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4331:4331"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4331
+      MONGODB_URI: mongodb://mongo:27017/rtmn_workflows
+
+  rez-contract-management:
+    build: ./companies/RABTUL-Technologies/REZ-contract-management
+    container_name: rtmn-contract-management
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4320:4320"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4320
+      MONGODB_URI: mongodb://mongo:27017/rtmn_contracts
+
+  # ============================================
+  # SUTAR OS - Autonomous Economic Infrastructure
+  # ============================================
+  sutar-gateway:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-gateway
+    container_name: rtmn-sutar-gateway
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4140:4140"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4140
+    depends_on:
+      - mongo
+      - rez-event-bus
+
+  sutar-intent-bus:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-intent-bus
+    container_name: rtmn-sutar-intent-bus
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4154:4154"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4154
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+    depends_on:
+      - mongo
+
+  sutar-agent-network:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-agent-network
+    container_name: rtmn-sutar-agent-network
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4155:4155"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4155
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-decision-engine:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-decision-engine
+    container_name: rtmn-sutar-decision-engine
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4240:4240"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4240
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-simulation-os:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-simulation-os
+    container_name: rtmn-sutar-simulation-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4241:4241"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4241
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-goal-os:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-goal-os
+    container_name: rtmn-sutar-goal-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4242:4242"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4242
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-economy-os:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-economy-os
+    container_name: rtmn-sutar-economy-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4251:4251"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4251
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-trust-engine:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-trust-engine
+    container_name: rtmn-sutar-trust-engine
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4180:4180"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4180
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-contract-os:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-contract-os
+    container_name: rtmn-sutar-contract-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4190:4190"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4190
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-flow-os:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-flow-os
+    container_name: rtmn-sutar-flow-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4244:4244"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4244
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  sutar-monitoring:
+    build: ./companies/hojai-ai/hojai-sutar-os/services/sutar-monitoring
+    container_name: rtmn-sutar-monitoring
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "3100:3100"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 3100
+      MONGODB_URI: mongodb://mongo:27017/rtmn_sutar
+
+  # ============================================
+  # HOJAI AI - Built Services
+  # ============================================
+  hojai-business-copilot:
+    build: ./companies/hojai-ai/services/hojai-business-copilot
+    container_name: rtmn-hojai-business-copilot
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4600:4600"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4600
+      MONGODB_URI: mongodb://mongo:27017/rtmn_hojai
+
+  hojai-company-intelligence:
+    build: ./companies/hojai-ai/services/hojai-company-intelligence
+    container_name: rtmn-hojai-company-intelligence
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4770:4770"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4770
+      MONGODB_URI: mongodb://mongo:27017/rtmn_hojai
+
+  hojai-goal-os:
+    build: ./companies/hojai-ai/services/hojai-goal-os
+    container_name: rtmn-hojai-goal-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4242:4242"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4242
+      MONGODB_URI: mongodb://mongo:27017/rtmn_hojai
+
+  hojai-competitive-intelligence:
+    build: ./companies/hojai-ai/services/hojai-competitive-intelligence
+    container_name: rtmn-hojai-competitive-intelligence
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4756:4756"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4756
+
+  hojai-customer-intelligence:
+    build: ./companies/hojai-ai/services/hojai-customer-intelligence
+    container_name: rtmn-hojai-customer-intelligence
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4752:4752"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4752
+
+  hojai-meeting-intelligence:
+    build: ./companies/hojai-ai/services/hojai-meeting-intelligence
+    container_name: rtmn-hojai-meeting-intelligence
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4700:4700"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4700
+
+  hojai-founder-os:
+    build: ./companies/hojai-ai/services/hojai-founder-os
+    container_name: rtmn-hojai-founder-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4260:4260"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4260
+
+  hojai-flow-os:
+    build: ./companies/hojai-ai/services/hojai-flow-os
+    container_name: rtmn-hojai-flow-os
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4244:4244"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4244
+
+  hojai-command-center:
+    image: node:20-alpine
+    container_name: rtmn-hojai-command-center
+    restart: unless-stopped
+    networks: [rtmn-network]
+    ports:
+      - "4801:3000"
+    working_dir: /app
+    volumes:
+      - ./companies/hojai-ai/hojai-demo-portal:/app
+    command: sh -c "npm install && npm run build && npm start"
+    environment:
+      NODE_ENV: production

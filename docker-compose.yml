@@ -1,5 +1,6 @@
 # RTMN - Real-Time Multi-Industry Network
 # Complete Docker Compose Configuration
+# All 24 deployable services in this repository
 
 version: '3.8'
 
@@ -25,385 +26,93 @@ services:
       - rtmn-core
 
   # ============================================
-  # PHASE 1: FOUNDATION LAYER (Ports 3013-3015)
+  # FOUNDATION SERVICES
   # ============================================
 
-  capability-matrix:
+  corpid-service:
     build:
-      context: ./core/capability-matrix
+      context: ./corpid-service
       dockerfile: Dockerfile
-    container_name: rtmn-capability-matrix
+    container_name: rtmn-corpid-service
     ports:
-      - "3013:3013"
+      - "4702:4702"
     environment:
-      - PORT=3013
-      - REDIS_URL=redis://redis:6379
+      - PORT=4702
       - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3013/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4702/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  unified-twin-os:
+  memory-os:
     build:
-      context: ./core/unified-twin-os
+      context: ./memory-os
       dockerfile: Dockerfile
-    container_name: rtmn-unified-twin
+    container_name: rtmn-memory-os
     ports:
-      - "3014:3014"
+      - "4703:4703"
     environment:
-      - PORT=3014
-      - REDIS_URL=redis://redis:6379
+      - PORT=4703
       - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3014/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4703/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  memory-network:
+  goal-os:
     build:
-      context: ./core/memory-network
+      context: ./goal-os
       dockerfile: Dockerfile
-    container_name: rtmn-memory-network
+    container_name: rtmn-goal-os
     ports:
-      - "3015:3015"
+      - "4242:4242"
     environment:
-      - PORT=3015
-      - REDIS_URL=redis://redis:6379
+      - PORT=4242
       - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3015/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4242/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  # ============================================
-  # PHASE 2: INTELLIGENCE LAYER (Ports 3016-3018)
-  # ============================================
-
-  boa-council:
+  decision-engine:
     build:
-      context: ./core/boa-council
+      context: ./decision-engine
       dockerfile: Dockerfile
-    container_name: rtmn-boa-council
+    container_name: rtmn-decision-engine
     ports:
-      - "3016:3016"
+      - "4240:4240"
     environment:
-      - PORT=3016
-      - REDIS_URL=redis://redis:6379
+      - PORT=4240
       - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3016/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4240/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  economic-graph:
+  agent-economy:
     build:
-      context: ./core/economic-graph
+      context: ./agent-economy
       dockerfile: Dockerfile
-    container_name: rtmn-economic-graph
+    container_name: rtmn-agent-economy
     ports:
-      - "3017:3017"
+      - "4251:4251"
     environment:
-      - PORT=3017
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3017/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  simulation-os:
-    build:
-      context: ./core/simulation-os
-      dockerfile: Dockerfile
-    container_name: rtmn-simulation-os
-    ports:
-      - "3018:3018"
-    environment:
-      - PORT=3018
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3018/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  # ============================================
-  # PHASE 3: DEPARTMENT OS (Ports 3020-3023)
-  # ============================================
-
-  marketing-os:
-    build:
-      context: ./core/marketing-os
-      dockerfile: Dockerfile
-    container_name: rtmn-marketing-os
-    ports:
-      - "3020:3020"
-    environment:
-      - PORT=3020
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3020/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  workforce-os:
-    build:
-      context: ./core/workforce-os
-      dockerfile: Dockerfile
-    container_name: rtmn-workforce-os
-    ports:
-      - "3021:3021"
-    environment:
-      - PORT=3021
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3021/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  commerce-os:
-    build:
-      context: ./core/commerce-os
-      dockerfile: Dockerfile
-    container_name: rtmn-commerce-os
-    ports:
-      - "3022:3022"
-    environment:
-      - PORT=3022
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3022/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  finance-os:
-    build:
-      context: ./core/finance-os
-      dockerfile: Dockerfile
-    container_name: rtmn-finance-os
-    ports:
-      - "3023:3023"
-    environment:
-      - PORT=3023
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3023/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  # ============================================
-  # PHASE 4: PLATFORM PACKAGING (Ports 3030-3032)
-  # ============================================
-
-  industry-ai-company:
-    build:
-      context: ./core/industry-ai-company
-      dockerfile: Dockerfile
-    container_name: rtmn-industry-ai-company
-    ports:
-      - "3030:3030"
-    environment:
-      - PORT=3030
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3030/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  marketplace-network:
-    build:
-      context: ./core/marketplace-network
-      dockerfile: Dockerfile
-    container_name: rtmn-marketplace-network
-    ports:
-      - "3031:3031"
-    environment:
-      - PORT=3031
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3031/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  revenue-network:
-    build:
-      context: ./core/revenue-network
-      dockerfile: Dockerfile
-    container_name: rtmn-revenue-network
-    ports:
-      - "3032:3032"
-    environment:
-      - PORT=3032
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3032/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  # ============================================
-  # PHASE 5: DEVELOPER CLOUD (Port 3040)
-  # ============================================
-
-  developer-cloud:
-    build:
-      context: ./core/developer-cloud
-      dockerfile: Dockerfile
-    container_name: rtmn-developer-cloud
-    ports:
-      - "3040:3040"
-    environment:
-      - PORT=3040
-      - REDIS_URL=redis://redis:6379
-      - NODE_ENV=production
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3040/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  # ============================================
-  # INDUSTRY OS SERVICES (Ports 5010-5050)
-  # ============================================
-
-  restaurant-os:
-    build:
-      context: ./services/restaurant-os
-      dockerfile: Dockerfile
-    container_name: rtmn-restaurant-os
-    ports:
-      - "5010:5010"
-    environment:
-      - PORT=5010
+      - PORT=4251
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5010/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  hotel-os:
-    build:
-      context: ./services/hotel-os
-      dockerfile: Dockerfile
-    container_name: rtmn-hotel-os
-    ports:
-      - "5025:5025"
-    environment:
-      - PORT=5025
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5025/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  hospitality-os:
-    build:
-      context: ./services/hospitality-os
-      dockerfile: Dockerfile
-    container_name: rtmn-hospitality-os
-    ports:
-      - "5050:5050"
-    environment:
-      - PORT=5050
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5050/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4251/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -412,7 +121,7 @@ services:
 
   twinos-hub:
     build:
-      context: ./services/twinos-hub
+      context: ./twinos-hub
       dockerfile: Dockerfile
     container_name: rtmn-twinos-hub
     ports:
@@ -429,124 +138,30 @@ services:
       - rtmn-core
 
   # ============================================
-  # DIGITAL TWIN SERVICES (Ports 3011-3016)
+  # INDUSTRY OS (12 services)
   # ============================================
 
-  agent-twin:
+  restaurant-os:
     build:
-      context: ./services/agent-twin
+      context: ./restaurant-os
       dockerfile: Dockerfile
-    container_name: rtmn-agent-twin
+    container_name: rtmn-restaurant-os
     ports:
-      - "3011:3011"
+      - "5010:5010"
     environment:
-      - PORT=3011
+      - PORT=5010
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3011/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5010/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
-
-  area-twin:
-    build:
-      context: ./services/area-twin
-      dockerfile: Dockerfile
-    container_name: rtmn-area-twin
-    ports:
-      - "3012:3012"
-    environment:
-      - PORT=3012
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3012/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  buyer-twin:
-    build:
-      context: ./services/buyer-twin
-      dockerfile: Dockerfile
-    container_name: rtmn-buyer-twin
-    ports:
-      - "3013:3013"
-    environment:
-      - PORT=3013
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3013/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  deal-twin:
-    build:
-      context: ./services/deal-twin
-      dockerfile: Dockerfile
-    container_name: rtmn-deal-twin
-    ports:
-      - "3014:3014"
-    environment:
-      - PORT=3014
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3014/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  property-twin:
-    build:
-      context: ./services/property-twin
-      dockerfile: Dockerfile
-    container_name: rtmn-property-twin
-    ports:
-      - "3015:3015"
-    environment:
-      - PORT=3015
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3015/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-  referral-twin:
-    build:
-      context: ./services/referral-twin
-      dockerfile: Dockerfile
-    container_name: rtmn-referral-twin
-    ports:
-      - "3016:3016"
-    environment:
-      - PORT=3016
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3016/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-# ============================================
-# ADDITIONAL INDUSTRY OS (Ports 5060-5240)
-# ============================================
 
   healthcare-os:
     build:
-      context: ./services/healthcare-os
+      context: ./healthcare-os
       dockerfile: Dockerfile
     container_name: rtmn-healthcare-os
     ports:
@@ -562,9 +177,27 @@ services:
     networks:
       - rtmn-core
 
+  hotel-os:
+    build:
+      context: ./hotel-os
+      dockerfile: Dockerfile
+    container_name: rtmn-hotel-os
+    ports:
+      - "5025:5025"
+    environment:
+      - PORT=5025
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5025/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+
   retail-os:
     build:
-      context: ./services/retail-os
+      context: ./retail-os
       dockerfile: Dockerfile
     container_name: rtmn-retail-os
     ports:
@@ -582,7 +215,7 @@ services:
 
   legal-os:
     build:
-      context: ./services/legal-os
+      context: ./legal-os
       dockerfile: Dockerfile
     container_name: rtmn-legal-os
     ports:
@@ -598,9 +231,27 @@ services:
     networks:
       - rtmn-core
 
+  hospitality-os:
+    build:
+      context: ./hospitality-os
+      dockerfile: Dockerfile
+    container_name: rtmn-hospitality-os
+    ports:
+      - "5050:5050"
+    environment:
+      - PORT=5050
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+
   education-os:
     build:
-      context: ./services/education-os
+      context: ./education-os
       dockerfile: Dockerfile
     container_name: rtmn-education-os
     ports:
@@ -616,31 +267,9 @@ services:
     networks:
       - rtmn-core
 
-  realestate-os:
-    build:
-      context: ./services/realestate-os
-      dockerfile: Dockerfile
-    container_name: rtmn-realestate-os
-    ports:
-      - "5230:5230"
-    environment:
-      - PORT=5230
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5230/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - rtmn-core
-
-# ============================================
-# MORE INDUSTRY OS (Ports 5080-5150)
-# ============================================
-
   automotive-os:
     build:
-      context: ./services/automotive-os
+      context: ./automotive-os
       dockerfile: Dockerfile
     container_name: rtmn-automotive-os
     ports:
@@ -658,7 +287,7 @@ services:
 
   beauty-os:
     build:
-      context: ./services/beauty-os
+      context: ./beauty-os
       dockerfile: Dockerfile
     container_name: rtmn-beauty-os
     ports:
@@ -676,7 +305,7 @@ services:
 
   fitness-os:
     build:
-      context: ./services/fitness-os
+      context: ./fitness-os
       dockerfile: Dockerfile
     container_name: rtmn-fitness-os
     ports:
@@ -694,7 +323,7 @@ services:
 
   manufacturing-os:
     build:
-      context: ./services/manufacturing-os
+      context: ./manufacturing-os
       dockerfile: Dockerfile
     container_name: rtmn-manufacturing-os
     ports:
@@ -710,112 +339,130 @@ services:
     networks:
       - rtmn-core
 
-# ============================================
-# INDUSTRY AI SERVICES (Ports 4510-4515)
-# ============================================
-
-  legal-ai:
+  realestate-os:
     build:
-      context: ./companies/hojai-ai/industry-ai/legal-ai
+      context: ./realestate-os
       dockerfile: Dockerfile
-    container_name: rtmn-legal-ai
+    container_name: rtmn-realestate-os
     ports:
-      - "4510:4510"
+      - "5230:5230"
     environment:
-      - PORT=4510
+      - PORT=5230
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4510/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5230/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  government-ai:
+  # ============================================
+  # DIGITAL TWIN SERVICES
+  # ============================================
+
+  agent-twin:
     build:
-      context: ./companies/hojai-ai/industry-ai/government-ai
+      context: ./agent-twin
       dockerfile: Dockerfile
-    container_name: rtmn-government-ai
+    container_name: rtmn-agent-twin
     ports:
-      - "4511:4511"
+      - "3011:3011"
     environment:
-      - PORT=4511
+      - PORT=3011
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4511/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3011/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  agriculture-ai:
+  area-twin:
     build:
-      context: ./companies/hojai-ai/industry-ai/agriculture-ai
+      context: ./area-twin
       dockerfile: Dockerfile
-    container_name: rtmn-agriculture-ai
+    container_name: rtmn-area-twin
     ports:
-      - "4512:4512"
+      - "3012:3012"
     environment:
-      - PORT=4512
+      - PORT=3012
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4512/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3012/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  sports-ai:
+  buyer-twin:
     build:
-      context: ./companies/hojai-ai/industry-ai/sports-ai
+      context: ./buyer-twin
       dockerfile: Dockerfile
-    container_name: rtmn-sports-ai
+    container_name: rtmn-buyer-twin
     ports:
-      - "4513:4513"
+      - "3013:3013"
     environment:
-      - PORT=4513
+      - PORT=3013
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4513/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3013/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  energy-ai:
+  deal-twin:
     build:
-      context: ./companies/hojai-ai/industry-ai/energy-ai
+      context: ./deal-twin
       dockerfile: Dockerfile
-    container_name: rtmn-energy-ai
+    container_name: rtmn-deal-twin
     ports:
-      - "4514:4514"
+      - "3014:3014"
     environment:
-      - PORT=4514
+      - PORT=3014
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4514/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3014/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - rtmn-core
 
-  media-ai:
+  property-twin:
     build:
-      context: ./companies/hojai-ai/industry-ai/media-ai
+      context: ./property-twin
       dockerfile: Dockerfile
-    container_name: rtmn-media-ai
+    container_name: rtmn-property-twin
     ports:
-      - "4515:4515"
+      - "3015:3015"
     environment:
-      - PORT=4515
+      - PORT=3015
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4515/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+
+  referral-twin:
+    build:
+      context: ./referral-twin
+      dockerfile: Dockerfile
+    container_name: rtmn-referral-twin
+    ports:
+      - "3016:3016"
+    environment:
+      - PORT=3016
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3016/health"]
       interval: 30s
       timeout: 10s
       retries: 3

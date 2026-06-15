@@ -594,6 +594,11 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4751 | Merchant Intel | REST | Business intelligence |
 | 4752 | Lead Service | REST | Lead scoring and enrichment |
 | 4786 | Knowledge Graph | REST | Entity relationships |
+| **4761** | **Leverge Intelligence** | REST | Business analytics & insights (Leverge client) |
+| **4762** | **Leverge Memory** | REST | Personal AI memory storage (Leverge client) |
+| **4763** | **Leverge Twin** | REST | Digital twin management (Leverge client) |
+| **4764** | **Leverge Agents** | REST | AI agent orchestration (Leverge client) |
+| **4765** | **Leverge Copilot** | REST | Business AI copilot (Leverge client) |
 | 4702 | CorpID (Identity Hub) | REST | Universal identity |
 | 4703 | Genie Memory | REST | Personal AI memory |
 | 4704 | Genie Relations | REST | Relationship tracking |

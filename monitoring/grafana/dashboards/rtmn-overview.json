@@ -1,0 +1,145 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "RTMN - Service Overview",
+    "tags": ["rtmn", "overview"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Services Up",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "count(up == 1)",
+            "legendFormat": "Up"
+          },
+          {
+            "expr": "count(up == 0)",
+            "legendFormat": "Down"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "SutAR OS Services",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+        "targets": [
+          {
+            "expr": "count(up{job=\"sutar-os\"} == 1)",
+            "legendFormat": "SutAR Up"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "HOJAI AI Services",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+        "targets": [
+          {
+            "expr": "count(up{job=\"hojai-ai\"} == 1)",
+            "legendFormat": "HOJAI Up"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "RABTUL Services",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+        "targets": [
+          {
+            "expr": "count(up{job=\"rabtul-services\"} == 1)",
+            "legendFormat": "RABTUL Up"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Request Rate (per second)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (job)",
+            "legendFormat": "{{ job }}"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Error Rate (%)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100",
+            "legendFormat": "Error Rate %"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Response Time p99 (ms)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job)) * 1000",
+            "legendFormat": "{{ job }}"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "CPU Usage (%)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+        "targets": [
+          {
+            "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "legendFormat": "{{ instance }}"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Memory Usage (%)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+        "targets": [
+          {
+            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+            "legendFormat": "{{ instance }}"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Event Bus Messages",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+        "targets": [
+          {
+            "expr": "rate(event_bus_messages_published_total[5m])",
+            "legendFormat": "Published"
+          },
+          {
+            "expr": "rate(event_bus_messages_consumed_total[5m])",
+            "legendFormat": "Consumed"
+          }
+        ]
+      }
+    ]
+  }
+}

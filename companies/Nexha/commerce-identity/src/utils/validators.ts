@@ -31,12 +31,12 @@ export function isValidPincode(pincode: string): boolean {
 
 export function isValidPhone(phone: string): boolean {
   if (!phone) return false;
-  const cleaned = phone.replace(/[\s\-]/g, '').replace(/^\+?91/, '');
+  const cleaned = phone.replace(/[\s\-]/g, '').replace(/^\+91/, '');
   return PHONE_REGEX.test(cleaned);
 }
 
 export function normalizePhone(phone: string): string {
-  const cleaned = phone.replace(/[\s\-]/g, '').replace(/^\+?91/, '');
+  const cleaned = phone.replace(/[\s\-]/g, '').replace(/^\+91/, '');
   return cleaned.length === 10 ? cleaned : phone;
 }
 
