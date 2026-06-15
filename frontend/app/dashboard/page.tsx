@@ -40,7 +40,12 @@ export default function DashboardPage() {
     setSelecting(serviceId);
     setError('');
     try {
-      await services.select(token, { serviceId, plan: 'pilot' });
+      // Add service (ignore if already selected — 409 means it's in the list)
+      try {
+        await services.select(token, { serviceId, plan: 'pilot' });
+      } catch (err: any) {
+        if (!err.message.includes('already')) throw err; // only ignore "already provisioned"
+      }
       // Mock pay → activate
       const checkout = await billing.checkout(token, { serviceId, plan: 'pilot' });
       if (checkout.paymentId) {
