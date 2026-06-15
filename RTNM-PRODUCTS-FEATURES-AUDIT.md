@@ -7045,13 +7045,377 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 
 ---
 
-## 8. TwinOS Hub - Complete Features
+## 8. Automotive OS - Complete Features
+
+**Port:** 5080  
+**Digital Twins:** Vehicle, Customer, Service, Appointment  
+**Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
+
+### 8.1 Vehicle Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Vehicle CRUD | Create, read, update, delete vehicles | `GET/POST /api/vehicles` |
+| VIN Tracking | Vehicle Identification Number | `GET/PUT /api/vehicles/:id` |
+| Make/Model/Year | Vehicle identification | `POST /api/vehicles` |
+| License Plate | Optional plate registration | `POST /api/vehicles` |
+| Mileage Tracking | Odometer reading | `POST /api/vehicles` |
+| Status Management | active, in_service, sold, retired | `GET /api/vehicles?status=active` |
+| Customer Association | Link vehicles to customers | `POST /api/vehicles` |
+| Brand Filtering | Filter by brand | `GET /api/vehicles?brand=Toyota` |
+
+### 8.2 Customer Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Customer CRUD | Create, read, update, delete | `GET/POST /api/customers` |
+| Contact Info | Name, email, phone | `POST /api/customers` |
+| Address Management | Full address | `POST /api/customers` |
+| Vehicle Association | Link multiple vehicles | `GET /api/customers/:id` |
+| CRM Sync | Sync to REZ CRM Hub | Automatic on registration |
+
+### 8.3 Service Catalog
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Service CRUD | Create, read, update, delete | `GET/POST /api/services` |
+| Categories | oil_change, tire, brake, engine, transmission, electrical, body_work, inspection, detailing | `GET /api/services?category=oil_change` |
+| Pricing | Service pricing | `POST /api/services` |
+| Duration | Estimated time in minutes | `POST /api/services` |
+| Status | active, inactive | `GET /api/services` |
+
+### 8.4 Appointment Scheduling
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Appointment CRUD | Create, read, update, delete | `GET/POST /api/appointments` |
+| Vehicle/Service Link | Link to specific records | `POST /api/appointments` |
+| Date/Time | Scheduling | `POST /api/appointments` |
+| Status | scheduled, in_progress, completed, cancelled | `PATCH /api/appointments/:id/status` |
+| Notes | Additional notes | `POST /api/appointments` |
+
+### 8.5 Analytics Dashboard
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Total Counts | Vehicles, customers, services, appointments | `GET /api/analytics` |
+| Scheduled Count | Upcoming appointments | `GET /api/analytics` |
+| Real-time Metrics | Live data | `GET /api/analytics` |
+
+### 8.6 Automotive OS API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/vehicles` | List vehicles |
+| POST | `/api/vehicles` | Create vehicle |
+| GET | `/api/vehicles/:id` | Get vehicle |
+| PUT | `/api/vehicles/:id` | Update vehicle |
+| DELETE | `/api/vehicles/:id` | Delete vehicle |
+| GET | `/api/customers` | List customers |
+| POST | `/api/customers` | Create customer |
+| GET | `/api/services` | List services |
+| POST | `/api/services` | Create service |
+| GET | `/api/appointments` | List appointments |
+| POST | `/api/appointments` | Create appointment |
+| PATCH | `/api/appointments/:id/status` | Update status |
+| GET | `/api/analytics` | Analytics dashboard |
+
+---
+
+## 9. Beauty OS - Complete Features
+
+**Port:** 5090  
+**Digital Twins:** Client, Service, Staff, Appointment, Product  
+**Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
+
+### 9.1 Client Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Client CRUD | Create, read, update, delete | `GET/POST /api/clients` |
+| Contact Info | Name, email, phone | `POST /api/clients` |
+| Preferences | Customizable JSON preferences | `POST /api/clients` |
+| Loyalty Points | Points accumulation | `POST /api/clients/:id/points` |
+| Status | active, inactive | `GET /api/clients` |
+| CRM Sync | Sync to REZ CRM Hub | Automatic |
+
+### 9.2 Service Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Service CRUD | Create, read, update, delete | `GET/POST /api/services` |
+| Categories | haircut, coloring, treatment, skincare, makeup, nail, spa, massage | `GET /api/services?category=haircut` |
+| Pricing | Service pricing | `POST /api/services` |
+| Duration | Estimated time | `POST /api/services` |
+| Status | active, inactive | `GET /api/services` |
+
+### 9.3 Staff Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Staff CRUD | Create, read, update, delete | `GET/POST /api/staff` |
+| Roles | stylist, colorist, aesthetician, nail_tech, massage_therapist, manager | `POST /api/staff` |
+| Specialties | Array of specialties | `POST /api/staff` |
+| Availability | available, busy, off | `GET /api/staff` |
+
+### 9.4 Appointment Scheduling
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Appointment CRUD | Create, read, update, delete | `GET/POST /api/appointments` |
+| Client/Service/Staff | Link to records | `POST /api/appointments` |
+| Date/Time | Scheduling | `POST /api/appointments` |
+| Status | scheduled, confirmed, in_progress, completed, cancelled | `PATCH /api/appointments/:id/status` |
+| Conflict Detection | Prevent double-booking | Automatic |
+
+### 9.5 Product Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Product CRUD | Create, read, update, delete | `GET/POST /api/products` |
+| Categories | skincare, haircare, makeup, nail_products, spa_products | `GET /api/products` |
+| Stock Tracking | Current inventory | `POST /api/products` |
+| Pricing | Retail pricing | `POST /api/products` |
+| Status | active, discontinued, out_of_stock | `GET /api/products` |
+
+### 9.6 Loyalty Program
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Points Earning | Earn per service | `POST /api/clients/:id/points` |
+| Points Redemption | Redeem for services | Automatic |
+| Tier System | Bronze, Silver, Gold, Platinum | Automatic |
+| Points History | Track transactions | Via client record |
+
+### 9.7 Beauty OS API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/clients` | List clients |
+| POST | `/api/clients` | Create client |
+| POST | `/api/clients/:id/points` | Add loyalty points |
+| GET | `/api/services` | List services |
+| POST | `/api/services` | Create service |
+| GET | `/api/staff` | List staff |
+| POST | `/api/staff` | Create staff |
+| GET | `/api/appointments` | List appointments |
+| POST | `/api/appointments` | Create appointment |
+| GET | `/api/products` | List products |
+| POST | `/api/products` | Create product |
+| GET | `/api/analytics` | Analytics dashboard |
+
+---
+
+## 10. Fitness OS - Complete Features
+
+**Port:** 5110  
+**Digital Twins:** Member, Trainer, Class, Membership, Attendance, Workout  
+**Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
+
+### 10.1 Member Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Member CRUD | Create, read, update, delete | `GET/POST /api/members` |
+| Contact Info | Name, email, phone | `POST /api/members` |
+| Emergency Contact | Contact details | `POST /api/members` |
+| Membership Type | basic, standard, premium, vip | `POST /api/members` |
+| Status | active, paused, expired, cancelled | `GET /api/members` |
+| Health Info | Medical conditions, fitness goals | `POST /api/members` |
+| CRM Sync | Sync to REZ CRM Hub | Automatic |
+
+### 10.2 Trainer Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Trainer CRUD | Create, read, update, delete | `GET/POST /api/trainers` |
+| Specialties | yoga, pilates, strength, cardio, etc. | `POST /api/trainers` |
+| Certifications | Training certifications | `POST /api/trainers` |
+| Availability | available, busy, off | `GET /api/trainers` |
+| Performance | Classes taught, members trained | `GET /api/trainers/:id` |
+
+### 10.3 Class Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Class CRUD | Create, read, update, delete | `GET/POST /api/classes` |
+| Trainer Assignment | Assign trainer | `POST /api/classes` |
+| Schedule | Day, time, recurring | `POST /api/classes` |
+| Capacity | Max members per class | `POST /api/classes` |
+| Enrollment | Current enrollment count | `GET /api/classes` |
+| Categories | yoga, pilates, spinning, strength, hiit, dance, martial_arts, swimming | `GET /api/classes` |
+
+### 10.4 Membership Plans
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Membership CRUD | Create, read, update, delete | `GET/POST /api/memberships` |
+| Type Options | monthly, quarterly, yearly, lifetime | `POST /api/memberships` |
+| Start/End Date | Validity period | `POST /api/memberships` |
+| Pricing | Membership price | `POST /api/memberships` |
+| Auto-renewal | Renewal flag | `POST /api/memberships` |
+
+### 10.5 Attendance Tracking
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Check-in | Member check-in with timestamp | `POST /api/attendance` |
+| Check-out | Member check-out | `PATCH /api/attendance/:id/checkout` |
+| Class Tracking | Attendance per class | `POST /api/attendance` |
+| Member Filter | Filter by member | `GET /api/attendance?memberId=xxx` |
+| Date Filter | Filter by date | `GET /api/attendance?date=2026-06-15` |
+| Today Stats | Today's check-in count | `GET /api/analytics` |
+
+### 10.6 Workout Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Workout CRUD | Create, read, update, delete | `GET/POST /api/workouts` |
+| Exercise Library | Pre-defined exercises | `GET /api/workouts` |
+| Custom Workouts | Trainer-created | `POST /api/workouts` |
+| Member Assignment | Assign to members | `POST /api/workouts` |
+| Progress Tracking | Track completion | `GET /api/workouts/:id` |
+
+### 10.7 Fitness OS API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/members` | List members |
+| POST | `/api/members` | Create member |
+| GET | `/api/trainers` | List trainers |
+| POST | `/api/trainers` | Create trainer |
+| GET | `/api/classes` | List classes |
+| POST | `/api/classes` | Create class |
+| GET | `/api/memberships` | List memberships |
+| POST | `/api/memberships` | Create membership |
+| GET | `/api/attendance` | List attendance |
+| POST | `/api/attendance` | Check-in member |
+| PATCH | `/api/attendance/:id/checkout` | Check-out member |
+| GET | `/api/workouts` | List workouts |
+| POST | `/api/workouts` | Create workout |
+| GET | `/api/analytics` | Analytics dashboard |
+
+---
+
+## 11. Manufacturing OS - Complete Features
+
+**Port:** 5150  
+**Digital Twins:** Product, Order, Machine, Material, Worker, Production, Quality  
+**Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
+
+### 11.1 Product Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Product CRUD | Create, read, update, delete | `GET/POST /api/products` |
+| SKU Tracking | Stock Keeping Unit | `POST /api/products` |
+| Description | Product description | `POST /api/products` |
+| Cost Tracking | Unit cost | `POST /api/products` |
+| Selling Price | Retail/selling price | `POST /api/products` |
+| Status | active, inactive, discontinued | `GET /api/products` |
+
+### 11.2 Production Orders
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Order CRUD | Create, read, update, delete | `GET/POST /api/orders` |
+| Product Association | Link to product | `POST /api/orders` |
+| Quantity Tracking | Order quantity | `POST /api/orders` |
+| Cost Calculation | Auto-calculate total | `POST /api/orders` |
+| Priority Levels | low, normal, high, urgent | `POST /api/orders` |
+| Status | pending, in_production, completed, cancelled | `PATCH /api/orders/:id/status` |
+| Status Filtering | Filter by status | `GET /api/orders?status=pending` |
+
+### 11.3 Machine Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Machine CRUD | Create, read, update, delete | `GET/POST /api/machines` |
+| Type Classification | Machine type/category | `POST /api/machines` |
+| Capacity Rating | Production capacity | `POST /api/machines` |
+| Location Tracking | Machine location | `POST /api/machines` |
+| Status | idle, running, maintenance, offline | `GET /api/machines` |
+| Maintenance Tracking | Last maintenance date | `GET /api/machines/:id` |
+
+### 11.4 Material Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Material CRUD | Create, read, update, delete | `GET/POST /api/materials` |
+| SKU Tracking | Material SKU | `POST /api/materials` |
+| Quantity Tracking | Current stock level | `POST /api/materials` |
+| Unit of Measure | kg, units, liters, etc. | `POST /api/materials` |
+| Reorder Level | Low stock threshold | `POST /api/materials` |
+| Low Stock Alerts | Automatic detection | `GET /api/analytics` |
+| Status | in_stock, low_stock, out_of_stock | `GET /api/materials` |
+
+### 11.5 Worker Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Worker CRUD | Create, read, update, delete | `GET/POST /api/workers` |
+| Role Assignment | Worker role | `POST /api/workers` |
+| Machine Assignment | Assigned machine | `POST /api/workers` |
+| Shift Management | day, night, swing | `POST /api/workers` |
+| Skills Tracking | Worker skills | `POST /api/workers` |
+| Status | available, working, off | `GET /api/workers` |
+
+### 11.6 Production Tracking
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Production CRUD | Create, read, update, delete | `GET/POST /api/production` |
+| Order Association | Link to production order | `POST /api/production` |
+| Machine/Worker Assignment | Assigned resources | `POST /api/production` |
+| Quantity Tracking | Produced quantity | `POST /api/production` |
+| Status | in_progress, completed, paused | `GET /api/production` |
+| Time Tracking | Start/completion timestamps | `GET /api/production/:id` |
+
+### 11.7 Quality Control
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Quality Check CRUD | Create quality checks | `GET/POST /api/quality` |
+| Production Association | Link to production run | `POST /api/quality` |
+| Defect Tracking | Number of defects found | `POST /api/quality` |
+| Pass/Fail Status | Quality status | `POST /api/quality` |
+| Inspection Notes | Inspector comments | `POST /api/quality` |
+
+### 11.8 Manufacturing OS API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/products` | List products |
+| POST | `/api/products` | Create product |
+| GET | `/api/orders` | List orders |
+| GET | `/api/orders?status=pending` | Filter by status |
+| POST | `/api/orders` | Create order |
+| PATCH | `/api/orders/:id/status` | Update status |
+| GET | `/api/machines` | List machines |
+| POST | `/api/machines` | Create machine |
+| GET | `/api/materials` | List materials |
+| POST | `/api/materials` | Create material |
+| GET | `/api/workers` | List workers |
+| POST | `/api/workers` | Create worker |
+| GET | `/api/production` | List production records |
+| POST | `/api/production` | Create production record |
+| GET | `/api/quality` | List quality checks |
+| POST | `/api/quality` | Create quality check |
+| GET | `/api/analytics` | Analytics dashboard |
+
+---
+
+## 12. TwinOS Hub - Complete Features
 
 **Port:** 4705  
 **Registry:** 35+ Digital Twins  
 **Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
 
-### 8.1 Twin Registry
+### 12.1 Twin Registry
 
 | Twin | Description | Attributes |
 |------|-------------|------------|
@@ -7092,7 +7456,7 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 | vehicle-twin | Vehicles | make, model, status |
 | service-twin | Auto services | type, cost, duration |
 
-### 8.2 Core Operations
+### 12.2 Core Operations
 
 | Feature | Description | API Endpoints |
 |---------|-------------|---------------|
@@ -7104,7 +7468,7 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 | Twin History | State changes | `GET /api/twins/:type/:id/history` |
 | Twin Relationships | Linked twins | `GET /api/twins/:type/:id/relations` |
 
-### 8.3 State Management
+### 12.3 State Management
 
 | Feature | Description | API Endpoints |
 |---------|-------------|---------------|
@@ -7115,7 +7479,7 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 | Lock | Prevent changes | `POST /api/twins/:type/:id/lock` |
 | Unlock | Allow changes | `POST /api/twins/:type/:id/unlock` |
 
-### 8.4 Sync Operations
+### 12.4 Sync Operations
 
 | Feature | Description | API Endpoints |
 |---------|-------------|---------------|
@@ -7125,7 +7489,7 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 | Conflict Resolution | Handle conflicts | `POST /api/sync/resolve` |
 | Webhook | Event notifications | `POST /api/webhooks` |
 
-### 8.5 TwinOS Hub API Reference
+### 12.5 TwinOS Hub API Reference
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -7688,6 +8052,296 @@ npm start
 
 ---
 
+## REZ CRM Hub - Product Features (Port 4056)
+
+**Location:** `companies/AdBazaar/REZ-crm-hub/`  
+**Status:** ✅ **PRODUCTION READY** | **Deployed on Render**
+
+### REZ CRM Hub Core Products
+
+| Product | Feature | Description | Status |
+|---------|---------|-------------|--------|
+| **Contact Manager** | CRUD | Create, read, update, delete contacts | ✅ |
+| | Search | Full-text search across contacts | ✅ |
+| | Filtering | Filter by provider, sync status, tags | ✅ |
+| | Bulk Import | Import multiple contacts at once | ✅ |
+| | Deduplication | Auto-detect duplicate contacts | ✅ |
+| **Deal Pipeline** | Stages | Lead → Qualified → Proposal → Negotiation → Closed Won/Lost | ✅ |
+| | Tracking | Track deal value, probability, close date | ✅ |
+| | Analytics | Pipeline statistics and metrics | ✅ |
+| | Contact Linking | Associate deals with contacts | ✅ |
+| **HubSpot Integration** | OAuth 2.0 | Secure API authorization | ✅ |
+| | Bi-directional Sync | Sync contacts both ways | ✅ |
+| | Webhook Receiver | Real-time update notifications | ✅ |
+| | Field Mapping | Map custom fields between systems | ✅ |
+| | Sync History | Track all sync operations | ✅ |
+| **Zoho CRM Integration** | OAuth 2.0 | Secure API authorization | ✅ |
+| | Multi-datacenter | Support .in, .com, .eu, .au | ✅ |
+| | Bi-directional Sync | Sync contacts both ways | ✅ |
+| | Webhook Receiver | Real-time update notifications | ✅ |
+| | Field Mapping | Map custom fields between systems | ✅ |
+| **Connection Manager** | Status Check | View all provider connections | ✅ |
+| | Disconnect | Remove provider connection | ✅ |
+| | Multi-provider | Support HubSpot + Zoho simultaneously | ✅ |
+| **Sync Engine** | Manual Trigger | Force sync on demand | ✅ |
+| | Scheduled Sync | Automatic periodic sync | ✅ |
+| | Per-entity Sync | Sync contacts or deals only | ✅ |
+| | Sync History | View past sync operations | ✅ |
+
+### REZ CRM Hub API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Basic health check |
+| `/api/crm/hubspot/connect` | GET | Initiate HubSpot OAuth |
+| `/api/crm/hubspot/callback` | GET | HubSpot OAuth callback |
+| `/api/crm/zoho/connect` | GET | Initiate Zoho OAuth |
+| `/api/crm/zoho/callback` | GET | Zoho OAuth callback |
+| `/api/connections` | GET | Get all connection statuses |
+| `/api/connections/:provider` | GET/DELETE | Get/disconnect provider |
+| `/api/contacts` | GET/POST | List/create contacts |
+| `/api/contacts/:id` | GET | Get contact |
+| `/api/contacts/:id/sync` | POST | Force sync contact |
+| `/api/contacts/link` | POST | Link contact to ReZ user |
+| `/api/contacts/:id/unlink` | POST | Unlink contact |
+| `/api/deals` | GET/POST | List/create deals |
+| `/api/deals/stats` | GET | Pipeline statistics |
+| `/api/deals/contact/:contactId` | GET | Deals by contact |
+| `/api/deals/:id` | GET | Get deal |
+| `/api/deals/:id/stage` | PATCH | Update deal stage |
+| `/api/sync/status` | GET | Get sync status |
+| `/api/sync/trigger` | POST | Trigger sync |
+| `/api/sync/history` | GET | Get sync history |
+
+### REZ CRM Hub Technology Stack
+
+| Component | Technology |
+|-----------|------------|
+| Runtime | Node.js 20+ |
+| Framework | Express.js |
+| Database | MongoDB (Mongoose ODM) |
+| Cache | Redis (ioredis) |
+| Security | Helmet, CORS, JWT, X-Internal-Token |
+| Rate Limiting | express-rate-limit (100 req/min general, 20 req/min write) |
+| Validation | Zod |
+| Real-time | WebSocket (ws) |
+| Logging | Winston |
+| Container | Docker, Render Blueprint |
+
+### REZ CRM Hub Bug Fixes
+
+| Bug | Fix Applied |
+|-----|-------------|
+| `/deals/stats` returning 400 | Moved specific routes before wildcard `:id` route |
+| Auth wide open | Auth middleware requires X-Internal-Token on all /api/* |
+| CORS wide open | CORS origins driven by ALLOWED_ORIGINS env var |
+| Hardcoded OAuth URIs | Redirect URIs use PUBLIC_URL env var |
+| Stale token headers | Axios request interceptors for dynamic token |
+
+---
+
+## REZ SalesMind - Product Features (Port 5170)
+
+**Location:** `companies/RTNM-Digital/REZ-SalesMind/`  
+**Status:** ✅ **PRODUCTION READY** | **Deployed on Render**
+
+### REZ SalesMind Core Products
+
+| Product | Feature | Description | Status |
+|---------|---------|-------------|--------|
+| **Ecosystem Hub** | Service Registry | Register and list services | ✅ |
+| | Heartbeat | Monitor service health | ✅ |
+| | Signals | Real-time signal broadcasting | ✅ |
+| | WebSocket | Live updates to clients | ✅ |
+| **Lead Management** | CRUD | Create, read, update, delete leads | ✅ |
+| | Scoring | AI-powered lead scoring | ✅ |
+| | Source Tracking | Track lead sources | ✅ |
+| | Enrichment | Enrich from CRM data | ✅ |
+| | Conversion | Convert lead to deal | ✅ |
+| **Sales Pipeline** | Stages | Track deal stages | ✅ |
+| | Value Analysis | Pipeline value calculation | ✅ |
+| | Trends | Trend analysis over time | ✅ |
+| **Dashboard** | KPI Cards | Key performance indicators | ✅ |
+| | Charts | Visual data representation | ✅ |
+| | Pipeline Summary | Pipeline overview | ✅ |
+| **Insights Engine** | Trends | Market and sales trends | ✅ |
+| | Deal Health | Score deal health | ✅ |
+| | Risk Detection | Identify deal risks | ✅ |
+| **AI Email Writer** | Outreach | Initial contact emails | ✅ |
+| | Follow-up | Follow-up sequences | ✅ |
+| | Nurture | Nurture campaigns | ✅ |
+| | Thank-you | Post-meeting thank you | ✅ |
+| **AI Proposal Generator** | Proposal Creation | Generate proposals | ✅ |
+| | Product Defaults | Default product info | ✅ |
+| | Pricing Defaults | Default pricing info | ✅ |
+| **AI Sales Forecasting** | Revenue Forecast | Predict revenue | ✅ |
+| | Trend Analysis | Analyze trends | ✅ |
+| | Risk Analysis | Identify risks | ✅ |
+| | Confidence Scores | Confidence metrics | ✅ |
+| **CRM Integration** | Real-time Sync | Bidirectional sync | ✅ |
+| | Contact Fetch | Get CRM contacts | ✅ |
+| | Deal Fetch | Get CRM deals | ✅ |
+| | Pipeline Fetch | Get CRM pipeline | ✅ |
+
+### REZ SalesMind API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health with real integration probes |
+| `/ws` | WS | WebSocket for signals |
+| `/api/ecosystem/services` | GET | List services |
+| `/api/ecosystem/heartbeat` | POST | Register heartbeat |
+| `/api/ecosystem/signals` | GET/POST | Get/broadcast signals |
+| `/api/leads` | GET/POST | List/create leads |
+| `/api/leads/:id` | GET/PUT/DELETE | Lead CRUD |
+| `/api/leads/:id/enrich` | POST | Enrich from CRM |
+| `/api/leads/:id/score` | GET | Get lead score |
+| `/api/leads/:id/convert` | POST | Convert to deal |
+| `/api/sales/pipeline` | GET | Pipeline overview |
+| `/api/sales/deals` | GET/POST | List/create deals |
+| `/api/sales/deals/:id` | GET/PUT | Deal CRUD |
+| `/api/sales/deals/:id/stage` | PATCH | Update stage |
+| `/api/sales/forecasting` | GET | Revenue forecast |
+| `/api/sales/analytics` | GET | Sales analytics |
+| `/api/dashboard/kpis` | GET | Dashboard KPIs |
+| `/api/dashboard/charts` | GET | Dashboard charts |
+| `/api/dashboard/pipeline` | GET | Pipeline summary |
+| `/api/insights/trends` | GET | Trend analysis |
+| `/api/insights/deal-health` | GET | Deal health |
+| `/api/insights/risks` | GET | Risk detection |
+| `/api/ai/email` | POST | Generate email |
+| `/api/ai/proposal` | POST | Generate proposal |
+| `/api/ai/forecast` | POST | Sales forecast |
+| `/api/integrations/crm/status` | GET | CRM status |
+| `/api/integrations/crm/sync` | POST | CRM sync |
+
+### REZ SalesMind Technology Stack
+
+| Component | Technology |
+|-----------|------------|
+| Runtime | Node.js 20+ |
+| Framework | Express.js |
+| Real-time | WebSocket (ws), HTTP Server |
+| Security | X-Internal-Token auth |
+| Rate Limiting | express-rate-limit (100 req/min API, 20 req/min write) |
+| Logging | Console |
+| Integrations | Axios for HTTP calls |
+
+### REZ SalesMind Integrations
+
+| Service | Port | Protocol |
+|---------|------|----------|
+| HOJAI AI | 4700+ | REST |
+| REZ CRM Hub | 4056 | REST (X-Internal-Token) |
+| REZ Identity Hub | 4702 | REST |
+| Genie Voice | 4760 | REST |
+| AssetMind | 5200 | REST |
+| AdBazaar | 4300 | REST |
+
+### REZ SalesMind Bug Fixes
+
+| Bug | Fix Applied |
+|-----|-------------|
+| Auth wide open | Auth requires X-Internal-Token on all /api/* except health/ws |
+| Rate limit 429 on GET /api/sales/pipeline | Removed writeLimiter from /api/sales prefix |
+| Stale token in CRM client | Axios request interceptor for dynamic token |
+| Email 500 for 'outreach' type | Added missing outreach template |
+| Proposal crash on missing fields | Defensive defaults added |
+| Forecasting NaN | normalizeDeal() with null guards |
+| Health not probing real services | getRealIntegrationStatus() added |
+
+### REZ SalesMind Cross-Service Architecture
+
+```
+REZ SalesMind (5170)
+    │
+    ├── /api/leads → Enrich from CRM Hub (4056)
+    ├── /api/sales/deals → Fetch from CRM Hub
+    ├── /api/ai/* → Generate content
+    │
+    ▼
+REZ CRM Hub (4056)
+    │
+    ├── Contacts, Deals, Pipeline
+    ├── HubSpot/Zoho Integration
+    └── Sync Engine
+```
+
+---
+
 *Last Updated: June 15, 2026*
 *RTMN-Services - MongoDB + Auth + CRM Update Complete*
 *Status: ✅ ALL 24 INDUSTRY OS + FOUNDATION + TWINS UPDATED*
+
+---
+
+## All 24 Industry Operating Systems (Complete as of June 15, 2026)
+
+**Status:** ✅ ALL 24 INDUSTRY OS SERVICES CREATED & DOCUMENTED
+
+### Complete Industry OS List
+
+| # | Industry | Service | Port | Digital Twins |
+|---|----------|---------|------|---------------|
+| 1 | Hospitality | Restaurant OS | 5010 | Menu, Order, Kitchen, Table, Customer |
+| 2 | Healthcare | Healthcare OS | 5020 | Patient, Doctor, Appointment, Prescription |
+| 3 | Retail | Retail OS | 5030 | Product, Inventory, Customer, Cart, Supplier |
+| 4 | Hotel | Hotel OS | 5025 | Room, Booking, Guest, Service, Revenue |
+| 5 | Legal | Legal OS | 5035 | Client, Case, Lawyer, Document |
+| 6 | Education | Education OS | 5060 | Course, Student, Instructor, Enrollment |
+| 7 | Agriculture | Agriculture OS | 5070 | Farm, Crop, Livestock, Harvest |
+| 8 | Automotive | Automotive OS | 5080 | Vehicle, Customer, Service, Appointment |
+| 9 | Beauty | Beauty OS | 5090 | Client, Service, Staff, Appointment |
+| 10 | Fashion | Fashion OS | 5095 | Product, Collection, Order, Customer |
+| 11 | Fitness | Fitness OS | 5110 | Member, Trainer, Class, Membership |
+| 12 | Gaming | Gaming OS | 5120 | Game, Player, Tournament, Match |
+| 13 | Government | Government OS | 5130 | Citizen, Service, Application, Department |
+| 14 | Home Services | HomeServices OS | 5140 | Provider, Service, Booking, Customer |
+| 15 | Manufacturing | Manufacturing OS | 5150 | Product, Order, Machine, Material |
+| 16 | Non-Profit | NonProfit OS | 5160 | Donor, Campaign, Beneficiary, Donation |
+| 17 | Professional | Professional OS | 5170 | Consultant, Client, Project, Invoice |
+| 18 | Sports | Sports OS | 5180 | Team, Player, Match, Ticket |
+| 19 | Travel | Travel OS | 5190 | Destination, Package, Booking, Traveler |
+| 20 | Entertainment | Entertainment OS | 5200 | Event, Venue, Ticket, Attendee |
+| 21 | Construction | Construction OS | 5210 | Project, Contractor, Material, Worker |
+| 22 | Financial | Financial OS | 5220 | Account, Transaction, Budget, Customer |
+| 23 | Real Estate | RealEstate OS | 5230 | Property, Listing, Lead, Agent |
+| 24 | Transport | Transport OS | 5240 | Vehicle, Driver, Rider, Trip |
+
+---
+
+### Complete Service List - Feature Matrix
+
+| Service | Port | MongoDB | Auth | CRM | Digital Twins | REST API |
+|---------|------|---------|------|-----|---------------|----------|
+| Restaurant OS | 5010 | ✅ | ✅ | ✅ | 5 | 40+ |
+| Hotel OS | 5025 | ✅ | ✅ | ✅ | 5 | 35+ |
+| Healthcare OS | 5020 | ✅ | ✅ | ✅ | 5 | 20+ |
+| Retail OS | 5030 | ✅ | ✅ | ✅ | 6 | 25+ |
+| Legal OS | 5035 | ✅ | ✅ | ✅ | 5 | 25+ |
+| Hospitality OS | 5050 | ✅ | ✅ | ✅ | 5 | 30+ |
+| Education OS | 5060 | ✅ | ✅ | ✅ | 6 | 25+ |
+| Agriculture OS | 5070 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Automotive OS | 5080 | ✅ | ✅ | ✅ | 4 | 15+ |
+| Beauty OS | 5090 | ✅ | ✅ | ✅ | 5 | 15+ |
+| Fashion OS | 5095 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Fitness OS | 5110 | ✅ | ✅ | ✅ | 5 | 20+ |
+| Gaming OS | 5120 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Government OS | 5130 | ✅ | ✅ | ✅ | 3 | 15+ |
+| HomeServices OS | 5140 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Manufacturing OS | 5150 | ✅ | ✅ | ✅ | 6 | 20+ |
+| NonProfit OS | 5160 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Professional OS | 5170 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Sports OS | 5180 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Travel OS | 5190 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Entertainment OS | 5200 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Construction OS | 5210 | ✅ | ✅ | ✅ | 3 | 15+ |
+| Financial OS | 5220 | ✅ | ✅ | ✅ | 3 | 15+ |
+| RealEstate OS | 5230 | ✅ | ✅ | ✅ | 6 | 25+ |
+| Transport OS | 5240 | ✅ | ✅ | ✅ | 3 | 15+ |
+
+---
+
+*Last Updated: June 15, 2026*
+*RTMN-Services - ALL 24 INDUSTRY OS COMPLETE*
+*Status: ✅ 24/24 INDUSTRY OS SERVICES CREATED*
