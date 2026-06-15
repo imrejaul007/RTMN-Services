@@ -39,5 +39,44 @@ companies/*
 companies/Nexha/commerce-identity/node_modules/
 companies/Nexha/commerce-identity/dist/
 
+# SUTAR OS Services - Built June 15, 2026
+!companies/RTNM-Group/
+!companies/RTNM-Group/boa-os/
+!companies/RTNM-Group/boa-sutar-bridge/
+!companies/hojai-ai/
+!companies/hojai-ai/services/
+!companies/hojai-ai/services/hojai-intent-graph/
+!companies/hojai-ai/services/hojai-simulation-engine/
+!companies/hojai-ai/services/hojai-discovery-engine/
+!companies/hojai-ai/hojai-sutar-os/
+!companies/hojai-ai/hojai-sutar-os/services/
+!companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/
+!companies/RABTUL-Technologies/
+!companies/RABTUL-Technologies/REZ-SLA-monitor/
+!companies/RABTUL-Technologies/REZ-breach-detector/
+!companies/RABTUL-Technologies/REZ-economy-os/
+!companies/RABTUL-Technologies/REZ-trust-scorer/
+# Re-ignore node_modules and build artifacts
+companies/RTNM-Group/boa-os/node_modules/
+companies/RTNM-Group/boa-os/dist/
+companies/RTNM-Group/boa-sutar-bridge/node_modules/
+companies/RTNM-Group/boa-sutar-bridge/dist/
+companies/hojai-ai/services/hojai-intent-graph/node_modules/
+companies/hojai-ai/services/hojai-intent-graph/dist/
+companies/hojai-ai/services/hojai-simulation-engine/node_modules/
+companies/hojai-ai/services/hojai-simulation-engine/dist/
+companies/hojai-ai/services/hojai-discovery-engine/node_modules/
+companies/hojai-ai/services/hojai-discovery-engine/dist/
+companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/node_modules/
+companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/dist/
+companies/RABTUL-Technologies/REZ-SLA-monitor/node_modules/
+companies/RABTUL-Technologies/REZ-SLA-monitor/dist/
+companies/RABTUL-Technologies/REZ-breach-detector/node_modules/
+companies/RABTUL-Technologies/REZ-breach-detector/dist/
+companies/RABTUL-Technologies/REZ-economy-os/node_modules/
+companies/RABTUL-Technologies/REZ-economy-os/dist/
+companies/RABTUL-Technologies/REZ-trust-scorer/node_modules/
+companies/RABTUL-Technologies/REZ-trust-scorer/dist/
+
 # RTMN subfolder (separate repo)
 RTMN/

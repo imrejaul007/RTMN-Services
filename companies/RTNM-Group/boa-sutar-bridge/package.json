@@ -1,0 +1,28 @@
+{
+  "name": "boa-sutar-bridge",
+  "version": "1.0.0",
+  "description": "BOA-SUTAR Bridge - Synchronize strategy (BOA OS) to execution (SUTAR OS)",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "uuid": "^9.0.0",
+    "axios": "^1.4.0",
+    "winston": "^3.8.2",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/cors": "^2.8.13",
+    "@types/uuid": "^9.0.2",
+    "@types/node": "^20.1.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
