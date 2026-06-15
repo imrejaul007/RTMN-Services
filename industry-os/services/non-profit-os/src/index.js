@@ -13,7 +13,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 
 const app = express();
-const PORT = process.env.PORT || 5160;
+const PORT = process.env.PORT || 5010;
 
 // Middleware
 app.use(helmet());
@@ -36,8 +36,51 @@ const RTMN_SERVICES = {
   agentMarketplace: process.env.AGENT_URL || 'http://localhost:4580',
   
   // Layer 2: Customer Growth (AdBazaar + REZ Consumer + Axom)
+  // CRM & Customer
   crmHub: process.env.CRM_HUB_URL || 'http://localhost:4056',
+  leadIntelligence: process.env.LEAD_INTELLIGENCE_URL || 'http://localhost:4057',
+
+  // Ads & Campaigns
+  adsApi: process.env.ADS_API_URL || 'http://localhost:4060',
+  adAi: process.env.AD_AI_URL || 'http://localhost:4061',
+  aiCampaignBuilder: process.env.CAMPAIGN_BUILDER_URL || 'http://localhost:4062',
+  dspPortal: process.env.DSP_URL || 'http://localhost:4063',
+  programmaticBidding: process.env.PROGRAMMATIC_URL || 'http://localhost:4064',
+  emailCampaign: process.env.EMAIL_CAMPAIGN_URL || 'http://localhost:4065',
+
+  // Loyalty & Rewards
+  loyaltyService: process.env.LOYALTY_URL || 'http://localhost:4070',
+  anniversaryRewards: process.env.ANNIVERSARY_URL || 'http://localhost:4071',
+  birthdayRewards: process.env.BIRTHDAY_URL || 'http://localhost:4072',
+  gamification: process.env.GAMIFICATION_URL || 'http://localhost:4073',
+  referralGraph: process.env.REFERRAL_URL || 'http://localhost:4074',
+
+  // Creator & Influencer
+  creatorStudio: process.env.CREATOR_URL || 'http://localhost:4080',
+  creatorCommerce: process.env.CREATOR_COMMERCE_URL || 'http://localhost:4081',
+  ugcManagement: process.env.UGC_URL || 'http://localhost:4082',
+
+  // Analytics & Intelligence
+  marketingAnalytics: process.env.MARKETING_ANALYTICS_URL || 'http://localhost:4090',
+  mediaAnalytics: process.env.MEDIA_ANALYTICS_URL || 'http://localhost:4091',
+  intelligenceBridge: process.env.INTELLIGENCE_BRIDGE_URL || 'http://localhost:4092',
+  revenueIntelligence: process.env.REVENUE_INTEL_URL || 'http://localhost:4093',
+
+  // DOOH & Display
+  doohService: process.env.DOOH_URL || 'http://localhost:4100',
+  doohSdk: process.env.DOOH_SDK_URL || 'http://localhost:4101',
+  videoAds: process.env.VIDEO_ADS_URL || 'http://localhost:4102',
+
+  // Chat & Widgets
+  liveChat: process.env.LIVE_CHAT_URL || 'http://localhost:4110',
+  feedbackService: process.env.FEEDBACK_URL || 'http://localhost:4111',
+
+  // BuzzLocal & Community
   buzzLocal: process.env.BUZZLOCAL_URL || 'http://localhost:4020',
+
+  // Intent & Audience
+  intentExchange: process.env.INTENT_URL || 'http://localhost:4120',
+  audienceMarketplace: process.env.AUDIENCE_URL || 'http://localhost:4121',
   
   // Layer 3: Commerce (Nexha + REZ-Merchant)
   nexha: process.env.NEXHA_URL || 'http://localhost:5002',
@@ -434,25 +477,344 @@ app.post('/api/ai/chat', requireAuth, async (req, res) => {
 });
 
 // ============================================
-// LAYER 2: CUSTOMER GROWTH
+// LAYER 2: CUSTOMER GROWTH (AdBazaar + REZ Consumer + Axom)
 // ============================================
 
 app.get('/api/layer/customer-growth', requireAuth, async (req, res) => {
   try {
-    const crmRes = await fetch(RTMN_SERVICES.crmHub + '/api/health');
-    const crm = await crmRes.json();
-    
+    const [crmRes, loyaltyRes, adsRes] = await Promise.allSettled([
+      fetch(RTMN_SERVICES.crmHub + '/api/health'),
+      fetch(RTMN_SERVICES.loyaltyService + '/health'),
+      fetch(RTMN_SERVICES.adsApi + '/health'),
+    ]);
+
     res.json({
       layer: 2,
-      name: 'Customer Growth (AdBazaar + REZ Consumer + Axom)',
+      name: 'Customer Growth (AdBazaar Full Suite)',
       services: {
-        crmHub: crm.status || 'online',
+        // CRM & Customer
+        crmHub: crmRes.status === 'fulfilled' ? 'online' : 'offline',
+        leadIntelligence: RTMN_SERVICES.leadIntelligence,
+        // Ads & Campaigns
+        adsApi: adsRes.status === 'fulfilled' ? 'online' : 'offline',
+        adAi: RTMN_SERVICES.adAi,
+        aiCampaignBuilder: RTMN_SERVICES.aiCampaignBuilder,
+        dspPortal: RTMN_SERVICES.dspPortal,
+        programmaticBidding: RTMN_SERVICES.programmaticBidding,
+        emailCampaign: RTMN_SERVICES.emailCampaign,
+        // Loyalty & Rewards
+        loyaltyService: loyaltyRes.status === 'fulfilled' ? 'online' : 'offline',
+        anniversaryRewards: RTMN_SERVICES.anniversaryRewards,
+        birthdayRewards: RTMN_SERVICES.birthdayRewards,
+        gamification: RTMN_SERVICES.gamification,
+        referralGraph: RTMN_SERVICES.referralGraph,
+        // Creator & Influencer
+        creatorStudio: RTMN_SERVICES.creatorStudio,
+        creatorCommerce: RTMN_SERVICES.creatorCommerce,
+        ugcManagement: RTMN_SERVICES.ugcManagement,
+        // Analytics & Intelligence
+        marketingAnalytics: RTMN_SERVICES.marketingAnalytics,
+        mediaAnalytics: RTMN_SERVICES.mediaAnalytics,
+        intelligenceBridge: RTMN_SERVICES.intelligenceBridge,
+        revenueIntelligence: RTMN_SERVICES.revenueIntelligence,
+        // DOOH & Display
+        doohService: RTMN_SERVICES.doohService,
+        doohSdk: RTMN_SERVICES.doohSdk,
+        videoAds: RTMN_SERVICES.videoAds,
+        // Chat & Widgets
+        liveChat: RTMN_SERVICES.liveChat,
+        feedbackService: RTMN_SERVICES.feedbackService,
+        // Community
         buzzLocal: RTMN_SERVICES.buzzLocal,
+        // Intent & Audience
+        intentExchange: RTMN_SERVICES.intentExchange,
+        audienceMarketplace: RTMN_SERVICES.audienceMarketplace,
       },
-      capabilities: ['Customer Acquisition', 'Lead Generation', 'CRM', 'Loyalty', 'Community'],
+      capabilities: [
+        'Customer Acquisition', 'Lead Generation', 'CRM',
+        'Ads & Campaigns', 'Programmatic Bidding', 'Email Marketing',
+        'Loyalty Programs', 'Rewards', 'Gamification', 'Referrals',
+        'Creator Network', 'UGC Management',
+        'Marketing Analytics', 'Media Analytics', 'Revenue Intelligence',
+        'DOOH', 'Video Ads',
+        'Live Chat', 'Feedback',
+        'Community', 'Local Discovery',
+        'Intent Exchange', 'Audience Targeting'
+      ],
     });
   } catch (err) {
     res.json({ layer: 2, name: 'Customer Growth', status: 'offline', error: err.message });
+  }
+});
+
+// AdBazaar - CRM Endpoints
+app.get('/api/crm/contacts', requireAuth, async (req, res) => {
+  try {
+    const contactsRes = await fetch(RTMN_SERVICES.crmHub + '/api/contacts');
+    res.json(await contactsRes.json());
+  } catch (err) {
+    res.status(500).json({ error: 'CRM unavailable' });
+  }
+});
+
+app.post('/api/crm/contacts', requireAuth, async (req, res) => {
+  try {
+    const response = await fetch(RTMN_SERVICES.crmHub + '/api/contacts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'CRM contact creation failed' });
+  }
+});
+
+app.get('/api/crm/leads', requireAuth, async (req, res) => {
+  try {
+    const leadsRes = await fetch(RTMN_SERVICES.leadIntelligence + '/api/leads');
+    res.json(await leadsRes.json());
+  } catch (err) {
+    res.json({ error: 'Lead intelligence unavailable' });
+  }
+});
+
+// AdBazaar - Ads Endpoints
+app.get('/api/ads/campaigns', requireAuth, async (req, res) => {
+  try {
+    const campaignsRes = await fetch(RTMN_SERVICES.adsApi + '/api/campaigns');
+    res.json(await campaignsRes.json());
+  } catch (err) {
+    res.json({ error: 'Ads API unavailable' });
+  }
+});
+
+app.post('/api/ads/campaigns', requireAuth, async (req, res) => {
+  try {
+    const response = await fetch(RTMN_SERVICES.adsApi + '/api/campaigns', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'Campaign creation failed' });
+  }
+});
+
+app.get('/api/ads/budget', requireAuth, async (req, res) => {
+  res.json({ budget: 0, spent: 0, remaining: 0 });
+});
+
+app.post('/api/ads/ai-optimize', requireAuth, async (req, res) => {
+  try {
+    const response = await fetch(RTMN_SERVICES.adAi + '/api/optimize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'AI optimization failed' });
+  }
+});
+
+// AdBazaar - Loyalty Endpoints
+app.get('/api/loyalty/points', requireAuth, async (req, res) => {
+  try {
+    const pointsRes = await fetch(RTMN_SERVICES.loyaltyService + '/api/points');
+    res.json(await pointsRes.json());
+  } catch (err) {
+    res.json({ error: 'Loyalty service unavailable' });
+  }
+});
+
+app.post('/api/loyalty/points', requireAuth, async (req, res) => {
+  try {
+    const response = await fetch(RTMN_SERVICES.loyaltyService + '/api/points', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'Points update failed' });
+  }
+});
+
+app.get('/api/loyalty/rewards', requireAuth, async (req, res) => {
+  try {
+    const [annivRes, bdayRes] = await Promise.allSettled([
+      fetch(RTMN_SERVICES.anniversaryRewards + '/api/rewards'),
+      fetch(RTMN_SERVICES.birthdayRewards + '/api/rewards'),
+    ]);
+    res.json({
+      anniversary: annivRes.status === 'fulfilled' ? await annivRes.value.json() : 'offline',
+      birthday: bdayRes.status === 'fulfilled' ? await bdayRes.value.json() : 'offline',
+    });
+  } catch (err) {
+    res.json({ error: 'Rewards unavailable' });
+  }
+});
+
+app.get('/api/loyalty/gamification', requireAuth, async (req, res) => {
+  try {
+    const gamRes = await fetch(RTMN_SERVICES.gamification + '/api/games');
+    res.json(await gamRes.json());
+  } catch (err) {
+    res.json({ error: 'Gamification unavailable' });
+  }
+});
+
+app.get('/api/loyalty/referrals', requireAuth, async (req, res) => {
+  try {
+    const refRes = await fetch(RTMN_SERVICES.referralGraph + '/api/referrals');
+    res.json(await refRes.json());
+  } catch (err) {
+    res.json({ error: 'Referral graph unavailable' });
+  }
+});
+
+// AdBazaar - Creator Endpoints
+app.get('/api/creator/campaigns', requireAuth, async (req, res) => {
+  try {
+    const creatorRes = await fetch(RTMN_SERVICES.creatorStudio + '/api/campaigns');
+    res.json(await creatorRes.json());
+  } catch (err) {
+    res.json({ error: 'Creator studio unavailable' });
+  }
+});
+
+app.get('/api/creator/influencers', requireAuth, async (req, res) => {
+  try {
+    const infRes = await fetch(RTMN_SERVICES.creatorStudio + '/api/influencers');
+    res.json(await infRes.json());
+  } catch (err) {
+    res.json({ error: 'Influencer data unavailable' });
+  }
+});
+
+app.get('/api/creator/commerce', requireAuth, async (req, res) => {
+  try {
+    const commerceRes = await fetch(RTMN_SERVICES.creatorCommerce + '/api/products');
+    res.json(await commerceRes.json());
+  } catch (err) {
+    res.json({ error: 'Creator commerce unavailable' });
+  }
+});
+
+app.get('/api/creator/ugc', requireAuth, async (req, res) => {
+  try {
+    const ugcRes = await fetch(RTMN_SERVICES.ugcManagement + '/api/content');
+    res.json(await ugcRes.json());
+  } catch (err) {
+    res.json({ error: 'UGC management unavailable' });
+  }
+});
+
+// AdBazaar - Analytics Endpoints
+app.get('/api/analytics/marketing', requireAuth, async (req, res) => {
+  try {
+    const analyticsRes = await fetch(RTMN_SERVICES.marketingAnalytics + '/api/dashboard');
+    res.json(await analyticsRes.json());
+  } catch (err) {
+    res.json({ error: 'Marketing analytics unavailable' });
+  }
+});
+
+app.get('/api/analytics/media', requireAuth, async (req, res) => {
+  try {
+    const mediaRes = await fetch(RTMN_SERVICES.mediaAnalytics + '/api/insights');
+    res.json(await mediaRes.json());
+  } catch (err) {
+    res.json({ error: 'Media analytics unavailable' });
+  }
+});
+
+app.get('/api/analytics/revenue', requireAuth, async (req, res) => {
+  try {
+    const revenueRes = await fetch(RTMN_SERVICES.revenueIntelligence + '/api/report');
+    res.json(await revenueRes.json());
+  } catch (err) {
+    res.json({ error: 'Revenue intelligence unavailable' });
+  }
+});
+
+// AdBazaar - DOOH Endpoints
+app.get('/api/dooh/screens', requireAuth, async (req, res) => {
+  try {
+    const screensRes = await fetch(RTMN_SERVICES.doohService + '/api/screens');
+    res.json(await screensRes.json());
+  } catch (err) {
+    res.json({ error: 'DOOH service unavailable' });
+  }
+});
+
+app.get('/api/dooh/campaigns', requireAuth, async (req, res) => {
+  try {
+    const campaignsRes = await fetch(RTMN_SERVICES.doohService + '/api/campaigns');
+    res.json(await campaignsRes.json());
+  } catch (err) {
+    res.json({ error: 'DOOH campaigns unavailable' });
+  }
+});
+
+app.get('/api/dooh/video-ads', requireAuth, async (req, res) => {
+  try {
+    const videoRes = await fetch(RTMN_SERVICES.videoAds + '/api/ads');
+    res.json(await videoRes.json());
+  } catch (err) {
+    res.json({ error: 'Video ads unavailable' });
+  }
+});
+
+// AdBazaar - Chat & Widgets
+app.get('/api/chat/widget', requireAuth, async (req, res) => {
+  res.json({
+    widgetId: 'chat-widget',
+    embedUrl: RTMN_SERVICES.liveChat + '/widget.js',
+    config: { position: 'bottom-right', theme: 'light' }
+  });
+});
+
+app.post('/api/chat/message', requireAuth, async (req, res) => {
+  try {
+    const response = await fetch(RTMN_SERVICES.liveChat + '/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'Chat message failed' });
+  }
+});
+
+app.get('/api/feedback', requireAuth, async (req, res) => {
+  try {
+    const feedbackRes = await fetch(RTMN_SERVICES.feedbackService + '/api/feedback');
+    res.json(await feedbackRes.json());
+  } catch (err) {
+    res.json({ error: 'Feedback service unavailable' });
+  }
+});
+
+// AdBazaar - Intent & Audience
+app.get('/api/audience/targets', requireAuth, async (req, res) => {
+  try {
+    const audienceRes = await fetch(RTMN_SERVICES.audienceMarketplace + '/api/targets');
+    res.json(await audienceRes.json());
+  } catch (err) {
+    res.json({ error: 'Audience marketplace unavailable' });
+  }
+});
+
+app.get('/api/intent/signals', requireAuth, async (req, res) => {
+  try {
+    const intentRes = await fetch(RTMMN_SERVICES.intentExchange + '/api/signals');
+    res.json(await intentRes.json());
+  } catch (err) {
+    res.json({ error: 'Intent exchange unavailable' });
   }
 });
 
