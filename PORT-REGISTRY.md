@@ -568,7 +568,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | Sports | 18 | 4513, 5543-5656, 7343 |
 | Transport | 7 | 9043-9049 |
 | Travel | 6 | 6501-6506 |
-| **HOJAI AI** | 18 | 4500-4780 |
+| **HOJAI AI** | 18 | 4500-4780, **4900-4906**, **5220**, **5250-5290** |
 
 ---
 
@@ -599,6 +599,20 @@ This document consolidates all port allocations across the 24 industry verticals
 | **4763** | **Leverge Twin** | REST | Digital twin management (Leverge client) |
 | **4764** | **Leverge Agents** | REST | AI agent orchestration (Leverge client) |
 | **4765** | **Leverge Copilot** | REST | Business AI copilot (Leverge client) |
+| **4900** | **Finance CFO AI** | REST | AI-powered CFO insights, cash flow, runway |
+| **4901** | **Finance Accountant** | REST | Invoice→Ledger→Tally, double-entry accounting |
+| **4902** | **Finance Compliance** | REST | Policy validation, GST compliance |
+| **4903** | **Finance Auditor** | REST | Fraud detection, anomaly scanning |
+| **4904** | **Finance Collections** | REST | AR management, payment reminders |
+| **4905** | **Finance Payables** | REST | AP management, vendor payments |
+| **4906** | **Finance Budget Coach** | REST | Budget forecasting, variance analysis |
+| **5220** | **Financial OS** | REST | Chart of accounts, P&L, balance sheet |
+| **5250** | **ExpenseOS** | REST | Multi-channel expense capture, OCR |
+| **5255** | **Approval Workflow** | REST | Multi-level approval chains |
+| **5260** | **Reimbursement OS** | REST | Auto-reimbursement, advances |
+| **5270** | **Finance Twin Hub** | REST | Company/Dept/Employee/Vendor Twins |
+| **5280** | **Spend Intelligence** | REST | Anomaly detection, savings AI |
+| **5290** | **Corporate Card OS** | REST | Virtual cards, spend controls |
 | 4702 | CorpID (Identity Hub) | REST | Universal identity |
 | 4703 | Genie Memory | REST | Personal AI memory |
 | 4704 | Genie Relations | REST | Relationship tracking |

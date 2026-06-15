@@ -735,6 +735,144 @@ Restaurant Twin, Order Twin, Kitchen Twin, Inventory Twin, Customer Twin, Staff 
 | 4800-4801 | Command Center |
 | 4850 | Voice OS |
 | 5100-5140 | SkillNet |
+| **4900-4906** | **Finance AI Agents (CFO, Accountant, Compliance, Auditor, Collections, Payables, Budget Coach)** |
+| **5220** | **Financial OS (Accounting, Ledger, Invoicing)** |
+| **5250-5290** | **FinanceOS Suite (Expense, Approval, Reimbursement, Twin Hub, Spend Intelligence, Corporate Cards)** |
+
+---
+
+## HOJAI FinanceOS - Complete Financial Intelligence Platform ✅ NEW!
+
+**Location:** `companies/hojai-ai/services/`  
+**Status:** ✅ **14 SERVICES COMPLETE** | **June 16, 2026**  
+**Tagline:** "The AI Financial Operating System that understands every rupee spent"
+
+### FinanceOS Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         FINANCE OS LAYER                                       │
+│                         Ports: 4900-4906, 5220, 5250-5290                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │                    AI AGENTS (Ports 4900-4906)                      │ │
+│  │  Finance CFO │ Accountant │ Compliance │ Auditor │ Budget Coach    │ │
+│  │  Collections │ Payables                                               │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                    │                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │                    FINANCE OS SUITE (Ports 5250-5290)                │ │
+│  │                                                                       │ │
+│  │  ┌────────────┐  ┌──────────────┐  ┌─────────────────┐            │ │
+│  │  │ ExpenseOS  │  │  Approval    │  │ Reimbursement   │            │ │
+│  │  │   5250     │  │  Workflow    │  │      OS         │            │ │
+│  │  │            │  │    5255      │  │     5260        │            │ │
+│  │  └────────────┘  └──────────────┘  └─────────────────┘            │ │
+│  │                                                                       │ │
+│  │  ┌──────────────────────┐  ┌────────────────────┐  ┌─────────────┐ │ │
+│  │  │   Finance Twin       │  │  Spend            │  │  Corporate  │ │ │
+│  │  │      Hub             │  │  Intelligence     │  │  Card OS    │ │ │
+│  │  │     5270            │  │    5280          │  │    5290     │ │ │
+│  │  └──────────────────────┘  └────────────────────┘  └─────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │                    CORE ACCOUNTING (Port 5220)                        │ │
+│  │  Financial OS - Chart of Accounts, Ledger, Trial Balance, P&L       │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Finance AI Agents (Ports 4900-4906)
+
+| Port | Service | Purpose | Key Features |
+|------|---------|---------|-------------|
+| **4900** | Finance CFO AI | AI-powered CFO insights | Cash flow forecasting, runway calculation, financial health score, what-if analysis, natural language queries |
+| **4901** | Finance Accountant | Invoice → Ledger → Tally | Invoice processing, GST extraction, double-entry ledger, Tally/QuickBooks export, chart of accounts |
+| **4902** | Finance Compliance | Compliance checking | Policy validation, GST compliance, regulatory checks |
+| **4903** | Finance Auditor | Fraud detection, audit | Duplicate detection, anomaly scanning, audit reports, compliance checks |
+| **4904** | Finance Collections | AR management | Invoice tracking, payment reminders, aging reports |
+| **4905** | Finance Payables | AP management | Vendor payments, payment scheduling, bulk payments |
+| **4906** | Finance Budget Coach | Budget planning | Budget forecasting, variance analysis, optimization recommendations |
+
+### FinanceOS Suite (Ports 5250-5290)
+
+| Port | Service | Purpose | Key Features |
+|------|---------|---------|-------------|
+| **5250** | ExpenseOS | Multi-channel expense capture | WhatsApp/Email/Mobile/API/Genie submission, AI receipt OCR, policy engine, multi-level approval |
+| **5255** | Approval Workflow | Multi-level approvals | Configurable chains, SLA tracking, delegation, escalation |
+| **5260** | Reimbursement OS | Reimbursements & advances | Auto-approval, multi-method payouts, advance settlement, petty cash |
+| **5270** | Finance Twin Hub | Digital twins | Company/Dept/Employee/Vendor/Budget/Project Twins, AI insights, what-if simulations |
+| **5280** | Spend Intelligence | Analytics & anomalies | Duplicate detection, savings opportunities, budget forecasting, vendor intelligence |
+| **5290** | Corporate Card OS | Virtual card management | Card issuance, spend controls, transaction tracking, reconciliation |
+| **5220** | Financial OS | Accounting | Chart of accounts, journal entries, trial balance, P&L, balance sheet, cash flow |
+
+### FinanceOS Features Matrix
+
+| Feature | ExpenseOS | Approval | Reimburse | Twin Hub | Spend Intel | Corp Card |
+|---------|-----------|----------|-----------|----------|--------------|-----------|
+| **Multi-Channel Capture** | ✅ WhatsApp/Email/Mobile | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Receipt OCR** | ✅ Claude AI | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Policy Engine** | ✅ Configurable rules | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Multi-Level Approval** | ✅ Manager→Finance→CFO | ✅ Dynamic chains | ✅ | ❌ | ❌ | ❌ |
+| **SLA Tracking** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Delegation** | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Auto-Reimbursement** | ❌ | ❌ | ✅ ≤₹5000 | ❌ | ❌ | ❌ |
+| **Advance Management** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **Petty Cash** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **Company Twin** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Dept/Employee Twins** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| **Vendor Twin** | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| **Budget Twin** | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| **Anomaly Detection** | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **Savings Intelligence** | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| **Budget Forecasting** | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| **Virtual Cards** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Spend Controls** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ Daily/Monthly/Per-Txn |
+
+### FinanceOS Integration Points
+
+| External Service | Port | Used By |
+|-----------------|------|---------|
+| REZ Invoice OCR | 5002 | ExpenseOS |
+| REZ Trust Scorer | 4180 | Spend Intelligence, Corporate Card |
+| REZ Wallet | 4004 | Reimbursement OS |
+| REZ Payment | 4001 | Reimbursement OS |
+| REZ Event Bus | 4510 | All services |
+| REZ Economy OS | 4251 | Financial OS |
+
+### FinanceOS vs Competition
+
+| Feature | Expensify | Zoho Expense | SAP Concur | **HOJAI FinanceOS** |
+|---------|-----------|--------------|-------------|---------------------|
+| **Receipt OCR** | ✅ Basic | ✅ Basic | ✅ Enterprise | ✅ **Claude AI-powered** |
+| **WhatsApp Capture** | ❌ | ❌ | ❌ | ✅ **Unique** |
+| **AI CFO** | ❌ | ❌ | ❌ | ✅ **Unique** |
+| **Finance Twins** | ❌ | ❌ | ❌ | ✅ **Unique** |
+| **Anomaly Detection** | ✅ Basic | ❌ | ✅ Enterprise | ✅ **ML-powered** |
+| **Savings Intelligence** | ❌ | ❌ | ❌ | ✅ **Unique** |
+| **Budget Forecasting** | ❌ | ✅ Basic | ✅ Enterprise | ✅ **AI-powered** |
+| **Virtual Corporate Cards** | ✅ | ❌ | ✅ | ✅ |
+| **Multi-Company** | ✅ | ✅ | ✅ | ✅ |
+| **Multi-Currency** | ✅ | ✅ | ✅ | ✅ |
+
+### FinanceOS Product Documentation
+
+| Service | README | CLAUDE.md | FEATURES.md |
+|---------|---------|-----------|-------------|
+| Finance CFO (4900) | ✅ | ✅ | ✅ |
+| Finance Accountant (4901) | ✅ | ✅ | ✅ |
+| Finance Auditor (4903) | ✅ | ✅ | ✅ |
+| Finance Budget Coach (4906) | ✅ | ✅ | ✅ |
+| ExpenseOS (5250) | ✅ | ✅ | ✅ |
+| Approval Workflow (5255) | ✅ | ✅ | ✅ |
+| Reimbursement OS (5260) | ✅ | ✅ | ✅ |
+| Finance Twin Hub (5270) | ✅ | ✅ | ✅ |
+| Spend Intelligence (5280) | ✅ | ✅ | ✅ |
+| Corporate Card OS (5290) | ✅ | ✅ | ✅ |
+| Financial OS (5220) | ✅ | ✅ | ✅ |
 
 ---
 
