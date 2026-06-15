@@ -214,7 +214,7 @@ Each Industry OS provides access to all 15 layers of the RTMN ecosystem:
 | Layer | Name | Powered By | Capabilities |
 |-------|------|-----------|--------------|
 | 1 | Intelligence | HOJAI AI | Genie, CoPilot, Agents, Twins |
-| 2 | Customer Growth | AdBazaar + REZ Consumer + Axom | CRM, Ads, Loyalty, Community |
+| 2 | Customer Growth | AdBazaar Full Suite (30 services) | CRM, Ads, Loyalty, Creator, Analytics, DOOH, Chat |
 | 3 | Commerce | Nexha + REZ-Merchant | Procurement, POS, Orders, Menu, Payments |
 | 4 | Financial | RABTUL + RIDZA + AssetMind + RidZa | Wallet, Banking, Lending, Investment |
 | 5 | Workforce | CorpPerks | HR, Payroll, Recruitment, Learning |
