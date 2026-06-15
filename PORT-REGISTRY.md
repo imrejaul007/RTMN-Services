@@ -802,7 +802,7 @@ This document consolidates all port allocations across the 24 industry verticals
 |------|---------|---------|
 | 5002 | Nexha | Procurement, Distribution |
 | 4320 | Procurement | RFQ, Supplier |
-| **4800** | **REZ-Merchant POS** | **Point of Sale** |
+| **4800** | **REZ-Merchant Integration** | **Consumer ↔ Merchant Bridge (NEW)** |
 | **4801** | **REZ-Merchant Restaurant** | **Restaurant Service** |
 | **4802** | **REZ-Merchant Menu** | **Menu Management** |
 | **4803** | **REZ-Merchant Payment** | **Payment Gateway** |

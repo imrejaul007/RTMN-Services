@@ -4443,17 +4443,75 @@ Each Industry OS exposes these endpoints:
 
 ### REZ-Merchant Integration (Layer 3 Extension)
 
-| Endpoint | Service | Port |
-|----------|---------|------|
-| `GET /api/merchant/pos` | REZ-Merchant POS | 4800 |
-| `GET /api/merchant/orders` | Restaurant Service | 4801 |
-| `GET /api/merchant/menu` | Menu Service | 4802 |
-| `GET /api/merchant/payments` | Payment Gateway | 4803 |
-| `GET /api/merchant/loyalty` | Loyalty Service | 4804 |
-| `GET /api/merchant/inventory` | Inventory Service | 4805 |
-| `GET /api/merchant/staff` | Staff Service | 4806 |
-| `GET /api/merchant/reservations` | Reservations | 4807 |
-| `GET /api/merchant/genie` | Merchant Genie | 4809 |
+| Endpoint | Service | Port | Purpose |
+|----------|---------|------|---------|
+| `GET /api/merchant/pos` | REZ-Merchant POS | 4800 | **CONSUMER INTEGRATION ✅ NEW** |
+| `GET /api/merchant/orders` | Restaurant Service | 4801 | Orders management |
+| `GET /api/merchant/menu` | Menu Service | 4802 | Menu management |
+| `GET /api/merchant/payments` | Payment Gateway | 4803 | Payment processing |
+| `GET /api/merchant/loyalty` | Loyalty Service | 4804 | Loyalty program |
+| `GET /api/merchant/inventory` | Inventory Service | 4805 | Inventory tracking |
+| `GET /api/merchant/staff` | Staff Service | 4806 | Staff management |
+| `GET /api/merchant/reservations` | Reservations | 4807 | Table reservations |
+| `GET /api/merchant/genie` | Merchant Genie | 4809 | AI insights |
+
+### REZ Merchant - Consumer Integration ✅ NEW!
+
+**Location:** `companies/REZ-Merchant/rez-merchant-integration-service/`  
+**Port:** 4800  
+**Purpose:** Bridge between REZ Consumer Apps and Merchant Services
+
+#### Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  REZ CONSUMER APPS                                                      │
+│  DO Assistant │ Consumer Portal │ Mobile App                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  MERCHANT INTEGRATION SERVICE (4800) ✅ NEW                                 │
+│  • Order placement & tracking                                            │
+│  • Menu discovery                                                        │
+│  • Payment processing                                                    │
+│  • DO Genie integration                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                    │                    │
+                    ▼                    ▼
+┌──────────────────────────────┐  ┌──────────────────────────────────────┐
+│  REZ MERCHANT SERVICES      │  │  RABTUL SERVICES                     │
+│  • Merchant Service        │  │  • Auth Service (4002)                │
+│  • Menu Service            │  │  • Wallet Service (4004)              │
+│  • Order Service          │  │  • Payment Service (4001)             │
+│  • Industry OS            │  │                                      │
+└──────────────────────────────┘  └──────────────────────────────────────┘
+```
+
+#### Consumer API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/merchants/nearby` | Get nearby merchants |
+| GET | `/api/v1/merchants/:id` | Get merchant details |
+| GET | `/api/v1/merchants/:id/menu` | Get merchant menu |
+| GET | `/api/v1/merchants/:id/reviews` | Get merchant reviews |
+| POST | `/api/v1/orders` | Place order |
+| GET | `/api/v1/orders/:id` | Get order status |
+| POST | `/api/v1/orders/:id/cancel` | Cancel order |
+| GET | `/api/v1/consumers/:id/orders` | Get consumer orders |
+| GET | `/api/v1/genie/merchant/:id` | DO Genie merchant insights |
+| GET | `/api/v1/genie/orders/:id` | DO Genie order status |
+| POST | `/api/v1/genie/query` | Natural language query |
+
+#### Connected Consumer Services
+
+| Consumer Service | Connection | Status |
+|-----------------|------------|--------|
+| REZ Consumer App | `MERCHANT_INTEGRATION_URL` | ✅ Connected |
+| DO Assistant | `/api/v1/genie/query` | ✅ Connected |
+| Wallet Service | Payment processing | ✅ Connected |
+| Event Bus | Real-time updates | ✅ Connected |
 
 ### Industry OS Services (25 Total)
 
