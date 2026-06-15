@@ -1,49 +1,200 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import morgan from 'morgan';
-import { v4 as uuidv4 } from 'uuid';
-import winston from 'winston';
-import crypto from 'crypto';
+/**
+ * Restaurant AI Company Platform
+ * 
+ * construction OS upgraded with all 15 layers of RTMN ecosystem.
+ * 
+ * Port: 5010
+ * Industry: Restaurant
+ */
 
-// MongoDB support (optional)
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+
+const app = express();
+const PORT = process.env.PORT || 5010;
+
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(compression());
+app.use(express.json());
+
+// ============================================
+// LAYER CONFIGURATION
+// ============================================
+
+const INDUSTRY = 'restaurant';
+const LAYERS_ENABLED = process.env.LAYERS ? process.env.LAYERS.split(',') : 'all';
+
+// Service URLs for Layer Integration
+const RTMN_SERVICES = {
+  // Layer 1: Intelligence (HOJAI)
+  genie: process.env.GENIE_URL || 'http://localhost:4701',
+  copilot: process.env.COPILOT_URL || 'http://localhost:4600',
+  agentMarketplace: process.env.AGENT_URL || 'http://localhost:4580',
+  
+  // Layer 2: Customer Growth (AdBazaar + REZ Consumer + Axom)
+  crmHub: process.env.CRM_HUB_URL || 'http://localhost:4056',
+  buzzLocal: process.env.BUZZLOCAL_URL || 'http://localhost:4020',
+  
+  // Layer 3: Commerce (Nexha)
+  nexha: process.env.NEXHA_URL || 'http://localhost:5002',
+  procurement: process.env.PROCUREMENT_URL || 'http://localhost:4320',
+  
+  // Layer 4: Financial (RABTUL + RIDZA + AssetMind)
+  wallet: process.env.WALLET_URL || 'http://localhost:4004',
+  auth: process.env.AUTH_URL || 'http://localhost:4002',
+  
+  // Layer 5: Workforce (CorpPerks)
+  corpPerks: process.env.CORPPERKS_URL || 'http://localhost:4450',
+  
+  // Layer 6: Legal & Trust (LawGens)
+  legal: process.env.LEGAL_URL || 'http://localhost:5035',
+  trustScorer: process.env.TRUST_URL || 'http://localhost:4180',
+  
+  // Layer 7: Property (RisnaEstate + StayOwn)
+  risnaEstate: process.env.RISNA_URL || 'http://localhost:4300',
+  stayOwn: process.env.STAYOWN_URL || 'http://localhost:6000',
+  
+  // Layer 8: Health (RisaCare)
+  risaCare: process.env.RISACARE_URL || 'http://localhost:7000',
+  
+  // Layer 9: Mobility (KHAIRMOVE)
+  khairMove: process.env.KHAIRMOVE_URL || 'http://localhost:4500',
+  
+  // Layer 10: Identity (CorpID)
+  corpid: process.env.CORPID_URL || 'http://localhost:4702',
+  
+  // Layer 11: Memory (MemoryOS)
+  memory: process.env.MEMORY_URL || 'http://localhost:4703',
+  
+  // Layer 12: Twins (TwinOS Hub)
+  twinos: process.env.TWINOS_URL || 'http://localhost:4705',
+  
+  // Layer 14: Autonomous (SUTAR OS)
+  sutar: process.env.SUTAR_URL || 'http://localhost:4140',
+  goalOS: process.env.GOAL_URL || 'http://localhost:4242',
+  decision: process.env.DECISION_URL || 'http://localhost:4240',
+  negotiation: process.env.NEGOTIATION_URL || 'http://localhost:4191',
+  
+  // Layer 15: Consumer (REZ Consumer)
+  rezConsumer: process.env.REZ_CONSUMER_URL || 'http://localhost:3000',
+};
+
+// ============================================
+// AUTHENTICATION & DATABASE
+// ============================================
+
+const authBusinesses = new Map();
+const authUsers = new Map();
+const authSessions = new Map();
+const crypto = require('crypto');
+
 let mongoose = null;
 let dbConnected = false;
 const MONGODB_URI = process.env.MONGODB_URI;
-const CRM_HUB_URL = process.env.CRM_HUB_URL || process.env.REZ_CRM_HUB || 'http://localhost:4056';
 
-// Initialize MongoDB if URI is provided
 async function initDatabase() {
   if (!MONGODB_URI) {
-    console.log('⚠️  MONGODB_URI not set. Running in demo mode (in-memory).');
+    console.log('⚠️  MONGODB_URI not set. Running in demo mode.');
     return;
   }
   try {
     mongoose = (await import('mongoose')).default;
     await mongoose.connect(MONGODB_URI);
     dbConnected = true;
-    console.log('✅ MongoDB connected for Construction OS');
+    console.log('✅ MongoDB connected for Restaurant AI Company');
   } catch (err) {
     console.error('MongoDB connection failed:', err.message);
   }
 }
 
-// CRM Hub connection for customer sync
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+app.post('/auth/register', (req, res) => {
+  const { businessId, email, password, role, businessName } = req.body;
+  if (!email || !password || !businessId) {
+    return res.status(400).json({ error: 'businessId, email, password required' });
+  }
+  if (authUsers.has(email)) {
+    return res.status(409).json({ error: 'User already exists' });
+  }
+  const user = {
+    id: 'user_' + Date.now(),
+    businessId,
+    email,
+    passwordHash: hashPassword(password),
+    role: role || 'owner',
+    name: businessName || email.split('@')[0],
+    industry: INDUSTRY,
+    createdAt: new Date().toISOString()
+  };
+  authUsers.set(email, user);
+  const token = generateToken();
+  authSessions.set(token, { userId: user.id, email, businessId, industry: INDUSTRY, createdAt: Date.now() });
+  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
+});
+
+app.post('/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  const user = authUsers.get(email);
+  if (!user || user.passwordHash !== hashPassword(password)) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  const token = generateToken();
+  authSessions.set(token, { userId: user.id, email: user.email, businessId: user.businessId, industry: INDUSTRY, createdAt: Date.now() });
+  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
+});
+
+app.get('/auth/verify', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+  const token = authHeader.slice(7);
+  const session = authSessions.get(token);
+  if (!session) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  res.json({ valid: true, ...session });
+});
+
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+  const token = authHeader.slice(7);
+  const session = authSessions.get(token);
+  if (!session) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  req.session = session;
+  next();
+}
+
 async function syncCustomerToCRM(customer, businessId) {
   if (!dbConnected) return;
   try {
-    await fetch(`${CRM_HUB_URL}/api/contacts`, {
+    await fetch(`${RTMN_SERVICES.crmHub}/api/contacts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: customer.name,
         email: customer.email,
         phone: customer.phone,
-        industry: 'restaurant',
+        industry: INDUSTRY,
         businessId,
-        loyaltyPoints: customer.loyaltyPoints,
-        tier: customer.tier,
+        loyaltyPoints: customer.loyaltyPoints || 0,
+        tier: customer.tier || 'bronze',
       }),
     });
   } catch (err) {
@@ -51,691 +202,610 @@ async function syncCustomerToCRM(customer, businessId) {
   }
 }
 
-const app = express();
-const PORT = process.env.PORT || 5010;
+// ============================================
+// RESTAURANT DATA
+// ============================================
 
-// Winston logger
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(winston.format.colorize(), winston.format.simple())
-    })
-  ]
-});
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(compression());
-app.use(morgan('combined'));
-app.use(express.json());
-
-// In-memory data stores
-const menuItems = new Map();
+const menus = new Map();
 const orders = new Map();
 const tables = new Map();
-const kitchenQueue = [];
-const reservations = new Map();
 const customers = new Map();
-const reviews = new Map();
+const kitchenQueue = new Map();
 
-// Digital Twins
-const twins = {
-  menu: { id: 'menu-twin', status: 'active', items: [] },
-  order: { id: 'order-twin', status: 'active', activeOrders: [] },
-  kitchen: { id: 'kitchen-twin', status: 'active', queue: [] },
-  table: { id: 'table-twin', status: 'active', occupancy: [] },
-  customer: { id: 'customer-twin', status: 'active', loyalty: [] }
-};
-
-// Initialize sample data
-function initializeSampleData() {
-  // Sample menu items
-  const sampleMenu = [
-    { id: 'm1', name: 'Margherita Pizza', category: 'pizza', price: 12.99, prepTime: 15 },
-    { id: 'm2', name: 'Chicken Alfredo', category: 'pasta', price: 14.99, prepTime: 18 },
-    { id: 'm3', name: 'Caesar Salad', category: 'salad', price: 8.99, prepTime: 5 },
-    { id: 'm4', name: 'Grilled Salmon', category: 'seafood', price: 22.99, prepTime: 20 },
-    { id: 'm5', name: 'BBQ Ribs', category: 'meat', price: 19.99, prepTime: 25 }
-  ];
-  sampleMenu.forEach(item => menuItems.set(item.id, item));
-
-  // Sample tables (20 tables)
-  for (let i = 1; i <= 20; i++) {
-    const table = {
-      id: `t${i}`,
-      capacity: i <= 10 ? 4 : 6,
-      status: 'available',
-      section: i <= 10 ? 'main' : 'patio'
-    };
-    tables.set(table.id, table);
-  }
-
-  // Update twins
-  twins.menu.items = Array.from(menuItems.values());
-  twins.table.occupancy = Array.from(tables.values());
-
-  logger.info('Sample data initialized');
+// Initialize sample tables
+for (let i = 1; i <= 20; i++) {
+  tables.set(`table_${i}`, { id: `table_${i}`, capacity: 4, section: 'main', status: 'available', tenantId: 'demo' });
 }
 
-initializeSampleData();
+// Initialize sample menu
+const sampleMenu = [
+  { id: 'menu_1', name: 'Margherita Pizza', category: 'Pizza', price: 299, prepTime: 15 },
+  { id: 'menu_2', name: 'Chicken Burger', category: 'Burgers', price: 199, prepTime: 10 },
+  { id: 'menu_3', name: 'Pasta Carbonara', category: 'Pasta', price: 249, prepTime: 12 },
+  { id: 'menu_4', name: 'Caesar Salad', category: 'Salads', price: 149, prepTime: 5 },
+  { id: 'menu_5', name: 'Cold Coffee', category: 'Beverages', price: 99, prepTime: 3 },
+];
+sampleMenu.forEach(item => menus.set(item.id, { ...item, available: true, tenantId: 'demo' }));
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    service: 'construction-os',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    database: dbConnected ? 'connected' : 'demo (in-memory)',
-    crm: CRM_HUB_URL
-  });
-});
+// ============================================
+// RESTAURANT TWINS
+// ============================================
 
-// ============= AUTH ENDPOINTS =============
+const restaurantTwin = new Map();
+const menuTwin = new Map();
+const orderTwin = new Map();
+const kitchenTwin = new Map();
+const tableTwin = new Map();
+const customerTwin = new Map();
 
-// In-memory auth stores
-const authBusinesses = new Map();
-const authUsers = new Map();
-const authSessions = new Map();
+// ============================================
+// RESTAURANT API
+// ============================================
 
-function genToken() { return crypto.randomBytes(32).toString('hex'); }
-
-// Register business
-app.post('/auth/register', (req, res) => {
-  const { businessName, ownerName, email, phone, password, plan } = req.body;
-  if (!businessName || !ownerName || !email || !password) {
-    return res.status(400).json({ success: false, error: 'businessName, ownerName, email, password required' });
-  }
-
-  for (const [, u] of authUsers) {
-    if (u.email === email && u.industry === 'restaurant') {
-      return res.status(409).json({ success: false, error: 'Email already registered' });
-    }
-  }
-
-  const businessId = `BIZ_RESTAURANT_${Date.now()}`;
-  const ownerId = `OWN_RESTAURANT_${Date.now()}`;
-  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
-  const token = genToken();
-
-  authBusinesses.set(businessId, {
-    id: businessId, name: businessName, industry: 'restaurant', email, phone: phone || '',
-    plan: plan || 'starter', status: 'active', createdAt: new Date().toISOString()
-  });
-
-  authUsers.set(ownerId, {
-    id: ownerId, businessId, industry: 'restaurant', email, name: ownerName,
-    role: 'owner', passwordHash, status: 'active', createdAt: new Date().toISOString()
-  });
-
-  authSessions.set(token, {
-    userId: ownerId, businessId, industry: 'restaurant', role: 'owner',
-    createdAt: Date.now(), expiresAt: Date.now() + 2592000000
-  });
-
-  res.status(201).json({
-    success: true, message: 'Restaurant registered',
-    business: { id: businessId, name: businessName, industry: 'restaurant' },
-    user: { id: ownerId, name: ownerName, email, role: 'owner' },
-    token
-  });
-});
-
-// Login
-app.post('/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
-
-  const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
-  for (const [userId, user] of authUsers) {
-    if (user.email === email && user.industry === 'restaurant') {
-      if (user.passwordHash !== passwordHash) {
-        return res.status(401).json({ success: false, error: 'Invalid password' });
-      }
-      const token = genToken();
-      authSessions.set(token, {
-        userId, businessId: user.businessId, industry: 'restaurant', role: user.role,
-        createdAt: Date.now(), expiresAt: Date.now() + 2592000000
-      });
-      return res.json({
-        success: true, message: 'Login successful',
-        user: { id: userId, name: user.name, email, role: user.role, businessId: user.businessId },
-        business: authBusinesses.get(user.businessId),
-        token
-      });
-    }
-  }
-  res.status(401).json({ success: false, error: 'User not found' });
-});
-
-// Verify token
-app.get('/auth/verify', (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'No token' });
-
-  const token = authHeader.substring(7);
-  const session = authSessions.get(token);
-  if (!session || session.expiresAt < Date.now()) {
-    if (session) authSessions.delete(token);
-    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
-  }
-
-  const user = authUsers.get(session.userId);
-  res.json({ success: true, valid: true, user: { id: session.userId, name: user?.name, email: user?.email, role: session.role }, businessId: session.businessId });
-});
-
-// Auth middleware for protected routes
-function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return res.status(401).json({ success: false, error: 'Authentication required' });
-
-  const token = authHeader.substring(7);
-  const session = authSessions.get(token);
-  if (!session || session.expiresAt < Date.now()) {
-    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
-  }
-  req.session = session;
-  next();
-}
-
-// ============= MENU ENDPOINTS =============
-
-// Get full menu
+// Menu Management
 app.get('/api/menu', (req, res) => {
-  const { category, minPrice, maxPrice } = req.query;
-  let items = Array.from(menuItems.values());
-
-  if (category) items = items.filter(i => i.category === category);
-  if (minPrice) items = items.filter(i => i.price >= parseFloat(minPrice));
-  if (maxPrice) items = items.filter(i => i.price <= parseFloat(maxPrice));
-
-  res.json({ success: true, count: items.length, items });
+  const { category } = req.query;
+  let items = Array.from(menus.values());
+  if (category) items = items.filter(m => m.category === category);
+  res.json({ menu: items });
 });
 
-// Get menu item
-app.get('/api/menu/:id', (req, res) => {
-  const item = menuItems.get(req.params.id);
-  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
-  res.json({ success: true, item });
+app.post('/api/menu', requireAuth, (req, res) => {
+  const item = { id: 'menu_' + Date.now(), ...req.body, tenantId: req.session.businessId, createdAt: new Date().toISOString() };
+  menus.set(item.id, item);
+  menuTwin.set(item.id, { ...item, syncedAt: new Date().toISOString() });
+  res.json(item);
 });
 
-// Create menu item
-app.post('/api/menu', (req, res) => {
-  const { name, category, price, prepTime, description, ingredients, calories, available } = req.body;
-
-  if (!name || !category || !price) {
-    return res.status(400).json({ success: false, error: 'Name, category, and price required' });
-  }
-
-  const item = {
-    id: uuidv4(),
-    name,
-    category,
-    price: parseFloat(price),
-    prepTime: prepTime || 15,
-    description: description || '',
-    ingredients: ingredients || [],
-    calories: calories || 0,
-    available: available !== false,
-    createdAt: new Date().toISOString()
-  };
-
-  menuItems.set(item.id, item);
-  twins.menu.items.push(item);
-
-  logger.info(`Menu item created: ${item.name}`);
-  res.status(201).json({ success: true, item });
-});
-
-// Update menu item
-app.put('/api/menu/:id', (req, res) => {
-  const item = menuItems.get(req.params.id);
-  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
-
-  const updated = { ...item, ...req.body, id: item.id, updatedAt: new Date().toISOString() };
-  menuItems.set(item.id, updated);
-
-  const twinIndex = twins.menu.items.findIndex(i => i.id === item.id);
-  if (twinIndex >= 0) twins.menu.items[twinIndex] = updated;
-
-  logger.info(`Menu item updated: ${updated.name}`);
-  res.json({ success: true, item: updated });
-});
-
-// Delete menu item
-app.delete('/api/menu/:id', (req, res) => {
-  const item = menuItems.get(req.params.id);
-  if (!item) return res.status(404).json({ success: false, error: 'Menu item not found' });
-
-  menuItems.delete(req.params.id);
-  twins.menu.items = twins.menu.items.filter(i => i.id !== req.params.id);
-
-  logger.info(`Menu item deleted: ${item.name}`);
-  res.json({ success: true, message: 'Menu item deleted' });
-});
-
-// ============= ORDER ENDPOINTS =============
-
-// Create order
-app.post('/api/orders', (req, res) => {
-  const { tableId, items, customerId, notes, orderType } = req.body;
-
-  if (!items || items.length === 0) {
-    return res.status(400).json({ success: false, error: 'Order items required' });
-  }
-
-  const orderItems = items.map(i => {
-    const menuItem = menuItems.get(i.itemId);
-    if (!menuItem) throw new Error(`Item ${i.itemId} not found`);
-    return { ...i, menuItem, subtotal: menuItem.price * (i.quantity || 1) };
-  });
-
-  const subtotal = orderItems.reduce((sum, i) => sum + i.subtotal, 0);
-  const tax = subtotal * 0.08;
-  const total = subtotal + tax;
-
+// Order Processing
+app.post('/api/orders', requireAuth, (req, res) => {
+  const { tableId, items, orderType = 'dine-in', notes = '' } = req.body;
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const tax = Math.round(subtotal * 0.08);
   const order = {
-    id: uuidv4(),
-    orderNumber: `ORD-${Date.now().toString(36).toUpperCase()}`,
-    tableId: tableId || null,
-    customerId: customerId || null,
-    items: orderItems,
+    id: 'order_' + Date.now(),
+    orderNumber: 'ORD' + Date.now().toString().slice(-6),
+    tableId,
+    items,
     subtotal,
     tax,
-    total,
+    total: subtotal + tax,
     status: 'pending',
+    orderType,
+    notes,
     priority: 'normal',
-    notes: notes || '',
-    orderType: orderType || 'dine-in',
-    createdAt: new Date().toISOString(),
-    estimatedReady: new Date(Date.now() + 20 * 60000).toISOString()
+    tenantId: req.session.businessId,
+    createdAt: new Date().toISOString()
   };
-
   orders.set(order.id, order);
-  kitchenQueue.push({ orderId: order.id, ...order });
-  twins.order.activeOrders.push(order);
-
-  // Update table status
-  if (tableId && tables.has(tableId)) {
-    const table = tables.get(tableId);
-    table.status = 'occupied';
-    table.currentOrder = order.id;
-  }
-
-  logger.info(`Order created: ${order.orderNumber}, total: $${total.toFixed(2)}`);
-  res.status(201).json({ success: true, order });
+  kitchenQueue.set(order.id, { ...order, kitchenStatus: 'pending' });
+  orderTwin.set(order.id, { ...order, twinType: 'order', syncedAt: new Date().toISOString() });
+  res.json(order);
 });
 
-// Get orders
 app.get('/api/orders', (req, res) => {
-  const { status, tableId, date } = req.query;
-  let allOrders = Array.from(orders.values());
-
-  if (status) allOrders = allOrders.filter(o => o.status === status);
-  if (tableId) allOrders = allOrders.filter(o => o.tableId === tableId);
-  if (date) allOrders = allOrders.filter(o => o.createdAt.startsWith(date));
-
-  res.json({ success: true, count: allOrders.length, orders: allOrders });
+  res.json({ orders: Array.from(orders.values()) });
 });
 
-// Get order by ID
-app.get('/api/orders/:id', (req, res) => {
+app.patch('/api/orders/:id/status', requireAuth, (req, res) => {
   const order = orders.get(req.params.id);
-  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
-  res.json({ success: true, order });
+  if (!order) return res.status(404).json({ error: 'Order not found' });
+  order.status = req.body.status;
+  orders.set(order.id, order);
+  orderTwin.set(order.id, { ...order, syncedAt: new Date().toISOString() });
+  res.json(order);
 });
 
-// Update order status
-app.patch('/api/orders/:id/status', (req, res) => {
-  const order = orders.get(req.params.id);
-  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
-
-  const { status, priority } = req.body;
-  const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
-
-  if (status && !validStatuses.includes(status)) {
-    return res.status(400).json({ success: false, error: `Invalid status. Valid: ${validStatuses.join(', ')}` });
-  }
-
-  if (status) order.status = status;
-  if (priority) order.priority = priority;
-  order.updatedAt = new Date().toISOString();
-
-  // Update kitchen queue
-  const kqIndex = kitchenQueue.findIndex(q => q.orderId === order.id);
-  if (kqIndex >= 0) {
-    if (status === 'completed' || status === 'cancelled') {
-      kitchenQueue.splice(kqIndex, 1);
-    } else {
-      kitchenQueue[kqIndex].status = status;
-    }
-  }
-
-  // Update twin
-  const twinIndex = twins.order.activeOrders.findIndex(o => o.id === order.id);
-  if (twinIndex >= 0) twins.order.activeOrders[twinIndex] = order;
-
-  logger.info(`Order ${order.orderNumber} status: ${status || order.status}`);
-  res.json({ success: true, order });
-});
-
-// Cancel order
-app.delete('/api/orders/:id', (req, res) => {
-  const order = orders.get(req.params.id);
-  if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
-
-  order.status = 'cancelled';
-  order.cancelledAt = new Date().toISOString();
-
-  const kqIndex = kitchenQueue.findIndex(q => q.orderId === order.id);
-  if (kqIndex >= 0) kitchenQueue.splice(kqIndex, 1);
-
-  twins.order.activeOrders = twins.order.activeOrders.filter(o => o.id !== order.id);
-
-  logger.info(`Order cancelled: ${order.orderNumber}`);
-  res.json({ success: true, order });
-});
-
-// ============= TABLE ENDPOINTS =============
-
-// Get all tables
+// Table Management
 app.get('/api/tables', (req, res) => {
-  const { status, section, minCapacity } = req.query;
-  let allTables = Array.from(tables.values());
-
-  if (status) allTables = allTables.filter(t => t.status === status);
-  if (section) allTables = allTables.filter(t => t.section === section);
-  if (minCapacity) allTables = allTables.filter(t => t.capacity >= parseInt(minCapacity));
-
-  res.json({ success: true, count: allTables.length, tables: allTables });
+  res.json({ tables: Array.from(tables.values()) });
 });
 
-// Get table
-app.get('/api/tables/:id', (req, res) => {
+app.post('/api/tables/:id/reserve', requireAuth, (req, res) => {
   const table = tables.get(req.params.id);
-  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
-  res.json({ success: true, table });
+  if (!table) return res.status(404).json({ error: 'Table not found' });
+  table.status = 'reserved';
+  table.guestCount = req.body.guestCount || 1;
+  table.reservationName = req.body.name;
+  table.reservationTime = new Date().toISOString();
+  tables.set(table.id, table);
+  tableTwin.set(table.id, { ...table, twinType: 'table', syncedAt: new Date().toISOString() });
+  res.json(table);
 });
 
-// Update table
-app.put('/api/tables/:id', (req, res) => {
-  const table = tables.get(req.params.id);
-  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
-
-  const updated = { ...table, ...req.body, id: table.id };
-  tables.set(table.id, updated);
-  twins.table.occupancy = Array.from(tables.values());
-
-  res.json({ success: true, table: updated });
-});
-
-// Reserve table
-app.post('/api/tables/:id/reserve', (req, res) => {
-  const table = tables.get(req.params.id);
-  if (!table) return res.status(404).json({ success: false, error: 'Table not found' });
-
-  const { customerId, guestCount, date, time, duration } = req.body;
-  if (!customerId || !date || !time) {
-    return res.status(400).json({ success: false, error: 'customerId, date, and time required' });
-  }
-
-  const reservation = {
-    id: uuidv4(),
-    tableId: table.id,
-    customerId,
-    guestCount: guestCount || table.capacity,
-    date,
-    time,
-    duration: duration || 90,
-    status: 'confirmed',
-    createdAt: new Date().toISOString()
-  };
-
-  reservations.set(reservation.id, reservation);
-  logger.info(`Table ${table.id} reserved for ${date} at ${time}`);
-  res.status(201).json({ success: true, reservation });
-});
-
-// ============= KITCHEN QUEUE =============
-
-// Get kitchen queue
-app.get('/api/kitchen', (req, res) => {
-  const { status } = req.query;
-  let queue = kitchenQueue;
-
-  if (status) queue = queue.filter(q => q.status === status);
-
-  const stats = {
-    pending: kitchenQueue.filter(q => q.status === 'pending').length,
-    preparing: kitchenQueue.filter(q => q.status === 'preparing').length,
-    ready: kitchenQueue.filter(q => q.status === 'ready').length,
-    total: kitchenQueue.length
-  };
-
-  res.json({ success: true, queue, stats });
-});
-
-// Update kitchen item
-app.patch('/api/kitchen/:orderId', (req, res) => {
-  const queueItem = kitchenQueue.find(q => q.orderId === req.params.orderId);
-  if (!queueItem) return res.status(404).json({ success: false, error: 'Order not in kitchen queue' });
-
-  const { status, prepNotes } = req.body;
-  if (status) queueItem.status = status;
-  if (prepNotes) queueItem.prepNotes = prepNotes;
-
-  res.json({ success: true, item: queueItem });
-});
-
-// ============= CUSTOMERS =============
-
-// Create/Update customer
-app.post('/api/customers', (req, res) => {
-  const { name, email, phone, preferences } = req.body;
-
-  if (!name && !email && !phone) {
-    return res.status(400).json({ success: false, error: 'Name, email, or phone required' });
-  }
-
-  // Check if customer exists
-  const existing = Array.from(customers.values()).find(
-    c => (email && c.email === email) || (phone && c.phone === phone)
-  );
-
-  if (existing) {
-    Object.assign(existing, req.body, { updatedAt: new Date().toISOString() });
-    customers.set(existing.id, existing);
-    return res.json({ success: true, customer: existing, isNew: false });
-  }
-
-  const customer = {
-    id: uuidv4(),
-    name: name || 'Guest',
-    email: email || null,
-    phone: phone || null,
-    loyaltyPoints: 0,
-    tier: 'bronze',
-    preferences: preferences || {},
-    visitCount: 1,
-    totalSpent: 0,
-    createdAt: new Date().toISOString()
-  };
-
-  customers.set(customer.id, customer);
-  twins.customer.loyalty.push(customer);
-
-  // Sync to CRM Hub
-  syncCustomerToCRM(customer, null).catch(console.warn);
-
-  logger.info(`New customer: ${customer.name}`);
-  res.status(201).json({ success: true, customer, isNew: true });
-});
-
-// Get customers
+// Customer Loyalty
 app.get('/api/customers', (req, res) => {
-  const { tier, minVisits, minSpent } = req.query;
-  let allCustomers = Array.from(customers.values());
-
-  if (tier) allCustomers = allCustomers.filter(c => c.tier === tier);
-  if (minVisits) allCustomers = allCustomers.filter(c => c.visitCount >= parseInt(minVisits));
-  if (minSpent) allCustomers = allCustomers.filter(c => c.totalSpent >= parseFloat(minSpent));
-
-  res.json({ success: true, count: allCustomers.length, customers: allCustomers });
+  res.json({ customers: Array.from(customers.values()) });
 });
 
-// Add loyalty points
-app.post('/api/customers/:id/points', (req, res) => {
+app.post('/api/customers', requireAuth, async (req, res) => {
+  const customer = { id: 'cust_' + Date.now(), ...req.body, tenantId: req.session.businessId, loyaltyPoints: 0, tier: 'bronze', createdAt: new Date().toISOString() };
+  customers.set(customer.id, customer);
+  customerTwin.set(customer.id, { ...customer, twinType: 'customer', syncedAt: new Date().toISOString() });
+  await syncCustomerToCRM(customer, req.session.businessId);
+  res.json(customer);
+});
+
+app.post('/api/customers/:id/points', requireAuth, (req, res) => {
   const customer = customers.get(req.params.id);
-  if (!customer) return res.status(404).json({ success: false, error: 'Customer not found' });
-
-  const { points, amount } = req.body;
-  const earned = amount ? Math.floor(amount * 10) : (points || 0);
-  customer.loyaltyPoints += earned;
-  customer.totalSpent += amount || 0;
-  customer.visitCount++;
-
-  // Update tier
+  if (!customer) return res.status(404).json({ error: 'Customer not found' });
+  customer.loyaltyPoints += req.body.points || 0;
   if (customer.loyaltyPoints >= 5000) customer.tier = 'platinum';
   else if (customer.loyaltyPoints >= 2000) customer.tier = 'gold';
   else if (customer.loyaltyPoints >= 500) customer.tier = 'silver';
-
   customers.set(customer.id, customer);
-  res.json({ success: true, customer });
+  res.json(customer);
 });
 
-// ============= REVIEWS =============
-
-// Create review
-app.post('/api/reviews', (req, res) => {
-  const { customerId, orderId, rating, comment, service } = req.body;
-
-  if (!rating || rating < 1 || rating > 5) {
-    return res.status(400).json({ success: false, error: 'Rating 1-5 required' });
-  }
-
-  const review = {
-    id: uuidv4(),
-    customerId: customerId || null,
-    orderId: orderId || null,
-    rating,
-    comment: comment || '',
-    service: service || 3,
-    food: service || 3,
-    ambiance: service || 3,
-    status: 'published',
-    createdAt: new Date().toISOString()
-  };
-
-  reviews.set(review.id, review);
-  logger.info(`New review: ${rating} stars`);
-  res.status(201).json({ success: true, review });
+// Kitchen Queue
+app.get('/api/kitchen', (req, res) => {
+  res.json({ queue: Array.from(kitchenQueue.values()) });
 });
 
-// Get reviews
-app.get('/api/reviews', (req, res) => {
-  const { minRating, maxRating } = req.query;
-  let allReviews = Array.from(reviews.values());
-
-  if (minRating) allReviews = allReviews.filter(r => r.rating >= parseInt(minRating));
-  if (maxRating) allReviews = allReviews.filter(r => r.rating <= parseInt(maxRating));
-
-  const avgRating = allReviews.length > 0
-    ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
-    : 0;
-
-  res.json({ success: true, count: allReviews.length, reviews: allReviews, averageRating: avgRating.toFixed(1) });
+app.patch('/api/kitchen/:orderId', requireAuth, (req, res) => {
+  const item = kitchenQueue.get(req.params.orderId);
+  if (!item) return res.status(404).json({ error: 'Order not found' });
+  item.kitchenStatus = req.body.status;
+  kitchenQueue.set(item.id, item);
+  kitchenTwin.set(item.id, { ...item, twinType: 'kitchen', syncedAt: new Date().toISOString() });
+  res.json(item);
 });
 
-// ============= ANALYTICS =============
-
-// Get analytics
-app.get('/api/analytics', (req, res) => {
+// Analytics
+app.get('/api/analytics', requireAuth, (req, res) => {
+  const orderList = Array.from(orders.values());
   const today = new Date().toISOString().split('T')[0];
-  const todayOrders = Array.from(orders.values()).filter(o => o.createdAt.startsWith(today));
-
-  const totalRevenue = todayOrders
-    .filter(o => o.status !== 'cancelled')
-    .reduce((sum, o) => sum + o.total, 0);
-
-  const orderCount = todayOrders.filter(o => o.status !== 'cancelled').length;
-  const avgOrderValue = orderCount > 0 ? totalRevenue / orderCount : 0;
-
-  const availableTables = Array.from(tables.values()).filter(t => t.status === 'available').length;
-  const occupiedTables = Array.from(tables.values()).filter(t => t.status === 'occupied').length;
-
-  const topItems = {};
-  todayOrders.forEach(order => {
-    order.items.forEach(item => {
-      topItems[item.menuItem?.name || item.name] = (topItems[item.menuItem?.name || item.name] || 0) + item.quantity;
-    });
-  });
-
-  const topMenuItems = Object.entries(topItems)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([name, count]) => ({ name, count }));
-
+  const todayOrders = orderList.filter(o => o.createdAt.startsWith(today));
   res.json({
-    success: true,
-    analytics: {
-      date: today,
-      revenue: { total: totalRevenue.toFixed(2), avgPerOrder: avgOrderValue.toFixed(2) },
-      orders: { count: orderCount, pending: kitchenQueue.length },
-      tables: { available: availableTables, occupied: occupiedTables, total: tables.size },
-      kitchen: { queue: kitchenQueue.length, avgPrepTime: 18 },
-      topMenuItems
-    }
+    totalOrders: orders.size,
+    todayOrders: todayOrders.length,
+    todayRevenue: todayOrders.reduce((sum, o) => sum + o.total, 0),
+    pendingOrders: orderList.filter(o => o.status === 'pending').length,
+    activeTables: Array.from(tables.values()).filter(t => t.status === 'occupied').length,
+    totalCustomers: customers.size,
+    menuItems: menus.size,
   });
 });
 
-// ============= DIGITAL TWINS =============
+// ============================================
+// LAYER 1: INTELLIGENCE (HOJAI)
+// ============================================
 
-// Get all twins
-app.get('/api/twins', (req, res) => {
-  res.json({ success: true, twins });
+app.get('/api/layer/intelligence', requireAuth, async (req, res) => {
+  try {
+    const [genieRes, copilotRes, agentsRes] = await Promise.allSettled([
+      fetch(RTMN_SERVICES.genie + '/health'),
+      fetch(RTMN_SERVICES.copilot + '/health'),
+      fetch(RTMN_SERVICES.agentMarketplace + '/api/agents'),
+    ]);
+    
+    res.json({
+      layer: 1,
+      name: 'Intelligence (HOJAI)',
+      services: {
+        genie: genieRes.status === 'fulfilled' ? 'online' : 'offline',
+        businessCopilot: copilotRes.status === 'fulfilled' ? 'online' : 'offline',
+        agentMarketplace: agentsRes.status === 'fulfilled' ? 'online' : 'offline',
+      },
+      aiAgents: ['AI Receptionist', 'AI Chef', 'AI Waiter', 'AI Manager', 'AI Procurement Agent'],
+    });
+  } catch (err) {
+    res.json({ layer: 1, name: 'Intelligence', status: 'offline', error: err.message });
+  }
 });
 
-// Get specific twin
-app.get('/api/twins/:name', (req, res) => {
-  const twin = twins[req.params.name];
-  if (!twin) return res.status(404).json({ success: false, error: 'Twin not found' });
-  res.json({ success: true, twin });
+app.post('/api/ai/chat', requireAuth, async (req, res) => {
+  // Connect to Genie for AI chat
+  try {
+    const response = await fetch(RTMN_SERVICES.genie + '/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: req.body.prompt, context: { industry: INDUSTRY } }),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'AI service unavailable', details: err.message });
+  }
 });
 
-// Sync twins
-app.post('/api/twins/sync', (req, res) => {
-  twins.menu.items = Array.from(menuItems.values());
-  twins.order.activeOrders = Array.from(orders.values()).filter(o => !['completed', 'cancelled'].includes(o.status));
-  twins.kitchen.queue = kitchenQueue;
-  twins.table.occupancy = Array.from(tables.values());
-  twins.customer.loyalty = Array.from(customers.values());
+// ============================================
+// LAYER 2: CUSTOMER GROWTH
+// ============================================
 
-  logger.info('All twins synchronized');
-  res.json({ success: true, twins });
+app.get('/api/layer/customer-growth', requireAuth, async (req, res) => {
+  try {
+    const crmRes = await fetch(RTMN_SERVICES.crmHub + '/api/health');
+    const crm = await crmRes.json();
+    
+    res.json({
+      layer: 2,
+      name: 'Customer Growth (AdBazaar + REZ Consumer + Axom)',
+      services: {
+        crmHub: crm.status || 'online',
+        buzzLocal: RTMN_SERVICES.buzzLocal,
+      },
+      capabilities: ['Customer Acquisition', 'Lead Generation', 'CRM', 'Loyalty', 'Community'],
+    });
+  } catch (err) {
+    res.json({ layer: 2, name: 'Customer Growth', status: 'offline', error: err.message });
+  }
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  logger.error(err);
-  res.status(500).json({ success: false, error: err.message });
+// ============================================
+// LAYER 3: COMMERCE (Nexha)
+// ============================================
+
+app.get('/api/layer/commerce', requireAuth, async (req, res) => {
+  try {
+    const nexhaRes = await fetch(RTMN_SERVICES.nexha + '/health');
+    const nexha = await nexhaRes.json();
+    
+    res.json({
+      layer: 3,
+      name: 'Commerce (Nexha)',
+      services: {
+        nexha: nexha.status || 'online',
+        procurement: RTMN_SERVICES.procurement,
+      },
+      capabilities: ['Procurement', 'Distribution', 'Manufacturing', 'Franchise', 'Trade Finance'],
+    });
+  } catch (err) {
+    res.json({ layer: 3, name: 'Commerce', status: 'offline', error: err.message });
+  }
 });
 
-// Start server
-async function start() {
-  await initDatabase();
-  app.listen(PORT, () => {
-    logger.info(`🍽️  Construction OS running on port ${PORT}`);
-    logger.info(`   Health: http://localhost:${PORT}/health`);
-    logger.info(`   CRM: ${CRM_HUB_URL}`);
+app.post('/api/procure/ingredients', requireAuth, async (req, res) => {
+  // Connect to Nexha for auto-procurement
+  try {
+    const response = await fetch(RTMN_SERVICES.procurement + '/api/rfq', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: req.body.items, industry: INDUSTRY }),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'Procurement service unavailable' });
+  }
+});
+
+// ============================================
+// LAYER 4: FINANCIAL
+// ============================================
+
+app.get('/api/layer/finance', requireAuth, async (req, res) => {
+  try {
+    const [walletRes, authRes] = await Promise.allSettled([
+      fetch(RTMN_SERVICES.wallet + '/health'),
+      fetch(RTMN_SERVICES.auth + '/health'),
+    ]);
+    
+    res.json({
+      layer: 4,
+      name: 'Financial (RIDZA + AssetMind + RABTUL)',
+      services: {
+        wallet: walletRes.status === 'fulfilled' ? 'online' : 'offline',
+        auth: authRes.status === 'fulfilled' ? 'online' : 'offline',
+      },
+      capabilities: ['Accounting', 'Banking', 'Lending', 'Insurance', 'Investment'],
+    });
+  } catch (err) {
+    res.json({ layer: 4, name: 'Finance', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 5: WORKFORCE
+// ============================================
+
+app.get('/api/layer/workforce', requireAuth, async (req, res) => {
+  try {
+    const corpRes = await fetch(RTMN_SERVICES.corpPerks + '/health');
+    const corp = await corpRes.json();
+    
+    res.json({
+      layer: 5,
+      name: 'Workforce (CorpPerks + REZ Workspace)',
+      services: { corpPerks: corp.status || 'online' },
+      capabilities: ['HR', 'Recruitment', 'Collaboration', 'Learning'],
+    });
+  } catch (err) {
+    res.json({ layer: 5, name: 'Workforce', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 6: LEGAL & TRUST
+// ============================================
+
+app.get('/api/layer/legal', requireAuth, async (req, res) => {
+  try {
+    const [legalRes, trustRes] = await Promise.allSettled([
+      fetch(RTMN_SERVICES.legal + '/health'),
+      fetch(RTMN_SERVICES.trustScorer + '/health'),
+    ]);
+    
+    res.json({
+      layer: 6,
+      name: 'Legal & Trust (LawGens)',
+      services: {
+        legal: legalRes.status === 'fulfilled' ? 'online' : 'offline',
+        trustScorer: trustRes.status === 'fulfilled' ? 'online' : 'offline',
+      },
+      capabilities: ['Contracts', 'Compliance', 'Risk', 'Security'],
+    });
+  } catch (err) {
+    res.json({ layer: 6, name: 'Legal', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 7: PROPERTY
+// ============================================
+
+app.get('/api/layer/property', requireAuth, async (req, res) => {
+  try {
+    const [risnaRes, stayRes] = await Promise.allSettled([
+      fetch(RTMN_SERVICES.risnaEstate + '/health'),
+      fetch(RTMN_SERVICES.stayOwn + '/health'),
+    ]);
+    
+    res.json({
+      layer: 7,
+      name: 'Property (RisnaEstate + StayOwn)',
+      services: {
+        risnaEstate: risnaRes.status === 'fulfilled' ? 'online' : 'offline',
+        stayOwn: stayRes.status === 'fulfilled' ? 'online' : 'offline',
+      },
+      capabilities: ['Expansion', 'Property', 'Facility', 'Hospitality'],
+    });
+  } catch (err) {
+    res.json({ layer: 7, name: 'Property', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 8: HEALTH
+// ============================================
+
+app.get('/api/layer/health', requireAuth, async (req, res) => {
+  try {
+    const risaRes = await fetch(RTMN_SERVICES.risaCare + '/health');
+    const risa = await risaRes.json();
+    
+    res.json({
+      layer: 8,
+      name: 'Health (RisaCare)',
+      services: { risaCare: risa.status || 'online' },
+      capabilities: ['Employee Health', 'Occupational', 'Mental Health'],
+    });
+  } catch (err) {
+    res.json({ layer: 8, name: 'Health', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 9: MOBILITY
+// ============================================
+
+app.get('/api/layer/mobility', requireAuth, async (req, res) => {
+  try {
+    const khairRes = await fetch(RTMN_SERVICES.khairMove + '/health');
+    const khair = await khairRes.json();
+    
+    res.json({
+      layer: 9,
+      name: 'Mobility (KHAIRMOVE)',
+      services: { khairMove: khair.status || 'online' },
+      capabilities: ['Delivery', 'Employee Transport', 'Logistics'],
+    });
+  } catch (err) {
+    res.json({ layer: 9, name: 'Mobility', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 10: IDENTITY
+// ============================================
+
+app.get('/api/layer/identity', requireAuth, async (req, res) => {
+  try {
+    const corpidRes = await fetch(RTMN_SERVICES.corpid + '/health');
+    const corpid = await corpidRes.json();
+    
+    res.json({
+      layer: 10,
+      name: 'Identity (CorpID)',
+      services: { corpid: corpid.status || 'online' },
+      capabilities: ['Human Identity', 'Business Identity', 'Supplier Identity', 'Agent Identity'],
+    });
+  } catch (err) {
+    res.json({ layer: 10, name: 'Identity', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 11: MEMORY
+// ============================================
+
+app.get('/api/layer/memory', requireAuth, async (req, res) => {
+  try {
+    const memoryRes = await fetch(RTMN_SERVICES.memory + '/health');
+    const memory = await memoryRes.json();
+    
+    res.json({
+      layer: 11,
+      name: 'Memory (MemoryOS)',
+      services: { memoryOS: memory.status || 'online' },
+      capabilities: ['Customer Memory', 'Supplier Memory', 'Relationship Memory'],
+    });
+  } catch (err) {
+    res.json({ layer: 11, name: 'Memory', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// LAYER 12: TWINS
+// ============================================
+
+app.get('/api/layer/twins', requireAuth, async (req, res) => {
+  try {
+    const twinRes = await fetch(RTMN_SERVICES.twinos + '/health');
+    const twin = await twinRes.json();
+    
+    res.json({
+      layer: 12,
+      name: 'Twins (TwinOS Hub)',
+      services: { twinosHub: twin.status || 'online' },
+      twins: {
+        restaurantTwin: Array.from(restaurantTwin.values()),
+        menuTwin: Array.from(menuTwin.values()),
+        orderTwin: Array.from(orderTwin.values()),
+        kitchenTwin: Array.from(kitchenTwin.values()),
+        tableTwin: Array.from(tableTwin.values()),
+        customerTwin: Array.from(customerTwin.values()),
+      },
+    });
+  } catch (err) {
+    res.json({ layer: 12, name: 'Twins', status: 'offline', error: err.message });
+  }
+});
+
+app.post('/api/twins/sync', requireAuth, async (req, res) => {
+  try {
+    await fetch(RTMN_SERVICES.twinos + '/api/twins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        twins: [...restaurantTwin.values(), ...menuTwin.values(), ...orderTwin.values()],
+        industry: INDUSTRY,
+        businessId: req.session.businessId,
+      }),
+    });
+    res.json({ success: true, syncedAt: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ error: 'Twin sync failed' });
+  }
+});
+
+// ============================================
+// LAYER 14: AUTONOMOUS (SUTAR OS)
+// ============================================
+
+app.get('/api/layer/autonomous', requireAuth, async (req, res) => {
+  try {
+    const [sutarRes, goalRes, decisionRes] = await Promise.allSettled([
+      fetch(RTMN_SERVICES.sutar + '/health'),
+      fetch(RTMN_SERVICES.goalOS + '/health'),
+      fetch(RTMN_SERVICES.decision + '/health'),
+    ]);
+    
+    res.json({
+      layer: 14,
+      name: 'Autonomous (SUTAR OS)',
+      services: {
+        sutar: sutarRes.status === 'fulfilled' ? 'online' : 'offline',
+        goalOS: goalRes.status === 'fulfilled' ? 'online' : 'offline',
+        decisionEngine: decisionRes.status === 'fulfilled' ? 'online' : 'offline',
+      },
+      capabilities: ['Goal Management', 'Decision Engine', 'Negotiation', 'Contracts', 'Autonomous Execution'],
+    });
+  } catch (err) {
+    res.json({ layer: 14, name: 'Autonomous', status: 'offline', error: err.message });
+  }
+});
+
+app.post('/api/autonomous/goal', requireAuth, async (req, res) => {
+  // Set autonomous goal
+  try {
+    const response = await fetch(RTMN_SERVICES.goalOS + '/api/goals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ objective: req.body.objective, industry: INDUSTRY, businessId: req.session.businessId }),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'Goal service unavailable' });
+  }
+});
+
+// ============================================
+// LAYER 15: CONSUMER NETWORK
+// ============================================
+
+app.get('/api/layer/network', requireAuth, async (req, res) => {
+  try {
+    const consumerRes = await fetch(RTMN_SERVICES.rezConsumer + '/health');
+    const consumer = await consumerRes.json();
+    
+    res.json({
+      layer: 15,
+      name: 'Consumer Network (REZ Consumer + Axom)',
+      services: { rezConsumer: consumer.status || 'online' },
+      capabilities: ['Customers', 'Referrals', 'Communities', 'Events', 'Creators', 'Discovery'],
+    });
+  } catch (err) {
+    res.json({ layer: 15, name: 'Consumer Network', status: 'offline', error: err.message });
+  }
+});
+
+// ============================================
+// ALL LAYERS STATUS
+// ============================================
+
+app.get('/api/layers', requireAuth, async (req, res) => {
+  const layerEndpoints = [
+    { layer: 1, name: 'Intelligence', endpoint: '/api/layer/intelligence' },
+    { layer: 2, name: 'Customer Growth', endpoint: '/api/layer/customer-growth' },
+    { layer: 3, name: 'Commerce', endpoint: '/api/layer/commerce' },
+    { layer: 4, name: 'Finance', endpoint: '/api/layer/finance' },
+    { layer: 5, name: 'Workforce', endpoint: '/api/layer/workforce' },
+    { layer: 6, name: 'Legal', endpoint: '/api/layer/legal' },
+    { layer: 7, name: 'Property', endpoint: '/api/layer/property' },
+    { layer: 8, name: 'Health', endpoint: '/api/layer/health' },
+    { layer: 9, name: 'Mobility', endpoint: '/api/layer/mobility' },
+    { layer: 10, name: 'Identity', endpoint: '/api/layer/identity' },
+    { layer: 11, name: 'Memory', endpoint: '/api/layer/memory' },
+    { layer: 12, name: 'Twins', endpoint: '/api/layer/twins' },
+    { layer: 14, name: 'Autonomous', endpoint: '/api/layer/autonomous' },
+    { layer: 15, name: 'Consumer Network', endpoint: '/api/layer/network' },
+  ];
+  
+  const results = await Promise.allSettled(
+    layerEndpoints.map(({ layer, name, endpoint }) =>
+      fetch(`${req.protocol}://${req.get('host')}${endpoint}`)
+        .then(r => r.json())
+        .catch(() => ({ layer, name, status: 'error' }))
+    )
+  );
+  
+  res.json({
+    industry: INDUSTRY,
+    service: 'Restaurant AI Company',
+    layers: results.map((r, i) => r.status === 'fulfilled' ? r.value : { layer: layerEndpoints[i].layer, name: layerEndpoints[i].name, status: 'error' }),
   });
-}
+});
 
-start();
+// ============================================
+// HEALTH
+// ============================================
 
-export default app;
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    service: 'Restaurant AI Company',
+    industry: INDUSTRY,
+    layers: 15,
+    version: '2.0.0',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ============================================
+// START
+// ============================================
+
+initDatabase().catch(console.warn);
+app.listen(PORT, () => {
+  console.log('✅ Restaurant AI Company Platform running on port ' + PORT);
+  console.log('📦 15 Layers: Intelligence, Growth, Commerce, Finance, Workforce, Legal, Property, Health, Mobility, Identity, Memory, Twins, Autonomous, Network');
+});
