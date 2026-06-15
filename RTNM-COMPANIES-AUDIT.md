@@ -4254,3 +4254,131 @@ REZ CRM Hub (port 4056)
 *Last Updated: June 15, 2026*
 *RTMN-Services - ALL 24 INDUSTRY OS COMPLETE*
 *Status: ✅ 24/24 INDUSTRY OS SERVICES CREATED*
+
+---
+
+## RTMN 15-Layer Industry AI Company Platform ✅ NEW!
+
+Every Industry OS (Restaurant, Hotel, Healthcare, etc.) now provides access to all 15 layers of the RTMN ecosystem via a unified API.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    RTMN INDUSTRY AI COMPANY PLATFORM                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  LAYER 1:  Intelligence (HOJAI AI) ───────── Genie, Copilot, Agents      │
+│  LAYER 2:  Customer Growth (AdBazaar) ─────── CRM, Ads, Loyalty           │
+│  LAYER 3:  Commerce (Nexha + REZ-Merchant) ─ Procurement, POS, Orders     │
+│  LAYER 4:  Financial (RABTUL + RIDZA) ─────── Wallet, Payments, Lending   │
+│  LAYER 5:  Workforce (CorpPerks) ──────────── HR, Payroll, Recruitment     │
+│  LAYER 6:  Legal & Trust (LawGens) ───────── Contracts, Compliance        │
+│  LAYER 7:  Property (RisnaEstate) ─────────── Property Management         │
+│  LAYER 8:  Health (RisaCare) ──────────────── Health, Wellness            │
+│  LAYER 9:  Mobility (KHAIRMOVE) ──────────── Delivery, Transport         │
+│  LAYER 10: Identity (CorpID) ─────────────── Universal Identity          │
+│  LAYER 11: Memory (MemoryOS) ─────────────── Business Memory              │
+│  LAYER 12: Twins (TwinOS) ─────────────────── Digital Twins                │
+│  LAYER 13: Automation (FlowOS) ───────────── Workflows, Automation         │
+│  LAYER 14: Autonomous (SUTAR OS) ─────────── Goals, Decisions             │
+│  LAYER 15: Consumer Network (REZ Consumer) ─ Customer Network             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Layer Endpoints
+
+Each Industry OS exposes these endpoints:
+
+| Endpoint | Layer | Description |
+|----------|-------|-------------|
+| `GET /api/layer/intelligence` | 1 | HOJAI AI services |
+| `GET /api/layer/customer-growth` | 2 | AdBazaar CRM, Loyalty |
+| `GET /api/layer/commerce` | 3 | Nexha + REZ-Merchant |
+| `GET /api/layer/finance` | 4 | RABTUL Wallet, Payments |
+| `GET /api/layer/workforce` | 5 | CorpPerks HR |
+| `GET /api/layer/legal` | 6 | LawGens Contracts |
+| `GET /api/layer/property` | 7 | RisnaEstate |
+| `GET /api/layer/health` | 8 | RisaCare |
+| `GET /api/layer/mobility` | 9 | KHAIRMOVE |
+| `GET /api/layer/identity` | 10 | CorpID |
+| `GET /api/layer/memory` | 11 | MemoryOS |
+| `GET /api/layer/twins` | 12 | TwinOS Hub |
+| `GET /api/layer/automation` | 13 | FlowOS |
+| `GET /api/layer/autonomous` | 14 | SUTAR OS |
+| `GET /api/layer/network` | 15 | REZ Consumer |
+| `GET /api/layers` | All | All 15 layers status |
+
+### REZ-Merchant Integration (Layer 3 Extension)
+
+| Endpoint | Service | Port |
+|----------|---------|------|
+| `GET /api/merchant/pos` | REZ-Merchant POS | 4800 |
+| `GET /api/merchant/orders` | Restaurant Service | 4801 |
+| `GET /api/merchant/menu` | Menu Service | 4802 |
+| `GET /api/merchant/payments` | Payment Gateway | 4803 |
+| `GET /api/merchant/loyalty` | Loyalty Service | 4804 |
+| `GET /api/merchant/inventory` | Inventory Service | 4805 |
+| `GET /api/merchant/staff` | Staff Service | 4806 |
+| `GET /api/merchant/reservations` | Reservations | 4807 |
+| `GET /api/merchant/genie` | Merchant Genie | 4809 |
+
+### Industry OS Services (25 Total)
+
+| Industry | Service | Port | Status |
+|----------|---------|------|--------|
+| Restaurant | restaurant-os | 5010 | ✅ |
+| Hotel | hotel-os | 5025 | ✅ |
+| Healthcare | healthcare-os | 5020 | ✅ |
+| Retail | retail-os | 5030 | ✅ |
+| Legal | legal-os | 5035 | ✅ |
+| Education | education-os | 5060 | ✅ |
+| Agriculture | agriculture-os | 5070 | ✅ |
+| Automotive | automotive-os | 5080 | ✅ |
+| Beauty | beauty-os | 5090 | ✅ |
+| Fashion | fashion-os | 5095 | ✅ |
+| Fitness | fitness-os | 5110 | ✅ |
+| Gaming | gaming-os | 5120 | ✅ |
+| Government | government-os | 5130 | ✅ |
+| Home Services | home-services-os | 5140 | ✅ |
+| Manufacturing | manufacturing-os | 5150 | ✅ |
+| Non-Profit | non-profit-os | 5160 | ✅ |
+| Professional | professional-os | 5170 | ✅ |
+| Sports | sports-os | 5180 | ✅ |
+| Travel | travel-os | 5190 | ✅ |
+| Entertainment | entertainment-os | 5200 | ✅ |
+| Construction | construction-os | 5210 | ✅ |
+| Financial | financial-os | 5220 | ✅ |
+| Real Estate | realestate-os | 5230 | ✅ |
+| Transport | transport-os | 5240 | ✅ |
+| Hospitality | hospitality-os | 5050 | ✅ |
+
+### Connected Companies
+
+| Company | Layer | Services |
+|---------|-------|----------|
+| HOJAI AI | 1 | Genie, CoPilot, Agents |
+| AdBazaar | 2 | CRM, Ads, Loyalty |
+| REZ-Consumer | 2, 15 | Customer Network |
+| Axom | 2, 15 | Community Intelligence |
+| Nexha | 3 | Procurement, Distribution |
+| REZ-Merchant | 3 | POS, Orders, Menu, Payments |
+| RABTUL | 4 | Auth, Wallet, Payments |
+| RIDZA | 4 | Lending, Insurance |
+| AssetMind | 4 | Wealth Management |
+| RidZa | 4 | Financial Services |
+| CorpPerks | 5 | HR, Payroll |
+| LawGens | 6 | Contracts, Compliance |
+| RisnaEstate | 7 | Property Management |
+| StayOwn-Hospitality | 7 | PMS, Booking |
+| RisaCare | 8 | Health, Wellness |
+| KHAIRMOVE | 9 | Delivery, Transport |
+| CorpID | 10 | Universal Identity |
+| MemoryOS | 11 | Business Memory |
+| TwinOS Hub | 12 | Digital Twins |
+| FlowOS | 13 | Workflows |
+| SUTAR OS | 14 | Autonomous Operations |
+| Karma Foundation | 14 | Agent Economy |
+
+---
+
+*Last Updated: June 16, 2026*
