@@ -94,7 +94,7 @@ render blueprint apply render.yaml
 |-------|----------|---------|-----|
 | **Frontend** | Vercel | rtmn-pilot-portal | `https://rtmn.vercel.app` |
 | **Backend/Gateway** | Render | rtmn-pilot-onboarding | `https://rtmn-api.onrender.com` |
-| **Industry OS** | Render | rtmn-hotel-os, rtmn-restaurant-os, etc. | per-service URLs |
+| **Industry OS** | Render | rtmn-hotel-os, rtmn-restaurant-os, etc. | [industry-os/services/](industry-os/services/) |
 
 ### Quick Deploy
 
@@ -213,40 +213,40 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 
 | Service | Port | Purpose | Files |
 |---------|------|---------|-------|
-| corpid-service | 4702 | Universal Identity | [corpid-service/](corpid-service/) |
-| memory-os | 4703 | Personal AI Memory | [memory-os/](memory-os/) |
-| goal-os | 4242 | Autonomous Goals | [goal-os/](goal-os/) |
-| decision-engine | 4240 | Policy & Authorization | [decision-engine/](decision-engine/) |
-| agent-economy | 4251 | Karma & Payments | [agent-economy/](agent-economy/) |
+| corpid-service | 4702 | Universal Identity | [industry-os/shared/corpid-service/](industry-os/shared/corpid-service/) |
+| memory-os | 4703 | Personal AI Memory | [industry-os/shared/memory-os/](industry-os/shared/memory-os/) |
+| goal-os | 4242 | Autonomous Goals | [industry-os/shared/goal-os/](industry-os/shared/goal-os/) |
+| decision-engine | 4240 | Policy & Authorization | [industry-os/shared/decision-engine/](industry-os/shared/decision-engine/) |
+| agent-economy | 4251 | Karma & Payments | [industry-os/shared/agent-economy/](industry-os/shared/agent-economy/) |
 
 ### Digital Twin Services
 
 | Service | Port | Purpose | Files |
 |---------|------|---------|-------|
-| twinos-hub | 4705 | Twin Registry (35+ twins) | [twinos-hub/](twinos-hub/) |
-| agent-twin | 3011 | Agent profiles, karma | [agent-twin/](agent-twin/) |
-| property-twin | 3015 | Properties, listings | [property-twin/](property-twin/) |
-| referral-twin | 3016 | Referrals, rewards | [referral-twin/](referral-twin/) |
-| buyer-twin | 3017 | Buyer profiles | [buyer-twin/](buyer-twin/) |
-| deal-twin | 3018 | Deal management | [deal-twin/](deal-twin/) |
-| area-twin | 3019 | Area/Region data | [area-twin/](area-twin/) |
+| twinos-hub | 4705 | Twin Registry (35+ twins) | [industry-os/shared/twinos-hub/](industry-os/shared/twinos-hub/) |
+| agent-twin | 3011 | Agent profiles, karma | [industry-os/shared/agent-twin/](industry-os/shared/agent-twin/) |
+| property-twin | 3015 | Properties, listings | [industry-os/shared/property-twin/](industry-os/shared/property-twin/) |
+| referral-twin | 3016 | Referrals, rewards | [industry-os/shared/referral-twin/](industry-os/shared/referral-twin/) |
+| buyer-twin | 3017 | Buyer profiles | [industry-os/shared/buyer-twin/](industry-os/shared/buyer-twin/) |
+| deal-twin | 3018 | Deal management | [industry-os/shared/deal-twin/](industry-os/shared/deal-twin/) |
+| area-twin | 3019 | Area/Region data | [industry-os/shared/area-twin/](industry-os/shared/area-twin/) |
 
 ### Industry Operating Systems
 
 | Service | Port | Purpose | Files |
 |---------|------|---------|-------|
-| restaurant-os | 5010 | Restaurant management | [restaurant-os/](restaurant-os/) |
-| hotel-os | 5025 | Hotel management | [hotel-os/](hotel-os/) |
-| healthcare-os | 5020 | Healthcare management | [healthcare-os/](healthcare-os/) |
-| retail-os | 5030 | Retail management | [retail-os/](retail-os/) |
-| legal-os | 5035 | Legal management | [legal-os/](legal-os/) |
-| education-os | 5060 | Education management | [education-os/](education-os/) |
-| automotive-os | 5080 | Automotive management | [automotive-os/](automotive-os/) |
-| beauty-os | 5090 | Beauty/Salon management | [beauty-os/](beauty-os/) |
-| fitness-os | 5110 | Fitness/Gym management | [fitness-os/](fitness-os/) |
-| manufacturing-os | 5150 | Manufacturing management | [manufacturing-os/](manufacturing-os/) |
-| hospitality-os | 5050 | General hospitality | [hospitality-os/](hospitality-os/) |
-| realestate-os | 5230 | Real estate management | [realestate-os/](realestate-os/) |
+| restaurant-os | 5010 | Restaurant management | [industry-os/services/restaurant-os/](industry-os/services/restaurant-os/) |
+| hotel-os | 5025 | Hotel management | [industry-os/services/hotel-os/](industry-os/services/hotel-os/) |
+| healthcare-os | 5020 | Healthcare management | [industry-os/services/healthcare-os/](industry-os/services/healthcare-os/) |
+| retail-os | 5030 | Retail management | [industry-os/services/retail-os/](industry-os/services/retail-os/) |
+| legal-os | 5035 | Legal management | [industry-os/services/legal-os/](industry-os/services/legal-os/) |
+| education-os | 5060 | Education management | [industry-os/services/education-os/](industry-os/services/education-os/) |
+| automotive-os | 5080 | Automotive management | [industry-os/services/automotive-os/](industry-os/services/automotive-os/) |
+| beauty-os | 5090 | Beauty/Salon management | [industry-os/services/beauty-os/](industry-os/services/beauty-os/) |
+| fitness-os | 5110 | Fitness/Gym management | [industry-os/services/fitness-os/](industry-os/services/fitness-os/) |
+| manufacturing-os | 5150 | Manufacturing management | [industry-os/services/manufacturing-os/](industry-os/services/manufacturing-os/) |
+| hospitality-os | 5050 | General hospitality | [industry-os/services/hospitality-os/](industry-os/services/hospitality-os/) |
+| realestate-os | 5230 | Real estate management | [industry-os/services/realestate-os/](industry-os/services/realestate-os/) |
 
 ### Leverge AI Business Intelligence Suite
 
