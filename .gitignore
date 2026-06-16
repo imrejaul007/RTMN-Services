@@ -28,76 +28,22 @@ Thumbs.db
 .env
 .env.local
 
-# Companies folder (each has its own repo)
-companies/*/
-# NeXha commerce-identity exception: developed in-tree until the
-# separate NeXha repo is set up.
+# Companies folder - each has its own repo, but these are tracked here
+# AdBazaar - separate repo
+companies/AdBazaar/
+# HOJAI AI - separate repo
+companies/hojai-ai/
+# NeXha commerce-identity exception: developed in-tree
 !companies/Nexha/
 !companies/Nexha/commerce-identity
 !companies/Nexha/commerce-identity/**
-# Re-ignore node_modules and other build artifacts inside the exception.
 companies/Nexha/commerce-identity/node_modules/
 companies/Nexha/commerce-identity/dist/
 
-# REZ-Merchant regional compliance services (June 2026)
-!companies/REZ-Merchant/REZ-spoilage-markdown-service/
-!companies/REZ-Merchant/REZ-spoilage-markdown-service/**
-
-# LawGens compliance services (June 2026)
-!companies/LawGens/REZ-cookie-consent-service/
-!companies/LawGens/REZ-cookie-consent-service/**
-
-# SUTAR OS Services - Built June 15, 2026
-!companies/RTNM-Group/
-!companies/RTNM-Group/boa-os/
-!companies/RTNM-Group/boa-sutar-bridge/
-!companies/hojai-ai/
-!companies/hojai-ai/services/
-!companies/hojai-ai/services/hojai-intent-graph/
-!companies/hojai-ai/services/hojai-simulation-engine/
-!companies/hojai-ai/services/hojai-discovery-engine/
-!companies/hojai-ai/hojai-sutar-os/
-!companies/hojai-ai/hojai-sutar-os/services/
-!companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/
-!companies/RABTUL-Technologies/
-!companies/RABTUL-Technologies/REZ-SLA-monitor/
-!companies/RABTUL-Technologies/REZ-breach-detector/
-!companies/RABTUL-Technologies/REZ-economy-os/
-!companies/RABTUL-Technologies/REZ-trust-scorer/
-# Re-ignore node_modules and build artifacts
-companies/RTNM-Group/boa-os/node_modules/
-companies/RTNM-Group/boa-os/dist/
-companies/RTNM-Group/boa-sutar-bridge/node_modules/
-companies/RTNM-Group/boa-sutar-bridge/dist/
-companies/hojai-ai/services/hojai-intent-graph/node_modules/
-companies/hojai-ai/services/hojai-intent-graph/dist/
-companies/hojai-ai/services/hojai-simulation-engine/node_modules/
-companies/hojai-ai/services/hojai-simulation-engine/dist/
-companies/hojai-ai/services/hojai-discovery-engine/node_modules/
-companies/hojai-ai/services/hojai-discovery-engine/dist/
-companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/node_modules/
-companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/dist/
-companies/RABTUL-Technologies/REZ-SLA-monitor/node_modules/
-companies/RABTUL-Technologies/REZ-SLA-monitor/dist/
-companies/RABTUL-Technologies/REZ-breach-detector/node_modules/
-companies/RABTUL-Technologies/REZ-breach-detector/dist/
-companies/RABTUL-Technologies/REZ-economy-os/node_modules/
-companies/RABTUL-Technologies/REZ-economy-os/dist/
-companies/RABTUL-Technologies/REZ-trust-scorer/node_modules/
-companies/RABTUL-Technologies/REZ-trust-scorer/dist/
-# Keep render.yaml files (deployment configs)
-!companies/RTNM-Group/boa-os/render.yaml
-!companies/RTNM-Group/boa-sutar-bridge/render.yaml
-!companies/hojai-ai/services/hojai-intent-graph/render.yaml
-!companies/hojai-ai/services/hojai-simulation-engine/render.yaml
-!companies/hojai-ai/services/hojai-discovery-engine/render.yaml
-!companies/hojai-ai/hojai-sutar-os/services/sutar-negotiation-engine/render.yaml
-!companies/RABTUL-Technologies/REZ-SLA-monitor/render.yaml
-!companies/RABTUL-Technologies/REZ-breach-detector/render.yaml
-!companies/RABTUL-Technologies/REZ-economy-os/render.yaml
-!companies/RABTUL-Technologies/REZ-trust-scorer/render.yaml
-
-# RTMN subfolder (separate repo)
+# RTNM subfolder (separate repo)
 RTMN/
-companies/AdBazaar/*/node_modules/@next/swc-darwin-arm64/
-companies/AdBazaar/*/node_modules/.cache/
+
+# Binary artifacts
+**/*.node
+**/.cache/**
+**/mongodb-memory-server/**
