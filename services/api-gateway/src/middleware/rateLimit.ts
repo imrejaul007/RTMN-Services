@@ -1,14 +1,14 @@
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 import Redis from 'ioredis';
-import type { RedisReply, SendCommandFn } from 'rate-limit-redis';
+import type { RedisReply } from 'rate-limit-redis';
 
 // Redis client for rate limiting
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 const redis = new Redis(redisUrl, { maxRetriesPerRequest: null });
 
-// Wrapper function to handle the spread properly
-const sendCommand: SendCommandFn = async (...args: string[]): Promise<RedisReply> => {
+// Wrapper function to handle the spread properly with Redis v4 API
+const sendCommand = async (...args: Parameters<typeof redis.call>): Promise<RedisReply> => {
   return redis.call(...args) as Promise<RedisReply>;
 };
 
