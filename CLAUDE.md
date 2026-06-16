@@ -213,21 +213,21 @@ Each Industry OS provides access to all 15 layers of the RTMN ecosystem:
 
 | Layer | Name | Powered By | Capabilities |
 |-------|------|-----------|--------------|
-| 1 | Intelligence | HOJAI AI | Genie, CoPilot, Agents, Twins |
-| 2 | Customer Growth | AdBazaar Full Suite (30 services) | CRM, Ads, Loyalty, Creator, Analytics, DOOH, Chat |
-| 3 | Commerce | Nexha + REZ-Merchant | Procurement, POS, Orders, Menu, Payments |
-| 4 | Financial | RABTUL + RIDZA + AssetMind + RidZa | Wallet, Banking, Lending, Investment |
-| 5 | Workforce | CorpPerks | HR, Payroll, Recruitment, Learning |
-| 6 | Legal & Trust | LawGens | Contracts, Compliance, Risk |
-| 7 | Property | RisnaEstate + StayOwn-Hospitality | Property, PMS, Booking |
-| 8 | Health | RisaCare | Health, Wellness |
-| 9 | Mobility | KHAIRMOVE | Delivery, Transport, Logistics |
+| 1 | Intelligence | HOJAI AI (20 services) | Genie, CoPilot, Agents, SUTAR, Twins |
+| 2 | Customer Growth | AdBazaar (30 services) | CRM, Ads, Loyalty, Creator, Analytics, DOOH, Chat |
+| 3 | Commerce | Nexha + REZ-Merchant (12 services) | Procurement, POS, Orders, Menu, Payments |
+| 4 | Financial | RABTUL (20 services) | Wallet, Banking, Lending, Accounting, Event Bus |
+| 5 | Workforce | CorpPerks (15 services) | HR, Payroll, Recruitment, Calendar, LMS |
+| 6 | Legal & Trust | LawGens (4 services) | Contracts, Compliance, Risk |
+| 7 | Property | RisnaEstate + StayOwn (10 services) | Property, PMS, Booking, Housekeeping |
+| 8 | Health | RisaCare (6 services) | Health, Wellness, Insurance |
+| 9 | Mobility | KHAIRMOVE (6 services) | Delivery, Fleet, Ride, Logistics |
 | 10 | Identity | CorpID | Universal Identity, Verification |
 | 11 | Memory | MemoryOS | Business Memory, Relationship Memory |
 | 12 | Twins | TwinOS Hub | Digital Twins, Sync |
 | 13 | Automation | FlowOS | Workflows, Approval Chains |
 | 14 | Autonomous | SUTAR OS + Karma Foundation | Goals, Decisions, Agent Economy |
-| 15 | Consumer Network | REZ Consumer + Axom + BuzzLocal | Customers, Referrals, Discovery |
+| 15 | Consumer Network | REZ Consumer + Axom | Customers, Referrals, Discovery |
 
 ### Layer Endpoints
 

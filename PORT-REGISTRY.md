@@ -972,3 +972,105 @@ This document consolidates all port allocations across the 24 industry verticals
 ---
 
 *Last Updated: June 16, 2026*
+
+---
+
+## HOJAI AI Integration (Layer 1 - Intelligence)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4701 | genie | Personal AI |
+| 4706 | genieHousehold | Household AI |
+| 4707 | genieBusiness | Business AI |
+| 4708 | genieProject | Project AI |
+| 4709 | genieMemory | Memory AI |
+| 4710 | genieTwin | Twin AI |
+| 4711 | genieRelationship | Relationship AI |
+| 4600 | copilot | Business Copilot |
+| 4601 | copilotBusiness | Business Copilot |
+| 4602 | copilotSales | Sales Copilot |
+| 4603 | copilotFinance | Finance Copilot |
+| 4604 | copilotHR | HR Copilot |
+| 4580 | agentMarketplace | Agent Registry |
+| 4581 | agentStream | Agent Streaming |
+| 4140 | sutarOS | SUTAR OS |
+| 4141 | sutarCore | SUTAR Core |
+| 4150 | hojaiIndustry | Industry AI |
+| 4151 | hojaiCommerce | Commerce AI |
+| 4160 | hojaiCollab | Collaboration |
+| 4161 | hojaiExpert | Expert OS |
+
+## RABTUL Integration (Layer 4 - Financial)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4002 | auth | Authentication |
+| 4004 | wallet | Wallet |
+| 4005 | walletService | Wallet Service |
+| 4006 | paymentGateway | Payment Gateway |
+| 4010 | accounting | Accounting |
+| 4011 | expenseService | Expenses |
+| 4012 | invoiceService | Invoicing |
+| 4020 | lending | Lending |
+| 4021 | creditService | Credit |
+| 4030 | contractMgmt | Contract Management |
+| 4040 | distributionOS | Distribution |
+| 4000 | graphqlFed | GraphQL Federation |
+| 4510 | eventBus | Event Bus |
+| 4050 | fileStorage | File Storage |
+| 4399 | ecosystemConnector | Ecosystem Connector |
+
+## CorpPerks Integration (Layer 5 - Workforce)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4450 | corpPerks | CorpPerks |
+| 4451 | hrService | HR Service |
+| 4452 | onboardingService | Onboarding |
+| 4453 | payrollService | Payroll |
+| 4454 | attendanceService | Attendance |
+| 4455 | leaveService | Leave |
+| 4460 | atsService | ATS |
+| 4461 | talentPool | Talent Pool |
+| 4470 | calendarService | Calendar |
+| 4471 | meetingService | Meetings |
+| 4472 | documentService | Documents |
+| 4480 | lmsService | LMS |
+| 4481 | okrService | OKR |
+| 4482 | insightService | Insights |
+
+## KHAIRMOVE Integration (Layer 9 - Mobility)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4500 | khairMove | Main Service |
+| 4501 | deliveryService | Delivery |
+| 4502 | fleetService | Fleet |
+| 4503 | rideService | Ride |
+| 4504 | logisticsService | Logistics |
+| 4505 | airzyService | Airzy |
+
+## RisaCare Integration (Layer 8 - Health)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 7000 | risaCare | RisaCare |
+| 7001 | healthTwin | Health Twin |
+| 7002 | consultationCopilot | Consultation |
+| 7003 | wellnessService | Wellness |
+| 7004 | healthInsurance | Insurance |
+| 7005 | familyCoordination | Family |
+
+## StayOwn-Hospitality Integration (Layer 7)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 6000 | stayOwn | StayOwn |
+| 6001 | stayOwnPMS | PMS |
+| 6002 | bookingEngine | Booking Engine |
+| 6003 | guestApp | Guest App |
+| 6004 | housekeepingService | Housekeeping |
+
+---
+
+*Last Updated: June 16, 2026*
