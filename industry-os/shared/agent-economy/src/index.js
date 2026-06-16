@@ -195,9 +195,12 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`Agent Economy running on port ${PORT}`);
-  logger.info('Currencies:', Object.values(CURRENCY).join(', '));
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`Agent Economy running on port ${PORT}`);
+    logger.info('Currencies:', Object.values(CURRENCY).join(', '));
+  });
 });
 
 export { app, redis, CURRENCY, TX_TYPE };

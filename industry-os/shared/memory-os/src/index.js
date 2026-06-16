@@ -193,9 +193,12 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`MemoryOS running on port ${PORT}`);
-  logger.info('Memory types:', Object.values(MEMORY_TYPES).join(', '));
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`MemoryOS running on port ${PORT}`);
+    logger.info('Memory types:', Object.values(MEMORY_TYPES).join(', '));
+  });
 });
 
 export { app, redis, MEMORY_TYPES };

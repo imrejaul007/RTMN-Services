@@ -192,8 +192,11 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`Decision Engine running on port ${PORT}`);
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`Decision Engine running on port ${PORT}`);
+  });
 });
 
 export { app, redis, DECISION, RISK };

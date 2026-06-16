@@ -67,7 +67,13 @@ export default function DashboardPage() {
     el.textContent = 'Testing...';
     el.style.color = 'var(--muted)';
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4399'}/v1/proxy/${serviceId}/health`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
+        el.textContent = '❌ NEXT_PUBLIC_API_URL not configured';
+        el.style.color = 'var(--danger)';
+        return;
+      }
+      const res = await fetch(`${apiUrl}/v1/proxy/${serviceId}/health`, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       const text = await res.text();

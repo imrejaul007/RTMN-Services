@@ -599,9 +599,12 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`🔗 TwinOS Hub running on port ${PORT}`);
-  logger.info(`📊 Managing ${twinRegistry.size} digital twins`);
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`🔗 TwinOS Hub running on port ${PORT}`);
+    logger.info(`📊 Managing ${twinRegistry.size} digital twins`);
+  });
 });
 
 export default app;

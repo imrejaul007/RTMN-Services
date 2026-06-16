@@ -191,9 +191,12 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`GoalOS running on port ${PORT}`);
-  logger.info('Goal decomposition engine ready');
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`GoalOS running on port ${PORT}`);
+    logger.info('Goal decomposition engine ready');
+  });
 });
 
 export { app, redis, GOAL_STATUS, PRIORITY };
