@@ -726,6 +726,31 @@ This document consolidates all port allocations across the 24 industry verticals
 | TBD | adbazaar-clean-room | 🚧 Planned | Privacy-safe data sharing (empty) |
 | TBD | adbazaar-intelligence-graph | 🚧 Planned | Audience intelligence (empty) |
 
+### RABTUL Regional Compliance (June 2026)
+
+> ✅ All 8 regional compliance services built and deploy-ready
+
+| Port | Service | Description | Region |
+|------|---------|-------------|--------|
+| 4310 | REZ-sales-tax-service | USA State-by-State Sales Tax (50 states + DC) | USA 🇺🇸 |
+| 4311 | REZ-vat-compliance-service | GCC VAT + EU VAT Automation | GCC/EU 🇸🇦 🇪🇺 |
+| 4312 | REZ-sepa-payment-service | SEPA Credit/Direct Debit | Europe 🇪🇺 |
+| 4313 | REZ-wps-service | Saudi Wage Protection System | Saudi Arabia 🇸🇦 |
+| 4320 | REZ-einvoicing-service | EU Peppol/ZUGFeRD/XRechnung | EU 🇪🇺 |
+| 4325 | REZ-pci-dss-service | PCI DSS Compliance Module | USA 🇺🇸 |
+
+### LawGens Compliance Services (June 2026)
+
+| Port | Service | Description | Region |
+|------|---------|-------------|--------|
+| 5039 | REZ-cookie-consent-service | GDPR Cookie Consent (IAB TCF) | EU 🇪🇺 |
+
+### REZ-Merchant Services (June 2026)
+
+| Port | Service | Description | Industry |
+|------|---------|-------------|----------|
+| 4815 | REZ-spoilage-markdown-service | Grocery Perishables Auto-Markdown | Retail/Grocery 🛒 |
+
 ---
 
 ## Related Documents

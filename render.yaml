@@ -321,3 +321,159 @@ services:
         value: https://rez-event-bus.onrender.com
       - key: JWT_SECRET
         generateValue: true
+
+  # ── RABTUL REGIONAL COMPLIANCE SERVICES ───────────────────────────
+
+  - type: web
+    name: rtmn-sales-tax-service
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-sales-tax-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4310"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: rtmn-vat-compliance-service
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-vat-compliance-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4311"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: rtmn-sepa-payment-service
+    runtime: node
+    region: frankfurt
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-sepa-payment-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4312"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SEPA_BANK_ID
+        sync: false
+
+  - type: web
+    name: rtmn-wps-service
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-wps-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4313"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: MOL_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-einvoicing-service
+    runtime: node
+    region: frankfurt
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-einvoicing-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4320"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: PEPPOL_AP
+        sync: false
+
+  - type: web
+    name: rtmn-pci-dss-service
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: companies/RABTUL-Technologies/REZ-pci-dss-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4325"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: HSM_KEY_ID
+        sync: false
+
+  # ── LAWGENS COMPLIANCE SERVICES ────────────────────────────────────
+
+  - type: web
+    name: rtmn-cookie-consent-service
+    runtime: node
+    region: frankfurt
+    plan: starter
+    rootDir: companies/LawGens/REZ-cookie-consent-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "5039"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: IAB_TCF_CMP_ID
+        value: "123"
+      - key: IAB_TCF_VERSION
+        value: "2.2"
+
+  # ── REZ-MERCHANT SERVICES ─────────────────────────────────────────
+
+  - type: web
+    name: rtmn-spoilage-markdown-service
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: companies/REZ-Merchant/REZ-spoilage-markdown-service
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4815"
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: DONATION_API_URL
+        sync: false
