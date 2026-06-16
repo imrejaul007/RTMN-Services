@@ -11,6 +11,8 @@ import { config } from './config';
 import { logger } from './utils/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
+import { authMiddleware, optionalAuth } from './middleware/auth';
+import { apiRateLimit } from './middleware/rateLimit';
 import { eventBus } from './utils/eventBus';
 
 import strategyRoutes from './routes/strategy';
@@ -35,8 +37,11 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
 
+// Global rate limiting
+app.use(apiRateLimit);
+
 // ============================================================================
-// Health & Info Endpoints
+// Health & Info Endpoints (Public)
 // ============================================================================
 app.get('/health', (_req: Request, res: Response) => {
   res.json({
@@ -49,7 +54,7 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-app.get('/api/v1/info', (_req: Request, res: Response) => {
+app.get('/api/v1/info', optionalAuth, (_req: Request, res: Response) => {
   res.json({
     success: true,
     data: {
@@ -90,18 +95,18 @@ app.get('/api/v1/info', (_req: Request, res: Response) => {
 });
 
 // ============================================================================
-// API Routes
+// API Routes (All require authentication)
 // ============================================================================
-app.use('/api/v1/strategy', strategyRoutes);
-app.use('/api/v1/objective', objectiveRoutes);
-app.use('/api/v1/roadmap', roadmapRoutes);
-app.use('/api/v1/kpi', kpiRoutes);
-app.use('/api/v1/alignment', alignmentRoutes);
+app.use('/api/v1/strategy', authMiddleware, strategyRoutes);
+app.use('/api/v1/objective', authMiddleware, objectiveRoutes);
+app.use('/api/v1/roadmap', authMiddleware, roadmapRoutes);
+app.use('/api/v1/kpi', authMiddleware, kpiRoutes);
+app.use('/api/v1/alignment', authMiddleware, alignmentRoutes);
 
 // ============================================================================
-// Sync Endpoint - Bridge to SUTAR OS
+// Sync Endpoint - Bridge to SUTAR OS (Authenticated)
 // ============================================================================
-app.post('/api/v1/sync/objective/:id', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/v1/sync/objective/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const objective = objectiveService.getById(req.params.id);
     const result = await goalSyncService.syncObjective(objective);
@@ -112,7 +117,7 @@ app.post('/api/v1/sync/objective/:id', async (req: Request, res: Response, next:
   } catch (error) { next(error); }
 });
 
-app.post('/api/v1/sync/strategy/:id', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/v1/sync/strategy/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const strategy = strategyEngine.getStrategy(req.params.id);
     if (!strategy) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Strategy not found' }, timestamp: new Date().toISOString() });
@@ -131,7 +136,7 @@ app.post('/api/v1/sync/strategy/:id', async (req: Request, res: Response, next: 
   } catch (error) { next(error); }
 });
 
-app.post('/api/v1/sync/progress/:id', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/v1/sync/progress/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const objective = objectiveService.getById(req.params.id);
     const success = await goalSyncService.pushProgressUpdate(objective);
@@ -140,9 +145,9 @@ app.post('/api/v1/sync/progress/:id', async (req: Request, res: Response, next: 
 });
 
 // ============================================================================
-// Combined Insights Endpoint
+// Combined Insights Endpoint (Authenticated)
 // ============================================================================
-app.get('/api/v1/insights', async (_req: Request, res: Response, next: NextFunction) => {
+app.get('/api/v1/insights', authMiddleware, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const objectiveSummary = objectiveService.getProgressSummary();
     const alignmentAggregate = strategicAlignmentService.getAggregateAlignment();
@@ -161,9 +166,9 @@ app.get('/api/v1/insights', async (_req: Request, res: Response, next: NextFunct
 });
 
 // ============================================================================
-// Event Handlers
+// Event Handlers (Internal service auth)
 // ============================================================================
-app.post('/api/v1/event', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/v1/event', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { type, data } = req.body;
     logger.info(`[EVENT] ${type}:`, data);

@@ -37,7 +37,7 @@ router.post('/signup', async (req, res) => {
     email: client.email,
     status: client.status,
     message: 'Verification email sent',
-    devVerifyUrl: process.env.NODE_ENV === 'production' ? undefined : verifyUrl
+    devVerifyUrl: process.env.NODE_ENV === 'development' ? verifyUrl : undefined
   });
 });
 

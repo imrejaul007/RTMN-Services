@@ -616,7 +616,22 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4702 | CorpID (Identity Hub) | REST | Universal identity |
 | 4703 | Genie Memory | REST | Personal AI memory |
 | 4704 | Genie Relations | REST | Relationship tracking |
+| 4705 | Genie Personal OS Gateway | REST | Gateway orchestrator for all Genie services |
 | 4706 | Genie Briefing | REST | Daily briefings |
+| 4708 | Genie Personal Twin | REST | Personal profile, preferences, goals, skills |
+| 4711 | Genie Memory Review | REST | Memory consolidation and review |
+| 4712 | Genie Project | REST | Task management and projects |
+| 4715 | Genie Financial Twin | REST | Accounts, transactions, budgets |
+| 4716 | Genie Founder Twin | REST | Companies, ventures, milestones, investors |
+| 4717 | Genie Health Twin | REST | Vitals, workouts, sleep, meals |
+| 4718 | Genie WhatsApp Bot | REST | WhatsApp integration and messaging |
+| 4719 | Genie Privacy | REST | Privacy controls and data management |
+| 4721 | Genie Sync | REST | Cross-device synchronization |
+| 4722 | Genie Household | REST | Family management |
+| 4723 | Genie Business Intelligence | REST | Merchant BI and analytics |
+| 4724 | Genie Browser History | REST | Browser patterns and insights |
+| 4725 | RAZO Keyboard | REST | Communication OS with Intent Router |
+| 4726 | Genie Relationship Service | REST | Legacy relationship service |
 | 4760 | Genie Voice | REST | Email, SMS, WhatsApp, Calls |
 | **4770** | **BrandPulse API** | REST | Brand intelligence & sentiment |
 | **4780** | **BrandPulse Dashboard** | REST | React analytics dashboard |

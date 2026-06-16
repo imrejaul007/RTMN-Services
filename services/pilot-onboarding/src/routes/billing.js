@@ -10,6 +10,7 @@ import { checkoutSchema } from '../validators/schemas.js';
 
 const router = express.Router();
 const STRIPE_ENABLED = process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('replace_me');
+const MOCK_ENABLED = !STRIPE_ENABLED && process.env.NODE_ENV !== 'production';
 
 // Lazy import Stripe only if configured (avoids error in dev)
 let stripe = null;
