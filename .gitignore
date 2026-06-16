@@ -28,19 +28,7 @@ Thumbs.db
 .env
 .env.local
 
-# Companies folder - each has its own repo, but these are tracked here
-# AdBazaar - separate repo
-companies/AdBazaar/
-# HOJAI AI - separate repo
-companies/hojai-ai/
-# NeXha commerce-identity exception: developed in-tree
-!companies/Nexha/
-!companies/Nexha/commerce-identity
-!companies/Nexha/commerce-identity/**
-companies/Nexha/commerce-identity/node_modules/
-companies/Nexha/commerce-identity/dist/
-
-# RTNM subfolder (separate repo)
+# RTMN subfolder - separate repo
 RTMN/
 
 # Binary artifacts
@@ -48,29 +36,26 @@ RTMN/
 **/.cache/**
 **/mongodb-memory-server/**
 
-# Embedded git repositories - add to respective company repos
-companies/Axom/rendez/
-companies/REZ-Consumer/
-companies/REZ-Merchant/
+# Companies folder - each has its own repo (but some docs tracked here)
+companies/*/
 
-# Company documentation (June 2026)
-!companies/AdBazaar/CLAUDE.md
-!companies/AdBazaar/FEATURES.md
-!companies/AssetMind/
+# Exceptions for company docs tracked in RTMN-Services
+!companies/Nexha/
+!companies/Nexha/commerce-identity
+!companies/Nexha/commerce-identity/**
+companies/Nexha/commerce-identity/node_modules/
+companies/Nexha/commerce-identity/dist/
 !companies/Axom/
+!companies/AssetMind/
 !companies/CorpPerks/
 !companies/KHAIRMOVE/
 !companies/Karma-Foundation/
 !companies/LawGens/
+!companies/RTNM-Digital/
+!companies/RTNM-Group/
+!companies/REZ-Exhibitor/
+!companies/REZ-Workspace/
 !companies/RidZa/
 !companies/RisaCare/
 !companies/RisnaEstate/
 !companies/StayOwn-Hospitality/
-!companies/REZ-Exhibitor/
-!companies/REZ-Workspace/
-!companies/RTNM-Digital/
-
-# Embedded git repositories - these should be in their own repos
-companies/Axom/rendez/rendez-app-new/
-companies/REZ-Consumer/
-companies/REZ-Merchant/
