@@ -5116,4 +5116,158 @@ POST /api/finance/payment   - Process payment
 
 ---
 
-*Last Updated: June 16, 2026*
+### REZ-Exhibitor - Layer 22 (Exhibition OS) - 22 Services Connected
+
+**Location:** `companies/REZ-Exhibitor/`  
+**Status:** ✅ **COMPLETE** | **22 Microservices** | **1 Mobile App** | **June 17, 2026** 🎉
+
+#### Overview
+
+REZ-Exhibitor powers the Exhibition OS platform — a complete ecosystem for managing exhibitions, trade shows, and events. It covers the entire event lifecycle from planning through post-event follow-up.
+
+```
+Registration → Identity → Wallet → Coins → AI → Leads → Commerce → CRM → Repeat Business
+```
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| exhibition-gateway | 5040 | API orchestration, routing |
+| exhibition-organizer-service | 5041 | Exhibition CRUD, venues, zones, sessions |
+| exhibition-exhibitor-service | 5042 | Booth management, leads, team |
+| exhibition-attendee-service | 5043 | Registration, tickets, check-in |
+| exhibition-twin-service | 5044 | 8 Digital Twins |
+| exhibition-badge-service | 5045 | QR badges, scanning |
+| exhibition-analytics-service | 5046 | Real-time metrics, heatmaps |
+| exhibition-notification-service | 5047 | Push, WhatsApp, email, SMS |
+| exhibition-payment-service | 5048 | Tickets, escrow, invoices |
+| exhibition-intelligence-service | 5049 | AI copilots (3 roles) |
+| exhibition-economy-service | 5050 | REZ Coins, campaigns, rewards |
+| exhibition-marketplace-service | 5051 | Products, orders, RFQ |
+| exhibition-networking-service | 5052 | Connections, chat, profiles |
+| exhibition-appointment-service | 5053 | Meeting scheduler, availability |
+| exhibition-passport-service | 5054 | Missions, gamification, badges |
+| exhibition-sponsor-service | 5055 | Sponsor campaigns, ROI |
+| exhibition-venue-ops-service | 5056 | Infrastructure requests |
+| exhibition-staff-service | 5057 | Volunteer management |
+| exhibition-crm-service | 5058 | Deal pipeline, activities |
+| exhibition-document-service | 5059 | Catalogs, brochures |
+| exhibition-integration-hub | 5060 | Webhooks, connectors |
+| exhibition-floor-intelligence | 5061 | Heatmaps, navigation |
+
+#### Architecture Layers
+
+| Layer | Features |
+|-------|----------|
+| **OS Layer** | Organizer, Exhibitor, Attendee, Sponsor, Venue, Staff |
+| **Intelligence Layer** | Genie AI, Twins (8), Analytics, Floor Intel, AI Copilots |
+| **Commerce Layer** | Marketplace, Networking, Appointments, CRM, Orders |
+| **Economy Layer** | REZ Coins, Campaigns, Passport, Missions, Rewards |
+
+#### DO Exhibitor Mobile App
+
+**Location:** `companies/REZ-Exhibitor/do-exhibitor/`
+
+| Screen | Purpose |
+|--------|---------|
+| Dashboard | Analytics, real-time metrics, charts |
+| Leads | Lead management with hot/warm/cold filters |
+| Scan | Camera-based badge scanner for lead capture |
+| Appointments | Meeting scheduler, calendar |
+| Booth | Booth settings, team management |
+
+#### Key Features
+
+- **Lead Capture**: Badge scan, manual entry, QR code
+- **AI Copilots**: Organizer, Exhibitor, Visitor briefings
+- **REZ Economy**: Coins, missions, gamification, rewards
+- **Real-time Analytics**: Live heatmaps, booth traffic
+- **CRM Pipeline**: Post-event follow-up, deal tracking
+- **Payment Integration**: SUTAR Escrow, Razorpay
+
+#### RTMN Integrations
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| Genie Gateway | 4701 | AI briefings |
+| hojai-event | 4510 | Event bus |
+| CorpID | 4300 | Identity |
+| WhatsApp Bot | 4718 | Notifications |
+| SUTAR Escrow | 4149 | Payments |
+
+#### Docker Deployment
+
+```bash
+# Start all services
+docker-compose -f docker-compose.exhibition.yml up -d
+
+# Check health
+curl http://localhost:5040/health
+
+# View logs
+docker-compose -f docker-compose.exhibition.yml logs -f
+```
+
+#### MongoDB Models
+
+| Model | Purpose |
+|-------|---------|
+| Exhibition | Event data, settings, sponsors |
+| Exhibitor | Company, booth, team |
+| Lead | Captured leads, follow-up |
+| Attendee | Visitor registration, tickets |
+| Booth | Booth config, live metrics |
+| Session | Talks, workshops |
+| Badge | QR badges |
+| CoinBalance | REZ Coins |
+| Deal | CRM pipeline |
+
+#### Files
+
+```
+exhibition-os/
+├── src/
+│   ├── index.ts           # Gateway (5040)
+│   ├── models/            # MongoDB models
+│   ├── routes/            # API routes
+│   ├── services/          # Business logic
+│   └── db/               # MongoDB + Redis
+├── docker-compose.yml    # Full deployment
+└── README.md             # Documentation
+
+packages/                  # 16 microservice packages
+├── exhibition-*-service/ # Individual services
+└── Dockerfile             # Container builds
+
+companies/REZ-Exhibitor/
+└── do-exhibitor/         # Mobile app (Expo)
+    └── app/              # Screens
+```
+
+#### Layer Summary (Updated)
+
+| Layer | Company | Services | Port Range |
+|-------|---------|----------|------------|
+| 1 | HOJAI AI | 20 | 4140-4161, 4580-4711 |
+| 2 | AdBazaar | 30 | 4056-4121 |
+| 3 | REZ-Merchant | 10 | 4800-4809 |
+| 4 | RABTUL | 20 | 4000-4050, 4510 |
+| 5 | CorpPerks | 15 | 4450-4482 |
+| 6 | LawGens | 4 | 4180, 5035-5037 |
+| 7 | RisnaEstate | 10 | 4300-4304, 6000-6004 |
+| 8 | RisaCare | 6 | 7000-7005 |
+| 9 | KHAIRMOVE | 6 | 4500-4505 |
+| 10 | CorpID | 1 | 4702 |
+| 11 | MemoryOS | 1 | 4703 |
+| 12 | TwinOS Hub | 1 | 4705 |
+| 13 | FlowOS | 1 | 4200 |
+| 14 | SUTAR OS | 4 | 4140, 4191, 4240-4251 |
+| 15 | REZ-Consumer | 1 | 3000 |
+| **22** | **REZ-Exhibitor** | **22** | **5040-5061** |
+
+**Total: 152+ services connected across 22 layers**
+
+---
+
+*Last Updated: June 17, 2026*

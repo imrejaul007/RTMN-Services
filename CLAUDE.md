@@ -83,7 +83,7 @@ render blueprint apply render.yaml
 
 ### API Access Points
 
-- **Service Registry:** http://localhost:4399/api/services
+- **Service Registry:** http://localhost:4398/api/services
 - **GraphQL API:** http://localhost:4000/graphql (GraphiQL enabled)
 - **Event Bus:** http://localhost:4510/health
 - **API Documentation:** [API-DOCUMENTATION.md](API-DOCUMENTATION.md)
