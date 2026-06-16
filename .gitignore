@@ -29,7 +29,7 @@ Thumbs.db
 .env.local
 
 # Companies folder (each has its own repo)
-companies/*
+companies/*/
 # NeXha commerce-identity exception: developed in-tree until the
 # separate NeXha repo is set up.
 !companies/Nexha/
