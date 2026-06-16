@@ -37,7 +37,7 @@ render blueprint apply render.yaml
                           ┌──────────▼───────────┐
                           │  RENDER (Backend)    │
                           │ rtmn-pilot-onboarding│
-                          │  Express (port 4399)  │
+                          │  Express (port 4399) (Backend)  │
                           └──────────┬───────────┘
                                      │
                  ┌───────────────────┼───────────────────┐
@@ -53,7 +53,7 @@ render blueprint apply render.yaml
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
-| **REZ-ecosystem-connector** | 4399 | ✅ Running | Service Registry & Discovery |
+| **REZ-ecosystem-connector** | 4398 | ✅ Running | Service Registry & Discovery |
 | **REZ-event-bus** | 4510 | ✅ Running | Pub/Sub Event Messaging (29 schemas) |
 | **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API |
 | **Goal OS** | 4242 | ✅ Running | Autonomous Goals |
@@ -83,7 +83,7 @@ render blueprint apply render.yaml
 
 ### API Access Points
 
-- **Service Registry:** http://localhost:4399/v1/services
+- **Service Registry:** http://localhost:4398/api/services
 - **GraphQL API:** http://localhost:4000/graphql (GraphiQL enabled)
 - **Event Bus:** http://localhost:4510/health
 - **API Documentation:** [API-DOCUMENTATION.md](API-DOCUMENTATION.md)
@@ -541,7 +541,7 @@ curl http://localhost:4765/health  # Leverge Copilot
 
 | Service | Port | Status | Description |
 |---------|------|--------|-------------|
-| **REZ-ecosystem-connector** | 4399 | ✅ Running | Service Registry & Discovery (19 services registered) |
+| **REZ-ecosystem-connector | 4398 | ✅ Running | Service Registry & Discovery (19 services registered) |
 | **REZ-event-bus** | 4510 | ✅ Running | Pub/Sub Event Messaging (29 schemas, 2 subscriptions) |
 | **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API (16 services via federation) |
 
@@ -572,7 +572,7 @@ curl http://localhost:4765/health  # Leverge Copilot
 
 | Service | Port | Description |
 |---------|------|-------------|
-| **REZ-ecosystem-connector** | 4399 | Service Registry & Discovery |
+| **REZ-ecosystem-connector | 4398 | Service Registry & Discovery |
 | **REZ-event-bus** | 4510 | Pub/Sub Event Messaging |
 | **REZ-integration-connector** | 4314 | Multi-service API Gateway |
 | **REZ-graphql-federation** | 4000 | Unified GraphQL API |
@@ -642,7 +642,7 @@ service ManufacturingService {
 import { RESTClient, EventBus } from '@rtnm/shared-sdk';
 
 const rabtul = new RESTClient({
-  baseUrl: 'http://localhost:4399',
+  baseUrl: 'http://localhost:4398',
   apiKey: process.env.RABTUL_API_KEY
 });
 

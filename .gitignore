@@ -47,3 +47,30 @@ RTMN/
 **/*.node
 **/.cache/**
 **/mongodb-memory-server/**
+
+# Embedded git repositories - add to respective company repos
+companies/Axom/rendez/
+companies/REZ-Consumer/
+companies/REZ-Merchant/
+
+# Company documentation (June 2026)
+!companies/AdBazaar/CLAUDE.md
+!companies/AdBazaar/FEATURES.md
+!companies/AssetMind/
+!companies/Axom/
+!companies/CorpPerks/
+!companies/KHAIRMOVE/
+!companies/Karma-Foundation/
+!companies/LawGens/
+!companies/RidZa/
+!companies/RisaCare/
+!companies/RisnaEstate/
+!companies/StayOwn-Hospitality/
+!companies/REZ-Exhibitor/
+!companies/REZ-Workspace/
+!companies/RTNM-Digital/
+
+# Embedded git repositories - these should be in their own repos
+companies/Axom/rendez/rendez-app-new/
+companies/REZ-Consumer/
+companies/REZ-Merchant/
