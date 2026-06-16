@@ -1,8 +1,8 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.2.0  
-**Last Updated:** June 15, 2026  
-**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER
+**Version:** 1.4.0  
+**Last Updated:** June 17, 2026  
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER + TESTS + 20 COMPANIES DOCUMENTED
 
 ---
 
@@ -83,10 +83,22 @@ render blueprint apply render.yaml
 
 ### API Access Points
 
-- **Service Registry:** http://localhost:4398/api/services
+- **Service Registry:** http://localhost:4399/v1/services
 - **GraphQL API:** http://localhost:4000/graphql (GraphiQL enabled)
 - **Event Bus:** http://localhost:4510/health
 - **API Documentation:** [API-DOCUMENTATION.md](API-DOCUMENTATION.md)
+
+### API Endpoints (v1)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/auth/signup` | POST | Register new user |
+| `/v1/auth/login` | POST | Login user |
+| `/v1/auth/me` | GET | Get current user profile |
+| `/v1/services` | GET | List available services |
+| `/v1/services/:id` | GET | Get service details |
+| `/v1/billing/plans` | GET | Get billing plans |
+| `/health` | GET | Service health check |
 
 ### Deploy Targets
 
@@ -316,6 +328,126 @@ GET /api/layers               # All 15 layers
 | leverge-twin | 4763 | Digital twin management | [leverge-twin/](companies/hojai-ai/services/leverge-twin/) |
 | leverge-agents | 4764 | AI agent orchestration | [leverge-agents/](companies/hojai-ai/services/leverge-agents/) |
 | leverge-copilot | 4765 | Business AI copilot | [leverge-copilot/](companies/hojai-ai/services/leverge-copilot/) |
+
+---
+
+## 🚀 Customer Operations Platform (Support Services)
+
+**AI-native Customer Operations Platform** with multi-channel support, intelligent routing, and complete lifecycle management.
+
+### Architecture
+
+```
+                           ┌─────────────────────────────────────┐
+                           │              CUSTOMER                 │
+                           │         (Web/App/Chat Widget)         │
+                           └─────────────────┬───────────────────┘
+                                             │
+                           ┌─────────────────┴───────────────────┐
+                           │         API GATEWAY (4001)           │
+                           │  Auth │ Rate Limit │ Routing │ Trace  │
+                           └─────────────────┬───────────────────┘
+                                             │
+         ┌─────────────────────────────────────┼─────────────────────────────────────┐
+         │                                     │                                     │       │
+         ▼                                     ▼                                     ▼       │
+┌─────────────────┐              ┌─────────────────┐              ┌─────────────────┐      │
+│  Unified Inbox   │              │  Knowledge Base  │              │ Ticket Service   │      │
+│     4870        │              │     4871        │              │     4872        │      │
+└────────┬────────┘              └────────┬────────┘              └────────┬────────┘      │
+         │                                 │                                     │       │
+         │         ┌───────────────────────┼───────────────────────┐             │       │
+         │         ▼                       ▼                       ▼             │       │
+         │ ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐             │       │
+         │ │  SLA Service    │  │    Analytics   │  │  Supporter AI   │             │       │
+         │ │     4873        │  │     4874       │  │     4878        │             │       │
+         │ └─────────────────┘  └─────────────────┘  └─────────────────┘             │       │
+         │                                                                              │       │
+         │         ┌───────────────────────────────────────────────────────────────┤       │
+         │         ▼                                                               ▼       │
+         │ ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+         │ │    Workflow     │  │   Action        │  │ Notification    │  │   Integration   │ │
+         │ │    Engine      │  │   Registry     │  │   Service       │  │   Hub          │ │
+         │ │     4886        │  │     4887        │  │     4880        │  │     4890        │ │
+         │ └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+         │                                                                              │       │
+         │         ┌───────────────────────────────────────────────────────────────┤       │
+         │         │                                                               ▼       │
+         │ ┌─────────────────────────────────────────────────────────────────────────────┐ │
+         │ │                    HOJAI INTELLIGENCE LAYER (4881)                    │ │
+         │ │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐       │ │
+         │ │  │ Intent  │ │Sentiment│ │ Fraud   │ │ Summary │ │ Recommend│       │ │
+         │ │  │ Agent  │  │ Agent   │ │ Agent   │ │ Agent   │ │ Engine   │       │ │
+         │ │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘       │ │
+         │ │  Memory: Conversation │ Customer │ Organization                       │ │
+         │ │  Policy Engine: ALLOW │ DENY │ REQUIRE_APPROVAL │ ESCALATE │ BLOCK   │ │
+         │ └─────────────────────────────────────────────────────────────────────────────┘ │
+         │                                                                              │       │
+         │         ┌───────────────────────────────────────────────────────────────┤       │
+         │         │                                                               ▼       │
+         │ ┌─────────────────────────────────────────────────────────────────────────────┐ │
+         │ │                   CUSTOMER INTELLIGENCE CDP (4885)                     │ │
+         │ │  Identity Resolution │ Risk Scoring │ Segments │ Customer 360 Context    │ │
+         │ └─────────────────────────────────────────────────────────────────────────────┘ │
+         └──────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Support Services (14 services)
+
+| Service | Port | Purpose | Files |
+|---------|------|---------|-------|
+| **API Gateway** | 4001 | Auth, Rate Limit, Routing | [api-gateway/](services/api-gateway/) |
+| **Customer Intelligence** | 4885 | CDP, Identity, Risk, Segments | [hojai-customer-intelligence/](companies/hojai-ai/hojai-customer-intelligence/) |
+| **Hojai Intelligence** | 4881 | AI Orchestration, Agents, Memory | [hojai-intelligence/](companies/hojai-ai/hojai-intelligence/) |
+| **Workflow Engine** | 4886 | BPMN Automation, Approval Chains | [hojai-workflow-engine/](companies/hojai-ai/hojai-workflow-engine/) |
+| **Action Registry** | 4887 | Business Actions, Audit Logs | [hojai-action-registry/](companies/hojai-ai/hojai-action-registry/) |
+| **Notification Service** | 4880 | Email, SMS, Push, WhatsApp | [hojai-notification-service/](companies/hojai-ai/hojai-notification-service/) |
+| **Integration Hub** | 4890 | Shopify, Stripe, HubSpot Connectors | [hojai-integration-hub/](companies/hojai-ai/hojai-integration-hub/) |
+| **Agent Copilot** | 4895 | Draft Replies, Summarize, Predict | [hojai-agent-copilot/](companies/hojai-ai/hojai-agent-copilot/) |
+| **Unified Inbox** | 4870 | Multi-channel Conversations | [hojai-unified-inbox/](companies/hojai-ai/hojai-unified-inbox/) |
+| **Knowledge Base** | 4871 | Articles, FAQs, Categories | [hojai-knowledge-base/](companies/hojai-ai/hojai-knowledge-base/) |
+| **Ticket Service** | 4872 | Ticket Lifecycle, History | [hojai-ticket-service/](companies/hojai-ai/hojai-ticket-service/) |
+| **SLA Service** | 4873 | SLA Tracking, Breaches | [hojai-sla-service/](companies/hojai-ai/hojai-sla-service/) |
+| **Support Analytics** | 4874 | Reports, Dashboards | [hojai-support-analytics/](companies/hojai-ai/hojai-support-analytics/) |
+| **Supporter AI** | 4878 | Customer Chatbot | [supporter-ai/](companies/hojai-ai/employees/supporter-ai/) |
+
+### Key Features
+
+- **Customer 360**: Identity resolution, risk scoring, dynamic segments
+- **AI Agents**: Intent, sentiment, fraud detection with explanations
+- **Three Memory Layers**: Conversation, Customer, Organization
+- **Policy Engine**: Business rules for AI actions (ALLOW/DENY/APPROVAL)
+- **Workflow Automation**: BPMN-style approval chains
+- **Business Actions**: Safe, auditable operations (refund, cancel, etc.)
+- **Multi-channel**: Email, SMS, WhatsApp, Push, Slack
+- **100+ Connectors**: Shopify, Stripe, HubSpot, Zoho, etc.
+
+### Quick Deploy Support Platform
+
+```bash
+# Deploy all Support Services to Render
+render blueprint apply render.yaml
+
+# Or individually:
+cd companies/hojai-ai/hojai-intelligence && npm run dev
+```
+
+### Support Platform Health Checks
+
+```bash
+curl http://localhost:4001/health    # API Gateway
+curl http://localhost:4885/health    # Customer Intelligence
+curl http://localhost:4881/health    # Hojai Intelligence
+curl http://localhost:4870/health    # Unified Inbox
+curl http://localhost:4872/health     # Ticket Service
+curl http://localhost:4880/health   # Notifications
+curl http://localhost:4895/health   # Agent Copilot
+```
+
+### Documentation
+
+- [PLAN-CUSTOMER-OPS-PLATFORM.md](PLAN-CUSTOMER-OPS-PLATFORM.md) - Complete architecture plan
+- [AUDIT-SUPPORT-SYSTEMS.md](AUDIT-SUPPORT-SYSTEMS.md) - Support systems audit
 
 ---
 
