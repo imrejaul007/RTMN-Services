@@ -30,10 +30,33 @@ const LAYERS_ENABLED = process.env.LAYERS ? process.env.LAYERS.split(',') : 'all
 
 // Service URLs for Layer Integration
 const RTMN_SERVICES = {
-  // Layer 1: Intelligence (HOJAI)
+  // Layer 1: Intelligence (HOJAI AI - 153 services)
+  // Genie Services
   genie: process.env.GENIE_URL || 'http://localhost:4701',
+  genieHousehold: process.env.GENIE_HOUSEHOLD_URL || 'http://localhost:4706',
+  genieBusiness: process.env.GENIE_BUSINESS_URL || 'http://localhost:4707',
+  genieProject: process.env.GENIE_PROJECT_URL || 'http://localhost:4708',
+  genieMemory: process.env.GENIE_MEMORY_URL || 'http://localhost:4709',
+  genieTwin: process.env.GENIE_TWIN_URL || 'http://localhost:4710',
+  genieRelationship: process.env.GENIE_RELATIONSHIP_URL || 'http://localhost:4711',
+  // CoPilot Services
   copilot: process.env.COPILOT_URL || 'http://localhost:4600',
+  copilotBusiness: process.env.COPILOT_BUSINESS_URL || 'http://localhost:4601',
+  copilotSales: process.env.COPILOT_SALES_URL || 'http://localhost:4602',
+  copilotFinance: process.env.COPILOT_FINANCE_URL || 'http://localhost:4603',
+  copilotHR: process.env.COPILOT_HR_URL || 'http://localhost:4604',
+  // Agent Services
   agentMarketplace: process.env.AGENT_URL || 'http://localhost:4580',
+  agentStream: process.env.AGENT_STREAM_URL || 'http://localhost:4581',
+  // SUTAR OS
+  sutarOS: process.env.SUTAR_URL || 'http://localhost:4140',
+  sutarCore: process.env.SUTAR_CORE_URL || 'http://localhost:4141',
+  // Industry AI
+  hojaiIndustry: process.env.HOJAI_INDUSTRY_URL || 'http://localhost:4150',
+  hojaiCommerce: process.env.HOJAI_COMMERCE_URL || 'http://localhost:4151',
+  // Collaboration
+  hojaiCollab: process.env.HOJAI_COLLAB_URL || 'http://localhost:4160',
+  hojaiExpert: process.env.HOJAI_EXPERT_URL || 'http://localhost:4161',
   
   // Layer 2: Customer Growth (AdBazaar + REZ Consumer + Axom)
   // CRM & Customer
@@ -98,26 +121,89 @@ const RTMN_SERVICES = {
   merchantDashboard: process.env.MERCHANT_DASHBOARD_URL || 'http://localhost:4808',
   merchantGenie: process.env.MERCHANT_GENIE_URL || 'http://localhost:4809',
   
-  // Layer 4: Financial (RABTUL + RIDZA + AssetMind)
-  wallet: process.env.WALLET_URL || 'http://localhost:4004',
+  // Layer 4: Financial (RABTUL - 112 services)
+  // Auth & Identity
   auth: process.env.AUTH_URL || 'http://localhost:4002',
+  // Wallet & Payments
+  wallet: process.env.WALLET_URL || 'http://localhost:4004',
+  walletService: process.env.WALLET_SERVICE_URL || 'http://localhost:4005',
+  paymentGateway: process.env.PAYMENT_GATEWAY_URL || 'http://localhost:4006',
+  // Accounting
+  accounting: process.env.ACCOUNTING_URL || 'http://localhost:4010',
+  expenseService: process.env.EXPENSE_URL || 'http://localhost:4011',
+  invoiceService: process.env.INVOICE_URL || 'http://localhost:4012',
+  // Lending & Credit
+  lending: process.env.LENDING_URL || 'http://localhost:4020',
+  creditService: process.env.CREDIT_URL || 'http://localhost:4021',
+  // Procurement
+  procurementPayment: process.env.PROCUREMENT_PAYMENT_URL || 'http://localhost:4007',
+  // Contract
+  contractMgmt: process.env.CONTRACT_URL || 'http://localhost:4030',
+  // Distribution
+  distributionOS: process.env.DISTRIBUTION_URL || 'http://localhost:4040',
+  // GraphQL Federation
+  graphqlFed: process.env.GRAPHQL_URL || 'http://localhost:4000',
+  // Event Bus
+  eventBus: process.env.EVENT_BUS_URL || 'http://localhost:4510',
+  // Storage
+  fileStorage: process.env.STORAGE_URL || 'http://localhost:4050',
+  // Ecosystem
+  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4399',
   
-  // Layer 5: Workforce (CorpPerks)
+  // Layer 5: Workforce (CorpPerks - 43 services)
   corpPerks: process.env.CORPPERKS_URL || 'http://localhost:4450',
+  // HR Services
+  hrService: process.env.HR_SERVICE_URL || 'http://localhost:4451',
+  onboardingService: process.env.ONBOARDING_URL || 'http://localhost:4452',
+  payrollService: process.env.PAYROLL_URL || 'http://localhost:4453',
+  attendanceService: process.env.ATTENDANCE_URL || 'http://localhost:4454',
+  leaveService: process.env.LEAVE_URL || 'http://localhost:4455',
+  // Recruitment
+  atsService: process.env.ATS_URL || 'http://localhost:4460',
+  talentPool: process.env.TALENT_URL || 'http://localhost:4461',
+  // Collaboration
+  calendarService: process.env.CALENDAR_URL || 'http://localhost:4470',
+  meetingService: process.env.MEETING_URL || 'http://localhost:4471',
+  documentService: process.env.DOCUMENT_URL || 'http://localhost:4472',
+  // Learning
+  lmsService: process.env.LMS_URL || 'http://localhost:4480',
+  okrService: process.env.OKR_URL || 'http://localhost:4481',
+  insightService: process.env.INSIGHT_URL || 'http://localhost:4482',
   
-  // Layer 6: Legal & Trust (LawGens)
+  // Layer 6: Legal & Trust (LawGens - 4 services)
   legal: process.env.LEGAL_URL || 'http://localhost:5035',
   trustScorer: process.env.TRUST_URL || 'http://localhost:4180',
+  contractService: process.env.CONTRACT_SERVICE_URL || 'http://localhost:5036',
+  complianceService: process.env.COMPLIANCE_URL || 'http://localhost:5037',
   
-  // Layer 7: Property (RisnaEstate + StayOwn)
+  // Layer 7: Property (RisnaEstate - 10 services + StayOwn - 37 services)
   risnaEstate: process.env.RISNA_URL || 'http://localhost:4300',
+  propertyService: process.env.PROPERTY_SERVICE_URL || 'http://localhost:4301',
+  listingService: process.env.LISTING_URL || 'http://localhost:4302',
+  leadService: process.env.LEAD_SERVICE_URL || 'http://localhost:4303',
+  agentService: process.env.AGENT_SERVICE_URL || 'http://localhost:4304',
+  // StayOwn-Hospitality
   stayOwn: process.env.STAYOWN_URL || 'http://localhost:6000',
+  stayOwnPMS: process.env.STAYOWN_PMS_URL || 'http://localhost:6001',
+  bookingEngine: process.env.BOOKING_ENGINE_URL || 'http://localhost:6002',
+  guestApp: process.env.GUEST_APP_URL || 'http://localhost:6003',
+  housekeepingService: process.env.HOUSEKEEPING_URL || 'http://localhost:6004',
   
-  // Layer 8: Health (RisaCare)
+  // Layer 8: Health (RisaCare - 31 services)
   risaCare: process.env.RISACARE_URL || 'http://localhost:7000',
+  healthTwin: process.env.HEALTH_TWIN_URL || 'http://localhost:7001',
+  consultationCopilot: process.env.CONSULTATION_URL || 'http://localhost:7002',
+  wellnessService: process.env.WELLNESS_URL || 'http://localhost:7003',
+  healthInsurance: process.env.HEALTH_INSURANCE_URL || 'http://localhost:7004',
+  familyCoordination: process.env.FAMILY_COORD_URL || 'http://localhost:7005',
   
-  // Layer 9: Mobility (KHAIRMOVE)
+  // Layer 9: Mobility (KHAIRMOVE - 19 services)
   khairMove: process.env.KHAIRMOVE_URL || 'http://localhost:4500',
+  deliveryService: process.env.DELIVERY_URL || 'http://localhost:4501',
+  fleetService: process.env.FLEET_URL || 'http://localhost:4502',
+  rideService: process.env.RIDE_URL || 'http://localhost:4503',
+  logisticsService: process.env.LOGISTICS_URL || 'http://localhost:4504',
+  airzyService: process.env.AIRZY_URL || 'http://localhost:4505',
   
   // Layer 10: Identity (CorpID)
   corpid: process.env.CORPID_URL || 'http://localhost:4702',
@@ -436,7 +522,7 @@ app.get('/api/analytics', requireAuth, (req, res) => {
 });
 
 // ============================================
-// LAYER 1: INTELLIGENCE (HOJAI)
+// LAYER 1: INTELLIGENCE (HOJAI AI - 153 services)
 // ============================================
 
 app.get('/api/layer/intelligence', requireAuth, async (req, res) => {
@@ -446,16 +532,45 @@ app.get('/api/layer/intelligence', requireAuth, async (req, res) => {
       fetch(RTMN_SERVICES.copilot + '/health'),
       fetch(RTMN_SERVICES.agentMarketplace + '/api/agents'),
     ]);
-    
+
     res.json({
       layer: 1,
-      name: 'Intelligence (HOJAI)',
+      name: 'Intelligence (HOJAI AI - Full Suite)',
       services: {
+        // Genie Services
         genie: genieRes.status === 'fulfilled' ? 'online' : 'offline',
-        businessCopilot: copilotRes.status === 'fulfilled' ? 'online' : 'offline',
+        genieHousehold: RTMN_SERVICES.genieHousehold,
+        genieBusiness: RTMN_SERVICES.genieBusiness,
+        genieProject: RTMN_SERVICES.genieProject,
+        genieMemory: RTMN_SERVICES.genieMemory,
+        genieTwin: RTMN_SERVICES.genieTwin,
+        genieRelationship: RTMN_SERVICES.genieRelationship,
+        // CoPilot Services
+        copilot: copilotRes.status === 'fulfilled' ? 'online' : 'offline',
+        copilotBusiness: RTMN_SERVICES.copilotBusiness,
+        copilotSales: RTMN_SERVICES.copilotSales,
+        copilotFinance: RTMN_SERVICES.copilotFinance,
+        copilotHR: RTMN_SERVICES.copilotHR,
+        // Agent Services
         agentMarketplace: agentsRes.status === 'fulfilled' ? 'online' : 'offline',
+        agentStream: RTMN_SERVICES.agentStream,
+        // SUTAR OS
+        sutarOS: RTMN_SERVICES.sutarOS,
+        sutarCore: RTMN_SERVICES.sutarCore,
+        // Industry AI
+        hojaiIndustry: RTMN_SERVICES.hojaiIndustry,
+        hojaiCommerce: RTMN_SERVICES.hojaiCommerce,
+        // Collaboration
+        hojaiCollab: RTMN_SERVICES.hojaiCollab,
+        hojaiExpert: RTMN_SERVICES.hojaiExpert,
       },
-      aiAgents: ['AI Receptionist', 'AI Chef', 'AI Waiter', 'AI Manager', 'AI Procurement Agent'],
+      capabilities: [
+        'Genie AI Chat', 'Business Copilot', 'Agent Marketplace',
+        'Personal AI', 'Business AI', 'Project AI', 'Memory AI',
+        'Twin AI', 'Relationship AI', 'Sales Copilot', 'Finance Copilot', 'HR Copilot',
+        'Industry AI', 'Commerce AI', 'Expert OS', 'Collaboration'
+      ],
+      aiAgents: ['AI Receptionist', 'AI Chef', 'AI Waiter', 'AI Manager', 'AI Procurement Agent', 'AI Sales Rep', 'AI Recruiter', 'AI Support', 'AI Finance Analyst'],
     });
   } catch (err) {
     res.json({ layer: 1, name: 'Intelligence', status: 'offline', error: err.message });
@@ -463,7 +578,6 @@ app.get('/api/layer/intelligence', requireAuth, async (req, res) => {
 });
 
 app.post('/api/ai/chat', requireAuth, async (req, res) => {
-  // Connect to Genie for AI chat
   try {
     const response = await fetch(RTMN_SERVICES.genie + '/api/chat', {
       method: 'POST',
@@ -472,7 +586,25 @@ app.post('/api/ai/chat', requireAuth, async (req, res) => {
     });
     res.json(await response.json());
   } catch (err) {
-    res.status(500).json({ error: 'AI service unavailable', details: err.message });
+    res.status(500).json({ error: 'AI service unavailable' });
+  }
+});
+
+app.get('/api/ai/agents', requireAuth, async (req, res) => {
+  try {
+    const agentsRes = await fetch(RTMN_SERVICES.agentMarketplace + '/api/agents');
+    res.json(await agentsRes.json());
+  } catch (err) {
+    res.json({ error: 'Agent marketplace unavailable' });
+  }
+});
+
+app.get('/api/ai/copilot', requireAuth, async (req, res) => {
+  try {
+    const copilotRes = await fetch(RTMN_SERVICES.copilot + '/api/copilot');
+    res.json(await copilotRes.json());
+  } catch (err) {
+    res.json({ error: 'Copilot unavailable' });
   }
 });
 
@@ -957,7 +1089,7 @@ app.post('/api/procure/ingredients', requireAuth, async (req, res) => {
 });
 
 // ============================================
-// LAYER 4: FINANCIAL
+// LAYER 4: FINANCIAL (RABTUL - 112 services)
 // ============================================
 
 app.get('/api/layer/finance', requireAuth, async (req, res) => {
@@ -966,36 +1098,118 @@ app.get('/api/layer/finance', requireAuth, async (req, res) => {
       fetch(RTMN_SERVICES.wallet + '/health'),
       fetch(RTMN_SERVICES.auth + '/health'),
     ]);
-    
+
     res.json({
       layer: 4,
-      name: 'Financial (RIDZA + AssetMind + RABTUL + RidZa)',
+      name: 'Financial (RABTUL Full Suite - 112 services)',
       services: {
-        wallet: walletRes.status === 'fulfilled' ? 'online' : 'offline',
+        // Auth & Identity
         auth: authRes.status === 'fulfilled' ? 'online' : 'offline',
-        ridZa: RTMN_SERVICES.ridZa,
+        // Wallet & Payments
+        wallet: walletRes.status === 'fulfilled' ? 'online' : 'offline',
+        walletService: RTMN_SERVICES.walletService,
+        paymentGateway: RTMN_SERVICES.paymentGateway,
+        // Accounting
+        accounting: RTMN_SERVICES.accounting,
+        expenseService: RTMN_SERVICES.expenseService,
+        invoiceService: RTMN_SERVICES.invoiceService,
+        // Lending & Credit
+        lending: RTMN_SERVICES.lending,
+        creditService: RTMN_SERVICES.creditService,
+        // Procurement
+        procurementPayment: RTMN_SERVICES.procurementPayment,
+        // Contract
+        contractMgmt: RTMN_SERVICES.contractMgmt,
+        // Distribution
+        distributionOS: RTMN_SERVICES.distributionOS,
+        // GraphQL
+        graphqlFed: RTMN_SERVICES.graphqlFed,
+        // Event Bus
+        eventBus: RTMN_SERVICES.eventBus,
+        // Storage
+        fileStorage: RTMN_SERVICES.fileStorage,
+        // Ecosystem
+        ecosystemConnector: RTMN_SERVICES.ecosystemConnector,
       },
-      capabilities: ['Accounting', 'Banking', 'Lending', 'Insurance', 'Investment', 'Wealth Management', 'Financial Planning'],
+      capabilities: [
+        'Authentication', 'Wallet', 'Payments', 'Accounting', 'Expenses',
+        'Invoicing', 'Lending', 'Credit', 'Procurement', 'Contract Management',
+        'Distribution', 'GraphQL API', 'Event Bus', 'File Storage', 'Ecosystem Integration'
+      ],
     });
   } catch (err) {
     res.json({ layer: 4, name: 'Finance', status: 'offline', error: err.message });
   }
 });
 
+// Financial Endpoints
+app.get('/api/finance/accounting', requireAuth, async (req, res) => {
+  try {
+    const accRes = await fetch(RTMN_SERVICES.accounting + '/api/accounts');
+    res.json(await accRes.json());
+  } catch (err) {
+    res.json({ error: 'Accounting service unavailable' });
+  }
+});
+
+app.get('/api/finance/wallet', requireAuth, async (req, res) => {
+  try {
+    const walletRes = await fetch(RTMN_SERVICES.wallet + '/api/balance');
+    res.json(await walletRes.json());
+  } catch (err) {
+    res.json({ error: 'Wallet service unavailable' });
+  }
+});
+
+app.post('/api/finance/payment', requireAuth, async (req, res) => {
+  try {
+    const response = await fetch(RTMN_SERVICES.paymentGateway + '/api/pay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
+    res.json(await response.json());
+  } catch (err) {
+    res.status(500).json({ error: 'Payment failed' });
+  }
+});
+
 // ============================================
-// LAYER 5: WORKFORCE
+// LAYER 5: WORKFORCE (CorpPerks - 43 services)
 // ============================================
 
 app.get('/api/layer/workforce', requireAuth, async (req, res) => {
   try {
     const corpRes = await fetch(RTMN_SERVICES.corpPerks + '/health');
-    const corp = await corpRes.json();
-    
+
     res.json({
       layer: 5,
-      name: 'Workforce (CorpPerks + REZ Workspace)',
-      services: { corpPerks: corp.status || 'online' },
-      capabilities: ['HR', 'Recruitment', 'Collaboration', 'Learning'],
+      name: 'Workforce (CorpPerks Full Suite - 43 services)',
+      services: {
+        corpPerks: RTMN_SERVICES.corpPerks,
+        // HR Services
+        hrService: RTMN_SERVICES.hrService,
+        onboardingService: RTMN_SERVICES.onboardingService,
+        payrollService: RTMN_SERVICES.payrollService,
+        attendanceService: RTMN_SERVICES.attendanceService,
+        leaveService: RTMN_SERVICES.leaveService,
+        // Recruitment
+        atsService: RTMN_SERVICES.atsService,
+        talentPool: RTMN_SERVICES.talentPool,
+        // Collaboration
+        calendarService: RTMN_SERVICES.calendarService,
+        meetingService: RTMN_SERVICES.meetingService,
+        documentService: RTMN_SERVICES.documentService,
+        // Learning
+        lmsService: RTMN_SERVICES.lmsService,
+        okrService: RTMN_SERVICES.okrService,
+        insightService: RTMN_SERVICES.insightService,
+      },
+      capabilities: [
+        'HR Management', 'Onboarding', 'Payroll', 'Attendance', 'Leave Management',
+        'ATS', 'Talent Pool', 'Calendar', 'Meetings', 'Documents',
+        'LMS', 'OKR', 'Insights'
+      ],
     });
   } catch (err) {
     res.json({ layer: 5, name: 'Workforce', status: 'offline', error: err.message });
@@ -1003,7 +1217,7 @@ app.get('/api/layer/workforce', requireAuth, async (req, res) => {
 });
 
 // ============================================
-// LAYER 6: LEGAL & TRUST
+// LAYER 6: LEGAL & TRUST (LawGens - 4 services)
 // ============================================
 
 app.get('/api/layer/legal', requireAuth, async (req, res) => {
@@ -1012,15 +1226,17 @@ app.get('/api/layer/legal', requireAuth, async (req, res) => {
       fetch(RTMN_SERVICES.legal + '/health'),
       fetch(RTMN_SERVICES.trustScorer + '/health'),
     ]);
-    
+
     res.json({
       layer: 6,
       name: 'Legal & Trust (LawGens)',
       services: {
         legal: legalRes.status === 'fulfilled' ? 'online' : 'offline',
         trustScorer: trustRes.status === 'fulfilled' ? 'online' : 'offline',
+        contractService: RTMN_SERVICES.contractService,
+        complianceService: RTMN_SERVICES.complianceService,
       },
-      capabilities: ['Contracts', 'Compliance', 'Risk', 'Security'],
+      capabilities: ['Contracts', 'Compliance', 'Risk', 'Security', 'Due Diligence', 'Verification'],
     });
   } catch (err) {
     res.json({ layer: 6, name: 'Legal', status: 'offline', error: err.message });
@@ -1028,7 +1244,7 @@ app.get('/api/layer/legal', requireAuth, async (req, res) => {
 });
 
 // ============================================
-// LAYER 7: PROPERTY
+// LAYER 7: PROPERTY (RisnaEstate + StayOwn)
 // ============================================
 
 app.get('/api/layer/property', requireAuth, async (req, res) => {
@@ -1037,16 +1253,24 @@ app.get('/api/layer/property', requireAuth, async (req, res) => {
       fetch(RTMN_SERVICES.risnaEstate + '/health'),
       fetch(RTMN_SERVICES.stayOwn + '/health'),
     ]);
-    
+
     res.json({
       layer: 7,
-      name: 'Property (RisnaEstate + StayOwn-Hospitality)',
+      name: 'Property (RisnaEstate - 10 + StayOwn - 37)',
       services: {
         risnaEstate: risnaRes.status === 'fulfilled' ? 'online' : 'offline',
+        propertyService: RTMN_SERVICES.propertyService,
+        listingService: RTMN_SERVICES.listingService,
+        leadService: RTMN_SERVICES.leadService,
+        agentService: RTMN_SERVICES.agentService,
+        // StayOwn
         stayOwn: stayRes.status === 'fulfilled' ? 'online' : 'offline',
         stayOwnPMS: RTMN_SERVICES.stayOwnPMS,
+        bookingEngine: RTMN_SERVICES.bookingEngine,
+        guestApp: RTMN_SERVICES.guestApp,
+        housekeepingService: RTMN_SERVICES.housekeepingService,
       },
-      capabilities: ['Expansion', 'Property', 'Facility', 'Hospitality', 'PMS', 'Booking Engine'],
+      capabilities: ['Expansion', 'Property Management', 'Listings', 'Lead Management', 'Agent Network', 'PMS', 'Booking Engine', 'Guest App', 'Housekeeping'],
     });
   } catch (err) {
     res.json({ layer: 7, name: 'Property', status: 'offline', error: err.message });
@@ -1054,19 +1278,25 @@ app.get('/api/layer/property', requireAuth, async (req, res) => {
 });
 
 // ============================================
-// LAYER 8: HEALTH
+// LAYER 8: HEALTH (RisaCare - 31 services)
 // ============================================
 
 app.get('/api/layer/health', requireAuth, async (req, res) => {
   try {
     const risaRes = await fetch(RTMN_SERVICES.risaCare + '/health');
-    const risa = await risaRes.json();
-    
+
     res.json({
       layer: 8,
-      name: 'Health (RisaCare)',
-      services: { risaCare: risa.status || 'online' },
-      capabilities: ['Employee Health', 'Occupational', 'Mental Health'],
+      name: 'Health (RisaCare - 31 services)',
+      services: {
+        risaCare: RTMN_SERVICES.risaCare,
+        healthTwin: RTMN_SERVICES.healthTwin,
+        consultationCopilot: RTMN_SERVICES.consultationCopilot,
+        wellnessService: RTMN_SERVICES.wellnessService,
+        healthInsurance: RTMN_SERVICES.healthInsurance,
+        familyCoordination: RTMN_SERVICES.familyCoordination,
+      },
+      capabilities: ['Employee Health', 'Health Twin', 'Consultation Copilot', 'Wellness', 'Insurance', 'Family Coordination'],
     });
   } catch (err) {
     res.json({ layer: 8, name: 'Health', status: 'offline', error: err.message });
@@ -1074,19 +1304,25 @@ app.get('/api/layer/health', requireAuth, async (req, res) => {
 });
 
 // ============================================
-// LAYER 9: MOBILITY
+// LAYER 9: MOBILITY (KHAIRMOVE - 19 services)
 // ============================================
 
 app.get('/api/layer/mobility', requireAuth, async (req, res) => {
   try {
     const khairRes = await fetch(RTMN_SERVICES.khairMove + '/health');
-    const khair = await khairRes.json();
-    
+
     res.json({
       layer: 9,
-      name: 'Mobility (KHAIRMOVE)',
-      services: { khairMove: khair.status || 'online' },
-      capabilities: ['Delivery', 'Employee Transport', 'Logistics'],
+      name: 'Mobility (KHAIRMOVE - 19 services)',
+      services: {
+        khairMove: RTMN_SERVICES.khairMove,
+        deliveryService: RTMN_SERVICES.deliveryService,
+        fleetService: RTMN_SERVICES.fleetService,
+        rideService: RTMN_SERVICES.rideService,
+        logisticsService: RTMN_SERVICES.logisticsService,
+        airzyService: RTMN_SERVICES.airzyService,
+      },
+      capabilities: ['Delivery', 'Fleet Management', 'Ride Hailing', 'Logistics', 'Airzy (Air Transport)'],
     });
   } catch (err) {
     res.json({ layer: 9, name: 'Mobility', status: 'offline', error: err.message });
