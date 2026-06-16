@@ -85,7 +85,7 @@ render blueprint apply render.yaml
 | **RABTUL Technologies** | Auth, Wallet, Payments, Economic Layer | ✅ **10/10 Ready** | 100% |
 | **RAZO Keyboard** | Communication OS / AI Keyboard | ✅ Ready | 100% |
 | **AdBazaar** | DOOH advertising + AI-powered advertising OS (47 services) | ✅ **100% Ready** | 100% |
-| Nexha | Consumer app platform | ✅ Ready | 100% |
+| Nexha Commerce | Commerce & Procurement (7 services) | ✅ Ready | 100% |
 | CorpPerks | Employee benefits & perks | ✅ Ready | 100% |
 | RisaCare | Healthcare services | ✅ Ready | 100% |
 | StayOwn | Hospitality management | ✅ Ready | 100% |
