@@ -39,6 +39,14 @@ companies/*
 companies/Nexha/commerce-identity/node_modules/
 companies/Nexha/commerce-identity/dist/
 
+# REZ-Merchant regional compliance services (June 2026)
+!companies/REZ-Merchant/REZ-spoilage-markdown-service/
+!companies/REZ-Merchant/REZ-spoilage-markdown-service/**
+
+# LawGens compliance services (June 2026)
+!companies/LawGens/REZ-cookie-consent-service/
+!companies/LawGens/REZ-cookie-consent-service/**
+
 # SUTAR OS Services - Built June 15, 2026
 !companies/RTNM-Group/
 !companies/RTNM-Group/boa-os/
