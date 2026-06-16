@@ -99,3 +99,5 @@ companies/RABTUL-Technologies/REZ-trust-scorer/dist/
 
 # RTMN subfolder (separate repo)
 RTMN/
+companies/AdBazaar/*/node_modules/@next/swc-darwin-arm64/
+companies/AdBazaar/*/node_modules/.cache/
