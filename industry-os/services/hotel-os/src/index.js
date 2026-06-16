@@ -1595,6 +1595,12 @@ app.get('/health', (req, res) => {
 });
 
 // ============================================
+// SHARIA COMPLIANCE (GCC)
+// ============================================
+const shariaCompliance = require('./sharia-compliance');
+app.use('/sharia', shariaCompliance);
+
+// ============================================
 // START
 // ============================================
 
@@ -1602,4 +1608,5 @@ initDatabase().catch(console.warn);
 app.listen(PORT, () => {
   console.log('✅ hotel-os AI Company Platform running on port ' + PORT);
   console.log('📦 15 Layers: Intelligence, Growth, Commerce, Finance, Workforce, Legal, Property, Health, Mobility, Identity, Memory, Twins, Autonomous, Network');
+  console.log('🌙 Sharia Compliance: Murabaha, Ijara, Halal Services, Hijri Calendar');
 });
