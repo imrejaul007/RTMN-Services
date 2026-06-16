@@ -148,7 +148,7 @@ const RTMN_SERVICES = {
   // Storage
   fileStorage: process.env.STORAGE_URL || 'http://localhost:4050',
   // Ecosystem
-  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4399',
+  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4398',
   
   // Layer 5: Workforce (CorpPerks - 43 services)
   corpPerks: process.env.CORPPERKS_URL || 'http://localhost:4450',
