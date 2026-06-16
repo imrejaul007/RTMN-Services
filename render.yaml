@@ -279,3 +279,45 @@ services:
         value: "10035"
       - key: NODE_ENV
         value: production
+
+  # ── REZ MERCHANT INTEGRATION (NEW! - Port 4800) ─────────────────
+  - type: web
+    name: rez-merchant-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: companies/REZ-Merchant/rez-merchant-integration-service
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4800"
+      - key: NODE_ENV
+        value: production
+      # Merchant Services
+      - key: MERCHANT_SERVICE_URL
+        value: https://rez-merchant-service.onrender.com
+      - key: MENU_SERVICE_URL
+        value: https://rez-menu-service.onrender.com
+      - key: ORDER_SERVICE_URL
+        value: https://rez-order-service.onrender.com
+      # Industry OS
+      - key: RESTAURANT_OS_URL
+        value: https://rtmn-restaurant-os.onrender.com
+      - key: HOTEL_OS_URL
+        value: https://rtmn-hotel-os.onrender.com
+      - key: RETAIL_OS_URL
+        value: https://rtmn-retail-os.onrender.com
+      # RABTUL Services
+      - key: AUTH_SERVICE_URL
+        value: https://rez-auth-service.onrender.com
+      - key: WALLET_SERVICE_URL
+        value: https://rez-wallet-service.onrender.com
+      - key: PAYMENT_SERVICE_URL
+        value: https://rez-payment-service.onrender.com
+      # Event Bus
+      - key: EVENT_BUS_URL
+        value: https://rez-event-bus.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
