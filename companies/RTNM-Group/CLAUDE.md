@@ -1,55 +1,55 @@
-# RTNM Group - Strategic Services
+# RTNM Group - Corporate Holding & Services
 
-**Version:** 1.0 | **Date:** June 16, 2026  
-**Status:** ✅ **READY**
+**Version:** 1.0.0  
+**Last Updated:** June 16, 2026  
+**Status:** ✅ Production Ready
 
 ---
 
 ## Overview
 
-RTNM Group provides strategic services including BOA OS (Business Objective Achievement) and SUTAR OS integration.
+RTNM Group is the corporate holding company providing shared services, governance, and strategic direction for all RTNM ecosystem companies.
+
+---
 
 ## Services
 
-### BOA OS (Port 4100)
+### Core Services
 
-**Business Objective Achievement OS** - Strategy Layer above SUTAR OS
+| Service | Port | Purpose |
+|---------|------|---------|
+| BOA OS | TBD | Business Operating System |
+| SUTAR Bridge | TBD | SUTAR OS integration |
 
-- Vision/Mission/Strategy management
-- Strategic Pillars with themes
-- OKR/Objectives with Key Results
-- Roadmap with Milestones
-- KPI tracking with auto-status
-- SWOT analysis generation
-- Strategic alignment assessment
-- Goal sync to SUTAR GoalOS
+---
 
-### BOA-SUTAR Bridge (Port 4110)
-
-Bridge service between BOA OS and SUTAR OS for:
-- Goal synchronization
-- Progress updates
-- Event propagation
-
-## Architecture
-
-```
-BOA OS (Strategy) → BOA-SUTAR Bridge → SUTAR OS (Autonomous)
-```
-
-## API Endpoints
+## Products
 
 ### BOA OS
-- `/api/v1/strategy` - Strategy CRUD
-- `/api/v1/objective` - Objective management
-- `/api/v1/roadmap` - Roadmap planning
-- `/api/v1/kpi` - KPI tracking
-- `/api/v1/alignment` - Strategic alignment
-- `/api/v1/sync` - SUTAR OS sync
+Business Operating Assistant - AI-powered business management
 
-## Security
+### SUTAR Bridge
+Integration bridge to SUTAR OS autonomous economic infrastructure
 
-All API routes require JWT authentication.
-Rate limiting: 100 requests/minute.
-Strict CORS with domain whitelist.
-CSP and HSTS headers enabled.
+---
+
+## Quick Start
+
+```bash
+cd companies/RTNM-Group
+npm install
+```
+
+---
+
+## Integration
+
+RTNM Group connects to:
+- All RTNM ecosystem companies
+- SUTAR OS (autonomous infrastructure)
+- RABTUL Technologies (economic layer)
+
+---
+
+*Last Updated: June 16, 2026*
+*RTNM Group - Corporate Holding & Services*

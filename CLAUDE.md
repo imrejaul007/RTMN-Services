@@ -533,3 +533,162 @@ events.subscribe('manufacturing.*', (event) => { /* handle */ });
 
 *Last Updated: June 15, 2026*
 *RTMN-Services - Real-Time Multi-Industry Network*
+
+---
+
+## Exhibition OS (Layer 22 - Exhibition Commerce & Intelligence)
+
+**Location:** `exhibition-os/` + `companies/REZ-Exhibitor/`  
+**Port Range:** 5040-5061  
+**Status:** ✅ **COMPLETE** | **22 Microservices** | **1 Mobile App**
+
+### Exhibition OS Service Map
+
+| Port | Service | Purpose | Status |
+|------|---------|---------|--------|
+| **5040** | exhibition-gateway | Orchestrator — coordinates all services | ✅ Full Source |
+| 5041 | exhibition-organizer-service | Exhibition lifecycle, venues, zones, sessions | ✅ Full Source |
+| 5042 | exhibition-exhibitor-service | Booth management, leads, team, exhibitor portal | ✅ Full Source |
+| 5043 | exhibition-attendee-service | Registration, tickets, check-in, networking | ✅ Full Source |
+| 5044 | exhibition-twin-service | 8 Digital Twins (Exhibition, Exhibitor, Visitor, Booth, Sponsor, Venue, Lead, Session) | ✅ Full Source |
+| 5045 | exhibition-badge-service | QR badge generation, scanning, wallet passes | ✅ Full Source |
+| 5046 | exhibition-analytics-service | Real-time metrics, heatmaps, ROI dashboards | ✅ Full Source |
+| 5047 | exhibition-notification-service | Push, WhatsApp, email, SMS | ✅ Full Source |
+| 5048 | exhibition-payment-service | Tickets, exhibitor fees, SUTAR escrow | ✅ Full Source |
+| 5049 | exhibition-intelligence-service | AI copilots (Organizer, Exhibitor, Visitor) | ✅ Full Source |
+| 5050 | exhibition-economy-service | REZ Coins, campaigns, rewards, leaderboards | ✅ Full Source |
+| 5051 | exhibition-marketplace-service | Booth storefronts, products, RFQ | ✅ Full Source |
+| 5052 | exhibition-networking-service | Connections, chat, profiles, meeting requests | ✅ Full Source |
+| 5053 | exhibition-exhibition-appointment-service | Meeting scheduler, calendar sync | ✅ Full Source |
+| 5054 | exhibition-passport-service | Missions, gamification, badges | ✅ Full Source |
+| 5055 | exhibition-sponsor-service | Sponsor dashboard, campaigns, ROI | ✅ Full Source |
+| 5056 | exhibition-venue-ops-service | Infrastructure, logistics, setup | ✅ Full Source |
+| 5057 | exhibition-staff-service | Volunteer management, tasks, shifts | ✅ Full Source |
+| 5058 | exhibition-crm-service | Post-event follow-up, pipeline, deals | ✅ Full Source |
+| 5059 | exhibition-document-service | Catalogs, brochures, searchable docs | ✅ Full Source |
+| 5060 | exhibition-integration-hub | CRM/ERP connectors, webhooks | ✅ Full Source |
+| 5061 | exhibition-floor-intelligence | Live crowd density, navigation, heatmaps | ✅ Full Source |
+
+### Exhibition OS Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      EXHIBITION OS ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      OS LAYER                                     │  │
+│  │  Organizer │ Exhibitor │ Attendee │ Sponsor │ Venue │ Staff       │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                    │                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      INTELLIGENCE LAYER                         │  │
+│  │  Genie AI │ Twins (8) │ Analytics │ Floor Intel │ Copilots       │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                    │                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      COMMERCE LAYER                              │  │
+│  │  Marketplace │ Networking │ Appointments │ CRM │ Orders            │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                    │                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      ECONOMY LAYER                                │  │
+│  │  REZ Coins │ PROMO/BRANDED │ Passport │ Missions │ Rewards        │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Exhibition OS Digital Twins
+
+| Twin | Port | Purpose |
+|------|------|---------|
+| Exhibition Twin | 5044 | Event data, stats, settings |
+| Organizer Twin | 5044 | Organizer profile, permissions |
+| Exhibitor Twin | 5044 | Company, booth, team |
+| Visitor Twin | 5044 | Attendee profile, interests |
+| Booth Twin | 5044 | Booth metrics, products |
+| Sponsor Twin | 5044 | Sponsor campaigns, ROI |
+| Venue Twin | 5044 | Venue layout, zones |
+| Lead Twin | 5044 | Lead intelligence, follow-up |
+
+### DO Exhibitor App
+
+**Location:** `companies/REZ-Exhibitor/do-exhibitor/`
+
+```
+do-exhibitor/
+├── app/
+│   ├── _layout.tsx        # Stack navigation
+│   ├── index.tsx          # Home dashboard
+│   ├── dashboard.tsx     # Analytics & charts
+│   ├── leads.tsx         # Lead management
+│   ├── scan.tsx           # Camera badge scanner
+│   └── appointments.tsx   # Meeting scheduler
+└── package.json
+```
+
+### Exhibition OS Quick Start
+
+```bash
+# Start Gateway
+cd exhibition-os && npm install && npm start  # Port 5040
+
+# Start microservices
+cd packages/exhibition-twin-service && npm start  # 5044
+cd packages/exhibition-intelligence-service && npm start  # 5049
+cd packages/exhibition-economy-service && npm start  # 5050
+# etc.
+
+# Or Docker
+docker-compose -f docker-compose.exhibition.yml up -d
+
+# Health checks
+curl http://localhost:5040/health  # Gateway
+curl http://localhost:5044/health  # Twin
+curl http://localhost:5049/health  # Intelligence
+curl http://localhost:5050/health  # Economy
+```
+
+### Exhibition OS API Routes
+
+| Route | Service | Description |
+|-------|---------|-------------|
+| `/api/exhibitions` | Organizer | Exhibition CRUD |
+| `/api/exhibitors` | Exhibitor | Booth, leads, team |
+| `/api/attendees` | Attendee | Registration, tickets |
+| `/api/genie/exhibitions/:id/briefing` | Intelligence | AI daily briefing |
+| `/api/coins/earn` | Economy | Earn REZ coins |
+| `/api/appointments` | Appointment | Schedule meetings |
+| `/api/passport` | Passport | Missions & progress |
+| `/api/analytics/dashboard` | Analytics | Real-time metrics |
+
+### RTMN Exhibition OS Integration
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| Genie Gateway | 4701 | AI briefings |
+| hojai-event | 4510 | Event bus |
+| CorpID | 4300 | Universal identity |
+| WhatsApp Bot | 4718 | Notifications |
+| SUTAR Escrow | 4149 | Payments |
+
+### MongoDB Models (Exhibition OS)
+
+| Model | Port | Purpose |
+|-------|------|---------|
+| Exhibition | 5041 | Event data, settings, sponsors |
+| Exhibitor | 5042 | Company, booth, team |
+| Lead | 5042 | Captured leads, follow-up |
+| Attendee | 5043 | Visitor registration |
+| Booth | 5042 | Booth config, live metrics |
+| Session | 5041 | Talks, workshops |
+| Badge | 5045 | QR badges |
+| Ticket | 5043 | Event tickets |
+| CoinBalance | 5050 | REZ Coins |
+| Deal | 5058 | CRM pipeline |
+
+---
+
+*Last Updated: June 17, 2026*
+*Exhibition OS - Complete Exhibition Commerce & Intelligence Platform*
