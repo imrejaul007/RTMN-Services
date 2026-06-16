@@ -1,7 +1,7 @@
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 import Redis from 'ioredis';
-import type { RedisReply, SendCommandFn } from 'rate-limit-redis';
+import type { RedisReply } from 'rate-limit-redis';
 
 // Redis client for rate limiting
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
@@ -14,7 +14,7 @@ export function createRateLimiter(config: { windowMs: number; max: number; keyPr
     standardHeaders: true,
     legacyHeaders: false,
     store: new RedisStore({
-      sendCommand: async (...args: string[]): Promise<RedisReply> => {
+      sendCommand: async (args: readonly [string, ...string[]]): Promise<RedisReply> => {
         return redis.call(...args) as Promise<RedisReply>;
       },
     }),
