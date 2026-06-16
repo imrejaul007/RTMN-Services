@@ -635,7 +635,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | 5100 | **Energy OS** | Energy | Smart energy management platform |
 | 5600 | **Media OS** | Media | Digital media & content management |
 
-**File:** [services/energy-os/](./services/energy-os/) | [services/media-os/](./services/media-os/)
+**File:** [industry-os/services/energy-os/](./industry-os/services/energy-os/) | [industry-os/services/media-os/](./industry-os/services/media-os/)
 
 ---
 

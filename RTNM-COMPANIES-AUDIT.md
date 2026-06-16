@@ -85,6 +85,82 @@ render blueprint apply render.yaml
 | **RABTUL Technologies** | Auth, Wallet, Payments, Economic Layer | ✅ **10/10 Ready** | 100% |
 | **RAZO Keyboard** | Communication OS / AI Keyboard | ✅ Ready | 100% |
 | **AdBazaar** | DOOH advertising + Commerce Intelligence (85+ services) | ✅ **100% Ready** | 100% |
+
+---
+
+### ✅ AdBazaar - AI-Powered Commerce Intelligence for DOOH
+
+**Location:** `companies/AdBazaar/`  
+**Status:** ✅ **85+ SERVICES BUILT** | **85/85 TypeScript** | **June 16, 2026** 🎉
+
+#### AdBazaar Overview
+
+**What makes AdBazaar unique:** No other DOOH company has Commerce-to-Intent Intelligence - know when users are ready to buy, not just who they are.
+
+| Feature | Traditional DOOH | Vistar/Hivestack | **AdBazaar** |
+|---------|------------------|-----------------|--------------|
+| Intent Intelligence | ❌ | ❌ | ✅ **Unique** |
+| Commerce Signals | ❌ | ❌ | ✅ **Unique** |
+| QR Attribution | ❌ | ❌ | ✅ **Unique** |
+| Audience Twins | ❌ | ❌ | ✅ **Unique** |
+| Programmatic DOOH | ⚠️ | ✅ | ✅ |
+| SSP/DSP | ⚠️ | ✅ | ✅ |
+
+#### AdBazaar Service Summary
+
+| Category | Services | Example |
+|----------|----------|---------|
+| **Core Intelligence** | 4 | HOJAI AI Gateway, Intent Aggregator, Intent Prediction, Intent Marketplace |
+| **Audience Intelligence** | 1 | AdBazaar Audience Intelligence (4805) |
+| **Integration** | 1 | AdBazaar Integration Service (4910) |
+| **Data Platform** | 4 | CDP, Pixel, Clean Room |
+| **DOOH Platform** | 8 | Inventory, Programmatic, Attribution, Verification, SSP, DSP |
+| **Ad Operations** | 2 | REZ-ads-service, REZ-decision-service |
+
+#### AdBazaar Port Registry
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| hojai-ai-gateway-v2 | 4560 | Central AI hub |
+| intent-signal-aggregator | 4800 | Signal collection |
+| intent-prediction-engine | 4801 | ML predictions |
+| intent-marketplace | 4802 | Segment marketplace |
+| adbazaar-audience-intelligence | 4805 | **Core differentiator** |
+| adbazaar-cdp | 4901 | Customer Data Platform |
+| adbazaar-inventory-service | 4900 | Screen management |
+| adbazaar-integration-service | 4910 | Intelligence hub |
+| adbazaar-clean-room | 4930 | Privacy-safe collaboration |
+| adbazaar-programmatic-api | 4940 | OpenRTB exchange |
+| adbazaar-attribution-service | 4950 | Multi-touch attribution |
+| adbazaar-audience-marketplace | 4960 | Segment marketplace |
+| adbazaar-pixel | 4962 | Universal tracking pixel |
+| adbazaar-verification-service | 4970 | CV verification |
+| adbazaar-ssp | 4980 | Supply-side platform |
+| adbazaar-dsp | 4990 | Demand-side platform |
+| REZ-ads-service | 4007 | Ad serving & campaigns |
+| REZ-decision-service | 4027 | Targeting & auction |
+
+#### AdBazaar Key Features
+
+- **Commerce-to-Intent**: Uses REZ ecosystem signals (QR scans, orders, loyalty) for ad targeting
+- **Audience Twins**: AI-generated behavioral profiles for lookalike targeting
+- **QR Attribution**: Native conversion tracking via QR codes
+- **HOJAI AI Integration**: Full AI predictions, LTV scoring, churn analysis
+- **Programmatic DOOH**: OpenRTB 2.5 compliant exchange
+- **Privacy-safe**: Clean Room for secure data collaboration
+
+#### AdBazaar vs Competitors
+
+| Capability | AdBazaar | Vistar | Hivestack | JCDecaux |
+|-----------|----------|--------|-----------|-----------|
+| Intent Intelligence | ✅ Unique | ❌ | ❌ | ❌ |
+| Commerce Signals | ✅ Unique | ❌ | ❌ | ❌ |
+| QR Attribution | ✅ Native | ❌ | ❌ | ❌ |
+| Audience Twins | ✅ AI | ❌ | ❌ | ❌ |
+| Programmatic DOOH | ✅ Full | ✅ | ✅ | ⚠️ |
+| Physical Inventory | ⚠️ Partners | ⚠️ Partners | ⚠️ Partners | ✅ |
+| Verification | ✅ CV | ⚠️ Basic | ⚠️ Basic | ❌ |
+
 | Nexha | Consumer app platform | ✅ Ready | 100% |
 | CorpPerks | Employee benefits & perks | ✅ Ready | 100% |
 | RisaCare | Healthcare services | ✅ Ready | 100% |

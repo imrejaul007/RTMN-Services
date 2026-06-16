@@ -10,6 +10,7 @@ import { checkoutSchema } from '../validators/schemas.js';
 
 const router = express.Router();
 const STRIPE_ENABLED = process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('replace_me');
+const MOCK_ENABLED = !STRIPE_ENABLED && process.env.NODE_ENV !== 'production';
 
 // Lazy import Stripe only if configured (avoids error in dev)
 let stripe = null;
@@ -90,7 +91,14 @@ router.post('/checkout', authMiddleware, async (req, res) => {
     }
   }
 
-  // Mock mode (no Stripe key)
+  // Mock mode (no Stripe key, dev only)
+  if (!MOCK_ENABLED) {
+    return res.status(503).json({
+      error: 'Payment provider not configured',
+      message: 'Set STRIPE_SECRET_KEY in production environment'
+    });
+  }
+
   await store.recordPayment({
     id: paymentId,
     clientId: req.client.id,
@@ -113,7 +121,7 @@ router.post('/checkout', authMiddleware, async (req, res) => {
 
 // POST /v1/billing/mock-confirm/:paymentId  (DEV ONLY)
 router.post('/mock-confirm/:paymentId', authMiddleware, async (req, res) => {
-  if (STRIPE_ENABLED) return res.status(403).json({ error: 'Mock mode disabled when Stripe is configured' });
+  if (!MOCK_ENABLED) return res.status(403).json({ error: 'Mock mode disabled in production' });
 
   const payment = await store.getPayment(req.params.paymentId);
   if (!payment || payment.clientId !== req.client.id) return res.status(404).json({ error: 'Payment not found' });

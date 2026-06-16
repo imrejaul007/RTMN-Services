@@ -943,7 +943,7 @@ app.get('/api/audience/targets', requireAuth, async (req, res) => {
 
 app.get('/api/intent/signals', requireAuth, async (req, res) => {
   try {
-    const intentRes = await fetch(RTMMN_SERVICES.intentExchange + '/api/signals');
+    const intentRes = await fetch(RTMN_SERVICES.intentExchange + '/api/signals');
     res.json(await intentRes.json());
   } catch (err) {
     res.json({ error: 'Intent exchange unavailable' });

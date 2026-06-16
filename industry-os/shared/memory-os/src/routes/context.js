@@ -4,6 +4,7 @@
 
 import { Router } from 'express';
 import { redis, MEMORY_TYPES } from '../index.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 # RTNM Products & Features Audit Report
 
-**Last Updated:** June 15, 2026
-**Status:** ✅ DEPLOYMENT READY - All Products Built + Vercel + Render
+**Last Updated:** June 16, 2026
+**Status:** ✅ DEPLOYMENT READY - All Products Built + Vercel + Render + **ADBAZAAR COMPLETE**
 
 ---
 
@@ -12,6 +12,7 @@
 | **Vercel** | Frontend | `https://rtmn-pilot-portal.vercel.app` | ✅ **LIVE** |
 | **Render** | Backend | `https://rtmn-pilot-onboarding.onrender.com` | ✅ **LIVE** |
 | **Render** | All Services | 27 services via render.yaml | ✅ Ready |
+| **AdBazaar** | Intelligence + DOOH | 85+ services | ✅ **LIVE** |
 
 ---
 
@@ -63,10 +64,77 @@
 | SUTAR OS | 25 | Decision, Economy, Trust |
 | Industry AI | 15+ | Agriculture, Finance, Education |
 | Specialized Agents | 50+ | Sales, Content, Design, HR |
+| **AdBazaar DOOH** | 85+ | Advertising, Commerce Intelligence, Audience Twins |
 
 ---
 
-### HOJAI AI - Genie Personal AI (27+ Products)
+### AdBazaar - AI-Powered Commerce Intelligence for DOOH ✅ NEW!
+
+**Location:** `companies/AdBazaar/`  
+**Status:** ✅ **85+ SERVICES** | **June 16, 2026**
+
+#### What makes AdBazaar unique?
+
+**Commerce-to-Intent Intelligence** - Know when users are ready to buy, not just who they are.
+
+| Feature | Traditional DOOH | Vistar/Hivestack | **AdBazaar** |
+|---------|-----------------|-----------------|--------------|
+| Intent Intelligence | ❌ | ❌ | ✅ **Unique** |
+| Commerce Signals | ❌ | ❌ | ✅ **Unique** |
+| QR Attribution | ❌ | ❌ | ✅ **Unique** |
+| Audience Twins | ❌ | ❌ | ✅ **Unique** |
+| Programmatic DOOH | ⚠️ | ✅ | ✅ |
+| SSP/DSP | ⚠️ | ✅ | ✅ |
+
+#### AdBazaar Service Categories
+
+| Category | Services | Example |
+|----------|----------|---------|
+| **Core Intelligence** | 4 | HOJAI AI Gateway, Intent Aggregator, Intent Prediction |
+| **Audience Intelligence** | 1 | AdBazaar Audience Intelligence (4805) |
+| **Integration** | 1 | AdBazaar Integration Service (4910) |
+| **Data Platform** | 4 | CDP, Pixel, Clean Room |
+| **DOOH Platform** | 8 | Inventory, Programmatic, Attribution, Verification, SSP, DSP |
+| **Ad Operations** | 2 | REZ-ads-service, REZ-decision-service |
+
+#### AdBazaar Port Registry
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **Core Intelligence** |
+| hojai-ai-gateway-v2 | 4560 | Central AI hub |
+| intent-signal-aggregator | 4800 | Signal collection |
+| intent-prediction-engine | 4801 | ML predictions |
+| intent-marketplace | 4802 | Segment marketplace |
+| **Audience Intelligence** |
+| adbazaar-audience-intelligence | 4805 | **Core differentiator** |
+| **Data Platform** |
+| adbazaar-cdp | 4901 | Customer Data Platform |
+| adbazaar-pixel | 4962 | Universal tracking pixel |
+| adbazaar-clean-room | 4930 | Privacy-safe collaboration |
+| **DOOH Platform** |
+| adbazaar-inventory-service | 4900 | Screen management |
+| adbazaar-integration-service | 4910 | Intelligence hub |
+| adbazaar-programmatic-api | 4940 | OpenRTB exchange |
+| adbazaar-attribution-service | 4950 | Multi-touch attribution |
+| adbazaar-audience-marketplace | 4960 | Segment marketplace |
+| adbazaar-verification-service | 4970 | CV verification |
+| adbazaar-ssp | 4980 | Supply-side platform |
+| adbazaar-dsp | 4990 | Demand-side platform |
+| **Ad Operations** |
+| REZ-ads-service | 4007 | Ad serving & campaigns |
+| REZ-decision-service | 4027 | Targeting & auction |
+
+#### AdBazaar Key Features
+
+- **Commerce-to-Intent**: Uses REZ ecosystem signals (QR scans, orders, loyalty) for ad targeting
+- **Audience Twins**: AI-generated behavioral profiles for lookalike targeting
+- **QR Attribution**: Native conversion tracking via QR codes
+- **HOJAI AI Integration**: Full AI predictions, LTV scoring, churn analysis
+- **Programmatic DOOH**: OpenRTB 2.5 compliant exchange
+- **Privacy-safe**: Clean Room for secure data collaboration
+
+#### HOJAI AI - Genie Personal AI (27+ Products)
 
 **Tagline:** "Your Personal Intelligence, Simplified." / "You don't use Genie. You talk to Genie."
 
@@ -6742,6 +6810,7 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 | Education OS | 5060 | Course, Student, Instructor, Enrollment, Assignment, Grade | 40+ | 540+ | ✅ COMPLETE |
 | Automotive OS | 5080 | Vehicle, Customer, Service, Appointment | 25+ | 420+ | ✅ COMPLETE |
 | Beauty OS | 5090 | Client, Service, Staff, Appointment, Product | 30+ | 450+ | ✅ COMPLETE |
+| **Energy OS** | **5100** | **Facility, Meter, Reading, Tariff, Bill, Grid, Consumption, Production** | **40+** | **480+** | ✅ **NEW** |
 | Fitness OS | 5110 | Member, Trainer, Class, Membership, Attendance, Workout | 35+ | 480+ | ✅ COMPLETE |
 | Manufacturing OS | 5150 | Product, Order, Machine, Material, Worker, Production, Quality | 40+ | 560+ | ✅ COMPLETE |
 | Hospitality OS | 5050 | Establishment, Staff, Customer, Transaction, Event | 35+ | 520+ | ✅ COMPLETE |
@@ -7645,13 +7714,100 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 
 ---
 
-## 10. Fitness OS - Complete Features
+## 10. Energy OS - Complete Features
+
+**Port:** 5100  
+**Digital Twins:** Facility, Meter, Reading, Tariff, Bill, Grid, Consumption, Production  
+**Technology:** Express.js, Helmet, CORS, Memory Store
+
+### 10.1 Facilities Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Facility CRUD | Create, read, update facilities | `GET/POST /api/facilities` |
+| Facility Types | Power plant, Solar, Wind, Grid | `GET /api/facilities?type=generation` |
+| Status Updates | Active/Inactive maintenance | `PATCH /api/facilities/:id/status` |
+| Capacity Tracking | MW capacity monitoring | `GET /api/facilities` |
+
+### 10.2 Smart Metering
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Meter CRUD | Register and manage meters | `GET/POST /api/meters` |
+| Real-time Readings | Submit meter readings | `POST /api/readings` |
+| Reading History | Historical data queries | `GET /api/readings?meterId=meter_1&from=2026-01-01` |
+| Auto Collection | Scheduled reading collection | `GET /api/readings` |
+
+### 10.3 Tariffs & Billing
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Tariff Management | Create rate plans | `GET/POST /api/tariffs` |
+| Bill Generation | Automated billing | `POST /api/bills` |
+| Bill Status | Pending/Paid/Overdue | `GET /api/bills?status=pending` |
+| Payment Processing | Mark bills paid | `PATCH /api/bills/:id/pay` |
+
+### 10.4 Grid Management
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Grid Status | Live grid operational status | `GET /api/grid/status` |
+| Capacity Utilization | Load vs capacity % | `GET /api/grid/status` |
+| Grid Health | Operational metrics | `GET /api/grid/status` |
+
+### 10.5 Analytics
+
+| Feature | Description | API Endpoints |
+|---------|-------------|---------------|
+| Dashboard | Total facilities, meters, readings | `GET /api/analytics` |
+| Consumption Tracking | Energy usage patterns | `GET /api/readings` |
+| Production Tracking | Generation monitoring | `GET /api/facilities?type=solar` |
+
+### 10.6 Energy OS API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/facilities` | List all facilities |
+| POST | `/api/facilities` | Create facility |
+| GET | `/api/meters` | List all meters |
+| POST | `/api/meters` | Register new meter |
+| POST | `/api/readings` | Submit meter reading |
+| GET | `/api/readings` | Get readings (filter by meterId, from, to) |
+| GET | `/api/tariffs` | List available tariffs |
+| POST | `/api/tariffs` | Create tariff |
+| POST | `/api/bills` | Generate bill |
+| GET | `/api/bills` | List bills |
+| PATCH | `/api/bills/:id/pay` | Mark bill as paid |
+| GET | `/api/grid/status` | Get grid operational status |
+| GET | `/api/analytics` | Get energy analytics |
+| GET | `/api/customers` | List customers |
+| POST | `/api/customers` | Create customer |
+| GET | `/api/layer/intelligence` | Layer 1: AI services |
+| GET | `/api/layer/finance` | Layer 4: Financial services |
+| GET | `/api/layers` | All 15 layers status |
+| POST | `/api/ai/chat` | Chat with Genie AI |
+| GET | `/api/ai/agents` | List AI agents |
+
+### 10.7 AI Agents
+
+| Agent | Purpose |
+|-------|---------|
+| Grid Optimizer | Optimize grid distribution |
+| Load Balancer | Balance energy load |
+| Predictive Maintenance | Anticipate equipment issues |
+| Energy Advisor | Recommend efficiency improvements |
+| Sustainability Agent | Track carbon reduction |
+
+---
+
+## 11. Fitness OS - Complete Features
 
 **Port:** 5110  
 **Digital Twins:** Member, Trainer, Class, Membership, Attendance, Workout  
 **Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
 
-### 10.1 Member Management
+### 11.1 Member Management
 
 | Feature | Description | API Endpoints |
 |---------|-------------|---------------|
@@ -7737,13 +7893,13 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 
 ---
 
-## 11. Manufacturing OS - Complete Features
+## 12. Manufacturing OS - Complete Features
 
 **Port:** 5150  
 **Digital Twins:** Product, Order, Machine, Material, Worker, Production, Quality  
 **Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
 
-### 11.1 Product Management
+### 12.1 Product Management
 
 | Feature | Description | API Endpoints |
 |---------|-------------|---------------|
@@ -7846,13 +8002,13 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 
 ---
 
-## 12. TwinOS Hub - Complete Features
+## 13. TwinOS Hub - Complete Features
 
 **Port:** 4705  
 **Registry:** 35+ Digital Twins  
 **Technology:** Express.js, Winston Logger, Helmet, CORS, Memory Store
 
-### 12.1 Twin Registry
+### 13.1 Twin Registry
 
 | Twin | Description | Attributes |
 |------|-------------|------------|
@@ -7871,6 +8027,10 @@ SmileCraft Dental OS connects the SmileCraft Dental Clinic story to the RTNM eco
 | doctor-twin | Doctor profiles | specialty, schedule, qualifications |
 | prescription-twin | Prescriptions | medications, dosages, refills |
 | record-twin | Medical records | visits, diagnoses, labs |
+| **facility-twin** | **Energy facilities** | **capacity, status, type, location** |
+| **meter-twin** | **Smart meters** | **readings, status, facility** |
+| **consumption-twin** | **Energy usage** | **patterns, trends, anomalies** |
+| **production-twin** | **Energy generation** | **output, efficiency, sources** |
 | product-twin | Products | name, price, category, stock |
 | inventory-twin | Stock levels | sku, quantity, reorder |
 | cart-twin | Shopping carts | items, customer, totals |

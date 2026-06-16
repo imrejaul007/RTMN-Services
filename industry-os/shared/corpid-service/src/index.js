@@ -209,9 +209,12 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`CorpID Service running on port ${PORT}`);
-  logger.info('Entity types:', Object.keys(ENTITY_TYPES).join(', '));
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`CorpID Service running on port ${PORT}`);
+    logger.info('Entity types:', Object.keys(ENTITY_TYPES).join(', '));
+  });
 });
 
 export { app, redis, ENTITY_TYPES };

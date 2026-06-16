@@ -62,6 +62,7 @@ export async function sendWelcomeEmail({ to, name, dashboardUrl }) {
       </p>
       <p>Need help? Reply to this email or write to ${process.env.EMAIL_REPLY_TO || 'support@rtmn.io'}.</p>
     </div>`;
+  const text = `Welcome to RTMN! Your account is verified. Open your dashboard: ${dashboardUrl}`;
 
   if (!resend) {
     logger.warn(`[email:dev-mode] Would send welcome to=${to} dashboard=${dashboardUrl}`);
@@ -73,6 +74,7 @@ export async function sendWelcomeEmail({ to, name, dashboardUrl }) {
       to,
       subject,
       html,
+      text,
       replyTo: process.env.EMAIL_REPLY_TO
     });
     return { ok: true, id: result.id };
