@@ -4676,3 +4676,226 @@ These AdBazaar services exist but are not yet connected to RTMN OS:
 ---
 
 *Last Updated: June 16, 2026*
+
+---
+
+## Complete Company Integration Documentation
+
+### HOJAI AI - Layer 1 (Intelligence) - 20 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| genie | 4701 | Personal AI |
+| genieHousehold | 4706 | Household AI |
+| genieBusiness | 4707 | Business AI |
+| genieProject | 4708 | Project AI |
+| genieMemory | 4709 | Memory AI |
+| genieTwin | 4710 | Twin AI |
+| genieRelationship | 4711 | Relationship AI |
+| copilot | 4600 | Business Copilot |
+| copilotBusiness | 4601 | Business Copilot |
+| copilotSales | 4602 | Sales Copilot |
+| copilotFinance | 4603 | Finance Copilot |
+| copilotHR | 4604 | HR Copilot |
+| agentMarketplace | 4580 | Agent Registry |
+| agentStream | 4581 | Agent Streaming |
+| sutarOS | 4140 | SUTAR OS |
+| sutarCore | 4141 | SUTAR Core |
+| hojaiIndustry | 4150 | Industry AI |
+| hojaiCommerce | 4151 | Commerce AI |
+| hojaiCollab | 4160 | Collaboration |
+| hojaiExpert | 4161 | Expert OS |
+
+#### Endpoints
+
+```
+GET  /api/ai/chat          - Chat with Genie AI
+GET  /api/ai/agents         - List AI agents
+GET  /api/ai/copilot       - Get Copilot
+```
+
+---
+
+### RABTUL - Layer 4 (Financial) - 20 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| auth | 4002 | Authentication |
+| wallet | 4004 | Wallet |
+| walletService | 4005 | Wallet Service |
+| paymentGateway | 4006 | Payment Gateway |
+| accounting | 4010 | Accounting |
+| expenseService | 4011 | Expenses |
+| invoiceService | 4012 | Invoicing |
+| lending | 4020 | Lending |
+| creditService | 4021 | Credit |
+| procurementPayment | 4007 | Procurement Payment |
+| contractMgmt | 4030 | Contract Management |
+| distributionOS | 4040 | Distribution |
+| graphqlFed | 4000 | GraphQL Federation |
+| eventBus | 4510 | Event Bus |
+| fileStorage | 4050 | File Storage |
+| ecosystemConnector | 4399 | Ecosystem Connector |
+
+#### Endpoints
+
+```
+GET  /api/finance/accounting - Get accounts
+GET  /api/finance/wallet    - Get wallet balance
+POST /api/finance/payment   - Process payment
+```
+
+---
+
+### CorpPerks - Layer 5 (Workforce) - 15 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| corpPerks | 4450 | CorpPerks |
+| hrService | 4451 | HR Service |
+| onboardingService | 4452 | Onboarding |
+| payrollService | 4453 | Payroll |
+| attendanceService | 4454 | Attendance |
+| leaveService | 4455 | Leave |
+| atsService | 4460 | ATS |
+| talentPool | 4461 | Talent Pool |
+| calendarService | 4470 | Calendar |
+| meetingService | 4471 | Meetings |
+| documentService | 4472 | Documents |
+| lmsService | 4480 | LMS |
+| okrService | 4481 | OKR |
+| insightService | 4482 | Insights |
+
+---
+
+### KHAIRMOVE - Layer 9 (Mobility) - 6 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| khairMove | 4500 | Main Service |
+| deliveryService | 4501 | Delivery |
+| fleetService | 4502 | Fleet |
+| rideService | 4503 | Ride |
+| logisticsService | 4504 | Logistics |
+| airzyService | 4505 | Airzy |
+
+---
+
+### RisaCare - Layer 8 (Health) - 6 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| risaCare | 7000 | RisaCare |
+| healthTwin | 7001 | Health Twin |
+| consultationCopilot | 7002 | Consultation |
+| wellnessService | 7003 | Wellness |
+| healthInsurance | 7004 | Insurance |
+| familyCoordination | 7005 | Family |
+
+---
+
+### StayOwn-Hospitality - Layer 7 (Property) - 5 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| stayOwn | 6000 | StayOwn |
+| stayOwnPMS | 6001 | PMS |
+| bookingEngine | 6002 | Booking Engine |
+| guestApp | 6003 | Guest App |
+| housekeepingService | 6004 | Housekeeping |
+
+---
+
+### AdBazaar - Layer 2 (Customer Growth) - 30 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| crmHub | 4056 | CRM |
+| leadIntelligence | 4057 | Lead Intelligence |
+| adsApi | 4060 | Ads API |
+| adAi | 4061 | Ad AI |
+| aiCampaignBuilder | 4062 | Campaign Builder |
+| dspPortal | 4063 | DSP Portal |
+| programmaticBidding | 4064 | Programmatic |
+| emailCampaign | 4065 | Email |
+| loyaltyService | 4070 | Loyalty |
+| anniversaryRewards | 4071 | Anniversary |
+| birthdayRewards | 4072 | Birthday |
+| gamification | 4073 | Gamification |
+| referralGraph | 4074 | Referral |
+| creatorStudio | 4080 | Creator |
+| creatorCommerce | 4081 | Creator Commerce |
+| ugcManagement | 4082 | UGC |
+| marketingAnalytics | 4090 | Marketing |
+| mediaAnalytics | 4091 | Media |
+| intelligenceBridge | 4092 | Intelligence |
+| revenueIntelligence | 4093 | Revenue |
+| doohService | 4100 | DOOH |
+| doohSdk | 4101 | DOOH SDK |
+| videoAds | 4102 | Video Ads |
+| liveChat | 4110 | Live Chat |
+| feedbackService | 4111 | Feedback |
+| buzzLocal | 4020 | BuzzLocal |
+| intentExchange | 4120 | Intent |
+| audienceMarketplace | 4121 | Audience |
+
+---
+
+### REZ-Merchant - Layer 3 (Commerce) - 10 Services Connected
+
+#### Service URLs
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| merchantPOS | 4800 | POS |
+| merchantRestaurant | 4801 | Restaurant |
+| merchantMenu | 4802 | Menu |
+| merchantPayment | 4803 | Payment |
+| merchantLoyalty | 4804 | Loyalty |
+| merchantInventory | 4805 | Inventory |
+| merchantStaff | 4806 | Staff |
+| merchantReservations | 4807 | Reservations |
+| merchantDashboard | 4808 | Dashboard |
+| merchantGenie | 4809 | Genie |
+
+---
+
+### 15-Layer Summary
+
+| Layer | Company | Services | Port Range |
+|-------|---------|----------|------------|
+| 1 | HOJAI AI | 20 | 4140-4161, 4580-4711 |
+| 2 | AdBazaar | 30 | 4056-4121 |
+| 3 | REZ-Merchant | 10 | 4800-4809 |
+| 4 | RABTUL | 20 | 4000-4050, 4510 |
+| 5 | CorpPerks | 15 | 4450-4482 |
+| 6 | LawGens | 4 | 4180, 5035-5037 |
+| 7 | RisnaEstate | 10 | 4300-4304, 6000-6004 |
+| 8 | RisaCare | 6 | 7000-7005 |
+| 9 | KHAIRMOVE | 6 | 4500-4505 |
+| 10 | CorpID | 1 | 4702 |
+| 11 | MemoryOS | 1 | 4703 |
+| 12 | TwinOS Hub | 1 | 4705 |
+| 13 | FlowOS | 1 | 4200 |
+| 14 | SUTAR OS | 4 | 4140, 4191, 4240-4251 |
+| 15 | REZ-Consumer | 1 | 3000 |
+
+**Total: 130+ services connected across 15 layers**
+
+---
+
+*Last Updated: June 16, 2026*
