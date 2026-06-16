@@ -346,6 +346,156 @@ REZ Merchant Genie (Port 4801)
 
 ---
 
+## HOJAI Business Copilot - 24 Industry AI Skills ✅ NEW!
+
+**Location:** `hojai-business-copilot/`  
+**Port:** 4600  
+**Status:** ✅ **PRODUCTION READY** | **June 15, 2026**  
+**Tagline:** *"24 Industry Skill Packs - One Unified Copilot"*
+
+### Copilot Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    BUSINESS COPILOT ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      CORE LAYER (4600)                            │  │
+│  │  Intent Router │ Context Engine │ Memory │ Decision │ Policy       │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                    │                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      24 INDUSTRY SKILL PACKS                       │  │
+│  │  Restaurant │ Hotel │ Healthcare │ Retail │ Legal │ Education     │  │
+│  │  Agriculture │ Automotive │ Beauty │ Fashion │ Fitness │ Gaming │  │
+│  │  Government │ Home Services │ Manufacturing │ Non-Profit         │  │
+│  │  Professional │ Sports │ Travel │ Entertainment │ Construction    │  │
+│  │  Financial │ Real Estate │ Transport │ Hospitality              │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                    │                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      GENIE TWINS INTEGRATION                       │  │
+│  │  Personal Twin │ Relationship Twin │ Financial Twin              │  │
+│  │  Health Twin   │ Founder Twin                                   │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Copilot Service Ports
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4600 | Business Copilot | Main copilot service |
+| 4601 | Copilot Gateway | API gateway |
+| 4602 | Copilot Context | Context management |
+| 4603 | Copilot Memory | Memory integration |
+| 4604 | Copilot Intent | Intent routing |
+| 4605 | Copilot Policy | Policy engine |
+| 4606 | Copilot Analytics | Analytics |
+
+### 24 Industry Skill Packs
+
+| Industry | Port | Skills |
+|----------|------|--------|
+| Restaurant | 4610 | Menu optimization, order management, kitchen efficiency |
+| Hotel | 4611 | Guest experience, housekeeping, revenue management |
+| Healthcare | 4612 | Patient intake, appointment scheduling, insurance |
+| Retail | 4613 | Inventory, pricing, customer retention |
+| Legal | 4614 | Contract review, case management, billing |
+| Education | 4615 | Enrollment, course management, student tracking |
+| Agriculture | 4616 | Crop planning, yield prediction, market timing |
+| Automotive | 4617 | Service scheduling, parts inventory, customer lifetime |
+| Beauty | 4618 | Appointment booking, product recommendations |
+| Fashion | 4619 | Trend analysis, inventory management |
+| Fitness | 4620 | Member retention, class scheduling |
+| Gaming | 4621 | Player engagement, monetization |
+| Government | 4622 | Citizen services, permit processing |
+| Home Services | 4623 | Job scheduling, technician routing |
+| Manufacturing | 4624 | Production planning, quality control |
+| Non-Profit | 4625 | Donor management, campaign tracking |
+| Professional | 4626 | Project management, client billing |
+| Sports | 4627 | Ticket sales, fan engagement |
+| Travel | 4628 | Package optimization, booking conversion |
+| Entertainment | 4629 | Event management, venue optimization |
+| Construction | 4630 | Project timeline, contractor management |
+| Financial | 4631 | Investment advice, risk assessment |
+| Real Estate | 4632 | Lead qualification, property matching |
+| Transport | 4633 | Fleet optimization, route planning |
+| Hospitality | 4634 | Multi-property management |
+
+### Copilot Features
+
+- **Intent Router**: Natural language understanding across 24 industries
+- **Context Engine**: Maintains conversation context and user history
+- **Memory Integration**: Connects to Genie Personal AI twins
+- **Policy Engine**: Industry-specific compliance and rules
+- **Analytics Dashboard**: Real-time business metrics and insights
+
+---
+
+## RAZO Keyboard - Communication OS ✅ NEW!
+
+**Location:** `companies/razo-keyboard/`  
+**Port:** 4725  
+**Status:** ✅ **PRODUCTION READY** | **June 15, 2026**  
+**Tagline:** *"The Keyboard That Thinks"*
+
+### Consumer Triangle
+
+RAZO is one-third of the **Consumer Triangle**:
+
+| Component | Port | Role |
+|-----------|------|------|
+| **Genie** | 4701 | Thinks - AI reasoning & memory |
+| **DO App** | 3001 | Acts - Execute transactions |
+| **RAZO** | 4725 | Communicates - Messaging & intents |
+
+### RAZO Services
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4725 | RAZO Keyboard | Main communication OS |
+| 4726 | RAZO Intent Router | Intent detection & routing |
+| 4727 | RAZO Context Engine | Context resolution |
+| 4728 | RAZO Channel Bridge | Multi-channel messaging |
+| 4729 | RAZO Action Engine | Action execution |
+
+### RAZO Intent Types
+
+| Intent | Action | Connected Service |
+|--------|--------|-------------------|
+| `order_food` | Place order | DO App → Restaurant OS |
+| `book_hotel` | Book room | DO App → Hotel OS |
+| `send_message` | Send message | WhatsApp → RAZO |
+| `ask_genie` | Query AI | Genie Gateway |
+| `make_payment` | Process payment | SUTAR Escrow |
+| `check_status` | Check order | Merchant Copilot |
+| `schedule_meeting` | Book meeting | Calendar Service |
+| `track_expense` | Log expense | Financial Twin |
+| `find_service` | Search service | Discovery OS |
+
+### Channel Integration
+
+| Channel | Features |
+|---------|----------|
+| WhatsApp | Text, images, documents, buttons, templates |
+| Telegram | Text, media, inline keyboards, callbacks |
+| SMS | Text, delivery reports, unicode |
+| Email | HTML, templates, attachments, read receipts |
+| Voice | Voice message processing |
+
+### RAZO Features
+
+- **Smart Text Input**: Context-aware text suggestions
+- **Intent Detection**: NLU-powered intent recognition
+- **Multi-Channel**: WhatsApp, Telegram, SMS, Email, Voice
+- **Action Execution**: Direct integration with DO App and Genie
+- **Conversation Memory**: Maintains context across sessions
+
+---
+
 ### HOJAI AI - Business Intelligence (11 Products)
 
 | Product | Port | Purpose |
@@ -398,32 +548,78 @@ REZ Merchant Genie (Port 4801)
 
 ---
 
-### HOJAI AI - SUTAR OS (25 Services)
+### HOJAI AI - SUTAR OS - 12-Layer Autonomous Economic Infrastructure (25 Services)
 
-**Autonomous Economic Infrastructure**
+**Autonomous Economic Infrastructure**  
+**Tagline:** *"Self-Sustaining Transaction & Autonomous Resolution"*  
+**Port Range:** 4140-4259
 
-| Layer | Product | Port | Purpose |
+#### SUTAR OS 12-Layer Architecture
+
+| Layer | Service | Port | Purpose |
 |-------|---------|------|---------|
-| Gateway | sutar-gateway | 4140 | Main gateway |
-| Twin | sutar-twin-os | 4142 | Digital twin OS |
-| Twin | sutar-memory-bridge | 4143 | Memory bridge |
-| Twin | sutar-identity-os | 4144 | Identity management |
-| Intent | sutar-intent-bus | 4154 | Intent bus |
-| Intent | sutar-agent-network | 4155 | Agent network |
-| Decision | sutar-decision-engine | 4240 | Decision engine |
-| Decision | sutar-simulation-os | 4241 | What-if analysis |
-| Decision | sutar-goal-os | 4242 | Goal management |
-| Decision | sutar-flow-os | 4244 | Flow orchestration |
-| Decision | sutar-founder-os | 4260 | Founder decisions |
-| Marketplace | sutar-marketplace | 4250 | Marketplace |
-| Marketplace | sutar-economy-os | 4251 | Economic layer |
-| Trust | sutar-trust-engine | 4180 | Trust scoring |
-| Trust | sutar-contract-os | 4185 | Smart contracts |
-| Trust | sutar-negotiation-engine | 4191 | Negotiation |
-| Discovery | sutar-discovery-engine | 4256 | Discovery |
-| Discovery | sutar-multi-agent-evaluator | 4257 | Multi-agent eval |
-| Discovery | sutar-roi-calculator | 4259 | ROI calculation |
-| Monitoring | sutar-monitoring | 3100 | Monitoring |
+| **1** | SUTAR Gateway | 4140 | Main API gateway, request routing |
+| **2** | SUTAR Twin OS | 4141 | Digital twin registry & synchronization |
+| **3** | SUTAR Decision Engine | 4142 | Policy evaluation & authorization |
+| **4** | SUTAR Goal OS | 4242 | Autonomous goal management |
+| **5** | SUTAR Contract OS | 4144 | Smart contract execution |
+| **6** | SUTAR Karma Engine | 4145 | Reputation & karma scoring |
+| **7** | SUTAR Memory | 4146 | Economic memory & history |
+| **8** | SUTAR Intent Engine | 4147 | Intent detection & routing |
+| **9** | SUTAR Negotiation Engine | 4148 | Deal negotiation & terms |
+| **10** | SUTAR Escrow Engine | 4149 | Fund escrow & release |
+| **11** | SUTAR Compliance Engine | 4150 | Regulatory compliance |
+| **12** | SUTAR Analytics | 4151 | Economic analytics & reporting |
+
+#### SUTAR Extended Services (25 Total)
+
+| Product | Port | Features |
+|---------|------|----------|
+| sutar-gateway | 4140 | API gateway, request routing, rate limiting |
+| sutar-twin-os | 4141 | Twin registry, sync, federation |
+| sutar-decision-engine | 4142 | Policy engine, authorization |
+| sutar-goal-os | 4242 | Goal tracking, milestones |
+| sutar-contract-os | 4144 | Smart contracts, clauses |
+| sutar-karma-engine | 4145 | Karma scoring, reputation |
+| sutar-memory | 4146 | Economic memory, history |
+| sutar-intent-engine | 4147 | Intent routing, NLU |
+| sutar-negotiation-engine | 4148 | Negotiation, deal-making |
+| sutar-escrow-engine | 4149 | Escrow, fund release |
+| sutar-compliance-engine | 4150 | Compliance, audits |
+| sutar-analytics | 4151 | Analytics, reporting |
+| sutar-payment-gateway | 4152 | Payment processing |
+| sutar-invoice-service | 4153 | Invoice generation |
+| sutar-receipt-service | 4154 | Receipt management |
+| sutar-vendor-management | 4155 | Vendor management |
+| sutar-customer-management | 4156 | Customer management |
+| sutar-loyalty-engine | 4157 | Loyalty programs |
+| sutar-referral-engine | 4158 | Referral tracking |
+| sutar-revenue-sharing | 4159 | Revenue distribution |
+| sutar-billing-service | 4160 | Billing management |
+| sutar-subscription-service | 4161 | Subscriptions |
+| sutar-refund-engine | 4162 | Refund processing |
+| sutar-dispute-resolution | 4163 | Dispute handling |
+| sutar-reporting-engine | 4164 | Reports & dashboards |
+
+#### Karma Foundation - Agent Economy
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| karma-foundation | 4250 | Core karma system |
+| agent-economy | 4251 | Agent payments & rewards |
+| karma-ledger | 4252 | Transaction ledger |
+| karma-scoring | 4253 | Reputation scoring |
+| karma-exchange | 4254 | Karma trading |
+| karma-rewards | 4255 | Reward distribution |
+
+#### Decision & Goals
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| decision-engine | 4240 | Policy decisions |
+| goal-twin | 4243 | Goal tracking twin |
+| decision-twin | 4244 | Decision history twin |
+| karma-policy | 4245 | Karma policy rules |
 
 ---
 
