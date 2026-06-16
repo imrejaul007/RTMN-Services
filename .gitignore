@@ -28,31 +28,34 @@ Thumbs.db
 .env
 .env.local
 
-# Companies folder (each has its own repo)
-companies/*
-# NeXha commerce-identity exception: developed in-tree until the
-# separate NeXha repo is set up.
-!companies/Nexha/
-!companies/Nexha/commerce-identity
-!companies/Nexha/commerce-identity/**
-# Re-ignore node_modules and other build artifacts inside the exception.
+# =============================================
+# COMPANIES FOLDER - Selective tracking
+# =============================================
+# IMPORTANT: Gitignore uses FIRST matching rule.
+# Exceptions MUST come BEFORE the blanket ignore.
+# DO NOT use glob patterns after negations.
+
+# Exception: NeXha commerce-identity (developed in-tree)
+!companies/Nexha/commerce-identity/
 companies/Nexha/commerce-identity/node_modules/
 companies/Nexha/commerce-identity/dist/
 
-# SUTAR OS Services - Built June 15, 2026
-!companies/RTNM-Group/
+# Exception: RTNM-Group Services
 !companies/RTNM-Group/boa-os/
 !companies/RTNM-Group/boa-sutar-bridge/
-!companies/RABTUL-Technologies/
-!companies/RABTUL-Technologies/REZ-SLA-monitor/
-!companies/RABTUL-Technologies/REZ-breach-detector/
-!companies/RABTUL-Technologies/REZ-economy-os/
-!companies/RABTUL-Technologies/REZ-trust-scorer/
-# Re-ignore node_modules and build artifacts
 companies/RTNM-Group/boa-os/node_modules/
 companies/RTNM-Group/boa-os/dist/
 companies/RTNM-Group/boa-sutar-bridge/node_modules/
 companies/RTNM-Group/boa-sutar-bridge/dist/
+!companies/RTNM-Group/boa-os/render.yaml
+!companies/RTNM-Group/boa-sutar-bridge/render.yaml
+
+# Exception: RABTUL-Technologies Services
+!companies/RABTUL-Technologies/REZ-SLA-monitor/
+!companies/RABTUL-Technologies/REZ-breach-detector/
+!companies/RABTUL-Technologies/REZ-economy-os/
+!companies/RABTUL-Technologies/REZ-trust-scorer/
+!companies/RABTUL-Technologies/REZ-Revenue-AI/
 companies/RABTUL-Technologies/REZ-SLA-monitor/node_modules/
 companies/RABTUL-Technologies/REZ-SLA-monitor/dist/
 companies/RABTUL-Technologies/REZ-breach-detector/node_modules/
@@ -61,21 +64,33 @@ companies/RABTUL-Technologies/REZ-economy-os/node_modules/
 companies/RABTUL-Technologies/REZ-economy-os/dist/
 companies/RABTUL-Technologies/REZ-trust-scorer/node_modules/
 companies/RABTUL-Technologies/REZ-trust-scorer/dist/
-# Keep render.yaml files (deployment configs)
-!companies/RTNM-Group/boa-os/render.yaml
-!companies/RTNM-Group/boa-sutar-bridge/render.yaml
+companies/RABTUL-Technologies/REZ-Revenue-AI/node_modules/
+companies/RABTUL-Technologies/REZ-Revenue-AI/dist/
 !companies/RABTUL-Technologies/REZ-SLA-monitor/render.yaml
 !companies/RABTUL-Technologies/REZ-breach-detector/render.yaml
 !companies/RABTUL-Technologies/REZ-economy-os/render.yaml
 !companies/RABTUL-Technologies/REZ-trust-scorer/render.yaml
 
-# HOJAI AI - separate repo (git@github.com:imrejaul007/hojai-ai.git)
-companies/hojai-ai/
+# Exception: REZ-Merchant Services (India Payment & Integration)
+!companies/REZ-Merchant/industry-os/rez-payment-gateway-service/
+!companies/REZ-Merchant/REZ-merchant-integration-service/
+companies/REZ-Merchant/industry-os/rez-payment-gateway-service/node_modules/
+companies/REZ-Merchant/industry-os/rez-payment-gateway-service/dist/
+companies/REZ-Merchant/REZ-merchant-integration-service/node_modules/
+companies/REZ-Merchant/REZ-merchant-integration-service/dist/
 
-# AdBazaar - separate repo (git@github.com:imrejaul007/AdBazaar.git)
+# Exception: HOJAI AI Multilingual (Arabic & European languages)
+!companies/hojai-ai/hojai-multilingual/
+companies/hojai-ai/hojai-multilingual/node_modules/
+companies/hojai-ai/hojai-multilingual/dist/
+
+# Default: Ignore ALL companies (each has its own repo)
+companies/*
+
+# AdBazaar - separate repo
 companies/AdBazaar/
 
-# RTMN subfolder (separate repo)
+# RTMN subfolder - separate repo
 RTMN/
 
 # Binary artifacts
