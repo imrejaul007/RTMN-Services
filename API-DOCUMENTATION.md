@@ -39,62 +39,92 @@
 GET http://localhost:4399/health
 ```
 
-### Register Service
+### Authentication
+
+#### Register (Signup)
 ```bash
-POST http://localhost:4399/api/services
+POST http://localhost:4399/v1/auth/signup
 Content-Type: application/json
 
 {
-  "name": "service-name",
-  "version": "1.0.0",
-  "type": "industry-os",
-  "industry": "hospitality",
-  "port": 5010,
-  "healthUrl": "http://localhost:5010/health",
-  "apiUrl": "http://localhost:5010/api",
-  "capabilities": ["menu", "orders", "kitchen"],
-  "digitalTwins": ["menu-twin", "order-twin"]
+  "email": "user@example.com",
+  "password": "SecurePassword123!",
+  "companyName": "My Company",
+  "industry": "restaurant"
 }
 ```
 
-### List All Services
+#### Login
 ```bash
-GET http://localhost:4399/api/services
-GET http://localhost:4399/api/services?status=active
-GET http://localhost:4399/api/services?type=industry-os
+POST http://localhost:4399/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "SecurePassword123!"
+}
 ```
 
-### Get Service by ID
+#### Get Current User
 ```bash
-GET http://localhost:4399/api/services/:id
+GET http://localhost:4399/v1/auth/me
+Authorization: Bearer <token>
 ```
 
-### Get Service by Name
+### Services API
+
+#### List All Services
 ```bash
-GET http://localhost:4399/api/services/name/:name
+GET http://localhost:4399/v1/services
+GET http://localhost:4399/v1/services?status=active
+GET http://localhost:4399/v1/services?type=industry-os
 ```
 
-### Update Service Status
+#### Get Service by ID
 ```bash
-PATCH http://localhost:4399/api/services/:id/status
+GET http://localhost:4399/v1/services/:id
+```
+
+#### Get Service by Name
+```bash
+GET http://localhost:4399/v1/services/name/:name
+```
+
+#### Update Service Status
+```bash
+PATCH http://localhost:4399/v1/services/:id/status
 Content-Type: application/json
 
 { "status": "degraded" }
 ```
 
-### Send Heartbeat
+#### Send Heartbeat
 ```bash
-POST http://localhost:4399/api/services/:id/heartbeat
+POST http://localhost:4399/v1/services/:id/heartbeat
 ```
 
-### Service Health
+### Billing API
+
+#### Get Plans
 ```bash
-GET http://localhost:4399/api/health/services
+GET http://localhost:4399/v1/billing/plans
+```
+
+#### Create Subscription
+```bash
+POST http://localhost:4399/v1/billing/subscribe
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "planId": "starter",
+  "paymentMethodId": "pm_xxx"
+}
 ```
 
 ### Stats
 ```bash
-GET http://localhost:4399/api/stats
+GET http://localhost:4399/v1/stats
 ```
 
 ---

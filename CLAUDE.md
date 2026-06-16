@@ -1,8 +1,8 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.2.0  
-**Last Updated:** June 15, 2026  
-**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER
+**Version:** 1.3.0  
+**Last Updated:** June 16, 2026  
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER + TESTS
 
 ---
 
@@ -83,10 +83,22 @@ render blueprint apply render.yaml
 
 ### API Access Points
 
-- **Service Registry:** http://localhost:4399/api/services
+- **Service Registry:** http://localhost:4399/v1/services
 - **GraphQL API:** http://localhost:4000/graphql (GraphiQL enabled)
 - **Event Bus:** http://localhost:4510/health
 - **API Documentation:** [API-DOCUMENTATION.md](API-DOCUMENTATION.md)
+
+### API Endpoints (v1)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/auth/signup` | POST | Register new user |
+| `/v1/auth/login` | POST | Login user |
+| `/v1/auth/me` | GET | Get current user profile |
+| `/v1/services` | GET | List available services |
+| `/v1/services/:id` | GET | Get service details |
+| `/v1/billing/plans` | GET | Get billing plans |
+| `/health` | GET | Service health check |
 
 ### Deploy Targets
 
