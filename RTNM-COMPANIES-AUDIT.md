@@ -64,6 +64,43 @@ render blueprint apply render.yaml
 
 ---
 
+### 🎯 Customer Support OS (UNIFIED - June 2026)
+
+**Location:** `services/customer-support-os/` + `companies/hojai-ai/hojai-*`  
+**Status:** 🔨 **BUILDING** - 18 Services (4 NEW being created)
+
+**Vision:** One platform to rule them all - AI-powered, multi-tenant, omnichannel customer support.
+
+| Port | Service | Purpose | Status |
+|------|---------|---------|--------|
+| 4001 | API Gateway | Auth, Routing, Multi-tenant | ✅ |
+| 4885 | Customer Intelligence CDP | Customer 360, Risk | ✅ |
+| 4881 | AI Intelligence | Intent, Sentiment, Fraud | ✅ |
+| 4888 | **CRM Engine** | Deals, Contacts, Pipeline | 🔨 NEW |
+| 4891 | **BPO Manager** | Workers, Jobs, Voice BPO | 🔨 NEW |
+| 4870 | **Unified Inbox** | All channels in one | 🔨 NEW |
+| 4892 | **Live Chat Server** | WebSocket chat | 🔨 NEW |
+| 4893 | **Social Hub** | Instagram, Telegram, FB | 🔨 NEW |
+| 4878 | **Smart Chatbot** | Customer-facing AI | 🔨 NEW |
+| 4886 | Workflow Engine | BPMN Automation | ✅ |
+| 4887 | Action Registry | Business Actions | ✅ |
+| 4880 | Notification Service | Email, SMS, Push | ✅ |
+| 4890 | Integration Hub | Shopify, Stripe | ✅ |
+| 4895 | Agent Copilot | AI Tools for Agents | ✅ |
+| 4871 | Knowledge Base | Articles, FAQs | ✅ |
+| 4872 | Ticket Engine | Ticket Lifecycle | ✅ |
+| 4873 | SLA Manager | SLA Tracking | ✅ |
+| 4874 | Reports Dashboard | Analytics | ✅ |
+
+**Features:**
+- 👤 Customer 360 (orders, history, AI predictions)
+- 🤖 AI Agents (intent, sentiment, fraud, CSAT)
+- 📞 Omnichannel (Chat, WhatsApp, Email, Social)
+- 👥 Human Agents + BPO Integration
+- 🔮 Predictive Support (predict problems before happen)
+
+---
+
 ### ✅ Product Companies (Production Ready)
 
 | Company | Description | Status | Score |

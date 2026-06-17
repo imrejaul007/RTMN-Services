@@ -66,6 +66,60 @@
 
 ---
 
+## 🎯 Customer Support OS - Unified Platform (June 2026)
+
+**Location:** `services/customer-support-os/`  
+**Status:** 🔨 BUILDING - 18 Services
+
+### Customer Support OS Summary
+
+| Port | Service | Features |
+|------|---------|----------|
+| 4001 | API Gateway | Auth, Rate Limit, Multi-tenant, Routing |
+| 4885 | Customer Intelligence CDP | Customer 360, Identity, Risk Score, Segments |
+| 4881 | AI Intelligence | Intent, Sentiment, Fraud, CSAT, Churn, Summary |
+| 4888 | CRM Engine | Deals, Contacts, Pipeline, HubSpot/Zoho sync |
+| 4891 | BPO Manager | Workers, Jobs, Voice BPO, Skills |
+| 4870 | Unified Inbox | WhatsApp, Email, Chat, Social, Phone |
+| 4892 | Live Chat Server | WebSocket, Real-time, Agent Queue |
+| 4893 | Social Hub | Instagram, Telegram, Facebook, Twitter |
+| 4878 | Smart Chatbot | Customer-facing AI, Auto-responses |
+| 4886 | Workflow Engine | BPMN, Approval Chains, Automation |
+| 4887 | Action Registry | Refund, Cancel, Escalate, Notify |
+| 4880 | Notification Service | Email, SMS, Push, WhatsApp |
+| 4890 | Integration Hub | Shopify, Stripe, WooCommerce, Custom |
+| 4895 | Agent Copilot | Draft Reply, Summarize, Predict CSAT |
+| 4871 | Knowledge Base | Articles, FAQs, Search, Ratings |
+| 4872 | Ticket Engine | Lifecycle, Priority, History, CSAT |
+| 4873 | SLA Manager | Policies, Breaches, Compliance |
+| 4874 | Reports Dashboard | Metrics, Trends, Agent Performance |
+
+### Customer Support OS Features
+
+| Feature | Description |
+|---------|-------------|
+| **Customer 360** | Orders, complaints, knowledge, AI predictions |
+| **Genuineness Score** | AI trust/fraud prediction (0-100) |
+| **CSAT Prediction** | Predict satisfaction before customer responds |
+| **Escalation Risk** | Flag high-risk tickets early |
+| **Multi-Tenant** | Each client isolated |
+| **Per-Client KB** | Custom knowledge base |
+| **Per-Client SLAs** | Configurable response times |
+| **BPO Integration** | Outsource to human agents |
+| **Voice BPO** | Call center support |
+
+### AI Predictions Available
+
+| Prediction | Purpose |
+|-----------|---------|
+| Trust Score | Customer genuineness |
+| CSAT Probability | Expected satisfaction |
+| Escalation Risk | Likelihood to escalate |
+| Churn Probability | Customer churn risk |
+| Fraud Detection | High-risk indicators |
+
+---
+
 ### HOJAI AI - Genie Personal AI (27+ Products)
 
 **Tagline:** "Your Personal Intelligence, Simplified." / "You don't use Genie. You talk to Genie."

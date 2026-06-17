@@ -360,8 +360,32 @@ curl http://localhost:4765/health  # Leverge Copilot
 | 4702-4725 | Genie AI / Foundation |
 | **4761-4765** | **Leverge Suite** |
 | 4800-4899 | REZ-Merchant |
+| **4870-4895** | **Customer Support OS (18 services)** |
 | 4900-4999 | Industry-specific |
 | 5000-5240 | Industry OS (24) |
+
+### Customer Support OS Ports
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4001 | API Gateway | Auth, Routing, Multi-tenant |
+| 4870 | Unified Inbox | All channels |
+| 4871 | Knowledge Base | Articles/FAQs |
+| 4872 | Ticket Engine | Tickets |
+| 4873 | SLA Manager | SLA Tracking |
+| 4874 | Reports Dashboard | Analytics |
+| 4878 | Smart Chatbot | Customer AI |
+| 4880 | Notification Service | Email/SMS/Push |
+| 4881 | AI Intelligence | Intent, Sentiment, Fraud |
+| 4885 | Customer Intelligence CDP | Customer 360 |
+| 4886 | Workflow Engine | BPMN Automation |
+| 4887 | Action Registry | Business Actions |
+| 4888 | CRM Engine | Deals, Contacts |
+| 4890 | Integration Hub | Connectors |
+| 4891 | BPO Manager | Workers, Voice BPO |
+| 4892 | Live Chat Server | WebSocket chat |
+| 4893 | Social Hub | Instagram, Telegram |
+| 4895 | Agent Copilot | AI Tools |
 
 ---
 
@@ -370,6 +394,8 @@ curl http://localhost:4765/health  # Leverge Copilot
 - [RTNM-COMPANIES-AUDIT.md](RTNM-COMPANIES-AUDIT.md) - Complete company registry
 - [RTNM-PRODUCTS-FEATURES-AUDIT.md](RTNM-PRODUCTS-FEATURES-AUDIT.md) - Product features
 - [PORT-REGISTRY.md](PORT-REGISTRY.md) - Port assignments
+- [RTNM-CUSTOMER-SUPPORT-CATALOG.md](RTNM-CUSTOMER-SUPPORT-CATALOG.md) - Support features
+- [PLAN-SUPPORT-OS-UNIFICATION.md](PLAN-SUPPORT-OS-UNIFICATION.md) - Unified platform plan
 - [README.md](README.md) - Quick start guide
 
 ---
