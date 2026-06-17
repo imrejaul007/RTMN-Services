@@ -1,8 +1,8 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Last Updated:** June 17, 2026  
-**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER + TESTS + 20 COMPANIES DOCUMENTED
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 45+ Digital Twins (10 Genie Twins) + Integration Hub + VERCEL + RENDER + TESTS + 20 COMPANIES DOCUMENTED
 
 ---
 
@@ -824,3 +824,92 @@ curl http://localhost:5050/health  # Economy
 
 *Last Updated: June 17, 2026*
 *Exhibition OS - Complete Exhibition Commerce & Intelligence Platform*
+
+---
+
+## Genie Memory OS v2.1.0 - Personal Intelligence Platform
+
+**Location:** `genie-memory-service/` + `companies/hojai-ai/genie-memory-service/`
+**Version:** 2.1.0
+**Status:** ✅ **10 TWINS COMPLETE** | **June 17, 2026**
+**Tagline:** "Twins are views, not stores"
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         GENIE MEMORY OS v2.1                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  USER INPUT → AI ORCHESTRATOR → CONTEXT ENGINE → CONTEXT GRAPH ─────────┐   │
+│                                        │                                  │   │
+│                      ┌─────────────────┼─────────────────┐              │   │
+│                      ▼                 ▼                 ▼              │   │
+│              ┌─────────────┐   ┌─────────────┐   ┌─────────────┐      │   │
+│              │ 10 Twin     │   │  Timeline   │   │   Memory    │      │   │
+│              │ Views       │   │    API     │   │ Intelligence │      │   │
+│              │ (Read-only) │   │            │   │             │      │   │
+│              └─────────────┘   └─────────────┘   └─────────────┘      │   │
+│                                                                         │   │
+│  ←──────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### The 10 Genie Twins
+
+| Twin | Purpose | Key Data |
+|------|---------|----------|
+| **Personal Twin** | Identity & traits | name, interests, expertise, preferences |
+| **Relationship Twin** | Social network | contacts, interactions, insights |
+| **Financial Twin** | Money | accounts, transactions, goals |
+| **Health Twin** | Wellness | vitals, fitness, events |
+| **Founder Twin** | Ventures | companies, skills, network |
+| **Knowledge Twin** | Learning | bookmarks, courses, research, skills |
+| **Productivity Twin** | Tasks | tasks, habits, focus patterns |
+| **Communication Twin** | Messages | writing style, channels, relationships |
+| **Environment Twin** | Context | devices, locations, routines |
+| **AI Twin** | Settings | reasoning style, workflows, agents |
+
+### Twin Service Files
+
+| Twin | File | Features |
+|------|------|----------|
+| **KnowledgeTwin** | `services/knowledgeTwin.ts` | learnedTopics, bookmarks, courses, research, skills, insights |
+| **ProductivityTwin** | `services/productivityTwin.ts` | tasks, calendar, habits, focus patterns, patterns |
+| **CommunicationTwin** | `services/communicationTwin.ts` | writingStyle, channels, relationships, preferences |
+| **EnvironmentTwin** | `services/environmentTwin.ts` | devices, locations, routines, iot, context |
+| **AITwin** | `services/aiTwin.ts` | reasoning, personality, workflows, agents, settings |
+
+### Core Components
+
+| Component | Purpose | Files |
+|-----------|---------|-------|
+| Context Graph | Unified knowledge graph | `contextGraph.ts` - 18 entity types, 18 relationship types |
+| Personal Context Engine | Structured context | `contextEngine.ts` - persona, situation, relationships, goals |
+| Universal Timeline API | Event timeline | `timeline.ts` - unified view of all events |
+| AI Orchestrator v2 | Intent handling | `aiOrchestrator.ts` - Intent → Plan → Context → Response |
+| Memory Intelligence | Semantic memory | `memoryIntelligence.ts` - consolidation, decay, importance |
+| Event Bus | Pub/Sub | `eventBus.ts` - service communication |
+
+### Quick Start
+
+```bash
+cd genie-memory-service && npm install && npm start
+
+# Health checks
+curl http://localhost:4703/health  # Memory OS
+
+# API endpoints
+GET /api/context/:userId      # Get structured context
+GET /api/timeline/:userId     # Get timeline events
+GET /api/memory/:userId       # Get memories
+POST /api/twin/:userId        # Get twin views
+```
+
+### Documentation
+
+- [docs/MEMORY-OS-ARCHITECTURE.md](genie-memory-service/docs/MEMORY-OS-ARCHITECTURE.md) - Complete architecture docs
+- [genie-memory-service/src/services/index.ts](genie-memory-service/src/services/index.ts) - Service exports
+
+---
+
+*Genie Memory OS v2.1.0 - 10 Twins for Personal Intelligence*

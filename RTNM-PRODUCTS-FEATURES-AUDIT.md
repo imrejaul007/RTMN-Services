@@ -461,17 +461,22 @@ FinanceOS is a comprehensive suite of 14 services covering the entire financial 
 | **4905** | Finance Payables | AP management | Vendor payments, payment scheduling, bulk payments |
 | **4906** | Finance Budget Coach | Budget planning | Budget forecasting, variance analysis, optimization recommendations |
 
-### FinanceOS Suite (Ports 5250-5290)
+### FinanceOS Suite (Ports 5250-5305)
 
 | Port | Service | Purpose | Key Features |
 |------|---------|---------|-------------|
 | **5250** | ExpenseOS | Multi-channel expense capture | WhatsApp/Email/Mobile/API/Genie submission, AI receipt OCR, policy engine, multi-level approval |
 | **5255** | Approval Workflow | Multi-level approvals | Configurable chains, SLA tracking, delegation, escalation |
 | **5260** | Reimbursement OS | Reimbursements & advances | Auto-approval, multi-method payouts, advance settlement, petty cash |
-| **5270** | Finance Twin Hub | Digital twins | Company/Dept/Employee/Vendor/Budget/Project Twins, AI insights, what-if simulations |
-| **5280** | Spend Intelligence | Analytics & anomalies | Duplicate detection, savings opportunities, budget forecasting, vendor intelligence |
-| **5290** | Corporate Card OS | Virtual card management | Card issuance, spend controls, transaction tracking, reconciliation |
-| **5220** | Financial OS | Accounting | Chart of accounts, journal entries, trial balance, P&L, balance sheet, cash flow |
+| **5265** | VendorOS | Vendor management | Profiles, trust/risk scoring, GST verification |
+| **5275** | ProcurementOS | Purchase orders | Purchase requests, quotes, PO generation, delivery tracking |
+| **5285** | ContractOS | Contract management | Contract lifecycle, renewals, expiry alerts |
+| **5270** | Finance Twin Hub | Digital twins | Company/Dept/Employee/Vendor/Budget Twins, AI insights |
+| **5280** | Spend Intelligence | Analytics & anomalies | Duplicate detection, savings, budget forecasting |
+| **5295** | TreasuryOS | Cash management | Bank accounts, cash position, forecasting |
+| **5305** | AuditOS | Financial audits | Audit trails, compliance, fraud detection |
+| **5290** | Corporate Card OS | Virtual card management | Card issuance, spend controls, reconciliation |
+| **5220** | Financial OS | Accounting | Chart of accounts, journal entries, P&L, balance sheet |
 
 ### FinanceOS vs Competition
 
