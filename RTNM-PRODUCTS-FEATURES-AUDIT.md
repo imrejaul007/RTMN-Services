@@ -53,6 +53,55 @@
 
 ---
 
+## HOJAI AI - Customer Operations Platform (Support Suite)
+
+**Location:** `companies/hojai-ai/hojai-*` (Support Services)
+**Status:** ✅ **14 SERVICES BUILT** | **AI-Native Support Platform** | **June 2026**
+
+### Customer Operations Platform Summary
+
+| Service | Port | Products | Key Features |
+|---------|------|----------|--------------|
+| API Gateway | 4001 | Gateway, Auth, Rate Limiter | Multi-tenant, JWT, Redis |
+| Customer Intelligence CDP | 4885 | Customer 360, Identity, Risk | Trust Score, Segments |
+| Hojai Intelligence | 4881 | AI Agents, Memory, Policy | Intent, Sentiment, Prediction |
+| Workflow Engine | 4886 | Workflows, Automation | BPMN, Approval Chains |
+| Action Registry | 4887 | Business Actions, Audit | Refund, Cancel, Escalate |
+| Notification Service | 4880 | Email, SMS, Push | Templates, Multi-channel |
+| Integration Hub | 4890 | Connectors | Shopify, Stripe, HubSpot |
+| Agent Copilot | 4895 | AI Assistant | Draft, Summarize, Predict |
+| Unified Inbox | 4870 | Conversations | WhatsApp, Email, Chat |
+| Knowledge Base | 4871 | Articles, FAQs | Search, Categories, Ratings |
+| Ticket Service | 4872 | Tickets | Lifecycle, History, CSAT |
+| SLA Service | 4873 | SLA Tracking | Policies, Breaches |
+| Support Analytics | 4874 | Reports | Metrics, Trends, Agents |
+| Supporter AI | 4878 | Chatbot | Auto-responses, Escalation |
+
+### Customer Operations Platform Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Customer 360 View** | ✅ | Unified customer profile with orders, complaints, knowledge |
+| **Genuineness Score** | ✅ | AI-powered trust/fraud prediction |
+| **CSAT Prediction** | ✅ | Predict satisfaction before customer responds |
+| **Escalation Risk** | ✅ | Flag tickets likely to escalate |
+| **Multi-Tenant** | ✅ | Each client (company) isolated |
+| **Per-Client KB** | ✅ | Custom knowledge base per client |
+| **Per-Client SLAs** | ✅ | Configurable response times |
+| **Per-Client Integrations** | ✅ | Connect their Shopify, Stripe, etc. |
+
+### AI Predictions Available
+
+| Prediction | Purpose |
+|-----------|---------|
+| Trust Score (0-100) | Customer genuineness |
+| CSAT Probability | Expected satisfaction |
+| Escalation Risk | Likelihood to escalate |
+| Churn Probability | Customer churn risk |
+| Fraud Detection | High-risk indicators |
+
+---
+
 ## HOJAI AI - Complete AI Infrastructure Platform ✅ COMPLETE!
 
 **Location:** `companies/hojai-ai/`  

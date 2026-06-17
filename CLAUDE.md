@@ -1,8 +1,38 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Last Updated:** June 17, 2026  
-**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 45+ Digital Twins (10 Genie Twins) + Integration Hub + VERCEL + RENDER + TESTS + 20 COMPANIES DOCUMENTED
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 45+ Digital Twins + Integration Hub + **Customer Operations Platform (14 Services)** + VERCEL + RENDER
+
+---
+
+## Platform Structure
+
+```
+RTMN (Platform Provider)
+│
+├── CLIENTS (Companies using RTMN)
+│   ├── HOJAI AI
+│   │   ├── Project: Customer App
+│   │   ├── Project: Merchant Portal
+│   │   └── Project: Admin Dashboard
+│   ├── REZ-Consumer
+│   │   ├── Project: Consumer App
+│   │   ├── Project: Driver App
+│   │   └── Project: Admin Portal
+│   └── (Add more clients)
+│
+└── SUPPORT PLATFORM (Shared Infrastructure)
+    └── 14 Support Services (AI-Powered)
+```
+
+**Each Client gets:**
+- 👤 Customer 360 View (Orders, Complaints, Knowledge, AI Predictions)
+- 🤖 AI Genuineness Prediction (Trust Score, Fraud Detection)
+- 📊 CSAT Prediction (Know satisfaction before it happens)
+- 📚 Per-Client Knowledge Base
+- 🔗 Per-Client Integrations (Shopify, Stripe, HubSpot)
+- ⚙️ Per-Client SLA Configuration
 
 ---
 

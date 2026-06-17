@@ -64,6 +64,40 @@ render blueprint apply render.yaml
 
 ---
 
+### ✅ Customer Operations Platform (NEW - June 2026)
+
+**Location:** `companies/hojai-ai/` (Support Services) + `services/api-gateway/`
+**Status:** ✅ **14 SERVICES BUILT** | AI-Native Support Platform
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| API Gateway | 4001 | Auth, Rate Limit, Multi-tenant Routing |
+| Customer Intelligence CDP | 4885 | Customer 360, Identity, Risk Scoring |
+| Hojai Intelligence | 4881 | AI Agents, Memory, Policy Engine |
+| Workflow Engine | 4886 | BPMN Automation, Approval Chains |
+| Action Registry | 4887 | Business Actions, Audit Logs |
+| Notification Service | 4880 | Email, SMS, Push, WhatsApp |
+| Integration Hub | 4890 | Shopify, Stripe, HubSpot Connectors |
+| Agent Copilot | 4895 | Draft Replies, Summarize, Predict |
+| Unified Inbox | 4870 | Multi-channel Conversations |
+| Knowledge Base | 4871 | Articles, FAQs, Categories |
+| Ticket Service | 4872 | Ticket Lifecycle, History |
+| SLA Service | 4873 | SLA Tracking, Breaches |
+| Support Analytics | 4874 | Reports, Dashboards |
+| Supporter AI | 4878 | Customer Chatbot |
+
+**Key Features:**
+- 🏢 **Multi-Tenant**: Each company (client) is isolated
+- 👤 **Customer 360**: Orders, Complaints, Knowledge, AI Predictions
+- 🤖 **AI Genuineness**: Trust Score, Fraud Detection
+- 📊 **Predictive CSAT**: Know satisfaction before it happens
+- 🔮 **Escalation Risk**: Flag high-risk tickets early
+- 📚 **Per-Client KB**: Each client has their own knowledge base
+- 🔗 **Per-Client Integrations**: Connect their Shopify, Stripe, etc.
+- ⚙️ **Per-Client SLAs**: Configure response times per client
+
+---
+
 ### ✅ Product Companies (Production Ready) - 20 Companies Documented
 
 | Company | Description | Documentation | Status |
