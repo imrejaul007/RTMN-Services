@@ -1,0 +1,31 @@
+{
+  "name": "@rtmn/chat-widget",
+  "version": "1.0.0",
+  "description": "RTMN Embeddable Chat Widget SDK",
+  "type": "module",
+  "main": "dist/chat-widget.js",
+  "module": "dist/chat-widget.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "chat",
+    "widget",
+    "sdk",
+    "rtmn",
+    "customer-support"
+  ],
+  "author": "RTMN",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
+  }
+}
