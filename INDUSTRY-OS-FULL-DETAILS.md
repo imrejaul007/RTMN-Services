@@ -3651,3 +3651,387 @@ All Industry OS services implement:
 **Document Generated:** June 16, 2026  
 **Version:** 1.0  
 **Status:** Complete
+
+---
+
+# APPENDIX A: RTNM COMPANIES & PRODUCTS REFERENCE
+
+## Complete Company Registry (from RTNM-COMPANIES-AUDIT.md)
+
+### Executive Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Companies | 21 |
+| Total Services | 385+ |
+| Production Ready | 385+ (100%) |
+| Security Issues Fixed | 100+ |
+| Documentation Commits | 50+ |
+| Unit Tests | 200+ passing |
+| Code Quality Score | **10/10 ✅** |
+| CI/CD Pipelines | ✅ 10 workflows |
+| Monitoring | ✅ Prometheus + Grafana + AlertManager |
+| Integration Hub | ✅ 25+ services registered |
+| **Vercel Deployment** | ✅ Frontend deployed |
+| **Render Deployment** | ✅ Backend deployed |
+| **Health Checks** | ✅ All services have /health |
+
+### Company Overview - All 21 Companies
+
+| Company | Description | Port Range | Services |
+|---------|-------------|------------|----------|
+| **HOJAI AI** | Unified AI intelligence platform | 4500-4731 | 190+ products |
+| **REZ-Consumer** | Consumer apps + DO Genie AI assistant | 3000-4100 | 80+ services |
+| **REZ-Merchant** | Merchant services + REZ Merchant Genie | 4800-4899 | 100+ services |
+| **RABTUL Technologies** | Auth, Wallet, Payments, Economic Layer | 4001-4040 | 40+ services |
+| **AdBazaar** | DOOH advertising + AI-powered advertising OS | 4056-4121 | 47 services |
+| **Nexha Commerce** | Commerce & Procurement | 8000+ | 50+ services |
+| **CorpPerks** | Employee benefits & HR platform | 4450-4482 | 50+ services |
+| **RisaCare** | Healthcare services | 7000-7005 | 40+ services |
+| **StayOwn-Hospitality** | Hotel management | 6000-6004 | 45+ services |
+| **RisnaEstate** | Real estate platform | 4300-4399 | 35+ services |
+| **KHAIRMOVE** | Mobility & Logistics | 4500-4605 | 40+ services |
+| **AssetMind** | Wealth management | 5200+ | 30+ services |
+| **RidZa** | Financial services | 4250+ | 30+ services |
+| **LawGens** | Legal document automation | 4180-5039 | 25+ services |
+| **Karma-Foundation** | Charitable giving platform | - | - |
+| **Axom** | Community intelligence | 4000-4027 | 30+ services |
+| **REZ-Workspace** | Collaboration platform | - | - |
+| **REZ-Exhibitor** | Event & Exhibition platform | - | - |
+| **RTNM-Digital** | Digital products | - | - |
+| **RTNM-Group** | Corporate holding | - | - |
+
+---
+
+## HOJAI AI - Complete Products (190+ Products)
+
+### 1. Genie Personal AI (27 Products)
+
+**Personal AI OS for individuals — "Your Personal Intelligence, Simplified"**
+
+GENIE is the flagship personal AI OS of HOJAI. It is built around **five twins** that model the user across every dimension of their life.
+
+**The Five Twins:**
+
+| Twin | Port | What it tracks |
+|------|------|----------------|
+| **Personal Twin** | 4708 | Identity, profile, preferences, behavior, goals, timeline |
+| **Relationship Twin** | 4705 | People graph (family/friends/colleagues/clients/...), interactions |
+| **Financial Twin** | 4715 | Accounts, transactions, budgets, savings goals, net worth |
+| **Health Twin** | 4717 | Vitals, activity, sleep, mood, medications, conditions |
+| **Founder Twin** | 4716 | Ventures, KPIs, customers, team, decisions, focus |
+
+**Consumer Triangle:** GENIE (thinks) + DO (acts) + RAZO (communicates)
+
+| Product | Port | Features |
+|---------|------|----------|
+| genie-gateway | 4701 | API gateway for GENIE stack |
+| genie-dashboard-service | 4720 | Web dashboard |
+| genie-personal-twin-service | 4708 | **Personal Twin** — identity, profile, preferences, behavior, goals, timeline |
+| genie-relationship-twin-service | 4705 | **Relationship Twin** — people graph, interactions, health/intimacy/trust |
+| genie-financial-twin-service | 4715 | **Financial Twin** — accounts, transactions, budgets, goals, net worth |
+| genie-health-twin-service | 4717 | **Health Twin** — vitals, activity, sleep, mood, meds, conditions |
+| genie-founder-twin-service | 4716 | **Founder Twin** — ventures, KPIs, customers, team, decisions |
+| genie-memory-service | 4703 | Personal memory store, semantic search, recall |
+| genie-briefing-service | 4706 | Daily briefings, contextual updates |
+| genie-whatsapp-bot-service | 4718 | WhatsApp conversational surface (15 intents) |
+| genie-privacy-service | 4719 | Consent management, data export, deletion |
+| genie-project-service | 4712 | Project & task management |
+
+### 2. Business Intelligence (15 Products)
+
+| Product | Port | Features |
+|---------|------|----------|
+| hojai-business-copilot | 4600 | 24 industry skill packs, 120+ skills, NL queries |
+| **hojai-expert-os** | 4550 | Agent Runtime, Expert Twins, Workflow Execution |
+| **hojai-product-intelligence** | 4755 | Product analytics, features, feedback, roadmap, RICE |
+| **hojai-competitive-intelligence** | 4756 | Competitor tracking, funding, hiring, news, alerts |
+| **hojai-revenue-intelligence** | 4757 | Revenue metrics, ARR/MRR/LTV/CAC, forecasting |
+| **hojai-customer-intelligence** | 4758 | Customer 360, lifecycle, interactions, sentiment |
+| **hojai-meeting-intelligence** | 4700 | Meeting management, action items, decisions |
+| **hojai-goal-os** | 4242 | Goal management, OKRs, milestones |
+| **hojai-command-center** | 4801 | Executive dashboard, widgets |
+| **hojai-executive-dashboard** | 4759 | KPI reports, insights, metrics |
+
+### 3. SUTAR OS (25 Services)
+
+**Autonomous Economic Infrastructure**
+
+| Layer | Product | Port | Features |
+|-------|---------|------|----------|
+| Gateway | sutar-gateway | 4140 | API gateway, routing |
+| Twin | sutar-twin-os | 4142 | Digital twin, entity state |
+| Decision | sutar-decision-engine | 4240 | AI decisions |
+| Decision | sutar-simulation-os | 4241 | What-if analysis, Monte Carlo |
+| Decision | sutar-goal-os | 4242 | Goal decomposition |
+| Marketplace | sutar-marketplace | 4250 | Service marketplace |
+| Marketplace | sutar-economy-os | 4251 | Economic layer |
+| Trust | sutar-trust-engine | 4180 | Trust scoring |
+| Trust | sutar-contract-os | 4185 | Smart contracts |
+| Discovery | sutar-discovery-engine | 4256 | Opportunity discovery |
+
+### 4. Leverge - AI Business Intelligence Suite (5 Products)
+
+| Product | Port | Features |
+|---------|------|----------|
+| **leverge-intelligence** | 4761 | Business analytics, insights, metrics, reporting |
+| **leverge-memory** | 4762 | Personal AI memory storage, semantic search |
+| **leverge-twin** | 4763 | Digital twin management, state tracking |
+| **leverge-agents** | 4764 | AI agent orchestration, task queue |
+| **leverge-copilot** | 4765 | Business AI copilot, conversations |
+
+### 5. FinanceOS - Complete Financial Intelligence Platform (14 Services)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| **4900** | Finance CFO AI | AI-powered CFO insights |
+| **4901** | Finance Accountant | Invoice → Ledger → Tally |
+| **4902** | Finance Compliance | Compliance checking |
+| **4903** | Finance Auditor | Fraud detection, audit |
+| **4904** | Finance Collections | AR management |
+| **4905** | Finance Payables | AP management |
+| **4906** | Finance Budget Coach | Budget planning |
+| **5220** | Financial OS | Chart of accounts, ledger, P&L |
+| **5250** | ExpenseOS | Multi-channel expense capture |
+| **5255** | Approval Workflow | Multi-level approvals |
+| **5260** | Reimbursement OS | Reimbursements & advances |
+| **5270** | Finance Twin Hub | Digital twins |
+| **5280** | Spend Intelligence | Analytics & anomalies |
+| **5290** | Corporate Card OS | Virtual card management |
+
+### 6. Industry AI (24 Products - ALL 24 VERTICALS)
+
+| # | Industry | Service | Port | AI Agents |
+|---|----------|---------|------|-----------|
+| 1 | Restaurant | waitron | 4820 | 8 connectors |
+| 2 | Hotel | staybot | - | - |
+| 3 | Salon/Spa | salon-ai | - | - |
+| 4 | Healthcare | carecode | - | - |
+| 5 | Fitness | fitness-ai | - | - |
+| 6 | Retail | retail-ai | - | - |
+| 7 | Legal | legal-ai | **4510** | 3 |
+| 8 | Government | government-ai | **4511** | 4 |
+| 9 | Agriculture | agriculture-ai | **4512** | 5 |
+| 10 | Sports | sports-ai | **4513** | 5 |
+| 11 | Energy | energy-ai | **4514** | 3 |
+| 12 | Media | media-ai | **4515** | 4 |
+
+---
+
+## RABTUL Technologies - Economic Layer Platform
+
+**Version:** 5.0.0 | **Status:** ✅ PRODUCTION READY - 178+ Services Built
+
+### RABTUL Core Services
+
+| Service | Port | Purpose | Features |
+|---------|------|---------|----------|
+| api-gateway | 4000 | API routing | Rate limiting, auth, routing |
+| rez-auth-service | 4002 | Authentication | JWT, OTP, TOTP, MFA, OAuth |
+| rez-payment-service | 4001 | Payments | UPI, Cards, Razorpay |
+| rez-wallet-service | 4004 | Wallet | Coins, Balance, Multi-currency |
+| rez-order-service | 4006 | Orders | Lifecycle, State machine |
+| rez-catalog-service | 4007 | Catalog | Products, Categories |
+| rez-search-service | 4008 | Search | Full-text, Fuzzy |
+| REZ-unified-loyalty | 4040 | Loyalty | Points, Tiers, Cross-brand |
+| rez-referral-os | 4041 | Referral | Commission, Payouts |
+| REZ-treasury-os | 4055 | Treasury | Cash, Investments, Escrow |
+| rabtul-trust-engine | 4050 | Trust | Trust scores, Reputation |
+
+---
+
+## HOJAI Business Copilot - 24 Industry AI Skills
+
+**Port:** 4600 | **Status:** ✅ **PRODUCTION READY**
+
+### 24 Industry Skill Packs
+
+| Industry | Port | Skills |
+|----------|------|--------|
+| Restaurant | 4610 | Menu optimization, order management, kitchen efficiency |
+| Hotel | 4611 | Guest experience, housekeeping, revenue management |
+| Healthcare | 4612 | Patient intake, appointment scheduling, insurance |
+| Retail | 4613 | Inventory, pricing, customer retention |
+| Legal | 4614 | Contract review, case management, billing |
+| Education | 4615 | Enrollment, course management, student tracking |
+| Agriculture | 4616 | Crop planning, yield prediction, market timing |
+| Automotive | 4617 | Service scheduling, parts inventory, customer lifetime |
+| Beauty | 4618 | Appointment booking, product recommendations |
+| Fashion | 4619 | Trend analysis, inventory management |
+| Fitness | 4620 | Member retention, class scheduling |
+| Gaming | 4621 | Player engagement, monetization |
+| Government | 4622 | Citizen services, permit processing |
+| Home Services | 4623 | Job scheduling, technician routing |
+| Manufacturing | 4624 | Production planning, quality control |
+| Non-Profit | 4625 | Donor management, campaign tracking |
+| Professional | 4626 | Project management, client billing |
+| Sports | 4627 | Ticket sales, fan engagement |
+| Travel | 4628 | Package optimization, booking conversion |
+| Entertainment | 4629 | Event management, venue optimization |
+| Construction | 4630 | Project timeline, contractor management |
+| Financial | 4631 | Investment advice, risk assessment |
+| Real Estate | 4632 | Lead qualification, property matching |
+| Transport | 4633 | Fleet optimization, route planning |
+| Hospitality | 4634 | Multi-property management |
+
+---
+
+## REZ Merchant Genie - AI-Powered Business Intelligence
+
+**Port:** 4801 | **Status:** ✅ **PRODUCTION READY**
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/merchant/:id` | GET | Full Genie dashboard |
+| `/api/merchant/:id/insights` | GET | AI-generated insights |
+| `/api/merchant/:id/alerts` | GET | Business alerts (critical/warning/info) |
+| `/api/merchant/:id/recommendations` | GET | AI recommendations |
+| `/api/merchant/:id/briefing` | GET | Daily Genie briefing |
+| `/api/merchant/:id/ask` | POST | Ask Genie about your business |
+
+---
+
+## HOJAI SkillNet - AI Intelligence Platform
+
+**Port:** 4530 | **Status:** ✅ **10/10 PRODUCTION READY**
+
+### Intelligence Features
+
+| Feature | Model | Description |
+|---------|-------|-------------|
+| Churn Prediction | hojai-churn-v1 | Customer churn risk scoring (0-1) |
+| LTV Prediction | hojai-ltv-v1 | Lifetime value estimation |
+| Intent Detection | hojai-intent-v1 | User purchase intent analysis |
+| Propensity Scoring | hojai-propensity-v1 | RFM-based action propensity |
+| Revisit Prediction | hojai-revisit-v1 | Customer return likelihood |
+| Conversion Prediction | hojai-conversion-v1 | Conversion probability scoring |
+| Product Recommendations | collaborative-filtering | Based on browsing history |
+
+### gRPC Services
+
+| Service | Method | Description |
+|---------|--------|-------------|
+| IntelligenceService | CreateChurnPrediction | Churn prediction |
+| IntelligenceService | CreateLTVPrediction | LTV prediction |
+| IntelligenceService | CreateIntentPrediction | Intent prediction |
+| EventService | PublishEvent | Publish event |
+| TenantService | CreateTenant | Create tenant |
+
+---
+
+## Regional Compliance Services (Built June 2026)
+
+| Service | Port | Region | Compliance |
+|---------|------|--------|------------|
+| REZ-usa-sales-tax-service | 5601 | USA | Sales Tax (All 50 States) |
+| REZ-gcc-vat-service | 5602 | GCC | VAT (UAE, KSA, Qatar, Bahrain, Oman, Kuwait) |
+| REZ-eu-vat-service | 5603 | EU | VAT MOSS, OSS, IOSS |
+| REZ-sepa-service | 5604 | SEPA | Direct Debit |
+| REZ-wps-service | 5605 | Middle East | WPS Wage Protection |
+| REZ-einvoicing-service | 5606 | Global | eInvoicing (Peppol, India GST) |
+| REZ-pci-dss-service | 5607 | Global | PCI DSS Compliance |
+| REZ-cookie-consent-service | 5608 | EU/GDPR | Cookie Consent |
+| REZ-spoilage-markdown-service | 5609 | Retail | Spoilage & Markdown |
+
+---
+
+## Foundation Services - Strategic Gaps Resolved
+
+**Status:** ✅ ALL 14 SERVICES COMPLETE | **Ports:** 3013-3023, 3030-3032, 3040
+
+| Feature | Generic Platform | RTMN Foundation |
+|---------|-----------------|------------------|
+| Universal Identity | ❌ | ✅ CorpID |
+| Personal Memory | ❌ | ✅ MemoryOS |
+| Goal Decomposition | ❌ | ✅ GoalOS |
+| Policy Engine | ❌ | ✅ Decision Engine |
+| Agent Economy | ❌ | ✅ Agent Economy |
+| Trust Scoring | ❌ | ✅ Built-in |
+| Relationship Graph | ❌ | ✅ Path Finding |
+| Escrow | ❌ | ✅ Built-in |
+
+---
+
+## RTNM 15-Layer Ecosystem Architecture
+
+Every Industry OS connects to the complete 15-layer RTMN ecosystem:
+
+| Layer | Name | Company | Ports | Services |
+|-------|------|---------|-------|----------|
+| 1 | Intelligence | HOJAI AI | 4500-4780 | Genie, CoPilot, Agents, SUTAR, Twins |
+| 2 | Customer Growth | AdBazaar | 4056-4121 | CRM, Ads, Loyalty, Creator, Analytics |
+| 3 | Commerce | Nexha + REZ-Merchant | 4800-4899 | Procurement, POS, Orders, Menu, Payments |
+| 4 | Financial | RABTUL | 4001-4040 | Auth, Wallet, Banking, Lending, Accounting |
+| 5 | Workforce | CorpPerks | 4450-4482 | HR, Payroll, Recruitment, Calendar, LMS |
+| 6 | Legal & Trust | LawGens | 4180-5039 | Contracts, Compliance, Risk |
+| 7 | Property | RisnaEstate + StayOwn | 4300-6004 | Property, PMS, Booking, Housekeeping |
+| 8 | Health | RisaCare | 7000-7005 | Health, Wellness, Insurance |
+| 9 | Mobility | KHAIRMOVE | 4500-4605 | Delivery, Fleet, Ride, Logistics |
+| 10 | Identity | CorpID | 4702 | Universal Identity, Verification |
+| 11 | Memory | MemoryOS | 4703 | Business Memory, Relationship Memory |
+| 12 | Twins | TwinOS Hub | 4705 | Digital Twins, Sync |
+| 13 | Automation | FlowOS | 4200 | Workflows, Approval Chains |
+| 14 | Autonomous | SUTAR OS + Karma | 4140-4250 | Goals, Decisions, Agent Economy |
+| 15 | Consumer | REZ Consumer + Axom | 3000-4027 | Customers, Referrals, Discovery |
+
+---
+
+## HOJAI Port Mapping
+
+| Port Range | Products |
+|------------|----------|
+| 3000-3099 | HIB Healthcare |
+| 3100 | SUTAR Monitoring |
+| 4100-4140 | SUTAR Gateway |
+| 4140-4155 | SUTAR Twin/Intent |
+| 4180-4191 | SUTAR Trust |
+| 4200-4299 | Intelligence |
+| 4240-4244 | SUTAR Decision |
+| 4250-4259 | SUTAR Marketplace |
+| 4500-4610 | HOJAI Core |
+| 4701-4731 | Genie Personal AI |
+| 4750-4759 | Business Intelligence |
+| 4800-4801 | Command Center |
+| 4850 | Voice OS |
+| 4900-4906 | Finance AI Agents |
+| 5100-5140 | SkillNet |
+| 5220 | Financial OS |
+| 5250-5290 | FinanceOS Suite |
+
+---
+
+## Service Integration Architecture
+
+**Pattern:** Service Mesh / Event-Driven  
+**Philosophy:** Connect services via APIs instead of copying code
+
+### Integration Hub - Now Operational
+
+| Service | Port | Status | Description |
+|---------|------|--------|-------------|
+| **REZ-ecosystem-connector** | 4399 | ✅ Running | Service Registry & Discovery |
+| **REZ-event-bus** | 4510 | ✅ Running | Pub/Sub Event Messaging (29 schemas) |
+| **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API |
+
+### Architecture Overview
+
+```
+                    RABTUL Services
+                 ┌─────────┐
+                 │  Auth   │──────────► HOJAI AI
+                 │  Wallet │──────────► SutAR OS
+                 │  Mfg OS │──────────► Industry AI
+                 │  HR Hub │──────────► REZ-Merchant
+                 │  Graph  │──────────► All Services
+                 │  Search │──────────► HOJAI RAG
+                 │  Memory │──────────► HOJAI Vector
+                 │  Events │◄───────── All Publishers
+                 └─────────┘
+```
+
+---
+
+*Document Generated:* June 17, 2026  
+*Last Updated from RTNM-COMPANIES-AUDIT.md and RTNM-PRODUCTS-FEATURES-AUDIT.md*
