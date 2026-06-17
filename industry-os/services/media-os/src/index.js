@@ -39,6 +39,10 @@ const { validate, paginationSchema, mongoIdSchema } = require('./middleware/vali
 const { rtmnService, eventBus, EVENTS } = require('./services');
 const { twinService, TWIN_TYPES } = require('./twins');
 
+// Phase 2 Routes
+const { contentRoutes } = require('./routes/contentRoutes');
+const { aiRoutes } = require('./routes/aiRoutes');
+
 // ============================================
 // APP INITIALIZATION
 // ============================================
@@ -116,6 +120,10 @@ const authLimiter = rateLimit({
 // Apply rate limits
 app.use('/api', apiLimiter);
 app.use('/auth', authLimiter);
+
+// Phase 2 Routes - Content & Production
+app.use('/api/content-ops', contentRoutes);
+app.use('/api/content-ops', aiRoutes);
 
 // ============================================
 // ERROR HANDLING
@@ -1508,21 +1516,33 @@ async function startServer() {
       logger.info(`
 ╔═══════════════════════════════════════════════════════════════════════════════╗
 ║                        MEDIA OS v2.0.0                                        ║
-║              Complete AI-Native Media Operating System                       ║
+║           Complete AI-Native Media Operating System                            ║
+║                    Phase 2: Content & Production OS                           ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                               ║
 ║  Port: ${config.PORT}                                                             ║
 ║  Environment: ${config.NODE_ENV}                                                       ║
 ║                                                                               ║
-║  Features:                                                                    ║
-║  • Content OS: Channels, Programs, Episodes, Content Management                ║
-║  • Creator OS: Profiles, Brand Deals, Payments                                ║
-║  • Audience OS: Viewers, Subscriptions, Personalization                       ║
-║  • Advertising OS: Campaigns, Bookings, Attribution                           ║
-║  • Revenue OS: Subscriptions, PPV, Invoicing                                 ║
-║  • Rights OS: Licenses, Territories, Royalties                               ║
-║  • Production OS: Studios, Equipment, Crew                                    ║
-║  • Digital Twins: Viewer, Creator, Content, Campaign                          ║
+║  PHASE 1 - Foundation:                                                      ║
+║  • MongoDB + Winston Logger + Joi Validation                                 ║
+║  • JWT Auth + Rate Limiting + Health Endpoints                               ║
+║  • Digital Twins (Viewer, Creator, Content, Campaign)                          ║
+║  • RTMN Integration (HOJAI, CorpID, TwinOS, Event Bus)                       ║
+║                                                                               ║
+║  PHASE 2 - Content & Production OS:                                         ║
+║  • Editorial Calendar with workflow approval                                  ║
+║  • Script & Storyboard management with versioning                            ║
+║  • Production OS (Studios, Equipment, Crew)                                  ║
+║  • AI Content Agents (Script Writer, Thumbnail, SEO, Repurposer)               ║
+║                                                                               ║
+║  AI Agents:                                                                ║
+║  • Script Writer Agent     - Generate scripts, dialogues, twists             ║
+║  • Thumbnail Designer      - Create engaging thumbnails                       ║
+║  • SEO Optimizer          - Optimize for search engines                      ║
+║  • Content Repurposer     - Convert to different formats                      ║
+║  • Translator             - Multi-language support (18 languages)             ║
+║  • Moderator              - Content safety & policy compliance               ║
+║  • Trend Hunter           - Discover trends & predict virality               ║
 ║                                                                               ║
 ║  RTMN Integration:                                                          ║
 ║  • HOJAI AI (4560) - Intelligence                                           ║
@@ -1539,18 +1559,29 @@ async function startServer() {
       `);
 
       console.log(`
-      📺 Media OS Ready!
+      📺 Media OS Ready - Phase 2!
 
-      Endpoints:
+      Foundation:
       - Health:        GET  /health
       - RTMN Layers:  GET  /api/layers
       - Viewers:       GET  /api/viewers
       - Content:      GET  /api/content
-      - Channels:     GET  /api/channels
-      - Creators:     GET  /api/creators
-      - Campaigns:    GET  /api/campaigns
       - Twins:        GET  /api/twins/viewer/:id
-      - Analytics:    GET  /api/analytics/overview
+
+      Phase 2 - Content & Production:
+      - Calendar:       GET  /api/content-ops/calendar
+      - Scripts:        GET  /api/content-ops/scripts
+      - Productions:    GET  /api/content-ops/productions
+      - Metadata:       GET  /api/content-ops/metadata/:type/:id
+
+      AI Agents:
+      - Script:         POST /api/content-ops/ai/script/generate
+      - Thumbnail:      POST /api/content-ops/ai/thumbnail/generate
+      - SEO:            POST /api/content-ops/ai/seo/optimize
+      - Repurpose:      POST /api/content-ops/ai/repurpose
+      - Translate:      POST /api/content-ops/ai/translate
+      - Moderate:       POST /api/content-ops/ai/moderate
+      - Trends:         POST /api/content-ops/ai/trends/discover
       `);
     });
 
