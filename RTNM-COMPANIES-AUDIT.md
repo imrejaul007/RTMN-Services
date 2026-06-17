@@ -2164,6 +2164,120 @@ curl -X POST http://localhost:4708/api/reminder \
 
 ---
 
+---
+
+## StayOwn-Hospitality - Complete Hotel OTA Platform ✅ NEW!
+
+**Location:** `companies/StayOwn-Hospitality/`  
+**Tagline:** "AI-Powered Hotel Management & Guest Experience"  
+**Status:** ✅ **COMPLETE** | **June 17, 2026**
+
+### Hotel Ecosystem Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                         HOTEL ECOSYSTEM                                              │
+│                                                                                      │
+│  ┌───────────────────────────────────────────────────────────────────────────────┐   │
+│  │              HOTEL ECOSYSTEM GATEWAY (4950) - NEW!                           │   │
+│  │   Single entry point for all hotel operations                                 │   │
+│  │   - Aggregates data from all 3 systems                                        │   │
+│  │   - Publishes events to Event Bus                                             │   │
+│  └──────────────────────────────────┬────────────────────────────────────────────┘   │
+│                                     │                                                │
+│        ┌────────────────────────────┼────────────────────────────┐                  │
+│        │                            │                            │                   │
+│   ┌────▼────┐               ┌───────▼───────┐              ┌────▼────┐            │
+│   │ RTMN-OS │               │ REZ-Merchant  │              │ StayOwn │            │
+│   │ Hotel   │               │ Mind Hotel    │              │ OTA     │            │
+│   │  OS     │◄────────────►│   (4017)     │◄────────────►│ Platform│            │
+│   │ (5025)  │               │               │              │(3000-3003)           │
+│   └─────────┘               └───────────────┘              └─────────┘            │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Connected Systems & Ports
+
+| System | Service | Port | Purpose |
+|--------|---------|------|---------|
+| **RTMN-OS** | Hotel OS | 5025 | PMS Core, AI Agents, Housekeeping |
+| **RTMN-OS** | Cross-Ecosystem Bridge | 4898 | Unified customer view |
+| **RTMN-OS** | Event Bus | 4510 | Pub/Sub messaging |
+| **REZ-Merchant** | REZ Mind Hotel | 4017 | AI Intelligence |
+| **StayOwn** | API Server | 3000 | OTA Backend (34 routes) |
+| **StayOwn** | OTA Web | 3003 | Guest booking website |
+| **StayOwn** | Hotel Panel | 3001 | Staff dashboard |
+| **StayOwn** | Admin | 3002 | Platform admin |
+| **NEW** | Hotel Ecosystem Gateway | 4950 | Unified API gateway |
+
+### StayOwn Apps (6 Complete)
+
+| App | Port | Features | Status |
+|-----|------|----------|--------|
+| API Server | 3000 | Backend API (Express, 34 routes) | ✅ |
+| OTA Web | 3003 | Guest booking website (Next.js) | ✅ |
+| Hotel Panel | 3001 | Staff dashboard | ✅ |
+| Admin Panel | 3002 | Platform admin | ✅ |
+| Corporate Panel | 3004 | B2B panel | ✅ |
+| Mobile | - | React Native app (30+ screens) | ✅ |
+
+### Hotel Ecosystem Gateway (Port 4950)
+
+| Route | Purpose |
+|-------|---------|
+| `/api/hotels` | Search, details, availability |
+| `/api/bookings` | Create, manage, check-in/out |
+| `/api/guests` | Profiles, preferences, loyalty |
+| `/api/services` | Room service, housekeeping |
+| `/api/analytics` | Dashboard, RevPAR, predictions |
+| `/api/wallet` | Coins, payments |
+
+### StayOwn Packages
+
+| Package | Purpose | Models |
+|---------|---------|--------|
+| database | Prisma schema | 60+ models |
+| merchant-sdk | Hotel integration SDK | - |
+
+### Event Flow
+
+```
+Guest books hotel
+        │
+        ▼
+Hotel Ecosystem Gateway (4950)
+        │
+        ├──► StayOwn API (3000) ──► Creates booking
+        │
+        ├──► RTMN Hotel OS (5025) ──► PMS receives booking
+        │
+        ├──► REZ Mind Hotel (4017) ──► AI personalization
+        │
+        └──► Event Bus (4510) ──► Publishes hotel.booking.created
+```
+
+### Quick Start
+
+```bash
+cd companies/StayOwn-Hospitality
+npm install
+cp .env.example .env.local
+
+# Start API
+cd apps/api && npm run dev  # Port 3000
+
+# Start OTA Web
+cd apps/ota-web && npm run dev  # Port 3003
+
+# Start Hotel Panel
+cd apps/hotel-panel && npm run dev  # Port 3001
+
+# Start Gateway
+cd services/hotel-ecosystem-gateway && npm run dev  # Port 4950
+```
+
+---
+
 ## Hotel OS (Port 5025) ✅ Complete
 
 **Location:** `services/hotel-os/`  
