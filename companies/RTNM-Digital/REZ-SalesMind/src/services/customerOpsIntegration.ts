@@ -893,7 +893,7 @@ class CustomerOpsIntegration {
           id: `voice-profile-${generateId().slice(0, 6)}`,
           contactId,
           preferredLanguage: 'en-US',
-          speakingStyle: 'professional',
+          speakingStyle: 'formal',
           avgCallDuration: 480, // seconds
           sentimentTrend: 'improving',
         },
@@ -1522,7 +1522,17 @@ class CustomerOpsIntegration {
       };
     } catch (error: any) {
       logger.error('Get customer journey error:', error.message);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        journey: {
+          events: [],
+          totalInteractions: 0,
+          avgEngagementScore: 0,
+          churnRisk: 'low',
+          recommendedNextSteps: []
+        },
+        error: error.message
+      };
     }
   }
 

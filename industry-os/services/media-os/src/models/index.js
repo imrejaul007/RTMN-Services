@@ -24,10 +24,13 @@ const License = require('./License');
 const Studio = require('./Studio');
 const Equipment = require('./Equipment');
 const Crew = require('./Crew');
-const Production = require('./Production');
 const Comment = require('./Comment');
 const Follower = require('./Follower');
 const AuditLog = require('./AuditLog');
+const EditorialCalendar = require('./EditorialCalendar');
+const Script = require('./Script');
+const Metadata = require('./Metadata');
+const { Production, CallSheet, DailyReport } = require('./Production');
 
 /**
  * Connect to MongoDB
@@ -308,7 +311,7 @@ module.exports = {
   connectDB,
   disconnectDB,
   seedData,
-  // Models
+  // Core Models
   Viewer,
   Creator,
   Content,
@@ -325,8 +328,14 @@ module.exports = {
   Studio,
   Equipment,
   Crew,
-  Production,
   Comment,
   Follower,
   AuditLog,
+  // Content & Production
+  EditorialCalendar,
+  Script,
+  Metadata,
+  Production,
+  CallSheet,
+  DailyReport,
 };
