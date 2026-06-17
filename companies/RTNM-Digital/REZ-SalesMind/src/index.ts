@@ -1,83 +1,102 @@
-import express from 'express';
+/**
+ * REZ SalesMind - AI-Powered Sales Intelligence Platform
+ * Port: 5170 | Version: 2.3.0
+ */
+import 'dotenv/config';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import bodyParser from 'body-parser';
-import logger from './utils/logger.js';
+import rateLimit from 'express-rate-limit';
+import { WebSocketServer } from 'ws';
+import { createServer } from 'http';
+import leadsRouter from './routes/leads.js';
+import salesRouter from './routes/sales.js';
+import aiRouter from './routes/ai.js';
+import insightsRouter from './routes/insights.js';
+import ecosystemRouter from './routes/ecosystem.js';
+import integrationsRouter from './routes/integrations.js';
+import dashboardRouter from './routes/dashboard.js';
 import transcriptionRoutes from './routes/transcription.js';
 import voicemailRoutes from './routes/voicemail.js';
 import campaignRoutes from './routes/campaign.js';
-import aiRoutes from './routes/ai.js';
 import autonomousSDRRoutes from './routes/autonomousSDR.js';
 import crmRoutes from './routes/crm.js';
+import { handleWebSocket } from './services/websocketHandler.js';
 
 const app = express();
-const PORT = process.env.PORT || 4760;
+const PORT = process.env.PORT || 5170;
+const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*').split(',');
 
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-  credentials: true
-}));
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true }));
+// Security
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// Request logging
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`, {
-    ip: req.ip,
-    userAgent: req.get('user-agent')
-  });
+// Rate limiting
+const apiLimiter = rateLimit({ windowMs: 60000, max: 100, message: { error: 'Too many requests' } });
+const writeLimiter = rateLimit({ windowMs: 60000, max: 20, message: { error: 'Too many writes' } });
+app.use('/api', apiLimiter);
+
+// Auth
+const authMiddleware = (req: Request, res: Response, next: () => void) => {
+  const token = req.headers['x-internal-token'];
+  if (!token || token !== INTERNAL_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   next();
-});
+};
+app.use('/api', authMiddleware);
 
-// Health check
+// Health (public)
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    service: 'REZ-SalesMind',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'ok', service: 'REZ SalesMind', version: '2.3.0', timestamp: new Date().toISOString() });
 });
 
-// Routes
-app.use('/api/communication', transcriptionRoutes);
+// API Routes
+app.use('/api/leads', writeLimiter, leadsRouter);
+app.use('/api/sales', salesRouter);
+app.use('/api/ai', writeLimiter, aiRouter);
+app.use('/api/insights', insightsRouter);
+app.use('/api/ecosystem', writeLimiter, ecosystemRouter);
+app.use('/api/integrations', writeLimiter, integrationsRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/transcription', transcriptionRoutes);
 app.use('/api/voicemail', voicemailRoutes);
-app.use('/api/campaign', campaignRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/sdr', autonomousSDRRoutes);
-app.use('/api/crm', crmRoutes);
+app.use('/api/campaign', writeLimiter, campaignRoutes);
+app.use('/api/sdr', writeLimiter, autonomousSDRRoutes);
+app.use('/api/crm', writeLimiter, crmRoutes);
 
-// SDR-specific routes (legacy compatibility)
-app.get('/api/sdr/dashboard', (req, res) => {
-  res.json({
-    activeWorkflows: 3,
-    prospectsToday: 127,
-    emailsSent: 89,
-    responses: 12,
-    meetingsBooked: 5,
-    conversionRate: 8.5
-  });
-});
-
-// 404 handler
+// 404
 app.use((req, res) => {
-  res.status(404).json({ error: 'Not found', path: req.path });
+  res.status(404).json({ error: 'Not Found' });
 });
 
 // Error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+app.use((err: Error, req: Request, res: Response, _next: () => void) => {
+  console.error(`Error: ${err.message}`);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`REZ-SalesMind started on port ${PORT}`);
-  logger.info(`Voice AI: ${PORT}`);
-  logger.info(`GraphQL: ${PORT}/graphql`);
-  logger.info(`Health: http://localhost:${PORT}/health`);
+// Server + WebSocket
+const server = createServer(app);
+const wss = new WebSocketServer({ server, path: '/ws' });
+wss.on('connection', (ws, req) => {
+  const url = new URL(req.url || '', `http://${req.headers.host}`);
+  if (url.searchParams.get('token') !== INTERNAL_TOKEN) {
+    ws.close(1008, 'Invalid token');
+    return;
+  }
+  handleWebSocket(ws);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => { server.close(); process.exit(0); });
+process.on('SIGINT', () => { server.close(); process.exit(0); });
+
+server.listen(PORT, () => {
+  console.log(`REZ SalesMind v2.3.0 running on port ${PORT}`);
 });
 
 export default app;
