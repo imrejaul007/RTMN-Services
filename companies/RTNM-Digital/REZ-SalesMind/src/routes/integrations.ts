@@ -96,4 +96,4 @@ router.post('/zoom/meeting', writeLimiter, async (req, res) => {
     }
 });
 
-export default router;
+export { router as integrationRoutes };

@@ -58,4 +58,4 @@ router.get('/leaderboard', async (req, res) => {
     }
 });
 
-export default router;
+export { router as dashboardRoutes };
