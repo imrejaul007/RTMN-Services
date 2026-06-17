@@ -1,8 +1,49 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.2.0  
-**Last Updated:** June 15, 2026  
-**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER
+**Version:** 1.7.0  
+**Last Updated:** June 17, 2026  
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services + 24 Industry OS + **AI Customer Operations OS (22 Services)**
+
+---
+
+## 🎯 AI Customer Operations OS
+
+**The world's first AI-native Customer Operations Platform** - can be sold as SaaS to individual clients.
+
+### Multi-Tenant SaaS Structure
+
+```
+RTMN PLATFORM (You)
+│
+├── CLIENT 1 (₹50,000/month)
+│   └── Project: Their App/Product
+│
+├── CLIENT 2 (₹25,000/month)
+│   └── Project: Their Business
+│
+├── CLIENT 3 (₹2,999/month)
+│   └── Project: Their Store
+│
+└── Each client gets:
+    ├── Customer Twin 2.0 (one view per customer)
+    ├── AI Predictions (genuineness, CSAT, churn)
+    ├── All 22 Support Services
+    └── Their own data, KB, SLA config
+```
+
+### AI-Powered Features
+
+| Feature | Description |
+|---------|-------------|
+| **Customer Twin** | Every customer has ONE complete view |
+| **Universal Timeline** | All events (orders, tickets, calls) in one place |
+| **Conversation Memory** | AI remembers everything from every chat |
+| **Genuineness Score** | Predict fraud/trust (0-100) |
+| **CSAT Prediction** | Know satisfaction before customer responds |
+| **Churn Risk** | Identify at-risk customers early |
+| **AI Agent Swarm** | Support AI + Billing AI + Order AI + more |
+| **Voice AI Runtime** | AI-powered phone support |
+| **Continuous Learning** | AI improves from every interaction |
 
 ---
 
@@ -319,6 +360,46 @@ GET /api/layers               # All 15 layers
 
 ---
 
+## AI Customer Operations OS (22 Services)
+
+**The world's first AI-native Customer Operations Platform** - unified support for all RTMN companies.
+
+| Port | Service | Purpose | Status |
+|------|---------|---------|--------|
+| 4001 | API Gateway | Auth, Routing, Multi-tenant | ✅ |
+| 4885 | Customer Intelligence CDP | Customer Twin 2.0 | ✅ |
+| 4881 | AI Intelligence | Intent, Sentiment, Fraud | ✅ |
+| 4888 | CRM Engine | Deals, Contacts, Pipeline | ✅ |
+| 4891 | BPO Manager | Workers, Voice BPO | ✅ |
+| 4870 | Unified Inbox | All channels | ✅ |
+| 4892 | Live Chat Server | WebSocket chat | ✅ |
+| 4893 | Social Hub | Instagram, Telegram, FB | ✅ |
+| 4878 | Smart Chatbot | Customer AI | ✅ |
+| 4886 | Workflow Engine | BPMN Automation | ✅ |
+| 4887 | Action Registry | Business Actions | ✅ |
+| 4880 | Notification Service | Email, SMS, Push | ✅ |
+| 4890 | Integration Hub | Shopify, Stripe | ✅ |
+| 4895 | Agent Copilot | AI Tools | ✅ |
+| 4871 | Knowledge Base | Articles, FAQs | ✅ |
+| 4872 | Ticket Engine | Ticket Lifecycle | ✅ |
+| 4873 | SLA Manager | SLA Tracking | ✅ |
+| 4874 | Reports Dashboard | Analytics | ✅ |
+| 4056 | REZ CRM Hub | Legacy CRM | ✅ |
+| 4055 | REZ-care-service | Legacy Care | ✅ |
+
+### Key AI Features
+
+| Feature | Description |
+|---------|-------------|
+| **Customer Twin** | Complete 360° view per customer |
+| **Genuineness Score** | Trust/fraud prediction (0-100) |
+| **CSAT Prediction** | Predict satisfaction before response |
+| **Churn Risk** | Flag at-risk customers early |
+| **Conversation Memory** | AI remembers everything |
+| **Agent Swarm** | Support AI + Billing AI + Order AI |
+
+---
+
 ## Quick Start
 
 ```bash
@@ -331,17 +412,24 @@ cd services/restaurant-os && npm install && npm start
 # Start with Docker
 docker-compose up -d
 
-# Health checks
-curl http://localhost:5010/health  # Restaurant OS
-curl http://localhost:5025/health  # Hotel OS
-curl http://localhost:4702/health  # CorpID
-curl http://localhost:4703/health  # MemoryOS
-curl http://localhost:4056/health  # AdBazaar / REZ-crm-hub
-curl http://localhost:4761/health  # Leverge Intelligence
-curl http://localhost:4762/health  # Leverge Memory
-curl http://localhost:4763/health  # Leverge Twin
-curl http://localhost:4764/health  # Leverge Agents
-curl http://localhost:4765/health  # Leverge Copilot
+# Customer Operations OS Health checks
+curl http://localhost:4001/health    # API Gateway
+curl http://localhost:4885/health   # Customer Intelligence
+curl http://localhost:4881/health   # AI Intelligence
+curl http://localhost:4872/health   # Ticket Engine
+curl http://localhost:4871/health   # Knowledge Base
+curl http://localhost:4880/health   # Notifications
+curl http://localhost:4888/health   # CRM Engine
+curl http://localhost:4891/health   # BPO Manager
+
+# Legacy Services
+curl http://localhost:4056/health   # REZ CRM Hub
+curl http://localhost:4055/health   # REZ-care-service
+
+# Other Services
+curl http://localhost:5010/health   # Restaurant OS
+curl http://localhost:5025/health   # Hotel OS
+curl http://localhost:4703/health   # MemoryOS
 ```
 
 ---

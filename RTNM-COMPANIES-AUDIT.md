@@ -64,24 +64,45 @@ render blueprint apply render.yaml
 
 ---
 
-### 🎯 Customer Support OS (UNIFIED - June 2026)
+### 🎯 AI Customer Operations OS (UNIFIED - June 2026)
 
 **Location:** `services/customer-support-os/` + `companies/hojai-ai/hojai-*`  
-**Status:** 🔨 **BUILDING** - 18 Services (4 NEW being created)
+**Status:** 🔨 **BUILDING** - 22 Services | **The World's First AI-Native Customer Operations Platform**
 
-**Vision:** One platform to rule them all - AI-powered, multi-tenant, omnichannel customer support.
+**Vision:** Build once, sell to many - Multi-tenant SaaS platform that predicts problems before they happen.
+
+### Multi-Tenant SaaS Structure
+
+```
+RTMN PLATFORM (You - Platform Provider)
+│
+├── CLIENT 1 (₹50,000/month)
+│   └── Project: Their App
+│       └── Their Customers: 10,000
+│           └── Each customer has Customer Twin 2.0
+│
+├── CLIENT 2 (₹25,000/month)
+│   └── Project: Their Business
+│       └── Their Customers: 50,000
+│
+└── CLIENT 3 (₹2,999/month - Individual)
+    └── Project: Their Store
+        └── Their Customers: 500
+```
+
+### Services (22 Total)
 
 | Port | Service | Purpose | Status |
 |------|---------|---------|--------|
 | 4001 | API Gateway | Auth, Routing, Multi-tenant | ✅ |
-| 4885 | Customer Intelligence CDP | Customer 360, Risk | ✅ |
-| 4881 | AI Intelligence | Intent, Sentiment, Fraud | ✅ |
-| 4888 | **CRM Engine** | Deals, Contacts, Pipeline | 🔨 NEW |
-| 4891 | **BPO Manager** | Workers, Jobs, Voice BPO | 🔨 NEW |
-| 4870 | **Unified Inbox** | All channels in one | 🔨 NEW |
-| 4892 | **Live Chat Server** | WebSocket chat | 🔨 NEW |
-| 4893 | **Social Hub** | Instagram, Telegram, FB | 🔨 NEW |
-| 4878 | **Smart Chatbot** | Customer-facing AI | 🔨 NEW |
+| 4885 | Customer Intelligence CDP | **Customer Twin 2.0** | ✅ |
+| 4881 | AI Intelligence | Intent, Sentiment, Fraud, CSAT | ✅ |
+| 4888 | CRM Engine | Deals, Contacts, Pipeline | ✅ NEW |
+| 4891 | BPO Manager | Workers, Jobs, Voice BPO | ✅ NEW |
+| 4870 | Unified Inbox | All channels in one | ✅ |
+| 4892 | Live Chat Server | WebSocket chat | ✅ NEW |
+| 4893 | Social Hub | Instagram, Telegram, FB | ✅ NEW |
+| 4878 | Smart Chatbot | Customer-facing AI | ✅ |
 | 4886 | Workflow Engine | BPMN Automation | ✅ |
 | 4887 | Action Registry | Business Actions | ✅ |
 | 4880 | Notification Service | Email, SMS, Push | ✅ |
@@ -92,12 +113,33 @@ render blueprint apply render.yaml
 | 4873 | SLA Manager | SLA Tracking | ✅ |
 | 4874 | Reports Dashboard | Analytics | ✅ |
 
-**Features:**
-- 👤 Customer 360 (orders, history, AI predictions)
-- 🤖 AI Agents (intent, sentiment, fraud, CSAT)
-- 📞 Omnichannel (Chat, WhatsApp, Email, Social)
-- 👥 Human Agents + BPO Integration
-- 🔮 Predictive Support (predict problems before happen)
+### Customer Twin 2.0 (per customer)
+
+```
+├── Identity (email, phone, WhatsApp, device)
+├── Orders (all orders, ₹23,450 spent)
+├── Payments (₹24,500 success, ₹2,100 refunded)
+├── Support (8 tickets, CSAT 4.5/5)
+├── Engagement (234 sessions, daily user)
+├── Preferences (spicy food, allergic to nuts)
+├── AI Predictions
+│   ├── Genuineness: 94/100 🟢
+│   ├── CSAT: 91%
+│   ├── Churn Risk: 12% (Low)
+│   └── Lifetime Value: ₹1,20,000
+└── Memory (remembers everything!)
+```
+
+### AI Predictions (Built-in)
+
+| Prediction | Purpose |
+|-----------|---------|
+| Genuineness Score | Trust/fraud prediction (0-100) |
+| CSAT Prediction | Predict satisfaction before response |
+| Churn Risk | Identify at-risk customers early |
+| Escalation Risk | Flag likely escalations |
+| Lifetime Value | Predict customer value |
+| Next Best Action | AI recommends next step |
 
 ---
 

@@ -1,13 +1,193 @@
-# RTNM Customer Support - Complete Feature Catalog
+# RTNM AI Customer Operations OS - Complete Feature Catalog
 
 **Last Updated:** June 17, 2026  
-**Status:** ✅ **COMPREHENSIVE** - All Support Features Documented
+**Status:** ✅ **UNIFIED** - Building World's First AI-Native Customer Operations Platform
+
+---
+
+## 🎯 Vision
+
+> *"One platform to rule them all - AI-powered, multi-tenant, omnichannel customer operations that predicts problems before they happen and learns continuously."*
+
+## 📋 Plan Documents
+
+| Document | Description |
+|----------|-------------|
+| [PLAN-AI-CUSTOMER-OPS-OS.md](PLAN-AI-CUSTOMER-OPS-OS.md) | Complete AI Customer Operations OS architecture |
+| [PLAN-SUPPORT-OS-UNIFICATION.md](PLAN-SUPPORT-OS-UNIFICATION.md) | Support system unification plan |
+
+---
+
+## 🏢 Multi-Tenant SaaS Architecture
+
+```
+RTMN PLATFORM (Platform Provider - Sell to individual clients)
+│
+├── CLIENT 1 (HOJAI AI - Pay₹50,000/month)
+│   ├── Project: Genie App (₹20K)
+│   ├── Project: Merchant Portal (₹15K)
+│   └── Project: Admin (₹15K)
+│
+├── CLIENT 2 (AdBazaar - Pay₹25,000/month)
+│   ├── Project: DOOH Platform (₹15K)
+│   └── Project: Brand Dashboard (₹10K)
+│
+├── CLIENT 3 (Local Restaurant - Pay₹2,999/month)
+│   ├── Project: POS + App (₹2,999)
+│
+└── Each client has:
+    ├── Own Customer Twin
+    ├── Own Knowledge Base
+    ├── Own Tickets
+    ├── Own AI Agents
+    ├── Own SLA Config
+    └── Own Integrations
+```
+
+---
+
+## 🧠 Customer Twin 2.0 - Every Customer, One View
+
+Each customer has a **complete twin** that updates in real-time:
+
+```
+Customer Twin
+├── Identity (email, phone, WhatsApp, device)
+├── Orders (all 47 orders, ₹23,450 spent)
+├── Payments (₹24,500 success, ₹2,100 refunded)
+├── Support (8 tickets, 7 resolved, CSAT 4.5)
+├── Engagement (234 sessions, daily user)
+├── Preferences (spicy food, allergic to nuts)
+├── AI Predictions
+│   ├── Genuineness: 94/100 🟢
+│   ├── Churn Risk: 12% (Low)
+│   ├── CSAT: 91%
+│   └── Lifetime Value: ₹1,20,000
+└── Memory (remembers everything!)
+```
+
+---
+
+## ⏰ Universal Timeline
+
+Every interaction creates an event:
+
+```
+June 17: Chat "Track order #3847" → Bot responded
+June 16: Order #3847 delivered
+June 16: Phone call about late delivery → Resolved
+June 16: WhatsApp feedback "Great service!"
+June 15: Order #3847 placed
+June 10: Ticket #2847 resolved (refund)
+June 8: Return requested (wrong item)
+May 25: Birthday! 🎂 Sent offer
+```
+
+---
+
+## 🤖 AI Agent Swarm
+
+```
+Planner (Router)
+│
+├── Support AI → FAQs, Refunds, General
+├── Billing AI → Payments, Invoices, Refunds
+├── Order AI → Tracking, Returns, Status
+├── Booking AI → Reservations, Scheduling
+├── Product AI → Search, Recommendations
+├── Sales AI → Upsell, Cross-sell, Convert
+├── Marketing AI → Campaigns, Offers
+├── Legal AI → Policies, T&Cs, Privacy
+└── BPO AI → Escalate, Transfer, Callback
+```
+
+---
+
+## 📊 Customer 360 View (for Agents)
+
+When agent opens a ticket:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ 👤 John Doe                              ⭐⭐⭐⭐⭐ VIP           │
+│ 📧 john@example.com    📱 +91XXXXXXXX    🏢 TechCorp             │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ 📦 ORDERS (47)                     💳 PAYMENTS                     │
+│ ├── 45 delivered (₹22,350)       ├── 45 success (₹24,500)        │
+│ ├── 3 returned (₹2,100)          ├── 3 refunded (₹2,100)        │
+│ └── 2 pending (₹1,200)           └── 0 chargebacks              │
+│                                                                     │
+│ 🎫 SUPPORT (8 tickets)             🤖 AI PREDICTIONS              │
+│ ├── 7 resolved ✓ (avg 4.2h)      ├── Genuineness: 94/100 🟢     │
+│ └── 1 open (urgent)               ├── CSAT Prediction: 91%       │
+│                                     ├── Escalation Risk: 8%        │
+│                                     └── Lifetime Value: ₹1,20,000   │
+│                                                                     │
+│ 💭 MEMORY                             📚 KNOWLEDGE                  │
+│ ├── Prefers spicy food             ├── 8 articles viewed         │
+│ ├── Allergic to nuts                ├── Recent: Refund policy     │
+│ └── Birthday: June 25 🎂           └── Suggested: Delivery FAQ   │
+│                                                                     │
+│ ┌─────────────────────────────────────────────────────────────┐     │
+│ │ 💡 NEXT BEST ACTION: Send birthday offer (25% off)        │     │
+│ └─────────────────────────────────────────────────────────────┘     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔮 Predictive Intelligence (Built-in AI)
+
+| Prediction | Example Output |
+|------------|---------------|
+| **Genuineness Score** | 94/100 - Low fraud risk |
+| **Churn Risk** | 12% - Low risk |
+| **CSAT Prediction** | 91% - Will be satisfied |
+| **Escalation Risk** | 8% - Unlikely to escalate |
+| **Refund Probability** | 15% - Below average |
+| **Upsell Opportunity** | 45% - Good candidate |
+| **Lifetime Value** | ₹1,20,000 predicted |
+| **Next Best Action** | Send loyalty offer |
 
 ---
 
 ## Executive Summary
 
-RTMN has customer support capabilities across **multiple companies**, all of which can be unified under the **Customer Operations Platform** for seamless, AI-powered support.
+RTNM has customer support capabilities across **multiple companies**, now being unified into **ONE AI-Native Customer Operations OS** that can be sold to individual clients as SaaS.
+
+### Systems Being Combined
+
+| System | Source | Key Features |
+|--------|--------|--------------|
+| **HOJAI AI** | `hojai-ai/hojai-*` | Customer 360, AI Agents, KB, SLA, Workflow |
+| **REZ-Consumer** | `REZ-Consumer/` | Care, Tickets, CSAT, Chat |
+| **AdBazaar** | `AdBazaar/` | CRM, Help Desk, Chat Widget, Social Inbox |
+| **Axomi BPO** | `AdBazaar/axomi-bpo/` | BPO Workers, Voice BPO |
+
+### Unified Platform Services (18 total)
+
+| Port | Service | Purpose | Status |
+|------|---------|---------|--------|
+| 4001 | API Gateway | Auth, Routing, Multi-tenant | ✅ |
+| 4885 | Customer Intelligence CDP | Customer 360 | ✅ |
+| 4881 | AI Intelligence | Intent, Sentiment, Fraud, CSAT | ✅ |
+| 4888 | **CRM Engine** | Deals, Contacts, Pipeline | 🔨 NEW |
+| 4891 | **BPO Manager** | Workers, Jobs, Voice BPO | 🔨 NEW |
+| 4870 | **Unified Inbox** | All channels | 🔨 NEW |
+| 4892 | **Live Chat Server** | WebSocket chat | 🔨 NEW |
+| 4893 | **Social Hub** | Instagram, Telegram | 🔨 NEW |
+| 4878 | **Smart Chatbot** | Customer-facing AI | 🔨 NEW |
+| 4886 | Workflow Engine | Automation | ✅ |
+| 4887 | Action Registry | Business Actions | ✅ |
+| 4880 | Notification Service | Email, SMS | ✅ |
+| 4890 | Integration Hub | Connectors | ✅ |
+| 4895 | Agent Copilot | AI Tools | ✅ |
+| 4871 | Knowledge Base | Articles, FAQs | ✅ |
+| 4872 | Ticket Engine | Tickets | ✅ |
+| 4873 | SLA Manager | SLA Tracking | ✅ |
+| 4874 | Reports Dashboard | Analytics | ✅ |
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐

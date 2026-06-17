@@ -66,24 +66,41 @@
 
 ---
 
-## 🎯 Customer Support OS - Unified Platform (June 2026)
+## 🎯 AI Customer Operations OS - World's First AI-Native Platform (June 2026)
 
 **Location:** `services/customer-support-os/`  
-**Status:** 🔨 BUILDING - 18 Services
+**Status:** 🔨 BUILDING - 22 Services | **Multi-Tenant SaaS Ready**
 
-### Customer Support OS Summary
+### Vision: Build Once, Sell to Many
 
-| Port | Service | Features |
-|------|---------|----------|
-| 4001 | API Gateway | Auth, Rate Limit, Multi-tenant, Routing |
-| 4885 | Customer Intelligence CDP | Customer 360, Identity, Risk Score, Segments |
-| 4881 | AI Intelligence | Intent, Sentiment, Fraud, CSAT, Churn, Summary |
-| 4888 | CRM Engine | Deals, Contacts, Pipeline, HubSpot/Zoho sync |
+```
+RTMN PLATFORM (You)
+│
+├── CLIENT 1 (₹50,000/month) → HOJAI AI
+│   └── Project: Their App → 10,000 customers
+│
+├── CLIENT 2 (₹25,000/month) → AdBazaar
+│   └── Project: DOOH Platform → 50,000 customers
+│
+└── CLIENT 3 (₹2,999/month) → Local Restaurant
+    └── Project: Their Store → 500 customers
+
+Each client pays monthly. Each customer gets Customer Twin 2.0!
+```
+
+### AI Customer Operations OS Summary
+
+| Port | Service | AI Features |
+|------|---------|-------------|
+| 4001 | API Gateway | Multi-tenant, JWT, Rate Limit |
+| 4885 | **Customer Intelligence CDP** | **Customer Twin 2.0** (orders, payments, support, predictions) |
+| 4881 | **AI Intelligence** | **Intent, Sentiment, Fraud, CSAT, Churn, Reasoning** |
+| 4888 | CRM Engine | Deals, Contacts, Pipeline, HubSpot/Zoho |
 | 4891 | BPO Manager | Workers, Jobs, Voice BPO, Skills |
 | 4870 | Unified Inbox | WhatsApp, Email, Chat, Social, Phone |
 | 4892 | Live Chat Server | WebSocket, Real-time, Agent Queue |
 | 4893 | Social Hub | Instagram, Telegram, Facebook, Twitter |
-| 4878 | Smart Chatbot | Customer-facing AI, Auto-responses |
+| 4878 | Smart Chatbot | Customer AI, Auto-responses |
 | 4886 | Workflow Engine | BPMN, Approval Chains, Automation |
 | 4887 | Action Registry | Refund, Cancel, Escalate, Notify |
 | 4880 | Notification Service | Email, SMS, Push, WhatsApp |
