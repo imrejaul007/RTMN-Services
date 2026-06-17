@@ -1,0 +1,13 @@
+{
+  "name": "@stayown/events-service",
+  "version": "1.0.0",
+  "description": "Hotel Events & Banquets Management",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hotel", "events", "banquets"],
+  "author": "StayOwn-Hospitality",
+  "license": "MIT"
+}

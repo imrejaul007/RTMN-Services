@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Cosmic OS",
+    "slug": "cosmic-os",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "cosmic",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f0a1e"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hojai.cosmicos"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f0a1e"
+      },
+      "package": "com.hojai.cosmicos"
+    },
+    "plugins": ["expo-router"]
+  }
+}

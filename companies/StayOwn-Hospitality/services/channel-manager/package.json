@@ -1,0 +1,13 @@
+{
+  "name": "@stayown/channel-manager",
+  "version": "1.0.0",
+  "description": "OTA Channel Manager for StayOwn Hotel OS",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hotel", "channel-manager", "ota"],
+  "author": "StayOwn-Hospitality",
+  "license": "MIT"
+}

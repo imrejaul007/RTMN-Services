@@ -1,0 +1,13 @@
+{
+  "name": "@stayown/corporate-booking",
+  "version": "1.0.0",
+  "description": "Hotel Corporate & Group Booking Management",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hotel", "corporate", "group-booking"],
+  "author": "StayOwn-Hospitality",
+  "license": "MIT"
+}

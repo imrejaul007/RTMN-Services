@@ -1,0 +1,13 @@
+{
+  "name": "@stayown/loyalty-engine",
+  "version": "1.0.0",
+  "description": "Hotel Loyalty & Rewards System",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hotel", "loyalty", "rewards"],
+  "author": "StayOwn-Hospitality",
+  "license": "MIT"
+}

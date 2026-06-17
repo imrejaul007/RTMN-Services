@@ -1074,3 +1074,40 @@ This document consolidates all port allocations across the 24 industry verticals
 ---
 
 *Last Updated: June 16, 2026*
+
+---
+
+## Exhibition OS (Layer 22 - Exhibition Commerce & Intelligence)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 5040 | exhibition-gateway | API orchestration |
+| 5041 | exhibition-organizer-service | Exhibition CRUD |
+| 5042 | exhibition-exhibitor-service | Booth, leads |
+| 5043 | exhibition-attendee-service | Registration |
+| 5044 | exhibition-twin-service | 8 Digital Twins |
+| 5045 | exhibition-badge-service | QR badges |
+| 5046 | exhibition-analytics-service | Real-time metrics |
+| 5047 | exhibition-notification-service | Push, WhatsApp |
+| 5048 | exhibition-payment-service | Tickets, escrow |
+| 5049 | exhibition-intelligence-service | AI copilots |
+| 5050 | exhibition-economy-service | REZ Coins |
+| 5051 | exhibition-marketplace-service | Products |
+| 5052 | exhibition-networking-service | Connections |
+| 5053 | exhibition-appointment-service | Meetings |
+| 5054 | exhibition-passport-service | Gamification |
+| 5055 | exhibition-sponsor-service | ROI |
+| 5056 | exhibition-venue-ops-service | Infrastructure |
+| 5057 | exhibition-staff-service | Volunteers |
+| 5058 | exhibition-crm-service | Pipeline |
+| 5059 | exhibition-document-service | Catalogs |
+| 5060 | exhibition-integration-hub | Webhooks |
+| 5061 | exhibition-floor-intelligence | Heatmaps |
+
+**Location:** `exhibition-os/`  
+**Apps:** Z Events, DO App, DO Exhibitor  
+**Status:** ✅ COMPLETE
+
+---
+
+*Last Updated: June 17, 2026*
