@@ -5373,6 +5373,79 @@ Each Industry OS includes domain-specific CRUD endpoints:
 - Property Twin Service (Port 8448) - Property operations
 - Main Hotel OS (Port 5025) - Orchestration
 
+### Hotel Ecosystem Gateway (Port 4950) - NEW!
+
+**Location:** `services/hotel-ecosystem-gateway/`  
+**Status:** ✅ **NEW** | **June 17, 2026**
+
+Unified API Gateway connecting RTMN-OS, REZ-Merchant, and StayOwn into single entry point.
+
+#### Gateway Features
+
+| Route | Purpose |
+|-------|---------|
+| `/api/hotels` | Search, details, availability |
+| `/api/bookings` | Create, manage, check-in/out |
+| `/api/guests` | Profiles, preferences, loyalty |
+| `/api/services` | Room service, housekeeping |
+| `/api/analytics` | Dashboard, RevPAR, predictions |
+| `/api/wallet` | Coins, payments |
+
+#### Connected Services
+
+| System | Port | Purpose |
+|--------|------|---------|
+| RTMN Hotel OS | 5025 | PMS Core, AI Agents |
+| REZ Mind Hotel | 4017 | AI Intelligence |
+| StayOwn API | 3000 | OTA Backend |
+| Event Bus | 4510 | Pub/Sub messaging |
+
+#### Event Publishing
+
+| Event | Trigger |
+|-------|---------|
+| `hotel.booking.created` | New booking |
+| `hotel.booking.cancelled` | Booking cancelled |
+| `hotel.guest.checked_in` | Guest check-in |
+| `hotel.guest.checked_out` | Guest check-out |
+| `hotel.service.requested` | Service request |
+| `hotel.payment.received` | Payment processed |
+
+---
+
+## StayOwn-Hospitality - Complete Hotel OTA Platform
+
+**Location:** `companies/StayOwn-Hospitality/`  
+**Status:** ✅ **COMPLETE** | **June 17, 2026**
+
+### Apps (6 Complete)
+
+| App | Port | Features | Status |
+|-----|------|----------|--------|
+| API Server | 3000 | Backend API (34 routes) | ✅ |
+| OTA Web | 3003 | Guest booking website | ✅ |
+| Hotel Panel | 3001 | Staff dashboard | ✅ |
+| Admin Panel | 3002 | Platform admin | ✅ |
+| Corporate Panel | 3004 | B2B panel | ✅ |
+| Mobile | - | React Native app | ✅ |
+
+### Packages
+
+| Package | Purpose | Models |
+|---------|---------|--------|
+| database | Prisma schema | 60+ |
+| merchant-sdk | Hotel integration SDK | - |
+
+### Key Features
+
+- QR-based Room Services
+- Razorpay Payment Integration
+- REZ SSO Integration
+- Channel Manager (SiteMinder, STAAH, RateGain)
+- Coin/Wallet System
+- Real-time Chat
+- Settlement/Payout System
+
 ---
 
 ## Connection Modules - Unified Fabric
