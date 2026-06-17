@@ -404,4 +404,219 @@ sdk.chat.on('message', handleMessage);
 
 ---
 
+# Enterprise Sales OS v2.0 Features (June 2026)
+
+**Location:** `industry-os/services/sales-os/`  
+**Port:** 5055
+
+## Enterprise Modules
+
+| Module | Features |
+|--------|----------|
+| **Customer Success OS** | Health scores (4 factors), NPS surveys, churn prediction, renewals tracking |
+| **CPQ** | Products with margins, bundles, quotes with tax, discount approvals |
+| **Contract Lifecycle** | Version control, amendments, e-signatures, status tracking |
+| **Territory Management** | Geographic/account territories, quota allocation, rep assignments |
+| **Sales Forecasting** | AI-adjusted forecasts, committed/best case/pipeline |
+| **Revenue Intelligence** | MRR/ARR tracking ($775K MRR, $9.3M ARR), cohort analysis |
+| **Partner OS** | Partner management (reseller/SI/referral), deal registration |
+| **Sales Enablement** | Content library, training, certifications, battle cards |
+| **Call Intelligence** | Recordings, transcripts, sentiment analysis |
+| **Workflow Automation** | Triggers, automation rules, workflow execution |
+| **Commission OS** | Plans with accelerators, calculations, payouts, SPIFFs |
+| **Subscription Management** | MRR/ARR tracking, plan changes, billing schedules |
+| **GCC/Enterprise** | Multi-currency (USD/EUR/GBP/AED/SGD), VAT/GST configs |
+
+## 22 AI Agents
+
+| Agent | Purpose |
+|-------|---------|
+| Lead Scoring Agent | Score and qualify leads |
+| Opportunity Intelligence | Deal analysis |
+| Churn Prediction Agent | Customer churn risk |
+| Pricing Optimizer | Optimal pricing decisions |
+| Contract Analyzer | Contract review |
+| Territory Optimizer | Territory balance |
+| Commission Calculator | Accurate commissions |
+| Sales Coach Agent | Rep coaching |
+| Enablement Recommender | Content recommendations |
+| Engagement Predictor | Customer engagement |
+| Competitor Intel Agent | Competitive analysis |
+| Sentiment Analyzer | Conversation sentiment |
+| Next Best Action | Recommended actions |
+| Auto Follow-up Agent | Automated follow-ups |
+| Renewal Predictor | Renewal probability |
+| Upsell/Cross-sell Agent | Expansion opportunities |
+| Onboarding Guide | Customer onboarding |
+| Health Score Monitor | Health monitoring |
+| Social Selling Agent | Social engagement |
+| Battlecard Generator | Competitive cards |
+| Forecast Assistant | AI forecasting |
+| Pipeline Inspector | Pipeline health |
+
+---
+
+# New Services Features (June 2026)
+
+## BrandPulse (Port 4974)
+
+**Location:** `services/brandpulse/`
+
+| Feature | Description |
+|---------|-------------|
+| Social Monitoring | Twitter, FB, Instagram, LinkedIn |
+| Sentiment Analysis | Positive, Neutral, Negative |
+| Brand Health Score | 0-100 overall health |
+| Crisis Detection | Real-time alerts |
+| Campaign Tracking | Performance metrics |
+
+## A/B Testing (Port 4989)
+
+**Location:** `services/ab-testing/`
+
+| Feature | Description |
+|---------|-------------|
+| Experiment Management | Create, start, pause, complete |
+| Variant Assignment | Weighted random assignment |
+| Statistical Analysis | Z-test, Chi-squared, confidence intervals |
+| Results Analytics | Uplift, conversion rates |
+
+## Analytics Dashboard (Port 4988)
+
+**Location:** `services/analytics-dashboard/`
+
+| Feature | Description |
+|---------|-------------|
+| Custom Dashboards | Widget-based UI |
+| Charts | Line, bar, pie, heatmaps |
+| Data Engine | Real-time aggregation |
+| Export | CSV, JSON, PDF |
+
+## Compliance Engine (Port 4986)
+
+**Location:** `services/compliance-engine/`
+
+| Feature | Description |
+|---------|-------------|
+| KYC | Identity verification |
+| KYB | Business verification |
+| AML | Anti-money laundering |
+| GDPR | Data privacy |
+| Audit Logging | Full trail |
+
+## Feature Flags (Port 4990)
+
+**Location:** `services/feature-flags/`
+
+| Feature | Description |
+|---------|-------------|
+| Flag Management | Create, enable, disable |
+| Targeting Rules | User segments |
+| Gradual Rollouts | Percentage-based |
+| Analytics | Flag performance |
+
+## Fraud Detection (Port 4985)
+
+**Location:** `services/fraud-detection/`
+
+| Feature | Description |
+|---------|-------------|
+| Real-time Check | Transaction scoring |
+| Pattern Matching | Velocity, amount, geo |
+| Risk Scoring | 0-100 score |
+| Alert Management | Severity levels |
+| Customer Ops Bridge | Integration |
+
+## Voice Twin (Port 4876)
+
+**Location:** `services/voice-twin/`
+
+| Feature | Description |
+|---------|-------------|
+| Call Recording | Audio capture |
+| Transcription | Speech-to-text |
+| Sentiment Analysis | Call sentiment |
+| Metrics | Duration, hold time |
+
+## Webhook Manager (Port 4987)
+
+**Location:** `services/webhook-manager/`
+
+| Feature | Description |
+|---------|-------------|
+| Webhook Registration | URL + events |
+| Event Filtering | Match conditions |
+| Delivery Retry | Exponential backoff |
+| Signature Verification | HMAC |
+| Analytics | Delivery stats |
+
+## Mobile SDK
+
+**Location:** `sdk/mobile-sdk/`
+
+| Module | Features |
+|--------|----------|
+| Customer | Profile, history, preferences |
+| Ticket | Create, track, resolve |
+| Chat | Real-time messaging |
+| Analytics | Event tracking |
+
+---
+
+# Industry Operating Systems Features
+
+## Media OS (Port 5600)
+
+**Location:** `industry-os/services/media-os/`
+
+| Feature | Description |
+|---------|-------------|
+| Channels | TV, streaming, social |
+| Programs | Episodes, seasons, schedules |
+| Campaigns | Ad campaigns, targeting |
+| Creators | Influencer management |
+| Viewers | Audience analytics |
+| Content AI | Script generation, editing |
+| Streaming | Live, VOD |
+| EPG | Program guide |
+
+## Workforce OS
+
+**Location:** `industry-os/services/workforce-os/`
+
+| Feature | Description |
+|---------|-------------|
+| Employee Management | Profiles, records |
+| Department Management | Org structure |
+| Leave Management | Requests, approvals |
+| Attendance | Check-in/out |
+| AI Agents | Workforce optimization |
+| Digital Twins | Employee sync |
+
+## TalentAI
+
+**Location:** `companies/CorpPerks/talentai/`
+
+| Feature | Description |
+|---------|-------------|
+| AI Screening | Resume parsing |
+| Skill Matching | Job fit scoring |
+| Interview Scheduling | Calendar sync |
+| Job Optimization | Posting AI |
+
+## PeopleOS
+
+**Location:** `companies/CorpPerks/peopleos/`
+
+| Feature | Description |
+|---------|-------------|
+| HR Dashboard | Main portal |
+| Employee Records | CRUD operations |
+| Leave Tracking | Request system |
+| Attendance | Time tracking |
+
+---
+
 *Last Updated: June 17, 2026*
+
+**End of Feature List**
