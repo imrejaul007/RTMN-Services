@@ -1,1005 +1,1594 @@
 /**
- * Media OS - AI Company Platform
+ * Media OS - Complete AI-Native Media Operating System
  *
- * Complete Media & Entertainment Management System
+ * Version: 2.0.0
  * Port: 5600
- * Industry: Media (Broadcasting, Streaming, Publishing, Agencies)
+ * Industry: Media & Entertainment
+ *
+ * Features:
+ * - Content OS: Channels, Programs, Episodes, Content
+ * - Creator OS: Profiles, Brand Deals, Payments
+ * - Audience OS: Viewers, Subscriptions, Recommendations
+ * - Advertising OS: Campaigns, Bookings, Attribution
+ * - Revenue OS: Subscriptions, PPV, Invoicing
+ * - Rights OS: Licenses, Territories, Royalties
+ * - Production OS: Studios, Equipment, Crew
+ * - Digital Twins: Viewer, Creator, Content, Campaign
+ * - RTMN Integration: HOJAI AI, CorpID, TwinOS, Event Bus
  */
 
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-const crypto = require('crypto');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
-const app = express();
-const PORT = process.env.PORT || 5600;
+// Configuration
+const config = require('./config');
+const logger = require('./config/database');
+
+// Database & Models
+const { connectDB, seedData, ...models } = require('./models');
 
 // Middleware
-app.use(helmet());
-app.use(cors());
+const { authenticate, optionalAuth, authorize, generateToken } = require('./middleware');
+const { validate, paginationSchema, mongoIdSchema } = require('./middleware/validation');
+
+// Services
+const { rtmnService, eventBus, EVENTS } = require('./services');
+const { twinService, TWIN_TYPES } = require('./twins');
+
+// ============================================
+// APP INITIALIZATION
+// ============================================
+
+const app = express();
+
+// Trust proxy for rate limiting behind reverse proxy
+app.set('trust proxy', 1);
+
+// ============================================
+// MIDDLEWARE
+// ============================================
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'", config.RTMN_SERVICES.HOJAI_AI],
+    },
+  },
+}));
+
+// CORS
+app.use(cors({
+  origin: config.CORS_ORIGINS,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
+
+// Compression
 app.use(compression());
-app.use(express.json());
+
+// JSON parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// HTTP request logging
+app.use(morgan('combined', { stream: logger.stream }));
 
 // ============================================
-// CONFIGURATION
+// RATE LIMITING
 // ============================================
 
-const INDUSTRY = 'media';
-
-// ============================================
-// IN-MEMORY DATABASE
-// ============================================
-
-const channels = new Map();
-const programs = new Map();
-const episodes = new Map();
-const advertisers = new Map();
-const campaigns = new Map();
-const bookings = new Map();
-const playlists = new Map();
-const schedules = new Map();
-const viewers = new Map();
-const content = new Map();
-const creators = new Map();
-const podcasts = new Map();
-const articles = new Map();
-const videos = new Map();
-const invoices = new Map();
-const payments = new Map();
-const analytics = new Map();
-
-// Auth
-const authUsers = new Map();
-const authSessions = new Map();
-
-// ============================================
-// SAMPLE DATA - MEDIA CHANNELS & PROGRAMS
-// ============================================
-
-// Initialize sample channels
-const sampleChannels = [
-  {
-    id: 'CH001',
-    name: 'NewsNow 24/7',
-    type: 'news',
-    category: 'News & Current Affairs',
-    language: 'English',
-    region: 'National',
-    logo: 'https://cdn.rtmn.in/channels/newsnow.png',
-    tagline: 'Breaking News, Anytime',
-    targetAudience: 'Adults 25-54',
-    subscriptionType: 'free',
-    adSupported: true,
-    hdAvailable: true,
-    reach: 45000000,
-    avgViewers: 1250000,
-    trp: 3.2,
-    createdAt: '2022-01-15T10:00:00Z'
+// General API rate limit
+const apiLimiter = rateLimit({
+  windowMs: config.RATE_LIMIT.WINDOW_MS,
+  max: config.RATE_LIMIT.MAX_REQUESTS,
+  message: {
+    success: false,
+    error: 'Too many requests, please try again later',
+    code: 'RATE_LIMIT_EXCEEDED',
   },
-  {
-    id: 'CH002',
-    name: 'MovieMax HD',
-    type: 'movie',
-    category: 'Entertainment',
-    language: 'Hindi',
-    region: 'National',
-    logo: 'https://cdn.rtmn.in/channels/moviemax.png',
-    tagline: 'Bollywood ke Dumasia',
-    targetAudience: 'Adults 18-45',
-    subscriptionType: 'premium',
-    adSupported: false,
-    hdAvailable: true,
-    reach: 28000000,
-    avgViewers: 890000,
-    trp: 2.4,
-    createdAt: '2021-06-20T10:00:00Z'
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Auth rate limit (stricter)
+const authLimiter = rateLimit({
+  windowMs: config.RATE_LIMIT.AUTH_WINDOW_MS,
+  max: config.RATE_LIMIT.AUTH_MAX_REQUESTS,
+  message: {
+    success: false,
+    error: 'Too many authentication attempts, please try again later',
+    code: 'AUTH_RATE_LIMIT_EXCEEDED',
   },
-  {
-    id: 'CH003',
-    name: 'SportsX Live',
-    type: 'sports',
-    category: 'Sports',
-    language: 'English',
-    region: 'National',
-    logo: 'https://cdn.rtmn.in/channels/sportsx.png',
-    tagline: 'Every Game, Every Moment',
-    targetAudience: 'Males 18-45',
-    subscriptionType: 'premium',
-    adSupported: true,
-    hdAvailable: true,
-    reach: 35000000,
-    avgViewers: 2100000,
-    trp: 5.8,
-    createdAt: '2020-03-10T10:00:00Z'
-  },
-  {
-    id: 'CH004',
-    name: 'KidsZone TV',
-    type: 'kids',
-    category: 'Kids',
-    language: 'English',
-    region: 'National',
-    logo: 'https://cdn.rtmn.in/channels/kidszone.png',
-    tagline: 'Fun Learning for Kids',
-    targetAudience: 'Kids 4-14',
-    subscriptionType: 'freemium',
-    adSupported: true,
-    hdAvailable: true,
-    reach: 22000000,
-    avgViewers: 1500000,
-    trp: 4.1,
-    createdAt: '2021-09-01T10:00:00Z'
-  },
-  {
-    id: 'CH005',
-    name: 'MusicRadio India',
-    type: 'music',
-    category: 'Music',
-    language: 'Hindi',
-    region: 'National',
-    logo: 'https://cdn.rtmn.in/channels/musicradio.png',
-    tagline: 'India ka Music Radio',
-    targetAudience: 'Youth 15-35',
-    subscriptionType: 'free',
-    adSupported: true,
-    hdAvailable: false,
-    reach: 55000000,
-    avgViewers: 3200000,
-    trp: 2.1,
-    createdAt: '2019-05-15T10:00:00Z'
-  }
-];
-sampleChannels.forEach(ch => channels.set(ch.id, ch));
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-// Initialize sample programs
-const samplePrograms = [
-  {
-    id: 'PRG001',
-    name: 'Morning Prime',
-    channelId: 'CH001',
-    type: 'news_show',
-    genre: 'Morning Show',
-    language: 'English',
-    duration: 180,
-    frequency: 'daily',
-    slot: '06:00-09:00',
-    targetRating: 2.5,
-    currentRating: 2.8,
-    sponsors: ['Pepsi', 'Samsung'],
-    status: 'active',
-    hosts: ['Anchors'],
-    createdAt: '2022-01-20T10:00:00Z'
-  },
-  {
-    id: 'PRG002',
-    name: 'Cricket Masters',
-    channelId: 'CH003',
-    type: 'sports_show',
-    genre: 'Cricket Analysis',
-    language: 'Hindi',
-    duration: 120,
-    frequency: 'weekly',
-    slot: 'Sat 20:00',
-    targetRating: 4.5,
-    currentRating: 5.2,
-    sponsors: ['Star Sports', 'BCCI'],
-    status: 'active',
-    hosts: ['Expert Panel'],
-    createdAt: '2022-06-15T10:00:00Z'
-  },
-  {
-    id: 'PRG003',
-    name: 'Kids Kartoon Hour',
-    channelId: 'CH004',
-    type: 'cartoon',
-    genre: 'Animation',
-    language: 'English',
-    duration: 60,
-    frequency: 'daily',
-    slot: '17:00-18:00',
-    targetRating: 3.5,
-    currentRating: 4.2,
-    sponsors: ['Mamamoo', 'Cadbury'],
-    status: 'active',
-    hosts: [],
-    createdAt: '2021-09-10T10:00:00Z'
-  }
-];
-samplePrograms.forEach(prg => programs.set(prg.id, prg));
-
-// Initialize sample advertisers
-const sampleAdvertisers = [
-  {
-    id: 'ADV001',
-    name: 'PepsiCo India',
-    industry: 'FMCG',
-    contactPerson: 'Rahul Sharma',
-    email: 'rahul.sharma@pepsico.in',
-    phone: '+91 11 4567 8900',
-    address: 'DLF Cyber City, Gurugram',
-    gstin: '06AAACP1234A1ZB',
-    creditLimit: 50000000,
-    outstandingBalance: 8500000,
-    paymentTerms: 30,
-    status: 'active',
-    campaigns: 12,
-    totalSpent: 45000000,
-    avatar: '🥤',
-    createdAt: '2021-03-15T10:00:00Z'
-  },
-  {
-    id: 'ADV002',
-    name: 'Samsung India Electronics',
-    industry: 'Electronics',
-    contactPerson: 'Priya Patel',
-    email: 'priya.patel@samsung.in',
-    phone: '+91 80 4567 8901',
-    address: 'Manyata Tech Park, Bangalore',
-    gstin: '29AAACS1234A1ZY',
-    creditLimit: 100000000,
-    outstandingBalance: 12500000,
-    paymentTerms: 45,
-    status: 'active',
-    campaigns: 24,
-    totalSpent: 120000000,
-    avatar: '📱',
-    createdAt: '2020-01-10T10:00:00Z'
-  }
-];
-sampleAdvertisers.forEach(adv => advertisers.set(adv.id, adv));
-
-// Initialize sample campaigns
-const sampleCampaigns = [
-  {
-    id: 'CMP001',
-    advertiserId: 'ADV001',
-    name: 'Pepsi Summer Splash 2024',
-    objective: 'brand_awareness',
-    status: 'active',
-    startDate: '2024-04-01',
-    endDate: '2024-05-31',
-    budget: 15000000,
-    spent: 8750000,
-    impressions: 45000000,
-    clicks: 225000,
-    conversions: 15000,
-    cpm: 194,
-    ctr: 0.5,
-    channels: ['CH001', 'CH002', 'CH005'],
-    targeting: { age: '18-35', gender: 'all', location: 'tier1' },
-    creatives: ['Banner_v1.jpg', 'Video_30s.mp4'],
-    createdAt: '2024-03-25T10:00:00Z'
-  },
-  {
-    id: 'CMP002',
-    advertiserId: 'ADV002',
-    name: 'Samsung Galaxy S25 Launch',
-    objective: 'product_launch',
-    status: 'active',
-    startDate: '2024-05-01',
-    endDate: '2024-06-30',
-    budget: 25000000,
-    spent: 5200000,
-    impressions: 28000000,
-    clicks: 560000,
-    conversions: 28000,
-    cpm: 186,
-    ctr: 2.0,
-    channels: ['CH001', 'CH003'],
-    targeting: { age: '25-45', gender: 'all', location: 'tier1,tier2' },
-    creatives: ['Product_reveal.mp4', 'Feature_specs.jpg'],
-    createdAt: '2024-04-20T10:00:00Z'
-  }
-];
-sampleCampaigns.forEach(cmp => campaigns.set(cmp.id, cmp));
-
-// Initialize sample content
-const sampleContent = [
-  {
-    id: 'CNT001',
-    title: 'Dhoom 4 - The Action Spectacular',
-    type: 'movie',
-    language: 'Hindi',
-    duration: 162,
-    releaseDate: '2024-06-15',
-    genre: ['Action', 'Thriller'],
-    rating: 'UA',
-    cast: ['Superstar A', 'Actress B'],
-    director: 'Director X',
-    producer: 'Yash Raj Films',
-    synopsis: 'High-octane action thriller',
-    thumbnail: 'https://cdn.rtmn.in/content/dhoom4.jpg',
-    videoUrl: 'https://cdn.rtmn.in/streaming/dhoom4.m3u8',
-    subtitles: ['English', 'Hindi'],
-    audioTracks: ['Hindi 5.1', 'Tamil 5.1'],
-    licenseType: 'exclusive',
-    licenseFrom: '2024-06-15',
-    licenseTo: '2025-06-15',
-    price: 199,
-    views: 0,
-    avgWatchTime: 0,
-    completionRate: 0,
-    status: 'scheduled',
-    createdAt: '2024-05-01T10:00:00Z'
-  },
-  {
-    id: 'CNT002',
-    title: 'Indias Got Talent - Season 5',
-    type: 'reality_show',
-    language: 'Hindi',
-    episodes: 24,
-    currentEpisode: 12,
-    genre: ['Reality', 'Talent'],
-    judges: ['Judge A', 'Judge B', 'Judge C'],
-    host: 'Popular Host',
-    productionHouse: 'Endemol Shine',
-    synopsis: 'Search for Indias hidden talent',
-    thumbnail: 'https://cdn.rtmn.in/content/igt5.jpg',
-    viewsPerEpisode: 2500000,
-    avgWatchTime: 45,
-    completionRate: 72,
-    status: 'ongoing',
-    createdAt: '2024-02-01T10:00:00Z'
-  },
-  {
-    id: 'CNT003',
-    title: 'Tech Talk with Trivia',
-    type: 'podcast',
-    language: 'English',
-    episodeCount: 48,
-    currentEpisode: 45,
-    genre: ['Technology', 'Interview'],
-    host: 'Tech Enthusiast',
-    description: 'Weekly tech news and gadget reviews',
-    thumbnail: 'https://cdn.rtmn.in/content/techtalk.jpg',
-    avgListeners: 85000,
-    platforms: ['Spotify', 'Apple Podcasts', 'YouTube'],
-    sponsors: ['TechGear', 'CloudService'],
-    status: 'ongoing',
-    createdAt: '2023-01-15T10:00:00Z'
-  }
-];
-sampleContent.forEach(cnt => content.set(cnt.id, cnt));
-
-// Initialize sample creators
-const sampleCreators = [
-  {
-    id: 'CRE001',
-    name: 'Chef Kitchen Secrets',
-    type: 'food_vlogger',
-    platform: 'YouTube',
-    subscribers: 5500000,
-    totalViews: 450000000,
-    avgViewsPerVideo: 1200000,
-    engagementRate: 4.5,
-    email: 'chef@kitchensecrets.in',
-    phone: '+91 98765 43210',
-    manager: 'Influencer Management Agency',
-    paymentRate: 150000,
-    revenueShare: 0.45,
-    status: 'active',
-    videos: 380,
-    lastVideoViews: 1500000,
-    avatar: '👨‍🍳',
-    createdAt: '2020-05-20T10:00:00Z'
-  },
-  {
-    id: 'CRE002',
-    name: 'Fitness with Preethi',
-    type: 'fitness_instructor',
-    platform: 'Instagram',
-    followers: 2800000,
-    avgLikes: 85000,
-    engagementRate: 3.0,
-    email: 'preethi@fitnesswithpreethi.in',
-    phone: '+91 98765 43211',
-    manager: null,
-    paymentRate: 75000,
-    revenueShare: 0.40,
-    status: 'active',
-    posts: 1250,
-    lastPostLikes: 92000,
-    avatar: '💪',
-    createdAt: '2021-02-15T10:00:00Z'
-  }
-];
-sampleCreators.forEach(cre => creators.set(cre.id, cre));
-
-// Initialize sample viewers
-const sampleViewers = [
-  {
-    id: 'VWR001',
-    name: 'Arjun Mehta',
-    email: 'arjun.m@email.com',
-    phone: '+91 98765 11111',
-    age: 28,
-    gender: 'male',
-    location: 'Mumbai',
-    tier: 'premium',
-    subscriptionPlan: 'Annual Pack',
-    subscriptionExpiry: '2025-06-15',
-    watchHistory: ['CNT001', 'CNT002'],
-    watchTime: 45.5,
-    favoriteChannels: ['CH001', 'CH003'],
-    device: 'Smart TV',
-    lastActive: '2024-06-16T22:30:00Z',
-    createdAt: '2023-06-15T10:00:00Z'
-  },
-  {
-    id: 'VWR002',
-    name: 'Sneha Reddy',
-    email: 'sneha.r@email.com',
-    phone: '+91 98765 22222',
-    age: 24,
-    gender: 'female',
-    location: 'Hyderabad',
-    tier: 'free',
-    subscriptionPlan: null,
-    watchHistory: ['CNT003'],
-    watchTime: 12.5,
-    favoriteChannels: ['CH004', 'CH005'],
-    device: 'Mobile',
-    lastActive: '2024-06-17T14:00:00Z',
-    createdAt: '2024-02-20T10:00:00Z'
-  }
-];
-sampleViewers.forEach(vwr => viewers.set(vwr.id, vwr));
+// Apply rate limits
+app.use('/api', apiLimiter);
+app.use('/auth', authLimiter);
 
 // ============================================
-// AUTHENTICATION
+// ERROR HANDLING
 // ============================================
 
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
-function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-app.post('/auth/register', (req, res) => {
-  const { businessId, email, password, role, businessName } = req.body;
-  if (!email || !password || !businessId) {
-    return res.status(400).json({ error: 'businessId, email, password required' });
-  }
-  if (authUsers.has(email)) {
-    return res.status(409).json({ error: 'User already exists' });
-  }
-  const user = {
-    id: 'user_' + Date.now(),
-    businessId,
-    email,
-    passwordHash: hashPassword(password),
-    role: role || 'producer',
-    name: businessName || email.split('@')[0],
-    industry: INDUSTRY,
-    createdAt: new Date().toISOString()
-  };
-  authUsers.set(email, user);
-  const token = generateToken();
-  authSessions.set(token, { userId: user.id, email, businessId, industry: INDUSTRY, createdAt: Date.now() });
-  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
-});
-
-app.post('/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  const user = authUsers.get(email);
-  if (!user || user.passwordHash !== hashPassword(password)) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-  const token = generateToken();
-  authSessions.set(token, { userId: user.id, email: user.email, businessId: user.businessId, industry: INDUSTRY, createdAt: Date.now() });
-  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
-});
-
-app.get('/auth/verify', (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  const token = authHeader.slice(7);
-  const session = authSessions.get(token);
-  if (!session) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  res.json({ valid: true, ...session });
-});
-
-function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  const token = authHeader.slice(7);
-  const session = authSessions.get(token);
-  if (!session) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  req.session = session;
-  next();
-}
-
-// ============================================
-// CHANNEL MANAGEMENT
-// ============================================
-
-app.get('/api/channels', requireAuth, (req, res) => {
-  const { type, language, subscriptionType } = req.query;
-  let result = Array.from(channels.values());
-  if (type) result = result.filter(c => c.type === type);
-  if (language) result = result.filter(c => c.language === language);
-  if (subscriptionType) result = result.filter(c => c.subscriptionType === subscriptionType);
-  res.json({ success: true, count: result.length, channels: result });
-});
-
-app.get('/api/channels/:id', requireAuth, (req, res) => {
-  const channel = channels.get(req.params.id);
-  if (!channel) return res.status(404).json({ error: 'Channel not found' });
-  const channelPrograms = Array.from(programs.values()).filter(p => p.channelId === channel.id);
-  res.json({ success: true, channel, programs: channelPrograms });
-});
-
-app.post('/api/channels', requireAuth, (req, res) => {
-  const channel = {
-    id: 'CH' + String(channels.size + 1).padStart(3, '0'),
-    ...req.body,
-    reach: 0, avgViewers: 0, trp: 0,
-    createdAt: new Date().toISOString()
-  };
-  channels.set(channel.id, channel);
-  res.status(201).json({ success: true, channel });
-});
-
-app.patch('/api/channels/:id', requireAuth, (req, res) => {
-  const channel = channels.get(req.params.id);
-  if (!channel) return res.status(404).json({ error: 'Channel not found' });
-  const updated = { ...channel, ...req.body };
-  channels.set(channel.id, updated);
-  res.json({ success: true, channel: updated });
-});
-
-// ============================================
-// PROGRAM MANAGEMENT
-// ============================================
-
-app.get('/api/programs', requireAuth, (req, res) => {
-  const { channelId, type, status } = req.query;
-  let result = Array.from(programs.values());
-  if (channelId) result = result.filter(p => p.channelId === channelId);
-  if (type) result = result.filter(p => p.type === type);
-  if (status) result = result.filter(p => p.status === status);
-  res.json({ success: true, count: result.length, programs: result });
-});
-
-app.get('/api/programs/:id', requireAuth, (req, res) => {
-  const program = programs.get(req.params.id);
-  if (!program) return res.status(404).json({ error: 'Program not found' });
-  res.json({ success: true, program });
-});
-
-app.post('/api/programs', requireAuth, (req, res) => {
-  const program = {
-    id: 'PRG' + String(programs.size + 1).padStart(3, '0'),
-    ...req.body,
-    status: 'planned',
-    createdAt: new Date().toISOString()
-  };
-  programs.set(program.id, program);
-  res.status(201).json({ success: true, program });
-});
-
-app.patch('/api/programs/:id', requireAuth, (req, res) => {
-  const program = programs.get(req.params.id);
-  if (!program) return res.status(404).json({ error: 'Program not found' });
-  const updated = { ...program, ...req.body };
-  programs.set(program.id, updated);
-  res.json({ success: true, program: updated });
-});
-
-// ============================================
-// CONTENT MANAGEMENT
-// ============================================
-
-app.get('/api/content', requireAuth, (req, res) => {
-  const { type, language, genre, status } = req.query;
-  let result = Array.from(content.values());
-  if (type) result = result.filter(c => c.type === type);
-  if (language) result = result.filter(c => c.language === language);
-  if (status) result = result.filter(c => c.status === status);
-  res.json({ success: true, count: result.length, content: result });
-});
-
-app.get('/api/content/:id', requireAuth, (req, res) => {
-  const item = content.get(req.params.id);
-  if (!item) return res.status(404).json({ error: 'Content not found' });
-  res.json({ success: true, content: item });
-});
-
-app.post('/api/content', requireAuth, (req, res) => {
-  const item = {
-    id: 'CNT' + Date.now(),
-    ...req.body,
-    views: 0, avgWatchTime: 0, completionRate: 0,
-    status: req.body.status || 'draft',
-    createdAt: new Date().toISOString()
-  };
-  content.set(item.id, item);
-  res.status(201).json({ success: true, content: item });
-});
-
-app.patch('/api/content/:id', requireAuth, (req, res) => {
-  const item = content.get(req.params.id);
-  if (!item) return res.status(404).json({ error: 'Content not found' });
-  const updated = { ...item, ...req.body };
-  content.set(item.id, updated);
-  res.json({ success: true, content: updated });
-});
-
-// ============================================
-// ADVERTISER MANAGEMENT
-// ============================================
-
-app.get('/api/advertisers', requireAuth, (req, res) => {
-  const { industry, status } = req.query;
-  let result = Array.from(advertisers.values());
-  if (industry) result = result.filter(a => a.industry === industry);
-  if (status) result = result.filter(a => a.status === status);
-  res.json({ success: true, count: result.length, advertisers: result });
-});
-
-app.get('/api/advertisers/:id', requireAuth, (req, res) => {
-  const advertiser = advertisers.get(req.params.id);
-  if (!advertiser) return res.status(404).json({ error: 'Advertiser not found' });
-  const advertiserCampaigns = Array.from(campaigns.values()).filter(c => c.advertiserId === advertiser.id);
-  res.json({ success: true, advertiser, campaigns: advertiserCampaigns });
-});
-
-app.post('/api/advertisers', requireAuth, (req, res) => {
-  const advertiser = {
-    id: 'ADV' + String(advertisers.size + 1).padStart(3, '0'),
-    ...req.body,
-    outstandingBalance: 0, campaigns: 0, totalSpent: 0,
-    createdAt: new Date().toISOString()
-  };
-  advertisers.set(advertiser.id, advertiser);
-  res.status(201).json({ success: true, advertiser });
-});
-
-app.patch('/api/advertisers/:id', requireAuth, (req, res) => {
-  const advertiser = advertisers.get(req.params.id);
-  if (!advertiser) return res.status(404).json({ error: 'Advertiser not found' });
-  const updated = { ...advertiser, ...req.body };
-  advertisers.set(advertiser.id, updated);
-  res.json({ success: true, advertiser: updated });
-});
-
-// ============================================
-// CAMPAIGN MANAGEMENT
-// ============================================
-
-app.get('/api/campaigns', requireAuth, (req, res) => {
-  const { advertiserId, status, objective } = req.query;
-  let result = Array.from(campaigns.values());
-  if (advertiserId) result = result.filter(c => c.advertiserId === advertiserId);
-  if (status) result = result.filter(c => c.status === status);
-  if (objective) result = result.filter(c => c.objective === objective);
-  res.json({ success: true, count: result.length, campaigns: result });
-});
-
-app.get('/api/campaigns/:id', requireAuth, (req, res) => {
-  const campaign = campaigns.get(req.params.id);
-  if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
-  const advertiser = advertisers.get(campaign.advertiserId);
-  res.json({ success: true, campaign, advertiser });
-});
-
-app.post('/api/campaigns', requireAuth, (req, res) => {
-  const campaign = {
-    id: 'CMP' + Date.now(),
-    ...req.body,
-    status: 'draft',
-    spent: 0, impressions: 0, clicks: 0, conversions: 0,
-    createdAt: new Date().toISOString()
-  };
-  campaigns.set(campaign.id, campaign);
-  res.status(201).json({ success: true, campaign });
-});
-
-app.patch('/api/campaigns/:id', requireAuth, (req, res) => {
-  const campaign = campaigns.get(req.params.id);
-  if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
-  const updated = { ...campaign, ...req.body };
-  campaigns.set(campaign.id, updated);
-  res.json({ success: true, campaign: updated });
-});
-
-// ============================================
-// AD BOOKING MANAGEMENT
-// ============================================
-
-app.get('/api/bookings', requireAuth, (req, res) => {
-  const { campaignId, channelId, status } = req.query;
-  let result = Array.from(bookings.values());
-  if (campaignId) result = result.filter(b => b.campaignId === campaignId);
-  if (channelId) result = result.filter(b => b.channelId === channelId);
-  if (status) result = result.filter(b => b.status === status);
-  res.json({ success: true, count: result.length, bookings: result });
-});
-
-app.post('/api/bookings', requireAuth, (req, res) => {
-  const { campaignId, channelId, slot, dates, rate, duration } = req.body;
-  const booking = {
-    id: 'BKG' + Date.now(),
-    campaignId, channelId, slot, dates,
-    duration: duration || 30,
-    rate: rate || 5000,
-    totalCost: (rate || 5000) * (duration || 30) * dates.length,
-    status: 'confirmed',
-    createdBy: req.session.userId,
-    createdAt: new Date().toISOString()
-  };
-  bookings.set(booking.id, booking);
-  res.status(201).json({ success: true, booking });
-});
-
-app.patch('/api/bookings/:id', requireAuth, (req, res) => {
-  const booking = bookings.get(req.params.id);
-  if (!booking) return res.status(404).json({ error: 'Booking not found' });
-  const updated = { ...booking, ...req.body };
-  bookings.set(booking.id, updated);
-  res.json({ success: true, booking: updated });
-});
-
-// ============================================
-// CREATOR MANAGEMENT
-// ============================================
-
-app.get('/api/creators', requireAuth, (req, res) => {
-  const { type, platform, status } = req.query;
-  let result = Array.from(creators.values());
-  if (type) result = result.filter(c => c.type === type);
-  if (platform) result = result.filter(c => c.platform === platform);
-  if (status) result = result.filter(c => c.status === status);
-  res.json({ success: true, count: result.length, creators: result });
-});
-
-app.get('/api/creators/:id', requireAuth, (req, res) => {
-  const creator = creators.get(req.params.id);
-  if (!creator) return res.status(404).json({ error: 'Creator not found' });
-  res.json({ success: true, creator });
-});
-
-app.post('/api/creators', requireAuth, (req, res) => {
-  const creator = {
-    id: 'CRE' + String(creators.size + 1).padStart(3, '0'),
-    ...req.body,
-    status: 'active',
-    createdAt: new Date().toISOString()
-  };
-  creators.set(creator.id, creator);
-  res.status(201).json({ success: true, creator });
-});
-
-app.patch('/api/creators/:id', requireAuth, (req, res) => {
-  const creator = creators.get(req.params.id);
-  if (!creator) return res.status(404).json({ error: 'Creator not found' });
-  const updated = { ...creator, ...req.body };
-  creators.set(creator.id, updated);
-  res.json({ success: true, creator: updated });
-});
-
-// ============================================
-// VIEWER/SUBSCRIBER MANAGEMENT
-// ============================================
-
-app.get('/api/viewers', requireAuth, (req, res) => {
-  const { tier, location } = req.query;
-  let result = Array.from(viewers.values());
-  if (tier) result = result.filter(v => v.tier === tier);
-  if (location) result = result.filter(v => v.location === location);
-  res.json({ success: true, count: result.length, viewers: result });
-});
-
-app.get('/api/viewers/:id', requireAuth, (req, res) => {
-  const viewer = viewers.get(req.params.id);
-  if (!viewer) return res.status(404).json({ error: 'Viewer not found' });
-  res.json({ success: true, viewer });
-});
-
-app.post('/api/viewers', requireAuth, (req, res) => {
-  const viewer = {
-    id: 'VWR' + Date.now(),
-    ...req.body,
-    tier: req.body.tier || 'free',
-    watchTime: 0,
-    createdAt: new Date().toISOString()
-  };
-  viewers.set(viewer.id, viewer);
-  res.status(201).json({ success: true, viewer });
-});
-
-app.patch('/api/viewers/:id', requireAuth, (req, res) => {
-  const viewer = viewers.get(req.params.id);
-  if (!viewer) return res.status(404).json({ error: 'Viewer not found' });
-  const updated = { ...viewer, ...req.body };
-  viewers.set(viewer.id, updated);
-  res.json({ success: true, viewer: updated });
-});
-
-// ============================================
-// BILLING & INVOICING
-// ============================================
-
-app.get('/api/invoices', requireAuth, (req, res) => {
-  const { advertiserId, status } = req.query;
-  let result = Array.from(invoices.values());
-  if (advertiserId) result = result.filter(i => i.advertiserId === advertiserId);
-  if (status) result = result.filter(i => i.status === status);
-  res.json({ success: true, count: result.length, invoices: result });
-});
-
-app.post('/api/invoices', requireAuth, (req, res) => {
-  const { advertiserId, campaignId, amount, description, dueDate } = req.body;
-  const invoice = {
-    id: 'INV' + String(invoices.size + 1).padStart(4, '0'),
-    invoiceNumber: `MED/2024/${String(invoices.size + 1).padStart(4, '0')}`,
-    advertiserId, campaignId, amount,
-    tax: Math.round(amount * 0.18),
-    total: Math.round(amount * 1.18),
-    description: description || 'Advertising services',
-    status: 'pending',
-    dueDate: dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    createdAt: new Date().toISOString()
-  };
-  invoices.set(invoice.id, invoice);
-  res.status(201).json({ success: true, invoice });
-});
-
-app.patch('/api/invoices/:id/status', requireAuth, (req, res) => {
-  const invoice = invoices.get(req.params.id);
-  if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
-  invoice.status = req.body.status;
-  invoices.set(invoice.id, invoice);
-  res.json({ success: true, invoice });
-});
-
-// ============================================
-// ANALYTICS
-// ============================================
-
-app.get('/api/analytics/overview', requireAuth, (req, res) => {
-  const campaignList = Array.from(campaigns.values());
-  const totalAdSpend = campaignList.filter(c => c.status === 'active').reduce((sum, c) => sum + c.spent, 0);
-  const totalImpressions = campaignList.filter(c => c.status === 'active').reduce((sum, c) => sum + c.impressions, 0);
-
-  res.json({
-    success: true,
-    overview: {
-      totalChannels: channels.size,
-      activeChannels: channels.size,
-      totalPrograms: programs.size,
-      totalContent: content.size,
-      activeCampaigns: campaignList.filter(c => c.status === 'active').length,
-      totalAdSpend,
-      totalImpressions,
-      avgCTR: campaignList.length > 0 ? campaignList.reduce((sum, c) => sum + c.ctr, 0) / campaignList.length : 0,
-      totalAdvertisers: advertisers.size,
-      premiumSubscribers: viewers.size,
-      totalCreators: creators.size
-    }
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Endpoint not found',
+    code: 'NOT_FOUND',
+    path: req.path,
   });
 });
 
-app.get('/api/analytics/channels', requireAuth, (req, res) => {
-  const channelList = Array.from(channels.values());
-  const channelPerformance = channelList.map(ch => {
-    const channelCampaigns = Array.from(campaigns.values()).filter(c => c.channels && c.channels.includes(ch.id));
-    return {
-      channelId: ch.id,
-      name: ch.name,
-      type: ch.type,
-      trp: ch.trp,
-      reach: ch.reach,
-      avgViewers: ch.avgViewers,
-      adRevenue: channelCampaigns.reduce((sum, c) => sum + c.spent, 0)
-    };
+// Global error handler
+app.use((err, req, res, next) => {
+  logger.error('Unhandled error', {
+    error: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
   });
-  res.json({ success: true, channels: channelPerformance });
-});
 
-app.get('/api/analytics/campaigns', requireAuth, (req, res) => {
-  const campaignList = Array.from(campaigns.values());
-  res.json({
-    success: true,
-    campaigns: campaignList.map(c => ({
-      id: c.id,
-      name: c.name,
-      status: c.status,
-      budget: c.budget,
-      spent: c.spent,
-      impressions: c.impressions,
-      clicks: c.clicks,
-      ctr: c.ctr,
-      cpm: c.cpm
-    }))
+  // Mongoose validation error
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      code: 'VALIDATION_ERROR',
+      details: Object.values(err.errors).map(e => ({
+        field: e.path,
+        message: e.message,
+      })),
+    });
+  }
+
+  // Mongoose cast error (invalid ObjectId)
+  if (err.name === 'CastError') {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid ID format',
+      code: 'INVALID_ID',
+    });
+  }
+
+  // JWT errors
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid token',
+      code: 'INVALID_TOKEN',
+    });
+  }
+
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Token expired',
+      code: 'TOKEN_EXPIRED',
+    });
+  }
+
+  // Default error
+  res.status(err.status || 500).json({
+    success: false,
+    error: config.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+    code: 'INTERNAL_ERROR',
   });
 });
 
 // ============================================
-// RTMN LAYER INTEGRATIONS
+// HEALTH ENDPOINTS
 // ============================================
 
-app.get('/api/layer/intelligence', requireAuth, (req, res) => {
-  res.json({ layer: 1, name: 'Intelligence', capabilities: ['Content Recommendation AI', 'Audience Prediction', 'Trend Analysis'], status: 'available' });
+// Basic health check
+app.get('/health', async (req, res) => {
+  try {
+    const dbState = models.Viewer.db.readyState;
+    const dbStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    const twinStats = twinService.getStats();
+
+    res.json({
+      status: 'healthy',
+      service: 'media-os',
+      version: '2.0.0',
+      port: config.PORT,
+      environment: config.NODE_ENV,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      database: {
+        status: dbStates[dbState] || 'unknown',
+        connected: dbState === 1,
+      },
+      twins: twinStats,
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+        unit: 'MB',
+      },
+    });
+  } catch (error) {
+    logger.error('Health check failed', { error: error.message });
+    res.status(503).json({
+      status: 'unhealthy',
+      error: error.message,
+    });
+  }
 });
 
-app.get('/api/layer/customer-growth', requireAuth, (req, res) => {
-  res.json({ layer: 2, name: 'Customer Growth', capabilities: ['Subscriber Acquisition', 'Churn Prediction', 'CRM'], status: 'available' });
+// Detailed health check
+app.get('/health/detailed', async (req, res) => {
+  try {
+    const dbState = models.Viewer.db.readyState;
+    const rtmnHealth = await rtmnService.checkAllServicesHealth();
+    const twinStats = twinService.getStats();
+    const eventStats = eventBus.getStats();
+
+    const allHealthy = dbState === 1 && rtmnHealth.every(s => s.status === 'healthy');
+
+    res.json({
+      status: allHealthy ? 'healthy' : 'degraded',
+      service: 'media-os',
+      version: '2.0.0',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      components: {
+        database: {
+          status: dbState === 1 ? 'healthy' : 'unhealthy',
+          state: dbState,
+        },
+        rtmServices: rtmnHealth,
+        twins: twinStats,
+        events: eventStats,
+      },
+      process: {
+        pid: process.pid,
+        platform: process.platform,
+        nodeVersion: process.version,
+        memory: process.memoryUsage(),
+        cpu: process.cpuUsage(),
+      },
+    });
+  } catch (error) {
+    logger.error('Detailed health check failed', { error: error.message });
+    res.status(503).json({
+      status: 'unhealthy',
+      error: error.message,
+    });
+  }
 });
 
-app.get('/api/layer/commerce', requireAuth, (req, res) => {
-  res.json({ layer: 3, name: 'Commerce', capabilities: ['Ad Sales', 'Content Licensing', 'PPV'], status: 'available' });
-});
+// Readiness check
+app.get('/ready', async (req, res) => {
+  const dbState = models.Viewer.db.readyState;
 
-app.get('/api/layer/finance', requireAuth, (req, res) => {
-  res.json({ layer: 4, name: 'Finance', capabilities: ['Ad Billing', 'Subscriber Billing', 'Revenue Split'], status: 'available' });
-});
+  if (dbState !== 1) {
+    return res.status(503).json({
+      ready: false,
+      reason: 'Database not connected',
+    });
+  }
 
-app.get('/api/layers', requireAuth, async (req, res) => {
-  res.json({ industry: INDUSTRY, service: 'Media OS', layers: 15, version: '2.0.0' });
-});
-
-// ============================================
-// HEALTH
-// ============================================
-
-app.get('/health', (req, res) => {
   res.json({
-    status: 'healthy',
+    ready: true,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Liveness check
+app.get('/live', (req, res) => {
+  res.json({
+    alive: true,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ============================================
+// RTMN LAYERS ENDPOINT
+// ============================================
+
+app.get('/api/layers', (req, res) => {
+  res.json({
+    industry: 'media',
     service: 'Media OS',
     version: '2.0.0',
-    port: PORT,
-    industry: 'Media & Entertainment',
-    timestamp: new Date().toISOString(),
-    stats: {
-      channels: channels.size,
-      programs: programs.size,
-      content: content.size,
-      advertisers: advertisers.size,
-      campaigns: campaigns.size,
-      creators: creators.size,
-      viewers: viewers.size
-    }
+    layers: [
+      { layer: 1, name: 'Intelligence', provider: 'HOJAI AI', port: 4560, status: 'available' },
+      { layer: 2, name: 'Customer Growth', provider: 'AdBazaar', port: 4800, status: 'available' },
+      { layer: 3, name: 'Commerce', provider: 'Nexha + REZ-Merchant', status: 'available' },
+      { layer: 4, name: 'Financial', provider: 'RABTUL', port: 4004, status: 'available' },
+      { layer: 5, name: 'Workforce', provider: 'CorpPerks', status: 'available' },
+      { layer: 6, name: 'Legal & Trust', provider: 'LawGens', status: 'available' },
+      { layer: 7, name: 'Property', provider: 'RisnaEstate + StayOwn', status: 'available' },
+      { layer: 8, name: 'Health', provider: 'RisaCare', status: 'available' },
+      { layer: 9, name: 'Mobility', provider: 'KHAIRMOVE', status: 'available' },
+      { layer: 10, name: 'Identity', provider: 'CorpID', port: 4702, status: 'available' },
+      { layer: 11, name: 'Memory', provider: 'MemoryOS', port: 4703, status: 'available' },
+      { layer: 12, name: 'Twins', provider: 'TwinOS Hub', port: 4705, status: 'available' },
+      { layer: 13, name: 'Automation', provider: 'FlowOS', status: 'available' },
+      { layer: 14, name: 'Autonomous', provider: 'SUTAR OS', port: 4140, status: 'available' },
+      { layer: 15, name: 'Network', provider: 'REZ Consumer + Axom', status: 'available' },
+    ],
   });
+});
+
+app.get('/api/layer/:layer', async (req, res) => {
+  const layerNum = parseInt(req.params.layer);
+
+  const layerInfo = {
+    1: { name: 'Intelligence', provider: 'HOJAI AI', capabilities: ['AI Script Writer', 'AI Editor', 'AI Translator', 'AI Moderator'] },
+    2: { name: 'Customer Growth', provider: 'AdBazaar', capabilities: ['Audience Segments', 'Campaign Targeting', 'Attribution'] },
+    3: { name: 'Commerce', provider: 'Nexha + REZ-Merchant', capabilities: ['Ad Sales', 'Content Licensing', 'PPV'] },
+    4: { name: 'Financial', provider: 'RABTUL', capabilities: ['Ad Billing', 'Subscription Billing', 'Creator Payouts'] },
+    5: { name: 'Workforce', provider: 'CorpPerks', capabilities: ['Staff Management', 'Payroll'] },
+    6: { name: 'Legal & Trust', provider: 'LawGens', capabilities: ['Contracts', 'Compliance', 'Risk'] },
+    7: { name: 'Property', provider: 'RisnaEstate + StayOwn', capabilities: ['Studios', 'Venues'] },
+    8: { name: 'Health', provider: 'RisaCare', capabilities: ['Content Safety', 'Moderation'] },
+    9: { name: 'Mobility', provider: 'KHAIRMOVE', capabilities: ['Delivery', 'Logistics'] },
+    10: { name: 'Identity', provider: 'CorpID', capabilities: ['Universal Identity', 'Verification'] },
+    11: { name: 'Memory', provider: 'MemoryOS', capabilities: ['Viewer Preferences', 'Watch History'] },
+    12: { name: 'Twins', provider: 'TwinOS Hub', capabilities: ['Viewer Twin', 'Creator Twin', 'Content Twin'] },
+    13: { name: 'Automation', provider: 'FlowOS', capabilities: ['Workflows', 'Approvals'] },
+    14: { name: 'Autonomous', provider: 'SUTAR OS', capabilities: ['Goals', 'Decisions', 'Autonomy'] },
+    15: { name: 'Network', provider: 'REZ Consumer + Axom', capabilities: ['Discovery', 'Referrals', 'Community'] },
+  };
+
+  if (!layerInfo[layerNum]) {
+    return res.status(404).json({
+      success: false,
+      error: 'Layer not found',
+      code: 'LAYER_NOT_FOUND',
+    });
+  }
+
+  const info = layerInfo[layerNum];
+  const health = await rtmnService.checkServiceHealth(info.provider.toUpperCase().replace(' ', '_'));
+
+  res.json({
+    layer: layerNum,
+    ...info,
+    health,
+    status: health.status === 'healthy' ? 'available' : 'degraded',
+  });
+});
+
+// ============================================
+// AUTH ROUTES
+// ============================================
+
+app.post('/auth/register', async (req, res) => {
+  try {
+    const { email, password, name, phone, role } = req.body;
+
+    // Check if user exists
+    const existingUser = await models.Viewer.findOne({ 'profile.email': email });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        error: 'User already exists',
+        code: 'USER_EXISTS',
+      });
+    }
+
+    // Create user
+    const user = new models.Viewer({
+      profile: {
+        displayName: name,
+        email,
+        phone,
+      },
+      corpid: null,
+      status: 'active',
+    });
+
+    // Note: In production, hash the password properly
+    await user.save();
+
+    // Generate token
+    const token = generateToken({
+      sub: user._id,
+      email: user.profile.email,
+      role: role || 'viewer',
+      industry: 'media',
+    });
+
+    logger.info('User registered', { userId: user._id, email });
+
+    res.status(201).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        email: user.profile.email,
+        name: user.profile.displayName,
+        role: role || 'viewer',
+      },
+    });
+  } catch (error) {
+    logger.error('Registration failed', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Registration failed',
+      code: 'REGISTRATION_FAILED',
+    });
+  }
+});
+
+app.post('/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await models.Viewer.findOne({ 'profile.email': email });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials',
+        code: 'INVALID_CREDENTIALS',
+      });
+    }
+
+    // Note: In production, verify password hash
+    const token = generateToken({
+      sub: user._id,
+      email: user.profile.email,
+      role: 'viewer',
+      industry: 'media',
+    });
+
+    logger.info('User logged in', { userId: user._id, email });
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        email: user.profile.email,
+        name: user.profile.displayName,
+        role: 'viewer',
+      },
+    });
+  } catch (error) {
+    logger.error('Login failed', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Login failed',
+      code: 'LOGIN_FAILED',
+    });
+  }
+});
+
+app.get('/auth/verify', authenticate, (req, res) => {
+  res.json({
+    success: true,
+    valid: true,
+    user: req.user,
+  });
+});
+
+// ============================================
+// VIEWER ROUTES
+// ============================================
+
+// Get all viewers
+app.get('/api/viewers', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, subscription } = req.query;
+
+    const query = {};
+    if (status) query.status = status;
+    if (subscription) query['subscription.plan'] = subscription;
+
+    const total = await models.Viewer.countDocuments(query);
+    const viewers = await models.Viewer.find(query)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .sort('-createdAt')
+      .select('-__v');
+
+    res.json({
+      success: true,
+      viewers,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    logger.error('Failed to fetch viewers', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch viewers',
+    });
+  }
+});
+
+// Get viewer by ID
+app.get('/api/viewers/:id', authenticate, async (req, res) => {
+  try {
+    const viewer = await models.Viewer.findById(req.params.id).select('-__v');
+
+    if (!viewer) {
+      return res.status(404).json({
+        success: false,
+        error: 'Viewer not found',
+        code: 'VIEWER_NOT_FOUND',
+      });
+    }
+
+    res.json({
+      success: true,
+      viewer,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch viewer', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch viewer',
+    });
+  }
+});
+
+// Create viewer
+app.post('/api/viewers', validate(require('./middleware/validation').createViewerSchema), async (req, res) => {
+  try {
+    const viewer = new models.Viewer({
+      profile: {
+        displayName: req.body.displayName,
+        email: req.body.email,
+        phone: req.body.phone,
+        avatar: req.body.avatar,
+        dateOfBirth: req.body.dateOfBirth,
+        gender: req.body.gender,
+      },
+      location: req.body.location,
+      preferences: req.body.preferences,
+    });
+
+    await viewer.save();
+
+    // Create Viewer Twin
+    const twin = twinService.createTwin(TWIN_TYPES.VIEWER, viewer._id.toString(), viewer.toObject());
+    viewer.twinId = twin.twinId;
+    await viewer.save();
+
+    // Publish event
+    eventBus.publish(EVENTS.VIEWER_CREATED, { viewerId: viewer._id });
+
+    res.status(201).json({
+      success: true,
+      viewer,
+      twin: twin.toJSON(),
+    });
+  } catch (error) {
+    logger.error('Failed to create viewer', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create viewer',
+    });
+  }
+});
+
+// Update viewer
+app.patch('/api/viewers/:id', authenticate, async (req, res) => {
+  try {
+    const viewer = await models.Viewer.findById(req.params.id);
+
+    if (!viewer) {
+      return res.status(404).json({
+        success: false,
+        error: 'Viewer not found',
+      });
+    }
+
+    // Check ownership or admin
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied',
+      });
+    }
+
+    // Update fields
+    Object.keys(req.body).forEach(key => {
+      if (key === 'profile') {
+        Object.assign(viewer.profile, req.body.profile);
+      } else if (key === 'location') {
+        Object.assign(viewer.location, req.body.location);
+      } else if (key === 'preferences') {
+        Object.assign(viewer.preferences, req.body.preferences);
+      } else {
+        viewer[key] = req.body[key];
+      }
+    });
+
+    await viewer.save();
+
+    // Update twin
+    if (viewer.twinId) {
+      twinService.updateTwin(viewer.twinId, viewer.toObject());
+    }
+
+    eventBus.publish(EVENTS.VIEWER_UPDATED, { viewerId: viewer._id, updatedBy: req.user.id });
+
+    res.json({
+      success: true,
+      viewer,
+    });
+  } catch (error) {
+    logger.error('Failed to update viewer', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update viewer',
+    });
+  }
+});
+
+// Watch history
+app.post('/api/viewers/:id/watch', authenticate, async (req, res) => {
+  try {
+    const { contentId, progress, watchTime } = req.body;
+
+    const viewer = await models.Viewer.findById(req.params.id);
+    if (!viewer) {
+      return res.status(404).json({
+        success: false,
+        error: 'Viewer not found',
+      });
+    }
+
+    await viewer.updateWatchHistory(contentId, progress, watchTime);
+
+    // Publish events
+    eventBus.publish(EVENTS.VIEWER_WATCH_STARTED, { viewerId: viewer._id, contentId });
+
+    if (progress >= 90) {
+      eventBus.publish(EVENTS.VIEWER_WATCH_COMPLETED, { viewerId: viewer._id, contentId });
+    }
+
+    // Update twin
+    if (viewer.twinId) {
+      twinService.updateTwin(viewer.twinId, {
+        ...viewer.toObject(),
+        contentAffinity: { ...(viewer.contentAffinity || {}), [contentId]: progress / 100 },
+      });
+    }
+
+    res.json({
+      success: true,
+      watchHistory: viewer.watchHistory,
+    });
+  } catch (error) {
+    logger.error('Failed to update watch history', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update watch history',
+    });
+  }
+});
+
+// ============================================
+// CONTENT ROUTES
+// ============================================
+
+// Get all content
+app.get('/api/content', optionalAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, type, genre, language, status, search } = req.query;
+
+    const query = {};
+    if (type) query.type = type;
+    if (genre) query.genres = genre;
+    if (language) query.language = language;
+    if (status) query.status = status;
+    if (search) {
+      query.$text = { $search: search };
+    }
+
+    const total = await models.Content.countDocuments(query);
+    const content = await models.Content.find(query)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .sort('-createdAt')
+      .select('-__v');
+
+    res.json({
+      success: true,
+      content,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    logger.error('Failed to fetch content', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch content',
+    });
+  }
+});
+
+// Get content by ID
+app.get('/api/content/:id', optionalAuth, async (req, res) => {
+  try {
+    const content = await models.Content.findById(req.params.id)
+      .populate('broadcaster', 'name logo')
+      .select('-__v');
+
+    if (!content) {
+      return res.status(404).json({
+        success: false,
+        error: 'Content not found',
+        code: 'CONTENT_NOT_FOUND',
+      });
+    }
+
+    // Get recommendations from HOJAI AI
+    let recommendations = [];
+    if (req.user) {
+      try {
+        const recs = await rtmnService.getRecommendations(req.user.id, {
+          limit: 5,
+          contentTypes: [content.type],
+          genres: content.genres,
+        });
+        recommendations = recs.recommendations || [];
+      } catch (e) {
+        // Ignore recommendation errors
+      }
+    }
+
+    res.json({
+      success: true,
+      content,
+      recommendations,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch content', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch content',
+    });
+  }
+});
+
+// Create content
+app.post('/api/content', authenticate, authorize('admin', 'producer'), async (req, res) => {
+  try {
+    const content = new models.Content(req.body);
+    await content.save();
+
+    // Create Content Twin
+    const twin = twinService.createTwin(TWIN_TYPES.CONTENT, content._id.toString(), content.toObject());
+    content.twinId = twin.twinId;
+    await content.save();
+
+    // Publish event
+    eventBus.publish(EVENTS.CONTENT_CREATED, { contentId: content._id, type: content.type });
+
+    res.status(201).json({
+      success: true,
+      content,
+      twin: twin.toJSON(),
+    });
+  } catch (error) {
+    logger.error('Failed to create content', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create content',
+    });
+  }
+});
+
+// Update content
+app.patch('/api/content/:id', authenticate, authorize('admin', 'producer'), async (req, res) => {
+  try {
+    const content = await models.Content.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+
+    if (!content) {
+      return res.status(404).json({
+        success: false,
+        error: 'Content not found',
+      });
+    }
+
+    // Update twin
+    if (content.twinId) {
+      twinService.updateTwin(content.twinId, content.toObject());
+    }
+
+    res.json({
+      success: true,
+      content,
+    });
+  } catch (error) {
+    logger.error('Failed to update content', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update content',
+    });
+  }
+});
+
+// Publish content
+app.post('/api/content/:id/publish', authenticate, authorize('admin', 'producer'), async (req, res) => {
+  try {
+    const content = await models.Content.findById(req.params.id);
+
+    if (!content) {
+      return res.status(404).json({
+        success: false,
+        error: 'Content not found',
+      });
+    }
+
+    content.status = 'published';
+    content.publishedAt = new Date();
+    await content.save();
+
+    // Publish event
+    eventBus.publish(EVENTS.CONTENT_PUBLISHED, {
+      contentId: content._id,
+      type: content.type,
+      title: content.title,
+    });
+
+    res.json({
+      success: true,
+      content,
+    });
+  } catch (error) {
+    logger.error('Failed to publish content', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to publish content',
+    });
+  }
+});
+
+// ============================================
+// CHANNEL ROUTES
+// ============================================
+
+// Get all channels
+app.get('/api/channels', optionalAuth, async (req, res) => {
+  try {
+    const { type, language, subscriptionType } = req.query;
+
+    const query = {};
+    if (type) query.type = type;
+    if (language) query.language = language;
+    if (subscriptionType) query.subscriptionType = subscriptionType;
+
+    const channels = await models.Channel.find(query).sort('name');
+
+    res.json({
+      success: true,
+      channels,
+      count: channels.length,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch channels', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch channels',
+    });
+  }
+});
+
+// Get channel by ID
+app.get('/api/channels/:id', optionalAuth, async (req, res) => {
+  try {
+    const channel = await models.Channel.findById(req.params.id);
+
+    if (!channel) {
+      return res.status(404).json({
+        success: false,
+        error: 'Channel not found',
+      });
+    }
+
+    // Get programs for this channel
+    const programs = await models.Program.find({ channel: channel._id, status: 'active' });
+
+    res.json({
+      success: true,
+      channel,
+      programs,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch channel', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch channel',
+    });
+  }
+});
+
+// ============================================
+// CREATOR ROUTES
+// ============================================
+
+// Get all creators
+app.get('/api/creators', optionalAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, niche } = req.query;
+
+    const query = {};
+    if (status) query.status = status;
+    if (niche) query.niche = niche;
+
+    const total = await models.Creator.countDocuments(query);
+    const creators = await models.Creator.find(query)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .sort('-audience.totalReach')
+      .select('-__v');
+
+    res.json({
+      success: true,
+      creators,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    logger.error('Failed to fetch creators', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch creators',
+    });
+  }
+});
+
+// Get creator by ID
+app.get('/api/creators/:id', optionalAuth, async (req, res) => {
+  try {
+    const creator = await models.Creator.findById(req.params.id).select('-__v');
+
+    if (!creator) {
+      return res.status(404).json({
+        success: false,
+        error: 'Creator not found',
+        code: 'CREATOR_NOT_FOUND',
+      });
+    }
+
+    res.json({
+      success: true,
+      creator,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch creator', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch creator',
+    });
+  }
+});
+
+// Create creator
+app.post('/api/creators', authenticate, validate(require('./middleware/validation').createCreatorSchema), async (req, res) => {
+  try {
+    const creator = new models.Creator({
+      profile: {
+        displayName: req.body.displayName,
+        handle: req.body.handle,
+        bio: req.body.bio,
+        email: req.body.email,
+      },
+      niche: req.body.niche,
+      contentTypes: req.body.contentTypes,
+      languages: req.body.languages,
+    });
+
+    await creator.save();
+
+    // Create Creator Twin
+    const twin = twinService.createTwin(TWIN_TYPES.CREATOR, creator._id.toString(), creator.toObject());
+    creator.twinId = twin.twinId;
+    await creator.save();
+
+    eventBus.publish(EVENTS.CREATOR_CREATED, { creatorId: creator._id, handle: creator.profile.handle });
+
+    res.status(201).json({
+      success: true,
+      creator,
+      twin: twin.toJSON(),
+    });
+  } catch (error) {
+    logger.error('Failed to create creator', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create creator',
+    });
+  }
+});
+
+// ============================================
+// CAMPAIGN ROUTES
+// ============================================
+
+// Get all campaigns
+app.get('/api/campaigns', authenticate, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, advertiserId } = req.query;
+
+    const query = {};
+    if (status) query.status = status;
+    if (advertiserId) query.advertiser = advertiserId;
+
+    const total = await models.Campaign.countDocuments(query);
+    const campaigns = await models.Campaign.find(query)
+      .populate('advertiser', 'name industry')
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .sort('-createdAt')
+      .select('-__v');
+
+    res.json({
+      success: true,
+      campaigns,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    logger.error('Failed to fetch campaigns', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch campaigns',
+    });
+  }
+});
+
+// Get campaign by ID
+app.get('/api/campaigns/:id', authenticate, async (req, res) => {
+  try {
+    const campaign = await models.Campaign.findById(req.params.id)
+      .populate('advertiser', 'name industry logo')
+      .select('-__v');
+
+    if (!campaign) {
+      return res.status(404).json({
+        success: false,
+        error: 'Campaign not found',
+        code: 'CAMPAIGN_NOT_FOUND',
+      });
+    }
+
+    res.json({
+      success: true,
+      campaign,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch campaign', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch campaign',
+    });
+  }
+});
+
+// Create campaign
+app.post('/api/campaigns', authenticate, authorize('admin', 'advertiser'), async (req, res) => {
+  try {
+    const campaign = new models.Campaign({
+      ...req.body,
+      createdBy: req.user.id,
+    });
+
+    await campaign.save();
+
+    // Create Campaign Twin
+    const twin = twinService.createTwin(TWIN_TYPES.CAMPAIGN, campaign._id.toString(), campaign.toObject());
+    campaign.twinId = twin.twinId;
+    await campaign.save();
+
+    eventBus.publish(EVENTS.CAMPAIGN_CREATED, { campaignId: campaign._id, advertiser: campaign.advertiser });
+
+    res.status(201).json({
+      success: true,
+      campaign,
+      twin: twin.toJSON(),
+    });
+  } catch (error) {
+    logger.error('Failed to create campaign', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create campaign',
+    });
+  }
+});
+
+// Update campaign performance
+app.post('/api/campaigns/:id/performance', authenticate, async (req, res) => {
+  try {
+    const { impressions, clicks, conversions, views } = req.body;
+
+    const campaign = await models.Campaign.findById(req.params.id);
+    if (!campaign) {
+      return res.status(404).json({
+        success: false,
+        error: 'Campaign not found',
+      });
+    }
+
+    // Update performance
+    if (impressions !== undefined) campaign.performance.impressions += impressions;
+    if (clicks !== undefined) campaign.performance.clicks += clicks;
+    if (conversions !== undefined) campaign.performance.conversions += conversions;
+    if (views !== undefined) campaign.performance.views += views;
+
+    // Recalculate KPIs
+    await campaign.calculateKPIs();
+    await campaign.save();
+
+    // Update twin
+    if (campaign.twinId) {
+      twinService.updateTwin(campaign.twinId, campaign.toObject());
+    }
+
+    res.json({
+      success: true,
+      campaign,
+    });
+  } catch (error) {
+    logger.error('Failed to update campaign performance', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update campaign performance',
+    });
+  }
+});
+
+// ============================================
+// ADVERTISER ROUTES
+// ============================================
+
+// Get all advertisers
+app.get('/api/advertisers', authenticate, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, industry, status } = req.query;
+
+    const query = {};
+    if (industry) query.industry = industry;
+    if (status) query.status = status;
+
+    const total = await models.Advertiser.countDocuments(query);
+    const advertisers = await models.Advertiser.find(query)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .sort('-stats.totalSpent')
+      .select('-__v');
+
+    res.json({
+      success: true,
+      advertisers,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    logger.error('Failed to fetch advertisers', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch advertisers',
+    });
+  }
+});
+
+// ============================================
+// SUBSCRIPTION ROUTES
+// ============================================
+
+// Get subscriptions for viewer
+app.get('/api/subscriptions/my', authenticate, async (req, res) => {
+  try {
+    const subscription = await models.Subscription.findOne({
+      viewerId: req.user.id,
+      status: 'active',
+    }).populate('viewerId', 'profile.email profile.displayName');
+
+    res.json({
+      success: true,
+      subscription,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch subscription', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch subscription',
+    });
+  }
+});
+
+// ============================================
+// TWINS ROUTES
+// ============================================
+
+// Get viewer twin
+app.get('/api/twins/viewer/:viewerId', authenticate, async (req, res) => {
+  try {
+    const viewer = await models.Viewer.findById(req.params.viewerId);
+
+    if (!viewer) {
+      return res.status(404).json({
+        success: false,
+        error: 'Viewer not found',
+      });
+    }
+
+    let twin = twinService.getTwinByOwner(req.params.viewerId, TWIN_TYPES.VIEWER);
+
+    if (!twin && viewer.twinId) {
+      twin = twinService.getTwin(viewer.twinId);
+    }
+
+    if (!twin) {
+      // Create twin if not exists
+      twin = twinService.createTwin(TWIN_TYPES.VIEWER, viewer._id.toString(), viewer.toObject());
+      viewer.twinId = twin.twinId;
+      await viewer.save();
+    }
+
+    res.json({
+      success: true,
+      twin: twin.toJSON(),
+    });
+  } catch (error) {
+    logger.error('Failed to fetch viewer twin', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch viewer twin',
+    });
+  }
+});
+
+// Get content twin
+app.get('/api/twins/content/:contentId', authenticate, async (req, res) => {
+  try {
+    const content = await models.Content.findById(req.params.contentId);
+
+    if (!content) {
+      return res.status(404).json({
+        success: false,
+        error: 'Content not found',
+      });
+    }
+
+    let twin = twinService.getTwinByOwner(req.params.contentId, TWIN_TYPES.CONTENT);
+
+    if (!twin && content.twinId) {
+      twin = twinService.getTwin(content.twinId);
+    }
+
+    if (!twin) {
+      twin = twinService.createTwin(TWIN_TYPES.CONTENT, content._id.toString(), content.toObject());
+      content.twinId = twin.twinId;
+      await content.save();
+    }
+
+    res.json({
+      success: true,
+      twin: twin.toJSON(),
+    });
+  } catch (error) {
+    logger.error('Failed to fetch content twin', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch content twin',
+    });
+  }
+});
+
+// Get all twins stats
+app.get('/api/twins/stats', authenticate, authorize('admin'), (req, res) => {
+  res.json({
+    success: true,
+    stats: twinService.getStats(),
+  });
+});
+
+// ============================================
+// ANALYTICS ROUTES
+// ============================================
+
+// Overview analytics
+app.get('/api/analytics/overview', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const [
+      totalViewers,
+      activeViewers,
+      totalContent,
+      activeCampaigns,
+      totalCreators,
+      totalChannels,
+    ] = await Promise.all([
+      models.Viewer.countDocuments(),
+      models.Viewer.countDocuments({ status: 'active' }),
+      models.Content.countDocuments({ status: 'published' }),
+      models.Campaign.countDocuments({ status: 'active' }),
+      models.Creator.countDocuments({ status: 'active' }),
+      models.Channel.countDocuments({ status: 'active' }),
+    ]);
+
+    // Aggregate campaign stats
+    const campaignStats = await models.Campaign.aggregate([
+      { $match: { status: { $in: ['active', 'completed'] } } },
+      {
+        $group: {
+          _id: null,
+          totalSpend: { $sum: '$budget.spent' },
+          totalImpressions: { $sum: '$performance.impressions' },
+          totalClicks: { $sum: '$performance.clicks' },
+          avgCTR: { $avg: '$performance.ctr' },
+          avgCPM: { $avg: '$performance.cpm' },
+        },
+      },
+    ]);
+
+    res.json({
+      success: true,
+      overview: {
+        viewers: {
+          total: totalViewers,
+          active: activeViewers,
+        },
+        content: {
+          total: totalContent,
+        },
+        campaigns: {
+          active: activeCampaigns,
+          stats: campaignStats[0] || {},
+        },
+        creators: {
+          total: totalCreators,
+        },
+        channels: {
+          total: totalChannels,
+        },
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('Failed to fetch analytics', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch analytics',
+    });
+  }
+});
+
+// Content analytics
+app.get('/api/analytics/content', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const { type, period = '7d' } = req.query;
+
+    const query = { status: 'published' };
+    if (type) query.type = type;
+
+    const content = await models.Content.find(query)
+      .select('title type genres performance releaseDate')
+      .sort('-performance.views')
+      .limit(20);
+
+    res.json({
+      success: true,
+      content,
+    });
+  } catch (error) {
+    logger.error('Failed to fetch content analytics', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch content analytics',
+    });
+  }
+});
+
+// ============================================
+// RTMN INTEGRATION ROUTES
+// ============================================
+
+// Get AI recommendations
+app.get('/api/ai/recommendations', authenticate, async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+
+    const recommendations = await rtmnService.getRecommendations(req.user.id, {
+      limit: parseInt(limit),
+    });
+
+    res.json({
+      success: true,
+      recommendations: recommendations.recommendations || [],
+    });
+  } catch (error) {
+    logger.error('Failed to get recommendations', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get recommendations',
+    });
+  }
+});
+
+// Analyze content
+app.post('/api/ai/analyze', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const { title, synopsis, genres, language } = req.body;
+
+    const analysis = await rtmnService.analyzeContent({
+      title,
+      synopsis,
+      genres,
+      language,
+    });
+
+    res.json({
+      success: true,
+      analysis,
+    });
+  } catch (error) {
+    logger.error('Failed to analyze content', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to analyze content',
+    });
+  }
+});
+
+// ============================================
+// EVENTS ROUTES
+// ============================================
+
+// Get event history
+app.get('/api/events/history', authenticate, authorize('admin'), (req, res) => {
+  try {
+    const { type, limit = 100 } = req.query;
+    const history = eventBus.getHistory(type, parseInt(limit));
+
+    res.json({
+      success: true,
+      events: history,
+      stats: eventBus.getStats(),
+    });
+  } catch (error) {
+    logger.error('Failed to fetch event history', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch event history',
+    });
+  }
 });
 
 // ============================================
 // START SERVER
 // ============================================
 
-app.listen(PORT, () => {
-  console.log(`
-╔══════════════════════════════════════════════════════════╗
-║                  MEDIA OS v2.0.0                     ║
-║          Complete Media & Entertainment System        ║
-╠══════════════════════════════════════════════════════════╣
-║  Port: ${PORT}                                           ║
-║                                                          ║
-║  Features:                                             ║
-║  • Channel Management (TV, Streaming)                  ║
-║  • Program & Content Management                        ║
-║  • Ad Management & Campaigns                           ║
-║  • Creator & Influencer Management                     ║
-║  • Viewer/Subscriber Management                        ║
-║  • Billing & Invoicing                                 ║
-║  • Analytics & Performance Reports                     ║
-║                                                          ║
-║  RTMN Integrations:                                   ║
-║  • Memory OS (4703) - Viewer Preferences              ║
-║  • TwinOS (4705) - Content Twins                     ║
-║  • SUTAR OS (4140) - Audience Prediction             ║
-║  • Event Bus (4510) - Live Events                    ║
-╚══════════════════════════════════════════════════════════╝
-  `);
-});
+async function startServer() {
+  try {
+    // Connect to database
+    await connectDB();
+    logger.info('Database connected successfully');
+
+    // Seed initial data in development
+    if (config.NODE_ENV === 'development') {
+      await seedData();
+    }
+
+    // Start HTTP server
+    const server = app.listen(config.PORT, () => {
+      logger.info(`
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                        MEDIA OS v2.0.0                                        ║
+║              Complete AI-Native Media Operating System                       ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║  Port: ${config.PORT}                                                             ║
+║  Environment: ${config.NODE_ENV}                                                       ║
+║                                                                               ║
+║  Features:                                                                    ║
+║  • Content OS: Channels, Programs, Episodes, Content Management                ║
+║  • Creator OS: Profiles, Brand Deals, Payments                                ║
+║  • Audience OS: Viewers, Subscriptions, Personalization                       ║
+║  • Advertising OS: Campaigns, Bookings, Attribution                           ║
+║  • Revenue OS: Subscriptions, PPV, Invoicing                                 ║
+║  • Rights OS: Licenses, Territories, Royalties                               ║
+║  • Production OS: Studios, Equipment, Crew                                    ║
+║  • Digital Twins: Viewer, Creator, Content, Campaign                          ║
+║                                                                               ║
+║  RTMN Integration:                                                          ║
+║  • HOJAI AI (4560) - Intelligence                                           ║
+║  • CorpID (4702) - Identity                                                ║
+║  • MemoryOS (4703) - Preferences                                           ║
+║  • TwinOS (4705) - Digital Twins                                          ║
+║  • AdBazaar - Advertising                                                  ║
+║  • RABTUL - Payments                                                       ║
+║                                                                               ║
+║  Health Check: http://localhost:${config.PORT}/health                                ║
+║  API Docs: http://localhost:${config.PORT}/api/layers                                ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+      `);
+
+      console.log(`
+      📺 Media OS Ready!
+
+      Endpoints:
+      - Health:        GET  /health
+      - RTMN Layers:  GET  /api/layers
+      - Viewers:       GET  /api/viewers
+      - Content:      GET  /api/content
+      - Channels:     GET  /api/channels
+      - Creators:     GET  /api/creators
+      - Campaigns:    GET  /api/campaigns
+      - Twins:        GET  /api/twins/viewer/:id
+      - Analytics:    GET  /api/analytics/overview
+      `);
+    });
+
+    // Graceful shutdown
+    const shutdown = async (signal) => {
+      logger.info(`${signal} received, shutting down gracefully...`);
+
+      server.close(async () => {
+        logger.info('HTTP server closed');
+
+        try {
+          const { disconnectDB } = require('./models');
+          await disconnectDB();
+          logger.info('Database connection closed');
+          process.exit(0);
+        } catch (error) {
+          logger.error('Error during shutdown', { error: error.message });
+          process.exit(1);
+        }
+      });
+
+      // Force exit after 30 seconds
+      setTimeout(() => {
+        logger.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 30000);
+    };
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+
+  } catch (error) {
+    logger.error('Failed to start server', { error: error.message, stack: error.stack });
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
+
+module.exports = app;
