@@ -5,9 +5,6 @@ import { selectServiceSchema } from '../validators/schemas.js';
 import { authMiddleware } from '../middleware/auth.js';
 import logger from '../utils/logger.js';
 
-// DEV ONLY: Disable mock billing in production
-const MOCK_BILLING_ENABLED = process.env.NODE_ENV !== 'production';
-
 const router = express.Router();
 
 // GET /v1/services

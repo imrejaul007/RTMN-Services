@@ -1,7 +1,9 @@
 # REZ-ecosystem-connector - Features
 
 **Version:** 1.0.0  
-**Last Updated:** June 17, 2026
+**Last Updated:** June 15, 2026  
+**Port:** 4399  
+**Status:** ✅ RUNNING
 
 ---
 
@@ -11,120 +13,160 @@
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **Service Registration** | Register services with name, port, industry | ✅ |
-| **Service Discovery** | Find services by name or industry | ✅ |
-| **Heartbeat Monitoring** | Track service health via heartbeats | ✅ |
-| **Auto-cleanup** | Remove stale services (no heartbeat) | ✅ |
-| **Version Tracking** | Track service versions | ✅ |
+| Service Registration | Register services with metadata | ✅ |
+| Service Discovery | Find services by ID, name, type | ✅ |
+| Service Listing | List all registered services | ✅ |
+| Status Updates | Update service status (healthy/degraded/down) | ✅ |
+| Heartbeat | Monitor service health via heartbeats | ✅ |
+| Auto-unregister | Remove stale services | ✅ |
 
-### 2. Service Management
+### 2. Service Metadata
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique service ID |
+| name | string | Service name |
+| version | string | Service version |
+| type | string | Service type (industry-os, foundation, etc.) |
+| industry | string | Industry vertical |
+| port | number | Service port |
+| healthUrl | string | Health check URL |
+| apiUrl | string | API base URL |
+| capabilities | string[] | Service capabilities |
+| digitalTwins | string[] | Associated digital twins |
+| status | string | Current status |
+| registeredAt | timestamp | Registration time |
+| lastHeartbeat | timestamp | Last heartbeat time |
+
+### 3. Messaging
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **List Services** | Get all registered services | ✅ |
-| **Get Service** | Get details of specific service | ✅ |
-| **Update Status** | Update service health status | ✅ |
-| **Unregister** | Remove service from registry | ✅ |
-| **Bulk Register** | Register multiple services at once | ✅ |
+| Message Send | Send messages between services | ✅ |
+| Message Retrieval | Get message by ID | ✅ |
+| Correlation ID | Track related messages | ✅ |
+| Service Filtering | Filter by source/destination | ✅ |
+| Message Queue | In-memory message queue | ✅ |
 
-### 3. Statistics & Monitoring
-
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **Total Count** | Number of registered services | ✅ |
-| **By Industry** | Services grouped by industry | ✅ |
-| **By Status** | Services grouped by health status | ✅ |
-| **Last Updated** | Timestamp of last registry change | ✅ |
-
-### 4. Health Checks
+### 4. Event Subscriptions
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **Basic Health** | Returns service health status | ✅ |
-| **Detailed Health** | Returns registry statistics | ✅ |
-| **Liveness Check** | Simple uptime check | ✅ |
-| **Readiness Check** | Registry availability check | ✅ |
+| Subscribe | Subscribe to event patterns | ✅ |
+| List Subscriptions | View all subscriptions | ✅ |
+| Unsubscribe | Remove subscription | ✅ |
+| Pattern Matching | Wildcard pattern support | ✅ |
+| Multiple Subscribers | Multiple subscribers per event | ✅ |
+
+### 5. Transaction Management
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Start Transaction | Begin multi-service transaction | ✅ |
+| Update Step | Mark transaction step complete | ✅ |
+| Rollback | Rollback entire transaction | ✅ |
+| Track Progress | Track transaction progress | ✅ |
+
+### 6. Health Monitoring
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Health Check | Basic health endpoint | ✅ |
+| Service Health | Detailed service health | ✅ |
+| Heartbeat | Service heartbeat tracking | ✅ |
+| Statistics | Service registry statistics | ✅ |
 
 ---
 
-## API Features
+## API Endpoints
 
-### Service Registration
+### Service Management
 
-- **POST /api/services/register**
-- Validate required fields (name, port, industry)
-- Auto-generate URL from name and port
-- Store in memory registry
-- Return registered service info
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/services` | Register service |
+| GET | `/api/services` | List services |
+| GET | `/api/services/:id` | Get by ID |
+| GET | `/api/services/name/:name` | Get by name |
+| PATCH | `/api/services/:id/status` | Update status |
+| POST | `/api/services/:id/heartbeat` | Send heartbeat |
+| DELETE | `/api/services/:id` | Unregister |
 
-### Service Discovery
+### Messaging
 
-- **GET /api/services**
-- Returns array of all registered services
-- Includes: name, port, industry, version, status, url
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/messages` | Send message |
+| GET | `/api/messages/:id` | Get message |
+| GET | `/api/messages/correlation/:id` | By correlation |
+| GET | `/api/messages/service/:name` | By service |
 
-- **GET /api/services/:name**
-- Returns specific service details
-- 404 if not found
+### Subscriptions
 
-### Heartbeat System
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/subscriptions` | Create subscription |
+| GET | `/api/subscriptions` | List subscriptions |
+| DELETE | `/api/subscriptions/:id` | Delete subscription |
 
-- **POST /api/services/:name/heartbeat**
-- Updates lastHeartbeat timestamp
-- Resets unhealthy status if service recovers
-- Auto-removes services after 60 seconds of no heartbeat
+### Transactions
 
-### Statistics
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/transactions` | Start transaction |
+| PATCH | `/api/transactions/:id/step` | Update step |
+| POST | `/api/transactions/:id/rollback` | Rollback |
 
-- **GET /api/stats**
-- Total services count
-- Services by industry
-- Services by status
-- Uptime information
+### Health
 
----
-
-## Integration Points
-
-### Connected Services (via Event Bus)
-
-| Event | Publisher | Subscriber |
-|-------|-----------|------------|
-| `service.registered` | Any service | Monitoring |
-| `service.unregistered` | Any service | Monitoring |
-| `service.heartbeat` | Any service | Registry |
-
-### Used By
-
-| Service | Purpose |
-|---------|---------|
-| REZ-event-bus | Service discovery |
-| REZ-graphql-federation | Service federation |
-| All Industry OS | Service registration |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Basic health |
+| GET | `/api/health/services` | Service health |
+| GET | `/api/stats` | Statistics |
 
 ---
 
-## Performance Metrics
+## Integration
+
+### Connected Industry OS
+
+| Industry | Service | Port | Digital Twins |
+|----------|---------|------|---------------|
+| Hospitality | restaurant-os | 5010 | Menu, Order, Kitchen, Table, Customer |
+| Healthcare | healthcare-os | 5020 | Patient, Doctor, Appointment, Prescription |
+| Hospitality | hotel-os | 5025 | Room, Booking, Guest, Service, Revenue |
+| Retail | retail-os | 5030 | Product, Inventory, Customer, Cart, Supplier |
+| Legal | legal-os | 5035 | Client, Case, Lawyer, Document, Invoice |
+| Hospitality | hospitality-os | 5050 | Establishment, Staff, Customer, Transaction, Event |
+| Education | education-os | 5060 | Course, Student, Instructor, Enrollment |
+| Automotive | automotive-os | 5080 | Vehicle, Customer, Service, Appointment |
+| Beauty | beauty-os | 5090 | Client, Service, Staff, Appointment, Product |
+| Energy | energy-os | 5100 | Meter, Reading, Consumption, Billing |
+| Fitness | fitness-os | 5110 | Member, Trainer, Class, Membership, Attendance |
+| Manufacturing | manufacturing-os | 5150 | Product, Order, Machine, Material, Worker, Quality |
+| Real Estate | realestate-os | 5230 | Property, Listing, Lead, Agent, Viewing, Offer |
+| Media | media-os | 5600 | Content, Creator, Analytics, Subscription |
+
+### Integration Hub
+
+| Service | Port | Role |
+|---------|------|------|
+| REZ-event-bus | 4510 | Pub/Sub event messaging |
+| REZ-graphql-federation | 4000 | Unified GraphQL API |
+
+---
+
+## Statistics
 
 | Metric | Value |
 |--------|-------|
-| Response Time | < 50ms |
-| Max Services | 1000 |
-| Heartbeat Interval | 30 seconds |
-| Cleanup Interval | 60 seconds |
+| Registered Services | 19 |
+| Active Services | 19 |
+| Total Messages | 0 |
+| Active Subscriptions | 0 |
 
 ---
 
-## Error Handling
-
-| Error | Response | Handling |
-|-------|----------|----------|
-| Missing name | 400 Bad Request | Validation |
-| Missing port | 400 Bad Request | Validation |
-| Missing industry | 400 Bad Request | Validation |
-| Service not found | 404 Not Found | Error response |
-| Duplicate service | 409 Conflict | Update existing |
-
----
-
-*Last Updated: June 17, 2026*
+*Last Updated: June 15, 2026*
+*REZ-ecosystem-connector - Service Registry & Discovery*

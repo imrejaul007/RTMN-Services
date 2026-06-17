@@ -1,7 +1,9 @@
 # REZ-event-bus - Features
 
 **Version:** 1.0.0  
-**Last Updated:** June 17, 2026
+**Last Updated:** June 15, 2026  
+**Port:** 4510  
+**Status:** ✅ RUNNING
 
 ---
 
@@ -11,176 +13,164 @@
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **Publish Event** | Publish events to the bus | ✅ |
-| **Schema Validation** | Validate event structure | ✅ |
-| **Auto-timestamping** | Add timestamp to events | ✅ |
-| **UUID Generation** | Auto-generate event IDs | ✅ |
-| **Correlation IDs** | Track related events | ✅ |
-| **Metadata Support** | Attach additional metadata | ✅ |
+| Publish Events | Publish events with full metadata | ✅ |
+| Event Validation | Validate against schema | ✅ |
+| Correlation ID | Track related events | ✅ |
+| Source Tracking | Track event source | ✅ |
+| Timestamps | Event timestamps | ✅ |
+| Event Types | Multiple event types | ✅ |
 
-### 2. Event Storage
-
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **In-Memory Store** | Store events in memory | ✅ |
-| **Type Indexing** | Index by event type | ✅ |
-| **Timestamp Index** | Index by timestamp | ✅ |
-| **Event Limit** | Max 10,000 events | ✅ |
-| **Auto-cleanup** | Remove old events | ✅ |
-| **Retention Period** | 24-hour retention | ✅ |
-
-### 3. Pub/Sub System
+### 2. Event Subscriptions
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| **Pattern Matching** | Wildcard patterns (order.*) | ✅ |
-| **Subscription Management** | Create/remove subscriptions | ✅ |
-| **Webhook Delivery** | HTTP callback delivery | ✅ |
-| **Retry Logic** | Exponential backoff retries | ✅ |
-| **Dead Letter Queue** | Failed event handling | ✅ |
+| Subscribe by Type | Subscribe to specific event types | ✅ |
+| Pattern Matching | Wildcard patterns (e.g., `order.*`) | ✅ |
+| Multiple Subscribers | Multiple subscribers per event | ✅ |
+| Callback URL | HTTP callback delivery | ✅ |
+| Unsubscribe | Remove subscriptions | ✅ |
+| Subscription List | List active subscriptions | ✅ |
 
-### 4. Event Types (29 Schemas)
+### 3. Schema Registry
 
-#### Order Events
-| Event | Description | Schema Fields |
-|-------|-------------|---------------|
-| `order.created` | New order placed | orderId, customerId, items, total |
-| `order.updated` | Order modified | orderId, changes |
-| `order.cancelled` | Order cancelled | orderId, reason |
-| `order.completed` | Order fulfilled | orderId, completionTime |
-| `order.paid` | Payment received | orderId, paymentId, amount |
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Schema Storage | Store event schemas | ✅ |
+| Schema Validation | Validate events against schemas | ✅ |
+| Schema Listing | List all registered schemas | ✅ |
+| Schema Types | 29+ schema types | ✅ |
 
-#### Customer Events
-| Event | Description | Schema Fields |
-|-------|-------------|---------------|
-| `customer.created` | New customer | customerId, name, email |
-| `customer.updated` | Customer updated | customerId, changes |
-| `customer.loyalty` | Loyalty update | customerId, points, tier |
+### 4. Event Types
 
-#### Inventory Events
-| Event | Description | Schema Fields |
-|-------|-------------|---------------|
-| `inventory.low` | Stock below threshold | itemId, currentStock, threshold |
-| `inventory.updated` | Stock changed | itemId, oldQty, newQty |
-| `inventory.reordered` | Auto-reorder | itemId, orderId |
+| Category | Event Types |
+|----------|-------------|
+| Restaurant | order.created, order.updated, order.cancelled |
+| Hotel | booking.created, booking.cancelled, guest.arrived |
+| Healthcare | appointment.scheduled, patient.admitted |
+| Retail | inventory.low, order.placed |
+| Legal | case.opened, document.signed |
+| Education | student.enrolled, course.completed |
+| Foundation | memory.created, goal.achieved, agent.karma |
 
-#### Booking Events
-| Event | Description | Schema Fields |
-|-------|-------------|---------------|
-| `booking.created` | New booking | bookingId, date, service |
-| `booking.cancelled` | Booking cancelled | bookingId, reason |
-| `booking.reminder` | Reminder sent | bookingId, reminderTime |
+### 5. Event Bus Features
 
-#### Industry-Specific Events
-| Industry | Events |
-|----------|--------|
-| Restaurant | `restaurant.order.created`, `restaurant.order.completed` |
-| Hotel | `hotel.booking.created`, `hotel.checkin`, `hotel.checkout` |
-| Healthcare | `healthcare.appointment.*`, `healthcare.prescription.*` |
-| Retail | `retail.cart.*`, `retail.checkout.*` |
-| Legal | `legal.case.*`, `legal.document.*` |
-| Education | `education.enrollment.*`, `education.grade.*` |
-| Fitness | `fitness.attendance.*`, `fitness.membership.*` |
-| Manufacturing | `manufacturing.production.*`, `manufacturing.quality.*` |
-| Real Estate | `realestate.inquiry.*`, `realestate.viewing.*` |
-| Beauty | `beauty.appointment.*`, `beauty.service.*` |
-| Automotive | `automotive.service.*`, `automotive.recall.*` |
-| Energy | `energy.consumption.*`, `energy.billing.*` |
-| Media | `media.content.*`, `media.view.*` |
+| Feature | Description | Status |
+|---------|-------------|--------|
+| In-Memory Store | Fast event storage | ✅ |
+| MongoDB Persistence | Persistent storage | ✅ |
+| Event Retrieval | Query events by type, source | ✅ |
+| Event Statistics | Event counts and metrics | ✅ |
+| Health Checks | 3-tier health (basic, ready, live) | ✅ |
 
 ---
 
-## API Features
+## API Endpoints
 
-### Event Publishing
+### Events
 
-- **POST /api/events**
-- Validates event schema
-- Generates UUID and timestamp
-- Stores in event store
-- Triggers matching subscriptions
-- Returns event with ID
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/events` | Publish event |
+| GET | `/events` | List events |
+| GET | `/events/:id` | Get event by ID |
+| GET | `/events/type/:type` | Get by type |
+| GET | `/events/source/:source` | Get by source |
 
-### Event Retrieval
+### Subscriptions
 
-- **GET /api/events**
-- Query parameters: `type`, `source`, `since`, `limit`
-- Paginated results
-- Sorted by timestamp (newest first)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/subscriptions` | Create subscription |
+| GET | `/subscriptions` | List subscriptions |
+| GET | `/subscriptions/:id` | Get subscription |
+| DELETE | `/subscriptions/:id` | Delete subscription |
 
-### Subscription Management
+### Schemas
 
-- **POST /api/subscriptions**
-- Pattern-based matching
-- Webhook callback URL
-- Headers for authentication
-- Retry configuration
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/schemas` | List schemas |
+| GET | `/schemas/:name` | Get schema |
+| POST | `/schemas` | Register schema |
 
-### Statistics
+### Event Types
 
-- **GET /api/stats**
-- Total events
-- Events by type
-- Active subscriptions
-- Delivery success rate
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/event-types` | List event types |
+| GET | `/event-types/:type` | Get type details |
 
----
+### Health
 
-## Integration Points
-
-### Publishers
-
-| Service | Events Published |
-|---------|-----------------|
-| REZ-ecosystem-connector | `service.*` |
-| Restaurant OS | `restaurant.order.*` |
-| Hotel OS | `hotel.booking.*` |
-| Healthcare OS | `healthcare.appointment.*` |
-| All Industry OS | `*.created`, `*.updated`, `*.deleted` |
-
-### Subscribers
-
-| Service | Patterns Subscribed |
-|---------|---------------------|
-| REZ-ecosystem-connector | `service.*` |
-| Monitoring | `*.error`, `*.warning` |
-| Analytics | `order.*`, `booking.*` |
-| Notification | `*.reminder`, `*.alert` |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Basic health |
+| GET | `/health/ready` | Readiness |
+| GET | `/health/live` | Liveness |
 
 ---
 
-## Performance Metrics
+## Event Schema Example
+
+```json
+{
+  "type": "restaurant.order.created",
+  "payload": {
+    "orderId": "ORD-123",
+    "customerId": "CUST-456",
+    "items": [...],
+    "total": 99.99
+  },
+  "metadata": {
+    "source": "restaurant-os",
+    "correlationId": "corr-789",
+    "timestamp": "2026-06-15T18:00:00Z"
+  }
+}
+```
+
+---
+
+## Integration
+
+### Connected Services
+
+| Service | Port | Events Published |
+|---------|------|-----------------|
+| restaurant-os | 5010 | order.* |
+| hotel-os | 5025 | booking.* |
+| healthcare-os | 5020 | appointment.* |
+| retail-os | 5030 | inventory.*, order.* |
+| legal-os | 5035 | case.*, document.* |
+| goal-os | 4242 | goal.* |
+| memory-os | 4703 | memory.* |
+
+### Event Flow
+
+```
+  Publisher                    Event Bus                    Subscriber
+     │                           │                            │
+     │──POST /events───────────▶│                            │
+     │                           │                            │
+     │                           │──Validate schema───────────▶│
+     │                           │                            │
+     │                           │──Match subscription────────▶│
+     │                           │                            │
+     │◀──200 OK──────────────────│                            │
+     │                           │                            │
+```
+
+---
+
+## Statistics
 
 | Metric | Value |
 |--------|-------|
-| Event Throughput | 1000 events/sec |
-| Latency (publish) | < 10ms |
-| Latency (deliver) | < 100ms |
-| Max Subscribers | 500 |
-| Max Events Stored | 10,000 |
+| Total Schemas | 29 |
+| Active Subscriptions | 2 |
+| Event Types | Multiple |
 
 ---
 
-## Error Handling
-
-| Error | Handling |
-|-------|----------|
-| Invalid schema | 400 Bad Request |
-| Webhook timeout | Retry 3x with backoff |
-| Webhook failure | Dead letter queue |
-| Store full | Remove oldest events |
-
----
-
-## Security
-
-| Feature | Implementation |
-|---------|----------------|
-| CORS | Configured origins only |
-| Helmet | Security headers |
-| Rate Limiting | 100 req/min |
-| Webhook Auth | Custom headers support |
-
----
-
-*Last Updated: June 17, 2026*
+*Last Updated: June 15, 2026*
+*REZ-event-bus - Pub/Sub Event Messaging*

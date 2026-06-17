@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+  # PostgreSQL (for restopapa)
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: corpperks
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # CorpPerks Backend
+  corpperks-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4006:4006"
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/corpperks?authSource=admin
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/corpperks
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - mongodb
+      - postgres
+      - redis
+
+  # CorpPerks Intelligence
+  corpperks-intelligence:
+    build:
+      context: ./corpperks-intelligence
+      dockerfile: Dockerfile
+    ports:
+      - "4135:4135"
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+  # CorpPerks AI Agents
+  corpperks-ai-agents:
+    build:
+      context: ./ai-agents-service
+      dockerfile: Dockerfile
+    ports:
+      - "4136:4136"
+
+  # CorpPerks Twin Marketplace
+  corpperks-twin-marketplace:
+    build:
+      context: ./professional-twin-marketplace
+      dockerfile: Dockerfile
+    ports:
+      - "4150:4150"
+
+  # PeopleOS Frontend
+  peopleos:
+    build:
+      context: ./peopleos
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+
+  # TalentAI Frontend
+  talentai:
+    build:
+      context: ./talentai
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+
+volumes:
+  mongodb_data:
+  postgres_data:

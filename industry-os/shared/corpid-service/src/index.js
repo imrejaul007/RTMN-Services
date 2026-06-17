@@ -16,6 +16,7 @@ import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 import winston from 'winston';
 import Redis from 'ioredis';
+import crypto from 'crypto';
 
 import identityRoutes from './routes/identity.js';
 import trustRoutes from './routes/trust.js';
@@ -116,7 +117,6 @@ app.use((err, req, res, next) => {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
 
 let mongoose = null;
 let dbConnected = false;

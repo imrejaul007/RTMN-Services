@@ -9,7 +9,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from './utils/logger.js';
 import store from './utils/store.js';
-import { initSentry, getErrorHandler } from './utils/sentry.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,24 +20,12 @@ import proxyRoutes from './routes/proxy.js';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4399', 10);
 
-// Fail fast if JWT_SECRET is missing in production
-if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required in production');
-}
-
 // Trust proxy (Railway, Render, etc. all sit behind a proxy)
 app.set('trust proxy', 1);
 
-// Initialize Sentry error tracking (if SENTRY_DSN is configured)
-initSentry(app);
-
 // Security & utility middleware
 app.use(helmet());
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').filter(Boolean);
-app.use(cors({
-  origin: allowedOrigins?.length ? allowedOrigins : (process.env.NODE_ENV === 'production' ? false : true),
-  credentials: true
-}));
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || true, credentials: true }));
 app.use(compression());
 app.use(morgan('combined'));
 app.use(express.json({ limit: '1mb' }));
@@ -98,12 +85,8 @@ app.use((req, res, next) => {
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Error handler
-const sentryErrorHandler = getErrorHandler();
 app.use((err, req, res, next) => {
   logger.error('Unhandled error', { error: err.message, stack: err.stack, path: req.path });
-  if (sentryErrorHandler) {
-    return sentryErrorHandler(err, req, res, next);
-  }
   res.status(500).json({ error: 'Internal server error' });
 });
 

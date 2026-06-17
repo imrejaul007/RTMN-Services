@@ -1,117 +1,95 @@
-# REZ-ecosystem-connector - Service Registry & Discovery
+# REZ-ecosystem-connector
 
-**Version:** 1.0.0  
-**Port:** 4398  
-**Location:** `companies/RABTUL-Technologies/REZ-ecosystem-connector/`  
-**Status:** ✅ **RUNNING** | **June 17, 2026**
-
----
+**Service:** REZ Ecosystem Service Registry & Discovery  
+**Port:** 4399  
+**Status:** ✅ RUNNING
 
 ## Overview
 
-REZ-ecosystem-connector is the central service registry and discovery hub for the RTMN ecosystem. It maintains a live registry of all services, their health status, and provides service discovery capabilities.
+REZ-ecosystem-connector is the central service registry and discovery hub for the RTMN ecosystem. It provides:
+- Service registration and discovery
+- Health monitoring and heartbeats
+- Event subscriptions
+- Transaction management
+- Message routing
 
 ## Quick Start
 
 ```bash
-# Start the service
+cd companies/RABTUL-Technologies/REZ-ecosystem-connector
 npm install
 npm start
-
-# Health check
-curl http://localhost:4398/health
-
-# Register a service
-curl -X POST http://localhost:4398/api/services/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "my-service",
-    "port": 5000,
-    "industry": "retail",
-    "version": "1.0.0",
-    "status": "healthy"
-  }'
-
-# List all services
-curl http://localhost:4398/api/services
-
-# Get service by name
-curl http://localhost:4398/api/services/my-service
-
-# Get stats
-curl http://localhost:4398/api/stats
-
-# Heartbeat
-curl -X POST http://localhost:4398/api/heartbeat/my-service
 ```
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| GET | `/api/services` | List all registered services |
-| GET | `/api/services/:name` | Get service by name |
-| POST | `/api/services/register` | Register a new service |
-| POST | `/api/services/:name/heartbeat` | Send heartbeat |
-| DELETE | `/api/services/:name` | Unregister service |
-| GET | `/api/stats` | Get registry statistics |
+### Service Management
+- `POST /api/services` - Register a service
+- `GET /api/services` - List all services
+- `GET /api/services/:id` - Get service by ID
+- `GET /api/services/name/:name` - Get service by name
+- `PATCH /api/services/:id/status` - Update service status
+- `POST /api/services/:id/heartbeat` - Send heartbeat
+- `DELETE /api/services/:id` - Unregister service
 
-## Service Registration Schema
+### Messaging
+- `POST /api/messages` - Send message
+- `GET /api/messages/:id` - Get message
+- `GET /api/messages/correlation/:id` - Get by correlation ID
+- `GET /api/messages/service/:name` - Get by service name
 
-```json
-{
-  "name": "string (required)",
-  "port": "number (required)",
-  "industry": "string (required)",
-  "version": "string (optional)",
-  "status": "string (healthy|unhealthy|unknown)",
-  "url": "string (optional)",
-  "description": "string (optional)"
-}
-```
+### Subscriptions
+- `POST /api/subscriptions` - Create subscription
+- `GET /api/subscriptions` - List subscriptions
+- `DELETE /api/subscriptions/:id` - Delete subscription
+
+### Health
+- `GET /health` - Health check
+- `GET /api/health/services` - Service health
+- `GET /api/stats` - Statistics
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | 4398 | Service port |
-| `HOST` | 0.0.0.0 | Service host |
-
-## Dependencies
-
-- express: HTTP server
-- axios: HTTP client for health checks
-- cors: Cross-origin support
-- helmet: Security headers
+| PORT | 4399 | Service port |
+| LOG_LEVEL | info | Logging level |
 
 ## Connected Services
 
-This service is used by all Industry OS services for:
-- Service discovery
-- Health monitoring
-- Load balancing
-- Circuit breaker pattern
+Currently registered services (19):
+- Integration Connector (4399)
+- REZ Event Bus (4510)
+- GraphQL Federation (4000)
+- Goal OS (4242)
+- Memory OS (4703)
+- Restaurant OS (5010)
+- Healthcare OS (5020)
+- Hotel OS (5025)
+- Retail OS (5030)
+- Legal OS (5035)
+- Hospitality OS (5050)
+- Education OS (5060)
+- Automotive OS (5080)
+- Beauty OS (5090)
+- Energy OS (5100)
+- Fitness OS (5110)
+- Manufacturing OS (5150)
+- RealEstate OS (5230)
+- Media OS (5600)
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  REZ-ecosystem-connector                 │
-│                        (Port 4398)                       │
-├─────────────────────────────────────────────────────────┤
-│  Service Registry                                        │
-│  ├── Service Name → Service Info                        │
-│  ├── Health Status → Last heartbeat time                 │
-│  └── Industry → List of services                         │
-│                                                          │
-│  API Endpoints                                           │
-│  ├── /api/services - List/register services              │
-│  ├── /api/stats - Registry statistics                    │
-│  └── /health - Health check                             │
-└─────────────────────────────────────────────────────────┘
+                    ┌─────────────────────┐
+                    │ REZ-ecosystem-      │
+                    │ connector (4399)    │
+                    └──────────┬──────────┘
+                               │
+         ┌─────────────────────┼─────────────────────┐
+         │                     │                     │
+    ┌────▼────┐          ┌────▼────┐          ┌────▼────┐
+    │Services │          │Messages │          │Subs     │
+    │Registry │          │Router   │          │criptions│
+    └─────────┘          └─────────┘          └─────────┘
 ```
-
----
-
-*Last Updated: June 17, 2026*

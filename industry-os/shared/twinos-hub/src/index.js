@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -506,7 +507,6 @@ app.use((err, req, res, next) => {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
 
 let mongoose = null;
 let dbConnected = false;
@@ -599,9 +599,12 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`🔗 TwinOS Hub running on port ${PORT}`);
-  logger.info(`📊 Managing ${twinRegistry.size} digital twins`);
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`🔗 TwinOS Hub running on port ${PORT}`);
+    logger.info(`📊 Managing ${twinRegistry.size} digital twins`);
+  });
 });
 
 export default app;

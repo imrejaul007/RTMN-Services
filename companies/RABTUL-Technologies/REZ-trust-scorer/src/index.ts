@@ -1,21 +1,59 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import crypto from 'crypto';
 import { config } from './config';
 import { logger } from './utils/logger';
 import { requestLogger } from './middleware/requestLogger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { authMiddleware } from './middleware/auth';
+import { rateLimit } from './middleware/rateLimit';
 
 import trustRouter from './routes/trust';
 
 const app = express();
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
+
+// Request ID Tracing
+app.use((req: Request, res: Response, next) => {
+  const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+  (req as any).requestId = requestId;
+  res.setHeader('X-Request-ID', requestId);
+  next();
+});
+
+// Strict Security Headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'"],
+    },
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true },
+}));
+
+// Strict CORS
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? (origin, cb) => origin && ALLOWED_ORIGINS.includes(origin) ? cb(null, true) : cb(new Error('Not allowed'))
+    : '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-Internal-Token'],
+  maxAge: 86400,
+}));
 
 // Security & parsing middleware
-app.use(helmet());
-app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
+
+// Global rate limiting
+app.use(rateLimit({ windowMs: 60000, max: 100 }));
 
 // Root info
 app.get('/', (_req: Request, res: Response) => {
@@ -62,8 +100,8 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy', service: config.serviceName, port: config.port, timestamp: new Date().toISOString() });
 });
 
-// API routes
-app.use('/api/v1/trust', trustRouter);
+// API routes (require authentication)
+app.use('/api/v1/trust', authMiddleware, trustRouter);
 
 // 404 and error handling
 app.use(notFoundHandler);

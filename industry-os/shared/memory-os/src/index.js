@@ -10,6 +10,7 @@
  */
 
 import express from 'express';
+import crypto from 'crypto';
 import cors from 'cors';
 import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
@@ -100,7 +101,6 @@ app.use((err, req, res, next) => {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
 
 let mongoose = null;
 let dbConnected = false;
@@ -193,9 +193,12 @@ function requireAuth(req, res, next) {
 
 // ============= END AUTH + DATABASE =============
 
-app.listen(PORT, () => {
-  logger.info(`MemoryOS running on port ${PORT}`);
-  logger.info('Memory types:', Object.values(MEMORY_TYPES).join(', '));
+// Initialize database connection
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    logger.info(`MemoryOS running on port ${PORT}`);
+    logger.info('Memory types:', Object.values(MEMORY_TYPES).join(', '));
+  });
 });
 
 export { app, redis, MEMORY_TYPES };

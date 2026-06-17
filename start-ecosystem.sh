@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Services configuration
 declare -A SERVICES=(
-  ["4398"]="REZ-ecosystem-connector:Integration Connector"
+  ["4399"]="REZ-ecosystem-connector:Integration Connector"
   ["4510"]="REZ-event-bus:Event Bus"
   ["4000"]="REZ-graphql-federation:GraphQL Federation"
   ["4242"]="goal-os:Goal OS"
@@ -57,7 +57,7 @@ declare -A SERVICES=(
 
 # Service directories
 declare -A DIRS=(
-  ["4398"]="/Users/rejaulkarim/Documents/RTMN/companies/RABTUL-Technologies/REZ-ecosystem-connector"
+  ["4399"]="/Users/rejaulkarim/Documents/RTMN/companies/RABTUL-Technologies/REZ-ecosystem-connector"
   ["4510"]="/Users/rejaulkarim/Documents/RTMN/companies/RABTUL-Technologies/REZ-event-bus"
   ["4000"]="/Users/rejaulkarim/Documents/RTMN/companies/RABTUL-Technologies/REZ-graphql-federation"
   ["4242"]="/Users/rejaulkarim/Documents/RTMN/goal-os"
@@ -160,9 +160,9 @@ echo ""
 echo "=========================================="
 echo "Registry Status"
 echo "=========================================="
-curl -s http://localhost:4398/api/services 2>/dev/null | jq '.services | length' 2>/dev/null | xargs -I{} echo "Registered services: {}"
+curl -s http://localhost:4399/api/services 2>/dev/null | jq '.services | length' 2>/dev/null | xargs -I{} echo "Registered services: {}"
 echo ""
-echo "Integration Connector: http://localhost:4398/api/services"
+echo "Integration Connector: http://localhost:4399/api/services"
 echo "GraphQL Federation: http://localhost:4000/graphql"
 echo "Event Bus: http://localhost:4510/health"
 echo ""

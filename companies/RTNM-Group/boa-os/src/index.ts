@@ -6,6 +6,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from './config';
 import { logger } from './utils/logger';
@@ -32,10 +33,43 @@ const START_TIME = Date.now();
 // ============================================================================
 // Middleware
 // ============================================================================
-app.use(helmet());
-app.use(cors());
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
+
+// Strict Security Headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'"],
+    },
+  },
+  hsts: { maxAge: 31536000, includeSubDomains: true },
+}));
+
+// Strict CORS
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? (origin, cb) => origin && ALLOWED_ORIGINS.includes(origin) ? cb(null, true) : cb(new Error('Not allowed'))
+    : '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-Internal-Token'],
+  maxAge: 86400,
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
+
+// Request ID Tracing
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+  (req as any).requestId = requestId;
+  res.setHeader('X-Request-ID', requestId);
+  next();
+});
 
 // Global rate limiting
 app.use(apiRateLimit);

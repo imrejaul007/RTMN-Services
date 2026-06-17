@@ -148,7 +148,7 @@ const RTMN_SERVICES = {
   // Storage
   fileStorage: process.env.STORAGE_URL || 'http://localhost:4050',
   // Ecosystem
-  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4398',
+  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4399',
   
   // Layer 5: Workforce (CorpPerks - 43 services)
   corpPerks: process.env.CORPPERKS_URL || 'http://localhost:4450',
@@ -244,7 +244,6 @@ const RTMN_SERVICES = {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
 
 let mongoose = null;
 let dbConnected = false;
@@ -412,7 +411,7 @@ app.post('/api/menu', requireAuth, (req, res) => {
 });
 
 // Order Processing
-app.post('/api/orders', requireAuth, (req, res) => {
+app.post('/api/orders', (req, res) => {
   const { tableId, items, orderType = 'dine-in', notes = '' } = req.body;
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const tax = Math.round(subtotal * 0.08);
@@ -506,7 +505,7 @@ app.patch('/api/kitchen/:orderId', requireAuth, (req, res) => {
 });
 
 // Analytics
-app.get('/api/analytics', requireAuth, (req, res) => {
+app.get('/api/analytics', (req, res) => {
   const orderList = Array.from(orders.values());
   const today = new Date().toISOString().split('T')[0];
   const todayOrders = orderList.filter(o => o.createdAt.startsWith(today));
@@ -525,7 +524,7 @@ app.get('/api/analytics', requireAuth, (req, res) => {
 // LAYER 1: INTELLIGENCE (HOJAI AI - 153 services)
 // ============================================
 
-app.get('/api/layer/intelligence', requireAuth, async (req, res) => {
+app.get('/api/layer/intelligence', async (req, res) => {
   try {
     const [genieRes, copilotRes, agentsRes] = await Promise.allSettled([
       fetch(RTMN_SERVICES.genie + '/health'),
@@ -612,7 +611,7 @@ app.get('/api/ai/copilot', requireAuth, async (req, res) => {
 // LAYER 2: CUSTOMER GROWTH (AdBazaar + REZ Consumer + Axom)
 // ============================================
 
-app.get('/api/layer/customer-growth', requireAuth, async (req, res) => {
+app.get('/api/layer/customer-growth', async (req, res) => {
   try {
     const [crmRes, loyaltyRes, adsRes] = await Promise.allSettled([
       fetch(RTMN_SERVICES.crmHub + '/api/health'),
@@ -943,7 +942,7 @@ app.get('/api/audience/targets', requireAuth, async (req, res) => {
 
 app.get('/api/intent/signals', requireAuth, async (req, res) => {
   try {
-    const intentRes = await fetch(RTMMN_SERVICES.intentExchange + '/api/signals');
+    const intentRes = await fetch(RTMN_SERVICES.intentExchange + '/api/signals');
     res.json(await intentRes.json());
   } catch (err) {
     res.json({ error: 'Intent exchange unavailable' });
@@ -954,7 +953,7 @@ app.get('/api/intent/signals', requireAuth, async (req, res) => {
 // LAYER 3: COMMERCE (Nexha)
 // ============================================
 
-app.get('/api/layer/commerce', requireAuth, async (req, res) => {
+app.get('/api/layer/commerce', async (req, res) => {
   try {
     const nexhaRes = await fetch(RTMN_SERVICES.nexha + '/health');
     const nexha = await nexhaRes.json();
@@ -1092,7 +1091,7 @@ app.post('/api/procure/ingredients', requireAuth, async (req, res) => {
 // LAYER 4: FINANCIAL (RABTUL - 112 services)
 // ============================================
 
-app.get('/api/layer/finance', requireAuth, async (req, res) => {
+app.get('/api/layer/finance', async (req, res) => {
   try {
     const [walletRes, authRes] = await Promise.allSettled([
       fetch(RTMN_SERVICES.wallet + '/health'),
@@ -1178,7 +1177,7 @@ app.post('/api/finance/payment', requireAuth, async (req, res) => {
 // LAYER 5: WORKFORCE (CorpPerks - 43 services)
 // ============================================
 
-app.get('/api/layer/workforce', requireAuth, async (req, res) => {
+app.get('/api/layer/workforce', async (req, res) => {
   try {
     const corpRes = await fetch(RTMN_SERVICES.corpPerks + '/health');
 
@@ -1220,7 +1219,7 @@ app.get('/api/layer/workforce', requireAuth, async (req, res) => {
 // LAYER 6: LEGAL & TRUST (LawGens - 4 services)
 // ============================================
 
-app.get('/api/layer/legal', requireAuth, async (req, res) => {
+app.get('/api/layer/legal', async (req, res) => {
   try {
     const [legalRes, trustRes] = await Promise.allSettled([
       fetch(RTMN_SERVICES.legal + '/health'),
@@ -1247,7 +1246,7 @@ app.get('/api/layer/legal', requireAuth, async (req, res) => {
 // LAYER 7: PROPERTY (RisnaEstate + StayOwn)
 // ============================================
 
-app.get('/api/layer/property', requireAuth, async (req, res) => {
+app.get('/api/layer/property', async (req, res) => {
   try {
     const [risnaRes, stayRes] = await Promise.allSettled([
       fetch(RTMN_SERVICES.risnaEstate + '/health'),
@@ -1281,7 +1280,7 @@ app.get('/api/layer/property', requireAuth, async (req, res) => {
 // LAYER 8: HEALTH (RisaCare - 31 services)
 // ============================================
 
-app.get('/api/layer/health', requireAuth, async (req, res) => {
+app.get('/api/layer/health', async (req, res) => {
   try {
     const risaRes = await fetch(RTMN_SERVICES.risaCare + '/health');
 
@@ -1307,7 +1306,7 @@ app.get('/api/layer/health', requireAuth, async (req, res) => {
 // LAYER 9: MOBILITY (KHAIRMOVE - 19 services)
 // ============================================
 
-app.get('/api/layer/mobility', requireAuth, async (req, res) => {
+app.get('/api/layer/mobility', async (req, res) => {
   try {
     const khairRes = await fetch(RTMN_SERVICES.khairMove + '/health');
 
@@ -1333,7 +1332,7 @@ app.get('/api/layer/mobility', requireAuth, async (req, res) => {
 // LAYER 10: IDENTITY
 // ============================================
 
-app.get('/api/layer/identity', requireAuth, async (req, res) => {
+app.get('/api/layer/identity', async (req, res) => {
   try {
     const corpidRes = await fetch(RTMN_SERVICES.corpid + '/health');
     const corpid = await corpidRes.json();
@@ -1353,7 +1352,7 @@ app.get('/api/layer/identity', requireAuth, async (req, res) => {
 // LAYER 11: MEMORY
 // ============================================
 
-app.get('/api/layer/memory', requireAuth, async (req, res) => {
+app.get('/api/layer/memory', async (req, res) => {
   try {
     const memoryRes = await fetch(RTMN_SERVICES.memory + '/health');
     const memory = await memoryRes.json();
@@ -1373,7 +1372,7 @@ app.get('/api/layer/memory', requireAuth, async (req, res) => {
 // LAYER 12: TWINS
 // ============================================
 
-app.get('/api/layer/twins', requireAuth, async (req, res) => {
+app.get('/api/layer/twins', async (req, res) => {
   try {
     const twinRes = await fetch(RTMN_SERVICES.twinos + '/health');
     const twin = await twinRes.json();
@@ -1417,7 +1416,7 @@ app.post('/api/twins/sync', requireAuth, async (req, res) => {
 // LAYER 13: AUTOMATION (FlowOS)
 // ============================================
 
-app.get('/api/layer/automation', requireAuth, async (req, res) => {
+app.get('/api/layer/automation', async (req, res) => {
   try {
     const flowRes = await fetch(RTMN_SERVICES.flow + '/health');
     const flow = await flowRes.json();
@@ -1479,7 +1478,7 @@ app.get('/api/automation/workflows', requireAuth, async (req, res) => {
 // LAYER 14: AUTONOMOUS (SUTAR OS)
 // ============================================
 
-app.get('/api/layer/autonomous', requireAuth, async (req, res) => {
+app.get('/api/layer/autonomous', async (req, res) => {
   try {
     const [sutarRes, goalRes, decisionRes] = await Promise.allSettled([
       fetch(RTMN_SERVICES.sutar + '/health'),
@@ -1521,7 +1520,7 @@ app.post('/api/autonomous/goal', requireAuth, async (req, res) => {
 // LAYER 15: CONSUMER NETWORK
 // ============================================
 
-app.get('/api/layer/network', requireAuth, async (req, res) => {
+app.get('/api/layer/network', async (req, res) => {
   try {
     const consumerRes = await fetch(RTMN_SERVICES.rezConsumer + '/health');
     const consumer = await consumerRes.json();

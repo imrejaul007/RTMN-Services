@@ -13,7 +13,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 
 const app = express();
-const PORT = process.env.PORT || 5010;
+const PORT = process.env.PORT || 5140;
 
 // Middleware
 app.use(helmet());
@@ -148,7 +148,7 @@ const RTMN_SERVICES = {
   // Storage
   fileStorage: process.env.STORAGE_URL || 'http://localhost:4050',
   // Ecosystem
-  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4398',
+  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4399',
   
   // Layer 5: Workforce (CorpPerks - 43 services)
   corpPerks: process.env.CORPPERKS_URL || 'http://localhost:4450',
@@ -244,7 +244,6 @@ const RTMN_SERVICES = {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
 
 let mongoose = null;
 let dbConnected = false;
@@ -943,7 +942,7 @@ app.get('/api/audience/targets', requireAuth, async (req, res) => {
 
 app.get('/api/intent/signals', requireAuth, async (req, res) => {
   try {
-    const intentRes = await fetch(RTMMN_SERVICES.intentExchange + '/api/signals');
+    const intentRes = await fetch(RTMN_SERVICES.intentExchange + '/api/signals');
     res.json(await intentRes.json());
   } catch (err) {
     res.json({ error: 'Intent exchange unavailable' });

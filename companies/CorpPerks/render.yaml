@@ -1,0 +1,176 @@
+# CorpPerks Deployment Blueprint for Render
+# Render Blueprint Specification
+
+services:
+  # ===========================================
+  # CORE SERVICES
+  # ===========================================
+
+  # CorpPerks Hub - Main API Gateway
+  - name: corpperks-hub
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/backend
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4006
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "https://corpperks.app,https://admin.corpperks.app"
+
+  # CorpPerks Intelligence - AI Workforce Platform
+  - name: corpperks-intelligence
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/corpperks-intelligence
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4135
+      - key: JWT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  # CorpPerks AI Agents Service
+  - name: corpperks-ai-agents
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/ai-agents-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4136
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # CorpPerks Professional Twin Marketplace
+  - name: corpperks-twin-marketplace
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/professional-twin-marketplace
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4150
+
+  # CorpPerks Payroll Service
+  - name: corpperks-payroll
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/payroll-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4007
+      - key: MONGODB_URI
+        sync: false
+
+  # CorpPerks Shift Service
+  - name: corpperks-shifts
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/shift-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4010
+      - key: MONGODB_URI
+        sync: false
+
+  # CorpPerks Meeting Service
+  - name: corpperks-meetings
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/meeting-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4013
+      - key: MONGODB_URI
+        sync: false
+
+  # CorpPerks Corporate Service (HRIS Hub)
+  - name: corpperks-corporate
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/rez-corporate-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4030
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: BAMBOOHR_API_KEY
+        sync: false
+      - key: GREYTHR_API_KEY
+        sync: false
+      - key: ZOHO_HR_API_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+
+  # ===========================================
+  # RESTOPAPA - Restaurant SaaS (NestJS)
+  # ===========================================
+
+  - name: corpperks-restopapa
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/restopapa/backend
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: "https://corpperks.app"
