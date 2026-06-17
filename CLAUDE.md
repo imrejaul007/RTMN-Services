@@ -278,6 +278,7 @@ render blueprint apply render.yaml
 | **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API |
 | **Goal OS** | 4242 | ✅ Running | Autonomous Goals |
 | **Memory OS** | 4703 | ✅ Running | Personal AI Memory |
+| **Sales OS** | 5055 | ✅ Running | Unified Sales Intelligence (CRM, Leads, Pipeline, Copilots, SUTAR) |
 | **Restaurant OS** | 5010 | ✅ Running | Restaurant management |
 | **Healthcare OS** | 5020 | ✅ Running | Healthcare management |
 | **Hotel OS** | 5025 | ✅ Running | Hotel management |
@@ -292,6 +293,50 @@ render blueprint apply render.yaml
 | **Manufacturing OS** | 5150 | ✅ Running | Manufacturing management |
 | **RealEstate OS** | 5230 | ✅ Running | Real estate management |
 | **Media OS** | 5600 | ✅ Running | Media management |
+
+---
+
+## 🏨 Hotel Ecosystem - RTMN-OS + REZ-Merchant + StayOwn
+
+**Complete hotel operations platform** connecting three major systems into one unified ecosystem.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                         HOTEL ECOSYSTEM                                              │
+│                                                                                      │
+│  ┌───────────────────────────────────────────────────────────────────────────────┐   │
+│  │              HOTEL ECOSYSTEM GATEWAY (4950) - NEW!                           │   │
+│  │   Single entry point for all hotel operations                                 │   │
+│  │   - Aggregates data from all 3 systems                                        │   │
+│  │   - Publishes events to Event Bus                                             │   │
+│  └──────────────────────────────────┬────────────────────────────────────────────┘   │
+│                                     │                                                │
+│        ┌────────────────────────────┼────────────────────────────┐                  │
+│        │                            │                            │                   │
+│   ┌────▼────┐               ┌───────▼───────┐              ┌────▼────┐            │
+│   │ RTMN-OS │               │ REZ-Merchant  │              │ StayOwn │            │
+│   │ Hotel   │               │ Mind Hotel    │              │ OTA     │            │
+│   │  OS     │◄────────────►│   (4017)      │◄────────────►│ Platform│            │
+│   │ (5025)  │               │               │              │(3000-3003)           │
+│   └─────────┘               └───────────────┘              └─────────┘            │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Connected Systems & Ports
+
+| System | Service | Port | Purpose |
+|--------|---------|------|---------|
+| **RTMN-OS** | Hotel OS | 5025 | PMS Core, AI Agents |
+| **RTMN-OS** | Cross-Ecosystem Bridge | 4898 | Unified customer view |
+| **RTMN-OS** | Event Bus | 4510 | Pub/Sub messaging |
+| **REZ-Merchant** | REZ Mind Hotel | 4017 | AI Intelligence |
+| **StayOwn** | API Server | 3000 | OTA Backend (34 routes) |
+| **StayOwn** | OTA Web | 3003 | Guest booking |
+| **NEW** | Hotel Ecosystem Gateway | 4950 | Unified API gateway |
+
+---
 
 ### Management Scripts
 
@@ -424,6 +469,7 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 | 22 | Financial | Financial OS | 5220 | Account, Transaction |
 | 23 | Real Estate | RealEstate OS | 5230 | Property, Listing, Lead, Agent |
 | 24 | Transport | Transport OS | 5240 | Vehicle, Driver, Rider |
+| **25** | **Sales** | **Sales OS** | **5055** | **Leads, Deals, Pipeline, CRM, AI Copilots, SUTAR** |
 
 ---
 
@@ -535,6 +581,38 @@ GET /api/layers               # All 15 layers
 |---------|---------|
 | database | Prisma schema (60+ models) |
 | merchant-sdk | Hotel integration SDK |
+
+### Hotel Ecosystem Gateway
+
+**Location:** `services/hotel-ecosystem-gateway/`  
+**Port:** 4950  
+**Status:** ✅ NEW - Unified Hotel API Gateway
+
+The Hotel Ecosystem Gateway connects RTMN-OS, REZ-Merchant, and StayOwn into a single unified API:
+
+```
+RTMN-OS ──────┐
+REZ-Merchant ──┼──► HOTEL ECOSYSTEM GATEWAY (4950)
+StayOwn ───────┘
+```
+
+| Route Prefix | Purpose |
+|--------------|---------|
+| `/api/hotels` | Hotel search, details, availability |
+| `/api/bookings` | Create, manage, check-in/out |
+| `/api/guests` | Guest profiles, preferences, loyalty |
+| `/api/services` | Room service, housekeeping |
+| `/api/analytics` | Dashboard, RevPAR, predictions |
+| `/api/wallet` | Coins, payments |
+
+---
+
+### Industry Operating Systems
+
+| Service | Port | Purpose | Files |
+|---------|------|---------|-------|
+| restaurant-os | 5010 | Restaurant management | [industry-os/services/restaurant-os/](industry-os/services/restaurant-os/) |
+| hotel-os | 5025 | Hotel management | [industry-os/services/hotel-os/](industry-os/services/hotel-os/) |
 | healthcare-os | 5020 | Healthcare management | [industry-os/services/healthcare-os/](industry-os/services/healthcare-os/) |
 | retail-os | 5030 | Retail management | [industry-os/services/retail-os/](industry-os/services/retail-os/) |
 | legal-os | 5035 | Legal management | [industry-os/services/legal-os/](industry-os/services/legal-os/) |
@@ -648,7 +726,7 @@ curl http://localhost:4703/health   # MemoryOS
 | 4800-4899 | REZ-Merchant |
 | **4870-4895** | **Customer Support OS (18 services)** |
 | 4900-4999 | Industry-specific |
-| 5000-5240 | Industry OS (24) |
+| 5000-5240 | Industry OS (25 - now includes Sales OS) |
 
 ### Customer Support OS Ports
 
