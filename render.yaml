@@ -1255,3 +1255,109 @@ services:
         value: production
       - key: MONGODB_URI
         sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # FRAUD & COMPLIANCE (Port 4985-4986)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-fraud-detection
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/fraud-detection
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4985"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-compliance-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/compliance-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4986"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-webhook-manager
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/webhook-manager
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4987"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-analytics-dashboard
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/analytics-dashboard
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4988"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-ab-testing
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/ab-testing
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4989"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-feature-flags
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/feature-flags
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4990"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
