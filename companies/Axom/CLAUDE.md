@@ -204,6 +204,65 @@ cd cosmic-api && npm install && npm run build && npm start
 
 ---
 
+## Ecosystem Integration
+
+Axom connects to the full RTMN ecosystem:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         RTMN ECOSYSTEM                                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      AXOM PRODUCTS                                   │  │
+│  │  BuzzLocal │ Rendez │ Z-Events │ Cosmic-OS                       │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                    │                                     │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                   CONNECTED SERVICES                                │  │
+│  │  HOJAI AI │ AdBazaar │ REZ │ CorpPerks │ SUTAR OS             │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### HOJAI AI Integration (Port 4701-4799)
+
+| Service | Port | Purpose | Used By |
+|---------|------|---------|---------|
+| Genie Gateway | 4701 | AI orchestration | All Axom apps |
+| Genie Memory | 4703 | Personal memory | Rendez, BuzzLocal |
+| Genie Briefing | 4704 | Daily briefings | All apps |
+| Genie Personal Twin | 4708 | User identity | All apps |
+| Genie Health Twin | 4717 | Health tracking | Cosmic-OS |
+| Genie Financial Twin | 4715 | Financial insights | All apps |
+
+### AdBazaar Integration (Port 5000-5099)
+
+| Service | Port | Purpose | Used By |
+|---------|------|---------|---------|
+| Ad Service | 5000 | Advertising | BuzzLocal |
+| Campaign Builder | 5001 | Ad campaigns | BuzzLocal |
+| Attribution | 5002 | Ad tracking | BuzzLocal |
+
+### REZ Ecosystem Integration (Port 4000-4099)
+
+| Service | Port | Purpose | Used By |
+|---------|------|---------|---------|
+| REZ Auth | 4002 | Authentication | All apps |
+| REZ Wallet | 4004 | Payments | Z-Events |
+| REZ Loyalty | 4040 | Rewards | BuzzLocal |
+| CorpID | 4300 | Identity | All apps |
+
+### SUTAR OS Integration (Port 4140-4259)
+
+| Service | Port | Purpose | Used By |
+|---------|------|---------|---------|
+| SUTAR Gateway | 4140 | Commerce | Z-Events |
+| SUTAR Escrow | 4149 | Payments | Z-Events |
+
+---
+
 ## Architecture
 
 ```

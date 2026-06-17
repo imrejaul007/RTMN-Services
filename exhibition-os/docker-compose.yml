@@ -1,0 +1,497 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # MONGODB
+  # ============================================
+  mongodb:
+    image: mongo:6.0
+    container_name: exhibition-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - exhibition-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # REDIS
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: exhibition-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - exhibition-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # GATEWAY (5040)
+  # ============================================
+  exhibition-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: exhibition-gateway
+    restart: unless-stopped
+    ports:
+      - "5040:5040"
+    environment:
+      - NODE_ENV=production
+      - PORT=5040
+      - EXHIBITION_ORGANIZER_URL=http://exhibition-organizer:5041
+      - EXHIBITION_EXHIBITOR_URL=http://exhibition-exhibitor:5042
+      - EXHIBITION_ATTENDEE_URL=http://exhibition-attendee:5043
+      - EXHIBITION_TWIN_URL=http://exhibition-twin:5044
+      - EXHIBITION_BADGE_URL=http://exhibition-badge:5045
+      - EXHIBITION_ANALYTICS_URL=http://exhibition-analytics:5046
+      - EXHIBITION_NOTIFICATION_URL=http://exhibition-notification:5047
+      - EXHIBITION_PAYMENT_URL=http://exhibition-payment:5048
+      - EXHIBITION_INTELLIGENCE_URL=http://exhibition-intelligence:5049
+      - EXHIBITION_ECONOMY_URL=http://exhibition-economy:5050
+      - EXHIBITION_MARKETPLACE_URL=http://exhibition-marketplace:5051
+      - EXHIBITION_NETWORKING_URL=http://exhibition-networking:5052
+      - EXHIBITION_APPOINTMENT_URL=http://exhibition-appointment:5053
+      - EXHIBITION_PASSPORT_URL=http://exhibition-passport:5054
+      - EXHIBITION_SPONSOR_URL=http://exhibition-sponsor:5055
+      - EXHIBITION_VENUE_OPS_URL=http://exhibition-venue-ops:5056
+      - EXHIBITION_STAFF_URL=http://exhibition-staff:5057
+      - EXHIBITION_CRM_URL=http://exhibition-crm:5058
+      - EXHIBITION_DOCUMENT_URL=http://exhibition-document:5059
+      - EXHIBITION_INTEGRATION_URL=http://exhibition-integration:5060
+      - EXHIBITION_FLOOR_URL=http://exhibition-floor:5061
+      - HOJAI_EVENT_URL=http://host.docker.internal:4510
+      - GENIE_GATEWAY_URL=http://host.docker.internal:4701
+    depends_on:
+      - redis
+    networks:
+      - exhibition-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5040/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # CORE SERVICES (5041-5045)
+  # ============================================
+  exhibition-organizer:
+    build:
+      context: ../packages/exhibition-organizer-service
+      dockerfile: Dockerfile
+    container_name: exhibition-organizer
+    restart: unless-stopped
+    ports:
+      - "5041:5041"
+    environment:
+      - NODE_ENV=production
+      - PORT=5041
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_organizer
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - exhibition-network
+
+  exhibition-exhibitor:
+    build:
+      context: ../packages/exhibition-exhibitor-service
+      dockerfile: Dockerfile
+    container_name: exhibition-exhibitor
+    restart: unless-stopped
+    ports:
+      - "5042:5042"
+    environment:
+      - NODE_ENV=production
+      - PORT=5042
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_exhibitor
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - exhibition-network
+
+  exhibition-attendee:
+    build:
+      context: ../packages/exhibition-attendee-service
+      dockerfile: Dockerfile
+    container_name: exhibition-attendee
+    restart: unless-stopped
+    ports:
+      - "5043:5043"
+    environment:
+      - NODE_ENV=production
+      - PORT=5043
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_attendee
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - exhibition-network
+
+  exhibition-twin:
+    build:
+      context: ../packages/exhibition-twin-service
+      dockerfile: Dockerfile
+    container_name: exhibition-twin
+    restart: unless-stopped
+    ports:
+      - "5044:5044"
+    environment:
+      - NODE_ENV=production
+      - PORT=5044
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_twin
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-badge:
+    build:
+      context: ../packages/exhibition-badge-service
+      dockerfile: Dockerfile
+    container_name: exhibition-badge
+    restart: unless-stopped
+    ports:
+      - "5045:5045"
+    environment:
+      - NODE_ENV=production
+      - PORT=5045
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_badge
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  # ============================================
+  # ANALYTICS & NOTIFICATION (5046-5048)
+  # ============================================
+  exhibition-analytics:
+    build:
+      context: ../packages/exhibition-analytics-service
+      dockerfile: Dockerfile
+    container_name: exhibition-analytics
+    restart: unless-stopped
+    ports:
+      - "5046:5046"
+    environment:
+      - NODE_ENV=production
+      - PORT=5046
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_analytics
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - exhibition-network
+
+  exhibition-notification:
+    build:
+      context: ../packages/exhibition-notification-service
+      dockerfile: Dockerfile
+    container_name: exhibition-notification
+    restart: unless-stopped
+    ports:
+      - "5047:5047"
+    environment:
+      - NODE_ENV=production
+      - PORT=5047
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_notification
+      - WHATSAPP_API_URL=http://host.docker.internal:4718
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-payment:
+    build:
+      context: ../packages/exhibition-payment-service
+      dockerfile: Dockerfile
+    container_name: exhibition-payment
+    restart: unless-stopped
+    ports:
+      - "5048:5048"
+    environment:
+      - NODE_ENV=production
+      - PORT=5048
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_payment
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - SUTAR_ESCROW_URL=http://host.docker.internal:4149
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  # ============================================
+  # INTELLIGENCE & ECONOMY (5049-5051)
+  # ============================================
+  exhibition-intelligence:
+    build:
+      context: ../packages/exhibition-intelligence-service
+      dockerfile: Dockerfile
+    container_name: exhibition-intelligence
+    restart: unless-stopped
+    ports:
+      - "5049:5049"
+    environment:
+      - NODE_ENV=production
+      - PORT=5049
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_intelligence
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GENIE_GATEWAY_URL=http://host.docker.internal:4701
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-economy:
+    build:
+      context: ../packages/exhibition-economy-service
+      dockerfile: Dockerfile
+    container_name: exhibition-economy
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      - NODE_ENV=production
+      - PORT=5050
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_economy
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - exhibition-network
+
+  exhibition-marketplace:
+    build:
+      context: ../packages/exhibition-marketplace-service
+      dockerfile: Dockerfile
+    container_name: exhibition-marketplace
+    restart: unless-stopped
+    ports:
+      - "5051:5051"
+    environment:
+      - NODE_ENV=production
+      - PORT=5051
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_marketplace
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  # ============================================
+  # COMMERCE SERVICES (5052-5054)
+  # ============================================
+  exhibition-networking:
+    build:
+      context: ../packages/exhibition-networking-service
+      dockerfile: Dockerfile
+    container_name: exhibition-networking
+    restart: unless-stopped
+    ports:
+      - "5052:5052"
+    environment:
+      - NODE_ENV=production
+      - PORT=5052
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_networking
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-appointment:
+    build:
+      context: ../packages/exhibition-appointment-service
+      dockerfile: Dockerfile
+    container_name: exhibition-appointment
+    restart: unless-stopped
+    ports:
+      - "5053:5053"
+    environment:
+      - NODE_ENV=production
+      - PORT=5053
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_appointment
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-passport:
+    build:
+      context: ../packages/exhibition-passport-service
+      dockerfile: Dockerfile
+    container_name: exhibition-passport
+    restart: unless-stopped
+    ports:
+      - "5054:5054"
+    environment:
+      - NODE_ENV=production
+      - PORT=5054
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_passport
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  # ============================================
+  # SUPPORT SERVICES (5055-5061)
+  # ============================================
+  exhibition-sponsor:
+    build:
+      context: ../packages/exhibition-sponsor-service
+      dockerfile: Dockerfile
+    container_name: exhibition-sponsor
+    restart: unless-stopped
+    ports:
+      - "5055:5055"
+    environment:
+      - NODE_ENV=production
+      - PORT=5055
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_sponsor
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-venue-ops:
+    build:
+      context: ../packages/exhibition-venue-ops-service
+      dockerfile: Dockerfile
+    container_name: exhibition-venue-ops
+    restart: unless-stopped
+    ports:
+      - "5056:5056"
+    environment:
+      - NODE_ENV=production
+      - PORT=5056
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_venue_ops
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-staff:
+    build:
+      context: ../packages/exhibition-staff-service
+      dockerfile: Dockerfile
+    container_name: exhibition-staff
+    restart: unless-stopped
+    ports:
+      - "5057:5057"
+    environment:
+      - NODE_ENV=production
+      - PORT=5057
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_staff
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-crm:
+    build:
+      context: ../packages/exhibition-crm-service
+      dockerfile: Dockerfile
+    container_name: exhibition-crm
+    restart: unless-stopped
+    ports:
+      - "5058:5058"
+    environment:
+      - NODE_ENV=production
+      - PORT=5058
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_crm
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-document:
+    build:
+      context: ../packages/exhibition-document-service
+      dockerfile: Dockerfile
+    container_name: exhibition-document
+    restart: unless-stopped
+    ports:
+      - "5059:5059"
+    environment:
+      - NODE_ENV=production
+      - PORT=5059
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_document
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-integration:
+    build:
+      context: ../packages/exhibition-integration-hub
+      dockerfile: Dockerfile
+    container_name: exhibition-integration
+    restart: unless-stopped
+    ports:
+      - "5060:5060"
+    environment:
+      - NODE_ENV=production
+      - PORT=5060
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_integration
+    depends_on:
+      - mongodb
+    networks:
+      - exhibition-network
+
+  exhibition-floor:
+    build:
+      context: ../packages/exhibition-floor-intelligence-service
+      dockerfile: Dockerfile
+    container_name: exhibition-floor
+    restart: unless-stopped
+    ports:
+      - "5061:5061"
+    environment:
+      - NODE_ENV=production
+      - PORT=5061
+      - MONGODB_URI=mongodb://mongodb:27017/exhibition_floor
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - exhibition-network
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  exhibition-network:
+    driver: bridge
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
