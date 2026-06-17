@@ -5955,15 +5955,203 @@ OFFER, CASHBACK, PERSONALIZATION, ROUTING, FRAUD, PRICING, NEXT_ACTION, RETENTIO
 ## CorpPerks - HR & Benefits Management
 
 **Location:** `companies/CorpPerks/`  
-**Status:** ✅ 100+ SERVICES
+**Status:** ✅ **PRODUCTION READY** | **50+ Services** | **AI Agents** | **3 Frontends** | **June 17, 2026**
 
-| Category | Features |
-|----------|----------|
-| Hiring | AI Screening, Interview Scheduling, Background Verification, Onboarding |
-| Payroll | Salary Processing, Variable Pay, Statutory Compliance (PF, ESI, TDS) |
-| Benefits | Health Insurance, Life Insurance, Meal Benefits, Transport |
-| Attendance | Time Tracking, Geo-fencing, Leave Management |
-| Performance | OKR, Continuous Feedback, 360-degree Reviews |
+### CorpPerks - Complete Feature List
+
+#### HR Management
+- Employee records with digital twin
+- Onboarding workflows with AI assistance
+- Document management
+- Org chart visualization
+- Employee directory with skills graph
+- Performance reviews (360°)
+- Succession planning
+
+#### Payroll Processing
+- Salary calculation with statutory compliance
+- Tax deductions (PF, ESI, TDS, GST)
+- Payslip generation
+- Direct deposit integration
+- Compliance reporting
+- Reimbursement processing
+- Salary advances
+
+#### Benefits Administration
+- Health insurance enrollment
+- Wellness programs
+- Retirement planning
+- Stock options management
+- Employee discounts (REZ-Merchant)
+- Corporate dining (Meal benefits)
+- Commuter benefits (KHAIRMOVE)
+
+#### Attendance & Leave
+- Time tracking with geo-fencing
+- Leave requests with AI approval workflow
+- Holiday calendar
+- Shift scheduling with swap requests
+- Attendance regularization
+- Overtime management
+- Work from home tracking
+
+#### Performance Management
+- OKR tracking (integrated with GoalOS)
+- Performance reviews with 360° feedback
+- Continuous feedback system
+- Career development planning
+- Succession planning
+- Goal decomposition
+
+#### Recruitment & Talent
+- Job posting management
+- Candidate screening (AI-powered)
+- Interview scheduling
+- Offer letter generation
+- Background verification
+- Talent pool management
+
+#### Communication & Collaboration
+- Meeting scheduling
+- 1-on-1 meetings
+- Team announcements
+- Document sharing
+- Video conferencing
+- Push notifications
+- WhatsApp notifications
+
+#### Analytics & Reporting
+- HR analytics dashboard
+- Employee trends
+- Attendance reports
+- Payroll reports
+- Custom report builder
+- AI-powered insights
+
+### CorpPerks - AI Agents (4136)
+
+| Agent | Capabilities |
+|-------|--------------|
+| **HR Assistant Agent** | Policy queries, leave requests, benefits info, payroll help |
+| **Recruiter Agent** | Job postings, candidate screening, interview scheduling |
+| **Onboarding Agent** | New hire tasks, document collection, training coordination |
+| **Compliance Agent** | Policy violations, audits, risk assessment |
+
+### CorpPerks - CorpPerks Intelligence (4135)
+
+| Feature | Description |
+|---------|-------------|
+| AI Copilot | Natural language workforce queries |
+| Decision Cards | AI-powered decision recommendations |
+| Health Score | Organizational health monitoring |
+| Anomaly Detection | Workforce anomaly detection |
+| Workforce Forecasting | Predictive workforce analytics |
+
+### CorpPerks - Professional Twin Marketplace (4150)
+
+| Twin Type | Features |
+|-----------|----------|
+| Employee Twin | Skills, experience, certifications, integrations |
+| Manager Twin | Team management, performance reviews, career coaching |
+| Recruiter Twin | Candidate pipeline, sourcing, salary negotiation |
+| Trainer Twin | Learning paths, skill assessments, leadership development |
+| Executive Twin | Strategic decisions, OKRs, board advisory |
+
+### CorpPerks - Frontend Applications
+
+| App | Port | Features |
+|-----|------|----------|
+| **PeopleOS** | 3001 | Dashboard, Employees, Leave, Attendance, Payroll, Documents, AI Chat |
+| **TalentAI** | 3002 | Jobs, Candidates, Recruitment Pipeline |
+| **Insight Campus** | 3003 | HR Analytics, Business Intelligence |
+
+### CorpPerks - Backend Services
+
+| Service | Port | Features |
+|---------|------|----------|
+| restopapa (NestJS) | 8000 | Full app (auth, employees, restaurants, payments, websockets) |
+| rez-corporate-service | 4030 | HRIS integrations (BambooHR, GreytHR, Zoho) |
+| api-gateway | 4006 | Proxy routing, rate limiting, auth |
+| corpperks-intelligence | 4135 | AI copilot, decision cards, health score |
+| role-ai-agents | 4130 | HR, Recruiter, Trainer AI agents |
+| payroll-service | 4007 | Payroll processing |
+| shift-service | 4010 | Shift scheduling |
+| meeting-service | 4013 | Meetings, 1-on-1s, calendar sync |
+| document-service | 4014 | Document management |
+| analytics-service | 4018 | HR analytics |
+| compensation-service | 4019 | Salary, benefits, equity |
+| push-service | 4016 | Push notifications |
+| whatsapp-service | 4017 | WhatsApp notifications |
+| projectos-service | 4020 | Project management |
+| REZ-merchant-corpperks-bridge | 4100 | Meal benefits |
+
+### CorpPerks - Database Models
+
+| Database | Schema | Models |
+|----------|--------|--------|
+| PostgreSQL | `restopapa/backend/prisma/schema.prisma` | 60+ models (User, Employee, Restaurant, Order, etc.) |
+| MongoDB | `models/mongodb-schemas.js` | 14 models (Company, Employee, Attendance, Leave, etc.) |
+
+### CorpPerks - Integrations
+
+| Integration | Provider | Features |
+|-------------|----------|----------|
+| **BambooHR** | BambooHR API | Employee sync, org chart |
+| **GreytHR** | GreytHR API | Payroll, attendance |
+| **Zoho HR** | Zoho People | Employee management |
+| **Razorpay** | Cards | Corporate card management |
+| **GST eInvoice** | Indian GST | E-invoice generation |
+| **TBO Travel** | TBO API | Hotel, flight booking |
+
+### CorpPerks - RTMN Layer 5 Integration
+
+```
+Layer 1 (Intelligence)   → CorpPerks AI Copilot
+Layer 2 (Growth)        → CorpPerks Employee Benefits
+Layer 3 (Commerce)      → CorpPerks Payroll Integration
+Layer 4 (Financial)     → CorpPerks → RABTUL payments
+Layer 5 (Workforce)      → CorpPerks Core ✅
+Layer 6 (Legal)          → CorpPerks Compliance
+Layer 7 (Property)       → CorpPerks Staff Housing (RisnaEstate)
+Layer 8 (Health)         → CorpPerks Wellness (RisaCare)
+Layer 9 (Mobility)       → CorpPerks Commuter (KHAIRMOVE)
+Layer 10 (Identity)       → CorpPerks CorpID Integration
+Layer 11 (Memory)         → CorpPerks Employee Memory
+Layer 12 (Twins)          → CorpPerks Employee Twins
+Layer 13 (Automation)     → CorpPerks HR Workflows
+Layer 14 (Autonomous)      → CorpPerks SUTAR Goal Decomposition
+Layer 15 (Consumer)        → CorpPerks Employee App (REZ-Consumer)
+```
+
+### CorpPerks - Deployment
+
+```bash
+# Deploy to Render
+render blueprint apply render.yaml
+
+# Deploy Frontends
+cd peopleos && vercel --prod
+cd talentai && vercel --prod
+
+# Docker
+docker-compose up -d
+```
+
+### CorpPerks - Quick Start
+
+```bash
+# Start backend
+cd companies/CorpPerks/backend && npm start
+
+# Start AI agents
+cd companies/CorpPerks/ai-agents-service && npm start
+
+# Start PeopleOS
+cd companies/CorpPerks/peopleos && npm run dev
+
+# Start TalentAI
+cd companies/CorpPerks/talentai && npm run dev
+```
 
 ---
 
