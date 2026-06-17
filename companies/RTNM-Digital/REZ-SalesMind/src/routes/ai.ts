@@ -352,4 +352,4 @@ function extractBody(text: string): string | null {
   return bodyLines.join('\n').trim() || null;
 }
 
-export default router;
+export { router as aiRoutes };

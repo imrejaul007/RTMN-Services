@@ -289,4 +289,4 @@ router.post('/:id/analyze', async (req, res) => {
   }
 });
 
-export default router;
+export { router as transcriptionRoutes };

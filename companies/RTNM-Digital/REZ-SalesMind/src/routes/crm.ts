@@ -261,4 +261,4 @@ router.post('/contact/update', async (req, res) => {
   }
 });
 
-export default router;
+export { router as crmRoutes };
