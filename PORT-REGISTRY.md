@@ -616,22 +616,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4702 | CorpID (Identity Hub) | REST | Universal identity |
 | 4703 | Genie Memory | REST | Personal AI memory |
 | 4704 | Genie Relations | REST | Relationship tracking |
-| 4705 | Genie Personal OS Gateway | REST | Gateway orchestrator for all Genie services |
 | 4706 | Genie Briefing | REST | Daily briefings |
-| 4708 | Genie Personal Twin | REST | Personal profile, preferences, goals, skills |
-| 4711 | Genie Memory Review | REST | Memory consolidation and review |
-| 4712 | Genie Project | REST | Task management and projects |
-| 4715 | Genie Financial Twin | REST | Accounts, transactions, budgets |
-| 4716 | Genie Founder Twin | REST | Companies, ventures, milestones, investors |
-| 4717 | Genie Health Twin | REST | Vitals, workouts, sleep, meals |
-| 4718 | Genie WhatsApp Bot | REST | WhatsApp integration and messaging |
-| 4719 | Genie Privacy | REST | Privacy controls and data management |
-| 4721 | Genie Sync | REST | Cross-device synchronization |
-| 4722 | Genie Household | REST | Family management |
-| 4723 | Genie Business Intelligence | REST | Merchant BI and analytics |
-| 4724 | Genie Browser History | REST | Browser patterns and insights |
-| 4725 | RAZO Keyboard | REST | Communication OS with Intent Router |
-| 4726 | Genie Relationship Service | REST | Legacy relationship service |
 | 4760 | Genie Voice | REST | Email, SMS, WhatsApp, Calls |
 | **4770** | **BrandPulse API** | REST | Brand intelligence & sentiment |
 | **4780** | **BrandPulse Dashboard** | REST | React analytics dashboard |
@@ -725,31 +710,6 @@ This document consolidates all port allocations across the 24 industry verticals
 | TBD | adbazaar-cdp | 🚧 Planned | Customer Data Platform (empty) |
 | TBD | adbazaar-clean-room | 🚧 Planned | Privacy-safe data sharing (empty) |
 | TBD | adbazaar-intelligence-graph | 🚧 Planned | Audience intelligence (empty) |
-
-### RABTUL Regional Compliance (June 2026)
-
-> ✅ All 8 regional compliance services built and deploy-ready
-
-| Port | Service | Description | Region |
-|------|---------|-------------|--------|
-| 4310 | REZ-sales-tax-service | USA State-by-State Sales Tax (50 states + DC) | USA 🇺🇸 |
-| 4311 | REZ-vat-compliance-service | GCC VAT + EU VAT Automation | GCC/EU 🇸🇦 🇪🇺 |
-| 4312 | REZ-sepa-payment-service | SEPA Credit/Direct Debit | Europe 🇪🇺 |
-| 4313 | REZ-wps-service | Saudi Wage Protection System | Saudi Arabia 🇸🇦 |
-| 4320 | REZ-einvoicing-service | EU Peppol/ZUGFeRD/XRechnung | EU 🇪🇺 |
-| 4325 | REZ-pci-dss-service | PCI DSS Compliance Module | USA 🇺🇸 |
-
-### LawGens Compliance Services (June 2026)
-
-| Port | Service | Description | Region |
-|------|---------|-------------|--------|
-| 5039 | REZ-cookie-consent-service | GDPR Cookie Consent (IAB TCF) | EU 🇪🇺 |
-
-### REZ-Merchant Services (June 2026)
-
-| Port | Service | Description | Industry |
-|------|---------|-------------|----------|
-| 4815 | REZ-spoilage-markdown-service | Grocery Perishables Auto-Markdown | Retail/Grocery 🛒 |
 
 ---
 

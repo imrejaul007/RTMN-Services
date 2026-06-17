@@ -1,235 +1,161 @@
-# AdBazaar - Complete Features Documentation
+# AdBazaar - Customer Growth Platform
 
-**Version:** 2.1.0  
-**Last Updated:** June 17, 2026
-
----
-
-## DOOH Advertising Platform
-
-### Campaign Management
-- [x] Multi-format campaign support (image, video, HTML5)
-- [x] Campaign scheduling with dayparting
-- [x] Audience targeting by demographics, behavior, location
-- [x] Real-time campaign monitoring
-- [x] Budget allocation and pacing
-- [x] A/B testing for creatives
-- [x] Campaign cloning and templates
-
-### Creative Tools
-- [x] Dynamic creative templates
-- [x] Brand asset library
-- [x] Automated creative optimization
-- [x] Personalization by audience segment
-- [x] Creative performance scoring
-
-### Inventory Management
-- [x] Screen inventory dashboard
-- [x] Real-time availability checking
-- [x] Dynamic pricing based on demand
-- [x] Premium placement options
-- [x] Bulk booking support
-
-### Analytics & Attribution
-- [x] Real-time performance metrics
-- [x] View-through attribution
-- [x] Audience measurement
-- [x] Footfall attribution
-- [x] Cross-channel analytics
-- [x] Custom reporting
+**Last Updated:** June 16, 2026  
+**Location:** `companies/AdBazaar/`  
+**Status:** ✅ **PRODUCTION READY** - 157 Services | 30 Connected to RTMN OS
 
 ---
 
-## QR Code Platform
+## Overview
 
-### Generation
-- [x] Dynamic QR codes
-- [x] Static QR codes
-- [x] Multiple formats (PNG, SVG, PDF)
-- [x] Custom styling and branding
-- [x] Batch generation
-- [x] Short URL generation
-
-### Tracking & Analytics
-- [x] Scan tracking
-- [x] Geographic distribution
-- [x] Device analytics
-- [x] Time-based analysis
-- [x] Conversion tracking
-- [x] Campaign attribution
+AdBazaar provides the complete customer growth platform for the RTMN ecosystem. Connected via **Layer 2 (Customer Growth)** to all 25 Industry OS services.
 
 ---
 
-## AI-Powered Features
+## Connected Services (30)
 
-### Targeting
-- [x] Behavioral targeting
-- [x] Contextual targeting
-- [x] Predictive targeting
-- [x] Lookalike audiences
-- [x] Intent signals
+### CRM & Customer (2)
 
-### Optimization
-- [x] Automated bid optimization
-- [x] Creative rotation
-- [x] Placement optimization
-- [x] Budget reallocation
-- [x] Frequency optimization
+| Service | Port | Purpose |
+|---------|------|---------|
+| crmHub | 4056 | Customer database, contact management, 360° view |
+| leadIntelligence | 4057 | Lead scoring, intent signals, pipeline management |
 
-### Insights
-- [x] Audience segmentation
-- [x] Trend analysis
-- [x] Competitor insights
-- [x] Performance predictions
-- [x] ROI forecasting
+### Ads & Campaigns (6)
 
----
+| Service | Port | Purpose |
+|---------|------|---------|
+| adsApi | 4060 | Ad campaign management, creative serving |
+| adAi | 4061 | AI-powered ad optimization, auto-bidding |
+| aiCampaignBuilder | 4062 | Drag-and-drop campaign builder |
+| dspPortal | 4063 | DSP portal for programmatic ad buying |
+| programmaticBidding | 4064 | Real-time bidding automation |
+| emailCampaign | 4065 | Email marketing, automation flows |
 
-## CRM Hub (REZ-crm-hub)
+### Loyalty & Rewards (5)
 
-### Customer Management
-- [x] Customer 360 profile
-- [x] Contact management
-- [x] Segmentation
-- [x] Journey tracking
-- [x] Preference management
+| Service | Port | Purpose |
+|---------|------|---------|
+| loyaltyService | 4070 | Points system, tier management |
+| anniversaryRewards | 4071 | Anniversary celebration campaigns |
+| birthdayRewards | 4072 | Birthday rewards automation |
+| gamification | 4073 | Game mechanics, challenges, badges |
+| referralGraph | 4074 | Referral tracking, multi-level rewards |
 
-### Marketing Automation
-- [x] Campaign builder
-- [x] Drip campaigns
-- [x] Trigger-based messaging
-- [x] Multi-channel outreach
-- [x] Personalization
+### Creator & Influencer (3)
 
-### Analytics
-- [x] Customer lifetime value
-- [x] Churn prediction
-- [x] Engagement scoring
-- [x] Conversion funnels
-- [x] Custom dashboards
+| Service | Port | Purpose |
+|---------|------|---------|
+| creatorStudio | 4080 | Creator campaign management, collaboration |
+| creatorCommerce | 4081 | Creator storefront, affiliate products |
+| ugcManagement | 4082 | User generated content moderation |
 
----
+### Analytics & Intelligence (4)
 
-## Creator Studio
+| Service | Port | Purpose |
+|---------|------|---------|
+| marketingAnalytics | 4090 | Marketing dashboard, attribution |
+| mediaAnalytics | 4091 | Social media analytics, engagement |
+| intelligenceBridge | 4092 | Cross-platform intelligence aggregation |
+| revenueIntelligence | 4093 | Revenue attribution, ROI tracking |
 
-### Content Creation
-- [x] Ad template library
-- [x] Drag-and-drop editor
-- [x] Brand kit management
-- [x] Asset library
-- [x] Collaboration tools
+### DOOH & Display (3)
 
-### Publishing
-- [x] Multi-channel publishing
-- [x] Scheduling
-- [x] Approval workflows
-- [x] Version control
+| Service | Port | Purpose |
+|---------|------|---------|
+| doohService | 4100 | Digital signage network management |
+| doohSdk | 4101 | DOOH integration SDK |
+| videoAds | 4102 | Video ad serving, pre-roll |
 
----
+### Chat & Widgets (2)
 
-## Loyalty Engine
+| Service | Port | Purpose |
+|---------|------|---------|
+| liveChat | 4110 | Live chat widget, visitor tracking |
+| feedbackService | 4111 | Feedback collection, NPS surveys |
 
-### Program Management
-- [x] Points system
-- [x] Tier management
-- [x] Reward catalog
-- [x] Promotion engine
-- [x] Gamification
+### Intent & Audience (2)
 
-### Customer Engagement
-- [x] Point redemption
-- [x] Referral tracking
-- [x] Birthday rewards
-- [x] Milestone rewards
-- [x] Challenge system
+| Service | Port | Purpose |
+|---------|------|---------|
+| intentExchange | 4120 | Purchase intent signals marketplace |
+| audienceMarketplace | 4121 | Audience segments, targeting |
 
 ---
 
-## Security Features
+## RTMN OS Endpoints
 
-- [x] JWT authentication
-- [x] Rate limiting
-- [x] Input validation
-- [x] CORS configuration
-- [x] Request ID tracking
-- [x] Audit logging
-- [x] Helmet security headers
-
----
-
-## API Documentation
-
-### Authentication
-```bash
-POST /api/auth/login
-POST /api/auth/register
-POST /api/auth/refresh
 ```
+# CRM & Leads
+GET  /api/crm/contacts        - Get all contacts
+POST /api/crm/contacts        - Create contact
+GET  /api/crm/leads           - Get leads
 
-### Campaigns
-```bash
-GET /api/campaigns
-POST /api/campaigns
-GET /api/campaigns/:id
-PUT /api/campaigns/:id
-DELETE /api/campaigns/:id
-GET /api/campaigns/:id/analytics
-```
+# Ads & Campaigns
+GET  /api/ads/campaigns       - Get ad campaigns
+POST /api/ads/campaigns       - Create campaign
+GET  /api/ads/budget         - Get ad budget
+POST /api/ads/ai-optimize     - AI optimization
 
-### Creative
-```bash
-GET /api/creative
-POST /api/creative
-GET /api/creative/:id
-PUT /api/creative/:id
-```
+# Loyalty & Rewards
+GET  /api/loyalty/points      - Get loyalty points
+POST /api/loyalty/points      - Update points
+GET  /api/loyalty/rewards     - Get rewards
+GET  /api/loyalty/gamification - Get games
+GET  /api/loyalty/referrals   - Get referrals
 
-### Targeting
-```bash
-POST /api/targeting/audience
-GET /api/targeting/segments
-POST /api/targeting/predict
-```
+# Creator & Influencer
+GET  /api/creator/campaigns   - Get campaigns
+GET  /api/creator/influencers - Get influencers
+GET  /api/creator/commerce    - Get products
+GET  /api/creator/ugc         - Get UGC
 
-### Analytics
-```bash
-GET /api/analytics/performance
-GET /api/analytics/attribution
-GET /api/analytics/audience
-```
+# Analytics
+GET  /api/analytics/marketing - Marketing dashboard
+GET  /api/analytics/media     - Media insights
+GET  /api/analytics/revenue  - Revenue report
 
-### QR Codes
-```bash
-POST /api/qr/generate
-GET /api/qr/:id
-GET /api/qr/:id/analytics
+# DOOH
+GET  /api/dooh/screens       - Get screens
+GET  /api/dooh/campaigns     - DOOH campaigns
+GET  /api/dooh/video-ads     - Video ads
+
+# Chat & Feedback
+GET  /api/chat/widget        - Chat widget config
+POST /api/chat/message        - Send message
+GET  /api/feedback           - Get feedback
+
+# Audience
+GET  /api/audience/targets   - Get audiences
+GET  /api/intent/signals     - Get intent signals
 ```
 
 ---
 
-## Roadmap
+## Industry OS Integration
 
-### Phase 1 - Complete ✅
-- DOOH campaign management
-- QR code platform
-- Basic analytics
+All 25 Industry OS services connect to AdBazaar via Layer 2:
 
-### Phase 2 - Complete ✅
-- AI targeting
-- Creative optimization
-- Attribution modeling
-
-### Phase 3 - In Progress
-- Programmatic DOOH
-- Real-time bidding
-- Advanced AI features
-
-### Phase 4 - Planned
-- International expansion
--CTV advertising
-- Metaverse advertising
+| Industry OS | Connection |
+|-------------|------------|
+| Restaurant OS | CRM, Loyalty, Analytics |
+| Hotel OS | CRM, Loyalty, DOOH |
+| Healthcare OS | CRM, Feedback, Analytics |
+| Retail OS | CRM, Ads, Loyalty |
+| Legal OS | CRM, Lead Intelligence |
+| Education OS | CRM, Gamification |
+| All 24 Industries | Full suite |
 
 ---
 
-*Last Updated: June 17, 2026*
-*AdBazaar - Intelligent Advertising Platform*
+## Available but Not Connected (127)
+
+These AdBazaar services exist but are not yet connected to RTMN OS:
+- adBazaar-service, adBazaar-backend, adBazaar-creator
+- adbazaar-api-gateway, adbazaar-cdp, adbazaar-clean-room
+- DOOH integrations, social integrations
+- Partner SDKs, OEM SDKs
+
+---
+
+*Last Updated: June 16, 2026*

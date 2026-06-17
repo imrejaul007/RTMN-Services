@@ -1,38 +1,8 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
-**Version:** 1.6.0  
-**Last Updated:** June 17, 2026  
-**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 45+ Digital Twins + Integration Hub + **Customer Operations Platform (14 Services)** + VERCEL + RENDER
-
----
-
-## Platform Structure
-
-```
-RTMN (Platform Provider)
-│
-├── CLIENTS (Companies using RTMN)
-│   ├── HOJAI AI
-│   │   ├── Project: Customer App
-│   │   ├── Project: Merchant Portal
-│   │   └── Project: Admin Dashboard
-│   ├── REZ-Consumer
-│   │   ├── Project: Consumer App
-│   │   ├── Project: Driver App
-│   │   └── Project: Admin Portal
-│   └── (Add more clients)
-│
-└── SUPPORT PLATFORM (Shared Infrastructure)
-    └── 14 Support Services (AI-Powered)
-```
-
-**Each Client gets:**
-- 👤 Customer 360 View (Orders, Complaints, Knowledge, AI Predictions)
-- 🤖 AI Genuineness Prediction (Trust Score, Fraud Detection)
-- 📊 CSAT Prediction (Know satisfaction before it happens)
-- 📚 Per-Client Knowledge Base
-- 🔗 Per-Client Integrations (Shopify, Stripe, HubSpot)
-- ⚙️ Per-Client SLA Configuration
+**Version:** 1.2.0  
+**Last Updated:** June 15, 2026  
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER
 
 ---
 
@@ -67,7 +37,7 @@ render blueprint apply render.yaml
                           ┌──────────▼───────────┐
                           │  RENDER (Backend)    │
                           │ rtmn-pilot-onboarding│
-                          │  Express (port 4399) (Backend)  │
+                          │  Express (port 4399)  │
                           └──────────┬───────────┘
                                      │
                  ┌───────────────────┼───────────────────┐
@@ -83,7 +53,7 @@ render blueprint apply render.yaml
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
-| **REZ-ecosystem-connector** | 4398 | ✅ Running | Service Registry & Discovery |
+| **REZ-ecosystem-connector** | 4399 | ✅ Running | Service Registry & Discovery |
 | **REZ-event-bus** | 4510 | ✅ Running | Pub/Sub Event Messaging (29 schemas) |
 | **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API |
 | **Goal OS** | 4242 | ✅ Running | Autonomous Goals |
@@ -113,22 +83,10 @@ render blueprint apply render.yaml
 
 ### API Access Points
 
-- **Service Registry:** http://localhost:4398/api/services
+- **Service Registry:** http://localhost:4399/api/services
 - **GraphQL API:** http://localhost:4000/graphql (GraphiQL enabled)
 - **Event Bus:** http://localhost:4510/health
 - **API Documentation:** [API-DOCUMENTATION.md](API-DOCUMENTATION.md)
-
-### API Endpoints (v1)
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/auth/signup` | POST | Register new user |
-| `/v1/auth/login` | POST | Login user |
-| `/v1/auth/me` | GET | Get current user profile |
-| `/v1/services` | GET | List available services |
-| `/v1/services/:id` | GET | Get service details |
-| `/v1/billing/plans` | GET | Get billing plans |
-| `/health` | GET | Service health check |
 
 ### Deploy Targets
 
@@ -361,126 +319,6 @@ GET /api/layers               # All 15 layers
 
 ---
 
-## 🚀 Customer Operations Platform (Support Services)
-
-**AI-native Customer Operations Platform** with multi-channel support, intelligent routing, and complete lifecycle management.
-
-### Architecture
-
-```
-                           ┌─────────────────────────────────────┐
-                           │              CUSTOMER                 │
-                           │         (Web/App/Chat Widget)         │
-                           └─────────────────┬───────────────────┘
-                                             │
-                           ┌─────────────────┴───────────────────┐
-                           │         API GATEWAY (4001)           │
-                           │  Auth │ Rate Limit │ Routing │ Trace  │
-                           └─────────────────┬───────────────────┘
-                                             │
-         ┌─────────────────────────────────────┼─────────────────────────────────────┐
-         │                                     │                                     │       │
-         ▼                                     ▼                                     ▼       │
-┌─────────────────┐              ┌─────────────────┐              ┌─────────────────┐      │
-│  Unified Inbox   │              │  Knowledge Base  │              │ Ticket Service   │      │
-│     4870        │              │     4871        │              │     4872        │      │
-└────────┬────────┘              └────────┬────────┘              └────────┬────────┘      │
-         │                                 │                                     │       │
-         │         ┌───────────────────────┼───────────────────────┐             │       │
-         │         ▼                       ▼                       ▼             │       │
-         │ ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐             │       │
-         │ │  SLA Service    │  │    Analytics   │  │  Supporter AI   │             │       │
-         │ │     4873        │  │     4874       │  │     4878        │             │       │
-         │ └─────────────────┘  └─────────────────┘  └─────────────────┘             │       │
-         │                                                                              │       │
-         │         ┌───────────────────────────────────────────────────────────────┤       │
-         │         ▼                                                               ▼       │
-         │ ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-         │ │    Workflow     │  │   Action        │  │ Notification    │  │   Integration   │ │
-         │ │    Engine      │  │   Registry     │  │   Service       │  │   Hub          │ │
-         │ │     4886        │  │     4887        │  │     4880        │  │     4890        │ │
-         │ └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-         │                                                                              │       │
-         │         ┌───────────────────────────────────────────────────────────────┤       │
-         │         │                                                               ▼       │
-         │ ┌─────────────────────────────────────────────────────────────────────────────┐ │
-         │ │                    HOJAI INTELLIGENCE LAYER (4881)                    │ │
-         │ │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐       │ │
-         │ │  │ Intent  │ │Sentiment│ │ Fraud   │ │ Summary │ │ Recommend│       │ │
-         │ │  │ Agent  │  │ Agent   │ │ Agent   │ │ Agent   │ │ Engine   │       │ │
-         │ │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘       │ │
-         │ │  Memory: Conversation │ Customer │ Organization                       │ │
-         │ │  Policy Engine: ALLOW │ DENY │ REQUIRE_APPROVAL │ ESCALATE │ BLOCK   │ │
-         │ └─────────────────────────────────────────────────────────────────────────────┘ │
-         │                                                                              │       │
-         │         ┌───────────────────────────────────────────────────────────────┤       │
-         │         │                                                               ▼       │
-         │ ┌─────────────────────────────────────────────────────────────────────────────┐ │
-         │ │                   CUSTOMER INTELLIGENCE CDP (4885)                     │ │
-         │ │  Identity Resolution │ Risk Scoring │ Segments │ Customer 360 Context    │ │
-         │ └─────────────────────────────────────────────────────────────────────────────┘ │
-         └──────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Support Services (14 services)
-
-| Service | Port | Purpose | Files |
-|---------|------|---------|-------|
-| **API Gateway** | 4001 | Auth, Rate Limit, Routing | [api-gateway/](services/api-gateway/) |
-| **Customer Intelligence** | 4885 | CDP, Identity, Risk, Segments | [hojai-customer-intelligence/](companies/hojai-ai/hojai-customer-intelligence/) |
-| **Hojai Intelligence** | 4881 | AI Orchestration, Agents, Memory | [hojai-intelligence/](companies/hojai-ai/hojai-intelligence/) |
-| **Workflow Engine** | 4886 | BPMN Automation, Approval Chains | [hojai-workflow-engine/](companies/hojai-ai/hojai-workflow-engine/) |
-| **Action Registry** | 4887 | Business Actions, Audit Logs | [hojai-action-registry/](companies/hojai-ai/hojai-action-registry/) |
-| **Notification Service** | 4880 | Email, SMS, Push, WhatsApp | [hojai-notification-service/](companies/hojai-ai/hojai-notification-service/) |
-| **Integration Hub** | 4890 | Shopify, Stripe, HubSpot Connectors | [hojai-integration-hub/](companies/hojai-ai/hojai-integration-hub/) |
-| **Agent Copilot** | 4895 | Draft Replies, Summarize, Predict | [hojai-agent-copilot/](companies/hojai-ai/hojai-agent-copilot/) |
-| **Unified Inbox** | 4870 | Multi-channel Conversations | [hojai-unified-inbox/](companies/hojai-ai/hojai-unified-inbox/) |
-| **Knowledge Base** | 4871 | Articles, FAQs, Categories | [hojai-knowledge-base/](companies/hojai-ai/hojai-knowledge-base/) |
-| **Ticket Service** | 4872 | Ticket Lifecycle, History | [hojai-ticket-service/](companies/hojai-ai/hojai-ticket-service/) |
-| **SLA Service** | 4873 | SLA Tracking, Breaches | [hojai-sla-service/](companies/hojai-ai/hojai-sla-service/) |
-| **Support Analytics** | 4874 | Reports, Dashboards | [hojai-support-analytics/](companies/hojai-ai/hojai-support-analytics/) |
-| **Supporter AI** | 4878 | Customer Chatbot | [supporter-ai/](companies/hojai-ai/employees/supporter-ai/) |
-
-### Key Features
-
-- **Customer 360**: Identity resolution, risk scoring, dynamic segments
-- **AI Agents**: Intent, sentiment, fraud detection with explanations
-- **Three Memory Layers**: Conversation, Customer, Organization
-- **Policy Engine**: Business rules for AI actions (ALLOW/DENY/APPROVAL)
-- **Workflow Automation**: BPMN-style approval chains
-- **Business Actions**: Safe, auditable operations (refund, cancel, etc.)
-- **Multi-channel**: Email, SMS, WhatsApp, Push, Slack
-- **100+ Connectors**: Shopify, Stripe, HubSpot, Zoho, etc.
-
-### Quick Deploy Support Platform
-
-```bash
-# Deploy all Support Services to Render
-render blueprint apply render.yaml
-
-# Or individually:
-cd companies/hojai-ai/hojai-intelligence && npm run dev
-```
-
-### Support Platform Health Checks
-
-```bash
-curl http://localhost:4001/health    # API Gateway
-curl http://localhost:4885/health    # Customer Intelligence
-curl http://localhost:4881/health    # Hojai Intelligence
-curl http://localhost:4870/health    # Unified Inbox
-curl http://localhost:4872/health     # Ticket Service
-curl http://localhost:4880/health   # Notifications
-curl http://localhost:4895/health   # Agent Copilot
-```
-
-### Documentation
-
-- [PLAN-CUSTOMER-OPS-PLATFORM.md](PLAN-CUSTOMER-OPS-PLATFORM.md) - Complete architecture plan
-- [AUDIT-SUPPORT-SYSTEMS.md](AUDIT-SUPPORT-SYSTEMS.md) - Support systems audit
-
----
-
 ## Quick Start
 
 ```bash
@@ -571,7 +409,7 @@ curl http://localhost:4765/health  # Leverge Copilot
 
 | Service | Port | Status | Description |
 |---------|------|--------|-------------|
-| **REZ-ecosystem-connector | 4398 | ✅ Running | Service Registry & Discovery (19 services registered) |
+| **REZ-ecosystem-connector** | 4399 | ✅ Running | Service Registry & Discovery (19 services registered) |
 | **REZ-event-bus** | 4510 | ✅ Running | Pub/Sub Event Messaging (29 schemas, 2 subscriptions) |
 | **REZ-graphql-federation** | 4000 | ✅ Running | Unified GraphQL API (16 services via federation) |
 
@@ -602,7 +440,7 @@ curl http://localhost:4765/health  # Leverge Copilot
 
 | Service | Port | Description |
 |---------|------|-------------|
-| **REZ-ecosystem-connector | 4398 | Service Registry & Discovery |
+| **REZ-ecosystem-connector** | 4399 | Service Registry & Discovery |
 | **REZ-event-bus** | 4510 | Pub/Sub Event Messaging |
 | **REZ-integration-connector** | 4314 | Multi-service API Gateway |
 | **REZ-graphql-federation** | 4000 | Unified GraphQL API |
@@ -672,7 +510,7 @@ service ManufacturingService {
 import { RESTClient, EventBus } from '@rtnm/shared-sdk';
 
 const rabtul = new RESTClient({
-  baseUrl: 'http://localhost:4398',
+  baseUrl: 'http://localhost:4399',
   apiKey: process.env.RABTUL_API_KEY
 });
 
@@ -698,248 +536,40 @@ events.subscribe('manufacturing.*', (event) => { /* handle */ });
 
 ---
 
-## Exhibition OS (Layer 22 - Exhibition Commerce & Intelligence)
+## Production-Ready Update (June 16, 2026)
 
-**Location:** `exhibition-os/` + `companies/REZ-Exhibitor/`  
-**Port Range:** 5040-5061  
-**Status:** ✅ **COMPLETE** | **22 Microservices** | **1 Mobile App**
+### Bug Fixes Applied
 
-### Exhibition OS Service Map
+#### Pilot Onboarding Service
+- ✅ Sentry integration initialized
+- ✅ Stripe and Sentry dependencies added
+- ✅ CORS security hardened
+- ✅ devVerifyUrl only in development
+- ✅ Mock billing disabled in production
+- ✅ All environment variables documented
 
-| Port | Service | Purpose | Status |
-|------|---------|---------|--------|
-| **5040** | exhibition-gateway | Orchestrator — coordinates all services | ✅ Full Source |
-| 5041 | exhibition-organizer-service | Exhibition lifecycle, venues, zones, sessions | ✅ Full Source |
-| 5042 | exhibition-exhibitor-service | Booth management, leads, team, exhibitor portal | ✅ Full Source |
-| 5043 | exhibition-attendee-service | Registration, tickets, check-in, networking | ✅ Full Source |
-| 5044 | exhibition-twin-service | 8 Digital Twins (Exhibition, Exhibitor, Visitor, Booth, Sponsor, Venue, Lead, Session) | ✅ Full Source |
-| 5045 | exhibition-badge-service | QR badge generation, scanning, wallet passes | ✅ Full Source |
-| 5046 | exhibition-analytics-service | Real-time metrics, heatmaps, ROI dashboards | ✅ Full Source |
-| 5047 | exhibition-notification-service | Push, WhatsApp, email, SMS | ✅ Full Source |
-| 5048 | exhibition-payment-service | Tickets, exhibitor fees, SUTAR escrow | ✅ Full Source |
-| 5049 | exhibition-intelligence-service | AI copilots (Organizer, Exhibitor, Visitor) | ✅ Full Source |
-| 5050 | exhibition-economy-service | REZ Coins, campaigns, rewards, leaderboards | ✅ Full Source |
-| 5051 | exhibition-marketplace-service | Booth storefronts, products, RFQ | ✅ Full Source |
-| 5052 | exhibition-networking-service | Connections, chat, profiles, meeting requests | ✅ Full Source |
-| 5053 | exhibition-exhibition-appointment-service | Meeting scheduler, calendar sync | ✅ Full Source |
-| 5054 | exhibition-passport-service | Missions, gamification, badges | ✅ Full Source |
-| 5055 | exhibition-sponsor-service | Sponsor dashboard, campaigns, ROI | ✅ Full Source |
-| 5056 | exhibition-venue-ops-service | Infrastructure, logistics, setup | ✅ Full Source |
-| 5057 | exhibition-staff-service | Volunteer management, tasks, shifts | ✅ Full Source |
-| 5058 | exhibition-crm-service | Post-event follow-up, pipeline, deals | ✅ Full Source |
-| 5059 | exhibition-document-service | Catalogs, brochures, searchable docs | ✅ Full Source |
-| 5060 | exhibition-integration-hub | CRM/ERP connectors, webhooks | ✅ Full Source |
-| 5061 | exhibition-floor-intelligence | Live crowd density, navigation, heatmaps | ✅ Full Source |
+#### Industry OS (25 services)
+- ✅ RTMMN_SERVICES typo fixed → RTMN_SERVICES
+- ✅ Missing dependencies added
+- ✅ .env.example files created
 
-### Exhibition OS Architecture
+#### Foundation Services
+- ✅ initDatabase() called before server start
+- ✅ uuidv4 import fixed
+- ✅ .env.example files created
 
+#### Frontend
+- ✅ Hardcoded localhost fallback removed
+- ✅ favicon.svg added
+- ✅ ESLint configured
+
+### E2E Test Results
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      EXHIBITION OS ARCHITECTURE                         │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                      OS LAYER                                     │  │
-│  │  Organizer │ Exhibitor │ Attendee │ Sponsor │ Venue │ Staff       │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                    │                                     │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                      INTELLIGENCE LAYER                         │  │
-│  │  Genie AI │ Twins (8) │ Analytics │ Floor Intel │ Copilots       │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                    │                                     │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                      COMMERCE LAYER                              │  │
-│  │  Marketplace │ Networking │ Appointments │ CRM │ Orders            │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                    │                                     │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                      ECONOMY LAYER                                │  │
-│  │  REZ Coins │ PROMO/BRANDED │ Passport │ Missions │ Rewards        │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
+✅ Signup → Verify → Login → Services → Select → Checkout → Confirm → Active
 ```
 
-### Exhibition OS Digital Twins
-
-| Twin | Port | Purpose |
-|------|------|---------|
-| Exhibition Twin | 5044 | Event data, stats, settings |
-| Organizer Twin | 5044 | Organizer profile, permissions |
-| Exhibitor Twin | 5044 | Company, booth, team |
-| Visitor Twin | 5044 | Attendee profile, interests |
-| Booth Twin | 5044 | Booth metrics, products |
-| Sponsor Twin | 5044 | Sponsor campaigns, ROI |
-| Venue Twin | 5044 | Venue layout, zones |
-| Lead Twin | 5044 | Lead intelligence, follow-up |
-
-### DO Exhibitor App
-
-**Location:** `companies/REZ-Exhibitor/do-exhibitor/`
-
-```
-do-exhibitor/
-├── app/
-│   ├── _layout.tsx        # Stack navigation
-│   ├── index.tsx          # Home dashboard
-│   ├── dashboard.tsx     # Analytics & charts
-│   ├── leads.tsx         # Lead management
-│   ├── scan.tsx           # Camera badge scanner
-│   └── appointments.tsx   # Meeting scheduler
-└── package.json
-```
-
-### Exhibition OS Quick Start
-
-```bash
-# Start Gateway
-cd exhibition-os && npm install && npm start  # Port 5040
-
-# Start microservices
-cd packages/exhibition-twin-service && npm start  # 5044
-cd packages/exhibition-intelligence-service && npm start  # 5049
-cd packages/exhibition-economy-service && npm start  # 5050
-# etc.
-
-# Or Docker
-docker-compose -f docker-compose.exhibition.yml up -d
-
-# Health checks
-curl http://localhost:5040/health  # Gateway
-curl http://localhost:5044/health  # Twin
-curl http://localhost:5049/health  # Intelligence
-curl http://localhost:5050/health  # Economy
-```
-
-### Exhibition OS API Routes
-
-| Route | Service | Description |
-|-------|---------|-------------|
-| `/api/exhibitions` | Organizer | Exhibition CRUD |
-| `/api/exhibitors` | Exhibitor | Booth, leads, team |
-| `/api/attendees` | Attendee | Registration, tickets |
-| `/api/genie/exhibitions/:id/briefing` | Intelligence | AI daily briefing |
-| `/api/coins/earn` | Economy | Earn REZ coins |
-| `/api/appointments` | Appointment | Schedule meetings |
-| `/api/passport` | Passport | Missions & progress |
-| `/api/analytics/dashboard` | Analytics | Real-time metrics |
-
-### RTMN Exhibition OS Integration
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| Genie Gateway | 4701 | AI briefings |
-| hojai-event | 4510 | Event bus |
-| CorpID | 4300 | Universal identity |
-| WhatsApp Bot | 4718 | Notifications |
-| SUTAR Escrow | 4149 | Payments |
-
-### MongoDB Models (Exhibition OS)
-
-| Model | Port | Purpose |
-|-------|------|---------|
-| Exhibition | 5041 | Event data, settings, sponsors |
-| Exhibitor | 5042 | Company, booth, team |
-| Lead | 5042 | Captured leads, follow-up |
-| Attendee | 5043 | Visitor registration |
-| Booth | 5042 | Booth config, live metrics |
-| Session | 5041 | Talks, workshops |
-| Badge | 5045 | QR badges |
-| Ticket | 5043 | Event tickets |
-| CoinBalance | 5050 | REZ Coins |
-| Deal | 5058 | CRM pipeline |
+### Production Readiness: 9/10
 
 ---
 
-*Last Updated: June 17, 2026*
-*Exhibition OS - Complete Exhibition Commerce & Intelligence Platform*
-
----
-
-## Genie Memory OS v2.1.0 - Personal Intelligence Platform
-
-**Location:** `genie-memory-service/` + `companies/hojai-ai/genie-memory-service/`
-**Version:** 2.1.0
-**Status:** ✅ **10 TWINS COMPLETE** | **June 17, 2026**
-**Tagline:** "Twins are views, not stores"
-
-### Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         GENIE MEMORY OS v2.1                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  USER INPUT → AI ORCHESTRATOR → CONTEXT ENGINE → CONTEXT GRAPH ─────────┐   │
-│                                        │                                  │   │
-│                      ┌─────────────────┼─────────────────┐              │   │
-│                      ▼                 ▼                 ▼              │   │
-│              ┌─────────────┐   ┌─────────────┐   ┌─────────────┐      │   │
-│              │ 10 Twin     │   │  Timeline   │   │   Memory    │      │   │
-│              │ Views       │   │    API     │   │ Intelligence │      │   │
-│              │ (Read-only) │   │            │   │             │      │   │
-│              └─────────────┘   └─────────────┘   └─────────────┘      │   │
-│                                                                         │   │
-│  ←──────────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### The 10 Genie Twins
-
-| Twin | Purpose | Key Data |
-|------|---------|----------|
-| **Personal Twin** | Identity & traits | name, interests, expertise, preferences |
-| **Relationship Twin** | Social network | contacts, interactions, insights |
-| **Financial Twin** | Money | accounts, transactions, goals |
-| **Health Twin** | Wellness | vitals, fitness, events |
-| **Founder Twin** | Ventures | companies, skills, network |
-| **Knowledge Twin** | Learning | bookmarks, courses, research, skills |
-| **Productivity Twin** | Tasks | tasks, habits, focus patterns |
-| **Communication Twin** | Messages | writing style, channels, relationships |
-| **Environment Twin** | Context | devices, locations, routines |
-| **AI Twin** | Settings | reasoning style, workflows, agents |
-
-### Twin Service Files
-
-| Twin | File | Features |
-|------|------|----------|
-| **KnowledgeTwin** | `services/knowledgeTwin.ts` | learnedTopics, bookmarks, courses, research, skills, insights |
-| **ProductivityTwin** | `services/productivityTwin.ts` | tasks, calendar, habits, focus patterns, patterns |
-| **CommunicationTwin** | `services/communicationTwin.ts` | writingStyle, channels, relationships, preferences |
-| **EnvironmentTwin** | `services/environmentTwin.ts` | devices, locations, routines, iot, context |
-| **AITwin** | `services/aiTwin.ts` | reasoning, personality, workflows, agents, settings |
-
-### Core Components
-
-| Component | Purpose | Files |
-|-----------|---------|-------|
-| Context Graph | Unified knowledge graph | `contextGraph.ts` - 18 entity types, 18 relationship types |
-| Personal Context Engine | Structured context | `contextEngine.ts` - persona, situation, relationships, goals |
-| Universal Timeline API | Event timeline | `timeline.ts` - unified view of all events |
-| AI Orchestrator v2 | Intent handling | `aiOrchestrator.ts` - Intent → Plan → Context → Response |
-| Memory Intelligence | Semantic memory | `memoryIntelligence.ts` - consolidation, decay, importance |
-| Event Bus | Pub/Sub | `eventBus.ts` - service communication |
-
-### Quick Start
-
-```bash
-cd genie-memory-service && npm install && npm start
-
-# Health checks
-curl http://localhost:4703/health  # Memory OS
-
-# API endpoints
-GET /api/context/:userId      # Get structured context
-GET /api/timeline/:userId     # Get timeline events
-GET /api/memory/:userId       # Get memories
-POST /api/twin/:userId        # Get twin views
-```
-
-### Documentation
-
-- [docs/MEMORY-OS-ARCHITECTURE.md](genie-memory-service/docs/MEMORY-OS-ARCHITECTURE.md) - Complete architecture docs
-- [genie-memory-service/src/services/index.ts](genie-memory-service/src/services/index.ts) - Service exports
-
----
-
-*Genie Memory OS v2.1.0 - 10 Twins for Personal Intelligence*
+*Last Updated: June 16, 2026*

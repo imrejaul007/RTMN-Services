@@ -1,0 +1,1 @@
+export { IntentSignalModel, IIntentSignal } from './IntentSignal.js';

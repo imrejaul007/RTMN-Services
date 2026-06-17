@@ -1,0 +1,6 @@
+
+# Exclude large build artifacts and binaries
+**/node_modules/.cache/
+**/*.node
+**/next-swc*
+**/mongod*

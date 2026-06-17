@@ -1,0 +1,43 @@
+# Render Blueprint - REZ CRM Hub
+# Deploys REZ CRM Hub service to Render
+
+services:
+  - type: web
+    name: rez-crm-hub
+    env: node
+    region: singapore
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4056
+      - key: PUBLIC_URL
+        # Set to your Vercel frontend URL, e.g. https://rtmn.vercel.app
+        sync: false
+      - key: ALLOWED_ORIGINS
+        # Comma-separated: your Vercel frontend URL(s)
+        # e.g. https://rtmn.vercel.app,https://rtmn-git-*.vercel.app
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: REZ-CRM-HUB_API_KEY
+        generateValue: true
+      - key: RABTUL_AUTH_URL
+        value: https://rtmn-corpid-service.onrender.com
+      - key: RABTUL_PAYMENT_URL
+        value: https://rtmn-corpid-service.onrender.com
+      - key: RABTUL_WALLET_URL
+        value: https://rtmn-corpid-service.onrender.com
+      - key: RABTUL_NOTIFICATION_URL
+        value: https://rtmn-corpid-service.onrender.com
