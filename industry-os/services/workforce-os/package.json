@@ -1,13 +1,14 @@
 {
   "name": "@rtmn/workforce-os",
-  "version": "2.0.0",
-  "description": "RTMN Workforce OS - Unified HR Operations Platform",
+  "version": "2.1.0",
+  "description": "RTMN Workforce OS - Complete HR Operations Platform with AI, Real-time, and Industry Integration",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node test/index.test.js"
+    "test": "node test/index.test.js",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -17,9 +18,17 @@
     "morgan": "^1.10.0",
     "uuid": "^9.0.0",
     "winston": "^3.11.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "jsonwebtoken": "^9.0.2",
+    "axios": "^1.7.2",
+    "openai": "^4.52.0",
+    "@anthropic-ai/sdk": "^0.30.0",
+    "ws": "^8.18.0"
   },
-  "keywords": ["hr", "workforce", "rtmn", "human-resources", "payroll"],
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  },
+  "keywords": ["hr", "workforce", "rtmn", "human-resources", "payroll", "ai", "realtime"],
   "author": "RTMN",
   "license": "MIT"
 }

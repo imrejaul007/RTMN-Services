@@ -31,6 +31,10 @@ const EditorialCalendar = require('./EditorialCalendar');
 const Script = require('./Script');
 const Metadata = require('./Metadata');
 const { Production, CallSheet, DailyReport } = require('./Production');
+const ProgramGrid = require('./ProgramGrid');
+const EPGEntry = require('./EPG');
+const Stream = require('./Streaming');
+const ViewerProfile = require('./ViewerProfile');
 
 /**
  * Connect to MongoDB
@@ -338,4 +342,9 @@ module.exports = {
   Production,
   CallSheet,
   DailyReport,
+  // Broadcasting & Streaming
+  ProgramGrid,
+  EPGEntry,
+  Stream,
+  ViewerProfile,
 };

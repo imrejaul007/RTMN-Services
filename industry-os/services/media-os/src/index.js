@@ -1525,7 +1525,7 @@ async function startServer() {
 ╔═══════════════════════════════════════════════════════════════════════════════╗
 ║                        MEDIA OS v2.0.0                                        ║
 ║           Complete AI-Native Media Operating System                            ║
-║                    Phase 2: Content & Production OS                           ║
+║           Phase 3: Broadcasting & Streaming OS                                  ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                               ║
 ║  Port: ${config.PORT}                                                             ║
@@ -1541,7 +1541,14 @@ async function startServer() {
 ║  • Editorial Calendar with workflow approval                                  ║
 ║  • Script & Storyboard management with versioning                            ║
 ║  • Production OS (Studios, Equipment, Crew)                                  ║
-║  • AI Content Agents (Script Writer, Thumbnail, SEO, Repurposer)               ║
+║  • AI Content Agents (7 specialized agents)                                  ║
+║                                                                               ║
+║  PHASE 3 - Broadcasting & Streaming OS:                                     ║
+║  • Program Grid with conflict detection & optimization                        ║
+║  • Electronic Program Guide (EPG)                                           ║
+║  • Streaming with HLS/DASH manifests                                        ║
+║  • Viewer Profiles with Parental Controls                                    ║
+║  • Content Recommendation Engine                                              ║
 ║                                                                               ║
 ║  AI Agents:                                                                ║
 ║  • Script Writer Agent     - Generate scripts, dialogues, twists             ║
@@ -1567,7 +1574,7 @@ async function startServer() {
       `);
 
       console.log(`
-      📺 Media OS Ready - Phase 2!
+      📺 Media OS Ready - Phase 3!
 
       Foundation:
       - Health:        GET  /health
@@ -1580,7 +1587,21 @@ async function startServer() {
       - Calendar:       GET  /api/content-ops/calendar
       - Scripts:        GET  /api/content-ops/scripts
       - Productions:    GET  /api/content-ops/productions
-      - Metadata:       GET  /api/content-ops/metadata/:type/:id
+
+      Phase 3 - Broadcasting & Streaming:
+      - Grid:          GET  /api/broadcast/grid/:channelId/:date
+      - EPG:           GET  /api/broadcast/epg
+      - Now Playing:  GET  /api/broadcast/epg/now
+      - Streams:       GET  /api/broadcast/stream/:contentId
+      - Live:         GET  /api/broadcast/stream/live/all
+      - Profiles:      GET  /api/broadcast/profiles
+      - Kids Mode:    POST /api/broadcast/profiles/:id/kids-mode
+
+      Recommendations:
+      - For You:       GET  /api/recommendations/
+      - Trending:      GET  /api/recommendations/trending
+      - Continue:       GET  /api/recommendations/continue-watching
+      - Watchlist:     GET  /api/recommendations/watchlist
 
       AI Agents:
       - Script:         POST /api/content-ops/ai/script/generate
