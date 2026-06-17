@@ -86,7 +86,7 @@ export class CommunicationConnector {
     }
     async makeCall(phone: string): Promise<boolean> {
         try {
-            const response = await this.genieClient.post('/communication/call', { to: phone, direction: 'outbound' });
+            const response = await this.genieClient.post('/api/communication/call', { to: phone, direction: 'outbound' });
             // Check if Voice OS returned success
             if (response.data?.success === true) {
                 return true;
@@ -100,9 +100,20 @@ export class CommunicationConnector {
     }
     async scheduleMeeting(email: string, topic: string, time: Date): Promise<string> {
         try {
-            const response = await this.genieClient.post('/api/meeting/schedule', { to: email, topic, time: time.toISOString() });
-            return response.data.meetingUrl || '';
-        } catch { return ''; }
+            const response = await this.genieClient.post('/api/meeting/schedule', {
+                title: topic,
+                description: `Meeting: ${topic}`,
+                start_time: time.toISOString(),
+                end_time: new Date(time.getTime() + 60 * 60 * 1000).toISOString(),
+                attendees: [{ email, rsvp_status: 'pending' }],
+                host_email: 'sales@rtmn.io',
+                meeting_type: 'video'
+            });
+            return response.data?.data?.join_url || response.data?.join_url || '';
+        } catch (error: any) {
+            console.error('Voice OS meeting error:', error?.message || error);
+            return '';
+        }
     }
 }
 

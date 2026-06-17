@@ -117,6 +117,24 @@ router.post('/communication/call',
     }
 );
 
+// MEETING SCHEDULING
+router.post('/communication/schedule',
+    writeLimiter,
+    async (req, res) => {
+        try {
+            const { email, topic, time } = req.body as { email?: string; topic?: string; time?: string };
+            if (!email || !topic || !time) {
+                return res.status(400).json({ error: 'email, topic, and time are required' });
+            }
+            const meetingUrl = await communicationConnector.scheduleMeeting(email, topic, new Date(time));
+            res.json({ success: !!meetingUrl, meetingUrl });
+        } catch (error) {
+            console.error('Meeting scheduling failed:', error);
+            res.status(500).json({ error: 'Meeting scheduling failed' });
+        }
+    }
+);
+
 // MARKET INTELLIGENCE
 router.get('/intelligence/market-signals', async (req, res) => {
     try {
