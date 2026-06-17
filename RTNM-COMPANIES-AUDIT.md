@@ -5219,6 +5219,7 @@ Layer 15 (Consumer)       → Employee app (REZ-Consumer)
 
 *Last Updated: June 16, 2026*
 *All bugs fixed, production-ready*
+<<<<<<< Updated upstream
 
 ---
 
@@ -5303,3 +5304,5 @@ companies/REZ-Exhibitor/
 ---
 
 *Last Updated: June 17, 2026*
+=======
+>>>>>>> Stashed changes

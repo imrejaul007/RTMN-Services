@@ -103,6 +103,7 @@ companies/RABTUL-Technologies/REZ-trust-scorer/dist/
 !companies/RABTUL-Technologies/REZ-economy-os/render.yaml
 !companies/RABTUL-Technologies/REZ-trust-scorer/render.yaml
 
+<<<<<<< Updated upstream
 # Additional companies - Built June 17, 2026
 !companies/AssetMind/
 !companies/Axom/
@@ -119,6 +120,8 @@ companies/RABTUL-Technologies/REZ-trust-scorer/dist/
 !companies/RTNM-Digital/
 !companies/Karma-Foundation/
 
+=======
+>>>>>>> Stashed changes
 # RTMN subfolder (separate repo)
 RTMN/
 **/*.node

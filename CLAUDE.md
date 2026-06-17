@@ -1,5 +1,6 @@
 # RTMN-Services - Real-Time Multi-Industry Network Services
 
+<<<<<<< Updated upstream
 **Version:** 4.0  
 **Last Updated:** June 17, 2026  
 **Status:** ✅ **DEPLOYMENT READY** - **Business Operations OS Enterprise**
@@ -217,6 +218,11 @@ Result: Customer saves ₹50, customer stays engaged!
 | 4896 | Executive Dashboard | CEO view |
 | 4897 | AI Briefing | Daily briefings |
 | 4898 | Cross-Ecosystem Bridge | RTMN integration |
+=======
+**Version:** 1.2.0  
+**Last Updated:** June 15, 2026  
+**Status:** ✅ **DEPLOYMENT READY** - 19 Services Running + 24 Industry OS + 35+ Digital Twins + Integration Hub + VERCEL + RENDER
+>>>>>>> Stashed changes
 
 ---
 
@@ -383,7 +389,7 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 | **CorpPerks** | HR, Payroll, Benefits | 50+ services | 4006 |
 | **RisaCare** | Healthcare OS | 40+ services | 7000+ |
 | **AssetMind** | Wealth management | 30+ services | 5200+ |
-| **StayOwn-Hospitality** | Hotel management | 45+ services | 6000+ |
+| **StayOwn-Hospitality** | Hotel management (OTA Platform) | 45+ services, 6 apps | 6000+ |
 | **LawGens** | Legal document automation | 25+ services | 5100+ |
 | **RisnaEstate** | Real Estate OS | 35+ services | 4300+ |
 | **RidZa** | Financial services | 30+ services | 4250+ |
@@ -397,7 +403,7 @@ RTMN-Services is the comprehensive service layer for the RTMN ecosystem - a unif
 | 1 | Hospitality | Restaurant OS | 5010 | Menu, Order, Kitchen, Table, Customer |
 | 2 | Healthcare | Healthcare OS | 5020 | Patient, Appointment, Doctor, Prescription |
 | 3 | Retail | Retail OS | 5030 | Product, Inventory, Customer, Cart, Supplier |
-| 4 | Hotel | Hotel OS | 5025 | Room, Booking, Guest, Service, Revenue |
+| 4 | Hotel | Hotel OS / StayOwn | 5025/3000 | Room, Booking, Guest, Service, Revenue, OTA Platform |
 | 5 | Legal | Legal OS | 5035 | Client, Case, Lawyer, Document |
 | 6 | Education | Education OS | 5060 | Course, Student, Instructor, Enrollment |
 | 7 | Agriculture | Agriculture OS | 5070 | Farm, Crop, Livestock |
@@ -510,6 +516,25 @@ GET /api/layers               # All 15 layers
 |---------|------|---------|-------|
 | restaurant-os | 5010 | Restaurant management | [industry-os/services/restaurant-os/](industry-os/services/restaurant-os/) |
 | hotel-os | 5025 | Hotel management | [industry-os/services/hotel-os/](industry-os/services/hotel-os/) |
+
+### StayOwn-Hospitality (Complete OTA Platform)
+
+**Location:** `companies/StayOwn-Hospitality/`  
+**Status:** ✅ COMPLETE - 6 Apps, 34 API Routes, 60+ DB Models
+
+| App | Port | Purpose | Status |
+|-----|------|---------|--------|
+| API Server | 3000 | Backend API (Express, 34 routes) | ✅ |
+| OTA Web | 3003 | Guest booking website (Next.js) | ✅ |
+| Hotel Panel | 3001 | Staff dashboard | ✅ |
+| Admin Panel | 3002 | Platform admin | ✅ |
+| Corporate Panel | 3004 | B2B panel | ✅ |
+| Mobile | - | React Native app | ✅ |
+
+| Package | Purpose |
+|---------|---------|
+| database | Prisma schema (60+ models) |
+| merchant-sdk | Hotel integration SDK |
 | healthcare-os | 5020 | Healthcare management | [industry-os/services/healthcare-os/](industry-os/services/healthcare-os/) |
 | retail-os | 5030 | Retail management | [industry-os/services/retail-os/](industry-os/services/retail-os/) |
 | legal-os | 5035 | Legal management | [industry-os/services/legal-os/](industry-os/services/legal-os/) |
@@ -860,6 +885,7 @@ events.subscribe('manufacturing.*', (event) => { /* handle */ });
 ---
 
 *Last Updated: June 16, 2026*
+<<<<<<< Updated upstream
 
 ---
 
@@ -925,3 +951,5 @@ docker-compose -f docker-compose.exhibition.yml up -d
 ---
 
 *Last Updated: June 17, 2026*
+=======
+>>>>>>> Stashed changes
