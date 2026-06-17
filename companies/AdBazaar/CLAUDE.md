@@ -228,6 +228,44 @@ Campaign → HOJAI AI → Predictions → Optimization → ROAS Improvement
 
 ---
 
+## 🔗 Customer Operations OS Integration
+
+**AdBazaar connects to RTMN Customer Operations OS via `adbazaar-integration` (Port 4962)**
+
+### Integration Flow
+
+```
+ADBAZAAR                          CUSTOMER OPERATIONS OS
+─────────                         ───────────────────────
+     │
+     ├── Lead Intelligence ────────► Lead Twin
+     ├── CRM Hub ─────────────────► Lead Twin
+     ├── WhatsApp Commerce ───────► Customer Twin
+     ├── Campaigns ───────────────► Campaign Twin
+     └── DOOH ────────────────────► Journey Twin
+```
+
+### Connected Twins
+
+| AdBazaar Data | Customer Operations Twin |
+|---------------|------------------------|
+| Lead Intelligence | Lead Twin (4908) |
+| CRM Hub profiles | Customer Twin (4885) |
+| Campaign performance | Campaign Twin (4909) |
+| WhatsApp conversations | Journey Twin (4954) |
+| DOOH exposures | Journey Twin |
+
+### Key Features
+
+| Feature | Description |
+|---------|-------------|
+| Lead Sync | Real-time sync of leads to Lead Twin |
+| Campaign Tracking | Campaign performance to Campaign Twin |
+| Customer Journey | WhatsApp + DOOH touchpoints to Journey Twin |
+| BrandPulse | Brand monitoring integration |
+
+---
+
 ## 📡 API Reference
 
 | Service | Port | Key Endpoints |

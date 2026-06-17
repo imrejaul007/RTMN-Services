@@ -47,6 +47,10 @@ const { aiRoutes } = require('./routes/aiRoutes');
 const { broadcastRoutes } = require('./routes/broadcastRoutes');
 const { recommendationRoutes } = require('./routes/recommendationRoutes');
 
+// Phase 4 Routes - Rights & Monetization
+const monetizationRoutes = require('./routes/monetizationRoutes');
+const MonetizationService = require('./services/MonetizationService');
+
 // ============================================
 // APP INITIALIZATION
 // ============================================
@@ -132,6 +136,9 @@ app.use('/api/content-ops', aiRoutes);
 // Phase 3 Routes - Broadcasting & Streaming
 app.use('/api/broadcast', broadcastRoutes);
 app.use('/api/recommendations', recommendationRoutes);
+
+// Phase 4 Routes - Rights & Monetization
+app.use('/api/monetization', monetizationRoutes);
 
 // ============================================
 // ERROR HANDLING
@@ -1525,7 +1532,7 @@ async function startServer() {
 ╔═══════════════════════════════════════════════════════════════════════════════╗
 ║                        MEDIA OS v2.0.0                                        ║
 ║           Complete AI-Native Media Operating System                            ║
-║           Phase 3: Broadcasting & Streaming OS                                  ║
+║           Phase 4: Rights & Monetization OS                                  ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                               ║
 ║  Port: ${config.PORT}                                                             ║
@@ -1549,6 +1556,14 @@ async function startServer() {
 ║  • Streaming with HLS/DASH manifests                                        ║
 ║  • Viewer Profiles with Parental Controls                                    ║
 ║  • Content Recommendation Engine                                              ║
+║                                                                               ║
+║  PHASE 4 - Rights & Monetization OS:                                       ║
+║  • Royalty Management with revenue sharing                                  ║
+║  • Subscription Plans & Billing                                             ║
+║  • PPV (Rental & Purchase)                                                 ║
+║  • Sponsorship Deals                                                       ║
+║  • AdBazaar DSP/SSP Integration                                             ║
+║  • Revenue Dashboard & Analytics                                            ║
 ║                                                                               ║
 ║  AI Agents:                                                                ║
 ║  • Script Writer Agent     - Generate scripts, dialogues, twists             ║
@@ -1602,6 +1617,16 @@ async function startServer() {
       - Trending:      GET  /api/recommendations/trending
       - Continue:       GET  /api/recommendations/continue-watching
       - Watchlist:     GET  /api/recommendations/watchlist
+
+      Phase 4 - Rights & Monetization:
+      - Plans:         GET  /api/monetization/plans
+      - Subscribe:     POST /api/monetization/subscribe
+      - My Sub:        GET  /api/monetization/subscription
+      - PPV Access:    GET  /api/monetization/access/:contentId
+      - Buy/Rent:     POST /api/monetization/ppv/purchase
+      - Revenue:       GET  /api/monetization/revenue
+      - Royalties:    GET  /api/monetization/royalties
+      - Sponsorships:  GET  /api/monetization/sponsorships
 
       AI Agents:
       - Script:         POST /api/content-ops/ai/script/generate

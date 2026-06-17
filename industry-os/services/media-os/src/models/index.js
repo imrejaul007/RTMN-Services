@@ -35,6 +35,10 @@ const ProgramGrid = require('./ProgramGrid');
 const EPGEntry = require('./EPG');
 const Stream = require('./Streaming');
 const ViewerProfile = require('./ViewerProfile');
+const Royalty = require('./Royalty');
+const Sponsorship = require('./Sponsorship');
+const PPVTransaction = require('./PPV');
+const { Revenue } = require('./Revenue');
 
 /**
  * Connect to MongoDB
@@ -347,4 +351,9 @@ module.exports = {
   EPGEntry,
   Stream,
   ViewerProfile,
+  // Rights & Monetization
+  Royalty,
+  Sponsorship,
+  PPVTransaction,
+  Revenue,
 };
