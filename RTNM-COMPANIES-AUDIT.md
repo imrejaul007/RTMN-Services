@@ -471,6 +471,47 @@ render blueprint apply render.yaml
 
 ---
 
+### ✅ CorpPerks - HR & People Ops (EXPANDED!)
+
+**Location:** `companies/CorpPerks/`  
+**Status:** ✅ **Complete** | **Production Ready**
+
+| Category | Count | Services |
+|----------|-------|----------|
+| PeopleOS | 1 | HR platform |
+| Payroll | 1 | Payroll processing |
+| Benefits | 1 | Benefits management |
+| Support Portal | 1 | HR support |
+| TalentAI | 1 | AI recruitment (NEW!) |
+
+**TalentAI Features:**
+- AI-powered candidate screening
+- Resume parsing
+- Interview scheduling
+- Skill matching
+- Job posting optimization
+
+**Connected to Customer Operations:** Via `corpperks-integration` (Port 4968)
+
+---
+
+### ✅ REZ-SalesMind - Sales Intelligence
+
+**Location:** `companies/RTNM-Digital/REZ-SalesMind/`  
+**Status:** ✅ **Complete** | **Production Ready**
+
+| Category | Features |
+|----------|----------|
+| Customer Operations | Full CRM integration |
+| Lead Management | Capture, qualify, route |
+| Deal Pipeline | Visual pipeline |
+| AI Copilot | Sales assistant |
+| Analytics | Real-time dashboards |
+
+**Connected to Customer Operations:** Via integration service
+
+---
+
 ## Integration Summary
 
 ### Company → Customer Operations OS
