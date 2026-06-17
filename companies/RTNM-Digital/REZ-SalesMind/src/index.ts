@@ -28,6 +28,7 @@ import { multiChannelFollowUpRoutes } from './routes/multiChannelFollowUp.js';
 import { unifiedCommsRoutes } from './routes/unifiedComms.js';
 import { sutarOSRoutes } from './routes/sutarOS.js';
 import { copilotRoutes } from './routes/copilot.js';
+import { customerOpsRoutes } from './routes/customerOps.js';
 
 const app = express();
 const PORT = process.env.PORT || 5175;
@@ -77,6 +78,7 @@ app.use('/api/followup', writeLimiter, multiChannelFollowUpRoutes);
 app.use('/api/comms', writeLimiter, unifiedCommsRoutes);
 app.use('/api/sutar', writeLimiter, sutarOSRoutes);
 app.use('/api/copilot', writeLimiter, copilotRoutes);
+app.use('/api/customer-ops', writeLimiter, customerOpsRoutes);
 
 // 404
 app.use((req, res) => res.status(404).json({ error: 'Not Found' }));

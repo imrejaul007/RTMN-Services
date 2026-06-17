@@ -285,7 +285,7 @@ class CustomerOpsIntegration {
     Object.entries(SERVICE_PORTS).forEach(([name, port]) => {
       this.serviceStatuses.set(name.toLowerCase(), {
         name,
-        port,
+        port: typeof port === 'string' ? parseInt(port, 10) : port,
         status: 'disconnected',
       });
     });
@@ -688,7 +688,14 @@ class CustomerOpsIntegration {
     try {
       await randomDelay(200, 400);
 
-      const mockAgents = [
+      const mockAgents: Array<{
+        id: string;
+        name: string;
+        status: 'online' | 'away' | 'busy' | 'offline';
+        currentTickets: number;
+        avgHandleTime: number;
+        satisfaction: number;
+      }> = [
         { id: 'agent-101', name: 'Alice Johnson', status: 'online', currentTickets: 3, avgHandleTime: 12, satisfaction: 4.8 },
         { id: 'agent-102', name: 'Bob Smith', status: 'busy', currentTickets: 5, avgHandleTime: 15, satisfaction: 4.6 },
         { id: 'agent-103', name: 'Carol Davis', status: 'away', currentTickets: 0, avgHandleTime: 10, satisfaction: 4.9 },
