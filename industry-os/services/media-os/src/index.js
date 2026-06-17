@@ -43,6 +43,10 @@ const { twinService, TWIN_TYPES } = require('./twins');
 const { contentRoutes } = require('./routes/contentRoutes');
 const { aiRoutes } = require('./routes/aiRoutes');
 
+// Phase 3 Routes - Broadcasting & Streaming
+const { broadcastRoutes } = require('./routes/broadcastRoutes');
+const { recommendationRoutes } = require('./routes/recommendationRoutes');
+
 // ============================================
 // APP INITIALIZATION
 // ============================================
@@ -124,6 +128,10 @@ app.use('/auth', authLimiter);
 // Phase 2 Routes - Content & Production
 app.use('/api/content-ops', contentRoutes);
 app.use('/api/content-ops', aiRoutes);
+
+// Phase 3 Routes - Broadcasting & Streaming
+app.use('/api/broadcast', broadcastRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // ============================================
 // ERROR HANDLING

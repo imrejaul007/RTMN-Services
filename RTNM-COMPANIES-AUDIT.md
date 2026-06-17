@@ -5043,7 +5043,153 @@ These AdBazaar services exist but are not yet connected to RTMN OS:
 
 ---
 
-*Last Updated: June 16, 2026*
+## Axom - Community Intelligence & Local Discovery - COMPLETE
+
+**Location:** `companies/Axom/`  
+**Status:** 🚀 **PRODUCTION READY** | **4 Products** | **10+ Services** | **Apps Complete** | **June 17, 2026**
+
+### Axom Products
+
+| Product | Type | App | Backend | Status |
+|---------|------|-----|---------|--------|
+| **BuzzLocal** | Neighborhood OS | ✅ | ✅ 10 services | 🚀 Ready |
+| **Rendez** | Social Connecting | ✅ | ✅ 67 services | 🚀 Ready |
+| **Z-Events** | Event Discovery | ✅ | ✅ | 🚀 Ready |
+| **Cosmic-OS** | AI Wellness | ✅ | ✅ | 🚀 Ready |
+
+### BuzzLocal - Neighborhood OS (Nextdoor + Citizen + Google Maps)
+
+**Tagline:** *"Know what's happening around you in real time."*
+
+#### BuzzLocal 10 Core Modules
+
+| Module | Description |
+|--------|-------------|
+| Local Feed | News, offers, events, alerts |
+| Society OS | Apartment/community management |
+| Crowd Intelligence | Real-time crowd tracking |
+| Safety Map | Community safety alerts |
+| Trusted Circle | Family/friends groups |
+| Live Route | Journey sharing |
+| Crisis Management | Emergency response |
+| Local Business | Business discovery |
+| Local Events | Event discovery |
+| Weather Intelligence | Local weather alerts |
+
+#### BuzzLocal Backend Services (10 Services)
+
+| Service | Port | package.json | tsconfig | src/index.ts |
+|---------|------|-------------|----------|--------------|
+| buzzlocal-feed-service | 4200 | ✅ | ✅ | ✅ |
+| buzzlocal-society-service | 4210 | ✅ | ✅ | ✅ |
+| buzzlocal-safety-service | 4220 | ✅ | ✅ | ✅ |
+| buzzlocal-business-service | 4230 | ✅ | ✅ | ✅ |
+| buzzlocal-crowd-service | 4240 | ✅ | ✅ | ✅ |
+| buzzlocal-weather-service | 4250 | ✅ | ✅ | ✅ |
+| buzzlocal-community-service | 4260 | ✅ | ✅ | ✅ |
+| buzzlocal-notification-service | 4270 | ✅ | ✅ | ✅ |
+| buzzlocal-payment-service | 4280 | ✅ | ✅ | ✅ |
+| buzzlocal-vibe-service | 4290 | ✅ | ✅ | ✅ |
+
+### Rendez - Social Connecting
+
+**Tagline:** *"Find people. Meet safely. Build relationships. Do things together."*
+
+#### Rendez Features
+
+| Feature | Description |
+|---------|-------------|
+| AI Matchmaking | Compatibility scores (0-100%) |
+| Safety Center | SOS, verification, live tracking |
+| Couple Mode | Shared timeline, bucket list |
+| Business Network | Founder/investor matching |
+| Events Integration | Meet at events |
+| AI Chat Assistant | Genie in conversations |
+
+#### Rendez Backend Services (67 Services)
+
+- MatchService, DiscoveryService, MessagingService
+- MeetupService, GiftService, KarmaService
+- WalletService, SafetyService, VerificationService
+
+### Z-Events - Event Discovery
+
+**Tagline:** *"Discover events. Book tickets. Meet people."*
+
+#### Z-Events Features
+
+| Feature | Description |
+|---------|-------------|
+| Event Discovery | Browse by category, location |
+| Smart Search | AI-powered recommendations |
+| Ticketing | QR-based entry system |
+| Attendee Matching | See who's going |
+| Reviews | Community ratings |
+| Organizer Tools | Event management |
+
+### Cosmic-OS - AI Wellness
+
+**Tagline:** *"Illuminate your path with cosmic wisdom."*
+
+#### Cosmic-OS AI Council (7 Agents)
+
+| Agent | Specialty |
+|-------|-----------|
+| 🔮 The Mystic | Spiritual guidance |
+| 💚 The Healer | Emotional wellness |
+| 🎯 The Strategist | Career planning |
+| 👁️ The Oracle | Pattern recognition |
+| 💫 The Connector | Relationship harmony |
+| 💎 The Wealth Guide | Financial clarity |
+| 🧭 The Explorer | Personal growth |
+
+### Axom Ecosystem Integration
+
+#### Connected to HOJAI AI
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| Genie Gateway | 4701 | AI orchestration |
+| Genie Memory | 4703 | Personal memory |
+| Genie Briefing | 4704 | Daily briefings |
+| Genie Personal Twin | 4708 | User identity |
+
+#### Connected to AdBazaar
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| Ad Service | 5000 | Local advertising |
+| Campaign Builder | 5001 | Ad campaigns |
+
+#### Connected to REZ
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| REZ Auth | 4002 | Authentication |
+| REZ Wallet | 4004 | Payments |
+| CorpID | 4300 | Identity |
+
+### Axom App Structure
+
+```
+Axom/
+├── buzzlocal/
+│   ├── buzzlocal-app/          # BuzzLocal mobile app
+│   ├── z-events-app/           # Z-Events mobile app
+│   └── buzzlocal-*-service/    # 10 backend services
+├── rendez/
+│   ├── rendez-app/              # Rendez mobile app
+│   ├── rendez-backend/          # 67 backend services
+│   └── rendez-admin/           # Admin dashboard
+├── Cosmic-OS/
+│   ├── cosmic-app/              # Cosmic-OS mobile app
+│   └── cosmic-api/              # Cosmic-OS API
+└── CLAUDE.md                   # Complete documentation
+```
+
+---
+
+*Last Updated: June 17, 2026*
 
 ---
 

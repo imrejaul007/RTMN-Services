@@ -1,0 +1,308 @@
+# RTMN Workforce OS - Docker Compose
+# Production Infrastructure
+
+version: '3.8'
+
+services:
+  # ===========================================
+  # WORKFORCE OS CORE
+  # ===========================================
+  workforce-os:
+    build:
+      context: ./workforce-os
+      dockerfile: Dockerfile
+    ports:
+      - "5065:5065"
+    environment:
+      - NODE_ENV=production
+      - PORT=5065
+      - MONGODB_URI=mongodb://mongo:27017/workforce
+      - REDIS_URL=redis://redis:6379
+      - CORPID_URL=http://corpid:4702
+      - TWINOS_URL=http://twinos:4705
+      - EVENT_BUS_URL=http://eventbus:4510
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - mongo
+      - redis
+      - corpid
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5065/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # TALENT OS
+  # ===========================================
+  talent-os:
+    build:
+      context: ./talent-os
+      dockerfile: Dockerfile
+    ports:
+      - "5066:5066"
+    environment:
+      - NODE_ENV=production
+      - PORT=5066
+      - MONGODB_URI=mongodb://mongo:27017/talent
+      - WORKFORCE_OS_URL=http://workforce-os:5065
+      - CORPID_URL=http://corpid:4702
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - mongo
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5066/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # LEARNING OS
+  # ===========================================
+  learning-os:
+    build:
+      context: ./learning-os
+      dockerfile: Dockerfile
+    ports:
+      - "5068:5068"
+    environment:
+      - NODE_ENV=production
+      - PORT=5068
+      - MONGODB_URI=mongodb://mongo:27017/learning
+      - WORKFORCE_OS_URL=http://workforce-os:5065
+    depends_on:
+      - mongo
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5068/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # ORGANIZATION OS
+  # ===========================================
+  organization-os:
+    build:
+      context: ./organization-os
+      dockerfile: Dockerfile
+    ports:
+      - "5072:5072"
+    environment:
+      - NODE_ENV=production
+      - PORT=5072
+      - MONGODB_URI=mongodb://mongo:27017/organization
+      - WORKFORCE_OS_URL=http://workforce-os:5065
+    depends_on:
+      - mongo
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5072/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # WORKFORCE INTELLIGENCE
+  # ===========================================
+  workforce-intelligence:
+    build:
+      context: ./workforce-intelligence
+      dockerfile: Dockerfile
+    ports:
+      - "5073:5073"
+    environment:
+      - NODE_ENV=production
+      - PORT=5073
+      - MONGODB_URI=mongodb://mongo:27017/intelligence
+      - WORKFORCE_OS_URL=http://workforce-os:5065
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - mongo
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5073/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # CROSS-OS INTEGRATION HUB
+  # ===========================================
+  cross-os-integration:
+    build:
+      context: ./cross-os-integration
+      dockerfile: Dockerfile
+    ports:
+      - "5085:5085"
+    environment:
+      - NODE_ENV=production
+      - PORT=5085
+      - WORKFORCE_OS_URL=http://workforce-os:5065
+    depends_on:
+      - workforce-os
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # MONGODB
+  # ===========================================
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    environment:
+      - MONGO_INITDB_DATABASE=workforce
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # REDIS
+  # ===========================================
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================
+  # MONGO EXPRESS (Admin UI)
+  # ===========================================
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_BASICAUTH=false
+    depends_on:
+      - mongo
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ===========================================
+  # REDIS INSIGHT (Admin UI)
+  # ===========================================
+  redis-insight:
+    image: redis/redisinsight:latest
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ===========================================
+  # PROMETHEUS (Metrics)
+  # ===========================================
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ===========================================
+  # GRAFANA (Dashboards)
+  # ===========================================
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ===========================================
+  # NGINX (Reverse Proxy)
+  # ===========================================
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - workforce-os
+      - talent-os
+      - learning-os
+      - workforce-intelligence
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+# ===========================================
+# NETWORKS
+# ===========================================
+networks:
+  rtmn-network:
+    driver: bridge
+
+# ===========================================
+# VOLUMES
+# ===========================================
+volumes:
+  mongo-data:
+  mongo-config:
+  redis-data:
+  prometheus-data:
+  grafana-data:
