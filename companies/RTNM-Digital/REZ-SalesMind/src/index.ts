@@ -23,6 +23,11 @@ import { voicemailRoutes } from './routes/voicemail.js';
 import { campaignRoutes } from './routes/campaign.js';
 import { autonomousSDRRoutes } from './routes/autonomousSDR.js';
 import { crmRoutes } from './routes/crm.js';
+import { socialMediaRoutes } from './routes/socialMedia.js';
+import { multiChannelFollowUpRoutes } from './routes/multiChannelFollowUp.js';
+import { unifiedCommsRoutes } from './routes/unifiedComms.js';
+import { sutarOSRoutes } from './routes/sutarOS.js';
+import { copilotRoutes } from './routes/copilot.js';
 
 const app = express();
 const PORT = process.env.PORT || 5170;
@@ -51,7 +56,7 @@ app.use('/api', authMiddleware);
 
 // Health
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'REZ SalesMind', version: '2.3.0', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', service: 'REZ SalesMind', version: '2.4.0', timestamp: new Date().toISOString() });
 });
 
 // Routes
@@ -67,6 +72,11 @@ app.use('/api/voicemail', voicemailRoutes);
 app.use('/api/campaign', writeLimiter, campaignRoutes);
 app.use('/api/sdr', writeLimiter, autonomousSDRRoutes);
 app.use('/api/crm', writeLimiter, crmRoutes);
+app.use('/api/social', writeLimiter, socialMediaRoutes);
+app.use('/api/followup', writeLimiter, multiChannelFollowUpRoutes);
+app.use('/api/comms', writeLimiter, unifiedCommsRoutes);
+app.use('/api/sutar', writeLimiter, sutarOSRoutes);
+app.use('/api/copilot', writeLimiter, copilotRoutes);
 
 // 404
 app.use((req, res) => res.status(404).json({ error: 'Not Found' }));
@@ -96,7 +106,7 @@ process.on('SIGTERM', () => { server.close(); process.exit(0); });
 process.on('SIGINT', () => { server.close(); process.exit(0); });
 
 server.listen(PORT, () => {
-  console.log(`🚀 REZ SalesMind v2.3.0 running on port ${PORT}`);
+  console.log(`🚀 REZ SalesMind v2.4.0 running on port ${PORT}`);
 });
 
 export default app;
