@@ -321,3 +321,430 @@ services:
         value: https://rez-event-bus.onrender.com
       - key: JWT_SECRET
         generateValue: true
+
+  # ── CUSTOMER OPERATIONS OS (NEW! 2026) ───────────────────────────────
+
+  # Twins
+  - type: web
+    name: rtmn-customer-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/customer-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4885"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-organization-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/organization-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4888"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-product-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/product-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4889"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-asset-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/asset-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4890"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-employee-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/employee-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4891"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-partner-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/partner-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4892"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-industry-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/industry-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4893"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-order-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/order-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4900"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-payment-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/payment-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4901"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-subscription-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/subscription-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4902"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-shipment-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/shipment-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4903"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-lead-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/lead-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4908"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-campaign-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/campaign-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4909"
+      - key: NODE_ENV
+        value: production
+
+  # AI Intelligence
+  - type: web
+    name: rtmn-ai-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/ai-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4881"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-root-cause-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/root-cause-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4950"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-decision-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/decision-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4951"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-simulation-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/simulation-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4952"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-trust-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/trust-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4953"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-journey-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/journey-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4954"
+      - key: NODE_ENV
+        value: production
+
+  # Copilots
+  - type: web
+    name: rtmn-support-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/support-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4895"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-sales-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/sales-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4928"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-marketing-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/marketing-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4929"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-finance-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/finance-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4930"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-executive-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/executive-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4933"
+      - key: NODE_ENV
+        value: production
+
+  # Marketplaces
+  - type: web
+    name: rtmn-workflow-marketplace
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/workflow-marketplace
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4938"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-knowledge-marketplace
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/knowledge-marketplace
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4939"
+      - key: NODE_ENV
+        value: production
+
+  # Intelligence & Graph
+  - type: web
+    name: rtmn-outcome-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/outcome-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4934"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-universal-graph
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/universal-graph
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4937"
+      - key: NODE_ENV
+        value: production
