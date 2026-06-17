@@ -1,0 +1,241 @@
+# RTMN Workforce OS - Render Deployment Blueprint
+# ================================================
+#
+# Deploys all Workforce OS services to Render:
+# - Workforce OS Core (5065)
+# - Talent OS (5066)
+# - Learning OS (5068)
+# - Organization OS (5072)
+# - Workforce Intelligence (5073)
+#
+# Usage:
+#   render blueprint create --spec render.yaml
+#   render blueprint apply --spec render.yaml
+#
+# ================================================
+
+services:
+  # ===========================================
+  # WORKFORCE OS CORE (Port 5065)
+  # ===========================================
+  - name: rtmn-workforce-os
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: industry-os/services/workforce-os
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5065
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "https://peopleos.rtmn.com,http://localhost:3001"
+      - key: WORKFORCE_OS_VERSION
+        value: "2.0.0"
+    disk:
+      - name: workforce-data
+        mountPath: /data
+        sizeGB: 1
+
+  # ===========================================
+  # TALENT OS (Port 5066)
+  # ===========================================
+  - name: rtmn-talent-os
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: industry-os/services/talent-os
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5066
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: WORKFORCE_OS_URL
+        fromService: rtmn-workforce-os
+        envVarKey: RENDER_INTERNAL_HOSTNAME
+        prefix: "http://"
+        suffix: ":5065"
+      - key: TALENT_OS_VERSION
+        value: "1.0.0"
+
+  # ===========================================
+  # LEARNING OS (Port 5068)
+  # ===========================================
+  - name: rtmn-learning-os
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: industry-os/services/learning-os
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5068
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: WORKFORCE_OS_URL
+        fromService: rtmn-workforce-os
+        envVarKey: RENDER_INTERNAL_HOSTNAME
+        prefix: "http://"
+        suffix: ":5065"
+      - key: LEARNING_OS_VERSION
+        value: "1.0.0"
+
+  # ===========================================
+  # ORGANIZATION OS (Port 5072)
+  # ===========================================
+  - name: rtmn-organization-os
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: industry-os/services/organization-os
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5072
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: WORKFORCE_OS_URL
+        fromService: rtmn-workforce-os
+        envVarKey: RENDER_INTERNAL_HOSTNAME
+        prefix: "http://"
+        suffix: ":5065"
+      - key: ORGANIZATION_OS_VERSION
+        value: "1.0.0"
+
+  # ===========================================
+  # WORKFORCE INTELLIGENCE (Port 5073)
+  # ===========================================
+  - name: rtmn-workforce-intelligence
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: industry-os/services/workforce-intelligence
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5073
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: WORKFORCE_OS_URL
+        fromService: rtmn-workforce-os
+        envVarKey: RENDER_INTERNAL_HOSTNAME
+        prefix: "http://"
+        suffix: ":5065"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: INTELLIGENCE_VERSION
+        value: "1.0.0"
+
+  # ===========================================
+  # CORPPERKS SERVICES (Legacy - Optional)
+  # ===========================================
+  - name: rtmn-corpperks-hub
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/backend
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4006
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: "https://corpperks.rtmn.com,https://peopleos.rtmn.com,https://talentai.rtmn.com"
+
+  - name: rtmn-corpperks-intelligence
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/corpperks-intelligence
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4135
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+# ===========================================
+# JOB SERVICES
+# ===========================================
+  - name: rtmn-corpperks-agents
+    region: singapore
+    plan: starter
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: companies/CorpPerks/role-ai-agents
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4136
+      - key: OPENAI_API_KEY
+        sync: false
+
+# ===========================================
+# WORKER SERVICES
+# ===========================================
+  - name: rtmn-workforce-cron
+    region: singapore
+    plan: starter
+    type: cron
+    schedule: "0 * * * *"
+    repo: https://github.com/your-org/rtmn-services.git
+    branch: main
+    path: industry-os/services/workforce-os
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JOB_TYPE
+        value: "cron"
+      - key: MONGODB_URI
+        sync: false
+
+# ===========================================
+# PRIVATE NETWORK
+# ===========================================
+networks:
+  - name: rtmn-workforce-network
+    description: "RTMN Workforce OS private network"
+    staticIp: false
