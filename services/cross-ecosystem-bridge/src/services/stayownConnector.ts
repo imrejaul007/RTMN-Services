@@ -83,9 +83,11 @@ class StayownConnector {
   private bookingClient: AxiosInstance;
 
   constructor() {
-    const apiUrl = process.env.STAYOWN_API_URL || 'http://localhost:6000';
-    const hotelOsUrl = process.env.STAYOWN_HOTEL_OS_URL || 'http://localhost:5025';
-    const bookingUrl = process.env.STAYOWN_BOOKING_URL || 'http://localhost:6001';
+    // Use environment variables (DEV_* or production URLs from .env.example)
+    // For production: Set in .env to point to https://hotel-ota-api.onrender.com etc.
+    const apiUrl = process.env.STAYOWN_API_URL || process.env.DEV_STAYOWN_API_URL || 'http://localhost:3000';
+    const hotelOsUrl = process.env.STAYOWN_HOTEL_OS_URL || process.env.DEV_STAYOWN_HOTEL_OS_URL || 'http://localhost:5025';
+    const bookingUrl = process.env.STAYOWN_BOOKING_URL || process.env.DEV_STAYOWN_BOOKING_URL || 'http://localhost:6010';
 
     this.apiClient = axios.create({
       baseURL: apiUrl,

@@ -68,27 +68,35 @@ export class CommunicationConnector {
 
     async sendEmail(to: string, subject: string, body: string): Promise<boolean> {
         try {
-            await this.genieClient.post('/api/message/send', { channel: 'email', to, subject, body });
+            await this.genieClient.post('/api/send', { channel: 'email', to, subject, body });
             return true;
         } catch { return false; }
     }
     async sendSMS(phone: string, message: string): Promise<boolean> {
         try {
-            await this.genieClient.post('/api/message/send', { channel: 'sms', to: phone, body: message });
+            await this.genieClient.post('/api/send', { channel: 'sms', to: phone, body: message });
             return true;
         } catch { return false; }
     }
     async sendWhatsApp(phone: string, message: string): Promise<boolean> {
         try {
-            await this.genieClient.post('/api/message/send', { channel: 'whatsapp', to: phone, body: message });
+            await this.genieClient.post('/api/send', { channel: 'whatsapp', to: phone, body: message });
             return true;
         } catch { return false; }
     }
     async makeCall(phone: string): Promise<boolean> {
         try {
-            await this.genieClient.post('/api/communication/call', { to: phone });
-            return true;
-        } catch { return false; }
+            const response = await this.genieClient.post('/communication/call', { to: phone, direction: 'outbound' });
+            // Check if Voice OS returned success
+            if (response.data?.success === true) {
+                return true;
+            }
+            console.log('Voice OS call failed:', response.data);
+            return false;
+        } catch (error: any) {
+            console.error('Voice OS call error:', error?.message || error);
+            return false;
+        }
     }
     async scheduleMeeting(email: string, topic: string, time: Date): Promise<string> {
         try {
