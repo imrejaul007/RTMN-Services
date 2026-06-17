@@ -1,1604 +1,969 @@
 /**
- * entertainment-os AI Company Platform
- * 
- * restaurant OS upgraded with all 15 layers of RTMN ecosystem.
- * 
- * Port: 5010
- * Industry: Restaurant
+ * Entertainment OS - AI Company Platform
+ *
+ * Complete Event/Entertainment Management System
+ *
+ * Port: 5200
+ * Industry: Entertainment
+ *
+ * Features:
+ * - Event Management (concerts, festivals, shows)
+ * - Venue/Stage Management
+ * - Artist/Performer Management
+ * - Ticket Sales & Booking
+ * - Vendor Management
+ * - Event Staff/Volunteers
+ * - Equipment/Rigging Inventory
+ * - Ticket Pricing & Packages
+ * - Analytics
  */
 
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const compression = require('compression');
+const winston = require('winston');
 
 const app = express();
 const PORT = process.env.PORT || 5200;
 
+// Logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console({ format: winston.format.simple() })
+  ]
+});
+
 // Middleware
 app.use(helmet());
 app.use(cors());
-app.use(compression());
 app.use(express.json());
 
-// ============================================
-// LAYER CONFIGURATION
-// ============================================
-
-const INDUSTRY = 'entertainment';
-const LAYERS_ENABLED = process.env.LAYERS ? process.env.LAYERS.split(',') : 'all';
-
-// Service URLs for Layer Integration
-const RTMN_SERVICES = {
-  // Layer 1: Intelligence (HOJAI AI - 153 services)
-  // Genie Services
-  genie: process.env.GENIE_URL || 'http://localhost:4701',
-  genieHousehold: process.env.GENIE_HOUSEHOLD_URL || 'http://localhost:4706',
-  genieBusiness: process.env.GENIE_BUSINESS_URL || 'http://localhost:4707',
-  genieProject: process.env.GENIE_PROJECT_URL || 'http://localhost:4708',
-  genieMemory: process.env.GENIE_MEMORY_URL || 'http://localhost:4709',
-  genieTwin: process.env.GENIE_TWIN_URL || 'http://localhost:4710',
-  genieRelationship: process.env.GENIE_RELATIONSHIP_URL || 'http://localhost:4711',
-  // CoPilot Services
-  copilot: process.env.COPILOT_URL || 'http://localhost:4600',
-  copilotBusiness: process.env.COPILOT_BUSINESS_URL || 'http://localhost:4601',
-  copilotSales: process.env.COPILOT_SALES_URL || 'http://localhost:4602',
-  copilotFinance: process.env.COPILOT_FINANCE_URL || 'http://localhost:4603',
-  copilotHR: process.env.COPILOT_HR_URL || 'http://localhost:4604',
-  // Agent Services
-  agentMarketplace: process.env.AGENT_URL || 'http://localhost:4580',
-  agentStream: process.env.AGENT_STREAM_URL || 'http://localhost:4581',
-  // SUTAR OS
-  sutarOS: process.env.SUTAR_URL || 'http://localhost:4140',
-  sutarCore: process.env.SUTAR_CORE_URL || 'http://localhost:4141',
-  // Industry AI
-  hojaiIndustry: process.env.HOJAI_INDUSTRY_URL || 'http://localhost:4150',
-  hojaiCommerce: process.env.HOJAI_COMMERCE_URL || 'http://localhost:4151',
-  // Collaboration
-  hojaiCollab: process.env.HOJAI_COLLAB_URL || 'http://localhost:4160',
-  hojaiExpert: process.env.HOJAI_EXPERT_URL || 'http://localhost:4161',
-  
-  // Layer 2: Customer Growth (AdBazaar + REZ Consumer + Axom)
-  // CRM & Customer
-  crmHub: process.env.CRM_HUB_URL || 'http://localhost:4056',
-  leadIntelligence: process.env.LEAD_INTELLIGENCE_URL || 'http://localhost:4057',
-
-  // Ads & Campaigns
-  adsApi: process.env.ADS_API_URL || 'http://localhost:4060',
-  adAi: process.env.AD_AI_URL || 'http://localhost:4061',
-  aiCampaignBuilder: process.env.CAMPAIGN_BUILDER_URL || 'http://localhost:4062',
-  dspPortal: process.env.DSP_URL || 'http://localhost:4063',
-  programmaticBidding: process.env.PROGRAMMATIC_URL || 'http://localhost:4064',
-  emailCampaign: process.env.EMAIL_CAMPAIGN_URL || 'http://localhost:4065',
-
-  // Loyalty & Rewards
-  loyaltyService: process.env.LOYALTY_URL || 'http://localhost:4070',
-  anniversaryRewards: process.env.ANNIVERSARY_URL || 'http://localhost:4071',
-  birthdayRewards: process.env.BIRTHDAY_URL || 'http://localhost:4072',
-  gamification: process.env.GAMIFICATION_URL || 'http://localhost:4073',
-  referralGraph: process.env.REFERRAL_URL || 'http://localhost:4074',
-
-  // Creator & Influencer
-  creatorStudio: process.env.CREATOR_URL || 'http://localhost:4080',
-  creatorCommerce: process.env.CREATOR_COMMERCE_URL || 'http://localhost:4081',
-  ugcManagement: process.env.UGC_URL || 'http://localhost:4082',
-
-  // Analytics & Intelligence
-  marketingAnalytics: process.env.MARKETING_ANALYTICS_URL || 'http://localhost:4090',
-  mediaAnalytics: process.env.MEDIA_ANALYTICS_URL || 'http://localhost:4091',
-  intelligenceBridge: process.env.INTELLIGENCE_BRIDGE_URL || 'http://localhost:4092',
-  revenueIntelligence: process.env.REVENUE_INTEL_URL || 'http://localhost:4093',
-
-  // DOOH & Display
-  doohService: process.env.DOOH_URL || 'http://localhost:4100',
-  doohSdk: process.env.DOOH_SDK_URL || 'http://localhost:4101',
-  videoAds: process.env.VIDEO_ADS_URL || 'http://localhost:4102',
-
-  // Chat & Widgets
-  liveChat: process.env.LIVE_CHAT_URL || 'http://localhost:4110',
-  feedbackService: process.env.FEEDBACK_URL || 'http://localhost:4111',
-
-  // BuzzLocal & Community
-  buzzLocal: process.env.BUZZLOCAL_URL || 'http://localhost:4020',
-
-  // Intent & Audience
-  intentExchange: process.env.INTENT_URL || 'http://localhost:4120',
-  audienceMarketplace: process.env.AUDIENCE_URL || 'http://localhost:4121',
-  
-  // Layer 3: Commerce (Nexha + REZ-Merchant)
-  nexha: process.env.NEXHA_URL || 'http://localhost:5002',
-  procurement: process.env.PROCUREMENT_URL || 'http://localhost:4320',
-
-  // REZ-Merchant Integration (Layer 3 Extension)
-  merchantPOS: process.env.MERCHANT_POS_URL || 'http://localhost:4800',
-  merchantRestaurant: process.env.MERCHANT_RESTAURANT_URL || 'http://localhost:4801',
-  merchantMenu: process.env.MERCHANT_MENU_URL || 'http://localhost:4802',
-  merchantPayment: process.env.MERCHANT_PAYMENT_URL || 'http://localhost:4803',
-  merchantLoyalty: process.env.MERCHANT_LOYALTY_URL || 'http://localhost:4804',
-  merchantInventory: process.env.MERCHANT_INVENTORY_URL || 'http://localhost:4805',
-  merchantStaff: process.env.MERCHANT_STAFF_URL || 'http://localhost:4806',
-  merchantReservations: process.env.MERCHANT_RESERVATIONS_URL || 'http://localhost:4807',
-  merchantDashboard: process.env.MERCHANT_DASHBOARD_URL || 'http://localhost:4808',
-  merchantGenie: process.env.MERCHANT_GENIE_URL || 'http://localhost:4809',
-  
-  // Layer 4: Financial (RABTUL - 112 services)
-  // Auth & Identity
-  auth: process.env.AUTH_URL || 'http://localhost:4002',
-  // Wallet & Payments
-  wallet: process.env.WALLET_URL || 'http://localhost:4004',
-  walletService: process.env.WALLET_SERVICE_URL || 'http://localhost:4005',
-  paymentGateway: process.env.PAYMENT_GATEWAY_URL || 'http://localhost:4006',
-  // Accounting
-  accounting: process.env.ACCOUNTING_URL || 'http://localhost:4010',
-  expenseService: process.env.EXPENSE_URL || 'http://localhost:4011',
-  invoiceService: process.env.INVOICE_URL || 'http://localhost:4012',
-  // Lending & Credit
-  lending: process.env.LENDING_URL || 'http://localhost:4020',
-  creditService: process.env.CREDIT_URL || 'http://localhost:4021',
-  // Procurement
-  procurementPayment: process.env.PROCUREMENT_PAYMENT_URL || 'http://localhost:4007',
-  // Contract
-  contractMgmt: process.env.CONTRACT_URL || 'http://localhost:4030',
-  // Distribution
-  distributionOS: process.env.DISTRIBUTION_URL || 'http://localhost:4040',
-  // GraphQL Federation
-  graphqlFed: process.env.GRAPHQL_URL || 'http://localhost:4000',
-  // Event Bus
-  eventBus: process.env.EVENT_BUS_URL || 'http://localhost:4510',
-  // Storage
-  fileStorage: process.env.STORAGE_URL || 'http://localhost:4050',
-  // Ecosystem
-  ecosystemConnector: process.env.ECOSYSTEM_URL || 'http://localhost:4399',
-  
-  // Layer 5: Workforce (CorpPerks - 43 services)
-  corpPerks: process.env.CORPPERKS_URL || 'http://localhost:4450',
-  // HR Services
-  hrService: process.env.HR_SERVICE_URL || 'http://localhost:4451',
-  onboardingService: process.env.ONBOARDING_URL || 'http://localhost:4452',
-  payrollService: process.env.PAYROLL_URL || 'http://localhost:4453',
-  attendanceService: process.env.ATTENDANCE_URL || 'http://localhost:4454',
-  leaveService: process.env.LEAVE_URL || 'http://localhost:4455',
-  // Recruitment
-  atsService: process.env.ATS_URL || 'http://localhost:4460',
-  talentPool: process.env.TALENT_URL || 'http://localhost:4461',
-  // Collaboration
-  calendarService: process.env.CALENDAR_URL || 'http://localhost:4470',
-  meetingService: process.env.MEETING_URL || 'http://localhost:4471',
-  documentService: process.env.DOCUMENT_URL || 'http://localhost:4472',
-  // Learning
-  lmsService: process.env.LMS_URL || 'http://localhost:4480',
-  okrService: process.env.OKR_URL || 'http://localhost:4481',
-  insightService: process.env.INSIGHT_URL || 'http://localhost:4482',
-  
-  // Layer 6: Legal & Trust (LawGens - 4 services)
-  legal: process.env.LEGAL_URL || 'http://localhost:5035',
-  trustScorer: process.env.TRUST_URL || 'http://localhost:4180',
-  contractService: process.env.CONTRACT_SERVICE_URL || 'http://localhost:5036',
-  complianceService: process.env.COMPLIANCE_URL || 'http://localhost:5037',
-  
-  // Layer 7: Property (RisnaEstate - 10 services + StayOwn - 37 services)
-  risnaEstate: process.env.RISNA_URL || 'http://localhost:4300',
-  propertyService: process.env.PROPERTY_SERVICE_URL || 'http://localhost:4301',
-  listingService: process.env.LISTING_URL || 'http://localhost:4302',
-  leadService: process.env.LEAD_SERVICE_URL || 'http://localhost:4303',
-  agentService: process.env.AGENT_SERVICE_URL || 'http://localhost:4304',
-  // StayOwn-Hospitality
-  stayOwn: process.env.STAYOWN_URL || 'http://localhost:6000',
-  stayOwnPMS: process.env.STAYOWN_PMS_URL || 'http://localhost:6001',
-  bookingEngine: process.env.BOOKING_ENGINE_URL || 'http://localhost:6002',
-  guestApp: process.env.GUEST_APP_URL || 'http://localhost:6003',
-  housekeepingService: process.env.HOUSEKEEPING_URL || 'http://localhost:6004',
-  
-  // Layer 8: Health (RisaCare - 31 services)
-  risaCare: process.env.RISACARE_URL || 'http://localhost:7000',
-  healthTwin: process.env.HEALTH_TWIN_URL || 'http://localhost:7001',
-  consultationCopilot: process.env.CONSULTATION_URL || 'http://localhost:7002',
-  wellnessService: process.env.WELLNESS_URL || 'http://localhost:7003',
-  healthInsurance: process.env.HEALTH_INSURANCE_URL || 'http://localhost:7004',
-  familyCoordination: process.env.FAMILY_COORD_URL || 'http://localhost:7005',
-  
-  // Layer 9: Mobility (KHAIRMOVE - 19 services)
-  khairMove: process.env.KHAIRMOVE_URL || 'http://localhost:4500',
-  deliveryService: process.env.DELIVERY_URL || 'http://localhost:4501',
-  fleetService: process.env.FLEET_URL || 'http://localhost:4502',
-  rideService: process.env.RIDE_URL || 'http://localhost:4503',
-  logisticsService: process.env.LOGISTICS_URL || 'http://localhost:4504',
-  airzyService: process.env.AIRZY_URL || 'http://localhost:4505',
-  
-  // Layer 10: Identity (CorpID)
-  corpid: process.env.CORPID_URL || 'http://localhost:4702',
-  
-  // Layer 11: Memory (MemoryOS)
-  memory: process.env.MEMORY_URL || 'http://localhost:4703',
-  
-  // Layer 12: Twins (TwinOS Hub)
-  twinos: process.env.TWINOS_URL || 'http://localhost:4705',
-
-  // Layer 13: Automation (FlowOS)
-  flow: process.env.FLOW_URL || 'http://localhost:4200',
-
-  // Layer 14: Autonomous (SUTAR OS + Karma Foundation)
-  sutar: process.env.SUTAR_URL || 'http://localhost:4140',
-  goalOS: process.env.GOAL_URL || 'http://localhost:4242',
-  decision: process.env.DECISION_URL || 'http://localhost:4240',
-  negotiation: process.env.NEGOTIATION_URL || 'http://localhost:4191',
-  karmaFoundation: process.env.KARMA_URL || 'http://localhost:4250',
-
-  // Layer 15: Consumer (REZ Consumer + Axom)
-  rezConsumer: process.env.REZ_CONSUMER_URL || 'http://localhost:3000',
-  axom: process.env.AXOM_URL || 'http://localhost:4000',
-  buzzLocal: process.env.BUZZLOCAL_URL || 'http://localhost:4020',
-
-  // Additional Services
-  // StayOwn-Hospitality (Layer 7 - PMS)
-  stayOwnPMS: process.env.STAYOWN_PMS_URL || 'http://localhost:6000',
-
-  // RidZa (Layer 4 - Financial Services)
-  ridZa: process.env.RIDZA_URL || 'http://localhost:4255',
-};
-
-// ============================================
-// AUTHENTICATION & DATABASE
-// ============================================
-
-const authBusinesses = new Map();
+// In-memory data stores
 const authUsers = new Map();
 const authSessions = new Map();
+const events = new Map();
+const venues = new Map();
+const artists = new Map();
+const tickets = new Map();
+const vendors = new Map();
+const staffMembers = new Map();
+const equipment = new Map();
+const bookings = new Map();
+const packages = new Map();
 
-let mongoose = null;
-let dbConnected = false;
-const MONGODB_URI = process.env.MONGODB_URI;
-
-async function initDatabase() {
-  if (!MONGODB_URI) {
-    console.log('⚠️  MONGODB_URI not set. Running in demo mode.');
-    return;
-  }
-  try {
-    mongoose = (await import('mongoose')).default;
-    await mongoose.connect(MONGODB_URI);
-    dbConnected = true;
-    console.log('✅ MongoDB connected for Restaurant AI Company');
-  } catch (err) {
-    console.error('MongoDB connection failed:', err.message);
-  }
-}
-
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
-function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-app.post('/auth/register', (req, res) => {
-  const { businessId, email, password, role, businessName } = req.body;
-  if (!email || !password || !businessId) {
-    return res.status(400).json({ error: 'businessId, email, password required' });
-  }
-  if (authUsers.has(email)) {
-    return res.status(409).json({ error: 'User already exists' });
-  }
-  const user = {
-    id: 'user_' + Date.now(),
-    businessId,
-    email,
-    passwordHash: hashPassword(password),
-    role: role || 'owner',
-    name: businessName || email.split('@')[0],
-    industry: INDUSTRY,
+// Initialize sample data
+function initializeSampleData() {
+  // Sample Venues
+  venues.set('venue-1', {
+    id: 'venue-1',
+    name: 'Grand Arena Stadium',
+    type: 'stadium',
+    capacity: 50000,
+    address: '123 Stadium Blvd, Metro City',
+    amenities: ['VIP Boxes', 'Parking', 'Food Court', 'Restrooms', 'Medical'],
+    stageArea: 5000,
+    backstageAreas: 3,
+    soundSystem: 'L-Acoustics K2',
+    lightingSystem: 'MA Lighting GrandMA3',
+    hourlyRate: 50000,
+    dailyRate: 400000,
     createdAt: new Date().toISOString()
-  };
-  authUsers.set(email, user);
-  const token = generateToken();
-  authSessions.set(token, { userId: user.id, email, businessId, industry: INDUSTRY, createdAt: Date.now() });
-  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
-});
+  });
 
-app.post('/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  const user = authUsers.get(email);
-  if (!user || user.passwordHash !== hashPassword(password)) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-  const token = generateToken();
-  authSessions.set(token, { userId: user.id, email: user.email, businessId: user.businessId, industry: INDUSTRY, createdAt: Date.now() });
-  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
-});
+  venues.set('venue-2', {
+    id: 'venue-2',
+    name: 'Theater Royale',
+    type: 'theater',
+    capacity: 2000,
+    address: '456 Broadway Ave, Arts District',
+    amenities: ['Premium Seating', 'Wheelchair Access', 'Concession Stands'],
+    stageArea: 800,
+    backstageAreas: 2,
+    soundSystem: 'JBL VTX',
+    lightingSystem: 'ETC EOS',
+    hourlyRate: 8000,
+    dailyRate: 65000,
+    createdAt: new Date().toISOString()
+  });
 
-app.get('/auth/verify', (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  const token = authHeader.slice(7);
-  const session = authSessions.get(token);
-  if (!session) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  res.json({ valid: true, ...session });
-});
+  venues.set('venue-3', {
+    id: 'venue-3',
+    name: 'Riverside Amphitheater',
+    type: 'amphitheater',
+    capacity: 10000,
+    address: '789 River Road, Waterfront',
+    amenities: ['Lawn Seating', 'Picnic Areas', 'Shuttle Service'],
+    stageArea: 2000,
+    backstageAreas: 2,
+    soundSystem: 'd&b Audiotechnik',
+    lightingSystem: 'Chamsys MagicQ',
+    hourlyRate: 15000,
+    dailyRate: 120000,
+    createdAt: new Date().toISOString()
+  });
 
+  // Sample Artists
+  artists.set('artist-1', {
+    id: 'artist-1',
+    name: 'Neon Pulse',
+    type: 'band',
+    genre: 'Electronic Rock',
+    members: 5,
+    fee: 150000,
+    popularity: 9,
+    socialFollowers: 2500000,
+    requirements: ['Full PA System', 'LED Screen 20x12ft', 'Fog Machines'],
+    contact: { name: 'Mike Chen', email: 'mike@neonpulse.com', phone: '+1-555-0101' },
+    createdAt: new Date().toISOString()
+  });
+
+  artists.set('artist-2', {
+    id: 'artist-2',
+    name: 'Sofia Martinez',
+    type: 'solo',
+    genre: 'Latin Pop',
+    members: 1,
+    fee: 80000,
+    popularity: 8,
+    socialFollowers: 5000000,
+    requirements: ['Professional Monitor System', 'Backup Band'],
+    contact: { name: 'Sofia Martinez', email: 'sofia@management.com', phone: '+1-555-0102' },
+    createdAt: new Date().toISOString()
+  });
+
+  artists.set('artist-3', {
+    id: 'artist-3',
+    name: 'The Jazz Collective',
+    type: 'band',
+    genre: 'Jazz Fusion',
+    members: 7,
+    fee: 45000,
+    popularity: 7,
+    socialFollowers: 500000,
+    requirements: ['Upright Piano', 'Acoustic Treatment'],
+    contact: { name: 'James Wilson', email: 'james@jazzcollective.com', phone: '+1-555-0103' },
+    createdAt: new Date().toISOString()
+  });
+
+  artists.set('artist-4', {
+    id: 'artist-4',
+    name: 'Rhythm Nation Dance Crew',
+    type: 'dance',
+    genre: 'Hip Hop',
+    members: 8,
+    fee: 60000,
+    popularity: 8,
+    socialFollowers: 3000000,
+    requirements: ['Dance Floor', 'Mirrored Ceiling', 'Spotlights'],
+    contact: { name: 'Aisha Thompson', email: 'aisha@rhythmnation.com', phone: '+1-555-0104' },
+    createdAt: new Date().toISOString()
+  });
+
+  // Sample Events
+  events.set('event-1', {
+    id: 'event-1',
+    name: 'Summer Beats Festival 2026',
+    type: 'festival',
+    description: 'Three-day outdoor music festival featuring top electronic artists',
+    date: '2026-07-15',
+    time: '14:00',
+    duration: 10,
+    venueId: 'venue-3',
+    artistIds: ['artist-1', 'artist-2'],
+    status: 'confirmed',
+    expectedAttendance: 8500,
+    ticketSales: 6200,
+    revenue: 620000,
+    budget: 500000,
+    sponsorshipDeals: 3,
+    marketingSpend: 50000,
+    createdAt: new Date().toISOString()
+  });
+
+  events.set('event-2', {
+    id: 'event-2',
+    name: 'Sofia Martinez World Tour',
+    type: 'concert',
+    description: 'Latin pop sensation Sofia Martinez live in concert',
+    date: '2026-08-20',
+    time: '20:00',
+    duration: 3,
+    venueId: 'venue-1',
+    artistIds: ['artist-2'],
+    status: 'confirmed',
+    expectedAttendance: 45000,
+    ticketSales: 38000,
+    revenue: 3800000,
+    budget: 1200000,
+    sponsorshipDeals: 5,
+    marketingSpend: 200000,
+    createdAt: new Date().toISOString()
+  });
+
+  events.set('event-3', {
+    id: 'event-3',
+    name: 'Jazz Under the Stars',
+    type: 'concert',
+    description: 'Intimate evening of jazz fusion with The Jazz Collective',
+    date: '2026-06-25',
+    time: '19:30',
+    duration: 2,
+    venueId: 'venue-2',
+    artistIds: ['artist-3'],
+    status: 'confirmed',
+    expectedAttendance: 1500,
+    ticketSales: 1200,
+    revenue: 60000,
+    budget: 40000,
+    sponsorshipDeals: 1,
+    marketingSpend: 5000,
+    createdAt: new Date().toISOString()
+  });
+
+  events.set('event-4', {
+    id: 'event-4',
+    name: 'Urban Dance Championship',
+    type: 'competition',
+    description: 'National hip-hop dance competition with top crews',
+    date: '2026-09-10',
+    time: '18:00',
+    duration: 6,
+    venueId: 'venue-2',
+    artistIds: ['artist-4'],
+    status: 'planning',
+    expectedAttendance: 1800,
+    ticketSales: 0,
+    revenue: 0,
+    budget: 80000,
+    sponsorshipDeals: 2,
+    marketingSpend: 0,
+    createdAt: new Date().toISOString()
+  });
+
+  events.set('event-5', {
+    id: 'event-5',
+    name: 'Neon Nights Finale',
+    type: 'concert',
+    description: 'Grand finale of Neon Pulse world tour with special guests',
+    date: '2026-10-31',
+    time: '21:00',
+    duration: 4,
+    venueId: 'venue-1',
+    artistIds: ['artist-1', 'artist-4'],
+    status: 'planning',
+    expectedAttendance: 48000,
+    ticketSales: 0,
+    revenue: 0,
+    budget: 2000000,
+    sponsorshipDeals: 0,
+    marketingSpend: 0,
+    createdAt: new Date().toISOString()
+  });
+
+  // Sample Tickets
+  tickets.set('ticket-1', {
+    id: 'ticket-1',
+    eventId: 'event-1',
+    type: 'general',
+    name: 'General Admission',
+    price: 75,
+    quantity: 5000,
+    sold: 3500,
+    available: 1500,
+    benefits: ['Festival Access', 'Food Court Access'],
+    createdAt: new Date().toISOString()
+  });
+
+  tickets.set('ticket-2', {
+    id: 'ticket-2',
+    eventId: 'event-1',
+    type: 'vip',
+    name: 'VIP Experience',
+    price: 200,
+    quantity: 300,
+    sold: 280,
+    available: 20,
+    benefits: ['VIP Viewing Area', 'Open Bar', 'Meet & Greet', 'Premium Parking'],
+    createdAt: new Date().toISOString()
+  });
+
+  tickets.set('ticket-3', {
+    id: 'ticket-3',
+    eventId: 'event-2',
+    type: 'general',
+    name: 'Standard Seating',
+    price: 85,
+    quantity: 40000,
+    sold: 33000,
+    available: 7000,
+    benefits: ['Event Access', 'Digital Program'],
+    createdAt: new Date().toISOString()
+  });
+
+  // Sample Vendors
+  vendors.set('vendor-1', {
+    id: 'vendor-1',
+    name: 'ProSound Rentals',
+    type: 'audio',
+    services: ['PA System', 'Monitors', 'Mixing Console'],
+    hourlyRate: 500,
+    dailyRate: 3500,
+    rating: 4.8,
+    contact: { name: 'David Kim', email: 'david@prosound.com', phone: '+1-555-0201' },
+    createdAt: new Date().toISOString()
+  });
+
+  vendors.set('vendor-2', {
+    id: 'vendor-2',
+    name: 'StageCraft Productions',
+    type: 'lighting',
+    services: ['Stage Lighting', 'LED Screens', 'Rigging'],
+    hourlyRate: 750,
+    dailyRate: 5000,
+    rating: 4.9,
+    contact: { name: 'Lisa Wong', email: 'lisa@stagecraft.com', phone: '+1-555-0202' },
+    createdAt: new Date().toISOString()
+  });
+
+  vendors.set('vendor-3', {
+    id: 'vendor-3',
+    name: 'CaterPro Events',
+    type: 'catering',
+    services: ['Corporate Catering', 'VIP Dining', 'Concession Stands'],
+    hourlyRate: 300,
+    dailyRate: 2500,
+    rating: 4.6,
+    contact: { name: 'Maria Garcia', email: 'maria@caterpro.com', phone: '+1-555-0203' },
+    createdAt: new Date().toISOString()
+  });
+
+  // Sample Equipment
+  equipment.set('equip-1', {
+    id: 'equip-1',
+    name: 'L-Acoustics K2 Line Array',
+    type: 'audio',
+    quantity: 48,
+    available: 48,
+    condition: 'excellent',
+    lastMaintenance: '2026-05-01',
+    rentalPrice: 5000,
+    createdAt: new Date().toISOString()
+  });
+
+  equipment.set('equip-2', {
+    id: 'equip-2',
+    name: 'MA Lighting GrandMA3',
+    type: 'lighting',
+    quantity: 4,
+    available: 4,
+    condition: 'excellent',
+    lastMaintenance: '2026-05-15',
+    rentalPrice: 1500,
+    createdAt: new Date().toISOString()
+  });
+
+  equipment.set('equip-3', {
+    id: 'equip-3',
+    name: 'LED Video Wall 20x12ft',
+    type: 'av',
+    quantity: 6,
+    available: 6,
+    condition: 'good',
+    lastMaintenance: '2026-04-20',
+    rentalPrice: 3000,
+    createdAt: new Date().toISOString()
+  });
+
+  // Sample Users
+  authUsers.set('admin@entertainment.com', {
+    id: 'user-1',
+    email: 'admin@entertainment.com',
+    password: 'admin123',
+    role: 'admin',
+    name: 'Event Admin'
+  });
+
+  authUsers.set('user@entertainment.com', {
+    id: 'user-2',
+    email: 'user@entertainment.com',
+    password: 'user123',
+    role: 'user',
+    name: 'Demo User'
+  });
+
+  logger.info('Sample data initialized successfully');
+}
+
+// Initialize data
+initializeSampleData();
+
+// Auth Middleware
 function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
+  const sessionId = req.headers['x-session-id'];
+  if (!sessionId || !authSessions.has(sessionId)) {
+    return res.status(401).json({ error: 'Unauthorized', message: 'Valid session required' });
   }
-  const token = authHeader.slice(7);
-  const session = authSessions.get(token);
-  if (!session) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  req.session = session;
+  req.user = authSessions.get(sessionId);
   next();
 }
 
-async function syncCustomerToCRM(customer, businessId) {
-  if (!dbConnected) return;
-  try {
-    await fetch(`${RTMN_SERVICES.crmHub}/api/contacts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        industry: INDUSTRY,
-        businessId,
-        loyaltyPoints: customer.loyaltyPoints || 0,
-        tier: customer.tier || 'bronze',
-      }),
-    });
-  } catch (err) {
-    console.warn('CRM sync failed:', err.message);
-  }
-}
-
-// ============================================
-// RESTAURANT DATA
-// ============================================
-
-const menus = new Map();
-const orders = new Map();
-const tables = new Map();
-const customers = new Map();
-const kitchenQueue = new Map();
-
-// Initialize sample tables
-for (let i = 1; i <= 20; i++) {
-  tables.set(`table_${i}`, { id: `table_${i}`, capacity: 4, section: 'main', status: 'available', tenantId: 'demo' });
-}
-
-// Initialize sample menu
-const sampleMenu = [
-  { id: 'menu_1', name: 'Margherita Pizza', category: 'Pizza', price: 299, prepTime: 15 },
-  { id: 'menu_2', name: 'Chicken Burger', category: 'Burgers', price: 199, prepTime: 10 },
-  { id: 'menu_3', name: 'Pasta Carbonara', category: 'Pasta', price: 249, prepTime: 12 },
-  { id: 'menu_4', name: 'Caesar Salad', category: 'Salads', price: 149, prepTime: 5 },
-  { id: 'menu_5', name: 'Cold Coffee', category: 'Beverages', price: 99, prepTime: 3 },
-];
-sampleMenu.forEach(item => menus.set(item.id, { ...item, available: true, tenantId: 'demo' }));
-
-// ============================================
-// RESTAURANT TWINS
-// ============================================
-
-const restaurantTwin = new Map();
-const menuTwin = new Map();
-const orderTwin = new Map();
-const kitchenTwin = new Map();
-const tableTwin = new Map();
-const customerTwin = new Map();
-
-// ============================================
-// RESTAURANT API
-// ============================================
-
-// Menu Management
-app.get('/api/menu', (req, res) => {
-  const { category } = req.query;
-  let items = Array.from(menus.values());
-  if (category) items = items.filter(m => m.category === category);
-  res.json({ menu: items });
-});
-
-app.post('/api/menu', requireAuth, (req, res) => {
-  const item = { id: 'menu_' + Date.now(), ...req.body, tenantId: req.session.businessId, createdAt: new Date().toISOString() };
-  menus.set(item.id, item);
-  menuTwin.set(item.id, { ...item, syncedAt: new Date().toISOString() });
-  res.json(item);
-});
-
-// Order Processing
-app.post('/api/orders', requireAuth, (req, res) => {
-  const { tableId, items, orderType = 'dine-in', notes = '' } = req.body;
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const tax = Math.round(subtotal * 0.08);
-  const order = {
-    id: 'order_' + Date.now(),
-    orderNumber: 'ORD' + Date.now().toString().slice(-6),
-    tableId,
-    items,
-    subtotal,
-    tax,
-    total: subtotal + tax,
-    status: 'pending',
-    orderType,
-    notes,
-    priority: 'normal',
-    tenantId: req.session.businessId,
-    createdAt: new Date().toISOString()
-  };
-  orders.set(order.id, order);
-  kitchenQueue.set(order.id, { ...order, kitchenStatus: 'pending' });
-  orderTwin.set(order.id, { ...order, twinType: 'order', syncedAt: new Date().toISOString() });
-  res.json(order);
-});
-
-app.get('/api/orders', (req, res) => {
-  res.json({ orders: Array.from(orders.values()) });
-});
-
-app.patch('/api/orders/:id/status', requireAuth, (req, res) => {
-  const order = orders.get(req.params.id);
-  if (!order) return res.status(404).json({ error: 'Order not found' });
-  order.status = req.body.status;
-  orders.set(order.id, order);
-  orderTwin.set(order.id, { ...order, syncedAt: new Date().toISOString() });
-  res.json(order);
-});
-
-// Table Management
-app.get('/api/tables', (req, res) => {
-  res.json({ tables: Array.from(tables.values()) });
-});
-
-app.post('/api/tables/:id/reserve', requireAuth, (req, res) => {
-  const table = tables.get(req.params.id);
-  if (!table) return res.status(404).json({ error: 'Table not found' });
-  table.status = 'reserved';
-  table.guestCount = req.body.guestCount || 1;
-  table.reservationName = req.body.name;
-  table.reservationTime = new Date().toISOString();
-  tables.set(table.id, table);
-  tableTwin.set(table.id, { ...table, twinType: 'table', syncedAt: new Date().toISOString() });
-  res.json(table);
-});
-
-// Customer Loyalty
-app.get('/api/customers', (req, res) => {
-  res.json({ customers: Array.from(customers.values()) });
-});
-
-app.post('/api/customers', requireAuth, async (req, res) => {
-  const customer = { id: 'cust_' + Date.now(), ...req.body, tenantId: req.session.businessId, loyaltyPoints: 0, tier: 'bronze', createdAt: new Date().toISOString() };
-  customers.set(customer.id, customer);
-  customerTwin.set(customer.id, { ...customer, twinType: 'customer', syncedAt: new Date().toISOString() });
-  await syncCustomerToCRM(customer, req.session.businessId);
-  res.json(customer);
-});
-
-app.post('/api/customers/:id/points', requireAuth, (req, res) => {
-  const customer = customers.get(req.params.id);
-  if (!customer) return res.status(404).json({ error: 'Customer not found' });
-  customer.loyaltyPoints += req.body.points || 0;
-  if (customer.loyaltyPoints >= 5000) customer.tier = 'platinum';
-  else if (customer.loyaltyPoints >= 2000) customer.tier = 'gold';
-  else if (customer.loyaltyPoints >= 500) customer.tier = 'silver';
-  customers.set(customer.id, customer);
-  res.json(customer);
-});
-
-// Kitchen Queue
-app.get('/api/kitchen', (req, res) => {
-  res.json({ queue: Array.from(kitchenQueue.values()) });
-});
-
-app.patch('/api/kitchen/:orderId', requireAuth, (req, res) => {
-  const item = kitchenQueue.get(req.params.orderId);
-  if (!item) return res.status(404).json({ error: 'Order not found' });
-  item.kitchenStatus = req.body.status;
-  kitchenQueue.set(item.id, item);
-  kitchenTwin.set(item.id, { ...item, twinType: 'kitchen', syncedAt: new Date().toISOString() });
-  res.json(item);
-});
-
-// Analytics
-app.get('/api/analytics', requireAuth, (req, res) => {
-  const orderList = Array.from(orders.values());
-  const today = new Date().toISOString().split('T')[0];
-  const todayOrders = orderList.filter(o => o.createdAt.startsWith(today));
-  res.json({
-    totalOrders: orders.size,
-    todayOrders: todayOrders.length,
-    todayRevenue: todayOrders.reduce((sum, o) => sum + o.total, 0),
-    pendingOrders: orderList.filter(o => o.status === 'pending').length,
-    activeTables: Array.from(tables.values()).filter(t => t.status === 'occupied').length,
-    totalCustomers: customers.size,
-    menuItems: menus.size,
-  });
-});
-
-// ============================================
-// LAYER 1: INTELLIGENCE (HOJAI AI - 153 services)
-// ============================================
-
-app.get('/api/layer/intelligence', requireAuth, async (req, res) => {
-  try {
-    const [genieRes, copilotRes, agentsRes] = await Promise.allSettled([
-      fetch(RTMN_SERVICES.genie + '/health'),
-      fetch(RTMN_SERVICES.copilot + '/health'),
-      fetch(RTMN_SERVICES.agentMarketplace + '/api/agents'),
-    ]);
-
-    res.json({
-      layer: 1,
-      name: 'Intelligence (HOJAI AI - Full Suite)',
-      services: {
-        // Genie Services
-        genie: genieRes.status === 'fulfilled' ? 'online' : 'offline',
-        genieHousehold: RTMN_SERVICES.genieHousehold,
-        genieBusiness: RTMN_SERVICES.genieBusiness,
-        genieProject: RTMN_SERVICES.genieProject,
-        genieMemory: RTMN_SERVICES.genieMemory,
-        genieTwin: RTMN_SERVICES.genieTwin,
-        genieRelationship: RTMN_SERVICES.genieRelationship,
-        // CoPilot Services
-        copilot: copilotRes.status === 'fulfilled' ? 'online' : 'offline',
-        copilotBusiness: RTMN_SERVICES.copilotBusiness,
-        copilotSales: RTMN_SERVICES.copilotSales,
-        copilotFinance: RTMN_SERVICES.copilotFinance,
-        copilotHR: RTMN_SERVICES.copilotHR,
-        // Agent Services
-        agentMarketplace: agentsRes.status === 'fulfilled' ? 'online' : 'offline',
-        agentStream: RTMN_SERVICES.agentStream,
-        // SUTAR OS
-        sutarOS: RTMN_SERVICES.sutarOS,
-        sutarCore: RTMN_SERVICES.sutarCore,
-        // Industry AI
-        hojaiIndustry: RTMN_SERVICES.hojaiIndustry,
-        hojaiCommerce: RTMN_SERVICES.hojaiCommerce,
-        // Collaboration
-        hojaiCollab: RTMN_SERVICES.hojaiCollab,
-        hojaiExpert: RTMN_SERVICES.hojaiExpert,
-      },
-      capabilities: [
-        'Genie AI Chat', 'Business Copilot', 'Agent Marketplace',
-        'Personal AI', 'Business AI', 'Project AI', 'Memory AI',
-        'Twin AI', 'Relationship AI', 'Sales Copilot', 'Finance Copilot', 'HR Copilot',
-        'Industry AI', 'Commerce AI', 'Expert OS', 'Collaboration'
-      ],
-      aiAgents: ['AI Receptionist', 'AI Chef', 'AI Waiter', 'AI Manager', 'AI Procurement Agent', 'AI Sales Rep', 'AI Recruiter', 'AI Support', 'AI Finance Analyst'],
-    });
-  } catch (err) {
-    res.json({ layer: 1, name: 'Intelligence', status: 'offline', error: err.message });
-  }
-});
-
-app.post('/api/ai/chat', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.genie + '/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: req.body.prompt, context: { industry: INDUSTRY } }),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'AI service unavailable' });
-  }
-});
-
-app.get('/api/ai/agents', requireAuth, async (req, res) => {
-  try {
-    const agentsRes = await fetch(RTMN_SERVICES.agentMarketplace + '/api/agents');
-    res.json(await agentsRes.json());
-  } catch (err) {
-    res.json({ error: 'Agent marketplace unavailable' });
-  }
-});
-
-app.get('/api/ai/copilot', requireAuth, async (req, res) => {
-  try {
-    const copilotRes = await fetch(RTMN_SERVICES.copilot + '/api/copilot');
-    res.json(await copilotRes.json());
-  } catch (err) {
-    res.json({ error: 'Copilot unavailable' });
-  }
-});
-
-// ============================================
-// LAYER 2: CUSTOMER GROWTH (AdBazaar + REZ Consumer + Axom)
-// ============================================
-
-app.get('/api/layer/customer-growth', requireAuth, async (req, res) => {
-  try {
-    const [crmRes, loyaltyRes, adsRes] = await Promise.allSettled([
-      fetch(RTMN_SERVICES.crmHub + '/api/health'),
-      fetch(RTMN_SERVICES.loyaltyService + '/health'),
-      fetch(RTMN_SERVICES.adsApi + '/health'),
-    ]);
-
-    res.json({
-      layer: 2,
-      name: 'Customer Growth (AdBazaar Full Suite)',
-      services: {
-        // CRM & Customer
-        crmHub: crmRes.status === 'fulfilled' ? 'online' : 'offline',
-        leadIntelligence: RTMN_SERVICES.leadIntelligence,
-        // Ads & Campaigns
-        adsApi: adsRes.status === 'fulfilled' ? 'online' : 'offline',
-        adAi: RTMN_SERVICES.adAi,
-        aiCampaignBuilder: RTMN_SERVICES.aiCampaignBuilder,
-        dspPortal: RTMN_SERVICES.dspPortal,
-        programmaticBidding: RTMN_SERVICES.programmaticBidding,
-        emailCampaign: RTMN_SERVICES.emailCampaign,
-        // Loyalty & Rewards
-        loyaltyService: loyaltyRes.status === 'fulfilled' ? 'online' : 'offline',
-        anniversaryRewards: RTMN_SERVICES.anniversaryRewards,
-        birthdayRewards: RTMN_SERVICES.birthdayRewards,
-        gamification: RTMN_SERVICES.gamification,
-        referralGraph: RTMN_SERVICES.referralGraph,
-        // Creator & Influencer
-        creatorStudio: RTMN_SERVICES.creatorStudio,
-        creatorCommerce: RTMN_SERVICES.creatorCommerce,
-        ugcManagement: RTMN_SERVICES.ugcManagement,
-        // Analytics & Intelligence
-        marketingAnalytics: RTMN_SERVICES.marketingAnalytics,
-        mediaAnalytics: RTMN_SERVICES.mediaAnalytics,
-        intelligenceBridge: RTMN_SERVICES.intelligenceBridge,
-        revenueIntelligence: RTMN_SERVICES.revenueIntelligence,
-        // DOOH & Display
-        doohService: RTMN_SERVICES.doohService,
-        doohSdk: RTMN_SERVICES.doohSdk,
-        videoAds: RTMN_SERVICES.videoAds,
-        // Chat & Widgets
-        liveChat: RTMN_SERVICES.liveChat,
-        feedbackService: RTMN_SERVICES.feedbackService,
-        // Community
-        buzzLocal: RTMN_SERVICES.buzzLocal,
-        // Intent & Audience
-        intentExchange: RTMN_SERVICES.intentExchange,
-        audienceMarketplace: RTMN_SERVICES.audienceMarketplace,
-      },
-      capabilities: [
-        'Customer Acquisition', 'Lead Generation', 'CRM',
-        'Ads & Campaigns', 'Programmatic Bidding', 'Email Marketing',
-        'Loyalty Programs', 'Rewards', 'Gamification', 'Referrals',
-        'Creator Network', 'UGC Management',
-        'Marketing Analytics', 'Media Analytics', 'Revenue Intelligence',
-        'DOOH', 'Video Ads',
-        'Live Chat', 'Feedback',
-        'Community', 'Local Discovery',
-        'Intent Exchange', 'Audience Targeting'
-      ],
-    });
-  } catch (err) {
-    res.json({ layer: 2, name: 'Customer Growth', status: 'offline', error: err.message });
-  }
-});
-
-// AdBazaar - CRM Endpoints
-app.get('/api/crm/contacts', requireAuth, async (req, res) => {
-  try {
-    const contactsRes = await fetch(RTMN_SERVICES.crmHub + '/api/contacts');
-    res.json(await contactsRes.json());
-  } catch (err) {
-    res.status(500).json({ error: 'CRM unavailable' });
-  }
-});
-
-app.post('/api/crm/contacts', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.crmHub + '/api/contacts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'CRM contact creation failed' });
-  }
-});
-
-app.get('/api/crm/leads', requireAuth, async (req, res) => {
-  try {
-    const leadsRes = await fetch(RTMN_SERVICES.leadIntelligence + '/api/leads');
-    res.json(await leadsRes.json());
-  } catch (err) {
-    res.json({ error: 'Lead intelligence unavailable' });
-  }
-});
-
-// AdBazaar - Ads Endpoints
-app.get('/api/ads/campaigns', requireAuth, async (req, res) => {
-  try {
-    const campaignsRes = await fetch(RTMN_SERVICES.adsApi + '/api/campaigns');
-    res.json(await campaignsRes.json());
-  } catch (err) {
-    res.json({ error: 'Ads API unavailable' });
-  }
-});
-
-app.post('/api/ads/campaigns', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.adsApi + '/api/campaigns', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'Campaign creation failed' });
-  }
-});
-
-app.get('/api/ads/budget', requireAuth, async (req, res) => {
-  res.json({ budget: 0, spent: 0, remaining: 0 });
-});
-
-app.post('/api/ads/ai-optimize', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.adAi + '/api/optimize', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'AI optimization failed' });
-  }
-});
-
-// AdBazaar - Loyalty Endpoints
-app.get('/api/loyalty/points', requireAuth, async (req, res) => {
-  try {
-    const pointsRes = await fetch(RTMN_SERVICES.loyaltyService + '/api/points');
-    res.json(await pointsRes.json());
-  } catch (err) {
-    res.json({ error: 'Loyalty service unavailable' });
-  }
-});
-
-app.post('/api/loyalty/points', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.loyaltyService + '/api/points', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'Points update failed' });
-  }
-});
-
-app.get('/api/loyalty/rewards', requireAuth, async (req, res) => {
-  try {
-    const [annivRes, bdayRes] = await Promise.allSettled([
-      fetch(RTMN_SERVICES.anniversaryRewards + '/api/rewards'),
-      fetch(RTMN_SERVICES.birthdayRewards + '/api/rewards'),
-    ]);
-    res.json({
-      anniversary: annivRes.status === 'fulfilled' ? await annivRes.value.json() : 'offline',
-      birthday: bdayRes.status === 'fulfilled' ? await bdayRes.value.json() : 'offline',
-    });
-  } catch (err) {
-    res.json({ error: 'Rewards unavailable' });
-  }
-});
-
-app.get('/api/loyalty/gamification', requireAuth, async (req, res) => {
-  try {
-    const gamRes = await fetch(RTMN_SERVICES.gamification + '/api/games');
-    res.json(await gamRes.json());
-  } catch (err) {
-    res.json({ error: 'Gamification unavailable' });
-  }
-});
-
-app.get('/api/loyalty/referrals', requireAuth, async (req, res) => {
-  try {
-    const refRes = await fetch(RTMN_SERVICES.referralGraph + '/api/referrals');
-    res.json(await refRes.json());
-  } catch (err) {
-    res.json({ error: 'Referral graph unavailable' });
-  }
-});
-
-// AdBazaar - Creator Endpoints
-app.get('/api/creator/campaigns', requireAuth, async (req, res) => {
-  try {
-    const creatorRes = await fetch(RTMN_SERVICES.creatorStudio + '/api/campaigns');
-    res.json(await creatorRes.json());
-  } catch (err) {
-    res.json({ error: 'Creator studio unavailable' });
-  }
-});
-
-app.get('/api/creator/influencers', requireAuth, async (req, res) => {
-  try {
-    const infRes = await fetch(RTMN_SERVICES.creatorStudio + '/api/influencers');
-    res.json(await infRes.json());
-  } catch (err) {
-    res.json({ error: 'Influencer data unavailable' });
-  }
-});
-
-app.get('/api/creator/commerce', requireAuth, async (req, res) => {
-  try {
-    const commerceRes = await fetch(RTMN_SERVICES.creatorCommerce + '/api/products');
-    res.json(await commerceRes.json());
-  } catch (err) {
-    res.json({ error: 'Creator commerce unavailable' });
-  }
-});
-
-app.get('/api/creator/ugc', requireAuth, async (req, res) => {
-  try {
-    const ugcRes = await fetch(RTMN_SERVICES.ugcManagement + '/api/content');
-    res.json(await ugcRes.json());
-  } catch (err) {
-    res.json({ error: 'UGC management unavailable' });
-  }
-});
-
-// AdBazaar - Analytics Endpoints
-app.get('/api/analytics/marketing', requireAuth, async (req, res) => {
-  try {
-    const analyticsRes = await fetch(RTMN_SERVICES.marketingAnalytics + '/api/dashboard');
-    res.json(await analyticsRes.json());
-  } catch (err) {
-    res.json({ error: 'Marketing analytics unavailable' });
-  }
-});
-
-app.get('/api/analytics/media', requireAuth, async (req, res) => {
-  try {
-    const mediaRes = await fetch(RTMN_SERVICES.mediaAnalytics + '/api/insights');
-    res.json(await mediaRes.json());
-  } catch (err) {
-    res.json({ error: 'Media analytics unavailable' });
-  }
-});
-
-app.get('/api/analytics/revenue', requireAuth, async (req, res) => {
-  try {
-    const revenueRes = await fetch(RTMN_SERVICES.revenueIntelligence + '/api/report');
-    res.json(await revenueRes.json());
-  } catch (err) {
-    res.json({ error: 'Revenue intelligence unavailable' });
-  }
-});
-
-// AdBazaar - DOOH Endpoints
-app.get('/api/dooh/screens', requireAuth, async (req, res) => {
-  try {
-    const screensRes = await fetch(RTMN_SERVICES.doohService + '/api/screens');
-    res.json(await screensRes.json());
-  } catch (err) {
-    res.json({ error: 'DOOH service unavailable' });
-  }
-});
-
-app.get('/api/dooh/campaigns', requireAuth, async (req, res) => {
-  try {
-    const campaignsRes = await fetch(RTMN_SERVICES.doohService + '/api/campaigns');
-    res.json(await campaignsRes.json());
-  } catch (err) {
-    res.json({ error: 'DOOH campaigns unavailable' });
-  }
-});
-
-app.get('/api/dooh/video-ads', requireAuth, async (req, res) => {
-  try {
-    const videoRes = await fetch(RTMN_SERVICES.videoAds + '/api/ads');
-    res.json(await videoRes.json());
-  } catch (err) {
-    res.json({ error: 'Video ads unavailable' });
-  }
-});
-
-// AdBazaar - Chat & Widgets
-app.get('/api/chat/widget', requireAuth, async (req, res) => {
-  res.json({
-    widgetId: 'chat-widget',
-    embedUrl: RTMN_SERVICES.liveChat + '/widget.js',
-    config: { position: 'bottom-right', theme: 'light' }
-  });
-});
-
-app.post('/api/chat/message', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.liveChat + '/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'Chat message failed' });
-  }
-});
-
-app.get('/api/feedback', requireAuth, async (req, res) => {
-  try {
-    const feedbackRes = await fetch(RTMN_SERVICES.feedbackService + '/api/feedback');
-    res.json(await feedbackRes.json());
-  } catch (err) {
-    res.json({ error: 'Feedback service unavailable' });
-  }
-});
-
-// AdBazaar - Intent & Audience
-app.get('/api/audience/targets', requireAuth, async (req, res) => {
-  try {
-    const audienceRes = await fetch(RTMN_SERVICES.audienceMarketplace + '/api/targets');
-    res.json(await audienceRes.json());
-  } catch (err) {
-    res.json({ error: 'Audience marketplace unavailable' });
-  }
-});
-
-app.get('/api/intent/signals', requireAuth, async (req, res) => {
-  try {
-    const intentRes = await fetch(RTMN_SERVICES.intentExchange + '/api/signals');
-    res.json(await intentRes.json());
-  } catch (err) {
-    res.json({ error: 'Intent exchange unavailable' });
-  }
-});
-
-// ============================================
-// LAYER 3: COMMERCE (Nexha)
-// ============================================
-
-app.get('/api/layer/commerce', requireAuth, async (req, res) => {
-  try {
-    const nexhaRes = await fetch(RTMN_SERVICES.nexha + '/health');
-    const nexha = await nexhaRes.json();
-    
-    res.json({
-      layer: 3,
-      name: 'Commerce (Nexha + REZ-Merchant)',
-      services: {
-        nexha: nexha.status || 'online',
-        procurement: RTMN_SERVICES.procurement,
-        merchantPOS: RTMN_SERVICES.merchantPOS,
-        merchantRestaurant: RTMN_SERVICES.merchantRestaurant,
-        merchantMenu: RTMN_SERVICES.merchantMenu,
-        merchantPayment: RTMN_SERVICES.merchantPayment,
-      },
-      capabilities: ['Procurement', 'Distribution', 'Manufacturing', 'Franchise', 'Trade Finance', 'POS', 'Orders', 'Menu', 'Payments'],
-    });
-  } catch (err) {
-    res.json({ layer: 3, name: 'Commerce', status: 'offline', error: err.message });
-  }
-});
-
-// REZ-Merchant Integration Endpoints
-app.get('/api/merchant/pos', requireAuth, async (req, res) => {
-  try {
-    const posRes = await fetch(RTMN_SERVICES.merchantPOS + '/health');
-    res.json({ status: 'online', service: 'REZ-Merchant POS', url: RTMN_SERVICES.merchantPOS });
-  } catch (err) {
-    res.json({ status: 'offline', service: 'REZ-Merchant POS', error: err.message });
-  }
-});
-
-app.get('/api/merchant/orders', requireAuth, async (req, res) => {
-  try {
-    const ordersRes = await fetch(RTMN_SERVICES.merchantRestaurant + '/api/orders');
-    const orders = await ordersRes.json();
-    res.json({ orders, source: 'REZ-Merchant' });
-  } catch (err) {
-    res.json({ error: 'REZ-Merchant orders unavailable', details: err.message });
-  }
-});
-
-app.post('/api/merchant/orders', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.merchantRestaurant + '/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'Order creation failed' });
-  }
-});
-
-app.get('/api/merchant/menu', requireAuth, async (req, res) => {
-  try {
-    const menuRes = await fetch(RTMN_SERVICES.merchantMenu + '/api/menu');
-    const menu = await menuRes.json();
-    res.json({ menu, source: 'REZ-Merchant' });
-  } catch (err) {
-    res.json({ error: 'REZ-Merchant menu unavailable', details: err.message });
-  }
-});
-
-app.get('/api/merchant/payments', requireAuth, async (req, res) => {
-  try {
-    const payRes = await fetch(RTMN_SERVICES.merchantPayment + '/health');
-    res.json({ status: 'online', service: 'REZ-Merchant Payment Gateway' });
-  } catch (err) {
-    res.json({ status: 'offline', service: 'REZ-Merchant Payment Gateway' });
-  }
-});
-
-app.get('/api/merchant/loyalty', requireAuth, async (req, res) => {
-  try {
-    const loyaltyRes = await fetch(RTMN_SERVICES.merchantLoyalty + '/api/loyalty');
-    res.json({ loyalty: await loyaltyRes.json(), source: 'REZ-Merchant' });
-  } catch (err) {
-    res.json({ error: 'Loyalty service unavailable' });
-  }
-});
-
-app.get('/api/merchant/inventory', requireAuth, async (req, res) => {
-  try {
-    const invRes = await fetch(RTMN_SERVICES.merchantInventory + '/api/inventory');
-    res.json({ inventory: await invRes.json(), source: 'REZ-Merchant' });
-  } catch (err) {
-    res.json({ error: 'Inventory service unavailable' });
-  }
-});
-
-app.get('/api/merchant/staff', requireAuth, async (req, res) => {
-  try {
-    const staffRes = await fetch(RTMN_SERVICES.merchantStaff + '/api/staff');
-    res.json({ staff: await staffRes.json(), source: 'REZ-Merchant' });
-  } catch (err) {
-    res.json({ error: 'Staff service unavailable' });
-  }
-});
-
-app.get('/api/merchant/reservations', requireAuth, async (req, res) => {
-  try {
-    const resRes = await fetch(RTMN_SERVICES.merchantReservations + '/api/reservations');
-    res.json({ reservations: await resRes.json(), source: 'REZ-Merchant' });
-  } catch (err) {
-    res.json({ error: 'Reservations service unavailable' });
-  }
-});
-
-app.get('/api/merchant/genie', requireAuth, async (req, res) => {
-  try {
-    const genieRes = await fetch(RTMN_SERVICES.merchantGenie + '/health');
-    res.json({ status: 'online', service: 'REZ-Merchant Genie' });
-  } catch (err) {
-    res.json({ status: 'offline', service: 'REZ-Merchant Genie' });
-  }
-});
-
-app.post('/api/procure/ingredients', requireAuth, async (req, res) => {
-  // Connect to Nexha for auto-procurement
-  try {
-    const response = await fetch(RTMN_SERVICES.procurement + '/api/rfq', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: req.body.items, industry: INDUSTRY }),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'Procurement service unavailable' });
-  }
-});
-
-// ============================================
-// LAYER 4: FINANCIAL (RABTUL - 112 services)
-// ============================================
-
-app.get('/api/layer/finance', requireAuth, async (req, res) => {
-  try {
-    const [walletRes, authRes] = await Promise.allSettled([
-      fetch(RTMN_SERVICES.wallet + '/health'),
-      fetch(RTMN_SERVICES.auth + '/health'),
-    ]);
-
-    res.json({
-      layer: 4,
-      name: 'Financial (RABTUL Full Suite - 112 services)',
-      services: {
-        // Auth & Identity
-        auth: authRes.status === 'fulfilled' ? 'online' : 'offline',
-        // Wallet & Payments
-        wallet: walletRes.status === 'fulfilled' ? 'online' : 'offline',
-        walletService: RTMN_SERVICES.walletService,
-        paymentGateway: RTMN_SERVICES.paymentGateway,
-        // Accounting
-        accounting: RTMN_SERVICES.accounting,
-        expenseService: RTMN_SERVICES.expenseService,
-        invoiceService: RTMN_SERVICES.invoiceService,
-        // Lending & Credit
-        lending: RTMN_SERVICES.lending,
-        creditService: RTMN_SERVICES.creditService,
-        // Procurement
-        procurementPayment: RTMN_SERVICES.procurementPayment,
-        // Contract
-        contractMgmt: RTMN_SERVICES.contractMgmt,
-        // Distribution
-        distributionOS: RTMN_SERVICES.distributionOS,
-        // GraphQL
-        graphqlFed: RTMN_SERVICES.graphqlFed,
-        // Event Bus
-        eventBus: RTMN_SERVICES.eventBus,
-        // Storage
-        fileStorage: RTMN_SERVICES.fileStorage,
-        // Ecosystem
-        ecosystemConnector: RTMN_SERVICES.ecosystemConnector,
-      },
-      capabilities: [
-        'Authentication', 'Wallet', 'Payments', 'Accounting', 'Expenses',
-        'Invoicing', 'Lending', 'Credit', 'Procurement', 'Contract Management',
-        'Distribution', 'GraphQL API', 'Event Bus', 'File Storage', 'Ecosystem Integration'
-      ],
-    });
-  } catch (err) {
-    res.json({ layer: 4, name: 'Finance', status: 'offline', error: err.message });
-  }
-});
-
-// Financial Endpoints
-app.get('/api/finance/accounting', requireAuth, async (req, res) => {
-  try {
-    const accRes = await fetch(RTMN_SERVICES.accounting + '/api/accounts');
-    res.json(await accRes.json());
-  } catch (err) {
-    res.json({ error: 'Accounting service unavailable' });
-  }
-});
-
-app.get('/api/finance/wallet', requireAuth, async (req, res) => {
-  try {
-    const walletRes = await fetch(RTMN_SERVICES.wallet + '/api/balance');
-    res.json(await walletRes.json());
-  } catch (err) {
-    res.json({ error: 'Wallet service unavailable' });
-  }
-});
-
-app.post('/api/finance/payment', requireAuth, async (req, res) => {
-  try {
-    const response = await fetch(RTMN_SERVICES.paymentGateway + '/api/pay', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'Payment failed' });
-  }
-});
-
-// ============================================
-// LAYER 5: WORKFORCE (CorpPerks - 43 services)
-// ============================================
-
-app.get('/api/layer/workforce', requireAuth, async (req, res) => {
-  try {
-    const corpRes = await fetch(RTMN_SERVICES.corpPerks + '/health');
-
-    res.json({
-      layer: 5,
-      name: 'Workforce (CorpPerks Full Suite - 43 services)',
-      services: {
-        corpPerks: RTMN_SERVICES.corpPerks,
-        // HR Services
-        hrService: RTMN_SERVICES.hrService,
-        onboardingService: RTMN_SERVICES.onboardingService,
-        payrollService: RTMN_SERVICES.payrollService,
-        attendanceService: RTMN_SERVICES.attendanceService,
-        leaveService: RTMN_SERVICES.leaveService,
-        // Recruitment
-        atsService: RTMN_SERVICES.atsService,
-        talentPool: RTMN_SERVICES.talentPool,
-        // Collaboration
-        calendarService: RTMN_SERVICES.calendarService,
-        meetingService: RTMN_SERVICES.meetingService,
-        documentService: RTMN_SERVICES.documentService,
-        // Learning
-        lmsService: RTMN_SERVICES.lmsService,
-        okrService: RTMN_SERVICES.okrService,
-        insightService: RTMN_SERVICES.insightService,
-      },
-      capabilities: [
-        'HR Management', 'Onboarding', 'Payroll', 'Attendance', 'Leave Management',
-        'ATS', 'Talent Pool', 'Calendar', 'Meetings', 'Documents',
-        'LMS', 'OKR', 'Insights'
-      ],
-    });
-  } catch (err) {
-    res.json({ layer: 5, name: 'Workforce', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// LAYER 6: LEGAL & TRUST (LawGens - 4 services)
-// ============================================
-
-app.get('/api/layer/legal', requireAuth, async (req, res) => {
-  try {
-    const [legalRes, trustRes] = await Promise.allSettled([
-      fetch(RTMN_SERVICES.legal + '/health'),
-      fetch(RTMN_SERVICES.trustScorer + '/health'),
-    ]);
-
-    res.json({
-      layer: 6,
-      name: 'Legal & Trust (LawGens)',
-      services: {
-        legal: legalRes.status === 'fulfilled' ? 'online' : 'offline',
-        trustScorer: trustRes.status === 'fulfilled' ? 'online' : 'offline',
-        contractService: RTMN_SERVICES.contractService,
-        complianceService: RTMN_SERVICES.complianceService,
-      },
-      capabilities: ['Contracts', 'Compliance', 'Risk', 'Security', 'Due Diligence', 'Verification'],
-    });
-  } catch (err) {
-    res.json({ layer: 6, name: 'Legal', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// LAYER 7: PROPERTY (RisnaEstate + StayOwn)
-// ============================================
-
-app.get('/api/layer/property', requireAuth, async (req, res) => {
-  try {
-    const [risnaRes, stayRes] = await Promise.allSettled([
-      fetch(RTMN_SERVICES.risnaEstate + '/health'),
-      fetch(RTMN_SERVICES.stayOwn + '/health'),
-    ]);
-
-    res.json({
-      layer: 7,
-      name: 'Property (RisnaEstate - 10 + StayOwn - 37)',
-      services: {
-        risnaEstate: risnaRes.status === 'fulfilled' ? 'online' : 'offline',
-        propertyService: RTMN_SERVICES.propertyService,
-        listingService: RTMN_SERVICES.listingService,
-        leadService: RTMN_SERVICES.leadService,
-        agentService: RTMN_SERVICES.agentService,
-        // StayOwn
-        stayOwn: stayRes.status === 'fulfilled' ? 'online' : 'offline',
-        stayOwnPMS: RTMN_SERVICES.stayOwnPMS,
-        bookingEngine: RTMN_SERVICES.bookingEngine,
-        guestApp: RTMN_SERVICES.guestApp,
-        housekeepingService: RTMN_SERVICES.housekeepingService,
-      },
-      capabilities: ['Expansion', 'Property Management', 'Listings', 'Lead Management', 'Agent Network', 'PMS', 'Booking Engine', 'Guest App', 'Housekeeping'],
-    });
-  } catch (err) {
-    res.json({ layer: 7, name: 'Property', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// LAYER 8: HEALTH (RisaCare - 31 services)
-// ============================================
-
-app.get('/api/layer/health', requireAuth, async (req, res) => {
-  try {
-    const risaRes = await fetch(RTMN_SERVICES.risaCare + '/health');
-
-    res.json({
-      layer: 8,
-      name: 'Health (RisaCare - 31 services)',
-      services: {
-        risaCare: RTMN_SERVICES.risaCare,
-        healthTwin: RTMN_SERVICES.healthTwin,
-        consultationCopilot: RTMN_SERVICES.consultationCopilot,
-        wellnessService: RTMN_SERVICES.wellnessService,
-        healthInsurance: RTMN_SERVICES.healthInsurance,
-        familyCoordination: RTMN_SERVICES.familyCoordination,
-      },
-      capabilities: ['Employee Health', 'Health Twin', 'Consultation Copilot', 'Wellness', 'Insurance', 'Family Coordination'],
-    });
-  } catch (err) {
-    res.json({ layer: 8, name: 'Health', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// LAYER 9: MOBILITY (KHAIRMOVE - 19 services)
-// ============================================
-
-app.get('/api/layer/mobility', requireAuth, async (req, res) => {
-  try {
-    const khairRes = await fetch(RTMN_SERVICES.khairMove + '/health');
-
-    res.json({
-      layer: 9,
-      name: 'Mobility (KHAIRMOVE - 19 services)',
-      services: {
-        khairMove: RTMN_SERVICES.khairMove,
-        deliveryService: RTMN_SERVICES.deliveryService,
-        fleetService: RTMN_SERVICES.fleetService,
-        rideService: RTMN_SERVICES.rideService,
-        logisticsService: RTMN_SERVICES.logisticsService,
-        airzyService: RTMN_SERVICES.airzyService,
-      },
-      capabilities: ['Delivery', 'Fleet Management', 'Ride Hailing', 'Logistics', 'Airzy (Air Transport)'],
-    });
-  } catch (err) {
-    res.json({ layer: 9, name: 'Mobility', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// LAYER 10: IDENTITY
-// ============================================
-
-app.get('/api/layer/identity', requireAuth, async (req, res) => {
-  try {
-    const corpidRes = await fetch(RTMN_SERVICES.corpid + '/health');
-    const corpid = await corpidRes.json();
-    
-    res.json({
-      layer: 10,
-      name: 'Identity (CorpID)',
-      services: { corpid: corpid.status || 'online' },
-      capabilities: ['Human Identity', 'Business Identity', 'Supplier Identity', 'Agent Identity'],
-    });
-  } catch (err) {
-    res.json({ layer: 10, name: 'Identity', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// LAYER 11: MEMORY
-// ============================================
-
-app.get('/api/layer/memory', requireAuth, async (req, res) => {
-  try {
-    const memoryRes = await fetch(RTMN_SERVICES.memory + '/health');
-    const memory = await memoryRes.json();
-    
-    res.json({
-      layer: 11,
-      name: 'Memory (MemoryOS)',
-      services: { memoryOS: memory.status || 'online' },
-      capabilities: ['Customer Memory', 'Supplier Memory', 'Relationship Memory'],
-    });
-  } catch (err) {
-    res.json({ layer: 11, name: 'Memory', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// LAYER 12: TWINS
-// ============================================
-
-app.get('/api/layer/twins', requireAuth, async (req, res) => {
-  try {
-    const twinRes = await fetch(RTMN_SERVICES.twinos + '/health');
-    const twin = await twinRes.json();
-    
-    res.json({
-      layer: 12,
-      name: 'Twins (TwinOS Hub)',
-      services: { twinosHub: twin.status || 'online' },
-      twins: {
-        restaurantTwin: Array.from(restaurantTwin.values()),
-        menuTwin: Array.from(menuTwin.values()),
-        orderTwin: Array.from(orderTwin.values()),
-        kitchenTwin: Array.from(kitchenTwin.values()),
-        tableTwin: Array.from(tableTwin.values()),
-        customerTwin: Array.from(customerTwin.values()),
-      },
-    });
-  } catch (err) {
-    res.json({ layer: 12, name: 'Twins', status: 'offline', error: err.message });
-  }
-});
-
-app.post('/api/twins/sync', requireAuth, async (req, res) => {
-  try {
-    await fetch(RTMN_SERVICES.twinos + '/api/twins', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        twins: [...restaurantTwin.values(), ...menuTwin.values(), ...orderTwin.values()],
-        industry: INDUSTRY,
-        businessId: req.session.businessId,
-      }),
-    });
-    res.json({ success: true, syncedAt: new Date().toISOString() });
-  } catch (err) {
-    res.status(500).json({ error: 'Twin sync failed' });
-  }
-});
-
-// ============================================
-// LAYER 13: AUTOMATION (FlowOS)
-// ============================================
-
-app.get('/api/layer/automation', requireAuth, async (req, res) => {
-  try {
-    const flowRes = await fetch(RTMN_SERVICES.flow + '/health');
-    const flow = await flowRes.json();
-
-    res.json({
-      layer: 13,
-      name: 'Automation (FlowOS)',
-      services: { flowOS: flow.status || 'online' },
-      capabilities: {
-        workflows: true,
-        approvalChains: true,
-        businessProcesses: true,
-        agentCoordination: true,
-        triggers: ['on_order', 'on_payment', 'on_booking', 'on_customer'],
-        templates: [
-          'order_to_kitchen',
-          'booking_confirmation',
-          'customer_onboarding',
-          'invoice_generation',
-          'inventory_reorder',
-        ],
-      },
-    });
-  } catch (err) {
-    res.json({ layer: 13, name: 'Automation', status: 'offline', error: err.message });
-  }
-});
-
-app.post('/api/automation/workflows', requireAuth, async (req, res) => {
-  try {
-    const { workflowId, trigger, data } = req.body;
-
-    // Execute workflow via FlowOS
-    const flowRes = await fetch(RTMN_SERVICES.flow + '/api/workflows/execute', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ workflowId, trigger, data }),
-    });
-
-    res.json({ success: true, executedAt: new Date().toISOString() });
-  } catch (err) {
-    res.status(500).json({ error: 'Workflow execution failed' });
-  }
-});
-
-app.get('/api/automation/workflows', requireAuth, async (req, res) => {
-  res.json({
-    workflows: [
-      { id: 'wf_001', name: 'Order to Kitchen', trigger: 'on_order', status: 'active' },
-      { id: 'wf_002', name: 'Booking Confirmation', trigger: 'on_booking', status: 'active' },
-      { id: 'wf_003', name: 'Customer Onboarding', trigger: 'on_customer', status: 'active' },
-      { id: 'wf_004', name: 'Inventory Reorder', trigger: 'on_stock_low', status: 'active' },
-      { id: 'wf_005', name: 'Payment Processing', trigger: 'on_payment', status: 'active' },
-    ],
-  });
-});
-
-// ============================================
-// LAYER 14: AUTONOMOUS (SUTAR OS)
-// ============================================
-
-app.get('/api/layer/autonomous', requireAuth, async (req, res) => {
-  try {
-    const [sutarRes, goalRes, decisionRes] = await Promise.allSettled([
-      fetch(RTMN_SERVICES.sutar + '/health'),
-      fetch(RTMN_SERVICES.goalOS + '/health'),
-      fetch(RTMN_SERVICES.decision + '/health'),
-    ]);
-    
-    res.json({
-      layer: 14,
-      name: 'Autonomous (SUTAR OS + Karma Foundation)',
-      services: {
-        sutar: sutarRes.status === 'fulfilled' ? 'online' : 'offline',
-        goalOS: goalRes.status === 'fulfilled' ? 'online' : 'offline',
-        decisionEngine: decisionRes.status === 'fulfilled' ? 'online' : 'offline',
-        karmaFoundation: RTMN_SERVICES.karmaFoundation,
-      },
-      capabilities: ['Goal Management', 'Decision Engine', 'Negotiation', 'Contracts', 'Autonomous Execution', 'Agent Economy', 'Karma Scoring'],
-    });
-  } catch (err) {
-    res.json({ layer: 14, name: 'Autonomous', status: 'offline', error: err.message });
-  }
-});
-
-app.post('/api/autonomous/goal', requireAuth, async (req, res) => {
-  // Set autonomous goal
-  try {
-    const response = await fetch(RTMN_SERVICES.goalOS + '/api/goals', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ objective: req.body.objective, industry: INDUSTRY, businessId: req.session.businessId }),
-    });
-    res.json(await response.json());
-  } catch (err) {
-    res.status(500).json({ error: 'Goal service unavailable' });
-  }
-});
-
-// ============================================
-// LAYER 15: CONSUMER NETWORK
-// ============================================
-
-app.get('/api/layer/network', requireAuth, async (req, res) => {
-  try {
-    const consumerRes = await fetch(RTMN_SERVICES.rezConsumer + '/health');
-    const consumer = await consumerRes.json();
-    
-    res.json({
-      layer: 15,
-      name: 'Consumer Network (REZ Consumer + Axom + BuzzLocal)',
-      services: {
-        rezConsumer: consumer.status || 'online',
-        axom: RTMN_SERVICES.axom,
-        buzzLocal: RTMN_SERVICES.buzzLocal,
-      },
-      capabilities: ['Customers', 'Referrals', 'Communities', 'Events', 'Creators', 'Discovery', 'Local Business', 'Reviews'],
-    });
-  } catch (err) {
-    res.json({ layer: 15, name: 'Consumer Network', status: 'offline', error: err.message });
-  }
-});
-
-// ============================================
-// ALL LAYERS STATUS
-// ============================================
-
-app.get('/api/layers', requireAuth, async (req, res) => {
-  const layerEndpoints = [
-    { layer: 1, name: 'Intelligence', endpoint: '/api/layer/intelligence' },
-    { layer: 2, name: 'Customer Growth', endpoint: '/api/layer/customer-growth' },
-    { layer: 3, name: 'Commerce', endpoint: '/api/layer/commerce' },
-    { layer: 4, name: 'Finance', endpoint: '/api/layer/finance' },
-    { layer: 5, name: 'Workforce', endpoint: '/api/layer/workforce' },
-    { layer: 6, name: 'Legal', endpoint: '/api/layer/legal' },
-    { layer: 7, name: 'Property', endpoint: '/api/layer/property' },
-    { layer: 8, name: 'Health', endpoint: '/api/layer/health' },
-    { layer: 9, name: 'Mobility', endpoint: '/api/layer/mobility' },
-    { layer: 10, name: 'Identity', endpoint: '/api/layer/identity' },
-    { layer: 11, name: 'Memory', endpoint: '/api/layer/memory' },
-    { layer: 12, name: 'Twins', endpoint: '/api/layer/twins' },
-    { layer: 13, name: 'Automation', endpoint: '/api/layer/automation' },
-    { layer: 14, name: 'Autonomous', endpoint: '/api/layer/autonomous' },
-    { layer: 15, name: 'Consumer Network', endpoint: '/api/layer/network' },
-  ];
-  
-  const results = await Promise.allSettled(
-    layerEndpoints.map(({ layer, name, endpoint }) =>
-      fetch(`${req.protocol}://${req.get('host')}${endpoint}`)
-        .then(r => r.json())
-        .catch(() => ({ layer, name, status: 'error' }))
-    )
-  );
-  
-  res.json({
-    industry: INDUSTRY,
-    service: 'Restaurant AI Company',
-    layers: results.map((r, i) => r.status === 'fulfilled' ? r.value : { layer: layerEndpoints[i].layer, name: layerEndpoints[i].name, status: 'error' }),
-  });
-});
-
-// ============================================
-// HEALTH
-// ============================================
-
+// Health check
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
-    service: 'Restaurant AI Company',
-    industry: INDUSTRY,
-    layers: 15,
-    version: '2.0.0',
+    service: 'entertainment-os',
+    version: '1.0.0',
     timestamp: new Date().toISOString(),
+    stats: {
+      events: events.size,
+      venues: venues.size,
+      artists: artists.size,
+      tickets: tickets.size,
+      vendors: vendors.size,
+      equipment: equipment.size
+    }
   });
 });
 
-// ============================================
-// START
-// ============================================
-
-initDatabase().catch(console.warn);
-app.listen(PORT, () => {
-  console.log('✅ entertainment-os AI Company Platform running on port ' + PORT);
-  console.log('📦 15 Layers: Intelligence, Growth, Commerce, Finance, Workforce, Legal, Property, Health, Mobility, Identity, Memory, Twins, Autonomous, Network');
+// RTMN Layer Integration
+app.get('/api/layers', (req, res) => {
+  res.json({
+    layers: [
+      { layer: 1, name: 'Intelligence', provider: 'HOJAI AI', available: true },
+      { layer: 2, name: 'Customer Growth', provider: 'AdBazaar', available: true },
+      { layer: 3, name: 'Commerce', provider: 'Nexha + REZ-Merchant', available: true },
+      { layer: 4, name: 'Financial', provider: 'RABTUL', available: true },
+      { layer: 5, name: 'Workforce', provider: 'CorpPerks', available: true },
+      { layer: 6, name: 'Legal & Trust', provider: 'LawGens', available: true },
+      { layer: 7, name: 'Property', provider: 'RisnaEstate + StayOwn', available: true },
+      { layer: 8, name: 'Health', provider: 'RisaCare', available: true },
+      { layer: 9, name: 'Mobility', provider: 'KHAIRMOVE', available: true },
+      { layer: 10, name: 'Identity', provider: 'CorpID', available: true },
+      { layer: 11, name: 'Memory', provider: 'MemoryOS', available: true },
+      { layer: 12, name: 'Twins', provider: 'TwinOS Hub', available: true },
+      { layer: 13, name: 'Automation', provider: 'FlowOS', available: true },
+      { layer: 14, name: 'Autonomous', provider: 'SUTAR OS', available: true },
+      { layer: 15, name: 'Network', provider: 'REZ Consumer + Axom', available: true }
+    ]
+  });
 });
+
+app.get('/api/layer/:layer', (req, res) => {
+  const layerNum = parseInt(req.params.layer);
+  const layerInfo = {
+    1: { name: 'Intelligence', provider: 'HOJAI AI', endpoints: ['/api/intelligence/predict', '/api/intelligence/analyze'] },
+    2: { name: 'Customer Growth', provider: 'AdBazaar', endpoints: ['/api/crm/target', '/api/ads/campaigns'] },
+    3: { name: 'Commerce', provider: 'Nexha + REZ-Merchant', endpoints: ['/api/tickets/sell', '/api/payments'] },
+    4: { name: 'Financial', provider: 'RABTUL', endpoints: ['/api/wallet', '/api/payments/escrow'] },
+    5: { name: 'Workforce', provider: 'CorpPerks', endpoints: ['/api/staff/schedule', '/api/payroll'] },
+    6: { name: 'Legal & Trust', provider: 'LawGens', endpoints: ['/api/contracts', '/api/compliance'] },
+    7: { name: 'Property', provider: 'RisnaEstate + StayOwn', endpoints: ['/api/venues'] },
+    8: { name: 'Health', provider: 'RisaCare', endpoints: ['/api/health/safety'] },
+    9: { name: 'Mobility', provider: 'KHAIRMOVE', endpoints: ['/api/transport'] },
+    10: { name: 'Identity', provider: 'CorpID', endpoints: ['/api/auth/verify', '/api/tickets/validate'] },
+    11: { name: 'Memory', provider: 'MemoryOS', endpoints: ['/api/memory/events'] },
+    12: { name: 'Twins', provider: 'TwinOS Hub', endpoints: ['/api/twins/event', '/api/twins/artist'] },
+    13: { name: 'Automation', provider: 'FlowOS', endpoints: ['/api/workflows'] },
+    14: { name: 'Autonomous', provider: 'SUTAR OS', endpoints: ['/api/goals', '/api/decisions'] },
+    15: { name: 'Network', provider: 'REZ Consumer + Axom', endpoints: ['/api/discovery', '/api/referrals'] }
+  };
+
+  const info = layerInfo[layerNum];
+  if (!info) {
+    return res.status(404).json({ error: 'Layer not found' });
+  }
+  res.json({ layer: layerNum, ...info, available: true });
+});
+
+// Auth routes
+app.post('/api/auth/register', (req, res) => {
+  const { email, password, name } = req.body;
+  if (!email || !password || !name) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  if (authUsers.has(email)) {
+    return res.status(400).json({ error: 'User already exists' });
+  }
+  const userId = `user-${Date.now()}`;
+  authUsers.set(email, { id: userId, email, password, role: 'user', name });
+  const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  authSessions.set(sessionId, { id: userId, email, role: 'user', name });
+  res.json({ sessionId, user: { id: userId, email, role: 'user', name } });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  const user = authUsers.get(email);
+  if (!user || user.password !== password) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  authSessions.set(sessionId, { id: user.id, email: user.email, role: user.role, name: user.name });
+  res.json({ sessionId, user: { id: user.id, email: user.email, role: user.role, name: user.name } });
+});
+
+app.post('/api/auth/logout', requireAuth, (req, res) => {
+  const sessionId = req.headers['x-session-id'];
+  authSessions.delete(sessionId);
+  res.json({ message: 'Logged out successfully' });
+});
+
+// Events CRUD
+app.get('/api/events', (req, res) => {
+  const eventList = Array.from(events.values());
+  res.json({ events: eventList, total: eventList.length });
+});
+
+app.get('/api/events/:id', (req, res) => {
+  const event = events.get(req.params.id);
+  if (!event) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+
+  // Enrich with venue and artist data
+  const enrichedEvent = {
+    ...event,
+    venue: venues.get(event.venueId),
+    artists: event.artistIds.map(id => artists.get(id)).filter(Boolean),
+    tickets: Array.from(tickets.values()).filter(t => t.eventId === event.id)
+  };
+
+  res.json({ event: enrichedEvent });
+});
+
+app.post('/api/events', requireAuth, (req, res) => {
+  const { name, type, description, date, time, duration, venueId, artistIds, status, budget } = req.body;
+
+  if (!name || !type || !date || !venueId) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const id = `event-${Date.now()}`;
+  const event = {
+    id,
+    name,
+    type,
+    description: description || '',
+    date,
+    time: time || '20:00',
+    duration: duration || 3,
+    venueId,
+    artistIds: artistIds || [],
+    status: status || 'planning',
+    expectedAttendance: 0,
+    ticketSales: 0,
+    revenue: 0,
+    budget: budget || 0,
+    sponsorshipDeals: 0,
+    marketingSpend: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  events.set(id, event);
+  logger.info(`Event created: ${name} (${id})`);
+  res.status(201).json({ event });
+});
+
+app.put('/api/events/:id', requireAuth, (req, res) => {
+  const event = events.get(req.params.id);
+  if (!event) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+
+  const updated = { ...event, ...req.body, id: event.id };
+  events.set(req.params.id, updated);
+  logger.info(`Event updated: ${updated.name} (${updated.id})`);
+  res.json({ event: updated });
+});
+
+app.delete('/api/events/:id', requireAuth, (req, res) => {
+  if (!events.has(req.params.id)) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+  events.delete(req.params.id);
+  logger.info(`Event deleted: ${req.params.id}`);
+  res.json({ message: 'Event deleted successfully' });
+});
+
+// Venues CRUD
+app.get('/api/venues', (req, res) => {
+  const venueList = Array.from(venues.values());
+  res.json({ venues: venueList, total: venueList.length });
+});
+
+app.get('/api/venues/:id', (req, res) => {
+  const venue = venues.get(req.params.id);
+  if (!venue) {
+    return res.status(404).json({ error: 'Venue not found' });
+  }
+  res.json({ venue });
+});
+
+app.post('/api/venues', requireAuth, (req, res) => {
+  const { name, type, capacity, address, amenities, hourlyRate, dailyRate } = req.body;
+
+  if (!name || !type || !capacity) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const id = `venue-${Date.now()}`;
+  const venue = {
+    id,
+    name,
+    type,
+    capacity,
+    address: address || '',
+    amenities: amenities || [],
+    stageArea: 0,
+    backstageAreas: 1,
+    soundSystem: '',
+    lightingSystem: '',
+    hourlyRate: hourlyRate || 0,
+    dailyRate: dailyRate || 0,
+    createdAt: new Date().toISOString()
+  };
+
+  venues.set(id, venue);
+  logger.info(`Venue created: ${name} (${id})`);
+  res.status(201).json({ venue });
+});
+
+// Artists CRUD
+app.get('/api/artists', (req, res) => {
+  const artistList = Array.from(artists.values());
+  res.json({ artists: artistList, total: artistList.length });
+});
+
+app.get('/api/artists/:id', (req, res) => {
+  const artist = artists.get(req.params.id);
+  if (!artist) {
+    return res.status(404).json({ error: 'Artist not found' });
+  }
+  res.json({ artist });
+});
+
+app.post('/api/artists', requireAuth, (req, res) => {
+  const { name, type, genre, members, fee, requirements } = req.body;
+
+  if (!name || !type) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const id = `artist-${Date.now()}`;
+  const artist = {
+    id,
+    name,
+    type,
+    genre: genre || '',
+    members: members || 1,
+    fee: fee || 0,
+    popularity: 5,
+    socialFollowers: 0,
+    requirements: requirements || [],
+    contact: { name: '', email: '', phone: '' },
+    createdAt: new Date().toISOString()
+  };
+
+  artists.set(id, artist);
+  logger.info(`Artist created: ${name} (${id})`);
+  res.status(201).json({ artist });
+});
+
+// Tickets CRUD
+app.get('/api/tickets', (req, res) => {
+  const { eventId } = req.query;
+  let ticketList = Array.from(tickets.values());
+  if (eventId) {
+    ticketList = ticketList.filter(t => t.eventId === eventId);
+  }
+  res.json({ tickets: ticketList, total: ticketList.length });
+});
+
+app.post('/api/tickets', requireAuth, (req, res) => {
+  const { eventId, type, name, price, quantity, benefits } = req.body;
+
+  if (!eventId || !type || !name || price === undefined || !quantity) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const id = `ticket-${Date.now()}`;
+  const ticket = {
+    id,
+    eventId,
+    type,
+    name,
+    price,
+    quantity,
+    sold: 0,
+    available: quantity,
+    benefits: benefits || [],
+    createdAt: new Date().toISOString()
+  };
+
+  tickets.set(id, ticket);
+  logger.info(`Ticket created: ${name} for event ${eventId}`);
+  res.status(201).json({ ticket });
+});
+
+// Book tickets
+app.post('/api/tickets/:id/purchase', (req, res) => {
+  const { quantity = 1 } = req.body;
+  const ticket = tickets.get(req.params.id);
+
+  if (!ticket) {
+    return res.status(404).json({ error: 'Ticket not found' });
+  }
+
+  if (ticket.available < quantity) {
+    return res.status(400).json({ error: 'Not enough tickets available' });
+  }
+
+  ticket.sold += quantity;
+  ticket.available -= quantity;
+  tickets.set(ticket.id, ticket);
+
+  // Update event revenue
+  const event = events.get(ticket.eventId);
+  if (event) {
+    event.ticketSales += quantity;
+    event.revenue += ticket.price * quantity;
+    events.set(event.id, event);
+  }
+
+  const bookingId = `booking-${Date.now()}`;
+  const booking = {
+    id: bookingId,
+    ticketId: ticket.id,
+    eventId: ticket.eventId,
+    quantity,
+    totalPrice: ticket.price * quantity,
+    status: 'confirmed',
+    createdAt: new Date().toISOString()
+  };
+  bookings.set(bookingId, booking);
+
+  logger.info(`Tickets purchased: ${quantity}x ${ticket.name} for ${booking.totalPrice}`);
+  res.json({ booking, ticket });
+});
+
+// Vendors CRUD
+app.get('/api/vendors', (req, res) => {
+  const { type } = req.query;
+  let vendorList = Array.from(vendors.values());
+  if (type) {
+    vendorList = vendorList.filter(v => v.type === type);
+  }
+  res.json({ vendors: vendorList, total: vendorList.length });
+});
+
+app.post('/api/vendors', requireAuth, (req, res) => {
+  const { name, type, services, hourlyRate, dailyRate, contact } = req.body;
+
+  if (!name || !type) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const id = `vendor-${Date.now()}`;
+  const vendor = {
+    id,
+    name,
+    type,
+    services: services || [],
+    hourlyRate: hourlyRate || 0,
+    dailyRate: dailyRate || 0,
+    rating: 0,
+    contact: contact || { name: '', email: '', phone: '' },
+    createdAt: new Date().toISOString()
+  };
+
+  vendors.set(id, vendor);
+  logger.info(`Vendor created: ${name} (${id})`);
+  res.status(201).json({ vendor });
+});
+
+// Equipment CRUD
+app.get('/api/equipment', (req, res) => {
+  const { type } = req.query;
+  let equipList = Array.from(equipment.values());
+  if (type) {
+    equipList = equipList.filter(e => e.type === type);
+  }
+  res.json({ equipment: equipList, total: equipList.length });
+});
+
+app.post('/api/equipment', requireAuth, (req, res) => {
+  const { name, type, quantity, rentalPrice, condition } = req.body;
+
+  if (!name || !type || !quantity) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const id = `equip-${Date.now()}`;
+  const equip = {
+    id,
+    name,
+    type,
+    quantity,
+    available: quantity,
+    condition: condition || 'good',
+    lastMaintenance: new Date().toISOString().split('T')[0],
+    rentalPrice: rentalPrice || 0,
+    createdAt: new Date().toISOString()
+  };
+
+  equipment.set(id, equip);
+  logger.info(`Equipment created: ${name} (${id})`);
+  res.status(201).json({ equipment: equip });
+});
+
+// Staff/Volunteers
+app.get('/api/staff', (req, res) => {
+  const staffList = Array.from(staffMembers.values());
+  res.json({ staff: staffList, total: staffList.length });
+});
+
+app.post('/api/staff', requireAuth, (req, res) => {
+  const { name, role, email, phone, eventId, skills } = req.body;
+
+  if (!name || !role) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const id = `staff-${Date.now()}`;
+  const member = {
+    id,
+    name,
+    role,
+    email: email || '',
+    phone: phone || '',
+    eventId: eventId || null,
+    skills: skills || [],
+    status: 'active',
+    createdAt: new Date().toISOString()
+  };
+
+  staffMembers.set(id, member);
+  logger.info(`Staff member added: ${name} (${id})`);
+  res.status(201).json({ staff: member });
+});
+
+// Analytics
+app.get('/api/analytics', (req, res) => {
+  const eventList = Array.from(events.values());
+  const totalRevenue = eventList.reduce((sum, e) => sum + (e.revenue || 0), 0);
+  const totalTicketsSold = eventList.reduce((sum, e) => sum + (e.ticketSales || 0), 0);
+  const confirmedEvents = eventList.filter(e => e.status === 'confirmed').length;
+  const planningEvents = eventList.filter(e => e.status === 'planning').length;
+
+  res.json({
+    analytics: {
+      totalEvents: eventList.length,
+      confirmedEvents,
+      planningEvents,
+      totalRevenue,
+      totalTicketsSold,
+      averageTicketPrice: totalTicketsSold > 0 ? Math.round(totalRevenue / totalTicketsSold) : 0,
+      topPerformingEvent: eventList.sort((a, b) => (b.revenue || 0) - (a.revenue || 0))[0] || null,
+      venuesCount: venues.size,
+      artistsCount: artists.size,
+      vendorsCount: vendors.size,
+      equipmentCount: equipment.size
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Event-specific analytics
+app.get('/api/events/:id/analytics', (req, res) => {
+  const event = events.get(req.params.id);
+  if (!event) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+
+  const eventTickets = Array.from(tickets.values()).filter(t => t.eventId === event.id);
+  const totalTickets = eventTickets.reduce((sum, t) => sum + t.quantity, 0);
+  const soldTickets = eventTickets.reduce((sum, t) => sum + t.sold, 0);
+  const capacityUtilization = event.expectedAttendance > 0
+    ? Math.round((event.ticketSales / event.expectedAttendance) * 100)
+    : 0;
+
+  res.json({
+    eventId: event.id,
+    eventName: event.name,
+    analytics: {
+      ticketSales: {
+        total: soldTickets,
+        capacity: totalTickets,
+        utilization: `${capacityUtilization}%`,
+        revenue: event.revenue
+      },
+      budget: {
+        allocated: event.budget,
+        spent: event.revenue - (event.budget - event.revenue > 0 ? 0 : event.budget - event.revenue),
+        remaining: event.budget - event.revenue
+      },
+      marketing: {
+        spend: event.marketingSpend,
+        deals: event.sponsorshipDeals
+      },
+      attendance: {
+        expected: event.expectedAttendance,
+        projected: event.ticketSales
+      }
+    },
+    tickets: eventTickets,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Digital Twins endpoints
+app.get('/api/twins', (req, res) => {
+  res.json({
+    twins: [
+      { id: 'event-twin', name: 'Event Twin', entities: events.size },
+      { id: 'venue-twin', name: 'Venue Twin', entities: venues.size },
+      { id: 'artist-twin', name: 'Artist Twin', entities: artists.size },
+      { id: 'ticket-twin', name: 'Ticket Twin', entities: tickets.size },
+      { id: 'vendor-twin', name: 'Vendor Twin', entities: vendors.size },
+      { id: 'equipment-twin', name: 'Equipment Twin', entities: equipment.size }
+    ]
+  });
+});
+
+app.get('/api/twins/:twin', (req, res) => {
+  const twinName = req.params.twin;
+  const twinMap = {
+    'event-twin': events,
+    'venue-twin': venues,
+    'artist-twin': artists,
+    'ticket-twin': tickets,
+    'vendor-twin': vendors,
+    'equipment-twin': equipment
+  };
+
+  const data = twinMap[twinName];
+  if (!data) {
+    return res.status(404).json({ error: 'Twin not found' });
+  }
+
+  res.json({ twin: twinName, entities: Array.from(data.values()), count: data.size });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  logger.error('Error:', err);
+  res.status(500).json({ error: 'Internal server error', message: err.message });
+});
+
+// Start server
+app.listen(PORT, () => {
+  logger.info(`Entertainment OS running on port ${PORT}`);
+  logger.info(`Health check: http://localhost:${PORT}/health`);
+});
+
+module.exports = app;
