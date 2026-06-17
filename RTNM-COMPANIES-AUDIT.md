@@ -5333,3 +5333,113 @@ Layer 15 (Consumer)       → Employee app (REZ-Consumer)
 
 | Layer | Company | Services | Port Range |
 |-------|---------|----------|------------|
+
+---
+
+## REZ-Exhibitor - Layer 22 (Exhibition OS) - 22 Services
+
+**Location:** `exhibition-os/` (Platform) + `companies/REZ-Exhibitor/` (App)  
+**Status:** ✅ **COMPLETE** | **22 Microservices** | **3 Apps Integrated** | **June 17, 2026**
+
+### Platform Structure
+
+```
+RTMN Platform/
+├── exhibition-os/              # Platform Services (5040-5061)
+├── packages/                  # 21 Microservices
+├── companies/
+│   ├── REZ-Exhibitor/        # DO Exhibitor App
+│   ├── REZ-Consumer/         # DO App (Exhibitions Tab)
+│   └── Axom/buzzlocal/      # Z Events App
+```
+
+### Service URLs (Ports 5040-5061)
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 5040 | exhibition-gateway | API orchestration |
+| 5041 | exhibition-organizer-service | Exhibition CRUD |
+| 5042 | exhibition-exhibitor-service | Booth, leads |
+| 5043 | exhibition-attendee-service | Registration |
+| 5044 | exhibition-twin-service | 8 Digital Twins |
+| 5045 | exhibition-badge-service | QR badges |
+| 5046 | exhibition-analytics-service | Real-time metrics |
+| 5047 | exhibition-notification-service | Push, WhatsApp |
+| 5048 | exhibition-payment-service | Tickets, escrow |
+| 5049 | exhibition-intelligence-service | AI copilots |
+| 5050 | exhibition-economy-service | REZ Coins |
+| 5051 | exhibition-marketplace-service | Products |
+| 5052 | exhibition-networking-service | Connections |
+| 5053 | exhibition-appointment-service | Meetings |
+| 5054 | exhibition-passport-service | Gamification |
+| 5055 | exhibition-sponsor-service | ROI |
+| 5056 | exhibition-venue-ops-service | Infrastructure |
+| 5057 | exhibition-staff-service | Volunteers |
+| 5058 | exhibition-crm-service | Pipeline |
+| 5059 | exhibition-document-service | Catalogs |
+| 5060 | exhibition-integration-hub | Webhooks |
+| 5061 | exhibition-floor-intelligence | Heatmaps |
+
+### Integrated Apps
+
+| App | Location | Features |
+|-----|----------|----------|
+| Z Events | `companies/Axom/buzzlocal/z-events-app/` | Events, booths, payments |
+| DO App | `companies/REZ-Consumer/do/` | Exhibitions tab |
+| DO Exhibitor | `companies/REZ-Exhibitor/do-exhibitor/` | Lead capture |
+
+### RTMN Integrations
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| CorpID | 4300 | Identity |
+| Genie Gateway | 4701 | AI |
+| SUTAR Escrow | 4149 | Payments |
+
+### Docker Deployment
+
+```bash
+docker-compose -f exhibition-os/docker-compose.yml up -d
+```
+
+### Files
+
+```
+exhibition-os/           # Gateway + src
+├── src/index.ts       # Gateway (5040)
+├── src/models/         # MongoDB models
+├── packages/           # 21 microservice packages
+└── docker-compose.yml  # Full deployment
+
+packages/exhibition-*/  # 21 services
+├── organizer (5041)
+├── exhibitor (5042)
+├── attendee (5043)
+├── twin (5044)
+├── badge (5045)
+├── analytics (5046)
+├── notification (5047)
+├── payment (5048)
+├── intelligence (5049)
+├── economy (5050)
+├── marketplace (5051)
+├── networking (5052)
+├── appointment (5053)
+├── passport (5054)
+├── sponsor (5055)
+├── venue-ops (5056)
+├── staff (5057)
+├── crm (5058)
+├── document (5059)
+├── integration (5060)
+└── floor (5061)
+
+companies/REZ-Exhibitor/
+├── CLAUDE.md
+├── FEATURES.md
+└── do-exhibitor/       # Mobile app
+```
+
+---
+
+*Last Updated: June 17, 2026*
