@@ -22,6 +22,32 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const crypto = require('crypto');
 
+// RTMN Integration Modules (optional - graceful degradation)
+let bridgeManager = null;
+let rtmntEcosystem = null;
+let rezSalesMind = null;
+
+try {
+  const bridges = require('../bridges');
+  bridgeManager = bridges.bridgeManager;
+} catch (e) {
+  console.log('[Sales OS] Industry Bridges not available:', e.message);
+}
+
+try {
+  const rtmntIntegration = require('../integrations/rtmn-ecosystem');
+  rtmntEcosystem = rtmntIntegration.rtmntEcosystemIntegration;
+} catch (e) {
+  console.log('[Sales OS] RTMN Ecosystem not available:', e.message);
+}
+
+try {
+  const salesmind = require('../integrations/rez-salesmind');
+  rezSalesMind = salesmind.rezSalesMind;
+} catch (e) {
+  console.log('[Sales OS] REZ-SalesMind not available:', e.message);
+}
+
 const app = express();
 const PORT = process.env.SALES_OS_PORT || 5055;
 
@@ -439,7 +465,222 @@ function initSampleData() {
   ];
   webhooks.forEach(wh => dataStores.webhooks.set(wh.id, wh));
 
-  console.log(`[Sales OS v2.0] Initialized: ${leads.length} leads, ${opportunities.length} deals, ${products.length} products, ${customers.length} customers, ${aiAgents.length} AI agents`);
+  // ===== TASKS =====
+  const tasks = [
+    { id: 'TSK001', title: 'Prepare TechCorp proposal', type: 'task', priority: 'high', status: 'pending', dueDate: '2026-06-20', assigneeId: 'SR001', relatedTo: { type: 'opportunity', id: 'OPP001' }, createdAt: new Date().toISOString() },
+    { id: 'TSK002', title: 'Follow up with Global Retail', type: 'task', priority: 'medium', status: 'in_progress', dueDate: '2026-06-18', assigneeId: 'SR002', relatedTo: { type: 'opportunity', id: 'OPP002' }, createdAt: new Date().toISOString() },
+    { id: 'TSK003', title: 'Send pricing sheet to FinServe', type: 'task', priority: 'high', status: 'pending', dueDate: '2026-06-19', assigneeId: 'SR004', relatedTo: { type: 'opportunity', id: 'OPP005' }, createdAt: new Date().toISOString() },
+    { id: 'TSK004', title: 'Schedule demo for HealthFirst', type: 'task', priority: 'medium', status: 'completed', dueDate: '2026-06-15', assigneeId: 'SR003', relatedTo: { type: 'opportunity', id: 'OPP003' }, createdAt: new Date().toISOString() },
+    { id: 'TSK005', title: 'Review LogiTech contract', type: 'task', priority: 'high', status: 'pending', dueDate: '2026-06-21', assigneeId: 'SR005', relatedTo: { type: 'contract', id: 'CTR001' }, createdAt: new Date().toISOString() },
+    { id: 'TSK006', title: 'Update battlecard for HubSpot', type: 'task', priority: 'low', status: 'pending', dueDate: '2026-06-25', assigneeId: 'SR001', createdAt: new Date().toISOString() },
+    { id: 'TSK007', title: 'Complete certification module', type: 'task', priority: 'medium', status: 'in_progress', dueDate: '2026-06-30', assigneeId: 'SR002', relatedTo: { type: 'certification', id: 'CERT001' }, createdAt: new Date().toISOString() },
+  ];
+  tasks.forEach(t => dataStores.tasks.set(t.id, t));
+
+  // ===== MEETINGS =====
+  const meetings = [
+    { id: 'MTG001', title: 'TechCorp QBR Review', type: 'quarterly_business_review', status: 'scheduled', startTime: '2026-06-25T10:00:00Z', duration: 60, attendees: ['SR001', 'CNT001', 'CNT002'], location: 'Google Meet', notes: 'Quarterly business review', createdBy: 'SR001' },
+    { id: 'MTG002', title: 'Global Retail Demo', type: 'demo', status: 'completed', startTime: '2026-06-10T14:00:00Z', duration: 45, attendees: ['SR002', 'CNT003'], location: 'Zoom', notes: 'POS system demo completed', outcome: 'positive', createdBy: 'SR002' },
+    { id: 'MTG003', title: 'HealthFirst Requirements', type: 'discovery', status: 'scheduled', startTime: '2026-06-22T11:00:00Z', duration: 90, attendees: ['SR003', 'CNT004'], location: 'Microsoft Teams', notes: 'Requirements gathering session', createdBy: 'SR003' },
+    { id: 'MTG004', title: 'FinServe Executive Briefing', type: 'executive', status: 'scheduled', startTime: '2026-06-28T15:00:00Z', duration: 30, attendees: ['SR004', 'CNT005', 'MGR002'], location: 'On-site', notes: 'C-suite presentation', createdBy: 'SR004' },
+    { id: 'MTG005', title: 'LogiTech Contract Negotiation', type: 'negotiation', status: 'completed', startTime: '2026-06-12T09:00:00Z', duration: 120, attendees: ['SR005', 'MGR002', 'Legal'], location: 'Conference Room A', notes: 'Contract terms discussed', outcome: 'progress', createdBy: 'SR005' },
+  ];
+  meetings.forEach(m => dataStores.meetings.set(m.id, m));
+
+  // ===== CALLS =====
+  const calls = [
+    { id: 'CAL001', direction: 'outbound', status: 'completed', duration: 720, recordingId: 'REC001', from: 'SR001', to: '+91-9876543210', accountId: 'ACC001', outcome: 'connected', sentiment: 'positive', timestamp: '2026-06-10T09:30:00Z' },
+    { id: 'CAL002', direction: 'outbound', status: 'completed', duration: 480, recordingId: 'REC002', from: 'SR002', to: '+91-9876543212', accountId: 'ACC002', outcome: 'connected', sentiment: 'positive', timestamp: '2026-06-11T14:15:00Z' },
+    { id: 'CAL003', direction: 'inbound', status: 'completed', duration: 360, recordingId: 'REC003', from: '+91-9876543213', to: 'SR003', accountId: 'ACC003', outcome: 'callback_scheduled', sentiment: 'neutral', timestamp: '2026-06-12T10:00:00Z' },
+    { id: 'CAL004', direction: 'outbound', status: 'completed', duration: 540, recordingId: 'REC004', from: 'SR004', to: '+91-9876543214', accountId: 'ACC005', outcome: 'meeting_scheduled', sentiment: 'positive', timestamp: '2026-06-13T16:30:00Z' },
+    { id: 'CAL005', direction: 'outbound', status: 'no_answer', duration: 0, from: 'SR001', to: '+91-9876543211', accountId: 'ACC001', outcome: 'no_answer', timestamp: '2026-06-14T11:00:00Z' },
+    { id: 'CAL006', direction: 'outbound', status: 'completed', duration: 900, recordingId: 'REC005', from: 'SR005', to: '+91-9998887777', accountId: 'ACC006', outcome: 'proposal_sent', sentiment: 'positive', timestamp: '2026-06-15T10:00:00Z' },
+  ];
+  calls.forEach(c => dataStores.calls.set(c.id, c));
+
+  // ===== RECORDINGS =====
+  const recordings = [
+    { id: 'REC001', callId: 'CAL001', accountId: 'ACC001', duration: 720, transcript: 'TechCorp pricing discussion...', sentiment: 'positive', keyPoints: ['Budget approved', 'Timeline Q3', 'Decision by June 30'], actionItems: ['Send proposal', 'Schedule demo'], createdAt: '2026-06-10T09:30:00Z' },
+    { id: 'REC002', callId: 'CAL002', accountId: 'ACC002', duration: 480, transcript: 'Global Retail POS requirements...', sentiment: 'positive', keyPoints: ['Need 50 terminals', 'Integration with SAP', 'Training required'], actionItems: ['Prepare integration docs', 'Training plan'], createdAt: '2026-06-11T14:15:00Z' },
+    { id: 'REC003', callId: 'CAL003', accountId: 'ACC003', duration: 360, transcript: 'HealthFirst patient portal inquiry...', sentiment: 'neutral', keyPoints: ['HIPAA compliance needed', 'Large hospital network', 'Budget 20L'], actionItems: ['HIPAA compliance checklist', 'Site visit'], createdAt: '2026-06-12T10:00:00Z' },
+    { id: 'REC004', callId: 'CAL004', accountId: 'ACC005', duration: 540, transcript: 'FinServe compliance requirements...', sentiment: 'positive', keyPoints: ['SEBI compliance mandatory', 'Enterprise tier needed', 'Multi-branch'], actionItems: ['Executive presentation', 'Compliance documentation'], createdAt: '2026-06-13T16:30:00Z' },
+    { id: 'REC005', callId: 'CAL006', accountId: 'ACC006', duration: 900, transcript: 'LogiTech fleet management demo...', sentiment: 'positive', keyPoints: ['50 vehicles', 'Real-time tracking', 'Driver app needed'], actionItems: ['Proposal with fleet tracker', 'Pilot program'], createdAt: '2026-06-15T10:00:00Z' },
+  ];
+  recordings.forEach(r => dataStores.recordings.set(r.id, r));
+
+  // ===== ACTIVITIES =====
+  const activities = [
+    { id: 'ACT001', type: 'email', subject: 'TechCorp Proposal Follow-up', accountId: 'ACC001', contactId: 'CNT001', ownerId: 'SR001', status: 'sent', sentAt: '2026-06-10T09:00:00Z', body: 'Following up on our proposal...' },
+    { id: 'ACT002', type: 'email', subject: 'Global Retail Pricing', accountId: 'ACC002', contactId: 'CNT003', ownerId: 'SR002', status: 'sent', sentAt: '2026-06-11T14:00:00Z', body: 'Pricing sheet attached...' },
+    { id: 'ACT003', type: 'note', subject: 'HealthFirst Requirements', accountId: 'ACC003', contactId: 'CNT004', ownerId: 'SR003', status: 'created', createdAt: '2026-06-12T10:30:00Z', body: 'HIPAA compliance required, 2000+ employees...' },
+    { id: 'ACT004', type: 'email', subject: 'FinServe Demo Invitation', accountId: 'ACC005', contactId: 'CNT005', ownerId: 'SR004', status: 'sent', sentAt: '2026-06-13T16:00:00Z', body: 'Executive briefing invitation...' },
+    { id: 'ACT005', type: 'task', subject: 'LogiTech Contract Review', accountId: 'ACC006', ownerId: 'SR005', status: 'completed', completedAt: '2026-06-14T17:00:00Z', body: 'Contract reviewed with legal...' },
+    { id: 'ACT006', type: 'email', subject: 'EduTech Welcome Package', accountId: 'ACC004', contactId: 'CNT005', ownerId: 'SR001', status: 'sent', sentAt: '2026-06-15T08:00:00Z', body: 'Welcome to RTMN! Here is your onboarding...' },
+  ];
+  activities.forEach(a => dataStores.activities.set(a.id, a));
+
+  // ===== PLAYBOOKS =====
+  const playbooks = [
+    { id: 'PLY001', name: 'Enterprise Sales Playbook', type: 'enterprise', stages: ['prospecting', 'discovery', 'demo', 'proposal', 'negotiation', 'closing'], status: 'active', usageCount: 156, lastUsed: '2026-06-15T10:00:00Z', owner: 'MGR001' },
+    { id: 'PLY002', name: 'SMB Quick Win Playbook', type: 'smb', stages: ['qualify', 'quote', 'close'], status: 'active', usageCount: 234, lastUsed: '2026-06-14T15:00:00Z', owner: 'MGR002' },
+    { id: 'PLY003', name: 'Partner Channel Playbook', type: 'partner', stages: ['recruit', 'enable', 'co-sell', 'accelerate'], status: 'active', usageCount: 89, lastUsed: '2026-06-13T11:00:00Z', owner: 'MGR002' },
+    { id: 'PLY004', name: 'Healthcare Demoscript', type: 'vertical', industry: 'Healthcare', stages: ['intro', 'hipaa', 'compliance', 'roi', 'close'], status: 'active', usageCount: 45, lastUsed: '2026-06-12T09:00:00Z', owner: 'MGR001' },
+    { id: 'PLY005', name: 'Renewal Playbook', type: 'renewal', stages: ['assess', 'expand', 'renew', 'celebrate'], status: 'active', usageCount: 67, lastUsed: '2026-06-11T14:00:00Z', owner: 'MGR001' },
+  ];
+  playbooks.forEach(p => dataStores.playbooks.set(p.id, p));
+
+  // ===== CERTIFICATIONS =====
+  const certifications = [
+    { id: 'CERT001', name: 'Enterprise Sales Professional', provider: 'RTMN Academy', status: 'in_progress', assignedTo: 'SR002', completedAt: null, expiresAt: '2027-06-15', score: 75, modules: ['Product', 'Discovery', 'Negotiation', 'Closing'], progress: 75 },
+    { id: 'CERT002', name: 'Healthcare Sales Specialist', provider: 'RTMN Academy', status: 'completed', assignedTo: 'SR003', completedAt: '2026-05-20', expiresAt: '2027-05-20', score: 92, modules: ['HIPAA', 'Compliance', 'Healthcare OS', 'Demo'] },
+    { id: 'CERT003', name: 'Channel Sales Expert', provider: 'RTMN Academy', status: 'not_started', assignedTo: 'SR005', completedAt: null, expiresAt: null, score: null, modules: ['Partner Recruitment', 'Enablement', 'Co-selling', 'Accelerators'], progress: 0 },
+    { id: 'CERT004', name: 'Sales Manager Certification', provider: 'RTMN Academy', status: 'completed', assignedTo: 'MGR001', completedAt: '2026-04-15', expiresAt: '2027-04-15', score: 88, modules: ['Team Management', 'Forecasting', 'Coaching', 'Performance'] },
+    { id: 'CERT005', name: 'CPQ Configuration Pro', provider: 'RTMN Academy', status: 'in_progress', assignedTo: 'SR001', completedAt: null, expiresAt: '2027-06-30', score: 60, modules: ['Product Config', 'Bundles', 'Discounts', 'Approval Flows'], progress: 60 },
+  ];
+  certifications.forEach(c => dataStores.certifications.set(c.id, c));
+
+  // ===== SPIFFS =====
+  const spiffs = [
+    { id: 'SPIFF001', name: 'New Logo Bonus', type: 'per_deal', amount: 5000, currency: 'INR', conditions: { minValue: 100000, isNewLogo: true }, status: 'active', validUntil: '2026-06-30' },
+    { id: 'SPIFF002', name: 'Healthcare Win', type: 'per_deal', amount: 10000, currency: 'INR', conditions: { industry: 'Healthcare', minValue: 500000 }, status: 'active', validUntil: '2026-09-30' },
+    { id: 'SPIFF003', name: 'Early Close Bonus', type: 'acceleration', amount: 2500, currency: 'INR', conditions: { closedBefore: '2026-06-30', stage: 'closed_won' }, status: 'active', validUntil: '2026-06-30' },
+    { id: 'SPIFF004', name: 'Partner Referral', type: 'referral', amount: 3000, currency: 'INR', conditions: { viaPartner: true, dealClosed: true }, status: 'active', validUntil: '2026-12-31' },
+    { id: 'SPIFF005', name: 'Cross-sell Bundle', type: 'per_deal', amount: 7500, currency: 'INR', conditions: { productCount: 3, upsell: true }, status: 'active', validUntil: '2026-08-31' },
+  ];
+  spiffs.forEach(s => dataStores.spiffs.set(s.id, s));
+
+  // ===== AUTOMATION RULES =====
+  const automationRules = [
+    { id: 'AUR001', name: 'High-Value Lead Alert', trigger: 'lead_score_above', conditions: { score: 85 }, actions: ['notify_manager', 'assign_premium_rep', 'create_task'], status: 'active', runs: 234 },
+    { id: 'AUR002', name: 'Stale Opportunity Nudge', trigger: 'opp_no_activity', conditions: { days: 14 }, actions: ['send_reminder', 'notify_manager', 'update_stage'], status: 'active', runs: 567 },
+    { id: 'AUR003', name: 'Renewal 90-Day Warning', trigger: 'renewal_approaching', conditions: { daysBefore: 90 }, actions: ['create_task', 'notify_cs', 'send_email'], status: 'active', runs: 89 },
+    { id: 'AUR004', name: 'Deal Won Celebration', trigger: 'opp_stage_changed', conditions: { stage: 'closed_won' }, actions: ['send_slack', 'update_dashboard', 'notify_team'], status: 'active', runs: 1234 },
+    { id: 'AUR005', name: 'Low Health Score Alert', trigger: 'health_score_below', conditions: { score: 60 }, actions: ['notify_cs_manager', 'create_escalation', 'schedule_call'], status: 'active', runs: 45 },
+    { id: 'AUR006', name: 'New Partner Onboarding', trigger: 'partner_created', conditions: {}, actions: ['send_welcome', 'assign_enablement', 'create_training_task'], status: 'active', runs: 34 },
+  ];
+  automationRules.forEach(r => dataStores.automationRules.set(r.id, r));
+
+  // ===== QUOTES =====
+  const quotes = [
+    { id: 'QTE001', opportunityId: 'OPP001', accountId: 'ACC001', status: 'sent', validUntil: '2026-07-15', subtotal: 2500000, discount: 20, discountAmount: 500000, tax: 360000, total: 2360000, currency: 'INR', createdBy: 'SR001', createdAt: '2026-06-10T10:00:00Z', lineItems: [{ productId: 'PRD001', name: 'CRM Engine', quantity: 1, unitPrice: 50000, total: 600000 }, { productId: 'PRD002', name: 'Sales Copilot', quantity: 1, unitPrice: 25000, total: 300000 }, { productId: 'PRD009', name: 'Implementation', quantity: 1, unitPrice: 500000, total: 500000 }] },
+    { id: 'QTE002', opportunityId: 'OPP002', accountId: 'ACC002', status: 'accepted', validUntil: '2026-07-01', subtotal: 5000000, discount: 15, discountAmount: 750000, tax: 765000, total: 5015000, currency: 'INR', createdBy: 'SR002', createdAt: '2026-06-08T14:00:00Z', lineItems: [{ productId: 'PRD004', name: 'POS Service', quantity: 50, unitPrice: 30000, total: 1500000 }, { productId: 'PRD003', name: 'Lead Twin', quantity: 1, unitPrice: 15000, total: 180000 }, { productId: 'PRD009', name: 'Implementation', quantity: 1, unitPrice: 500000, total: 500000 }] },
+    { id: 'QTE003', opportunityId: 'OPP003', accountId: 'ACC003', status: 'draft', validUntil: '2026-08-15', subtotal: 1800000, discount: 0, discountAmount: 0, tax: 324000, total: 2124000, currency: 'INR', createdBy: 'SR003', createdAt: '2026-06-12T09:00:00Z', lineItems: [{ productId: 'PRD005', name: 'Healthcare OS', quantity: 1, unitPrice: 75000, total: 900000 }, { productId: 'PRD009', name: 'Implementation', quantity: 1, unitPrice: 500000, total: 500000 }] },
+    { id: 'QTE004', opportunityId: 'OPP005', accountId: 'ACC005', status: 'pending_approval', validUntil: '2026-08-01', subtotal: 3500000, discount: 25, discountAmount: 875000, tax: 472500, total: 3097500, currency: 'INR', createdBy: 'SR004', createdAt: '2026-06-14T11:00:00Z', lineItems: [{ productId: 'PRD001', name: 'CRM Engine', quantity: 1, unitPrice: 50000, total: 600000 }, { productId: 'PRD007', name: 'Compliance Suite', quantity: 1, unitPrice: 100000, total: 1200000 }], approvalRequired: true },
+    { id: 'QTE005', opportunityId: 'OPP006', accountId: 'ACC006', status: 'sent', validUntil: '2026-07-20', subtotal: 1200000, discount: 10, discountAmount: 120000, tax: 194400, total: 1274400, currency: 'INR', createdBy: 'SR005', createdAt: '2026-06-15T08:00:00Z', lineItems: [{ productId: 'PRD008', name: 'Fleet Tracker', quantity: 30, unitPrice: 40000, total: 1200000 }] },
+  ];
+  quotes.forEach(q => dataStores.quotes.set(q.id, q));
+
+  // ===== PRICE BOOKS =====
+  const priceBooks = [
+    { id: 'PB001', name: 'Standard Pricing', status: 'active', currency: 'INR', products: ['PRD001', 'PRD002', 'PRD003', 'PRD004', 'PRD005', 'PRD006', 'PRD007', 'PRD008'], isDefault: true },
+    { id: 'PB002', name: 'Partner Pricing', status: 'active', currency: 'INR', discountPercent: 20, products: ['PRD001', 'PRD002', 'PRD003', 'PRD004'], isDefault: false },
+    { id: 'PB003', name: 'Enterprise Gold', status: 'active', currency: 'INR', discountPercent: 15, products: ['PRD001', 'PRD002', 'PRD003', 'PRD004', 'PRD005', 'PRD006', 'PRD007', 'PRD008', 'PRD009', 'PRD010'], isDefault: false },
+  ];
+  priceBooks.forEach(pb => dataStores.priceBooks.set(pb.id, pb));
+
+  // ===== PIPELINE MOVEMENTS =====
+  const pipelineMovements = [
+    { id: 'PM001', opportunityId: 'OPP001', fromStage: 'qualified', toStage: 'proposal', movedBy: 'SR001', movedAt: '2026-06-10T10:00:00Z', notes: 'Proposal sent to CTO' },
+    { id: 'PM002', opportunityId: 'OPP002', fromStage: 'proposal', toStage: 'negotiation', movedBy: 'SR002', movedAt: '2026-06-12T14:00:00Z', notes: 'Entered contract negotiation' },
+    { id: 'PM003', opportunityId: 'OPP003', fromStage: 'lead', toStage: 'qualified', movedBy: 'SR003', movedAt: '2026-06-11T09:00:00Z', notes: 'Qualified based on discovery' },
+    { id: 'PM004', opportunityId: 'OPP004', fromStage: 'negotiation', toStage: 'closed_won', movedBy: 'SR001', movedAt: '2026-06-15T17:00:00Z', notes: 'Deal closed!' },
+  ];
+  pipelineMovements.forEach(pm => dataStores.pipelineMovements.set(pm.id, pm));
+
+  // ===== TEAMS =====
+  const teams = [
+    { id: 'TEAM001', name: 'Enterprise Team', managerId: 'MGR001', members: ['SR001', 'SR002', 'SR003'], region: 'All', quota: 1500000 },
+    { id: 'TEAM002', name: 'Strategic Team', managerId: 'MGR002', members: ['SR004', 'SR005'], region: 'All', quota: 1000000 },
+  ];
+  teams.forEach(t => dataStores.teams.set(t.id, t));
+
+  // ===== LEAD SOURCES =====
+  const leadsources = [
+    { id: 'LS001', name: 'Website', type: 'digital', cost: 50000, leads: 150, conversions: 12 },
+    { id: 'LS002', name: 'LinkedIn Ads', type: 'social', cost: 80000, leads: 89, conversions: 8 },
+    { id: 'LS003', name: 'Referral', type: 'referral', cost: 0, leads: 45, conversions: 15 },
+    { id: 'LS004', name: 'Trade Shows', type: 'events', cost: 150000, leads: 120, conversions: 10 },
+    { id: 'LS005', name: 'Webinars', type: 'content', cost: 30000, leads: 67, conversions: 5 },
+  ];
+  leadsources.forEach(ls => dataStores.leadsources.set(ls.id, ls));
+
+  // ===== REPORTS =====
+  const reports = [
+    { id: 'RPT001', name: 'Pipeline Report', type: 'pipeline', frequency: 'weekly', lastRun: '2026-06-14T09:00:00Z', recipients: ['MGR001', 'MGR002'], status: 'active' },
+    { id: 'RPT002', name: 'Forecast Accuracy', type: 'forecast', frequency: 'monthly', lastRun: '2026-06-01T09:00:00Z', recipients: ['MGR002'], status: 'active' },
+    { id: 'RPT003', name: 'Win/Loss Analysis', type: 'analysis', frequency: 'quarterly', lastRun: '2026-04-01T09:00:00Z', recipients: ['MGR001', 'MGR002', 'Leadership'], status: 'active' },
+  ];
+  reports.forEach(r => dataStores.reports.set(r.id, r));
+
+  // ===== DASHBOARDS =====
+  const dashboards = [
+    { id: 'DASH001', name: 'Sales Manager Dashboard', type: 'manager', owner: 'MGR001', widgets: ['pipeline', 'forecast', 'team_performance', 'activities'], sharedWith: ['MGR002'], createdAt: '2026-01-01T00:00:00Z' },
+    { id: 'DASH002', name: 'Executive Dashboard', type: 'executive', owner: 'MGR002', widgets: ['revenue', 'quotas', 'win_rates', 'pipeline_health'], sharedWith: ['Leadership'], createdAt: '2026-01-01T00:00:00Z' },
+    { id: 'DASH003', name: 'Sales Rep Personal', type: 'personal', owner: 'SR001', widgets: ['my_pipeline', 'my_activities', 'my_quotas'], sharedWith: [], createdAt: '2026-01-15T00:00:00Z' },
+  ];
+  dashboards.forEach(d => dataStores.dashboards.set(d.id, d));
+
+  // ===== FORECASTS =====
+  const forecasts = [
+    { id: 'FRC001', period: 'Q2-2026', type: 'commit', totalAmount: 5500000, weightedAmount: 4700000, confidence: 85, createdBy: 'MGR001', createdAt: '2026-06-01T09:00:00Z', adjustments: [] },
+    { id: 'FRC002', period: 'Q2-2026', type: 'best_case', totalAmount: 7500000, weightedAmount: 6200000, confidence: 70, createdBy: 'MGR001', createdAt: '2026-06-01T09:00:00Z', adjustments: [] },
+    { id: 'FRC003', period: 'Q3-2026', type: 'commit', totalAmount: 8000000, weightedAmount: 6500000, confidence: 80, createdBy: 'MGR002', createdAt: '2026-06-15T09:00:00Z', adjustments: [] },
+  ];
+  forecasts.forEach(f => dataStores.forecasts.set(f.id, f));
+
+  // ===== COMMISSIONS =====
+  const commissions = [
+    { id: 'COM001', repId: 'SR001', period: '2026-05', amount: 26000, status: 'paid', type: 'commission', breakdown: { base: 20000, bonus: 6000 } },
+    { id: 'COM002', repId: 'SR002', period: '2026-05', amount: 38000, status: 'paid', type: 'commission', breakdown: { base: 30000, accelerator: 8000 } },
+    { id: 'COM003', repId: 'SR003', period: '2026-05', amount: 16800, status: 'paid', type: 'commission', breakdown: { base: 14000, spiff: 2800 } },
+    { id: 'COM004', repId: 'SR001', period: '2026-06', amount: 19500, status: 'pending', type: 'commission', breakdown: { base: 19500, bonus: 0 } },
+  ];
+  commissions.forEach(c => dataStores.commissions.set(c.id, c));
+
+  // ===== PARTNER ACCOUNTS =====
+  const partnerAccounts = [
+    { id: 'PACC001', partnerId: 'PAR001', accountId: 'ACC001', assignedAt: '2026-03-01T00:00:00Z', status: 'active', revenue: 250000 },
+    { id: 'PACC002', partnerId: 'PAR001', accountId: 'ACC003', assignedAt: '2026-04-15T00:00:00Z', status: 'active', revenue: 180000 },
+    { id: 'PACC003', partnerId: 'PAR002', accountId: 'ACC002', assignedAt: '2026-01-10T00:00:00Z', status: 'active', revenue: 500000 },
+    { id: 'PACC004', partnerId: 'PAR002', accountId: 'ACC005', assignedAt: '2026-05-20T00:00:00Z', status: 'active', revenue: 350000 },
+    { id: 'PACC005', partnerId: 'PAR003', accountId: 'ACC004', assignedAt: '2026-06-01T00:00:00Z', status: 'active', revenue: 72000 },
+  ];
+  partnerAccounts.forEach(pa => dataStores.partnerAccounts.set(pa.id, pa));
+
+  // ===== PARTNER DEALS =====
+  const partnerDeals = [
+    { id: 'PD001', partnerId: 'PAR001', opportunityId: 'OPP001', stage: 'proposal', value: 2500000, partnerCommission: 375000, status: 'active', createdAt: '2026-06-01T00:00:00Z' },
+    { id: 'PD002', partnerId: 'PAR002', opportunityId: 'OPP002', stage: 'negotiation', value: 5000000, partnerCommission: 1000000, status: 'active', createdAt: '2026-05-15T00:00:00Z' },
+    { id: 'PD003', partnerId: 'PAR002', opportunityId: 'OPP005', stage: 'lead', value: 3500000, partnerCommission: 700000, status: 'active', createdAt: '2026-06-10T00:00:00Z' },
+  ];
+  partnerDeals.forEach(pd => dataStores.partnerDeals.set(pd.id, pd));
+
+  // ===== REVENUE ANALYTICS =====
+  const revenueAnalytics = [
+    { id: 'REV001', accountId: 'ACC001', period: '2026-06', mrr: 208333, arr: 2500000, growth: 0, churned: false },
+    { id: 'REV002', accountId: 'ACC002', period: '2026-06', mrr: 416667, arr: 5000000, growth: 5, churned: false },
+    { id: 'REV003', accountId: 'ACC003', period: '2026-06', mrr: 150000, arr: 1800000, growth: -2, churned: false },
+    { id: 'REV004', accountId: 'ACC004', period: '2026-06', mrr: 60000, arr: 720000, growth: 0, churned: false },
+  ];
+  revenueAnalytics.forEach(ra => dataStores.revenueAnalytics.set(ra.id, ra));
+
+  // ===== CHURN RISKS =====
+  const churnRisks = [
+    { id: 'CR001', customerId: 'CUS003', accountId: 'ACC003', score: 78, riskLevel: 'high', factors: ['low_health_score', 'support_tickets_up', 'executive_change'], recommendedActions: ['immediate_escalation', 'executive_meeting', 'health_improvement_plan'], createdAt: '2026-06-15T00:00:00Z' },
+    { id: 'CR002', customerId: 'CUS001', accountId: 'ACC001', score: 25, riskLevel: 'low', factors: ['stable_usage', 'executive_engagement'], recommendedActions: ['quarterly_business_review'], createdAt: '2026-06-15T00:00:00Z' },
+  ];
+  churnRisks.forEach(cr => dataStores.churnRisks.set(cr.id, cr));
+
+  // ===== RENEWALS =====
+  const renewals = [
+    { id: 'REN001', customerId: 'CUS001', accountId: 'ACC001', currentValue: 2500000, renewalDate: '2027-06-30', status: 'not_started', recommendedUpsell: 500000, healthScore: 78 },
+    { id: 'REN002', customerId: 'CUS002', accountId: 'ACC002', currentValue: 5000000, renewalDate: '2026-12-31', status: 'in_progress', recommendedUpsell: 1000000, healthScore: 92 },
+    { id: 'REN003', customerId: 'CUS003', accountId: 'ACC003', currentValue: 1800000, renewalDate: '2026-08-01', status: 'at_risk', recommendedUpsell: 0, healthScore: 65 },
+    { id: 'REN004', customerId: 'CUS004', accountId: 'ACC004', currentValue: 720000, renewalDate: '2027-05-14', status: 'not_started', recommendedUpsell: 280000, healthScore: 88 },
+  ];
+  renewals.forEach(r => dataStores.renewals.set(r.id, r));
+
+  console.log(`[Sales OS v2.0] Initialized: ${leads.length} leads, ${opportunities.length} deals, ${products.length} products, ${customers.length} customers, ${aiAgents.length} AI agents, ${tasks.length} tasks, ${meetings.length} meetings, ${quotes.length} quotes`);
 }
 
 // ============================================================
@@ -459,19 +700,25 @@ app.get('/health', (req, res) => {
     port: PORT,
     timestamp: new Date().toISOString(),
     modules: {
-      crm: { leads: dataStores.leads.size, accounts: dataStores.accounts.size, opportunities: dataStores.opportunities.size },
-      customerSuccess: { customers: dataStores.customers.size, healthScores: dataStores.healthScores.size },
-      cpq: { products: dataStores.products.size, bundles: dataStores.productBundles.size, quotes: dataStores.quotes.size },
+      crm: { leads: dataStores.leads.size, accounts: dataStores.accounts.size, opportunities: dataStores.opportunities.size, contacts: dataStores.contacts.size },
+      customerSuccess: { customers: dataStores.customers.size, healthScores: dataStores.healthScores.size, npsSurveys: dataStores.npsSurveys.size, churnRisks: dataStores.churnRisks.size, renewals: dataStores.renewals.size },
+      cpq: { products: dataStores.products.size, bundles: dataStores.productBundles.size, quotes: dataStores.quotes.size, priceBooks: dataStores.priceBooks.size },
       contracts: { contracts: dataStores.contracts.size },
+      activities: { tasks: dataStores.tasks.size, meetings: dataStores.meetings.size, calls: dataStores.calls.size, recordings: dataStores.recordings.size, activities: dataStores.activities.size },
       territories: { territories: dataStores.territories.size },
       partners: { partners: dataStores.partners.size },
       subscriptions: { subscriptions: dataStores.subscriptions.size },
-      commissions: { plans: dataStores.commissionPlans.size },
-      enablement: { content: dataStores.content.size, training: dataStores.trainingModules.size },
-      workflows: { workflows: dataStores.workflows.size },
+      commissions: { plans: dataStores.commissionPlans.size, spiffs: dataStores.spiffs.size },
+      enablement: { content: dataStores.content.size, training: dataStores.trainingModules.size, certifications: dataStores.certifications.size, playbooks: dataStores.playbooks.size },
+      workflows: { workflows: dataStores.workflows.size, automationRules: dataStores.automationRules.size },
       aiAgents: { total: dataStores.aiAgents.size, active: Array.from(dataStores.aiAgents.values()).filter(a => a.status === 'active').length },
     },
-    integrations: Array.from(dataStores.integrations.values()),
+    integrations: {
+      connected: Array.from(dataStores.integrations.values()),
+      industryBridges: { available: !!bridgeManager, count: 24 },
+      rtmntEcosystem: { available: !!rtmntEcosystem },
+      rezSalesMind: { available: !!rezSalesMind },
+    },
     agentStats,
   });
 });
@@ -3801,6 +4048,258 @@ app.post('/api/goals', requireAuth, (req, res) => {
   };
 
   res.status(201).json({ success: true, goal });
+});
+
+// ============================================================
+// INDUSTRY BRIDGES
+// ============================================================
+
+app.get('/api/bridges', async (req, res) => {
+  if (!bridgeManager) {
+    return res.status(503).json({ success: false, error: 'Industry Bridges module not available' });
+  }
+
+  const industries = bridgeManager.getAllIndustries();
+  res.json({ success: true, count: industries.length, industries });
+});
+
+app.get('/api/bridges/connections', async (req, res) => {
+  if (!bridgeManager) {
+    return res.status(503).json({ success: false, error: 'Industry Bridges module not available' });
+  }
+
+  const connections = await bridgeManager.checkAllConnections();
+  const connected = Object.values(connections).filter(c => c.healthy).length;
+  res.json({ success: true, total: Object.keys(connections).length, connected, connections });
+});
+
+app.get('/api/bridges/:industry', async (req, res) => {
+  if (!bridgeManager) {
+    return res.status(503).json({ success: false, error: 'Industry Bridges module not available' });
+  }
+
+  const { industry } = req.params;
+  const bridge = bridgeManager.getBridge(industry);
+
+  if (!bridge) {
+    return res.status(404).json({ success: false, error: `Industry bridge not found: ${industry}` });
+  }
+
+  const health = await bridge.healthCheck();
+  const insights = await bridge.getMarketInsights();
+
+  res.json({ success: true, industry, health, insights });
+});
+
+app.get('/api/bridges/:industry/market', async (req, res) => {
+  if (!bridgeManager) {
+    return res.status(503).json({ success: false, error: 'Industry Bridges module not available' });
+  }
+
+  const { industry } = req.params;
+  const bridge = bridgeManager.getBridge(industry);
+
+  if (!bridge) {
+    return res.status(404).json({ success: false, error: `Industry bridge not found: ${industry}` });
+  }
+
+  const insights = await bridge.getMarketInsights();
+  res.json({ success: true, industry, ...insights });
+});
+
+// ============================================================
+// RTMN ECOSYSTEM INTEGRATION
+// ============================================================
+
+app.get('/api/rtmn/services', async (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const services = rtmntEcosystem.getServicesRegistry();
+  res.json({ success: true, count: services.length, services });
+});
+
+app.get('/api/rtmn/connections', async (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const connections = await rtmntEcosystem.checkAllServices();
+  const connected = Object.values(connections).filter(c => c.healthy).length;
+  res.json({ success: true, total: Object.keys(connections).length, connected, connections });
+});
+
+app.get('/api/rtmn/service/:serviceKey', async (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const { serviceKey } = req.params;
+  const status = await rtmntEcosystem.checkService(serviceKey);
+  res.json({ success: true, serviceKey, ...status });
+});
+
+app.get('/api/rtmn/events', (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const events = rtmntEcosystem.getEventsSchema();
+  res.json({ success: true, count: events.length, events });
+});
+
+app.post('/api/rtmn/events', async (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const { eventType, payload } = req.body;
+  const result = await rtmntEcosystem.publishEvent(eventType, payload);
+  res.json({ success: true, ...result });
+});
+
+app.get('/api/rtmn/cross-ecosystem', (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const features = rtmntEcosystem.getCrossEcosystemFeatures();
+  res.json({ success: true, features });
+});
+
+app.get('/api/rtmn/customer360/:accountId', async (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const { accountId } = req.params;
+  const customer360 = await rtmntEcosystem.getCustomer360(accountId);
+  res.json({ success: true, accountId, ...customer360 });
+});
+
+app.get('/api/rtmn/deal-intelligence/:opportunityId', async (req, res) => {
+  if (!rtmntEcosystem) {
+    return res.status(503).json({ success: false, error: 'RTMN Ecosystem module not available' });
+  }
+
+  const { opportunityId } = req.params;
+  const intelligence = await rtmntEcosystem.getDealIntelligence(opportunityId);
+  res.json({ success: true, opportunityId, ...intelligence });
+});
+
+// ============================================================
+// REZ-SALESMIND INTEGRATION
+// ============================================================
+
+app.get('/api/salesmind/connections', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const connections = await rezSalesMind.healthCheck();
+  const connected = Object.values(connections).filter(c => c.healthy).length;
+  res.json({ success: true, total: Object.keys(connections).length, connected, connections });
+});
+
+app.get('/api/salesmind/agents', (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const agents = rezSalesMind.getAgents();
+  res.json({ success: true, count: Object.keys(agents).length, agents });
+});
+
+app.post('/api/salesmind/leads/enrich', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { leadData } = req.body;
+  const result = await rezSalesMind.enrichLead(leadData);
+  res.json({ success: true, ...result });
+});
+
+app.get('/api/salesmind/customer360/:accountId', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { accountId } = req.params;
+  const result = await rezSalesMind.getCustomer360(accountId);
+  res.json({ success: true, accountId, ...result });
+});
+
+app.get('/api/salesmind/deal-context/:opportunityId', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { opportunityId } = req.params;
+  const { accountId } = req.query;
+  const result = await rezSalesMind.getDealContext(opportunityId, accountId);
+  res.json({ success: true, opportunityId, ...result });
+});
+
+app.get('/api/salesmind/churn/:accountId', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { accountId } = req.params;
+  const result = await rezSalesMind.predictChurn(accountId);
+  res.json({ success: true, ...result });
+});
+
+app.post('/api/salesmind/sentiment', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { conversationId } = req.body;
+  const result = await rezSalesMind.analyzeSentiment(conversationId);
+  res.json({ success: true, ...result });
+});
+
+app.post('/api/salesmind/intent', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { message, context } = req.body;
+  const result = await rezSalesMind.detectIntent(message, context);
+  res.json({ success: true, ...result });
+});
+
+app.post('/api/salesmind/next-action', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { opportunityId, accountId, salesStage } = req.body;
+  const result = await rezSalesMind.getNextBestAction(opportunityId, accountId, salesStage);
+  res.json({ success: true, ...result });
+});
+
+app.post('/api/salesmind/deal-score', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { opportunityId, accountData, activityHistory } = req.body;
+  const result = await rezSalesMind.scoreDeal(opportunityId, accountData, activityHistory);
+  res.json({ success: true, ...result });
+});
+
+app.get('/api/salesmind/knowledge', async (req, res) => {
+  if (!rezSalesMind) {
+    return res.status(503).json({ success: false, error: 'REZ-SalesMind module not available' });
+  }
+
+  const { q, filters } = req.query;
+  const result = await rezSalesMind.searchKnowledge(q, filters);
+  res.json({ success: true, ...result });
 });
 
 // ============================================================
