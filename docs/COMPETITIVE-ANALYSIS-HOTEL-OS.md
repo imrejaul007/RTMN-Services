@@ -168,29 +168,31 @@
 
 ## Hotel OS - Missing Features (Roadmap)
 
-### Phase 1: High Priority
+### Phase 1: High Priority ✅ ALL BUILT
+
+| Feature | Priority | Solution | Status | Service |
+|---------|----------|----------|--------|---------|
+| OTA Channel Manager | CRITICAL | Built integration bridge | ✅ Built | channel-manager (6020) |
+| Direct Booking Engine | CRITICAL | Built widget with AI upsell | ✅ Built | booking-engine (6010) |
+| Corporate/Group Bookings | HIGH | Built group management | ✅ Built | corporate-booking (6030) |
+| Maintenance Module | HIGH | Built work orders + scheduling | ✅ Built | maintenance-service (6050) |
+| Banquet/Events | HIGH | Built event booking + contracts | ✅ Built | events-service (6060) |
+| Loyalty Engine | HIGH | Built points + tiers | ✅ Built | loyalty-engine (6061) |
+
+### Phase 2: Still Needed
 
 | Feature | Priority | Solution | Status |
 |---------|----------|----------|--------|
-| OTA Channel Manager | CRITICAL | Partner with eZee or build bridge | 🚧 |
-| Direct Booking Engine | CRITICAL | Build widget with AI upsell | 🚧 |
 | Mobile App (Guest) | CRITICAL | React Native app | 🚧 |
-| Corporate/Group Bookings | HIGH | Build group management | 🚧 |
+| Digital Key Service | HIGH | Smart lock integration | 🚧 |
 | VIP Guest Handling | HIGH | Add VIP flags + alerts | 🚧 |
 | Auto Room Assignment | HIGH | AI-based assignment | 🚧 |
-
-### Phase 2: Medium Priority
-
-| Feature | Priority | Solution | Status |
-|---------|----------|----------|--------|
-| Maintenance Module | MEDIUM | Work orders + scheduling | 🚧 |
-| Banquet/Events | MEDIUM | Event booking + contracts | 🚧 |
 | Multi-currency | MEDIUM | Via RABTUL | 🚧 |
 | GST Support (India) | MEDIUM | Tax configuration | 🚧 |
 | Blacklist Management | MEDIUM | Guest blacklist | 🚧 |
 | Waitlist Management | LOW | Queue system | 🚧 |
 
-### Phase 3: AI Differentiation
+### Phase 3: AI Differentiation (Pending HOJAI Integration)
 
 | Feature | Priority | Solution | Status |
 |---------|----------|----------|--------|
@@ -203,20 +205,27 @@
 
 ## StayOwn-Hospitality - Implementation Roadmap
 
-### Services to Build (Priority Order)
+### Services Status ✅ BUILT
+
+| # | Service | Port | Purpose | Status | Lines |
+|---|---------|------|---------|--------|-------|
+| 1 | Hotel OS | 5025 | Core PMS (industry-os) | ✅ Built | 2,428 |
+| 2 | booking-engine | 6010 | Direct booking widget | ✅ Built | 900+ |
+| 3 | channel-manager | 6020 | OTA integrations | ✅ Built | 850+ |
+| 4 | corporate-booking | 6030 | Group management | ✅ Built | 750+ |
+| 5 | maintenance-service | 6050 | Work orders | ✅ Built | 750+ |
+| 6 | events-service | 6060 | Banquet management | ✅ Built | 650+ |
+| 7 | loyalty-engine | 6061 | Points + tiers | ✅ Built | 900+ |
+
+### Services Still Needed 🚧
 
 | # | Service | Port | Purpose | Status |
 |---|---------|------|---------|--------|
-| 1 | rez-pms | 6000 | Core PMS (move from 5025) | 🚧 |
-| 2 | rez-booking-engine | 6010 | Direct booking widget | 🚧 |
-| 3 | channel-manager | 6020 | OTA integrations | 🚧 |
-| 4 | maintenance-service | 6050 | Work orders | 🚧 |
-| 5 | events-service | 6060 | Banquet management | 🚧 |
-| 6 | guest-mobile-app | - | React Native app | 🚧 |
-| 7 | loyalty-engine | 6061 | Points + tiers | 🚧 |
-| 8 | upsell-engine | 6060 | AI upselling | 🚧 |
-| 9 | digital-key-service | 6072 | Smart lock | 🚧 |
-| 10 | zero-checkout | 6073 | Auto check-out | 🚧 |
+| 8 | guest-mobile-app | - | React Native app | 🚧 |
+| 9 | digital-key-service | 6072 | Smart lock integration | 🚧 |
+| 10 | upsell-engine | 6065 | AI upselling | 🚧 |
+| 11 | zero-checkout | 6073 | Auto check-out | 🚧 |
+| 12 | voice-hotel-agent | 6080 | Voice AI | 🚧 |
 
 ---
 
@@ -245,12 +254,15 @@
 | Category | Cloudbeds | StayOwn |
 |----------|-----------|---------|
 | PMS | ✅ 100% | ✅ 95% |
-| Channel Manager | ✅ Native | ⚠️ Via Partner |
-| Booking Engine | ✅ Native | 🚧 Need Build |
+| Channel Manager | ✅ Native | ✅ Built (6020) |
+| Booking Engine | ✅ Native | ✅ Built (6010) |
 | POS | ✅ Native | ✅ Via Restaurant OS |
 | Housekeeping | ✅ 100% | ✅ 85% |
 | AI Concierge | ❌ Basic | ✅ **StayBot** |
 | Digital Twin | ❌ None | ✅ **Guest/Room/Property** |
+| Loyalty Engine | ✅ Native | ✅ Built (6061) |
+| Maintenance | ✅ Native | ✅ Built (6050) |
+| Events/Banquets | ✅ Native | ✅ Built (6060) |
 | Mobile App | ✅ Native | 🚧 Need Build |
 | Pricing | $20-45/room/mo | **Target: $15-30** |
 
@@ -263,49 +275,71 @@
 | AI | ⚠️ Basic chatbot | ✅ **12 AI Agents** |
 | Digital Twin | ❌ None | ✅ **Full Suite** |
 | RTMN Ecosystem | ❌ No | ✅ **15 Layers** |
+| Corporate Booking | ✅ Native | ✅ Built (6030) |
+| Loyalty Engine | ✅ Native | ✅ Built (6061) |
 | Pricing | €25+/room/mo | **Target: €15-20** |
 
 ---
 
-## Implementation Status: COMPLETE
+## Implementation Status: ✅ MAJOR MILESTONE COMPLETE
 
-### What's Built ✅
+### What's Built ✅ (7 Services)
 
-1. **Hotel OS** (2,428 lines)
+1. **Hotel OS** (2,428 lines) - Port 5025
    - 30+ API endpoints
    - Full PMS functionality
-   - F&B POS
-   - Housekeeping
-   - Night Audit
+   - F&B POS, Housekeeping, Night Audit
    - Digital Twins
 
-2. **Foundation Services** (all 5)
+2. **Channel Manager** (850+ lines) - Port 6020
+   - Booking.com, Expedia, Agoda, Airbnb, Google Hotels
+   - Inventory sync, rate sync, reservation imports
+
+3. **Booking Engine** (900+ lines) - Port 6010
+   - Direct booking widget
+   - Promo codes, packages, AI upselling
+   - Public API for embedding
+
+4. **Corporate Booking** (750+ lines) - Port 6030
+   - Corporate accounts, travel agents
+   - Group bookings, room blocks
+   - Commission tracking
+
+5. **Maintenance Service** (750+ lines) - Port 6050
+   - Work orders, asset management
+   - Preventive maintenance scheduling
+   - SLA tracking, technician assignment
+
+6. **Events Service** (650+ lines) - Port 6060
+   - Venue management, event booking
+   - Catering, AV equipment, contracts
+
+7. **Loyalty Engine** (900+ lines) - Port 6061
+   - Bronze/Silver/Gold/Platinum tiers
+   - Points earning/redeeming
+   - Rewards catalog, birthday bonuses
+
+8. **Foundation Services** (all 5)
    - CorpID, MemoryOS, GoalOS, Decision Engine, TwinOS Hub
    - All fully implemented and working
 
-3. **REZ-Merchant** (partial)
-   - POS, Orders, Menu, Genie
-   - Ready for integration
+### Still Needed 🚧 (5 Services)
 
-### What Needs Building 🚧
-
-1. **StayOwn Services** (32 stubs)
-2. **Channel Manager** (critical)
-3. **Booking Engine** (critical)
-4. **Mobile App** (critical)
-5. **Maintenance Module**
-6. **Events/Banquets**
+1. **Mobile App** - React Native guest app
+2. **Digital Key Service** - Smart lock integration
+3. **Upsell Engine** - AI-powered upselling
+4. **Zero Checkout** - Auto check-out
+5. **Voice AI** - voice-hotel-agent
 
 ---
 
 ## Next Steps
 
-1. **Week 1-2:** Build Channel Manager integration bridge
-2. **Week 3-4:** Build Direct Booking Engine
-3. **Week 5-8:** Build Mobile App (React Native)
-4. **Week 9-12:** Maintenance + Events modules
+1. **Week 1-2:** Build Mobile App (React Native)
+2. **Week 3-4:** Build Digital Key Service
+3. **Week 5-8:** AI Integration (HOJAI)
 
 ---
 
-*Document Status: ✅ COMPLETE*
+*Document Status: ✅ MAJOR MILESTONE COMPLETE*
 *Last Updated: June 17, 2026*
