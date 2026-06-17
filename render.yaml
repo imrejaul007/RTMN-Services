@@ -1213,3 +1213,45 @@ services:
         value: production
       - key: MONGODB_URI
         sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # BRANDPULSE (Port 4974-4975)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-brandpulse
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/brandpulse
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4974"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: TWITTER_API_KEY
+        sync: false
+      - key: NEWS_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-brandpulse-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/brandpulse-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4975"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
