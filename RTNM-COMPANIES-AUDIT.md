@@ -5225,8 +5225,19 @@ Layer 15 (Consumer)       → Employee app (REZ-Consumer)
 
 ## REZ-Exhibitor - Layer 22 (Exhibition OS) - 22 Services Connected
 
-**Location:** `companies/REZ-Exhibitor/` + `exhibition-os/`  
+**Location:** `exhibition-os/` (Platform) + `companies/REZ-Exhibitor/` (App)  
 **Status:** ✅ **COMPLETE** | **22 Microservices** | **3 Apps Integrated** | **June 17, 2026**
+
+#### Platform Structure
+
+```
+RTMN Platform/
+├── exhibition-os/              # Platform Services (5040-5061)
+├── companies/
+│   ├── REZ-Exhibitor/        # DO Exhibitor App
+│   ├── REZ-Consumer/         # DO App (Exhibitions Tab)
+│   └── Axom/buzzlocal/       # Z Events App
+```
 
 #### Overview
 
