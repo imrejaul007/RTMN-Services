@@ -1,0 +1,24 @@
+{
+  "name": "@rtmn/cross-os-integration",
+  "version": "1.0.0",
+  "description": "RTMN Cross-OS Integration Hub - Connect Workforce OS with all 24 Industry Operating Systems",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.11.0",
+    "axios": "^1.7.2"
+  },
+  "keywords": ["rtmn", "cross-os", "integration", "workforce"],
+  "author": "RTMN",
+  "license": "MIT"
+}
