@@ -321,3 +321,275 @@ services:
         value: https://rez-event-bus.onrender.com
       - key: JWT_SECRET
         generateValue: true
+
+  # ── REFUND & RESOLUTION ENGINES (Ports 4980-4983) ──────────────────────────
+  - type: web
+    name: rtmn-refund-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/refund-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4980"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-resolution-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/resolution-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4981"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-auto-approve-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/auto-approve-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4982"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-crowd-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/crowd-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4983"
+      - key: NODE_ENV
+        value: production
+
+  # ── COMPANY INTEGRATIONS (Ports 4960-4973) ──────────────────────────────
+  - type: web
+    name: rtmn-hojai-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/hojai-ai-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4960"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-rez-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/rez-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4961"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-adbazaar-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/adbazaar-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4962"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-rabtul-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/rabtul-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4963"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-hospitality-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/hospitality-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4964"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-healthcare-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/healthcare-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4965"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-nexha-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/nexha-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4966"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-khairmove-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/khairmove-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4967"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-corpperks-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/corpperks-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4968"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-assetmind-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/assetmind-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4969"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-lawgens-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/lawgens-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4970"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-risnaestate-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/risnaestate-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4971"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-ridza-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/ridza-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4972"
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: rtmn-axom-integration
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/axom-integration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4973"
+      - key: NODE_ENV
+        value: production
