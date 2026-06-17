@@ -4,11 +4,13 @@
 # RTMN Workforce OS - Unified Startup Script
 # ============================================================
 # Starts all Workforce OS services:
+# - Finance OS (Port 4801)
 # - Workforce OS Core (Port 5065)
 # - Talent OS (Port 5066)
 # - Learning OS (Port 5068)
 # - Organization OS (Port 5072)
 # - Workforce Intelligence (Port 5073)
+# - Cross-OS Integration Hub (Port 5085)
 # ============================================================
 
 # Colors
@@ -24,12 +26,13 @@ SERVICES_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║                                                              ║${NC}"
-echo -e "${BLUE}║              RTMN WORKFORCE OS v2.0 LAUNCHER                 ║${NC}"
+echo -e "${BLUE}║              RTMN WORKFORCE OS v2.1 LAUNCHER                 ║${NC}"
 echo -e "${BLUE}║                                                              ║${NC}"
-echo -e "${BLUE}║  Unified HR Operations Platform                              ║${NC}"
-echo -e "${BLUE}║  • Workforce OS Core  • Talent OS                          ║${NC}"
-echo -e "${BLUE}║  • Learning OS       • Organization OS                     ║${NC}"
-echo -e "${BLUE}║  • Workforce Intelligence                                  ║${NC}"
+echo -e "${BLUE}║  Unified Operations Platform                              ║${NC}"
+echo -e "${BLUE}║  • Finance OS        • Workforce OS Core                   ║${NC}"
+echo -e "${BLUE}║  • Talent OS         • Learning OS                       ║${NC}"
+echo -e "${BLUE}║  • Organization OS   • Intelligence                       ║${NC}"
+echo -e "${BLUE}║  • Cross-OS Hub      • 24 Industry OS                    ║${NC}"
 echo -e "${BLUE}║                                                              ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""

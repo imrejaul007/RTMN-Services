@@ -1550,7 +1550,7 @@ async function startServer() {
 ╔═══════════════════════════════════════════════════════════════════════════════╗
 ║                        MEDIA OS v2.0.0                                        ║
 ║           Complete AI-Native Media Operating System                            ║
-║           Phase 4: Rights & Monetization OS                                  ║
+║           ALL 7 PHASES COMPLETE - FULLY OPERATIONAL                    ║
 ╠═══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                               ║
 ║  Port: ${config.PORT}                                                             ║
@@ -1639,21 +1639,30 @@ async function startServer() {
       Phase 4 - Rights & Monetization:
       - Plans:         GET  /api/monetization/plans
       - Subscribe:     POST /api/monetization/subscribe
-      - My Sub:        GET  /api/monetization/subscription
       - PPV Access:    GET  /api/monetization/access/:contentId
-      - Buy/Rent:     POST /api/monetization/ppv/purchase
       - Revenue:       GET  /api/monetization/revenue
       - Royalties:    GET  /api/monetization/royalties
-      - Sponsorships:  GET  /api/monetization/sponsorships
 
-      AI Agents:
-      - Script:         POST /api/content-ops/ai/script/generate
-      - Thumbnail:      POST /api/content-ops/ai/thumbnail/generate
-      - SEO:            POST /api/content-ops/ai/seo/optimize
-      - Repurpose:      POST /api/content-ops/ai/repurpose
-      - Translate:      POST /api/content-ops/ai/translate
-      - Moderate:       POST /api/content-ops/ai/moderate
-      - Trends:         POST /api/content-ops/ai/trends/discover
+      Phase 5 - Creator & Community:
+      - Studio:        GET  /api/creator/studio
+      - Analytics:     GET  /api/creator/analytics
+      - Brand Deals:    GET  /api/creator/deals
+      - Feed:          GET  /api/creator/feed
+      - Communities:   GET  /api/creator/communities
+
+      Phase 6 - AI Media Brain:
+      - All Agents:    GET  /api/ai/agents
+      - Editor:        POST /api/ai/editor/highlights
+      - News Writer:   POST /api/ai/news/write
+      - Scheduler:     POST /api/ai/scheduler/optimal
+      - Transcript:    POST /api/ai/transcript/transcribe
+      - Compliance:    POST /api/ai/compliance/check
+
+      Phase 7 - GCC & Localization:
+      - Countries:     GET  /api/gcc/countries
+      - Currencies:   GET  /api/gcc/currencies
+      - Compliance:   POST /api/gcc/compliance
+      - Languages:     GET  /api/gcc/languageser
       `);
     });
 

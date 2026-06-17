@@ -39,6 +39,10 @@ const Royalty = require('./Royalty');
 const Sponsorship = require('./Sponsorship');
 const PPVTransaction = require('./PPV');
 const { Revenue } = require('./Revenue');
+const { CreatorStudio, CreatorAnalytics } = require('./CreatorStudio');
+const BrandDeal = require('./BrandDeal');
+const { Post, Community } = require('./Community');
+const Plan = require('./Subscription');
 
 /**
  * Connect to MongoDB
@@ -356,4 +360,11 @@ module.exports = {
   Sponsorship,
   PPVTransaction,
   Revenue,
+  // Audience & Creator
+  CreatorStudio,
+  CreatorAnalytics,
+  BrandDeal,
+  Post,
+  Community,
+  Plan,
 };
