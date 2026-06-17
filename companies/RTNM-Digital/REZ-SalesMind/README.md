@@ -1,56 +1,192 @@
 # REZ SalesMind
 
-AI-Powered Sales Intelligence Platform - Part of the RTMN Ecosystem
+**AI-Powered Autonomous Sales Platform** for the RTMN ecosystem. Features autonomous SDR agents, multi-channel campaigns, social media integration, and AI copilot.
 
-## Features
+**v2.4.0** · Port 5170 · 100+ API Endpoints · 15 Features
 
-### 1. Voice AI Capabilities
-- **Call Transcription**: Real-time and batch transcription with speaker detection
-- **Voicemail Detection**: Automatic voicemail detection and transcription
-- **Multi-Channel Campaigns**: Email, SMS, WhatsApp campaign management
+---
 
-### 2. AI Integration
-- **Claude (Anthropic)**: Advanced language model for sales tasks
-- **OpenAI GPT-4**: Alternative AI model with fallback support
-- **AI Model Router**: Automatic failover between models
-- **Prompt Templates**: Pre-built prompts for common sales tasks
+## 🚀 Features
 
-### 3. Autonomous SDR Workflows
-- **Automated Prospecting**: Research, Email, Follow-up, CRM update
-- **A/B Testing**: Test different email variants
-- **Response Handling**: Automatic routing of replies
-- **Meeting Booking**: Automated scheduling
+### 🤖 AI Copilot
+- Next Best Action recommendations
+- Sales Script generation
+- Call preparation briefs
+- Objection handling
+- Deal prediction
+- Competitive analysis
+- Sales coaching
 
-### 4. CRM Write-Back
-- **HubSpot Integration**: Full bidirectional sync
-- **Lead Sync**: Push leads to HubSpot automatically
-- **Deal Tracking**: Update deal stages in real-time
-- **Activity Logging**: Log calls, emails, and notes
-- **Call Transcripts**: Sync recordings and transcriptions
+### 📱 Social Media Integration
+| Platform | Send | Templates | Status |
+|----------|------|----------|--------|
+| WhatsApp | ✅ | ✅ | Connected |
+| Instagram | ✅ | - | Connected |
+| LinkedIn | ✅ | - | Connected |
+| Twitter/X | ✅ | - | Connected |
+| Facebook | ✅ | ✅ | Connected |
+| TikTok | ✅ | - | Connected |
 
-### 5. React Dashboard
-- **Lead Pipeline**: Visual pipeline management
-- **AI Email Generator**: Create personalized emails
-- **Campaign Management**: Multi-channel campaign tracking
-- **Real-time Stats**: Live performance metrics
-- **Integration Status**: Monitor connected services
+### 📧 Multi-Channel Follow-Up
+- Email, SMS, WhatsApp, Call, Social
+- A/B testing
+- Timezone-aware scheduling
+- Conditional branching
+- Auto-pause on reply
 
-## Quick Start
+### 💬 Unified Communications
+- Single inbox for all channels
+- Auto-select best channel
+- Conversation history
+- Unified messaging API
 
-### Backend
-\`\`\`bash
-cd companies/RTNM-Digital/REZ-SalesMind
+### 🎯 SUTAR OS Integration
+- Goals & Karma system
+- Autonomous Agents
+- Decision engine
+- Workflow automation
+
+### 📞 Voice AI
+- Call transcription
+- Voicemail detection
+- Meeting scheduling
+
+### 💾 CRM Integration
+- HubSpot write-back
+- Lead sync
+- Activity logging
+- Deal tracking
+
+---
+
+## 🛠️ Quick Start
+
+```bash
+# Install & build
 npm install
-npm run dev
-\`\`\`
+npm run build
 
-### Frontend
-\`\`\`bash
-cd companies/RTNM-Digital/REZ-SalesMind/frontend
-npm install
-npm run dev
-\`\`\`
+# Run
+npm start
+```
 
-## Environment Variables
+Environment variables:
+```bash
+cp .env.example .env
+```
 
-See \`.env.example\` for all configuration options.
+---
+
+## 📡 API Endpoints (100+)
+
+```
+/api/copilot/*       AI Copilot (15 endpoints)
+/api/social/*        Social Media (20 endpoints)
+/api/followup/*      Multi-Channel Follow-Up (15 endpoints)
+/api/comms/*        Unified Communications (25 endpoints)
+/api/sutar/*        SUTAR OS (20 endpoints)
+/api/sales/*        Sales Intelligence
+/api/ai/*           AI Tools
+/api/ecosystem/*     Ecosystem
+/api/transcription/* Voice AI
+/api/voicemail/*    Voicemail
+/api/campaign/*     Campaigns
+/api/sdr/*          Autonomous SDR
+/api/crm/*          CRM Write-back
+```
+
+---
+
+## 🔑 Authentication
+
+```bash
+curl -H "X-Internal-Token: your-token" http://localhost:5170/api/leads
+```
+
+---
+
+## 🧪 Examples
+
+```bash
+# WhatsApp Message
+curl -X POST http://localhost:5170/api/social/whatsapp/send \
+  -H "X-Internal-Token: token" \
+  -d '{"to":"+971501234567","message":"Hello!"}'
+
+# Multi-Channel Follow-Up
+curl -X POST http://localhost:5170/api/followup/sequence/create \
+  -H "X-Internal-Token: token" \
+  -d '{"name":"Nurture","channels":["email","whatsapp"],"steps":[]}'
+
+# AI Copilot
+curl -X POST http://localhost:5170/api/copilot/next-action \
+  -H "X-Internal-Token: token" \
+  -d '{"leadId":"lead_123","context":{"dealValue":50000}}'
+
+# SUTAR Goals
+curl http://localhost:5170/api/sutar/goals \
+  -H "X-Internal-Token: token"
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+REZ SalesMind (5170)
+├── AI Copilot        → Claude, GPT-4 integration
+├── Social Hub        → WhatsApp, LinkedIn, Twitter, Instagram, FB, TikTok
+├── Multi-Channel     → Email, SMS, Call, Social sequences
+├── Comms Hub         → Unified inbox & messaging
+├── SUTAR OS          → Goals, Agents, Karma, Decisions
+├── Voice AI          → Transcription, Voicemail, Meetings
+├── CRM               → HubSpot sync
+└── Ecosystem         → 9 connected services
+```
+
+---
+
+## 📦 Services Connected
+
+| Service | Port | Status |
+|---------|------|--------|
+| REZ CRM Hub | 4056 | ✅ |
+| HOJAI Web Intel | 4595 | ✅ |
+| HOJAI Merchant Intel | 4751 | ✅ |
+| HOJAI Lead Service | 4752 | ✅ |
+| HOJAI Knowledge Graph | 4786 | ✅ |
+| HOJAI TwinOS | 4521 | ✅ |
+| Genie Voice | 4760 | ✅ |
+| REZ Identity Hub | 4702 | ✅ |
+| AssetMind | 5200 | ✅ |
+
+---
+
+## 🚀 Deploy
+
+See [DEPLOY.md](../DEPLOY.md) for full deployment instructions.
+
+```bash
+# Backend → Render
+render blueprint create --spec render.yaml
+
+# Frontend → Vercel
+cd frontend && vercel --prod
+```
+
+---
+
+## 🧰 Tech Stack
+
+- Node.js 18+
+- Express.js
+- TypeScript
+- Claude AI (Anthropic)
+- React/Next.js
+- Tailwind CSS
+
+---
+
+## 📄 License
+
+MIT · RTNM Digital

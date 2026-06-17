@@ -1,0 +1,25 @@
+{
+  "name": "@rtmn/workforce-os",
+  "version": "2.0.0",
+  "description": "RTMN Workforce OS - Unified HR Operations Platform",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node test/index.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.11.0",
+    "zod": "^3.22.4"
+  },
+  "keywords": ["hr", "workforce", "rtmn", "human-resources", "payroll"],
+  "author": "RTMN",
+  "license": "MIT"
+}

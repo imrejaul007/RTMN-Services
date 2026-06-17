@@ -1,0 +1,167 @@
+services:
+  # REZ SalesMind Backend
+  - name: rez-salesmind
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5170
+      - key: INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        fromService:
+          name: rez-salesmind-frontend
+          envVarKey: RENDER_EXTERNAL_URL
+        # For production, use your frontend URL
+        value: https://rez-salesmind.vercel.app
+      - key: HOJAI_WEB_INTEL
+        fromService:
+          name: hojai-web-intelligence
+          type: web
+          envVarKey: HOJAI_WEB_INTEL_URL
+      - key: HOJAI_MERCHANT_INTEL
+        fromService:
+          name: hojai-merchant-intelligence
+          type: web
+      - key: HOJAI_LEAD_SERVICE
+        fromService:
+          name: hojai-lead-service
+          type: web
+      - key: HOJAI_KG
+        fromService:
+          name: hojai-knowledge-graph
+          type: web
+      - key: HOJAI_TWIN_OS
+        fromService:
+          name: hojai-twinos
+          type: web
+      - key: GENIE_VOICE
+        fromService:
+          name: genie-voice
+          type: web
+      - key: REZ_IDENTITY_HUB
+        fromService:
+          name: corpid-service
+          type: web
+      - key: REZ_CRM_HUB
+        fromService:
+          name: rez-crm-hub
+          type: web
+      - key: ASSETMIND
+        fromService:
+          name: assetmind
+          type: web
+      # API Keys (add your own)
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: HUBSPOT_API_KEY
+        sync: false
+
+  # HOJAI Web Intelligence
+  - name: hojai-web-intelligence
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4595
+      - key: NODE_ENV
+        value: production
+
+  # HOJAI Merchant Intelligence
+  - name: hojai-merchant-intelligence
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4751
+
+  # HOJAI Lead Service
+  - name: hojai-lead-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4752
+
+  # HOJAI Knowledge Graph
+  - name: hojai-knowledge-graph
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4786
+
+  # HOJAI TwinOS
+  - name: hojai-twinos
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4521
+
+  # Genie Voice
+  - name: genie-voice
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4760
+
+  # REZ CRM Hub
+  - name: rez-crm-hub
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4056
+
+  # CorpID Service
+  - name: corpid-service
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4702
+
+  # AssetMind
+  - name: assetmind
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 5200

@@ -1,16 +1,18 @@
-# Render Blueprint - RTMN Services
+# Render Blueprint - RTMN Customer Operations OS
 # Deploy to: render blueprint create --spec render.yaml
 # Docs: https://render.com/docs/blueprint-spec
 
 services:
-  # ── PILOT ONBOARDING (Client-facing gateway) ────────────────────
+  # ═══════════════════════════════════════════════════════════════════════
+  # PILOT ONBOARDING (Client-facing gateway)
+  # ═══════════════════════════════════════════════════════════════════════
   - type: web
     name: rtmn-pilot-onboarding
     runtime: node
     region: singapore
-    plan: free
+    plan: starter
     rootDir: services/pilot-onboarding
-    buildCommand: npm install --legacy-peer-deps
+    buildCommand: npm install --legacy-peer-deps && npm run build
     startCommand: npm start
     healthCheckPath: /health
     envVars:
@@ -19,9 +21,11 @@ services:
       - key: NODE_ENV
         value: production
       - key: JWT_SECRET
-        sync: false
+        generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
+      - key: MONGODB_URI
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
@@ -33,296 +37,661 @@ services:
       - key: EMAIL_REPLY_TO
         value: support@rtmn.io
       - key: ALLOWED_ORIGINS
-        sync: false
+        value: "*"
       - key: PUBLIC_URL
-        sync: false
+        value: https://rtmn.io
 
-  # ── INDUSTRY OS (Pilot-ready services) ───────────────────────────
-  - type: web
-    name: rtmn-hotel-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: hotel-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10001"
-      - key: NODE_ENV
-        value: production
+  # ═══════════════════════════════════════════════════════════════════════
+  # CUSTOMER INTELLIGENCE PLATFORM (Port 4880-4895)
+  # ═══════════════════════════════════════════════════════════════════════
 
   - type: web
-    name: rtmn-restaurant-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: restaurant-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10002"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-healthcare-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: healthcare-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10003"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-legal-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: legal-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10004"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-education-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: education-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10005"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-realestate-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: realestate-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10006"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-manufacturing-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: manufacturing-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10007"
-      - key: NODE_ENV
-        value: production
-
-  # ── FOUNDATION SERVICES ────────────────────────────────────────────
-  - type: web
-    name: rtmn-corpid
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: corpid-service
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10020"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-memory-os
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: memory-os
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10021"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-twinos-hub
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: twinos-hub
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10023"
-      - key: NODE_ENV
-        value: production
-
-  # ── DIGITAL TWINS ─────────────────────────────────────────────────
-  - type: web
-    name: rtmn-agent-twin
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: agent-twin
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10030"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-property-twin
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: property-twin
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10031"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-referral-twin
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: referral-twin
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10032"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-buyer-twin
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: buyer-twin
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10033"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-deal-twin
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: deal-twin
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10034"
-      - key: NODE_ENV
-        value: production
-
-  - type: web
-    name: rtmn-area-twin
-    runtime: node
-    region: singapore
-    plan: free
-    rootDir: area-twin
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: npm start
-    healthCheckPath: /health
-    envVars:
-      - key: PORT
-        value: "10035"
-      - key: NODE_ENV
-        value: production
-
-  # ── REZ MERCHANT INTEGRATION (NEW! - Port 4800) ─────────────────
-  - type: web
-    name: rez-merchant-integration
+    name: rtmn-customer-intelligence
     runtime: node
     region: singapore
     plan: starter
-    rootDir: companies/REZ-Merchant/rez-merchant-integration-service
+    rootDir: services/customer-intelligence
     buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /health
     envVars:
       - key: PORT
-        value: "4800"
+        value: "4885"
       - key: NODE_ENV
         value: production
-      # Merchant Services
-      - key: MERCHANT_SERVICE_URL
-        value: https://rez-merchant-service.onrender.com
-      - key: MENU_SERVICE_URL
-        value: https://rez-menu-service.onrender.com
-      - key: ORDER_SERVICE_URL
-        value: https://rez-order-service.onrender.com
-      # Industry OS
-      - key: RESTAURANT_OS_URL
-        value: https://rtmn-restaurant-os.onrender.com
-      - key: HOTEL_OS_URL
-        value: https://rtmn-hotel-os.onrender.com
-      - key: RETAIL_OS_URL
-        value: https://rtmn-retail-os.onrender.com
-      # RABTUL Services
-      - key: AUTH_SERVICE_URL
-        value: https://rez-auth-service.onrender.com
-      - key: WALLET_SERVICE_URL
-        value: https://rez-wallet-service.onrender.com
-      - key: PAYMENT_SERVICE_URL
-        value: https://rez-payment-service.onrender.com
-      # Event Bus
-      - key: EVENT_BUS_URL
-        value: https://rez-event-bus.onrender.com
-      - key: JWT_SECRET
-        generateValue: true
+      - key: MONGODB_URI
+        sync: false
 
-  # ── REFUND & RESOLUTION ENGINES (Ports 4980-4983) ──────────────────────────
+  - type: web
+    name: rtmn-ai-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/ai-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4881"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-knowledge-base
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/knowledge-base
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4871"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-ticket-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/ticket-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4872"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-workflow-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/workflow-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4886"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-support-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/support-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4895"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # TWINS (Port 4885-4909)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-organization-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/organization-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4888"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-product-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/product-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4889"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-asset-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/asset-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4890"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-employee-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/employee-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4891"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-partner-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/partner-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4892"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-industry-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/industry-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4893"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-order-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/order-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4900"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-payment-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/payment-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4901"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-subscription-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/subscription-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4902"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-shipment-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/shipment-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4903"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-invoice-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/invoice-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4904"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-warranty-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/warranty-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4905"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-lead-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/lead-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4908"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-campaign-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/campaign-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4909"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # AI ENGINES (Port 4950-4954)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-root-cause-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/root-cause-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4950"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-decision-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/decision-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4951"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-simulation-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/simulation-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4952"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-trust-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/trust-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4953"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-journey-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/journey-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4954"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # COPILOTS (Port 4928-4933)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-sales-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/sales-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4928"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-marketing-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/marketing-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4929"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-finance-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/finance-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4930"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-executive-copilot
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/executive-copilot
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4933"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # MARKETPLACES (Port 4938-4939)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-workflow-marketplace
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/workflow-marketplace
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4938"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-knowledge-marketplace
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/knowledge-marketplace
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4939"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # INTELLIGENCE (Port 4934-4937)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-outcome-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/outcome-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4934"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-universal-graph
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/universal-graph
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4937"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # VOICE AI (Port 4876)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-voice-twin
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/voice-twin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4876"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-voice-ai-runtime
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/voice-ai-runtime
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4877"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # REFUND & RESOLUTION (Port 4980-4983)
+  # ═══════════════════════════════════════════════════════════════════════
+
   - type: web
     name: rtmn-refund-engine
     runtime: node
@@ -337,6 +706,10 @@ services:
         value: "4980"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
 
   - type: web
     name: rtmn-resolution-engine
@@ -352,6 +725,8 @@ services:
         value: "4981"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-auto-approve-engine
@@ -367,6 +742,8 @@ services:
         value: "4982"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-crowd-intelligence
@@ -382,8 +759,74 @@ services:
         value: "4983"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
-  # ── COMPANY INTEGRATIONS (Ports 4960-4973) ──────────────────────────────
+  # ═══════════════════════════════════════════════════════════════════════
+  # CRM & OPERATIONS (Port 4887, 4889-4890)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-action-registry
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/action-registry
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4887"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-reports-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/reports-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4889"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-notification-hub
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/notification-hub
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4890"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # COMPANY INTEGRATIONS (Port 4960-4973)
+  # ═══════════════════════════════════════════════════════════════════════
+
   - type: web
     name: rtmn-hojai-integration
     runtime: node
@@ -398,6 +841,8 @@ services:
         value: "4960"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-rez-integration
@@ -413,6 +858,8 @@ services:
         value: "4961"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-adbazaar-integration
@@ -428,6 +875,8 @@ services:
         value: "4962"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-rabtul-integration
@@ -443,6 +892,8 @@ services:
         value: "4963"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-hospitality-integration
@@ -458,6 +909,8 @@ services:
         value: "4964"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-healthcare-integration
@@ -473,6 +926,8 @@ services:
         value: "4965"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-nexha-integration
@@ -488,6 +943,8 @@ services:
         value: "4966"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-khairmove-integration
@@ -503,6 +960,8 @@ services:
         value: "4967"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-corpperks-integration
@@ -518,6 +977,8 @@ services:
         value: "4968"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-assetmind-integration
@@ -533,6 +994,8 @@ services:
         value: "4969"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-lawgens-integration
@@ -548,6 +1011,8 @@ services:
         value: "4970"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-risnaestate-integration
@@ -563,6 +1028,8 @@ services:
         value: "4971"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-ridza-integration
@@ -578,6 +1045,8 @@ services:
         value: "4972"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
 
   - type: web
     name: rtmn-axom-integration
@@ -593,3 +1062,154 @@ services:
         value: "4973"
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # CRM ENGINE
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-crm-engine
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/crm-engine
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4891"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # EXECUTIVE DASHBOARD
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-executive-dashboard
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/executive-dashboard
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4931"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # AI BRIEFING
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-ai-briefing
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/ai-briefing
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4932"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # CROSS-ECOSYSTEM BRIDGE
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-cross-ecosystem-bridge
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/cross-ecosystem-bridge
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4940"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # LIVE CHAT
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-live-chat
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/live-chat
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4875"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # SOCIAL HUB
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-social-hub
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/social-hub
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4878"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # BPO MANAGER
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-bpo-manager
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/bpo-manager
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "4891"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false

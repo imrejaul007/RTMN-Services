@@ -19,8 +19,12 @@ import { useState } from 'react'
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Leads', href: '/leads', icon: Users },
-  { name: 'Intelligence', href: '/intelligence', icon: Brain },
+  { name: 'AI Copilot', href: '/copilot', icon: Bot },
+  { name: 'Social Media', href: '/social', icon: Activity },
+  { name: 'Comms', href: '/comms', icon: Megaphone },
+  { name: 'SUTAR OS', href: '/sutar', icon: Brain },
   { name: 'Campaigns', href: '/campaigns', icon: Megaphone },
+  { name: 'Intelligence', href: '/intelligence', icon: Brain },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

@@ -1,14 +1,47 @@
 {
   "name": "media-os",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Media Operating System - Complete AI-Native Media Platform",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest"
   },
+  "keywords": [
+    "media",
+    "streaming",
+    "broadcasting",
+    "ott",
+    "rtmn",
+    "ai"
+  ],
+  "author": "RTMN",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "compression": "^1.7.4"
+    "compression": "^1.7.4",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.1.0",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1",
+    "joi": "^17.12.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "uuid": "^9.0.1",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
