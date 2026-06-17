@@ -30,7 +30,7 @@ import { sutarOSRoutes } from './routes/sutarOS.js';
 import { copilotRoutes } from './routes/copilot.js';
 
 const app = express();
-const PORT = process.env.PORT || 5170;
+const PORT = process.env.PORT || 5175;
 const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*').split(',');
 
