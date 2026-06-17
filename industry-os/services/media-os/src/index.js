@@ -51,6 +51,15 @@ const { recommendationRoutes } = require('./routes/recommendationRoutes');
 const monetizationRoutes = require('./routes/monetizationRoutes');
 const MonetizationService = require('./services/MonetizationService');
 
+// Phase 5 Routes - Audience & Creator OS
+const creatorRoutes = require('./routes/creatorRoutes');
+
+// Phase 6 Routes - AI Media Brain
+const mediaBrainRoutes = require('./routes/mediaBrainRoutes');
+
+// Phase 7 Routes - GCC & Localization
+const gccRoutes = require('./routes/gccRoutes');
+
 // ============================================
 // APP INITIALIZATION
 // ============================================
@@ -139,6 +148,15 @@ app.use('/api/recommendations', recommendationRoutes);
 
 // Phase 4 Routes - Rights & Monetization
 app.use('/api/monetization', monetizationRoutes);
+
+// Phase 5 Routes - Audience & Creator OS
+app.use('/api/creator', creatorRoutes);
+
+// Phase 6 Routes - AI Media Brain
+app.use('/api/ai', mediaBrainRoutes);
+
+// Phase 7 Routes - GCC & Localization
+app.use('/api/gcc', gccRoutes);
 
 // ============================================
 // ERROR HANDLING
