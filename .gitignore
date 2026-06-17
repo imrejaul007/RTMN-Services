@@ -45,6 +45,7 @@ companies/*/
 !companies/Nexha/commerce-identity/**
 companies/Nexha/commerce-identity/node_modules/
 companies/Nexha/commerce-identity/dist/
+!companies/AdBazaar/
 !companies/Axom/
 !companies/AssetMind/
 !companies/CorpPerks/

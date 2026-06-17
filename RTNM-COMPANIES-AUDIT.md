@@ -97,12 +97,9 @@ render blueprint apply render.yaml
 
 **Personal AI OS for individuals — "Your Personal Intelligence, Simplified"**
 
-GENIE is the flagship personal AI OS of HOJAI. It is built around **five
-twins** that model the user across every dimension of their life, plus 25+
-microservices and a unified multi-surface experience (voice, WhatsApp, DO,
-RAZO Keyboard, web dashboard).
+GENIE is the flagship personal AI OS of HOJAI. It is built around **10 twins** that model the user across every dimension of their life, plus 25+ microservices and a unified multi-surface experience (voice, WhatsApp, DO, RAZO Keyboard, web dashboard).
 
-**The Five Twins:**
+**The 10 Twins (v2.1.0):**
 
 | Twin | Port | What it tracks |
 |------|------|----------------|
@@ -111,6 +108,11 @@ RAZO Keyboard, web dashboard).
 | **Financial Twin**      | 4715 | Accounts, transactions, budgets, savings goals, net worth |
 | **Health Twin**         | 4717 | Vitals, activity, sleep, mood, medications, conditions |
 | **Founder Twin**        | 4716 | Ventures, KPIs, customers, team, decisions, focus |
+| **Knowledge Twin**      | 4703 | Learned topics, bookmarks, courses, research, skills, insights |
+| **Productivity Twin**   | 4703 | Tasks, calendar, habits, focus patterns, execution style |
+| **Communication Twin**  | 4703 | Writing style, channels, relationships, response patterns |
+| **Environment Twin**    | 4703 | Devices, locations, routines, IoT, contextual awareness |
+| **AI Twin**             | 4703 | Reasoning style, preferred workflows, autonomous agents, AI settings |
 
 **Consumer Triangle:** GENIE (thinks) + DO (acts) + RAZO (communicates)
 
@@ -797,15 +799,20 @@ Restaurant Twin, Order Twin, Kitchen Twin, Inventory Twin, Customer Twin, Staff 
 | **4905** | Finance Payables | AP management | Vendor payments, payment scheduling, bulk payments |
 | **4906** | Finance Budget Coach | Budget planning | Budget forecasting, variance analysis, optimization recommendations |
 
-### FinanceOS Suite (Ports 5250-5290)
+### FinanceOS Suite (Ports 5250-5305)
 
 | Port | Service | Purpose | Key Features |
 |------|---------|---------|-------------|
 | **5250** | ExpenseOS | Multi-channel expense capture | WhatsApp/Email/Mobile/API/Genie submission, AI receipt OCR, policy engine, multi-level approval |
 | **5255** | Approval Workflow | Multi-level approvals | Configurable chains, SLA tracking, delegation, escalation |
 | **5260** | Reimbursement OS | Reimbursements & advances | Auto-approval, multi-method payouts, advance settlement, petty cash |
+| **5265** | VendorOS | Vendor management | Profiles, trust/risk scoring, GST verification, payment terms |
+| **5275** | ProcurementOS | Purchase orders | Purchase requests, quotes, PO generation, delivery tracking |
+| **5285** | ContractOS | Contract management | Contract lifecycle, renewals, expiry alerts, SLA tracking |
 | **5270** | Finance Twin Hub | Digital twins | Company/Dept/Employee/Vendor/Budget/Project Twins, AI insights, what-if simulations |
 | **5280** | Spend Intelligence | Analytics & anomalies | Duplicate detection, savings opportunities, budget forecasting, vendor intelligence |
+| **5295** | TreasuryOS | Cash management | Bank accounts, cash position, transactions, forecasting |
+| **5305** | AuditOS | Financial audits | Audit trails, compliance, fraud detection, findings tracking |
 | **5290** | Corporate Card OS | Virtual card management | Card issuance, spend controls, transaction tracking, reconciliation |
 | **5220** | Financial OS | Accounting | Chart of accounts, journal entries, trial balance, P&L, balance sheet, cash flow |
 
