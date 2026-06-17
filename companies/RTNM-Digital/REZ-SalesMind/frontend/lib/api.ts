@@ -1,7 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4760'
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' 'PATCH' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: any
   headers?: Record<string, string>
 }

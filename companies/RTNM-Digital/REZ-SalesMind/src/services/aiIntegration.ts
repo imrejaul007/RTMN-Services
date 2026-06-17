@@ -1,19 +1,26 @@
 import axios from 'axios';
 import NodeCache from 'node-cache';
-import { RateLimiterMemory } from 'rate-limiter-flexible';
 import type { AIRequest, AIResponse } from '../types/index.js';
 import logger from '../utils/logger.js';
 
-// Rate limiters
-const claudeLimiter = new RateLimiterMemory({
-  points: 50,
-  duration: 60
-});
+// Simple rate limiter implementation
+const rateLimits = new Map<string, { count: number; resetTime: number }>();
 
-const openaiLimiter = new RateLimiterMemory({
-  points: 60,
-  duration: 60
-});
+function checkRateLimit(key: string, limit: number, windowMs: number): void {
+  const now = Date.now();
+  const record = rateLimits.get(key);
+
+  if (!record || now > record.resetTime) {
+    rateLimits.set(key, { count: 1, resetTime: now + windowMs });
+    return;
+  }
+
+  if (record.count >= limit) {
+    throw new Error('Rate limit exceeded');
+  }
+
+  record.count++;
+}
 
 // Cache for responses
 const responseCache = new NodeCache({ stdTTL: 300 }); // 5 minutes
@@ -39,7 +46,7 @@ class AIIntegrationService {
     const startTime = Date.now();
 
     try {
-      await claudeLimiter.consume('claude');
+      checkRateLimit('claude', 50, 60000);
     } catch {
       throw new Error('Claude rate limit exceeded. Please wait and try again.');
     }
@@ -109,7 +116,7 @@ class AIIntegrationService {
     const startTime = Date.now();
 
     try {
-      await openaiLimiter.consume('openai');
+      checkRateLimit('openai', 60, 60000);
     } catch {
       throw new Error('OpenAI rate limit exceeded. Please wait and try again.');
     }

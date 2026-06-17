@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Loader2, Sparkles, Copy, Check } from 'lucide-react'
 
 interface EmailGeneratorProps {
@@ -20,42 +19,73 @@ export function EmailGenerator({ onGenerate }: EmailGeneratorProps) {
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const handleGenerate = async () => {
-    setLoading(true)
-    // Simulate AI generation
-    await new Promise(resolve => setTimeout(resolve, 1500))
+  const generateInitialEmail = () => {
+    const name = leadName || 'there'
+    const company = leadCompany || 'your company'
+    return `Hi ${name},
 
-    const email = {
-      subject: templateType === 'initial'
-        ? `Quick question about ${leadCompany || 'your company'}`
-        : templateType === 'followup'
-        ? `Following up - ${leadName}`
-        : `Quick idea for ${leadCompany || 'your company'}`,
-      body: `Hi ${leadName || 'there'},
-
-${templateType === 'initial' ? `I noticed ${leadCompany || 'your company'} has been growing rapidly, and I wanted to reach out about how REZ SalesMind could help streamline your sales operations.
+I noticed ${company} has been growing rapidly, and I wanted to reach out about how REZ SalesMind could help streamline your sales operations.
 
 Our AI-powered platform can help teams like yours:
 - Automate 80% of prospecting tasks
 - Generate personalized emails at scale
 - Analyze conversations for buying signals
 
-Would you have 15 minutes this week for a quick demo?` :
-      templateType === 'followup' ? `Hi ${leadName},
+Would you have 15 minutes this week for a quick demo?
+
+Best regards,
+[Your Name]
+REZ SalesMind`
+  }
+
+  const generateFollowupEmail = () => {
+    const name = leadName || 'there'
+    return `Hi ${name},
 
 I wanted to follow up on my previous message about REZ SalesMind. I understand you're busy, so I'll keep this brief.
 
 If you're not the right person to speak with about AI-powered sales automation, I'd appreciate it if you could point me in the right direction.
 
-Otherwise, I'm happy to work around your schedule for a quick call.` :
-      `Hi ${leadName},
+Otherwise, I'm happy to work around your schedule for a quick call.
 
-I wanted to share a quick idea that could help ${leadCompany || 'your team'} close deals faster.
+Best regards,
+[Your Name]`
+  }
 
-Based on what I know about ${leadCompany || 'similar companies'}, here's a simple framework that has worked well for others in your space...
+  const generateNurtureEmail = () => {
+    const name = leadName || 'there'
+    const company = leadCompany || 'your team'
+    return `Hi ${name},
 
-Let me know if you'd like to discuss this further!`}
+I wanted to share a quick idea that could help ${company} close deals faster.
 
+Based on what I know about similar companies, here's a simple framework that has worked well for others in your space.
+
+Let me know if you'd like to discuss this further!
+
+Best regards,
+[Your Name]`
+  }
+
+  const handleGenerate = async () => {
+    setLoading(true)
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    let subject = ''
+    let body = ''
+
+    if (templateType === 'initial') {
+      subject = 'Quick question about ' + (leadCompany || 'your company')
+      body = generateInitialEmail()
+    } else if (templateType === 'followup') {
+      subject = 'Following up - ' + leadName
+      body = generateFollowupEmail()
+    } else {
+      subject = 'Quick idea for ' + (leadCompany || 'your company')
+      body = generateNurtureEmail()
+    }
+
+    const email = { subject, body }
     setGeneratedEmail(email)
     setLoading(false)
     onGenerate?.(email)
@@ -63,7 +93,8 @@ Let me know if you'd like to discuss this further!`}
 
   const copyToClipboard = () => {
     if (generatedEmail) {
-      navigator.clipboard.writeText(`Subject: ${generatedEmail.subject}\n\n${generatedEmail.body}`)
+      const text = 'Subject: ' + generatedEmail.subject + '\n\n' + generatedEmail.body
+      navigator.clipboard.writeText(text)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
@@ -107,7 +138,6 @@ Let me know if you'd like to discuss this further!`}
               <option value="initial">Initial Outreach</option>
               <option value="followup">Follow-up</option>
               <option value="nurture">Nurture</option>
-              <option value="meeting">Meeting Confirmation</option>
             </select>
           </div>
           <div className="space-y-2">
@@ -120,7 +150,6 @@ Let me know if you'd like to discuss this further!`}
               <option value="professional">Professional</option>
               <option value="friendly">Friendly</option>
               <option value="casual">Casual</option>
-              <option value="formal">Formal</option>
             </select>
           </div>
         </div>

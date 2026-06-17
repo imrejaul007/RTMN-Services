@@ -1,6 +1,7 @@
 'use client'
 
 import { CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const integrations = [
   { name: 'HubSpot CRM', status: 'connected', lastSync: '2 min ago' },
