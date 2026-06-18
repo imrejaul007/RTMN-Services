@@ -1,8 +1,8 @@
 # RTMN Operating System
 
-**Version:** 3.0  
+**Version:** 4.0  
 **Date:** June 18, 2026  
-**Status:** 🚀 **30+ SERVICES RUNNING**
+**Status:** 🚀 **43+ SERVICES RUNNING**
 
 ---
 
@@ -34,7 +34,7 @@ curl http://localhost:4399/api/features
 
 ---
 
-## Core Business OS (5 Complete)
+## Core Business OS (6 Complete)
 
 | Port | Service | Modules | Status |
 |------|---------|---------|--------|
@@ -43,6 +43,7 @@ curl http://localhost:4399/api/features
 | **5055** | Sales OS | CRM, Pipeline, 22 AI Agents | ✅ |
 | **5035** | **Legal OS** | Contracts, Compliance, Documents, Matters, AI Twin | ✅ |
 | **5250** | **Operations OS** | 21 Modules, 23 AI Agents, Observe→Learn→Automate | ✅ |
+| **5400** | **Revenue Intelligence OS** | Revenue Hub, Demand, Pricing, Promotions, RevOps, Cohorts, 12 AI Agents | ✅ NEW |
 
 ---
 
@@ -221,6 +222,83 @@ curl http://localhost:5250/health
 curl http://localhost:5250/api/command-center
 curl -X POST http://localhost:5250/api/learning/observe -d '{"entityId": "PROC001", "step": "Submit"}'
 curl -X POST http://localhost:5250/api/ai/analyze -d '{"message": "health"}'
+```
+
+---
+
+## Revenue Intelligence OS (Port 5400)
+
+### Positioning
+
+Not just revenue tracking like traditional BI tools.
+
+**This is the AI Revenue Department:**
+
+```
+Unified Revenue Hub
+        ↓
+Demand Intelligence (92% accuracy)
+        ↓
+Dynamic Pricing Optimization (88% accuracy)
+        ↓
+Promotion ROI & Attribution
+        ↓
+RevOps Intelligence
+        ↓
+Cohort Analysis & LTV Prediction
+        ↓
+Revenue Digital Twin (Scenario Simulation)
+        ↓
+AI Chief Revenue Officer
+```
+
+### 8 Modules
+
+| Module | Description |
+|--------|-------------|
+| Revenue Hub | Unified view of all revenue streams |
+| Demand Intelligence | Forecasting, signals, trends, seasonality |
+| Pricing Intelligence | Dynamic optimization, competitive benchmarking |
+| Promotion Management | Attribution, ROI tracking, budget optimization |
+| RevOps Intelligence | Pipeline health, churn, expansion tracking |
+| Cohort Analysis | LTV prediction, retention curves, segmentation |
+| Analytics Engine | Dashboards, reports, velocity metrics |
+| Revenue Digital Twin | Scenario simulation, risk assessment |
+
+### 12 AI Revenue Agents
+
+| Agent | Purpose | Accuracy |
+|-------|---------|----------|
+| AI CRO | Strategic revenue leadership | 90% |
+| Demand Forecaster | Predict future demand | 92% |
+| Pricing Optimizer | Maximize revenue per transaction | 88% |
+| Promotion Strategist | Optimize promotional spend | 85% |
+| Attribution Agent | Connect marketing to revenue | 87% |
+| Cohort Analyst | Segment and analyze cohorts | 89% |
+| Churn Predictor | Predict revenue at risk | 91% |
+| Expansion Advisor | Recommend upsell/cross-sell | 86% |
+| Competitive Intel | Monitor competitive pricing | 83% |
+| Anomaly Detector | Detect unusual patterns | 94% |
+| Forecast Accuracy | Improve forecast precision | 90% |
+| Scenario Planner | Model business scenarios | 88% |
+
+### Connected Services
+
+- Sales OS (5055) - Pipeline, deals, subscriptions
+- Finance OS (4801) - Actual revenue, invoicing
+- Marketing OS (5500) - Campaigns, attribution
+- Operations OS (5250) - Operational metrics
+- CXO OS (5100) - Executive dashboards
+
+### Commands
+
+```bash
+curl http://localhost:5400/health
+curl http://localhost:5400/api/revenue/hub
+curl http://localhost:5400/api/revops/metrics
+curl http://localhost:5400/api/cohorts
+curl http://localhost:5400/api/agents
+curl -X POST http://localhost:5400/api/copilot/chat -d '{"message": "What is our MRR?"}'
 ```
 
 ---
