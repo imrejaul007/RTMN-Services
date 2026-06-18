@@ -1,0 +1,201 @@
+# RTMN Unified Hub - Render Blueprint
+# Deploy entire ecosystem to Render
+
+services:
+  # Unified Hub
+  - type: web
+    name: rtmn-unified-hub
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4399
+
+  # Core OS
+  - type: web
+    name: rtmn-sales-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5055
+
+  - type: web
+    name: rtmn-media-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5600
+
+  - type: web
+    name: rtmn-marketing-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5500
+
+  # Industry OS
+  - type: web
+    name: rtmn-hotel-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5025
+
+  - type: web
+    name: rtmn-restaurant-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5010
+
+  - type: web
+    name: rtmn-healthcare-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5020
+
+  - type: web
+    name: rtmn-retail-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5030
+
+  - type: web
+    name: rtmn-legal-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5035
+
+  - type: web
+    name: rtmn-education-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5060
+
+  - type: web
+    name: rtmn-automotive-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5080
+
+  - type: web
+    name: rtmn-beauty-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5090
+
+  - type: web
+    name: rtmn-fitness-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5110
+
+  - type: web
+    name: rtmn-realestate-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5230
+
+  - type: web
+    name: rtmn-manufacturing-os
+    env: node
+    region: singapore
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5150

@@ -748,3 +748,131 @@ services:
         value: "4937"
       - key: NODE_ENV
         value: production
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # SALES HUB - Unified Orchestration (Port 5180-5183)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-sales-hub
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/sales-hub
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "5180"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: SALESMIND_URL
+        value: "http://localhost:5175"
+      - key: CUSTOMER_OPS_URL
+        value: "http://localhost:4000"
+
+  - type: web
+    name: rtmn-sales-intelligence
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/sales-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "5181"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: rtmn-sales-sync
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/sales-sync
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "5182"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  - type: web
+    name: rtmn-sales-automation
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: services/sales-automation
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "5183"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # REZ ATLAS - Sales Analytics (Port 5190)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-rez-atlas
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: industry-os/services/atlas
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "5190"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # SALES OS - Complete Sales Platform (Port 5055)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  - type: web
+    name: rtmn-sales-os
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: industry-os/services/sales-os
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "5055"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: ATLAS_URL
+        value: "http://localhost:5190"
+      - key: CUSTOMER_OPS_URL
+        value: "http://localhost:4000"
+      - key: BRANDPULSE_URL
+        value: "http://localhost:4974"
+      - key: SALES_HUB_URL
+        value: "http://localhost:5180"

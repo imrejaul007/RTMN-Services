@@ -1,0 +1,196 @@
+# RTMN Unified Hub - Docker Compose
+version: '3.8'
+
+services:
+  # RTMN Unified Hub
+  unified-hub:
+    build: ./services/unified-os-hub
+    container_name: rtmn-unified-hub
+    ports:
+      - "4399:4399"
+    environment:
+      - NODE_ENV=production
+      - PORT=4399
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # MongoDB for local state
+  mongodb:
+    image: mongo:6
+    container_name: rtmn-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Sales OS
+  sales-os:
+    build: ./industry-os/services/sales-os
+    container_name: rtmn-sales-os
+    ports:
+      - "5055:5055"
+    environment:
+      - NODE_ENV=production
+      - PORT=5055
+      - MONGODB_URI=mongodb://mongodb:27017/sales-os
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Media OS
+  media-os:
+    build: ./industry-os/services/media-os
+    container_name: rtmn-media-os
+    ports:
+      - "5600:5600"
+    environment:
+      - NODE_ENV=production
+      - PORT=5600
+      - MONGODB_URI=mongodb://mongodb:27017/media-os
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Marketing OS
+  marketing-os:
+    build: ./industry-os/services/marketing-os
+    container_name: rtmn-marketing-os
+    ports:
+      - "5500:5500"
+    environment:
+      - NODE_ENV=production
+      - PORT=5500
+      - MONGODB_URI=mongodb://mongodb:27017/marketing-os
+      - SALES_OS_URL=http://sales-os:5055
+      - MEDIA_OS_URL=http://media-os:5600
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Hotel OS
+  hotel-os:
+    build: ./industry-os/services/hotel-os
+    container_name: rtmn-hotel-os
+    ports:
+      - "5025:5025"
+    environment:
+      - NODE_ENV=production
+      - PORT=5025
+      - MONGODB_URI=mongodb://mongodb:27017/hotel-os
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Restaurant OS
+  restaurant-os:
+    build: ./industry-os/services/restaurant-os
+    container_name: rtmn-restaurant-os
+    ports:
+      - "5010:5010"
+    environment:
+      - NODE_ENV=production
+      - PORT=5010
+      - MONGODB_URI=mongodb://mongodb:27017/restaurant-os
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Healthcare OS
+  healthcare-os:
+    build: ./industry-os/services/healthcare-os
+    container_name: rtmn-healthcare-os
+    ports:
+      - "5020:5020"
+    environment:
+      - NODE_ENV=production
+      - PORT=5020
+      - MONGODB_URI=mongodb://mongodb:27017/healthcare-os
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Retail OS
+  retail-os:
+    build: ./industry-os/services/retail-os
+    container_name: rtmn-retail-os
+    ports:
+      - "5030:5030"
+    environment:
+      - NODE_ENV=production
+      - PORT=5030
+      - MONGODB_URI=mongodb://mongodb:27017/retail-os
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - rtmn-network
+
+  # Foundation Services
+  corpid-service:
+    image: mongo:6  # Placeholder - use actual CorpID service
+    container_name: rtmn-corpid
+    ports:
+      - "4702:4702"
+
+  memory-os:
+    image: mongo:6  # Placeholder - use actual MemoryOS service
+    container_name: rtmn-memory-os
+    ports:
+      - "4703:4703"
+
+  twinos-hub:
+    image: mongo:6  # Placeholder - use actual TwinOS service
+    container_name: rtmn-twinos
+    ports:
+      - "4705:4705"
+
+  # REZ Services
+  rez-crm:
+    image: mongo:6  # Placeholder
+    container_name: rtmn-rez-crm
+    ports:
+      - "4056:4056"
+
+  rez-wallet:
+    image: mongo:6  # Placeholder
+    container_name: rtmn-rez-wallet
+    ports:
+      - "4004:4004"
+
+  # AdBazaar Services
+  rez-dsp:
+    image: mongo:6  # Placeholder
+    container_name: rtmn-dsp
+    ports:
+      - "4990:4990"
+
+  rez-audience:
+    image: mongo:6  # Placeholder
+    container_name: rtmn-audience
+    ports:
+      - "4805:4805"
+
+networks:
+  rtmn-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

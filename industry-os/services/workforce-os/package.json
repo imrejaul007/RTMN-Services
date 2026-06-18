@@ -1,0 +1,19 @@
+{
+  "name": "workforce-os",
+  "version": "1.0.0",
+  "description": "Workforce OS - Complete HR & People Management (Port 5077)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": ["hr", "workforce", "people", "hris", "rtmn"],
+  "author": "RTMN",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  }
+}

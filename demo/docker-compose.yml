@@ -1,0 +1,86 @@
+# RTMN Customer Operations - Demo Docker Compose
+version: '3.8'
+
+services:
+  # API Gateway
+  api:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=demo
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/rtmn_demo
+    depends_on:
+      - mongo
+    command: npm start
+
+  # MongoDB
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./test-data:/data/test
+
+  # Redis (for caching)
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  # Frontend (Next.js)
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:4000
+    depends_on:
+      - api
+
+  # AI Intelligence
+  ai:
+    build: ./services/ai-intelligence
+    ports:
+      - "4881:4881"
+    environment:
+      - NODE_ENV=demo
+      - PORT=4881
+      - MONGODB_URI=mongodb://mongo:27017/rtmn_demo
+      - OPENAI_API_KEY=demo_key
+
+  # Customer Twin
+  customer-twin:
+    build: ./services/customer-intelligence
+    ports:
+      - "4885:4885"
+    environment:
+      - NODE_ENV=demo
+      - PORT=4885
+      - MONGODB_URI=mongodb://mongo:27017/rtmn_demo
+
+  # Ticket Engine
+  ticket-engine:
+    build: ./services/ticket-engine
+    ports:
+      - "4872:4872"
+    environment:
+      - NODE_ENV=demo
+      - PORT=4872
+      - MONGODB_URI=mongodb://mongo:27017/rtmn_demo
+
+  # Support Copilot
+  support-copilot:
+    build: ./services/support-copilot
+    ports:
+      - "4895:4895"
+    environment:
+      - NODE_ENV=demo
+      - PORT=4895
+      - MONGODB_URI=mongodb://mongo:27017/rtmn_demo
+      - OPENAI_API_KEY=demo_key
+
+volumes:
+  mongo_data:

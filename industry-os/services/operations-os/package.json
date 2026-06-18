@@ -1,0 +1,20 @@
+{
+  "name": "@rtmn/operations-os",
+  "version": "1.0.0",
+  "description": "RTMN Operations OS - The Central Nervous System - AI COO",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  },
+  "keywords": ["operations", "project-management", "workflow", "ai", "rtmn"],
+  "author": "RTMN",
+  "license": "MIT"
+}
