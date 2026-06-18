@@ -29,6 +29,8 @@ Agent Cloud
 └── Agent Economy Runtime   (the agent-to-agent commerce layer — see Div 11)
 ```
 
+> **Note:** SUTAR OS (Merchant AI runtime) is now [Division 12](../12-sutar-os/) — too large to fit here.
+
 ## 3. Current State — What's Built (this is where ACN lives)
 
 **ACN = Agent Commerce Network** is the agent runtime already built. 14 services, port range 4800-4851:
@@ -84,11 +86,11 @@ Agent Cloud
 
 ## 8. Open Questions
 
-- **SutarOS placement:** Your plan puts it in Division 2 (Infrastructure Cloud), but it's implemented as **merchant AI agents** (per `services/merchant-agents/CLAUDE.md`). Audit recommendation: **belongs here in Division 4.** Decision needed.
+- **SutarOS placement:** SUTAR OS is now [Division 12](../12-sutar-os/). It bridges Agent Cloud (agent runtime) and Marketplace Network (agent economy).
 - **Agent Economy vs Agent Marketplace:** Your plan has these in Division 11 (Marketplace & Network), but the *runtime* for both lives here in Division 4. Suggestion: **runtime in Division 4, UI/economics in Division 11**.
 - **Visual Builder or Code-first:** Many agent platforms go visual (n8n, Lindy). Most serious teams want code-first SDK. Should HOJAI build both?
 - **Agent language:** Will agents be TypeScript-first (matches rest of stack), Python-first (matches ML community), or both? Affects SDK effort.
 
 ---
 
-*See also: [services/acn-network/CLAUDE.md](../../../services/acn-network/CLAUDE.md), [services/merchant-agents/CLAUDE.md](../../../services/merchant-agents/CLAUDE.md), [ACN-ARCHITECTURE.md](../../../../ACN-ARCHITECTURE.md)*
+*See also: [services/acn-network/CLAUDE.md](../../../services/acn-network/CLAUDE.md), [services/merchant-agents/CLAUDE.md](../../../services/merchant-agents/CLAUDE.md), [ACN-ARCHITECTURE.md](../../../../ACN-ARCHITECTURE.md), [Division 12 — SUTAR OS](../12-sutar-os/)*

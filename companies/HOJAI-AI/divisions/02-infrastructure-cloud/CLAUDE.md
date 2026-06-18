@@ -20,13 +20,15 @@ Infrastructure Cloud
 ├── SkillOS           (reusable skill packages with execution semantics)
 ├── GoalOS            (goal / objective tracking, KPI trees)
 ├── SimulationOS      (digital twin sandbox, what-if analysis)
-├── SutarOS           (see "Open Questions" — plan places this here, audit disagrees)
+├── SutarOS           (MOVED to Division 12 — Autonomous Economic OS)
 ├── Knowledge Graph   (entity relationships, ontology)
 ├── Vector Engine     (embeddings store, similarity search)
 ├── Reasoning Runtime (chain-of-thought, ReAct, tree-of-thought)
 ├── Planning Engine   (HTN, partial-order planning, LLM planners)
 └── Execution Runtime (action invocation, side-effect management)
 ```
+
+> **Note:** SUTAR OS has its own dedicated division now — [see Division 12](../12-sutar-os/). It's a 25-service, 7-layer Autonomous Economic OS that doesn't fit in Infrastructure Cloud.
 
 ## 3. Current State — What's Built
 
@@ -77,7 +79,7 @@ These 8 things in your plan **do not exist anywhere in the repo:**
 
 ## 8. Open Questions
 
-- **SutarOS placement:** Your plan puts SutarOS in Infrastructure Cloud, but the existing code (`services/merchant-agents` on port 4810) treats it as a **Merchant AI Agent runtime**, which fits Agent Cloud (Division 4). Audit recommendation: **move to Division 4.**
+- **SutarOS placement:** SUTAR OS is now [Division 12](../12-sutar-os/) — too big to fit here. It has 25 services across 7 layers.
 - **Vector DB choice:** Pinecone (managed, fast) vs Qdrant (self-hosted, flexible) vs pgvector (no new infra). Affects Vendor strategy.
 - **Reasoning framework:** Should we build our own or adopt LangChain/LlamaIndex? Affects vendor lock-in and time-to-market.
 - **FlowOS tech choice:** Temporal (heaviest, most mature) vs Restate (lighter) vs Inngest (TypeScript-native). Affects developer ergonomics.

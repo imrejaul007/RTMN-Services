@@ -1,17 +1,17 @@
-# HOJAI AI — 11 Strategic Divisions
+# HOJAI AI — 11+1 Strategic Divisions
 
 > **The architecture of HOJAI AI as the AI Infrastructure Company of RTMN.**
 > Each division below has its own `CLAUDE.md` with a Current State → Target State gap analysis, list of owning services, port map, and what's missing.
 
 ---
 
-## The 11 Divisions
+## The 12 Divisions
 
 | # | Division | One-line | Current State | Gap |
 |---|----------|----------|---------------|-----|
 | 1 | [AI Foundation](./01-foundation/) | Identity, auth, gateway, eventing — everything required to run AI | 🟢 ~70% | small |
 | 2 | [AI Infrastructure Cloud](./02-infrastructure-cloud/) | MemoryOS, TwinOS, FlowOS, PolicyOS, etc. — the OS primitives | 🟡 ~40% | medium-large |
-| 3 | [AI Intelligence Cloud](./03-intelligence-cloud/) | The brain — per-industry/per-company intelligence modules | 🟡 ~30% | large |
+| 3 | [AI Intelligence Cloud](./03-intelligence-cloud/) | The brain — per-industry/per-company intelligence modules + Micro Intelligence fallback pattern | 🟢 ~75% breadth / ~40% depth | large |
 | 4 | [AI Agent Cloud](./04-agent-cloud/) | Agent runtime, builder, orchestration, multi-agent systems | 🟢 ~80% | small-medium |
 | 5 | [AI Communication Cloud](./05-communication-cloud/) | Voice, phone, WhatsApp, email, SMS, chat, meetings, translation | 🟡 ~60% | medium |
 | 6 | [AI Data & Knowledge Cloud](./06-data-knowledge-cloud/) | Knowledge graph, vector DB, RAG, ETL, feature store | 🟡 ~30% | large |
@@ -20,22 +20,31 @@
 | 9 | [AI Industry Solutions](./09-industry-solutions/) | 26+ Industry OS (Restaurant, Hotel, Retail, Healthcare, etc.) | 🟢 ~95% (breadth) | medium (depth) |
 | 10 | [AI Developer Platform](./10-developer-platform/) | APIs, SDKs, CLI, sandbox, webhooks, observability | 🟡 ~40% | medium |
 | 11 | [AI Marketplace & Network](./11-marketplace-network/) | Agent/skill/workflow marketplaces, trust, reputation, federation | 🟡 ~30% | medium-large |
+| 12 | [SUTAR OS](./12-sutar-os/) | Autonomous Economic OS — 25 services across 7 layers for AI to execute all tasks | 🟡 ~20% (4 of 25 built) | **huge** |
 
-**Coverage: ~45% across the platform.** ~55% is net-new build.
+**Coverage: ~45-50% across the platform.** ~50% is net-new build.
 
 ---
 
-## Critical Findings From The Audit
+## Critical Findings From The Audit (Updated 2026-06-19)
 
-These came up in the audit and are worth flagging before reading the per-division docs:
+After a deeper search, **several original findings were corrected**:
 
-1. **Most "missing" things in the plan actually exist** under different names (e.g. Knowledge Graph is in `services/knowledge-base`, SUTAR OS is in `services/merchant-agents`).
-2. **Division #7 (Training & Model Platform) is the single biggest gap.** The entire division is essentially missing — no GPU pipeline, no model serving, no RLHF. This is also the most expensive to build.
-3. **Division #3 has 22 intelligence sub-domains listed** but only 5 are real services today. Most are aspirational.
-4. **Division #9 (Industry Solutions) has 56 directories** but most are scaffolds. The breadth is there; the depth isn't.
-5. **Two of the items in your plan don't exist anywhere**:
-   - **"Micro Intelligence"** — searched the whole repo, no code, no docs. Either a placeholder or a name conflict.
-   - **"FlowOS / SkillOS / GoalOS / SimulationOS / PolicyOS"** — none of these OS primitives exist. They're in your plan but not in code. Need to be built (or renamed to point at existing services).
+### Things I got wrong the first time:
+1. **Company Intelligence is NOT 0% built** — there are **53 intelligence-related directories** across companies. REZ alone has 11 atlas-intelligence sub-services. AssetMind and RisnaEstate have real source. About 5 companies have real intelligence code; ~20 are scaffolds.
+2. **SUTAR OS is huge and didn't belong in Division 2** — moved to its own Division 12 (25 services, 7 layers, port 3100-4260).
+3. **Micro Intelligence is a strategy pattern**, not a service — embedded per-app AI fallback with circuit breaker.
+
+### Things that turned out to be correct:
+1. **Division #7 (Training & Model Platform) is the single biggest gap** (~5%).
+2. **Division #9 (Industry Solutions) has 56 dirs but most are scaffolds** sharing placeholder port 5010.
+3. **Division #4 (Agent Cloud) is the strongest** (~80% — ACN ecosystem).
+4. **Vector DB + RAG Platform are the highest-leverage missing pieces** in Division #6.
+
+### Things still unresolved (need user input):
+1. **Many SUTAR services overlap with existing /services/** (Twin OS 4142 vs twinos-hub 4705, Memory 4143 vs memory-os 4703, Agent Network 4155 vs acn-network 4801, etc.) — should SUTAR be a *layered abstraction* over RTMN, or a parallel platform?
+2. **REZ Atlas v2 has 11 parallel intelligence services** + REZ has 2 other intelligence stacks (`rez-merchant-intelligence-service`, `rez-merchant-intelligence-aggregator`). Are these competing or layered?
+3. **Bizora Intelligence** is listed in your plan as a Company Intelligence, but Bizora is also a product in Division 8 — same thing or different?
 
 ---
 
@@ -47,15 +56,16 @@ Each division's `CLAUDE.md` follows the same structure:
 1. Mission — what this division owns
 2. Target State — what the plan says it should be
 3. Current State — what's actually built (with file paths + port numbers)
-4. Gap Score — % of the target that's built today
-5. Gap List — ordered by priority
-6. Dependencies — what other divisions this depends on / blocks
-7. Open Questions — anything that needs user clarification
+4. What's NOT Built — the gap
+5. Gap Score — % of the target that's built today
+6. Gap List — ordered by priority
+7. Dependencies — what other divisions this depends on / blocks
+8. Open Questions — anything that needs user clarification
 ```
 
-Reading order: 1 → 2 → 3 → 11. Foundation first, Marketplace last. But Division #7 (Training) is the strategic bottleneck and worth reading regardless.
+Reading order: 1 → 2 → 3 → 12. Foundation first, SUTAR last. But Division #7 (Training) is the strategic bottleneck and worth reading regardless.
 
 ---
 
-*Created: 2026-06-19*
+*Created: 2026-06-19, updated 2026-06-19 with per-company intelligence audit and SUTAR as separate division*
 *Companion to: [../CLAUDE.md](../CLAUDE.md) (brand layer), [../../CLAUDE.md](../../CLAUDE.md) (RTMN root)*
