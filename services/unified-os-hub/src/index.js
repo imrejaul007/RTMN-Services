@@ -91,6 +91,38 @@ const SERVICES = {
   multiProperty: 'http://localhost:5300',
   predictiveMaint: 'http://localhost:5310',
 
+  // StayOwn-Hospitality services (30 services from REZ-Merchant / StayOwn)
+  // Routed through Hotel OS (5025) which proxies to the right downstream.
+  // Direct access URLs are kept here for health checks and direct proxying.
+  stayownRezHotel: 'http://localhost:4015',          // rez-hotel-service
+  stayownRezHotelPos: 'http://localhost:4005',       // rez-hotel-pos-service
+  stayownRezStayown: 'http://localhost:4016',        // rez-stayown-service
+  stayownRezBooking: 'http://localhost:4020',         // rez-booking
+  stayownRezPayment: 'http://localhost:4025',         // rez-payment
+  stayownRezHousekeeping: 'http://localhost:4030',    // rez-housekeeping
+  stayownRezPms: 'http://localhost:4802',             // rez-pms
+  stayownHotelPms: 'http://localhost:4803',          // hotel-pms
+  stayownAiFrontDesk: 'http://localhost:4810',        // ai-front-desk
+  stayownConcierge: 'http://localhost:4811',          // concierge-desk
+  stayownStaybot: 'http://localhost:4812',            // hojai-staybot
+  stayownRoomControls: 'http://localhost:4820',       // room-controls
+  stayownMinibar: 'http://localhost:4821',            // minibar-service
+  stayownParking: 'http://localhost:4822',            // parking-service
+  stayownPreArrival: 'http://localhost:4823',         // pre-arrival-service
+  stayownVoiceAgent: 'http://localhost:4824',         // voice-hotel-agent
+  stayownSmartLock: 'http://localhost:4825',          // smart-lock-service
+  stayownRestaurantBooking: 'http://localhost:4830', // hotel-restaurant-booking
+  stayownSpaBooking: 'http://localhost:4831',         // hotel-spa-booking
+  stayownGuestTwin: 'http://localhost:4840',          // guest-twin-service
+  stayownBusinessTwin: 'http://localhost:4841',       // hotel-business-twin
+  stayownPredictiveHk: 'http://localhost:4850',       // predictive-housekeeping
+  stayownUpsell: 'http://localhost:4851',             // upsell-engine
+  stayownZeroCheckout: 'http://localhost:4852',       // zero-checkout-automation
+  stayownLoyalty: 'http://localhost:4860',            // loyalty-system
+  stayownFeedback: 'http://localhost:4861',           // feedback-survey
+  stayownReview: 'http://localhost:4862',             // review-manager
+  stayownLostFound: 'http://localhost:4863',          // lost-found
+
   // External
   sutarOs: 'http://localhost:4799',
   nexhaPortal: 'http://localhost:3000',
@@ -185,6 +217,38 @@ const SERVICE_REGISTRY = {
     { id: 'nexhaPortal', name: 'Nexha Portal', port: 3000, category: 'external', description: 'Nexha Platform' },
     { id: 'commerceIdentity', name: 'Commerce Identity', port: 8000, category: 'external', description: 'User Identity' },
   ],
+  // StayOwn-Hospitality / REZ-Merchant services (30 hotel services)
+  // Routed through Hotel OS (5025) for unified access.
+  stayown: [
+    { id: 'rezHotel', name: 'rez-hotel-service', port: 4015, category: 'stayown', description: 'Hotels, bookings, sync' },
+    { id: 'rezHotelPos', name: 'rez-hotel-pos-service', port: 4005, category: 'stayown', description: 'Folio, outlets, payments' },
+    { id: 'rezStayown', name: 'rez-stayown-service', port: 4016, category: 'stayown', description: 'Stay management' },
+    { id: 'rezBooking', name: 'rez-booking', port: 4020, category: 'stayown', description: 'Reservation engine' },
+    { id: 'rezPayment', name: 'rez-payment', port: 4025, category: 'stayown', description: 'Hotel payments' },
+    { id: 'rezHousekeeping', name: 'rez-housekeeping', port: 4030, category: 'stayown', description: 'Housekeeping ops' },
+    { id: 'rezPms', name: 'rez-pms', port: 4802, category: 'stayown', description: 'Property Management System' },
+    { id: 'hotelPms', name: 'hotel-pms', port: 4803, category: 'stayown', description: 'Hotel PMS' },
+    { id: 'aiFrontDesk', name: 'ai-front-desk', port: 4810, category: 'stayown', description: 'AI front desk agent' },
+    { id: 'concierge', name: 'concierge-desk', port: 4811, category: 'stayown', description: 'Concierge services' },
+    { id: 'staybot', name: 'hojai-staybot', port: 4812, category: 'stayown', description: 'AI concierge bot' },
+    { id: 'roomControls', name: 'room-controls', port: 4820, category: 'stayown', description: 'In-room IoT controls' },
+    { id: 'minibar', name: 'minibar-service', port: 4821, category: 'stayown', description: 'Minibar management' },
+    { id: 'parking', name: 'parking-service', port: 4822, category: 'stayown', description: 'Valet & parking' },
+    { id: 'preArrival', name: 'pre-arrival-service', port: 4823, category: 'stayown', description: 'Pre-check-in flow' },
+    { id: 'voiceAgent', name: 'voice-hotel-agent', port: 4824, category: 'stayown', description: 'Voice assistant' },
+    { id: 'smartLock', name: 'smart-lock-service', port: 4825, category: 'stayown', description: 'Digital key & locks' },
+    { id: 'restaurantBooking', name: 'hotel-restaurant-booking', port: 4830, category: 'stayown', description: 'F&B reservations' },
+    { id: 'spaBooking', name: 'hotel-spa-booking', port: 4831, category: 'stayown', description: 'Spa appointments' },
+    { id: 'guestTwin', name: 'guest-twin-service', port: 4840, category: 'stayown', description: 'Guest digital twin' },
+    { id: 'businessTwin', name: 'hotel-business-twin', port: 4841, category: 'stayown', description: 'Hotel business twin' },
+    { id: 'predictiveHk', name: 'predictive-housekeeping', port: 4850, category: 'stayown', description: 'AI housekeeping' },
+    { id: 'upsell', name: 'upsell-engine', port: 4851, category: 'stayown', description: 'Revenue upsell engine' },
+    { id: 'zeroCheckout', name: 'zero-checkout-automation', port: 4852, category: 'stayown', description: 'Express checkout' },
+    { id: 'loyalty', name: 'loyalty-system', port: 4860, category: 'stayown', description: 'Guest loyalty' },
+    { id: 'feedback', name: 'feedback-survey', port: 4861, category: 'stayown', description: 'NPS & feedback' },
+    { id: 'review', name: 'review-manager', port: 4862, category: 'stayown', description: 'Online reviews' },
+    { id: 'lostFound', name: 'lost-found', port: 4863, category: 'stayown', description: 'Lost & found' },
+  ],
   // Genie AI - Personal Companion Ecosystem
   genie: [
     // Phase 1 - Foundation (4716-4718)
@@ -233,6 +297,49 @@ app.use('/api/phase2', phase2Workflows);
 app.use('/api/phase3', phase3Workflows);
 app.use('/api/phase4', phase4Workflows);
 app.use('/api/genie-workflows', genieWorkflows);
+
+// StayOwn-Hospitality Hub bridge. Forwards to Hotel OS (5025) which proxies
+// the request to the right downstream StayOwn / REZ-Merchant service.
+app.use('/api/hotel/stayown', async (req, res) => {
+  try {
+    const response = await clients.hotelOs.request({
+      method: req.method,
+      url: `/stayown${req.path}`,
+      params: req.query,
+      data: req.body,
+      headers: {
+        authorization: req.headers.authorization,
+        'x-tenant-id': req.headers['x-tenant-id'],
+        'x-property-id': req.headers['x-property-id'],
+        'x-guest-id': req.headers['x-guest-id'],
+      },
+      timeout: 10000,
+      validateStatus: () => true,
+    });
+    res.status(response.status).json(response.data);
+  } catch (err) {
+    res.status(502).json({ success: false, error: 'Hotel OS StayOwn proxy unreachable', detail: err.message });
+  }
+});
+
+// Direct registry / health from Hub
+app.get('/api/stayown/services', async (req, res) => {
+  try {
+    const response = await clients.hotelOs.get('/api/stayown/registry', { timeout: 5000 });
+    res.json(response.data);
+  } catch (err) {
+    res.status(502).json({ success: false, error: 'Hotel OS unreachable', detail: err.message });
+  }
+});
+
+app.get('/api/stayown/health', async (req, res) => {
+  try {
+    const response = await clients.hotelOs.get('/api/stayown/health', { timeout: 15000 });
+    res.json(response.data);
+  } catch (err) {
+    res.status(502).json({ success: false, error: 'Hotel OS unreachable', detail: err.message });
+  }
+});
 
 // Health check
 app.get('/health', async (req, res) => {

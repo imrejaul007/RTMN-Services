@@ -273,7 +273,7 @@ function analyzeEmotionalContent(text) {
   const emotionKeywords = {
     joy: ['happy', 'excited', 'great', 'wonderful', 'amazing', 'love', 'joy', 'delighted', 'thrilled'],
     love: ['love', 'loved', 'appreciated', 'connected', 'warm', 'caring', 'miss'],
-    surprise: ['wow', 'surprised', 'shocked', 'unexpected', 'can't believe', 'amazing'],
+    surprise: ['wow', 'surprised', 'shocked', 'unexpected', "can't believe", 'amazing'],
     sadness: ['sad', 'unhappy', 'down', 'lonely', 'miss', 'lost', 'grieving', 'disappointed'],
     anger: ['angry', 'mad', 'frustrated', 'annoyed', 'hate', 'furious', 'irritated'],
     fear: ['scared', 'afraid', 'worried', 'anxious', 'nervous', 'stressed', 'terrified'],
