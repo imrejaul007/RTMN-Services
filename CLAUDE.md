@@ -40,9 +40,10 @@ RTMN is a unified ecosystem connecting **50+ services** across **24 industry ver
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                    DEPARTMENT OS (8) - Horizontal Layer               │   │
+│  │                    DEPARTMENT OS (9) - Horizontal Layer               │   │
 │  │  Sales (5055) │ Marketing (5500) │ CS (4050) │ Procurement (5096)     │   │
-│  │  Workforce (5077) │ Finance (4801) │ Operations (5250) │ CXO (5100) │   │
+│  │  Workforce (5077) │ Finance (4801) │ Revenue (5400) │ Operations (5250) │   │
+│  │  CXO (5100)                                                        │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
@@ -141,7 +142,7 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 
 ### Revenue Intelligence OS (5400) - The AI Revenue Department
 - **Modules:** Revenue Hub, Demand Intelligence, Pricing Intelligence, Promotion Management, RevOps Intelligence, Cohort Analysis, Analytics Engine, Revenue Digital Twin (8 modules)
-- **AI Agents:** 12 Revenue AI agents (AI CRO, Demand Forecaster, Pricing Optimizer, Promotion Strategist, Attribution Agent, Cohort Analyst, Churn Predictor, Expansion Advisor, Competitive Intel Agent, Anomaly Detector, Forecast Accuracy Agent, Scenario Planner)
+- **AI Agents:** 8 Revenue AI agents (AICRO, DemandForecaster, PricingOptimizer, PromotionStrategist, CohortAnalyst, ChurnPredictor, AnomalyDetector, ScenarioPlanner)
 - **Key Features:**
   - Unified revenue aggregation across ALL sources (subscription, one-time, usage, services, marketplace)
   - AI-powered demand forecasting with 92% accuracy
@@ -190,7 +191,7 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **Finance OS** | 4801 | ✅ | 6 | 1 |
 | **Operations OS** | 5250 | ✅ | 20 | 23 |
 | **CXO OS** | 5100 | ✅ | 8 | 15 |
-| **Revenue Intelligence OS** | 5400 | ✅ | 8 | 12 |
+| **Revenue Intelligence OS** | 5400 | ✅ | 8 | 8 |
 
 ### Foundation Services (3)
 
@@ -210,7 +211,7 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **Leverge Agents** | 4764 | ✅ | AI Agent Orchestration |
 | **Leverge Copilot** | 4765 | ✅ | Business AI Copilot |
 
-### Genie Voice Services (6) - ✅ NEW
+### Genie Voice Services (7) - ✅ NEW
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
@@ -219,6 +220,7 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **Genie Device Integration** | 4769 | ✅ | Multi-device support (Phone, Watch, Earbuds, Glasses, Car) |
 | **Genie Calendar** | 4709 | ✅ | Personal calendar, scheduling, conflict detection |
 | **Genie Memory Inbox** | 4710 | ✅ | Universal memory capture - Memorae-style inbox |
+| **Genie Briefing** | 4712 | ✅ | Daily briefings (Morning, Evening, Weekly) |
 | **Voice Twin** | 4876 | ✅ | TTS/STT services, voice profiles |
 
 ### RAZO Keyboard (1) - ✅ NEW
@@ -245,34 +247,36 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **REZ Attribution** | 4803 | ✅ | Multi-touch Attribution |
 | **REZ CDP** | 4901 | ✅ | Customer Data Platform |
 
-### 24 Industry Operating Systems
+### 26 Industry Operating Systems
 
 | # | Industry | OS Name | Port | Status |
 |---|----------|---------|------|--------|
 | 1 | Hospitality | Restaurant OS | 5010 | ✅ |
 | 2 | Hotel | Hotel OS | 5025 | ✅ |
 | 3 | Healthcare | Healthcare OS | 5020 | ✅ |
-| 4 | Retail | Retail OS | 5030 | ✅ |
-| 5 | Legal | Legal OS | 5035 | ✅ |
-| 6 | Education | Education OS | 5060 | ✅ |
-| 7 | Agriculture | Agriculture OS | 5070 | ✅ |
-| 8 | Automotive | Automotive OS | 5080 | ✅ |
-| 9 | Beauty | Beauty OS | 5090 | ✅ |
-| 10 | Fashion | Fashion OS | 5095 | ✅ |
-| 11 | Fitness | Fitness OS | 5110 | ✅ |
-| 12 | Gaming | Gaming OS | 5120 | ✅ |
-| 13 | Government | Government OS | 5130 | ✅ |
-| 14 | Home Services | HomeServices OS | 5140 | ✅ |
-| 15 | Manufacturing | Manufacturing OS | 5150 | ✅ |
-| 16 | Non-Profit | NonProfit OS | 5160 | ✅ |
-| 17 | Professional | Professional OS | 5170 | ✅ |
-| 18 | Sports | Sports OS | 5180 | ✅ |
-| 19 | Travel | Travel OS | 5190 | ✅ |
-| 20 | Entertainment | Entertainment OS | 5200 | ✅ |
-| 21 | Construction | Construction OS | 5210 | ✅ |
-| 22 | Financial | Financial OS | 5220 | ✅ |
-| 23 | Real Estate | RealEstate OS | 5230 | ✅ |
-| 24 | Transport | Transport OS | 5240 | ✅ |
+| 4 | **Events** | **Event & Banquet OS** | **4751** | ✅ NEW |
+| 5 | **Exhibitions** | **Exhibition OS** | **5040** | ✅ NEW |
+| 6 | Retail | Retail OS | 5030 | ✅ |
+| 7 | Legal | Legal OS | 5035 | ✅ |
+| 8 | Education | Education OS | 5060 | ✅ |
+| 9 | Agriculture | Agriculture OS | 5070 | ✅ |
+| 10 | Automotive | Automotive OS | 5080 | ✅ |
+| 11 | Beauty | Beauty OS | 5090 | ✅ |
+| 12 | Fashion | Fashion OS | 5095 | ✅ |
+| 13 | Fitness | Fitness OS | 5110 | ✅ |
+| 14 | Gaming | Gaming OS | 5120 | ✅ |
+| 15 | Government | Government OS | 5130 | ✅ |
+| 16 | Home Services | HomeServices OS | 5140 | ✅ |
+| 17 | Manufacturing | Manufacturing OS | 5150 | ✅ |
+| 18 | Non-Profit | NonProfit OS | 5160 | ✅ |
+| 19 | Professional | Professional OS | 5170 | ✅ |
+| 20 | Sports | Sports OS | 5180 | ✅ |
+| 21 | Travel | Travel OS | 5190 | ✅ |
+| 22 | Entertainment | Entertainment OS | 5200 | ✅ |
+| 23 | Construction | Construction OS | 5210 | ✅ |
+| 24 | Financial | Financial OS | 5220 | ✅ |
+| 25 | Real Estate | RealEstate OS | 5230 | ✅ |
+| 26 | Transport | Transport OS | 5240 | ✅ |
 
 ---
 
@@ -290,29 +294,31 @@ Hub (4399)
 ├── /ready                    # Readiness
 ├── /api/services            # Service registry
 │
-├── DEPARTMENT OS (9) - Horizontal Layer
+├── DEPARTMENT OS (11) - Horizontal Layer
 │   ├── /api/sales/*        # → Sales OS (5055)
 │   ├── /api/marketing/*    # → Marketing OS (5500)
-│   ├── /api/procurement/*  # → Procurement OS (5096)
-│   ├── /api/workforce/*    # → Workforce OS (5077)
+│   ├── /api/media/*        # → Media OS (5600)
+│   ├── /api/customer-success/* # → Customer Success OS (4050)
 │   ├── /api/finance/*      # → Finance OS (4801)
+│   ├── /api/workforce/*    # → Workforce OS (5077)
 │   ├── /api/operations/*   # → Operations OS (5250)
 │   ├── /api/cxo/*          # → CXO OS (5100)
-│   ├── /api/customer-success/* # → Customer Success OS (4050)
-│   └── /api/revenue/*      # → Revenue Intelligence OS (5400)
+│   ├── /api/procurement/*  # → Procurement OS (5096)
+│   ├── /api/analytics/*    # → Analytics OS (4750)
+│   └── /api/legal/*        # → Legal OS (5035)
 │
-├── MEDIA OS
-│   └── /api/media/*        # → Media OS (5600)
+├── INDUSTRY OS (26) - Vertical Layer
+│   ├── /api/restaurant/*   # → Restaurant OS (5010)
+│   ├── /api/hotel/*        # → Hotel OS (5025)
+│   ├── /api/healthcare/*   # → Healthcare OS (5020)
+│   ├── /api/events/*       # → Event & Banquet OS (4751)
+│   ├── /api/exhibitions/*  # → Exhibition OS (5040)
+│   └── /api/* (26 total)  # → All Industry OS
 │
 ├── REVENUE INTELLIGENCE
 │   ├── /api/revenue/*      # → Revenue Hub
 │   ├── /api/demand/*       # → Demand Intelligence
 │   ├── /api/pricing/*      # → Pricing Intelligence
-│   ├── /api/promotions/*  # → Promotion Management
-│   ├── /api/revops/*       # → RevOps Intelligence
-│   ├── /api/cohorts/*      # → Cohort Analysis
-│   ├── /api/analytics/*    # → Analytics Engine
-│   ├── /api/twin/*         # → Revenue Digital Twin
 │   └── /api/copilot/*      # → AI Copilot
 │
 ├── FOUNDATION
