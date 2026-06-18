@@ -9,6 +9,7 @@
 
 const express = require('express');
 const industryIntegration = require('./industry-integration');
+const stayownIntegration = require('./stayown-integration');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -1609,6 +1610,8 @@ initDatabase().catch(console.warn);
 
 // Register RTMN Industry Integration
 industryIntegration.registerRoutes(app, 'hotel', PORT);
+// Register StayOwn-Hospitality integration (rez-hotel-service, rez-hotel-pos, etc.)
+stayownIntegration.registerRoutes(app);
 app.listen(PORT, () => {
   console.log('✅ hotel-os AI Company Platform running on port ' + PORT);
   console.log('📦 15 Layers: Intelligence, Growth, Commerce, Finance, Workforce, Legal, Property, Health, Mobility, Identity, Memory, Twins, Autonomous, Network');
