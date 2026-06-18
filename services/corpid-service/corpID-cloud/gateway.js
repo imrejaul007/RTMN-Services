@@ -45,6 +45,12 @@ import {
   accessControlService
 } from './RBAC/src/services/rbac.service.js';
 
+import apiIdentityRoutes from './api-identity/src/routes/api-identity.routes.js';
+
+import deviceRoutes from './device/src/routes/device.routes.js';
+
+import auditRoutes from './audit/src/routes/audit.routes.js';
+
 import {
   users,
   getUserByEmail,
@@ -57,9 +63,19 @@ import {
   updatePassword
 } from './core/src/models/user.model.js';
 
+import {
+  registerOrUpdateDevice
+} from './device/src/models/device.model.js';
+
+import {
+  createAuditEvent,
+  queryAuditEvents,
+  getAuditStats
+} from './audit/src/models/audit.model.js';
+
 import { generateAccessToken, generateRefreshToken, verifyToken } from './shared/middleware/auth.js';
 import { hashPassword, verifyPassword, checkPasswordStrength, generateToken, maskEmail } from './shared/utils/security.js';
-import { auditLog, authAudit } from './shared/utils/logger.js';
+import { auditLog, authAudit, dataAudit } from './shared/utils/logger.js';
 
 // ============ APP SETUP ============
 
@@ -107,9 +123,35 @@ app.use((req, res, next) => {
   next();
 });
 
+// Auto-register device on authenticated requests
+app.use((req, res, next) => {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    const token = req.headers.authorization.slice(7);
+    const decoded = verifyToken(token);
+    if (decoded && decoded.type === 'access' && decoded.sub) {
+      // Register/update device for this request
+      try {
+        const device = registerOrUpdateDevice(decoded.sub, {
+          userAgent: req.headers['user-agent'],
+          ip: req.ip,
+          sessionId: null
+        });
+        req.device = device;
+      } catch (err) {
+        // Don't block on device registration errors
+      }
+    }
+  }
+  next();
+});
+
 // ============ HEALTH ENDPOINTS ============
 
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
+  const apiIdentity = await import('./api-identity/src/models/api-key.model.js').catch(() => ({ apiKeys: { size: 0 }, webhooks: { size: 0 } }));
+  const deviceModel = await import('./device/src/models/device.model.js').catch(() => ({ devices: { size: 0 } }));
+  const auditModel = await import('./audit/src/models/audit.model.js').catch(() => ({ auditEvents: [] }));
+
   res.json({
     status: 'healthy',
     service: SERVICE_NAME,
@@ -118,7 +160,11 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     stats: {
       users: users.size,
-      organizations: 1, // Would query organization store
+      organizations: 1,
+      apiKeys: apiIdentity.apiKeys.size,
+      devices: deviceModel.devices.size,
+      webhooks: apiIdentity.webhooks.size,
+      auditEvents: auditModel.auditEvents.length,
       uptime: process.uptime()
     }
   });
@@ -555,6 +601,18 @@ app.use('/api', rbacRouter);
 
 app.use('/api/organizations', organizationRoutes);
 
+// ============ MOUNT API IDENTITY ROUTES ============
+
+app.use('/api', apiIdentityRoutes);
+
+// ============ MOUNT DEVICE ROUTES ============
+
+app.use('/api/devices', deviceRoutes);
+
+// ============ MOUNT AUDIT ROUTES ============
+
+app.use('/api/audit', auditRoutes);
+
 // ============ SESSIONS ROUTES ============
 
 app.get('/api/auth/sessions',
@@ -648,6 +706,9 @@ app.listen(PORT, () => {
 ║  • Core (Users, Auth, Sessions)                              ║
 ║  • Organization (Orgs, Depts, Teams, Members)                 ║
 ║  • RBAC (Roles, Permissions, Policies, Features)              ║
+║  • API Identity (Keys, OAuth, Webhooks)                      ║
+║  • Device Identity (Registration, Trust)                      ║
+║  • Audit Trail (Immutable Logs)                              ║
 ╚═══════════════════════════════════════════════════════════════╝
   `);
   logger.info(`CorpID Cloud Gateway started on port ${PORT}`);
