@@ -1,7 +1,7 @@
 # Agent Commerce Network (ACN) - Complete Architecture
 
-> **Version:** 1.0.0
-> **Status:** ✅ PHASE 1 BUILT
+> **Version:** 2.0.0
+> **Status:** ✅ ALL PHASES COMPLETE
 > **Last Updated:** June 18, 2026
 
 ---
@@ -789,83 +789,111 @@ RTMN/
 │
 ├── services/
 │   │
-│   ├── acp-protocol/              # ACP Protocol (Port 4800)
-│   │   ├── package.json
-│   │   └── src/
-│   │       └── index.js           # Message types, negotiation states
+│   ├── PHASE 1 - CORE (7 services)
+│   │   ├── acp-protocol/              # ACP Protocol (Port 4800)
+│   │   ├── acn-network/               # ACN Network (Port 4801)
+│   │   ├── genie-shopping-agent/       # Genie Shopping (Port 4716)
+│   │   ├── merchant-agents/           # SUTAR OS (Port 4810)
+│   │   ├── agent-reputation/           # Reputation (Port 4820)
+│   │   ├── agent-contracts/            # Smart Contracts (Port 4830)
+│   │   └── agent-wallets/              # Digital Wallets (Port 4840)
 │   │
-│   ├── acn-network/               # ACN Network (Port 4801)
-│   │   ├── package.json
-│   │   └── src/
-│   │       └── index.js           # Agent registry, discovery, matching
+│   ├── PHASE 2 - ENHANCED (5 services)
+│   │   ├── agent-marketplace/         # Marketplace (Port 4845)
+│   │   ├── agent-learning/             # ML Learning (Port 4846)
+│   │   ├── dispute-resolution/         # Disputes (Port 4847)
+│   │   ├── agent-analytics/            # Analytics (Port 4848)
+│   │   └── acn-integration/            # RTMN Bridge (Port 4849)
 │   │
-│   ├── genie-shopping-agent/       # Genie Shopping Agent (Port 4716)
-│   │   ├── package.json
-│   │   └── src/
-│   │       └── index.js           # Consumer shopping assistant
+│   ├── PHASE 3 - ADVANCED (3 services)
+│   │   ├── negotiation-ai/             # Negotiation AI (Port 4850)
+│   │   ├── agent-orchestration/        # Orchestration (Port 4851)
+│   │   └── acn-hub/                    # ACN Hub Gateway (Port 4800)
 │   │
-│   ├── merchant-agents/           # Merchant Agents / SUTAR OS (Port 4810)
-│   │   ├── package.json
-│   │   └── src/
-│   │       └── index.js           # Business AI, industry templates
-│   │
-│   ├── agent-reputation/           # Agent Reputation (Port 4820)
-│   │   ├── package.json
-│   │   └── src/
-│   │       └── index.js           # Trust scores, badges, verification
-│   │
-│   ├── agent-contracts/            # Agent Contracts (Port 4830)
-│   │   ├── package.json
-│   │   └── src/
-│   │       └── index.js           # Smart contracts, escrow
-│   │
-│   └── agent-wallets/              # Agent Wallets (Port 4840)
-│       ├── package.json
-│       └── src/
-│           └── index.js           # Digital wallets, payments
+│   └── [+] EXISTING RTMN SERVICES (50+)
+│       ├── unified-os-hub/             # RTMN Unified Hub (Port 4399)
+│       ├── sales-os/                   # Sales OS (Port 5055)
+│       ├── [+] 50+ more...
 │
-└── ACN-ARCHITECTURE.md            # This documentation
+└── ACN-ARCHITECTURE.md                  # This documentation
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### Start All Services
+### Start All ACN Services
 
 ```bash
-# Start ACP Protocol
-cd services/acp-protocol && npm start
+# Phase 1 - Core
+cd services/acp-protocol && npm start              # Port 4800
+cd services/acn-network && npm start               # Port 4801
+cd services/genie-shopping-agent && npm start       # Port 4716
+cd services/merchant-agents && npm start           # Port 4810
+cd services/agent-reputation && npm start           # Port 4820
+cd services/agent-contracts && npm start            # Port 4830
+cd services/agent-wallets && npm start              # Port 4840
 
-# Start ACN Network
-cd services/acn-network && npm start
+# Phase 2 - Enhanced
+cd services/agent-marketplace && npm start         # Port 4845
+cd services/agent-learning && npm start             # Port 4846
+cd services/dispute-resolution && npm start         # Port 4847
+cd services/agent-analytics && npm start            # Port 4848
+cd services/acn-integration && npm start            # Port 4849
 
-# Start Genie Shopping Agent
-cd services/genie-shopping-agent && npm start
-
-# Start Merchant Agents (SUTAR OS)
-cd services/merchant-agents && npm start
-
-# Start Agent Reputation
-cd services/agent-reputation && npm start
-
-# Start Agent Contracts
-cd services/agent-contracts && npm start
-
-# Start Agent Wallets
-cd services/agent-wallets && npm start
+# Phase 3 - Advanced
+cd services/negotiation-ai && npm start             # Port 4850
+cd services/agent-orchestration && npm start        # Port 4851
+cd services/acn-hub && npm start                    # Port 4800 (Gateway)
 ```
 
 ### Health Checks
 
 ```bash
+# Phase 1
 curl http://localhost:4800/health   # ACP Protocol
 curl http://localhost:4801/health   # ACN Network
-curl http://localhost:4716/health   # Genie Shopping Agent
+curl http://localhost:4716/health   # Genie Shopping
 curl http://localhost:4810/health   # Merchant Agents
 curl http://localhost:4820/health   # Agent Reputation
 curl http://localhost:4830/health   # Agent Contracts
 curl http://localhost:4840/health   # Agent Wallets
+
+# Phase 2
+curl http://localhost:4845/health   # Marketplace
+curl http://localhost:4846/health   # Learning
+curl http://localhost:4847/health   # Disputes
+curl http://localhost:4848/health   # Analytics
+curl http://localhost:4849/health   # Integration
+
+# Phase 3
+curl http://localhost:4850/health   # Negotiation AI
+curl http://localhost:4851/health   # Orchestration
+curl http://localhost:4800/info     # ACN Hub Gateway
+```
+
+### Quick Shopping Example
+
+```bash
+# 1. Get Genie shopping endpoint
+curl http://localhost:4800/api/shop \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "user-123", "product": "laptop", "maxPrice": 1000}'
+
+# 2. Direct Genie shopping
+curl http://localhost:4716/api/shop \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "user-123", "message": "Find me a laptop under $1000"}'
+
+# 3. Search merchants
+curl http://localhost:4801/api/agents/search \
+  -H "Content-Type: application/json" \
+  -d '{"type": "merchant", "industry": "retail"}'
+
+# 4. Start negotiation
+curl http://localhost:4800/api/negotiations \
+  -H "Content-Type: application/json" \
+  -d '{"buyerAgent": "genie-user123", "sellerAgent": "tech-store-ai"}'
 ```
 
 ---
@@ -874,13 +902,20 @@ curl http://localhost:4840/health   # Agent Wallets
 
 | Metric | Count |
 |--------|-------|
-| Core Services | 7 |
-| Total Ports | 7 (4800, 4801, 4716, 4810, 4820, 4830, 4840) |
+| Total Services | 15 |
+| Phase 1 (Core) | 7 |
+| Phase 2 (Enhanced) | 5 |
+| Phase 3 (Advanced) | 3 |
+| Total Ports | 4716, 4800-4851 |
 | ACP Message Types | 8 |
 | Agent Types | 4 (Genie, Merchant, System, Partner) |
 | Industry Templates | 26 |
 | Trust Levels | 6 |
 | Reputation Badges | 7 |
+| Orchestration Patterns | 6 |
+| Negotiation Strategies | 5 |
+| Workflow Templates | 2 |
+| RTMN Services Connected | 26 |
 
 ---
 
@@ -895,17 +930,24 @@ curl http://localhost:4840/health   # Agent Wallets
 - Agent Contracts - Smart contracts
 - Agent Wallets - Digital payments
 
-### Phase 2 (Q3 2026)
-- Integration with existing RTMN services
-- Multi-currency support
-- Advanced negotiation AI
-- Dispute resolution system
+### Phase 2 (DONE) ✅
+- Agent Marketplace - Listings, reviews, promotions
+- Agent Learning - Preference learning, strategy optimization
+- Dispute Resolution - Arbitration, mediation, refunds
+- Agent Analytics - Metrics, dashboards, alerts
+- ACN Integration - Bridge to RTMN services
 
-### Phase 3 (Q4 2026)
-- Cross-network agent communication
-- Agent marketplace
-- Autonomous agent learning
-- Advanced analytics
+### Phase 3 (DONE) ✅
+- Negotiation AI - Advanced ML strategies (competitive, collaborative, principled)
+- Agent Orchestration - Multi-agent workflows (sequential, parallel, pipeline, fan-out, fan-in, conditional)
+- ACN Hub Gateway - Unified entry point for all 15 services
+
+### Phase 4 (Future)
+- Real-time bidirectional WebSocket communication
+- Blockchain integration for trustless contracts
+- Computer vision agents (visual product search)
+- Voice commerce agents (natural conversation)
+- Quantum-secure cryptography for high-value contracts
 
 ---
 

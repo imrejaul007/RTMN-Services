@@ -1,0 +1,22 @@
+{
+  "name": "@rtmn/acn-hub",
+  "version": "1.0.0",
+  "description": "ACN Hub Gateway - Unified entry point for the Agent Commerce Network",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "hub",
+    "gateway",
+    "acn",
+    "agent-commerce",
+    "router"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

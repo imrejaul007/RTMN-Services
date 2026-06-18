@@ -1,0 +1,23 @@
+{
+  "name": "@rtmn/acn-integration",
+  "version": "1.0.0",
+  "description": "ACN-RTMN Integration - Connect Agent Commerce Network with RTMN services",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "acn",
+    "rtmn",
+    "integration",
+    "agent",
+    "bridge"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "uuid": "^14.0.0"
+  }
+}
