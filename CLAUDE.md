@@ -473,10 +473,12 @@ RTMN/
 │       ├── MEDIA OS
 │       │   └── media-os/           # Media OS (5600)
 │       │
-│       └── INDUSTRY OS (24) - Vertical Layer
+│       └── INDUSTRY OS (26) - Vertical Layer
 │           ├── restaurant-os/      # Restaurant OS (5010)
 │           ├── hotel-os/          # Hotel OS (5025)
 │           ├── healthcare-os/     # Healthcare OS (5020)
+│           ├── event-banquet-os/  # Event & Banquet OS (4751)
+│           ├── exhibition-os/     # Exhibition OS (5040)
 │           └── [21 more...]/
 │
 ├── companies/
@@ -508,15 +510,15 @@ RTMN/
 
 | Metric | Count |
 |--------|-------|
-| Total Services Connected | 60+ |
+| Total Services Connected | 70+ |
 | Core Business OS | 3 |
-| Industry OS | 24 |
+| Industry OS | 26 |
 | Foundation | 3 |
 | HOJAI AI | 5 |
-| Genie Voice Services | 5 |
+| Genie Voice Services | 6 |
 | REZ Services | 4 |
 | AdBazaar | 4 |
-| Department OS | 9 |
+| Department OS | 11 |
 | Browser Extension | ✅ Chrome/Firefox |
 | AI Agents | 112+ |
 | Digital Twins | 150+ |

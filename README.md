@@ -1,8 +1,8 @@
 # RTMN Operating System
 
-**Version:** 4.0  
+**Version:** 5.0  
 **Date:** June 18, 2026  
-**Status:** 🚀 **43+ SERVICES RUNNING**
+**Status:** 🚀 **70+ SERVICES RUNNING**
 
 ---
 
@@ -11,6 +11,18 @@
 RTMN is a comprehensive **Business Intelligence Operating System** that goes beyond workflow automation.
 
 > **"AI that understands your business—not just your prompts."**
+
+---
+
+## 🎯 RTMN Ecosystem Summary
+
+| Category | Count | Examples |
+|----------|-------|----------|
+| **Department OS** | 11 | Sales, Marketing, Media, Finance, HR, Operations, CXO, Procurement, Analytics, Legal |
+| **Industry OS** | 26 | Restaurant, Hotel, Healthcare, Event & Banquet, Exhibition, Retail, +21 more |
+| **Foundation** | 3 | CorpID, MemoryOS, TwinOS |
+| **AI Services** | 11 | Genie, Voice, Agents, Copilots |
+| **Total Services** | 70+ | 200+ Modules, 150+ AI Agents |
 
 ---
 
@@ -43,7 +55,7 @@ curl http://localhost:4399/api/features
 | **5055** | Sales OS | CRM, Pipeline, 22 AI Agents | ✅ |
 | **5035** | **Legal OS** | Contracts, Compliance, Documents, Matters, AI Twin | ✅ |
 | **5250** | **Operations OS** | 21 Modules, 23 AI Agents, Observe→Learn→Automate | ✅ |
-| **5400** | **Revenue Intelligence OS** | Revenue Hub, Demand, Pricing, Promotions, RevOps, Cohorts, 12 AI Agents | ✅ NEW |
+| **5400** | **Revenue Intelligence OS** | Revenue Hub, Demand, Pricing, Promotions, RevOps, Cohorts, 8 AI Agents | ✅ NEW |
 
 ---
 
@@ -303,23 +315,25 @@ curl -X POST http://localhost:5400/api/copilot/chat -d '{"message": "What is our
 
 ---
 
-## 24 Industry OS (Ports 5010-5240)
+## 26 Industry OS (Ports 4751-5240)
 
 | Port | Industry | Port | Industry |
 |------|----------|------|----------|
-| 5010 | Restaurant | 5120 | Gaming |
-| 5020 | Healthcare | 5130 | Government |
-| 5025 | Hotel | 5140 | HomeServices |
-| 5030 | Retail | 5150 | Manufacturing |
-| 5035 | **Legal** | 5160 | NonProfit |
-| 5050 | Hospitality | 5170 | Professional |
-| 5055 | Sales | 5180 | Sports |
+| **4751** | **Event & Banquet** ⭐ | 5120 | Gaming |
+| **5040** | **Exhibition** ⭐ | 5130 | Government |
+| 5010 | Restaurant | 5140 | HomeServices |
+| 5020 | Healthcare | 5150 | Manufacturing |
+| 5025 | Hotel | 5160 | NonProfit |
+| 5030 | Retail | 5170 | Professional |
+| 5035 | Legal | 5180 | Sports |
 | 5060 | Education | 5190 | Travel |
 | 5080 | Automotive | 5200 | Entertainment |
 | 5090 | Beauty | 5210 | Construction |
-| 5100 | Energy | 5220 | Financial |
+| 5095 | Fashion | 5220 | Financial |
 | 5110 | Fitness | 5230 | RealEstate |
-| | | 5240 | Transport |
+| 5115 | Agriculture | 5240 | Transport |
+
+⭐ = **NEW** - Event & Banquet OS, Exhibition OS
 
 ---
 
@@ -338,20 +352,26 @@ curl -X POST http://localhost:5400/api/copilot/chat -d '{"message": "What is our
 ## Quick Start
 
 ```bash
+# Event & Banquet OS
+cd industry-os/services/event-banquet-os && npm start  # Port 4751
+
+# Exhibition OS
+cd industry-os/services/exhibition-os && npm start  # Port 5040
+
 # Finance OS
-cd industry-os/services/finance-os && npm start
+cd industry-os/services/finance-os && npm start  # Port 4801
 
 # Workforce OS
-cd industry-os/services/workforce-os && npm start
+cd industry-os/services/workforce-os && npm start  # Port 5077
 
 # Sales OS
-cd industry-os/services/sales-os && npm start
+cd industry-os/services/sales-os && npm start  # Port 5055
 
 # Legal OS
-cd industry-os/services/legal-os && npm start
+cd industry-os/services/legal-os && npm start  # Port 5035
 
 # Operations OS
-cd industry-os/services/operations-os && npm start
+cd industry-os/services/operations-os && npm start  # Port 5250
 ```
 
 ---
