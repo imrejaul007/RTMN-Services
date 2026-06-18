@@ -87,6 +87,20 @@ companies/hojai-ai/hojai-multilingual/dist/
 # Default: Ignore ALL companies (each has its own repo)
 companies/*
 
+# HOJAI AI - in-tree brand/marketing layer (replaces the old hojai-ai submodule)
+!companies/HOJAI-AI/
+companies/HOJAI-AI/node_modules/
+companies/HOJAI-AI/**/node_modules/
+companies/HOJAI-AI/dist/
+companies/HOJAI-AI/**/dist/
+
+# HOJAI AI - recovered source from commit 08a6bf87e (historical snapshot)
+!companies/HOJAI-AI-restored/
+companies/HOJAI-AI-restored/node_modules/
+companies/HOJAI-AI-restored/**/node_modules/
+companies/HOJAI-AI-restored/dist/
+companies/HOJAI-AI-restored/**/dist/
+
 # AdBazaar - separate repo
 companies/AdBazaar/
 
