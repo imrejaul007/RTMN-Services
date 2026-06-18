@@ -49,6 +49,10 @@ export function createUser(data) {
     dateOfBirth: data.dateOfBirth || null,
     gender: data.gender || null,
 
+    // Role & Organization
+    role: data.role || 'member',
+    organizationId: data.organizationId || null,
+
     // Location
     country: data.country || null,
     city: data.city || null,
@@ -354,6 +358,7 @@ export function initializeDefaultUser() {
     email: 'admin@rtmn.com',
     password: 'TempPass123!',
     name: 'Admin User',
+    role: 'superadmin',
     emailVerified: true,
     preferences: {
       emailNotifications: true,
@@ -361,6 +366,9 @@ export function initializeDefaultUser() {
       marketingEmails: false
     }
   }).then(user => {
+    // Set the role after creation
+    user.role = 'superadmin';
+    users.set(user.email, user);
     console.log('Default admin user created:', user.id);
   });
 }
