@@ -358,8 +358,9 @@ router.get('/:userId/schedule', (req, res) => {
         week: weekNum,
         message: 'No scheduled courses for this week',
         availablePhases: curriculum.phases.map(p => p.week)
-      });
-    }
+      }
+    });
+  }
 
   const schedule = {
     week: weekNum,

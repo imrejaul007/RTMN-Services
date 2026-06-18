@@ -31,11 +31,6 @@ app.use(express.json());
 const storage = { enrollments: new Map(), progress: new Map() };
 app.locals.storage = storage;
 
-app.use('/', languageRoutes);
-app.use('/', businessRoutes);
-app.use('/', skillsRoutes);
-app.use('/', curriculumRoutes);
-
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -46,6 +41,12 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+app.get('/ready', (req, res) => res.json({ ready: true }));
+
+app.use('/', languageRoutes);
+app.use('/', businessRoutes);
+app.use('/', skillsRoutes);
+app.use('/', curriculumRoutes);
 
 app.get('/ready', (req, res) => res.json({ ready: true }));
 

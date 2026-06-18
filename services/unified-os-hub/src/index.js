@@ -74,8 +74,8 @@ const SERVICES = {
   agentCopilot: 'http://localhost:4920',
   salesCopilot: 'http://localhost:4928',
   financeCopilot: 'http://localhost:4930',
-  marketingCopilot: 'http://localhost:4925',
-  supportCopilot: 'http://localhost:4926',
+  marketingCopilot: 'http://localhost:4929',
+  supportCopilot: 'http://localhost:4895',
 
   // Phase 2 - Specialized OS
   revenueIntelligence: 'http://localhost:5400',
@@ -341,20 +341,19 @@ app.get('/api/stayown/health', async (req, res) => {
   }
 });
 
-// Health check
+// Health check - parallel with 1.5s timeout per service
 app.get('/health', async (req, res) => {
-  const results = {};
-  let healthy = 0;
-
-  for (const [name, client] of Object.entries(clients)) {
+  const checks = Object.entries(clients).map(async ([name, client]) => {
     try {
-      await client.get('/health', { timeout: 2000 });
-      results[name] = { status: 'healthy' };
-      healthy++;
+      await client.get('/health', { timeout: 1500 });
+      return [name, { status: 'healthy' }];
     } catch {
-      results[name] = { status: 'not_responding' };
+      return [name, { status: 'not_responding' }];
     }
-  }
+  });
+
+  const results = Object.fromEntries(await Promise.all(checks));
+  const healthy = Object.values(results).filter(r => r.status === 'healthy').length;
 
   res.json({
     status: 'ok',
