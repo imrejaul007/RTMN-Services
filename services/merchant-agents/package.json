@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "SUTAR OS - Merchant AI Agents for autonomous business operations",
   "main": "src/index.js",
-  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"

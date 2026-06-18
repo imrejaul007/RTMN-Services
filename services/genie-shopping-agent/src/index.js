@@ -19,7 +19,7 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 4716;
+const PORT = process.env.PORT || 4728;
 
 // Service URLs
 const ACN_NETWORK_URL = process.env.ACN_NETWORK_URL || 'http://localhost:4801';
