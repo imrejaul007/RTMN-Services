@@ -7,7 +7,13 @@
 
 ## 1. Mission
 
-**SUTAR OS (formerly "Salar OS") is the Autonomous Economic Operating System of RTMN.** Per the user's clarification: **"SUTAR OS is the operating system for AI to execute all tasks."**
+**SUTAR OS (formerly "Salar OS") is the Autonomous Economic Operating System of RTMN.** Per the user's clarification: **"SUTAR OS is a standalone product of HOJAI AI, and it's used by all different RTMN OS."**
+
+This is a critical architectural clarification:
+
+- **SUTAR OS is owned and built by HOJAI AI** (not by RTMN, not by any RTMN company)
+- **All RTMN OSes consume SUTAR OS** as a service (RTMN Department OSes, Industry OSes, HOJAI AI products themselves)
+- SUTAR is the **execution layer** for AI agents to actually do things in the RTMN economy
 
 SUTAR enables AI agents to:
 - Set and decompose **goals** autonomously
@@ -172,6 +178,7 @@ The missing components include:
 
 - **Depends on:** Division 1 (Foundation — auth, eventing), Division 2 (Memory, Twin), Division 4 (agents)
 - **Blocks:** Division 8 (Products run on SUTAR), Division 11 (Marketplace economy runs on SUTAR)
+- **Consumed by:** **ALL RTMN OSes** — Department OS, Industry OS, HOJAI AI products, other RTMN companies
 
 ## 8. Open Questions
 
@@ -184,7 +191,7 @@ These are big — the docs say one thing, the code says another:
 5. **SUTAR Contracts OS (4185) vs /services/agent-contracts (4830):** Same question.
 6. **SUTAR Negotiation Engine (4191) vs /services/negotiation-ai (4850):** Same question.
 7. **What are the actual 25 SUTAR services in production?** The docs say 25, but only 4 are real. Are the other 21 in the GitHub submodule? Or aspirational?
-8. **Is SUTAR OS a separate platform from RTMN, or a layer inside RTMN?** Docs say "Layer 14 of RTMN" — so it's a layer, not separate.
+8. **Is SUTAR OS a separate platform from RTMN, or a layer inside RTMN?** Per user clarification, **SUTAR OS is a HOJAI AI product consumed by RTMN**. So it's not a "layer of RTMN" — it's a **separate platform that RTMN calls**.
 9. **Salar OS (4250) vs SUTAR OS:** Docs clarify "Salar OS = Marketplace component of SUTAR OS" — so Salar is a submodule of SUTAR, not a separate thing. (Note: there's also an older "Salar OS" branding that's been renamed to SUTAR.)
 10. **Are the SUTAR docs still accurate?** They reference `hojai-ai/hojai-sutar-os/` paths that don't exist. Either the docs are stale, or the source needs to be reconstructed from the GitHub submodule.
 

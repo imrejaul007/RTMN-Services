@@ -115,7 +115,7 @@ What **customers recognize and buy**. These are user-facing products that compos
 
 ## 8. Open Questions
 
-- **Bizora vs CXO OS:** Are these the same product? Should Bizora replace CXO OS, be a wrapper around it, or be a separate offering?
+- **Bizora vs CXO OS:** Per user clarification, **Bizora is a HOJAI AI standalone product** (Enterprise AI Workspace). It's separate from CXO OS (which is one of the Department OSes under RTMN). Bizora could be thought of as the "AI layer for executives/founders" while CXO OS is the broader CXO command center. They may overlap in audience but are distinct products.
 - **HIB pricing:** Consulting AI typically has a different pricing model (per engagement, not per seat). Define before building.
 - **FounderOS scope:** Is this for first-time founders (mentorship) or experienced founders (ops automation)? Different products.
 - **Personal Twin vs User Twin:** User Twin exists; is Personal Twin the same thing with AI agent capabilities? Or distinct?

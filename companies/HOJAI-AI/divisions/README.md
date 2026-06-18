@@ -28,12 +28,17 @@
 
 ## Critical Findings From The Audit (Updated 2026-06-19)
 
-After a deeper search, **several original findings were corrected**:
+After a deeper search and user clarification, **several original findings were corrected**:
 
 ### Things I got wrong the first time:
 1. **Company Intelligence is NOT 0% built** — there are **53 intelligence-related directories** across companies. REZ alone has 11 atlas-intelligence sub-services. AssetMind and RisnaEstate have real source. About 5 companies have real intelligence code; ~20 are scaffolds.
 2. **SUTAR OS is huge and didn't belong in Division 2** — moved to its own Division 12 (25 services, 7 layers, port 3100-4260).
 3. **Micro Intelligence is a strategy pattern**, not a service — embedded per-app AI fallback with circuit breaker.
+
+### Things clarified by the user (2026-06-19):
+1. **REZ Atlas is AdBazaar's product** — it uses HOJAI Intelligence internally. So the 11 atlas-intelligence-* services are AdBazaar's domain wrappers, not standalone REZ intelligence.
+2. **SUTAR OS is a HOJAI AI standalone product** — consumed by all RTMN OSes. It's NOT a "layer of RTMN" — it's a separate platform that RTMN calls.
+3. **Bizora is a HOJAI AI standalone product** (Enterprise AI Workspace) — like SUTAR, it's not a Company Intelligence. Removed from the Company Intelligence list.
 
 ### Things that turned out to be correct:
 1. **Division #7 (Training & Model Platform) is the single biggest gap** (~5%).
@@ -43,8 +48,6 @@ After a deeper search, **several original findings were corrected**:
 
 ### Things still unresolved (need user input):
 1. **Many SUTAR services overlap with existing /services/** (Twin OS 4142 vs twinos-hub 4705, Memory 4143 vs memory-os 4703, Agent Network 4155 vs acn-network 4801, etc.) — should SUTAR be a *layered abstraction* over RTMN, or a parallel platform?
-2. **REZ Atlas v2 has 11 parallel intelligence services** + REZ has 2 other intelligence stacks (`rez-merchant-intelligence-service`, `rez-merchant-intelligence-aggregator`). Are these competing or layered?
-3. **Bizora Intelligence** is listed in your plan as a Company Intelligence, but Bizora is also a product in Division 8 — same thing or different?
 
 ---
 
