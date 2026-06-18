@@ -983,9 +983,13 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4706 | genieHousehold | Household AI |
 | 4707 | genieBusiness | Business AI |
 | 4708 | genieProject | Project AI |
-| 4709 | genieMemory | Memory AI |
+| 4709 | genieCalendar | Personal Calendar Service |
 | 4710 | genieTwin | Twin AI |
 | 4711 | genieRelationship | Relationship AI |
+| 4767 | genieWakeWord | Wake Word Detection ("Hey Genie") |
+| 4768 | genieListeningModes | Listening Mode Switching |
+| 4769 | genieDeviceIntegration | Multi-Device Support |
+| 4876 | voiceTwin | TTS/STT Voice Services |
 | 4600 | copilot | Business Copilot |
 | 4601 | copilotBusiness | Business Copilot |
 | 4602 | copilotSales | Sales Copilot |

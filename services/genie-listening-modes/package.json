@@ -1,0 +1,21 @@
+{
+  "name": "rtmn-genie-listening-modes",
+  "version": "1.0.0",
+  "description": "Genie AI Listening Modes Service - Manual, Continuous, Passive, Smart modes",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0",
+    "dotenv": "^16.3.1",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
