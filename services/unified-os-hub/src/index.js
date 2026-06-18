@@ -341,18 +341,25 @@ app.get('/api/stayown/health', async (req, res) => {
   }
 });
 
-// Health check - parallel with 1.5s timeout per service
+// Health check - batched parallel (batches of 10) with 1.5s timeout per service
 app.get('/health', async (req, res) => {
-  const checks = Object.entries(clients).map(async ([name, client]) => {
-    try {
-      await client.get('/health', { timeout: 1500 });
-      return [name, { status: 'healthy' }];
-    } catch {
-      return [name, { status: 'not_responding' }];
-    }
-  });
+  const entries = Object.entries(clients);
+  const BATCH_SIZE = 10;
+  const results = {};
 
-  const results = Object.fromEntries(await Promise.all(checks));
+  for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+    const batch = entries.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(batch.map(async ([name, client]) => {
+      try {
+        await client.get('/health', { timeout: 1500 });
+        return [name, { status: 'healthy' }];
+      } catch {
+        return [name, { status: 'not_responding' }];
+      }
+    }));
+    for (const [name, status] of batchResults) results[name] = status;
+  }
+
   const healthy = Object.values(results).filter(r => r.status === 'healthy').length;
 
   res.json({

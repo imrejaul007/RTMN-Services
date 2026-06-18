@@ -163,7 +163,10 @@ const strictLimiter = rateLimit({
   }
 });
 
-app.use(defaultLimiter);
+app.use((req, res, next) => {
+  if (req.path === '/health' || req.path === '/ready') return next();
+  return defaultLimiter(req, res, next);
+});
 
 // ============ VALIDATION HELPERS ============
 

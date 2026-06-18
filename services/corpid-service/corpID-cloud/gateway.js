@@ -51,6 +51,29 @@ import deviceRoutes from './device/src/routes/device.routes.js';
 
 import auditRoutes from './audit/src/routes/audit.routes.js';
 
+// Phase 2 services
+import consumerRoutes from './consumer/src/routes/consumer.routes.js';
+import merchantRoutes from './merchant/src/routes/merchant.routes.js';
+import agentRoutes from './agent/src/routes/agent.routes.js';
+import trustRoutes from './trust/src/routes/trust.routes.js';
+
+// Phase 3 services
+import graphRoutes from './graph/src/routes/graph.routes.js';
+import universalRoutes from './universal/src/routes/universal.routes.js';
+import memoryRoutes from './memory/src/routes/memory.routes.js';
+import timelineRoutes from './timeline/src/routes/timeline.routes.js';
+
+// Phase 4 services
+import kycRoutes from './kyc/src/routes/kyc.routes.js';
+import consentRoutes from './consent/src/routes/consent.routes.js';
+import federationRoutes from './federation/src/routes/federation.routes.js';
+import twinRoutes from './twin/src/routes/twin.routes.js';
+import developerRoutes from './developer/src/routes/developer.routes.js';
+import verificationRoutes from './verification/src/routes/verification.routes.js';
+import employeeRoutes from './employee/src/routes/employee.routes.js';
+
+import { recordEvent as recordTimelineEvent } from './timeline/src/models/timeline.model.js';
+
 import {
   users,
   getUserByEmail,
@@ -296,6 +319,19 @@ authRouter.post('/login',
     });
 
     authAudit('login', req, 'success', { userId: user.id });
+
+    // Record in timeline
+    recordTimelineEvent({
+      userId: user.id,
+      type: 'auth.login',
+      category: 'authentication',
+      title: 'Login successful',
+      description: `User logged in from ${req.ip}`,
+      context: {
+        ip: req.ip,
+        userAgent: req.headers['user-agent']
+      }
+    });
 
     res.json({
       success: true,
@@ -613,6 +649,30 @@ app.use('/api/devices', deviceRoutes);
 
 app.use('/api/audit', auditRoutes);
 
+// ============ PHASE 2: ENTERPRISE IDENTITY ROUTES ============
+
+app.use('/api/consumers', consumerRoutes);
+app.use('/api/merchants', merchantRoutes);
+app.use('/api/agents', agentRoutes);
+app.use('/api/trust', trustRoutes);
+
+// ============ PHASE 3: ADVANCED IDENTITY ROUTES ============
+
+app.use('/api/graph', graphRoutes);
+app.use('/api/universal', universalRoutes);
+app.use('/api/memory', memoryRoutes);
+app.use('/api/timeline', timelineRoutes);
+
+// ============ PHASE 4: COMPLIANCE & PLATFORM ROUTES ============
+
+app.use('/api/kyc', kycRoutes);
+app.use('/api/consent', consentRoutes);
+app.use('/api/federation', federationRoutes);
+app.use('/api/twin', twinRoutes);
+app.use('/api/developer', developerRoutes);
+app.use('/api/verification', verificationRoutes);
+app.use('/api/employee', employeeRoutes);
+
 // ============ SESSIONS ROUTES ============
 
 app.get('/api/auth/sessions',
@@ -699,16 +759,17 @@ app.listen(PORT, () => {
 ╠═══════════════════════════════════════════════════════════════╣
 ║  Status:   ✅ RUNNING                                        ║
 ║  Port:     ${PORT.toString().padEnd(53)}║
-║  Version:  1.0.0                                             ║
+║  Version:  4.0.0 - ALL PHASES COMPLETE                       ║
 ║  Time:     ${new Date().toISOString().slice(0, 19).padEnd(53)}║
 ╠═══════════════════════════════════════════════════════════════╣
-║  Services:                                                   ║
-║  • Core (Users, Auth, Sessions)                              ║
-║  • Organization (Orgs, Depts, Teams, Members)                 ║
-║  • RBAC (Roles, Permissions, Policies, Features)              ║
-║  • API Identity (Keys, OAuth, Webhooks)                      ║
-║  • Device Identity (Registration, Trust)                      ║
-║  • Audit Trail (Immutable Logs)                              ║
+║  Phase 1 - Foundation:                                       ║
+║  • Core, Organization, RBAC, API Identity, Device, Audit    ║
+║  Phase 2 - Enterprise:                                       ║
+║  • Consumer, Merchant, AI Agent, Trust Engine, Employee      ║
+║  Phase 3 - Advanced:                                         ║
+║  • Identity Graph, Universal Profile, Memory, Timeline       ║
+║  Phase 4 - Compliance & Platform:                            ║
+║  • KYC, Consent, Federation, Twin, Developer, Verification   ║
 ╚═══════════════════════════════════════════════════════════════╝
   `);
   logger.info(`CorpID Cloud Gateway started on port ${PORT}`);

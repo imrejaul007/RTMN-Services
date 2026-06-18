@@ -40,10 +40,6 @@ const storage = {
 
 app.locals.storage = storage;
 
-// Routes
-app.use('/', consultantRoutes);
-app.use('/', domainRoutes);
-
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -71,6 +67,10 @@ app.get('/health', (req, res) => {
 app.get('/ready', (req, res) => {
   res.json({ ready: true, service: 'genie-consultant-agent' });
 });
+
+// Routes
+app.use('/', consultantRoutes);
+app.use('/', domainRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {

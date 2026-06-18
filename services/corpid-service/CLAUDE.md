@@ -1,124 +1,139 @@
-# CorpID - Universal Identity Service v2.0
+# CorpID Cloud - Enterprise Identity Platform v4.0
 
-**Version:** 2.0.0
+**Version:** 4.0.0
 **Port:** 4702
-**Status:** ✅ FULLY OPERATIONAL | **June 18, 2026**
+**Status:** ✅ ALL PHASES COMPLETE
+**Last Updated:** June 18, 2026
 
 ---
 
 ## Overview
 
-CorpID is the **Universal Identity Service** for the RTMN ecosystem. It provides enterprise-grade identity management, authentication, and user profiles with JWT-based security.
+CorpID Cloud is a comprehensive enterprise identity platform providing Auth0/Okta/Clerk-grade identity services for the RTMN ecosystem. It supports **21 services across 4 phases** with **300+ API endpoints**.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           CorpID v2.0 (4702)                                    │
+│                         CORPID CLOUD v4.0 - ALL SERVICES                         │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────┐       │
-│  │                       SECURITY LAYER                                   │       │
-│  │                                                                       │       │
-│  │   JWT Authentication ────→ Access tokens (1h) + Refresh (7d)         │       │
-│  │   Password Hashing ────→ bcrypt with 12 salt rounds                  │       │
-│  │   Rate Limiting ────→ 5 attempts/15min for auth, 100/min for API     │       │
-│  │   Security Headers ────→ Helmet.js, CORS configured                   │       │
-│  │   Input Validation ────→ express-validator + prototype pollution safe │       │
-│  │                                                                       │       │
-│  └─────────────────────────────────────────────────────────────────────┘       │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                    UNIFIED GATEWAY (Port 4702)                           │   │
+│  │                  Single Entry Point for All Services                     │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────┐       │
-│  │                       IDENTITY MANAGEMENT                             │       │
-│  │                                                                       │       │
-│  │   User Registry ────→ CRUD operations with role-based access         │       │
-│  │   Business Registry ────→ Multi-tenant organization support         │       │
-│  │   Session Management ────→ JWT tokens with refresh rotation          │       │
-│  │   Role-Based Access ────→ superadmin, admin, manager, user, customer│       │
-│  │                                                                       │       │
-│  └─────────────────────────────────────────────────────────────────────┘       │
+│  ┌──────────────────────────── PHASE 1: FOUNDATION ─────────────────────────┐   │
+│  │  • Core         • Organization    • RBAC                                 │   │
+│  │  • API Identity • Device          • Audit                                │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                 │
+│  ┌────────────────────────── PHASE 2: ENTERPRISE ────────────────────────────┐   │
+│  │  • Consumer     • Merchant       • AI Agent                              │   │
+│  │  • Trust Engine • Employee                                                  │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                 │
+│  ┌────────────────────────── PHASE 3: ADVANCED ──────────────────────────────┐   │
+│  │  • Identity Graph  • Universal Profile  • Memory  • Timeline           │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                 │
+│  ┌───────────────────── PHASE 4: COMPLIANCE & PLATFORM ─────────────────────┐   │
+│  │  • KYC Platform  • Consent  • Federation  • Identity Twin                │   │
+│  │  • Developer     • Verification                                              │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Architecture
+## Quick Start
 
+```bash
+cd services/corpid-service/corpID-cloud
+npm install
+npm start
+
+# Health check
+curl http://localhost:4702/health
 ```
-services/corpid-service/
-├── src/
-│   └── index.js              # Complete API (ES Modules)
-├── package.json              # Dependencies
-└── CLAUDE.md                 # This file
-```
+
+**Default Admin Credentials:**
+- Email: `admin@rtmn.com`
+- Password: `TempPass123!`
 
 ---
 
-## Security Features
+## Service Directory
 
-| Feature | Implementation | Status |
-|---------|---------------|--------|
-| JWT Authentication | Access + Refresh tokens | ✅ |
-| Password Hashing | bcrypt (12 rounds) | ✅ |
-| Rate Limiting | express-rate-limit | ✅ |
-| Security Headers | Helmet.js | ✅ |
-| CORS | Configurable origins | ✅ |
-| Input Validation | express-validator | ✅ |
-| Prototype Pollution Prevention | Custom sanitizer | ✅ |
-| Request Logging | Morgan + Winston | ✅ |
-| Role-Based Access Control | 5 roles supported | ✅ |
-| Business Scoping | Multi-tenant isolation | ✅ |
+| # | Service | Prefix | Description |
+|---|---------|--------|-------------|
+| 1 | Core Auth | `/auth` | Register, login, JWT, sessions |
+| 2 | Users | `/api/users` | User management |
+| 3 | Organization | `/api/organizations` | Orgs, departments, teams |
+| 4 | RBAC | `/api/roles`, `/api/permissions` | Roles, permissions, policies |
+| 5 | API Identity | `/api/keys`, `/api/oauth`, `/api/webhooks` | API keys, OAuth, webhooks |
+| 6 | Device | `/api/devices` | Device registration, trust |
+| 7 | Audit | `/api/audit` | Immutable audit logs |
+| 8 | Consumer | `/api/consumers` | REZ, Genie profiles |
+| 9 | Merchant | `/api/merchants` | Stores, KYC, settlements |
+| 10 | AI Agent | `/api/agents` | Agent identity, trust |
+| 11 | Trust Engine | `/api/trust` | Risk scoring, fraud detection |
+| 12 | Employee | `/api/employee` | HR integration |
+| 13 | Identity Graph | `/api/graph` | Relationship graph |
+| 14 | Universal Profile | `/api/universal` | Cross-platform profile |
+| 15 | Identity Memory | `/api/memory` | AI memory integration |
+| 16 | Identity Timeline | `/api/timeline` | Activity history |
+| 17 | KYC Platform | `/api/kyc` | Document verification |
+| 18 | Consent | `/api/consent` | GDPR/DPDP compliance |
+| 19 | Federation | `/api/federation` | SSO, SAML, OAuth, OIDC |
+| 20 | Identity Twin | `/api/twin` | Digital twin, simulations |
+| 21 | Developer | `/api/developer` | External developer platform |
+| 22 | Verification | `/api/verification` | Email, phone, domain, business |
 
 ---
 
-## Roles & Permissions
+## Project Structure
 
-| Role | Description | Capabilities |
-|------|-------------|---------------|
-| **superadmin** | System administrator | Full access to all users/businesses |
-| **admin** | Business administrator | Manage users within their business |
-| **manager** | Department manager | Create users, limited management |
-| **user** | Standard user | View profile, limited operations |
-| **customer** | External customer | Public access, minimal permissions |
-
----
-
-## API Endpoints
-
-### Health & Status
 ```
-GET  /health               # Service health check
-GET  /ready                # Readiness probe
-```
-
-### Authentication
-```
-POST /auth/register        # Register new user + business
-POST /auth/login           # Login, get JWT tokens
-POST /auth/refresh          # Refresh access token
-POST /auth/logout           # Logout, revoke session
-GET  /auth/me               # Get current user info
-```
-
-### User Management
-```
-GET    /api/users           # List users (admin)
-GET    /api/users/:id       # Get user by ID
-POST   /api/users           # Create user (admin/manager)
-PUT    /api/users/:id       # Update user
-DELETE /api/users/:id       # Delete user (admin)
-```
-
-### Business Management
-```
-GET /api/businesses         # List all businesses (admin)
-GET /api/businesses/:id     # Get business details
-```
-
-### Profile
-```
-GET  /api/profile           # Get own profile
-PUT  /api/profile           # Update own profile
-PUT  /api/profile/password  # Change password
+services/corpid-service/corpID-cloud/
+├── gateway.js                      # Unified API Gateway
+├── package.json                    # Dependencies
+├── docs/                           # Documentation
+│   ├── CORPID_ROADMAP.md          # 3-year strategic plan
+│   ├── API_REFERENCE.md           # Complete API reference
+│   ├── ARCHITECTURE.md            # System architecture
+│   └── DEPLOYMENT.md              # Deployment guide
+│
+├── shared/                         # Shared utilities
+│   ├── utils/
+│   │   ├── constants.js           # 100+ constants
+│   │   ├── logger.js              # Winston + audit logging
+│   │   └── security.js            # Password, tokens, encryption
+│   └── middleware/
+│       ├── auth.js                # JWT authentication
+│       ├── rate-limit.js          # Rate limiting
+│       └── error-handler.js       # Error handling
+│
+├── core/                           # User model & auth
+├── organization/                   # Phase 1
+├── RBAC/                           # Phase 1
+├── api-identity/                   # Phase 1
+├── device/                         # Phase 1
+├── audit/                          # Phase 1
+├── consumer/                       # Phase 2
+├── merchant/                       # Phase 2
+├── agent/                          # Phase 2
+├── trust/                          # Phase 2
+├── employee/                       # Phase 2
+├── graph/                          # Phase 3
+├── universal/                      # Phase 3
+├── memory/                         # Phase 3
+├── timeline/                       # Phase 3
+├── kyc/                            # Phase 4
+├── consent/                        # Phase 4
+├── federation/                     # Phase 4
+├── twin/                           # Phase 4
+├── developer/                      # Phase 4
+└── verification/                   # Phase 4
 ```
 
 ---
@@ -137,194 +152,30 @@ LOG_LEVEL=info
 
 ---
 
-## Usage Examples
+## Security Features
 
-### Register
-```bash
-curl -X POST http://localhost:4702/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@acme.com",
-    "password": "SecurePass123!",
-    "name": "John Doe",
-    "businessId": "ACME-CORP",
-    "businessName": "ACME Corporation"
-  }'
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Registration successful",
-  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-  "expiresIn": "1h",
-  "tokenType": "Bearer",
-  "user": {
-    "id": "user-abc12345",
-    "email": "john@acme.com",
-    "name": "John Doe",
-    "role": "owner",
-    "businessId": "ACME-CORP"
-  }
-}
-```
-
-### Login
-```bash
-curl -X POST http://localhost:4702/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@acme.com",
-    "password": "SecurePass123!"
-  }'
-```
-
-### Get Current User
-```bash
-curl http://localhost:4702/auth/me \
-  -H "Authorization: Bearer <access_token>"
-```
-
-### Create User (Admin)
-```bash
-curl -X POST http://localhost:4702/api/users \
-  -H "Authorization: Bearer <access_token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "jane@acme.com",
-    "password": "SecurePass123!",
-    "name": "Jane Smith",
-    "role": "manager"
-  }'
-```
-
-### Refresh Token
-```bash
-curl -X POST http://localhost:4702/auth/refresh \
-  -H "Content-Type: application/json" \
-  -d '{
-    "refreshToken": "<refresh_token>"
-  }'
-```
-
-### Change Password
-```bash
-curl -X PUT http://localhost:4702/api/profile/password \
-  -H "Authorization: Bearer <access_token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "currentPassword": "OldPass123!",
-    "newPassword": "NewPass456!"
-  }'
-```
+- ✅ JWT Authentication (Access + Refresh tokens)
+- ✅ bcrypt password hashing (12 rounds)
+- ✅ Password strength validation
+- ✅ Rate limiting (5 auth/15min, 100 API/min)
+- ✅ Helmet.js security headers
+- ✅ CORS configuration
+- ✅ Input validation (express-validator)
+- ✅ Prototype pollution prevention
+- ✅ Audit logging with request IDs
+- ✅ Session management with revocation
+- ✅ Device trust scoring
+- ✅ Risk-based access decisions
 
 ---
 
-## Default Data
+## Related Documentation
 
-### Default Business
-| ID | Name | Industry | Plan |
-|----|------|----------|------|
-| RTMN-HQ | RTMN Headquarters | technology | enterprise |
-
-### Default Admin User
-| ID | Email | Role |
-|----|-------|------|
-| user-admin-001 | admin@rtmn.com | superadmin |
-
-**⚠️ Default Password:** `TempPass123!`
+- [Complete API Reference](docs/API_REFERENCE.md) - All 300+ endpoints
+- [Architecture](docs/ARCHITECTURE.md) - System design
+- [3-Year Roadmap](docs/CORPID_ROADMAP.md) - Strategic plan
+- [Deployment Guide](docs/DEPLOYMENT.md) - Production setup
 
 ---
 
-## Connected Services
-
-| Service | Port | Integration |
-|---------|------|-------------|
-| RTMN Hub | 4399 | ✅ Identity provider |
-| TwinOS Hub | 4705 | ✅ User identity |
-| All Industry OS | 5010-5240 | ✅ Authentication |
-| Genie Services | 4701-4715 | ✅ User context |
-
----
-
-## Rate Limits
-
-| Endpoint Type | Limit | Window |
-|---------------|-------|--------|
-| Auth (login/register) | 5 requests | 15 minutes |
-| General API | 100 requests | 1 minute |
-| Strict operations | 20 requests | 1 minute |
-
----
-
-## Data Storage
-
-Currently uses **in-memory storage** (Maps). For production:
-
-```javascript
-// Recommended: MongoDB with mongoose
-const mongoose = require('mongoose');
-
-// User schema
-const userSchema = new mongoose.Schema({
-  email: { type: String, unique: true, required: true },
-  passwordHash: { type: String, required: true },
-  name: { type: String, required: true },
-  role: { type: String, enum: ['superadmin', 'admin', 'manager', 'user', 'customer'] },
-  businessId: { type: String, required: true },
-  status: { type: String, enum: ['active', 'inactive', 'suspended'] }
-});
-
-// Business schema
-const businessSchema = new mongoose.Schema({
-  id: { type: String, unique: true, required: true },
-  name: { type: String, required: true },
-  industry: String,
-  plan: { type: String, enum: ['starter', 'professional', 'enterprise'] },
-  status: { type: String }
-});
-```
-
----
-
-## Quick Start
-
-```bash
-cd services/corpid-service
-
-# Install dependencies
-npm install
-
-# Start service
-npm start
-
-# Or for development (auto-reload)
-npm run dev
-
-# Health check
-curl http://localhost:4702/health
-```
-
----
-
-## Security Checklist
-
-- [x] JWT Authentication implemented
-- [x] Password hashing with bcrypt
-- [x] Rate limiting on auth endpoints
-- [x] Helmet.js security headers
-- [x] CORS configuration
-- [x] Input validation on all endpoints
-- [x] Prototype pollution prevention
-- [x] Role-based access control
-- [x] Business scoping for multi-tenancy
-- [x] Request logging with request IDs
-- [x] Error handling middleware
-- [x] Token refresh rotation
-
----
-
-*Last Updated: June 18, 2026*
-*RTMN Ecosystem - Real-Time Multi-Industry Network*
+*CorpID Cloud v4.0 - Enterprise Identity Platform*

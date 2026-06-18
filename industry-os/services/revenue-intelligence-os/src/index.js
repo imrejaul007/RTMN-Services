@@ -285,14 +285,20 @@ function initData() {
 
 app.get('/health', async (req, res) => {
   const serviceStatus = {};
-  for (const [key, service] of Object.entries(CONNECTED_SERVICES)) {
+  // Use Promise.all with timeout to make it fast
+  const checks = Object.entries(CONNECTED_SERVICES).map(async ([key, service]) => {
     try {
-      const response = await fetch(`http://localhost:${service.port}/health`);
-      serviceStatus[key] = response.ok ? 'healthy' : 'down';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 500);
+      const response = await fetch(`http://localhost:${service.port}/health`, { signal: controller.signal });
+      clearTimeout(timeout);
+      return [key, response.ok ? 'healthy' : 'down'];
     } catch {
-      serviceStatus[key] = 'unreachable';
+      return [key, 'unreachable'];
     }
-  }
+  });
+  const results = await Promise.all(checks);
+  for (const [key, status] of results) serviceStatus[key] = status;
 
   res.json({
     status: 'healthy',
