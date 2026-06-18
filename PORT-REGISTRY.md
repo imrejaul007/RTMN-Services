@@ -984,7 +984,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4707 | genieBusiness | Business AI |
 | 4708 | genieProject | Project AI |
 | 4709 | genieCalendar | Personal Calendar Service |
-| 4710 | genieTwin | Twin AI |
+| **4710** | **genieMemoryInbox** | **Universal Memory Capture - Memorae-style inbox** |
 | 4711 | genieRelationship | Relationship AI |
 | **4725** | **razoKeyboard** | **RAZO Keyboard - Communication OS (22 intents)** |
 | 4767 | genieWakeWord | Wake Word Detection ("Hey Genie") |
