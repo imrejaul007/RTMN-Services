@@ -899,6 +899,103 @@ Restaurant Twin, Order Twin, Kitchen Twin, Inventory Twin, Customer Twin, Staff 
 
 ---
 
+## 🛒 Salar OS - The AI Marketplace ✅ NEW!
+
+**Built:** June 17, 2026  
+**Status:** ✅ PRODUCTION READY  
+**Port:** 4250 (within SUTAR OS)  
+**Component of:** SUTAR OS (Layer 14 - Autonomous Economic Infrastructure)
+
+### 📚 Complete Salar OS Documentation
+
+- [Salar OS README](docs/salar-os/README.md) - Complete overview
+- [Salar OS Architecture](docs/salar-os/ARCHITECTURE.md) - System architecture
+- [Salar OS API Reference](docs/salar-os/API.md) - All API endpoints
+- [Salar OS Integration Guide](docs/salar-os/INTEGRATION.md) - Integration with RTMN/HOJAI/SUTAR
+
+### Salar OS at a Glance
+
+**Tagline:** *"The AI Marketplace - Where AI Agents Come to Buy, Sell, and Negotiate"*
+
+### Statistics
+
+| Metric | Value |
+|--------|-------|
+| Total Services | 600+ |
+| AI Agents | 150+ |
+| Digital Twins | 23+ |
+| Industry OS | 24 |
+| Knowledge Packs | 100+ |
+| Workflows | 200+ |
+| Skills | 600+ |
+| Active Providers | 500+ |
+| Monthly Transactions | 50,000+ |
+| Total Revenue | $10M+ |
+| Average Rating | 4.6/5 |
+
+### Top-Level Categories (8)
+
+1. **AI Agents** (150+) - Autonomous AI for sales, marketing, HR, finance, operations
+2. **Digital Twins** (23+) - Customer, Order, Wallet, Employee digital twins
+3. **Industry OS** (24) - Restaurant, Hotel, Healthcare, Retail, and 20 more
+4. **Knowledge Packs** (100+) - Legal, Medical, Technical domain knowledge
+5. **Workflows** (200+) - Onboarding, Sales, Support automated workflows
+6. **Skills** (600+) - NLP, Vision, Translation reusable AI capabilities
+7. **Services** (600+) - Auth, Payment, Storage microservices
+8. **Products** (190+) - HOJAI Genie, BrandPulse complete products
+
+### Key Features
+
+- **Service Listings** - Create, update, delete, feature, bulk manage
+- **Smart Discovery** - AI-powered search, filters, recommendations, trending
+- **Flexible Purchasing** - One-time, subscriptions, usage-based, free trials, bundles
+- **Reviews & Ratings** - 5-star system, verified purchase badges, provider responses
+- **Provider Tools** - Dashboard, analytics, payouts, promotions, support
+- **Trust & Verification** - KYC, trust scores, badges, dispute resolution, insurance
+- **AI-Powered** - Smart matching, auto-negotiation, predictive pricing, fraud detection
+- **ACP Protocol** - AI agents can autonomously discover, negotiate, purchase
+
+### Pricing Model
+
+| Transaction Type | Platform Fee | Provider Gets |
+|----------------|--------------|---------------|
+| One-time purchase | 15% | 85% |
+| Monthly subscription | 15% | 85% |
+| Annual subscription | 10% | 90% |
+| Usage-based | 20% | 80% |
+| Enterprise deal | Negotiable | 80-90% |
+
+### Salar OS vs Traditional Marketplaces
+
+| Feature | Amazon | App Store | Salar OS |
+|---------|--------|-----------|----------|
+| AI Agents as Buyers | ❌ | ❌ | ✅ Native |
+| ACP Protocol | ❌ | ❌ | ✅ Built-in |
+| Trust Scoring | Basic | Basic | ✅ Multi-dimensional |
+| Auto-Negotiation | ❌ | ❌ | ✅ AI-powered |
+| Smart Contracts | ❌ | ❌ | ✅ Contract OS |
+| Digital Twin Integration | ❌ | ❌ | ✅ TwinOS |
+| Cross-OS Workflows | ❌ | ❌ | ✅ RTMN Hub |
+| Multi-Currency | Limited | ❌ | ✅ Crypto + Fiat |
+
+### Use Cases
+
+1. **Business Owner** buys AI agent to automate operations
+2. **Developer** lists AI service and earns 85% revenue share
+3. **AI Agent** autonomously discovers and purchases services via ACP
+4. **Enterprise** bulk-purchases 50+ AI agents with discount
+
+### Integration Points
+
+- **RTMN Hub (4399)** - Access via `/api/salar/*`
+- **SUTAR Services** - Decision (4240), Negotiation (4191), Trust (4180), Contract (4185), Economy (4251)
+- **HOJAI AI** - AI models for recommendations, NLP, pricing, sentiment
+- **Industry OS** - All 24 industry OS can pull AI agents
+- **ACP Protocol (4800)** - AI agent transactions
+- **Webhooks** - Event notifications for purchases, reviews, subscriptions
+
+---
+
 ## HOJAI Waitron - Restaurant OS ✅ NEW!
 
 **Location:** `companies/hojai-ai/industry-ai/waitron/`  

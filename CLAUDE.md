@@ -930,6 +930,136 @@ All 86+ twins now have:
 | **Purpose** | Autonomous Economic Infrastructure | Agent-to-Agent Commerce |
 | **Services** | 25 services | 15 services |
 | **Port Range** | 3100-4260 | 4716, 4800-4851 |
+
+---
+
+## 🛒 Salar OS - The AI Marketplace
+
+**Salar OS** is the dedicated **AI Marketplace** within SUTAR OS - the premier destination for buying, selling, and subscribing to AI services, agents, digital twins, and other AI products across the RTMN ecosystem.
+
+**Tagline:** *"The AI Marketplace - Where AI Agents Come to Buy, Sell, and Negotiate"*
+
+**Service:** `sutar-marketplace`  
+**Port:** 4250  
+**Layer:** 14 (Autonomous Layer)  
+**Status:** ✅ Production Ready
+
+### 📚 Complete Salar OS Documentation
+
+- [Salar OS README](docs/salar-os/README.md) - Complete overview
+- [Salar OS Architecture](docs/salar-os/ARCHITECTURE.md) - System architecture
+- [Salar OS API Reference](docs/salar-os/API.md) - All API endpoints
+- [Salar OS Integration Guide](docs/salar-os/INTEGRATION.md) - Integration with RTMN/HOJAI/SUTAR
+
+### What is Salar OS?
+
+Think of it as:
+- The **"App Store"** for AI
+- The **"Amazon"** for AI services
+- The **"Stock Exchange"** for AI agents
+- The **"Marketplace"** where AI agents meet and transact
+
+### Marketplace Statistics
+
+| Metric | Value |
+|--------|-------|
+| Total Services | 600+ |
+| AI Agents | 150+ |
+| Digital Twins | 23+ |
+| Industry OS | 24 |
+| Knowledge Packs | 100+ |
+| Workflows | 200+ |
+| Skills | 600+ |
+| Active Providers | 500+ |
+| Monthly Transactions | 50,000+ |
+| Total Revenue | $10M+ |
+| Average Rating | 4.6/5 |
+
+### Top-Level Categories (8)
+
+1. **AI Agents** (150+) - Sales, Marketing, HR, Finance, Operations agents
+2. **Digital Twins** (23+) - Customer, Order, Wallet, Employee twins
+3. **Industry OS** (24) - Restaurant OS, Hotel OS, Healthcare OS, etc.
+4. **Knowledge Packs** (100+) - Legal, Medical, Technical domain knowledge
+5. **Workflows** (200+) - Onboarding, Sales, Support automated workflows
+6. **Skills** (600+) - NLP, Vision, Translation reusable capabilities
+7. **Services** (600+) - Auth, Payment, Storage microservices
+8. **Products** (190+) - HOJAI Genie, BrandPulse complete products
+
+### Key Features
+
+- **Service Listings** - Create, update, delete, feature listings
+- **Smart Discovery** - AI-powered search, filter, sort, recommendations
+- **Flexible Purchasing** - One-time, subscriptions, usage-based, bundles
+- **Reviews & Ratings** - 5-star system, verified purchase badges
+- **Provider Tools** - Dashboard, analytics, payouts, promotions
+- **Trust & Verification** - KYC, trust scores, badges, dispute resolution
+- **AI-Powered** - Smart matching, auto-negotiation, predictive pricing
+- **ACP Protocol** - AI agents can autonomously buy/sell
+
+### Relationship to SUTAR OS
+
+```
+SUTAR OS (Layer 14 - Autonomous Economic Infrastructure)
+│
+├── Salar OS (4250) ⭐ AI Marketplace
+│   ├── 600+ Services
+│   ├── 150+ AI Agents
+│   └── 500+ Providers
+│
+├── Decision Engine (4240) - AI recommendations
+├── Negotiation Engine (4191) - Price negotiation
+├── Trust Engine (4180) - Reputation scoring
+├── Contract OS (4185) - Smart contracts
+├── Economy OS (4251) - Payment processing
+├── Goal OS (4242) - Usage tracking
+└── Discovery Engine (4256) - Universal search
+```
+
+### API Endpoints (14+)
+
+```
+GET    /api/marketplace/services          # List services
+GET    /api/marketplace/services/:id      # Get details
+POST   /api/marketplace/listings          # Create listing
+PATCH  /api/marketplace/listings/:id      # Update listing
+DELETE /api/marketplace/listings/:id      # Delete listing
+POST   /api/marketplace/search            # Advanced search
+POST   /api/marketplace/purchase          # Purchase service
+GET    /api/marketplace/categories        # List categories
+GET    /api/marketplace/featured          # Featured services
+GET    /api/marketplace/trending          # Trending services
+GET    /api/marketplace/recommendations   # Personalized recs
+POST   /api/marketplace/services/:id/reviews   # Submit review
+GET    /api/marketplace/services/:id/reviews   # Get reviews
+GET    /api/marketplace/provider/dashboard     # Provider stats
+```
+
+### Pricing Model
+
+| Transaction Type | Platform Fee | Provider Gets |
+|----------------|--------------|---------------|
+| One-time purchase | 15% | 85% |
+| Monthly subscription | 15% | 85% |
+| Annual subscription | 10% | 90% |
+| Usage-based | 20% | 80% |
+| Enterprise deal | Negotiable | 80-90% |
+
+### Use Cases
+
+1. **Business Owner** buys AI agent to automate operations
+2. **Developer** sells AI service and earns revenue
+3. **AI Agent** autonomously purchases services via ACP protocol
+4. **Enterprise** bulk-purchases 50+ AI agents with discount
+
+### Integration Points
+
+- **RTMN Hub (4399)** - Access via `/api/salar/*`
+- **SUTAR Services** - Decision, Negotiation, Trust, Contract, Economy
+- **HOJAI AI** - AI models for recommendations, NLP, pricing
+- **Industry OS** - Pull AI agents from marketplace
+- **ACP Protocol (4800)** - AI agent transactions
+- **Webhooks** - Event notifications for purchases, reviews
 | **Focus** | Internal autonomous operations | External agent commerce |
 | **Marketplace** | sutar-marketplace (4250) | agent-marketplace (4845) |
 | **Negotiation** | sutar-negotiation-engine (4191) | ACP Protocol (4800) |
