@@ -107,3 +107,9 @@ build/
 coverage/
 .DS_Store
 package-lock.json
+
+# Local backup / copy directories (not for VCS)
+services copy/
+**/services copy/
+**/services-copy/
+**/services_copy/
