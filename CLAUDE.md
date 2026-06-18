@@ -882,6 +882,60 @@ All 86+ twins now have:
 
 ---
 
+## 🤖 SUTAR OS - Autonomous Economic Infrastructure (25 Services)
+
+**SUTAR OS** (formerly known as "Salar OS" - the AI Marketplace) is the **Autonomous Economic Layer** of the RTMN ecosystem. It provides 25 interconnected services for AI agent commerce, negotiation, and autonomous operations.
+
+**Tagline:** *"The AI Marketplace - Where AI Agents Come to Negotiate"*
+
+**Layer:** 14 (Autonomous Layer)
+
+### 📚 Complete SUTAR OS Documentation
+
+- [SUTAR OS README](docs/sutar-os/README.md) - Complete overview
+- [SUTAR OS Architecture](docs/sutar-os/ARCHITECTURE.md) - 7-layer architecture
+- [SUTAR OS API Reference](docs/sutar-os/API.md) - All API endpoints
+- [SUTAR OS Integration Guide](docs/sutar-os/INTEGRATION.md) - Integration with RTMN
+
+### SUTAR OS - 25 Services Summary
+
+| Category | Services | Port Range |
+|----------|----------|------------|
+| **Gateway & Twin** | 5 services (Gateway, Twin OS, Memory Bridge, Identity OS, Agent ID) | 4140-4145 |
+| **Intent & Network** | 3 services (Intent Bus, Agent Network, REZ Bridge) | 4154-4155 |
+| **Decision & Flow** | 6 services (Decision, Simulation, Goal OS, Network Learning, Flow OS, Founder OS) | 4240-4244, 4260 |
+| **Marketplace & Economy** | 4 services (Marketplace "Salar OS", Economy OS, Usage Tracker, Policy OS) | 4250-4254 |
+| **Trust & Contracts** | 3 services (Trust Engine, Contract OS, Negotiation Engine) | 4180, 4185, 4191 |
+| **Discovery & ROI** | 5 services (Exploration, Discovery, Multi-Agent Evaluator, Reputation, ROI Calculator) | 4255-4259 |
+| **Monitoring** | 1 service (System Monitoring) | 3100 |
+
+### Key Services
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **sutar-gateway** | 4140 | API gateway for all SUTAR services |
+| **sutar-decision-engine** | 4240 | AI-powered policy decisions |
+| **sutar-goal-os** | 4242 | Goal decomposition and tracking |
+| **sutar-marketplace** | 4250 | **AI Service Marketplace (Salar OS)** |
+| **sutar-economy-os** | 4251 | Economic layer for transactions |
+| **sutar-negotiation-engine** | 4191 | Multi-party negotiation |
+| **sutar-trust-engine** | 4180 | Trust scoring and reputation |
+| **sutar-contract-os** | 4185 | Smart contracts |
+| **sutar-discovery-engine** | 4256 | Opportunity discovery |
+
+### SUTAR OS vs ACN (Agent Commerce Network)
+
+| Aspect | SUTAR OS | ACN |
+|--------|----------|-----|
+| **Purpose** | Autonomous Economic Infrastructure | Agent-to-Agent Commerce |
+| **Services** | 25 services | 15 services |
+| **Port Range** | 3100-4260 | 4716, 4800-4851 |
+| **Focus** | Internal autonomous operations | External agent commerce |
+| **Marketplace** | sutar-marketplace (4250) | agent-marketplace (4845) |
+| **Negotiation** | sutar-negotiation-engine (4191) | ACP Protocol (4800) |
+
+---
+
 ## 🤖 Agent Commerce Network (ACN) - ALL PHASES COMPLETE
 
 **Agent Commerce Network** is where AI agents become the primary economic actors. Every business has a **Merchant AI (SUTAR OS)** and every consumer has a **Genie AI** - these agents negotiate, purchase, and transact autonomously.
