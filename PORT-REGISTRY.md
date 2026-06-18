@@ -591,8 +591,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4530 | Intelligence | REST | AI intelligence services |
 | 4550 | ExpertOS | REST | Professional AI marketplace |
 | 4595 | Web Intelligence | REST | Market signals, competitor analysis |
-| 4751 | Merchant Intel | REST | Business intelligence |
-| 4752 | Lead Service | REST | Lead scoring and enrichment |
+| 4751 | **Event & Banquet OS** | REST | Events, venues, catering, guests |
 | 4786 | Knowledge Graph | REST | Entity relationships |
 | **4761** | **Leverge Intelligence** | REST | Business analytics & insights (Leverge client) |
 | **4762** | **Leverge Memory** | REST | Personal AI memory storage (Leverge client) |
@@ -752,6 +751,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | 5025 | hotel-os | Hotel | Room, Booking, Guest, Service, Revenue |
 | 5030 | retail-os | Retail | Product, Inventory, Customer, Cart, Supplier |
 | 5035 | legal-os | Legal | Client, Case, Lawyer, Document |
+| 5040 | **exhibition-os** | **Exhibition** | **Exhibition, Booth, Exhibitor, Attendee, Badge** |
 | 5060 | education-os | Education | Course, Student, Instructor, Enrollment |
 | 5070 | agriculture-os | Agriculture | Farm, Crop, Livestock |
 | 5080 | automotive-os | Automotive | Vehicle, Customer, Service |
@@ -986,6 +986,9 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4709 | genieCalendar | Personal Calendar Service |
 | **4710** | **genieMemoryInbox** | **Universal Memory Capture - Memorae-style inbox** |
 | **4712** | **genieBriefing** | **Daily Briefings (Morning, Evening, Weekly)** |
+| **4713** | **genieSearch** | **Universal Search - Search everything** |
+| **4714** | **genieSerendipity** | **Memory resurfacing - Serendipity engine** |
+| **4715** | **genieSmartForget** | **Auto-archive expired/duplicate items** |
 | 4711 | genieRelationship | Relationship AI |
 | **4725** | **razoKeyboard** | **RAZO Keyboard - Communication OS (22 intents)** |
 | 4767 | genieWakeWord | Wake Word Detection ("Hey Genie") |

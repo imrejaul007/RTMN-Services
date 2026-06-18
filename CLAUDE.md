@@ -211,7 +211,7 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **Leverge Agents** | 4764 | ✅ | AI Agent Orchestration |
 | **Leverge Copilot** | 4765 | ✅ | Business AI Copilot |
 
-### Genie Voice Services (7) - ✅ NEW
+### Genie Voice Services (9) - ✅ NEW
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
@@ -221,6 +221,9 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **Genie Calendar** | 4709 | ✅ | Personal calendar, scheduling, conflict detection |
 | **Genie Memory Inbox** | 4710 | ✅ | Universal memory capture - Memorae-style inbox |
 | **Genie Briefing** | 4712 | ✅ | Daily briefings (Morning, Evening, Weekly) |
+| **Genie Universal Search** | 4713 | ✅ | Search everything (memories, twins, calendar) |
+| **Genie Serendipity** | 4714 | ✅ | Memory resurfacing - Random reminders |
+| **Genie Smart Forgetting** | 4715 | ✅ | Auto-archive expired/duplicate items |
 | **Voice Twin** | 4876 | ✅ | TTS/STT services, voice profiles |
 
 ### RAZO Keyboard (1) - ✅ NEW
