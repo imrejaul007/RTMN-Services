@@ -194,6 +194,16 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **Leverge Agents** | 4764 | ✅ | AI Agent Orchestration |
 | **Leverge Copilot** | 4765 | ✅ | Business AI Copilot |
 
+### Genie Voice Services (5) - ✅ NEW
+
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **Genie Wake Word** | 4767 | ✅ | Wake word detection ("Hey Genie" / "हे जिनी") |
+| **Genie Listening Modes** | 4768 | ✅ | Mode switching (Manual, Continuous, Passive, Smart) |
+| **Genie Device Integration** | 4769 | ✅ | Multi-device support (Phone, Watch, Earbuds, Glasses, Car) |
+| **Genie Calendar** | 4709 | ✅ | Personal calendar, scheduling, conflict detection |
+| **Voice Twin** | 4876 | ✅ | TTS/STT services, voice profiles |
+
 ### REZ Services (4)
 
 | Service | Port | Status | Purpose |
@@ -454,14 +464,16 @@ RTMN/
 
 | Metric | Count |
 |--------|-------|
-| Total Services Connected | 50+ |
+| Total Services Connected | 60+ |
 | Core Business OS | 3 |
 | Industry OS | 24 |
 | Foundation | 3 |
 | HOJAI AI | 5 |
+| Genie Voice Services | 5 |
 | REZ Services | 4 |
 | AdBazaar | 4 |
 | Department OS | 8 |
+| Browser Extension | ✅ Chrome/Firefox |
 | AI Agents | 100+ |
 | Digital Twins | 150+ |
 | API Endpoints | 1000+ |

@@ -144,13 +144,13 @@ RAZO Keyboard, web dashboard).
 | razo-intent-router | 4725 | RAZO Keyboard intent router (11 intents, Genie integration) |
 | genie-personal-os-gateway | 4702 | Legacy gateway (kept for compat) |
 | genie-relationship-service | 4704 | Legacy relationship service (superseded by twin) |
-| genie-calendar-service | 4709 | Calendar integration |
+| genie-calendar-service | 4709 | Calendar integration (✅ Built - services/genie-calendar-service/) |
 | genie-email-service | 4710 | Email management |
 | genie-voice-service | - | Voice commands |
 | genie-meeting-service | - | Meeting summaries |
 | genie-call-service | - | Call logging |
 | genie-document-service | - | Document handling |
-| genie-wake-word-service | - | Wake word detection |
+| genie-wake-word-service | 4767 | Wake word detection ("Hey Genie" / "हे जिनी") (✅ Built - services/genie-wake-word-service/) |
 | genie-demo-ui | - | Demo interface |
 | genie-standalone-services | - | Standalone mode |
 

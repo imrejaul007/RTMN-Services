@@ -1,0 +1,73 @@
+{
+  "manifest_version": 3,
+  "name": "Genie AI Assistant",
+  "version": "1.0.0",
+  "description": "Genie AI - Your Personal AI Assistant for the Web",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "contextMenus",
+    "notifications",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/content-script.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "src/shared/icons/icon16.png",
+      "48": "src/shared/icons/icon48.png",
+      "128": "src/shared/icons/icon128.png"
+    },
+    "default_title": "Genie AI Assistant"
+  },
+  "icons": {
+    "16": "src/shared/icons/icon16.png",
+    "48": "src/shared/icons/icon48.png",
+    "128": "src/shared/icons/icon128.png"
+  },
+  "commands": {
+    "toggle-genie": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+G",
+        "mac": "Command+Shift+G"
+      },
+      "description": "Toggle Genie Assistant"
+    },
+    "quick-ask": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
+      },
+      "description": "Quick ask Genie"
+    },
+    "capture-page": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+P",
+        "mac": "Command+Shift+P"
+      },
+      "description": "Capture page content"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/shared/icons/*", "src/content/panel.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
