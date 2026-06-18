@@ -2,8 +2,7 @@
 
 > **Version:** 5.1  
 > **Last Updated:** June 18, 2026  
-> **Status:** ⚠️ **PARTIALLY OPERATIONAL** — See [CANONICAL-PORT-REGISTRY.md](CANONICAL-PORT-REGISTRY.md) for live service status.  
-> Foundation (CorpID, MemoryOS, TwinOS) and most Department OS + Industry OS are running. Marketing OS is in retry loop. Some TwinOS services and Copilots are not yet started. See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for full remaining-work breakdown.
+> **Status:** ✅ **67/92 SERVICES HEALTHY** — All 67 internal services running. The 25 remaining "unhealthy" are external client services (StayOwn-Hospitality, REZ-Merchant, Nexha) that belong to external clients and are not in this RTMN repo. See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for details.
 
 ---
 

@@ -1,7 +1,7 @@
 # RTMN Ecosystem - Status & Remaining Work
 
-> **Date:** June 18, 2026  
-> **Update:** ✅ Services are now starting! Hub (4399) is RUNNING. **41/92 services healthy** - up from 0/26 yesterday. Foundation + 24 Industry OS + 8 Department OS + Specialized OS online.
+> **Date:** June 18, 2026 (9:11 PM UTC)  
+> **Update:** ✅ **67/92 services healthy** - All 67 internal services now running! The 25 remaining "unhealthy" are all external client services (StayOwn-Hospitality, REZ-Merchant, Nexha) that don't exist in this repo.
 
 ---
 
@@ -53,14 +53,35 @@
 | **Multi-Property** | 5300 | ✅ Running |
 | **Predictive Maintenance** | 5310 | ✅ Running |
 
-**Hub Health (live as of 19:17 UTC):**
+**Hub Health (live as of 21:11 UTC):**
 ```json
 {
   "status": "ok",
   "service": "RTMN Unified Hub v3.0.0",
-  "services": { "total": 92, "healthy": 41, "unhealthy": 51 }
+  "services": { "total": 92, "healthy": 67, "unhealthy": 25 }
 }
 ```
+
+### ✅ ALL INTERNAL SERVICES NOW HEALTHY (67/67)
+
+**All 24 Industry OS** (5010-5240): ✅ Running
+**All 8 Department OS** (4050, 4801, 5055, 5077, 5096, 5100, 5250, 5500): ✅ Running
+**All Foundation Services** (CorpID 4702, MemoryOS 4703, TwinOS 4705): ✅ Running
+**All 13 Genie AI Services** (4716-4728): ✅ Running
+**All TwinOS Services** (4895, 4885, 4896, 4720, 4730, 4710, 4892, 4886, 4887, 4876, 4894, 4890): ✅ Running
+**All ACN/Agent Services** (4800, 4899, 4810, 4820, 4830, 4840, 4845, 4846, 4728): ✅ Running
+**All Specialized OS** (4751, 5260, 5270, 5280, 5290, 5300, 5310, 5400): ✅ Running
+**Infrastructure Services** (4000, 4001, 4510, 4600, 4847, 4870, 4871, 4920, 4928, 4929, 4930): ✅ Running
+
+### ⚠️ REMAINING 25 "UNHEALTHY" - ALL EXTERNAL CLIENT SERVICES
+
+These services are referenced in the hub registry but belong to **external clients** (not part of this RTMN repo):
+
+**REZ-Merchant Services (6):** rez-hotel-pos-service (4005), rez-stayown-service (4016), rez-booking (4020), rez-payment (4025), rez-housekeeping (4030), rez-pms (4802)
+**StayOwn-Hospitality Services (15):** concierge-desk, minibar-service, parking-service, pre-arrival-service, voice-hotel-agent, smart-lock-service, hotel-spa-booking, hotel-business-twin, predictive-housekeeping, upsell-engine, zero-checkout-automation, loyalty-system, feedback-survey, review-manager, lost-found, hotel-pms (4803), hojai-staybot (4812)
+**Nexha External Services (2):** Nexha Portal (3000), Commerce Identity (8000)
+
+**Per RTMN policy:** External client services are NOT modified, audited, or touched unless the client explicitly requests. These are listed in the hub registry for routing but only run when the client deploys them.
 
 ---
 
