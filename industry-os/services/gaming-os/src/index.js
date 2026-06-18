@@ -8,12 +8,13 @@
  */
 
 const express = require('express');
+const industryIntegration = require('./industry-integration');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 
 const app = express();
-const PORT = process.env.PORT || 5010;
+const PORT = process.env.PORT || 5120;
 
 // Middleware
 app.use(helmet());
@@ -1599,6 +1600,9 @@ app.get('/health', (req, res) => {
 // ============================================
 
 initDatabase().catch(console.warn);
+
+// Register RTMN Industry Integration
+industryIntegration.registerRoutes(app, 'gaming', PORT);
 app.listen(PORT, () => {
   console.log('✅ gaming-os AI Company Platform running on port ' + PORT);
   console.log('📦 15 Layers: Intelligence, Growth, Commerce, Finance, Workforce, Legal, Property, Health, Mobility, Identity, Memory, Twins, Autonomous, Network');

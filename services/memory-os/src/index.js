@@ -1,0 +1,11 @@
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
+const app = express();
+const PORT = 4703;
+app.use(express.json());
+const memories = new Map();
+app.post('/api/memories',(r,res)=>{const m={id:uuidv4(),...r.body,timestamp:new Date().toISOString()};memories.set(m.id,m);res.status(201).json(m);});
+app.get('/api/memories',(r,res)=>res.json({memories:Array.from(memories.values())}));
+app.get('/api/memories/:id',(r,res)=>{const m=memories.get(r.params.id);return m?res.json(m):res.status(404).json({error:'Not found'});});
+app.get('/health',(r,res)=>res.json({status:'healthy',service:'MemoryOS',port:PORT}));
+app.listen(PORT,()=>console.log('MemoryOS running on port '+PORT));

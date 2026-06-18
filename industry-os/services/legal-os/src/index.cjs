@@ -16,6 +16,9 @@
 const express = require('express');
 const cors = require('cors');
 
+// RTMN Industry Integration
+const industryIntegration = require('./industry-integration');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -469,6 +472,14 @@ app.get('/api/integrations', (req, res) => {
     { id: 'workforce', name: 'Workforce OS', port: 5077, status: 'connected' },
   ]});
 });
+
+// ============================================================
+// RTMN INDUSTRY INTEGRATION
+// ============================================================
+
+// Register Industry Integration Routes
+industryIntegration.registerRoutes(app, 'legal', PORT);
+console.log('✅ Legal OS connected to RTMN Ecosystem');
 
 // ============================================================
 // START

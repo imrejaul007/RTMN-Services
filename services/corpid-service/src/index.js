@@ -1,0 +1,11 @@
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
+const app = express();
+const PORT = 4702;
+app.use(express.json());
+const users = new Map([['user-1',{id:'user-1',email:'john@rtmn.com',name:'John Smith',role:'admin'}]]);
+app.get('/api/users',(r,res)=>res.json({users:Array.from(users.values())}));
+app.get('/api/users/:id',(r,res)=>{const u=users.get(r.params.id);return u?res.json(u):res.status(404).json({error:'Not found'});});
+app.post('/api/users',(r,res)=>{const u={id:uuidv4(),...r.body};users.set(u.id,u);res.status(201).json(u);});
+app.get('/health',(r,res)=>res.json({status:'healthy',service:'corpID',port:PORT}));
+app.listen(PORT,()=>console.log('CorpID running on port '+PORT));

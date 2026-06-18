@@ -1,0 +1,11 @@
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
+const app = express();
+const PORT = 4705;
+app.use(express.json());
+const twins = new Map();
+app.post('/api/twins',(r,res)=>{const t={id:uuidv4(),...r.body,status:'active',lastSync:new Date().toISOString()};twins.set(t.id,t);res.status(201).json(t);});
+app.get('/api/twins',(r,res)=>res.json({twins:Array.from(twins.values())}));
+app.get('/api/twins/:id',(r,res)=>{const t=twins.get(r.params.id);return t?res.json(t):res.status(404).json({error:'Not found'});});
+app.get('/health',(r,res)=>res.json({status:'healthy',service:'TwinOS Hub',port:PORT}));
+app.listen(PORT,()=>console.log('TwinOS Hub running on port '+PORT));

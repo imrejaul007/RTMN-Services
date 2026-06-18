@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Restaurant OS - Industry-specific digital twin for food service",
   "main": "src/index.js",
-  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",

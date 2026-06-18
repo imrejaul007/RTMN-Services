@@ -14,6 +14,26 @@ RTMN is a comprehensive **Business Intelligence Operating System** that goes bey
 
 ---
 
+## Sync Hub (Port 4399)
+
+**NEW!** Real-Time Synchronization System - When any product/service updates, all related OS automatically reflect those changes.
+
+| Feature | Description |
+|---------|-------------|
+| Service Registry | Track all services & versions |
+| Event Bus | Real-time pub/sub |
+| Webhook System | Notify on changes |
+| Version Tracker | Know what's running |
+| Sync Engine | Auto-sync data |
+
+```bash
+curl http://localhost:4399/health
+curl http://localhost:4399/api/registry
+curl http://localhost:4399/api/features
+```
+
+---
+
 ## Core Business OS (5 Complete)
 
 | Port | Service | Modules | Status |
@@ -21,7 +41,7 @@ RTMN is a comprehensive **Business Intelligence Operating System** that goes bey
 | **4801** | Finance OS | GL, AR, AP, Treasury, Tax, AI Copilot, 24 Industry | ✅ |
 | **5077** | Workforce OS | Employees, Payroll, Attendance, Leave, Benefits, Performance | ✅ |
 | **5055** | Sales OS | CRM, Pipeline, 22 AI Agents | ✅ |
-| **5035** | **Legal OS** | Contracts, Compliance, Documents, Matters, AI Twin | ✅ **NEW** |
+| **5035** | **Legal OS** | Contracts, Compliance, Documents, Matters, AI Twin | ✅ |
 | **5250** | **Operations OS** | 21 Modules, 23 AI Agents, Observe→Learn→Automate | ✅ |
 
 ---

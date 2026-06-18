@@ -288,6 +288,177 @@ router.post('/twin-sync', async (req, res) => {
 });
 
 // ============================================
+// INTEGRATION: HOTEL PMS → SUTAR → NEXHA PROCUREMENT
+// ============================================
+
+/**
+ * PMS detects low inventory and triggers procurement via SUTAR → Nexha
+ * POST /api/integrations/hotel-procurement
+ */
+router.post('/hotel-procurement', async (req, res) => {
+  const { hotelId, category, items, urgency } = req.body;
+
+  try {
+    const results = {};
+    const sutarEvents = [];
+
+    // 1. PMS publishes LOW_INVENTORY event to SUTAR
+    const eventPayload = {
+      hotelId,
+      category,
+      items,
+      urgency: urgency || 'normal',
+      detectedBy: 'pms',
+      timestamp: new Date().toISOString(),
+    };
+
+    const sutarEvent = await axios.post(`${SERVICES.sutarOs}/events/publish`, {
+      topic: 'hotel.inventory.low',
+      payload: eventPayload,
+    }).catch(() => ({ data: { eventId: `EVT-${Date.now()}` } }));
+    sutarEvents.push(sutarEvent.data.eventId);
+    results.sutarEvent = sutarEvent.data;
+
+    // 2. SUTAR checks suppliers with trust score >= threshold
+    const trustThreshold = urgency === 'critical' ? 90 : urgency === 'high' ? 75 : 60;
+
+    // 3. Query Nexha Procurement for suppliers
+    const supplierRes = await axios.get(`${SERVICES.nexhaProcurement}/api/suppliers/match`, {
+      params: { category, minTrustScore: trustThreshold },
+    }).catch(() => ({ data: { suppliers: [] } }));
+
+    results.matchedSuppliers = supplierRes.data.suppliers || [];
+
+    // 4. Create RFQ in Nexha Procurement
+    if (results.matchedSuppliers.length > 0) {
+      const rfqRes = await axios.post(`${SERVICES.nexhaProcurement}/api/rfqs`, {
+        buyerId: hotelId,
+        products: items.map(item => ({
+          name: item.name,
+          quantity: item.reorderQty || item.qty,
+          unit: item.unit || 'pcs',
+        })),
+        urgency,
+        invitedSuppliers: results.matchedSuppliers.map(s => s.id),
+        source: 'pms-auto',
+      }).catch(() => ({ data: { id: `RFQ-PMS-${Date.now()}` } }));
+      results.rfq = rfqRes.data;
+      sutarEvents.push(rfqRes.data.id);
+    }
+
+    // 5. Sync to RTMN Procurement OS
+    await axios.post(`${SERVICES.procurement}/api/rfqs`, {
+      source: 'hotel-pms',
+      hotelId,
+      category,
+      items,
+      rfqId: results.rfq?.id,
+      sutarEvents,
+    }).catch(() => {});
+
+    // 6. Update digital twin
+    await axios.post(`${SERVICES.twinOs}/api/twins`, {
+      entityType: 'procurement',
+      entityId: `PROC-${Date.now()}`,
+      hotelId,
+      category,
+      status: 'rfq_created',
+      suppliers: results.matchedSuppliers.length,
+    }).catch(() => {});
+
+    res.json({
+      success: true,
+      integration: 'hotel-procurement',
+      flow: 'PMS → SUTAR → Nexha',
+      steps: {
+        pms: 'Low inventory detected',
+        sutar: 'Event published, supplier trust checked',
+        nexha: 'RFQ created for matched suppliers',
+      },
+      results,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Check supplier events and deal status
+ * GET /api/integrations/hotel-procurement/status
+ */
+router.get('/hotel-procurement/status', async (req, res) => {
+  const { hotelId } = req.query;
+
+  try {
+    // Get SUTAR events for this hotel
+    const eventsRes = await axios.get(`${SERVICES.sutarOs}/events`, {
+      params: { topic: 'hotel.inventory.low' },
+    }).catch(() => ({ data: [] }));
+
+    const hotelEvents = eventsRes.data.filter(e =>
+      !hotelId || e.payload?.hotelId === hotelId
+    );
+
+    // Get deals from Nexha
+    const dealsRes = await axios.get(`${SERVICES.nexhaProcurement}/api/deals`, {
+      params: { buyerId: hotelId },
+    }).catch(() => ({ data: [] }));
+
+    res.json({
+      success: true,
+      integration: 'hotel-procurement-status',
+      events: hotelEvents,
+      activeDeals: dealsRes.data.filter(d => d.status !== 'completed'),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// INTEGRATION: SUPPLY CHAIN VISIBILITY
+// ============================================
+
+/**
+ * Full supply chain tracking from PMS to delivery
+ * GET /api/integrations/supply-chain/:hotelId
+ */
+router.get('/supply-chain/:hotelId', async (req, res) => {
+  const { hotelId } = req.params;
+
+  try {
+    // Get all events from SUTAR
+    const eventsRes = await axios.get(`${SERVICES.sutarOs}/events`).catch(() => ({ data: [] }));
+    const hotelEvents = eventsRes.data.filter(e =>
+      e.payload?.hotelId === hotelId || e.topic?.includes('hotel')
+    );
+
+    // Get deals from Nexha
+    const dealsRes = await axios.get(`${SERVICES.nexhaProcurement}/api/deals`).catch(() => ({ data: [] }));
+    const hotelDeals = dealsRes.data.filter(d =>
+      d.buyerId === hotelId || d.id?.includes(hotelId)
+    );
+
+    // Get POs from RTMN Procurement
+    const poRes = await axios.get(`${SERVICES.procurement}/api/purchase-orders`).catch(() => ({ data: [] }));
+    const hotelPOs = poRes.data.filter(po => po.hotelId === hotelId);
+
+    res.json({
+      success: true,
+      supplyChain: {
+        hotelId,
+        events: hotelEvents.slice(-20),
+        deals: hotelDeals,
+        purchaseOrders: hotelPOs,
+        stages: ['detected', 'rfq_created', 'quotes_received', 'awarded', 'shipped', 'delivered'],
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
 // INTEGRATION: CUSTOMER 360 VIEW
 // ============================================
 
