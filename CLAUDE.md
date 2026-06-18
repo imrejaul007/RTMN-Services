@@ -6,6 +6,29 @@
 
 ---
 
+## ⚠️ IMPORTANT - EXTERNAL CLIENTS POLICY
+
+### Leverge - External Client (NOT Part of RTMN)
+
+**Leverge is a CLIENT of HOJAI AI, NOT part of the RTMN ecosystem.**
+
+| Aspect | Rule |
+|--------|------|
+| **Ownership** | Leverge code belongs to Leverge, not RTMN |
+| **Location** | Stored at RTMN root for convenience only (leverge-*) |
+| **Audits** | NEVER audit Leverge unless specifically requested by client |
+| **Modifications** | NEVER modify Leverge code unless client explicitly requests |
+| **Documentation** | Only maintain company/hojai-ai/leverge/ folder for client docs |
+| **Support** | Only assist when Leverge comes to us as a client |
+
+**General Rule for ALL External Clients:**
+- ✅ Only touch client code when they REQUEST something
+- ❌ Never audit, modify, or improve client code unprompted
+- ❌ Never include client code in RTMN architecture discussions
+- ❌ Never add client services to RTMN service registry unless integrated
+
+---
+
 ## 🎯 Executive Summary
 
 RTMN is a unified ecosystem connecting **50+ services** across **24 industry verticals**, powered by AI agents, digital twins, and autonomous operations through a **single unified hub**.
