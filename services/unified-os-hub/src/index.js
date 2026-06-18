@@ -341,22 +341,35 @@ app.get('/api/stayown/health', async (req, res) => {
   }
 });
 
-// Health check - batched parallel (batches of 10) with 1.5s timeout per service
+// Health check - using http module with 1s timeout, parallel batches
 app.get('/health', async (req, res) => {
+  const http = require('http');
   const entries = Object.entries(clients);
-  const BATCH_SIZE = 10;
+  const BATCH_SIZE = 15;
   const results = {};
+
+  const checkService = (name, client) => new Promise((resolve) => {
+    try {
+      const url = new URL(client.defaults.baseURL + '/health');
+      const req2 = http.get({
+        hostname: url.hostname,
+        port: url.port,
+        path: url.pathname,
+        timeout: 1000
+      }, (r) => {
+        r.resume();
+        resolve([name, { status: r.statusCode === 200 ? 'healthy' : 'unhealthy' }]);
+      });
+      req2.on('timeout', () => { req2.destroy(); resolve([name, { status: 'timeout' }]); });
+      req2.on('error', () => resolve([name, { status: 'not_responding' }]));
+    } catch {
+      resolve([name, { status: 'error' }]);
+    }
+  });
 
   for (let i = 0; i < entries.length; i += BATCH_SIZE) {
     const batch = entries.slice(i, i + BATCH_SIZE);
-    const batchResults = await Promise.all(batch.map(async ([name, client]) => {
-      try {
-        await client.get('/health', { timeout: 1500 });
-        return [name, { status: 'healthy' }];
-      } catch {
-        return [name, { status: 'not_responding' }];
-      }
-    }));
+    const batchResults = await Promise.all(batch.map(([n, c]) => checkService(n, c)));
     for (const [name, status] of batchResults) results[name] = status;
   }
 
