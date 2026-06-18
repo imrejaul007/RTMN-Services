@@ -129,12 +129,17 @@ The **Consumer Triangle** represents the three pillars of personal AI interactio
 - **Services:** DO Backend, REZ-assistant, REZ-inbox, REZ-save
 - **Outputs:** Task execution, bookings, payments, orders
 
-### RAZO (Communicate) - Port 4725
+### RAZO (Communicate) - Port 4725 - ✅ FULLY IMPLEMENTED
 - **Role:** Communication layer - input/output with user
-- **Location:** `companies/HOJAI-AI/RAZO-Keyboard/`
-- **Service:** razo-intent-router (11 intents)
-- **Platforms:** WhatsApp (4718), Discord (4721), Telegram (4722), Slack (4723)
+- **Location:** `services/razo-keyboard/`
+- **Service:** razo-intent-router (22 intents)
+- **Platforms:** WhatsApp, Telegram, SMS, Email
 - **Outputs:** Natural language understanding, responses, notifications
+- **Modules:**
+  - Intent Router (22 intents: commerce, financial, communication, information, action)
+  - Channel Bridge (multi-channel messaging)
+  - Context Engine (session management)
+  - Action Engine (routes to Genie, DO App, SUTAR, Copilot)
 
 ---
 

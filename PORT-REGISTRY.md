@@ -986,6 +986,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | 4709 | genieCalendar | Personal Calendar Service |
 | 4710 | genieTwin | Twin AI |
 | 4711 | genieRelationship | Relationship AI |
+| **4725** | **razoKeyboard** | **RAZO Keyboard - Communication OS (22 intents)** |
 | 4767 | genieWakeWord | Wake Word Detection ("Hey Genie") |
 | 4768 | genieListeningModes | Listening Mode Switching |
 | 4769 | genieDeviceIntegration | Multi-Device Support |
