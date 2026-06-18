@@ -1,8 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.0  
+> **Version:** 5.1  
 > **Last Updated:** June 18, 2026  
-> **Status:** ✅ **FULLY OPERATIONAL** - ALL 50+ SERVICES CONNECTED VIA UNIFIED HUB
+> **Status:** ⚠️ **PARTIALLY OPERATIONAL** — See [CANONICAL-PORT-REGISTRY.md](CANONICAL-PORT-REGISTRY.md) for live service status.  
+> Foundation (CorpID, MemoryOS, TwinOS) and most Department OS + Industry OS are running. Marketing OS is in retry loop. Some TwinOS services and Copilots are not yet started. See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for full remaining-work breakdown.
 
 ---
 
@@ -218,15 +219,21 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
 | **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
 
-### HOJAI AI Suite (5)
+### HOJAI AI Suite (Internal HOJAI services only)
+
+> ⚠️ **Ports 4761-4765 belong to Leverge (external client)** per the External Clients Policy above. They are listed in `PORT-REGISTRY.md` for reference but are NOT part of the RTMN ecosystem, not under RTMN control, and not subject to the operational guarantees on this page.
+
+The internal HOJAI AI infrastructure used by RTMN consists of:
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
-| **Leverge Intelligence** | 4761 | ✅ | Business Analytics |
-| **Leverge Memory** | 4762 | ✅ | AI Memory Platform |
-| **Leverge Twin** | 4763 | ✅ | Digital Twin Platform |
-| **Leverge Agents** | 4764 | ✅ | AI Agent Orchestration |
-| **Leverge Copilot** | 4765 | ✅ | Business AI Copilot |
+| **HOJAI Gateway** | 4500 | ⚠️ Scaffolded | Internal AI gateway (not in code yet) |
+| **Memory Service** | 4520 | ⚠️ Scaffolded | Multi-tier memory |
+| **TwinOS Bridge** | 4521 | ✅ 4705 | Digital twin management (lives at 4705) |
+| **Intelligence** | 4530 | ⚠️ Scaffolded | AI inference |
+| **ExpertOS** | 4550 | ⚠️ Scaffolded | AI marketplace |
+
+> Note: `/services/customer-twin` (4895), `/services/ai-intelligence` (4881), and the Genie suite (4701-4727) are the actual working HOJAI-style AI services in this repo. See [CANONICAL-PORT-REGISTRY.md](CANONICAL-PORT-REGISTRY.md).
 
 ### Genie Voice Services (9) - ✅ NEW
 
@@ -347,7 +354,8 @@ Hub (4399)
 │   └── /api/twins/*        # → TwinOS (4705)
 │
 ├── HOJAI AI
-│   └── /api/ai/*           # → Leverge Intelligence (4761)
+│   ├── /api/ai/*           # → AI Intelligence (4881) - internal HOJAI
+│   └── /api/genie/*        # → Genie Gateway (4701)
 │
 ├── REZ SERVICES
 │   ├── /api/crm/*          # → CRM (4056)
@@ -874,21 +882,44 @@ All 86+ twins now have:
 
 ---
 
-## 🤖 Agent Commerce Network (ACN) - Phase 1 Complete
+## 🤖 Agent Commerce Network (ACN) - ALL PHASES COMPLETE
 
 **Agent Commerce Network** is where AI agents become the primary economic actors. Every business has a **Merchant AI (SUTAR OS)** and every consumer has a **Genie AI** - these agents negotiate, purchase, and transact autonomously.
 
-### ACN Core Services
+### ACN Core Services (Phase 1) ✅
 
-| Service | Port | Purpose | Status |
-|---------|------|---------|--------|
-| **ACP Protocol** | 4800 | Standardized messaging for AI-to-AI negotiations | ✅ Built |
-| **ACN Network** | 4801 | Agent registry, discovery, and routing | ✅ Built |
-| **Genie Shopping Agent** | 4716 | Consumer's personal AI shopping assistant | ✅ Built |
-| **Merchant Agents** | 4810 | SUTAR OS - Business AI agents | ✅ Built |
-| **Agent Reputation** | 4820 | Trust scores for AI agents | ✅ Built |
-| **Agent Contracts** | 4830 | Smart contracts for transactions | ✅ Built |
-| **Agent Wallets** | 4840 | Digital wallets for agent payments | ✅ Built |
+| Service | Port | Purpose |
+|---------|------|---------|
+| **ACP Protocol** | 4800 | Standardized messaging for AI-to-AI negotiations |
+| **ACN Network** | 4801 | Agent registry, discovery, and routing |
+| **Genie Shopping Agent** | 4716 | Consumer's personal AI shopping assistant |
+| **Merchant Agents** | 4810 | SUTAR OS - Business AI agents |
+| **Agent Reputation** | 4820 | Trust scores for AI agents |
+| **Agent Contracts** | 4830 | Smart contracts for transactions |
+| **Agent Wallets** | 4840 | Digital wallets for agent payments |
+
+### ACN Phase 2 Services ✅
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **Agent Marketplace** | 4845 | Discovery platform with listings, reviews, promotions |
+| **Agent Learning** | 4846 | ML for preference learning, strategy optimization |
+| **Dispute Resolution** | 4847 | Arbitration, mediation, refund processing |
+| **Agent Analytics** | 4848 | Metrics, dashboards, real-time monitoring |
+| **ACN Integration** | 4849 | Bridge to RTMN Department OS, Industry OS, TwinOS |
+
+### ACN Phase 3 Services ✅
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **Negotiation AI** | 4850 | Advanced ML negotiation strategies |
+| **Agent Orchestration** | 4851 | Multi-agent workflow coordination |
+
+### ACN Hub Gateway ✅
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **ACN Hub** | 4800 | Unified entry point for all 14 ACN services |
 
 ### ACP Protocol Message Types
 
@@ -912,16 +943,26 @@ All 86+ twins now have:
 | **SYSTEM** | RTMN internal agents | Reputation tracker, Contract manager |
 | **PARTNER** | External agents | Payment processors, Logistics |
 
-### 26 Industry Templates
+### Orchestration Patterns
 
-| # | Industry | Capabilities |
-|---|----------|-------------|
-| 1 | Restaurant | Reservation, Order, Delivery, Takeout |
-| 2 | Hotel | Booking, Check-in, Room Service |
-| 3 | Healthcare | Appointment, Consultation, Prescription |
-| 4 | Retail | Product Search, Shipping, Returns |
-| 5 | Travel | Booking, Cancellation, Insurance |
-| 6-26 | +20 more | Fashion, Beauty, Fitness, Education... |
+| Pattern | Description |
+|---------|-------------|
+| Sequential | Tasks run one after another |
+| Parallel | Tasks run simultaneously |
+| Pipeline | Output of each feeds the next |
+| Fan-out | One task triggers many |
+| Fan-in | Many tasks aggregate to one |
+| Conditional | Branch based on results |
+
+### Negotiation Strategies
+
+| Strategy | Description |
+|----------|-------------|
+| Competitive | Win-lose, hard bargaining |
+| Collaborative | Win-win, problem solving |
+| Accommodating | Yield to preserve relationship |
+| Compromising | Middle ground quickly |
+| Principled | BATNA focus, objective standards |
 
 ### Trust System
 
@@ -934,6 +975,19 @@ All 86+ twins now have:
 | Iron | 30-49 | ⚙️ |
 | Restricted | 0-29 | ⚠️ |
 
+### Total ACN Statistics
+
+| Metric | Count |
+|--------|-------|
+| Total Services | 15 |
+| Ports Used | 4716, 4800-4851 |
+| AI Agent Types | 4 |
+| Trust Levels | 6 |
+| Orchestration Patterns | 6 |
+| Negotiation Strategies | 5 |
+| Industry Templates | 26 |
+| Reputation Badges | 7 |
+
 ### Documentation
 
 - [ACN Architecture](ACN-ARCHITECTURE.md) - Complete ACN documentation
@@ -944,3 +998,11 @@ All 86+ twins now have:
 - [Agent Reputation](services/agent-reputation/) - Trust scoring
 - [Agent Contracts](services/agent-contracts/) - Smart contracts
 - [Agent Wallets](services/agent-wallets/) - Digital wallets
+- [Agent Marketplace](services/agent-marketplace/) - Discovery platform
+- [Agent Learning](services/agent-learning/) - ML improvements
+- [Dispute Resolution](services/dispute-resolution/) - Conflict handling
+- [Agent Analytics](services/agent-analytics/) - Metrics and insights
+- [ACN Integration](services/acn-integration/) - RTMN bridge
+- [Negotiation AI](services/negotiation-ai/) - Advanced strategies
+- [Agent Orchestration](services/agent-orchestration/) - Multi-agent workflows
+- [ACN Hub](services/acn-hub/) - Unified gateway

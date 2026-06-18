@@ -22,6 +22,7 @@ const industryWorkflows = require('./industry-workflows');
 const phase2Workflows = require('./phase2-workflows');
 const phase3Workflows = require('./phase3-workflows');
 const phase4Workflows = require('./phase4-workflows');
+const genieWorkflows = require('./genie-workflows');
 
 // ============================================
 // SERVICE URLS - ALL 50+ SERVICES
@@ -94,6 +95,21 @@ const SERVICES = {
   sutarOs: 'http://localhost:4799',
   nexhaPortal: 'http://localhost:3000',
   commerceIdentity: 'http://localhost:8000',
+
+  // Genie AI - Personal Companion Ecosystem (12 services)
+  genieCompanion: 'http://localhost:4716',        // Phase 1 - Foundation: Emotional AI, Mood, Journal, Stories
+  genieMemoryGraph: 'http://localhost:4717',       // Phase 1 - Foundation: 7 Unified Memory Graphs
+  genieRelationshipOs: 'http://localhost:4718',   // Phase 1 - Foundation: Personal CRM, Social Intel
+  genieThinkingEngine: 'http://localhost:4719',    // Phase 2 - Intelligence: SWOT, Decisions, Research
+  genieConsultant: 'http://localhost:4720',        // Phase 2 - Intelligence: 20 Expert Domains
+  genieLifeGps: 'http://localhost:4721',           // Phase 2 - Intelligence: Goals, Future Self, Next Best Action
+  genieLearningOs: 'http://localhost:4722',        // Phase 3 - Life Management: Languages, Skills, MBA
+  genieWellnessOs: 'http://localhost:4723',        // Phase 3 - Life Management: Health, Sleep, Nutrition, Mental
+  genieMoneyOs: 'http://localhost:4724',           // Phase 3 - Life Management: Budget, Invest, Savings, Goals
+  genieCreationOs: 'http://localhost:4725',        // Phase 4 - Creation: Content, Image, Video, Audio, Doc
+  genieExecutionEngine: 'http://localhost:4726',   // Phase 4 - Execution: Tasks, Automation, Workflows
+  genieLifeUniversity: 'http://localhost:4727',    // Phase 4 - Education: Curriculum, Courses, Certs
+  genieShoppingAgent: 'http://localhost:4728',     // Agent Commerce: Personal Shopping AI (SUTAR)
 };
 
 // Create axios clients
@@ -169,6 +185,27 @@ const SERVICE_REGISTRY = {
     { id: 'nexhaPortal', name: 'Nexha Portal', port: 3000, category: 'external', description: 'Nexha Platform' },
     { id: 'commerceIdentity', name: 'Commerce Identity', port: 8000, category: 'external', description: 'User Identity' },
   ],
+  // Genie AI - Personal Companion Ecosystem
+  genie: [
+    // Phase 1 - Foundation (4716-4718)
+    { id: 'genieCompanion', name: 'Genie Companion', port: 4716, category: 'genie', phase: 1, description: 'Emotional AI, Mood, Journal, Life Stories' },
+    { id: 'genieMemoryGraph', name: 'Genie Memory Graph', port: 4717, category: 'genie', phase: 1, description: '7 Unified Memory Graphs & Search' },
+    { id: 'genieRelationshipOs', name: 'Genie Relationship OS', port: 4718, category: 'genie', phase: 1, description: 'Personal CRM, Social Intelligence' },
+    // Phase 2 - Intelligence (4719-4721)
+    { id: 'genieThinkingEngine', name: 'Genie Thinking Engine', port: 4719, category: 'genie', phase: 2, description: 'SWOT, Decisions, Research, Brainstorming' },
+    { id: 'genieConsultant', name: 'Genie Consultant Agent', port: 4720, category: 'genie', phase: 2, description: '20 Expert Domains, Consultation Routing' },
+    { id: 'genieLifeGps', name: 'Genie Life GPS', port: 4721, category: 'genie', phase: 2, description: 'Goals, Future Self, Next Best Action' },
+    // Phase 3 - Life Management (4722-4724)
+    { id: 'genieLearningOs', name: 'Genie Learning OS', port: 4722, category: 'genie', phase: 3, description: 'Languages, Skills, MBA, Curriculum' },
+    { id: 'genieWellnessOs', name: 'Genie Wellness OS', port: 4723, category: 'genie', phase: 3, description: 'Health, Sleep, Nutrition, Mental Wellness' },
+    { id: 'genieMoneyOs', name: 'Genie Money OS', port: 4724, category: 'genie', phase: 3, description: 'Budget, Investment, Savings, Goals' },
+    // Phase 4 - Creation & Execution (4725-4727)
+    { id: 'genieCreationOs', name: 'Genie Creation OS', port: 4725, category: 'genie', phase: 4, description: 'Content, Image, Video, Audio, Document Generation' },
+    { id: 'genieExecutionEngine', name: 'Genie Execution Engine', port: 4726, category: 'genie', phase: 4, description: 'Tasks, Automation, Workflows, Calendar' },
+    { id: 'genieLifeUniversity', name: 'Genie Life University', port: 4727, category: 'genie', phase: 4, description: 'Curriculum, Courses, Certifications, Achievements' },
+    // Agent Commerce Network
+    { id: 'genieShoppingAgent', name: 'Genie Shopping Agent', port: 4728, category: 'genie', phase: 'acn', description: 'Personal Shopping AI (SUTAR)' },
+  ],
 };
 
 // ============================================
@@ -195,6 +232,7 @@ app.use('/api/industry', industryWorkflows);
 app.use('/api/phase2', phase2Workflows);
 app.use('/api/phase3', phase3Workflows);
 app.use('/api/phase4', phase4Workflows);
+app.use('/api/genie-workflows', genieWorkflows);
 
 // Health check
 app.get('/health', async (req, res) => {
@@ -256,6 +294,20 @@ const SERVICE_MAP = {
   // External & Foundation
   sutar: 'sutarOs', identity: 'commerceIdentity', copilot: 'agentCopilot',
   memory: 'memoryOs', twins: 'twinOs',
+  // Genie AI - Personal Companion Ecosystem
+  'genie-companion': 'genieCompanion',
+  'genie-memory': 'genieMemoryGraph',
+  'genie-relationship': 'genieRelationshipOs',
+  'genie-thinking': 'genieThinkingEngine',
+  'genie-consultant': 'genieConsultant',
+  'genie-gps': 'genieLifeGps',
+  'genie-learning': 'genieLearningOs',
+  'genie-wellness': 'genieWellnessOs',
+  'genie-money': 'genieMoneyOs',
+  'genie-creation': 'genieCreationOs',
+  'genie-execution': 'genieExecutionEngine',
+  'genie-university': 'genieLifeUniversity',
+  'genie-shopping': 'genieShoppingAgent',
 };
 
 for (const [prefix, serviceKey] of Object.entries(SERVICE_MAP)) {
