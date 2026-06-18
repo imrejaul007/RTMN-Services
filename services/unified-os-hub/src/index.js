@@ -18,6 +18,10 @@ const PORT = process.env.PORT || 4399;
 const workflows = require('./workflows');
 const integrations = require('./integrations');
 const agentMarketplace = require('./agent-marketplace');
+const industryWorkflows = require('./industry-workflows');
+const phase2Workflows = require('./phase2-workflows');
+const phase3Workflows = require('./phase3-workflows');
+const phase4Workflows = require('./phase4-workflows');
 
 // ============================================
 // SERVICE URLS - ALL 50+ SERVICES
@@ -71,6 +75,20 @@ const SERVICES = {
   financeCopilot: 'http://localhost:4930',
   marketingCopilot: 'http://localhost:4925',
   supportCopilot: 'http://localhost:4926',
+
+  // Phase 2 - Specialized OS
+  revenueIntelligence: 'http://localhost:5400',
+  eventBanquet: 'http://localhost:4751',
+
+  // Phase 3 - Management OS
+  energyManagement: 'http://localhost:5260',
+  securityOs: 'http://localhost:5270',
+  apiPlatform: 'http://localhost:5280',
+
+  // Phase 4 - Enterprise OS
+  marketplace: 'http://localhost:5290',
+  multiProperty: 'http://localhost:5300',
+  predictiveMaint: 'http://localhost:5310',
 
   // External
   sutarOs: 'http://localhost:4799',
@@ -130,6 +148,17 @@ const SERVICE_REGISTRY = {
     { id: 'realEstate', name: 'RealEstate OS', port: 5230, category: 'industry', description: 'Real Estate' },
     { id: 'transport', name: 'Transport OS', port: 5240, category: 'industry', description: 'Transport & Logistics' },
   ],
+  // Phase 2-3 Specialized OS
+  specialized: [
+    { id: 'revenueIntelligence', name: 'Revenue Intelligence OS', port: 5400, category: 'specialized', description: 'Dynamic Pricing, Forecasting' },
+    { id: 'eventBanquet', name: 'Event & Banquet OS', port: 4751, category: 'specialized', description: 'Venue, Weddings, Conferences' },
+    { id: 'energyManagement', name: 'Energy Management OS', port: 5260, category: 'specialized', description: 'IoT, Smart Building, Carbon' },
+    { id: 'securityOs', name: 'Security OS', port: 5270, category: 'specialized', description: 'CCTV AI, Access Control, Emergency' },
+    { id: 'apiPlatform', name: 'API Platform', port: 5280, category: 'specialized', description: 'Developer Portal, OAuth, Webhooks' },
+    { id: 'marketplace', name: 'Hotel Marketplace OS', port: 5290, category: 'specialized', description: 'App Store, Plugins, Integrations' },
+    { id: 'multiProperty', name: 'Multi-Property Intelligence', port: 5300, category: 'specialized', description: 'Enterprise Dashboard, Portfolio Analytics' },
+    { id: 'predictiveMaint', name: 'Predictive Maintenance OS', port: 5310, category: 'specialized', description: 'IoT Equipment, Health Monitoring' },
+  ],
   ai: [
     { id: 'agentCopilot', name: 'Agent Copilot', port: 4920, category: 'ai', description: 'AI Agents' },
     { id: 'salesCopilot', name: 'Sales Copilot', port: 4928, category: 'ai', description: 'Sales AI' },
@@ -162,6 +191,10 @@ app.use('/api', limiter);
 app.use('/api/workflow', workflows);
 app.use('/api/integrations', integrations);
 app.use('/api/marketplace', agentMarketplace);
+app.use('/api/industry', industryWorkflows);
+app.use('/api/phase2', phase2Workflows);
+app.use('/api/phase3', phase3Workflows);
+app.use('/api/phase4', phase4Workflows);
 
 // Health check
 app.get('/health', async (req, res) => {
@@ -218,6 +251,8 @@ const SERVICE_MAP = {
   professional: 'professionalOs', sports: 'sportsOs', travel: 'travelOs',
   entertainment: 'entertainmentOs', construction: 'constructionOs',
   financial: 'financialOs', realEstate: 'realEstateOs', transport: 'transportOs',
+  // Phase 2 Specialized OS
+  revenue: 'revenueIntelligence', event: 'eventBanquet',
   // External & Foundation
   sutar: 'sutarOs', identity: 'commerceIdentity', copilot: 'agentCopilot',
   memory: 'memoryOs', twins: 'twinOs',

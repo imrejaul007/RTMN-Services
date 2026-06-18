@@ -1,23 +1,61 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const { v4: uuidv4 } = require('uuid');
+/**
+ * RTMN Product Twin Service v2.0.0
+ * Digital twin for products and inventory management
+ */
+
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import { v4 as uuidv4 } from 'uuid';
+
+// RTMN TwinOS Shared imports
+import {
+  requireAuth,
+  optionalAuth,
+  defaultLimiter,
+  strictLimiter,
+  preventPrototypePollution,
+  sanitizeObject,
+  sanitizeSearchInput,
+  asyncHandler,
+  notFoundHandler,
+  errorHandler,
+  requestId,
+  requestLogger,
+  logger
+} from '@rtmn/twinos-shared';
 
 const app = express();
-const PORT = 4720;
+const PORT = process.env.PORT || 4720;
+
+// ============ MIDDLEWARE ============
 
 app.use(helmet());
 app.use(cors());
-app.use(express.json());
+app.use(compression());
+app.use(morgan('combined'));
+app.use(express.json({ limit: '10kb' }));
+app.use(requestId);
+app.use(requestLogger);
 
-// In-memory storage
+// Apply rate limiting globally
+app.use(defaultLimiter);
+
+// ============ IN-MEMORY STORAGE ============
+
 const products = new Map();
 const categories = new Map();
 const inventory = new Map();
 const variants = new Map();
 const syncEvents = new Map();
 
-// Initialize with sample products
+// Idempotency store for inventory reservations
+const reservationIdempotency = new Map();
+
+// ============ SAMPLE DATA INITIALIZATION ============
+
 const sampleProducts = [
   {
     id: 'prod-1',
@@ -80,7 +118,6 @@ const sampleProducts = [
 
 sampleProducts.forEach(p => products.set(p.id, p));
 
-// Initialize with sample inventory
 const sampleInventory = [
   { id: 'inv-1', productId: 'prod-1', warehouseId: 'wh-1', quantity: 1000, reserved: 50, available: 950, reorderPoint: 100, status: 'in_stock' },
   { id: 'inv-2', productId: 'prod-2', warehouseId: 'wh-1', quantity: 500, reserved: 25, available: 475, reorderPoint: 50, status: 'in_stock' },
@@ -89,65 +126,215 @@ const sampleInventory = [
 
 sampleInventory.forEach(i => inventory.set(i.id, i));
 
-// ==================== PRODUCTS API ====================
+// ============ VALIDATION HELPERS ============
 
-// Get all products
-app.get('/api/products', (req, res) => {
-  const { category, type, status, search, minPrice, maxPrice } = req.query;
+/**
+ * Custom validation error
+ */
+class ValidationError extends Error {
+  constructor(message, field = null) {
+    super(message);
+    this.name = 'ValidationError';
+    this.statusCode = 400;
+    this.code = 'VALIDATION_ERROR';
+    this.field = field;
+  }
+}
+
+/**
+ * Validate numeric input is positive
+ */
+function validatePositiveNumber(value, fieldName, max = Infinity) {
+  const num = Number(value);
+  if (isNaN(num) || num < 0) {
+    throw new ValidationError(`${fieldName} must be a positive number`, fieldName);
+  }
+  if (num > max) {
+    throw new ValidationError(`${fieldName} exceeds maximum allowed value of ${max}`, fieldName);
+  }
+  return num;
+}
+
+/**
+ * Validate inventory quantity
+ */
+function validateInventoryQuantity(quantity) {
+  const MAX_QUANTITY = 10000000; // 10 million max
+  return validatePositiveNumber(quantity, 'Quantity', MAX_QUANTITY);
+}
+
+/**
+ * Validate price/cost
+ */
+function validatePrice(value) {
+  if (value === undefined || value === null) return undefined;
+  return validatePositiveNumber(value, 'Price', 999999999);
+}
+
+/**
+ * Validate status value
+ */
+function validateStatus(status, allowedValues) {
+  if (status && !allowedValues.includes(status)) {
+    throw new ValidationError(`Invalid status. Must be one of: ${allowedValues.join(', ')}`, 'status');
+  }
+  return status;
+}
+
+/**
+ * Whitelist allowed fields for update operations
+ */
+const ALLOWED_PRODUCT_FIELDS = ['name', 'sku', 'type', 'category', 'description', 'price', 'cost', 'status', 'features', 'specifications', 'images', 'metadata'];
+const ALLOWED_INVENTORY_FIELDS = ['warehouseId', 'quantity', 'reserved', 'reorderPoint'];
+
+// ============ HEALTH ENDPOINTS ============
+
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    service: '@rtmn/product-twin',
+    version: '2.0.0',
+    port: PORT,
+    timestamp: new Date().toISOString(),
+    counts: {
+      products: products.size,
+      inventory: inventory.size,
+      variants: variants.size,
+      categories: categories.size
+    }
+  });
+});
+
+app.get('/ready', (req, res) => {
+  res.json({
+    ready: true,
+    service: '@rtmn/product-twin',
+    version: '2.0.0'
+  });
+});
+
+// ============ PRODUCTS API ============
+
+// Get all products (with pagination and filtering)
+app.get('/api/products', optionalAuth, asyncHandler(async (req, res) => {
+  const {
+    category, type, status,
+    search, minPrice, maxPrice,
+    page = 1, limit = 50
+  } = req.query;
 
   let result = Array.from(products.values());
 
+  // Apply filters
   if (category) result = result.filter(p => p.category === category);
   if (type) result = result.filter(p => p.type === type);
   if (status) result = result.filter(p => p.status === status);
+
+  // Search validation
   if (search) {
-    const searchLower = search.toLowerCase();
+    const safeSearch = sanitizeSearchInput(search);
     result = result.filter(p =>
-      p.name.toLowerCase().includes(searchLower) ||
-      p.description.toLowerCase().includes(searchLower) ||
-      p.sku.toLowerCase().includes(searchLower)
+      p.name.toLowerCase().includes(safeSearch.toLowerCase()) ||
+      p.description.toLowerCase().includes(safeSearch.toLowerCase()) ||
+      p.sku.toLowerCase().includes(safeSearch.toLowerCase())
     );
   }
-  if (minPrice) result = result.filter(p => p.price >= Number(minPrice));
-  if (maxPrice) result = result.filter(p => p.price <= Number(maxPrice));
 
-  res.json({ products: result, total: result.length });
-});
+  // Price range validation
+  if (minPrice) {
+    const min = validatePrice(minPrice);
+    result = result.filter(p => p.price >= min);
+  }
+  if (maxPrice) {
+    const max = validatePrice(maxPrice);
+    result = result.filter(p => p.price <= max);
+  }
+
+  // Pagination
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 50));
+  const startIndex = (pageNum - 1) * limitNum;
+  const endIndex = startIndex + limitNum;
+  const paginatedResult = result.slice(startIndex, endIndex);
+
+  logger.info('Products listed', {
+    requestId: req.id,
+    filters: { category, type, status, search, minPrice, maxPrice },
+    total: result.length,
+    returned: paginatedResult.length,
+    page: pageNum
+  });
+
+  res.json({
+    success: true,
+    twin: paginatedResult,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total: result.length,
+      pages: Math.ceil(result.length / limitNum)
+    }
+  });
+}));
 
 // Get single product
-app.get('/api/products/:id', (req, res) => {
+app.get('/api/products/:id', optionalAuth, asyncHandler(async (req, res) => {
   const product = products.get(req.params.id);
 
   if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
   }
 
-  res.json(product);
-});
+  logger.info('Product retrieved', { requestId: req.id, productId: req.params.id });
+
+  res.json({
+    success: true,
+    twin: product
+  });
+}));
 
 // Create product
-app.post('/api/products', (req, res) => {
-  const { name, sku, type, category, description, price, cost } = req.body;
+app.post('/api/products', strictLimiter, asyncHandler(async (req, res) => {
+  // Sanitize input to prevent prototype pollution
+  const rawBody = preventPrototypePollution(req.body);
+
+  const { name, sku, type, category, description, price, cost } = rawBody;
 
   if (!name || !sku) {
-    return res.status(400).json({ error: 'Name and SKU are required' });
+    return res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'Name and SKU are required' }
+    });
   }
+
+  // Validate price and cost
+  const validatedPrice = validatePrice(price);
+  const validatedCost = validatePrice(cost);
+  const validatedType = validateStatus(type, ['standard', 'software', 'bundle', 'subscription', 'service']);
+  const validatedStatus = validateStatus(rawBody.status, ['draft', 'active', 'inactive', 'archived']);
 
   const product = {
     id: `prod-${uuidv4().slice(0, 8)}`,
-    name,
-    sku,
-    type: type || 'standard',
-    category: category || 'General',
-    description: description || '',
-    price: price || 0,
-    cost: cost || 0,
+    name: String(name).slice(0, 200),
+    sku: String(sku).slice(0, 100),
+    type: validatedType || 'standard',
+    category: category ? String(category).slice(0, 100) : 'General',
+    description: description ? String(description).slice(0, 2000) : '',
+    price: validatedPrice || 0,
+    cost: validatedCost || 0,
     currency: 'USD',
-    status: 'draft',
-    features: [],
-    specifications: {},
-    images: [],
-    metadata: {},
+    status: validatedStatus || 'draft',
+    features: Array.isArray(rawBody.features) ? rawBody.features.slice(0, 50) : [],
+    specifications: typeof rawBody.specifications === 'object' && rawBody.specifications !== null
+      ? preventPrototypePollution(rawBody.specifications)
+      : {},
+    images: Array.isArray(rawBody.images) ? rawBody.images.slice(0, 20) : [],
+    metadata: typeof rawBody.metadata === 'object' && rawBody.metadata !== null
+      ? preventPrototypePollution(rawBody.metadata)
+      : {},
     stats: { sold: 0, rating: 0, reviews: 0 },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -155,60 +342,134 @@ app.post('/api/products', (req, res) => {
 
   products.set(product.id, product);
 
-  res.status(201).json(product);
-});
+  logger.info('Product created', { requestId: req.id, productId: product.id });
 
-// Update product
-app.put('/api/products/:id', (req, res) => {
+  res.status(201).json({
+    success: true,
+    twin: product
+  });
+}));
+
+// Update product (with field whitelisting)
+app.put('/api/products/:id', strictLimiter, asyncHandler(async (req, res) => {
   const product = products.get(req.params.id);
 
   if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
   }
 
-  const fields = ['name', 'sku', 'type', 'category', 'description', 'price', 'cost', 'status', 'features', 'specifications', 'images'];
-  fields.forEach(field => {
-    if (req.body[field] !== undefined) product[field] = req.body[field];
-  });
+  // Sanitize and whitelist fields to prevent mass assignment
+  const rawBody = preventPrototypePollution(req.body);
+  const updates = sanitizeObject(rawBody, ALLOWED_PRODUCT_FIELDS);
 
+  // Validate numeric fields
+  if (updates.price !== undefined) {
+    updates.price = validatePrice(updates.price);
+  }
+  if (updates.cost !== undefined) {
+    updates.cost = validatePrice(updates.cost);
+  }
+  if (updates.status) {
+    updates.status = validateStatus(updates.status, ['draft', 'active', 'inactive', 'archived']);
+  }
+  if (updates.type) {
+    updates.type = validateStatus(updates.type, ['standard', 'software', 'bundle', 'subscription', 'service']);
+  }
+
+  // Apply whitelisted updates
+  Object.assign(product, updates);
   product.updatedAt = new Date().toISOString();
 
-  res.json(product);
-});
+  logger.info('Product updated', { requestId: req.id, productId: product.id });
+
+  res.json({
+    success: true,
+    twin: product
+  });
+}));
 
 // Delete product
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', strictLimiter, asyncHandler(async (req, res) => {
   if (!products.has(req.params.id)) {
-    return res.status(404).json({ error: 'Product not found' });
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
   }
 
   products.delete(req.params.id);
 
-  res.json({ message: 'Product deleted successfully' });
-});
+  logger.info('Product deleted', { requestId: req.id, productId: req.params.id });
 
-// ==================== INVENTORY API ====================
+  res.json({
+    success: true,
+    twin: { id: req.params.id, deleted: true }
+  });
+}));
+
+// ============ INVENTORY API ============
 
 // Get product inventory
-app.get('/api/products/:id/inventory', (req, res) => {
+app.get('/api/products/:id/inventory', optionalAuth, asyncHandler(async (req, res) => {
   const product = products.get(req.params.id);
 
   if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
   }
 
-  const productInventory = Array.from(inventory.values()).filter(i => i.productId === req.params.id);
+  const { warehouseId } = req.query;
+  let productInventory = Array.from(inventory.values()).filter(i => i.productId === req.params.id);
 
-  res.json({ inventory: productInventory, total: productInventory.length });
-});
+  if (warehouseId) {
+    productInventory = productInventory.filter(i => i.warehouseId === warehouseId);
+  }
+
+  logger.info('Inventory retrieved', { requestId: req.id, productId: req.params.id });
+
+  res.json({
+    success: true,
+    twin: productInventory,
+    pagination: {
+      total: productInventory.length
+    }
+  });
+}));
 
 // Update inventory
-app.put('/api/products/:id/inventory', (req, res) => {
-  const { warehouseId, quantity, reserved } = req.body;
+app.put('/api/products/:id/inventory', strictLimiter, asyncHandler(async (req, res) => {
+  const product = products.get(req.params.id);
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
+  }
+
+  // Sanitize input
+  const rawBody = preventPrototypePollution(req.body);
+  const updates = sanitizeObject(rawBody, ALLOWED_INVENTORY_FIELDS);
+
+  // Validate numeric fields
+  if (updates.quantity !== undefined) {
+    updates.quantity = validateInventoryQuantity(updates.quantity);
+  }
+  if (updates.reserved !== undefined) {
+    updates.reserved = validateInventoryQuantity(updates.reserved);
+  }
+  if (updates.reorderPoint !== undefined) {
+    updates.reorderPoint = validateInventoryQuantity(updates.reorderPoint);
+  }
 
   // Find existing inventory record
   let inv = Array.from(inventory.values()).find(i =>
-    i.productId === req.params.id && (!warehouseId || i.warehouseId === warehouseId)
+    i.productId === req.params.id && (!updates.warehouseId || i.warehouseId === updates.warehouseId)
   );
 
   if (!inv) {
@@ -216,24 +477,23 @@ app.put('/api/products/:id/inventory', (req, res) => {
     inv = {
       id: `inv-${uuidv4().slice(0, 8)}`,
       productId: req.params.id,
-      warehouseId: warehouseId || 'wh-1',
-      quantity: quantity || 0,
-      reserved: reserved || 0,
+      warehouseId: updates.warehouseId || 'wh-1',
+      quantity: updates.quantity || 0,
+      reserved: updates.reserved || 0,
       available: 0,
-      reorderPoint: 10,
+      reorderPoint: updates.reorderPoint || 10,
       status: 'out_of_stock'
     };
     inventory.set(inv.id, inv);
+  } else {
+    // Apply updates
+    if (updates.quantity !== undefined) inv.quantity = updates.quantity;
+    if (updates.reserved !== undefined) inv.reserved = updates.reserved;
+    if (updates.reorderPoint !== undefined) inv.reorderPoint = updates.reorderPoint;
   }
 
-  if (quantity !== undefined) {
-    inv.quantity = quantity;
-    inv.available = quantity - inv.reserved;
-  }
-  if (reserved !== undefined) {
-    inv.reserved = reserved;
-    inv.available = inv.quantity - reserved;
-  }
+  // Recalculate available
+  inv.available = Math.max(0, inv.quantity - inv.reserved);
 
   // Update status based on availability
   if (inv.available > inv.reorderPoint) {
@@ -244,95 +504,181 @@ app.put('/api/products/:id/inventory', (req, res) => {
     inv.status = 'out_of_stock';
   }
 
-  res.json(inv);
-});
+  logger.info('Inventory updated', { requestId: req.id, productId: req.params.id, inventoryId: inv.id });
 
-// Reserve inventory
-app.post('/api/products/:id/inventory/reserve', (req, res) => {
-  const { quantity, orderId } = req.body;
+  res.json({
+    success: true,
+    twin: inv
+  });
+}));
+
+// Reserve inventory (with idempotency)
+app.post('/api/products/:id/inventory/reserve', strictLimiter, asyncHandler(async (req, res) => {
+  const product = products.get(req.params.id);
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
+  }
+
+  // Sanitize input
+  const rawBody = preventPrototypePollution(req.body);
+  const { quantity, orderId, idempotencyKey } = rawBody;
 
   if (!quantity) {
-    return res.status(400).json({ error: 'Quantity is required' });
+    return res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'Quantity is required' }
+    });
+  }
+
+  // Validate quantity
+  const validatedQuantity = validateInventoryQuantity(quantity);
+
+  // Idempotency check
+  if (idempotencyKey) {
+    const existingReservation = reservationIdempotency.get(idempotencyKey);
+    if (existingReservation) {
+      logger.info('Returning cached reservation', { requestId: req.id, idempotencyKey });
+      return res.json({
+        success: true,
+        twin: existingReservation,
+        idempotent: true
+      });
+    }
   }
 
   // Find inventory with available stock
   const inv = Array.from(inventory.values()).find(i =>
-    i.productId === req.params.id && i.available >= quantity
+    i.productId === req.params.id && i.available >= validatedQuantity
   );
 
   if (!inv) {
-    return res.status(400).json({ error: 'Insufficient inventory' });
+    return res.status(400).json({
+      success: false,
+      error: { code: 'INSUFFICIENT_INVENTORY', message: 'Insufficient inventory available' }
+    });
   }
 
-  inv.reserved += quantity;
-  inv.available -= quantity;
+  const reservationId = `res-${uuidv4().slice(0, 8)}`;
+  inv.reserved += validatedQuantity;
+  inv.available -= validatedQuantity;
 
   if (inv.available <= inv.reorderPoint) {
     inv.status = 'low_stock';
   }
 
-  res.json({
-    message: 'Inventory reserved',
-    reservationId: `res-${uuidv4().slice(0, 8)}`,
+  const reservation = {
+    reservationId,
+    productId: req.params.id,
     orderId,
-    quantity,
-    remainingAvailable: inv.available
-  });
-});
+    quantity: validatedQuantity,
+    remainingAvailable: inv.available,
+    warehouseId: inv.warehouseId,
+    createdAt: new Date().toISOString()
+  };
 
-// ==================== VARIANTS API ====================
+  // Store for idempotency
+  if (idempotencyKey) {
+    reservationIdempotency.set(idempotencyKey, reservation);
+    // Clean up old entries (keep last 10000)
+    if (reservationIdempotency.size > 10000) {
+      const firstKey = reservationIdempotency.keys().next().value;
+      reservationIdempotency.delete(firstKey);
+    }
+  }
+
+  logger.info('Inventory reserved', { requestId: req.id, productId: req.params.id, reservationId });
+
+  res.json({
+    success: true,
+    twin: reservation
+  });
+}));
+
+// ============ VARIANTS API ============
 
 // Get product variants
-app.get('/api/products/:id/variants', (req, res) => {
+app.get('/api/products/:id/variants', optionalAuth, asyncHandler(async (req, res) => {
   const product = products.get(req.params.id);
 
   if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
   }
 
   const productVariants = Array.from(variants.values()).filter(v => v.productId === req.params.id);
 
-  res.json({ variants: productVariants });
-});
+  res.json({
+    success: true,
+    twin: productVariants,
+    pagination: { total: productVariants.length }
+  });
+}));
 
 // Create variant
-app.post('/api/products/:id/variants', (req, res) => {
+app.post('/api/products/:id/variants', strictLimiter, asyncHandler(async (req, res) => {
   const product = products.get(req.params.id);
 
   if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
   }
 
-  const { name, sku, price, attributes } = req.body;
+  // Sanitize input
+  const rawBody = preventPrototypePollution(req.body);
+  const { name, sku, price, attributes } = rawBody;
 
   if (!name || !sku) {
-    return res.status(400).json({ error: 'Name and SKU are required' });
+    return res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'Name and SKU are required' }
+    });
   }
+
+  // Validate price
+  const validatedPrice = validatePrice(price);
 
   const variant = {
     id: `var-${uuidv4().slice(0, 8)}`,
     productId: req.params.id,
-    name,
-    sku,
-    price: price || product.price,
-    attributes: attributes || {},
+    name: String(name).slice(0, 200),
+    sku: String(sku).slice(0, 100),
+    price: validatedPrice || product.price,
+    attributes: typeof attributes === 'object' && attributes !== null
+      ? preventPrototypePollution(attributes)
+      : {},
     status: 'active',
     createdAt: new Date().toISOString()
   };
 
   variants.set(variant.id, variant);
 
-  res.status(201).json(variant);
-});
+  logger.info('Variant created', { requestId: req.id, productId: req.params.id, variantId: variant.id });
 
-// ==================== ANALYTICS API ====================
+  res.status(201).json({
+    success: true,
+    twin: variant
+  });
+}));
+
+// ============ ANALYTICS API ============
 
 // Get product analytics
-app.get('/api/products/:id/analytics', (req, res) => {
+app.get('/api/products/:id/analytics', optionalAuth, asyncHandler(async (req, res) => {
   const product = products.get(req.params.id);
 
   if (!product) {
-    return res.status(404).json({ error: 'Product not found' });
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Product not found' }
+    });
   }
 
   const productInventory = Array.from(inventory.values()).filter(i => i.productId === req.params.id);
@@ -343,56 +689,81 @@ app.get('/api/products/:id/analytics', (req, res) => {
 
   const revenue = product.stats.sold * product.price;
   const profit = revenue - (product.stats.sold * product.cost);
+  const margin = product.price > 0 ? ((product.price - product.cost) / product.price * 100).toFixed(1) : 0;
+  const markup = product.cost > 0 ? ((product.price - product.cost) / product.cost * 100).toFixed(1) : 0;
+
+  logger.info('Analytics retrieved', { requestId: req.id, productId: req.params.id });
 
   res.json({
-    productId: product.id,
-    sales: {
-      unitsSold: product.stats.sold,
-      revenue: revenue,
-      profit: profit,
-      margin: ((product.price - product.cost) / product.price * 100).toFixed(1) + '%',
-      rating: product.stats.rating,
-      reviews: product.stats.reviews
-    },
-    inventory: {
-      totalQuantity,
-      available: totalAvailable,
-      reserved: totalReserved,
-      value: totalQuantity * product.cost
-    },
-    pricing: {
-      price: product.price,
-      cost: product.cost,
-      markup: ((product.price - product.cost) / product.cost * 100).toFixed(1) + '%'
+    success: true,
+    twin: {
+      productId: product.id,
+      sales: {
+        unitsSold: product.stats.sold,
+        revenue: Math.round(revenue * 100) / 100,
+        profit: Math.round(profit * 100) / 100,
+        margin: `${margin}%`,
+        rating: product.stats.rating,
+        reviews: product.stats.reviews
+      },
+      inventory: {
+        totalQuantity,
+        available: totalAvailable,
+        reserved: totalReserved,
+        value: Math.round(totalQuantity * product.cost * 100) / 100
+      },
+      pricing: {
+        price: product.price,
+        cost: product.cost,
+        markup: `${markup}%`
+      }
     }
   });
-});
+}));
 
-// ==================== COMPARISON API ====================
+// ============ COMPARISON API ============
 
-app.post('/api/compare', (req, res) => {
-  const { productIds } = req.body;
+app.post('/api/compare', asyncHandler(async (req, res) => {
+  // Sanitize input
+  const rawBody = preventPrototypePollution(req.body);
+  const { productIds } = rawBody;
 
   if (!productIds || !Array.isArray(productIds) || productIds.length < 2) {
-    return res.status(400).json({ error: 'At least 2 product IDs required' });
+    return res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'At least 2 product IDs required for comparison' }
+    });
   }
 
   const prods = productIds.map(id => products.get(id)).filter(Boolean);
 
+  if (prods.length < 2) {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'At least 2 valid product IDs required' }
+    });
+  }
+
+  logger.info('Products compared', { requestId: req.id, count: prods.length });
+
   res.json({
-    products: prods.map(p => ({
+    success: true,
+    twin: prods.map(p => ({
       id: p.id,
       name: p.name,
+      sku: p.sku,
       price: p.price,
       cost: p.cost,
+      type: p.type,
+      category: p.category,
       stats: p.stats
     }))
   });
-});
+}));
 
-// ==================== STATISTICS API ====================
+// ============ STATISTICS API ============
 
-app.get('/api/statistics', (req, res) => {
+app.get('/api/statistics', optionalAuth, asyncHandler(async (req, res) => {
   const allProducts = Array.from(products.values());
 
   const stats = {
@@ -414,31 +785,113 @@ app.get('/api/statistics', (req, res) => {
     stats.totalRevenue += product.stats.sold * product.price;
   });
 
-  stats.avgPrice = (allProducts.reduce((sum, p) => sum + p.price, 0) / allProducts.length).toFixed(2);
+  stats.avgPrice = allProducts.length > 0
+    ? parseFloat((allProducts.reduce((sum, p) => sum + p.price, 0) / allProducts.length).toFixed(2))
+    : 0;
+  stats.totalRevenue = Math.round(stats.totalRevenue * 100) / 100;
 
   stats.topProducts = allProducts
     .filter(p => p.stats.sold > 0)
     .sort((a, b) => b.stats.sold - a.stats.sold)
     .slice(0, 5)
-    .map(p => ({ id: p.id, name: p.name, sold: p.stats.sold, revenue: p.stats.sold * p.price }));
+    .map(p => ({ id: p.id, name: p.name, sold: p.stats.sold, revenue: Math.round(p.stats.sold * p.price * 100) / 100 }));
 
-  res.json(stats);
-});
+  logger.info('Statistics retrieved', { requestId: req.id });
 
-// Health check
-app.get('/health', (req, res) => {
   res.json({
-    status: 'healthy',
-    service: 'product-twin',
-    port: PORT,
-    products: products.size,
-    inventory: inventory.size,
-    variants: variants.size
+    success: true,
+    twin: stats
   });
-});
+}));
+
+// ============ CATEGORIES API ============
+
+app.get('/api/categories', optionalAuth, asyncHandler(async (req, res) => {
+  // Extract unique categories from products
+  const categoryStats = new Map();
+
+  products.forEach(product => {
+    const current = categoryStats.get(product.category) || { count: 0, totalRevenue: 0 };
+    current.count++;
+    current.totalRevenue += product.stats.sold * product.price;
+    categoryStats.set(product.category, current);
+  });
+
+  const categoriesList = Array.from(categoryStats.entries()).map(([name, data]) => ({
+    name,
+    productCount: data.count,
+    totalRevenue: Math.round(data.totalRevenue * 100) / 100
+  }));
+
+  res.json({
+    success: true,
+    twin: categoriesList,
+    pagination: { total: categoriesList.length }
+  });
+}));
+
+// ============ SEARCH API ============
+
+app.get('/api/search', optionalAuth, asyncHandler(async (req, res) => {
+  const { q, type, category } = req.query;
+
+  if (!q) {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'Search query (q) is required' }
+    });
+  }
+
+  const safeSearch = sanitizeSearchInput(q);
+  let results = Array.from(products.values());
+
+  // Apply filters
+  if (type) results = results.filter(p => p.type === type);
+  if (category) results = results.filter(p => p.category === category);
+
+  // Search in name, description, and SKU
+  results = results.filter(p =>
+    p.name.toLowerCase().includes(safeSearch.toLowerCase()) ||
+    p.description.toLowerCase().includes(safeSearch.toLowerCase()) ||
+    p.sku.toLowerCase().includes(safeSearch.toLowerCase())
+  );
+
+  // Pagination
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
+  const startIndex = (page - 1) * limit;
+
+  const paginatedResults = results.slice(startIndex, startIndex + limit);
+
+  logger.info('Search performed', { requestId: req.id, query: safeSearch, results: results.length });
+
+  res.json({
+    success: true,
+    twin: paginatedResults,
+    pagination: {
+      page,
+      limit,
+      total: results.length,
+      pages: Math.ceil(results.length / limit)
+    }
+  });
+}));
+
+// ============ ERROR HANDLING ============
+
+// 404 handler
+app.use(notFoundHandler);
+
+// Global error handler
+app.use(errorHandler);
+
+// ============ START SERVER ============
 
 app.listen(PORT, () => {
-  console.log('📦 Product Twin Service running on port ' + PORT);
-  console.log('   Products: ' + products.size);
-  console.log('   Inventory Records: ' + inventory.size);
+  console.log(`Product Twin Service v2.0.0 running on port ${PORT}`);
+  console.log(`  Products: ${products.size}`);
+  console.log(`  Inventory Records: ${inventory.size}`);
+  console.log(`  Variants: ${variants.size}`);
 });
+
+export default app;

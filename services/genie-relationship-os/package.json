@@ -1,0 +1,21 @@
+{
+  "name": "@rtmn/genie-relationship-os",
+  "version": "1.0.0",
+  "description": "Genie Relationship OS - Human Relationship Intelligence for personal use",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0",
+    "morgan": "^1.10.0"
+  },
+  "keywords": ["genie", "relationship", "crm", "personal-crm", "connections"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

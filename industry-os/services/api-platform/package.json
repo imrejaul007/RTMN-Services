@@ -1,0 +1,17 @@
+{
+  "name": "@rtmn/api-platform",
+  "version": "1.0.0",
+  "description": "RTMN API Platform - Developer Portal & API Management",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "jsonwebtoken": "^9.0.0",
+    "crypto": "^1.0.1"
+  }
+}

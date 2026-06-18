@@ -203,6 +203,22 @@ function initRegistry() {
     lastSync: new Date().toISOString(),
   });
 
+  // Revenue Intelligence OS
+  registerService({
+    id: 'revenue-intelligence-os',
+    name: 'Revenue Intelligence OS',
+    port: 5400,
+    type: 'department',
+    category: 'revenue',
+    version: '1.0.0',
+    modules: ['revenueHub', 'demandIntelligence', 'pricingOptimization', 'promotionManagement', 'revopsIntelligence', 'cohortAnalysis', 'analyticsEngine', 'revenueTwin'],
+    features: ['unifiedRevenue', 'demandForecast', 'pricingOptimizer', 'promotionAttribution', 'cohortAnalysis', 'revenueTwin', 'aiCopilot'],
+    aiAgents: 12,
+    description: 'AI Revenue Department - Demand Forecasting, Pricing Optimization, Promotion Management',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
   // Companies
   registerService({
     id: 'lawgens',

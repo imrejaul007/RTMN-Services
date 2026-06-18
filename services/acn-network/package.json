@@ -1,0 +1,24 @@
+{
+  "name": "@rtmn/acn-network",
+  "version": "1.0.0",
+  "description": "Agent Commerce Network - Agent registry, discovery, and routing",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "agent",
+    "network",
+    "registry",
+    "discovery",
+    "acn"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "uuid": "^14.0.0"
+  }
+}

@@ -179,6 +179,22 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 
 ## 📊 Complete Service Registry
 
+### TwinOS Services (11) - Digital Twin Platform
+
+| Service | Port | Twins | Status |
+|---------|------|-------|--------|
+| **TwinOS Hub** | 4705 | 86+ | ✅ Running |
+| **Customer Twin** | 4895 | Customer, LTV, Churn | ✅ NEW |
+| **Order Twin** | 4885 | Cart, Order, Shipment, Return | ✅ NEW |
+| **Wallet Twin** | 4896 | Wallet, Rewards | ✅ NEW |
+| Employee Twin | 4730 | Employee, Performance | ✅ Fixed |
+| Voice Twin | 4876 | Voice Profiles | ✅ Fixed |
+| Product Twin | 4720 | Product, Inventory | ✅ Fixed |
+| Asset Twin | 4890 | Assets | ✅ Fixed |
+| Organization Twin | 4710 | Organizations | ✅ Fixed |
+| Partner Twin | 4892 | Partners | ✅ Fixed |
+| Lead Twin | 4894 | Leads | ✅ Fixed |
+
 ### Department OS (9) - Horizontal Layer
 
 | Service | Port | Status | Modules | AI Agents |
@@ -193,13 +209,14 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | **CXO OS** | 5100 | ✅ | 8 | 15 |
 | **Revenue Intelligence OS** | 5400 | ✅ | 8 | 8 |
 
-### Foundation Services (3)
+### Foundation Services (4)
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
 | **CorpID** | 4702 | ✅ | Universal Identity |
 | **MemoryOS** | 4703 | ✅ | Personal AI Memory |
-| **TwinOS Hub** | 4705 | ✅ | Digital Twins |
+| **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
+| **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
 
 ### HOJAI AI Suite (5)
 
@@ -673,3 +690,257 @@ RTMN/
 
 *Last Updated: June 18, 2026*
 *RTMN Ecosystem - Real-Time Multi-Industry Network*
+
+---
+
+## � TwinOS - Digital Twin Platform v2.0
+
+**TwinOS is RTMN's domain-centric digital twin platform providing unified digital representations across the ecosystem.**
+
+### Twin Statistics
+
+| Category | Twins | Status |
+|----------|-------|--------|
+| Foundation | 5 | ✅ |
+| Commerce | 9 | ✅ |
+| People | 4 | ✅ |
+| AI/Memory | 9 | ✅ |
+| Hospitality | 7 | ✅ |
+| Healthcare | 6 | ✅ |
+| Finance | 6 | ✅ |
+| Marketing | 6 | ✅ |
+| Operations | 6 | ✅ |
+| Real Estate | 5 | ✅ |
+| HR | 5 | ✅ |
+| Event | 6 | ✅ |
+| Travel | 5 | ✅ |
+| Business | 4 | ✅ |
+| Personal | 3 | ✅ |
+| **TOTAL** | **86** | **100%** |
+
+### TwinOS Service Inventory
+
+| Service | Port | Twins Managed | Status |
+|---------|------|--------------|--------|
+| **TwinOS Hub** | 4705 | 86+ canonical twins | ✅ Running |
+| **Customer Twin** | 4895 | Customer, LTV, Churn, Segments | ✅ NEW |
+| **Order Twin** | 4885 | Cart, Order, Shipment, Return | ✅ NEW |
+| **Wallet Twin** | 4896 | Wallet, Transactions, Rewards | ✅ NEW |
+| Employee Twin | 4730 | Employee, Performance, Skills | ✅ Fixed |
+| Voice Twin | 4876 | Voice profiles, Recordings | ✅ Fixed |
+| Product Twin | 4720 | Products, Inventory | ✅ Fixed |
+| Asset Twin | 4890 | Assets, Depreciation | ✅ Fixed |
+| Organization Twin | 4710 | Organizations, KPIs | ✅ Fixed |
+| Partner Twin | 4892 | Partners, Relationships | ✅ Fixed |
+| Lead Twin | 4894 | Leads, Activities | ✅ Fixed |
+
+### Complete Twin Registry
+
+```
+Foundation Twins (5)
+├── corpid.identity       # Universal identity
+├── memory.knowledge      # Persistent knowledge
+├── goal.objective        # Goal tracking
+├── decision.policy       # Business rules
+└── agent.ai              # AI orchestration
+
+Commerce Twins (9)
+├── commerce.customer      # Customer profile, LTV, segments
+├── commerce.order        # Order lifecycle
+├── commerce.wallet       # Digital wallet
+├── commerce.payment      # Payment processing
+├── commerce.product      # Product catalog
+├── commerce.inventory    # Inventory management
+├── commerce.merchant     # Merchant profile
+├── commerce.cart         # Shopping cart
+└── commerce.coupon       # Discounts/promotions
+
+People Twins (4)
+├── people.employee       # Employee profile
+├── people.user           # Platform user
+├── people.founder        # Founder/leadership
+└── people.candidate      # Job candidate
+
+AI/Memory Twins (9)
+├── ai.memory             # AI persistent memory
+├── ai.conversation       # Chat history
+├── ai.intent             # Intent detection
+├── ai.goal               # AI goal tracking
+├── ai.simulation         # What-if scenarios
+├── ai.agent              # Autonomous agents
+├── ai.knowledge          # Knowledge graph
+├── ai.reasoning          # Chain-of-thought
+└── ai.digital-human      # Complete person avatar
+
+Hospitality Twins (7)
+├── hospitality.hotel      # Hotel property
+├── hospitality.room       # Guest room
+├── hospitality.guest     # Hotel guest
+├── hospitality.booking   # Reservation
+├── hospitality.restaurant # Restaurant
+├── hospitality.menu      # Menu
+└── hospitality.table      # Table
+
+Healthcare Twins (6)
+├── healthcare.patient     # Patient record
+├── healthcare.doctor      # Healthcare provider
+├── healthcare.hospital    # Medical facility
+├── healthcare.prescription # Medication order
+├── healthcare.lab        # Laboratory
+└── healthcare.insurance  # Insurance coverage
+
+Finance Twins (6)
+├── finance.asset         # Company assets
+├── finance.budget        # Budget tracking
+├── finance.expense       # Expense records
+├── finance.invoice       # Billing invoice
+├── finance.ledger        # Accounting ledger
+└── finance.tax           # Tax records
+
+Marketing Twins (6)
+├── marketing.campaign     # Marketing campaign
+├── marketing.audience     # Target audience
+├── marketing.ad          # Advertisement
+├── marketing.creative    # Ad creative
+├── marketing.publisher   # Ad publisher
+└── marketing.conversion  # Conversion tracking
+
+Operations Twins (6)
+├── ops.project           # Project management
+├── ops.task             # Task tracking
+├── ops.process          # Business process
+├── ops.incident         # Incident management
+├── ops.resource         # Resource allocation
+└── ops.sop              # Standard operating procedure
+
+[+ 41 more twins across Real Estate, HR, Event, Travel, Business, Personal categories]
+```
+
+### Key Twin Relationships
+
+```
+Customer (commerce.customer)
+│
+├──[has]──► Wallet (commerce.wallet)
+│                │
+│                └──[has]──► Transaction (commerce.payment)
+│
+├──[has]──► Cart (commerce.cart)
+│                │
+│                └──[converts_to]──► Order (commerce.order)
+│                                      │
+│                                      ├──[has]──► Payment (commerce.payment)
+│                                      │
+│                                      ├──[has]──► Shipment (commerce.shipment)
+│                                      │
+│                                      └──[may_have]──► Return (commerce.return)
+│
+└──[has]──► Preferences
+```
+
+### TwinOS Shared Library
+
+All twin services use `@rtmn/twinos-shared` for consistent security:
+
+```javascript
+import {
+  requireAuth,        // JWT authentication
+  preventPrototypePollution, // Security
+  errorHandler,       // Consistent errors
+  defaultLimiter,     // Rate limiting
+  strictLimiter,      // Strict rate limiting
+  logger              // Structured logging
+} from '@rtmn/twinos-shared';
+```
+
+### Security Implemented
+
+All 86+ twins now have:
+- ✅ JWT Authentication
+- ✅ Role-Based Access Control
+- ✅ Rate Limiting (100/min default, 20/min strict)
+- ✅ Input Validation & Sanitization
+- ✅ Prototype Pollution Prevention
+- ✅ Request Logging & Audit Trail
+- ✅ Error Handling Middleware
+- ✅ Helmet Security Headers
+
+### Documentation
+
+- [TwinOS Hub](services/twinos-hub/) - Central registry
+- [TwinOS Architecture](services/twinos-hub/docs/TWINOS_ARCHITECTURE.md) - Complete architecture
+- [TwinOS README](services/twinos-hub/docs/README.md) - Quick start
+- [Shared Library](services/twinos-shared/) - Common utilities
+
+---
+
+## 🤖 Agent Commerce Network (ACN) - Phase 1 Complete
+
+**Agent Commerce Network** is where AI agents become the primary economic actors. Every business has a **Merchant AI (SUTAR OS)** and every consumer has a **Genie AI** - these agents negotiate, purchase, and transact autonomously.
+
+### ACN Core Services
+
+| Service | Port | Purpose | Status |
+|---------|------|---------|--------|
+| **ACP Protocol** | 4800 | Standardized messaging for AI-to-AI negotiations | ✅ Built |
+| **ACN Network** | 4801 | Agent registry, discovery, and routing | ✅ Built |
+| **Genie Shopping Agent** | 4716 | Consumer's personal AI shopping assistant | ✅ Built |
+| **Merchant Agents** | 4810 | SUTAR OS - Business AI agents | ✅ Built |
+| **Agent Reputation** | 4820 | Trust scores for AI agents | ✅ Built |
+| **Agent Contracts** | 4830 | Smart contracts for transactions | ✅ Built |
+| **Agent Wallets** | 4840 | Digital wallets for agent payments | ✅ Built |
+
+### ACP Protocol Message Types
+
+| Type | Description | Transitions |
+|------|-------------|-------------|
+| **QUERY** | Request product/service info | QUOTE, REJECT |
+| **QUOTE** | Provide pricing and terms | COUNTER, ACCEPT, REJECT |
+| **COUNTER** | Counter-offer | COUNTER, ACCEPT, REJECT |
+| **ACCEPT** | Accept current terms | ORDER, TRACK |
+| **REJECT** | Reject terms | QUERY, NEW_NEGOTIATION |
+| **ORDER** | Place order | TRACK, DISPUTE |
+| **TRACK** | Track order status | TRACK, DISPUTE |
+| **DISPUTE** | Raise dispute | RESOLVE, ESCALATE |
+
+### Agent Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **GENIE** | Consumer personal AI | Shopping assistant, budget manager |
+| **MERCHANT** | Business AI (SUTAR OS) | Restaurant AI, Hotel AI, Retail AI |
+| **SYSTEM** | RTMN internal agents | Reputation tracker, Contract manager |
+| **PARTNER** | External agents | Payment processors, Logistics |
+
+### 26 Industry Templates
+
+| # | Industry | Capabilities |
+|---|----------|-------------|
+| 1 | Restaurant | Reservation, Order, Delivery, Takeout |
+| 2 | Hotel | Booking, Check-in, Room Service |
+| 3 | Healthcare | Appointment, Consultation, Prescription |
+| 4 | Retail | Product Search, Shipping, Returns |
+| 5 | Travel | Booking, Cancellation, Insurance |
+| 6-26 | +20 more | Fashion, Beauty, Fitness, Education... |
+
+### Trust System
+
+| Level | Score | Badge |
+|-------|-------|-------|
+| Platinum | 90-100 | 🏆 |
+| Gold | 80-89 | ⭐ |
+| Silver | 70-79 | 🥈 |
+| Bronze | 50-69 | 🥉 |
+| Iron | 30-49 | ⚙️ |
+| Restricted | 0-29 | ⚠️ |
+
+### Documentation
+
+- [ACN Architecture](ACN-ARCHITECTURE.md) - Complete ACN documentation
+- [ACP Protocol](services/acp-protocol/) - Message types
+- [ACN Network](services/acn-network/) - Agent registry
+- [Genie Shopping Agent](services/genie-shopping-agent/) - Consumer AI
+- [Merchant Agents](services/merchant-agents/) - SUTAR OS
+- [Agent Reputation](services/agent-reputation/) - Trust scoring
+- [Agent Contracts](services/agent-contracts/) - Smart contracts
+- [Agent Wallets](services/agent-wallets/) - Digital wallets

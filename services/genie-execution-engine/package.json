@@ -1,0 +1,21 @@
+{
+  "name": "@rtmn/genie-execution-engine",
+  "version": "1.0.0",
+  "description": "Genie Execution Engine - Tasks, automation, workflows, calendar, reminders, execution",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0",
+    "morgan": "^1.10.0"
+  },
+  "keywords": ["genie", "execution", "tasks", "automation", "productivity"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

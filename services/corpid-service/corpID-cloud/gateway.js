@@ -1,0 +1,656 @@
+/**
+ * CorpID Cloud - Unified Gateway
+ * Single entry point for all CorpID services
+ *
+ * This gateway aggregates:
+ * - Core (User, Auth, Session)
+ * - Organization (Org, Dept, Team, Membership)
+ * - RBAC (Roles, Permissions, Policies)
+ * - Session Management
+ * - API Identity
+ * - Audit
+ */
+
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import { v4 as uuidv4 } from 'uuid';
+import winston from 'winston';
+
+// ============ IMPORTS ============
+
+// Shared middleware
+import { authLimiter, apiLimiter, strictLimiter } from './shared/middleware/rate-limit.js';
+import { requireAuth, requireAdmin, requireSuperadmin, optionalAuth } from './shared/middleware/auth.js';
+import { errorHandler, notFoundHandler, asyncHandler, AppError } from './shared/middleware/error-handler.js';
+import { createRequestLogger, logger } from './shared/utils/logger.js';
+
+// Services
+import organizationRoutes from './organization/src/routes/organization.routes.js';
+import {
+  organizationService,
+  departmentService,
+  teamService,
+  membershipService,
+  invitationService
+} from './organization/src/services/organization.service.js';
+
+import {
+  roleService,
+  permissionService,
+  policyService,
+  featureFlagService,
+  accessControlService
+} from './RBAC/src/services/rbac.service.js';
+
+import {
+  users,
+  getUserByEmail,
+  getUserById,
+  createUserWithPassword,
+  createSession,
+  getUserSessions,
+  revokeSession,
+  revokeAllUserSessions,
+  updatePassword
+} from './core/src/models/user.model.js';
+
+import { generateAccessToken, generateRefreshToken, verifyToken } from './shared/middleware/auth.js';
+import { hashPassword, verifyPassword, checkPasswordStrength, generateToken, maskEmail } from './shared/utils/security.js';
+import { auditLog, authAudit } from './shared/utils/logger.js';
+
+// ============ APP SETUP ============
+
+const app = express();
+const PORT = process.env.PORT || 4702;
+const SERVICE_NAME = 'CorpID Cloud Gateway';
+
+// ============ MIDDLEWARE ============
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+// CORS
+app.use(cors({
+  origin: process.env.CORS_ORIGINS?.split(',') || '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-API-Key']
+}));
+
+// Compression
+app.use(compression());
+
+// Request logging
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// Request ID
+app.use((req, res, next) => {
+  req.id = req.headers['x-request-id'] || uuidv4();
+  res.setHeader('X-Request-ID', req.id);
+  next();
+});
+
+// ============ HEALTH ENDPOINTS ============
+
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    service: SERVICE_NAME,
+    version: '1.0.0',
+    port: PORT,
+    timestamp: new Date().toISOString(),
+    stats: {
+      users: users.size,
+      organizations: 1, // Would query organization store
+      uptime: process.uptime()
+    }
+  });
+});
+
+app.get('/ready', (req, res) => {
+  res.json({
+    status: 'ready',
+    service: SERVICE_NAME,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// ============ AUTH ROUTES ============
+
+const authRouter = express.Router();
+
+// Register
+authRouter.post('/register',
+  authLimiter,
+  asyncHandler(async (req, res) => {
+    const { email, password, name, phone } = req.body;
+
+    // Validate required fields
+    if (!email || !password || !name) {
+      throw new AppError('Email, password, and name are required', 400, 'VALIDATION_ERROR');
+    }
+
+    // Check password strength
+    const strength = checkPasswordStrength(password);
+    if (strength.score < 3) {
+      throw new AppError(
+        'Password is too weak. ' + strength.suggestions.join('. '),
+        400,
+        'WEAK_PASSWORD'
+      );
+    }
+
+    // Check if user exists
+    if (getUserByEmail(email)) {
+      throw new AppError('User with this email already exists', 409, 'USER_EXISTS');
+    }
+
+    // Create user
+    const user = await createUserWithPassword({ email, password, name, phone });
+
+    // Generate tokens
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      role: 'member'
+    });
+    const refreshToken = generateRefreshToken({ id: user.id });
+
+    // Create session
+    createSession({
+      userId: user.id,
+      userEmail: user.email,
+      accessToken,
+      refreshToken,
+      accessTokenExpiresAt: new Date(Date.now() + 3600000).toISOString(),
+      refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 3600000).toISOString(),
+      userAgent: req.headers['user-agent'],
+      clientIp: req.ip,
+      clientType: 'web'
+    });
+
+    authAudit('register', req, 'success', { userId: user.id });
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      accessToken,
+      refreshToken,
+      expiresIn: '1h',
+      tokenType: 'Bearer',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: 'member'
+      }
+    });
+  })
+);
+
+// Login
+authRouter.post('/login',
+  authLimiter,
+  asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      throw new AppError('Email and password are required', 400, 'VALIDATION_ERROR');
+    }
+
+    const user = getUserByEmail(email);
+    if (!user) {
+      authAudit('login_failed', req, 'failure', { reason: 'user_not_found' });
+      throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+    }
+
+    const isValid = await verifyPassword(password, user.passwordHash);
+    if (!isValid) {
+      authAudit('login_failed', req, 'failure', { reason: 'wrong_password', userId: user.id });
+      throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+    }
+
+    // Generate tokens
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      role: user.role || 'member',
+      organizationId: user.organizationId
+    });
+    const refreshToken = generateRefreshToken({ id: user.id });
+
+    // Create session
+    createSession({
+      userId: user.id,
+      userEmail: user.email,
+      accessToken,
+      refreshToken,
+      accessTokenExpiresAt: new Date(Date.now() + 3600000).toISOString(),
+      refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 3600000).toISOString(),
+      userAgent: req.headers['user-agent'],
+      clientIp: req.ip,
+      clientType: 'web'
+    });
+
+    authAudit('login', req, 'success', { userId: user.id });
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+      expiresIn: '1h',
+      tokenType: 'Bearer',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role || 'member'
+      }
+    });
+  })
+);
+
+// Refresh token
+authRouter.post('/refresh',
+  asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      throw new AppError('Refresh token is required', 400, 'VALIDATION_ERROR');
+    }
+
+    const decoded = verifyToken(refreshToken);
+    if (!decoded || decoded.type !== 'refresh') {
+      throw new AppError('Invalid refresh token', 401, 'INVALID_TOKEN');
+    }
+
+    const user = getUserById(decoded.sub);
+    if (!user) {
+      throw new AppError('User not found', 401, 'USER_NOT_FOUND');
+    }
+
+    const newAccessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      role: user.role || 'member'
+    });
+
+    res.json({
+      success: true,
+      accessToken: newAccessToken,
+      expiresIn: '1h',
+      tokenType: 'Bearer'
+    });
+  })
+);
+
+// Logout
+authRouter.post('/logout',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      revokeSessionByRefreshToken?.(refreshToken) || revokeAllUserSessions(req.user.id);
+    }
+
+    authAudit('logout', req, 'success');
+
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    });
+  })
+);
+
+// Get current user
+authRouter.get('/me',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const user = getUserById(req.user.id);
+    if (!user) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        avatar: user.avatar,
+        role: user.role || 'member',
+        emailVerified: user.emailVerified,
+        phoneVerified: user.phoneVerified,
+        mfaEnabled: user.mfaEnabled,
+        preferences: user.preferences,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt
+      }
+    });
+  })
+);
+
+// Change password
+authRouter.put('/password',
+  requireAuth(),
+  strictLimiter,
+  asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      throw new AppError('Current password and new password are required', 400, 'VALIDATION_ERROR');
+    }
+
+    // Check new password strength
+    const strength = checkPasswordStrength(newPassword);
+    if (strength.score < 3) {
+      throw new AppError(
+        'New password is too weak. ' + strength.suggestions.join('. '),
+        400,
+        'WEAK_PASSWORD'
+      );
+    }
+
+    const user = getUserById(req.user.id);
+    if (!user) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    // Verify current password
+    const isValid = await verifyPassword(currentPassword, user.passwordHash);
+    if (!isValid) {
+      throw new AppError('Current password is incorrect', 401, 'INVALID_PASSWORD');
+    }
+
+    // Update password
+    await updatePassword(req.user.id, newPassword);
+
+    // Revoke all sessions
+    revokeAllUserSessions(req.user.id, 'password_changed');
+
+    authAudit('password_changed', req, 'success');
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully. Please login again.'
+    });
+  })
+);
+
+// Mount auth routes
+app.use('/auth', authRouter);
+
+// ============ USER ROUTES ============
+
+const userRouter = express.Router();
+
+// List users (admin only)
+userRouter.get('/',
+  requireAuth(),
+  requireAdmin(),
+  asyncHandler(async (req, res) => {
+    const { page = 1, limit = 20, role, status } = req.query;
+    let allUsers = Array.from(users.values());
+
+    if (role) allUsers = allUsers.filter(u => u.role === role);
+    if (status) allUsers = allUsers.filter(u => u.status === status);
+
+    const start = (page - 1) * limit;
+    const paginatedUsers = allUsers.slice(start, start + parseInt(limit));
+
+    res.json({
+      success: true,
+      count: allUsers.length,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      users: paginatedUsers.map(u => ({
+        id: u.id,
+        email: u.email,
+        name: u.name,
+        role: u.role || 'member',
+        status: u.status,
+        createdAt: u.createdAt,
+        lastLoginAt: u.lastLoginAt
+      }))
+    });
+  })
+);
+
+// Get user by ID
+userRouter.get('/:id',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const user = getUserById(req.params.id);
+    if (!user) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        avatar: user.avatar,
+        role: user.role || 'member',
+        emailVerified: user.emailVerified,
+        phoneVerified: user.phoneVerified,
+        status: user.status,
+        createdAt: user.createdAt
+      }
+    });
+  })
+);
+
+// Mount user routes
+app.use('/api/users', userRouter);
+
+// ============ ROLE & PERMISSION ROUTES ============
+
+const rbacRouter = express.Router();
+
+// Get all roles
+rbacRouter.get('/roles',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const roles = roleService.getAll({ customOnly: false });
+    res.json({ success: true, count: roles.length, roles });
+  })
+);
+
+// Get role by ID
+rbacRouter.get('/roles/:id',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const role = roleService.getById(req.params.id);
+    res.json({ success: true, role });
+  })
+);
+
+// Create custom role
+rbacRouter.post('/roles',
+  requireAuth(),
+  requireAdmin(),
+  asyncHandler(async (req, res) => {
+    const role = roleService.create(req.body, req.user.id);
+    res.status(201).json({ success: true, role });
+  })
+);
+
+// Update role
+rbacRouter.put('/roles/:id',
+  requireAuth(),
+  requireAdmin(),
+  asyncHandler(async (req, res) => {
+    const role = roleService.update(req.params.id, req.body, req.user.id);
+    res.json({ success: true, role });
+  })
+);
+
+// Delete role
+rbacRouter.delete('/roles/:id',
+  requireAuth(),
+  requireAdmin(),
+  asyncHandler(async (req, res) => {
+    await roleService.delete(req.params.id, req.user.id);
+    res.json({ success: true, message: 'Role deleted' });
+  })
+);
+
+// Get all permissions
+rbacRouter.get('/permissions',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const { category } = req.query;
+    const perms = category
+      ? permissionService.getByCategory(category)
+      : permissionService.getAll();
+    res.json({ success: true, count: perms.length, permissions: perms });
+  })
+);
+
+// Get all feature flags
+rbacRouter.get('/features',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const flags = featureFlagService.getAll();
+    res.json({ success: true, count: flags.length, flags });
+  })
+);
+
+// Check feature flag
+rbacRouter.get('/features/:key/evaluate',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const result = featureFlagService.check(req.params.key, req.user);
+    res.json({ success: true, ...result });
+  })
+);
+
+// Mount RBAC routes
+app.use('/api', rbacRouter);
+
+// ============ MOUNT ORGANIZATION ROUTES ============
+
+app.use('/api/organizations', organizationRoutes);
+
+// ============ SESSIONS ROUTES ============
+
+app.get('/api/auth/sessions',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const sessions = getUserSessions(req.user.id);
+    res.json({
+      success: true,
+      count: sessions.length,
+      sessions: sessions.map(s => ({
+        id: s.id,
+        deviceType: s.deviceType,
+        deviceName: s.deviceName,
+        clientType: s.clientType,
+        country: s.country,
+        city: s.city,
+        lastActiveAt: s.lastActiveAt,
+        createdAt: s.createdAt,
+        current: s.userId === req.user.id
+      }))
+    });
+  })
+);
+
+app.delete('/api/auth/sessions/:id',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const session = revokeSession(req.params.id, 'user_logout');
+    if (!session) {
+      throw new AppError('Session not found', 404, 'SESSION_NOT_FOUND');
+    }
+    res.json({ success: true, message: 'Session revoked' });
+  })
+);
+
+app.delete('/api/auth/sessions',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const count = revokeAllUserSessions(req.user.id, 'user_logout_all');
+    res.json({ success: true, message: `${count} sessions revoked` });
+  })
+);
+
+// ============ ACCESS CHECK ============
+
+app.post('/api/access/check',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const { permission, context } = req.body;
+    const result = accessControlService.checkPermission(req.user.id, permission, context);
+    res.json({ success: true, ...result });
+  })
+);
+
+app.post('/api/access/batch-check',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const { permissions, context } = req.body;
+    const results = accessControlService.batchCheckPermissions(req.user.id, permissions, context);
+    res.json({ success: true, results });
+  })
+);
+
+app.get('/api/access/permissions',
+  requireAuth(),
+  asyncHandler(async (req, res) => {
+    const { category } = req.query;
+    const perms = accessControlService.getUserPermissions(req.user.id, { category });
+    res.json({ success: true, count: perms.length, permissions: perms });
+  })
+);
+
+// ============ ERROR HANDLING ============
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+// ============ START SERVER ============
+
+app.listen(PORT, () => {
+  console.log(`
+╔═══════════════════════════════════════════════════════════════╗
+║                    CorpID Cloud Gateway                       ║
+╠═══════════════════════════════════════════════════════════════╣
+║  Status:   ✅ RUNNING                                        ║
+║  Port:     ${PORT.toString().padEnd(53)}║
+║  Version:  1.0.0                                             ║
+║  Time:     ${new Date().toISOString().slice(0, 19).padEnd(53)}║
+╠═══════════════════════════════════════════════════════════════╣
+║  Services:                                                   ║
+║  • Core (Users, Auth, Sessions)                              ║
+║  • Organization (Orgs, Depts, Teams, Members)                 ║
+║  • RBAC (Roles, Permissions, Policies, Features)              ║
+╚═══════════════════════════════════════════════════════════════╝
+  `);
+  logger.info(`CorpID Cloud Gateway started on port ${PORT}`);
+});
+
+export default app;
