@@ -72,12 +72,10 @@ app.use('/auth', authLimiter);
 
 app.get('/health', async (req, res) => {
   const mongoStatus = require('mongoose').connection.readyState === 1 ? 'connected' : 'disconnected';
-  const rtmnHealth = await rtmnHub.healthCheck();
   res.json({
     status: 'ok', service: 'marketing-os', version: '1.0.0',
     timestamp: new Date().toISOString(), uptime: process.uptime(),
     mongodb: mongoStatus,
-    rtmnServices: rtmnHealth,
   });
 });
 
