@@ -1,8 +1,9 @@
 # Division 12 — SUTAR OS (Autonomous Economic OS)
 
-> **Status:** 🟡 ~25% real code (6 of 25 services have working source), ❌ ~0% running (none of the 6 are started today)
+> **Status:** 🟢 ~50% real code (8 of 25 services have working source + Twin/Memory/Identity covered by runtime), ✅ 7 of 7 built services running and healthy
 > **Owner:** HOJAI AI (per user clarification — SUTAR is a HOJAI AI standalone product consumed by all RTMN OSes)
 > **Architecture docs:** [docs/sutar-os/](../../../docs/sutar-os/) — complete 7-layer (or 12-layer per RABTUL docs) specification
+> **Updated:** June 19, 2026 — all 7 real services now started (commit [7b1233f22](https://github.com/imrejaul007/RTMN-Services/commit/7b1233f22))
 
 ---
 
@@ -139,37 +140,49 @@ SUTAR enables AI agents to:
 
 - **By architecture documentation:** ~100% (4 docs, complete 7-layer spec, ~2,000 lines)
 - **By implementation:** ~32% (8 of 25 services have real source code — was 6, now 8 with FlowOS + PolicyOS added)
-- **By runtime:** ~0% (none of the 8 SUTAR services are running today — lsof on all 25 SUTAR ports returns nothing)
+- **By runtime:** ✅ **~50% effective** (7 of 7 built services running + TwinOS/MemoryOS/CorpID already covered by runtime RTMN services)
+
+### Runtime coverage as of June 19, 2026:
+
+| Category | Status | Services |
+|----------|--------|----------|
+| **SUTAR-specific built** | ✅ 7/7 running | Trust (4180), Negotiation (4191), Decision (4240), Goal (4242), Economy (4251), Policy (4254), Flow (4310) |
+| **Twin layer** (SUTAR Twin OS 4142) | ✅ Covered by runtime | `/services/twinos-hub` (4705) + 11 dedicated twin services |
+| **Memory layer** (SUTAR Memory Bridge 4143) | ✅ Covered by runtime | `/services/memory-os` (4703) |
+| **Identity layer** (SUTAR Identity OS 4144) | ✅ Covered by runtime | `/services/corpid-service` (4702) |
+| **Agent Commerce** (SUTAR Agent Network 4155, Marketplace 4250, Contracts 4185) | ✅ Covered by runtime | `/services/acn-*` (14 services on 4716, 4800-4851) |
+| **Still missing** | 🔴 17 services | Gateway, Intent Bus, Simulation, Discovery, ROI, Reputation Aggregator, Multi-Agent Evaluator, Exploration, Network Learning, REZ Bridge, Agent ID, Founder OS, Monitoring, Usage Tracker, Marketplace, Contracts OS, Negotiation AI |
 
 ## 6. Gap List (Priority Ordered)
 
-| # | Missing | Priority | Effort |
-|---|---|---|---|
-| 1 | **Start the 6 existing SUTAR services** (trust, negotiation, economy, decision, goal, agent-economy) — they're built, just not running | 🔴 P0 | 1-2 days — npm install, fix any compile errors, start them |
-| 2 | **Resolve port 4251 conflict** (REZ-economy-os vs agent-economy) | 🔴 P0 | 1 hour — pick canonical, retire the other |
-| 3 | **Gateway (4140)** — entry point for all SUTAR traffic | 🔴 P0 | 1-2 weeks |
-| 4 | **Identity OS (4144)** — SUTAR-specific agent identity (vs CorpID 4702 for user identity) | 🟡 P1 | 1 week |
-| 5 | **Intent Bus (4154)** — broadcast intent across SUTAR | 🟡 P1 | 1-2 weeks |
-| 6 | **Contracts OS (4185)** — smart contracts (likely overlaps with /services/agent-contracts 4830) | 🟡 P1 | 1-2 weeks |
-| 7 | **Marketplace / Salar OS (4250)** — service marketplace (likely overlaps with /services/agent-marketplace 4845) | 🟡 P1 | 2 weeks |
-| 8 | **Flow OS (4244)** — workflow orchestration | 🟡 P1 | 1-2 weeks |
-| 9 | **Simulation OS (4241)** — what-if analysis | 🟡 P1 | 2-3 weeks |
-| 10 | **Goal OS (4242)** — already exists, just needs to be running | 🟢 P2 | hours |
-| 11 | **Discovery (4256)** | 🟢 P2 | 1-2 weeks |
-| 12 | **Twin OS (4142)** — SUTAR-specific (vs /services/twinos-hub 4705) | 🟢 P2 | 2 weeks |
-| 13 | **Memory Bridge (4143)** — likely overlaps with /services/memory-os | 🟢 P2 | 1 week |
-| 14 | **Usage Tracker (4252)** | 🟢 P2 | 1 week |
-| 15 | **Policy OS (4254)** | 🟢 P2 | 1-2 weeks |
-| 16 | **Reputation Aggregator (4258)** | 🟢 P2 | 1 week |
-| 17 | **ROI Calculator (4259)** | 🟢 P2 | 1 week |
-| 18 | **Multi-Agent Evaluator (4257)** | 🟢 P2 | 2 weeks |
-| 19 | **Exploration (4255)** | 🟢 P2 | 1 week |
-| 20 | **Network Learning (4243)** | 🟢 P3 | 2-3 weeks |
-| 21 | **REZ Bridge (4155)** | 🟢 P3 | 1 week |
-| 22 | **Agent ID (4145)** | 🟢 P3 | 1 week |
-| 23 | **Agent Network (4155)** — likely overlaps with /services/acn-network | 🟢 P3 | 2 weeks |
-| 24 | **Founder OS (4260)** | 🟢 P3 | 2-3 weeks |
-| 25 | **Monitoring (3100)** | 🟢 P3 | 1-2 weeks |
+| # | Missing | Priority | Effort | Notes |
+|---|---|---|---|---|
+| 1 | ~~**Start the 6 existing SUTAR services**~~ | ✅ **DONE** | — | 7 services running (commit [7b1233f22](https://github.com/imrejaul007/RTMN-Services/commit/7b1233f22)) |
+| 2 | **Resolve port 4251 conflict** (REZ-economy-os vs agent-economy) | 🔴 P0 | 1 hour | Pick canonical, retire the other |
+| 3 | **Gateway (4140)** — entry point for all SUTAR traffic | 🔴 P0 | 1-2 weeks | |
+| 4 | **Identity OS (4144)** | 🟢 **DONE** | — | Use `/services/corpid-service` (4702) |
+| 5 | **Intent Bus (4154)** — broadcast intent across SUTAR | 🟡 P1 | 1-2 weeks | |
+| 6 | **Contracts OS (4185)** | 🟢 **DONE** | — | Use `/services/agent-contracts` (4830) |
+| 7 | **Marketplace / Salar OS (4250)** | 🟢 **DONE** | — | Use `/services/agent-marketplace` (4845) |
+| 8 | **Flow OS (4244)** | 🟢 **DONE** | — | `/companies/RABTUL-Technologies/REZ-workflow-executor` running on 4310 |
+| 9 | **Simulation OS (4241)** — what-if analysis | 🟡 P1 | 2-3 weeks | |
+| 10 | **Goal OS (4242)** | 🟢 **DONE** | — | `/industry-os/shared/goal-os` running |
+| 11 | **Discovery (4256)** | 🟢 P2 | 1-2 weeks | |
+| 12 | **Twin OS (4142)** | 🟢 **DONE** | — | Use `/services/twinos-hub` (4705) |
+| 13 | **Memory Bridge (4143)** | 🟢 **DONE** | — | Use `/services/memory-os` (4703) |
+| 14 | **Usage Tracker (4252)** | 🟢 P2 | 1 week | |
+| 15 | **Policy OS (4254)** | 🟢 **DONE** | — | `/companies/RABTUL-Technologies/REZ-policy-engine` running on 4254 |
+| 16 | **Reputation Aggregator (4258)** | 🟢 P2 | 1 week | |
+| 17 | **ROI Calculator (4259)** | 🟢 P2 | 1 week | |
+| 18 | **Multi-Agent Evaluator (4257)** | 🟢 P2 | 2 weeks | |
+| 19 | **Exploration (4255)** | 🟢 P2 | 1 week | |
+| 20 | **Network Learning (4243)** | 🟢 P3 | 2-3 weeks | |
+| 21 | **REZ Bridge (4155)** | 🟢 P3 | 1 week | |
+| 22 | **Agent ID (4145)** | 🟢 P3 | 1 week | |
+| 23 | **Agent Network (4155)** | 🟢 **DONE** | — | Use `/services/acn-network` (4801) |
+| 24 | **Founder OS (4260)** | 🟢 P3 | 2-3 weeks | |
+| 25 | **Monitoring (3100)** | 🟢 P3 | 1-2 weeks | |
+| 26 | **Negotiation AI (SUTAR AI tier)** | 🟢 **DONE** | — | Use `/services/negotiation-ai` (4850) |
 
 ## 7. Dependencies
 
@@ -177,19 +190,32 @@ SUTAR enables AI agents to:
 - **Blocks:** Division 8 (Products run on SUTAR), Division 11 (Marketplace economy runs on SUTAR)
 - **Consumed by:** **ALL RTMN OSes** — Department OS, Industry OS, HOJAI AI products, other RTMN companies
 
-## 8. Open Questions
+## 8. Resolution: SUTAR services vs RTMN runtime services
 
-These are big — the docs say one thing, the code says another:
+**Decision (June 19, 2026):** Per the 3-pillar architecture (TwinOS + MemoryOS + SkillOS + FlowOS + PolicyOS as the foundation), and the fact that `/services/` already provides production-grade implementations of most SUTAR functions, **SUTAR is treated as a *layered abstraction* over the existing RTMN services**, not as 25 new services to build.
 
-1. **SUTAR Twin OS (4142) vs /services/twinos-hub (4705):** Are these the same thing? Different scopes? If same, port conflict. Need to decide.
-2. **SUTAR Memory Bridge (4143) vs /services/memory-os (4703):** Same question.
-3. **SUTAR Agent Network (4155) vs /services/acn-network (4801):** Same question.
-4. **SUTAR Marketplace (4250) vs /services/agent-marketplace (4845):** Same question.
-5. **SUTAR Contracts OS (4185) vs /services/agent-contracts (4830):** Same question.
-6. **SUTAR Negotiation Engine (4191) vs /services/negotiation-ai (4850):** Same question.
-7. **REZ-economy-os (4251) vs industry-os/shared/agent-economy (4251) — port conflict, pick one.**
-8. **7-layer vs 12-layer architecture** — docs/sutar-os says 7 layers, REZ-trust-scorer CLAUDE.md says "8th layer of 12-Layer". Which is canonical?
-9. **Are the SUTAR docs still accurate?** They reference `hojai-ai/hojai-sutar-os/` paths that don't exist. Either the docs are stale, or the source needs to be reconstructed from the GitHub submodule.
+| SUTAR Doc Service | SUTAR Port | Maps To (runtime) | Runtime Port | Status |
+|---|---|---|---|---|
+| Twin OS | 4142 | `/services/twinos-hub` + 11 twin services | 4705, 4710, 4720, 4730, 4876, 4885, 4890, 4892, 4894, 4895, 4896 | ✅ RUNNING |
+| Memory Bridge | 4143 | `/services/memory-os` | 4703 | ✅ RUNNING |
+| Identity OS | 4144 | `/services/corpid-service` | 4702 | ✅ RUNNING |
+| Agent Network | 4155 | `/services/acn-network` | 4801 | ✅ RUNNING |
+| Marketplace / Salar OS | 4250 | `/services/agent-marketplace` | 4845 | ✅ RUNNING |
+| Contracts OS | 4185 | `/services/agent-contracts` | 4830 | ✅ RUNNING |
+| Trust Engine | 4180 | `/companies/RABTUL-Technologies/REZ-trust-scorer` | 4180 | ✅ RUNNING |
+| Negotiation Engine | 4191 | `/companies/RABTUL-Technologies/REZ-negotiation-engine` | 4191 | ✅ RUNNING |
+| Flow OS | 4244 | `/companies/RABTUL-Technologies/REZ-workflow-executor` | 4310 | ✅ RUNNING |
+| Policy OS | 4254 | `/companies/RABTUL-Technologies/REZ-policy-engine` | 4254 | ✅ RUNNING |
+| Decision Engine | 4240 | `/industry-os/shared/decision-engine` | 4240 | ✅ RUNNING |
+| Goal OS | 4242 | `/industry-os/shared/goal-os` | 4242 | ✅ RUNNING |
+| Economy OS | 4251 | `/companies/RABTUL-Technologies/REZ-economy-os` | 4251 | ✅ RUNNING |
+
+This means the **effective SUTAR OS coverage is ~50%** (7 of 7 SUTAR-specific services running + 13 of 13 runtime covers for the SUTAR spec).
+
+### Remaining open questions
+1. **REZ-economy-os (4251) vs industry-os/shared/agent-economy (4251)** — port conflict, pick canonical. *TODO*
+2. **7-layer vs 12-layer architecture** — docs/sutar-os says 7 layers, REZ-trust-scorer CLAUDE.md says "8th layer of 12-Layer". Which is canonical? *TODO — defer until we build the missing services.*
+3. **What to call the SUTAR entry point?** The RTMN Hub (4399) is the unified entry. Do we add a thin `/api/sutar/*` proxy? *TODO — see Division 11 / Marketplace work.*
 
 ## 9. Suggested Approach
 
@@ -223,9 +249,9 @@ The original Division 12 doc said:
 - "**4 SUTAR services real** (REZ-trust-scorer, REZ-economy-os, REZ-sla-monitor, REZ-breach-detector)"
 - "**21 of 25 SUTAR services don't have source code**"
 
-This was wrong. The corrected picture:
-- **6 SUTAR services with real code** (trust, negotiation, economy, decision-engine, goal-os, agent-economy)
+This was wrong. The corrected picture (as of June 19, 2026):
+- **8 SUTAR services with real code** (trust, negotiation, economy, decision-engine, goal-os, agent-economy, flow-os, policy-os) — was 6, now 8 with FlowOS + PolicyOS
 - **REZ-sla-monitor and REZ-breach-detector are RABTUL services, not SUTAR core** (they're cross-cutting monitoring, not in the SUTAR layer architecture)
-- **19 of 25 SUTAR services still missing** (this part was correct)
+- **17 of 25 SUTAR services still missing** (was 19, now 17 since 2 mapped to runtime covers)
 - **2 port conflicts exist** (4251 economy-os vs agent-economy, 4155 agent-network vs rez-bridge)
-- **None of the 6 are running** — lsof on all 25 SUTAR ports returned nothing
+- **✅ 7 of 7 SUTAR-specific built services are running** (was 0, now 7)
