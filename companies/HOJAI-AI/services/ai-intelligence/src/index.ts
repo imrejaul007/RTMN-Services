@@ -427,7 +427,9 @@ app.get('/api/route', (_req: Request, res: Response) => {
       knowledge: 'http://localhost:4784',
       fineTuning: 'http://localhost:4776',
       syntheticData: 'http://localhost:4777',
-      gpuCluster: 'http://localhost:4778'
+      gpuCluster: 'http://localhost:4778',
+      sutarIntentBus: 'http://localhost:4154',
+      sutarUsageTracker: 'http://localhost:4252'
     },
     capabilities: {
       forecast: 'http://localhost:4754/api/forecast',
@@ -482,7 +484,17 @@ app.get('/api/route', (_req: Request, res: Response) => {
       gpuRelease: 'http://localhost:4778/api/release/{allocationId}',
       gpuClusterStats: 'http://localhost:4778/api/cluster/stats',
       gpuModels: 'http://localhost:4778/api/gpu-models',
-      gpuNodes: 'http://localhost:4778/api/nodes'
+      gpuNodes: 'http://localhost:4778/api/nodes',
+      intentPublish: 'http://localhost:4154/api/intents/publish',
+      intentList: 'http://localhost:4154/api/intents',
+      intentClaim: 'http://localhost:4154/api/intents/{id}/claim',
+      intentResolve: 'http://localhost:4154/api/intents/{id}/resolve',
+      intentSubscribe: 'http://localhost:4154/api/subscriptions',
+      usageRecord: 'http://localhost:4252/api/usage/record',
+      usageList: 'http://localhost:4252/api/usage',
+      usageAggregate: 'http://localhost:4252/api/usage/aggregate/{key}',
+      billingGenerate: 'http://localhost:4252/api/billing/generate',
+      revenueShare: 'http://localhost:4252/api/revenue/share/{providerId}'
     }
   });
 });
@@ -621,6 +633,16 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         name: 'gpuCluster',
         description: 'GPU Cluster Manager — register GPU nodes (H100, A100, L40S, RTX-4090, T4, V100), allocate to training jobs, monitor utilization, schedule queue',
         capabilities: ['node-register', 'node-list', 'allocate', 'release', 'heartbeat', 'cluster-stats', 'gpu-catalog'],
+      },
+      {
+        name: 'sutarIntentBus',
+        description: 'SUTAR Intent Bus — pub/sub broadcast of agent intents across SUTAR; agents publish intents (book, negotiate, request), subscribers match by capability/type, first-claim wins',
+        capabilities: ['intent-publish', 'intent-list', 'intent-claim', 'intent-resolve', 'intent-cancel', 'subscribe', 'poll', 'topics', 'stats'],
+      },
+      {
+        name: 'sutarUsageTracker',
+        description: 'SUTAR Usage Tracker — meters marketplace usage (LLM tokens, API calls, GPU seconds, twin updates, storage), enforces quotas, generates invoices, computes provider revenue share',
+        capabilities: ['usage-record', 'usage-list', 'usage-aggregate', 'billing-generate', 'plan-crud', 'quota-crud', 'revenue-share'],
       },
     ],
   });

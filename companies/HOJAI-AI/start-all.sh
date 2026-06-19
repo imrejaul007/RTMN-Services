@@ -41,6 +41,8 @@ SERVICES=(
   agent-orchestration agent-reputation agent-wallets
   dispute-resolution negotiation-ai merchant-agents genie-shopping-agent
   agent-economy decision-engine goal-os
+  # SUTAR OS — Usage Tracker, Intent Bus (built June 20, 2026)
+  usage-tracker intent-bus
   # Communication
   razo-keyboard live-chat genie-wake-word-service
   genie-listening-modes genie-device-integration

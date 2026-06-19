@@ -1,9 +1,9 @@
 # Division 12 — SUTAR OS (Autonomous Economic OS)
 
-> **Status:** 🟢 ~50% real code (8 of 25 services have working source + Twin/Memory/Identity covered by runtime), ✅ 7 of 7 built services running and healthy
+> **Status:** 🟢 ~58% real code (10 of 25 services have working source + Twin/Memory/Identity covered by runtime), ✅ 9 of 9 built services running and healthy
 > **Owner:** HOJAI AI (per user clarification — SUTAR is a HOJAI AI standalone product consumed by all RTMN OSes)
 > **Architecture docs:** [docs/sutar-os/](../../../docs/sutar-os/) — complete 7-layer (or 12-layer per RABTUL docs) specification
-> **Updated:** June 19, 2026 — all 7 real services now started (commit [7b1233f22](https://github.com/imrejaul007/RTMN-Services/commit/7b1233f22))
+> **Updated:** June 20, 2026 — added usage-tracker (4252) + intent-bus (4154); ai-intelligence now exposes both as routable agents (25 total, up from 23)
 
 ---
 
@@ -119,7 +119,7 @@ SUTAR enables AI agents to:
 | 4 | **Memory Bridge** | 4143 | ❌ | Layer 2 — likely overlaps with /services/memory-os (4703) |
 | 5 | **Identity OS** (SUTAR-specific) | 4144 | ❌ | Layer 2 — distinct from /services/corpid-service (4702) |
 | 6 | **Agent ID** | 4145 | ❌ | Layer 2 — agent identity |
-| 7 | **Intent Bus** | 4154 | ❌ | Layer 3 |
+| 7 | **Intent Bus** | 4154 | ✅ DONE — `services/intent-bus` (4154); pub/sub with capability routing, claim/resolve lifecycle, subscription matching, 10 intent types, 10-min TTL | Layer 3 |
 | 8 | **Agent Network** | 4155 | ❌ | Layer 3 — likely overlaps with /services/acn-network (4801) |
 | 9 | **REZ Bridge** | 4155 | ❌ | Layer 3 |
 | 10 | **Contracts OS** | 4185 | ❌ | Layer 6 — likely overlaps with /services/agent-contracts (4830) |
@@ -127,7 +127,7 @@ SUTAR enables AI agents to:
 | 12 | **Network Learning** | 4243 | ❌ | Layer 4 |
 | 13 | ~~Flow OS~~ | ~~4244~~ | ✅ EXISTS at 4310 | Layer 4 — see Division 2 for consolidation |
 | 14 | **Marketplace (Salar OS)** | 4250 | ❌ | Layer 5 — likely overlaps with /services/agent-marketplace (4845) |
-| 15 | **Usage Tracker** | 4252 | ❌ | Layer 5 |
+| 15 | **Usage Tracker** | 4252 | ✅ DONE — `services/usage-tracker` (4252); 5 default metric types, plans, quotas, billing generation, revenue-share; in-memory now, needs Postgres + Redis for production | Layer 5 |
 | 16 | ~~Policy OS~~ | ~~4254~~ | ✅ EXISTS at 4034 | Layer 5 — see Division 2 for consolidation |
 | 17 | **Exploration** | 4255 | ❌ | Layer 7 |
 | 18 | **Discovery** | 4256 | ❌ | Layer 7 |
@@ -139,19 +139,19 @@ SUTAR enables AI agents to:
 ## 5. Gap Score
 
 - **By architecture documentation:** ~100% (4 docs, complete 7-layer spec, ~2,000 lines)
-- **By implementation:** ~32% (8 of 25 services have real source code — was 6, now 8 with FlowOS + PolicyOS added)
-- **By runtime:** ✅ **~50% effective** (7 of 7 built services running + TwinOS/MemoryOS/CorpID already covered by runtime RTMN services)
+- **By implementation:** ~40% (10 of 25 services have real source code — was 6 in mid-June, then 8 with FlowOS+PolicyOS, now 10 with UsageTracker+IntentBus)
+- **By runtime:** ✅ **~60% effective** (9 of 9 built services running + TwinOS/MemoryOS/CorpID already covered by runtime RTMN services)
 
-### Runtime coverage as of June 19, 2026:
+### Runtime coverage as of June 20, 2026:
 
 | Category | Status | Services |
 |----------|--------|----------|
-| **SUTAR-specific built** | ✅ 7/7 running | Trust (4180), Negotiation (4191), Decision (4240), Goal (4242), Economy (4251), Policy (4254), Flow (4310) |
+| **SUTAR-specific built** | ✅ 9/9 running | Trust (4180), Negotiation (4191), Decision (4240), Goal (4242), Economy (4251), Policy (4254), Flow (4310), **Usage Tracker (4252), Intent Bus (4154)** |
 | **Twin layer** (SUTAR Twin OS 4142) | ✅ Covered by runtime | `/services/twinos-hub` (4705) + 11 dedicated twin services |
 | **Memory layer** (SUTAR Memory Bridge 4143) | ✅ Covered by runtime | `/services/memory-os` (4703) |
 | **Identity layer** (SUTAR Identity OS 4144) | ✅ Covered by runtime | `/services/corpid-service` (4702) |
 | **Agent Commerce** (SUTAR Agent Network 4155, Marketplace 4250, Contracts 4185) | ✅ Covered by runtime | `/services/acn-*` (14 services on 4716, 4800-4851) |
-| **Still missing** | 🔴 17 services | Gateway, Intent Bus, Simulation, Discovery, ROI, Reputation Aggregator, Multi-Agent Evaluator, Exploration, Network Learning, REZ Bridge, Agent ID, Founder OS, Monitoring, Usage Tracker, Marketplace, Contracts OS, Negotiation AI |
+| **Still missing** | 🔴 15 services | Gateway, Simulation, Discovery, ROI, Reputation Aggregator, Multi-Agent Evaluator, Exploration, Network Learning, REZ Bridge, Agent ID, Founder OS, Monitoring, REZ Bridge |
 
 ## 6. Gap List (Priority Ordered)
 
@@ -161,7 +161,7 @@ SUTAR enables AI agents to:
 | 2 | **Resolve port 4251 conflict** (REZ-economy-os vs agent-economy) | 🔴 P0 | 1 hour | Pick canonical, retire the other |
 | 3 | **Gateway (4140)** — entry point for all SUTAR traffic | 🔴 P0 | 1-2 weeks | |
 | 4 | **Identity OS (4144)** | 🟢 **DONE** | — | Use `/services/corpid-service` (4702) |
-| 5 | **Intent Bus (4154)** — broadcast intent across SUTAR | 🟡 P1 | 1-2 weeks | |
+| 5 | ~~**Intent Bus (4154)** — broadcast intent across SUTAR~~ | 🟢 **DONE** | — | `services/intent-bus` (4154) — pub/sub with capability routing, claim/resolve, 10 intent types |
 | 6 | **Contracts OS (4185)** | 🟢 **DONE** | — | Use `/services/agent-contracts` (4830) |
 | 7 | **Marketplace / Salar OS (4250)** | 🟢 **DONE** | — | Use `/services/agent-marketplace` (4845) |
 | 8 | **Flow OS (4244)** | 🟢 **DONE** | — | `/companies/RABTUL-Technologies/REZ-workflow-executor` running on 4310 |
@@ -170,7 +170,7 @@ SUTAR enables AI agents to:
 | 11 | **Discovery (4256)** | 🟢 P2 | 1-2 weeks | |
 | 12 | **Twin OS (4142)** | 🟢 **DONE** | — | Use `/services/twinos-hub` (4705) |
 | 13 | **Memory Bridge (4143)** | 🟢 **DONE** | — | Use `/services/memory-os` (4703) |
-| 14 | **Usage Tracker (4252)** | 🟢 P2 | 1 week | |
+| 14 | ~~**Usage Tracker (4252)**~~ | 🟢 **DONE** | — | `services/usage-tracker` (4252) — metering, plans, quotas, billing, revenue share |
 | 15 | **Policy OS (4254)** | 🟢 **DONE** | — | `/companies/RABTUL-Technologies/REZ-policy-engine` running on 4254 |
 | 16 | **Reputation Aggregator (4258)** | 🟢 P2 | 1 week | |
 | 17 | **ROI Calculator (4259)** | 🟢 P2 | 1 week | |
