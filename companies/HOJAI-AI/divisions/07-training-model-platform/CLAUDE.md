@@ -1,6 +1,6 @@
 # Division 7 — AI Training & Model Platform ⭐
 
-> **Status:** 🟡 ~30% built as of June 19, 2026 (6 new services added: inference-gateway, prompt-manager, semantic-cache, model-registry, ai-safety, evaluation-harness)
+> **Status:** 🟢 ~50% built as of June 20, 2026 (9 new services added: inference-gateway, prompt-manager, semantic-cache, model-registry, ai-safety, evaluation-harness, **fine-tuning-pipeline, synthetic-data-generation, gpu-cluster-manager**)
 > **Owner:** HOJAI AI Research + Platform team
 
 ---
@@ -69,20 +69,23 @@ This is the **strategic bottleneck** and the most ambitious division. Build the 
 
 **As of June 18, 2026:** effectively nothing — no model serving infrastructure, no training pipeline, no GPU cluster, no eval framework, no safety/red-team testing. Every division needing LLM inference was implicitly relying on direct calls to OpenAI/Anthropic from inside service code.
 
-**As of June 19, 2026:** 🟢 Major step forward. 6 new services built that cover the **model serving + safety + eval** layer (still no actual training, but the runtime that training will plug into is in place):
+**As of June 20, 2026:** 🟢 Major step forward. **9** new services built that cover the **runtime + training + safety + eval + GPU** layer. The 3 new training-platform services landed today:
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| [./services/inference-gateway/](../services/inference-gateway/) | **4770** | ✅ NEW — Multi-model LLM router (OpenAI, Anthropic, Google, Mistral, local) with cost + latency routing, fallback chain, 9-model catalog |
-| [./services/prompt-manager/](../services/prompt-manager/) | **4771** | ✅ NEW — Prompt templates with versioning, rollback, A/B experiments, variable substitution |
-| [./services/semantic-cache/](../services/semantic-cache/) | **4772** | ✅ NEW — Embedding-based LLM response cache, paraphrase matching, 50%+ cost reduction target |
-| [./services/model-registry/](../services/model-registry/) | **4773** | ✅ NEW — Model catalog of record with versions, deployment info, benchmark scores, capabilities |
-| [./services/ai-safety/](../services/ai-safety/) | **4774** | ✅ NEW — PII redaction, prompt-injection defense, content filtering, hallucination detection, output validation |
-| [./services/evaluation-harness/](../services/evaluation-harness/) | **4775** | ✅ NEW — LLM eval framework with 8 scorer types, benchmark CRUD, model comparison |
+| [./services/inference-gateway/](../services/inference-gateway/) | **4770** | ✅ — Multi-model LLM router (OpenAI, Anthropic, Google, Mistral, local) with cost + latency routing, fallback chain, 9-model catalog |
+| [./services/prompt-manager/](../services/prompt-manager/) | **4771** | ✅ — Prompt templates with versioning, rollback, A/B experiments, variable substitution |
+| [./services/semantic-cache/](../services/semantic-cache/) | **4772** | ✅ — Embedding-based LLM response cache, paraphrase matching, 50%+ cost reduction target |
+| [./services/model-registry/](../services/model-registry/) | **4773** | ✅ — Model catalog of record with versions, deployment info, benchmark scores, capabilities |
+| [./services/ai-safety/](../services/ai-safety/) | **4774** | ✅ — PII redaction, prompt-injection defense, content filtering, hallucination detection, output validation |
+| [./services/evaluation-harness/](../services/evaluation-harness/) | **4775** | ✅ — LLM eval framework with 8 scorer types, benchmark CRUD, model comparison |
+| [./services/fine-tuning-pipeline/](../services/fine-tuning-pipeline/) | **4776** | ✅ NEW — Fine-tuning orchestrator (LoRA / QLoRA / Prefix / IA³ / Full) with dataset CRUD, GPU-queue dispatch, checkpoint tracking, 5-method + 7-base-model catalog |
+| [./services/synthetic-data-generation/](../services/synthetic-data-generation/) | **4777** | ✅ NEW — Synthetic dataset generator with 5 domain banks (customer_support, ecommerce, healthcare, finance, general) and per-domain schema/seed-set modes |
+| [./services/gpu-cluster-manager/](../services/gpu-cluster-manager/) | **4778** | ✅ NEW — GPU node + allocation manager with priority scheduling, label matching, 7-GPU catalog (H100/A100/L40S/RTX-4090/T4/V100), live cluster stats |
 
-All 6 are wired into HOJAI Intelligence (4881) routing — `GET /api/route` returns the URL for each, and `/api/agents` lists them as routable agents.
+All 9 are wired into HOJAI Intelligence (4881) routing — `GET /api/route` returns the URL for each, and `/api/agents` lists them as routable agents (now **23 agents total**, up from 20). The 14 new capabilities cover dataset generation, fine-tune job lifecycle, checkpoint tracking, method/model lookup, GPU allocation/release, cluster stats, and node heartbeat.
 
-**Still missing:** actual training pipeline, GPU cluster, RLHF, fine-tuning, real model serving infrastructure (vLLM/Triton/TGI), embeddings beyond the toy vectorizer, real safety ML models, evaluation against real benchmarks.
+**Still missing:** RLHF/RLAIF pipeline, real model serving infrastructure (vLLM/Triton/TGI), embeddings beyond the toy vectorizer, real safety ML models, evaluation against real benchmarks, distributed training, knowledge distillation, foundation-model training.
 
 ## 4. What's NOT Built (everything)
 
@@ -93,14 +96,14 @@ All 6 are wired into HOJAI Intelligence (4881) routing — `GET /api/route` retu
 | **Prompt Management + Versioning** | 2-3 weeks | Store prompts as code, version, A/B test |
 | **Caching layer** (semantic cache) | 2-3 weeks | GPTCache or build on Redis |
 | **Cost + Latency optimization** | ongoing | Token budgets, model downgrade |
-| **Fine-tuning Pipeline** | 6-8 weeks | LoRA / PEFT first, full FT later |
+| **Fine-tuning Pipeline** | 6-8 weeks | ✅ Built orchestrator (4776); real LoRA training still requires GPU workers |
 | **RLHF / RLAIF Pipeline** | 8-12 weeks | Needs labeling + reward model + PPO/DPO |
-| **Evaluation + Benchmarking** | 4-6 weeks | Internal eval harness + benchmarks |
-| **GPU Cluster Management** | ongoing | Kubernetes + GPU operators, or managed (Modal, Replicate, Anyscale) |
+| **Evaluation + Benchmarking** | 4-6 weeks | ✅ Built eval harness (4775); real benchmark runs still need model endpoints |
+| **GPU Cluster Management** | ongoing | ✅ Built manager (4778); real cluster still needs physical/cloud GPUs |
 | **Model Registry + Versioning** | 2-3 weeks | MLflow or custom |
 | **Experiment Tracking** | 2-3 weeks | Weights & Biases or MLflow |
 | **Distributed Training** | 12+ weeks | Only matters if doing foundation model training |
-| **Synthetic Data Generation** | 4-6 weeks | Use LLMs to bootstrap training data |
+| **Synthetic Data Generation** | 4-6 weeks | ✅ Built generator (4777); 5 domain banks, real LLM-backed gen still needs an inference target |
 | **Knowledge Distillation** | 6-8 weeks | Distill big model into small for edge |
 | **Continuous Learning** (closed-loop from agent feedback) | 8-12 weeks | The flywheel from your plan |
 | **AI Safety** (guardrails, red team, hallucination detection) | 6-8 weeks | Critical for customer trust |
@@ -110,9 +113,9 @@ All 6 are wired into HOJAI Intelligence (4881) routing — `GET /api/route` retu
 
 ## 5. Gap Score
 
-**~30% of target state is built as of June 19, 2026.** Up from ~5% on June 18. The runtime layer (inference, prompts, cache, registry, safety, eval) is now in place. The training layer (fine-tuning, RLHF, foundation model) is still 0%.
+**~50% of target state is built as of June 20, 2026.** Up from ~5% on June 18, ~30% on June 19. The runtime layer (inference, prompts, cache, registry, safety, eval) is in place. **The training layer is now scaffolded end-to-end** — fine-tuning pipeline, synthetic data generation, and GPU cluster management all exist with realistic APIs, catalog data, and job-lifecycle tracking.
 
-The 6 new services represent the **highest-leverage ~25% of the target** — they unblock every other division's AI features, enable cost control, and make prompt iteration safe.
+The 9 new services represent the **highest-leverage ~45% of the target** — they unblock every other division's AI features, enable cost control, make prompt iteration safe, and now make custom-model training possible.
 
 ## 6. Gap List (Priority Ordered)
 
@@ -127,12 +130,12 @@ The 6 new services represent the **highest-leverage ~25% of the target** — the
 | 7 | **Evaluation Harness** | 🟡 P1 | 4-6 weeks | ✅ DONE — `services/evaluation-harness` (4775), 8 scorer types |
 | 8 | **Model Registry** | 🟡 P1 | 2-3 weeks | ✅ DONE — `services/model-registry` (4773) |
 | 9 | **Embedding Models** (real, hosted) | 🟢 P2 | 2-4 weeks | ⚪ OPEN — semantic-cache uses toy vectorizer today |
-| 10 | **Fine-tuning Pipeline** (LoRA/PEFT) | 🟡 P1 | 6-8 weeks | ⚪ OPEN |
+| 10 | **Fine-tuning Pipeline** (LoRA/PEFT) | 🟡 P1 | 6-8 weeks | ✅ DONE — `services/fine-tuning-pipeline` (4776); orchestrator with 5 methods, 7 base models, GPU-queue dispatch, checkpoint tracking. Real training still requires GPU infra. |
 | 11 | **Continuous Learning** (closed-loop from agent feedback) | 🟢 P2 | 8-12 weeks | ⚪ OPEN |
 | 12 | **Real model serving** (vLLM/Triton/TGI for open models) | 🟡 P1 | 6-8 weeks | ⚪ OPEN |
 | 13 | **RLHF/RLAIF Pipeline** | 🟢 P2 | 8-12 weeks | ⚪ OPEN |
-| 14 | **GPU Cluster Management** | 🟡 P1 | ongoing | ⚪ OPEN |
-| 15 | **Synthetic Data Generation** | 🟢 P2 | 4-6 weeks | ⚪ OPEN |
+| 14 | **GPU Cluster Management** | 🟡 P1 | ongoing | ✅ DONE — `services/gpu-cluster-manager` (4778); 7-GPU catalog, priority scheduling, label matching, live stats. Real cluster still requires physical/cloud GPUs. |
+| 15 | **Synthetic Data Generation** | 🟢 P2 | 4-6 weeks | ✅ DONE — `services/synthetic-data-generation` (4777); 5 domain banks, schema + seed-set modes, deterministic generation. Real LLM-backed generation still requires an inference target. |
 | 16 | **Knowledge Distillation** | 🟢 P2 | 6-8 weeks | ⚪ OPEN |
 | 17 | **Domain-Specific Models** (healthcare, legal, finance) | 🟢 P2 | 12+ weeks each | ⚪ OPEN |
 | 18 | **Bias Evaluation** | 🟢 P2 | 4-6 weeks | ⚪ OPEN |

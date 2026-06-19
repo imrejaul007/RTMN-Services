@@ -6,7 +6,7 @@
 
 ## ⚠️ Important - Where Things Actually Live
 
-This folder is the **HOJAI AI company root** (brand, divisions, marketplace, external-client docs, AND runtime services). As of 2026-06-19, all HOJAI AI runtime services live in [./services/](./services/) under this same directory — the prior arrangement in `/services/` and `industry-os/shared/` has been consolidated.
+This folder is the **HOJAI AI company root** (brand, divisions, marketplace, external-client docs, AND runtime services). As of 2026-06-20, all HOJAI AI runtime services live in [./services/](./services/) under this same directory — the prior arrangement in `/services/` and `industry-os/shared/` has been consolidated.
 
 **The real, working HOJAI AI services now live in `./services/`:**
 
@@ -86,4 +86,4 @@ HOJAI AI (as a company) connects to:
 
 ---
 
-*Last Updated: 2026-06-19 (HOJAI AI consolidation)*
+*Last Updated: 2026-06-20 (HOJAI AI consolidation + Division 7 training platform)*

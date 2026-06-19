@@ -424,7 +424,10 @@ app.get('/api/route', (_req: Request, res: Response) => {
       rag: 'http://localhost:4781',
       documentIntelligence: 'http://localhost:4782',
       graph: 'http://localhost:4783',
-      knowledge: 'http://localhost:4784'
+      knowledge: 'http://localhost:4784',
+      fineTuning: 'http://localhost:4776',
+      syntheticData: 'http://localhost:4777',
+      gpuCluster: 'http://localhost:4778'
     },
     capabilities: {
       forecast: 'http://localhost:4754/api/forecast',
@@ -466,7 +469,20 @@ app.get('/api/route', (_req: Request, res: Response) => {
       nerExtract: 'http://localhost:4784/api/ner/extract',
       entityLink: 'http://localhost:4784/api/link',
       factExtract: 'http://localhost:4784/api/facts/extract',
-      knowledgeExtractAll: 'http://localhost:4784/api/extract-all'
+      knowledgeExtractAll: 'http://localhost:4784/api/extract-all',
+      datasetGenerate: 'http://localhost:4777/api/generate',
+      datasetList: 'http://localhost:4777/api/datasets',
+      fineTuneJobCreate: 'http://localhost:4776/api/jobs',
+      fineTuneJobGet: 'http://localhost:4776/api/jobs/{id}',
+      fineTuneJobCancel: 'http://localhost:4776/api/jobs/{id}/cancel',
+      fineTuneCheckpoints: 'http://localhost:4776/api/checkpoints',
+      fineTuneMethods: 'http://localhost:4776/api/methods',
+      fineTuneBaseModels: 'http://localhost:4776/api/base-models',
+      gpuAllocate: 'http://localhost:4778/api/allocate',
+      gpuRelease: 'http://localhost:4778/api/release/{allocationId}',
+      gpuClusterStats: 'http://localhost:4778/api/cluster/stats',
+      gpuModels: 'http://localhost:4778/api/gpu-models',
+      gpuNodes: 'http://localhost:4778/api/nodes'
     }
   });
 });
@@ -590,6 +606,21 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         name: 'knowledge',
         description: 'Knowledge Extraction — NER (15 entity types), entity linking with Levenshtein fuzzy match, fact extraction (8+ pattern types), built-in catalogs (202 TECH, 34 persons, 38 orgs, 69 locations)',
         capabilities: ['ner', 'entity-link', 'fact-extract', 'extract-all', 'catalog-lookup', 'kb-management'],
+      },
+      {
+        name: 'fineTuning',
+        description: 'Fine-Tuning Pipeline — LoRA/QLoRA/Prefix/IA³/Full fine-tune orchestration, dataset lifecycle, GPU queue, checkpoint management',
+        capabilities: ['dataset-crud', 'job-submit', 'job-status', 'job-cancel', 'checkpoint-list', 'lora', 'qlora', 'prefix', 'ia3', 'full'],
+      },
+      {
+        name: 'syntheticData',
+        description: 'Synthetic Data Generation — generate labeled training data from 5 domain banks (customer_support, ecommerce, healthcare, finance, general), schema-driven rows, or seed-set variations',
+        capabilities: ['generate-from-domain', 'generate-from-schema', 'generate-from-seeds', 'dataset-list'],
+      },
+      {
+        name: 'gpuCluster',
+        description: 'GPU Cluster Manager — register GPU nodes (H100, A100, L40S, RTX-4090, T4, V100), allocate to training jobs, monitor utilization, schedule queue',
+        capabilities: ['node-register', 'node-list', 'allocate', 'release', 'heartbeat', 'cluster-stats', 'gpu-catalog'],
       },
     ],
   });
