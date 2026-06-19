@@ -1,7 +1,7 @@
 {
-  "name": "@rtmn/buyer-twin",
+  "name": "@rtmn/property-twin",
   "version": "2.0.0",
-  "description": "Buyer Twin Service for RTMN",
+  "description": "Property Twin Service for RTMN",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
@@ -19,9 +19,9 @@
     "bcryptjs": "^2.4.3",
     "mongoose": "^8.0.3",
     "dotenv": "^16.3.1",
-    "@rtmn/twinos-shared": "file:../../../../services/twinos-shared"
+    "@rtmn/twinos-shared": "file:../twinos-shared"
   },
-  "keywords": ["rtmn", "twin", "buyer", "digital-twin"],
+  "keywords": ["rtmn", "twin", "property", "digital-twin"],
   "author": "HOJAI AI",
   "license": "MIT"
 }
