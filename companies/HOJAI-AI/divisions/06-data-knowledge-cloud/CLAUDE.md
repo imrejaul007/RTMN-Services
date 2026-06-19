@@ -1,7 +1,8 @@
 # Division 6 — AI Data & Knowledge Cloud
 
-> **Status:** 🟡 ~30% built (Knowledge Base exists; vector DB, RAG, data lake are missing)
+> **Status:** 🟢 ~55% built (Vector DB + RAG Platform just shipped; Knowledge Base + Marketplace still strong)
 > **Owner:** HOJAI AI Data Platform team
+> **Last updated:** June 19, 2026
 
 ---
 
@@ -14,7 +15,7 @@
 ```
 Data & Knowledge Cloud
 ├── Knowledge Graph        (entity relationships, ontology)
-├── Vector Database        (embeddings store + similarity search)
+├── Vector Database        (embeddings store + similarity search)        ✅ DONE
 ├── Data Lake              (raw + processed data storage)
 ├── Feature Store          (ML features with versioning)
 ├── Document Intelligence  (PDF/Word/Excel parsing + extraction)
@@ -24,7 +25,7 @@ Data & Knowledge Cloud
 ├── Data Catalog           (metadata, lineage, discovery)
 ├── Graph Database         (for KG + relationship-heavy queries)
 ├── Semantic Search        (meaning-based search, not keyword)
-├── RAG Platform           (retrieval-augmented generation framework)
+├── RAG Platform           (retrieval-augmented generation framework)    ✅ DONE
 └── Knowledge Extraction   (NER, entity linking, fact extraction)
 ```
 
@@ -32,6 +33,8 @@ Data & Knowledge Cloud
 
 | Capability | Service | Port | State |
 |---|---|---|---|
+| **Vector Database** (collections, cosine/dot/euclidean, metadata filtering, shared FNV-1a 128-dim vectorizer, batch upsert) | [services/vector-db/](../../../services/vector-db/) | **4780** | ✅ NEW |
+| **RAG Platform** (document ingestion, chunking, retrieval, LLM augmentation via inference-gateway) | [services/rag-platform/](../../../services/rag-platform/) | **4781** | ✅ NEW |
 | **Knowledge Base** (with AI search) | [services/knowledge-base/](../../../services/knowledge-base/) | 4940 | ✅ Real |
 | **Knowledge Marketplace** (SOPs/docs/templates) | [services/knowledge-marketplace/](../../../services/knowledge-marketplace/) | 4939 | ✅ Real |
 | **GraphQL Federation** (data federation across services) | [services/graphql-federation/](../../../services/graphql-federation/) | 4000 | ✅ Real |
@@ -43,8 +46,6 @@ Data & Knowledge Cloud
 
 | Missing | Why It Matters | Effort |
 |---|---|---|
-| **Vector Database** | Zero vector DB code in the repo. Critical for RAG. | 2 weeks — adopt Pinecone/Qdrant |
-| **RAG Platform** | Knowledge Base has search but no full RAG pipeline (chunking, embeddings, retrieval, augmentation) | 4-6 weeks |
 | **Document Intelligence** | No PDF/Word/Excel parser. Most enterprise docs are PDFs. | 6-8 weeks |
 | **Data Connectors** | No pre-built integrations to Salesforce/HubSpot/Stripe/etc. | 8-12 weeks |
 | **Data Lake** | No central raw data store. Each service has its own DB. | 4-8 weeks (depends on cloud choice) |
@@ -57,35 +58,60 @@ Data & Knowledge Cloud
 
 ## 5. Gap Score
 
-**~30% of target state is built.** Knowledge Base + Marketplace + Analytics cover the "see existing data" use case. The "make data AI-ready" use case (vector DB, RAG, document intelligence, connectors) is missing.
+**~55% of target state is built.** The two highest-leverage gaps — **Vector DB** and **RAG Platform** — shipped this week. The next layer (document intelligence, connectors, graph DB) is what unblocks production RAG over real-world enterprise docs.
 
 ## 6. Gap List (Priority Ordered)
 
 | # | Missing | Priority | Effort |
 |---|---|---|---|
-| 1 | **Vector Database + embeddings service** | 🔴 P0 | 2 weeks — unblocks RAG |
-| 2 | **RAG Platform** | 🔴 P0 | 4-6 weeks — most impactful for Division 3 |
-| 3 | **Document Intelligence** (PDF/Word/Excel) | 🟡 P1 | 6-8 weeks |
-| 4 | **Data Connectors** (Salesforce/HubSpot/Stripe etc.) | 🟡 P1 | 8-12 weeks |
-| 5 | **Graph Database** | 🟡 P1 | 2-4 weeks |
-| 6 | **Knowledge Extraction** (NER) | 🟢 P2 | 4-6 weeks |
-| 7 | **Feature Store** | 🟢 P2 | 4-6 weeks |
-| 8 | **Data Lake** | 🟢 P2 | 4-8 weeks (cloud-specific) |
-| 9 | **ETL pipelines** | 🟢 P2 | 6-8 weeks |
-| 10 | **Data Catalog** | 🟢 P3 | 6-8 weeks |
+| ~~1~~ | ~~Vector Database + embeddings service~~ | ✅ DONE | — |
+| ~~2~~ | ~~RAG Platform~~ | ✅ DONE | — |
+| 1 | **Document Intelligence** (PDF/Word/Excel) | 🔴 P0 | 6-8 weeks |
+| 2 | **Data Connectors** (Salesforce/HubSpot/Stripe etc.) | 🟡 P1 | 8-12 weeks |
+| 3 | **Graph Database** | 🟡 P1 | 2-4 weeks |
+| 4 | **Knowledge Extraction** (NER) | 🟢 P2 | 4-6 weeks |
+| 5 | **Feature Store** | 🟢 P2 | 4-6 weeks |
+| 6 | **Data Lake** | 🟢 P2 | 4-8 weeks (cloud-specific) |
+| 7 | **ETL pipelines** | 🟢 P2 | 6-8 weeks |
+| 8 | **Data Catalog** | 🟢 P3 | 6-8 weeks |
 
-## 7. Dependencies
+## 7. Vector DB + RAG Platform — what shipped
+
+### Vector DB (port 4780)
+- In-memory vector store (Map of collections × Map of vectors) — no external DB needed
+- Three similarity metrics: cosine, dot product, Euclidean
+- FNV-1a bag-of-words + L2-normalize vectorizer at 128 dims (shared with semantic-cache so embeddings are interoperable)
+- Metadata filtering with 9 operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `exists` (AND combined)
+- Batch upsert, batch delete, paginated listing
+- Audit log (cap 10k), stats, dependency-free embedding endpoint at `POST /api/embed`
+- Pre-built `/api/search-by-text` for clients that don't want to manage embeddings themselves
+
+### RAG Platform (port 4781)
+- Document ingestion: chunking (configurable size + overlap, sentence-boundary aware) → embedding via vector-db → storage in named collection
+- `POST /api/rag/query`: embed query → search top-k → assemble context → call inference-gateway (`4770`) → return answer with sources
+- `POST /api/retrieve`: retrieval-only (no LLM call) for clients that want to prompt themselves
+- `POST /api/rag/stream`: stub (returns 501, planned for next sprint)
+- Dependency health surfaced in `/api/health` — both `vectorDb` and `inferenceGateway` pinged at startup
+- Per-collection document registry, query counters, token tracking
+
+### Both wired into HOJAI Intelligence (4881) routing table
+- `vector: http://localhost:4780` and `rag: http://localhost:4781`
+- New agents `vector` and `rag` listed in `/api/agents`
+- New capabilities `embed`, `vectorSearch`, `ragQuery`, `ragRetrieve`
+
+## 8. Dependencies
 
 - **Depends on:** Division 1 (auth, tenant isolation), Division 7 (embeddings come from LLM)
 - **Blocks:** Division 3 (Intelligence reads from here), Division 4 (Agents retrieve from here), Division 7 (Training consumes data)
 
-## 8. Open Questions
+## 9. Open Questions
 
-- **Vector DB choice:** Managed (Pinecone) vs self-hosted (Qdrant) vs Postgres extension (pgvector). Affects cost, ops, lock-in.
+- **Vector DB persistence:** Currently in-memory only. Need to add disk persistence (LMDB / SQLite / Sled) before production.
 - **Graph DB choice:** Neo4j (industry standard, $$), Neptune (AWS lock-in), Memgraph, or just use Postgres with ltree?
 - **Data residency:** Each RTMN company has customer data in different regions. Does the Data Lake federate by region or centralize?
 - **RAG vs Fine-tuning:** For domain knowledge, is RAG enough or do you also need fine-tuning? Affects priority between this division and Division #7.
+- **Embedding model:** FNV-1a is fine for dev/demo but production needs real embeddings (OpenAI text-embedding-3, Cohere, or local sentence-transformers).
 
 ---
 
-*See also: [services/knowledge-base/CLAUDE.md](../../../services/knowledge-base/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*
+*See also: [services/vector-db/CLAUDE.md](../../../services/vector-db/CLAUDE.md), [services/rag-platform/CLAUDE.md](../../../services/rag-platform/CLAUDE.md), [services/knowledge-base/CLAUDE.md](../../../services/knowledge-base/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*

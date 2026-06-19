@@ -419,7 +419,9 @@ app.get('/api/route', (_req: Request, res: Response) => {
       semanticCache: 'http://localhost:4772',
       modelRegistry: 'http://localhost:4773',
       aiSafety: 'http://localhost:4774',
-      evaluation: 'http://localhost:4775'
+      evaluation: 'http://localhost:4775',
+      vectorDb: 'http://localhost:4780',
+      rag: 'http://localhost:4781'
     },
     capabilities: {
       forecast: 'http://localhost:4754/api/forecast',
@@ -440,7 +442,13 @@ app.get('/api/route', (_req: Request, res: Response) => {
       modelCatalog: 'http://localhost:4773/api/models',
       inputCheck: 'http://localhost:4774/api/check/input',
       outputCheck: 'http://localhost:4774/api/check/output',
-      runBenchmark: 'http://localhost:4775/api/run'
+      runBenchmark: 'http://localhost:4775/api/run',
+      embed: 'http://localhost:4780/api/embed',
+      vectorSearch: 'http://localhost:4780/api/collections/{name}/search',
+      vectorUpsert: 'http://localhost:4780/api/collections/{name}/vectors',
+      ragQuery: 'http://localhost:4781/api/rag/query',
+      ragRetrieve: 'http://localhost:4781/api/retrieve',
+      ragIngest: 'http://localhost:4781/api/documents'
     }
   });
 });
@@ -536,6 +544,18 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         description: 'Evaluation Harness — run benchmarks against any model, compare results',
         capabilities: ['run-benchmark', 'compare', 'scorers'],
         endpoint: 'http://localhost:4775',
+      },
+      {
+        name: 'vector',
+        description: 'Vector Database — in-memory vector store with cosine/dot/euclidean similarity, metadata filtering, shared FNV-1a 128-dim vectorizer',
+        capabilities: ['embed', 'vector-search', 'upsert', 'batch', 'collections', 'filter'],
+        endpoint: 'http://localhost:4780',
+      },
+      {
+        name: 'rag',
+        description: 'RAG Platform — chunking + embedding + retrieval + LLM augmentation. End-to-end retrieval-augmented generation framework',
+        capabilities: ['rag-query', 'retrieve', 'ingest-document', 'config', 'stats'],
+        endpoint: 'http://localhost:4781',
       },
     ],
   });
