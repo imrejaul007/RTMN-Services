@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Genie Life University Engine - Lifelong learning, courses, certifications, progress",
   "main": "src/index.js",
-  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"
@@ -15,7 +14,13 @@
     "uuid": "^9.0.0",
     "morgan": "^1.10.0"
   },
-  "keywords": ["genie", "university", "learning", "education", "courses"],
+  "keywords": [
+    "genie",
+    "university",
+    "learning",
+    "education",
+    "courses"
+  ],
   "author": "HOJAI AI",
   "license": "MIT"
 }

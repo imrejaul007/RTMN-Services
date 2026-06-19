@@ -32,6 +32,7 @@ app.use('/fitness', fitnessRoutes);
 app.use('/insights', insightsRoutes);
 
 // Health check
+app.get('/health', (req, res) => { res.json({ status: 'healthy', service: 'Genie Wellness OS', port: PORT }); });
 app.get('/', (req, res) => {
   res.json({
     service: 'Genie Wellness OS',

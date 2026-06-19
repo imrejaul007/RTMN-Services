@@ -33,6 +33,7 @@ app.use('/audio', audioRoutes);
 app.use('/templates', templatesRoutes);
 
 // Health check
+app.get('/health', (req, res) => { res.json({ status: 'healthy', service: 'Genie', port: PORT }); });
 app.get('/', (req, res) => {
   res.json({
     service: 'Genie Creation OS',

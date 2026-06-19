@@ -1,11 +1,12 @@
 /**
  * RTMN Wallet Twin Service - Digital wallet, balance, coins, credit, rewards
  */
-const express = require('express');
-const { v4: uuidv4 } = require('uuid');
-const { requireAuth, preventPrototypePollution, errorHandler, notFoundHandler,
+import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  requireAuth, preventPrototypePollution, errorHandler, notFoundHandler,
   asyncHandler, requestId, requestLogger, logger, defaultLimiter, strictLimiter
- } = require('@rtmn/twinos-shared');
+} from '@rtmn/twinos-shared';
 
 const app = express();
 const PORT = process.env.PORT || 4896;
@@ -156,4 +157,4 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 app.listen(PORT, () => logger.info(`💰 Wallet Twin Service running on port ${PORT}`));
 
-
+export default app;

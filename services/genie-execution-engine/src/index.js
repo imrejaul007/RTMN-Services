@@ -32,6 +32,7 @@ app.use('/reminders', reminderRoutes);
 app.use('/execution', executionRoutes);
 
 // Health check
+app.get('/health', (req, res) => { res.json({ status: 'healthy', service: 'Genie', port: PORT }); });
 app.get('/', (req, res) => {
   res.json({
     service: 'Genie Execution Engine',

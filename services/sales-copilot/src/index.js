@@ -409,7 +409,7 @@ app.get('/api/competitors/:id', (req, res) => {
       'They have more features': 'We focus on the 20% of features that drive 80% of results. Less complexity = faster adoption.',
       'We are happy with them': 'That is great to hear. Many of our customers said the same before switching. Can I show you why?'
     },
-    talk track: `When customer mentions ${competitor.name}: I understand they are a solid option. What I hear from companies that switch to us is...`
+    talkTrack: `When customer mentions ${competitor.name}: I understand they are a solid option. What I hear from companies that switch to us is...`
   };
 
   res.json({

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Genie Creation OS - Content generation, image, video, document, audio creation",
   "main": "src/index.js",
-  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"
@@ -15,7 +14,13 @@
     "uuid": "^9.0.0",
     "morgan": "^1.10.0"
   },
-  "keywords": ["genie", "creation", "content-generation", "ai", "media"],
+  "keywords": [
+    "genie",
+    "creation",
+    "content-generation",
+    "ai",
+    "media"
+  ],
   "author": "HOJAI AI",
   "license": "MIT"
 }
