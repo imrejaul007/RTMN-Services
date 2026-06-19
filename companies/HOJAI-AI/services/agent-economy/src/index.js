@@ -102,7 +102,7 @@ app.use((err, req, res, next) => {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 let mongoose = null;
 let dbConnected = false;

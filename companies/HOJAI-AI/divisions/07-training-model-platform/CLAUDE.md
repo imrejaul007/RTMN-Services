@@ -69,7 +69,7 @@ This is the **strategic bottleneck** and the most ambitious division. Build the 
 
 **As of June 18, 2026:** effectively nothing — no model serving infrastructure, no training pipeline, no GPU cluster, no eval framework, no safety/red-team testing. Every division needing LLM inference was implicitly relying on direct calls to OpenAI/Anthropic from inside service code.
 
-**As of June 20, 2026:** 🟢 Major step forward. **9** new services built that cover the **runtime + training + safety + eval + GPU** layer. The 3 new training-platform services landed today:
+**As of June 20, 2026:** 🟢 Major step forward. **9** new services built that cover the **runtime + training + safety + eval + GPU** layer. The 3 new training-platform services (fine-tuning, synthetic-data, gpu-cluster) plus their wire-up into ai-intelligence and the RTMN Hub (4399) at `/api/{fine-tuning|synthetic-data|gpu-cluster}/...` all landed today.
 
 | Service | Port | Purpose |
 |---------|------|---------|

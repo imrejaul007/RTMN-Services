@@ -429,7 +429,11 @@ app.get('/api/route', (_req: Request, res: Response) => {
       syntheticData: 'http://localhost:4777',
       gpuCluster: 'http://localhost:4778',
       sutarIntentBus: 'http://localhost:4154',
-      sutarUsageTracker: 'http://localhost:4252'
+      sutarUsageTracker: 'http://localhost:4252',
+      sutarSimulation: 'http://localhost:4241',
+      sutarDiscovery: 'http://localhost:4256',
+      sutarRoi: 'http://localhost:4259',
+      sutarMonitoring: 'http://localhost:3100'
     },
     capabilities: {
       forecast: 'http://localhost:4754/api/forecast',
@@ -494,7 +498,19 @@ app.get('/api/route', (_req: Request, res: Response) => {
       usageList: 'http://localhost:4252/api/usage',
       usageAggregate: 'http://localhost:4252/api/usage/aggregate/{key}',
       billingGenerate: 'http://localhost:4252/api/billing/generate',
-      revenueShare: 'http://localhost:4252/api/revenue/share/{providerId}'
+      revenueShare: 'http://localhost:4252/api/revenue/share/{providerId}',
+      simulationRun: 'http://localhost:4241/api/scenarios',
+      simulationList: 'http://localhost:4241/api/scenarios',
+      simulationTemplates: 'http://localhost:4241/api/templates',
+      simulationCompare: 'http://localhost:4241/api/scenarios/compare',
+      discoverySearch: 'http://localhost:4256/api/search',
+      discoveryIndex: 'http://localhost:4256/api/index',
+      discoveryIndexes: 'http://localhost:4256/api/indexes',
+      roiCalculate: 'http://localhost:4259/api/calculations',
+      roiQuick: 'http://localhost:4259/api/quick-roi',
+      monitoringServices: 'http://localhost:3100/api/services',
+      monitoringProbe: 'http://localhost:3100/api/probe/all',
+      monitoringAlerts: 'http://localhost:3100/api/alerts/active'
     }
   });
 });
@@ -643,6 +659,26 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         name: 'sutarUsageTracker',
         description: 'SUTAR Usage Tracker — meters marketplace usage (LLM tokens, API calls, GPU seconds, twin updates, storage), enforces quotas, generates invoices, computes provider revenue share',
         capabilities: ['usage-record', 'usage-list', 'usage-aggregate', 'billing-generate', 'plan-crud', 'quota-crud', 'revenue-share'],
+      },
+      {
+        name: 'sutarSimulation',
+        description: 'SUTAR Simulation OS — what-if scenario analysis for pricing changes, market entry, policy rollouts, and agent decisions with Monte Carlo + parameter sweep',
+        capabilities: ['run-scenario', 'rerun-scenario', 'cancel-scenario', 'compare-scenarios', 'list-templates', 'list-presets'],
+      },
+      {
+        name: 'sutarDiscovery',
+        description: 'SUTAR Discovery Engine — universal search across services, agents, twins, and intents across the RTMN ecosystem with token-based ranking',
+        capabilities: ['universal-search', 'service-search', 'agent-search', 'twin-search', 'intent-search', 'index-doc', 'list-indexes'],
+      },
+      {
+        name: 'sutarRoi',
+        description: 'SUTAR ROI Calculator — compute ROI, payback period, NPV, and IRR for AI agent / service investments with templates for agent purchases, training, and rollouts',
+        capabilities: ['run-calculation', 'list-calculations', 'compare-calculations', 'quick-roi', 'list-templates'],
+      },
+      {
+        name: 'sutarMonitoring',
+        description: 'SUTAR Monitoring — base observability: health probes (every 30s), metric samples, alert rules with auto-fire/auto-resolve, log aggregation across SUTAR services',
+        capabilities: ['probe-service', 'probe-all', 'push-metric', 'list-services', 'list-alerts', 'create-rule', 'resolve-alert', 'push-log', 'list-logs', 'stats'],
       },
     ],
   });

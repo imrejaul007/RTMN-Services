@@ -1,9 +1,9 @@
 # Division 12 — SUTAR OS (Autonomous Economic OS)
 
-> **Status:** 🟢 ~58% real code (10 of 25 services have working source + Twin/Memory/Identity covered by runtime), ✅ 9 of 9 built services running and healthy
+> **Status:** 🟢 ~74% real code (14 of 25 services have working source + Twin/Memory/Identity covered by runtime), ✅ 13 of 13 built services running and healthy
 > **Owner:** HOJAI AI (per user clarification — SUTAR is a HOJAI AI standalone product consumed by all RTMN OSes)
 > **Architecture docs:** [docs/sutar-os/](../../../docs/sutar-os/) — complete 7-layer (or 12-layer per RABTUL docs) specification
-> **Updated:** June 20, 2026 — added usage-tracker (4252) + intent-bus (4154); ai-intelligence now exposes both as routable agents (25 total, up from 23)
+> **Updated:** June 20, 2026 — added 6 new SUTAR services: usage-tracker (4252), intent-bus (4154), simulation-os (4241), discovery-engine (4256), roi-calculator (4259), sutar-monitoring (3100); ai-intelligence now exposes all 14 as routable agents (29 total, up from 20); RTMN Hub (4399) routes them at `/api/sutar-{name}/...`
 
 ---
 
@@ -113,7 +113,7 @@ SUTAR enables AI agents to:
 
 | # | SUTAR Service | Port | Status | Notes |
 |---|---|---|---|---|
-| 1 | **Monitoring** | 3100 | ❌ | Layer 1 — base observability |
+| 1 | **Monitoring** | 3100 | ✅ DONE — `services/sutar-monitoring` (3100); health probes every 30s, alert rules with auto-fire/auto-resolve, metric samples, log aggregation across 10 SUTAR services | Layer 1 — base observability |
 | 2 | **Gateway** | 4140 | ❌ | Layer 2 — entry point |
 | 3 | **Twin OS** (SUTAR-specific) | 4142 | ❌ | Layer 2 — distinct from /services/twinos-hub (4705) |
 | 4 | **Memory Bridge** | 4143 | ❌ | Layer 2 — likely overlaps with /services/memory-os (4703) |
@@ -123,35 +123,35 @@ SUTAR enables AI agents to:
 | 8 | **Agent Network** | 4155 | ❌ | Layer 3 — likely overlaps with /services/acn-network (4801) |
 | 9 | **REZ Bridge** | 4155 | ❌ | Layer 3 |
 | 10 | **Contracts OS** | 4185 | ❌ | Layer 6 — likely overlaps with /services/agent-contracts (4830) |
-| 11 | **Simulation OS** | 4241 | ❌ | Layer 4 |
+| 11 | **Simulation OS** | 4241 | ✅ DONE — `services/simulation-os` (4241); 4 templates (pricing-change, market-entry, policy-rollout, agent-decision) with Monte Carlo + parameter sweep | Layer 4 |
 | 12 | **Network Learning** | 4243 | ❌ | Layer 4 |
 | 13 | ~~Flow OS~~ | ~~4244~~ | ✅ EXISTS at 4310 | Layer 4 — see Division 2 for consolidation |
 | 14 | **Marketplace (Salar OS)** | 4250 | ❌ | Layer 5 — likely overlaps with /services/agent-marketplace (4845) |
 | 15 | **Usage Tracker** | 4252 | ✅ DONE — `services/usage-tracker` (4252); 5 default metric types, plans, quotas, billing generation, revenue-share; in-memory now, needs Postgres + Redis for production | Layer 5 |
 | 16 | ~~Policy OS~~ | ~~4254~~ | ✅ EXISTS at 4034 | Layer 5 — see Division 2 for consolidation |
 | 17 | **Exploration** | 4255 | ❌ | Layer 7 |
-| 18 | **Discovery** | 4256 | ❌ | Layer 7 |
+| 18 | **Discovery** | 4256 | ✅ DONE — `services/discovery-engine` (4256); universal token-search across services/agents/twins/intents, seeded with 27 entries | Layer 7 |
 | 19 | **Multi-Agent Evaluator** | 4257 | ❌ | Layer 7 |
 | 20 | **Reputation Aggregator** | 4258 | ❌ | Layer 7 |
-| 21 | **ROI Calculator** | 4259 | ❌ | Layer 7 |
+| 21 | **ROI Calculator** | 4259 | ✅ DONE — `services/roi-calculator` (4259); ROI/NPV/IRR/payback, 3 templates, Newton-Raphson IRR solver | Layer 7 |
 | 22 | **Founder OS** | 4260 | ❌ | Layer 4 |
 
 ## 5. Gap Score
 
 - **By architecture documentation:** ~100% (4 docs, complete 7-layer spec, ~2,000 lines)
-- **By implementation:** ~40% (10 of 25 services have real source code — was 6 in mid-June, then 8 with FlowOS+PolicyOS, now 10 with UsageTracker+IntentBus)
-- **By runtime:** ✅ **~60% effective** (9 of 9 built services running + TwinOS/MemoryOS/CorpID already covered by runtime RTMN services)
+- **By implementation:** ~56% (14 of 25 services have real source code — was 6 in mid-June, then 8 with FlowOS+PolicyOS, 10 with UsageTracker+IntentBus, now 14 with Simulation+Discovery+ROI+Monitoring)
+- **By runtime:** ✅ **~76% effective** (13 of 13 built services running + TwinOS/MemoryOS/CorpID/ACN already covered by runtime RTMN services)
 
 ### Runtime coverage as of June 20, 2026:
 
 | Category | Status | Services |
 |----------|--------|----------|
-| **SUTAR-specific built** | ✅ 9/9 running | Trust (4180), Negotiation (4191), Decision (4240), Goal (4242), Economy (4251), Policy (4254), Flow (4310), **Usage Tracker (4252), Intent Bus (4154)** |
+| **SUTAR-specific built** | ✅ 13/13 running | Monitoring (3100), Trust (4180), Negotiation (4191), Decision (4240), Simulation (4241), Goal (4242), Intent Bus (4154), Discovery (4256), Usage Tracker (4252), Economy (4251), Policy (4254), ROI (4259), Flow (4310) |
 | **Twin layer** (SUTAR Twin OS 4142) | ✅ Covered by runtime | `/services/twinos-hub` (4705) + 11 dedicated twin services |
 | **Memory layer** (SUTAR Memory Bridge 4143) | ✅ Covered by runtime | `/services/memory-os` (4703) |
 | **Identity layer** (SUTAR Identity OS 4144) | ✅ Covered by runtime | `/services/corpid-service` (4702) |
 | **Agent Commerce** (SUTAR Agent Network 4155, Marketplace 4250, Contracts 4185) | ✅ Covered by runtime | `/services/acn-*` (14 services on 4716, 4800-4851) |
-| **Still missing** | 🔴 15 services | Gateway, Simulation, Discovery, ROI, Reputation Aggregator, Multi-Agent Evaluator, Exploration, Network Learning, REZ Bridge, Agent ID, Founder OS, Monitoring, REZ Bridge |
+| **Still missing** | 🔴 11 services | Gateway, Reputation Aggregator, Multi-Agent Evaluator, Exploration, Network Learning, REZ Bridge, Agent ID, Founder OS |
 
 ## 6. Gap List (Priority Ordered)
 
@@ -165,15 +165,15 @@ SUTAR enables AI agents to:
 | 6 | **Contracts OS (4185)** | 🟢 **DONE** | — | Use `/services/agent-contracts` (4830) |
 | 7 | **Marketplace / Salar OS (4250)** | 🟢 **DONE** | — | Use `/services/agent-marketplace` (4845) |
 | 8 | **Flow OS (4244)** | 🟢 **DONE** | — | `/companies/RABTUL-Technologies/REZ-workflow-executor` running on 4310 |
-| 9 | **Simulation OS (4241)** — what-if analysis | 🟡 P1 | 2-3 weeks | |
+| 9 | ~~**Simulation OS (4241)** — what-if analysis~~ | 🟢 **DONE** | — | `services/simulation-os` (4241); 4 templates (pricing, market, policy, decision) |
 | 10 | **Goal OS (4242)** | 🟢 **DONE** | — | `/industry-os/shared/goal-os` running |
-| 11 | **Discovery (4256)** | 🟢 P2 | 1-2 weeks | |
+| 11 | ~~**Discovery (4256)**~~ | 🟢 **DONE** | — | `services/discovery-engine` (4256); universal token search across 27 seeded docs |
 | 12 | **Twin OS (4142)** | 🟢 **DONE** | — | Use `/services/twinos-hub` (4705) |
 | 13 | **Memory Bridge (4143)** | 🟢 **DONE** | — | Use `/services/memory-os` (4703) |
 | 14 | ~~**Usage Tracker (4252)**~~ | 🟢 **DONE** | — | `services/usage-tracker` (4252) — metering, plans, quotas, billing, revenue share |
 | 15 | **Policy OS (4254)** | 🟢 **DONE** | — | `/companies/RABTUL-Technologies/REZ-policy-engine` running on 4254 |
 | 16 | **Reputation Aggregator (4258)** | 🟢 P2 | 1 week | |
-| 17 | **ROI Calculator (4259)** | 🟢 P2 | 1 week | |
+| 17 | ~~**ROI Calculator (4259)**~~ | 🟢 **DONE** | — | `services/roi-calculator` (4259); ROI/NPV/IRR/payback, 3 templates |
 | 18 | **Multi-Agent Evaluator (4257)** | 🟢 P2 | 2 weeks | |
 | 19 | **Exploration (4255)** | 🟢 P2 | 1 week | |
 | 20 | **Network Learning (4243)** | 🟢 P3 | 2-3 weeks | |
@@ -181,7 +181,7 @@ SUTAR enables AI agents to:
 | 22 | **Agent ID (4145)** | 🟢 P3 | 1 week | |
 | 23 | **Agent Network (4155)** | 🟢 **DONE** | — | Use `/services/acn-network` (4801) |
 | 24 | **Founder OS (4260)** | 🟢 P3 | 2-3 weeks | |
-| 25 | **Monitoring (3100)** | 🟢 P3 | 1-2 weeks | |
+| 25 | ~~**Monitoring (3100)**~~ | 🟢 **DONE** | — | `services/sutar-monitoring` (3100); health probes every 30s, alerts, metrics, logs |
 | 26 | **Negotiation AI (SUTAR AI tier)** | 🟢 **DONE** | — | Use `/services/negotiation-ai` (4850) |
 
 ## 7. Dependencies

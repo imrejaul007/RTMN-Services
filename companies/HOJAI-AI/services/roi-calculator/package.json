@@ -1,0 +1,21 @@
+{
+  "name": "@rtmn/roi-calculator",
+  "version": "1.0.0",
+  "description": "SUTAR OS ROI Calculator (4259) — compute ROI, payback period, NPV, IRR for AI agent / service investments",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["sutar", "roi", "finance", "npv", "irr", "payback"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

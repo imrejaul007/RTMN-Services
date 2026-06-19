@@ -142,6 +142,19 @@ const SERVICES = {
   genieExecutionEngine: 'http://localhost:4726',   // Phase 4 - Execution: Tasks, Automation, Workflows
   genieLifeUniversity: 'http://localhost:4727',    // Phase 4 - Education: Curriculum, Courses, Certs
   genieShoppingAgent: 'http://localhost:4728',     // Agent Commerce: Personal Shopping AI (SUTAR)
+
+  // HOJAI AI - Training Platform (Division 7)
+  fineTuning: 'http://localhost:4776',
+  syntheticData: 'http://localhost:4777',
+  gpuCluster: 'http://localhost:4778',
+
+  // SUTAR OS - Layer 3 + Layer 5 (built June 20, 2026)
+  sutarIntentBus: 'http://localhost:4154',
+  sutarUsageTracker: 'http://localhost:4252',
+  sutarSimulation: 'http://localhost:4241',
+  sutarDiscovery: 'http://localhost:4256',
+  sutarRoi: 'http://localhost:4259',
+  sutarMonitoring: 'http://localhost:3100',
 };
 
 // Create axios clients
@@ -211,6 +224,17 @@ const SERVICE_REGISTRY = {
     { id: 'agentCopilot', name: 'Agent Copilot', port: 4920, category: 'ai', description: 'AI Agents' },
     { id: 'salesCopilot', name: 'Sales Copilot', port: 4928, category: 'ai', description: 'Sales AI' },
     { id: 'financeCopilot', name: 'Finance Copilot', port: 4930, category: 'ai', description: 'Finance AI' },
+    // HOJAI AI Training Platform
+    { id: 'fineTuning', name: 'Fine-Tuning Pipeline', port: 4776, category: 'ai', description: 'LoRA/QLoRA/Prefix/IA3/Full orchestration' },
+    { id: 'syntheticData', name: 'Synthetic Data Gen', port: 4777, category: 'ai', description: '5-domain dataset generator' },
+    { id: 'gpuCluster', name: 'GPU Cluster Manager', port: 4778, category: 'ai', description: 'H100/A100/L40S/RTX-4090/T4/V100' },
+    // SUTAR OS
+    { id: 'sutarIntentBus', name: 'SUTAR Intent Bus', port: 4154, category: 'ai', description: 'Pub/sub agent intent broadcast' },
+    { id: 'sutarUsageTracker', name: 'SUTAR Usage Tracker', port: 4252, category: 'ai', description: 'Metering + billing + revenue share' },
+    { id: 'sutarSimulation', name: 'SUTAR Simulation OS', port: 4241, category: 'ai', description: 'What-if scenarios (pricing, market, policy, decisions)' },
+    { id: 'sutarDiscovery', name: 'SUTAR Discovery Engine', port: 4256, category: 'ai', description: 'Universal search across services/agents/twins/intents' },
+    { id: 'sutarRoi', name: 'SUTAR ROI Calculator', port: 4259, category: 'ai', description: 'ROI / NPV / IRR / payback for investments' },
+    { id: 'sutarMonitoring', name: 'SUTAR Monitoring', port: 3100, category: 'ai', description: 'Health probes, metrics, alerts, logs' },
   ],
   external: [
     { id: 'sutarOs', name: 'SUTAR OS', port: 4799, category: 'external', description: 'Identity & Trust' },
@@ -434,6 +458,19 @@ const SERVICE_MAP = {
   'genie-execution': 'genieExecutionEngine',
   'genie-university': 'genieLifeUniversity',
   'genie-shopping': 'genieShoppingAgent',
+
+  // HOJAI AI Training Platform (Division 7)
+  'fine-tuning': 'fineTuning',
+  'synthetic-data': 'syntheticData',
+  'gpu-cluster': 'gpuCluster',
+
+  // SUTAR OS
+  'sutar-intent': 'sutarIntentBus',
+  'sutar-usage': 'sutarUsageTracker',
+  'sutar-simulation': 'sutarSimulation',
+  'sutar-discovery': 'sutarDiscovery',
+  'sutar-roi': 'sutarRoi',
+  'sutar-monitoring': 'sutarMonitoring',
 };
 
 for (const [prefix, serviceKey] of Object.entries(SERVICE_MAP)) {
