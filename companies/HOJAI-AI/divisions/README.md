@@ -10,7 +10,7 @@
 | # | Division | One-line | Current State | Gap |
 |---|----------|----------|---------------|-----|
 | 1 | [AI Foundation](./01-foundation/) | Identity, auth, gateway, eventing — everything required to run AI | 🟢 ~70% | small |
-| 2 | [AI Infrastructure Cloud](./02-infrastructure-cloud/) | MemoryOS, TwinOS, FlowOS, PolicyOS, etc. — the OS primitives | 🟡 ~40% | medium-large |
+| 2 | [AI Infrastructure Cloud](./02-infrastructure-cloud/) | MemoryOS, TwinOS, FlowOS, PolicyOS, etc. — the OS primitives | 🟡 ~50% (FlowOS/PolicyOS exist with multiple implementations, needs consolidation) | medium-large |
 | 3 | [AI Intelligence Cloud](./03-intelligence-cloud/) | The brain — per-industry/per-company intelligence modules + Micro Intelligence fallback pattern | 🟢 ~75% breadth / ~40% depth | large |
 | 4 | [AI Agent Cloud](./04-agent-cloud/) | Agent runtime, builder, orchestration, multi-agent systems | 🟢 ~80% | small-medium |
 | 5 | [AI Communication Cloud](./05-communication-cloud/) | Voice, phone, WhatsApp, email, SMS, chat, meetings, translation | 🟡 ~60% | medium |
@@ -20,7 +20,7 @@
 | 9 | [AI Industry Solutions](./09-industry-solutions/) | 26+ Industry OS (Restaurant, Hotel, Retail, Healthcare, etc.) | 🟢 ~95% (breadth) | medium (depth) |
 | 10 | [AI Developer Platform](./10-developer-platform/) | APIs, SDKs, CLI, sandbox, webhooks, observability | 🟡 ~40% | medium |
 | 11 | [AI Marketplace & Network](./11-marketplace-network/) | Agent/skill/workflow marketplaces, trust, reputation, federation | 🟡 ~30% | medium-large |
-| 12 | [SUTAR OS](./12-sutar-os/) | Autonomous Economic OS — 25 services across 7 layers for AI to execute all tasks | 🟡 ~24% code, ~0% running (6 of 25 built, none started) | huge |
+| 12 | [SUTAR OS](./12-sutar-os/) | Autonomous Economic OS — 25 services across 7 layers for AI to execute all tasks | 🟡 ~32% code, ~0% running (8 of 25 built, none started) | huge |
 
 **Coverage: ~45-50% across the platform.** ~50% is net-new build.
 
@@ -48,6 +48,12 @@ After a deeper search and user clarification, **several original findings were c
 3. **Port 4251 conflict** — both REZ-economy-os and agent-economy claim 4251. Need to pick canonical.
 4. **None of the 6 SUTAR services are running today** (lsof on all 25 SUTAR ports returns nothing)
 5. **19 of 25 SUTAR services still missing** (the original "21 missing" was close — actual is 19 if you count the 6 that exist)
+
+### More corrections (2026-06-19, user feedback):
+1. **FlowOS exists** — 4 implementations: services/workflow-marketplace (4938), hojai-workflow-engine (recovered), REZ-workflow-executor (4310), REZ-workflow-builder (4045). Port mismatch: docs say 4244, actual is 4310.
+2. **PolicyOS exists** — 3 implementations: REZ-policy-engine (4034, 11 .ts files + tests), hojai-intelligence policy engine (in 4881), Axom policy-engine-service. Port mismatch: docs say 4254, actual is 4034.
+3. **GoalOS exists** — industry-os/shared/goal-os (4242), JavaScript.
+4. **Updated coverage:** Infrastructure Cloud ~50% (was 40%), SUTAR OS ~32% (was 24%).
 
 ### Things that turned out to be correct:
 1. **Division #7 (Training & Model Platform) is the single biggest gap** (~5%).

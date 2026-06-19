@@ -62,16 +62,20 @@ SUTAR enables AI agents to:
 
 ## 3. Current State — What's Actually Built
 
-### A. SUTAR Services with REAL source code (6 services, 2 have port conflict)
+### A. SUTAR Services with REAL source code (8 services, 2 have port conflicts)
 
-| SUTAR Service | Port | Location | Source | Layer |
-|---|---|---|---|---|
-| **Trust Engine** | 4180 | [companies/RABTUL-Technologies/REZ-trust-scorer/](../../../companies/RABTUL-Technologies/REZ-trust-scorer/) | TypeScript (config, middleware, utils, types) | Layer 6 — Trust |
-| **Negotiation Engine** | 4191 | [companies/RABTUL-Technologies/REZ-negotiation-engine/](../../../companies/RABTUL-Technologies/REZ-negotiation-engine/) | TypeScript (models, routes, services) | Layer 6 — Trust |
-| **Economy OS** | 4251 | [companies/RABTUL-Technologies/REZ-economy-os/](../../../companies/RABTUL-Technologies/REZ-economy-os/) | TypeScript (full stack) | Layer 5 — Economy |
-| **Decision Engine** | 4240 | [industry-os/shared/decision-engine/](../../../industry-os/shared/decision-engine/) | JavaScript (routes/decisions.js, routes/policies.js) | Layer 4 — Decision |
-| **Goal OS** | 4242 | [industry-os/shared/goal-os/](../../../industry-os/shared/goal-os/) | JavaScript (routes/goals.js) | Layer 4 — Goal |
-| **Agent Economy** | 4251 | [industry-os/shared/agent-economy/](../../../industry-os/shared/agent-economy/) | JavaScript | Layer 5 — Economy |
+| SUTAR Service | Port (docs) | Port (actual) | Location | Source | Layer |
+|---|---|---|---|---|---|
+| **Trust Engine** | 4180 | 4180 ✓ | [companies/RABTUL-Technologies/REZ-trust-scorer/](../../../companies/RABTUL-Technologies/REZ-trust-scorer/) | TypeScript (config, middleware, utils, types) | Layer 6 — Trust |
+| **Negotiation Engine** | 4191 | 4191 ✓ | [companies/RABTUL-Technologies/REZ-negotiation-engine/](../../../companies/RABTUL-Technologies/REZ-negotiation-engine/) | TypeScript (models, routes, services) | Layer 6 — Trust |
+| **Economy OS** | 4251 | 4251 ✓ | [companies/RABTUL-Technologies/REZ-economy-os/](../../../companies/RABTUL-Technologies/REZ-economy-os/) | TypeScript (full stack) | Layer 5 — Economy |
+| **Decision Engine** | 4240 | 4240 ✓ | [industry-os/shared/decision-engine/](../../../industry-os/shared/decision-engine/) | JavaScript (routes/decisions.js, routes/policies.js) | Layer 4 — Decision |
+| **Goal OS** | 4242 | 4242 ✓ | [industry-os/shared/goal-os/](../../../industry-os/shared/goal-os/) | JavaScript (routes/goals.js) | Layer 4 — Goal |
+| **Agent Economy** | 4251 | 4251 (conflict) | [industry-os/shared/agent-economy/](../../../industry-os/shared/agent-economy/) | JavaScript | Layer 5 — Economy |
+| **Flow OS** | 4244 | **4310** ⚠️ | [companies/RABTUL-Technologies/REZ-workflow-executor/](../../../companies/RABTUL-Technologies/REZ-workflow-executor/) | TypeScript (5 .ts files, node-based processing) | Layer 4 — Flow |
+| **Policy OS** | 4254 | **4034** ⚠️ | [companies/RABTUL-Technologies/REZ-policy-engine/](../../../companies/RABTUL-Technologies/REZ-policy-engine/) | TypeScript (11 .ts files, has tests) | Layer 5 — Policy |
+
+**Port mismatches:** Flow OS docs say 4244 but actual code is 4310. Policy OS docs say 4254 but actual code is 4034. Need port reconciliation.
 
 ### B. SUTAR Service Duplicates & Conflicts
 
@@ -120,10 +124,10 @@ SUTAR enables AI agents to:
 | 10 | **Contracts OS** | 4185 | ❌ | Layer 6 — likely overlaps with /services/agent-contracts (4830) |
 | 11 | **Simulation OS** | 4241 | ❌ | Layer 4 |
 | 12 | **Network Learning** | 4243 | ❌ | Layer 4 |
-| 13 | **Flow OS** | 4244 | ❌ | Layer 4 |
+| 13 | ~~Flow OS~~ | ~~4244~~ | ✅ EXISTS at 4310 | Layer 4 — see Division 2 for consolidation |
 | 14 | **Marketplace (Salar OS)** | 4250 | ❌ | Layer 5 — likely overlaps with /services/agent-marketplace (4845) |
 | 15 | **Usage Tracker** | 4252 | ❌ | Layer 5 |
-| 16 | **Policy OS** | 4254 | ❌ | Layer 5 — note: there's also a REZ-policy-engine (4034) but that's RABTUL-specific |
+| 16 | ~~Policy OS~~ | ~~4254~~ | ✅ EXISTS at 4034 | Layer 5 — see Division 2 for consolidation |
 | 17 | **Exploration** | 4255 | ❌ | Layer 7 |
 | 18 | **Discovery** | 4256 | ❌ | Layer 7 |
 | 19 | **Multi-Agent Evaluator** | 4257 | ❌ | Layer 7 |
@@ -134,8 +138,8 @@ SUTAR enables AI agents to:
 ## 5. Gap Score
 
 - **By architecture documentation:** ~100% (4 docs, complete 7-layer spec, ~2,000 lines)
-- **By implementation:** ~24% (6 of 25 services have real source code; 2 have port conflicts)
-- **By runtime:** ~0% (none of the 6 SUTAR services are running today — lsof on all 25 SUTAR ports returns nothing)
+- **By implementation:** ~32% (8 of 25 services have real source code — was 6, now 8 with FlowOS + PolicyOS added)
+- **By runtime:** ~0% (none of the 8 SUTAR services are running today — lsof on all 25 SUTAR ports returns nothing)
 
 ## 6. Gap List (Priority Ordered)
 
