@@ -214,7 +214,7 @@ curl -X POST http://localhost:4940/api/articles/art-1/rate \
 ## Quick Start
 
 ```bash
-cd services/knowledge-base
+cd companies/HOJAI-AI/services/knowledge-base
 npm install
 npm start
 ```

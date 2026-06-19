@@ -381,7 +381,7 @@ curl -X POST http://localhost:4600/api/skills/execute \
 
 ```bash
 # Install dependencies
-cd services/business-copilot
+cd companies/HOJAI-AI/services/business-copilot
 npm install
 
 # Start production server

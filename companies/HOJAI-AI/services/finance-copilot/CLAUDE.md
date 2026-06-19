@@ -57,7 +57,7 @@ Finance Copilot provides AI-powered financial analysis:
 ## Quick Start
 
 ```bash
-cd services/finance-copilot
+cd companies/HOJAI-AI/services/finance-copilot
 npm install
 npm start
 ```

@@ -129,7 +129,7 @@ GET /api/health                         # Service health check
 ## Quick Start
 
 ```bash
-cd services/feature-flags
+cd companies/HOJAI-AI/services/feature-flags
 npm install
 npm start
 

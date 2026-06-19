@@ -432,7 +432,7 @@ SMTP_PASS=pass
 
 ```bash
 # Install dependencies
-cd services/razo-keyboard
+cd companies/HOJAI-AI/services/razo-keyboard
 npm install
 
 # Start production server

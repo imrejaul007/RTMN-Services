@@ -171,7 +171,7 @@ curl -X POST http://localhost:4712/api/subscribe \
 ## Quick Start
 
 ```bash
-cd services/genie-briefing-service
+cd companies/HOJAI-AI/services/genie-briefing-service
 npm install
 npm start
 

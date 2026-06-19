@@ -168,7 +168,7 @@ PORT=4600
 ## Quick Start
 
 ```bash
-cd services/business-copilot
+cd companies/HOJAI-AI/services/business-copilot
 npm install
 npm start
 

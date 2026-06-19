@@ -188,7 +188,7 @@ Overall = (Savings × 0.25) + (Budget × 0.20) + (Goals × 0.20) + (Investments 
 ## 🚀 Quick Start
 
 ```bash
-cd services/genie-money-os
+cd companies/HOJAI-AI/services/genie-money-os
 npm install
 npm start  # Port 4724
 ```

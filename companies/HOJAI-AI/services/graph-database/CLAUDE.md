@@ -69,7 +69,7 @@ labelIndex: label -> Set<nodeId>
 ## Quick Start
 
 ```bash
-cd services/graph-database
+cd companies/HOJAI-AI/services/graph-database
 npm install
 npm start              # listens on :4783
 ```

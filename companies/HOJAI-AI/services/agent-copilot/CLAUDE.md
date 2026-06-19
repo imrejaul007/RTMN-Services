@@ -308,7 +308,7 @@ curl http://localhost:4920/api/execute/exec-abc123
 ## Quick Start
 
 ```bash
-cd services/agent-copilot
+cd companies/HOJAI-AI/services/agent-copilot
 npm install
 npm start
 ```

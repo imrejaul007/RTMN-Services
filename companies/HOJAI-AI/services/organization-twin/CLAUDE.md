@@ -196,7 +196,7 @@ curl -X POST http://localhost:4710/api/compare \
 ## Quick Start
 
 ```bash
-cd services/organization-twin
+cd companies/HOJAI-AI/services/organization-twin
 npm install
 npm start
 ```

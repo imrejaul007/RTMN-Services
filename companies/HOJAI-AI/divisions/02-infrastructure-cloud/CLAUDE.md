@@ -34,11 +34,11 @@ Infrastructure Cloud
 
 | Capability | Service | Port | State |
 |---|---|---|---|
-| **MemoryOS** | [services/memory-os/](../../../services/memory-os/) | 4703 | ✅ Real (running) |
-| **TwinOS** | [services/twinos-hub/](../../../services/twinos-hub/) + 10 twin services | 4705 | ✅ Real (running, 70+ twins, **v3.0 — full HOJAI 3-pillar spec**) |
-| **Knowledge Graph** (partial) | [services/knowledge-base/](../../../services/knowledge-base/) | 4940 | 🟡 Partial (RAG, not full KG) |
-| **HOJAI Intelligence** (orchestration) | [services/ai-intelligence/](../../../services/ai-intelligence/) | 4881 | ✅ Real (running, 5 agents, policy engine) |
-| **HOJAI Customer Intelligence** (CDP) | [services/customer-intelligence/](../../../services/customer-intelligence/) | 4885 | ✅ Real (running, 3 Mongoose models) |
+| **MemoryOS** | [./services/memory-os/](../services/memory-os/) | 4703 | ✅ Real (running) |
+| **TwinOS** | [./services/twinos-hub/](../services/twinos-hub/) + 10 twin services | 4705 | ✅ Real (running, 70+ twins, **v3.0 — full HOJAI 3-pillar spec**) |
+| **Knowledge Graph** (partial) | [./services/knowledge-base/](../services/knowledge-base/) | 4940 | 🟡 Partial (RAG, not full KG) |
+| **HOJAI Intelligence** (orchestration) | [./services/ai-intelligence/](../services/ai-intelligence/) | 4881 | ✅ Real (running, 5 agents, policy engine) |
+| **HOJAI Customer Intelligence** (CDP) | [./services/customer-intelligence/](../services/customer-intelligence/) | 4885 | ✅ Real (running, 3 Mongoose models) |
 | **HOJAI Notification** (basic execution) | [companies/HOJAI-AI-restored/hojai-notification-service/](../../HOJAI-AI-restored/hojai-notification-service/) | — | 🟡 Recovered, not running |
 | **GoalOS** | [industry-os/shared/goal-os/](../../../industry-os/shared/goal-os/) | 4242 | 🟡 Real source, not running |
 
@@ -48,7 +48,7 @@ Per the user's clarification, FlowOS already has **4 implementations** across th
 
 | Implementation | Port | Source files | Notes |
 |---|---|---|---|
-| [services/workflow-marketplace/](../../../services/workflow-marketplace/) | 4938 | ✅ Real | Workflow templates marketplace |
+| [./services/workflow-marketplace/](../services/workflow-marketplace/) | 4938 | ✅ Real | Workflow templates marketplace |
 | [companies/HOJAI-AI-restored/services/hojai-workflow-engine/](../../HOJAI-AI-restored/services/hojai-workflow-engine/) | — | 7 .ts files | Recovered workflow engine |
 | [companies/RABTUL-Technologies/REZ-workflow-executor/](../../../companies/RABTUL-Technologies/REZ-workflow-executor/) | 4310 | 5 .ts files | RABTUL workflow executor with node-based processing |
 | [companies/RABTUL-Technologies/REZ-workflow-builder/](../../../companies/RABTUL-Technologies/REZ-workflow-builder/) | 4045 | ✅ Real | Visual workflow builder |
@@ -61,7 +61,7 @@ Per the user's clarification, FlowOS already has **4 implementations** across th
 | Implementation | Port | Source files | Notes |
 |---|---|---|---|
 | [companies/RABTUL-Technologies/REZ-policy-engine/](../../../companies/RABTUL-Technologies/REZ-policy-engine/) | 4034 | 11 .ts files + tests | RABTUL policy validation + override + compliance |
-| [services/ai-intelligence/src/policy/](../../../services/ai-intelligence/src/policy/) | (in 4881) | Real | HOJAI Intelligence policy engine (already running) |
+| [./services/ai-intelligence/src/policy/](../services/ai-intelligence/src/policy/) | (in 4881) | Real | HOJAI Intelligence policy engine (already running) |
 | [companies/Axom/policy-engine-service/](../../../companies/Axom/policy-engine-service/) | — | 🟡 | Axom's policy service |
 
 **Port mismatch:** SUTAR docs say PolicyOS is port 4254, actual code uses 4034. Need to pick canonical.
@@ -215,13 +215,13 @@ Plus 6 pre-seeded categories (AI, Commerce, Business, Productivity, Communicatio
 ## 8. Open Questions
 
 1. **FlowOS consolidation:** Which of the 4 implementations is canonical?
-   - [services/workflow-marketplace/](../../../services/workflow-marketplace/) — most "official" (in /services/)
+   - [./services/workflow-marketplace/](../services/workflow-marketplace/) — most "official" (in /services/)
    - [hojai-workflow-engine](../../HOJAI-AI-restored/services/hojai-workflow-engine/) — HOJAI AI brand, recovered
    - [REZ-workflow-executor](../../../companies/RABTUL-Technologies/REZ-workflow-executor/) — node-based processing
    - [REZ-workflow-builder](../../../companies/RABTUL-Technologies/REZ-workflow-builder/) — visual builder
 2. **PolicyOS consolidation:** Which is canonical?
    - [REZ-policy-engine](../../../companies/RABTUL-Technologies/REZ-policy-engine/) — most complete (11 .ts files, has tests)
-   - [hojai-intelligence policy](../../../services/ai-intelligence/src/policy/) — already running inside ai-intelligence
+   - [hojai-intelligence policy](../services/ai-intelligence/src/policy/) — already running inside ai-intelligence
 3. **Port standardization:** SUTAR docs say FlowOS=4244, PolicyOS=4254. Actual code uses 4310, 4938, 4045, 4034. Reconcile?
 4. **Vector DB choice:** Pinecone (managed, fast) vs Qdrant (self-hosted, flexible) vs pgvector (no new infra). Affects Vendor strategy.
 5. **Reasoning framework:** Should we build our own or adopt LangChain/LlamaIndex? Affects vendor lock-in and time-to-market.
@@ -239,4 +239,4 @@ This was **wrong** for FlowOS, PolicyOS, and GoalOS. Corrected picture:
 
 ---
 
-*See also: [services/memory-os/CLAUDE.md](../../../services/memory-os/CLAUDE.md), [services/twinos-hub/CLAUDE.md](../../../services/twinos-hub/CLAUDE.md), [services/ai-intelligence/CLAUDE.md](../../../services/ai-intelligence/CLAUDE.md), [Division 12 — SUTAR OS](../12-sutar-os/)*
+*See also: [./services/memory-os/CLAUDE.md](../services/memory-os/CLAUDE.md), [./services/twinos-hub/CLAUDE.md](../services/twinos-hub/CLAUDE.md), [./services/ai-intelligence/CLAUDE.md](../services/ai-intelligence/CLAUDE.md), [Division 12 — SUTAR OS](../12-sutar-os/)*

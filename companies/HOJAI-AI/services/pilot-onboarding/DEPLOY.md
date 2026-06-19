@@ -22,7 +22,7 @@
 ### Step 1: Prepare the Backend
 
 ```bash
-cd services/pilot-onboarding
+cd companies/HOJAI-AI/services/pilot-onboarding
 ```
 
 ### Step 2: Create Render Web Service

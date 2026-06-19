@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/journey-intelligence/`
+Service located at `companies/HOJAI-AI/services/journey-intelligence/`
 
 ## Quick Start
 
 ```bash
-cd services/journey-intelligence
+cd companies/HOJAI-AI/services/journey-intelligence
 npm install
 npm start
 ```

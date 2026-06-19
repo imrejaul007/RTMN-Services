@@ -234,7 +234,7 @@ GET /api/briefing/:userId/history?limit=7
 
 ```bash
 # Install dependencies
-cd services/genie-briefing-service
+cd companies/HOJAI-AI/services/genie-briefing-service
 npm install
 
 # Start server

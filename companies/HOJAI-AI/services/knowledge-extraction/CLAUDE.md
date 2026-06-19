@@ -90,7 +90,7 @@ Extracts structured knowledge from unstructured text. Provides Named Entity Reco
 ## Quick Start
 
 ```bash
-cd services/knowledge-extraction
+cd companies/HOJAI-AI/services/knowledge-extraction
 npm install
 npm start              # listens on :4784
 ```

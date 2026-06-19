@@ -22,7 +22,7 @@ This service provides core functionality for the RTMN ecosystem.
 ## Quick Start
 
 ```bash
-cd services/sla-manager
+cd companies/HOJAI-AI/services/sla-manager
 npm install
 npm start
 ```

@@ -81,7 +81,7 @@ Progress tracking and completion status.
 
 ```bash
 # Navigate to service directory
-cd services/onboarding-portal
+cd companies/HOJAI-AI/services/onboarding-portal
 
 # Install dependencies
 npm install

@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/trust-intelligence/`
+Service located at `companies/HOJAI-AI/services/trust-intelligence/`
 
 ## Quick Start
 
 ```bash
-cd services/trust-intelligence
+cd companies/HOJAI-AI/services/trust-intelligence
 npm install
 npm start
 ```

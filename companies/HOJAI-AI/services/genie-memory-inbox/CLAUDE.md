@@ -245,7 +245,7 @@ meeting/work ──────────────→ Business Context
 
 ```bash
 # Install dependencies
-cd services/genie-memory-inbox
+cd companies/HOJAI-AI/services/genie-memory-inbox
 npm install
 
 # Start service

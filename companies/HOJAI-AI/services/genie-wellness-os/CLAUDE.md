@@ -199,7 +199,7 @@ Overall = (Health × 0.20) + (Sleep × 0.25) + (Nutrition × 0.20) + (Mental × 
 ## 🚀 Quick Start
 
 ```bash
-cd services/genie-wellness-os
+cd companies/HOJAI-AI/services/genie-wellness-os
 npm install
 npm start  # Port 4723
 ```

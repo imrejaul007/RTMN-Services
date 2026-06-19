@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/order-twin/`
+Service located at `companies/HOJAI-AI/services/order-twin/`
 
 ## Quick Start
 
 ```bash
-cd services/order-twin
+cd companies/HOJAI-AI/services/order-twin
 npm install
 npm start
 ```

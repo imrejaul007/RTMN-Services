@@ -51,7 +51,7 @@ GET  /health              # Health check
 ## Quick Start
 
 ```bash
-cd services/event-bus
+cd companies/HOJAI-AI/services/event-bus
 npm install
 npm start
 

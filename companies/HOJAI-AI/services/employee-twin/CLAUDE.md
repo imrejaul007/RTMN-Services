@@ -198,7 +198,7 @@ curl http://localhost:4730/api/org-chart
 ## Quick Start
 
 ```bash
-cd services/employee-twin
+cd companies/HOJAI-AI/services/employee-twin
 npm install
 npm start
 ```

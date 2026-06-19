@@ -199,7 +199,7 @@ services/genie-smart-forgetting-service/
 ## 🚀 Quick Start
 
 ```bash
-cd services/genie-smart-forgetting-service
+cd companies/HOJAI-AI/services/genie-smart-forgetting-service
 npm install
 npm start  # Port 4715
 

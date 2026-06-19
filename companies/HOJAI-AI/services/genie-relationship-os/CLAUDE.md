@@ -275,7 +275,7 @@ curl "http://localhost:4718/api/intelligence/karim/suggestions"
 ## Quick Start
 
 ```bash
-cd services/genie-relationship-os
+cd companies/HOJAI-AI/services/genie-relationship-os
 npm install
 npm start
 

@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/live-chat/`
+Service located at `companies/HOJAI-AI/services/live-chat/`
 
 ## Quick Start
 
 ```bash
-cd services/live-chat
+cd companies/HOJAI-AI/services/live-chat
 npm install
 npm start
 ```

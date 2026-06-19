@@ -89,7 +89,7 @@ Customer Intelligence provides a complete 360° view of every customer with:
 ## Quick Start
 
 ```bash
-cd services/customer-intelligence
+cd companies/HOJAI-AI/services/customer-intelligence
 npm install
 npm start
 ```

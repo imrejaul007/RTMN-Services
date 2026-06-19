@@ -72,7 +72,7 @@ Workflow Marketplace is a service that allows users to discover, purchase, and d
 ## Quick Start
 
 ```bash
-cd services/workflow-marketplace
+cd companies/HOJAI-AI/services/workflow-marketplace
 npm install
 npm start
 ```

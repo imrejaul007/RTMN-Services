@@ -99,8 +99,8 @@ SUTAR enables AI agents to:
 | Bridge | Location | Purpose |
 |---|---|---|
 | **BOA-SUTAR Bridge** | [companies/RTNM-Group/boa-sutar-bridge/](../../../companies/RTNM-Group/boa-sutar-bridge/) | Sync between BOA OS strategy and SUTAR execution |
-| **REZ Sales → SUTAR Bridge** | [services/sales-hub/src/services/sutarBridge.ts](../../../services/sales-hub/src/services/sutarBridge.ts) | Sales hub integration |
-| **SUTAR Marketplace integration** | [services/unified-os-hub/src/agent-marketplace.js](../../../services/unified-os-hub/src/agent-marketplace.js) | Unified OS hub integration |
+| **REZ Sales → SUTAR Bridge** | [./services/sales-hub/src/services/sutarBridge.ts](../services/sales-hub/src/services/sutarBridge.ts) | Sales hub integration |
+| **SUTAR Marketplace integration** | [./services/unified-os-hub/src/agent-marketplace.js](../services/unified-os-hub/src/agent-marketplace.js) | Unified OS hub integration |
 | **SUTAR Karma integration** | [industry-os/services/sales-os/integrations/sutar-karma.js](../../../industry-os/services/sales-os/integrations/sutar-karma.js) | Sales OS karma integration |
 
 ### E. SUTAR Mocks (1)

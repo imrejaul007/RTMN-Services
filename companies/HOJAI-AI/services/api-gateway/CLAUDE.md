@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/api-gateway/`
+Service located at `companies/HOJAI-AI/services/api-gateway/`
 
 ## Quick Start
 
 ```bash
-cd services/api-gateway
+cd companies/HOJAI-AI/services/api-gateway
 npm install
 npm start
 ```

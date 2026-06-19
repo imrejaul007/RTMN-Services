@@ -135,7 +135,7 @@ GET    /ready                        - Readiness check
 ## Quick Start
 
 ```bash
-cd services/merchant-twin
+cd companies/HOJAI-AI/services/merchant-twin
 npm install
 npm start
 ```

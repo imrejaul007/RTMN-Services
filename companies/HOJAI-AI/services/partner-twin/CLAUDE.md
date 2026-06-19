@@ -22,7 +22,7 @@ This service provides core functionality for the RTMN ecosystem.
 ## Quick Start
 
 ```bash
-cd services/partner-twin
+cd companies/HOJAI-AI/services/partner-twin
 npm install
 npm start
 ```

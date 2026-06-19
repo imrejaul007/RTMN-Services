@@ -51,7 +51,7 @@ Personal calendar for Genie AI - integrates with MemoryOS and TwinOS for smart s
 ## Quick Start
 
 ```bash
-cd services/genie-calendar-service
+cd companies/HOJAI-AI/services/genie-calendar-service
 npm install
 npm start  # Port 4709
 ```

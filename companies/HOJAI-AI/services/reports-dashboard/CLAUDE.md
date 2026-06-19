@@ -22,7 +22,7 @@ This service provides core functionality for the RTMN ecosystem.
 ## Quick Start
 
 ```bash
-cd services/reports-dashboard
+cd companies/HOJAI-AI/services/reports-dashboard
 npm install
 npm start
 ```

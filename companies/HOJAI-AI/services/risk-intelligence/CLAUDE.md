@@ -30,7 +30,7 @@ risk-intelligence (4755)
 ## 2. Quick Start
 
 ```bash
-cd services/risk-intelligence
+cd companies/HOJAI-AI/services/risk-intelligence
 npm install
 npm start              # PORT defaults to 4755
 

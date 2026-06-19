@@ -250,7 +250,7 @@ curl -X POST http://localhost:4713/api/search/saved \
 ## Quick Start
 
 ```bash
-cd services/genie-universal-search
+cd companies/HOJAI-AI/services/genie-universal-search
 npm install
 npm start
 

@@ -138,7 +138,7 @@ PORT=4703
 ## Quick Start
 
 ```bash
-cd services/memory-os
+cd companies/HOJAI-AI/services/memory-os
 npm install
 npm start
 

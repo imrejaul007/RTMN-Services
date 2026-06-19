@@ -30,19 +30,19 @@ Communication Cloud
 
 | Capability | Service | Port | State |
 |---|---|---|---|
-| **Voice AI** (TTS/STT/voice profiles) | [services/voice-twin/](../../../services/voice-twin/) | 4876 | ✅ Real |
-| **Wake Word Detection** ("Hey Genie") | [services/genie-wake-word-service/](../../../services/genie-wake-word-service/) | 4767 | ✅ Real |
-| **Listening Modes** (manual/continuous/passive/smart) | [services/genie-listening-modes/](../../../services/genie-listening-modes/) | 4768 | ✅ Real |
-| **Device Integration** (earbuds/watch/glasses/car) | [services/genie-device-integration/](../../../services/genie-device-integration/) | 4769 | ✅ Real |
-| **Chat AI** (smart chatbot) | [services/smart-chatbot/](../../../services/smart-chatbot/) | 4878 | ✅ Real |
-| **Live Chat** | [services/live-chat/](../../../services/live-chat/) | — | 🟡 Real |
-| **Unified Inbox** | [services/unified-inbox/](../../../services/unified-inbox/) | 4870 | ✅ Real |
-| **Ticket Engine** | [services/ticket-engine/](../../../services/ticket-engine/) | 4872 | ✅ Real |
-| **Notification Service** (email/SMS/push/in-app) | [services/notification-service/](../../../services/notification-service/) | 4870 | ✅ Real |
+| **Voice AI** (TTS/STT/voice profiles) | [./services/voice-twin/](../services/voice-twin/) | 4876 | ✅ Real |
+| **Wake Word Detection** ("Hey Genie") | [./services/genie-wake-word-service/](../services/genie-wake-word-service/) | 4767 | ✅ Real |
+| **Listening Modes** (manual/continuous/passive/smart) | [./services/genie-listening-modes/](../services/genie-listening-modes/) | 4768 | ✅ Real |
+| **Device Integration** (earbuds/watch/glasses/car) | [./services/genie-device-integration/](../services/genie-device-integration/) | 4769 | ✅ Real |
+| **Chat AI** (smart chatbot) | [./services/smart-chatbot/](../services/smart-chatbot/) | 4878 | ✅ Real |
+| **Live Chat** | [./services/live-chat/](../services/live-chat/) | — | 🟡 Real |
+| **Unified Inbox** | [./services/unified-inbox/](../services/unified-inbox/) | 4870 | ✅ Real |
+| **Ticket Engine** | [./services/ticket-engine/](../services/ticket-engine/) | 4872 | ✅ Real |
+| **Notification Service** (email/SMS/push/in-app) | [./services/notification-service/](../services/notification-service/) | 4870 | ✅ Real |
 | **HOJAI Notification Service** (recovered, nodemailer+twilio) | [companies/HOJAI-AI-restored/hojai-notification-service/](../../HOJAI-AI-restored/hojai-notification-service/) | — | 🟡 Recovered |
-| **Genie Companion** (emotional chat AI) | [services/genie-companion-service/](../../../services/genie-companion-service/) | 4716 | ✅ Real |
-| **Genie Relationship OS** (relationship intelligence chat) | [services/genie-relationship-os/](../../../services/genie-relationship-os/) | 4718 | ✅ Real |
-| **RAZO Keyboard** (intent-aware keyboard) | [services/razo-keyboard/](../../../services/razo-keyboard/) | 4725 | ✅ Real |
+| **Genie Companion** (emotional chat AI) | [./services/genie-companion-service/](../services/genie-companion-service/) | 4716 | ✅ Real |
+| **Genie Relationship OS** (relationship intelligence chat) | [./services/genie-relationship-os/](../services/genie-relationship-os/) | 4718 | ✅ Real |
+| **RAZO Keyboard** (intent-aware keyboard) | [./services/razo-keyboard/](../services/razo-keyboard/) | 4725 | ✅ Real |
 
 ## 4. What's NOT Built
 
@@ -86,4 +86,4 @@ Communication Cloud
 
 ---
 
-*See also: [services/voice-twin/CLAUDE.md](../../../services/voice-twin/CLAUDE.md), [services/notification-service/CLAUDE.md](../../../services/notification-service/CLAUDE.md), [services/genie-device-integration/CLAUDE.md](../../../services/genie-device-integration/CLAUDE.md)*
+*See also: [./services/voice-twin/CLAUDE.md](../services/voice-twin/CLAUDE.md), [./services/notification-service/CLAUDE.md](../services/notification-service/CLAUDE.md), [./services/genie-device-integration/CLAUDE.md](../services/genie-device-integration/CLAUDE.md)*

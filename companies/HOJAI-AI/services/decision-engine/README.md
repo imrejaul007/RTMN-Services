@@ -9,7 +9,7 @@ Policy and authorization service for RTMN.
 ## Quick Start
 
 ```bash
-cd services/decision-engine
+cd companies/HOJAI-AI/services/decision-engine
 npm install
 npm start
 ```

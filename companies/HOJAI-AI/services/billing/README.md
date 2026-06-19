@@ -44,7 +44,7 @@ This service handles all billing-related operations including:
 
 ```bash
 # Navigate to service directory
-cd services/billing
+cd companies/HOJAI-AI/services/billing
 
 # Install dependencies
 npm install

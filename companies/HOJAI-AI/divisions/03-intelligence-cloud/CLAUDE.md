@@ -68,17 +68,17 @@ Company Intelligence (sub-list)
 
 | Module | Service | Port | State |
 |---|---|---|---|
-| HOJAI Intelligence (general, thin) | [services/ai-intelligence/](../../../services/ai-intelligence/) | 4881 | ✅ Running (v1.0, 5 built-in agents + 4 routed to new intelligence services) |
+| HOJAI Intelligence (general, thin) | [./services/ai-intelligence/](../services/ai-intelligence/) | 4881 | ✅ Running (v1.0, 5 built-in agents + 4 routed to new intelligence services) |
 | HOJAI Intelligence (rich, recovered) | [companies/HOJAI-AI-restored/hojai-intelligence/](../../HOJAI-AI-restored/hojai-intelligence/) | 4881 | 🟡 Recovered, not running |
-| Customer Intelligence | [services/customer-intelligence/](../../../services/customer-intelligence/) | 4885 | ✅ Running (v2.0 CDP, MongoDB-backed) |
-| Sales Intelligence | [services/sales-intelligence/](../../../services/sales-intelligence/) | 5181 | ✅ Running (6 endpoints, 4 returning real data after June 19 fix) |
-| Journey Intelligence | [services/journey-intelligence/](../../../services/journey-intelligence/) | 4954 | ✅ Real |
-| Memory Intelligence | [services/memory-intelligence-service/](../../../services/memory-intelligence-service/) | — | ✅ Real |
-| Trust Intelligence | [services/trust-intelligence/](../../../services/trust-intelligence/) | — | ✅ Real |
-| **Predictive Intelligence** | [services/predictive-intelligence/](../../../services/predictive-intelligence/) | **4754** | ✅ NEW v1.0 (linear/MA/Holt-Winters/seasonal/ensemble forecasting + anomaly detection + trend decomposition + demand prediction) |
-| **Risk Intelligence** | [services/risk-intelligence/](../../../services/risk-intelligence/) | **4755** | ✅ NEW v1.0 (fraud/churn/credit scoring + composite risk + rule weight tuning) |
-| **Decision Intelligence** | [services/decision-intelligence/](../../../services/decision-intelligence/) | **4756** | ✅ NEW v1.0 (collaborative/content/popularity/hybrid recommenders + NBA + WSM + TOPSIS) |
-| **Micro Intelligence** | [services/micro-intelligence/](../../../services/micro-intelligence/) | **4753** | ✅ NEW v1.0 (3-state circuit breaker + fallback registry + execution proxy + kill-switch) |
+| Customer Intelligence | [./services/customer-intelligence/](../services/customer-intelligence/) | 4885 | ✅ Running (v2.0 CDP, MongoDB-backed) |
+| Sales Intelligence | [./services/sales-intelligence/](../services/sales-intelligence/) | 5181 | ✅ Running (6 endpoints, 4 returning real data after June 19 fix) |
+| Journey Intelligence | [./services/journey-intelligence/](../services/journey-intelligence/) | 4954 | ✅ Real |
+| Memory Intelligence | [./services/memory-intelligence-service/](../services/memory-intelligence-service/) | — | ✅ Real |
+| Trust Intelligence | [./services/trust-intelligence/](../services/trust-intelligence/) | — | ✅ Real |
+| **Predictive Intelligence** | [./services/predictive-intelligence/](../services/predictive-intelligence/) | **4754** | ✅ NEW v1.0 (linear/MA/Holt-Winters/seasonal/ensemble forecasting + anomaly detection + trend decomposition + demand prediction) |
+| **Risk Intelligence** | [./services/risk-intelligence/](../services/risk-intelligence/) | **4755** | ✅ NEW v1.0 (fraud/churn/credit scoring + composite risk + rule weight tuning) |
+| **Decision Intelligence** | [./services/decision-intelligence/](../services/decision-intelligence/) | **4756** | ✅ NEW v1.0 (collaborative/content/popularity/hybrid recommenders + NBA + WSM + TOPSIS) |
+| **Micro Intelligence** | [./services/micro-intelligence/](../services/micro-intelligence/) | **4753** | ✅ NEW v1.0 (3-state circuit breaker + fallback registry + execution proxy + kill-switch) |
 
 ### B. Department Intelligence (existing as Department OS)
 
@@ -348,7 +348,7 @@ Per the user's clarification: **Micro Intelligence is a strategy pattern, not a 
 - Document it in each app's CLAUDE.md under "Failure Mode" section
 - The reference implementation lives in `services/ai-intelligence` (the central HOJAI Intelligence) with a fallback path
 
-**Status:** ✅ IMPLEMENTED — `services/micro-intelligence` (4753) ships a from-scratch 3-state circuit breaker, fallback registry, execution proxy, kill-switch, and audit log. See [services/micro-intelligence/CLAUDE.md](../../../services/micro-intelligence/CLAUDE.md) for full design.
+**Status:** ✅ IMPLEMENTED — `services/micro-intelligence` (4753) ships a from-scratch 3-state circuit breaker, fallback registry, execution proxy, kill-switch, and audit log. See [./services/micro-intelligence/CLAUDE.md](../services/micro-intelligence/CLAUDE.md) for full design.
 
 ## 9. Open Questions
 
@@ -361,4 +361,4 @@ Per the user's clarification: **Micro Intelligence is a strategy pattern, not a 
 
 ---
 
-*See also: [services/ai-intelligence/CLAUDE.md](../../../services/ai-intelligence/CLAUDE.md), [services/customer-intelligence/CLAUDE.md](../../../services/customer-intelligence/CLAUDE.md), [companies/HOJAI-AI-restored/hojai-intelligence/CLAUDE.md](../../HOJAI-AI-restored/hojai-intelligence/CLAUDE.md), [docs/sutar-os/](../../../docs/sutar-os/) (separate SUTAR OS division)*
+*See also: [./services/ai-intelligence/CLAUDE.md](../services/ai-intelligence/CLAUDE.md), [./services/customer-intelligence/CLAUDE.md](../services/customer-intelligence/CLAUDE.md), [companies/HOJAI-AI-restored/hojai-intelligence/CLAUDE.md](../../HOJAI-AI-restored/hojai-intelligence/CLAUDE.md), [docs/sutar-os/](../../../docs/sutar-os/) (separate SUTAR OS division)*

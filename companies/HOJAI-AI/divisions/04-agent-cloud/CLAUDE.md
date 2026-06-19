@@ -37,21 +37,21 @@ Agent Cloud
 
 | Capability | Service | Port | State |
 |---|---|---|---|
-| **ACN Hub** (gateway) | [services/acn-hub/](../../../services/acn-hub/) | 4800 | ✅ Real |
-| **ACN Network** (agent registry + discovery + routing) | [services/acn-network/](../../../services/acn-network/) | 4801 | ✅ Real |
-| **ACP Protocol** (agent-to-agent message protocol) | [services/acp-protocol/](../../../services/acp-protocol/) | 4800 | ✅ Real |
-| **ACN-RTMN Integration** | [services/acn-integration/](../../../services/acn-integration/) | 4849 | ✅ Real |
-| **Agent Marketplace** (registry UI) | [services/agent-marketplace/](../../../services/agent-marketplace/) | 4845 | ✅ Real |
-| **Agent Orchestration** (multi-agent coordination) | [services/agent-orchestration/](../../../services/agent-orchestration/) | 4851 | ✅ Real |
-| **Agent Contracts** (smart contracts for transactions) | [services/agent-contracts/](../../../services/agent-contracts/) | 4830 | ✅ Real |
-| **Agent Wallets** (digital wallets for agents) | [services/agent-wallets/](../../../services/agent-wallets/) | 4840 | ✅ Real |
-| **Agent Reputation** (trust scores) | [services/agent-reputation/](../../../services/agent-reputation/) | 4820 | ✅ Real |
-| **Agent Learning** (ML for improving behavior) | [services/agent-learning/](../../../services/agent-learning/) | 4846 | ✅ Real |
-| **Agent Analytics** (metrics + dashboards) | [services/agent-analytics/](../../../services/agent-analytics/) | 4848 | ✅ Real |
-| **Agent Copilot** (RTMN-branded) | [services/agent-copilot/](../../../services/agent-copilot/) | 4920 | ✅ Real |
-| **Negotiation AI** (ML-powered negotiation) | [services/negotiation-ai/](../../../services/negotiation-ai/) | 4850 | ✅ Real |
-| **Dispute Resolution** (arbitration) | [services/dispute-resolution/](../../../services/dispute-resolution/) | 4847 | ✅ Real |
-| **Merchant Agents (SUTAR OS)** | [services/merchant-agents/](../../../services/merchant-agents/) | 4810 | ✅ Real |
+| **ACN Hub** (gateway) | [./services/acn-hub/](../services/acn-hub/) | 4800 | ✅ Real |
+| **ACN Network** (agent registry + discovery + routing) | [./services/acn-network/](../services/acn-network/) | 4801 | ✅ Real |
+| **ACP Protocol** (agent-to-agent message protocol) | [./services/acp-protocol/](../services/acp-protocol/) | 4800 | ✅ Real |
+| **ACN-RTMN Integration** | [./services/acn-integration/](../services/acn-integration/) | 4849 | ✅ Real |
+| **Agent Marketplace** (registry UI) | [./services/agent-marketplace/](../services/agent-marketplace/) | 4845 | ✅ Real |
+| **Agent Orchestration** (multi-agent coordination) | [./services/agent-orchestration/](../services/agent-orchestration/) | 4851 | ✅ Real |
+| **Agent Contracts** (smart contracts for transactions) | [./services/agent-contracts/](../services/agent-contracts/) | 4830 | ✅ Real |
+| **Agent Wallets** (digital wallets for agents) | [./services/agent-wallets/](../services/agent-wallets/) | 4840 | ✅ Real |
+| **Agent Reputation** (trust scores) | [./services/agent-reputation/](../services/agent-reputation/) | 4820 | ✅ Real |
+| **Agent Learning** (ML for improving behavior) | [./services/agent-learning/](../services/agent-learning/) | 4846 | ✅ Real |
+| **Agent Analytics** (metrics + dashboards) | [./services/agent-analytics/](../services/agent-analytics/) | 4848 | ✅ Real |
+| **Agent Copilot** (RTMN-branded) | [./services/agent-copilot/](../services/agent-copilot/) | 4920 | ✅ Real |
+| **Negotiation AI** (ML-powered negotiation) | [./services/negotiation-ai/](../services/negotiation-ai/) | 4850 | ✅ Real |
+| **Dispute Resolution** (arbitration) | [./services/dispute-resolution/](../services/dispute-resolution/) | 4847 | ✅ Real |
+| **Merchant Agents (SUTAR OS)** | [./services/merchant-agents/](../services/merchant-agents/) | 4810 | ✅ Real |
 | **HOJAI Workflow Engine** (recovered) | [companies/HOJAI-AI-restored/services/hojai-workflow-engine/](../../HOJAI-AI-restored/services/hojai-workflow-engine/) | — | 🟡 Recovered |
 | **HOJAI Action Registry** (recovered) | [companies/HOJAI-AI-restored/services/hojai-action-registry/](../../HOJAI-AI-restored/services/hojai-action-registry/) | — | 🟡 Recovered |
 
@@ -93,4 +93,4 @@ Agent Cloud
 
 ---
 
-*See also: [services/acn-network/CLAUDE.md](../../../services/acn-network/CLAUDE.md), [services/merchant-agents/CLAUDE.md](../../../services/merchant-agents/CLAUDE.md), [ACN-ARCHITECTURE.md](../../../../ACN-ARCHITECTURE.md), [Division 12 — SUTAR OS](../12-sutar-os/)*
+*See also: [./services/acn-network/CLAUDE.md](../services/acn-network/CLAUDE.md), [./services/merchant-agents/CLAUDE.md](../services/merchant-agents/CLAUDE.md), [ACN-ARCHITECTURE.md](../../../../ACN-ARCHITECTURE.md), [Division 12 — SUTAR OS](../12-sutar-os/)*

@@ -115,7 +115,7 @@ POST /api/workflow/restaurant-order    # Restaurant workflow
 ## Quick Start
 
 ```bash
-cd services/unified-os-hub
+cd companies/HOJAI-AI/services/unified-os-hub
 npm install
 npm start  # Port 4399
 

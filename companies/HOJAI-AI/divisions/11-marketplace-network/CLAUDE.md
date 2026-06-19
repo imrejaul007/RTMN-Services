@@ -33,16 +33,16 @@ The **ecosystem layer**. Where buyers meet sellers, where trust is computed, whe
 
 | Capability | Service | Port | State |
 |---|---|---|---|
-| **Agent Marketplace** (runtime) | [services/agent-marketplace/](../../../services/agent-marketplace/) | 4845 | ✅ Real |
-| **Agent Marketplace Backend** (the registry) | (part of [services/acn-network/](../../../services/acn-network/)) | 4801 | ✅ Real |
-| **Workflow Marketplace** | [services/workflow-marketplace/](../../../services/workflow-marketplace/) | 4938 | 🟡 Real |
-| **Knowledge Marketplace** | [services/knowledge-marketplace/](../../../services/knowledge-marketplace/) | 4939 | ✅ Real |
-| **Agent Reputation / Trust Network** | [services/agent-reputation/](../../../services/agent-reputation/) | 4820 | ✅ Real |
-| **Agent Wallets / AI Economy** | [services/agent-wallets/](../../../services/agent-wallets/) | 4840 | ✅ Real |
-| **Agent Contracts** | [services/agent-contracts/](../../../services/agent-contracts/) | 4830 | ✅ Real |
-| **Dispute Resolution** | [services/dispute-resolution/](../../../services/dispute-resolution/) | 4847 | ✅ Real |
-| **Negotiation AI** | [services/negotiation-ai/](../../../services/negotiation-ai/) | 4850 | ✅ Real |
-| **ACN Network** (registry + discovery) | [services/acn-network/](../../../services/acn-network/) | 4801 | ✅ Real |
+| **Agent Marketplace** (runtime) | [./services/agent-marketplace/](../services/agent-marketplace/) | 4845 | ✅ Real |
+| **Agent Marketplace Backend** (the registry) | (part of [./services/acn-network/](../services/acn-network/)) | 4801 | ✅ Real |
+| **Workflow Marketplace** | [./services/workflow-marketplace/](../services/workflow-marketplace/) | 4938 | 🟡 Real |
+| **Knowledge Marketplace** | [./services/knowledge-marketplace/](../services/knowledge-marketplace/) | 4939 | ✅ Real |
+| **Agent Reputation / Trust Network** | [./services/agent-reputation/](../services/agent-reputation/) | 4820 | ✅ Real |
+| **Agent Wallets / AI Economy** | [./services/agent-wallets/](../services/agent-wallets/) | 4840 | ✅ Real |
+| **Agent Contracts** | [./services/agent-contracts/](../services/agent-contracts/) | 4830 | ✅ Real |
+| **Dispute Resolution** | [./services/dispute-resolution/](../services/dispute-resolution/) | 4847 | ✅ Real |
+| **Negotiation AI** | [./services/negotiation-ai/](../services/negotiation-ai/) | 4850 | ✅ Real |
+| **ACN Network** (registry + discovery) | [./services/acn-network/](../services/acn-network/) | 4801 | ✅ Real |
 | **BLR AI Marketplace** (the B2C storefront) | [../blr-ai-marketplace/](../../blr-ai-marketplace/) | — | ⚠️ **No source** — only docs + package.json |
 
 ## 4. What's NOT Built
@@ -96,4 +96,4 @@ The **ecosystem layer**. Where buyers meet sellers, where trust is computed, whe
 
 ---
 
-*See also: [services/agent-marketplace/CLAUDE.md](../../../services/agent-marketplace/CLAUDE.md), [services/workflow-marketplace/CLAUDE.md](../../../services/workflow-marketplace/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [../blr-ai-marketplace/CLAUDE.md](../../blr-ai-marketplace/CLAUDE.md)*
+*See also: [./services/agent-marketplace/CLAUDE.md](../services/agent-marketplace/CLAUDE.md), [./services/workflow-marketplace/CLAUDE.md](../services/workflow-marketplace/CLAUDE.md), [./services/knowledge-marketplace/CLAUDE.md](../services/knowledge-marketplace/CLAUDE.md), [../blr-ai-marketplace/CLAUDE.md](../../blr-ai-marketplace/CLAUDE.md)*

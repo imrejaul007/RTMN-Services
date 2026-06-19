@@ -173,7 +173,7 @@ CORPID_URL=http://localhost:4702
 ## Quick Start
 
 ```bash
-cd services/genie-gateway
+cd companies/HOJAI-AI/services/genie-gateway
 npm install
 npm start
 

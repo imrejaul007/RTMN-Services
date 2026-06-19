@@ -182,7 +182,7 @@ curl http://localhost:4720/api/products/prod-1/analytics
 ## Quick Start
 
 ```bash
-cd services/product-twin
+cd companies/HOJAI-AI/services/product-twin
 npm install
 npm start
 ```

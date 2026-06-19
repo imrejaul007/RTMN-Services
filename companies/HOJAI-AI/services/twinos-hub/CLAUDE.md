@@ -280,7 +280,7 @@ PORT=4705
 ## Quick Start
 
 ```bash
-cd services/twinos-hub
+cd companies/HOJAI-AI/services/twinos-hub
 npm install
 npm start
 

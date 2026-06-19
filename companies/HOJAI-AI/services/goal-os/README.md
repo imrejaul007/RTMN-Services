@@ -9,7 +9,7 @@ Autonomous goal decomposition and planning for RTMN.
 ## Quick Start
 
 ```bash
-cd services/goal-os
+cd companies/HOJAI-AI/services/goal-os
 npm install
 npm start
 ```

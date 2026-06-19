@@ -90,7 +90,7 @@ Knowledge Marketplace is a service that allows users to discover, purchase, and 
 ## Quick Start
 
 ```bash
-cd services/knowledge-marketplace
+cd companies/HOJAI-AI/services/knowledge-marketplace
 npm install
 npm start
 ```

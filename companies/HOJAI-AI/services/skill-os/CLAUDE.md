@@ -63,7 +63,7 @@ SkillOS is the registry, runtime, and marketplace for **every AI capability** in
 ## Quick Start
 
 ```bash
-cd services/skill-os
+cd companies/HOJAI-AI/services/skill-os
 npm install
 npm start
 

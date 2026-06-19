@@ -33,17 +33,17 @@ AI Foundation
 
 | Capability | Service | Port | State |
 |---|---|---|---|
-| Identity | [services/corpid-service/](../../../services/corpid-service/) | 4702 | ✅ Real (running, v4.0) |
-| API Gateway | [services/api-gateway/](../../../services/api-gateway/) | 4000 | ✅ Real (gateway + proxy) |
-| Event Bus | [services/event-bus/](../../../services/event-bus/) | 4751 | ✅ Real (running, pub/sub) |
-| GraphQL Federation | [services/graphql-federation/](../../../services/graphql-federation/) | 4000 | ✅ Real |
-| Billing | [services/billing/](../../../services/billing/) | — | ✅ Real (Stripe integrated) |
-| Onboarding | [services/onboarding-portal/](../../../services/onboarding-portal/) + [services/pilot-onboarding/](../../../services/pilot-onboarding/) | 4399 | ✅ Real |
-| Unified Hub (gateway) | [services/unified-os-hub/](../../../services/unified-os-hub/) | 4399 | ✅ Real (cross-OS router) |
-| **Secrets Manager** | [services/secrets-manager/](../../../services/secrets-manager/) | **4744** | ✅ NEW v1.0 (running, in-memory + audit) |
-| **Feature Flags** | [services/feature-flags/](../../../services/feature-flags/) | **4745** | ✅ NEW v1.0 (running, FNV-1a consistent hashing, 4 pre-seeded flags) |
-| **Context Engine** | [services/context-engine/](../../../services/context-engine/) | **4746** | ✅ NEW v1.0 (running, W3C Trace Context, span tree) |
-| **Tenant Manager** | [services/tenant-manager/](../../../services/tenant-manager/) | **4747** | ✅ NEW v1.0 (running, 4 plans × 5 roles × 7 regions, 1 pre-seeded tenant) |
+| Identity | [./services/corpid-service/](../services/corpid-service/) | 4702 | ✅ Real (running, v4.0) |
+| API Gateway | [./services/api-gateway/](../services/api-gateway/) | 4000 | ✅ Real (gateway + proxy) |
+| Event Bus | [./services/event-bus/](../services/event-bus/) | 4751 | ✅ Real (running, pub/sub) |
+| GraphQL Federation | [./services/graphql-federation/](../services/graphql-federation/) | 4000 | ✅ Real |
+| Billing | [./services/billing/](../services/billing/) | — | ✅ Real (Stripe integrated) |
+| Onboarding | [./services/onboarding-portal/](../services/onboarding-portal/) + [./services/pilot-onboarding/](../services/pilot-onboarding/) | 4399 | ✅ Real |
+| Unified Hub (gateway) | [./services/unified-os-hub/](../services/unified-os-hub/) | 4399 | ✅ Real (cross-OS router) |
+| **Secrets Manager** | [./services/secrets-manager/](../services/secrets-manager/) | **4744** | ✅ NEW v1.0 (running, in-memory + audit) |
+| **Feature Flags** | [./services/feature-flags/](../services/feature-flags/) | **4745** | ✅ NEW v1.0 (running, FNV-1a consistent hashing, 4 pre-seeded flags) |
+| **Context Engine** | [./services/context-engine/](../services/context-engine/) | **4746** | ✅ NEW v1.0 (running, W3C Trace Context, span tree) |
+| **Tenant Manager** | [./services/tenant-manager/](../services/tenant-manager/) | **4747** | ✅ NEW v1.0 (running, 4 plans × 5 roles × 7 regions, 1 pre-seeded tenant) |
 | Monitoring / Logs | (cross-cutting, in individual services) | — | 🟡 Partial (each service has its own logger, no central observability) |
 | Auth/RBAC + mTLS | — | — | ⚪ Not built (extends CorpID) |
 
@@ -173,4 +173,4 @@ AI Foundation
 
 ---
 
-*See also: [services/corpid-service/CLAUDE.md](../../../services/corpid-service/CLAUDE.md), [services/api-gateway/CLAUDE.md](../../../services/api-gateway/CLAUDE.md), [services/secrets-manager/CLAUDE.md](../../../services/secrets-manager/CLAUDE.md), [services/feature-flags/CLAUDE.md](../../../services/feature-flags/CLAUDE.md), [services/context-engine/CLAUDE.md](../../../services/context-engine/CLAUDE.md), [services/tenant-manager/CLAUDE.md](../../../services/tenant-manager/CLAUDE.md)*
+*See also: [./services/corpid-service/CLAUDE.md](../services/corpid-service/CLAUDE.md), [./services/api-gateway/CLAUDE.md](../services/api-gateway/CLAUDE.md), [./services/secrets-manager/CLAUDE.md](../services/secrets-manager/CLAUDE.md), [./services/feature-flags/CLAUDE.md](../services/feature-flags/CLAUDE.md), [./services/context-engine/CLAUDE.md](../services/context-engine/CLAUDE.md), [./services/tenant-manager/CLAUDE.md](../services/tenant-manager/CLAUDE.md)*

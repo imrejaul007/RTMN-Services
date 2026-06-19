@@ -102,7 +102,7 @@ curl http://localhost:4744/api/audit
 ## Quick Start
 
 ```bash
-cd services/secrets-manager
+cd companies/HOJAI-AI/services/secrets-manager
 npm install
 npm start
 

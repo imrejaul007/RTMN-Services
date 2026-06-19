@@ -143,7 +143,7 @@ GET    /health                        # Alternate health
 ## Quick Start
 
 ```bash
-cd services/context-engine
+cd companies/HOJAI-AI/services/context-engine
 npm install
 npm start
 

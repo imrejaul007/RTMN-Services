@@ -44,7 +44,7 @@ Manages different listening modes for Genie AI across all devices.
 ## Quick Start
 
 ```bash
-cd services/genie-listening-modes
+cd companies/HOJAI-AI/services/genie-listening-modes
 npm install
 npm start  # Port 4768
 ```

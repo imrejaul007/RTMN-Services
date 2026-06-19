@@ -38,7 +38,7 @@ Connects Genie AI to various listening devices for the "Genie Everywhere" experi
 ## Quick Start
 
 ```bash
-cd services/genie-device-integration
+cd companies/HOJAI-AI/services/genie-device-integration
 npm install
 npm start  # Port 4769
 ```

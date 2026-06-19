@@ -22,7 +22,7 @@ This service provides core functionality for the RTMN ecosystem.
 ## Quick Start
 
 ```bash
-cd services/voice-twin
+cd companies/HOJAI-AI/services/voice-twin
 npm install
 npm start
 ```

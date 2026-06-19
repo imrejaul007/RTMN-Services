@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/graphql-federation/`
+Service located at `companies/HOJAI-AI/services/graphql-federation/`
 
 ## Quick Start
 
 ```bash
-cd services/graphql-federation
+cd companies/HOJAI-AI/services/graphql-federation
 npm install
 npm start
 ```

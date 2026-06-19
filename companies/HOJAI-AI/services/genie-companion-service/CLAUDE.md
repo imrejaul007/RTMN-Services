@@ -294,7 +294,7 @@ curl -X POST http://localhost:4716/emotion/karim/check
 ## Quick Start
 
 ```bash
-cd services/genie-companion-service
+cd companies/HOJAI-AI/services/genie-companion-service
 npm install
 npm start
 

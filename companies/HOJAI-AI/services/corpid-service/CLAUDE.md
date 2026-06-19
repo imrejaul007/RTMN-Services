@@ -48,7 +48,7 @@ CorpID Cloud is a comprehensive enterprise identity platform providing Auth0/Okt
 ## Quick Start
 
 ```bash
-cd services/corpid-service/corpID-cloud
+cd companies/HOJAI-AI/services/corpid-service/corpID-cloud
 npm install
 npm start
 

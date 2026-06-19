@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/lead-twin/`
+Service located at `companies/HOJAI-AI/services/lead-twin/`
 
 ## Quick Start
 
 ```bash
-cd services/lead-twin
+cd companies/HOJAI-AI/services/lead-twin
 npm install
 npm start
 ```

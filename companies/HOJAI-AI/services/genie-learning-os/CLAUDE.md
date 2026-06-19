@@ -170,7 +170,7 @@ Port 4722
 ## 🚀 Quick Start
 
 ```bash
-cd services/genie-learning-os
+cd companies/HOJAI-AI/services/genie-learning-os
 npm install
 npm start  # Port 4722
 ```

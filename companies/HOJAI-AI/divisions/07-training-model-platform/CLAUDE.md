@@ -73,12 +73,12 @@ This is the **strategic bottleneck** and the most ambitious division. Build the 
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| [services/inference-gateway/](../../../services/inference-gateway/) | **4770** | ✅ NEW — Multi-model LLM router (OpenAI, Anthropic, Google, Mistral, local) with cost + latency routing, fallback chain, 9-model catalog |
-| [services/prompt-manager/](../../../services/prompt-manager/) | **4771** | ✅ NEW — Prompt templates with versioning, rollback, A/B experiments, variable substitution |
-| [services/semantic-cache/](../../../services/semantic-cache/) | **4772** | ✅ NEW — Embedding-based LLM response cache, paraphrase matching, 50%+ cost reduction target |
-| [services/model-registry/](../../../services/model-registry/) | **4773** | ✅ NEW — Model catalog of record with versions, deployment info, benchmark scores, capabilities |
-| [services/ai-safety/](../../../services/ai-safety/) | **4774** | ✅ NEW — PII redaction, prompt-injection defense, content filtering, hallucination detection, output validation |
-| [services/evaluation-harness/](../../../services/evaluation-harness/) | **4775** | ✅ NEW — LLM eval framework with 8 scorer types, benchmark CRUD, model comparison |
+| [./services/inference-gateway/](../services/inference-gateway/) | **4770** | ✅ NEW — Multi-model LLM router (OpenAI, Anthropic, Google, Mistral, local) with cost + latency routing, fallback chain, 9-model catalog |
+| [./services/prompt-manager/](../services/prompt-manager/) | **4771** | ✅ NEW — Prompt templates with versioning, rollback, A/B experiments, variable substitution |
+| [./services/semantic-cache/](../services/semantic-cache/) | **4772** | ✅ NEW — Embedding-based LLM response cache, paraphrase matching, 50%+ cost reduction target |
+| [./services/model-registry/](../services/model-registry/) | **4773** | ✅ NEW — Model catalog of record with versions, deployment info, benchmark scores, capabilities |
+| [./services/ai-safety/](../services/ai-safety/) | **4774** | ✅ NEW — PII redaction, prompt-injection defense, content filtering, hallucination detection, output validation |
+| [./services/evaluation-harness/](../services/evaluation-harness/) | **4775** | ✅ NEW — LLM eval framework with 8 scorer types, benchmark CRUD, model comparison |
 
 All 6 are wired into HOJAI Intelligence (4881) routing — `GET /api/route` returns the URL for each, and `/api/agents` lists them as routable agents.
 
@@ -173,4 +173,4 @@ These are big strategic decisions:
 
 ---
 
-*See also: [services/ai-intelligence/CLAUDE.md](../../../services/ai-intelligence/CLAUDE.md) (consumer), [companies/HOJAI-AI-restored/hojai-intelligence/CLAUDE.md](../../HOJAI-AI-restored/hojai-intelligence/CLAUDE.md) (recovered consumer with OpenAI dep)*
+*See also: [./services/ai-intelligence/CLAUDE.md](../services/ai-intelligence/CLAUDE.md) (consumer), [companies/HOJAI-AI-restored/hojai-intelligence/CLAUDE.md](../../HOJAI-AI-restored/hojai-intelligence/CLAUDE.md) (recovered consumer with OpenAI dep)*

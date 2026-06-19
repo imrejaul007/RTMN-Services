@@ -35,16 +35,16 @@ Data & Knowledge Cloud
 
 | Capability | Service | Port | State |
 |---|---|---|---|
-| **Vector Database** (collections, cosine/dot/euclidean, metadata filtering, shared FNV-1a 128-dim vectorizer, batch upsert) | [services/vector-db/](../../../services/vector-db/) | **4780** | ✅ NEW |
-| **RAG Platform** (document ingestion, chunking, retrieval, LLM augmentation via inference-gateway) | [services/rag-platform/](../../../services/rag-platform/) | **4781** | ✅ NEW |
-| **Document Intelligence** (PDF/DOCX/XLSX/CSV/TXT/MD/HTML parser + one-shot extract-and-RAG) | [services/document-intelligence/](../../../services/document-intelligence/) | **4782** | ✅ NEW |
-| **Graph Database** (property graph, Cypher-lite pattern matching, BFS traversal, shortest path, connected components, PageRank) | [services/graph-database/](../../../services/graph-database/) | **4783** | ✅ NEW |
-| **Knowledge Extraction** (NER, entity linking, fact extraction, KB catalog) | [services/knowledge-extraction/](../../../services/knowledge-extraction/) | **4784** | ✅ NEW |
-| **Knowledge Base** (with AI search) | [services/knowledge-base/](../../../services/knowledge-base/) | 4940 | ✅ Real |
-| **Knowledge Marketplace** (SOPs/docs/templates) | [services/knowledge-marketplace/](../../../services/knowledge-marketplace/) | 4939 | ✅ Real |
-| **GraphQL Federation** (data federation across services) | [services/graphql-federation/](../../../services/graphql-federation/) | 4000 | ✅ Real |
+| **Vector Database** (collections, cosine/dot/euclidean, metadata filtering, shared FNV-1a 128-dim vectorizer, batch upsert) | [./services/vector-db/](../services/vector-db/) | **4780** | ✅ NEW |
+| **RAG Platform** (document ingestion, chunking, retrieval, LLM augmentation via inference-gateway) | [./services/rag-platform/](../services/rag-platform/) | **4781** | ✅ NEW |
+| **Document Intelligence** (PDF/DOCX/XLSX/CSV/TXT/MD/HTML parser + one-shot extract-and-RAG) | [./services/document-intelligence/](../services/document-intelligence/) | **4782** | ✅ NEW |
+| **Graph Database** (property graph, Cypher-lite pattern matching, BFS traversal, shortest path, connected components, PageRank) | [./services/graph-database/](../services/graph-database/) | **4783** | ✅ NEW |
+| **Knowledge Extraction** (NER, entity linking, fact extraction, KB catalog) | [./services/knowledge-extraction/](../services/knowledge-extraction/) | **4784** | ✅ NEW |
+| **Knowledge Base** (with AI search) | [./services/knowledge-base/](../services/knowledge-base/) | 4940 | ✅ Real |
+| **Knowledge Marketplace** (SOPs/docs/templates) | [./services/knowledge-marketplace/](../services/knowledge-marketplace/) | 4939 | ✅ Real |
+| **GraphQL Federation** (data federation across services) | [./services/graphql-federation/](../services/graphql-federation/) | 4000 | ✅ Real |
 | **Analytics OS** (BI dashboards, reports) | [industry-os/services/analytics-os/](../../../industry-os/services/analytics-os/) | 4750 | ✅ Real |
-| **Reports Dashboard** | [services/reports-dashboard/](../../../services/reports-dashboard/) | 4874 | ✅ Real |
+| **Reports Dashboard** | [./services/reports-dashboard/](../services/reports-dashboard/) | 4874 | ✅ Real |
 | **HOJAI Knowledge Graph** (scaffold, not running) | companies/HOJAI-AI/hojai-knowledge-graph/ | 4786 | 🟡 Mock scaffold (deleted in cleanup) |
 
 ## 4. What's NOT Built (the real gap)
@@ -147,4 +147,4 @@ The next layer is **Data Connectors** (Salesforce/HubSpot/Stripe) to pull from e
 
 ---
 
-*See also: [services/vector-db/CLAUDE.md](../../../services/vector-db/CLAUDE.md), [services/rag-platform/CLAUDE.md](../../../services/rag-platform/CLAUDE.md), [services/document-intelligence/CLAUDE.md](../../../services/document-intelligence/CLAUDE.md), [services/graph-database/CLAUDE.md](../../../services/graph-database/CLAUDE.md), [services/knowledge-extraction/CLAUDE.md](../../../services/knowledge-extraction/CLAUDE.md), [services/knowledge-base/CLAUDE.md](../../../services/knowledge-base/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*
+*See also: [./services/vector-db/CLAUDE.md](../services/vector-db/CLAUDE.md), [./services/rag-platform/CLAUDE.md](../services/rag-platform/CLAUDE.md), [./services/document-intelligence/CLAUDE.md](../services/document-intelligence/CLAUDE.md), [./services/graph-database/CLAUDE.md](../services/graph-database/CLAUDE.md), [./services/knowledge-extraction/CLAUDE.md](../services/knowledge-extraction/CLAUDE.md), [./services/knowledge-base/CLAUDE.md](../services/knowledge-base/CLAUDE.md), [./services/knowledge-marketplace/CLAUDE.md](../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*

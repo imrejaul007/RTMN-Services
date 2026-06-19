@@ -20,7 +20,7 @@ Agent Economy manages the economic layer for AI agents including karma points, p
 ## Quick Start
 
 ```bash
-cd services/agent-economy
+cd companies/HOJAI-AI/services/agent-economy
 npm install
 npm start
 ```

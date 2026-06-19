@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/incident-management-service/`
+Service located at `companies/HOJAI-AI/services/incident-management-service/`
 
 ## Quick Start
 
 ```bash
-cd services/incident-management-service
+cd companies/HOJAI-AI/services/incident-management-service
 npm install
 npm start
 ```

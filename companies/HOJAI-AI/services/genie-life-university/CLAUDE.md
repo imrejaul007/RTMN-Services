@@ -174,7 +174,7 @@ Port 4727
 ## 🚀 Quick Start
 
 ```bash
-cd services/genie-life-university
+cd companies/HOJAI-AI/services/genie-life-university
 npm install
 npm start  # Port 4727
 ```

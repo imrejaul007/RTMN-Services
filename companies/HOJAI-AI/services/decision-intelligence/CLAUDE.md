@@ -12,7 +12,7 @@ AI-powered decision support and recommendation engine. Implements the **Decision
 ## Quick Start
 
 ```bash
-cd /Users/rejaulkarim/Documents/RTMN/services/decision-intelligence
+cd companies/HOJAI-AI/services/decision-intelligence
 npm install
 npm start
 # or: PORT=4756 node src/index.js

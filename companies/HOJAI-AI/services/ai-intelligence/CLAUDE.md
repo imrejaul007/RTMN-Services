@@ -57,7 +57,7 @@ AI Intelligence provides AI-powered analysis for customer operations:
 ## Quick Start
 
 ```bash
-cd services/ai-intelligence
+cd companies/HOJAI-AI/services/ai-intelligence
 npm install
 npm start
 ```

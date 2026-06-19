@@ -58,7 +58,7 @@ Sales Copilot provides AI-powered sales assistance:
 ## Quick Start
 
 ```bash
-cd services/sales-copilot
+cd companies/HOJAI-AI/services/sales-copilot
 npm install
 npm start
 ```

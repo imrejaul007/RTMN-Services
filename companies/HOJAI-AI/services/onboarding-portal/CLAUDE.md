@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/onboarding-portal/`
+Service located at `companies/HOJAI-AI/services/onboarding-portal/`
 
 ## Quick Start
 
 ```bash
-cd services/onboarding-portal
+cd companies/HOJAI-AI/services/onboarding-portal
 npm install
 npm start
 ```

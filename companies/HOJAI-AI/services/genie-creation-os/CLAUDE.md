@@ -160,7 +160,7 @@ Port 4725
 ## 🚀 Quick Start
 
 ```bash
-cd services/genie-creation-os
+cd companies/HOJAI-AI/services/genie-creation-os
 npm install
 npm start  # Port 4725
 ```

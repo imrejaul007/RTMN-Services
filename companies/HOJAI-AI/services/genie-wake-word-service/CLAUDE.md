@@ -41,7 +41,7 @@ Detects wake words "Hey Genie" and "हे जिनी" (Hindi) for hands-free 
 ## Quick Start
 
 ```bash
-cd services/genie-wake-word-service
+cd companies/HOJAI-AI/services/genie-wake-word-service
 npm install
 npm start  # Port 4767
 ```

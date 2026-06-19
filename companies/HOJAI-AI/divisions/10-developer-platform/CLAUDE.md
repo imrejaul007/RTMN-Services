@@ -30,13 +30,13 @@ Developer Platform
 
 | Capability | Service | Port | State |
 |---|---|---|---|
-| **API Platform** (REST + proxy) | [services/api-gateway/](../../../services/api-gateway/) | 4000 | ✅ Real |
-| **GraphQL Federation** | [services/graphql-federation/](../../../services/graphql-federation/) | 4000 | ✅ Real |
-| **Unified OS Hub** (cross-OS routing) | [services/unified-os-hub/](../../../services/unified-os-hub/) | 4399 | ✅ Real |
-| **Onboarding Portal** (client self-service) | [services/onboarding-portal/](../../../services/onboarding-portal/) | — | ✅ Real |
-| **Pilot Onboarding** (signup, verify, payment) | [services/pilot-onboarding/](../../../services/pilot-onboarding/) | 4399 | ✅ Real |
+| **API Platform** (REST + proxy) | [./services/api-gateway/](../services/api-gateway/) | 4000 | ✅ Real |
+| **GraphQL Federation** | [./services/graphql-federation/](../services/graphql-federation/) | 4000 | ✅ Real |
+| **Unified OS Hub** (cross-OS routing) | [./services/unified-os-hub/](../services/unified-os-hub/) | 4399 | ✅ Real |
+| **Onboarding Portal** (client self-service) | [./services/onboarding-portal/](../services/onboarding-portal/) | — | ✅ Real |
+| **Pilot Onboarding** (signup, verify, payment) | [./services/pilot-onboarding/](../services/pilot-onboarding/) | 4399 | ✅ Real |
 | **Agent SDK** (basic, RTMN-branded) | (embedded in agent-orchestration) | — | 🟡 Partial |
-| **Authentication** | [services/corpid-service/](../../../services/corpid-service/) | 4702 | ✅ Real |
+| **Authentication** | [./services/corpid-service/](../services/corpid-service/) | 4702 | ✅ Real |
 
 ## 4. What's NOT Built
 
@@ -89,4 +89,4 @@ Developer Platform
 
 ---
 
-*See also: [services/api-gateway/CLAUDE.md](../../../services/api-gateway/CLAUDE.md), [services/graphql-federation/CLAUDE.md](../../../services/graphql-federation/CLAUDE.md), [services/unified-os-hub/CLAUDE.md](../../../services/unified-os-hub/CLAUDE.md)*
+*See also: [./services/api-gateway/CLAUDE.md](../services/api-gateway/CLAUDE.md), [./services/graphql-federation/CLAUDE.md](../services/graphql-federation/CLAUDE.md), [./services/unified-os-hub/CLAUDE.md](../services/unified-os-hub/CLAUDE.md)*

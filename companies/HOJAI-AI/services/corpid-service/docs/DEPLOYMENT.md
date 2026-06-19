@@ -59,7 +59,7 @@ cd corpid-cloud
 
 ### 2. Install Dependencies
 ```bash
-cd services/corpid-service/corpID-cloud
+cd companies/HOJAI-AI/services/corpid-service/corpID-cloud
 npm install
 ```
 

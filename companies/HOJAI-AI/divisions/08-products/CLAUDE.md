@@ -39,16 +39,16 @@ What **customers recognize and buy**. These are user-facing products that compos
 ### Personal AI ✅
 | Product | Service | Port | State |
 |---|---|---|---|
-| **Genie Gateway** | [services/genie-gateway/](../../../services/genie-gateway/) | 4701 | ✅ Real |
-| **Genie Personal AI** (full suite: 23 services) | [services/genie-*](../../../services/) (23 services) | 4709-4728 | ✅ Real — Genie ecosystem is the strongest area |
-| **Razo Keyboard** | [services/razo-keyboard/](../../../services/razo-keyboard/) | 4725 | ✅ Real |
-| **Personal Twin** (User Twin, Genie Twin) | [services/user-twin/](../../../services/user-twin/) + Genie Memory | 4889 | ✅ Real |
+| **Genie Gateway** | [./services/genie-gateway/](../services/genie-gateway/) | 4701 | ✅ Real |
+| **Genie Personal AI** (full suite: 23 services) | [./services/genie-*](../services/) (23 services) | 4709-4728 | ✅ Real — Genie ecosystem is the strongest area |
+| **Razo Keyboard** | [./services/razo-keyboard/](../services/razo-keyboard/) | 4725 | ✅ Real |
+| **Personal Twin** (User Twin, Genie Twin) | [./services/user-twin/](../services/user-twin/) + Genie Memory | 4889 | ✅ Real |
 | **AI Workspace** | (Genie gateway + Genie Life University) | 4727 | 🟡 Partial |
 
 ### Founder AI 🟡
 | Product | Service | Port | State |
 |---|---|---|---|
-| **CoPilot** (general) | [services/agent-copilot/](../../../services/agent-copilot/) | 4920 | ✅ Real (agent orchestration) |
+| **CoPilot** (general) | [./services/agent-copilot/](../services/agent-copilot/) | 4920 | ✅ Real (agent orchestration) |
 | **Bizora** | `companies/RTNM-Digital/...` (Bizora branding) | — | 🟡 Marketed, partial impl |
 | **FounderOS** | — | — | ❌ Not built |
 | **Company Builder Suite** | — | — | ❌ Not built |
@@ -69,12 +69,12 @@ What **customers recognize and buy**. These are user-facing products that compos
 | **Procurement OS** | [industry-os/services/procurement-os/](../../../industry-os/services/procurement-os/) | 5096 | ✅ Real |
 | **Revenue Intelligence OS** | [industry-os/services/revenue-intelligence-os/](../../../industry-os/services/revenue-intelligence-os/) | 5400 | ✅ Real |
 | **Media OS** | [industry-os/services/media-os/](../../../industry-os/services/media-os/) | 5600 | ✅ Real |
-| **Sales Copilot** | [services/sales-copilot/](../../../services/sales-copilot/) | 4928 | ✅ Real |
-| **Marketing Copilot** | [services/marketing-copilot/](../../../services/marketing-copilot/) | 4929 | ✅ Real |
-| **Finance Copilot** | [services/finance-copilot/](../../../services/finance-copilot/) | 4930 | ✅ Real |
-| **Executive Copilot** | [services/executive-copilot/](../../../services/executive-copilot/) | 4933 | ✅ Real |
-| **Support Copilot** | [services/support-copilot/](../../../services/support-copilot/) | 4895 | ✅ Real |
-| **Enterprise Twin** / **Company Twin** / **Employee Twin** | [services/organization-twin/](../../../services/organization-twin/) + [services/employee-twin/](../../../services/employee-twin/) | 4710 / 4730 | ✅ Real |
+| **Sales Copilot** | [./services/sales-copilot/](../services/sales-copilot/) | 4928 | ✅ Real |
+| **Marketing Copilot** | [./services/marketing-copilot/](../services/marketing-copilot/) | 4929 | ✅ Real |
+| **Finance Copilot** | [./services/finance-copilot/](../services/finance-copilot/) | 4930 | ✅ Real |
+| **Executive Copilot** | [./services/executive-copilot/](../services/executive-copilot/) | 4933 | ✅ Real |
+| **Support Copilot** | [./services/support-copilot/](../services/support-copilot/) | 4895 | ✅ Real |
+| **Enterprise Twin** / **Company Twin** / **Employee Twin** | [./services/organization-twin/](../services/organization-twin/) + [./services/employee-twin/](../services/employee-twin/) | 4710 / 4730 | ✅ Real |
 | **HOJAI Agent Copilot** (recovered, richer version) | [companies/HOJAI-AI-restored/hojai-agent-copilot/](../../HOJAI-AI-restored/hojai-agent-copilot/) | 4895 | 🟡 Recovered |
 | **HIB (HOJAI Intelligence Bureau)** | — | — | ❌ Not built |
 
@@ -122,4 +122,4 @@ What **customers recognize and buy**. These are user-facing products that compos
 
 ---
 
-*See also: [services/genie-gateway/CLAUDE.md](../../../services/genie-gateway/CLAUDE.md), [industry-os/services/cxo-os/CLAUDE.md](../../../industry-os/services/cxo-os/CLAUDE.md), [services/sales-copilot/CLAUDE.md](../../../services/sales-copilot/CLAUDE.md)*
+*See also: [./services/genie-gateway/CLAUDE.md](../services/genie-gateway/CLAUDE.md), [industry-os/services/cxo-os/CLAUDE.md](../../../industry-os/services/cxo-os/CLAUDE.md), [./services/sales-copilot/CLAUDE.md](../services/sales-copilot/CLAUDE.md)*

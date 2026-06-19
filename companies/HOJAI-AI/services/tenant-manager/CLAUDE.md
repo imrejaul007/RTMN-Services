@@ -34,7 +34,7 @@ This service owns:
 ## Quick start
 
 ```bash
-cd services/tenant-manager
+cd companies/HOJAI-AI/services/tenant-manager
 npm install
 npm start
 # TenantManager running on port 4747
@@ -229,7 +229,7 @@ services/tenant-manager/
     └── index.js
 ```
 
-Pattern follows `services/event-bus/src/index.js` (CommonJS, express, uuid,
+Pattern follows `companies/HOJAI-AI/services/event-bus/src/index.js` (CommonJS, express, uuid,
 in-memory Map) per project convention.
 
 ---

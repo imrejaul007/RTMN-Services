@@ -323,7 +323,7 @@ curl "http://localhost:4717/timeline/karim/replay?startDate=2026-06-01&endDate=2
 ## Quick Start
 
 ```bash
-cd services/genie-memory-graph
+cd companies/HOJAI-AI/services/genie-memory-graph
 npm install
 npm start
 

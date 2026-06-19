@@ -191,7 +191,7 @@ Port 4726
 ## 🚀 Quick Start
 
 ```bash
-cd services/genie-execution-engine
+cd companies/HOJAI-AI/services/genie-execution-engine
 npm install
 npm start  # Port 4726
 ```

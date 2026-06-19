@@ -125,7 +125,7 @@ POST /api/workflow/restaurant-order
 ## Quick Start
 
 ```bash
-cd services/unified-os-hub
+cd companies/HOJAI-AI/services/unified-os-hub
 npm start
 
 # Health check

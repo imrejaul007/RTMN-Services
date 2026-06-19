@@ -268,7 +268,7 @@ curl -X POST http://localhost:4870/api/channels/email/test \
 ## Quick Start
 
 ```bash
-cd services/notification-service
+cd companies/HOJAI-AI/services/notification-service
 npm install
 npm start
 ```

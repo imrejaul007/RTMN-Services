@@ -22,7 +22,7 @@ This service provides core functionality for the RTMN ecosystem.
 ## Quick Start
 
 ```bash
-cd services/support-copilot
+cd companies/HOJAI-AI/services/support-copilot
 npm install
 npm start
 ```

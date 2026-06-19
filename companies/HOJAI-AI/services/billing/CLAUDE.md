@@ -7,12 +7,12 @@
 
 ## Overview
 
-Service located at `services/billing/`
+Service located at `companies/HOJAI-AI/services/billing/`
 
 ## Quick Start
 
 ```bash
-cd services/billing
+cd companies/HOJAI-AI/services/billing
 npm install
 npm start
 ```

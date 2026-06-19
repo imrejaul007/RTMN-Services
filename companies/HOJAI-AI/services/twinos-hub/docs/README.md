@@ -74,7 +74,7 @@ TwinOS is RTMN's **domain-centric digital twin platform** that provides unified 
 ### 1. Install Dependencies
 
 ```bash
-cd services/twinos-hub
+cd companies/HOJAI-AI/services/twinos-hub
 npm install
 ```
 
@@ -286,7 +286,7 @@ curl http://localhost:4705/health
 ```bash
 # 1. Create service directory
 mkdir services/my-twin
-cd services/my-twin
+cd companies/HOJAI-AI/services/my-twin
 
 # 2. Create package.json
 cat > package.json << 'EOF'

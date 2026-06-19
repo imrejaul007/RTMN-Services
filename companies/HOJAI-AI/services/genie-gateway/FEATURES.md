@@ -400,7 +400,7 @@ curl http://localhost:4701/api/user/test/context
 
 ```bash
 # Install dependencies
-cd services/genie-gateway
+cd companies/HOJAI-AI/services/genie-gateway
 npm install
 
 # Start production server
