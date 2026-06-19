@@ -422,7 +422,9 @@ app.get('/api/route', (_req: Request, res: Response) => {
       evaluation: 'http://localhost:4775',
       vectorDb: 'http://localhost:4780',
       rag: 'http://localhost:4781',
-      documentIntelligence: 'http://localhost:4782'
+      documentIntelligence: 'http://localhost:4782',
+      graph: 'http://localhost:4783',
+      knowledge: 'http://localhost:4784'
     },
     capabilities: {
       forecast: 'http://localhost:4754/api/forecast',
@@ -453,7 +455,18 @@ app.get('/api/route', (_req: Request, res: Response) => {
       docExtract: 'http://localhost:4782/api/extract',
       docExtractBatch: 'http://localhost:4782/api/extract/batch',
       docExtractAndRag: 'http://localhost:4782/api/extract-and-rag',
-      docFormats: 'http://localhost:4782/api/formats'
+      docFormats: 'http://localhost:4782/api/formats',
+      graphQuery: 'http://localhost:4783/api/match',
+      graphTraverse: 'http://localhost:4783/api/traverse',
+      graphShortestPath: 'http://localhost:4783/api/shortest-path',
+      graphComponents: 'http://localhost:4783/api/components',
+      graphPageRank: 'http://localhost:4783/api/pagerank',
+      graphNodeCreate: 'http://localhost:4783/api/nodes',
+      graphEdgeCreate: 'http://localhost:4783/api/edges',
+      nerExtract: 'http://localhost:4784/api/ner/extract',
+      entityLink: 'http://localhost:4784/api/link',
+      factExtract: 'http://localhost:4784/api/facts/extract',
+      knowledgeExtractAll: 'http://localhost:4784/api/extract-all'
     }
   });
 });
@@ -567,6 +580,16 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         description: 'Document Intelligence — PDF/DOCX/XLSX/CSV/TXT/MD/HTML parser. Extracts text + metadata + structure from uploaded documents, plus one-shot extract-and-RAG ingest endpoint',
         capabilities: ['extract', 'batch-extract', 'extract-and-rag', 'formats', 'stats'],
         endpoint: 'http://localhost:4782',
+      },
+      {
+        name: 'graph',
+        description: 'Graph Database — in-memory property graph with nodes/edges/labels, Cypher-lite pattern matching, BFS traversal, shortest path, connected components, PageRank',
+        capabilities: ['graph-query', 'traverse', 'shortest-path', 'components', 'pagerank', 'node-crud', 'edge-crud'],
+      },
+      {
+        name: 'knowledge',
+        description: 'Knowledge Extraction — NER (15 entity types), entity linking with Levenshtein fuzzy match, fact extraction (8+ pattern types), built-in catalogs (202 TECH, 34 persons, 38 orgs, 69 locations)',
+        capabilities: ['ner', 'entity-link', 'fact-extract', 'extract-all', 'catalog-lookup', 'kb-management'],
       },
     ],
   });

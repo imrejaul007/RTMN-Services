@@ -1,6 +1,6 @@
 # Division 6 — AI Data & Knowledge Cloud
 
-> **Status:** 🟢 ~70% built (Vector DB + RAG Platform + Document Intelligence all shipped June 19)
+> **Status:** 🟢 ~80% built (5 new services shipped June 19: Vector DB, RAG, Doc Intel, Graph DB, Knowledge Extraction)
 > **Owner:** HOJAI AI Data Platform team
 > **Last updated:** June 19, 2026
 
@@ -9,6 +9,8 @@
 ## 1. Mission
 
 **Without data there is no AI.** This division owns the data layer — knowledge graphs, vector databases, data lakes, feature stores, ETL, semantic search, RAG. Everything that Division 3 (Intelligence) and Division 4 (Agents) read from.
+
+**Tagline:** *Ingest anything. Store anywhere. Query semantically. Extract knowledge.*
 
 ## 2. Target State (per plan)
 
@@ -36,6 +38,8 @@ Data & Knowledge Cloud
 | **Vector Database** (collections, cosine/dot/euclidean, metadata filtering, shared FNV-1a 128-dim vectorizer, batch upsert) | [services/vector-db/](../../../services/vector-db/) | **4780** | ✅ NEW |
 | **RAG Platform** (document ingestion, chunking, retrieval, LLM augmentation via inference-gateway) | [services/rag-platform/](../../../services/rag-platform/) | **4781** | ✅ NEW |
 | **Document Intelligence** (PDF/DOCX/XLSX/CSV/TXT/MD/HTML parser + one-shot extract-and-RAG) | [services/document-intelligence/](../../../services/document-intelligence/) | **4782** | ✅ NEW |
+| **Graph Database** (property graph, Cypher-lite pattern matching, BFS traversal, shortest path, connected components, PageRank) | [services/graph-database/](../../../services/graph-database/) | **4783** | ✅ NEW |
+| **Knowledge Extraction** (NER, entity linking, fact extraction, KB catalog) | [services/knowledge-extraction/](../../../services/knowledge-extraction/) | **4784** | ✅ NEW |
 | **Knowledge Base** (with AI search) | [services/knowledge-base/](../../../services/knowledge-base/) | 4940 | ✅ Real |
 | **Knowledge Marketplace** (SOPs/docs/templates) | [services/knowledge-marketplace/](../../../services/knowledge-marketplace/) | 4939 | ✅ Real |
 | **GraphQL Federation** (data federation across services) | [services/graphql-federation/](../../../services/graphql-federation/) | 4000 | ✅ Real |
@@ -52,13 +56,15 @@ Data & Knowledge Cloud
 | **Feature Store** | No ML feature registry. Models re-compute features ad-hoc. | 4-6 weeks |
 | **ETL** | No pipeline orchestration. Data flows are manual. | 6-8 weeks |
 | **Data Catalog** | No metadata/lineage. Hard to find what data exists where. | 6-8 weeks |
-| **Graph Database** | No Neo4j/Neptune. KGs need a real graph DB. | 2-4 weeks |
-| **Knowledge Extraction** | No NER / entity linking service. | 4-6 weeks |
+| ~~Graph Database~~ | ~~No Neo4j/Neptune. KGs need a real graph DB.~~ | ✅ DONE (port 4783) |
+| ~~Knowledge Extraction~~ | ~~No NER / entity linking service.~~ | ✅ DONE (port 4784) |
 | **Semantic Search** (standalone) | Knowledge Base has it but no dedicated service. | already done |
 
 ## 5. Gap Score
 
-**~70% of target state is built.** Vector DB + RAG Platform + Document Intelligence all shipped in one day (June 19, 2026). Together they form a complete "ingest documents → retrieve → answer" pipeline. The next layer is **Data Connectors** (Salesforce/HubSpot/Stripe) to pull from external systems, then Graph Database for relationship-heavy queries.
+**~80% of target state is built.** Five new services shipped in one day (June 19, 2026): Vector DB (4780) + RAG Platform (4781) + Document Intelligence (4782) + Graph Database (4783) + Knowledge Extraction (4784). Together they form a complete "ingest documents → extract entities + facts → store as graph + vectors → query semantically → answer" pipeline.
+
+The next layer is **Data Connectors** (Salesforce/HubSpot/Stripe) to pull from external systems, then Feature Store / Data Lake / ETL.
 
 ## 6. Gap List (Priority Ordered)
 
@@ -67,13 +73,13 @@ Data & Knowledge Cloud
 | ~~1~~ | ~~Vector Database + embeddings service~~ | ✅ DONE | — |
 | ~~2~~ | ~~RAG Platform~~ | ✅ DONE | — |
 | ~~3~~ | ~~Document Intelligence (PDF/Word/Excel)~~ | ✅ DONE | — |
+| ~~4~~ | ~~Graph Database~~ | ✅ DONE | — |
+| ~~5~~ | ~~Knowledge Extraction (NER)~~ | ✅ DONE | — |
 | 1 | **Data Connectors** (Salesforce/HubSpot/Stripe etc.) | 🔴 P0 | 8-12 weeks |
-| 3 | **Graph Database** | 🟡 P1 | 2-4 weeks |
-| 4 | **Knowledge Extraction** (NER) | 🟢 P2 | 4-6 weeks |
-| 5 | **Feature Store** | 🟢 P2 | 4-6 weeks |
-| 6 | **Data Lake** | 🟢 P2 | 4-8 weeks (cloud-specific) |
-| 7 | **ETL pipelines** | 🟢 P2 | 6-8 weeks |
-| 8 | **Data Catalog** | 🟢 P3 | 6-8 weeks |
+| 2 | **Feature Store** | 🟢 P2 | 4-6 weeks |
+| 3 | **Data Lake** | 🟢 P2 | 4-8 weeks (cloud-specific) |
+| 4 | **ETL pipelines** | 🟢 P2 | 6-8 weeks |
+| 5 | **Data Catalog** | 🟢 P3 | 6-8 weeks |
 
 ## 7. What shipped (June 19, 2026)
 
@@ -102,10 +108,29 @@ Data & Knowledge Cloud
 - `POST /api/extract-and-rag` — the killer one-shot endpoint: extract → chunk → embed → store in RAG collection
 - Per-format caveats documented in `/api/formats`
 
-### All three wired into HOJAI Intelligence (4881) routing table
-- `vector: http://localhost:4780`, `rag: http://localhost:4781`, `documentIntelligence: http://localhost:4782`
-- New agents `vector`, `rag`, `docIntel` listed in `/api/agents` (18 total)
-- New capabilities `embed`, `vectorSearch`, `vectorUpsert`, `ragQuery`, `ragRetrieve`, `ragIngest`, `docExtract`, `docExtractBatch`, `docExtractAndRag`, `docFormats`
+### Graph Database (port 4783) — ~825 lines
+- In-memory property graph (Neo4j / Memgraph alternative). Suitable for ~100k nodes + ~500k edges.
+- **Cypher-lite pattern matching** — `(a:Person {city: 'NYC'})-[r:KNOWS]->(b:Person)`. Both outgoing `->` and incoming `<-` directions supported.
+- **BFS traversal** with configurable depth (1-10), direction, edge-type filters, label filters
+- **Shortest path** — unweighted BFS, returns node path + edge path
+- **Connected components** — undirected union-find
+- **PageRank** — damped power iteration, 20 iterations default, configurable damping + topK
+- **Full CRUD** on nodes + edges + labels, batch ops (1000 nodes / 5000 edges), audit log
+- Seeded with a small social graph (6 people, 1 company, 10 edges) for demos
+
+### Knowledge Extraction (port 4784) — ~1,443 lines
+- **NER** — 15 entity types (PERSON, ORG, LOCATION, DATE, TIME, MONEY, PERCENT, EMAIL, PHONE, URL, IP_ADDRESS, HASHTAG, MENTION, PRODUCT, EVENT) via pre-compiled regex patterns
+- **Entity linking** — exact match (canonical + alias index) + fuzzy Levenshtein match for typos like "Stevie Jobs" → "Steve Jobs"
+- **Fact extraction** — 8+ pattern types (founded, ceo_of, works_at, born_in, etc.) returning (subject, predicate, object) triples with confidence + sentence span
+- **Built-in KB** seeded with 348 entities: 202 TECH terms, 34 persons, 38 orgs, 69 locations, 5 products (432 lookups total via canonical + aliases)
+- **POST /api/extract-all** — combined one-shot: NER + linking + facts in single call (8ms typical)
+- **CRUD on KB** — add custom entities via POST /api/kb (uses POST/GET/PATCH/DELETE)
+- Per-catalog endpoints for tech/persons/orgs/locations
+
+### All five wired into HOJAI Intelligence (4881) routing table
+- `vector: http://localhost:4780`, `rag: http://localhost:4781`, `documentIntelligence: http://localhost:4782`, `graph: http://localhost:4783`, `knowledge: http://localhost:4784`
+- New agents `vector`, `rag`, `docIntel`, `graph`, `knowledge` listed in `/api/agents` (20 total)
+- New capabilities: `embed`, `vectorSearch`, `vectorUpsert`, `ragQuery`, `ragRetrieve`, `ragIngest`, `docExtract`, `docExtractBatch`, `docExtractAndRag`, `docFormats`, `graphQuery`, `graphTraverse`, `graphShortestPath`, `graphComponents`, `graphPageRank`, `graphNodeCreate`, `graphEdgeCreate`, `nerExtract`, `entityLink`, `factExtract`, `knowledgeExtractAll`
 
 ## 8. Dependencies
 
@@ -122,4 +147,4 @@ Data & Knowledge Cloud
 
 ---
 
-*See also: [services/vector-db/CLAUDE.md](../../../services/vector-db/CLAUDE.md), [services/rag-platform/CLAUDE.md](../../../services/rag-platform/CLAUDE.md), [services/document-intelligence/CLAUDE.md](../../../services/document-intelligence/CLAUDE.md), [services/knowledge-base/CLAUDE.md](../../../services/knowledge-base/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*
+*See also: [services/vector-db/CLAUDE.md](../../../services/vector-db/CLAUDE.md), [services/rag-platform/CLAUDE.md](../../../services/rag-platform/CLAUDE.md), [services/document-intelligence/CLAUDE.md](../../../services/document-intelligence/CLAUDE.md), [services/graph-database/CLAUDE.md](../../../services/graph-database/CLAUDE.md), [services/knowledge-extraction/CLAUDE.md](../../../services/knowledge-extraction/CLAUDE.md), [services/knowledge-base/CLAUDE.md](../../../services/knowledge-base/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*
