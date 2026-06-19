@@ -73,9 +73,9 @@ SUTAR enables AI agents to:
 | **Goal OS** | 4242 | 4242 ✓ | [industry-os/shared/goal-os/](../../../industry-os/shared/goal-os/) | JavaScript (routes/goals.js) | Layer 4 — Goal |
 | **Agent Economy** | 4251 | 4251 (conflict) | [industry-os/shared/agent-economy/](../../../industry-os/shared/agent-economy/) | JavaScript | Layer 5 — Economy |
 | **Flow OS** | 4244 | **4310** ⚠️ | [companies/RABTUL-Technologies/REZ-workflow-executor/](../../../companies/RABTUL-Technologies/REZ-workflow-executor/) | TypeScript (5 .ts files, node-based processing) | Layer 4 — Flow |
-| **Policy OS** | 4254 | **4034** ⚠️ | [companies/RABTUL-Technologies/REZ-policy-engine/](../../../companies/RABTUL-Technologies/REZ-policy-engine/) | TypeScript (11 .ts files, has tests) | Layer 5 — Policy |
+| **Policy OS** | 4254 | **3000** ⚠️ | [companies/RABTUL-Technologies/REZ-policy-engine/](../../../companies/RABTUL-Technologies/REZ-policy-engine/) | TypeScript (11 .ts files, has tests) | Layer 5 — Policy |
 
-**Port mismatches:** Flow OS docs say 4244 but actual code is 4310. Policy OS docs say 4254 but actual code is 4034. Need port reconciliation.
+**Port mismatches:** Flow OS docs say 4244 but actual code is 4310. Policy OS docs say 4254 but actual code defaults to 3000 (set via `PORT` env var per render.yaml). Need port reconciliation.
 
 ### B. SUTAR Service Duplicates & Conflicts
 

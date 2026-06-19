@@ -17,6 +17,7 @@ import winston from 'winston';
 import Redis from 'ioredis';
 
 import goalRoutes from './routes/goals.js';
+import crypto from 'crypto';
 
 const app = express();
 const PORT = process.env.PORT || 4242;
@@ -98,7 +99,6 @@ app.use((err, req, res, next) => {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
 
 let mongoose = null;
 let dbConnected = false;

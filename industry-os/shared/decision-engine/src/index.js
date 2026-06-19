@@ -18,6 +18,7 @@ import Redis from 'ioredis';
 
 import decisionRoutes from './routes/decisions.js';
 import policyRoutes from './routes/policies.js';
+import crypto from 'crypto';
 
 const app = express();
 const PORT = process.env.PORT || 4240;
@@ -99,7 +100,6 @@ app.use((err, req, res, next) => {
 const authBusinesses = new Map();
 const authUsers = new Map();
 const authSessions = new Map();
-const crypto = require('crypto');
 
 let mongoose = null;
 let dbConnected = false;
