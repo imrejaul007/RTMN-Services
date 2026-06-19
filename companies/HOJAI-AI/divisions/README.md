@@ -20,7 +20,7 @@
 | 9 | [AI Industry Solutions](./09-industry-solutions/) | 26+ Industry OS (Restaurant, Hotel, Retail, Healthcare, etc.) | 🟢 ~95% (breadth) | medium (depth) |
 | 10 | [AI Developer Platform](./10-developer-platform/) | APIs, SDKs, CLI, sandbox, webhooks, observability | 🟡 ~40% | medium |
 | 11 | [AI Marketplace & Network](./11-marketplace-network/) | Agent/skill/workflow marketplaces, trust, reputation, federation | 🟡 ~30% | medium-large |
-| 12 | [SUTAR OS](./12-sutar-os/) | Autonomous Economic OS — 25 services across 7 layers for AI to execute all tasks | 🟡 ~20% (4 of 25 built) | **huge** |
+| 12 | [SUTAR OS](./12-sutar-os/) | Autonomous Economic OS — 25 services across 7 layers for AI to execute all tasks | 🟡 ~24% code, ~0% running (6 of 25 built, none started) | huge |
 
 **Coverage: ~45-50% across the platform.** ~50% is net-new build.
 
@@ -39,6 +39,15 @@ After a deeper search and user clarification, **several original findings were c
 1. **REZ Atlas is AdBazaar's product** — it uses HOJAI Intelligence internally. So the 11 atlas-intelligence-* services are AdBazaar's domain wrappers, not standalone REZ intelligence.
 2. **SUTAR OS is a HOJAI AI standalone product** — consumed by all RTMN OSes. It's NOT a "layer of RTMN" — it's a separate platform that RTMN calls.
 3. **Bizora is a HOJAI AI standalone product** (Enterprise AI Workspace) — like SUTAR, it's not a Company Intelligence. Removed from the Company Intelligence list.
+
+### Things corrected in the SUTAR audit (2026-06-19):
+1. **6 SUTAR services with real code exist** (not 4 as originally said):
+   - RABTUL: REZ-trust-scorer (4180), REZ-negotiation-engine (4191), REZ-economy-os (4251)
+   - industry-os/shared: decision-engine (4240), goal-os (4242), agent-economy (4251)
+2. **REZ-sla-monitor and REZ-breach-detector are RABTUL cross-cutting services, not SUTAR core** — removed from SUTAR count
+3. **Port 4251 conflict** — both REZ-economy-os and agent-economy claim 4251. Need to pick canonical.
+4. **None of the 6 SUTAR services are running today** (lsof on all 25 SUTAR ports returns nothing)
+5. **19 of 25 SUTAR services still missing** (the original "21 missing" was close — actual is 19 if you count the 6 that exist)
 
 ### Things that turned out to be correct:
 1. **Division #7 (Training & Model Platform) is the single biggest gap** (~5%).
