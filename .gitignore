@@ -87,6 +87,45 @@ companies/hojai-ai/hojai-multilingual/dist/
 # Default: Ignore ALL companies (each has its own repo)
 companies/*
 
+# =============================================================================
+# RABTUL-Technologies - 8 critical services for REZ-App deployment
+# Tracked in RTMN repo for unified deployment (Render, Vercel, etc.)
+# =============================================================================
+# Un-ignore RABTUL-Technologies root (so we can add the 8 service dirs)
+!companies/RABTUL-Technologies/
+# Un-ignore the 8 service directories (file pattern - matches all files)
+!companies/RABTUL-Technologies/rez-auth-service/*.*
+!companies/RABTUL-Technologies/rez-wallet-service/*.*
+!companies/RABTUL-Technologies/rez-payment-service/*.*
+!companies/RABTUL-Technologies/REZ-qr-unified/*.*
+!companies/RABTUL-Technologies/rez-order-service/*.*
+!companies/RABTUL-Technologies/rez-catalog-service/*.*
+!companies/RABTUL-Technologies/rez-profile-service/*.*
+!companies/RABTUL-Technologies/rez-search-service/*.*
+
+# Re-ignore build artifacts and deps inside whitelisted services
+companies/RABTUL-Technologies/rez-auth-service/node_modules/
+companies/RABTUL-Technologies/rez-auth-service/dist/
+companies/RABTUL-Technologies/rez-wallet-service/node_modules/
+companies/RABTUL-Technologies/rez-wallet-service/dist/
+companies/RABTUL-Technologies/rez-payment-service/node_modules/
+companies/RABTUL-Technologies/rez-payment-service/dist/
+companies/RABTUL-Technologies/REZ-qr-unified/node_modules/
+companies/RABTUL-Technologies/REZ-qr-unified/dist/
+companies/RABTUL-Technologies/rez-order-service/node_modules/
+companies/RABTUL-Technologies/rez-order-service/dist/
+companies/RABTUL-Technologies/rez-catalog-service/node_modules/
+companies/RABTUL-Technologies/rez-catalog-service/dist/
+companies/RABTUL-Technologies/rez-profile-service/node_modules/
+companies/RABTUL-Technologies/rez-profile-service/dist/
+companies/RABTUL-Technologies/rez-search-service/node_modules/
+companies/RABTUL-Technologies/rez-search-service/dist/
+# Also ignore logs and any real .env files (but not .env.example)
+companies/RABTUL-Technologies/*/logs/
+companies/RABTUL-Technologies/*/.env
+!companies/RABTUL-Technologies/*/.env.example
+companies/RABTUL-Technologies/*/coverage/
+
 # HOJAI AI - in-tree brand/marketing layer (replaces the old hojai-ai submodule)
 !companies/HOJAI-AI/
 companies/HOJAI-AI/node_modules/
