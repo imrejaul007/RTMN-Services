@@ -1,0 +1,4 @@
+[submodule "companies/HOJAI-AI"]
+	path = companies/HOJAI-AI
+	url = git@github.com:imrejaul007/hojai-ai.git
+	branch = main

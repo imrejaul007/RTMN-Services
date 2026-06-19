@@ -232,7 +232,7 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **Intelligence** | 4530 | ⚠️ Scaffolded | AI inference |
 | **ExpertOS** | 4550 | ⚠️ Scaffolded | AI marketplace |
 
-> Note: `companies/HOJAI-AI/services/customer-twin` (4895), `companies/HOJAI-AI/services/ai-intelligence` (4881), and the Genie suite (4701-4727) are the actual working HOJ AI-style AI services in this repo. They live under [companies/HOJAI-AI/services/](companies/HOJAI-AI/services/). See [CANONICAL-PORT-REGISTRY.md](CANONICAL-PORT-REGISTRY.md).
+> Note: HOJAI AI is now a **standalone git repo** at [imrejaul007/hojai-ai](https://github.com/imrejaul007/hojai-ai), included here as a git submodule at [companies/HOJAI-AI/](companies/HOJAI-AI/) (121 services + 13 divisions). Key services include `customer-twin` (4895), `ai-intelligence` (4881), and the Genie suite (4701-4727). See [CANONICAL-PORT-REGISTRY.md](CANONICAL-PORT-REGISTRY.md).
 
 ### Genie Voice Services (9) - ✅ NEW
 
