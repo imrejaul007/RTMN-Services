@@ -398,8 +398,9 @@ app.get('/api/metrics', (_req: Request, res: Response) => {
 
 /**
  * GET /api/route
- * Routing table for intelligence sub-services (predictive, risk, decision, micro).
- * Lets callers discover the correct port for each intelligence capability.
+ * Routing table for intelligence sub-services (predictive, risk, decision, micro)
+ * AND training/platform sub-services (inference, prompts, cache, registry, safety, eval).
+ * Lets callers discover the correct port for each capability.
  */
 app.get('/api/route', (_req: Request, res: Response) => {
   res.json({
@@ -412,7 +413,13 @@ app.get('/api/route', (_req: Request, res: Response) => {
       customer: 'http://localhost:4885',
       memory: 'http://localhost:4703',
       twin: 'http://localhost:4705',
-      skill: 'http://localhost:4743'
+      skill: 'http://localhost:4743',
+      inference: 'http://localhost:4770',
+      prompts: 'http://localhost:4771',
+      semanticCache: 'http://localhost:4772',
+      modelRegistry: 'http://localhost:4773',
+      aiSafety: 'http://localhost:4774',
+      evaluation: 'http://localhost:4775'
     },
     capabilities: {
       forecast: 'http://localhost:4754/api/forecast',
@@ -423,7 +430,17 @@ app.get('/api/route', (_req: Request, res: Response) => {
       recommendItems: 'http://localhost:4756/api/recommend/items',
       nextBestAction: 'http://localhost:4756/api/nba',
       multiCriteriaDecision: 'http://localhost:4756/api/decision/wsm',
-      circuitBreaker: 'http://localhost:4753/api/execute'
+      circuitBreaker: 'http://localhost:4753/api/execute',
+      llmComplete: 'http://localhost:4770/api/complete',
+      llmRoute: 'http://localhost:4770/api/route',
+      promptRender: 'http://localhost:4771/api/templates/{slug}/render',
+      promptSearch: 'http://localhost:4771/api/search',
+      cacheLookup: 'http://localhost:4772/api/lookup',
+      cacheStore: 'http://localhost:4772/api/cache',
+      modelCatalog: 'http://localhost:4773/api/models',
+      inputCheck: 'http://localhost:4774/api/check/input',
+      outputCheck: 'http://localhost:4774/api/check/output',
+      runBenchmark: 'http://localhost:4775/api/run'
     }
   });
 });
@@ -483,6 +500,42 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         description: 'Micro Intelligence — circuit-breaker fallback layer so this very service is always reachable',
         capabilities: ['execute-via-breaker', 'fallback', 'state-control'],
         endpoint: 'http://localhost:4753',
+      },
+      {
+        name: 'inference',
+        description: 'Inference Gateway — single API for all LLM calls (OpenAI, Anthropic, Google, Mistral, local) with cost + latency routing',
+        capabilities: ['complete', 'route', 'models', 'stats'],
+        endpoint: 'http://localhost:4770',
+      },
+      {
+        name: 'prompts',
+        description: 'Prompt Manager — versioned prompt templates with A/B experiments',
+        capabilities: ['render', 'list', 'version', 'experiment'],
+        endpoint: 'http://localhost:4771',
+      },
+      {
+        name: 'cache',
+        description: 'Semantic Cache — embedding-based LLM response cache (50%+ cost reduction)',
+        capabilities: ['lookup', 'store', 'embed', 'similarity'],
+        endpoint: 'http://localhost:4772',
+      },
+      {
+        name: 'registry',
+        description: 'Model Registry — catalog of all available models with versioning + deployment status',
+        capabilities: ['list', 'search', 'recommend', 'compare'],
+        endpoint: 'http://localhost:4773',
+      },
+      {
+        name: 'safety',
+        description: 'AI Safety — PII redaction, prompt-injection defense, content filtering, hallucination detection',
+        capabilities: ['check-input', 'check-output', 'redact', 'sanitize'],
+        endpoint: 'http://localhost:4774',
+      },
+      {
+        name: 'eval',
+        description: 'Evaluation Harness — run benchmarks against any model, compare results',
+        capabilities: ['run-benchmark', 'compare', 'scorers'],
+        endpoint: 'http://localhost:4775',
       },
     ],
   });

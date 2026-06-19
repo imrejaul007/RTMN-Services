@@ -15,7 +15,7 @@
 | 4 | [AI Agent Cloud](./04-agent-cloud/) | Agent runtime, builder, orchestration, multi-agent systems | 🟢 ~80% | small-medium |
 | 5 | [AI Communication Cloud](./05-communication-cloud/) | Voice, phone, WhatsApp, email, SMS, chat, meetings, translation | 🟡 ~60% | medium |
 | 6 | [AI Data & Knowledge Cloud](./06-data-knowledge-cloud/) | Knowledge graph, vector DB, RAG, ETL, feature store | 🟡 ~30% | large |
-| 7 | [AI Training & Model Platform](./07-training-model-platform/) | Foundation models, fine-tuning, RLHF, model serving, AI safety | 🔴 ~5% | **largest** |
+| 7 | [AI Training & Model Platform](./07-training-model-platform/) | Foundation models, fine-tuning, RLHF, model serving, AI safety | 🟡 ~30% (inference/prompts/cache/registry/safety/eval all built June 19) | **largest** |
 | 8 | [AI Products](./08-products/) | Genie, Razo, Copilots, FounderOS, Bizora, HIB, CXO OS | 🟢 ~70% | medium |
 | 9 | [AI Industry Solutions](./09-industry-solutions/) | 26+ Industry OS (Restaurant, Hotel, Retail, Healthcare, etc.) | 🟢 ~95% (breadth) | medium (depth) |
 | 10 | [AI Developer Platform](./10-developer-platform/) | APIs, SDKs, CLI, sandbox, webhooks, observability | 🟡 ~40% | medium |
