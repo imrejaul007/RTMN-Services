@@ -421,7 +421,8 @@ app.get('/api/route', (_req: Request, res: Response) => {
       aiSafety: 'http://localhost:4774',
       evaluation: 'http://localhost:4775',
       vectorDb: 'http://localhost:4780',
-      rag: 'http://localhost:4781'
+      rag: 'http://localhost:4781',
+      documentIntelligence: 'http://localhost:4782'
     },
     capabilities: {
       forecast: 'http://localhost:4754/api/forecast',
@@ -448,7 +449,11 @@ app.get('/api/route', (_req: Request, res: Response) => {
       vectorUpsert: 'http://localhost:4780/api/collections/{name}/vectors',
       ragQuery: 'http://localhost:4781/api/rag/query',
       ragRetrieve: 'http://localhost:4781/api/retrieve',
-      ragIngest: 'http://localhost:4781/api/documents'
+      ragIngest: 'http://localhost:4781/api/documents',
+      docExtract: 'http://localhost:4782/api/extract',
+      docExtractBatch: 'http://localhost:4782/api/extract/batch',
+      docExtractAndRag: 'http://localhost:4782/api/extract-and-rag',
+      docFormats: 'http://localhost:4782/api/formats'
     }
   });
 });
@@ -556,6 +561,12 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         description: 'RAG Platform — chunking + embedding + retrieval + LLM augmentation. End-to-end retrieval-augmented generation framework',
         capabilities: ['rag-query', 'retrieve', 'ingest-document', 'config', 'stats'],
         endpoint: 'http://localhost:4781',
+      },
+      {
+        name: 'docIntel',
+        description: 'Document Intelligence — PDF/DOCX/XLSX/CSV/TXT/MD/HTML parser. Extracts text + metadata + structure from uploaded documents, plus one-shot extract-and-RAG ingest endpoint',
+        capabilities: ['extract', 'batch-extract', 'extract-and-rag', 'formats', 'stats'],
+        endpoint: 'http://localhost:4782',
       },
     ],
   });

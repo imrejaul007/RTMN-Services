@@ -1,6 +1,6 @@
 # Division 6 — AI Data & Knowledge Cloud
 
-> **Status:** 🟢 ~55% built (Vector DB + RAG Platform just shipped; Knowledge Base + Marketplace still strong)
+> **Status:** 🟢 ~70% built (Vector DB + RAG Platform + Document Intelligence all shipped June 19)
 > **Owner:** HOJAI AI Data Platform team
 > **Last updated:** June 19, 2026
 
@@ -35,6 +35,7 @@ Data & Knowledge Cloud
 |---|---|---|---|
 | **Vector Database** (collections, cosine/dot/euclidean, metadata filtering, shared FNV-1a 128-dim vectorizer, batch upsert) | [services/vector-db/](../../../services/vector-db/) | **4780** | ✅ NEW |
 | **RAG Platform** (document ingestion, chunking, retrieval, LLM augmentation via inference-gateway) | [services/rag-platform/](../../../services/rag-platform/) | **4781** | ✅ NEW |
+| **Document Intelligence** (PDF/DOCX/XLSX/CSV/TXT/MD/HTML parser + one-shot extract-and-RAG) | [services/document-intelligence/](../../../services/document-intelligence/) | **4782** | ✅ NEW |
 | **Knowledge Base** (with AI search) | [services/knowledge-base/](../../../services/knowledge-base/) | 4940 | ✅ Real |
 | **Knowledge Marketplace** (SOPs/docs/templates) | [services/knowledge-marketplace/](../../../services/knowledge-marketplace/) | 4939 | ✅ Real |
 | **GraphQL Federation** (data federation across services) | [services/graphql-federation/](../../../services/graphql-federation/) | 4000 | ✅ Real |
@@ -46,7 +47,6 @@ Data & Knowledge Cloud
 
 | Missing | Why It Matters | Effort |
 |---|---|---|
-| **Document Intelligence** | No PDF/Word/Excel parser. Most enterprise docs are PDFs. | 6-8 weeks |
 | **Data Connectors** | No pre-built integrations to Salesforce/HubSpot/Stripe/etc. | 8-12 weeks |
 | **Data Lake** | No central raw data store. Each service has its own DB. | 4-8 weeks (depends on cloud choice) |
 | **Feature Store** | No ML feature registry. Models re-compute features ad-hoc. | 4-6 weeks |
@@ -58,7 +58,7 @@ Data & Knowledge Cloud
 
 ## 5. Gap Score
 
-**~55% of target state is built.** The two highest-leverage gaps — **Vector DB** and **RAG Platform** — shipped this week. The next layer (document intelligence, connectors, graph DB) is what unblocks production RAG over real-world enterprise docs.
+**~70% of target state is built.** Vector DB + RAG Platform + Document Intelligence all shipped in one day (June 19, 2026). Together they form a complete "ingest documents → retrieve → answer" pipeline. The next layer is **Data Connectors** (Salesforce/HubSpot/Stripe) to pull from external systems, then Graph Database for relationship-heavy queries.
 
 ## 6. Gap List (Priority Ordered)
 
@@ -66,8 +66,8 @@ Data & Knowledge Cloud
 |---|---|---|---|
 | ~~1~~ | ~~Vector Database + embeddings service~~ | ✅ DONE | — |
 | ~~2~~ | ~~RAG Platform~~ | ✅ DONE | — |
-| 1 | **Document Intelligence** (PDF/Word/Excel) | 🔴 P0 | 6-8 weeks |
-| 2 | **Data Connectors** (Salesforce/HubSpot/Stripe etc.) | 🟡 P1 | 8-12 weeks |
+| ~~3~~ | ~~Document Intelligence (PDF/Word/Excel)~~ | ✅ DONE | — |
+| 1 | **Data Connectors** (Salesforce/HubSpot/Stripe etc.) | 🔴 P0 | 8-12 weeks |
 | 3 | **Graph Database** | 🟡 P1 | 2-4 weeks |
 | 4 | **Knowledge Extraction** (NER) | 🟢 P2 | 4-6 weeks |
 | 5 | **Feature Store** | 🟢 P2 | 4-6 weeks |
@@ -75,9 +75,9 @@ Data & Knowledge Cloud
 | 7 | **ETL pipelines** | 🟢 P2 | 6-8 weeks |
 | 8 | **Data Catalog** | 🟢 P3 | 6-8 weeks |
 
-## 7. Vector DB + RAG Platform — what shipped
+## 7. What shipped (June 19, 2026)
 
-### Vector DB (port 4780)
+### Vector DB (port 4780) — ~1,500 lines
 - In-memory vector store (Map of collections × Map of vectors) — no external DB needed
 - Three similarity metrics: cosine, dot product, Euclidean
 - FNV-1a bag-of-words + L2-normalize vectorizer at 128 dims (shared with semantic-cache so embeddings are interoperable)
@@ -86,7 +86,7 @@ Data & Knowledge Cloud
 - Audit log (cap 10k), stats, dependency-free embedding endpoint at `POST /api/embed`
 - Pre-built `/api/search-by-text` for clients that don't want to manage embeddings themselves
 
-### RAG Platform (port 4781)
+### RAG Platform (port 4781) — ~1,100 lines
 - Document ingestion: chunking (configurable size + overlap, sentence-boundary aware) → embedding via vector-db → storage in named collection
 - `POST /api/rag/query`: embed query → search top-k → assemble context → call inference-gateway (`4770`) → return answer with sources
 - `POST /api/retrieve`: retrieval-only (no LLM call) for clients that want to prompt themselves
@@ -94,10 +94,18 @@ Data & Knowledge Cloud
 - Dependency health surfaced in `/api/health` — both `vectorDb` and `inferenceGateway` pinged at startup
 - Per-collection document registry, query counters, token tracking
 
-### Both wired into HOJAI Intelligence (4881) routing table
-- `vector: http://localhost:4780` and `rag: http://localhost:4781`
-- New agents `vector` and `rag` listed in `/api/agents`
-- New capabilities `embed`, `vectorSearch`, `ragQuery`, `ragRetrieve`
+### Document Intelligence (port 4782) — ~750 lines
+- PDF (text-based), DOCX, XLSX, CSV, TXT, MD, HTML parsers — all pure JS, zero native deps
+- Format auto-detection from filename + mimeType
+- `POST /api/extract` — single document, returns full text + metadata + structure
+- `POST /api/extract/batch` — up to 50 docs in one call
+- `POST /api/extract-and-rag` — the killer one-shot endpoint: extract → chunk → embed → store in RAG collection
+- Per-format caveats documented in `/api/formats`
+
+### All three wired into HOJAI Intelligence (4881) routing table
+- `vector: http://localhost:4780`, `rag: http://localhost:4781`, `documentIntelligence: http://localhost:4782`
+- New agents `vector`, `rag`, `docIntel` listed in `/api/agents` (18 total)
+- New capabilities `embed`, `vectorSearch`, `vectorUpsert`, `ragQuery`, `ragRetrieve`, `ragIngest`, `docExtract`, `docExtractBatch`, `docExtractAndRag`, `docFormats`
 
 ## 8. Dependencies
 
@@ -114,4 +122,4 @@ Data & Knowledge Cloud
 
 ---
 
-*See also: [services/vector-db/CLAUDE.md](../../../services/vector-db/CLAUDE.md), [services/rag-platform/CLAUDE.md](../../../services/rag-platform/CLAUDE.md), [services/knowledge-base/CLAUDE.md](../../../services/knowledge-base/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*
+*See also: [services/vector-db/CLAUDE.md](../../../services/vector-db/CLAUDE.md), [services/rag-platform/CLAUDE.md](../../../services/rag-platform/CLAUDE.md), [services/document-intelligence/CLAUDE.md](../../../services/document-intelligence/CLAUDE.md), [services/knowledge-base/CLAUDE.md](../../../services/knowledge-base/CLAUDE.md), [services/knowledge-marketplace/CLAUDE.md](../../../services/knowledge-marketplace/CLAUDE.md), [industry-os/services/analytics-os/CLAUDE.md](../../../industry-os/services/analytics-os/CLAUDE.md)*

@@ -1,0 +1,16 @@
+{
+  "name": "rtmn-document-intelligence",
+  "version": "1.0.0",
+  "description": "RTMN Document Intelligence — PDF/DOCX/XLSX/CSV/TXT/MD parser and extractor. Converts uploaded documents into clean text + metadata + structure that the RAG Platform (4781) can ingest.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  }
+}
