@@ -397,6 +397,38 @@ app.get('/api/metrics', (_req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/route
+ * Routing table for intelligence sub-services (predictive, risk, decision, micro).
+ * Lets callers discover the correct port for each intelligence capability.
+ */
+app.get('/api/route', (_req: Request, res: Response) => {
+  res.json({
+    central: 'http://localhost:4881',
+    services: {
+      predictive: 'http://localhost:4754',
+      risk: 'http://localhost:4755',
+      decision: 'http://localhost:4756',
+      micro: 'http://localhost:4753',
+      customer: 'http://localhost:4885',
+      memory: 'http://localhost:4703',
+      twin: 'http://localhost:4705',
+      skill: 'http://localhost:4743'
+    },
+    capabilities: {
+      forecast: 'http://localhost:4754/api/forecast',
+      anomaly: 'http://localhost:4754/api/anomaly/detect',
+      fraudScore: 'http://localhost:4755/api/fraud/score',
+      churnScore: 'http://localhost:4755/api/churn/score',
+      creditScore: 'http://localhost:4755/api/credit/score',
+      recommendItems: 'http://localhost:4756/api/recommend/items',
+      nextBestAction: 'http://localhost:4756/api/nba',
+      multiCriteriaDecision: 'http://localhost:4756/api/decision/wsm',
+      circuitBreaker: 'http://localhost:4753/api/execute'
+    }
+  });
+});
+
+/**
  * GET /api/agents
  * List available agents
  */
@@ -427,6 +459,30 @@ app.get('/api/agents', (_req: Request, res: Response) => {
         name: 'recommendation',
         description: 'Action recommendation agent',
         capabilities: ['recommend', 'suggest-templates', 'automation-check'],
+      },
+      {
+        name: 'predictive',
+        description: 'Predictive Intelligence — time-series forecasting, anomaly detection, demand prediction',
+        capabilities: ['forecast', 'anomaly-detect', 'trend', 'decompose', 'demand', 'evaluate'],
+        endpoint: 'http://localhost:4754',
+      },
+      {
+        name: 'risk',
+        description: 'Risk Intelligence — fraud, churn, credit scoring',
+        capabilities: ['fraud-score', 'churn-score', 'credit-score', 'composite'],
+        endpoint: 'http://localhost:4755',
+      },
+      {
+        name: 'decision',
+        description: 'Decision Intelligence — recommendations, next-best-action, multi-criteria decisions',
+        capabilities: ['recommend-items', 'nba', 'wsm', 'topsis'],
+        endpoint: 'http://localhost:4756',
+      },
+      {
+        name: 'micro',
+        description: 'Micro Intelligence — circuit-breaker fallback layer so this very service is always reachable',
+        capabilities: ['execute-via-breaker', 'fallback', 'state-control'],
+        endpoint: 'http://localhost:4753',
       },
     ],
   });

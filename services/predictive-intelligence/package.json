@@ -1,0 +1,15 @@
+{
+  "name": "rtmn-predictive-intelligence",
+  "version": "1.0.0",
+  "description": "RTMN Predictive Intelligence - General-purpose time-series forecasting, anomaly detection, trend analysis, and demand prediction for the RTMN ecosystem",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  }
+}

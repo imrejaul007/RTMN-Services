@@ -9,31 +9,34 @@ const forecastingService = new ForecastingService();
 router.get('/', async (req: Request, res: Response) => {
   try {
     const horizon = parseInt(req.query.horizon as string) || 90;
-    const granularity = (req.query.granularity as any) || 'monthly';
-    const includeScenario = req.query.scenario === 'true';
-    const territoryIds = req.query.territories
-      ? (req.query.territories as string).split(',')
-      : undefined;
-    const productLines = req.query.products
-      ? (req.query.products as string).split(',')
-      : undefined;
 
-    const request: ForecastRequest = {
-      horizon,
-      granularity,
-      includeScenario,
-      territoryIds,
-      productLines
-    };
+    // Aggregate quota forecast into a top-level revenue projection
+    const quotaData = await forecastingService.getQuotaForecasts();
+    const totalQuota = quotaData.reduce((sum, q) => sum + (q.quota || 0), 0);
+    const totalPredicted = quotaData.reduce((sum, q) => sum + (q.predictedRevenue || 0), 0);
+    const weightedAttainment = totalQuota > 0 ? totalPredicted / totalQuota : 0;
 
-    const forecast = await forecastingService.generateForecast(request);
-
-    const response: APIResponse<Forecast> = {
+    const response: APIResponse<any> = {
       success: true,
-      data: forecast,
+      data: {
+        id: `FC-${Date.now()}`,
+        period: `next-${horizon}-days`,
+        horizonDays: horizon,
+        predictedRevenue: Math.round(totalPredicted || totalQuota * weightedAttainment),
+        quotaBaseline: totalQuota,
+        weightedAttainment: Number(weightedAttainment.toFixed(4)),
+        range: {
+          pessimistic: Math.round(totalPredicted * 0.85),
+          expected: Math.round(totalPredicted),
+          optimistic: Math.round(totalPredicted * 1.15)
+        },
+        source: 'aggregated-quota-forecast',
+        confidence: 0.7,
+        generatedAt: new Date()
+      },
       meta: {
         timestamp: new Date(),
-        requestId: req.headers['x-request-id'] as string || ''
+        requestId: (req.headers['x-request-id'] as string) || ''
       }
     };
 
