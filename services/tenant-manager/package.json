@@ -1,0 +1,27 @@
+{
+  "name": "rtmn-tenant-manager",
+  "version": "1.0.0",
+  "description": "RTMN Tenant Manager - Multi-tenant data isolation, projects, members, API keys, and usage metering for B2B offerings",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "rtmn",
+    "hojai-ai",
+    "foundation",
+    "multi-tenant",
+    "tenant",
+    "isolation",
+    "metering",
+    "api-keys"
+  ],
+  "author": "HOJAI AI - Foundation Division",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  }
+}
