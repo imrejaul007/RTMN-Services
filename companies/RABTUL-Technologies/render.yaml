@@ -1,0 +1,293 @@
+# Render Blueprint - REZ-App Backend Services
+# Deploy all 8 services at once: https://render.com/deploy?repo=https://github.com/imrejaul007/RTMN-Services
+#
+# To use:
+# 1. Push this file to your repo (already done)
+# 2. Go to https://dashboard.render.com/blueprints
+# 3. Click "New Blueprint Instance" → Connect to your repo
+# 4. Render will detect this file and create all 8 services
+#
+# IMPORTANT: After first deploy, you must set the SECRET env vars manually
+# in the Render dashboard (JWT_SECRET, MONGO_URI, etc.) - render.yaml uses
+# sync: false for these so they can be set without committing to git.
+
+services:
+  # ===========================================================================
+  # 1. rez-auth-service (Port 4002)
+  # ===========================================================================
+  - type: web
+    name: rez-auth-service
+    rootDir: companies/RABTUL-Technologies/rez-auth-service
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4002"
+      - key: SERVICE_NAME
+        value: rez-auth-service
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ADMIN_SECRET
+        sync: false
+      - key: JWT_MERCHANT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_MFA_SESSION_SECRET
+        sync: false
+      - key: OTP_HMAC_SECRET
+        sync: false
+      - key: OTP_TOTP_ENCRYPTION_KEY
+        sync: false
+      - key: INTERNAL_SERVICE_TOKENS_JSON
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: SENTRY_DSN
+        sync: false
+
+  # ===========================================================================
+  # 2. rez-wallet-service (Port 4004)
+  # ===========================================================================
+  - type: web
+    name: rez-wallet-service
+    rootDir: companies/RABTUL-Technologies/rez-wallet-service
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4004"
+      - key: SERVICE_NAME
+        value: rez-wallet-service
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_MERCHANT_SECRET
+        sync: false
+      - key: INTERNAL_SERVICE_TOKENS_JSON
+        sync: false
+      - key: WALLET_SERVICE_URL
+        value: https://rez-wallet-service.onrender.com
+      - key: CORS_ORIGIN
+        value: "*"
+
+  # ===========================================================================
+  # 3. rez-payment-service (Port 4003)
+  # ===========================================================================
+  - type: web
+    name: rez-payment-service
+    rootDir: companies/RABTUL-Technologies/rez-payment-service
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4003"
+      - key: SERVICE_NAME
+        value: rez-payment-service
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_MERCHANT_SECRET
+        sync: false
+      - key: INTERNAL_SERVICE_TOKENS_JSON
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: WALLET_SERVICE_URL
+        value: https://rez-wallet-service.onrender.com
+      - key: CORS_ORIGIN
+        value: "*"
+
+  # ===========================================================================
+  # 4. REZ-qr-unified (Port 4090)
+  # ===========================================================================
+  - type: web
+    name: rez-qr-unified
+    rootDir: companies/RABTUL-Technologies/REZ-qr-unified
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4090"
+      - key: MONGODB_URI
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "*"
+
+  # ===========================================================================
+  # 5. rez-order-service (Port 3006)
+  # ===========================================================================
+  - type: web
+    name: rez-order-service
+    rootDir: companies/RABTUL-Technologies/rez-order-service
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3006"
+      - key: SERVICE_NAME
+        value: rez-order-service
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_MERCHANT_SECRET
+        sync: false
+      - key: JWT_ADMIN_SECRET
+        sync: false
+      - key: INTERNAL_SERVICE_TOKENS_JSON
+        sync: false
+      - key: INTERNAL_SERVICE_HMAC_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"
+
+  # ===========================================================================
+  # 6. rez-catalog-service (Port 3005)
+  # ===========================================================================
+  - type: web
+    name: rez-catalog-service
+    rootDir: companies/RABTUL-Technologies/rez-catalog-service
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3005"
+      - key: SERVICE_NAME
+        value: rez-catalog-service
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: INTERNAL_SERVICE_TOKENS_JSON
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"
+
+  # ===========================================================================
+  # 7. rez-profile-service (Port 3000)
+  # ===========================================================================
+  - type: web
+    name: rez-profile-service
+    rootDir: companies/RABTUL-Technologies/rez-profile-service
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: SERVICE_NAME
+        value: rez-profile-service
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: AUTH_SERVICE_URL
+        value: https://rez-auth-service.onrender.com
+      - key: WALLET_SERVICE_URL
+        value: https://rez-wallet-service.onrender.com
+
+  # ===========================================================================
+  # 8. rez-search-service (Port 3008)
+  # ===========================================================================
+  - type: web
+    name: rez-search-service
+    rootDir: companies/RABTUL-Technologies/rez-search-service
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3008"
+      - key: SERVICE_NAME
+        value: rez-search-service
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"
