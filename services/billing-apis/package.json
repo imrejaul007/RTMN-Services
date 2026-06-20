@@ -1,0 +1,19 @@
+{
+  "name": "@hojai/billing-apis",
+  "version": "1.0.0",
+  "description": "Billing APIs (4111) — customer-facing usage, invoices, subscriptions with mock Stripe integration. Foundation for monetization and self-service billing.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.1.0",
+    "uuid": "^11.1.0"
+  }
+}

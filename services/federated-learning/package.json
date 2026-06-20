@@ -1,0 +1,19 @@
+{
+  "name": "@hojai/federated-learning",
+  "version": "1.0.0",
+  "description": "Federated Learning Coordinator (4871) — lightweight FL simulation: client registration, round coordination, model versioning, gradient aggregation (FedAvg). Unshelves the Learning Network BLOCKED in Division 11 (Marketplace Network).",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.1.0",
+    "uuid": "^11.1.0"
+  }
+}
