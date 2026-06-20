@@ -1,0 +1,19 @@
+{
+  "name": "@hojai/speech-intelligence",
+  "version": "1.0.0",
+  "description": "Speech Intelligence (4870) — ASR/TTS pipelines, voice profiles, language detection, sentiment, diarization, pronunciation, custom vocabularies, batch transcription. Foundation for multilingual voice AI.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.1.0",
+    "uuid": "^11.1.0"
+  }
+}
