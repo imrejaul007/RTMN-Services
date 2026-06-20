@@ -306,6 +306,20 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 
 ---
 
+## 📱 Consumer Apps (External Repos)
+
+Consumer-facing apps are extracted into their own repos. RTMN treats them as **external consumers** of the Unified Hub, not as services inside the monorepo.
+
+| App | Backend Port | Repo | Status |
+|---|---|---|---|
+| **Do App** (Digital Operator) | 3001 | [github.com/imrejaul007/do-app](https://github.com/imrejaul007/do-app) | ✅ Extracted (2026-06-20) |
+
+**Do App** = Expo mobile + Express backend + MongoDB. AI-powered chat commerce. Talks to RTMN Genie / CorpID / TwinOS / Exhibition OS over HTTP. See its [ARCHITECTURE.md](companies/do-app/docs/ARCHITECTURE.md) and [INTEGRATION-WITH-RTMN.md](companies/do-app/docs/INTEGRATION-WITH-RTMN.md).
+
+Other REZ-Consumer apps (REZ-App, Go4Food, Safe-QR, REZ-inbox, verify-qr, etc.) remain in the `companies/REZ-Consumer/` submodule.
+
+---
+
 ## 🌐 RTMN Unified Hub API
 
 ### Access Point
