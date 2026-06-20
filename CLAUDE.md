@@ -1189,3 +1189,102 @@ GET    /api/marketplace/provider/dashboard     # Provider stats
 - [Negotiation AI](services/negotiation-ai/) - Advanced strategies
 - [Agent Orchestration](services/agent-orchestration/) - Multi-agent workflows
 - [ACN Hub](services/acn-hub/) - Unified gateway
+
+---
+
+## 🟢 AUDIT & CLEANUP STATUS (Updated 2026-06-20)
+
+The RTMN ecosystem underwent a comprehensive audit and cleanup from June 13-20, 2026. **This supersedes the "67/92 services healthy" claim earlier in this document.**
+
+### Phase 5 — Foundation fixes
+- ✅ Fixed broken `@rez/shared` library (was uncompilable; now builds clean)
+- ✅ Fixed broken root AdBazaar npm workspace (100% workspace errors → installs clean)
+- ✅ Fixed RTMN Hub DSP route (was pointing to non-existent service at port 4990; now points to `rez-dsp-bidder@4061`)
+- ✅ Added missing RTMN Hub `/api/cdp/*` route → `adbazaar-cdp@4961`
+- ✅ Removed 3 dead/empty directories (REZ-attribution-hub, adbazaar-marketplace-portal, creator-marketplace)
+
+### Phase 6 — Cross-ecosystem port collision resolution
+- **Before:** 71 AdBazaar services claimed RTMN-canonical ports
+- **After:** 0 cross-ecosystem collisions
+- **Method:** 53 AdBazaar services relocated to `5114-5172` reserved range
+- See `CANONICAL-PORT-REGISTRY.md` "AdBazaar Cross-Ecosystem Collision Resolution (2026-06-20)" appendix
+
+### Phase 7 — Within-AdBazaar port conflict resolution
+- **Before:** 69 within-AdBazaar port conflicts (e.g., 5 services on port 4010, 3 services on port 4962)
+- **After:** 0 within-AdBazaar conflicts
+- **Method:** 64 services relocated to `5173-5199` and `5350-5390` ranges
+- **No deletions:** All duplicates preserved; one of each pair moved to a fresh port
+
+### Phase 8 — Scope annotations
+- 44 non-ad services flagged via CLAUDE.md canonical-home notes
+- `SCOPE-AUDIT.md` created in AdBazaar/
+
+### Phase 9 — Scope cleanup moves
+- 44 non-ad services **physically moved** out of AdBazaar to their canonical homes
+- AdBazaar: 348 → 305 top-level dirs (cleanup of pollution)
+- All moves committed and pushed to 8 repos
+
+### Phase 10 — Final docs and dedup candidates
+- `CANONICAL-PORT-REGISTRY.md` updated with Phase 9 summary
+- `DEDUP-CANDIDATES.md` lists ~20 high-confidence duplicate services at new homes (e.g., `REZ-crm-hub` vs `rez-retail-crm-service`)
+- No merges performed — manual review required
+
+### Final state of AdBazaar
+
+AdBazaar is now genuinely an **advertising platform** with 305 directories focused on:
+- DSP/SSP/bidding infrastructure
+- DOOH (digital-out-of-home) advertising
+- CTV/OTT programmatic
+- Ad attribution and analytics
+- Audience/CDP/identity for ads
+- Pixel/SDK for ads
+- Creator/influencer marketing
+- Social media automation (ad-tech side)
+- 42 marketplace "moat" services (yield, identity, retail media, etc.)
+
+### What's NOT in AdBazaar anymore (now at their canonical homes)
+
+| Company | Count | Examples |
+|---|---:|---|
+| `companies/REZ-Merchant/` | 20 | REZ-crm-hub, REZ-checkout-sdk, WhatsApp commerce, customer engagement |
+| `companies/Karma-Foundation/` | 7 | REZ-gamification-service, loyalty/rewards |
+| `companies/RTNM-Group` (root /services/) | 7 | REZ-economic-engine, REZ-discovery-platform |
+| `companies/HOJAI-AI/services/` | 6 | REZ-support-tools-hub, customer-support-service |
+| `companies/CorpPerks/` | 2 | corpperks-hr-integration |
+| `companies/REZ-Consumer/` | 1 | REZ-consumer-kb |
+| `companies/RABTUL-Technologies/` | 1 | adbazaar-creator-wallet |
+| **Total** | **44** | |
+
+See `companies/AdBazaar/SCOPE-AUDIT.md` for the full move log.
+
+### Open follow-ups (not done in Phase 5-10)
+
+- **Service deduplication**: ~20 candidate duplicates at moved destinations (see `companies/AdBazaar/DEDUP-CANDIDATES.md`)
+- **Port renumbering**: Moved services kept their original ports. No destination company had a clean port range to fit them into.
+- **CLAUDE.md sync**: Each destination company may have its own CLAUDE.md that doesn't reflect the new arrivals.
+- **Hub route updates**: Confirmed no moved services were referenced in `unified-os-hub/src/routes/index.js`. No updates needed.
+
+---
+
+## 🟢 HONEST VERDICT (2026-06-20)
+
+AdBazaar was a 351-dir sprawl with **44 non-ad services polluting scope** and **123 port conflicts**. After Phases 5-10:
+
+| Aspect | Before | After |
+|---|---|---|
+| Cross-ecosystem port collisions | 71 | **0** |
+| Within-AdBazaar port conflicts | 69 | **0** |
+| Non-ad services in AdBazaar | 44 | **0** (moved to canonical homes) |
+| `@rez/shared` library | broken | **compiles** |
+| Root npm workspace | broken | **installs** |
+| Hub `/api/ads/*` route | pointing to wrong port | **fixed** |
+| Hub `/api/cdp/*` route | missing | **added** |
+| Dead/empty dirs | 3 | **removed** |
+| AdBazaar total dirs | 351 | **305** |
+
+**Reality check:** AdBazaar has ~5-7 genuinely production-grade services (rez-dsp-bidder, ssp-gateway, REZ-ad-exchange, adbazaar-cdp, intent-attribution, audience-twin-service, REZ-decision-service). The rest are mostly scaffold-only stubs. Future work should focus on either filling in the scaffolds or removing them.
+
+The ecosystem architecture is now structurally cleaner. Future work should focus on:
+1. Deduplication at destination homes (see DEDUP-CANDIDATES.md)
+2. Filling in or pruning scaffold-only services
+3. Port consolidation into destination-company port ranges (long-term)
