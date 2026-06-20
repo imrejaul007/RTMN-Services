@@ -84,8 +84,21 @@ companies/REZ-Merchant/REZ-merchant-integration-service/dist/
 companies/hojai-ai/hojai-multilingual/node_modules/
 companies/hojai-ai/hojai-multilingual/dist/
 
+# Exception: Do App (separate repo at github.com/imrejaul007/do-app)
+# Lives at companies/do-app/ for convenience but has its own .git
+# See https://github.com/imrejaul007/do-app for the canonical source
+/companies/do-app/backend/node_modules/
+/companies/do-app/backend/dist/
+/companies/do-app/mobile/node_modules/
+/companies/do-app/mobile/.expo/
+/companies/do-app/mobile/.expo-shared/
+
 # Default: Ignore ALL companies (each has its own repo)
 companies/*
+
+# BUT: Do App (imrejaul007/do-app) gets re-included below because it lives in this folder for convenience
+!/companies/do-app
+!/companies/do-app/**
 
 # HOJAI AI - in-tree brand/marketing layer (replaces the old hojai-ai submodule)
 !companies/HOJAI-AI/
