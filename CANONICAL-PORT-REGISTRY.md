@@ -255,3 +255,156 @@ done
 ---
 
 *Generated: 2026-06-18 by direct inspection of `src/index.js` files. Any future port changes must update this file AND the source.*
+
+---
+
+## 🟢 AdBazaar Cross-Ecosystem Collision Resolution (2026-06-20)
+
+AdBazaar previously claimed 71 ports owned by RTMN canonical services. On **2026-06-20**, 53 AdBazaar services were relocated into the **`5114-5172` reserved range** (sub-ranges between canonical Industry OS ports at 5120, 5130, 5140, 5150, 5160).
+
+**Status: ✅ 0 cross-ecosystem collisions remaining.**
+
+| New Port | AdBazaar Service | Was (old port → canonical owner) |
+|---:|---|---|
+| 5114 | adbazaar-api-gateway | 4000 → graphql-federation |
+| 5115 | REZ-marketing-backend/services/marketing-service | 4000 → graphql-federation |
+| 5116 | tenant-registry | 4510 → event-bus |
+| 5117 | REZ-rtb-service | 4600 → business-copilot |
+| 5118 | hyperlocal-demand-service | 4600 → business-copilot |
+| 5119 | ssai-service | 4701 → genie-gateway |
+| 5121 | ctv-ad-server | 4702 → corpid-service |
+| 5122 | ott-streaming-sdk | 4703 → memory-os |
+| 5123 | adBazaar-hojai-integration | 4722 → genie-learning-os |
+| 5124 | bi-reporting-dashboard | 4750 → analytics-os |
+| 5125 | services/REZ-auto-responder | 4750 → analytics-os |
+| 5126 | intent-signal-aggregator | 4800 → acp-protocol |
+| 5127 | intent-prediction-engine | 4801 → acn-network |
+| 5128 | in-ad-booking-service | 4810 → merchant-agents |
+| 5129 | services/REZ-email-validator | 4810 → merchant-agents |
+| 5131 | conversion-optimization-ai | 4820 → agent-reputation |
+| 5132 | governance-service | 4820 → agent-reputation |
+| 5133 | merchant-intelligence | 4830 → agent-contracts |
+| 5134 | retail-media-network-hub | 4830 → agent-contracts |
+| 5135 | ai-banner-generator | 4840 → agent-wallets |
+| 5136 | autonomous-campaign-agent | 4840 → agent-wallets |
+| 5137 | adbazaar-hojai-gateway | 4870 → notification-service |
+| 5138 | cross-app-orchestration | 4870 → notification-service |
+| 5139 | merchant-insights-os | 4870 → notification-service |
+| 5141 | wedding-graph-service | 4881 → ai-intelligence |
+| 5142 | event-demand-forecaster | 4885 → customer-intelligence |
+| 5143 | yield-optimization-brain | 4890 → asset-twin |
+| 5144 | autonomous-growth-orchestrator | 4930 → finance-copilot |
+| 5145 | corpperks-hr-integration | 4954 → journey-intelligence |
+| 5146 | agency-workspace-service | 5010 → restaurant-os |
+| 5147 | creative-os-service | 5020 → healthcare-os |
+| 5148 | email-campaign-service | 5030 → retail-os |
+| 5149 | webhook-service | 5040 → exhibition-os |
+| 5151 | sequence-automation | 5055 → sales-os |
+| 5152 | affiliate-tracking-service | 5060 → education-os |
+| 5153 | influencer-outreach-service | 5070 → agriculture-os |
+| 5154 | customer-onboarding-service | 5077 → workforce-os |
+| 5155 | instagram-shop-integration | 5080 → automotive-os |
+| 5156 | customer-success-playbook-service | 5080 → automotive-os |
+| 5157 | hashtag-research-engine | 5090 → beauty-os |
+| 5158 | data-warehouse-service | 5090 → beauty-os |
+| 5159 | pinterest-integration | 5095 → fashion-os |
+| 5161 | recommendation-engine-service | 5095 → fashion-os |
+| 5162 | personalization-rules-service | 5096 → procurement-os |
+| 5163 | content-repurposing-engine | 5100 → cxo-os |
+| 5164 | coupon-management-service | 5100 → cxo-os |
+| 5165 | reddit-integration | 5110 → fitness-os |
+| 5166 | subscription-billing-service | 5110 → fitness-os |
+| 5167 | REZ-SalesMind | 5170 → professional-os |
+| 5168 | REZ-economic-engine | 4000 → graphql-federation |
+| 5169 | REZ-marketing | 4000 → graphql-federation |
+| 5171 | services/REZ-unified-calendar | 4800 → acp-protocol |
+| 5172 | services/REZ-cross-analytics | 4801 → acn-network |
+
+**Methodology:** `node scripts/audit-ports.js` (in `companies/AdBazaar/`) detects collisions and exits with code 1 if any are found. The mapping is in `companies/AdBazaar/scripts/port-relocation-map.json`. The applier is `apply-port-relocation.js`.
+
+---
+
+## 🟢 Within-AdBazaar Collision Resolution (Phase 7, 2026-06-20)
+
+54 within-AdBazaar port conflicts (between two or more AdBazaar services) resolved via **relocation only** — no directories were deleted. The "duplicate" was moved to a fresh port in `5173-5199` or `5350-5390`.
+
+**Status: ✅ 0 within-AdBazaar conflicts, 0 cross-ecosystem collisions remaining.**
+
+Selection rules used to decide which service to relocate:
+1. If `docker-compose.adbazaar-services.yml` or `.github/workflows/deploy.yml` deploys one, it stays on its port
+2. Otherwise, top-level service stays; container sub-service (`services/*`, `axomi-*/*`, `ssp-portal/*`) relocates
+
+| New Port | Service (relocated) | Was on | Kept Service |
+|---:|---|---:|---|
+| 5173 | REZ-realtime-dashboard | 3001 | REZ-gamification-service |
+| 5174 | rez-whatsapp-provisioning | 3005 | rez-ads |
+| 5175 | REZ-rto-engine | 3008 | REZ-graph-api |
+| 5176 | REZ-marketing-backend/services/ads-service | 4007 | REZ-ads-service |
+| 5177 | REZ-consumer-kb | 4010 | rez-owner-service |
+| 5178 | REZ-feedback-service | 4010 | rez-owner-service |
+| 5179 | REZ-payment-gateway | 4010 | rez-owner-service |
+| 5180 | rez-dooh-service | 4019 | REZ-journey-service |
+| 5181 | REZ-marketing-backend/services/decision-service | 4027 | REZ-decision-service |
+| 5182 | REZ-marketing-backend/services/lead-intelligence | 4040 | REZ-lead-intelligence |
+| 5183 | rez-ssp-adapter | 4060 | rez-ad-exchange |
+| 5184 | adBazaar-service | 4080 | REZ-meta-capi |
+| 5185 | adBazaar-backend | 4085 | REZ-google-enhanced |
+| 5186 | rez-instagram-bridge | 4090 | REZ-rfm-marketing-bridge |
+| 5187 | ssp-portal/ssp-gateway | 4520 | ssp-gateway |
+| 5188 | programmatic-tv | 4700 | creative-studio-service |
+| 5189 | services/rez-approval-workflow | 4700 | creative-studio-service |
+| 5190 | customer-support-service | 4760 | services/REZ-content-syndication |
+| 5191 | intent-marketplace | 4802 | services/REZ-white-label-portal |
+| 5192 | ecosystem-transaction-hub | 4811 | services/REZ-fraud-detection |
+| 5193 | cross-channel-orchestrator | 4812 | services/REZ-creative-ab-testing |
+| 5194 | apartment-targeting-service | 4815 | services/REZ-attribution-modeling |
+| 5195 | place-graph-index | 4816 | services/REZ-audience-sync |
+| 5196 | in-ad-booking-service | 4810 | services/REZ-email-validator |
+| 5197 | sdk-gateway-service | 4850 | website-ssp-sdk |
+| 5198 | yield-optimization-engine | 4860 | ai-marketing-manager |
+| 5199 | rez-media-integration-service | 4900 | health-campaigns-service |
+| 5350 | data-clean-room-service | 4950 | REZ-ads-api |
+| 5351 | privacy-preserving-compute | 4951 | airzy-travel-integration |
+| 5352 | stayown-hotel-integration | 4952 | identity-matching-engine |
+| 5353 | openrtb-exchange-service | 4960 | adbazaar-marketing-os |
+| 5354 | auction-engine-service | 4961 | adbazaar-cdp |
+| 5355 | REZ-pixel | 4962 | adbazaar-pixel |
+| 5356 | seat-management-service | 4962 | adbazaar-pixel |
+| 5357 | deal-id-service | 4963 | adbazaar-verification |
+| 5358 | adbazaar-creator-wallet | 4970 | axomi-bpo/axomi-bpo-voice-bpo |
+| 5359 | measurement-cloud-service | 4970 | axomi-bpo/axomi-bpo-voice-bpo |
+| 5360 | adbazaar-personalization | 4971 | axomi-bpo/axomi-bpo-api-gateway |
+| 5361 | incrementality-testing-engine | 4971 | axomi-bpo/axomi-bpo-api-gateway |
+| 5362 | adbazaar-agency-os | 4972 | axomi-help/axomi-help-api-gateway |
+| 5363 | lift-study-service | 4972 | axomi-help/axomi-help-api-gateway |
+| 5364 | adbazaar-competitive-intelligence | 4973 | axomi-help/axomi-help-brand-registry |
+| 5365 | geo-experiment-service | 4973 | axomi-help/axomi-help-brand-registry |
+| 5366 | adbazaar-community-media | 4974 | axomi-help/axomi-help-escalation |
+| 5367 | media-mix-modeling | 4974 | axomi-help/axomi-help-escalation |
+| 5368 | offline-conversion-tracker | 4975 | axomi-help/axomi-help-knowledge |
+| 5369 | REZ-intelligence-bridge | 4980 | axomi-bpo-voice-bpo |
+| 5370 | yield-platform-service | 4980 | axomi-bpo-voice-bpo |
+| 5371 | REZ-mind-api | 4990 | retail-media-os-service |
+| 5372 | REZ-media-intelligence-platform/src/index.ts | 5000 | publisher-os-service |
+| 5373 | REZ-media-intelligence-platform/src/rez-services.ts | 5001 | publisher-dashboard-service |
+| 5374 | REZ-media-intelligence-platform/src/platform-integrations.ts | 5002 | subscription-management |
+| 5375 | qbr-automation-service | 5081 | instagram-publishing-service |
+| 5376 | helpdesk-ticketing-service | 5082 | instagram-insights-service |
+| 5377 | knowledge-base-service | 5083 | social-content-publisher |
+| 5378 | caption-generator-ai | 5091 | bi-dashboard-service |
+| 5379 | multivariate-testing-service | 5093 | follower-growth-tracker |
+| 5380 | youtube-integration | 5094 | experiment-tracking-service |
+| 5381 | loyalty-program-service | 5101 | ugc-management-service |
+| 5382 | rewards-catalog-service | 5102 | unified-social-inbox |
+| 5383 | crisis-alert-service | 5103 | tier-management-service |
+| 5384 | points-expiration-service | 5104 | snapchat-integration |
+| 5385 | referral-program-service | 5105 | social-competitor-tracker |
+| 5386 | influencer-authenticity-check | 5111 | inventory-sync-service |
+| 5387 | brand-partnership-portal | 5112 | nps-survey-service |
+| 5388 | REZ-rto-engine (corrected from 5175) | 3008 | REZ-graph-api |
+| 5389 | rez-dooh-service (corrected from 5180) | 4019 | REZ-journey-service |
+| 5390 | customer-support-service (corrected from 5190) | 4760 | services/REZ-content-syndication |
+
+Notes on corrections (5388-5390): Three v2 destinations (`5175`, `5180`, `5190`) collided with RTMN canonical owners (`lead-os-gateway`, `sports-os`, `travel-os`). Those three were re-relocated to 5388-5390.
+
+Mapping file: `companies/AdBazaar/scripts/port-relocation-map-v2.json`.
