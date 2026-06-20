@@ -1,0 +1,18 @@
+{
+  "name": "@hojai/agent-sdk-typescript",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for building HOJAI AI agents",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
