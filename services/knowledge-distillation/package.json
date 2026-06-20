@@ -1,0 +1,12 @@
+{
+  "name": "@hojai/knowledge-distillation",
+  "version": "1.0.0",
+  "description": "Knowledge Distillation (4167) — train smaller student models from larger teacher outputs. Records distillation runs + quality metrics.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": {
+    "express": "^5.2.1", "cors": "^2.8.5", "helmet": "^8.1.0",
+    "compression": "^1.7.5", "morgan": "^1.1.0", "uuid": "^11.1.0"
+  }
+}
