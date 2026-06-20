@@ -2208,7 +2208,6 @@ RTMN has a comprehensive multi-layer marketplace infrastructure spanning AI agen
 
 | Marketplace | Company | Purpose |
 |-------------|---------|---------|
-| RisaCare Marketplace | RisaCare | Healthcare marketplace |
 | AssetMind Marketplace | AssetMind | Wealth management |
 
 ---
@@ -2496,7 +2495,7 @@ RTMN has a comprehensive multi-layer marketplace infrastructure spanning AI agen
 
 | Service | Status | Notes |
 |---------|--------|-------|
-| Healthcare Marketplace | Built but status unclear | In RisaCare |
+| Healthcare Marketplace | Built but status unclear | In external client RisaCare |
 | AssetMind Marketplace | Built but status unclear | In AssetMind |
 | REZ-Consumer Apps | 8/18 production ready | 10 still in development |
 
@@ -2518,7 +2517,7 @@ RTMN has a comprehensive multi-layer marketplace infrastructure spanning AI agen
 | **KHAIRMOVE** | 40+ | 40+ | 100% |
 | **Axom** | 30+ | 30+ | 100% |
 | **CorpPerks** | 50+ | 50+ | 100% |
-| **RisaCare** | 40+ | 40+ | 100% |
+| **RisaCare** | External | External | — (independent client) |
 | **AssetMind** | 30+ | 30+ | 100% |
 | **StayOwn-Hospitality** | 45+ | 45+ | 100% |
 | **LawGens** | 25+ | 25+ | 100% |

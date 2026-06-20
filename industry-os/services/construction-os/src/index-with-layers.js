@@ -58,7 +58,7 @@ const RTMN_SERVICES = {
   risnaEstate: process.env.RISNA_URL || 'http://localhost:4300',
   stayOwn: process.env.STAYOWN_URL || 'http://localhost:6000',
   
-  // Layer 8: Health (RisaCare)
+  // Layer 8: Health (external client: RisaCare)
   risaCare: process.env.RISACARE_URL || 'http://localhost:7000',
   
   // Layer 9: Mobility (KHAIRMOVE)
@@ -574,7 +574,7 @@ app.get('/api/layer/health', requireAuth, async (req, res) => {
     
     res.json({
       layer: 8,
-      name: 'Health (RisaCare)',
+      name: 'Health (external client: RisaCare)',
       services: { risaCare: risa.status || 'online' },
       capabilities: ['Employee Health', 'Occupational', 'Mental Health'],
     });

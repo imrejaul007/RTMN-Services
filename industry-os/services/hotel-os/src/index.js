@@ -191,7 +191,7 @@ const RTMN_SERVICES = {
   guestApp: process.env.GUEST_APP_URL || 'http://localhost:6003',
   housekeepingService: process.env.HOUSEKEEPING_URL || 'http://localhost:6004',
   
-  // Layer 8: Health (RisaCare - 31 services)
+  // Layer 8: Health (RisaCare - external client)
   risaCare: process.env.RISACARE_URL || 'http://localhost:7000',
   healthTwin: process.env.HEALTH_TWIN_URL || 'http://localhost:7001',
   consultationCopilot: process.env.CONSULTATION_URL || 'http://localhost:7002',

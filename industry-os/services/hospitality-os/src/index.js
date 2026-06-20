@@ -189,7 +189,7 @@ const RTMN_SERVICES = {
   guestApp: process.env.GUEST_APP_URL || 'http://localhost:6003',
   housekeepingService: process.env.HOUSEKEEPING_URL || 'http://localhost:6004',
   
-  // Layer 8: Health (RisaCare - 31 services)
+  // Layer 8: Health (RisaCare - external client)
   risaCare: process.env.RISACARE_URL || 'http://localhost:7000',
   healthTwin: process.env.HEALTH_TWIN_URL || 'http://localhost:7001',
   consultationCopilot: process.env.CONSULTATION_URL || 'http://localhost:7002',
@@ -1278,7 +1278,7 @@ app.get('/api/layer/property', requireAuth, async (req, res) => {
 });
 
 // ============================================
-// LAYER 8: HEALTH (RisaCare - 31 services)
+// LAYER 8: HEALTH (RisaCare - external client)
 // ============================================
 
 app.get('/api/layer/health', requireAuth, async (req, res) => {
@@ -1287,7 +1287,7 @@ app.get('/api/layer/health', requireAuth, async (req, res) => {
 
     res.json({
       layer: 8,
-      name: 'Health (RisaCare - 31 services)',
+      name: 'Health (RisaCare - external client)',
       services: {
         risaCare: RTMN_SERVICES.risaCare,
         healthTwin: RTMN_SERVICES.healthTwin,
