@@ -408,3 +408,35 @@ Selection rules used to decide which service to relocate:
 Notes on corrections (5388-5390): Three v2 destinations (`5175`, `5180`, `5190`) collided with RTMN canonical owners (`lead-os-gateway`, `sports-os`, `travel-os`). Those three were re-relocated to 5388-5390.
 
 Mapping file: `companies/AdBazaar/scripts/port-relocation-map-v2.json`.
+
+---
+
+## 🟢 Phase 9: Scope Cleanup (2026-06-20)
+
+AdBazaar's 348 top-level directories were audited for scope pollution. **44 (~13%) non-ad services were physically moved to their canonical homes** across 7 destination companies/repos.
+
+**Result:** AdBazaar 348 → 305 dirs. Port audit still clean: 0 within-AdBazaar, 0 cross-ecosystem.
+
+### Moved services and their new homes
+
+| Destination | Count | Services |
+|---|---:|---|
+| `companies/REZ-Merchant/` | 20 | REZ-checkout-sdk, REZ-crm-hub, REZ-lead-intelligence, REZ-rto-engine, REZ-communications-platform, REZ-journey-service, REZ-engagement-platform, crm-service, customer-health-score-service, cart-recovery-service, journey-orchestrator, lead-scoring-service, push-notification-service, broadcast-service, rez-voice-billing, rez-voice-cart-recovery, rez-whatsapp-commerce, rez-whatsapp-store, rez-whatsapp-provisioning, whatsapp-ads-service |
+| `companies/Karma-Foundation/` | 7 | REZ-anniversary-rewards, REZ-birthday-rewards, REZ-gamification-service, loyalty-program-service, rewards-catalog-service, points-expiration-service, tier-management-service |
+| `/services/` (RTMN-Group) | 7 | REZ-discovery-platform, REZ-economic-engine, REZ-feature-flags, REZ-graph-api, REZ-referral-graph, rez-viral-loop, governance-service |
+| `companies/HOJAI-AI/services/` | 6 | REZ-support-tools-hub, customer-support-service, helpdesk-ticketing-service, support-escalation-service, support-sla-service, knowledge-base-service |
+| `companies/CorpPerks/` | 2 | corpperks-hr-integration, corpperks-integration |
+| `companies/REZ-Consumer/` | 1 | REZ-consumer-kb |
+| `companies/RABTUL-Technologies/` | 1 | adbazaar-creator-wallet |
+| **Total** | **44** | |
+
+### Important caveats
+
+- **Moved services kept their original ports.** They were not re-assigned to a destination-company port range. Each destination company already had services using a scattered port range (3000s-5000s), so the moved services fit in wherever they didn't conflict (confirmed: 0 port conflicts across all 8 repos).
+- **Hub routes**: None of the moved services were referenced in `companies/HOJAI-AI/services/unified-os-hub/src/routes/index.js`. No Hub updates needed.
+- **Duplicates exist at destinations**: e.g., `REZ-crm-hub` (moved) and `rez-retail-crm-service` (preexisting) both live in `REZ-Merchant/`. Merging them requires per-service review — see `companies/AdBazaar/DEDUP-CANDIDATES.md` (if generated).
+
+### Audit script
+
+Port conflicts are verified clean by `node companies/AdBazaar/scripts/audit-ports.js`. Re-run after any port change.
+
