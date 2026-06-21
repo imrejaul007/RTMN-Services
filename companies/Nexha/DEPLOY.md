@@ -1,6 +1,6 @@
 # NeXha Commerce Network — Deployment Guide
 
-**Version:** 1.0.0 | **Date:** June 15, 2026
+**Version:** 1.0.0 | **Date:** 2026-06-21
 
 ---
 
@@ -92,9 +92,43 @@ This will deploy:
 | Service | Variable | Value |
 |---------|----------|-------|
 | nexha-commerce-identity | `MONGODB_URI` | Your Atlas connection string or Render MongoDB URI |
-| nexha-commerce-identity | `JWT_SECRET` | `openssl rand -hex 32` (generate once) |
-| nexha-commerce-identity | `INTERNAL_API_KEY` | `openssl rand -hex 32` |
-| nexha-commerce-identity | `NEXT_PUBLIC_API_URL` | After Vercel deploy, paste portal URL here |
+| nexha-commerce-identity | `JWT_SECRET` | `openssl rand -hex 32` (generate once per environment) |
+| nexha-commerce-identity | `INTERNAL_API_KEY` | `openssl rand -hex 32` (different per environment) |
+| nexha-commerce-identity | `ALLOWED_ORIGINS` | After Vercel deploy, paste portal URL here (e.g. `https://nexha-portal.vercel.app`) |
+| nexha-commerce-identity | `SUTAR_*_URL` | Set to real SUTAR endpoints (not sutar-mock) in production |
+
+> ⚠️ **`NEXT_PUBLIC_API_URL`** is a Vercel-side variable (set in Step 3, not Render).
+> The `commerce-identity` service uses `ALLOWED_ORIGINS`, not `NEXT_PUBLIC_API_URL`.
+
+### Secret rotation
+
+If this codebase (or any deploy derived from it) was ever deployed with the
+**default placeholder secrets** from `commerce-identity/.env.example`
+(`JWT_SECRET=dev-secret-change-me-in-production-please`,
+`INTERNAL_API_KEY=change-me-in-production`), you must rotate:
+
+1. **JWT_SECRET** — generates new JWTs; invalidates all existing tokens (every
+   user must re-login).
+   ```bash
+   openssl rand -hex 32
+   ```
+   Set in Render dashboard. Restart the service.
+
+2. **INTERNAL_API_KEY** — invalidates all service-to-service auth. If any
+   downstream caller (RTMN Industry OS, RisaCare dental integration, etc.) uses
+   the old key, update it simultaneously.
+   ```bash
+   openssl rand -hex 32
+   ```
+
+3. **MONGODB_URI password** — if the password was ever published (including in
+   any committed `.env`), rotate at the database provider and update the URI.
+
+4. **WhatsApp credentials** — Meta/Twilio access tokens can be rotated in their
+   respective dashboards.
+
+5. **Audit any logs / backups** that may have captured the old values and
+   consider them compromised.
 
 ### Option B: Manual Deploy
 
@@ -338,4 +372,4 @@ Custom domains are available on paid plans. For free tier, use the default `.onr
 
 ---
 
-*Last Updated: June 15, 2026*
+*Last Updated: 2026-06-21 (Phase 6 of NEXHA-DEEP-AUDIT.md)*

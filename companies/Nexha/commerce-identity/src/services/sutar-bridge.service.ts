@@ -1,21 +1,34 @@
 /**
  * SUTAR Bridge Service
  *
- * Thin HTTP client that connects commerce-identity to the SUTAR OS
- * trust layer. Used for:
+ * Thin HTTP client that connects commerce-identity to the SUTAR OS trust
+ * layer. Used for:
  *  - Linking a new supplier/buyer to a CorpID identity
  *  - Syncing reputation scores after every rating
  *  - Logging identity-level events for the SUTAR event bus
+ *  - Evaluating authorization decisions (policy engine)
  *
  * All calls are best-effort: SUTAR outages must not block commerce
  * onboarding, so failures are logged and swallowed.
+ *
+ * URL resolution (Phase 4.5 of NEXHA-DEEP-AUDIT.md):
+ *   If only SUTAR_BASE_URL is set, the per-service URLs are derived from it
+ *   (with appropriate paths). This was previously a per-var fallback chain
+ *   that pointed each service at a different port (4702, 4251, 4240) — which
+ *   was inconsistent with the .env file shipping (all set to sutar-mock:4799).
  */
 
 import { logger } from '../config/logger';
 
-const SUTAR_IDENTITY = process.env.SUTAR_IDENTITY_URL || 'http://localhost:4702';
-const SUTAR_REPUTATION = process.env.SUTAR_REPUTATION_URL || 'http://localhost:4251';
-const SUTAR_DECISION = process.env.SUTAR_DECISION_URL || 'http://localhost:4240';
+const SUTAR_BASE = (process.env.SUTAR_BASE_URL || 'http://localhost:4799').replace(/\/$/, '');
+
+// Per-service URLs. Each env var overrides the derived base; otherwise we
+// hit the same host on paths that the sutar-mock (and real SUTAR) exposes.
+const SUTAR_IDENTITY = process.env.SUTAR_IDENTITY_URL || `${SUTAR_BASE}`;
+const SUTAR_REPUTATION = process.env.SUTAR_REPUTATION_URL || `${SUTAR_BASE}`;
+const SUTAR_DECISION = process.env.SUTAR_DECISION_URL || `${SUTAR_BASE}`;
+const SUTAR_EVENT_BUS = process.env.SUTAR_EVENT_BUS_URL || `${SUTAR_BASE}`;
+
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY || '';
 
 async function post(url: string, body: unknown, label: string): Promise<unknown | null> {
@@ -115,8 +128,6 @@ export class SutarBridgeService {
     topic: string,
     payload: Record<string, unknown>
   ): Promise<void> {
-    const eventBus = process.env.SUTAR_EVENT_BUS_URL;
-    if (!eventBus) return;
-    await post(`${eventBus}/events/publish`, { topic, payload }, 'event-bus');
+    await post(`${SUTAR_EVENT_BUS}/events/publish`, { topic, payload }, 'event-bus');
   }
 }

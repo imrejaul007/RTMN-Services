@@ -146,7 +146,7 @@ async function sendMetaMessage(to: string, templateName: string, variables: Reco
     return { success: false, error: 'Meta WhatsApp credentials not configured' };
   }
 
-  const components = Object.entries(variables).map(([index, value]) => ({
+  const components = Object.entries(variables).map(([, value]) => ({
     type: 'body' as const,
     parameters: [{ type: 'text' as const, text: value }],
   }));

@@ -1,501 +1,267 @@
-# NeXha - CLAUDE.md
+# NeXha Commerce Network
 
-## What is NeXha?
+> **Version:** 1.0.0
+> **Status:** ✅ Production Ready
+> **Audience:** Developers and operators of the NeXha commerce-identity stack.
 
-**NeXha** is the Unified Commerce Network Infrastructure for RTNM Group.
-- Positioned as "The Operating System for Commerce Networks"
-- Connects manufacturers, distributors, franchises, retailers, suppliers, and merchants
-- **Products:** NeXha OS + NextaBizz (B2B Procurement)
+---
 
-## Products
+## What is this directory?
 
-| Product | Description | Location |
-|---------|-------------|----------|
-| **NeXha OS** | Core microservices (10 services) | `./` |
-| **NextaBizz** | B2B Procurement Platform (Supabase-backed) | `./nextabizz/` |
+This is the **NeXha commerce-identity stack** — a deployable slice of the
+broader NeXha B2B commerce network. It contains:
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **commerce-identity** | 8000 | Universal identity for suppliers, buyers, and guests (KYC, reputation, ratings) |
+| **sutar-mock** | 4799 | In-process mock of the SUTAR OS trust layer for local dev |
+| **portal** | 3000 | Next.js B2B portal (sign in, register, guest onboarding, upgrade) |
+
+> The full NeXha product line (DistributionOS, FranchiseOS, ProcurementOS,
+> ManufacturingOS, TradeFinance, Intelligence, Ecosystem Connector, Gateway,
+> NextaBizz) lives in the `RTNM-Group/nexha` monorepo on GitHub. That code
+> is not in this directory. This directory is the **deployment slice** that
+> runs on Render (backend) + Vercel (portal).
+
+The NeXha product is part of the RTMN group of companies (see
+`docs/POSITIONING.md` in the parent RTMN repo for the full ecosystem map).
+
+---
+
+## Repository layout
+
+```
+companies/Nexha/
+├── CLAUDE.md                 # this file
+├── README.md                 # (overwritten by Phase 6)
+├── SECURITY.md               # security model + known limitations
+├── RUNBOOK.md                # operational runbook
+├── AUDIT-NOTES.md            # build status + dependency audit
+├── DEPLOY.md                 # Render + Vercel deploy guide
+├── ONBOARDING.md             # (legacy — see portal docs)
+├── FEATURES-LIST.md          # L1 feature inventory
+├── docker-compose.yml        # local 4-service stack
+├── render.yaml               # Render blueprint
+├── Caddyfile                 # local HTTPS reverse proxy
+├── .gitignore                # builds, env, vercel metadata
+├── commerce-identity/        # Express + Mongoose API
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── Dockerfile
+│   ├── .env.example
+│   ├── README.md             # service-specific docs
+│   ├── API.md                # endpoint reference
+│   ├── FEATURES.md           # per-feature inventory
+│   └── src/
+│       ├── index.ts          # entry point
+│       ├── app.ts            # Express factory + shutdown
+│       ├── config/           # database, logger
+│       ├── middleware/       # auth, errors, rate limit
+│       ├── models/           # Supplier, Buyer, Guest, Rating
+│       ├── services/         # business logic (auth, SUTAR, rep, WhatsApp)
+│       ├── routes/           # Express routers
+│       └── utils/            # validators, id-gen
+├── sutar-mock/               # mock SUTAR for local dev
+└── portal/                   # Next.js 16 portal
+    ├── package.json
+    ├── next.config.ts
+    ├── Dockerfile
+    ├── .env.example
+    ├── app/                   # 11 routes (App Router)
+    ├── lib/api.ts             # typed API client
+    └── ...
+```
+
+---
 
 ## Quick Start
 
-```bash
-cd RTNM-Group/nexha
-pnpm install
-pnpm dev:portal    # Start portal (port 4388)
-pnpm dev:distribution  # Start DistributionOS
-pnpm dev:nextabizz  # Start NextaBizz
-```
-
-## Services
-
-| Service | Port | Description |
-|---------|------|-------------|
-| **Nexha Gateway** | 5002 | Unified API gateway (HOJAI Bridge entry) |
-| **DistributionOS** | 4300 | Distributor management, van sales, route optimization, delivery tracking, returns |
-| **FranchiseOS** | 4310 | Franchise operations, royalty calculation, compliance monitoring |
-| **ProcurementOS** | 4320 | Supplier & RFQ, Buyer/Seller Agents, Deal State Machine, Commerce Memory, Feed, Reputation |
-| **ManufacturingOS** | 4330 | Production & BOM |
-| **TradeFinance** | 4340 | BNPL, credit lines, FX conversion, dispute resolution |
-| **Intelligence** | 4350 | AI predictions (Exponential Smoothing), fraud detection, churn prediction |
-| **Ecosystem Connector** | 4399 | Event bus, cross-OS orchestration with real API calls |
-| **Portal** | 4388 | B2B Marketplace (Next.js) |
-| **NextaBizz** | 3000 | B2B Procurement Platform (Supabase-backed) |
-
-## Security (Hardened June 13, 2026)
-
-- ✅ Authentication on all 10 services
-- ✅ RBAC with 12 roles
-- ✅ Webhook signature verification (HMAC-SHA256) — mandatory, no bypass
-- ✅ Rate limiting (express-rate-limit)
-- ✅ Input validation (Zod schemas)
-- ✅ CORS configured
-- ✅ Timing-safe token comparison (crypto.timingSafeEqual)
-- ✅ Math.random() → crypto.randomInt()
-- ✅ MongoDB connected to all 6 core services
-- ✅ Authorization header forwarding in gateway (all routes)
-- ✅ Default webhook secrets removed — services fail-fast if not configured
-- ✅ Graceful shutdown handlers (SIGTERM/SIGINT)
-- ✅ Distributed tracing with x-trace-id propagation
-
-## Running Services
+### Local dev (docker-compose)
 
 ```bash
-# Install dependencies
-pnpm install
+# 1. Create env file
+cp commerce-identity/.env.example commerce-identity/.env
+# Edit JWT_SECRET and INTERNAL_API_KEY (or accept the dev placeholders)
 
-# Start all services
-pnpm dev
-
-# Or start individual services
-pnpm dev:distribution   # Port 4300
-pnpm dev:franchise    # Port 4310
-pnpm dev:procurement # Port 4320
-pnpm dev:manufacturing # Port 4330
-pnpm dev:trade-finance # Port 4340
-pnpm dev:intelligence  # Port 4350
-pnpm dev:connector    # Port 4399
-pnpm dev:portal      # Port 4388
-
-# Run tests
-pnpm test
-
-# Build
-pnpm build
+# 2. Start the stack
+docker compose up --build
 ```
 
-## Design System
+This brings up MongoDB (27017), sutar-mock (4799), commerce-identity (8000),
+and the portal (3000). See `DEPLOY.md` for HTTPS via Caddy.
 
-### Color Palette
-- **Primary:** `#6366f1` (Indigo)
-- **Secondary:** `#8b5cf6` (Purple)
-- **Accent:** `#f59e0b` (Amber)
-- **Success:** `#22c55e` (Green)
-- **Background:** `#0a0a0f` (Dark)
-- **Surface:** `rgba(20, 20, 35, 0.8)` (Dark Surface)
-- **Text:** `#ffffff` (White)
-- **Text Muted:** `#64748b` (Gray)
+### Local dev (without docker)
 
-### Typography
-- Font Family: Inter (Google Fonts)
-- Weights: 400, 500, 600, 700, 800
-
-### Design Patterns
-- Dark theme with gradient accents
-- Glassmorphism effects (`backdropFilter: blur`)
-- Smooth transitions (`transition: all 0.3s`)
-- Hover states with glow effects
-- Card-based layouts with rounded corners (`borderRadius: 20px`)
-- Gradient backgrounds for headers and CTAs
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           NeXha Ecosystem                                  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────┐ │
-│  │DistributionOS│   │ FranchiseOS  │   │ProcurementOS│   │Manufacturing│ │
-│  │    :4300   │   │    :4310   │   │    :4320   │   │   :4330  │ │
-│  └──────────────┘   └──────────────┘   └──────────────┘   └────────────┘ │
-│                              │                                        │
-│                     ┌────────┴────────┐                             │
-│                     │  Connector    │                             │
-│                     │    :4399    │                             │
-│                     └──────────────┘                             │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐            │
-│  │ TradeFinance │   │Intelligence │   │   Portal    │            │
-│  │    :4340   │   │    :4350   │   │    :4388   │            │
-│  └──────────────┘   └──────────────┘   └──────────────┘            │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-## Portal Pages
-
-| Route | Purpose | Design |
-|-------|---------|--------|
-| `/` | Landing page | Dark theme, gradient hero, animated stats |
-| `/distributors` | Find distributors | Card grid with filters |
-| `/manufacturers` | Find manufacturers | List view with certs |
-| `/franchises` | Browse franchises | Gradient cards, investment details |
-| `/suppliers` | **NextaBizz** | Links to B2B Procurement |
-
-## Environment
+Requires Node.js 20+ and a running MongoDB.
 
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:4388/api
+# Terminal 1: SUTAR mock
+cd sutar-mock && npm install && npm run dev
+
+# Terminal 2: commerce-identity
+cd commerce-identity && npm install && npm run dev
+
+# Terminal 3: portal
+cd portal && npm install && npm run dev
 ```
 
-## Production Features
-
-- ✅ MongoDB with pooling
-- ✅ RABTUL Auth
-- ✅ RBAC (12 roles)
-- ✅ WebSocket
-- ✅ Prometheus metrics
-- ✅ Docker Compose
-- ✅ Kubernetes manifests
-- ✅ CI/CD (GitHub Actions)
-- ✅ Tests (Jest)
-- ✅ Swagger docs
-- ✅ React Native mobile
-- ✅ Webhook signature verification
-- ✅ Rate limiting
-- ✅ Zod input validation
-
-## New Features (June 13, 2026)
-
-### Supplier Agent Service (`procurement-os/src/services/agent.service.ts`)
-- Multi-channel communication: Email, SMS, WhatsApp, API/webhook
-- RFQ dispatch with structured messages
-- Negotiation tracking (initial → counter_offer → accepted/rejected)
-- SLA monitoring with reminder automation
-- Session management per deal
-
-### Deal State Machine (`procurement-os/src/services/deal.service.ts`)
-- Full procurement lifecycle: RFQ → Quotes → Negotiation → Award → Order → Fulfillment → Payment → Completed
-- State transition validation (prevents invalid transitions)
-- Quote recording with round tracking
-- Fulfillment status updates (processing → shipped → delivered)
-- Payment settlement tracking
-- Full state history audit trail
-
-### Ecosystem Orchestrator (`ecosystem-connector/src/services/orchestrator.ts`)
-- Real API calls (not just webhooks) with proper error handling
-- Event chaining: inventory.low → Intelligence → Procurement → Supplier Agent → Quote → Award → Order → Payment
-- Supplier quote received events
-- Deal awarded workflow with PO creation
-- Payment received events with deal settlement
-
-### Capability Matching (`procurement-os/src/services/procurement.service.ts`)
-- 7-dimension supplier scoring: category, capacity, lead time, delivery regions, payment terms, certifications, min order value
-- Match score 0-100 with reasons per dimension
-- Integration with RFQ creation
-
-### DistributionOS Enhancements
-- Route optimization: TSP nearest-neighbor with Haversine distance + traffic factor
-- Delivery tracking: GPS lat/lng + ETA + status updates
-- Returns handling (RMA): create → approve → reject → receive → refund
-- MongoDB persistence (6 models: Distributor, Route, VanSale, Collection, ReturnRequest, CollectionTarget)
-
-### TradeFinance Enhancements
-- FX Currency Conversion: INR/USD/EUR/GBP with rate tracking
-- Dispute Resolution: create → evidence → messages → escalation → decision
-- Credit line management with BNPL settlement
-
-### FranchiseOS Enhancements
-- Compliance Monitoring: audit scheduling, checklists, violation tracking, scoring, trend analysis
-- Full audit lifecycle: scheduled → in_progress → completed
-
-### Intelligence Layer
-- Real ML forecasting: Exponential Smoothing (Holt's method), Weighted Moving Average
-- MAPE accuracy tracking
-- Day-of-week seasonality detection
-- Fraud detection with velocity/pattern analysis
-- Churn prediction with RFM scoring
-
-### NextaBizz API Routes
-- Real Supabase DB operations (rfqs, rfq_responses, rfq_invitations tables)
-- Quote submission with validation
-- RFQ status updates with quote awarding
-
-### Seller Agent (Supplier Side)
-- Guest supplier registration (no GST required)
-- Supplier webhook for RFQ receipt
-- Auto-quote generation from product catalog
-- Counter-offer workflow
-- Supplier reputation tracking
-- SUTAR Trust + Reputation integration
-
-### Commerce Memory
-- Transaction history store
-- Seasonal price pattern detection ("Diwali price spike")
-- Supplier insight engine
-- Buyer purchase patterns
-- Cross-supplier opportunity detection
-
-### Commerce Feed
-- Activity stream for all participants
-- Supplier product/promotion posts
-- RFQ opportunity notifications
-- Leaderboard/leaderboard
-
-## Key Files
-
-| File | Purpose |
-|------|---------|
-| `portal/src/app/page.tsx` | Landing page |
-| `portal/src/app/distributors/page.tsx` | Distributors marketplace |
-| `portal/src/app/franchises/page.tsx` | Franchise marketplace |
-| `portal/src/app/manufacturers/page.tsx` | Manufacturers marketplace |
-| `docs/swagger.yaml` | API documentation |
-| `docker-compose.yml` | Full stack |
-| `k8s/` | Kubernetes manifests |
-
-## Design Resources
-
-- Google Fonts: Inter
-- Icons: Emoji (📦 🚚 🏪 🏭 💊)
-- Gradients: Indigo to Purple (`#6366f1` → `#8b5cf6`)
-
----
-
-# NeXha - Complete Company Information
-
-**Company:** Nexha - Unified Commerce Network Infrastructure
-**Role in RTNM:** Provides commerce services to all ecosystem companies
-**GitHub:** github.com/RTNM-Group/nexha
-**Version:** 3.0.0
-**Status:** Production Ready ✅ + Full Transaction Flow + Supplier Agent Network
-
----
-
-## Company Overview
-
-NeXha is "The Operating System for Commerce Networks" - connecting manufacturers, distributors, franchises, retailers, suppliers, and merchants. It provides comprehensive B2B commerce infrastructure.
-
-### Role in RTNM Ecosystem
-- Nexha → provides commerce to everyone in the RTNM ecosystem
-- Connected to HOJAI AI for AI/ML capabilities
-- Uses RABTUL for infrastructure services
-- Integrates with REZ Merchant for merchant platform
-
----
-
-## Products & Services (Ports 4300-4399)
-
-### Microservices
-| Service | Port | Purpose |
-|---------|------|---------|
-| Nexha Gateway | 5002 | Unified API gateway (HOJAI Bridge entry) |
-| DistributionOS | 4300 | Distributor management, van sales, route optimization, delivery tracking, returns |
-| FranchiseOS | 4310 | Multi-location franchise operations, royalty, compliance monitoring |
-| ProcurementOS | 4320 | B2B marketplace, RFQ, Supplier Agent, Deal State Machine, capability matching |
-| ManufacturingOS | 4330 | Production & BOM management |
-| TradeFinance | 4340 | BNPL, credit lines, working capital, FX conversion, dispute resolution |
-| Intelligence | 4350 | AI predictions (Exponential Smoothing), fraud detection, churn prediction |
-| Ecosystem Connector | 4399 | Event bus, cross-OS orchestration with real API calls |
-| Portal | 4388 | B2B Marketplace (Next.js) |
-| NextaBizz | 3000 | B2B Procurement Platform (Supabase-backed) |
-
----
-
-## All Features
-
-### DistributionOS (4300)
-- Distributor Management (MongoDB)
-- Van Sale Operations
-- Collection Management (Cash/UPI/card/cheque)
-- Route Optimization (TSP nearest-neighbor + Haversine)
-- Delivery Tracking (GPS + ETA + status updates)
-- Returns Handling (RMA): create → approve → reject → receive → refund
-- Inventory Tracking
-- Sales Analytics
-- Commission Calculation
-- Brand Management
-- Performance Metrics
-
-### FranchiseOS (4310)
-- Franchise Network Management
-- Brand Management
-- Royalty Calculation (percentage or fixed)
-- Performance Tracking
-- Compliance Monitoring (audit, checklists, violations, scoring)
-- Territory Management
-- Franchisee Onboarding
-- Agreement Management
-- Full Audit Trail
-
-### ProcurementOS (4320)
-- Supplier Directory (registration, verification)
-- Supplier Agent (Email, SMS, WhatsApp, API)
-- RFQ Management (create, open, close, award)
-- Purchase Orders
-- Capability Matching (7-dimension scoring)
-- Deal State Machine (17 states with transition validation)
-- Marketplace
-- Negotiation Tracking (multi-round sessions)
-- Quote Comparison
-- Payment Reconciliation
-
-### FranchiseOS (4310)
-- Franchise Network Management
-- Brand Management
-- Royalty Calculation
-- Performance Tracking
-- Location Management
-- Compliance Monitoring
-- Financial Reporting
-- Territory Management
-
-### ProcurementOS (4320)
-- Supplier Directory
-- RFQ Management
-- Purchase Orders
-- Price Comparison
-- Inventory Procurement
-- Delivery Tracking
-- Quality Rating
-- Contract Management
-
-### ManufacturingOS (4330)
-- BOM Management
-- Production Planning
-- Quality Control
-- MRP Integration
-- Work Order Management
-- Machine Scheduling
-- Production Analytics
-- Cost Tracking
-
-### TradeFinance (4340)
-- BNPL (Buy Now Pay Later) with credit line settlement
-- Credit Lines with utilization tracking
-- Working Capital
-- Invoice Financing
-- Payment Gateway (Razorpay, UPI)
-- Credit Scoring (crypto.randomInt)
-- EMI Calculator
-- Risk Assessment
-- FX Currency Conversion (INR/USD/EUR/GBP)
-- Dispute Resolution (evidence, messages, escalation)
-
-### Intelligence (4350)
-- Demand Prediction (Exponential Smoothing, MAPE accuracy)
-- Reorder Recommendations (urgency levels)
-- Supplier Scoring (weighted: quality 30%, delivery 25%, price 20%)
-- Territory Intelligence (retailer coverage, growth)
-- Fraud Detection (velocity analysis, pattern matching)
-- Churn Prediction (RFM scoring)
-- Price Optimization
-- Trend Analysis
-- Anomaly Detection
-- Customer Segmentation
-
-### Ecosystem Connector (4399)
-- Event Bus (CloudEvents spec, 1000 event history)
-- Ecosystem Orchestrator (real API calls, not just webhooks)
-- Cross-Service Communication
-- Webhook Management
-- Event History
-- Event Replay
-- Subscription Management (with priority)
-- Real-time Notifications
-- Audit Trail
-- Workflows: Inventory → Procurement → Agent → Quote → Award → Order → Payment
-
----
-
-## HOJAI Integration
-
-### Connected Services
-| HOJAI Service | Port | Purpose |
-|--------------|------|---------|
-| HOJAI Bridge | 5140 | Universal product connector |
-| HOJAI Memory | 4520 | Customer memory |
-| HOJAI Intelligence | 4530 | ML predictions |
-| SkillNet Runtime | 5120 | Skill execution |
-
-### Integration Endpoints
-- GET /api/nexha/:company/franchise
-- GET /api/nexha/:company/distribution
-- GET /api/nexha/:company/procurement
-- POST /api/nexha/demand-signal
-- POST /api/nexha/rfq
-- GET /api/services/status
-
----
-
-## Security (Hardened June 13, 2026)
-
-- JWT Authentication via RABTUL (all 10 services)
-- RBAC with 12 roles
-- HMAC-SHA256 webhook verification (mandatory, no bypass)
-- Authorization header forwarding in gateway
-- Rate limiting (express-rate-limit)
-- Zod input validation
-- CORS configuration
-- Non-root Docker containers
-- PII redaction in logs
-- Default secrets removed — services fail-fast if not configured
-- Timing-safe comparison (crypto.timingSafeEqual)
-- Graceful shutdown (SIGTERM/SIGINT)
-- Distributed tracing (x-trace-id propagation)
-
----
-
-## Deployment
-
-### Docker Compose
+Verify health:
 ```bash
-docker-compose up -d
+curl http://localhost:8000/health
+curl http://localhost:4799/health
+# Open http://localhost:3000
 ```
 
-### Kubernetes
-```bash
-kubectl apply -f k8s/ -n nexha
+### Production deploy
+
+See [DEPLOY.md](DEPLOY.md) for the full Render + Vercel guide. Brief:
+
+1. Push this directory to `github.com/RTNM-Group/nexha` (separate repo — see
+   `RUNBOOK.md` § "Repo split plan").
+2. `render blueprints create --file render.yaml` from the Render dashboard.
+3. Set `JWT_SECRET`, `INTERNAL_API_KEY`, `MONGODB_URI`, `ALLOWED_ORIGINS`,
+   and `SUTAR_*_URL` env vars in the Render dashboard.
+4. Import the `portal/` folder to Vercel, set `NEXT_PUBLIC_API_URL` to the
+   Render URL of `nexha-commerce-identity`.
+
+---
+
+## Architecture (L1 only)
+
+```
+                  ┌──────────────────┐
+                  │  Next.js Portal  │
+                  │  (Vercel :3000)  │
+                  └────────┬─────────┘
+                           │ HTTPS (cookies)
+                           ▼
+                  ┌──────────────────┐         ┌──────────────────┐
+                  │ commerce-identity│ ──────► │   sutar-mock     │
+                  │  (Render :8000)  │ (best-  │  (Render :4799)  │
+                  │                  │ effort) │  or real SUTAR   │
+                  └────────┬─────────┘         └──────────────────┘
+                           │
+                           ▼
+                     MongoDB Atlas
+                  (Render add-on or external)
 ```
 
----
+### Auth model
 
-## Documentation
+Authentication is via **JWT issued by commerce-identity itself**. The JWT
+is set as an httpOnly cookie on login/register/verify-otp. The portal
+sends the cookie automatically with `credentials: 'include'`. Server-to-server
+callers can still send `Authorization: Bearer <token>`.
 
-- README.md - Overview
-- DEPLOY.md - Deployment guide
-- PRODUCTION.md - Production checklist
-- SOT.md - Source of Truth
-- FEATURES-LIST.md - Complete features
-- RTNM-COMPANIES-AUDIT.md - RTNM ecosystem overview
-- RTNM-PRODUCTS-FEATURES-AUDIT.md - All RTNM products
+Roles are derived from the persisted entity (Supplier vs Buyer) — not from
+the corpId string prefix. See [SECURITY.md](SECURITY.md) for the full
+threat model and known limitations.
 
----
+### SUTAR integration
 
-**Last Updated:** June 14, 2026
+SUTAR (the RTMN trust layer) is called best-effort on identity events:
 
----
+- `corpid/issue` (when minting a new identity)
+- `trust/link` (when registering a supplier/buyer)
+- `trust/sync` (after every rating, pushed via the SutarBridgeService)
+- `policy/evaluate` (before status changes and credit-limit changes)
+- `events/publish` (on registration, status changes, guest activation,
+  guest conversion)
 
-## RTMN Foundation Services Integration
+If SUTAR is unreachable, the corresponding operation falls back to a
+local-only path. Commerce onboarding never blocks on SUTAR availability.
 
-NeXha connects to RTMN Foundation Services for identity, memory, and economy:
-
-| Foundation Service | Port | NeXha Integration |
-|-------------------|------|-------------------|
-| **CorpID** | 4702 | Supplier/Merchant identity, trust scores |
-| **MemoryOS** | 4703 | Supplier preferences, transaction memory |
-| **GoalOS** | 4242 | Distribution goals, delivery targets |
-| **Decision Engine** | 4240 | Supplier credit decisions, risk assessment |
-| **Agent Economy** | 4251 | Supplier karma, SLA bonds |
-
-### Connection Example
-
-```javascript
-// Supplier trust check
-const trustRes = await fetch('http://localhost:4702/api/trust/score/{supplierCorpId}');
-
-// Memory recall
-const memoryRes = await fetch('http://localhost:4703/api/context/get', {
-  method: 'POST',
-  body: JSON.stringify({ corpId: supplierCorpId })
-});
-```
+In dev, `SUTAR_*_URL` all point at the local `sutar-mock`. In production
+they should point at real SUTAR endpoints (or stay pointing at the mock
+if a real SUTAR isn't yet available — see `RUNBOOK.md` § "SUTAR mock in
+production").
 
 ---
 
-*Foundation Services: `services/corpid-service/`, `services/memory-os/`, `services/goal-os/`, `services/decision-engine/`, `services/agent-economy/`*
+## API surface
+
+The full endpoint reference is in [`commerce-identity/API.md`](commerce-identity/API.md).
+High-level summary:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/health` | Liveness probe |
+| POST | `/api/auth/login` | Email + password login |
+| POST | `/api/auth/register` | Set initial password (corpId must exist) |
+| POST | `/api/auth/logout` | Clear the auth cookie |
+| POST | `/api/auth/guest-token` | Exchange OTP for a guest JWT |
+| GET | `/api/auth/me` | Return current identity |
+| POST | `/api/corpid/issue` | Mint a new CorpID (strict auth) |
+| POST | `/api/suppliers` | Register a supplier (self) |
+| GET | `/api/suppliers/:corpId` | Public profile (PII gated to self/admin) |
+| GET | `/api/suppliers` | Search suppliers |
+| PATCH | `/api/suppliers/:corpId/status` | Change status (policy-gated) |
+| POST | `/api/guest-suppliers/onboard` | Public WhatsApp-OTP registration |
+| POST | `/api/guest-suppliers/:guestId/verify-otp` | Verify OTP, activate |
+| POST | `/api/guest-suppliers/:guestId/convert` | Convert guest to full supplier |
+| GET | `/api/buyers/:corpId` | Get buyer (self/admin only) |
+| GET | `/api/buyers` | Search buyers (PII-stripped) |
+| POST | `/api/ratings` | Submit a rating (rater from JWT) |
+| GET | `/api/ratings/:corpId` | List ratings |
+
+All `/api/*` routes are subject to:
+- `defaultLimiter`: 100 req/min/IP
+- `strictLimiter` on `auth/login`, `auth/register`, `corpid/issue`, and
+  guest onboarding/verify: 20 req/min/IP
+
+---
+
+## Security highlights
+
+See [SECURITY.md](SECURITY.md) for the full threat model.
+
+Quick summary of what's hardened:
+
+- ✅ JWT-based auth with role derived from DB (not corpId prefix)
+- ✅ httpOnly cookies for browser sessions (XSS-safe)
+- ✅ bcrypt password hashing (cost 12), bcrypt OTP hashing (cost 8)
+- ✅ Timing-safe comparison for internal-key auth
+- ✅ Rate limiting on every `/api/*` route
+- ✅ CORS with exact origin match (no wildcards)
+- ✅ Ownership checks on every per-corpId endpoint
+- ✅ Public endpoints are explicitly labeled and rate-limited
+- ✅ Fail-fast in production if `JWT_SECRET` is unset
+
+Known limitations (documented in SECURITY.md):
+
+- ⚠️ Bank account numbers stored unencrypted in Mongoose
+- ⚠️ Dev OTP codes are logged to console + SUTAR event bus (intentional for
+  dev; document in runbook before any non-dev deploy)
+- ⚠️ No phone-OTP brute-force protection beyond rate limit (intentional —
+  RisaCare-style integrations rely on this)
+
+---
+
+## Operational status
+
+See [AUDIT-NOTES.md](AUDIT-NOTES.md) for the latest build + dependency
+audit. As of 2026-06-21:
+
+- ✅ All 3 services type-check and build cleanly
+- ✅ `npm audit --omit=dev`: 0 vulnerabilities in commerce-identity and
+  sutar-mock; 2 moderate in portal (Next.js + postcss, accepted risk)
+
+---
+
+## Related documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [DEPLOY.md](DEPLOY.md) | Render + Vercel deploy guide |
+| [RUNBOOK.md](RUNBOOK.md) | Operational runbook (secrets, monitoring, common issues, repo split plan) |
+| [SECURITY.md](SECURITY.md) | Threat model, security guarantees, known limitations |
+| [AUDIT-NOTES.md](AUDIT-NOTES.md) | Build status, dependency audit, advisory log |
+| [FEATURES-LIST.md](FEATURES-LIST.md) | L1 feature inventory |
+| [commerce-identity/README.md](commerce-identity/README.md) | commerce-identity service docs |
+| [commerce-identity/API.md](commerce-identity/API.md) | Endpoint reference |
+| [commerce-identity/FEATURES.md](commerce-identity/FEATURES.md) | Per-feature inventory |
+| [portal/README.md](portal/README.md) | Portal docs (Next.js app) |
+
+---
+
+*Last updated: 2026-06-21 (Phase 6 of NEXHA-DEEP-AUDIT.md)*

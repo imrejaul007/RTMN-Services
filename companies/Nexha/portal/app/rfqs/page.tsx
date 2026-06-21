@@ -3,15 +3,19 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getMe } from '@/lib/api';
 
 export default function RFQsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('nexha_token');
-    if (!token) { router.push('/login'); return; }
-    setLoading(false);
+    getMe()
+      .catch(() => {
+        router.push('/login');
+        return null;
+      })
+      .finally(() => setLoading(false));
   }, [router]);
 
   if (loading) return (

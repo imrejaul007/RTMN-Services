@@ -12,6 +12,7 @@ import { Supplier } from '../models/supplier.model';
 import { Buyer } from '../models/buyer.model';
 import { generateRatingId } from '../utils/id-generator';
 import { logger } from '../config/logger';
+import { SutarBridgeService } from './sutar-bridge.service';
 
 const DEFAULT_LOOKBACK_DAYS = 90;
 const WEIGHTS: Record<RatingType, number> = {
@@ -126,7 +127,7 @@ export class ReputationService {
     // so the overall score is still on a 0-100 scale.
     const totalWeight = (Object.entries(breakdown) as Array<[RatingType, typeof breakdown.delivery]>)
       .filter(([, agg]) => agg.count > 0)
-      .reduce((acc, [type, agg]) => acc + WEIGHTS[type], 0);
+      .reduce((acc, [type]) => acc + WEIGHTS[type], 0);
 
     const overallPct =
       totalWeight === 0 ? 0 :
@@ -309,20 +310,20 @@ export class ReputationService {
   }
 
   /**
-   * Forward a reputation change to the SUTAR OS trust layer. Wired
-   * through the bridge service; failures are non-fatal.
+   * Forward a reputation change to the SUTAR OS trust layer via the
+   * SutarBridgeService (Phase 4.4 fix — was previously a direct fetch that
+   * duplicated the bridge path and bypassed the bridge abstraction).
    */
   private static async maybePushToSutar(corpId: string, subject: RatingSubject): Promise<void> {
-    const url = process.env.SUTAR_REPUTATION_URL;
-    if (!url) return;
     try {
       const summary = await this.getSummary(corpId);
       if (!summary) return;
-      await fetch(`${url}/trust/sync`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-internal-key': process.env.INTERNAL_API_KEY || '' },
-        body: JSON.stringify({ corpId, subject, overallScore: summary.overallScore, breakdown: summary.breakdown }),
-      });
+      await SutarBridgeService.pushReputation(
+        corpId,
+        subject,
+        summary.overallScore,
+        summary.breakdown as unknown as Record<string, number>
+      );
     } catch (err) {
       logger.warn('SUTAR trust push failed', { corpId, err: (err as Error).message });
     }

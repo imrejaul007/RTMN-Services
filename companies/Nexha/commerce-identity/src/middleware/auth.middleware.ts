@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import { verifyToken, JwtPayload, issueSystemToken } from '../services/auth.service';
+import { verifyToken, issueSystemToken } from '../services/auth.service';
 
 export interface AuthedRequest extends Request {
   corpId?: string;
   role?: 'supplier' | 'buyer' | 'admin' | 'system' | 'guest';
   guestId?: string;
-  authMethod?: 'jwt' | 'internal-key' | 'guest-token' | 'public';
+  authMethod?: 'jwt' | 'jwt-cookie' | 'internal-key' | 'guest-token' | 'public';
   token?: string;
 }
 
@@ -33,7 +33,22 @@ export function requireAuth(mode: 'strict' | 'guest' | 'public' = 'strict') {
       return next();
     }
 
-    // --- 1. Bearer token (JWT) ---
+    // --- 1a. JWT from httpOnly cookie (preferred for browser callers — S-4) ---
+    const cookieToken = (req as AuthedRequest).cookies?.nexha_token;
+    if (cookieToken) {
+      const result = verifyToken(cookieToken);
+      if (result.valid) {
+        req.corpId = result.payload.sub;
+        req.role = result.payload.role;
+        req.guestId = result.payload.guestId;
+        req.authMethod = 'jwt-cookie';
+        req.token = cookieToken;
+        return next();
+      }
+      // Cookie present but invalid — fall through to other modes (don't 401 yet).
+    }
+
+    // --- 1b. Bearer token (JWT) — server-to-server callers ---
     const authHeader = req.header('authorization');
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
