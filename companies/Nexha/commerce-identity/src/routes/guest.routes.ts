@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { GuestSupplierService } from '../services/guest-supplier.service';
 import { SutarBridgeService } from '../services/sutar-bridge.service';
 import { issueGuestToken } from '../services/auth.service';
-import { requireAuth, AuthedRequest } from '../middleware/auth.middleware';
+import { requireAuth } from '../middleware/auth.middleware';
 import { asyncHandler, HttpError } from '../middleware/error.middleware';
 
 const router = Router();
@@ -75,24 +75,13 @@ router.post(
   })
 );
 
-// POST /api/guest-suppliers/:guestId/convert - convert to full supplier.
-// Self (the guest whose token is `guestId`) or admin/system only.
-// Closes B-AUTH-8 — the previous version allowed any authenticated user
-// to convert any guest.
+// POST /api/guest-suppliers/:guestId/convert - convert to full supplier
 router.post(
   '/:guestId/convert',
   requireAuth('strict'),
-  asyncHandler(async (req: AuthedRequest, res: Response) => {
-    const { corpId, documents } = req.body as {
-      corpId: string;
-      documents: { gstin?: string; pan?: string; fssai?: string; msme?: string };
-    };
+  asyncHandler(async (req: Request, res: Response) => {
+    const { corpId, documents } = req.body as { corpId: string; documents: { gstin?: string; pan?: string; fssai?: string; msme?: string } };
     if (!corpId) throw new HttpError(400, 'corpId is required');
-    // Ownership check: a guest's JWT subject is the guestId; an admin/system
-    // can convert on behalf of any guest.
-    if (req.corpId !== req.params.guestId && req.role !== 'admin' && req.role !== 'system') {
-      throw new HttpError(403, 'Cannot convert another guest');
-    }
     const result = await GuestSupplierService.convertToSupplier(req.params.guestId, corpId, documents || {});
     await SutarBridgeService.emitEvent('commerce.guest.converted', {
       guestId: result.guest.guestId,
@@ -132,15 +121,11 @@ router.get(
   })
 );
 
-// POST /api/guest-suppliers/:guestId/events - record RFQ/quote/deal events.
-// Self or admin/system only.
+// POST /api/guest-suppliers/:guestId/events - record RFQ/quote/deal events
 router.post(
   '/:guestId/events',
   requireAuth('strict'),
-  asyncHandler(async (req: AuthedRequest, res: Response) => {
-    if (req.corpId !== req.params.guestId && req.role !== 'admin' && req.role !== 'system') {
-      throw new HttpError(403, 'Cannot record events for another guest');
-    }
+  asyncHandler(async (req: Request, res: Response) => {
     const { event } = req.body as { event: 'rfq_received' | 'quote_submitted' | 'deal_completed' };
     if (!['rfq_received', 'quote_submitted', 'deal_completed'].includes(event)) {
       throw new HttpError(400, 'Invalid event type');

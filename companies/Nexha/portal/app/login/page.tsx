@@ -16,9 +16,9 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      // Phase 5 fix: backend sets the JWT as an httpOnly cookie. The portal
-      // no longer reads or writes localStorage.
-      await login(form.corpId, form.password);
+      const data = await login(form.corpId, form.password);
+      localStorage.setItem('nexha_token', data.token);
+      localStorage.setItem('nexha_corpid', data.corpId);
       router.push('/dashboard');
     } catch (err) {
       setError((err as Error).message);

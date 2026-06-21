@@ -1,6 +1,6 @@
 # NeXha Commerce Network — Client Onboarding Guide
 
-**Version:** 1.0.0 | **Updated:** 2026-06-21
+**Version:** 1.0.0 | **Updated:** June 15, 2026
 
 ---
 
@@ -320,21 +320,13 @@ caddy run --config Caddyfile
 
 ## Next Steps
 
-L1 (this directory) is feature-complete for the identity + onboarding
-slice. Future work:
-
-- [ ] **Connect to real SUTAR OS** (replace the dev mock in production)
-- [ ] **Email-based password reset** (currently only corpId-based login)
-- [ ] **Portal `/products` and `/rfqs` real APIs** (currently UI shells;
-      need backend endpoints in the full NeXha monorepo)
-- [ ] **Bank detail encryption at rest** (currently plaintext MongoDB)
-- [ ] **Field-level rate limiting per corpId** (currently per IP only)
-- [ ] **Webhook signature verification** for outbound SUTAR events
-- [ ] **Audit log persistence** (currently logged to stdout only)
-
-For the broader NeXha product roadmap (DistributionOS, ProcurementOS, etc.),
-see the full monorepo at `RTNM-Group/nexha`.
+- [ ] Connect to real SUTAR OS (replace sutar-mock)
+- [ ] Implement buyer onboarding flow
+- [ ] Add product catalog endpoints
+- [ ] Build RFQ (Request for Quote) system
+- [ ] Integrate payment gateway
+- [ ] Add analytics dashboard
 
 ---
 
-*Last Updated: 2026-06-21 (Phase 6 of NEXHA-DEEP-AUDIT.md)*
+*Last Updated: June 15, 2026*

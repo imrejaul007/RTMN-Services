@@ -13,12 +13,6 @@ import { generateGuestId, generateOtp, generatePromoCode } from '../utils/id-gen
 import { isValidPhone, isValidPincode, normalizePhone } from '../utils/validators';
 import { logger } from '../config/logger';
 import { sendOtp } from './whatsapp.service';
-import bcrypt from 'bcryptjs';
-
-// OTP codes are stored hashed in the DB (B-REG-7 fix). Bcrypt cost 8 is
-// deliberately lower than the password cost factor (12) because OTPs are
-// short-lived (10 min TTL) — but hashing still prevents DB-leak exposure.
-const OTP_BCRYPT_ROUNDS = 8;
 
 const DEFAULT_VALIDITY_DAYS = Number(process.env.GUEST_DEFAULT_VALIDITY_DAYS) || 30;
 const OTP_TTL_MINUTES = 10;
@@ -81,8 +75,6 @@ export class GuestSupplierService {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + DEFAULT_VALIDITY_DAYS * 24 * 60 * 60 * 1000);
     const otpExpiresAt = new Date(now.getTime() + OTP_TTL_MINUTES * 60 * 1000);
-    // Hash the OTP before storing (B-REG-7 fix). WhatsApp sends the plaintext.
-    const otpHash = await bcrypt.hash(otp, OTP_BCRYPT_ROUNDS);
 
     const guest = await GuestSupplier.create({
       guestId,
@@ -98,7 +90,7 @@ export class GuestSupplierService {
       status: 'otp_pending' as GuestStatus,
       otpHistory: [
         {
-          code: otpHash,
+          code: otp,
           sentAt: now,
           expiresAt: otpExpiresAt,
           attempts: 0,
@@ -137,10 +129,9 @@ export class GuestSupplierService {
     const otp = generateOtp(6);
     const now = new Date();
     const otpExpiresAt = new Date(now.getTime() + OTP_TTL_MINUTES * 60 * 1000);
-    const otpHash = await bcrypt.hash(otp, OTP_BCRYPT_ROUNDS);
 
     guest.otpHistory.push({
-      code: otpHash,
+      code: otp,
       sentAt: now,
       expiresAt: otpExpiresAt,
       attempts: 0,
@@ -178,9 +169,7 @@ export class GuestSupplierService {
     if (latestOtp.attempts >= OTP_MAX_ATTEMPTS) {
       return { success: false, message: 'Too many failed attempts; request a new OTP' };
     }
-    // Compare using bcrypt (timing-safe + handles the stored hash). Closes B-REG-7 and B-REG-8.
-    const codeMatches = await bcrypt.compare(code, latestOtp.code);
-    if (!codeMatches) {
+    if (latestOtp.code !== code) {
       latestOtp.attempts += 1;
       await guest.save();
       return {

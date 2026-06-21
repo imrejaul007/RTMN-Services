@@ -11,6 +11,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem('nexha_token');
+    if (!token) { router.push('/login'); return; }
     getMe()
       .then((data) => setMe(data as { corpId: string; role: string; guestId?: string }))
       .catch(() => router.push('/login'))

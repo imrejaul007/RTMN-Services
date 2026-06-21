@@ -81,14 +81,10 @@ export class SupplierService {
       };
     });
 
-    // If GSTIN was provided, optionally run the checksum.
-    // Phase 4.6: when the checksum fails, also clear verifiedAt (the previous
-    // version left a verifiedAt timestamp on a now-unverified doc, which
-    // was inconsistent and confusing in downstream queries).
+    // If GSTIN was provided, optionally run the checksum
     const gstinDoc = documents.find((d) => d.type === 'gstin');
     if (gstinDoc && gstinDoc.verified && !isValidGSTINChecksum(gstinDoc.number)) {
       gstinDoc.verified = false;
-      gstinDoc.verifiedAt = undefined;
       logger.warn('GSTIN checksum failed', { corpId: input.corpId });
     }
 

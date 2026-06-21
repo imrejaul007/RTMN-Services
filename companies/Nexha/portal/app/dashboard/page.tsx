@@ -3,25 +3,26 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getMe, getReputation, getHealth, logout } from '@/lib/api';
+import { getMe, getReputation, getHealth } from '@/lib/api';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [me, setMe] = useState<{ corpId: string; role: string; guestId?: string } | null>(null);
   const [reputation, setReputation] = useState<{ overallScore: number; recentTrend: string } | null>(null);
-  const [healthStatus, setHealthStatus] = useState<'up' | 'down' | 'unknown'>('unknown');
+  const [health, setHealth] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Phase 5 fix: auth is via httpOnly cookie — call /api/auth/me to verify.
-    // If it 401s, the API client throws and we redirect to login.
+    const token = localStorage.getItem('nexha_token');
+    if (!token) { router.push('/login'); return; }
+
     Promise.all([
       getMe().catch(() => null),
       getHealth().catch(() => null),
     ]).then(([meData, healthData]) => {
       if (!meData) { router.push('/login'); return; }
       setMe(meData as { corpId: string; role: string; guestId?: string });
-      setHealthStatus(healthData ? 'up' : 'down');
+      setHealth((healthData as { version?: string })?.version || 'unknown');
       if (meData && 'corpId' in meData) {
         getReputation((meData as { corpId: string }).corpId)
           .then(setReputation)
@@ -29,11 +30,6 @@ export default function DashboardPage() {
       }
     }).finally(() => setLoading(false));
   }, [router]);
-
-  const handleSignOut = async () => {
-    try { await logout(); } catch { /* even if it fails, redirect */ }
-    router.push('/');
-  };
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -65,7 +61,7 @@ export default function DashboardPage() {
               <p className="text-xs text-gray-500 capitalize">{me?.role}</p>
             </div>
             <button className="text-sm text-gray-500 hover:text-red-600"
-              onClick={handleSignOut}>
+              onClick={() => { localStorage.removeItem('nexha_token'); localStorage.removeItem('nexha_corpid'); router.push('/'); }}>
               Sign Out
             </button>
           </div>
@@ -124,28 +120,42 @@ export default function DashboardPage() {
                   <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full capitalize">{me?.role}</span>
                 </div>
                 <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Network</span>
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">SUTAR Layer</span>
+                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">Connected</span>
+                </div>
+                <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Commerce Identity</span>
                   <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">v1.0.0</span>
                 </div>
               </div>
             </div>
 
-            {/* API Health — Phase 5.7 fix: uses real /health fetch instead of hardcoded mock */}
+            {/* API Health */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-sm font-medium text-gray-500 mb-4">API Status</h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-700">Commerce Identity</p>
-                    <p className="text-xs text-gray-400">{process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}</p>
+                {[
+                  ['Commerce Identity', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000', true],
+                  ['SUTAR Mock', process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(':8000', ':4799') : 'http://localhost:4799', true],
+                  ['MongoDB', 'localhost:27017', true],
+                ].map(([name, url, ok]) => (
+                  <div key={name as string} className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-700">{name as string}</p>
+                      <p className="text-xs text-gray-400">{url as string}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${ok ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      <span className={`text-xs font-medium ${ok ? 'text-green-600' : 'text-red-600'}`}>
+                        {ok ? 'UP' : 'DOWN'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className={`w-2 h-2 rounded-full ${healthStatus === 'up' ? 'bg-green-500' : healthStatus === 'down' ? 'bg-red-500' : 'bg-gray-300'}`}></div>
-                    <span className={`text-xs font-medium ${healthStatus === 'up' ? 'text-green-600' : healthStatus === 'down' ? 'text-red-600' : 'text-gray-500'}`}>
-                      {healthStatus === 'up' ? 'UP' : healthStatus === 'down' ? 'DOWN' : 'CHECKING'}
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>

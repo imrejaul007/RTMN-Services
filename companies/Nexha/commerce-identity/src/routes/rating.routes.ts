@@ -6,28 +6,15 @@ import { asyncHandler } from '../middleware/error.middleware';
 const router = Router();
 
 // POST /api/ratings - submit a rating
-// The raterCorpId and raterRole are taken EXCLUSIVELY from the JWT (req.corpId / req.role).
-// Body values are ignored to prevent impersonation — closes B-AUTH-3.
 router.post(
   '/',
   requireAuth('strict'),
   asyncHandler(async (req: AuthedRequest, res: Response) => {
-    if (!req.corpId || !req.role) {
-      throw new Error('Internal: requireAuth did not populate corpId/role on a strict route');
-    }
-    // Map JWT role to ReputationService's narrower union.
-    // admin/system → 'system'; supplier → 'supplier'; buyer/guest → 'buyer'.
-    const raterRole: 'buyer' | 'supplier' | 'system' =
-      req.role === 'supplier'
-        ? 'supplier'
-        : req.role === 'admin' || req.role === 'system'
-          ? 'system'
-          : 'buyer';
     const rating = await ReputationService.submit({
       type: req.body.type,
       subjectCorpId: req.body.subjectCorpId,
-      raterCorpId: req.corpId,
-      raterRole,
+      raterCorpId: req.corpId || req.body.raterCorpId,
+      raterRole: req.role || req.body.raterRole || 'buyer',
       dealId: req.body.dealId,
       score: Number(req.body.score),
       feedback: req.body.feedback,
