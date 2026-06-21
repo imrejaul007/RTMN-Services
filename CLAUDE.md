@@ -963,6 +963,30 @@ All 86+ twins now have:
 | **Services** | 25 services | 15 services |
 | **Port Range** | 3100-4260 | 4716, 4800-4851 |
 
+### SUTAR OS at the RTMN Unified Hub (2026-06-22)
+
+SUTAR OS is exposed at the top-level RTMN Hub (`REZ-ecosystem-connector@4399`).
+Two new endpoints (added 2026-06-22 in `RABTUL-Technologies/REZ-ecosystem-connector@1.1.0`):
+
+- `GET /api/sutar/capabilities` — capability → service map + full service-URL table
+- `ANY /api/sutar/<service>/<path>` — direct HTTP proxy to any of 15 SUTAR services (GET/POST/PUT/PATCH/DELETE)
+
+This complements the in-process Node client in `companies/REZ-Workspace/core/unified-fabric/src/connections/sutarOS.js`.
+Use the Hub routes for cross-language consumers; use the Node client for in-process callers.
+
+```bash
+# Capability map
+curl http://localhost:4399/api/sutar/capabilities
+
+# Mission templates (reaches sutar-agent-teaming:4853 via the Hub)
+curl http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/templates
+
+# Form a team via the Hub
+curl -X POST http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/teams \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"price-compare","mission":"compare-prices","size":3}'
+```
+
 ---
 
 ## 🛒 Salar OS - Workforce Intelligence (NOT the AI Marketplace)
