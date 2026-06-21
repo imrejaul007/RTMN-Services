@@ -152,19 +152,33 @@ pipeline. For Atlas, configure automated backups in the Atlas dashboard
 
 ---
 
-## Repo split plan
+## Repo split — **DONE 2026-06-21**
 
-This directory currently lives at `companies/Nexha/` in the RTMN monorepo.
-The plan is to extract it to a separate GitHub repo `RTNM-Group/nexha`
-(see NEXHA-DEEP-AUDIT.md Phase 7). Once extracted:
+The cleaned L1 stack has been pushed to a separate branch on
+`github.com/imrejaul007/NeXha.git`:
 
-- The `repo: https://github.com/imrejaul007/RTMN-Services` and `branch: main`
-  in `render.yaml` must be updated to point at the new repo
-- The `repo` field in the manual deploy instructions in DEPLOY.md must
-  change too
-- Any external integration (e.g. RisaCare dental integration pointing at
-  `NEXHA_PROCEMENT` env var) is unchanged — the public URL of the deployed
-  services doesn't move
+- Branch: `integrate/clean-l1-onto-nexha-main`
+- Commits: `1fb2892` (node_modules cleanup) + `b5235f6` (cleaned L1)
+- Status: ready to merge into `main` (or to open as a PR)
+
+The RTMN monorepo still has the L1 at `companies/Nexha/` (branch
+`refactor/nexha-deep-audit`). To fully remove Nexha from RTMN, the
+operators should:
+
+1. Merge `integrate/clean-l1-onto-nexha-main` → `main` on `imrejaul007/NeXha`
+2. On Render: update each service's `repo` and `branch` to point at
+   `imrejaul007/NeXha` (main)
+3. On RTMN: delete `companies/Nexha/` (or keep as a thin README pointer
+   to the new repo)
+4. Update external integrations that reference `NEXHA_PROCEMENT` env var
+   (RisaCare dental) — these do NOT need updates; the public Render URLs
+   don't change
+
+The 6 individual phase commits (`70a6cf028` through `0004890db`) live on
+RTMN's `refactor/nexha-deep-audit` branch for the audit trail. They
+operate on `companies/Nexha/` paths so they cannot be rebased directly
+onto the NeXha repo (different file layout). The corresponding change
+is captured as a single squash-style commit on the NeXha side.
 
 ---
 
