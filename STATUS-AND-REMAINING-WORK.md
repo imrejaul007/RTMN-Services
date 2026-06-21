@@ -12,17 +12,21 @@
 
 | Area | Result |
 |------|--------|
-| **Test suite** | **13/13 suites passing** (78 assertions): CorpID, TwinOS, MemoryOS, GoalOS, PolicyOS, SkillOS, FlowOS, Genie, Sutar, AgentOS, do-client, nexha-client, salar-client |
-| **Foundation services** | 7/7 healthy (corpid 7001, twinos 7002, memoryos 7003, goalos 7004, policyos 7005, skillos 7006, flowos 7007) |
+| **Test suite** | **6/6 suites passing** (35 assertions) — runtime + clients; 7 foundation tests moved to platform/ with the services themselves |
+| **Foundation services** | Moved to `companies/HOJAI-AI/platform/*` (canonical homes). Preserved under `products/genie/genie-os/_deprecated-foundation/` with NOTICE.md files. Start via `companies/HOJAI-AI/start-all.sh` |
 | **Runtime services** | 3/3 healthy (genie 7100, sutar 7200, agentos 7300) |
 | **Thin clients** | 3/3 healthy (do-client 8090, nexha-client 8190, salar-client 8290) |
-| **Named agents seeded** | 23/23 registered in AgentOS (total 72 agents after seeding) |
+| **Named agents seeded** | 23/23 registered in AgentOS via `npm run seed:agents` |
 | **Security hardening** | `requireEnv` fail-fast on 176 services, `requireAuth` on 130 services / 795 routes, 0 hardcoded secret fallbacks |
-| **Shared library** | `@rtmn/shared/auth` and `@rtmn/shared/lib/env` declared as proper dependencies (was symlink, now `file:`-resolved) |
+| **Shared library** | `@rtmn/shared/auth` now exports `createCorpIdAuthMiddleware` (real JWT verify via CorpID with in-process cache + REQUIRE_AUTH toggle). Both ESM (`index.js`) and CJS (`index.cjs`) variants available |
+| **Agent-wallets** | New endpoint: `GET /api/wallets/:id/limits` returns per-transaction/daily/monthly limits + remaining capacity |
 
 ### HOJAI-AI standalone repo (pushed)
 
 ```
+d3922df1 feat(sutar/agent-wallets): add GET /api/wallets/:id/limits endpoint
+281ed91c refactor(platform): move 7 genie-os foundation services into _deprecated-foundation/
+c4db29d1 feat(hojai-ai): seed-agents Bearer auth + start-script env defaults + sutar services hardening
 ad23574f phase-2: rename scripts to .mjs for ESM compat; update audit patterns
 cdc4ece8 docs: MIGRATING-TO-PERSISTENT-MAP.md walkthrough
 d3ef689d phase-2: PersistentMap drop-in Map replacement with file persistence
@@ -30,7 +34,6 @@ d3ef689d phase-2: PersistentMap drop-in Map replacement with file persistence
 f74b6bc3 phase-1: add requireEnv(['PORT']) fail-fast validation to 176 services
 5ddf6585 phase-1: add requireAuth to 130 services (795 routes), remove 37 hardcoded secret fallbacks
 51aaaa00 fix(genie-os): Critical bug fixes for production readiness
-c4db29d1 feat(hojai-ai): seed-agents Bearer auth + start-script env defaults + sutar services hardening
 ```
 
 Pushed to `github.com:imrejaul007/hojai-ai.git`.
@@ -38,6 +41,9 @@ Pushed to `github.com:imrejaul007/hojai-ai.git`.
 ### RTMN root repo (pushed)
 
 ```
+cf38044c5 docs: bump CLAUDE.md version to 5.2 + refresh status banner
+9c1a0325c refactor(canonical-stubs): remove 3 canonical stub duplicates after platform/ move
+26be64c1a docs(status): refresh STATUS-AND-REMAINING-WORK.md after audit pass
 f6a17bb48 docs(rtmn): correct SUTAR/Salar/BLR naming confusion; harden flow-os-canonical
 <NEW>      feat(security-shared): shared security library for RTMN services (15 files)
 ```
@@ -142,9 +148,9 @@ node infrastructure/scripts/test-all.js  # 13/13 should pass
 
 ## 🔗 Cross-repo references
 
-- HOJAI-AI: `https://github.com/imrejaul007/hojai-ai` — branch `main`, head `c4db29d1`
+- HOJAI-AI: `https://github.com/imrejaul007/hojai-ai` — branch `main`, head `d3922df1`
 - REZ-Workspace: `https://github.com/imrejaul007/REZ-Workspace` — branch `main`, head `ea78d107a`
-- RTMN root: `https://github.com/imrejaul007/RTMN-Services` — branch `refactor/consolidate-hojai-ai`, head `f6a17bb48`
+- RTMN root: `https://github.com/imrejaul007/RTMN-Services` — branch `refactor/consolidate-hojai-ai`, head `cf38044c5`
 - Do App: `https://github.com/imrejaul007/do-app` (separate repo)
 
 ---
@@ -153,12 +159,15 @@ node infrastructure/scripts/test-all.js  # 13/13 should pass
 
 After this audit pass:
 
-- **genie-os** is production-ready: tests pass, services boot, agents seeded, security enforced
+- **genie-os** is production-ready: 6/6 test suites pass (35 assertions), services boot, 23 agents seeded, security enforced
 - **5 twin services** (financial, health, founder, relationship, personal-os-gateway) have real implementations instead of stubs
+- **Foundation services** consolidated into `companies/HOJAI-AI/platform/*` (single source of truth); originals preserved in `_deprecated-foundation/`
+- **`@rtmn/shared/auth`** now exports `createCorpIdAuthMiddleware` for real JWT verification via CorpID
+- **`sutar/agent-wallets`** has a new `/api/wallets/:id/limits` endpoint for Genie to surface remaining balance
 - **All internal RTMN-owned changes are committed and pushed** across 3 repos
 - **External clients (Nexha, StayOwn, Leverge, REZ-Merchant) are intentionally untouched** per the External Clients Policy in CLAUDE.md
 
 No further work is required to make genie-os production-ready. The remaining items are:
-1. Clients to commit their own work
-2. Long-term cleanup of scaffold-only services
-3. Deduplication of moved services
+1. Clients to commit their own work (Nexha has 23 uncommitted changes)
+2. Long-term cleanup of scaffold-only services in AdBazaar (~290 of 305 dirs)
+3. Deduplication of moved services (~20 candidates per `companies/AdBazaar/DEDUP-CANDIDATES.md`)
