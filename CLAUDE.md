@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.1  
-> **Last Updated:** June 18, 2026  
-> **Status:** ✅ **67/92 SERVICES HEALTHY** — All 67 internal services running. The 25 remaining "unhealthy" are external client services (StayOwn-Hospitality, REZ-Merchant, Nexha) that belong to external clients and are not in this RTMN repo. See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for details.
+> **Version:** 5.2  
+> **Last Updated:** June 21, 2026  
+> **Status:** ✅ **GENIE-OS PRODUCTION-READY** — All 13 genie-os test suites pass (78 assertions), all 7 foundation services healthy, 23 named Genie agents registered in AgentOS. Security hardened (requireEnv + requireAuth on 176+ services). See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the full audit report and what's left.
 
 ---
 
