@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.2  
-> **Last Updated:** June 21, 2026  
-> **Status:** ✅ **GENIE-OS PRODUCTION-READY** — All 13 genie-os test suites pass (78 assertions), all 7 foundation services healthy, 23 named Genie agents registered in AgentOS. Security hardened (requireEnv + requireAuth on 176+ services). See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the full audit report and what's left.
+> **Version:** 5.3  
+> **Last Updated:** June 22, 2026  
+> **Status:** 🟡 **PHASE A FOUNDATION COMPLETE — 10-WEEK ROADMAP ACTIVE** — Consumer stack (do-app + Hub + 4 foundation services + voice input + SADA wire-up) is production-grade. SUTAR OS (23 services) and Nexha network (5 missing) are mostly scaffold; see [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the honest audit and [ROADMAP-TO-VISION.md](ROADMAP-TO-VISION.md) for the 10-week plan to fill the gaps. Aspirational "all 50+ services running" claims in this file are now flagged with **(aspirational)**.
 
 ---
 
