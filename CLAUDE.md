@@ -55,7 +55,7 @@ RTMN is a unified ecosystem connecting **50+ services** across **24 industry ver
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │                    FOUNDATION (3)                                    │   │
-│  │   CorpID (4702) │ MemoryOS (4703) │ TwinOS (4705)                          │   │
+│  │   CorpID (4702) │ Memory Layer (4703/4152/4704/4790) │ TwinOS (4705)   │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
@@ -214,9 +214,20 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
 | **CorpID** | 4702 | ✅ | Universal Identity |
-| **MemoryOS** | 4703 | ✅ | Personal AI Memory |
+| **Memory Layer** (4 services) | 4703, 4152, 4704, 4790 | ✅ | Knowledge & Experience — see "Memory Layer" below |
 | **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
 | **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
+
+### Memory Layer (4 services)
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **MemoryOS** | 4703 | The dumb store — 15 memory types, knowledge graph, working/long-term, learning |
+| **Memory Confidence** | 4152 | Tracks per-fact reliability (base × decay × contradiction) |
+| **Twin Memory Bridge** | 4704 | Twin ↔ memory partition links; "Each twin owns its memory" |
+| **Memory Context Engine** | 4790 | Smart retriever that composes LLM context windows (relevance × confidence × recency) |
+
+All four share a single `@rtmn/shared/auth` JWT middleware (CorpID-backed). See [HOJAI-AI/docs/MEMORY-LAYER.md](companies/HOJAI-AI/docs/MEMORY-LAYER.md) and the per-service CLAUDE.md files in `companies/HOJAI-AI/platform/memory/` and `companies/HOJAI-AI/platform/twins/twin-memory-bridge/`.
 
 ### HOJAI AI Suite (Internal HOJAI services only)
 
@@ -364,6 +375,8 @@ Hub (4399)
 ├── FOUNDATION
 │   ├── /api/identity/*     # → CorpID (4702)
 │   ├── /api/memory/*       # → MemoryOS (4703)
+│   ├── /api/facts/*        # → Memory Confidence (4152)
+│   ├── /api/twin-memory/*  # → Twin Memory Bridge (4704)
 │   └── /api/twins/*        # → TwinOS (4705)
 │
 ├── HOJAI AI

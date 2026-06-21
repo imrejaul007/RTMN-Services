@@ -14,7 +14,10 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | Port | Service | Path | Status |
 |------|---------|------|--------|
 | 4702 | corpid-service | `services/corpid-service/` | ✅ 200 |
-| 4703 | memory-os | `services/memory-os/` | ✅ 200 |
+| 4703 | memory-os | `companies/HOJAI-AI/platform/memory/memory-os/` | ✅ 200 |
+| 4152 | memory-confidence | `companies/HOJAI-AI/platform/memory/memory-confidence/` | ✅ 200 |
+| 4704 | twin-memory-bridge | `companies/HOJAI-AI/platform/twins/twin-memory-bridge/` | ✅ 200 |
+| 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | ✅ 200 |
 | 4705 | twinos-hub | `services/twinos-hub/` | ✅ 200 |
 | 5010 | restaurant-os | `industry-os/services/restaurant-os/` | ✅ 200 |
 | 5020 | healthcare-os | `industry-os/services/healthcare-os/` | ✅ 200 |
@@ -29,7 +32,10 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | 4399 | unified-os-hub | `services/unified-os-hub/` |
 | 4510 | event-bus | `services/event-bus/` |
 | 4702 | corpid-service | `services/corpid-service/` |
-| 4703 | memory-os | `services/memory-os/` |
+| 4703 | memory-os | `companies/HOJAI-AI/platform/memory/memory-os/` |
+| 4152 | memory-confidence | `companies/HOJAI-AI/platform/memory/memory-confidence/` |
+| 4704 | twin-memory-bridge | `companies/HOJAI-AI/platform/twins/twin-memory-bridge/` |
+| 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` |
 | 4705 | twinos-hub | `services/twinos-hub/` |
 | 4000 | graphql-federation | `services/graphql-federation/` |
 | 4750 | analytics-os | `services/analytics-os/` |
