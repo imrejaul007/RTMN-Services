@@ -1,0 +1,29 @@
+{
+  "name": "@rtmn/security-shared",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared security library for the RTMN ecosystem. Single source of truth for JWT, passwords, rate-limiting, CORS, audit logging, and middleware.",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./auth/*": "./auth/*.js",
+    "./middleware/*": "./middleware/*.js",
+    "./utils/*": "./utils/*.js",
+    "./startup": "./startup/index.js"
+  },
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "keywords": ["rtmn", "security", "auth", "jwt", "oidc", "saml"],
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
