@@ -214,6 +214,19 @@ All 23 Genie services have unique, non-overlapping port assignments. The histori
 | 4939 | knowledge-marketplace | `services/knowledge-marketplace/` |
 | 4940 | knowledge-base | `services/knowledge-base/` |
 
+## 🌀 FlowOS — canonical ports from source (Layer 13: Automation)
+
+FlowOS has two complementary services (see [services/flow-os-canonical/CLAUDE.md](services/flow-os-canonical/CLAUDE.md) and [companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/](companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/)):
+
+| Port | Service | Role | Path |
+|------|---------|------|------|
+| 4156 | flow-os-canonical | Canonical flow-template registry — owns `checkout`, `onboarding`, `escalation`, `lead_routing` | `services/flow-os-canonical/` |
+| 7007 | flowos (executor) | Execution engine: dependency graph, per-step error policies, idempotency, heartbeat-recovery, calls SkillOS for step execution | `companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/` |
+
+On startup, `flowos@7007` reads the 4 canonical templates from `flow-os-canonical@4156` (via `FLOWOS_CANONICAL_URL`) and upserts them as local active flows. The wire is best-effort — if the registry is unreachable, the executor logs a warning and proceeds.
+
+> **Note:** A `Flow Orchestrator (4244)` is mentioned in [companies/HOJAI-AI/CLAUDE.md](companies/HOJAI-AI/CLAUDE.md) and [divisions/02-infrastructure-cloud/CLAUDE.md](companies/HOJAI-AI/divisions/02-infrastructure-cloud/CLAUDE.md) but **does not exist on disk** (planned, not built).
+
 ### ⚠️ Support Port Collision
 - **notification-service (4870)** vs **unified-inbox (4870)** — move unified-inbox → 4871
 

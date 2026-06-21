@@ -266,15 +266,22 @@ Every Industry OS is not just a management system — it's a complete **AI Compa
 
 ### Layer 13 — Automation (FlowOS)
 
-**Port:** 4150, 4244  
-**Services:** SUTAR Flow OS
+**Ports:** 4156 (template registry) + 7007 (executor)  
+**Services:** `flow-os-canonical` + `flowos` (genie-os) — see [services/flow-os-canonical/CLAUDE.md](services/flow-os-canonical/CLAUDE.md) and [companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/](companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/)
 
-| Component | Purpose |
-|-----------|---------|
-| Flow OS | Workflow automation, approval chains |
+| Component | Port | Purpose |
+|-----------|------|---------|
+| flow-os-canonical | 4156 | Canonical flow-template registry (4 seeded templates: checkout, onboarding, escalation, lead_routing) |
+| flowos (executor) | 7007 | Execution engine: dependency graph, per-step error policies (stop/continue/retry), idempotency, heartbeat-recovery, calls SkillOS@7006 for step execution |
 
 **Features:**
 - Business Processes, Agent Coordination, Approval Workflows
+- 4 canonical templates synced from 4156 to 7007 on startup
+- Tenant isolation (corpId) enforced at executor reads
+- 30 executions/min/IP rate limit on `POST /api/flows/:id/execute`
+- Idempotency-Key header support on execute (same key → same runId)
+
+> **Note:** A `Flow Orchestrator (4244)` is referenced in [companies/HOJAI-AI/CLAUDE.md](companies/HOJAI-AI/CLAUDE.md) and [companies/HOJAI-AI/divisions/02-infrastructure-cloud/CLAUDE.md](companies/HOJAI-AI/divisions/02-infrastructure-cloud/CLAUDE.md) but **is not yet built** (Architecture v2 target). Until it ships, consumers (Genie, CoPilot, SUTAR, Industry OS) call `flowos@7007` directly.
 
 ### Layer 14 — Autonomous (SUTAR OS)
 

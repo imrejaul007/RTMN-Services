@@ -873,9 +873,14 @@ This document consolidates all port allocations across the 24 industry verticals
 
 ### Layer 13: Automation (FlowOS)
 
-| Port | Service | Purpose |
-|------|---------|---------|
-| 4200 | FlowOS | Workflows, Automation |
+FlowOS has two complementary services (see [services/flow-os-canonical/CLAUDE.md](services/flow-os-canonical/CLAUDE.md) and [companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/CLAUDE.md](companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/)):
+
+| Port | Service | Role |
+|------|---------|------|
+| 4156 | flow-os-canonical | Canonical flow-template registry (single source of truth for `checkout`, `onboarding`, `escalation`, `lead_routing`) |
+| 7007 | flowos (genie-os) | Execution engine: instantiates templates, runs steps against SkillOS with dependency resolution, per-step error policies, idempotency, recovery |
+
+Note: the **Flow Orchestrator (4244)** mentioned in [companies/HOJAI-AI/CLAUDE.md](companies/HOJAI-AI/CLAUDE.md) and [divisions/02-infrastructure-cloud/CLAUDE.md](companies/HOJAI-AI/divisions/02-infrastructure-cloud/CLAUDE.md) is **planned but not yet built** (Architecture v2 target). Until that service ships, consumers (Genie, CoPilot, SUTAR, Industry OS) should call `flowos@7007` directly.
 
 ### Layer 14: Autonomous (SUTAR OS + Karma Foundation)
 
