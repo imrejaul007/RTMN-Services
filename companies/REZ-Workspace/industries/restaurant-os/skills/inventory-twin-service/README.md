@@ -48,20 +48,43 @@ When stock hits its reorder point, the twin **automatically creates a Purchase O
 
 ## How the "Restaurant AI needs 500kg rice" flow works
 
-1. Restaurant's `inventory-twin-service` is monitoring `currentStock: 15kg` of basmati rice.
+This is the canonical flow described in the v3 audit and the architecture document. It involves **three services in series** plus the SUTAR OS agent runtime:
+
+1. Restaurant's `inventory-twin-service` (port 4016) is monitoring `currentStock: 15kg` of basmati rice.
 2. As orders come in, `consumptionRate: 8kg/day` updates `daysUntilStockout`.
 3. When `currentStock < reorderPoint` (say 40kg), the twin emits a `restaurant.inventory.reorder_alert` event.
 4. The orchestrator (or a cron, or the frontend) calls `POST /:inventoryId/purchase-orders` with the items to reorder.
-5. **The service** (since NEXHA-AUDIT-V2 Phase 7) calls `procurement-os` via the internal service-to-service bridge:
+5. **The service registers a SUTAR agent** at `sutar-agent-id` (port 4145) — this is the AI's identity:
+   ```
+   POST http://sutar-agent-id:4145/api/agents
+   Headers: x-internal-token: <shared secret>
+   Body: {
+     agentId: "agent-restaurant-<restaurantId>-reorder",
+     name: "<restaurantId> Reorder Agent",
+     capabilities: ["transact", "negotiate", "recommend"],
+     intents: ["order_product", "request_quote", "negotiate_price", "escalate"]
+   }
+   ```
+6. **The service calls `procurement-os`** (port 4320) via the procurement-client, tagged with the SUTAR agent id:
    ```
    POST http://procurement-os:4320/api/rfqs
    Headers: x-internal-token: <shared secret>
-   Body: { buyerId: restaurantId, items: [...], urgency: 'high' }
+   Body: {
+     buyerId: <corpId>,
+     source: "sutart-agent:agent-restaurant-<restaurantId>-reorder",
+     items: [...],
+     urgency: 'high' | 'critical' | ...
+   }
    ```
-6. Procurement-os creates the RFQ, finds matching suppliers (capability matching), sends RFQ invitations, collects quotes, negotiates, awards.
-7. The supplier ships. The procurement-os PO update fires `restaurant.delivery.received`.
-8. The orchestrator (or another service) calls `PUT /:inventoryId/stock` to update the inventory level.
-9. Twin emits `restaurant.inventory.stock_updated` for downstream dashboards.
+7. Procurement-os creates the RFQ, finds matching suppliers (capability matching), sends RFQ invitations, collects quotes, negotiates, awards.
+8. The supplier ships. The procurement-os PO update fires `restaurant.delivery.received`.
+9. The orchestrator (or another service) calls `PUT /:inventoryId/stock` to update the inventory level.
+10. Twin emits `restaurant.inventory.stock_updated` for downstream dashboards.
+11. (Future) The SUTAR agent writes a memory record to MemoryOS so it learns from this reorder pattern.
+
+### Why this matters
+
+The vision doc says "Businesses don't manage supply chains. Their AI does." The AI is the SUTAR agent — not the inventory twin. The inventory twin is the **trigger** that detects low stock. The SUTAR agent is the **actor** that creates the RFQ, negotiates with suppliers, and learns from outcomes. Without the agent, this is just a script. With the agent, it becomes an autonomous supply chain.
 
 ## Configuration
 
@@ -71,7 +94,10 @@ When stock hits its reorder point, the twin **automatically creates a Purchase O
 | `MONGODB_URI` | (required) | Mongo connection string |
 | `RABBITMQ_URI` | `amqp://localhost:5672` | Event bus |
 | `PROCUREMENT_OS_URL` | `http://localhost:4320` | Where to send RFQs |
-| `PROCUREMENT_OS_INTERNAL_TOKEN` | (falls back to `INTERNAL_SERVICE_TOKEN`) | Shared secret for service-to-service auth |
+| `PROCUREMENT_OS_INTERNAL_TOKEN` | (falls back to `INTERNAL_SERVICE_TOKEN`) | Shared secret for procurement service-to-service auth |
+| `SUTAR_AGENT_ID_URL` | `http://localhost:4145` | Where to register the reorder agent |
+| `SUTAR_AGENT_ID_INTERNAL_TOKEN` | (falls back to `INTERNAL_SERVICE_TOKEN`) | Shared secret for SUTAR service-to-service auth |
+| `INTERNAL_SERVICE_TOKEN` | (empty) | Fallback token if specific service tokens aren't set |
 | `RATE_LIMIT_WINDOW_MS` | 60000 | Rate limit window |
 | `RATE_LIMIT_MAX_REQUESTS` | 100 | Requests per window per IP |
 
