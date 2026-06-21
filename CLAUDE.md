@@ -1190,7 +1190,7 @@ GET    /api/marketplace/provider/dashboard     # Provider stats
 - [ACN Architecture](ACN-ARCHITECTURE.md) - Complete ACN documentation
 - [ACP Protocol](services/acp-protocol/) - Message types
 - [ACN Network](services/acn-network/) - Agent registry
-- [Genie Shopping Agent](services/genie-shopping-agent/) - Consumer AI
+- [Genie Shopping Agent](companies/HOJAI-AI/products/genie/genie-shopping-agent/) - Consumer AI (in HOJAI-AI submodule)
 - [Merchant Agents](services/merchant-agents/) - SUTAR OS
 - [Agent Reputation](services/agent-reputation/) - Trust scoring
 - [Agent Contracts](services/agent-contracts/) - Smart contracts

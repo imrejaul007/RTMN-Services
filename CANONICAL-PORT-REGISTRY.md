@@ -52,36 +52,38 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 
 ## 🧞 Genie AI Suite — canonical ports from source
 
+> 📦 **All Genie services live in the HOJAI-AI submodule at `companies/HOJAI-AI/products/genie/`**
+> Submodule: `imrejaul007/hojai-ai.git` (branch: `main`)
+> See `companies/HOJAI-AI/products/genie/` for all 23 services
+
 | Port | Service | Path |
 |------|---------|------|
-| 4701 | genie-gateway | `services/genie-gateway/` |
-| 4709 | genie-calendar-service | `services/genie-calendar-service/` |
-| 4710 | genie-memory-inbox | `services/genie-memory-inbox/` |
-| 4712 | genie-briefing-service | `services/genie-briefing-service/` |
-| 4713 | genie-universal-search | `services/genie-universal-search/` |
-| 4714 | genie-serendipity-service | `services/genie-serendipity-service/` |
-| 4715 | genie-smart-forgetting-service | `services/genie-smart-forgetting-service/` |
-| 4717 | genie-memory-graph | `services/genie-memory-graph/` |
-| 4719 | genie-thinking-engine | `services/genie-thinking-engine/` |
-| 4721 | genie-life-gps | `services/genie-life-gps/` |
-| 4722 | genie-learning-os | `services/genie-learning-os/` |
-| 4723 | genie-wellness-os | `services/genie-wellness-os/` |
-| 4724 | genie-money-os | `services/genie-money-os/` |
-| 4725 | genie-creation-os | `services/genie-creation-os/` |
-| 4726 | genie-execution-engine | `services/genie-execution-engine/` |
-| 4727 | genie-life-university | `services/genie-life-university/` |
-| 4767 | genie-wake-word-service | `services/genie-wake-word-service/` |
-| 4768 | genie-listening-modes | `services/genie-listening-modes/` |
-| 4769 | genie-device-integration | `services/genie-device-integration/` |
+| 4701 | genie-gateway | `companies/HOJAI-AI/products/genie/genie-gateway/` |
+| 4709 | genie-calendar-service | `companies/HOJAI-AI/products/genie/genie-calendar-service/` |
+| 4710 | genie-memory-inbox | `companies/HOJAI-AI/products/genie/genie-memory-inbox/` |
+| 4712 | genie-briefing-service | `companies/HOJAI-AI/products/genie/genie-briefing-service/` |
+| 4713 | genie-universal-search | `companies/HOJAI-AI/products/genie/genie-universal-search/` |
+| 4714 | genie-serendipity-service | `companies/HOJAI-AI/products/genie/genie-serendipity-service/` |
+| 4715 | genie-smart-forgetting-service | `companies/HOJAI-AI/products/genie/genie-smart-forgetting-service/` |
+| 4716 | genie-companion-service | `companies/HOJAI-AI/products/genie/genie-companion-service/` |
+| 4717 | genie-memory-graph | `companies/HOJAI-AI/products/genie/genie-memory-graph/` |
+| 4718 | genie-relationship-os | `companies/HOJAI-AI/products/genie/genie-relationship-os/` |
+| 4719 | genie-thinking-engine | `companies/HOJAI-AI/products/genie/genie-thinking-engine/` |
+| 4720 | genie-consultant-agent | `companies/HOJAI-AI/products/genie/genie-consultant-agent/` |
+| 4721 | genie-life-gps | `companies/HOJAI-AI/products/genie/genie-life-gps/` |
+| 4722 | genie-learning-os | `companies/HOJAI-AI/products/genie/genie-learning-os/` |
+| 4723 | genie-wellness-os | `companies/HOJAI-AI/products/genie/genie-wellness-os/` |
+| 4724 | genie-money-os | `companies/HOJAI-AI/products/genie/genie-money-os/` |
+| 4725 | genie-creation-os | `companies/HOJAI-AI/products/genie/genie-creation-os/` |
+| 4726 | genie-execution-engine | `companies/HOJAI-AI/products/genie/genie-execution-engine/` |
+| 4727 | genie-life-university | `companies/HOJAI-AI/products/genie/genie-life-university/` |
+| 4728 | genie-shopping-agent | `companies/HOJAI-AI/products/genie/genie-shopping-agent/` |
+| 4767 | genie-wake-word-service | `companies/HOJAI-AI/products/genie/genie-wake-word-service/` |
+| 4768 | genie-listening-modes | `companies/HOJAI-AI/products/genie/genie-listening-modes/` |
+| 4769 | genie-device-integration | `companies/HOJAI-AI/products/genie/genie-device-integration/` |
 
-### ⚠️ Genie Port Collisions to Resolve
-Multiple services in `/services/` declare the same default port. These need fixing before they can run simultaneously:
-
-| Port | Conflict | Action |
-|------|----------|--------|
-| 4716 | genie-companion-service vs genie-shopping-agent | Assign 4716 to one, move other |
-| 4720 | genie-consultant-agent vs product-twin | Reassign product-twin to 4905 |
-| 4725 | genie-creation-os vs razo-keyboard | Move razo-keyboard to 4755 |
+### ✅ Genie Port Status (Verified 2026-06-21)
+All 23 Genie services have unique, non-overlapping port assignments. The historical 4716 conflict has been resolved: `genie-shopping-agent` was relocated to 4728. No cross-service collisions remain.
 
 ---
 
