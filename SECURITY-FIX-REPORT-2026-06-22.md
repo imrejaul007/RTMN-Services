@@ -6,6 +6,46 @@
 > **Audit base:** Per-system audit reports linked inline
 > **Status:** ✅ Phase 1–5 complete. Phase 6 (dedup + remaining low-severity) deferred.
 
+### Phase 5 addendum (2026-06-22) — CorpPerks CORS hardening
+
+Migrated 6 CorpPerks services from hardcoded `cors({ origin: '*' })` to the
+shared `secureCors()` middleware (fails closed in production when `CORS_ORIGINS`
+is not set):
+
+| Service | Finding | File |
+|---|---|---|
+| `workflow-service` | CORPPERKS F-CORS-01 | [workflow-service/src/index.ts](companies/CorpPerks/workflow-service/src/index.ts) |
+| `whatsapp-service` | CORPPERKS F-CORS-02 | [whatsapp-service/src/index.ts](companies/CorpPerks/whatsapp-service/src/index.ts) |
+| `performance-service` | CORPPERKS F-CORS-03 | [performance-service/src/index.ts](companies/CorpPerks/performance-service/src/index.ts) |
+| `onboarding-service` | CORPPERKS F-CORS-04 | [onboarding-service/src/index.ts](companies/CorpPerks/onboarding-service/src/index.ts) |
+| `client-portal-service` | CORPPERKS F-CORS-05 | [client-portal-service/src/index.ts](companies/CorpPerks/client-portal-service/src/index.ts) |
+| `analytics-service` | CORPPERKS F-CORS-06 | [analytics-service/src/index.ts](companies/CorpPerks/analytics-service/src/index.ts) |
+
+**Implementation:** switched from `import cors from 'cors'` to
+`import { secureCors } from '@corpperks/shared/middleware/cors'` (deep import
+to avoid the barrel's transitive `jsonwebtoken` requirement). For services
+without `@corpperks/shared` path mapping in `tsconfig.json`
+(`whatsapp-service`, `analytics-service`), added the standard
+`baseUrl` + `paths` mapping so TS resolves the import.
+
+**Verification (manual runtime smoke test under each env state):**
+
+```
+✓ Dev, no env: '*' allowed, passes through
+✓ Prod, no CORS_ORIGINS: returns 500 "CORS not configured" — fail-closed
+✓ Prod, CORS_ORIGINS='https://app.example.com':
+    - matching origin → Allow-Origin echoes, Allow-Credentials: true, Vary: Origin
+    - non-matching origin → no Allow-Origin header, browser blocks
+```
+
+**Update — RABTUL Phase 4 addendum (also 2026-06-22):**
+[REZ-unified-identity/src/index.ts](companies/RABTUL-Technologies/REZ-unified-identity/src/index.ts)
+received F-35 (CORS fail-closed) and F-40 (configurable rate limit via
+`GLOBAL_RATE_LIMIT_MAX` env var, default 5000/15min) but the changes were
+on disk only at the time the prior version of this report was generated.
+Both are now committed (see commit history of
+[companies/RABTUL-Technologies](companies/RABTUL-Technologies)).
+
 ---
 
 ## Executive Summary
@@ -20,7 +60,7 @@ checks where TypeScript toolchain setup was incomplete.
 |--------|----------------:|------------:|--------------:|---------------:|-------------------|
 | **CorpID Cloud** (`services/identity-services/corpid-cloud`) | 4 / 4 | 6 / 7 | 3 / 5 | 1 / 4 | `npm test` — green |
 | **HOJAI AI** (`companies/HOJAI-AI`) | 5 / 5 | 4 / 6 | 2 / 4 | 1 / 3 | `node` sanity scripts — green |
-| **CorpPerks** (`companies/CorpPerks`) | 6 / 6 | 8 / 8 | 2 / 4 | 0 / 2 | `npm test` — partial (pre-existing TS errors unrelated to fixes) |
+| **CorpPerks** (`companies/CorpPerks`) | 6 / 6 | 8 / 8 | 2 / 4 | 6 / 2 (CORS migration +F-CORS-01..06) | `npm test` — partial (pre-existing TS errors unrelated to fixes); runtime smoke test of `secureCors()` ✓ |
 | **REZ Auth** (`companies/RABTUL-Technologies`) | 7 / 9 | 8 / 7 | 4 / 14 | 0 / 7 | `node` sanity scripts — green; jest blocked by unrelated TS errors |
 | **TOTAL** | **22 / 24 (92%)** | **26 / 28 (93%)** | **11 / 27 (41%)** | **2 / 16 (13%)** | — |
 
