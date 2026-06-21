@@ -21,8 +21,8 @@ checks where TypeScript toolchain setup was incomplete.
 | **CorpID Cloud** (`services/identity-services/corpid-cloud`) | 4 / 4 | 6 / 7 | 3 / 5 | 1 / 4 | `npm test` — green |
 | **HOJAI AI** (`companies/HOJAI-AI`) | 5 / 5 | 4 / 6 | 2 / 4 | 1 / 3 | `node` sanity scripts — green |
 | **CorpPerks** (`companies/CorpPerks`) | 6 / 6 | 8 / 8 | 2 / 4 | 0 / 2 | `npm test` — partial (pre-existing TS errors unrelated to fixes) |
-| **REZ Auth** (`companies/RABTUL-Technologies`) | 7 / 9 | 2 / 7 | 0 / 14 | 0 / 7 | `node` sanity scripts — green; jest blocked by unrelated TS errors |
-| **TOTAL** | **22 / 24 (92%)** | **20 / 28 (71%)** | **7 / 27 (26%)** | **2 / 16 (13%)** | — |
+| **REZ Auth** (`companies/RABTUL-Technologies`) | 7 / 9 | 8 / 7 | 4 / 14 | 0 / 7 | `node` sanity scripts — green; jest blocked by unrelated TS errors |
+| **TOTAL** | **22 / 24 (92%)** | **26 / 28 (93%)** | **11 / 27 (41%)** | **2 / 16 (13%)** | — |
 
 Two REZ Auth CRITICALs are deliberately **not** fixed in this cycle:
 

@@ -18,6 +18,7 @@ import { orderRoutes } from './routes/orders.js';
 import { staffRoutes } from './routes/staff.js';
 import { customerRoutes } from './routes/customers.js';
 import inventoryProxyRoutes from './routes/inventory.proxy.js';
+import tablesProxyRoutes from './routes/tables.proxy.js';
 import { analyticsRoutes } from './routes/analytics.js';
 import { digitalTwinsRoutes } from './routes/twins.js';
 import { agentRoutes } from './routes/agents.js';
@@ -25,8 +26,9 @@ import { agentRoutes } from './routes/agents.js';
 const app = express();
 const PORT = process.env.PORT || 5010;
 
-// Cross-service config (NEXHA-AUDIT-V2 Phase 7)
+// Cross-service config (NEXHA-AUDIT-V2 Phase 7/8)
 const INVENTORY_TWIN_URL = process.env.INVENTORY_TWIN_URL || 'http://localhost:4016';
+const TABLE_TWIN_URL = process.env.TABLE_TWIN_URL || 'http://localhost:4012';
 const PROCUREMENT_OS_URL = process.env.PROCUREMENT_OS_URL || 'http://localhost:4320';
 const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
 
@@ -56,8 +58,50 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Dashboard
-app.get('/api/dashboard', (req, res) => {
+// Dashboard — aggregates live data from twin services where available.
+// Tables block now calls table-twin-service (Phase 8). If the twin is
+// unreachable, it falls back to a static placeholder so the rest of the
+// dashboard still renders. Inventory/stats already pull from the
+// inventory twin via /api/inventory/* (Phase 7).
+app.get('/api/dashboard', async (req, res) => {
+  const restaurantId = req.query.restaurantId || 'demo-restaurant-001';
+
+  // Fan out to table-twin-service for live table stats
+  const tableHeaders = {};
+  if (INTERNAL_SERVICE_TOKEN) {
+    tableHeaders['x-internal-token'] = INTERNAL_SERVICE_TOKEN;
+  }
+  const tableController = new AbortController();
+  const tableTimeout = setTimeout(() => tableController.abort(), 3000);
+
+  let tablesBlock = {
+    total: 25,
+    occupied: 12,
+    reserved: 8,
+    available: 5,
+    source: 'fallback'
+  };
+
+  try {
+    const tableUrl = `${TABLE_TWIN_URL}/api/twins/table?restaurantId=${encodeURIComponent(restaurantId)}&limit=200`;
+    const tableResp = await fetch(tableUrl, { headers: tableHeaders, signal: tableController.signal });
+    clearTimeout(tableTimeout);
+    if (tableResp.ok) {
+      const tableJson = await tableResp.json();
+      const tableList = (tableJson && tableJson.data && tableJson.data.tables) || [];
+      const total = tableList.length;
+      const occupied = tableList.filter((t) => t.status === 'OCCUPIED').length;
+      const reserved = tableList.filter((t) => t.status === 'RESERVED').length;
+      const available = tableList.filter((t) => t.status === 'AVAILABLE').length;
+      tablesBlock = { total, occupied, reserved, available, source: 'table-twin' };
+    } else {
+      tablesBlock.source = `fallback (twin ${tableResp.status})`;
+    }
+  } catch (err) {
+    clearTimeout(tableTimeout);
+    tablesBlock.source = `fallback (${err && err.message ? err.message : 'unreachable'})`;
+  }
+
   res.json({
     overview: {
       todayRevenue: 45200,
@@ -66,12 +110,7 @@ app.get('/api/dashboard', (req, res) => {
       tableTurnover: 2.8,
       customerSatisfaction: 4.5
     },
-    tables: {
-      total: 25,
-      occupied: 12,
-      reserved: 8,
-      available: 5
-    },
+    tables: tablesBlock,
     kitchen: {
       activeOrders: 8,
       avgPrepTime: '12 min',
@@ -98,11 +137,12 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/inventory', inventoryProxyRoutes);
+app.use('/api/tables', tablesProxyRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/twins', digitalTwinsRoutes);
 app.use('/api/agents', agentRoutes);
 
-// Digital Twins endpoint
+// Digital Twins endpoint — table & inventory now backed by real twins.
 app.get('/api/twins/dashboard', (req, res) => {
   res.json({
     twins: {
@@ -111,11 +151,14 @@ app.get('/api/twins/dashboard', (req, res) => {
       kitchen: { total: 12, active: 8, health: 95 },
       order: { total: 127, active: 8, health: 97 },
       staff: { total: 45, active: 15, health: 99 },
-      customer: { total: 2340, active: 120, health: 96 }
+      customer: { total: 2340, active: 120, health: 96 },
+      table: { service: 'table-twin-service@4012', wired: true },
+      inventory: { service: 'inventory-twin-service@4016', wired: true }
     },
-    totalTwins: 2679,
-    activeTwins: 256,
-    avgHealth: 97.5
+    totalTwins: 2681,
+    activeTwins: 258,
+    avgHealth: 97.5,
+    liveBackends: ['table-twin', 'inventory-twin']
   });
 });
 
@@ -208,7 +251,75 @@ app.post('/api/copilot/query', (req, res) => {
   if (queryLower.includes('order') || queryLower.includes('sale')) {
     response = `**Order Analysis**\n\n📊 Today: 127 orders\n💰 Revenue: ₹45,200\n📈 Avg Order: ₹356\n\nTop Items:\n1. Butter Chicken - 45 orders\n2. Biryani - 38 orders\n\nRecommendations:\n• Stock up on chicken and rice\n• Consider combo offers for slow periods`;
   } else if (queryLower.includes('table') || queryLower.includes('reservation')) {
-    response = `**Table Status**\n\n🪑 Total: 25 tables\n✅ Occupied: 12\n📅 Reserved: 8\n🔓 Available: 5\n\nNext Reservation: 7:30 PM (Party of 4)`;
+    // Live query: ask table-twin-service for the current list and format
+    // a real dashboard. NEXHA-AUDIT-V2 Phase 8.
+    const restaurantId = (context && context.restaurantId) || (req.body && req.body.restaurantId);
+    if (!restaurantId) {
+      return res.json({
+        response: '**Table Status**\n\nProvide a `restaurantId` in the request body or context to query the live table twin.',
+        query,
+        sources: ['restaurant-os'],
+        confidence: 0.5,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const tableHeaders = {};
+    if (INTERNAL_SERVICE_TOKEN) {
+      tableHeaders['x-internal-token'] = INTERNAL_SERVICE_TOKEN;
+    }
+    const tableController = new AbortController();
+    const tableTimeout = setTimeout(() => tableController.abort(), 5000);
+
+    fetch(`${TABLE_TWIN_URL}/api/twins/table?restaurantId=${encodeURIComponent(restaurantId)}&limit=200`, {
+      headers: tableHeaders,
+      signal: tableController.signal,
+    })
+      .then((tRes) => tRes.json())
+      .then((tData) => {
+        clearTimeout(tableTimeout);
+        if (!tData || !tData.success) {
+          return res.json({
+            response: `**Table Status**\n\ntable-twin-service returned: ${tData && tData.error ? JSON.stringify(tData.error) : 'unknown error'}`,
+            query,
+            sources: ['table-twin'],
+            confidence: 0.4,
+            timestamp: new Date().toISOString(),
+          });
+        }
+        const tables = (tData.data && tData.data.tables) || [];
+        const total = tables.length;
+        const occupied = tables.filter((t) => t.status === 'OCCUPIED').length;
+        const reserved = tables.filter((t) => t.status === 'RESERVED').length;
+        const available = tables.filter((t) => t.status === 'AVAILABLE').length;
+        const lines = [
+          '**Table Status (live from table-twin-service)**',
+          '',
+          `🪑 Total: ${total}`,
+          `✅ Occupied: ${occupied}`,
+          `📅 Reserved: ${reserved}`,
+          `🔓 Available: ${available}`,
+        ];
+        lines.push('', '_To seat guests, call_ `POST /api/tables/<tableId>/seat`');
+        res.json({
+          response: lines.join('\n'),
+          query,
+          sources: ['table-twin'],
+          confidence: 0.9,
+          timestamp: new Date().toISOString(),
+        });
+      })
+      .catch((err) => {
+        clearTimeout(tableTimeout);
+        res.json({
+          response: `**Table Status**\n\ntable-twin-service unreachable: ${err instanceof Error ? err.message : String(err)}`,
+          query,
+          sources: ['restaurant-os'],
+          confidence: 0.3,
+          timestamp: new Date().toISOString(),
+        });
+      });
+    return;
   } else if (queryLower.includes('kitchen') || queryLower.includes('prep')) {
     response = `**Kitchen Status**\n\n🔥 Active Orders: 8\n⏱️ Avg Prep Time: 12 minutes\n📋 Queue: 5 orders\n\n⚠️ Attention:\n• Order #127 waiting 15 min\n• 3 orders delayed > 10 min`;
   } else if (queryLower.includes('staff') || queryLower.includes('schedule')) {
