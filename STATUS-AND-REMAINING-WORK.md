@@ -171,3 +171,64 @@ No further work is required to make genie-os production-ready. The remaining ite
 1. Clients to commit their own work (Nexha has 23 uncommitted changes)
 2. Long-term cleanup of scaffold-only services in AdBazaar (~290 of 305 dirs)
 3. Deduplication of moved services (~20 candidates per `companies/AdBazaar/DEDUP-CANDIDATES.md`)
+---
+
+## ✅ Restaurant-OS canonical flow (2026-06-22)
+
+The "Restaurant AI needs 500kg rice" demo is now wired end-to-end. Four
+real services cooperate, no mocks, no stubs:
+
+```
+inventory-twin-service (port 4016)
+  → check reorder points
+  → register SUTAR agent via sutar-agent-id (4145)
+  → write reorder memory to MemoryOS (4703)
+  → POST /api/rfqs to procurement-os (4320)
+  → emit restaurant.inventory.purchaseorder.dispatched_to_procurement
+
+restaurant-os (port 5010)
+  → /api/inventory/* proxied to inventory-twin-service (was hardcoded JSON)
+  → /api/copilot/query with "inventory"/"stock" now returns real analytics
+```
+
+### Files added/modified (1,781 LOC, pushed)
+
+```
+3c7b3cc26 merge: bring refactor/restaurant-os-real into consolidation branch
+12741c095 HOJAI-AI: bump submodule pointer (Phase 7 platform move)
+107de42c7 nexha(restaurant-os): add ARCHITECTURE.md documenting canonical flow
+001ebcc1a nexha(inventory-twin): write reorder memory to MemoryOS
+fcc25768e nexha(inventory-twin): register SUTAR agent for each reorder
+4fbf19135 nexha(restaurant-os): wire orchestrator to inventory-twin-service
+514e81803 nexha(restaurant-os): wire inventory twin to procurement-os (Phase 7)
+```
+
+### Key client modules (with fail-open semantics)
+
+- `skills/inventory-twin-service/src/utils/procurement-client.ts` (145 LOC) → procurement-os
+- `skills/inventory-twin-service/src/utils/memory-client.ts` (154 LOC) → MemoryOS
+- `skills/inventory-twin-service/src/utils/sutar-client.ts` (154 LOC) → SUTAR agent-id
+- `src/routes/inventory.proxy.js` (68 LOC) → restaurant-os orchestrator proxy
+
+### What this proves
+
+The NeXha vision's canonical example now works: a real MongoDB-backed
+inventory twin, detecting a reorder event, registers a SUTAR agent, writes
+the pattern to MemoryOS, dispatches an RFQ to procurement-os. The
+orchestrator at port 5010 exposes the whole thing behind a single
+`/api/inventory/*` prefix with proper internal-token auth.
+
+### What's still canned
+
+Other restaurant-os routes (`/api/orders`, `/api/tables`, `/api/kitchen`,
+`/api/staff`) still return hardcoded JSON. Wiring them to real twin
+services (`order-twin-service`, `table-twin-service`, `kitchen-twin-service`,
+`staff-twin-service` — each ~1-2k LOC TS) is P0 in NEXHA-ROADMAP.md.
+
+### Documentation
+
+- [companies/REZ-Workspace/industries/restaurant-os/ARCHITECTURE.md](companies/REZ-Workspace/industries/restaurant-os/ARCHITECTURE.md)
+- [skills/inventory-twin-service/README.md](companies/REZ-Workspace/industries/restaurant-os/skills/inventory-twin-service/README.md)
+- [NEXHA-VS-CODE-AUDIT-V2.md](NEXHA-VS-CODE-AUDIT-V2.md) Phase 7
+- [NEXHA-ROADMAP.md](NEXHA-ROADMAP.md) P0/P2
+
