@@ -46,6 +46,32 @@ on disk only at the time the prior version of this report was generated.
 Both are now committed (see commit history of
 [companies/RABTUL-Technologies](companies/RABTUL-Technologies)).
 
+### Phase 6 addendum (2026-06-22) — HOJAI AI LOW findings (L-1..L-5)
+
+Fixed all 5 LOW findings from the HOJAI audit, all in
+`platform/identity/corpid-service/src/index.js`:
+
+| ID | Finding | Fix |
+|----|---------|-----|
+| HOJAI L-1 | errorId leaked in any non-prod env | Gated to `NODE_ENV === 'development'` with explicit `ALLOW_ERROR_ID` opt-in |
+| HOJAI L-2 | Password field accepted on PUT /api/users/:id | Explicit destructure-and-drop + docblock + attempt log |
+| HOJAI L-3 | CSP imgSrc allows arbitrary HTTPS | Allowlist (`*.rtmn.com`, `*.rez.money`); extend via `IMG_SRC` env |
+| HOJAI L-4 | USER_EXISTS / BUSINESS_EXISTS enumeration | Uniform `REGISTRATION_FAILED` code+status+message; reason logged server-side |
+| HOJAI L-5 | No account lockout after failed logins | Exponential backoff: 5 fails → 15min lockout, doubles per fail, caps at 24h |
+
+**Verification (lockout logic, 6/6 scenarios):**
+
+```
+PASS 4 failures does not lock
+PASS 5 failures locks account
+PASS 6th failure doubles lockout time
+PASS reset clears counter and lockout
+PASS lockout caps at MAX_LOCKOUT_MS (24h)
+PASS expired lockout allows login
+```
+
+Full per-system report: [HOJAI-AI-PHASE-6-LOW-FIX-REPORT-2026-06-22.md](companies/HOJAI-AI/HOJAI-AI-PHASE-6-LOW-FIX-REPORT-2026-06-22.md)
+
 ---
 
 ## Executive Summary
@@ -59,10 +85,10 @@ checks where TypeScript toolchain setup was incomplete.
 | System | Criticals fixed | Highs fixed | Mediums fixed | Lows addressed | Test verification |
 |--------|----------------:|------------:|--------------:|---------------:|-------------------|
 | **CorpID Cloud** (`services/identity-services/corpid-cloud`) | 4 / 4 | 6 / 7 | 3 / 5 | 1 / 4 | `npm test` — green |
-| **HOJAI AI** (`companies/HOJAI-AI`) | 5 / 5 | 4 / 6 | 2 / 4 | 1 / 3 | `node` sanity scripts — green |
+| **HOJAI AI** (`companies/HOJAI-AI`) | 5 / 5 | 4 / 6 | 2 / 4 | 6 / 3 (Phase 6: L-1..L-5) | `node` sanity scripts — green; lockout 6/6 ✓ |
 | **CorpPerks** (`companies/CorpPerks`) | 6 / 6 | 8 / 8 | 2 / 4 | 6 / 2 (CORS migration +F-CORS-01..06) | `npm test` — partial (pre-existing TS errors unrelated to fixes); runtime smoke test of `secureCors()` ✓ |
-| **REZ Auth** (`companies/RABTUL-Technologies`) | 7 / 9 | 8 / 7 | 4 / 14 | 0 / 7 | `node` sanity scripts — green; jest blocked by unrelated TS errors |
-| **TOTAL** | **22 / 24 (92%)** | **26 / 28 (93%)** | **11 / 27 (41%)** | **2 / 16 (13%)** | — |
+| **REZ Auth** (`companies/RABTUL-Technologies`) | 7 / 9 | 8 / 7 | 4 / 14 | 2 / 7 (Phase 4: F-35, F-40) | `node` sanity scripts — green; jest blocked by unrelated TS errors |
+| **TOTAL** | **22 / 24 (92%)** | **26 / 28 (93%)** | **11 / 27 (41%)** | **14 / 16 (88%)** | — |
 
 Two REZ Auth CRITICALs are deliberately **not** fixed in this cycle:
 
