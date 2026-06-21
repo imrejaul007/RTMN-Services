@@ -1,4 +1,14 @@
 // Flow OS Canonical (4156) — canonical cross-service workflow definitions
+//
+// Auth: All /api/* routes require the shared internal service token.
+// Set INTERNAL_SERVICE_TOKEN in the environment. There is no default — the
+// service refuses to start without it, matching the convention of sibling
+// services in HOJAI AI (policyos, skillos, memoryos, etc.).
+//
+// Integration: genie-os `flowos` (port 7007) reads the 4 seeded templates
+// from this registry on startup (via FLOWOS_CANONICAL_URL) and upserts them
+// locally as read-only active flows with `source: 'flow-os-canonical'`.
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,12 +16,32 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { v4 as uuid } from 'uuid';
 
+const PORT = process.env.PORT || 4156;
+const SERVICE = 'flow-os-canonical';
+const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN;
+
+if (!INTERNAL_TOKEN) {
+  console.error(`[${SERVICE}] FATAL: INTERNAL_SERVICE_TOKEN env var is required`);
+  process.exit(1);
+}
+
 const app = express();
 app.use(helmet()); app.use(cors()); app.use(compression());
 app.use(express.json({ limit: '2mb' })); app.use(morgan('tiny'));
 
-const PORT = process.env.PORT || 4156;
-const SERVICE = 'flow-os-canonical';
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) {
+    return res.status(401).json({ ok: false, error: 'invalid internal token' });
+  }
+  next();
+}
+
+// Health/ready stay public for orchestrator probes.
+app.get('/health', (_q, r) => r.json({ ok: true, service: SERVICE, port: PORT, status: 'healthy', flows: flows.size }));
+app.get('/ready', (_q, r) => r.json({ ok: true, ready: true }));
+
+// Everything under /api requires the internal token.
+app.use('/api', requireInternal);
 
 const flows = new Map();       // flowId -> canonical workflow
 const instantiations = new Map(); // instanceId -> { flow_id, status, current_step, started_at }
@@ -62,18 +92,15 @@ function seed() {
   ];
   seeds.forEach(s => {
     const id = uuid();
-    flows.set(id, { id, ...s, version: 1, created_at: new Date().toISOString() });
+    flows.set(id, { id, ...s, version: 1, source: 'seed', created_at: new Date().toISOString() });
   });
 }
-
-app.get('/health', (_q, r) => r.json(ok({ service: SERVICE, port: PORT, status: 'healthy', flows: flows.size })));
-app.get('/ready', (_q, r) => r.json(ok({ ready: true })));
 
 app.post('/api/flows', (req, res) => {
   const { name, description, steps } = req.body || {};
   if (!name || !Array.isArray(steps)) return res.status(400).json(fail('name, steps[] required'));
   const id = uuid();
-  const flow = { id, name, description: description || '', steps, version: 1, created_at: new Date().toISOString() };
+  const flow = { id, name, description: description || '', steps, version: 1, source: 'api', created_at: new Date().toISOString() };
   flows.set(id, flow);
   res.status(201).json(ok({ flow }));
 });

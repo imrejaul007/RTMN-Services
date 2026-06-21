@@ -371,7 +371,7 @@ const sutar = new SutarClient({
 ### Available Modules
 
 ```javascript
-// Marketplace (Salar OS)
+// Marketplace — MOVED to BLR AI Marketplace on 2026-06-21 (see companies/HOJAI-AI/blr-ai-marketplace/services/)
 sutar.marketplace.listServices({ category, limit })
 sutar.marketplace.search({ query, filters })
 sutar.marketplace.createListing({ name, price, category })

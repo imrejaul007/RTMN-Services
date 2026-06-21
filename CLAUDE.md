@@ -718,6 +718,10 @@ RTMN/
 
 **TwinOS is RTMN's domain-centric digital twin platform providing unified digital representations across the ecosystem.**
 
+> **📁 Canonical Location:** `companies/HOJAI-AI/platform/twins/` (NOT `services/` or `services copy/`).
+> **🚀 Startup:** `/Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/start-twins.sh`
+> **📊 Status (2026-06-21):** All 15 main twin services healthy, cross-service JWT auth verified end-to-end. See [HOJAI-AI CLAUDE.md](companies/HOJAI-AI/CLAUDE.md#-twinos-re-audit-2026-06-21) for the full audit report.
+
 ### Twin Statistics
 
 | Category | Twins | Status |
@@ -897,9 +901,11 @@ All 86+ twins now have:
 
 ## 🤖 SUTAR OS - Autonomous Economic Infrastructure (25 Services)
 
-**SUTAR OS** (formerly known as "Salar OS" - the AI Marketplace) is the **Autonomous Economic Layer** of the RTMN ecosystem. It provides 25 interconnected services for AI agent commerce, negotiation, and autonomous operations.
+**SUTAR OS** is the **Autonomous Economic Layer** of the RTMN ecosystem. It provides 32 interconnected services for AI agent commerce, negotiation, and autonomous operations.
 
 **Tagline:** *"The AI Marketplace - Where AI Agents Come to Negotiate"*
+
+> **Note (2026-06-21):** The phrase "formerly known as 'Salar OS'" was removed because it was confusing — `Salar OS` is actually a Workforce Intelligence service (capability registry + digital twins), now at `companies/HOJAI-AI/platform/twins/salar-os/`. The AI Marketplace was at `sutar-marketplace` (port 4250) until **2026-06-21**, when it was moved to **BLR AI Marketplace** at `companies/HOJAI-AI/blr-ai-marketplace/services/`. They are now three distinct things: SUTAR OS (autonomous economic infra), Salar OS (workforce intelligence), BLR AI Marketplace (the marketplace). See the sections below.
 
 **Layer:** 14 (Autonomous Layer)
 
@@ -917,9 +923,9 @@ All 86+ twins now have:
 | **Gateway & Twin** | 5 services (Gateway, Twin OS, Memory Bridge, Identity OS, Agent ID) | 4140-4145 |
 | **Intent & Network** | 3 services (Intent Bus, Agent Network, REZ Bridge) | 4154-4155 |
 | **Decision & Flow** | 6 services (Decision, Simulation, Goal OS, Network Learning, Flow OS, Founder OS) | 4240-4244, 4260 |
-| **Marketplace & Economy** | 4 services (Marketplace "Salar OS", Economy OS, Usage Tracker, Policy OS) | 4250-4254 |
+| **Marketplace & Economy** | 4 services (Economy OS, Usage Tracker, Policy OS + see BLR AI Marketplace) | 4250-4254 |
 | **Trust & Contracts** | 3 services (Trust Engine, Contract OS, Negotiation Engine) | 4180, 4185, 4191 |
-| **Discovery & ROI** | 5 services (Exploration, Discovery, Multi-Agent Evaluator, Reputation, ROI Calculator) | 4255-4259 |
+| **Discovery & ROI** | 5 services (Exploration, Discovery, Multi-Agent Evaluator, Reputation, ROI Calculator) → **moved to BLR AI Marketplace 2026-06-21** | 4255-4259 |
 | **Monitoring** | 1 service (System Monitoring) | 3100 |
 
 ### Key Services
@@ -929,7 +935,7 @@ All 86+ twins now have:
 | **sutar-gateway** | 4140 | API gateway for all SUTAR services |
 | **sutar-decision-engine** | 4240 | AI-powered policy decisions |
 | **sutar-goal-os** | 4242 | Goal decomposition and tracking |
-| **sutar-marketplace** | 4250 | **AI Service Marketplace (Salar OS)** |
+| ~~sutar-marketplace~~ → **BLR AI Marketplace** | 4250 | AI Service Marketplace (moved 2026-06-21) |
 | **sutar-economy-os** | 4251 | Economic layer for transactions |
 | **sutar-negotiation-engine** | 4191 | Multi-party negotiation |
 | **sutar-trust-engine** | 4180 | Trust scoring and reputation |
@@ -946,136 +952,53 @@ All 86+ twins now have:
 
 ---
 
-## 🛒 Salar OS - The AI Marketplace
+## 🛒 Salar OS - Workforce Intelligence (NOT the AI Marketplace)
 
-**Salar OS** is the dedicated **AI Marketplace** within SUTAR OS - the premier destination for buying, selling, and subscribing to AI services, agents, digital twins, and other AI products across the RTMN ecosystem.
+> **⚠️ Corrected 2026-06-21:** This section was historically mis-titled "Salar OS - The AI Marketplace". That description was wrong. Salar OS is **NOT** the marketplace. The marketplace is now **BLR AI Marketplace** at `companies/HOJAI-AI/blr-ai-marketplace/services/` (formerly at `sutar-os/marketplace/`, moved 2026-06-21). **Salar OS is a Workforce Intelligence service** that maps capabilities to humans, AI agents, and hybrid teams.
 
-**Tagline:** *"The AI Marketplace - Where AI Agents Come to Buy, Sell, and Negotiate"*
+**Salar OS** is the **Workforce Intelligence** layer of HOJAI AI. It manages digital twins for humans, AI agents, and human-agent hybrid teams, and provides a capability registry that answers: *"Given a capability, who (or what) is the best entity to deliver it?"*
 
-**Service:** `sutar-marketplace`  
-**Port:** 4250  
-**Layer:** 14 (Autonomous Layer)  
-**Status:** ✅ Production Ready
+**Tagline:** *"The Workforce Intelligence Network - Where Capabilities Meet Entities"*
 
-### 📚 Complete Salar OS Documentation
+**Service:** `salar-os`
+**Path:** `companies/HOJAI-AI/platform/twins/salar-os/`
+**Port:** 4710
+**Package name:** `@hojai/salar-os`
+**Status:** ✅ Moved to HOJAI AI (2026-06-21), v1.0 (~9,000 LOC TypeScript, 13 modules)
 
-- [Salar OS README](docs/salar-os/README.md) - Complete overview
-- [Salar OS Architecture](docs/salar-os/ARCHITECTURE.md) - System architecture
-- [Salar OS API Reference](docs/salar-os/API.md) - All API endpoints
-- [Salar OS Integration Guide](docs/salar-os/INTEGRATION.md) - Integration with RTMN/HOJAI/SUTAR
+### 📚 Salar OS Documentation
 
-### What is Salar OS?
+- [Salar OS CLAUDE.md](companies/HOJAI-AI/platform/twins/salar-os/CLAUDE.md) - Authoritative service doc
+- [Salar OS Architecture](companies/HOJAI-AI/platform/twins/salar-os/docs/SALAR-OS-ARCHITECTURE.md)
+- [Salar-SUTAR Integration](companies/HOJAI-AI/platform/twins/salar-os/docs/SALAR-SUTAR-INTEGRATION.md)
+- [Workforce Twin Network](companies/HOJAI-AI/platform/twins/salar-os/docs/SALAR-WORKFORCE-TWIN-NETWORK.md)
 
-Think of it as:
-- The **"App Store"** for AI
-- The **"Amazon"** for AI services
-- The **"Stock Exchange"** for AI agents
-- The **"Marketplace"** where AI agents meet and transact
+> **Note:** `docs/salar-os/README.md`, `docs/salar-os/ARCHITECTURE.md`, `docs/salar-os/API.md`, `docs/salar-os/INTEGRATION.md` are **DEPRECATED** — they described the wrong service (the AI Marketplace). See [docs/salar-os/NOTICE.md](docs/salar-os/NOTICE.md) for the deprecation explanation.
 
-### Marketplace Statistics
+### What Salar OS does
 
-| Metric | Value |
-|--------|-------|
-| Total Services | 600+ |
-| AI Agents | 150+ |
-| Digital Twins | 23+ |
-| Industry OS | 24 |
-| Knowledge Packs | 100+ |
-| Workflows | 200+ |
-| Skills | 600+ |
-| Active Providers | 500+ |
-| Monthly Transactions | 50,000+ |
-| Total Revenue | $10M+ |
-| Average Rating | 4.6/5 |
+Given a capability (e.g. "negotiate SaaS contracts") and a context (industry, urgency, language), Salar OS finds the **best matching entity** — a human, an AI agent, or a hybrid team — and provides a digital twin describing their skills, history, capacity, and trust score.
 
-### Top-Level Categories (8)
+### Modules (13)
 
-1. **AI Agents** (150+) - Sales, Marketing, HR, Finance, Operations agents
-2. **Digital Twins** (23+) - Customer, Order, Wallet, Employee twins
-3. **Industry OS** (24) - Restaurant OS, Hotel OS, Healthcare OS, etc.
-4. **Knowledge Packs** (100+) - Legal, Medical, Technical domain knowledge
-5. **Workflows** (200+) - Onboarding, Sales, Support automated workflows
-6. **Skills** (600+) - NLP, Vision, Translation reusable capabilities
-7. **Services** (600+) - Auth, Payment, Storage microservices
-8. **Products** (190+) - HOJAI Genie, BrandPulse complete products
+1. **Capability Registry** — Maps capabilities to humans/agents/teams (TECHNICAL, BUSINESS, OPERATIONS, CREATIVE, ANALYTICS, SUPPORT, HR, LEADERSHIP, DOMAIN)
+2. **Agent Twin** — Digital twin for AI agents
+3. **Hybrid Twin** — Digital twin for human-agent hybrid teams
+4. **Organization Twin** — Digital twin for organizations
+5. **Vector Store** — Embeddings + similarity search across capability profiles
+6. **Salar-SUTAR Bridge** — Integration with SUTAR decision engine
+7. **SADA Trust Integration** — Pulls trust scores from SADA OS (port 4190)
+8. **AI Employee Seeder** — Seeds sample AI employee profiles
+9. **AI Employee LLM** — LLM-backed AI employee behavior
+10. **Data Connectors** — External data connectors (HRIS, CRM, ATS)
+11. **Integration Scripts** — Migration + bootstrap
+12. **Payment Integration** — Pay-for-work tracking (REZ Wallet)
+13. **ML Training Pipeline** — ML training for capability matching
 
-### Key Features
+### Related services (now also in HOJAI AI)
 
-- **Service Listings** - Create, update, delete, feature listings
-- **Smart Discovery** - AI-powered search, filter, sort, recommendations
-- **Flexible Purchasing** - One-time, subscriptions, usage-based, bundles
-- **Reviews & Ratings** - 5-star system, verified purchase badges
-- **Provider Tools** - Dashboard, analytics, payouts, promotions
-- **Trust & Verification** - KYC, trust scores, badges, dispute resolution
-- **AI-Powered** - Smart matching, auto-negotiation, predictive pricing
-- **ACP Protocol** - AI agents can autonomously buy/sell
-
-### Relationship to SUTAR OS
-
-```
-SUTAR OS (Layer 14 - Autonomous Economic Infrastructure)
-│
-├── Salar OS (4250) ⭐ AI Marketplace
-│   ├── 600+ Services
-│   ├── 150+ AI Agents
-│   └── 500+ Providers
-│
-├── Decision Engine (4240) - AI recommendations
-├── Negotiation Engine (4191) - Price negotiation
-├── Trust Engine (4180) - Reputation scoring
-├── Contract OS (4185) - Smart contracts
-├── Economy OS (4251) - Payment processing
-├── Goal OS (4242) - Usage tracking
-└── Discovery Engine (4256) - Universal search
-```
-
-### API Endpoints (14+)
-
-```
-GET    /api/marketplace/services          # List services
-GET    /api/marketplace/services/:id      # Get details
-POST   /api/marketplace/listings          # Create listing
-PATCH  /api/marketplace/listings/:id      # Update listing
-DELETE /api/marketplace/listings/:id      # Delete listing
-POST   /api/marketplace/search            # Advanced search
-POST   /api/marketplace/purchase          # Purchase service
-GET    /api/marketplace/categories        # List categories
-GET    /api/marketplace/featured          # Featured services
-GET    /api/marketplace/trending          # Trending services
-GET    /api/marketplace/recommendations   # Personalized recs
-POST   /api/marketplace/services/:id/reviews   # Submit review
-GET    /api/marketplace/services/:id/reviews   # Get reviews
-GET    /api/marketplace/provider/dashboard     # Provider stats
-```
-
-### Pricing Model
-
-| Transaction Type | Platform Fee | Provider Gets |
-|----------------|--------------|---------------|
-| One-time purchase | 15% | 85% |
-| Monthly subscription | 15% | 85% |
-| Annual subscription | 10% | 90% |
-| Usage-based | 20% | 80% |
-| Enterprise deal | Negotiable | 80-90% |
-
-### Use Cases
-
-1. **Business Owner** buys AI agent to automate operations
-2. **Developer** sells AI service and earns revenue
-3. **AI Agent** autonomously purchases services via ACP protocol
-4. **Enterprise** bulk-purchases 50+ AI agents with discount
-
-### Integration Points
-
-- **RTMN Hub (4399)** - Access via `/api/salar/*`
-- **SUTAR Services** - Decision, Negotiation, Trust, Contract, Economy
-- **HOJAI AI** - AI models for recommendations, NLP, pricing
-- **Industry OS** - Pull AI agents from marketplace
-- **ACP Protocol (4800)** - AI agent transactions
-- **Webhooks** - Event notifications for purchases, reviews
-| **Focus** | Internal autonomous operations | External agent commerce |
-| **Marketplace** | sutar-marketplace (4250) | agent-marketplace (4845) |
-| **Negotiation** | sutar-negotiation-engine (4191) | ACP Protocol (4800) |
+- **SADA OS** (port 4190) — Trust + Governance + Risk + Verification, at `companies/HOJAI-AI/platform/trust/sada-os/`
+- **BLR AI Marketplace** (ports 4146, 4255-4260) — The actual AI Marketplace, at `companies/HOJAI-AI/blr-ai-marketplace/services/` (formerly `sutar-os/marketplace/`, moved 2026-06-21)
 
 ---
 

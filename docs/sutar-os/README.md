@@ -22,7 +22,7 @@
 
 ## Overview
 
-**SUTAR OS** (formerly known as "Salar OS" - the AI Marketplace) is the **Autonomous Economic Infrastructure** of the RTMN ecosystem. It provides 25 interconnected services that enable:
+**SUTAR OS** is the **Autonomous Economic Infrastructure** of the RTMN ecosystem. It provides 25 interconnected services that enable:
 
 - **Goal Decomposition** - Break down complex objectives
 - **AI Decision Making** - Autonomous policy decisions
@@ -107,7 +107,7 @@
 
 | Service | Port | Purpose | File Location |
 |---------|------|---------|---------------|
-| **sutar-marketplace** ⭐ | 4250 | **AI Service Marketplace (Salar OS)** | `hojai-ai/hojai-sutar-os/` |
+| ~~sutar-marketplace~~ (MOVED 2026-06-21) | 4250 | AI Service Marketplace → see [BLR AI Marketplace](../companies/HOJAI-AI/blr-ai-marketplace/) | `companies/HOJAI-AI/blr-ai-marketplace/services/` |
 | **sutar-economy-os** | 4251 | Economic layer for transactions | `hojai-ai/hojai-sutar-os/` |
 | **sutar-usage-tracker** | 4252 | Usage tracking and metering | `hojai-ai/hojai-sutar-os/` |
 | **sutar-policy-os** | 4254 | Policy engine for rules | `hojai-ai/hojai-sutar-os/` |
@@ -215,7 +215,7 @@ hojai-ai/
 │   ├── gateway/                         # Port 4140
 │   ├── twin-os/                         # Port 4142
 │   ├── decision-engine/                 # Port 4240
-│   ├── marketplace/                     # Port 4250 (Salar OS)
+│   ├── marketplace/                     # Port 4250 — MOVED to blr-ai-marketplace (2026-06-21)
 │   └── economy-os/                      # Port 4251
 ├── services/
 │   ├── hojai-intent-graph/              # Intent graph
@@ -267,8 +267,8 @@ npm install
 # Start SUTAR Gateway (port 4140)
 node gateway/index.js
 
-# Start SUTAR Marketplace - "Salar OS" (port 4250)
-node marketplace/index.js
+# Marketplace moved to BLR AI Marketplace (2026-06-21) — see companies/HOJAI-AI/blr-ai-marketplace/
+# node marketplace/index.js  # OLD — deprecated
 
 # Start SUTAR Decision Engine (port 4240)
 node decision-engine/index.js
@@ -317,7 +317,7 @@ GET  /api/services              # List all SUTAR services
 POST /api/route                 # Route to specific SUTAR service
 ```
 
-### SUTAR Marketplace - "Salar OS" (4250)
+### BLR AI Marketplace (was SUTAR Marketplace, port range 4146, 4255-4260)
 
 ```http
 GET    /api/marketplace/services          # List AI services
@@ -418,6 +418,6 @@ SUTAR OS implements:
 
 ---
 
-*Last Updated: June 17, 2026*  
-*SUTAR OS - The AI Marketplace (formerly "Salar OS")*  
+*Last Updated: June 21, 2026*  
+*SUTAR OS - Autonomous Economic Infrastructure (Marketplace moved to BLR AI Marketplace on 2026-06-21)*  
 *Part of HOJAI AI - Powering the RTMN Ecosystem*

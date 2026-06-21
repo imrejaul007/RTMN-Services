@@ -85,7 +85,9 @@ Content-Type: application/json
 
 ---
 
-## 2. SUTAR Marketplace API (Port 4250) - "Salar OS"
+## 2. ~~SUTAR Marketplace API (Port 4250)~~ — MOVED to BLR AI Marketplace (2026-06-21)
+
+> **Note (2026-06-21):** The marketplace service group formerly described here has been moved from `sutar-os/marketplace/` to [`companies/HOJAI-AI/blr-ai-marketplace/services/`](../../companies/HOJAI-AI/blr-ai-marketplace/services/). See BLR AI Marketplace CLAUDE.md for current API.
 
 ### List Services
 ```http

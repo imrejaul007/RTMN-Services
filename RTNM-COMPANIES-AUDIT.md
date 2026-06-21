@@ -728,7 +728,7 @@ Restaurant Twin, Order Twin, Kitchen Twin, Inventory Twin, Customer Twin, Staff 
 | 4180-4191 | SUTAR Trust |
 | 4200-4299 | Intelligence |
 | 4240-4244 | SUTAR Decision |
-| 4250-4259 | SUTAR Marketplace |
+| 4250-4259 | ~~SUTAR Marketplace~~ → **BLR AI Marketplace** (moved 2026-06-21) |
 | 4500-4610 | HOJAI Core |
 | 4701-4731 | Genie Personal AI (Personal OS gateway, twins, memory, briefing, bots, connectors) |
 | 4725 | RAZO Keyboard Intent Router |
@@ -899,19 +899,22 @@ Restaurant Twin, Order Twin, Kitchen Twin, Inventory Twin, Customer Twin, Staff 
 
 ---
 
-## 🛒 Salar OS - The AI Marketplace ✅ NEW!
+## 🛒 Salar OS - Workforce Intelligence (NOT the AI Marketplace)
 
-**Built:** June 17, 2026  
-**Status:** ✅ PRODUCTION READY  
-**Port:** 4250 (within SUTAR OS)  
-**Component of:** SUTAR OS (Layer 14 - Autonomous Economic Infrastructure)
+> **⚠️ Corrected 2026-06-21:** This section was historically mis-titled "Salar OS - The AI Marketplace". The actual marketplace is `sutar-marketplace` (port 4250). Salar OS is a **Workforce Intelligence** service that was moved to HOJAI AI on 2026-06-21.
 
-### 📚 Complete Salar OS Documentation
+**Built:** June 17, 2026 (original); moved to HOJAI AI on 2026-06-21
+**Status:** ✅ Moved + Fixed  
+**Port:** 4710 (Workforce Intelligence) — NOT 4250
+**Location:** `companies/HOJAI-AI/platform/twins/salar-os/` (was `companies/CorpPerks/salar-os/`)
 
-- [Salar OS README](docs/salar-os/README.md) - Complete overview
-- [Salar OS Architecture](docs/salar-os/ARCHITECTURE.md) - System architecture
-- [Salar OS API Reference](docs/salar-os/API.md) - All API endpoints
-- [Salar OS Integration Guide](docs/salar-os/INTEGRATION.md) - Integration with RTMN/HOJAI/SUTAR
+### 📚 Authoritative Salar OS Documentation
+
+- [Salar OS CLAUDE.md](companies/HOJAI-AI/platform/twins/salar-os/CLAUDE.md) - Authoritative service doc
+- [Salar OS Architecture](companies/HOJAI-AI/platform/twins/salar-os/docs/SALAR-OS-ARCHITECTURE.md)
+- [Salar-SUTAR Integration](companies/HOJAI-AI/platform/twins/salar-os/docs/SALAR-SUTAR-INTEGRATION.md)
+
+> **Note:** `docs/salar-os/README.md`, `ARCHITECTURE.md`, `API.md`, `INTEGRATION.md` are **DEPRECATED** — they described the wrong service (the AI Marketplace). See [docs/salar-os/NOTICE.md](docs/salar-os/NOTICE.md) for explanation.
 
 ### Salar OS at a Glance
 

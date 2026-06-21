@@ -37,7 +37,7 @@ SUTAR OS is built on a **7-layer architecture** that enables autonomous economic
 │  Layer 5: Marketplace & Economy                                  │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐         │
 │  │Marketplace│ │ Economy  │ │  Usage   │ │  Policy  │         │
-│  │"Salar OS"│ │   OS     │ │ Tracker  │ │   OS     │         │
+│  │(MOVED)   │ │   OS     │ │ Tracker  │ │   OS     │         │
 │  │  (4250)  │ │  (4251)  │ │  (4252)  │ │  (4254)  │         │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘         │
 ├─────────────────────────────────────────────────────────────────┤
@@ -193,7 +193,7 @@ Gateway (4140)
 ├── depends on: Identity OS, Trust Engine
 └── used by: All external services
 
-Marketplace (4250) "Salar OS"
+Marketplace (4250) — MOVED to blr-ai-marketplace on 2026-06-21
 ├── depends on: Trust Engine, Discovery Engine, Economy OS
 └── used by: All AI agents, Industry OS
 
