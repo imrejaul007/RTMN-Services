@@ -16,6 +16,7 @@ import { logger } from '../utils/logger';
 import { messageBroker } from '../utils/message-broker';
 import { procurementClient, ProcurementRfqItem } from '../utils/procurement-client';
 import { sutartAgentIdClient } from '../utils/sutar-client';
+import { memoryOsClient } from '../utils/memory-client';
 
 export class InventoryTwinService {
   async createInventoryTwin(request: CreateInventoryTwinRequest): Promise<CreateInventoryTwinResponse> {
@@ -364,6 +365,49 @@ export class InventoryTwinService {
       procurementStatus,
       totalCost,
     });
+
+    // Phase 7 of NEXHA-AUDIT-V3 (Tier 1, item 3): write a memory record
+    // so the restaurant's MemoryOS twin captures this reorder. Future
+    // SUTAR agents can search past reorders before negotiating
+    // (e.g. "this supplier always delivers 2 days late, factor that into ETA").
+    const urgency =
+      inventoryTwin.reorderAlerts.some((a) => a.urgency === 'CRITICAL')
+        ? 'critical'
+        : inventoryTwin.reorderAlerts.some((a) => a.urgency === 'HIGH')
+          ? 'high'
+          : 'normal';
+
+    const memoryResult = await memoryOsClient.writeMemory({
+      twinId: `restaurant.${inventoryTwin.restaurantId}`,
+      type: 'episodic',
+      importance: urgency === 'critical' ? 'Critical' : urgency === 'high' ? 'High' : 'Medium',
+      content: `Reorder triggered for ${inventoryTwin.restaurantId}: ${orderItems.length} items, total ₹${totalCost.toFixed(2)}, urgency=${urgency}, dispatchStatus=${procurementStatus}`,
+      tags: ['reorder', 'inventory-twin', `urgency:${urgency}`, procurementStatus],
+      metadata: {
+        purchaseOrderId,
+        rfqId,
+        sutartAgentId: sutartAgent?.agentId,
+        sutartAgentRegistered: sutartAgent?.registered,
+        itemCount: orderItems.length,
+        totalCost,
+        items: orderItems.map((i) => ({ itemId: i.itemId, quantity: i.quantity, supplier: i.supplier })),
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    if (memoryResult.ok) {
+      logger.info('Memory recorded for reorder', {
+        memoryId: memoryResult.memoryId,
+        purchaseOrderId,
+        twinId: `restaurant.${inventoryTwin.restaurantId}`,
+      });
+    } else {
+      logger.warn('Memory write skipped/failed (continuing)', {
+        error: memoryResult.error,
+        skipped: memoryResult.skipped,
+        purchaseOrderId,
+      });
+    }
 
     return {
       purchaseOrderId,

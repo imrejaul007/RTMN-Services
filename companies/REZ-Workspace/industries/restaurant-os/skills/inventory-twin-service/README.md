@@ -80,7 +80,7 @@ This is the canonical flow described in the v3 audit and the architecture docume
 8. The supplier ships. The procurement-os PO update fires `restaurant.delivery.received`.
 9. The orchestrator (or another service) calls `PUT /:inventoryId/stock` to update the inventory level.
 10. Twin emits `restaurant.inventory.stock_updated` for downstream dashboards.
-11. (Future) The SUTAR agent writes a memory record to MemoryOS so it learns from this reorder pattern.
+11. **A memory record is written to MemoryOS** (port 4703). Every reorder writes an episodic memory tagged `reorder` with metadata (item count, total cost, urgency, dispatch status, supplier). Future SUTAR agents can search past reorders via MemoryOS `/api/memories/search` to inform their negotiations (e.g. "this supplier always delivers 2 days late, factor that into ETA").
 
 ### Why this matters
 
@@ -97,6 +97,8 @@ The vision doc says "Businesses don't manage supply chains. Their AI does." The 
 | `PROCUREMENT_OS_INTERNAL_TOKEN` | (falls back to `INTERNAL_SERVICE_TOKEN`) | Shared secret for procurement service-to-service auth |
 | `SUTAR_AGENT_ID_URL` | `http://localhost:4145` | Where to register the reorder agent |
 | `SUTAR_AGENT_ID_INTERNAL_TOKEN` | (falls back to `INTERNAL_SERVICE_TOKEN`) | Shared secret for SUTAR service-to-service auth |
+| `MEMORY_OS_URL` | `http://localhost:4703` | Where to write reorder memory records |
+| `MEMORY_OS_SYSTEM_TOKEN` | (empty) | CorpID JWT for service-to-service auth to MemoryOS. Leave empty if MemoryOS has `REQUIRE_AUTH=false` (dev only) |
 | `INTERNAL_SERVICE_TOKEN` | (empty) | Fallback token if specific service tokens aren't set |
 | `RATE_LIMIT_WINDOW_MS` | 60000 | Rate limit window |
 | `RATE_LIMIT_MAX_REQUESTS` | 100 | Requests per window per IP |
