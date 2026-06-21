@@ -48,6 +48,72 @@ npm start
 - `GET /api/health/services` - Service health
 - `GET /api/stats` - Statistics
 
+### SUTAR OS Top-Level Routing (v1.1.0)
+
+The Hub proxies the SUTAR OS autonomous-economic layer (HOJAI-AI platform) at the
+top level. Two endpoints:
+
+- `GET /api/sutar/capabilities` — Capability → service map (mirrors
+  `sutar-gateway`'s `CAPABILITY_MAP`) plus the full service-URL table.
+- `ANY /api/sutar/<service>/<path>` — Direct HTTP proxy to a SUTAR service.
+  Supports GET, POST, PUT, PATCH, DELETE. Forwards headers (except Host),
+  query string, and request body. Returns a 502 with details if the upstream
+  is unreachable.
+
+#### Available SUTAR Services
+
+| Service | Default URL |
+|---------|-------------|
+| `sutar-gateway` | http://localhost:4140 |
+| `sutar-agent-teaming` | http://localhost:4853 |
+| `sutar-agent-network` | http://localhost:4155 |
+| `sutar-agent-reputation` | http://localhost:4820 |
+| `sutar-decision-engine` | http://localhost:4240 |
+| `sutar-contract-os` | http://localhost:4190 |
+| `sutar-negotiation` | http://localhost:4191 |
+| `sutar-wallet-service` | http://localhost:4840 |
+| `sutar-economy-os` | http://localhost:4251 |
+| `sutar-trust-network` | http://localhost:4252 |
+| `sutar-dispute` | http://localhost:4847 |
+| `sutar-marketplace` | http://localhost:4250 |
+| `sutar-twin-os` | http://localhost:4142 |
+| `sutar-goal-os` | http://localhost:4242 |
+| `sutar-monitoring` | http://localhost:3100 |
+
+Each URL can be overridden via env var: `SUTAR_<SERVICE>_URL`.
+
+#### Examples
+
+```bash
+# Capabilities
+curl http://localhost:4399/api/sutar/capabilities
+
+# List agent-teaming mission templates (direct path proxy)
+curl http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/templates
+
+# Form a team via the Hub
+curl -X POST http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/teams \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"price-compare","mission":"compare-prices","size":3}'
+
+# Check agent reputation
+curl http://localhost:4399/api/sutar/sutar-agent-reputation/api/reputation/agent_001
+
+# Health check via Hub for any SUTAR service
+curl http://localhost:4399/api/sutar/sutar-decision-engine/health
+```
+
+#### Design Notes
+
+- Direct service URLs are used (not the gateway) so each service can be reached
+  independently — no gateway becomes a single point of failure.
+- The gateway (4140) remains the recommended path for capability-based routing
+  with retries, fallbacks, and centralized auth.
+- This complements the existing `sutarOS.js` connection module in
+  `companies/REZ-Workspace/core/unified-fabric/`, which is the in-process Node
+  client. The Hub routes here are HTTP-facing for cross-language consumers.
+
+
 ## Environment Variables
 
 | Variable | Default | Description |

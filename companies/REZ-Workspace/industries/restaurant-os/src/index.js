@@ -19,6 +19,7 @@ import { staffRoutes } from './routes/staff.js';
 import { customerRoutes } from './routes/customers.js';
 import inventoryProxyRoutes from './routes/inventory.proxy.js';
 import tablesProxyRoutes from './routes/tables.proxy.js';
+import contractsProxyRoutes from './routes/contracts.proxy.js';
 import { analyticsRoutes } from './routes/analytics.js';
 import { digitalTwinsRoutes } from './routes/twins.js';
 import { agentRoutes } from './routes/agents.js';
