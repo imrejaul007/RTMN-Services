@@ -140,3 +140,6 @@ services copy/
 **/services copy/
 **/services-copy/
 **/services_copy/
+
+# Git worktrees (per-session scratch; not part of the source tree)
+.worktrees/
