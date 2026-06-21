@@ -11,15 +11,17 @@ digitalTwinsRoutes.get('/', (req, res) => {
     twins: [
       { id: 'rest-reservation-twin', name: 'Reservation Twin', type: 'reservation', status: 'active', health: 98 },
       { id: 'rest-menu-twin', name: 'Menu Twin', type: 'menu', status: 'active', health: 100 },
-      { id: 'rest-kitchen-twin', name: 'Kitchen Twin', type: 'kitchen', status: 'active', health: 95 },
-      { id: 'rest-order-twin', name: 'Order Twin', type: 'order', status: 'active', health: 97 },
-      { id: 'rest-staff-twin', name: 'Staff Twin', type: 'staff', status: 'active', health: 99 },
-      { id: 'rest-customer-twin', name: 'Customer Twin', type: 'customer', status: 'active', health: 96 },
-      { id: 'rest-inventory-twin', name: 'Inventory Twin', type: 'inventory', status: 'active', health: 94, service: 'inventory-twin-service@4016' },
-      { id: 'rest-table-twin', name: 'Table Twin', type: 'table', status: 'active', health: 97, service: 'table-twin-service@4012' },
-      { id: 'rest-revenue-twin', name: 'Revenue Twin', type: 'revenue', status: 'active', health: 98 }
+      { id: 'rest-kitchen-twin', name: 'Kitchen Twin', type: 'kitchen', status: 'active', health: 95, service: 'kitchen-twin-service@4015', wired: true },
+      { id: 'rest-order-twin', name: 'Order Twin', type: 'order', status: 'active', health: 97, service: 'order-twin-service@4014', wired: true },
+      { id: 'rest-staff-twin', name: 'Staff Twin', type: 'staff', status: 'active', health: 99, service: 'staff-twin-service@4018', wired: true },
+      { id: 'rest-customer-twin', name: 'Customer Twin', type: 'customer', status: 'active', health: 96, service: 'customer-twin-service@4017', wired: true },
+      { id: 'rest-inventory-twin', name: 'Inventory Twin', type: 'inventory', status: 'active', health: 94, service: 'inventory-twin-service@4016', wired: true },
+      { id: 'rest-table-twin', name: 'Table Twin', type: 'table', status: 'active', health: 97, service: 'table-twin-service@4012', wired: true },
+      { id: 'rest-revenue-twin', name: 'Revenue Twin', type: 'revenue', status: 'active', health: 98 },
+      { id: 'rest-contract-store', name: 'Contract Store', type: 'contract', status: 'active', health: 99, service: 'sutar-contracts@4185', wired: true }
     ],
-    total: 9
+    total: 10,
+    wiredBackends: ['inventory-twin@4016', 'table-twin@4012', 'sutar-contracts@4185', 'kitchen-twin@4015', 'order-twin@4014', 'staff-twin@4018', 'customer-twin@4017']
   });
 });
 

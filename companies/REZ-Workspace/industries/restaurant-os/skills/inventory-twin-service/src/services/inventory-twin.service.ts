@@ -17,6 +17,7 @@ import { messageBroker } from '../utils/message-broker';
 import { procurementClient, ProcurementRfqItem } from '../utils/procurement-client';
 import { sutartAgentIdClient } from '../utils/sutar-client';
 import { memoryOsClient } from '../utils/memory-client';
+import { logisticsClient } from '../utils/logistics-client';
 
 export class InventoryTwinService {
   async createInventoryTwin(request: CreateInventoryTwinRequest): Promise<CreateInventoryTwinResponse> {
@@ -407,6 +408,39 @@ export class InventoryTwinService {
         skipped: memoryResult.skipped,
         purchaseOrderId,
       });
+    }
+
+    // Phase 3 of NEXHA-AUDIT-V3: pre-stage a logistics shipment so the
+    // restaurant dashboard can show an "Expected Delivery" widget. This
+    // fires only if procurement actually accepted the RFQ; for queued
+    // (offline) POs we skip so we don't create phantom shipments.
+    if (procurementStatus === 'dispatched' && rfqId) {
+      const primarySupplier = orderItems.find((i) => i.supplier && i.supplier !== 'Default')?.supplier || 'auto';
+      const shipResult = await logisticsClient.createShipmentForPo({
+        poId: purchaseOrderId,
+        rfqId,
+        buyerRestaurantId: inventoryTwin.restaurantId,
+        sellerSupplierId: primarySupplier,
+        destinationAddress: 'restaurant-default', // could be sourced from restaurant twin later
+        items: orderItems.map((i) => ({
+          sku: i.itemId,
+          name: i.name,
+          quantity: i.quantity,
+          unit: i.unit,
+        })),
+      });
+      if (shipResult.ok) {
+        logger.info('Logistics shipment pre-staged', {
+          shipmentId: shipResult.shipment?.shipmentId,
+          trackingNumber: shipResult.shipment?.trackingNumber,
+          purchaseOrderId,
+        });
+      } else {
+        logger.warn('Logistics pre-stage failed (continuing)', {
+          error: shipResult.error,
+          purchaseOrderId,
+        });
+      }
     }
 
     return {

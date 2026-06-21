@@ -20,6 +20,10 @@ import { customerRoutes } from './routes/customers.js';
 import inventoryProxyRoutes from './routes/inventory.proxy.js';
 import tablesProxyRoutes from './routes/tables.proxy.js';
 import contractsProxyRoutes from './routes/contracts.proxy.js';
+import kitchenProxyRoutes from './routes/kitchen.proxy.js';
+import ordersProxyRoutes from './routes/orders.proxy.js';
+import staffProxyRoutes from './routes/staff.proxy.js';
+import customersProxyRoutes from './routes/customers.proxy.js';
 import { analyticsRoutes } from './routes/analytics.js';
 import { digitalTwinsRoutes } from './routes/twins.js';
 import { agentRoutes } from './routes/agents.js';
@@ -31,6 +35,7 @@ const PORT = process.env.PORT || 5010;
 const INVENTORY_TWIN_URL = process.env.INVENTORY_TWIN_URL || 'http://localhost:4016';
 const TABLE_TWIN_URL = process.env.TABLE_TWIN_URL || 'http://localhost:4012';
 const PROCUREMENT_OS_URL = process.env.PROCUREMENT_OS_URL || 'http://localhost:4320';
+const SUTAR_GATEWAY_URL = process.env.SUTAR_GATEWAY_URL || 'http://localhost:4140';
 const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
 
 // Middleware
@@ -126,7 +131,8 @@ app.get('/api/dashboard', async (req, res) => {
       { name: 'Butter Chicken', orders: 45 },
       { name: 'Biryani', orders: 38 },
       { name: 'Naan', orders: 62 }
-    ]
+    ],
+    liveBackends: ['table-twin', 'inventory-twin', 'sutar-contracts', 'kitchen-twin', 'order-twin', 'staff-twin', 'customer-twin']
   });
 });
 
@@ -139,6 +145,11 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/inventory', inventoryProxyRoutes);
 app.use('/api/tables', tablesProxyRoutes);
+app.use('/api/contracts', contractsProxyRoutes);
+app.use('/api/kitchen', kitchenProxyRoutes);
+app.use('/api/orders', ordersProxyRoutes);
+app.use('/api/staff', staffProxyRoutes);
+app.use('/api/customers', customersProxyRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/twins', digitalTwinsRoutes);
 app.use('/api/agents', agentRoutes);
@@ -325,6 +336,76 @@ app.post('/api/copilot/query', (req, res) => {
     response = `**Kitchen Status**\n\n🔥 Active Orders: 8\n⏱️ Avg Prep Time: 12 minutes\n📋 Queue: 5 orders\n\n⚠️ Attention:\n• Order #127 waiting 15 min\n• 3 orders delayed > 10 min`;
   } else if (queryLower.includes('staff') || queryLower.includes('schedule')) {
     response = `**Staff Dashboard**\n\n👨‍🍳 On Duty: 15\n📅 Scheduled: 18\n💰 Tips Today: ₹8,500\n\nRecommendations:\n• Add 2 servers for dinner rush\n• Consider overtime for kitchen`;
+  } else if (queryLower.includes('contract') || queryLower.includes('agreement') || queryLower.includes('po ')) {
+    // Live query: ask sutar-contracts for current contracts and format
+    // a real dashboard. NEXHA-AUDIT-V2 Phase 9.
+    const restaurantId = (context && context.restaurantId) || (req.body && req.body.restaurantId);
+    if (!restaurantId) {
+      return res.json({
+        response: '**Contracts**\n\nProvide a `restaurantId` in the request body or context to query the live contract store.',
+        query,
+        sources: ['restaurant-os'],
+        confidence: 0.5,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const contractHeaders = {};
+    if (INTERNAL_SERVICE_TOKEN) {
+      contractHeaders['x-internal-token'] = INTERNAL_SERVICE_TOKEN;
+    }
+    const contractController = new AbortController();
+    const contractTimeout = setTimeout(() => contractController.abort(), 5000);
+
+    fetch(`${SUTAR_GATEWAY_URL}/api/sutar/contractsOS/api/contracts?party=${encodeURIComponent(restaurantId)}`, {
+      headers: contractHeaders,
+      signal: contractController.signal,
+    })
+      .then((cRes) => cRes.json())
+      .then((cData) => {
+        clearTimeout(contractTimeout);
+        const contracts = (cData && cData.contracts) || [];
+        const total = contracts.length;
+        const draft = contracts.filter((c) => c.status === 'draft').length;
+        const signed = contracts.filter((c) => c.status === 'signed').length;
+        const fulfilled = contracts.filter((c) => c.status === 'fulfilled').length;
+        const settled = contracts.filter((c) => c.status === 'settled').length;
+        const lines = [
+          '**Contracts (live from sutar-contracts)**',
+          '',
+          `📋 Total: ${total}`,
+          `📝 Draft: ${draft}`,
+          `✍️  Signed: ${signed}`,
+          `📦 Fulfilled: ${fulfilled}`,
+          `✅ Settled: ${settled}`,
+        ];
+        const pending = contracts.filter((c) => c.status === 'draft' || c.status === 'negotiating');
+        if (pending.length > 0) {
+          lines.push('', '**Pending action:**');
+          pending.slice(0, 5).forEach((c) => {
+            lines.push(`• ${c.id.slice(0, 8)} (${c.kind}) — ${c.status}`);
+          });
+        }
+        lines.push('', '_To create a PO, call_ `POST /api/contracts/from-deal`');
+        res.json({
+          response: lines.join('\n'),
+          query,
+          sources: ['sutar-contracts'],
+          confidence: 0.88,
+          timestamp: new Date().toISOString(),
+        });
+      })
+      .catch((err) => {
+        clearTimeout(contractTimeout);
+        res.json({
+          response: `**Contracts**\n\nsutar-contracts unreachable: ${err instanceof Error ? err.message : String(err)}`,
+          query,
+          sources: ['restaurant-os'],
+          confidence: 0.3,
+          timestamp: new Date().toISOString(),
+        });
+      });
+    return;
   } else {
     response = `**Restaurant Dashboard**\n\n📊 Today's Performance:\n• Revenue: ₹45,200\n• Orders: 127\n• Covers: 380\n• Satisfaction: 4.5/5\n\nWhat would you like to analyze?`;
   }
