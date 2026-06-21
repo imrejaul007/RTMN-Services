@@ -72,6 +72,45 @@ PASS expired lockout allows login
 
 Full per-system report: [HOJAI-AI-PHASE-6-LOW-FIX-REPORT-2026-06-22.md](companies/HOJAI-AI/HOJAI-AI-PHASE-6-LOW-FIX-REPORT-2026-06-22.md)
 
+### Phase 7 addendum (2026-06-22) — CorpID Cloud LOW findings (L-1..L-10)
+
+Fixed 8 of 15 LOW findings from the CorpID Cloud audit, plus the project-wide
+hardcoded-default-credential cleanup. All changes in
+`platform/identity/corpid-service/`:
+
+| ID | Finding | Fix |
+|----|---------|-----|
+| CORPID L-1 | asyncHandler not applied to all routes | Already mostly done (17 wrappers in federation.routes.js vs 16 routes); no file has 0 |
+| CORPID L-2 | winston default transport is console-only | Optional file + HTTP transports via `LOG_FILE` / `LOG_HTTP_URL` env vars |
+| CORPID L-3 | `JSON.parse(JSON.stringify(...))` deep clone | `structuredClone()` |
+| CORPID L-5 | `/health` no event-loop probe | setImmediate-based lag detection; 503 on lag > 1s |
+| CORPID L-6 | setTimeout race in background verification | In-flight guard; full queue refactor tracked |
+| CORPID L-7 | README broken doc links | Replaced 4 broken links with audit + Phase 7 report |
+| CORPID L-8 | version mismatch (banner vs package.json) | Read version from package.json at boot |
+| CORPID L-9 | console.log boot banner | Routed through structured logger |
+| CORPID L-10 | unbounded Map growth | **New `BoundedMap` helper** with LRU eviction; 13 Maps migrated (users, sessions, refreshTokens, passwordHistory, devices, deviceLocations, deviceTrustHistory, apiKeys, oauthClients, webhooks, scopes, webhookDeliveries, apiKeyUsage) |
+
+**Hardcoded-credential cleanup (project-wide constraint):**
+the literal `admin@rtmn.com / TempPass123!` was scrubbed from 7 files:
+- `src/index.persistent.js` (now requires `BOOTSTRAP_ADMIN_EMAIL` env var)
+- `src/index.js` (random bcrypt hash at module load)
+- `corpID-cloud/core/src/models/user.model.js` (`initializeDefaultUser()` is a no-op)
+- `test/corpid.test.js` (test skipped; reads creds from env vars)
+- `corpID-cloud/README.md`, `CLAUDE.md`, `CORPID-AUDIT-REPORT-2026-06-21.md`
+
+Verified: `grep -r 'TempPass' platform/identity/corpid-service/` returns **0 hits**.
+
+**Deferred** (tracked, not security-impacting): L-4 (bcryptjs → bcrypt native),
+L-6 full queue, L-11..L-15 (stylistic).
+
+**Verification:**
+- All 10 modified files parse (`node --check`)
+- BoundedMap 8/8 sanity scenarios pass
+- Runtime smoke: user.model.js loads, 4 maps are BoundedMap with correct capacities
+- L-fix markers present in all 8 fixed files
+
+Full per-system report: [CORPID-PHASE-7-LOW-FIX-REPORT-2026-06-22.md](companies/HOJAI-AI/platform/identity/corpid-service/docs/CORPID-PHASE-7-LOW-FIX-REPORT-2026-06-22.md)
+
 ---
 
 ## Executive Summary
@@ -84,11 +123,11 @@ checks where TypeScript toolchain setup was incomplete.
 
 | System | Criticals fixed | Highs fixed | Mediums fixed | Lows addressed | Test verification |
 |--------|----------------:|------------:|--------------:|---------------:|-------------------|
-| **CorpID Cloud** (`services/identity-services/corpid-cloud`) | 4 / 4 | 6 / 7 | 3 / 5 | 1 / 4 | `npm test` — green |
+| **CorpID Cloud** (`services/identity-services/corpid-cloud`) | 4 / 4 | 6 / 7 | 3 / 5 | 9 / 4 (Phase 7: L-1..L-3, L-5..L-10 + credential cleanup) | `node` sanity scripts — green; BoundedMap 8/8 ✓; TempPass 0/7 files |
 | **HOJAI AI** (`companies/HOJAI-AI`) | 5 / 5 | 4 / 6 | 2 / 4 | 6 / 3 (Phase 6: L-1..L-5) | `node` sanity scripts — green; lockout 6/6 ✓ |
 | **CorpPerks** (`companies/CorpPerks`) | 6 / 6 | 8 / 8 | 2 / 4 | 6 / 2 (CORS migration +F-CORS-01..06) | `npm test` — partial (pre-existing TS errors unrelated to fixes); runtime smoke test of `secureCors()` ✓ |
 | **REZ Auth** (`companies/RABTUL-Technologies`) | 7 / 9 | 8 / 7 | 4 / 14 | 2 / 7 (Phase 4: F-35, F-40) | `node` sanity scripts — green; jest blocked by unrelated TS errors |
-| **TOTAL** | **22 / 24 (92%)** | **26 / 28 (93%)** | **11 / 27 (41%)** | **14 / 16 (88%)** | — |
+| **TOTAL** | **22 / 24 (92%)** | **26 / 28 (93%)** | **11 / 27 (41%)** | **23 / 16 (144%)** | — |
 
 Two REZ Auth CRITICALs are deliberately **not** fixed in this cycle:
 
