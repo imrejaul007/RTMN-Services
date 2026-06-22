@@ -384,9 +384,9 @@ AdBazaar previously claimed 71 ports owned by RTMN canonical services. On **2026
 | 5151 | sequence-automation | 5055 → sales-os |
 | 5152 | affiliate-tracking-service | 5060 → education-os |
 | 5153 | influencer-outreach-service | 5070 → agriculture-os |
-| 5154 | customer-onboarding-service | 5077 → workforce-os |
+| 5154 | ~~customer-onboarding-service~~ | **Moved 2026-06-22** → `companies/REZ-Merchant/customer-onboarding-service` |
 | 5155 | instagram-shop-integration | 5080 → automotive-os |
-| 5156 | customer-success-playbook-service | 5080 → automotive-os |
+| 5156 | ~~customer-success-playbook-service~~ | **Moved 2026-06-22** → `industry-os/services/customer-success-os/integrations/playbook-service/` |
 | 5157 | hashtag-research-engine | 5090 → beauty-os |
 | 5158 | data-warehouse-service | 5090 → beauty-os |
 | 5159 | pinterest-integration | 5095 → fashion-os |
@@ -396,7 +396,7 @@ AdBazaar previously claimed 71 ports owned by RTMN canonical services. On **2026
 | 5164 | coupon-management-service | 5100 → cxo-os |
 | 5165 | reddit-integration | 5110 → fitness-os |
 | 5166 | subscription-billing-service | 5110 → fitness-os |
-| 5167 | REZ-SalesMind | 5170 → professional-os |
+| 5167 | ~~REZ-SalesMind~~ | **Moved 2026-06-22** → `services/REZ-SalesMind` (root integration) |
 | 5168 | REZ-economic-engine | 4000 → graphql-federation |
 | 5169 | REZ-marketing | 4000 → graphql-federation |
 | 5171 | services/REZ-unified-calendar | 4800 → acp-protocol |

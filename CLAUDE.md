@@ -156,6 +156,26 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 
 ---
 
+## 📁 RTMN Root Sales Integrations (`services/`)
+
+The RTMN root `services/` folder hosts **integration-level sales/CRM services** that complement (not replace) the canonical Department OS at `industry-os/services/sales-os/`. Each is a standalone integration, not a duplicate of Sales OS:
+
+| Service | Purpose | Integration With |
+|---------|---------|------------------|
+| **`REZ-SalesMind`** (5167) | 8 AI sales agents (qualification, outreach, follow-up) — *moved here from AdBazaar 2026-06-22* | Sales OS (5055) |
+| **`customer-graph-360`** (4808) | 360° customer graph aggregating CRM + Wallet + Support — *moved here from AdBazaar 2026-06-22* | Sales OS + CRM Hub |
+| **`crm-engine`** | Standalone CRM engine (legacy) | Sales OS |
+| **`sales-automation`** | Sales workflow automation scripts | Sales OS |
+| **`sales-hub`** | Aggregator hub for sales signals (cross-OS) | Sales OS + Marketing OS |
+| **`sales-intelligence`** | Sales analytics + forecasting | Sales OS + Revenue Intelligence |
+| **`sales-sync`** | Cross-system lead/customer sync | Sales OS + Marketing OS + CRM |
+| **`lead-os-gateway`** | Lead ingestion gateway | Sales OS + Marketing OS |
+| **`customer-success-os`** | Legacy CS (rooted variant) — see `industry-os/services/customer-success-os/` as canonical | Customer Success OS (4050) |
+
+**Rule:** Sales/CRM features belong in `industry-os/services/sales-os/` (the canonical Sales OS). The root `services/` list above are **integrations/connectors** that extend Sales OS to other OS — they are NOT replacements.
+
+---
+
 ## 🟢 All 10 Weeks Shipped (2026-06-22)
 
 The 10-week roadmap is complete. **Every phase from A through E is done.**

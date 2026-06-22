@@ -1,0 +1,150 @@
+# LEADOS Ecosystem - Render Blueprint
+# Deploy all LeadOS services to Render
+
+services:
+  # ========================================
+  # LEAD OS GATEWAY - Unified API
+  # ========================================
+  - name: lead-os-gateway
+    runtime: node
+    region: oregon
+    plan: starter
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5175
+      - key: INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://lead-os.vercel.app
+
+  # ========================================
+  # HOJAI AI SERVICES
+  # ========================================
+  - name: hojai-lead-service
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4752
+      - key: INTERNAL_SERVICE_TOKEN
+        sync: false
+
+  - name: hojai-knowledge-graph
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4786
+
+  - name: hojai-web-intelligence
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4595
+
+  - name: hojai-merchant-intelligence
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4751
+
+  - name: hojai-twinos
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4521
+
+  - name: genie-voice
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4760
+
+  # ========================================
+  # CRM & LEAD SERVICES
+  # ========================================
+  - name: lead-twin
+    runtime: node
+    plan: free
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4894
+
+  - name: crm-engine
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx tsc
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4888
+
+  - name: journey-intelligence
+    runtime: node
+    plan: free
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 4954
+
+  # ========================================
+  # REZ SALESMIND
+  # ========================================
+  - name: rez-salesmind
+    runtime: node
+    region: oregon
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5167
+      - key: INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://rez-salesmind.vercel.app
+      # HOJAI Services
+      - key: HOJAI_WEB_INTEL
+        value: https://hojai-web-intelligence.onrender.com
+      - key: HOJAI_LEAD_SERVICE
+        value: https://hojai-lead-service.onrender.com
+      - key: HOJAI_KG
+        value: https://hojai-knowledge-graph.onrender.com
+      # REZ Services
+      - key: REZ_CRM_HUB
+        value: https://rez-crm-hub.onrender.com

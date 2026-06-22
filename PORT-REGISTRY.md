@@ -407,7 +407,7 @@ This document consolidates all port allocations across the 24 industry verticals
 | 6104 | Resource Twin | gRPC | Resource allocation |
 | 6105 | Invoice Twin | gRPC | Billing management |
 | 6106 | Professional Gateway | REST | API gateway |
-| **5170** | **REZ SalesMind** | REST | **AI Sales Intelligence Platform** |
+| **5167** | **REZ SalesMind** | REST | **AI Sales Intelligence Platform** (moved 2026-06-22 to `services/REZ-SalesMind`) |
 | 4100 | REZ Merchant | REST | Merchant services |
 | 4200 | REZ Consumer | REST | Consumer app |
 
