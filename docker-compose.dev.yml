@@ -1,0 +1,176 @@
+# RTMN Phase A+B+C+D development stack — Phase E deliverable
+# ----------------------------------------------------------------------------
+# Spin up the *actually-shipped* services: the Hub, the SUTAR services that
+# back the multi-option ranking + trust federation, and one Nexha upstream.
+# Everything else (24 industry OS, ACN, TwinOS) stays in start-twins.sh /
+# start-sutar.sh because their Dockerfiles haven't been port-verified yet.
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build
+#   bash demos/full-stack-demo.sh   # in another shell
+#
+# Why this compose file exists:
+#   - docker-compose.yml in this repo was written before the port audit of
+#     2026-06-20; many EXPOSE values are wrong (e.g. decision-engine was 4240,
+#     trust-engine was 4180 — both are actually 4290 and 4291 today).
+#   - This file pins to ports the demo script (demos/full-stack-demo.sh)
+#     actually expects, so `compose up` + `bash demos/full-stack-demo.sh`
+#     just works.
+# ----------------------------------------------------------------------------
+
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # RTMN Unified Hub — the single front door for 50+ services
+  # (companies/RABTUL-Technologies/REZ-ecosystem-connector)
+  # ---------------------------------------------------------------------------
+  hub:
+    build:
+      context: ./companies/RABTUL-Technologies/REZ-ecosystem-connector
+      dockerfile: Dockerfile
+    container_name: rtmn-hub
+    ports:
+      - "4399:4399"
+    environment:
+      - NODE_ENV=production
+      - PORT=4399
+      - SUTAR_DECISION_URL=http://decision-engine:4290
+      - SUTAR_TRUST_ENGINE_URL=http://trust-engine:4291
+      - SUTAR_ECONOMY_URL=http://economy-os:4251
+      - NEXHA_PROCUREMENT_URL=http://nexha-procurement:4320
+      - NEXHA_TRADE_FINANCE_URL=http://nexha-trade-finance:4340
+    depends_on:
+      - decision-engine
+      - trust-engine
+      - economy-os
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4399/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  # ---------------------------------------------------------------------------
+  # SUTAR OS — autonomous economic layer (companies/HOJAI-AI/sutar-os)
+  # Only the three services the demo exercises are wired here. Add more
+  # following the same pattern as Phase E work continues.
+  # ---------------------------------------------------------------------------
+  decision-engine:
+    build:
+      context: ./companies/HOJAI-AI/sutar-os/core/sutar-decision-engine
+      dockerfile: Dockerfile
+    container_name: rtmn-decision-engine
+    ports:
+      - "4290:4290"
+    environment:
+      - NODE_ENV=production
+      - PORT=4290
+      - DB_PATH=/data/decision.sqlite
+    volumes:
+      - decision-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4290/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  trust-engine:
+    build:
+      context: ./companies/HOJAI-AI/sutar-os/core/sutar-trust-engine
+      dockerfile: Dockerfile
+    container_name: rtmn-trust-engine
+    ports:
+      - "4291:4291"
+    environment:
+      - NODE_ENV=production
+      - PORT=4291
+      - SADA_URL=http://sada-os:4190
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4291/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      - sada-os
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  economy-os:
+    build:
+      context: ./companies/HOJAI-AI/sutar-os/economy/sutar-economy-os
+      dockerfile: Dockerfile
+    container_name: rtmn-economy-os
+    ports:
+      - "4251:4251"
+    environment:
+      - NODE_ENV=production
+      - PORT=4251
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4251/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  # ---------------------------------------------------------------------------
+  # SADA OS — Trust Governance (companies/HOJAI-AI/platform/trust/sada-os)
+  # Required by trust-engine's /api/v1/sada/status probe.
+  # ---------------------------------------------------------------------------
+  sada-os:
+    build:
+      context: ./companies/HOJAI-AI/platform/trust/sada-os
+      dockerfile: Dockerfile
+    container_name: rtmn-sada-os
+    ports:
+      - "4190:4190"
+    environment:
+      - NODE_ENV=production
+      - PORT=4190
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4190/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  # ---------------------------------------------------------------------------
+  # Nexha sample — one upstream so the /api/nexha/* proxies have somewhere to
+  # point. procurement-os is the most representative Nexha service for the
+  # do-app supplier-discovery flow.
+  # ---------------------------------------------------------------------------
+  nexha-procurement:
+    build:
+      context: ./companies/Nexha/services/procurement-os
+      dockerfile: Dockerfile
+    container_name: rtmn-nexha-procurement
+    ports:
+      - "4320:4320"
+    environment:
+      - NODE_ENV=production
+      - PORT=4320
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4320/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+networks:
+  rtmn-dev:
+    driver: bridge
+
+volumes:
+  decision-data:
