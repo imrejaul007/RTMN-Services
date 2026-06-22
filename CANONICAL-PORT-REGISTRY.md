@@ -274,7 +274,7 @@ SUTAR OS lives at `companies/HOJAI-AI/sutar-os/` (29 services, ~30k LOC). The RT
 | 4800 | acp-protocol | ✅ real | ACP message bus. Not yet exposed via Hub |
 | 4801 | acn-network | ✅ real | ACN agent registry. Not yet exposed via Hub |
 | 4895 | customer-twin | ✅ real | Lives in `platform/twins/customer-twin/`, not `sutar-os/`. Out of SUTAR scope |
-| 4155 | twin-marketplace | ⚠️ not in sutar-os | Listed in `PORT-REGISTRY.md` but no source. Possibly confused with `sutar-agent-marketplace` (4845) |
+| 4146 | twin-marketplace | ✅ real | Lives in `companies/HOJAI-AI/blr-ai-marketplace/services/twin-marketplace/`. NOT in `sutar-os/`; out of SUTAR scope |
 
 ### Removed from Hub `SUTAR_SERVICES` (2026-06-22)
 
