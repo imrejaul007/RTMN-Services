@@ -283,3 +283,102 @@ GET  /api/nexha/nexha-acp-messaging/health
 
 - **None significant.** All Phase 4 sub-tasks shipped as planned. Service uses Mongoose (not a separate database) — this is intentional and consistent with `nexha-business-directory`.
 - **Status mapping nuance:** `COMPLETED` is informational, not terminal. Per the ACP spec, `ORDER → TRACK` is a valid flow (e.g., "where's my order?"). The state machine allows `TRACK`/`DISPUTE` after `COMPLETED`. Only `REJECTED` is terminal. This was clarified by the test suite and matches `sutar-acp-protocol`'s behavior.
+
+---
+
+## Phase 5 — Agent Marketplace 🔄 IN PROGRESS (2026-06-22)
+
+### Goal
+
+Replace the in-memory `sutar-marketplace` (port 4250, moved to BLR Marketplace 2026-06-21) with a per-tenant Mongo-backed marketplace service: listings + reviews + directory linkage, exposed via the RTMN Hub at `/api/sutar/marketplace-listings/*`.
+
+### What was built
+
+#### Service: `marketplace-listings` (port 4250)
+- New package `@hojai/blr-marketplace-listings` v1.0.0
+- Path: `companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings/`
+- MongoDB + Mongoose (mirrors `nexha-business-directory` and `nexha-acp-messaging` patterns)
+- 5 statuses, 3 visibilities, 8 categories, 5 pricing models
+- Per-tenant compound unique indexes
+- Denormalized `averageRating` + `reviewCount` on Listing for fast discovery
+- Directory linkage: `directoryCompanyId` / `directoryAgentId` → nexha-business-directory:4360
+
+#### Models
+- `Listing` — 17 fields, 5 compound indexes, text index on title/description/tags
+- `Review` — one per (tenant, listing), 4 dimensions (easeOfUse, docs, support, valueForMoney)
+
+#### Auth
+- HS256 JWT (lighter than RS256 for internal HOJAI-AI services)
+- Internal token (`x-internal-token`) for Hub callers
+- Env vars read at request time (test-friendly)
+
+#### Routes
+- `POST /api/listings` (create)
+- `GET /api/listings` (search/filter/sort)
+- `GET /api/listings/:id` (visibility-checked)
+- `PATCH /api/listings/:id` (owner only)
+- `POST /api/listings/:id/publish` / `/unpublish` (owner only)
+- `POST /api/listings/:id/view` / `/install` (engagement signals)
+- `GET /api/listings/:id/reviews`
+- `PUT /api/listings/:id/reviews` (one per tenant+listing)
+- `DELETE /api/reviews/:id` (reviewer or listing owner)
+- `GET /api/my-reviews?listingId=`
+- `GET /api/stats` (per-tenant)
+- `POST /api/validate` (lint without persisting)
+- `GET /internal/sanity` (Hub health aggregator)
+
+### Files added / modified
+
+| Repo | What |
+|---|---|
+| `HOJAI-AI/blr-ai-marketplace/services/marketplace-listings/` | NEW service (15 files: package.json, vitest.config.js, src/{index,routes/index,middleware/auth,models/{Listing,Review},services/{listingsService,reviewsService}}.js, __tests__/helpers/db.js, __tests__/unit/{listingsService,reviewsService,routes}.test.js, README.md, CLAUDE.md) |
+| `RABTUL-Technologies/REZ-ecosystem-connector/src/index.ts` | add `marketplace-listings` to SUTAR_SERVICES (port 4250); add 4 capabilities (marketplace-listings, marketplace-search, marketplace-reviews, marketplace-install); bump version 1.3.0 → 1.4.0 |
+| `do-app/backend/src/services/hojaiClient.ts` | add `nexhaMarketplaceListings` namespace with 13 methods; expose as `nexha.marketplaceListings` |
+| `do-app/backend/__tests__/unit/hojaiClient.nexha.test.ts` | append 14 marketplace tests |
+| `REZ-Workspace/core/unified-fabric/src/connections/nexha.js` | add 11 marketplace methods to `NexhaConnection` |
+| `REZ-Workspace/core/unified-fabric/test-marketplace-listings.js` | NEW — 14 node:test smoke tests |
+| `docs/nexha/PHASE-LOG.md` | add this Phase 5 section |
+| `docs/nexha/marketplace-listings.md` | NEW — service-level doc |
+| `CLAUDE.md` | update Phase D row + vitest test count |
+
+### Test counts
+
+- `marketplace-listings` service: **81 vitest** (27 service + 19 reviews + 35 HTTP)
+- do-app `nexha.marketplaceListings` client: **14 jest**
+- REZ-Workspace `NexhaConnection` marketplace methods: **14 node:test**
+- **Phase 5 total new tests: 109** (all pass)
+- **RTMN total test count: 721 (was 612)** — +109 in Phase 5
+
+### Commits (across 5 repos)
+
+| Repo | Commit |
+|---|---|
+| HOJAI-AI | `feat(marketplace-listings): Agent Marketplace service (ADR-0010 Phase 5)` (pushed to main) |
+| RABTUL-Technologies | `feat(hub): wire marketplace-listings (ADR-0010 Phase 5)` (pushed to main) |
+| do-app | `feat(do-app): ADR-0010 Phase 5 - nexha.marketplaceListings client (14 tests)` (pushed to feat branch) |
+| REZ-Workspace | `feat(rez-workspace): ADR-0010 Phase 5 - marketplace-listings client` (pushed to main) |
+| RTMN root | (this commit + docs) |
+
+### Endpoints exposed via Hub
+
+```
+GET    /api/sutar/marketplace-listings/health
+GET    /api/sutar/marketplace-listings/api/listings
+GET    /api/sutar/marketplace-listings/api/listings/:id
+POST   /api/sutar/marketplace-listings/api/listings
+PATCH  /api/sutar/marketplace-listings/api/listings/:id
+POST   /api/sutar/marketplace-listings/api/listings/:id/publish
+POST   /api/sutar/marketplace-listings/api/listings/:id/unpublish
+POST   /api/sutar/marketplace-listings/api/listings/:id/view
+POST   /api/sutar/marketplace-listings/api/listings/:id/install
+POST   /api/sutar/marketplace-listings/api/validate
+GET    /api/sutar/marketplace-listings/api/listings/:id/reviews
+PUT    /api/sutar/marketplace-listings/api/listings/:id/reviews
+DELETE /api/sutar/marketplace-listings/api/reviews/:id
+GET    /api/sutar/marketplace-listings/api/my-reviews
+GET    /api/sutar/marketplace-listings/api/stats
+```
+
+### Deviations from plan
+
+- **None significant.** Phase 5 shipped as planned: service in HOJAI-AI (the right home for BLR Marketplace), wired into the Hub via the existing SUTAR route group, and consumed by both do-app (TypeScript client) and REZ-Workspace (Node client).
