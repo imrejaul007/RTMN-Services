@@ -8,10 +8,11 @@ import type {
   DecisionContext,
   DecisionRequest,
   DecisionStats,
+  RiskAssessment,
   SimulationRequest,
   SimulationResult,
 } from '../types/index.js';
-import { DecisionOutcome, DecisionType } from '../types/index.js';
+import { DecisionOutcome, DecisionType, RiskLevel } from '../types/index.js';
 import { PolicyEngine } from './policyEngine.js';
 import { RiskAssessmentService } from './riskAssessment.js';
 
@@ -67,9 +68,12 @@ export class DecisionEngine {
     const startTime = Date.now();
     const { context, skipRiskAssessment, overridePolicyId } = request;
 
-    // Perform risk assessment unless skipped
+    // SECURITY FIX (F-01): skipRiskAssessment is honored. When the caller opts
+    // out, we still need a RiskAssessment object for the Decision response
+    // shape, so we build a minimal LOW-risk stub that preserves the input
+    // context.riskScore (if any) and contributes zero new factors.
     const riskAssessment = skipRiskAssessment
-      ? this.riskAssessmentService.assess(context)
+      ? this.buildSkippedAssessment(context)
       : this.riskAssessmentService.assess(context);
 
     // Enhance context with risk score
@@ -258,5 +262,25 @@ export class DecisionEngine {
     // Update last 24 hours (simplified - in production use time-bucketed storage)
     this.stats.last24Hours.total++;
     this.stats.last24Hours.byOutcome[decision.outcome]++;
+  }
+
+  /**
+   * SECURITY FIX (F-01): Build a minimal RiskAssessment when the caller has
+   * opted out of the assessment. The input context's riskScore is preserved
+   * (if provided) so downstream policy evaluation can still read it; otherwise
+   * it defaults to 0. The stub uses LOW level and 0 confidence to make it
+   * obvious downstream that this decision was not risk-assessed.
+   */
+  private buildSkippedAssessment(context: DecisionContext): RiskAssessment {
+    const preservedScore = typeof context.riskScore === 'number' ? context.riskScore : 0;
+    return {
+      overallScore: preservedScore,
+      level: RiskLevel.LOW,
+      factors: [],
+      maxPossibleScore: 100,
+      confidence: 0,
+      assessmentDate: new Date().toISOString(),
+      riskIndicators: ['RISK_ASSESSMENT_SKIPPED'],
+    };
   }
 }
