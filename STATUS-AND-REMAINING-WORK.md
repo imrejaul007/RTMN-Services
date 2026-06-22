@@ -191,15 +191,19 @@ Quick summary (updated 2026-06-22):
   - **F.7b ✅ Knowledge Marketplace e2e** — 11/11 e2e checks (health, categories, industries, stats, featured, creator/packs, knowledge, search, create 201, empty 400, 404). All 18 public routes (14 GET + 4 POST with authOrBypass) productionized. **31/31 tests passing**.
   - **F.7c ✅ Hub `/api/foundation/knowledge-marketplace/*`** — 10 new capabilities (knowledge-browse, knowledge-detail, knowledge-search, knowledge-categories, knowledge-industries, knowledge-featured, knowledge-stats, knowledge-create, knowledge-purchase, knowledge-review); demo step 3n proves health + categories + industries + knowledge + stats + create end-to-end.
   - **F.7d ✅ Committed + pushed** (HOJAI `2900da80`, Hub `0ce039d8`, root `80ff4d27e`)
-  - **F.8+** (planned): Reasoning Engine, Intent Engine, Reflection Engine, Behavior Intelligence, Proactive Engine, Multi-Agent Runtime, Agent Builder, Background Agents
+  - **F.8a ✅ Vector DB (port 4780) auth bypass + tests** — `VECTOR_DB_REQUIRE_AUTH` env support; `listen()` gated on `VECTOR_DB_NO_LISTEN`; vitest 21/21 unit tests covering config exports, health/stats/collections/embed/upsert/search/query, validation, hash-based deterministic embeddings, batch upsert, multi-query search, auth bypass, 404.
+  - **F.8b ✅ Vector DB e2e** — 9/9 e2e checks (health, stats, collections list/create/get/delete, embed, upsert, search). All 12 routes (12 GET/POST with authOrBypass) productionized. **30/30 tests passing**.
+  - **F.8c ✅ Hub `/api/foundation/vector-db/*`** — 6 new capabilities (vector-embed, vector-collections, vector-upsert, vector-search, vector-query, vector-stats); demo step 3o proves health + stats + collections + embed + capability map exposure end-to-end.
+  - **F.8d ✅ Committed + pushed** (HOJAI `f527c91a`, Hub `aaa5e447`, root `618d39ff8`)
+  - **F.9+** (planned): Graph Database (4783, 1210 LOC), Predictive Intelligence (4754, 1187 LOC), Risk Intelligence (4755, 1025 LOC), Trust Intelligence (4882, 983 LOC), Semantic Cache (4772, 925 LOC), RAG Platform (4781, 859 LOC), Tenant Manager (4747, 781 LOC), Reasoning Engine, Intent Engine, Reflection Engine, Behavior Intelligence, Proactive Engine, Multi-Agent Runtime, Agent Builder, Background Agents
 - **Phase G** (planned): Build **MissionOS** (4295) + **ExecutionOS** (4296) — the two genuinely-missing pieces of the architecture (Mission as first-class unit of execution, Execution as universal execution layer)
 - **Phase H** (planned): Collapse do-app 144-method client to ~5 method calls (Hub does the routing)
 - **Phase I** (planned): Docs, demos, observability, ship
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **612 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + AI Intelligence (14) + Knowledge Extraction (19) + Decision Intelligence (22) + **Knowledge Marketplace (20)**, **0 failures**
-- **200 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + AI Intelligence (9 e2e) + Knowledge Extraction (17 e2e) + Decision Intelligence (16 e2e) + **Knowledge Marketplace (11 e2e)**, **0 failures**
+- **633 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + AI Intelligence (14) + Knowledge Extraction (19) + Decision Intelligence (22) + Knowledge Marketplace (20) + **Vector DB (21)**, **0 failures**
+- **209 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + AI Intelligence (9 e2e) + Knowledge Extraction (17 e2e) + Decision Intelligence (16 e2e) + Knowledge Marketplace (11 e2e) + **Vector DB (9 e2e)**, **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push
