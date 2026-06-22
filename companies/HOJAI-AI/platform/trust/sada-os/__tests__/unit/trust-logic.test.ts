@@ -13,7 +13,7 @@ import {
   calculateTrustScore,
   determineRiskLevel,
   generateId,
-} from '../../src/modules/trustService';
+} from '../../dist/modules/trustService.js';
 
 describe('calculateTrustScore', () => {
   it('returns neutral 50/50/50/60-ish scores for empty history', () => {

@@ -554,4 +554,9 @@ router.post('/:entityId/reactivate', async (req: Request, res: Response) => {
 });
 
 export { router as trustRouter };
+export {
+  calculateTrustScore,
+  determineRiskLevel,
+  generateId,
+};
 export default router;
