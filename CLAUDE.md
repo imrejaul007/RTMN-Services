@@ -484,6 +484,27 @@ REZ Wallet (Rewards)
 
 ## 🚀 Quick Start
 
+### One-command dev stack (Phase A+B+C+D, June 22 2026)
+
+```bash
+# Start the four-service stack the demo expects
+bash scripts/dev-stack.sh start
+
+# Run the end-to-end demo (Hub → SUTAR → Nexha)
+bash demos/full-stack-demo.sh
+
+# Or via Docker (optional — most services still use start scripts)
+docker compose -f docker-compose.dev.yml up --build
+```
+
+What this gives you:
+- Hub on **:4399** with `/api/sutar/*` and `/api/nexha/*` proxies that actually reach upstream
+- Trust Engine **:4291** with `/api/v1/sada/status` federation health probe
+- Decision Engine **:4290** with multi-option ranking (`POST /api/v1/rank`)
+- Economy OS **:4251** with 105 passing tests (vitest)
+
+### Legacy per-service start
+
 ```bash
 # Start Unified Hub
 cd services/unified-os-hub
