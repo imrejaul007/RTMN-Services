@@ -67,8 +67,14 @@ module.exports = {
     MEDIA_OS: process.env.MEDIA_OS_URL || 'http://localhost:5600',
 
     // Other
-    FLOW_OS: process.env.FLOW_OS_URL || 'http://localhost:4250',
-    SUTAR_OS: process.env.SUTAR_OS_URL || 'http://localhost:4242',
+    FLOW_OS: process.env.FLOW_OS_URL || 'http://localhost:4244',
+    // SUTAR OS — prefer going through the RTMN Hub (SUTAR_HUB_URL)
+    // The Hub routes /api/sutar/<service>/<path> to the correct upstream port.
+    // Direct Economy OS port was renumbered 4251→4294 on 2026-06-22; Decision 4240→4290.
+    SUTAR_OS: process.env.SUTAR_OS_URL
+      || (process.env.SUTAR_HUB_URL
+          ? `${process.env.SUTAR_HUB_URL}/api/sutar/sutar-gateway`
+          : 'http://localhost:4140'),
   },
 
   // Logging

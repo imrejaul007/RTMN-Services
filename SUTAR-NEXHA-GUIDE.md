@@ -1,6 +1,21 @@
 # SUTAR OS + Nexha - How They Work Together
 
-**Last Updated:** June 18, 2026
+> **⚠️ DEPRECATED (2026-06-22)** — This document is from June 18, 2026 and predates:
+> - The Phase A Hub (REZ-ecosystem-connector on port 4399)
+> - The Phase C backbone services (sutar-supplier-registry 4280, sutar-logistics 4285, sutar-warehouse-network 4288, sutar-trade-finance 4287)
+> - The 2026-06-22 port renumber (trust 4180→4291, contract 4185→4292, negotiation 4191→4293, economy 4251→4294, decision 4240→4290)
+> - The 2026-06-21 marketplace move to BLR AI Marketplace
+> - The `proxyToUpstream()` body-forwarding fix in the Hub
+>
+> **Use the new authoritative docs:**
+> - [docs/sutar-os/README.md](docs/sutar-os/README.md) — service inventory + boundaries
+> - [docs/sutar-os/ARCHITECTURE.md](docs/sutar-os/ARCHITECTURE.md) — 7 layers + Hub-as-bridge + Foundation bridges
+> - [docs/sutar-os/HUB-CAPABILITY-MAP.md](docs/sutar-os/HUB-CAPABILITY-MAP.md) — capability-based routing
+> - [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) — honest inventory of what runs
+>
+> This file is kept only for historical reference. Do NOT cite its port numbers or service locations.
+
+**Last Updated:** June 18, 2026 (DEPRECATED)
 
 ---
 

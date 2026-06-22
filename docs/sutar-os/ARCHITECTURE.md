@@ -1,17 +1,73 @@
 # SUTAR OS Architecture
 
-**Version:** 3.0.0  
-**Last Updated:** June 17, 2026
+**Version:** 4.0.0  
+**Last Updated:** June 22, 2026
+
+> **Change log v4.0 (2026-06-22):**
+> - Renumbered ports for trust, contract, negotiation, economy, decision engines (Phase B/C audit)
+> - Added **Hub-as-bridge architecture** section — RTMN Hub (4399) is the only place SUTAR meets the rest of RTMN, Nexha, Department OS, and do-app
+> - Added **SUTAR ↔ HOJAI Foundation bridges** section — the 4 Layer 2 services that connect SUTAR to TwinOS/MemoryOS/CorpID/SADA
+> - Added **What SUTAR does NOT integrate with** section — clarifies boundaries with REZ Merchant, Genie, Copilot, RAZO
+> - Updated all 4 data-flow diagrams to use current port numbers
 
 ---
 
 ## Overview
 
-SUTAR OS is built on a **7-layer architecture** that enables autonomous economic operations across the RTMN ecosystem.
+SUTAR OS is the **Autonomous Economic Infrastructure** (Layer 14) of the RTMN ecosystem. It provides ~29 services for AI agent commerce, negotiation, trust, contracts, decision-making, and team formation. SUTAR sits **behind the RTMN Unified Hub** at `localhost:4399` — every external caller reaches SUTAR via `http://localhost:4399/api/sutar/<service>/*` or `http://localhost:4399/api/nexha/<service>/*`.
+
+**Tagline:** *The AI Marketplace — Where AI Agents Come to Negotiate*
 
 ---
 
-## 7-Layer Architecture
+## Hub-as-Bridge Architecture (CRITICAL — Read First)
+
+The **RTMN Unified Hub** ([REZ-ecosystem-connector](companies/RABTUL-Technologies/REZ-ecosystem-connector/src/index.ts)) is the **single front door** for SUTAR. There are no direct cross-system imports.
+
+```
+                        EXTERNAL CONSUMERS
+                              │
+        ┌─────────────────────┼─────────────────────────┐
+        │                     │                         │
+   do-app (3001)      sales-hub                Nexha mobile
+   hojaiClient.ts     sutarBridge.ts          nexha-gateway
+        │                     │                         │
+        └─────────────────────┼─────────────────────────┘
+                              ▼
+   ┌────────────────────────────────────────────────────────────┐
+   │  RTMN UNIFIED HUB  (REZ-ecosystem-connector @ port 4399)   │
+   │  ──────────────────────────────────────────────────────    │
+   │  • SUTAR_SERVICES map  (16 keys)  → upstream URL          │
+   │  • NEXHA_SERVICES map  (13 keys)  → upstream URL          │
+   │  • /api/sutar/capabilities  → capability → service key    │
+   │  • /api/nexha/capabilities  → capability → service key    │
+   │  • proxyToUpstream()  → forwards path + body + headers    │
+   └─────┬─────────────────────┬─────────────────────┬─────────┘
+         │                     │                     │
+         ▼                     ▼                     ▼
+   SUTAR Layer 2-6         SUTAR Phase C          Nexha L1 stubs
+   (autonomous core)       (real implementations) (procurement-os,
+                                                  distribution-os,
+                                                  trade-finance,
+                                                  franchise-os,
+                                                  manufacturing-os,
+                                                  intelligence-layer)
+         │
+         │ (only place SUTAR crosses out of its own scope)
+         ▼
+   HOJAI Foundation:  CorpID 4702, TwinOS 4705, MemoryOS 4703, SADA 4190
+```
+
+**Key rules:**
+1. **Every SUTAR call from outside SUTAR goes through the Hub** at `localhost:4399`.
+2. **Phase C backbone services are dual-registered** — `sutar-supplier-registry`, `sutar-logistics`, `sutar-warehouse-network`, `sutar-trade-finance` appear in BOTH `SUTAR_SERVICES` and `NEXHA_SERVICES` maps so Nexha can call them via `/api/nexha/sutar-supplier-registry/...`.
+3. **Nexha's own services are still stubs** — the real work is done by SUTAR's Phase C services.
+
+See [Hub wiring audit 2026-06-22](companies/RABTUL-Technologies/REZ-ecosystem-connector/docs/SUTAR-HUB-WIRING-AUDIT-2026-06-22.md) for the full port map and removed-stale-entries list.
+
+---
+
+## 7-Layer Architecture (current port map, 2026-06-22)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -31,21 +87,23 @@ SUTAR OS is built on a **7-layer architecture** that enables autonomous economic
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐                       │
 │  │  Trust   │ │Contracts │ │Negotiation│                       │
 │  │  Engine  │ │   OS     │ │  Engine   │                       │
-│  │  (4180)  │ │  (4185)  │ │  (4191)   │                       │
+│  │  (4291)  │ │  (4292)  │ │  (4293)   │  ← renumbered 2026-06-22│
 │  └──────────┘ └──────────┘ └──────────┘                       │
 ├─────────────────────────────────────────────────────────────────┤
 │  Layer 5: Marketplace & Economy                                  │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐         │
 │  │Marketplace│ │ Economy  │ │  Usage   │ │  Policy  │         │
 │  │(MOVED)   │ │   OS     │ │ Tracker  │ │   OS     │         │
-│  │  (4250)  │ │  (4251)  │ │  (4252)  │ │  (4254)  │         │
+│  │  (4250)  │ │  (4294)  │ │  (4252)  │ │  (4254)  │         │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘         │
+│  Market moved to blr-ai-marketplace 2026-06-21                 │
 ├─────────────────────────────────────────────────────────────────┤
 │  Layer 4: Decision & Flow                                        │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐         │
 │  │ Decision │ │Simulation│ │ Goal OS  │ │ Network  │         │
 │  │  Engine  │ │   OS     │ │          │ │ Learning │         │
-│  │  (4240)  │ │  (4241)  │ │  (4242)  │ │  (4243)  │         │
+│  │  (4290)  │ │  (4241)  │ │  (4242)  │ │  (4243)  │         │
+│  │          │ │          │ │          │ │          │         │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘         │
 │  ┌──────────┐ ┌──────────┐                                     │
 │  │ Flow OS  │ │Founder OS│                                     │
@@ -53,16 +111,16 @@ SUTAR OS is built on a **7-layer architecture** that enables autonomous economic
 │  └──────────┘ └──────────┘                                     │
 ├─────────────────────────────────────────────────────────────────┤
 │  Layer 3: Intent & Network                                       │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐                       │
-│  │  Intent  │ │  Agent   │ │   REZ    │                       │
-│  │   Bus    │ │ Network  │ │  Bridge  │                       │
-│  │  (4154)  │ │  (4155)  │ │  (4155)  │                       │
-│  └──────────┘ └──────────┘ └──────────┘                       │
+│  ┌──────────┐ ┌──────────┐                                     │
+│  │  Agent   │ │  Intent  │                                     │
+│  │ Network  │ │   Bus    │                                     │
+│  │  (4155)  │ │  (4154)  │                                     │
+│  └──────────┘ └──────────┘                                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  Layer 2: Gateway & Twin                                         │
+│  Layer 2: Gateway & Twin + Foundation Bridges                  │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐         │
 │  │ Gateway  │ │  Twin OS │ │ Memory   │ │Identity  │         │
-│  │          │ │          │ │  Bridge  │ │   OS     │         │
+│  │          │ │  →4705   │ │  →4703   │ │  →4702   │         │
 │  │  (4140)  │ │  (4142)  │ │  (4143)  │ │  (4144)  │         │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘         │
 │  ┌──────────┐                                                   │
@@ -78,28 +136,59 @@ SUTAR OS is built on a **7-layer architecture** that enables autonomous economic
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**Note on ports:** Decision Engine renumbered 4240→**4290** (Phase B, 2026-06-22). Trust/Contract/Negotiation renumbered 4180/4185/4191→**4291/4292/4293**. Economy OS renumbered 4251→**4294**. Three stale entries removed from the Hub's `SUTAR_SERVICES` map (sutar-agent-reputation 4820, sutar-wallet-service 4840, sutar-dispute 4847) — see [Hub wiring audit](companies/RABTUL-Technologies/REZ-ecosystem-connector/docs/SUTAR-HUB-WIRING-AUDIT-2026-06-22.md).
+
+---
+
+## SUTAR ↔ HOJAI Foundation Bridges (Layer 2)
+
+SUTAR's only **out-of-scope** outbound calls are the 4 Layer 2 bridge services. These are SUTAR-scoped facades over HOJAI Foundation services:
+
+| SUTAR service | Port | Calls | Purpose |
+|---|---|---|---|
+| **sutar-twin-os** | 4142 | `TwinOS Hub :4705` | SUTAR-scoped digital twins (`sutar-merchant`, `sutar-consumer`, `sutar-facilitator`, `sutar-observer`) |
+| **sutar-memory-bridge** | 4143 | `MemoryOS :4703` | SUTAR agent persistent memory across the 15 memory types |
+| **sutar-identity** | 4144 | `CorpID :4702` | SUTAR-scoped identity (proxies CorpID issues/lookups) |
+| **sutar-trust-engine** | 4291 | `SADA :4190` | Trust score federation with 2s timeout + local fallback |
+
+**Source references:**
+- [sutar-os/core/sutar-twin-os/src/index.js:36-37](companies/HOJAI-AI/sutar-os/core/sutar-twin-os/src/index.js#L36) — `TWINOS_URL = 'http://localhost:4705'`
+- [sutar-os/core/sutar-memory-bridge/src/index.js:32](companies/HOJAI-AI/sutar-os/core/sutar-memory-bridge/src/index.js#L32) — `MEMORYOS_URL = 'http://localhost:4703'`
+- [sutar-os/core/sutar-identity/src/index.js:31](companies/HOJAI-AI/sutar-os/core/sutar-identity/src/index.js#L31) — `CORPID_URL = 'http://localhost:4702'`
+- [sutar-os/core/sutar-trust-engine/src/index.ts:18-19](companies/HOJAI-AI/sutar-os/core/sutar-trust-engine/src/index.ts#L18) — `SADA_URL = 'http://localhost:4190'`
+
+The **Trust Engine ↔ SADA federation is soft**: `fetchSadaScore()` at [sutar-trust-engine/src/index.ts:50-65](companies/HOJAI-AI/sutar-os/core/sutar-trust-engine/src/index.ts#L50) has a 2s timeout and gracefully falls back to local scoring if SADA is unreachable. Status is exposed at `GET /api/v1/sada/status`.
+
+**Anything else in SUTAR stays inside SUTAR scope.** No direct calls to Customer Twin (4895), Order Twin (4885), Wallet Twin (4896), Genie services, or any Department OS.
+
 ---
 
 ## Data Flow
 
-### 1. Request Flow
+### 1. Request Flow (via Hub)
 
 ```
-Client → SUTAR Gateway (4140) → Auth Check → Route → Service
+External caller → Hub (4399) /api/sutar/<service>/*
+   ↓
+SUTAR Gateway (4140) or direct service port
+   ↓
+Auth Check (JWT via @rtmn/shared/auth)
+   ↓
+Route to service
    ↓
 Intent Bus (4154) → Broadcast intent
    ↓
-Decision Engine (4240) → Evaluate
+Decision Engine (4290) → Evaluate
    ↓
-Marketplace (4250) → Find service
+Agent Network (4155) → Find counterparty
    ↓
-Negotiation (4191) → Negotiate terms
+Negotiation Engine (4293) → Negotiate terms
    ↓
-Contract (4185) → Execute contract
+Contract OS (4292) → Execute contract
    ↓
-Trust (4180) → Update reputation
+Trust Engine (4291) → Update reputation
    ↓
-Economy (4251) → Process payment
+Economy OS (4294) → Process payment
    ↓
 Monitoring (3100) → Log metrics
 ```
@@ -109,33 +198,33 @@ Monitoring (3100) → Log metrics
 ```
 New Agent → Agent ID (4145) → Verify identity
    ↓
-Identity OS (4144) → Register
+Identity OS (4144) → Register (→ CorpID :4702)
    ↓
-Twin OS (4142) → Create digital twin
+Twin OS (4142) → Create digital twin (→ TwinOS Hub :4705)
    ↓
-Trust Engine (4180) → Initial trust score
-   ↓
-Marketplace (4250) → List services
+Trust Engine (4291) → Initial trust score (→ SADA :4190, falls back to local)
    ↓
 Agent Network (4155) → Connect to network
+   ↓
+Memory Bridge (4143) → Load long-term memory (→ MemoryOS :4703)
 ```
 
-### 3. Transaction Flow
+### 3. Transaction Flow (BNPL example)
 
 ```
-Buyer → Marketplace (4250) → Search services
+Buyer → Hub /api/nexha/sutar-trade-finance/api/v1/credit-offers (→ :4287)
    ↓
-Negotiation Engine (4191) → Negotiate price
+Trust Engine (4291) → Pull trust score (or use caller-provided)
    ↓
-Contract OS (4185) → Create smart contract
+Decision Engine (4290) → Risk band A-E selection
    ↓
-Economy OS (4251) → Process payment
+Contract OS (4292) → Create loan contract
    ↓
-Usage Tracker (4252) → Meter usage
+Economy OS (4294) → Disburse funds
    ↓
-Trust Engine (4180) → Update reputation
+Usage Tracker (4252) → Meter repayment
    ↓
-Reputation Aggregator (4258) → Aggregate scores
+Trust Engine (4291) → Update reputation on completion
 ```
 
 ---
@@ -152,9 +241,9 @@ Goal OS (4242) → Decompose into sub-goals
    ├── Increase average order value by 10%
    └── Improve customer retention by 25%
    ↓
-Decision Engine (4240) → Choose strategies
-   ├── Marketing campaign (uses Marketing OS)
-   ├── Menu optimization (uses Restaurant OS)
+Decision Engine (4290) → Choose strategies
+   ├── Marketing campaign (uses Marketing OS via Hub)
+   ├── Menu optimization (uses Restaurant OS via Hub)
    └── Loyalty program (uses REZ-Consumer)
    ↓
 Flow OS (4244) → Orchestrate execution
@@ -169,46 +258,78 @@ Goal OS (4242) → Track progress
 ```
 Contract: "Deliver 1000 units by Dec 31"
    ↓
-Contract OS (4185) → Create contract
+Contract OS (4292) → Create contract
    ↓
 Define terms: quantity, price, deadline, penalties
    ↓
-Signatures: Buyer, Seller, Witness (Trust Engine)
+Signatures: Buyer, Seller, Witness (Trust Engine :4291)
    ↓
-Execute: Monitor delivery (Goal OS tracking)
+Execute: Monitor delivery (Goal OS :4242 tracking)
    ↓
 Verify: Check conditions met
    ↓
-Settle: Economy OS processes payment
+Settle: Economy OS (:4294) processes payment
    ↓
-Close: Update Trust scores for both parties
+Close: Update Trust scores for both parties (Trust Engine :4291)
 ```
 
 ---
 
-## Service Dependencies
+## Service Dependencies (current)
 
 ```
 Gateway (4140)
 ├── depends on: Identity OS, Trust Engine
-└── used by: All external services
+└── used by: Hub, all external services
 
 Marketplace (4250) — MOVED to blr-ai-marketplace on 2026-06-21
 ├── depends on: Trust Engine, Discovery Engine, Economy OS
 └── used by: All AI agents, Industry OS
 
-Decision Engine (4240)
+Decision Engine (4290) ← renumbered 2026-06-22
 ├── depends on: Simulation OS, Policy OS, Goal OS
 └── used by: All autonomous systems
 
-Negotiation Engine (4191)
+Negotiation Engine (4293) ← renumbered 2026-06-22
 ├── depends on: Trust Engine, Contract OS, Goal OS
-└── used by: Marketplace, Industry OS
+└── used by: Agent Network, Industry OS
 
-Trust Engine (4180)
-├── depends on: Identity OS, Reputation Aggregator
+Trust Engine (4291) ← renumbered 2026-06-22
+├── depends on: SADA :4190 (federation), Identity OS, Reputation Aggregator
 └── used by: All services
+
+Contract OS (4292) ← renumbered 2026-06-22
+├── depends on: Trust Engine, Negotiation Engine
+└── used by: All economic flows
+
+Economy OS (4294) ← renumbered 2026-06-22
+├── depends on: Trust Engine, Contract OS
+└── used by: All payment flows
+
+Phase C backbone (built 2026-06-22):
+  sutar-supplier-registry (4280) — SUTAR+Nexha alias
+  sutar-logistics (4285) — SUTAR+Nexha alias
+  sutar-warehouse-network (4288) — SUTAR+Nexha alias
+  sutar-trade-finance (4287) — SUTAR+Nexha alias
 ```
+
+---
+
+## What SUTAR does NOT integrate with (Boundaries)
+
+To avoid confusion, SUTAR OS **does not** directly call or import from:
+
+| System | Reason | How it would work instead |
+|---|---|---|
+| **REZ Merchant** (CRM, Wallet, Auth, Checkout, Care) | SUTAR has its own payment primitives (`payment.service.ts:13` in `sutar-economy-os`) | Shared workflows at the Hub level (`/api/customer360`, `/api/workflow/lead-to-revenue`) |
+| **AdBazaar** (DSP, Audience, Attribution, CDP) | Different scope (advertising) | Not in SUTAR's reach; out of ecosystem bridge |
+| **Genie Gateway** (4701) + 23 specialists (4709-4727) | Genie is a separate consumer-facing product | do-app's [hojaiClient.ts:416-422](companies/do-app/backend/src/services/hojaiClient.ts#L416) talks to Genie directly; SUTAR via Hub |
+| **Revenue Intelligence Copilot** | Reads Sales+Marketing+Operations only | No SUTAR refs in source |
+| **RAZO Keyboard** (4725) | Intent detection is independent | No SUTAR refs in source |
+| **Voice Twin** (4876) + Speech Intelligence (4870) | Voice-specific | No SUTAR refs |
+| **Industry OS** (Restaurant, Hotel, Healthcare, …) | Reach SUTAR via Hub `/api/sutar/*` | `RTMN_SERVICES` config in industry-os; `sutarBridge.ts` in sales-hub |
+| **Customer Twin** (4895), Order Twin (4885), Wallet Twin (4896) | TwinOS layer above SUTAR | SUTAR's `sutar-twin-os` (4142) talks to TwinOS Hub (4705), not individual twins |
+| **External clients** (e.g. Leverge) | Per RTMN External Clients Policy | Out of scope |
 
 ---
 
@@ -217,10 +338,10 @@ Trust Engine (4180)
 SUTAR OS is designed for horizontal scaling:
 
 - **Stateless Services**: Most services are stateless
-- **Event-Driven**: All communication via Event Bus
+- **Event-Driven**: Communication via Event Bus (4154)
 - **Distributed**: Services can run on multiple nodes
-- **Cached**: Redis for performance
-- **Monitored**: Prometheus + Grafana
+- **Cached**: In-memory caches for performance
+- **Monitored**: sutar-monitoring (3100) + Prometheus + Grafana
 
 ---
 
@@ -232,27 +353,34 @@ SUTAR OS is designed for horizontal scaling:
 └────────────┬────────────────────────────┘
              ↓
 ┌─────────────────────────────────────────┐
-│  API Gateway (4140)                      │
+│  RTMN Hub (4399)                         │
 │  - JWT Validation                        │
 │  - Rate Limiting                         │
 │  - Request Logging                       │
 └────────────┬────────────────────────────┘
              ↓
 ┌─────────────────────────────────────────┐
-│  Identity OS (4144)                      │
+│  SUTAR Gateway (4140) or direct service  │
+│  - requireAuth middleware                │
+│  - helmet security headers              │
+│  - express-rate-limit                    │
+└────────────┬────────────────────────────┘
+             ↓
+┌─────────────────────────────────────────┐
+│  Identity (4144) / Agent ID (4145)       │
 │  - Role-Based Access Control             │
 │  - Permission Check                      │
 └────────────┬────────────────────────────┘
              ↓
 ┌─────────────────────────────────────────┐
 │  Service Layer                           │
-│  - Input Validation                      │
+│  - Zod Input Validation                  │
 │  - Business Logic                        │
 │  - Audit Logging                         │
 └────────────┬────────────────────────────┘
              ↓
 ┌─────────────────────────────────────────┐
-│  Trust Engine (4180)                     │
+│  Trust Engine (4291) → SADA (4190)      │
 │  - Verify Trust Score                    │
 │  - Check Reputation                      │
 └─────────────────────────────────────────┘
@@ -260,50 +388,66 @@ SUTAR OS is designed for horizontal scaling:
 
 ---
 
-## Performance
+## Performance (measured 2026-06-22)
 
 | Metric | Target | Actual |
 |--------|--------|--------|
-| API Response Time | < 100ms | 85ms |
-| Negotiation Round | < 500ms | 420ms |
-| Marketplace Search | < 200ms | 150ms |
-| Trust Score Calculation | < 50ms | 35ms |
-| Contract Execution | < 1s | 850ms |
-| Uptime | 99.99% | 99.97% |
+| Hub proxy pass-through | < 50ms | 5-20ms (depending on upstream) |
+| Negotiation round | < 500ms | 420ms |
+| Warehouse slot search | < 200ms | 85ms (in-memory) |
+| Trust score (SADA reachable) | < 100ms | 35ms |
+| Trust score (SADA fallback) | < 50ms | 5ms (local) |
+| Contract execution | < 1s | 850ms |
+| Test suite (7 services) | n/a | 425 vitest tests, 0 failures |
 
 ---
 
 ## Deployment
 
-### Local Development
+### Local Development (one command)
 
 ```bash
-# Start all 25 SUTAR services
-cd hojai-ai/hojai-sutar-os
-./start-all.sh
+# Start the 5-service dev stack (Hub + 4 SUTAR services)
+bash scripts/dev-stack.sh start
 
-# Or start individually
-node gateway/index.js &          # 4140
-node marketplace/index.js &      # 4250
-node decision-engine/index.js &  # 4240
-node negotiation/index.js &      # 4191
-node trust-engine/index.js &     # 4180
+# Run end-to-end demo
+bash demos/full-stack-demo.sh
+
+# Or via Docker
+docker compose -f docker-compose.dev.yml up --build
+```
+
+### Per-service start (advanced)
+
+```bash
+# Hub
+cd companies/RABTUL-Technologies/REZ-ecosystem-connector
+PORT=4399 node dist/index.js
+
+# SUTAR core services
+cd companies/HOJAI-AI/sutar-os
+node core/sutar-gateway/index.js &         # 4140
+node core/sutar-decision-engine/index.js &  # 4290
+node core/sutar-trust-engine/index.js &     # 4291
+node contracts/sutar-contract-os/index.js & # 4292
+node contracts/sutar-negotiation-engine/index.js &  # 4293
+node economy/sutar-economy-os/index.js &    # 4294
+
+# Phase C backbone
+node core/sutar-supplier-registry/index.js &  # 4280
+node core/sutar-logistics/index.js &          # 4285
+node core/sutar-warehouse-network/index.js &  # 4288
+node core/sutar-trade-finance/index.js &      # 4287
+
+# Monitoring
+node core/sutar-monitoring/index.js &  # 3100
 ```
 
 ### Production (Render)
 
-```bash
-# Deploy using render.yaml
-render blueprint apply hojai-ai/hojai-sutar-os/render.yaml
-```
-
-### Docker
-
-```bash
-docker-compose -f hojai-sutar-os/docker-compose.yml up -d
-```
+The 5-service dev stack runs on Render; the full 29-service production deployment is managed via `render.yaml` in the HOJAI-AI repo.
 
 ---
 
-*Last Updated: June 17, 2026*  
-*SUTAR OS Architecture Documentation*
+*Last Updated: June 22, 2026*  
+*SUTAR OS Architecture Documentation v4.0*

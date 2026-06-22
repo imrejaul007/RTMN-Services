@@ -1,17 +1,41 @@
 # SUTAR OS API Reference
 
-**Version:** 3.0.0  
-**Last Updated:** June 17, 2026
+**Version:** 4.0.0  
+**Last Updated:** June 22, 2026
+
+> **Change log v4.0 (2026-06-22):**
+> - Renumbered ports: Trust 4180→**4291**, Contract 4185→**4292**, Negotiation 4191→**4293**, Economy 4251→**4294**, Decision 4240→**4290**
+> - Added **Hub access pattern** as the recommended way to call SUTAR (production-grade, body-forwarding fix in place)
+> - Added **Phase C backbone endpoints** (supplier-registry, logistics, warehouse-network, trade-finance)
 
 ---
 
 ## Base URLs
 
+### Recommended: via RTMN Hub (production)
+
 | Environment | Base URL |
 |-------------|----------|
-| Local | `http://localhost:4140` |
-| Staging | `https://sutar-staging.hojai.ai` |
-| Production | `https://sutar.hojai.ai` |
+| Local | `http://localhost:4399` |
+| Staging | `https://hub-staging.rtmn.ai` |
+| Production | `https://hub.rtmn.ai` |
+
+Then call any SUTAR service via:
+
+```
+http://localhost:4399/api/sutar/<service>/<endpoint>
+http://localhost:4399/api/nexha/<service>/<endpoint>   # for Phase C backbone
+```
+
+### Direct service URL (development only)
+
+| Environment | Gateway | Notes |
+|-------------|---------|-------|
+| Local | `http://localhost:4140` | SUTAR Gateway (registry + capability map) |
+| Staging | `https://sutar-staging.hojai.ai` | |
+| Production | `https://sutar.hojai.ai` | |
+
+Direct calls bypass the Hub and are not body-forwarding-safe; use the Hub for any non-trivial request.
 
 ## Authentication
 
@@ -183,7 +207,7 @@ Response:
 
 ---
 
-## 3. SUTAR Decision Engine API (Port 4240)
+## 3. SUTAR Decision Engine API (Port **4290**) ← renumbered 2026-06-22
 
 ### Evaluate Decision
 ```http
@@ -233,7 +257,7 @@ GET /api/decisions/history?limit=50&offset=0
 
 ---
 
-## 4. SUTAR Negotiation Engine API (Port 4191)
+## 4. SUTAR Negotiation Engine API (Port **4293**) ← renumbered 2026-06-22
 
 ### Start Negotiation
 ```http
@@ -307,7 +331,7 @@ Content-Type: application/json
 
 ---
 
-## 5. SUTAR Trust Engine API (Port 4180)
+## 5. SUTAR Trust Engine API (Port **4291**) ← renumbered 2026-06-22
 
 ### Get Agent Trust Score
 ```http
@@ -429,7 +453,7 @@ GET /api/goals/:id/progress
 
 ---
 
-## 8. SUTAR Contract OS API (Port 4185)
+## 8. SUTAR Contract OS API (Port **4292**) ← renumbered 2026-06-22
 
 ### Create Contract
 ```http
@@ -475,7 +499,7 @@ Content-Type: application/json
 
 ---
 
-## 9. SUTAR Economy OS API (Port 4251)
+## 9. SUTAR Economy OS API (Port **4294**) ← renumbered 2026-06-22
 
 ### Get Balance
 ```http
@@ -586,6 +610,201 @@ POST /api/flows/:id/execute
 ### Get Workflow Status
 ```http
 GET /api/flows/:id/status
+```
+
+---
+
+## 13. SUTAR Phase C Backbone (Nexha Commerce Network)
+
+> **Built:** 2026-06-22 — Real implementations of the Nexha procurement/distribution/trade-finance backbone. These services are registered in BOTH the Hub's `SUTAR_SERVICES` and `NEXHA_SERVICES` maps, so they can be reached via either pattern.
+
+### 13.1 sutar-supplier-registry (Port 4280)
+
+```bash
+# Via Hub (recommended)
+curl http://localhost:4399/api/nexha/sutar-supplier-registry/api/v1/suppliers?category=cement
+```
+
+```http
+GET /api/v1/suppliers?category=<cat>&state=<2-letter>&minTrustScore=<0-100>
+```
+
+Response:
+```json
+{
+  "suppliers": [
+    {
+      "id": "sup_001",
+      "name": "Acme Cement",
+      "category": "cement",
+      "state": "MH",
+      "trustScore": 87,
+      "minOrderInr": 50000
+    }
+  ],
+  "total": 1
+}
+```
+
+```http
+POST /api/v1/suppliers
+Content-Type: application/json
+
+{
+  "name": "Acme Cement",
+  "category": "cement",
+  "state": "MH",
+  "pincode": "421302",
+  "contact": {"phone": "+91...", "email": "..."}
+}
+```
+
+### 13.2 sutar-logistics (Port 4285)
+
+```bash
+# Via Hub
+curl -X POST http://localhost:4399/api/nexha/sutar-logistics/api/v1/quote \
+  -H "Content-Type: application/json" \
+  -d '{"origin":"Mumbai","destination":"Bengaluru","package":{"weightKg":10},"serviceLevel":"standard"}'
+```
+
+```http
+POST /api/v1/quote
+Content-Type: application/json
+
+{
+  "origin": "Mumbai",
+  "destination": "Bengaluru",
+  "package": {"weightKg": 10, "volumeM3": 0.05, "fragile": false},
+  "serviceLevel": "standard"
+}
+```
+
+Response includes `quoteId`. **Important:** Quotes are cached by request signature — calling `getQuotes` again with the same parameters returns the same `quoteId`. This is required for `bookShipment(quote.id)` to find the quote.
+
+```http
+POST /api/v1/shipments
+Content-Type: application/json
+
+{ "quoteId": "qt-...", "senderId": "...", "recipientId": "..." }
+```
+
+### 13.3 sutar-warehouse-network (Port 4288)
+
+```bash
+# Via Hub
+curl "http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
+curl http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/stats
+```
+
+```http
+GET /api/v1/warehouses?state=<2-letter>&pincode=<6-digit>&needsColdChain=true&minRating=4
+```
+
+Response: list of warehouses matching criteria (state, pincode, cold-chain support, hazardous support, min rating, min capacity).
+
+```http
+GET /api/v1/warehouses/:id/slots?fromDate=<YYYY-MM-DD>&toDate=<YYYY-MM-DD>
+```
+
+Response: list of available slots (14 days × 2 slots/day = 168 slots pre-seeded per warehouse).
+
+```http
+POST /api/v1/bookings
+Content-Type: application/json
+
+{
+  "slotId": "slot-...",
+  "warehouseId": "wh-...",
+  "entityId": "buyer-...",
+  "packageRef": "ORD-12345",
+  "capacityKg": 50
+}
+```
+
+**WMS sub-endpoints** (bins, stock, transfers, pick lists):
+
+```http
+GET  /api/v1/wms/bins?warehouseId=<id>
+POST /api/v1/wms/stock/receive    # receive stock into a bin
+POST /api/v1/wms/stock/adjust     # adjust stock level
+POST /api/v1/wms/transfers        # inter-warehouse transfer (pick→receive→cancel lifecycle)
+POST /api/v1/wms/pick-lists       # generate pick list for an order
+```
+
+### 13.4 sutar-trade-finance (Port 4287)
+
+```bash
+# Via Hub
+curl -X POST http://localhost:4399/api/nexha/sutar-trade-finance/api/v1/credit-offers \
+  -H "Content-Type: application/json" \
+  -d '{"entityId":"ent_001","amount":100000,"termMonths":3,"trustScore":78}'
+```
+
+```http
+POST /api/v1/entities
+Content-Type: application/json
+
+{
+  "entityId": "ent_001",
+  "trustScore": 78,
+  "annualRevenueInr": 5000000,
+  "monthsInBusiness": 36,
+  "sector": "retail"
+}
+```
+
+```http
+POST /api/v1/credit-offers
+Content-Type: application/json
+
+{
+  "entityId": "ent_001",
+  "amount": 100000,
+  "currency": "INR",
+  "purpose": "working-capital",
+  "termMonths": 3
+}
+```
+
+Response includes:
+- `riskBand`: A (12% APR) / B (16%) / C (21%) / D (28%) / E (36% or decline)
+- `apr`: annual percentage rate
+- `monthlyPayment`: EMI amount
+- `totalRepayable`: total over the term
+- `disbursementTerms`: escrow conditions
+
+**Note:** `trustScore` is the input the caller provides. The service does **not** call SADA itself — the caller is responsible for fetching it (e.g. `sada.getTrustScore(entityId)` then passing the result).
+
+```http
+POST /api/v1/loans/:id/disburse
+POST /api/v1/loans/:id/repay
+POST /api/v1/loans/:id/dispute     # held escrow
+```
+
+---
+
+## 14. Hub Access Pattern (How to Call SUTAR from Outside)
+
+The Hub provides two important routes for SUTAR consumers:
+
+```bash
+# 1. Capability map — what does each service handle?
+curl http://localhost:4399/api/sutar/capabilities
+# Returns: { capabilities: { 'team-formation': ['sutar-agent-teaming'], ... }, services: {...} }
+
+# 2. Direct  to any SUTAR service (GET/POST/PUT/PATCH/DELETE)
+curl -X POST http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/teams \
+  -H "Content-Type: application/json" \
+  -d '{"name":"price-compare","mission":"compare-prices","size":3}'
+```
+
+The Hub's `proxyToUpstream()` helper handles the `express.json()` body-parsing pitfall (re-serializes `req.body` so the upstream service receives the full payload).
+
+For Phase C backbone services, use the `/api/nexha/` prefix:
+
+```bash
+curl "http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
 ```
 
 ---

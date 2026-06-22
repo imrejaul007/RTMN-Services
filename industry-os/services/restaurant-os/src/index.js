@@ -49,9 +49,19 @@ const RTMN_SERVICES = {
   // Agent Services
   agentMarketplace: process.env.AGENT_URL || 'http://localhost:4580',
   agentStream: process.env.AGENT_STREAM_URL || 'http://localhost:4581',
-  // SUTAR OS
-  sutarOS: process.env.SUTAR_URL || 'http://localhost:4140',
-  sutarCore: process.env.SUTAR_CORE_URL || 'http://localhost:4141',
+  // SUTAR OS — prefer going through the RTMN Hub
+  // The Hub routes /api/sutar/<service>/<path> to the correct upstream port.
+  // Direct service URL (sutarOS) kept for backward compat; sutarCore was 4141
+  // but no SUTAR service is on 4141 — point it to sutar-decision-engine (4290)
+  // or, preferably, route via Hub.
+  sutarOS: process.env.SUTAR_URL
+    || (process.env.SUTAR_HUB_URL
+        ? `${process.env.SUTAR_HUB_URL}/api/sutar/sutar-gateway`
+        : 'http://localhost:4140'),
+  sutarCore: process.env.SUTAR_CORE_URL
+    || (process.env.SUTAR_HUB_URL
+        ? `${process.env.SUTAR_HUB_URL}/api/sutar/sutar-decision-engine`
+        : 'http://localhost:4290'),
   // Industry AI
   hojaiIndustry: process.env.HOJAI_INDUSTRY_URL || 'http://localhost:4150',
   hojaiCommerce: process.env.HOJAI_COMMERCE_URL || 'http://localhost:4151',

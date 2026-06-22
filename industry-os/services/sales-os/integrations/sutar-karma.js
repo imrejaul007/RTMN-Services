@@ -1,19 +1,26 @@
 /**
  * SUTAR Karma Integration for Sales OS
- * Connects Sales OS to SUTAR Karma (Port 4251) for rep reputation tracking
+ * Connects Sales OS to SUTAR Economy OS (Port 4294) for rep reputation tracking.
  *
- * Version: 1.0.0
+ * Version: 1.0.1 (2026-06-22 — port renumbered 4251→4294 per Phase B audit)
  * Port: 5055 (Sales OS)
- * Connected Service: SUTAR Karma (4251)
+ * Connected Service: SUTAR Economy OS (4294) — formerly called "Karma" before the 2026-06-22 renumber
+ * Recommended: route via Hub at http://localhost:4399/api/sutar/sutar-economy-os/api/karma/...
  */
 
 const axios = require('axios');
 
 // Karma Service Configuration
+// NOTE: Economy OS was on 4251 until 2026-06-22; it's now on 4294.
+// Prefer the Hub URL in production: SUTAR_HUB_URL=http://localhost:4399
+const HUB_URL = process.env.SUTAR_HUB_URL || 'http://localhost:4399';
 const KARMA_CONFIG = {
-  name: 'SUTAR Karma',
-  port: 4251,
-  baseUrl: process.env.KARMA_URL || 'http://localhost:4251',
+  name: 'SUTAR Economy OS (Karma)',
+  port: 4294,
+  // Prefer SUTAR_HUB_URL; fall back to KARMA_URL; fall back to direct Economy OS
+  baseUrl: process.env.SUTAR_HUB_URL
+    ? `${HUB_URL}/api/sutar/sutar-economy-os`
+    : (process.env.KARMA_URL || 'http://localhost:4294'),
   timeout: 10000,
 };
 
