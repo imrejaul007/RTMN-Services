@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/hr-payroll-service",
+  "version": "1.0.0",
+  "description": "HR payroll and attendance service",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

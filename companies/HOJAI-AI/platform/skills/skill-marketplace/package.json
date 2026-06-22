@@ -1,0 +1,22 @@
+{
+  "name": "@rtmn/skill-marketplace",
+  "version": "1.0.0",
+  "description": "Skill Marketplace (4120) — buy/sell skills separately from agents. Publishers list skills, consumers purchase or subscribe, ratings & reviews tracked.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hojai", "marketplace", "skill", "listings", "reviews"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

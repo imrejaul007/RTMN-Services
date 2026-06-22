@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/intent-engine",
+  "version": "1.0.0",
+  "description": "LLM-based intent extraction + specialist routing for Genie",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node tests/intent.test.cjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@rtmn/shared": "file:../../shared"
+  }
+}

@@ -1,0 +1,18 @@
+[
+  [
+    "wh-1782069509328-7d30ed",
+    {
+      "id": "wh-1782069509328-7d30ed",
+      "url": "http://localhost:9999/hook",
+      "events": [
+        "policy.created",
+        "policy.evaluated"
+      ],
+      "secret": "2bf66257-e7d4-4315-94b8-ba4027d0bbfc",
+      "active": true,
+      "createdAt": "2026-06-21T19:18:29.328Z",
+      "lastDeliveryAt": "2026-06-21T19:20:00.410Z",
+      "lastError": "fetch failed"
+    }
+  ]
+]

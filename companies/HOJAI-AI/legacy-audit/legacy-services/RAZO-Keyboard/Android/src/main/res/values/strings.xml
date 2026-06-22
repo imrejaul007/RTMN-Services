@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RAZO Keyboard</string>
+    <string name="ime_name">RAZO</string>
+    <string name="ime_hint">RAZO Communication OS</string>
+    <string name="ime_subtype_en">English</string>
+    <string name="ime_subtype_hi">Hindi</string>
+
+    <string name="accessibility_service_name">RAZO Keyboard Service</string>
+    <string name="accessibility_service_description">RAZO Keyboard provides voice input, predictive typing, and AI-powered suggestions. It requires accessibility permission to:\n\n• Read text from apps for smart suggestions\n• Detect which app you\'re using for contextual features\n• Enable voice-to-text functionality\n• Provide Genie AI assistance</string>
+
+    <string name="autofill_service_name">RAZO Vault</string>
+
+    <!-- Setup strings -->
+    <string name="setup_title">Setup RAZO Keyboard</string>
+    <string name="setup_subtitle">Your communication OS</string>
+    <string name="setup_enable_keyboard">Enable RAZO Keyboard</string>
+    <string name="setup_enable_accessibility">Enable Accessibility</string>
+    <string name="setup_authenticate">Authenticate</string>
+    <string name="setup_complete">Setup Complete</string>
+
+    <!-- Keyboard strings -->
+    <string name="keyboard_voice_hint">Tap mic to speak</string>
+    <string name="keyboard_genie_hint">Hey Genie, what can I do?</string>
+
+    <!-- Autofill strings -->
+    <string name="autofill_title">RAZO Vault</string>
+    <string name="autofill_subtitle">Authenticate to autofill</string>
+</resources>

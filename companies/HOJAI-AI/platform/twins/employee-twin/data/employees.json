@@ -1,0 +1,225 @@
+[
+  [
+    "emp-1",
+    {
+      "id": "emp-1",
+      "employeeId": "RTMN-001",
+      "firstName": "John",
+      "lastName": "Smith",
+      "email": "john.smith@rtmn.com",
+      "phone": "+1-555-0101",
+      "department": "Engineering",
+      "title": "Senior Software Engineer",
+      "level": "L5",
+      "manager": null,
+      "status": "active",
+      "type": "full_time",
+      "location": {
+        "city": "San Francisco",
+        "state": "CA",
+        "country": "USA",
+        "remote": true
+      },
+      "compensation": {
+        "salary": 180000,
+        "currency": "USD",
+        "bonus": 15
+      },
+      "hireDate": "2022-03-15",
+      "startDate": "2022-03-20",
+      "skills": [
+        "JavaScript",
+        "React",
+        "Node.js",
+        "AWS",
+        "TypeScript"
+      ],
+      "health": {
+        "overall": 85,
+        "engagement": 90,
+        "productivity": 88,
+        "satisfaction": 82
+      },
+      "createdAt": "2022-03-15T00:00:00.000Z",
+      "updatedAt": "2025-06-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "emp-2",
+    {
+      "id": "emp-2",
+      "employeeId": "RTMN-002",
+      "firstName": "Sarah",
+      "lastName": "Johnson",
+      "email": "sarah.johnson@rtmn.com",
+      "phone": "+1-555-0103",
+      "department": "Sales",
+      "title": "Account Executive",
+      "level": "L4",
+      "manager": null,
+      "status": "active",
+      "type": "full_time",
+      "location": {
+        "city": "New York",
+        "state": "NY",
+        "country": "USA",
+        "remote": false
+      },
+      "compensation": {
+        "salary": 120000,
+        "currency": "USD",
+        "bonus": 20
+      },
+      "hireDate": "2023-01-10",
+      "startDate": "2023-01-15",
+      "skills": [
+        "Sales",
+        "CRM",
+        "Negotiation",
+        "Presentation"
+      ],
+      "health": {
+        "overall": 78,
+        "engagement": 75,
+        "productivity": 82,
+        "satisfaction": 80
+      },
+      "createdAt": "2023-01-10T00:00:00.000Z",
+      "updatedAt": "2025-06-10T00:00:00.000Z"
+    }
+  ],
+  [
+    "emp-3",
+    {
+      "id": "emp-3",
+      "employeeId": "RTMN-003",
+      "firstName": "Michael",
+      "lastName": "Chen",
+      "email": "michael.chen@rtmn.com",
+      "phone": "+1-555-0105",
+      "department": "Marketing",
+      "title": "Marketing Director",
+      "level": "L6",
+      "manager": null,
+      "status": "active",
+      "type": "full_time",
+      "location": {
+        "city": "San Francisco",
+        "state": "CA",
+        "country": "USA",
+        "remote": true
+      },
+      "compensation": {
+        "salary": 200000,
+        "currency": "USD",
+        "bonus": 25
+      },
+      "hireDate": "2021-06-01",
+      "startDate": "2021-06-15",
+      "skills": [
+        "Digital Marketing",
+        "Strategy",
+        "Analytics",
+        "Brand Management"
+      ],
+      "health": {
+        "overall": 92,
+        "engagement": 95,
+        "productivity": 90,
+        "satisfaction": 88
+      },
+      "createdAt": "2021-06-01T00:00:00.000Z",
+      "updatedAt": "2025-06-12T00:00:00.000Z"
+    }
+  ],
+  [
+    "emp-ba6d9dbe",
+    {
+      "id": "emp-ba6d9dbe",
+      "employeeId": "RTMN-004",
+      "firstName": "P4",
+      "lastName": "Emp",
+      "email": "p4emp@t.com",
+      "phone": "",
+      "department": "eng",
+      "title": "Employee",
+      "level": "L1",
+      "manager": null,
+      "status": "onboarding",
+      "type": "full_time",
+      "location": {
+        "city": "",
+        "state": "",
+        "country": "USA",
+        "remote": false
+      },
+      "compensation": {
+        "salary": 0,
+        "currency": "USD",
+        "bonus": 0
+      },
+      "hireDate": "2026-06-21",
+      "startDate": null,
+      "skills": [],
+      "languages": [
+        "English"
+      ],
+      "emergencyContact": {},
+      "health": {
+        "overall": 100,
+        "engagement": 100,
+        "productivity": 100,
+        "satisfaction": 100
+      },
+      "metadata": {},
+      "createdBy": "user-test",
+      "createdAt": "2026-06-21T21:32:40.275Z",
+      "updatedAt": "2026-06-21T21:32:40.275Z"
+    }
+  ],
+  [
+    "emp-7ec8b591",
+    {
+      "id": "emp-7ec8b591",
+      "employeeId": "RTMN-005",
+      "firstName": "E9927",
+      "lastName": "Test",
+      "email": "e9927@t.com",
+      "phone": "",
+      "department": "eng",
+      "title": "Employee",
+      "level": "L1",
+      "manager": null,
+      "status": "onboarding",
+      "type": "full_time",
+      "location": {
+        "city": "",
+        "state": "",
+        "country": "USA",
+        "remote": false
+      },
+      "compensation": {
+        "salary": 0,
+        "currency": "USD",
+        "bonus": 0
+      },
+      "hireDate": "2026-06-22",
+      "startDate": null,
+      "skills": [],
+      "languages": [
+        "English"
+      ],
+      "emergencyContact": {},
+      "health": {
+        "overall": 100,
+        "engagement": 100,
+        "productivity": 100,
+        "satisfaction": 100
+      },
+      "metadata": {},
+      "createdBy": "user-final",
+      "createdAt": "2026-06-22T00:59:00.238Z",
+      "updatedAt": "2026-06-22T00:59:00.238Z"
+    }
+  ]
+]

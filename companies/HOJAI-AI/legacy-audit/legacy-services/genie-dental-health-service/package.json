@@ -1,0 +1,15 @@
+{
+  "name": "@hojai/genie-dental-health",
+  "version": "1.0.0",
+  "description": "Genie Dental Health - Dental health context for personalized reminders",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "uuid": "^9.0.0"
+  }
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hojai Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100" x-data="admin()">
+  <nav class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Hojai Admin</h1>
+      <div class="flex gap-4">
+        <a href="#" class="text-sm">Dashboard</a>
+        <a href="#" class="text-sm text-indigo-600">Merchants</a>
+        <a href="#" class="text-sm">Users</a>
+        <a href="#" class="text-sm">Settings</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-6">Merchant Management</h2>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-4 gap-6 mb-6">
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-gray-500">Total Merchants</p>
+        <p class="text-3xl font-bold">127</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-gray-500">Active Today</p>
+        <p class="text-3xl font-bold text-green-600">89</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-gray-500">Revenue (MRR</p>
+        <p class="text-3xl font-bold text-indigo-600">₹87K</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-gray-500">API Calls Today</p>
+        <p class="text-3xl font-bold">847K</p>
+      </div>
+    </div>
+
+    <!-- Merchant Table -->
+    <div class="bg-white rounded-xl shadow">
+      <div class="p-4 border-b flex justify-between">
+        <h3 class="font-semibold">Merchants</h3>
+        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">+ Add Merchant</button>
+      </div>
+      <table class="w-full">
+        <thead class="bg-gray-50 text-left text-sm text-gray-500">
+          <tr><th class="p-4">Merchant</th><th>Plan</th><th>Messages</th><th>Revenue</th><th>Status</th><th>Actions</th></tr>
+        <tr class="border-t" x-for="m in merchants">
+          <td class="p-4" x-text="m.name"></td>
+          <td class="p-4" x-text="m.plan"></td>
+          <td class="p-4" x-text="m.messages"></td>
+          <td class="p-4" x-text="m.revenue"></td>
+          <td class="p-4"><span class="px-2 py-1 rounded-full text-xs" :class="m.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100'" x-text="m.status"></span></td>
+          <td class="p-4"><button class="text-indigo-600 text-sm">View</button></td>
+        </tr>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function admin() {
+      return {
+        merchants: [
+          { name: 'Salon Magic', plan: 'Starter', messages: '12.4K', revenue: '₹2,400', status: 'active' },
+          { name: 'Cafe Rosso', plan: 'Starter', messages: '8.2K', revenue: '₹1,800', status: 'active' },
+          { name: 'MediCare+', plan: 'Professional', messages: '24.1K', revenue: '₹4,200', status: 'active' },
+          { name: 'Retail Hub', plan: 'Trial', messages: '1.2K', revenue: '₹0', status: 'trial' }
+        ]
+      };
+    }
+  </script>
+</body>
+</html>

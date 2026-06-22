@@ -1,0 +1,24 @@
+{
+  "name": "@rez/testing",
+  "version": "1.0.0",
+  "description": "Testing utilities for REZ services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "supertest": "^7.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0",
+    "@types/supertest": "^6.0.2",
+    "@types/express": "^4.17.21"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

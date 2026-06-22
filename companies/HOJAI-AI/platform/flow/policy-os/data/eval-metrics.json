@@ -1,0 +1,135 @@
+[
+  [
+    "__fail_closed__",
+    {
+      "policyId": "__fail_closed__",
+      "allows": 0,
+      "denies": 15,
+      "total": 15,
+      "byActor": {
+        "anonymous": 15
+      },
+      "byReason": {
+        "No matching policy found - fail-closed default": 15
+      },
+      "byDay": {
+        "2026-06-21": 15
+      },
+      "lastEvaluatedAt": "2026-06-21T19:42:24.143Z"
+    }
+  ],
+  [
+    "pol-cacf3b11",
+    {
+      "policyId": "pol-cacf3b11",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'pol-cacf3b11' is not yet effective (effective from 3025-01-01T00:00:00.000Z)": 1
+      },
+      "byDay": {
+        "2026-06-21": 1
+      },
+      "lastEvaluatedAt": "2026-06-21T19:33:36.848Z"
+    }
+  ],
+  [
+    "pol-00e3b437",
+    {
+      "policyId": "pol-00e3b437",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'pol-00e3b437' has expired (effective until 2020-01-01T00:00:00.000Z)": 1
+      },
+      "byDay": {
+        "2026-06-21": 1
+      },
+      "lastEvaluatedAt": "2026-06-21T19:33:37.028Z"
+    }
+  ],
+  [
+    "pol-92811678",
+    {
+      "policyId": "pol-92811678",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'pol-92811678' is not yet effective (effective from 3025-01-01T00:00:00.000Z)": 1
+      },
+      "byDay": {
+        "2026-06-21": 1
+      },
+      "lastEvaluatedAt": "2026-06-21T19:34:16.421Z"
+    }
+  ],
+  [
+    "pol-8df0ae94",
+    {
+      "policyId": "pol-8df0ae94",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'pol-8df0ae94' has expired (effective until 2020-01-01T00:00:00.000Z)": 1
+      },
+      "byDay": {
+        "2026-06-21": 1
+      },
+      "lastEvaluatedAt": "2026-06-21T19:34:16.590Z"
+    }
+  ],
+  [
+    "pol-f2e304b3",
+    {
+      "policyId": "pol-f2e304b3",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'pol-f2e304b3' is not yet effective (effective from 3025-01-01T00:00:00.000Z)": 1
+      },
+      "byDay": {
+        "2026-06-21": 1
+      },
+      "lastEvaluatedAt": "2026-06-21T19:42:25.446Z"
+    }
+  ],
+  [
+    "pol-7c28da75",
+    {
+      "policyId": "pol-7c28da75",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'pol-7c28da75' has expired (effective until 2020-01-01T00:00:00.000Z)": 1
+      },
+      "byDay": {
+        "2026-06-21": 1
+      },
+      "lastEvaluatedAt": "2026-06-21T19:42:25.703Z"
+    }
+  ]
+]

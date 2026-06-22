@@ -1,0 +1,652 @@
+openapi: 3.0.3
+info:
+  title: RAZO Keyboard v2.0 API
+  description: Universal Keyboard Intelligence Gateway - Connect ALL HOJAI Products
+  version: 2.0.0
+  contact:
+    name: HOJAI AI
+    url: https://hojai.ai
+
+servers:
+  - url: http://localhost:4601
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Service health checks
+  - name: Session
+    description: Session management
+  - name: Predict
+    description: Predictive text engine
+  - name: Suggestions
+    description: Smart suggestions
+  - name: Actions
+    description: Keyboard actions
+  - name: Commands
+    description: Voice/Text commands
+  - name: Genie
+    description: Genie AI briefing
+  - name: Whisper
+    description: Speech processing
+  - name: Stats
+    description: User statistics
+  - name: Search
+    description: Search functionality
+  - name: Sync
+    description: Data synchronization
+  - name: Analytics
+    description: Event tracking
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Basic health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /health/detailed:
+    get:
+      tags:
+        - Health
+      summary: Detailed health check with all services status
+      responses:
+        '200':
+          description: Detailed health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  services:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        latency:
+                          type: number
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /session/init:
+    post:
+      tags:
+        - Session
+      summary: Initialize a new keyboard session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                deviceId:
+                  type: string
+                preferences:
+                  type: object
+      responses:
+        '200':
+          description: Session initialized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+                  token:
+                    type: string
+                  expiresAt:
+                    type: string
+                    format: date-time
+
+  /predict:
+    post:
+      tags:
+        - Predict
+      summary: Get predictive text for current input
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  description: Current input text
+                context:
+                  type: object
+                userId:
+                  type: string
+                sessionId:
+                  type: string
+      responses:
+        '200':
+          description: Predictions returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predictions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text:
+                          type: string
+                        confidence:
+                          type: number
+                        source:
+                          type: string
+                  model:
+                    type: string
+
+  /predict/batch:
+    post:
+      tags:
+        - Predict
+      summary: Batch predictive text for multiple inputs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - inputs
+              properties:
+                inputs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                      context:
+                        type: object
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Batch predictions returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predictions:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          text:
+                            type: string
+                          confidence:
+                            type: number
+
+  /suggestions:
+    post:
+      tags:
+        - Suggestions
+      summary: Get smart suggestions based on context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                type:
+                  type: string
+                  enum: [text, emoji, sticker, gif, action]
+                limit:
+                  type: integer
+                  default: 5
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Suggestions returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        content:
+                          type: string
+                        metadata:
+                          type: object
+                        score:
+                          type: number
+
+  /actions:
+    get:
+      tags:
+        - Actions
+      summary: List available keyboard actions
+      responses:
+        '200':
+          description: List of available actions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  actions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        icon:
+                          type: string
+
+  /actions/execute:
+    post:
+      tags:
+        - Actions
+      summary: Execute a keyboard action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+              properties:
+                action:
+                  type: string
+                params:
+                  type: object
+                userId:
+                  type: string
+                sessionId:
+                  type: string
+      responses:
+        '200':
+          description: Action executed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: object
+                  error:
+                    type: string
+
+  /commands:
+    get:
+      tags:
+        - Commands
+      summary: List available voice/text commands
+      responses:
+        '200':
+          description: List of available commands
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commands:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        syntax:
+                          type: string
+
+  /commands/execute:
+    post:
+      tags:
+        - Commands
+      summary: Execute a voice/text command
+      requestBody:
+        required: true
+        content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - command
+                properties:
+                  command:
+                    type: string
+                  params:
+                    type: object
+                  userId:
+                    type: string
+                  sessionId:
+                    type: string
+      responses:
+        '200':
+          description: Command executed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: object
+                  error:
+                    type: string
+
+  /genie/briefing:
+    post:
+      tags:
+        - Genie
+      summary: Get Genie AI briefing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                type:
+                  type: string
+                  enum: [daily, weekly, monthly, custom]
+                focus:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Genie briefing returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  briefing:
+                    type: object
+                    properties:
+                      summary:
+                        type: string
+                      insights:
+                        type: array
+                        items:
+                          type: object
+                      recommendations:
+                        type: array
+                        items:
+                          type: string
+                      generatedAt:
+                        type: string
+                        format: date-time
+
+  /whisper/process:
+    post:
+      tags:
+        - Whisper
+      summary: Process voice input
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: base64
+                  description: Base64 encoded audio data
+                language:
+                  type: string
+                  default: auto
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Transcription returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text:
+                    type: string
+                  confidence:
+                    type: number
+                  language:
+                    type: string
+                  alternatives:
+                    type: array
+                    items:
+                      type: string
+
+  /stats/{userId}:
+    get:
+      tags:
+        - Stats
+      summary: Get user keyboard statistics
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  totalKeystrokes:
+                    type: integer
+                  wordsPredicted:
+                    type: integer
+                  accuracy:
+                    type: number
+                  topWords:
+                    type: array
+                    items:
+                      type: string
+                  typingSpeed:
+                    type: number
+                  sessionsCount:
+                    type: integer
+                  lastActive:
+                    type: string
+                    format: date-time
+
+  /search:
+    post:
+      tags:
+        - Search
+      summary: Search across keyboard data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                filters:
+                  type: object
+                limit:
+                  type: integer
+                  default: 20
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+
+  /sync:
+    post:
+      tags:
+        - Sync
+      summary: Synchronize user data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+                lastSync:
+                  type: string
+                  format: date-time
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Sync completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  syncedAt:
+                    type: string
+                    format: date-time
+                  changes:
+                    type: array
+                    items:
+                      type: object
+
+  /analytics/track:
+    post:
+      tags:
+        - Analytics
+      summary: Track analytics event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - event
+              properties:
+                event:
+                  type: string
+                properties:
+                  type: object
+                userId:
+                  type: string
+                sessionId:
+                  type: string
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Event tracked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  eventId:
+                    type: string
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: integer
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time

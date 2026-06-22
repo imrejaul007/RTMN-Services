@@ -1,0 +1,22 @@
+# HOJAI AI - ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hojai-config
+  namespace: hojai
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+---
+# HOJAI AI - Secrets (create separately with actual values)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hojai-secrets
+  namespace: hojai
+type: Opaque
+stringData:
+  MONGODB_URI: "mongodb://admin:PASSWORD@hojai-mongodb:27017/hojai?authSource=admin"
+  REDIS_URL: "redis://:REDIS_PASSWORD@hojai-redis:6379"
+  JWT_SECRET: "your-super-secret-jwt-key"

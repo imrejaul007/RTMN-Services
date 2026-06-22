@@ -1,0 +1,12 @@
+{
+  "name": "@rez/readme",
+  "version": "1.0.0",
+  "description": "Standardized README template for REZ services",
+  "files": [
+    "README.md",
+    "README.example.ts"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

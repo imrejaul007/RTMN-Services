@@ -1,0 +1,27 @@
+{
+  "name": "@hojai/clients",
+  "version": "1.0.0",
+  "description": "HOJAI Shared Clients - RTNM Ecosystem Integration",
+  "main": "dist/clients/index.js",
+  "types": "dist/clients/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/clients/index.js",
+      "types": "./dist/clients/index.d.ts"
+    },
+    "./rabtul": "./dist/rabtul-client.js",
+    "./rez-identity": "./dist/rez-identity-client.js",
+    "./skillnet": "./dist/skillnet-client.js",
+    "./industry-ai": "./dist/industry-ai-client.js"
+  }
+}

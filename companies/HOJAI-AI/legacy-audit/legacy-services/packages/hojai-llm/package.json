@@ -1,0 +1,50 @@
+{
+  "name": "@hojai/llm",
+  "version": "1.0.0",
+  "description": "Hojai AI LLM Adapter - Claude/OpenAI integration for AI employees",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "openai": "^4.47.0",
+    "zod": "^3.22.4",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "axios": "^1.6.8"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.8",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "ts-node-dev": "^2.0.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "claude",
+    "openai",
+    "hojai",
+    "employee",
+    "agent"
+  ],
+  "author": "Hojai AI",
+  "license": "MIT"
+}

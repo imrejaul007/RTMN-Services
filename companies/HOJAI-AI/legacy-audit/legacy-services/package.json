@@ -1,0 +1,25 @@
+{
+  "name": "hojai-ai",
+  "version": "1.0.0",
+  "description": "Hojai AI - Commercial AI Infrastructure Platform",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@hojai/governance",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "clean": "rm -rf packages/*/dist packages/*/node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.17.0",
+    "form-data": "^4.0.6"
+  }
+}

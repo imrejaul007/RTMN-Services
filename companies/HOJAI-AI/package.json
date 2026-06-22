@@ -1,0 +1,22 @@
+{
+  "name": "hojai-ai",
+  "version": "2.0.0",
+  "description": "HOJAI AI — Unified AI/Agent/Twin/Memory platform (180+ services)",
+  "private": true,
+  "type": "commonjs",
+  "workspaces": [
+    "shared"
+  ],
+  "scripts": {
+    "audit:auth": "node scripts/audit-auth.mjs",
+    "audit:secrets": "node scripts/audit-secrets.mjs",
+    "test:persistent-map": "node shared/lib/persistent-map.test.js",
+    "phase1:verify": "node scripts/audit-auth.mjs && node scripts/audit-secrets.mjs && echo 'Phase 1 ✅ clean'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@rtmn/shared": "file:./shared"
+  }
+}

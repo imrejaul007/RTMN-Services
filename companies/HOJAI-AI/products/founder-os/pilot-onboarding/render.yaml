@@ -1,0 +1,82 @@
+# Render Blueprint - RTMN Pilot Onboarding Backend
+# Deploy to Render: https://render.com/blueprints
+
+services:
+  - type: web
+    name: rtmn-pilot-onboarding
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4399
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: RABTUL_AUTH_URL
+        value: https://api.rtmn.io/auth
+      - key: RABTUL_PAYMENT_URL
+        value: https://api.rtmn.io/payment
+      - key: RABTUL_API_KEY
+        sync: false
+      - key: CORPID_URL
+        value: https://api.rtmn.io/corpid
+      - key: CORPID_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: noreply@rtmn.io
+      - key: EMAIL_REPLY_TO
+        value: support@rtmn.io
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PUBLIC_URL
+        fromService:
+          type: web
+          name: rtmn-pilot-onboarding
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: MONGO_URI
+        sync: false
+      - key: RESTAURANT_OS_URL
+        value: https://api.rtmn.io/restaurant
+      - key: HEALTHCARE_OS_URL
+        value: https://api.rtmn.io/healthcare
+      - key: RETAIL_OS_URL
+        value: https://api.rtmn.io/retail
+      - key: HOTEL_OS_URL
+        value: https://api.rtmn.io/hotel
+      - key: LEGAL_OS_URL
+        value: https://api.rtmn.io/legal
+      - key: EDUCATION_OS_URL
+        value: https://api.rtmn.io/education
+      - key: REALESTATE_OS_URL
+        value: https://api.rtmn.io/realestate
+      - key: BOA_OS_URL
+        value: https://api.rtmn.io/boa
+      - key: SUTAR_GATEWAY_URL
+        value: https://api.rtmn.io/sutar
+      - key: INTENT_GRAPH_URL
+        value: https://api.rtmn.io/intent
+      - key: SIMULATION_ENGINE_URL
+        value: https://api.rtmn.io/simulation
+      - key: DISCOVERY_ENGINE_URL
+        value: https://api.rtmn.io/discovery
+      - key: ECONOMY_OS_URL
+        value: https://api.rtmn.io/economy
+      - key: TRUST_SCORER_URL
+        value: https://api.rtmn.io/trust
+      - key: NEGOTIATION_ENGINE_URL
+        value: https://api.rtmn.io/negotiation
+      - key: SLA_MONITOR_URL
+        value: https://api.rtmn.io/sla
+      - key: BREACH_DETECTOR_URL
+        value: https://api.rtmn.io/breach

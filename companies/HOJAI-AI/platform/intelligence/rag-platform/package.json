@@ -1,0 +1,15 @@
+{
+  "name": "rtmn-rag-platform",
+  "version": "1.0.0",
+  "description": "RTMN RAG Platform — retrieval-augmented generation framework. Chunks documents, embeds them via the shared vectorizer, stores in vector-db, retrieves top-k for a query, and augments prompts for the inference-gateway.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  }
+}

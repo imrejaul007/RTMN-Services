@@ -1,0 +1,31 @@
+{
+  "name": "@rtmn/trust-network",
+  "version": "1.0.0",
+  "description": "Trust Network (4149) — cross-platform reputation for humans, organizations, and content. Extends agent-reputation beyond agents to the full network.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "hojai",
+    "trust",
+    "reputation",
+    "network",
+    "human",
+    "org",
+    "content"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0",
+    "@rtmn/shared": "file:../../shared"
+  }
+}

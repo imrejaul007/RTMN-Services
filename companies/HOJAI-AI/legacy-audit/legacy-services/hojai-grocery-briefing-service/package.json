@@ -1,0 +1,20 @@
+{
+  "name": "hojai-grocery-briefing-service",
+  "version": "1.0.0",
+  "description": "Grocery Owner Briefing - FreshMart 8AM Story",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "node-cron": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

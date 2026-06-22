@@ -1,0 +1,96 @@
+[
+  [
+    "wh-1",
+    {
+      "id": "wh-1",
+      "name": "Main Distribution Center",
+      "code": "MDC-01",
+      "type": "distribution",
+      "address": {
+        "street": "123 Industrial Blvd",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94107",
+        "country": "USA"
+      },
+      "capacity": 50000,
+      "currentUtilization": 65,
+      "manager": "John Smith",
+      "contact": {
+        "phone": "555-0100",
+        "email": "mdc@company.com"
+      },
+      "status": "active",
+      "owner": "org-1",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "wh-2",
+    {
+      "id": "wh-2",
+      "name": "East Coast Warehouse",
+      "code": "ECW-01",
+      "type": "storage",
+      "address": {
+        "street": "456 Commerce Dr",
+        "city": "New York",
+        "state": "NY",
+        "zip": "10001",
+        "country": "USA"
+      },
+      "capacity": 30000,
+      "currentUtilization": 42,
+      "manager": "Sarah Johnson",
+      "contact": {
+        "phone": "555-0200",
+        "email": "ecw@company.com"
+      },
+      "status": "active",
+      "owner": "org-1",
+      "createdAt": "2024-02-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "wh-3",
+    {
+      "id": "wh-3",
+      "name": "West Coast Fulfillment",
+      "code": "WCF-01",
+      "type": "fulfillment",
+      "address": {
+        "street": "789 Logistics Way",
+        "city": "Los Angeles",
+        "state": "CA",
+        "zip": "90001",
+        "country": "USA"
+      },
+      "capacity": 25000,
+      "currentUtilization": 78,
+      "manager": "Mike Chen",
+      "contact": {
+        "phone": "555-0300",
+        "email": "wcf@company.com"
+      },
+      "status": "active",
+      "owner": "org-1",
+      "createdAt": "2024-03-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "wh-b4878a2a",
+    {
+      "id": "wh-b4878a2a",
+      "name": "P4 Warehouse",
+      "code": "P4-01",
+      "type": "distribution",
+      "address": {},
+      "capacity": 1000,
+      "currentUtilization": 0,
+      "contact": {},
+      "status": "active",
+      "owner": "RTMN-HQ",
+      "createdAt": "2026-06-22T00:09:32.213Z"
+    }
+  ]
+]

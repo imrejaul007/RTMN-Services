@@ -1,0 +1,59 @@
+{
+  "name": "@rtmn/shared",
+  "version": "1.1.0",
+  "description": "RTMN Shared Modules - Database, CRM, Auth, Utils",
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    "./lib/database": "./lib/database.js",
+    "./lib/crm": "./lib/crm.js",
+    "./lib/logger": "./lib/logger.js",
+    "./lib/errors": "./lib/errors.js",
+    "./lib/persistent-store": "./lib/persistent-store.js",
+    "./lib/persistent-map": "./lib/persistent-map.js",
+    "./lib/shutdown": "./lib/shutdown.js",
+    "./lib/governance-sdk": "./lib/governance-sdk.js",
+    "./lib/llm": "./lib/llm/index.js",
+    "./lib/llm/client": "./lib/llm/client.js",
+    "./lib/llm/structured": "./lib/llm/structured.js",
+    "./lib/llm/cost": "./lib/llm/cost.js",
+    "./lib/env": {
+      "import": "./lib/env.js",
+      "require": "./lib/env.cjs",
+      "default": "./lib/env.cjs"
+    },
+    "./auth": {
+      "import": "./auth/index.js",
+      "require": "./auth/index.cjs",
+      "default": "./auth/index.cjs"
+    },
+    "./auth/add-to-service": "./auth/add-to-service.js",
+    "./security": {
+      "import": "./security/index.js",
+      "require": "./security/index.cjs",
+      "default": "./security/index.cjs"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "mongoose": "^8.0.0",
+    "morgan": "^1.10.0",
+    "winston": "^3.11.0"
+  },
+  "keywords": [
+    "rtmn",
+    "shared",
+    "database",
+    "crm",
+    "logger",
+    "errors",
+    "persistent-store"
+  ]
+}

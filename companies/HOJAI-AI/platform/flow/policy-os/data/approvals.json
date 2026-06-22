@@ -1,0 +1,399 @@
+[
+  [
+    "apr-49db3db1",
+    {
+      "id": "apr-49db3db1",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "pending",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T13:22:16.713Z",
+          "actor": "u-customer"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T13:22:16.713Z",
+      "updatedAt": "2026-06-21T13:22:16.713Z"
+    }
+  ],
+  [
+    "apr-34e3bfef",
+    {
+      "id": "apr-34e3bfef",
+      "policyId": "pol-persist-1782049824-81822",
+      "requesterId": "u-admin",
+      "resource": "persist-persist-1782049824-81822",
+      "amount": 42,
+      "strategy": "single",
+      "status": "pending",
+      "requiredApprovers": [
+        "u-admin"
+      ],
+      "decisions": [],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T13:50:25.218Z",
+          "actor": "u-admin"
+        }
+      ],
+      "metadata": {
+        "test": "persistence"
+      },
+      "createdAt": "2026-06-21T13:50:25.218Z",
+      "updatedAt": "2026-06-21T13:50:25.218Z"
+    }
+  ],
+  [
+    "apr-273b71dc",
+    {
+      "id": "apr-273b71dc",
+      "policyId": "pol-persist-1782050077-82779",
+      "requesterId": "u-admin",
+      "resource": "persist-persist-1782050077-82779",
+      "amount": 42,
+      "strategy": "single",
+      "status": "pending",
+      "requiredApprovers": [
+        "u-admin"
+      ],
+      "decisions": [],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T13:54:38.020Z",
+          "actor": "u-admin"
+        }
+      ],
+      "metadata": {
+        "test": "persistence"
+      },
+      "createdAt": "2026-06-21T13:54:38.020Z",
+      "updatedAt": "2026-06-21T13:54:38.020Z"
+    }
+  ],
+  [
+    "apr-cd1e7686",
+    {
+      "id": "apr-cd1e7686",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "approved",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [
+        {
+          "approverId": "u-manager",
+          "decision": "approve",
+          "comment": "Looks reasonable",
+          "at": "2026-06-21T14:28:04.096Z"
+        },
+        {
+          "approverId": "u-admin",
+          "decision": "approve",
+          "comment": "Final approval",
+          "at": "2026-06-21T14:28:04.431Z"
+        }
+      ],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T14:28:03.220Z",
+          "actor": "u-customer"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:28:04.096Z",
+          "actor": "u-manager",
+          "comment": "Looks reasonable"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:28:04.431Z",
+          "actor": "u-admin",
+          "comment": "Final approval"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T14:28:03.220Z",
+      "updatedAt": "2026-06-21T14:28:04.431Z"
+    }
+  ],
+  [
+    "apr-8250b321",
+    {
+      "id": "apr-8250b321",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "approved",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [
+        {
+          "approverId": "u-manager",
+          "decision": "approve",
+          "comment": "Looks reasonable",
+          "at": "2026-06-21T14:28:32.888Z"
+        },
+        {
+          "approverId": "u-admin",
+          "decision": "approve",
+          "comment": "Final approval",
+          "at": "2026-06-21T14:28:33.026Z"
+        }
+      ],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T14:28:32.427Z",
+          "actor": "u-customer"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:28:32.888Z",
+          "actor": "u-manager",
+          "comment": "Looks reasonable"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:28:33.026Z",
+          "actor": "u-admin",
+          "comment": "Final approval"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T14:28:32.427Z",
+      "updatedAt": "2026-06-21T14:28:33.026Z"
+    }
+  ],
+  [
+    "apr-9a563788",
+    {
+      "id": "apr-9a563788",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "pending",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T14:29:14.348Z",
+          "actor": "u-customer"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T14:29:14.348Z",
+      "updatedAt": "2026-06-21T14:29:14.348Z"
+    }
+  ],
+  [
+    "apr-122ff001",
+    {
+      "id": "apr-122ff001",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "approved",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [
+        {
+          "approverId": "u-manager",
+          "decision": "approve",
+          "comment": "Looks reasonable",
+          "at": "2026-06-21T14:38:47.640Z"
+        },
+        {
+          "approverId": "u-admin",
+          "decision": "approve",
+          "comment": "Final approval",
+          "at": "2026-06-21T14:38:47.688Z"
+        }
+      ],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T14:38:47.525Z",
+          "actor": "u-customer"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:38:47.640Z",
+          "actor": "u-manager",
+          "comment": "Looks reasonable"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:38:47.688Z",
+          "actor": "u-admin",
+          "comment": "Final approval"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T14:38:47.525Z",
+      "updatedAt": "2026-06-21T14:38:47.688Z"
+    }
+  ],
+  [
+    "apr-bc3672a3",
+    {
+      "id": "apr-bc3672a3",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "approved",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [
+        {
+          "approverId": "u-manager",
+          "decision": "approve",
+          "comment": "Looks reasonable",
+          "at": "2026-06-21T14:39:52.650Z"
+        },
+        {
+          "approverId": "u-admin",
+          "decision": "approve",
+          "comment": "Final approval",
+          "at": "2026-06-21T14:39:52.699Z"
+        }
+      ],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T14:39:52.531Z",
+          "actor": "u-customer"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:39:52.650Z",
+          "actor": "u-manager",
+          "comment": "Looks reasonable"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:39:52.699Z",
+          "actor": "u-admin",
+          "comment": "Final approval"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T14:39:52.531Z",
+      "updatedAt": "2026-06-21T14:39:52.699Z"
+    }
+  ],
+  [
+    "apr-68c0e211",
+    {
+      "id": "apr-68c0e211",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "approved",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [
+        {
+          "approverId": "u-manager",
+          "decision": "approve",
+          "comment": "Looks reasonable",
+          "at": "2026-06-21T14:41:05.191Z"
+        },
+        {
+          "approverId": "u-admin",
+          "decision": "approve",
+          "comment": "Final approval",
+          "at": "2026-06-21T14:41:05.239Z"
+        }
+      ],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T14:41:05.073Z",
+          "actor": "u-customer"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:41:05.191Z",
+          "actor": "u-manager",
+          "comment": "Looks reasonable"
+        },
+        {
+          "event": "decision:approve",
+          "at": "2026-06-21T14:41:05.239Z",
+          "actor": "u-admin",
+          "comment": "Final approval"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T14:41:05.073Z",
+      "updatedAt": "2026-06-21T14:41:05.239Z"
+    }
+  ],
+  [
+    "apr-16ed2aa9",
+    {
+      "id": "apr-16ed2aa9",
+      "policyId": "pol-e2e-test",
+      "requesterId": "u-customer",
+      "resource": "purchase-12345",
+      "amount": 5000,
+      "strategy": "sequential",
+      "status": "pending",
+      "requiredApprovers": [
+        "u-manager",
+        "u-admin"
+      ],
+      "decisions": [],
+      "timeline": [
+        {
+          "event": "created",
+          "at": "2026-06-21T14:41:44.249Z",
+          "actor": "u-customer"
+        }
+      ],
+      "metadata": {},
+      "createdAt": "2026-06-21T14:41:44.249Z",
+      "updatedAt": "2026-06-21T14:41:44.249Z"
+    }
+  ]
+]

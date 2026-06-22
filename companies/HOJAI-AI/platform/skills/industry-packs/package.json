@@ -1,0 +1,22 @@
+{
+  "name": "@rtmn/industry-packs",
+  "version": "1.0.0",
+  "description": "Industry Packs (4148) — vertical bundles combining Industry OS + AI Agents + Workflows + Twins + Integrations into one purchasable bundle.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hojai", "marketplace", "industry-pack", "bundle", "listings", "reviews"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

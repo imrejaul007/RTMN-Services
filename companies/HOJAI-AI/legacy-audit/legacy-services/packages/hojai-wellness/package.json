@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/wellness",
+  "version": "1.0.0",
+  "description": "Hojai AI - Emotional Wellness Module for Human Context Graph",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

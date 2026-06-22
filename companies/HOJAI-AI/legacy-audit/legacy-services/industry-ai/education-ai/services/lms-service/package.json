@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/education-lms-service",
+  "version": "1.0.0",
+  "description": "Learning management system",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

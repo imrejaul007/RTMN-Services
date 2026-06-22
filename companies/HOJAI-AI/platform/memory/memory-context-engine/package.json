@@ -1,0 +1,21 @@
+{
+  "name": "@hojai/memory-context-engine",
+  "version": "1.0.0",
+  "description": "Memory Context Engine (port 4790) — composes a relevant context window for any AI agent by combining search, recency, confidence, twin-bindings, and working-memory tokens. The bridge between MemoryOS (storage) and any LLM/agent that needs to remember.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hojai", "memory", "context", "rag", "retrieval"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0"
+  }
+}

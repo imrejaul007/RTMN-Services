@@ -1,0 +1,82 @@
+[
+  [
+    "admin",
+    {
+      "name": "admin",
+      "description": "Full system administrator",
+      "permissions": [
+        "*"
+      ],
+      "scope": "global",
+      "createdAt": "2026-06-21T13:19:13.183Z"
+    }
+  ],
+  [
+    "manager",
+    {
+      "name": "manager",
+      "description": "Department/team manager",
+      "permissions": [
+        "policies:read",
+        "policies:write",
+        "approvals:decide",
+        "roles:assign",
+        "audit:read"
+      ],
+      "scope": "department",
+      "createdAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "customer",
+    {
+      "name": "customer",
+      "description": "End user / customer",
+      "permissions": [
+        "policies:read:own",
+        "approvals:request"
+      ],
+      "scope": "self",
+      "createdAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "role-persist-1782049684-79477",
+    {
+      "name": "role-persist-1782049684-79477",
+      "description": "Persist test role",
+      "permissions": [
+        "policy:read",
+        "policy:evaluate"
+      ],
+      "scope": "self",
+      "createdAt": "2026-06-21T13:48:05.348Z"
+    }
+  ],
+  [
+    "role-persist-1782049824-81822",
+    {
+      "name": "role-persist-1782049824-81822",
+      "description": "Persist test role",
+      "permissions": [
+        "policy:read",
+        "policy:evaluate"
+      ],
+      "scope": "self",
+      "createdAt": "2026-06-21T13:50:25.074Z"
+    }
+  ],
+  [
+    "role-persist-1782050077-82779",
+    {
+      "name": "role-persist-1782050077-82779",
+      "description": "Persist test role",
+      "permissions": [
+        "policy:read",
+        "policy:evaluate"
+      ],
+      "scope": "self",
+      "createdAt": "2026-06-21T13:54:37.769Z"
+    }
+  ]
+]

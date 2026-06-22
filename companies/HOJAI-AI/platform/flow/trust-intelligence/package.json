@@ -1,0 +1,31 @@
+{
+  "name": "@rtmn/trust-intelligence",
+  "version": "1.0.0",
+  "description": "Trust Intelligence Service - AI agent trust scoring, risk propagation, and confidence analytics",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "bash tests/smoke.sh && bash tests/e2e.sh"
+  },
+  "keywords": [
+    "rtmn",
+    "trust",
+    "intelligence",
+    "agent",
+    "risk",
+    "confidence",
+    "reputation"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.0.0",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  }
+}

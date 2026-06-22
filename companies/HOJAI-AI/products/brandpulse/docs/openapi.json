@@ -1,0 +1,706 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "HOJAI BrandPulse API",
+    "description": "Brand intelligence and sentiment analysis API for the RTNM ecosystem",
+    "version": "1.0.0",
+    "contact": {
+      "name": "HOJAI AI",
+      "url": "https://hojai.ai"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4770",
+      "description": "Local development"
+    },
+    {
+      "url": "https://api.brandpulse.hojai.ai",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "healthy" },
+                    "service": { "type": "string", "example": "brandpulse" },
+                    "version": { "type": "string", "example": "1.0.0" },
+                    "mongodb": { "type": "string" },
+                    "uptime": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/brands": {
+      "post": {
+        "summary": "Create a new brand",
+        "tags": ["Brands"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBrand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Brand created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Brand"
+                }
+              }
+            }
+          },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Brand already exists" }
+        }
+      }
+    },
+    "/api/v1/brands/{brandId}": {
+      "get": {
+        "summary": "Get brand by ID",
+        "tags": ["Brands"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          {
+            "name": "brandId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Brand found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Brand"
+                }
+              }
+            }
+          },
+          "404": { "description": "Brand not found" }
+        }
+      },
+      "patch": {
+        "summary": "Update brand",
+        "tags": ["Brands"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "brandId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBrand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Brand updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Brand"
+                }
+              }
+            }
+          },
+          "404": { "description": "Brand not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete brand (soft delete)",
+        "tags": ["Brands"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "brandId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Brand deactivated" },
+          "404": { "description": "Brand not found" }
+        }
+      }
+    },
+    "/api/v1/reviews": {
+      "post": {
+        "summary": "Create a new review",
+        "tags": ["Reviews"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReview"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/v1/reviews/bulk": {
+      "post": {
+        "summary": "Bulk import reviews",
+        "tags": ["Reviews"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reviews": {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/CreateReview" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reviews imported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "imported": { "type": "number" },
+                    "failed": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/brand/{brandId}": {
+      "get": {
+        "summary": "Get reviews for a brand",
+        "tags": ["Reviews"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "brandId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "number", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "number", "default": 20 } },
+          { "name": "source", "in": "query", "schema": { "type": "string", "enum": ["google", "yelp", "tripadvisor", "facebook", "direct", "internal"] } },
+          { "name": "sentiment", "in": "query", "schema": { "type": "string", "enum": ["positive", "neutral", "negative"] } },
+          { "name": "sortBy", "in": "query", "schema": { "type": "string", "enum": ["publishedAt", "rating", "sentiment"], "default": "publishedAt" } },
+          { "name": "sortOrder", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"], "default": "desc" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Review" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/{reviewId}/moderate": {
+      "patch": {
+        "summary": "Moderate a review",
+        "tags": ["Reviews"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "reviewId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status", "moderatorId"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["approved", "rejected", "flagged"] },
+                  "moderatorId": { "type": "string" },
+                  "flagReason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review moderated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Review" }
+              }
+            }
+          },
+          "404": { "description": "Review not found" }
+        }
+      }
+    },
+    "/api/v1/analytics/brand/{brandId}/overview": {
+      "get": {
+        "summary": "Get brand overview",
+        "tags": ["Analytics"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "brandId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Brand overview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "brand": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "slug": { "type": "string" }
+                      }
+                    },
+                    "stats": { "$ref": "#/components/schemas/BrandStats" },
+                    "trends": {
+                      "type": "object",
+                      "properties": {
+                        "ratingTrend": { "type": "string" },
+                        "sentimentTrend": { "type": "string" },
+                        "volumeTrend": { "type": "string" }
+                      }
+                    },
+                    "alerts": {
+                      "type": "object",
+                      "properties": {
+                        "active": { "type": "number" },
+                        "critical": { "type": "number" },
+                        "high": { "type": "number" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Brand not found" }
+        }
+      }
+    },
+    "/api/v1/analytics/brand/{brandId}/sentiment": {
+      "get": {
+        "summary": "Get sentiment trend",
+        "tags": ["Analytics"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "brandId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "period", "in": "query", "schema": { "type": "string", "enum": ["day", "week", "month"], "default": "day" } },
+          { "name": "days", "in": "query", "schema": { "type": "number", "default": 30 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sentiment trend data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "period": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": { "type": "string" },
+                          "value": { "type": "number" }
+                        }
+                      }
+                    },
+                    "overall": {
+                      "type": "object",
+                      "properties": {
+                        "current": { "type": "number" },
+                        "previous": { "type": "number" },
+                        "change": { "type": "number" },
+                        "percentChange": { "type": "number" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/brand/{brandId}/ratings": {
+      "get": {
+        "summary": "Get rating distribution",
+        "tags": ["Analytics"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "brandId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rating distribution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "distribution": {
+                      "type": "object",
+                      "additionalProperties": { "type": "number" },
+                      "example": { "1": 5, "2": 10, "3": 25, "4": 80, "5": 120 }
+                    },
+                    "average": { "type": "number" },
+                    "median": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/brand/{brandId}/aspects": {
+      "get": {
+        "summary": "Get aspect analysis",
+        "tags": ["Analytics"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "brandId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aspect analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "aspects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": { "type": "string" },
+                          "mentions": { "type": "number" },
+                          "score": { "type": "number" },
+                          "trend": { "type": "string" }
+                        }
+                      }
+                    },
+                    "overall": {
+                      "type": "object",
+                      "properties": {
+                        "score": { "type": "number" },
+                        "label": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentiment/analyze": {
+      "post": {
+        "summary": "Analyze text sentiment",
+        "tags": ["Sentiment"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                  "text": { "type": "string", "description": "Text to analyze" },
+                  "useAI": { "type": "boolean", "default": false, "description": "Use OpenAI for analysis" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sentiment analysis result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "score": { "type": "number", "description": "-1 to 1 sentiment score" },
+                    "label": { "type": "string", "enum": ["positive", "neutral", "negative"] },
+                    "confidence": { "type": "number", "description": "0 to 1 confidence" },
+                    "aspects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": { "type": "string" },
+                          "score": { "type": "number" },
+                          "mentions": { "type": "number" }
+                        }
+                      }
+                    },
+                    "keywords": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sentiment/analyze/batch": {
+      "post": {
+        "summary": "Batch analyze multiple texts",
+        "tags": ["Sentiment"],
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["texts"],
+                "properties": {
+                  "texts": { "type": "array", "items": { "type": "string" }, "maxItems": 100 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch analysis results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "score": { "type": "number" },
+                      "label": { "type": "string" },
+                      "confidence": { "type": "number" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhook/rtnm/reviews": {
+      "post": {
+        "summary": "RTNM webhook for receiving reviews",
+        "description": "Webhook endpoint for RTNM to send reviews for processing",
+        "tags": ["Webhooks"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "review": { "$ref": "#/components/schemas/CreateReview" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Review created" },
+          "400": { "description": "Invalid payload" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      },
+      "InternalToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Internal-Token"
+      }
+    },
+    "schemas": {
+      "Brand": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "brandId": { "type": "string" },
+          "tenantId": { "type": "string" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "logo": { "type": "string" },
+          "industry": { "type": "string" },
+          "stats": { "$ref": "#/components/schemas/BrandStats" },
+          "isActive": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "BrandStats": {
+        "type": "object",
+        "properties": {
+          "totalReviews": { "type": "number" },
+          "averageRating": { "type": "number" },
+          "sentimentScore": { "type": "number" },
+          "positivePercent": { "type": "number" },
+          "neutralPercent": { "type": "number" },
+          "negativePercent": { "type": "number" },
+          "lastUpdated": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateBrand": {
+        "type": "object",
+        "required": ["brandId", "tenantId", "name", "slug"],
+        "properties": {
+          "brandId": { "type": "string" },
+          "tenantId": { "type": "string" },
+          "name": { "type": "string", "maxLength": 200 },
+          "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "logo": { "type": "string", "format": "uri" },
+          "website": { "type": "string", "format": "uri" },
+          "industry": { "type": "string" }
+        }
+      },
+      "UpdateBrand": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "logo": { "type": "string" },
+          "industry": { "type": "string" },
+          "contactEmail": { "type": "string", "format": "email" }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "reviewId": { "type": "string" },
+          "brandId": { "type": "string" },
+          "source": { "type": "string", "enum": ["google", "yelp", "tripadvisor", "facebook", "direct", "internal"] },
+          "content": { "type": "string" },
+          "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+          "title": { "type": "string" },
+          "author": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "avatar": { "type": "string" },
+              "isVerified": { "type": "boolean" }
+            }
+          },
+          "sentiment": {
+            "type": "object",
+            "properties": {
+              "score": { "type": "number" },
+              "label": { "type": "string" },
+              "confidence": { "type": "number" }
+            }
+          },
+          "publishedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateReview": {
+        "type": "object",
+        "required": ["brandId", "tenantId", "source", "content", "rating", "author"],
+        "properties": {
+          "brandId": { "type": "string" },
+          "tenantId": { "type": "string" },
+          "source": { "type": "string", "enum": ["google", "yelp", "tripadvisor", "facebook", "direct", "internal"] },
+          "content": { "type": "string", "maxLength": 5000 },
+          "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+          "title": { "type": "string", "maxLength": 200 },
+          "author": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "avatar": { "type": "string" },
+              "isVerified": { "type": "boolean" }
+            }
+          },
+          "publishedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "number" },
+          "limit": { "type": "number" },
+          "total": { "type": "number" },
+          "pages": { "type": "number" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "System", "description": "System endpoints" },
+    { "name": "Brands", "description": "Brand management" },
+    { "name": "Reviews", "description": "Review management" },
+    { "name": "Analytics", "description": "Analytics and insights" },
+    { "name": "Sentiment", "description": "Sentiment analysis" },
+    { "name": "Webhooks", "description": "Webhook endpoints" }
+  ]
+}

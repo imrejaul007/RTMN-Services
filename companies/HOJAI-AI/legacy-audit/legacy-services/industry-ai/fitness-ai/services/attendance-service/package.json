@@ -1,0 +1,14 @@
+{
+  "name": "@hojai/gym-attendance-service",
+  "version": "1.0.0",
+  "description": "Gym attendance tracking service",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@hojai/healthcare-vertical-intelligence",
+  "version": "1.0.0",
+  "description": "Healthcare Vertical Intelligence (port 4160) — generic vertical templates for healthcare clients (HIPAA consent gate, FHIR resource mapper, triage routing, patient journey tracking, clinical protocol lookup). Consumed by RisaCare and any future healthcare client.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "hojai",
+    "healthcare",
+    "vertical",
+    "hipaa",
+    "fhir",
+    "clinical",
+    "templates",
+    "intelligence"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

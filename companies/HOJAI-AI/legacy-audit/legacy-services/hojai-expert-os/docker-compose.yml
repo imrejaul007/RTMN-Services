@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  hojai-expert-os:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${HOJAI_EXPERT_OS_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=${MONGODB_URI:?MONGODB_URI is required}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      - HOJAI_EXPERT_OS_API_KEY=${HOJAI_EXPERT_OS_API_KEY:?HOJAI_EXPERT_OS_API_KEY is required}
+      - CORS_ORIGIN=${CORS_ORIGIN:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hojai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  mongodb:
+    image: mongo:6-alpine
+    ports:
+      - "27017:27017"
+    networks:
+      - hojai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command: mongod --bind_ip_all --replSet rs0 --keyFile /data/db/.mongodb_key
+    volumes:
+      - ./mongodb_key:/data/db/.mongodb_key:ro
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hojai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_password_change_me} --appendonly yes
+
+networks:
+  hojai:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:

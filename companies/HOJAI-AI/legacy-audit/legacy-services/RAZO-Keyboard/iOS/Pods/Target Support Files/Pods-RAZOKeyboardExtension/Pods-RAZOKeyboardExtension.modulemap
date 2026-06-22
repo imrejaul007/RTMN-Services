@@ -1,0 +1,6 @@
+framework module Pods_RAZOKeyboardExtension {
+  umbrella header "Pods-RAZOKeyboardExtension-umbrella.h"
+
+  export *
+  module * { export * }
+}

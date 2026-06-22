@@ -1,0 +1,212 @@
+# Default values for hojai-skillnet
+# This file is the source of truth for Helm chart configuration
+
+# Global settings
+image:
+  repository: ghcr.io/hojai-ai/hojai-skillnet
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Service configuration
+service:
+  type: ClusterIP
+  httpPort: 4530
+  grpcPort: 4531
+  wsPort: 4532
+  annotations: {}
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: api.hojai.ai
+      paths:
+        - path: /
+          pathType: Prefix
+          service: http
+    - host: ws.hojai.ai
+      paths:
+        - path: /ws
+          pathType: Exact
+          service: ws
+  tls:
+    - secretName: hojai-skillnet-tls
+      hosts:
+        - api.hojai.ai
+        - ws.hojai.ai
+
+# Deployment configuration
+replicaCount: 3
+
+# Pod configuration
+pod:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "4530"
+    prometheus.io/path: "/metrics"
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  tolerations: []
+  nodeSelector: {}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - hojai-skillnet
+            topologyKey: kubernetes.io/hostname
+
+# Container configuration
+container:
+  env:
+    NODE_ENV: production
+    PORT: "4530"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  startupProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 3
+    periodSeconds: 5
+    failureThreshold: 30
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Service Account
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Secrets (managed externally)
+secrets:
+  create: false  # Set to true only for development
+  mongodbUri: ""
+  jwtSecret: ""
+
+# ConfigMap
+config:
+  corsOrigins: "https://app.hojai.ai,https://admin.hojai.ai"
+  otelEnabled: "false"
+  otlpEndpoint: "http://otel-collector.observability:4318"
+
+# ServiceMonitor for Prometheus
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+  port: http
+  scrapeTimeout: 10s
+
+# PodMonitor for Prometheus
+podMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+  scrapeTimeout: 10s
+
+# Network Policy
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: mongo
+      ports:
+        - port: 27017
+
+# Metrics
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+
+# Tracing
+tracing:
+  enabled: false
+  endpoint: "http://otel-collector.observability:4318"
+
+# Persistence (not needed for stateless service)
+persistence:
+  enabled: false
+
+# Extra volumes
+extraVolumes: []
+# - name: extra
+#   emptyDir: {}
+
+# Extra volume mounts
+extraVolumeMounts: []
+# - name: extra
+#   mountPath: /extra
+
+# Init containers
+initContainers: []
+
+# Sidecar containers
+sidecars: []
+
+# Priority class
+priorityClassName: ""
+
+# DNS configuration
+dnsConfig:
+  nameservers: []
+  searches: []
+  options: []

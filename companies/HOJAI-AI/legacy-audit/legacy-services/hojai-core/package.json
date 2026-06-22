@@ -1,0 +1,20 @@
+{
+  "name": "@hojai/core",
+  "version": "1.0.0",
+  "description": "Hojai AI Core Platform",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "../hojai-ai/packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:watch": "npm run build:watch --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "clean": "rm -rf packages/*/dist node_modules packages/*/node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,32 @@
+[
+  [
+    "adj-1",
+    {
+      "id": "adj-1",
+      "inventoryId": "inv-1",
+      "adjustmentType": "reduction",
+      "quantity": 5,
+      "reason": "damaged",
+      "notes": "Units damaged during handling",
+      "adjustedBy": "user-1",
+      "adjustedAt": "2024-05-20T00:00:00.000Z",
+      "owner": "org-1",
+      "createdAt": "2024-05-20T00:00:00.000Z"
+    }
+  ],
+  [
+    "adj-2",
+    {
+      "id": "adj-2",
+      "inventoryId": "inv-3",
+      "adjustmentType": "addition",
+      "quantity": 50,
+      "reason": "count_correction",
+      "notes": "Physical count reconciliation",
+      "adjustedBy": "user-2",
+      "adjustedAt": "2024-06-01T00:00:00.000Z",
+      "owner": "org-1",
+      "createdAt": "2024-06-01T00:00:00.000Z"
+    }
+  ]
+]

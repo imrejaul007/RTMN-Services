@@ -1,0 +1,15 @@
+{
+  "name": "rtmn-micro-intelligence",
+  "version": "1.0.0",
+  "description": "HOJAI Micro Intelligence — cross-cutting circuit-breaker pattern + per-app AI fallback layer so products keep running when central HOJAI Intelligence is down",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  }
+}

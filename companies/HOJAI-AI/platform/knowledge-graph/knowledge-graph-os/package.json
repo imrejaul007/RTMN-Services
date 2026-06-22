@@ -1,0 +1,28 @@
+{
+  "name": "@rtmn/knowledge-graph-os",
+  "version": "1.0.0",
+  "description": "KnowledgeGraphOS - Graph Database for RTMN Ecosystem",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "knowledge-graph",
+    "graph",
+    "neo4j",
+    "knowledge-base"
+  ],
+  "author": "RTMN",
+  "license": "MIT",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}

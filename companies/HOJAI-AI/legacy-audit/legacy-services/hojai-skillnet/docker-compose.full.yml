@@ -1,0 +1,138 @@
+version: '3.8'
+
+# HOJAI SkillNet - Full Stack Deployment
+# Version: 1.1.0
+
+services:
+  # ============================================
+  # HOJAI SkillNet - Combined Service
+  # ============================================
+  hojai-skillnet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4530:4530"
+    environment:
+      - NODE_ENV=production
+      - PORT=4530
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-skillnet
+      - JWT_SECRET=${JWT_SECRET:-hojai-dev-secret-change-in-production-32chars}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,https://app.hojai.ai}
+      - REDIS_URL=redis://redis:6379
+      - OTEL_ENABLED=false
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4530/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.hojai.service=skillnet"
+      - "com.hojai.version=1.1.0"
+
+  # ============================================
+  # Databases
+  # ============================================
+  mongodb:
+    image: mongo:7-alpine
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    labels:
+      - "com.hojai.service=mongodb"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    labels:
+      - "com.hojai.service=redis"
+
+  # ============================================
+  # Monitoring Stack
+  # ============================================
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts/prometheus-alerts.yaml:/etc/prometheus/alerts/hojai-alerts.yaml
+      - prometheus_data:/prometheus
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    labels:
+      - "com.hojai.service=prometheus"
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - hojai-network
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    labels:
+      - "com.hojai.service=grafana"
+
+  # ============================================
+  # Jaeger Distributed Tracing (Optional)
+  # ============================================
+  jaeger:
+    image: jaegertracing/all-in-one:1.48
+    ports:
+      - "16686:16686"  # UI
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    profiles:
+      - tracing
+    labels:
+      - "com.hojai.service=jaeger"
+
+networks:
+  hojai-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:

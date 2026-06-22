@@ -1,0 +1,14 @@
+{
+  "name": "@hojai/gym-membership-plan-service",
+  "version": "1.0.0",
+  "description": "Gym membership plans and pricing service",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

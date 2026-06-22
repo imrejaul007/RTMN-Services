@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HOJAI - AI Super-App</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #0a0a0f; --surface: #14141f; --surface-2: #1c1c2b; --primary: #6366f1; --primary-hover: #4f46e5; --accent: #f59e0b; --success: #22c55e; --danger: #ef4444; --text: #ffffff; --text-muted: #94a3b8; --border: #2a2a3a; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: var(--primary); text-decoration: none; }
+  button { cursor: pointer; font-family: inherit; }
+  input, textarea, select { font-family: inherit; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); padding: 10px 14px; border-radius: 8px; width: 100%; }
+  input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+  .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; transition: background 0.2s; }
+  .btn:hover { background: var(--primary-hover); }
+  .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface); }
+  .btn-success { background: var(--success); }
+  .btn-danger { background: var(--danger); }
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav { display: flex; gap: 4px; }
+  .nav button { background: transparent; color: var(--text-muted); border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; }
+  .nav button:hover { background: var(--surface-2); color: var(--text); }
+  .nav button.active { background: var(--primary); color: white; }
+  .hero { padding: 80px 0; text-align: center; }
+  .hero h1 { font-size: 64px; font-weight: 800; margin-bottom: 16px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { font-size: 20px; color: var(--text-muted); max-width: 700px; margin: 0 auto 32px; }
+  .hero .cta-row { display: flex; gap: 12px; justify-content: center; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 48px 0; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
+  .stat-value { font-size: 32px; font-weight: 800; color: var(--primary); }
+  .stat-label { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+  .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 32px 0; }
+  .product-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: transform 0.2s, border-color 0.2s; }
+  .product-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+  .product-icon { width: 56px; height: 56px; border-radius: 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px; }
+  .product-card h3 { font-size: 22px; margin-bottom: 8px; }
+  .product-card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+  .card-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .badge-primary { background: var(--primary); color: white; }
+  .badge-success { background: var(--success); color: white; }
+  .badge-warning { background: var(--accent); color: white; }
+  .badge-muted { background: var(--surface-2); color: var(--text-muted); }
+  .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .list-item:last-child { border-bottom: none; }
+  .chat-box { background: var(--surface); border-radius: 16px; padding: 24px; margin: 24px 0; border: 1px solid var(--border); }
+  .chat-messages { max-height: 500px; overflow-y: auto; margin-bottom: 16px; }
+  .chat-msg { padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; max-width: 80%; }
+  .chat-msg.user { background: var(--primary); color: white; margin-left: auto; }
+  .chat-msg.genie { background: var(--surface-2); color: var(--text); }
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input-row input { flex: 1; }
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+  .modal.show { display: flex; }
+  .modal-content { background: var(--surface); border-radius: 16px; padding: 32px; max-width: 480px; width: 90%; border: 1px solid var(--border); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+  .hidden { display: none; }
+  .empty-state { text-align: center; padding: 48px; color: var(--text-muted); }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--text-muted); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .price { font-size: 20px; font-weight: 800; color: var(--accent); }
+  .stars { color: var(--accent); }
+  .footer { text-align: center; padding: 48px 0; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 80px; }
+  .quick-action { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; text-align: left; cursor: pointer; color: var(--text); width: 100%; }
+  .quick-action:hover { border-color: var(--primary); }
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .pill { padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 16px; font-size: 13px; cursor: pointer; }
+  .pill.active { background: var(--primary); border-color: var(--primary); }
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <div class="logo">⚡ HOJAI</div>
+    <nav class="nav" id="mainNav">
+      <button class="active" data-tab="home">Home</button>
+      <button data-tab="do">DO</button>
+      <button data-tab="nexha">Nexha</button>
+      <button data-tab="salar">Salar</button>
+      <button data-tab="genie">Genie</button>
+    </nav>
+    <div>
+      <button class="btn btn-secondary" id="loginBtn" onclick="showAuth()">Sign in</button>
+      <button class="btn hidden" id="logoutBtn" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="main">
+  <!-- HOME -->
+  <section id="home-tab" class="tab-content">
+    <div class="hero">
+      <h1>The Agent Economy</h1>
+      <p>One platform connecting consumers, businesses, and AI agents. Built on HOJAI — the foundation for autonomous commerce.</p>
+      <div class="cta-row">
+        <button class="btn" onclick="showAuth('signup')">Get started free</button>
+        <button class="btn btn-secondary" onclick="switchTab('do')">Try DO →</button>
+      </div>
+    </div>
+
+    <div class="stats" id="statsGrid">
+      <div class="stat-card"><div class="stat-value" id="stat-users">—</div><div class="stat-label">Active Users</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-merchants">—</div><div class="stat-label">Merchants</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-listings">—</div><div class="stat-label">AI Listings</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-services">—</div><div class="stat-label">Live Services</div></div>
+    </div>
+
+    <h2 style="margin: 32px 0 16px; font-size: 28px;">Three Products. One Ecosystem.</h2>
+    <div class="product-grid">
+      <div class="product-card" onclick="switchTab('do')" style="cursor:pointer">
+        <div class="product-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6)">🛍️</div>
+        <h3>DO</h3>
+        <p>Consumer commerce where AI does the shopping. Your Genie finds deals, negotiates prices, manages subscriptions, and earns you rewards.</p>
+      </div>
+      <div class="product-card" onclick="switchTab('nexha')" style="cursor:pointer">
+        <div class="product-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444)">🏭</div>
+        <h3>Nexha</h3>
+        <p>B2B commerce network. Companies post RFQs, suppliers bid, and Sutar agents negotiate on your behalf. Built for the supply chain.</p>
+      </div>
+      <div class="product-card" onclick="switchTab('salar')" style="cursor:pointer">
+        <div class="product-icon" style="background: linear-gradient(135deg, #22c55e, #06b6d4)">🏪</div>
+        <h3>Salar</h3>
+        <p>The AI marketplace. Discover, buy, and sell AI agents, skills, twins, and workflows. The App Store for autonomous agents.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DO (Consumer) -->
+  <section id="do-tab" class="tab-content hidden">
+    <h2 style="margin: 24px 0; font-size: 32px;">🛍️ DO — Consumer Commerce</h2>
+    <div class="card">
+      <div class="card-title">💰 Wallet</div>
+      <div id="walletInfo"><div class="spinner"></div> Loading...</div>
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button class="btn btn-secondary" onclick="walletTopup(100)">+ $100</button>
+        <button class="btn btn-secondary" onclick="walletTopup(500)">+ $500</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🤖 Your Genie Agent</div>
+      <p style="color: var(--text-muted); margin-bottom: 16px;">Tell Genie what you need. It will find the best options across merchants.</p>
+      <div class="chat-box">
+        <div class="chat-messages" id="doChat"></div>
+        <div class="chat-input-row">
+          <input id="doInput" placeholder="e.g. 'Help me buy a wireless mouse under $30'" onkeypress="if(event.key==='Enter')doAsk()">
+          <button class="btn" onclick="doAsk()">Ask</button>
+        </div>
+        <div class="pill-row" style="margin-top: 12px;">
+          <button class="pill" onclick="quickAgent('shop', { item: 'laptop' })">Find laptop</button>
+          <button class="pill" onclick="quickAgent('recommend', {})">Get recommendations</button>
+          <button class="pill" onclick="quickAgent('negotiate', { offer: 100 })">Negotiate $100</button>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📦 My Orders</div>
+        <div id="doOrders"><div class="empty-state">No orders yet. Try the agent above!</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔄 My Subscriptions</div>
+        <div id="doSubs"><div class="empty-state">No subscriptions yet.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEXHA (B2B) -->
+  <section id="nexha-tab" class="tab-content hidden">
+    <h2 style="margin: 24px 0; font-size: 32px;">🏭 Nexha — B2B Commerce</h2>
+    <div class="card">
+      <div class="card-title">🏢 Companies</div>
+      <div id="nexhaCompanies"><div class="spinner"></div> Loading companies...</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔍 Product Catalog</div>
+      <div style="margin-bottom: 12px;">
+        <input id="nexhaSearch" placeholder="Search products..." onkeyup="if(event.key==='Enter')nexhaSearchProducts()">
+      </div>
+      <div id="nexhaProducts"><div class="empty-state">Search above to find products</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 My Purchase Orders</div>
+      <div id="nexhaPOs"><div class="empty-state">No POs yet.</div></div>
+    </div>
+  </section>
+
+  <!-- SALAR (Marketplace) -->
+  <section id="salar-tab" class="tab-content hidden">
+    <h2 style="margin: 24px 0; font-size: 32px;">🏪 Salar — AI Marketplace</h2>
+    <div class="stats" id="salarStats"></div>
+    <div class="card">
+      <div class="card-title">🔍 Discover AI</div>
+      <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+        <input id="salarSearch" placeholder="Search agents, skills, workflows..." onkeyup="if(event.key==='Enter')salarSearch()">
+        <button class="btn" onclick="salarSearch()">Search</button>
+      </div>
+      <div class="pill-row" id="salarCats"></div>
+      <div id="salarListings"><div class="spinner"></div> Loading...</div>
+    </div>
+  </section>
+
+  <!-- GENIE (Personal AI) -->
+  <section id="genie-tab" class="tab-content hidden">
+    <h2 style="margin: 24px 0; font-size: 32px;">🧞 Genie — Your Personal AI</h2>
+    <div class="card">
+      <div class="card-title">☀️ Daily Briefing</div>
+      <div id="genieBriefing"><div class="spinner"></div> Loading briefing...</div>
+    </div>
+    <div class="card">
+      <div class="card-title">💬 Talk to Genie</div>
+      <div class="chat-box">
+        <div class="chat-messages" id="genieChat"></div>
+        <div class="chat-input-row">
+          <input id="genieInput" placeholder="What can I help with today?" onkeypress="if(event.key==='Enter')genieAsk()">
+          <button class="btn" onclick="genieAsk()">Send</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Auth Modal -->
+<div class="modal" id="authModal">
+  <div class="modal-content">
+    <h2 id="authTitle">Sign in</h2>
+    <p style="color: var(--text-muted); margin: 8px 0 24px;">Choose how you want to sign in.</p>
+    <div class="form-group">
+      <label>Email</label>
+      <input id="authEmail" type="email" placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input id="authPassword" type="password" placeholder="min 8 characters">
+    </div>
+    <div class="form-group hidden" id="authNameGroup">
+      <label>Name</label>
+      <input id="authName" placeholder="Your name">
+    </div>
+    <div style="display: flex; gap: 8px; margin-top: 16px;">
+      <button class="btn" style="flex: 1;" onclick="doAuth()">Continue</button>
+      <button class="btn btn-secondary" onclick="closeAuth()">Cancel</button>
+    </div>
+    <p style="margin-top: 16px; text-align: center; color: var(--text-muted); font-size: 14px;">
+      <span id="authToggle" onclick="toggleAuthMode()">Need an account? Sign up</span>
+    </p>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>HOJAI — The Foundation for the Agent Economy</p>
+  <p style="margin-top: 8px; font-size: 13px;">CorpID · TwinOS · MemoryOS · Genie · Sutar · DO · Nexha · Salar</p>
+</footer>
+
+<script>
+let authToken = localStorage.getItem('hojai_token') || null;
+let authEmail = localStorage.getItem('hojai_email') || null;
+let authName = localStorage.getItem('hojai_name') || null;
+let authMode = 'login';
+let currentTab = 'home';
+
+// --- Auth UI ---
+function showAuth(mode) {
+  authMode = mode || 'login';
+  document.getElementById('authTitle').textContent = authMode === 'signup' ? 'Create account' : 'Sign in';
+  document.getElementById('authNameGroup').classList.toggle('hidden', authMode !== 'signup');
+  document.getElementById('authToggle').textContent = authMode === 'signup' ? 'Already have an account? Sign in' : 'Need an account? Sign up';
+  document.getElementById('authModal').classList.add('show');
+}
+function closeAuth() { document.getElementById('authModal').classList.remove('show'); }
+function toggleAuthMode() { showAuth(authMode === 'signup' ? 'login' : 'signup'); }
+
+async function doAuth() {
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+  const name = document.getElementById('authName').value;
+  if (!email || !password) return alert('Email and password required');
+  if (authMode === 'signup' && !name) return alert('Name required for signup');
+  const url = authMode === 'signup' ? '/api/do/auth/signup' : '/api/do/auth/login';
+  const body = authMode === 'signup' ? { email, password, name } : { email, password };
+  try {
+    const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await r.json();
+    if (data.success) {
+      authToken = data.data.token;
+      authEmail = data.data.user.email;
+      authName = data.data.user.name;
+      localStorage.setItem('hojai_token', authToken);
+      localStorage.setItem('hojai_email', authEmail);
+      localStorage.setItem('hojai_name', authName);
+      updateAuthUI();
+      closeAuth();
+      loadCurrentTab();
+    } else {
+      alert(data.error?.message || 'Auth failed');
+    }
+  } catch (e) { alert('Network error: ' + e.message); }
+}
+
+function logout() {
+  localStorage.removeItem('hojai_token');
+  localStorage.removeItem('hojai_email');
+  localStorage.removeItem('hojai_name');
+  authToken = authEmail = authName = null;
+  updateAuthUI();
+  switchTab('home');
+}
+
+function updateAuthUI() {
+  document.getElementById('loginBtn').classList.toggle('hidden', !!authToken);
+  document.getElementById('logoutBtn').classList.toggle('hidden', !authToken);
+  if (authToken) document.getElementById('logoutBtn').textContent = `${authName} ⏻`;
+}
+
+function authHeaders() { return authToken ? { authorization: 'Bearer ' + authToken, 'content-type': 'application/json' } : { 'content-type': 'application/json' }; }
+
+// --- Navigation ---
+document.querySelectorAll('#mainNav button').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById(tab + '-tab').classList.remove('hidden');
+  document.querySelectorAll('#mainNav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  loadCurrentTab();
+}
+function loadCurrentTab() {
+  if (currentTab === 'home') loadHome();
+  if (currentTab === 'do') loadDO();
+  if (currentTab === 'nexha') loadNexha();
+  if (currentTab === 'salar') loadSalar();
+  if (currentTab === 'genie') loadGenie();
+}
+
+// --- HOME ---
+async function loadHome() {
+  try {
+    const [stats, salarStats] = await Promise.all([
+      fetch('/api/health').then(r => r.json()).catch(() => null),
+      fetch('/api/salar/marketplace/stats').then(r => r.json()).catch(() => null),
+    ]);
+    const services = stats?.data?.services || {};
+    const up = Object.values(services).filter(s => s.data?.status === 'healthy').length;
+    document.getElementById('stat-services').textContent = up + '/20';
+    document.getElementById('stat-users').textContent = (salarStats?.data?.totalProviders || 0) + '+';
+    document.getElementById('stat-merchants').textContent = (salarStats?.data?.totalListings || 0) + '+';
+    document.getElementById('stat-listings').textContent = (salarStats?.data?.totalListings || 0) + '+';
+  } catch {}
+}
+
+// --- DO ---
+async function loadDO() {
+  if (!authToken) return document.getElementById('walletInfo').innerHTML = '<div class="empty-state">Sign in to view your wallet</div>';
+  try {
+    const r = await fetch('/api/do/wallet/' + (await getDoUserId()), { headers: authHeaders() });
+    const data = await r.json();
+    if (data.success) {
+      document.getElementById('walletInfo').innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div><div style="font-size: 14px; color: var(--text-muted)">Balance</div><div class="price">$${data.data.balance.toFixed(2)}</div></div>
+          <div><div style="font-size: 14px; color: var(--text-muted)">Rewards</div><div class="price" style="color: var(--success)">${data.data.rewardsPoints} pts</div></div>
+          <div><span class="badge badge-${data.data.tier === 'bronze' ? 'muted' : data.data.tier === 'silver' ? 'primary' : 'success'}">${data.data.tier.toUpperCase()}</span></div>
+        </div>`;
+    }
+  } catch {}
+  await loadOrders();
+  await loadSubs();
+}
+async function getDoUserId() {
+  try { const r = await fetch('/api/do/auth/me', { headers: authHeaders() }); const d = await r.json(); return d.data?.id; } catch { return ''; }
+}
+async function loadOrders() {
+  try {
+    const r = await fetch('/api/do/orders', { headers: authHeaders() });
+    const data = await r.json();
+    if (data.success && data.data.count > 0) {
+      document.getElementById('doOrders').innerHTML = data.data.items.map(o => `
+        <div class="list-item">
+          <div><div style="font-weight:600">${o.orderId}</div><div style="font-size:12px; color: var(--text-muted)">${new Date(o.createdAt).toLocaleDateString()} · ${o.itemCount} items</div></div>
+          <div><div class="price" style="font-size:16px">$${o.total.toFixed(2)}</div><span class="badge badge-primary">${o.status}</span></div>
+        </div>`).join('');
+    } else document.getElementById('doOrders').innerHTML = '<div class="empty-state">No orders yet</div>';
+  } catch {}
+}
+async function loadSubs() {
+  try {
+    const r = await fetch('/api/do/subscriptions', { headers: authHeaders() });
+    const data = await r.json();
+    if (data.success && data.data.count > 0) {
+      document.getElementById('doSubs').innerHTML = data.data.items.map(s => `
+        <div class="list-item">
+          <div><div style="font-weight:600">${s.productName}</div><div style="font-size:12px; color: var(--text-muted)">${s.frequency} · next: ${new Date(s.nextDelivery).toLocaleDateString()}</div></div>
+          <span class="badge badge-success">active</span>
+        </div>`).join('');
+    } else document.getElementById('doSubs').innerHTML = '<div class="empty-state">No subscriptions yet</div>';
+  } catch {}
+}
+async function walletTopup(amount) {
+  const userId = await getDoUserId();
+  if (!userId) return alert('Sign in first');
+  const r = await fetch('/api/do/wallet/topup', { method: 'POST', headers: { 'x-internal-token': 'hojai-internal-service-token-change-me', 'content-type': 'application/json' }, body: JSON.stringify({ userId, amount }) });
+  const data = await r.json();
+  if (data.success) loadDO();
+  else alert(data.error?.message || 'Topup failed');
+}
+async function doAsk() {
+  const input = document.getElementById('doInput');
+  const question = input.value.trim();
+  if (!question) return;
+  addChatMessage('doChat', 'user', question);
+  input.value = '';
+  try {
+    const r = await fetch('/api/do/agent/action', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action: 'shop', params: { query: question, item: question } }) });
+    const data = await r.json();
+    if (data.success) {
+      const result = data.data;
+      let msg = result.agent_says || 'I found some options:';
+      if (result.options && result.options.length > 0) {
+        msg += '\n\n' + result.options.slice(0, 3).map((o, i) => `${i+1}. ${o.name} at ${o.merchantId} - $${o.price}`).join('\n');
+        if (result.recommended) msg += `\n\n⭐ Recommended: ${result.recommended.name}`;
+      }
+      addChatMessage('doChat', 'genie', msg);
+    }
+  } catch { addChatMessage('doChat', 'genie', 'Sorry, I had trouble. Try again.'); }
+}
+async function quickAgent(action, params) {
+  try {
+    const r = await fetch('/api/do/agent/action', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ action, params }) });
+    const data = await r.json();
+    if (data.success) {
+      let msg = '';
+      if (action === 'shop') msg = data.data.agent_says + (data.data.options ? '\n\n' + data.data.options.map((o,i) => `${i+1}. ${o.name} - $${o.price}`).join('\n') : '');
+      if (action === 'recommend') msg = 'Based on your history, I recommend: ' + (data.data.suggestions?.map(s => s.name).join(', ') || 'explore the catalog');
+      if (action === 'negotiate') msg = `Counter offer: $${data.data.counter_offer} (rounds left: ${data.data.rounds_remaining})`;
+      addChatMessage('doChat', 'genie', msg);
+    }
+  } catch {}
+}
+function addChatMessage(id, role, text) {
+  const el = document.getElementById(id);
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.textContent = text;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+// --- NEXHA ---
+async function loadNexha() {
+  try {
+    const r = await fetch('/api/nexha/suppliers');
+    const data = await r.json();
+    if (data.success) {
+      document.getElementById('nexhaCompanies').innerHTML = data.data.items.slice(0, 8).map(c => `
+        <div class="list-item">
+          <div>
+            <div style="font-weight:600">${c.companyName} ${c.verified ? '<span class="badge badge-success">✓</span>' : ''}</div>
+            <div style="font-size:12px; color: var(--text-muted)">${c.type} · ${c.city || 'N/A'} · ${c.categories?.join(', ') || ''}</div>
+          </div>
+          <div style="text-align:right"><div class="stars">${'★'.repeat(Math.round(c.rating))}</div><div style="font-size:12px">${c.totalTransactions} txns</div></div>
+        </div>`).join('');
+    }
+  } catch {}
+}
+async function nexhaSearchProducts() {
+  const q = document.getElementById('nexhaSearch').value;
+  if (!q) return;
+  try {
+    // Note: Nexha doesn't expose products/search; use suppliers list as the catalog
+    const data = await r.json();
+    if (data.success) {
+      document.getElementById('nexhaProducts').innerHTML = data.data.items.slice(0, 10).map(p => `
+        <div class="list-item">
+          <div>
+            <div style="font-weight:600">${p.name}</div>
+            <div style="font-size:12px; color: var(--text-muted)">${p.supplier} · ${p.supplierCity || 'N/A'} · MOQ: ${p.minOrderQuantity}</div>
+          </div>
+          <div class="price" style="font-size:16px">$${p.unitPrice}/${p.unit}</div>
+        </div>`).join('') || '<div class="empty-state">No results</div>';
+    }
+  } catch {}
+}
+
+// --- SALAR ---
+async function loadSalar() {
+  try {
+    const [statsR, listR, catsR] = await Promise.all([
+      fetch('/api/salar/marketplace/stats').then(r => r.json()),
+      fetch('/api/salar/listings?limit=20').then(r => r.json()),
+      fetch('/api/salar/listings/categories').then(r => r.json()),
+    ]);
+    if (statsR.success) {
+      document.getElementById('salarStats').innerHTML = `
+        <div class="stat-card"><div class="stat-value">${statsR.data.totalListings}</div><div class="stat-label">Listings</div></div>
+        <div class="stat-card"><div class="stat-value">${statsR.data.totalProviders}</div><div class="stat-label">Providers</div></div>
+        <div class="stat-card"><div class="stat-value">${statsR.data.totalPurchases}</div><div class="stat-label">Purchases</div></div>
+        <div class="stat-card"><div class="stat-value">$${statsR.data.totalRevenue.toFixed(0)}</div><div class="stat-label">Revenue</div></div>`;
+    }
+    if (catsR.success) {
+      document.getElementById('salarCats').innerHTML = '<button class="pill active" onclick="salarFilter(\'\', this)">All</button>' + catsR.data.categories.map(c => `<button class="pill" onclick="salarFilter('${c.name}', this)">${c.name} (${c.count})</button>`).join('');
+    }
+    if (listR.success) renderSalarListings(listR.data.items);
+  } catch {}
+}
+function renderSalarListings(items) {
+  document.getElementById('salarListings').innerHTML = items.map(l => `
+    <div class="list-item">
+      <div style="flex: 1">
+        <div style="font-weight:600; font-size: 16px">${l.title} ${l.featured ? '<span class="badge badge-warning">⭐ Featured</span>' : ''}</div>
+        <div style="font-size:13px; color: var(--text-muted); margin: 4px 0">${(l.description || '').slice(0, 100)}...</div>
+        <div style="font-size:12px"><span class="badge badge-muted">${l.category}</span> ${l.tags?.map(t => `<span class="badge badge-muted">${t}</span>`).join(' ') || ''}</div>
+        <div style="font-size:12px; color: var(--text-muted); margin-top: 4px">by ${l.provider} · ${l.company || ''}</div>
+      </div>
+      <div style="text-align: right; min-width: 120px;">
+        <div class="price">${l.pricing.model === 'free' ? 'FREE' : '$' + l.pricing.price + (l.pricing.model === 'subscription' ? '/mo' : '')}</div>
+        <div class="stars">${'★'.repeat(Math.round(l.stats.rating))} (${l.stats.reviewCount})</div>
+        <button class="btn btn-secondary" style="margin-top: 8px; font-size: 12px; padding: 6px 12px" onclick="buyListing('${l.listingId}')">Get it</button>
+      </div>
+    </div>`).join('') || '<div class="empty-state">No listings yet</div>';
+}
+async function salarSearch() {
+  const q = document.getElementById('salarSearch').value;
+  const r = await fetch('/api/salar/listings?q=' + encodeURIComponent(q));
+  const data = await r.json();
+  if (data.success) renderSalarListings(data.data.items);
+}
+async function salarFilter(cat, el) {
+  document.querySelectorAll('#salarCats .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const r = await fetch('/api/salar/listings?category=' + cat);
+  const data = await r.json();
+  if (data.success) renderSalarListings(data.data.items);
+}
+async function buyListing(listingId) {
+  const name = prompt('Your name:'); if (!name) return;
+  const email = prompt('Your email:'); if (!email) return;
+  const r = await fetch('/api/salar/listings/' + listingId + '/purchase', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ buyerName: name, buyerEmail: email }) });
+  const data = await r.json();
+  if (data.success) alert(`Purchase complete! $${data.data.amount} charged.`);
+  else alert(data.error?.message || 'Purchase failed');
+}
+
+// --- GENIE ---
+async function loadGenie() {
+  if (!authToken) {
+    document.getElementById('genieBriefing').innerHTML = '<div class="empty-state">Sign in to see your briefing</div>';
+    return;
+  }
+  try {
+    const r = await fetch('/api/genie/briefing', { headers: authHeaders() });
+    const data = await r.json();
+    if (data.success) {
+      document.getElementById('genieBriefing').innerHTML = `
+        <div style="font-size: 18px; margin-bottom: 12px">${data.data.greeting}</div>
+        <div style="color: var(--text-muted); margin-bottom: 8px">📅 ${data.data.date}</div>
+        <div style="margin: 8px 0">🎯 ${data.data.active_goals} active goals</div>
+        <div style="margin: 8px 0">🧠 ${data.data.recent_memories.length} recent memories</div>
+        <ul style="margin-top: 12px; padding-left: 20px">${data.data.insights.map(i => `<li>${i}</li>`).join('')}</ul>`;
+    }
+  } catch {}
+}
+async function genieAsk() {
+  const input = document.getElementById('genieInput');
+  const q = input.value.trim();
+  if (!q) return;
+  addChatMessage('genieChat', 'user', q);
+  input.value = '';
+  try {
+    const r = await fetch('/api/genie/ask', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ question: q }) });
+    const data = await r.json();
+    if (data.success) addChatMessage('genieChat', 'genie', data.data.answer);
+  } catch { addChatMessage('genieChat', 'genie', 'Sorry, error.'); }
+}
+
+// --- INIT ---
+updateAuthUI();
+loadCurrentTab();
+if (!authToken) {
+  addChatMessage('genieChat', 'genie', 'Hi! I\'m Genie. Sign in to unlock your personal AI briefing.');
+  addChatMessage('doChat', 'genie', 'Hi! Sign in to start shopping with your AI agent.');
+}
+</script>
+</body>
+</html>

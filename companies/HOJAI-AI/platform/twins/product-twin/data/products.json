@@ -1,0 +1,197 @@
+[
+  [
+    "prod-1",
+    {
+      "id": "prod-1",
+      "name": "Enterprise CRM Suite",
+      "sku": "CRM-ENT-001",
+      "type": "software",
+      "category": "Sales Software",
+      "description": "Full-featured CRM for enterprise sales teams",
+      "price": 999.99,
+      "cost": 200,
+      "currency": "USD",
+      "status": "active",
+      "features": [
+        "Contact Management",
+        "Deal Tracking",
+        "Sales Analytics",
+        "Automation"
+      ],
+      "specifications": {
+        "users": "Unlimited",
+        "storage": "100GB"
+      },
+      "images": [
+        "crm-enterprise.png"
+      ],
+      "metadata": {
+        "vendor": "RTMN",
+        "version": "3.0"
+      },
+      "stats": {
+        "sold": 1250,
+        "rating": 4.5,
+        "reviews": 234
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-06-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "prod-2",
+    {
+      "id": "prod-2",
+      "name": "Marketing Automation Pro",
+      "sku": "MKT-PRO-002",
+      "type": "software",
+      "category": "Marketing Software",
+      "description": "AI-powered marketing automation platform",
+      "price": 799.99,
+      "cost": 150,
+      "currency": "USD",
+      "status": "active",
+      "features": [
+        "Email Campaigns",
+        "Lead Nurturing",
+        "A/B Testing",
+        "Analytics"
+      ],
+      "specifications": {
+        "users": "Up to 50",
+        "storage": "50GB"
+      },
+      "images": [
+        "mkt-pro.png"
+      ],
+      "metadata": {
+        "vendor": "RTMN",
+        "version": "2.5"
+      },
+      "stats": {
+        "sold": 890,
+        "rating": 4.7,
+        "reviews": 156
+      },
+      "createdAt": "2025-02-01T00:00:00.000Z",
+      "updatedAt": "2025-06-10T00:00:00.000Z"
+    }
+  ],
+  [
+    "prod-3",
+    {
+      "id": "prod-3",
+      "name": "AI Agent Bundle",
+      "sku": "AI-BND-001",
+      "type": "bundle",
+      "category": "AI Solutions",
+      "description": "Bundle of 10 AI agents for business automation",
+      "price": 4999.99,
+      "cost": 1500,
+      "currency": "USD",
+      "status": "active",
+      "features": [
+        "10 AI Agents",
+        "Priority Support",
+        "Custom Training",
+        "API Access"
+      ],
+      "specifications": {
+        "agents": 10,
+        "languages": "Multi-language"
+      },
+      "images": [
+        "ai-bundle.png"
+      ],
+      "metadata": {
+        "vendor": "RTMN",
+        "version": "1.0"
+      },
+      "stats": {
+        "sold": 156,
+        "rating": 4.9,
+        "reviews": 42
+      },
+      "createdAt": "2025-03-01T00:00:00.000Z",
+      "updatedAt": "2025-06-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "prod-3de4fff1",
+    {
+      "id": "prod-3de4fff1",
+      "name": "Test Product",
+      "sku": "SKU-SMOKE-1",
+      "type": "standard",
+      "category": "General",
+      "description": "",
+      "price": 99,
+      "cost": 0,
+      "currency": "USD",
+      "status": "draft",
+      "features": [],
+      "specifications": {},
+      "images": [],
+      "metadata": {},
+      "stats": {
+        "sold": 0,
+        "rating": 0,
+        "reviews": 0
+      },
+      "createdAt": "2026-06-21T21:25:56.400Z",
+      "updatedAt": "2026-06-21T21:25:56.400Z"
+    }
+  ],
+  [
+    "prod-27ab67d5",
+    {
+      "id": "prod-27ab67d5",
+      "name": "P4-Product",
+      "sku": "P4-SKU",
+      "type": "standard",
+      "category": "General",
+      "description": "",
+      "price": 1,
+      "cost": 0,
+      "currency": "USD",
+      "status": "draft",
+      "features": [],
+      "specifications": {},
+      "images": [],
+      "metadata": {},
+      "stats": {
+        "sold": 0,
+        "rating": 0,
+        "reviews": 0
+      },
+      "createdAt": "2026-06-21T21:33:14.686Z",
+      "updatedAt": "2026-06-21T21:33:14.686Z"
+    }
+  ],
+  [
+    "prod-f33890bb",
+    {
+      "id": "prod-f33890bb",
+      "name": "P9927",
+      "sku": "P9927",
+      "type": "standard",
+      "category": "General",
+      "description": "",
+      "price": 1,
+      "cost": 0,
+      "currency": "USD",
+      "status": "draft",
+      "features": [],
+      "specifications": {},
+      "images": [],
+      "metadata": {},
+      "stats": {
+        "sold": 0,
+        "rating": 0,
+        "reviews": 0
+      },
+      "createdAt": "2026-06-22T00:58:57.170Z",
+      "updatedAt": "2026-06-22T00:58:57.170Z"
+    }
+  ]
+]

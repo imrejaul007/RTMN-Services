@@ -1,0 +1,97 @@
+name: RAZOKeyboard
+options:
+  bundleIdPrefix: com.razo
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  # Main App (for testing/hosting)
+  RAZOKeyboardApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: RAZOKeyboardApp
+        excludes:
+          - "*.xcodeproj"
+          - "*.xcworkspace"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.razo.keyboard.app
+        INFOPLIST_FILE: RAZOKeyboardApp/Info.plist
+        MARKETING_VERSION: "2.0.0"
+        CURRENT_PROJECT_VERSION: 1
+        CODE_SIGN_ENTITLEMENTS: RAZOKeyboardApp/RAZOKeyboardApp.entitlements
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+    dependencies:
+      - target: RAZOKeyboardExtension
+        embed: true
+        codeSign: true
+        buildPhase:
+          copyFiles:
+            destination: plugins
+      - target: RAZOCredentialProvider
+        embed: true
+        codeSign: true
+        buildPhase:
+          copyFiles:
+            destination: plugins
+
+  # Keyboard Extension
+  RAZOKeyboardExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: .
+        excludes:
+          - project.yml
+          - "*.xcodeproj"
+          - "*.xcworkspace"
+          - Podfile
+          - Pods
+          - RAZOKeyboardApp
+          - RAZOCredentialProvider
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.razo.keyboard
+        INFOPLIST_FILE: Info.plist
+        MARKETING_VERSION: "2.0.0"
+        CURRENT_PROJECT_VERSION: 1
+        CODE_SIGN_ENTITLEMENTS: RAZOKeyboardExtension.entitlements
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+        SKIP_INSTALL: YES
+    dependencies:
+      - sdk: Speech.framework
+      - sdk: LocalAuthentication.framework
+      - sdk: Security.framework
+
+  # Credential Provider Extension
+  RAZOCredentialProvider:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: RAZOCredentialProvider
+        excludes:
+          - "*.xcodeproj"
+          - "*.xcworkspace"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.razo.credentialprovider
+        INFOPLIST_FILE: RAZOCredentialProvider/Info.plist
+        MARKETING_VERSION: "2.0.0"
+        CURRENT_PROJECT_VERSION: 1
+        CODE_SIGN_ENTITLEMENTS: RAZOCredentialProvider/RAZOCredentialProvider.entitlements
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+        SKIP_INSTALL: YES
+    dependencies:
+      - sdk: LocalAuthentication.framework
+      - sdk: Security.framework

@@ -1,0 +1,166 @@
+# ============================================================
+# RAZO Keyboard v2.0 - Docker Compose Configuration
+# Universal Keyboard Intelligence Gateway
+# ============================================================
+
+version: '3.8'
+
+services:
+  # Integration Gateway - Main entry point (Port 4601)
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: razo-gateway
+    ports:
+      - "4601:4601"
+    environment:
+      - NODE_ENV=production
+      - PORT=4601
+      - PREDICTIVE_URL=http://predictive:4640
+      - INTENT_URL=http://intent:4650
+      - SUGGESTIONS_URL=http://suggestions:4651
+      - ACTIONS_URL=http://actions:4652
+      - COMMANDS_URL=http://commands:4653
+      - WHISPER_URL=http://whisper:4600
+      - GENIE_URL=http://genie:4703
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-razo-dev-secret}
+      - API_KEY=${API_KEY:-razo-dev-api-key}
+    depends_on:
+      - predictive
+      - intent
+      - suggestions
+      - actions
+      - commands
+      - redis
+    networks:
+      - razo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4601/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Predictive Text Engine (Port 4640)
+  predictive:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: razo-predictive
+    ports:
+      - "4640:4640"
+    environment:
+      - NODE_ENV=production
+      - PORT=4640
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - razo-network
+    restart: unless-stopped
+    command: ["node", "dist/predictive/index.js"]
+
+  # Intent Recognition Service (Port 4650)
+  intent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: razo-intent
+    ports:
+      - "4650:4650"
+    environment:
+      - NODE_ENV=production
+      - PORT=4650
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - razo-network
+    restart: unless-stopped
+    command: ["node", "dist/intent/index.js"]
+
+  # Smart Suggestions Service (Port 4651)
+  suggestions:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: razo-suggestions
+    ports:
+      - "4651:4651"
+    environment:
+      - NODE_ENV=production
+      - PORT=4651
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - razo-network
+    restart: unless-stopped
+    command: ["node", "dist/suggestions/index.js"]
+
+  # Actions Service (Port 4652)
+  actions:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: razo-actions
+    ports:
+      - "4652:4652"
+    environment:
+      - NODE_ENV=production
+      - PORT=4652
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - razo-network
+    restart: unless-stopped
+    command: ["node", "dist/actions/index.js"]
+
+  # Commands Service (Port 4653)
+  commands:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: razo-commands
+    ports:
+      - "4653:4653"
+    environment:
+      - NODE_ENV=production
+      - PORT=4653
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - razo-network
+    restart: unless-stopped
+    command: ["node", "dist/commands/index.js"]
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: razo-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - razo-redis-data:/data
+    networks:
+      - razo-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  razo-network:
+    driver: bridge
+
+volumes:
+  razo-redis-data:
+    driver: local

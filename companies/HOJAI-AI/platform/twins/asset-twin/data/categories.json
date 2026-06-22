@@ -1,0 +1,49 @@
+[
+  [
+    "cat-1",
+    {
+      "id": "cat-1",
+      "name": "Real Estate",
+      "types": [
+        "property",
+        "land"
+      ]
+    }
+  ],
+  [
+    "cat-2",
+    {
+      "id": "cat-2",
+      "name": "IT Equipment",
+      "types": [
+        "servers",
+        "computers",
+        "network"
+      ]
+    }
+  ],
+  [
+    "cat-3",
+    {
+      "id": "cat-3",
+      "name": "Vehicles",
+      "types": [
+        "cars",
+        "trucks",
+        "vans"
+      ]
+    }
+  ],
+  [
+    "cat-4",
+    {
+      "id": "cat-4",
+      "name": "Digital Assets",
+      "types": [
+        "software",
+        "domains",
+        "patents"
+      ]
+    }
+  ]
+]

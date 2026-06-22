@@ -1,0 +1,38 @@
+[
+  [
+    "u-admin",
+    {
+      "id": "u-admin",
+      "name": "Alice Admin",
+      "trustScore": 100,
+      "attributes": {
+        "department": "IT"
+      },
+      "createdAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "u-manager",
+    {
+      "id": "u-manager",
+      "name": "Maya Manager",
+      "trustScore": 90,
+      "attributes": {
+        "department": "Operations"
+      },
+      "createdAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "u-customer",
+    {
+      "id": "u-customer",
+      "name": "Carl Customer",
+      "trustScore": 85,
+      "attributes": {
+        "vip": false
+      },
+      "createdAt": "2026-06-21T13:19:13.184Z"
+    }
+  ]
+]

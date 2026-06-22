@@ -1,0 +1,17 @@
+import express from 'express';import cors from 'cors';import helmet from 'helmet';import mongoose from 'mongoose';import { v4 as uuidv4 } from 'uuid';import pino from 'pino';
+const app = express();const PORT = parseInt(process.env.PORT || '4810', 10);
+app.use(helmet());app.use(cors({ origin: process.env.CORS_ORIGIN?.split(',') || false }));app.use(express.json());
+app.get('/health', (req, res) => res.json({ status: 'healthy', service: 'hojai-graph-enrichment', version: '1.0.0' }));
+app.get('/health/live', (req, res) => res.json({ status: 'alive' }));
+app.get('/health/ready', async (req, res) => { try { res.json({ status: mongoose.connection.readyState === 1 ? 'ready' : 'not ready' }); } catch { res.status(503).json({ status: 'not ready' }); } });
+const EntitySchemaM = new mongoose.Schema({ id: { type: String, required: true, unique: true }, type: { type: String, enum: ['company', 'person', 'product', 'document', 'policy', 'sop', 'decision', 'goal', 'project'] }, name: String, properties: mongoose.Schema.Types.Mixed }, { timestamps: true });EntitySchemaM.index({ type: 1 });EntitySchemaM.index({ name: 'text' });const EntityModel = mongoose.model('Entity', EntitySchemaM);
+const RelSchemaM = new mongoose.Schema({ id: { type: String, required: true, unique: true }, sourceId: String, targetId: String, type: String, properties: mongoose.Schema.Types.Mixed });RelSchemaM.index({ sourceId: 1, targetId: 1 });const RelModel = mongoose.model('Relationship', RelSchemaM);
+app.get('/api/v1/entities', async (req, res) => { try { const { type, search } = req.query; const filter: Record<string, unknown> = {}; if (type) filter.type = type; if (search) filter.$text = { $search: search as string }; const e = await EntityModel.find(filter).limit(100).lean(); res.json({ count: e.length, entities: e }); } catch (e) { pino().error({ e }); res.status(500).json({ error: 'Failed' }); } });
+app.post('/api/v1/entities', async (req, res) => { try { const e = new EntityModel({ id: uuidv4(), ...req.body }); await e.save(); res.status(201).json(e.toObject()); } catch (e) { pino().error({ e }); res.status(500).json({ error: 'Failed' }); } });
+app.get('/api/v1/entities/:id', async (req, res) => { try { const e = await EntityModel.findOne({ id: req.params.id }).lean(); if (!e) return res.status(404).json({ error: 'Not found' }); res.json(e); } catch (e) { res.status(500).json({ error: 'Failed' }); } });
+app.get('/api/v1/entities/:id/relationships', async (req, res) => { try { const r = await RelModel.find({ $or: [{ sourceId: req.params.id }, { targetId: req.params.id }] }).lean(); res.json({ count: r.length, relationships: r }); } catch (e) { res.status(500).json({ error: 'Failed' }); } });
+app.post('/api/v1/relationships', async (req, res) => { try { const r = new RelModel({ id: uuidv4(), ...req.body }); await r.save(); res.status(201).json(r.toObject()); } catch (e) { pino().error({ e }); res.status(500).json({ error: 'Failed' }); } });
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hojai-graph').then(() => pino().info('MongoDB connected'));
+const server = app.listen(PORT, () => pino().info(`Graph Enrichment running on ${PORT}`));
+process.on('SIGTERM', () => { server.close(() => { mongoose.connection.close(); process.exit(0); }); });
+export default app;

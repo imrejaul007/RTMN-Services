@@ -1,0 +1,50 @@
+[
+  [
+    "dept-1",
+    {
+      "id": "dept-1",
+      "orgId": "org-1",
+      "name": "Engineering",
+      "headcount": 150,
+      "budget": 5000000,
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "dept-2",
+    {
+      "id": "dept-2",
+      "orgId": "org-1",
+      "name": "Sales",
+      "headcount": 80,
+      "budget": 3000000,
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "dept-3",
+    {
+      "id": "dept-3",
+      "orgId": "org-1",
+      "name": "Marketing",
+      "headcount": 40,
+      "budget": 2000000,
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "dept-4",
+    {
+      "id": "dept-4",
+      "orgId": "org-1",
+      "name": "HR",
+      "headcount": 15,
+      "budget": 500000,
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ]
+]

@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/finance-accounting-service",
+  "version": "1.0.0",
+  "description": "Finance accounting and ledger",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

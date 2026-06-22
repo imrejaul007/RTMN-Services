@@ -1,0 +1,55 @@
+# ============================================================
+# HOJAI SkillNet - Production Dockerfile
+# Version: 1.1.0
+# ============================================================
+
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production=false
+
+# Copy source and config
+COPY tsconfig.json ./
+COPY vitest.config.ts ./
+COPY src/ ./src/
+
+# Build TypeScript
+RUN npm run build
+
+# Stage 2: Production
+FROM node:20-alpine AS production
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodeapp && \
+    adduser -S nodeapp -u 1001
+
+WORKDIR /app
+
+# Copy built artifacts
+COPY --from=builder --chown=nodeapp:nodeapp /app/dist ./dist
+COPY --from=builder --chown=nodeapp:nodeapp /app/node_modules ./node_modules
+COPY --from=builder --chown=nodeapp:nodeapp /app/package.json ./
+COPY --from=builder --chown=nodeapp:nodeapp /app/package-lock.json ./
+
+# Environment
+ENV NODE_ENV=production
+ENV PORT=4530
+
+# Switch to non-root user
+USER nodeapp
+
+# Expose port
+EXPOSE 4530
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:4530/health/live || exit 1
+
+# Start application
+CMD ["node", "dist/index.js"]

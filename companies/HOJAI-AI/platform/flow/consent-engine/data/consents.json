@@ -1,0 +1,104 @@
+[
+  [
+    "cs-1782070162078-76fde8",
+    {
+      "id": "cs-1782070162078-76fde8",
+      "subjectId": "u-alice",
+      "purpose": "marketing.email",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-21T19:29:22.078Z",
+      "validUntil": null,
+      "source": "signup-form",
+      "evidence": "checkbox-v2",
+      "description": "Sending marketing emails to the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-21T19:29:22.225Z",
+      "withdrawnBy": "admin"
+    }
+  ],
+  [
+    "cs-1782070162345-793003",
+    {
+      "id": "cs-1782070162345-793003",
+      "subjectId": "u-bob",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-21T19:29:22.345Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-21T19:29:22.371Z",
+      "withdrawnBy": "admin"
+    }
+  ],
+  [
+    "cs-1782070162357-3b7e7c",
+    {
+      "id": "cs-1782070162357-3b7e7c",
+      "subjectId": "u-bob",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-21T19:29:22.357Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-21T19:29:22.371Z",
+      "withdrawnBy": "admin"
+    }
+  ],
+  [
+    "cs-1782070947572-68b89b",
+    {
+      "id": "cs-1782070947572-68b89b",
+      "subjectId": "u-alice",
+      "purpose": "marketing.email",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-21T19:42:27.572Z",
+      "validUntil": null,
+      "source": "signup-form",
+      "evidence": "checkbox-v2",
+      "description": "Sending marketing emails to the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-21T19:42:27.850Z",
+      "withdrawnBy": "admin"
+    }
+  ],
+  [
+    "cs-1782070947922-c818e9",
+    {
+      "id": "cs-1782070947922-c818e9",
+      "subjectId": "u-bob",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-21T19:42:27.923Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-21T19:42:27.946Z",
+      "withdrawnBy": "admin"
+    }
+  ],
+  [
+    "cs-1782070947934-745fdf",
+    {
+      "id": "cs-1782070947934-745fdf",
+      "subjectId": "u-bob",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-21T19:42:27.934Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-21T19:42:27.946Z",
+      "withdrawnBy": "admin"
+    }
+  ]
+]

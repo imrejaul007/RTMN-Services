@@ -1,0 +1,23 @@
+apiVersion: v2
+name: hojai-skillnet
+description: HOJAI SkillNet - AI Skill Marketplace & Lifecycle Management
+type: application
+version: 1.1.0
+appVersion: "1.1.0"
+keywords:
+  - hojai
+  - ai
+  - machine-learning
+  - predictions
+  - recommendations
+  - skill-marketplace
+home: https://hojai.ai
+sources:
+  - https://github.com/hojai-ai/hojai-skillnet
+maintainers:
+  - name: HOJAI AI
+    email: dev@hojai.ai
+icon: https://hojai.ai/logo.png
+annotations:
+  category: AI/ML
+  licenses: MIT

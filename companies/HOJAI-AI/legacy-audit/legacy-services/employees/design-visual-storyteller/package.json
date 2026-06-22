@@ -1,0 +1,23 @@
+{
+  "name": "@hojai/agent-design-visual-storyteller",
+  "version": "1.0.0",
+  "description": "Expert visual communication specialist focused on creating compelling visual narratives, multimedia content, and brand storytelling",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@hojai/agent-sdk": "^1.0.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}

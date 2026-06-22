@@ -1,0 +1,998 @@
+[
+  [
+    "pol-shopping-budget",
+    {
+      "id": "pol-shopping-budget",
+      "name": "Shopping Budget Policy",
+      "description": "Auto-allow purchases under 5000, require approval above",
+      "category": "financial",
+      "priority": 10,
+      "conditions": {
+        "context.amount": {
+          "lte": 5000
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.amount": {
+              "lte": 100
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "auto_allow_small_purchase"
+          }
+        },
+        {
+          "if": {
+            "context.amount": {
+              "lte": 5000
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "auto_allow_within_budget"
+          }
+        },
+        {
+          "if": {
+            "context.amount": {
+              "gt": 5000
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "require_approval_over_budget"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {
+          "log": "purchase_approved"
+        },
+        "onDeny": {
+          "log": "purchase_requires_approval"
+        }
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "multi",
+        "requiredApprovers": [
+          "u-manager",
+          "u-admin"
+        ]
+      },
+      "owner": "u-admin",
+      "status": "published",
+      "version": 1,
+      "createdAt": "2026-06-21T13:19:13.184Z",
+      "updatedAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "pol-payment-fraud",
+    {
+      "id": "pol-payment-fraud",
+      "name": "Payment Fraud Prevention",
+      "description": "Block payments from low-trust users",
+      "category": "security",
+      "priority": 100,
+      "conditions": {
+        "context.user.trustScore": {
+          "lt": 50
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.user.trustScore": {
+              "lt": 30
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "block_critical_trust"
+          }
+        },
+        {
+          "if": {
+            "context.user.trustScore": {
+              "lt": 50
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "block_low_trust"
+          }
+        },
+        {
+          "if": {
+            "context.user.trustScore": {
+              "gte": 50
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "allow_adequate_trust"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {
+          "log": "payment_approved"
+        },
+        "onDeny": {
+          "log": "payment_blocked_fraud"
+        }
+      },
+      "exceptions": [
+        {
+          "name": "vip_override",
+          "condition": "context.user.attributes.vip === true"
+        }
+      ],
+      "approvals": {
+        "strategy": "emergency",
+        "requiredApprovers": [
+          "u-admin"
+        ]
+      },
+      "owner": "u-admin",
+      "status": "published",
+      "version": 1,
+      "createdAt": "2026-06-21T13:19:13.184Z",
+      "updatedAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "pol-data-export",
+    {
+      "id": "pol-data-export",
+      "name": "Data Export Privacy Policy",
+      "description": "Bulk data exports > 100 records require approval",
+      "category": "privacy",
+      "priority": 80,
+      "conditions": {
+        "context.action": {
+          "in": [
+            "data.export",
+            "data.bulk_download"
+          ]
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.recordCount": {
+              "lte": 100
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "allow_small_export"
+          }
+        },
+        {
+          "if": {
+            "context.recordCount": {
+              "gt": 100
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "require_approval_large_export"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {
+          "log": "export_approved"
+        },
+        "onDeny": {
+          "log": "export_requires_approval"
+        }
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "sequential",
+        "requiredApprovers": [
+          "u-manager",
+          "u-admin"
+        ]
+      },
+      "owner": "u-admin",
+      "status": "published",
+      "version": 1,
+      "createdAt": "2026-06-21T13:19:13.184Z",
+      "updatedAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "pol-ai-autonomy",
+    {
+      "id": "pol-ai-autonomy",
+      "name": "AI Autonomy Policy",
+      "description": "AI execution requires confidence > 0.7",
+      "category": "ai",
+      "priority": 90,
+      "conditions": {
+        "context.action": {
+          "startsWith": "ai."
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.confidence": {
+              "lt": 0.5
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "block_low_confidence"
+          }
+        },
+        {
+          "if": {
+            "context.confidence": {
+              "lt": 0.7
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "require_human_review"
+          }
+        },
+        {
+          "if": {
+            "context.confidence": {
+              "gte": 0.7
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "allow_high_confidence"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {
+          "log": "ai_action_approved"
+        },
+        "onDeny": {
+          "log": "ai_action_blocked"
+        }
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": [
+          "u-admin"
+        ]
+      },
+      "owner": "u-admin",
+      "status": "published",
+      "version": 1,
+      "createdAt": "2026-06-21T13:19:13.184Z",
+      "updatedAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "pol-skill-execution",
+    {
+      "id": "pol-skill-execution",
+      "name": "Skill Execution Scope Policy",
+      "description": "Skill execution requires scope check",
+      "category": "skill",
+      "priority": 70,
+      "conditions": {
+        "context.action": {
+          "startsWith": "skill."
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.scope": {
+              "exists": false
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "block_missing_scope"
+          }
+        },
+        {
+          "if": {
+            "context.user.scopes": {
+              "notContains": "context.scope"
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "block_insufficient_scope"
+          }
+        },
+        {
+          "if": {
+            "context.user.scopes": {
+              "contains": "context.scope"
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "allow_valid_scope"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {
+          "log": "skill_execution_approved"
+        },
+        "onDeny": {
+          "log": "skill_execution_blocked"
+        }
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": [
+          "u-manager"
+        ]
+      },
+      "owner": "u-admin",
+      "status": "published",
+      "version": 1,
+      "createdAt": "2026-06-21T13:19:13.184Z",
+      "updatedAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "pol-twin-sharing",
+    {
+      "id": "pol-twin-sharing",
+      "name": "Twin Sharing Consent Policy",
+      "description": "Sharing a digital twin requires owner consent",
+      "category": "twin",
+      "priority": 75,
+      "conditions": {
+        "context.action": {
+          "in": [
+            "twin.share",
+            "twin.export",
+            "twin.delegate"
+          ]
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.ownerConsent": {
+              "equals": false
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "block_no_consent"
+          }
+        },
+        {
+          "if": {
+            "context.ownerConsent": {
+              "equals": true
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "allow_with_consent"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {
+          "log": "twin_share_approved"
+        },
+        "onDeny": {
+          "log": "twin_share_blocked"
+        }
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "multi",
+        "requiredApprovers": [
+          "u-manager",
+          "u-admin"
+        ]
+      },
+      "owner": "u-admin",
+      "status": "published",
+      "version": 1,
+      "createdAt": "2026-06-21T13:19:13.184Z",
+      "updatedAt": "2026-06-21T13:19:13.184Z"
+    }
+  ],
+  [
+    "pol-c0f93f25",
+    {
+      "id": "pol-c0f93f25",
+      "name": "smoke-test-policy",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "draft",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "smoke"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T13:21:49.606Z",
+      "updatedAt": "2026-06-21T13:21:49.606Z"
+    }
+  ],
+  [
+    "pol-approval-gated",
+    {
+      "id": "pol-approval-gated",
+      "name": "Approval Gated Policy",
+      "description": "",
+      "category": "financial",
+      "version": 1,
+      "priority": 50,
+      "status": "published",
+      "conditions": {
+        "context.action": {
+          "equals": "purchase"
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.approved": {
+              "equals": true
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "allow_with_approval"
+          }
+        },
+        {
+          "if": {
+            "context.amount": {
+              "lte": 1000
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "auto_allow_small"
+          }
+        },
+        {
+          "if": {},
+          "then": {
+            "allow": false,
+            "action": "deny_default"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": [
+          "u-admin"
+        ]
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T13:22:17.011Z",
+      "updatedAt": "2026-06-21T13:22:17.011Z"
+    }
+  ],
+  [
+    "pol-lifecycle-test",
+    {
+      "id": "pol-lifecycle-test",
+      "name": "Lifecycle Test",
+      "description": "",
+      "category": "business",
+      "version": 1,
+      "priority": 50,
+      "status": "archived",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T13:22:17.653Z",
+      "updatedAt": "2026-06-21T14:38:48.574Z"
+    }
+  ],
+  [
+    "pol-persist-1782049684-79477",
+    {
+      "id": "pol-persist-1782049684-79477",
+      "name": "Persist Test persist-1782049684-79477",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T13:48:05.232Z",
+      "updatedAt": "2026-06-21T13:48:09.873Z"
+    }
+  ],
+  [
+    "pol-persist-1782049824-81822",
+    {
+      "id": "pol-persist-1782049824-81822",
+      "name": "Persist Test persist-1782049824-81822",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T13:50:25.015Z",
+      "updatedAt": "2026-06-21T13:50:26.301Z"
+    }
+  ],
+  [
+    "pol-persist-1782050077-82779",
+    {
+      "id": "pol-persist-1782050077-82779",
+      "name": "Persist Test persist-1782050077-82779",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T13:54:37.663Z",
+      "updatedAt": "2026-06-21T13:54:41.277Z"
+    }
+  ],
+  [
+    "pol-968864f1",
+    {
+      "id": "pol-968864f1",
+      "name": "smoke-test-policy",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "draft",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "smoke"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:27:32.535Z",
+      "updatedAt": "2026-06-21T14:27:32.535Z"
+    }
+  ],
+  [
+    "pol-170c1cf4",
+    {
+      "id": "pol-170c1cf4",
+      "name": "smoke-test-policy",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "draft",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "smoke"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:47.151Z",
+      "updatedAt": "2026-06-21T14:38:47.151Z"
+    }
+  ],
+  [
+    "pol-e2e-test",
+    {
+      "id": "pol-e2e-test",
+      "name": "E2E Test Policy",
+      "description": "Workflow test policy",
+      "category": "financial",
+      "version": 1,
+      "priority": 50,
+      "status": "published",
+      "conditions": {
+        "context.action": {
+          "equals": "purchase"
+        }
+      },
+      "rules": [
+        {
+          "if": {
+            "context.amount": {
+              "lte": 1000
+            }
+          },
+          "then": {
+            "allow": true,
+            "action": "auto_allow_small"
+          }
+        },
+        {
+          "if": {
+            "context.amount": {
+              "gt": 1000
+            }
+          },
+          "then": {
+            "allow": false,
+            "action": "deny_large"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "sequential",
+        "requiredApprovers": [
+          "u-manager",
+          "u-admin"
+        ]
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:47.168Z",
+      "updatedAt": "2026-06-21T14:38:47.168Z"
+    }
+  ],
+  [
+    "pol-expr-1",
+    {
+      "id": "pol-expr-1",
+      "name": "Process Exit",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "process.exit(0)"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:48.794Z",
+      "updatedAt": "2026-06-21T14:38:48.986Z"
+    }
+  ],
+  [
+    "pol-expr-2",
+    {
+      "id": "pol-expr-2",
+      "name": "Valid Exception",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "context.amount < 100"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:49.009Z",
+      "updatedAt": "2026-06-21T14:38:49.158Z"
+    }
+  ],
+  [
+    "pol-expr-3",
+    {
+      "id": "pol-expr-3",
+      "name": "Composite",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "(context.country == \"US\") && (context.amount > 1000)"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:49.186Z",
+      "updatedAt": "2026-06-21T14:38:49.316Z"
+    }
+  ],
+  [
+    "pol-expr-4",
+    {
+      "id": "pol-expr-4",
+      "name": "In Array",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "context.country in [\"US\", \"UK\", \"DE\"]"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:49.337Z",
+      "updatedAt": "2026-06-21T14:38:49.448Z"
+    }
+  ],
+  [
+    "pol-expr-5",
+    {
+      "id": "pol-expr-5",
+      "name": "Proto Test",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "published",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "context.constructor != null"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:49.470Z",
+      "updatedAt": "2026-06-21T14:38:49.470Z"
+    }
+  ],
+  [
+    "pol-b781cd9e",
+    {
+      "id": "pol-b781cd9e",
+      "name": "webhook-test",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "draft",
+      "conditions": {},
+      "rules": [
+        {
+          "id": "r1",
+          "action": "read",
+          "effect": "allow"
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T19:20:00.406Z",
+      "updatedAt": "2026-06-21T19:20:00.406Z"
+    }
+  ]
+]

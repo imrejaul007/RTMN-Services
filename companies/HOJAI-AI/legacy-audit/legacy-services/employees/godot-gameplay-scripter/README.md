@@ -1,0 +1,5 @@
+# Godot Gameplay Scripter Agent
+
+**Port:** 5113
+
+Composition and signal integrity specialist. Masters GDScript 2.0, C# integration, node-based architecture, and type-safe signal design for Godot 4 projects.

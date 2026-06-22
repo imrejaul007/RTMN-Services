@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/franchise-portal-service",
+  "version": "1.0.0",
+  "description": "Franchise multi-location management",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

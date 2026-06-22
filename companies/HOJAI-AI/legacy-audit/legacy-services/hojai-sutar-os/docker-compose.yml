@@ -1,0 +1,288 @@
+# SUTAR OS - Complete Docker Compose
+version: '3.8'
+
+services:
+  sutar-gateway:
+    build: ./services/sutar-gateway
+    ports:
+      - "4140:4140"
+    environment:
+      - NODE_ENV=production
+      - PORT=4140
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-twin-os:
+    build: ./services/sutar-twin-os
+    ports:
+      - "4142:4142"
+    environment:
+      - NODE_ENV=production
+      - PORT=4142
+    networks:
+      - sutar-network
+    restart: unless-stopped
+    depends_on:
+      - sutar-gateway
+
+  sutar-memory-bridge:
+    build: ./services/sutar-memory-bridge
+    ports:
+      - "4143:4143"
+    environment:
+      - NODE_ENV=production
+      - PORT=4143
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-agent-id:
+    build: ./services/sutar-agent-id
+    ports:
+      - "4146:4146"
+    environment:
+      - NODE_ENV=production
+      - PORT=4146
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-identity-os:
+    build: ./services/sutar-identity-os
+    ports:
+      - "4147:4147"
+    environment:
+      - NODE_ENV=production
+      - PORT=4147
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-intent-bus:
+    build: ./services/sutar-intent-bus
+    ports:
+      - "4154:4154"
+    environment:
+      - NODE_ENV=production
+      - PORT=4154
+    networks:
+      - sutar-network
+    restart: unless-stopped
+    depends_on:
+      - sutar-gateway
+
+  sutar-agent-network:
+    build: ./services/sutar-agent-network
+    ports:
+      - "4155:4155"
+    environment:
+      - NODE_ENV=production
+      - PORT=4155
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-decision-engine:
+    build: ./services/sutar-decision-engine
+    ports:
+      - "4240:4240"
+    environment:
+      - NODE_ENV=production
+      - PORT=4240
+    networks:
+      - sutar-network
+    restart: unless-stopped
+    depends_on:
+      - sutar-intent-bus
+
+  sutar-simulation-os:
+    build: ./services/sutar-simulation-os
+    ports:
+      - "4241:4241"
+    environment:
+      - NODE_ENV=production
+      - PORT=4241
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-goal-os:
+    build: ./services/sutar-goal-os
+    ports:
+      - "4242:4242"
+    environment:
+      - NODE_ENV=production
+      - PORT=4242
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-network-learning:
+    build: ./services/sutar-network-learning
+    ports:
+      - "4243:4243"
+    environment:
+      - NODE_ENV=production
+      - PORT=4243
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-flow-os:
+    build: ./services/sutar-flow-os
+    ports:
+      - "4244:4244"
+    environment:
+      - NODE_ENV=production
+      - PORT=4244
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-marketplace:
+    build: ./services/sutar-marketplace
+    ports:
+      - "4250:4250"
+    environment:
+      - NODE_ENV=production
+      - PORT=4250
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-economy-os:
+    build: ./services/sutar-economy-os
+    ports:
+      - "4251:4251"
+    environment:
+      - NODE_ENV=production
+      - PORT=4251
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-usage-tracker:
+    build: ./services/sutar-usage-tracker
+    ports:
+      - "4253:4253"
+    environment:
+      - NODE_ENV=production
+      - PORT=4253
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-policy-os:
+    build: ./services/sutar-policy-os
+    ports:
+      - "4254:4254"
+    environment:
+      - NODE_ENV=production
+      - PORT=4254
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-trust-engine:
+    build: ./services/sutar-trust-engine
+    ports:
+      - "4180:4180"
+    environment:
+      - NODE_ENV=production
+      - PORT=4180
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-contract-os:
+    build: ./services/sutar-contract-os
+    ports:
+      - "4190:4190"
+    environment:
+      - NODE_ENV=production
+      - PORT=4190
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-negotiation-engine:
+    build: ./services/sutar-negotiation-engine
+    ports:
+      - "4191:4191"
+    environment:
+      - NODE_ENV=production
+      - PORT=4191
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-exploration-engine:
+    build: ./services/sutar-exploration-engine
+    ports:
+      - "4255:4255"
+    environment:
+      - NODE_ENV=production
+      - PORT=4255
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-discovery-engine:
+    build: ./services/sutar-discovery-engine
+    ports:
+      - "4256:4256"
+    environment:
+      - NODE_ENV=production
+      - PORT=4256
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-multi-agent-evaluator:
+    build: ./services/sutar-multi-agent-evaluator
+    ports:
+      - "4257:4257"
+    environment:
+      - NODE_ENV=production
+      - PORT=4257
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-reputation-aggregator:
+    build: ./services/sutar-reputation-aggregator
+    ports:
+      - "4258:4258"
+    environment:
+      - NODE_ENV=production
+      - PORT=4258
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-roi-calculator:
+    build: ./services/sutar-roi-calculator
+    ports:
+      - "4259:4259"
+    environment:
+      - NODE_ENV=production
+      - PORT=4259
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+  sutar-monitoring:
+    build: ./services/sutar-monitoring
+    ports:
+      - "3100:3100"
+    environment:
+      - NODE_ENV=production
+      - PORT=3100
+    networks:
+      - sutar-network
+    restart: unless-stopped
+
+networks:
+  sutar-network:
+    driver: bridge

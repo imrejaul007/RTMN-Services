@@ -1,0 +1,58 @@
+[
+  [
+    "admin@rtmn.com",
+    {
+      "id": "user-admin-001",
+      "email": "admin@rtmn.com",
+      "passwordHash": "$2a$12$j2ZN6JZD87hG/zoaWOD/buan0K4ZFbk7MObgiqdh0KLL8Q5jnGyHq",
+      "name": "Admin User",
+      "role": "superadmin",
+      "businessId": "RTMN-HQ",
+      "status": "active",
+      "createdAt": "2026-06-21T06:14:46.267Z",
+      "updatedAt": "2026-06-21T06:14:46.694Z"
+    }
+  ],
+  [
+    "t@example.com",
+    {
+      "id": "user-5f7e760e",
+      "email": "t@example.com",
+      "passwordHash": "$2a$12$F04fYwFVPAUcU.U5vygULuhmQiMEddUg.HBzvE1pgpq89RPsGJHuG",
+      "name": "T",
+      "role": "owner",
+      "businessId": "TBIZ",
+      "status": "active",
+      "createdAt": "2026-06-21T06:14:55.201Z",
+      "updatedAt": "2026-06-21T06:14:55.202Z"
+    }
+  ],
+  [
+    "memtest2@test.com",
+    {
+      "id": "user-84cc1b19",
+      "email": "memtest2@test.com",
+      "passwordHash": "$2a$12$otIiSuy4wHQ.IHE56N1SFOf7.plwGDFGzSeiCsQ76EBIk6Fkoo/Wy",
+      "name": "Mem Test 2",
+      "role": "owner",
+      "businessId": "biz2",
+      "status": "active",
+      "createdAt": "2026-06-21T14:15:16.247Z",
+      "updatedAt": "2026-06-21T14:15:16.253Z"
+    }
+  ],
+  [
+    "memtest3@test.com",
+    {
+      "id": "user-36e5b77e",
+      "email": "memtest3@test.com",
+      "passwordHash": "$2a$12$7hU7Fv.cFxMbt9Z0pHdk8OdO87CRoIE4iWMt5fTTNV/HbDfc7Ve8C",
+      "name": "Mem Test 3",
+      "role": "owner",
+      "businessId": "biz3",
+      "status": "active",
+      "createdAt": "2026-06-21T14:16:49.569Z",
+      "updatedAt": "2026-06-21T14:16:49.571Z"
+    }
+  ]
+]

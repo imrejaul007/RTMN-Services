@@ -1,0 +1,50 @@
+[
+  [
+    "user-admin-001",
+    {
+      "corpId": "user-admin-001",
+      "score": 95,
+      "level": "platinum",
+      "lastUpdated": "2026-06-21T06:14:46.695Z",
+      "history": [],
+      "createdAt": "2026-06-21T06:14:46.695Z",
+      "updatedAt": "2026-06-21T06:14:46.695Z"
+    }
+  ],
+  [
+    "user-5f7e760e",
+    {
+      "corpId": "user-5f7e760e",
+      "score": 50,
+      "level": "bronze",
+      "lastUpdated": "2026-06-21T06:14:55.201Z",
+      "history": [],
+      "createdAt": "2026-06-21T06:14:55.207Z",
+      "updatedAt": "2026-06-21T06:14:55.207Z"
+    }
+  ],
+  [
+    "user-84cc1b19",
+    {
+      "corpId": "user-84cc1b19",
+      "score": 50,
+      "level": "bronze",
+      "lastUpdated": "2026-06-21T14:15:49.893Z",
+      "history": [],
+      "createdAt": "2026-06-21T14:15:49.894Z",
+      "updatedAt": "2026-06-21T14:15:49.894Z"
+    }
+  ],
+  [
+    "user-36e5b77e",
+    {
+      "corpId": "user-36e5b77e",
+      "score": 50,
+      "level": "bronze",
+      "lastUpdated": "2026-06-21T14:16:49.569Z",
+      "history": [],
+      "createdAt": "2026-06-21T14:16:49.579Z",
+      "updatedAt": "2026-06-21T14:16:49.579Z"
+    }
+  ]
+]

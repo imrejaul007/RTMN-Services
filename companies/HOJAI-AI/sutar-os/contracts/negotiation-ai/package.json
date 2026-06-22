@@ -1,0 +1,26 @@
+{
+  "name": "@rtmn/negotiation-ai",
+  "version": "1.0.0",
+  "description": "Advanced Negotiation AI - ML-powered negotiation strategies",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "negotiation",
+    "ai",
+    "ml",
+    "strategy",
+    "pricing"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "uuid": "^14.0.0",
+    "@rtmn/shared": "file:../../shared",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5"
+  }
+}

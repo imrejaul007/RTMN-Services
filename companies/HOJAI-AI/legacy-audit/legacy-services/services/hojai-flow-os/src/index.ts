@@ -1,0 +1,16 @@
+import express from 'express';import cors from 'cors';import helmet from 'helmet';import mongoose from 'mongoose';import { v4 as uuidv4 } from 'uuid';import pino from 'pino';
+const app = express();const PORT = parseInt(process.env.PORT || '4150', 10);
+app.use(helmet());app.use(cors({ origin: process.env.CORS_ORIGIN?.split(',') || false }));app.use(express.json());
+app.get('/health', (req, res) => res.json({ status: 'healthy', service: 'hojai-flow-os', version: '1.0.0' }));
+app.get('/health/live', (req, res) => res.json({ status: 'alive' }));
+app.get('/health/ready', async (req, res) => { try { res.json({ status: mongoose.connection.readyState === 1 ? 'ready' : 'not ready' }); } catch { res.status(503).json({ status: 'not ready' }); } });
+const FlowSchemaM = new mongoose.Schema({ id: { type: String, required: true, unique: true }, name: String, description: String, steps: [mongoose.Schema.Types.Mixed], enabled: { type: Boolean, default: true } }, { timestamps: true });const FlowModel = mongoose.model('Flow', FlowSchemaM);
+const RunSchemaM = new mongoose.Schema({ id: { type: String, required: true, unique: true }, flowId: String, status: { type: String, enum: ['pending', 'running', 'completed', 'failed'] }, results: [mongoose.Schema.Types.Mixed], startedAt: Date, completedAt: Date }, { timestamps: true });const RunModel = mongoose.model('FlowRun', RunSchemaM);
+app.get('/api/v1/flows', async (req, res) => { try { const f = await FlowModel.find().lean(); res.json({ count: f.length, flows: f }); } catch (e) { pino().error({ e }); res.status(500).json({ error: 'Failed' }); } });
+app.post('/api/v1/flows', async (req, res) => { try { const f = new FlowModel({ id: uuidv4(), ...req.body }); await f.save(); res.status(201).json(f.toObject()); } catch (e) { pino().error({ e }); res.status(500).json({ error: 'Failed' }); } });
+app.get('/api/v1/flows/:id', async (req, res) => { try { const f = await FlowModel.findOne({ id: req.params.id }).lean(); if (!f) return res.status(404).json({ error: 'Not found' }); res.json(f); } catch (e) { res.status(500).json({ error: 'Failed' }); } });
+app.post('/api/v1/flows/:id/execute', async (req, res) => { try { const flow = await FlowModel.findOne({ id: req.params.id }).lean(); if (!flow) return res.status(404).json({ error: 'Not found' }); const run = new RunModel({ id: uuidv4(), flowId: flow.id, status: 'running', results: [], startedAt: new Date() }); await run.save(); res.status(201).json({ runId: run.id, status: 'started' }); } catch (e) { pino().error({ e }); res.status(500).json({ error: 'Failed' }); } });
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hojai-flow-os').then(() => pino().info('MongoDB connected'));
+const server = app.listen(PORT, () => pino().info(`FlowOS running on ${PORT}`));
+process.on('SIGTERM', () => { server.close(() => { mongoose.connection.close(); process.exit(0); }); });
+export default app;

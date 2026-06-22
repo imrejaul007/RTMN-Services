@@ -1,0 +1,70 @@
+{
+  "name": "@hojai/data-models",
+  "version": "1.0.0",
+  "description": "Hojai AI - Canonical Data Models",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./tenant": {
+      "import": "./dist/entities/tenant.mjs",
+      "require": "./dist/entities/tenant.js",
+      "types": "./dist/entities/tenant.d.ts"
+    },
+    "./consent": {
+      "import": "./dist/entities/consent.mjs",
+      "require": "./dist/entities/consent.js",
+      "types": "./dist/entities/consent.d.ts"
+    },
+    "./customer": {
+      "import": "./dist/entities/customer.mjs",
+      "require": "./dist/entities/customer.js",
+      "types": "./dist/entities/customer.d.ts"
+    },
+    "./knowledge": {
+      "import": "./dist/entities/knowledge.mjs",
+      "require": "./dist/entities/knowledge.js",
+      "types": "./dist/entities/knowledge.d.ts"
+    },
+    "./conversation": {
+      "import": "./dist/entities/conversation.mjs",
+      "require": "./dist/entities/conversation.js",
+      "types": "./dist/entities/conversation.d.ts"
+    },
+    "./event": {
+      "import": "./dist/entities/event.mjs",
+      "require": "./dist/entities/event.js",
+      "types": "./dist/entities/event.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "hojai",
+    "ai",
+    "data-models",
+    "multi-tenant",
+    "canonical"
+  ],
+  "author": "Hojai AI",
+  "license": "MIT",
+  "peerDependencies": {
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

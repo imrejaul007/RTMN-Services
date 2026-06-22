@@ -1,0 +1,30 @@
+{
+  "name": "@rtmn/graph-database",
+  "version": "1.0.0",
+  "description": "RTMN in-memory property graph database (Neo4j/Memgraph alternative)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.1"
+  },
+  "keywords": [
+    "rtmn",
+    "graph",
+    "graph-database",
+    "neo4j",
+    "memgraph",
+    "property-graph",
+    "cypher",
+    "page-rank",
+    "bfs"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "author": "HOJAI AI - Training & Model Platform (Division 7)"
+}

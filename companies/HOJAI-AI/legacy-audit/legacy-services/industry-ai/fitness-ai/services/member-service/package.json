@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/gym-member-service",
+  "version": "1.0.0",
+  "description": "Gym member management service - member registration, profiles, membership tracking",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hojai/shared": "workspace:*",
+    "@hojai/llm": "workspace:*",
+    "@hojai/vector": "workspace:*"
+  }
+}

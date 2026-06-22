@@ -1,0 +1,48 @@
+{
+  "name": "genie-os",
+  "version": "1.0.0",
+  "description": "HOJAI AI Ecosystem - Foundation, Runtime, Products, and Economy",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "foundation/*",
+    "runtime/*",
+    "products/*",
+    "frontend/*"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "start:foundation": "node infrastructure/scripts/start-foundation.js",
+    "start:runtime": "node infrastructure/scripts/start-runtime.js",
+    "start:products": "node infrastructure/scripts/start-products.js",
+    "start:all": "node infrastructure/scripts/start-all.js",
+    "start:specialists": "node infrastructure/scripts/start-specialists.js",
+    "stop:all": "node infrastructure/scripts/stop-all.js",
+    "test": "node infrastructure/scripts/test-all.js",
+    "test:routing": "node infrastructure/scripts/test-routing.js",
+    "seed": "node infrastructure/seed/seed.js",
+    "seed:agents": "node infrastructure/seed/seed-agents.js",
+    "demo": "node infrastructure/scripts/demo.js",
+    "health": "node infrastructure/scripts/health-check.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@rtmn/shared": "file:../../shared",
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.3.1",
+    "express-rate-limit": "^7.1.5",
+    "zod": "^3.22.4",
+    "uuid": "^9.0.1",
+    "axios": "^1.6.2",
+    "ws": "^8.16.0"
+  }
+}

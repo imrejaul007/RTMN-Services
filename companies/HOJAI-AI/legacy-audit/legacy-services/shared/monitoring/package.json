@@ -1,0 +1,38 @@
+{
+  "name": "@rez/monitoring",
+  "version": "1.0.0",
+  "description": "Production-ready observability package with Prometheus metrics, health checks, SLO tracking, and distributed tracing for RTNM services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0",
+    "@types/express": "^4.17.21"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "monitoring",
+    "prometheus",
+    "metrics",
+    "health-check",
+    "tracing",
+    "observability"
+  ]
+}

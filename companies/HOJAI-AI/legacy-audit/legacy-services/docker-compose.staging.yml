@@ -1,0 +1,45 @@
+# HOJAI AI - Staging Environment
+# docker compose -f docker-compose.staging.yml up -d
+
+services:
+  # Override production for staging
+  api-gateway:
+    environment:
+      - NODE_ENV=staging
+      - LOG_LEVEL=debug
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  memory:
+    environment:
+      - NODE_ENV=staging
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  intelligence:
+    environment:
+      - NODE_ENV=staging
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  agents:
+    environment:
+      - NODE_ENV=staging
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M

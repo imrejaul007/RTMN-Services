@@ -1,0 +1,22 @@
+{
+  "name": "@rtmn/twin-capability-profile",
+  "version": "1.0.0",
+  "description": "Twin Capability Profile (4150) — every Twin advertises what it can DO (acceptQuote, checkAvailability, holdRoom, requestHousekeeping, etc.). Discovery layer for the entire ecosystem; SkillOS handles implementation.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hojai", "twin", "capability", "profile", "discovery", "skill"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

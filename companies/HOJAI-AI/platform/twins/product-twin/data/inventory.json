@@ -1,0 +1,41 @@
+[
+  [
+    "inv-1",
+    {
+      "id": "inv-1",
+      "productId": "prod-1",
+      "warehouseId": "wh-1",
+      "quantity": 1000,
+      "reserved": 50,
+      "available": 950,
+      "reorderPoint": 100,
+      "status": "in_stock"
+    }
+  ],
+  [
+    "inv-2",
+    {
+      "id": "inv-2",
+      "productId": "prod-2",
+      "warehouseId": "wh-1",
+      "quantity": 500,
+      "reserved": 25,
+      "available": 475,
+      "reorderPoint": 50,
+      "status": "in_stock"
+    }
+  ],
+  [
+    "inv-3",
+    {
+      "id": "inv-3",
+      "productId": "prod-3",
+      "warehouseId": "wh-2",
+      "quantity": 100,
+      "reserved": 5,
+      "available": 95,
+      "reorderPoint": 10,
+      "status": "in_stock"
+    }
+  ]
+]

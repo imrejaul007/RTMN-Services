@@ -1,0 +1,34 @@
+{
+  "name": "@hojai/voice-sdk",
+  "version": "1.0.0",
+  "description": "Client SDK for HOJAI Voice Platform",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": [
+    "voice",
+    "ai",
+    "speech",
+    "telecom",
+    "voice-agent",
+    "india"
+  ],
+  "author": "HOJAI-AI",
+  "license": "Proprietary",
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "typescript": "^5.3.3",
+    "tsup": "^8.0.1"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1"
+  }
+}

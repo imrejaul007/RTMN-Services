@@ -1,0 +1,156 @@
+[
+  [
+    "part-001",
+    {
+      "id": "part-001",
+      "name": "TechSupply Co",
+      "type": "vendor",
+      "category": "technology",
+      "businessScope": "foundation",
+      "status": "active",
+      "contact": {
+        "email": "sales@techsupply.com",
+        "phone": "+1-555-0100",
+        "address": "123 Tech Street, Silicon Valley, CA"
+      },
+      "rating": 4.5,
+      "totalRevenue": 500000,
+      "totalOrders": 150,
+      "relationshipSince": "2022-01-15",
+      "createdAt": "2022-01-15T00:00:00.000Z",
+      "updatedAt": "2022-01-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "part-002",
+    {
+      "id": "part-002",
+      "name": "Global Logistics",
+      "type": "vendor",
+      "category": "logistics",
+      "businessScope": "foundation",
+      "status": "active",
+      "contact": {
+        "email": "ops@globallog.com",
+        "phone": "+1-555-0200"
+      },
+      "rating": 4.2,
+      "totalRevenue": 250000,
+      "totalOrders": 85,
+      "relationshipSince": "2023-03-01",
+      "createdAt": "2023-03-01T00:00:00.000Z",
+      "updatedAt": "2023-03-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "part-003",
+    {
+      "id": "part-003",
+      "name": "Enterprise Corp",
+      "type": "customer",
+      "category": "enterprise",
+      "businessScope": "commerce",
+      "status": "active",
+      "contact": {
+        "email": "buyer@enterprise.com",
+        "phone": "+1-555-0300"
+      },
+      "rating": 4.8,
+      "totalRevenue": 1000000,
+      "totalOrders": 320,
+      "relationshipSince": "2021-06-01",
+      "createdAt": "2021-06-01T00:00:00.000Z",
+      "updatedAt": "2021-06-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "part-004",
+    {
+      "id": "part-004",
+      "name": "Quality Supplies Ltd",
+      "type": "supplier",
+      "category": "general",
+      "businessScope": "manufacturing",
+      "status": "active",
+      "contact": {
+        "email": "orders@qualitysupplies.com"
+      },
+      "rating": 4,
+      "totalRevenue": 180000,
+      "totalOrders": 65,
+      "relationshipSince": "2023-08-15",
+      "createdAt": "2023-08-15T00:00:00.000Z",
+      "updatedAt": "2023-08-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "part-005",
+    {
+      "id": "part-005",
+      "name": "Digital Solutions Inc",
+      "type": "partner",
+      "category": "technology",
+      "businessScope": "ai",
+      "status": "inactive",
+      "contact": {
+        "email": "partnership@digitalsol.com"
+      },
+      "rating": 3.5,
+      "totalRevenue": 75000,
+      "totalOrders": 25,
+      "relationshipSince": "2022-11-01",
+      "createdAt": "2022-11-01T00:00:00.000Z",
+      "updatedAt": "2024-02-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "part-759197c2",
+    {
+      "id": "part-759197c2",
+      "name": "P4-Partner",
+      "type": "supplier",
+      "category": "general",
+      "businessScope": "foundation",
+      "status": "active",
+      "contact": {
+        "email": "p4@t.com"
+      },
+      "address": null,
+      "taxId": null,
+      "paymentTerms": "net-30",
+      "creditLimit": 0,
+      "rating": 0,
+      "totalRevenue": 0,
+      "totalOrders": 0,
+      "relationshipSince": "2026-06-21",
+      "metadata": {},
+      "createdAt": "2026-06-21T21:33:20.810Z",
+      "updatedAt": "2026-06-21T21:33:20.810Z"
+    }
+  ],
+  [
+    "part-12859ace",
+    {
+      "id": "part-12859ace",
+      "name": "Pa9927",
+      "type": "supplier",
+      "category": "general",
+      "businessScope": "foundation",
+      "status": "active",
+      "contact": {
+        "email": "pa9927@t.com"
+      },
+      "address": null,
+      "taxId": null,
+      "paymentTerms": "net-30",
+      "creditLimit": 0,
+      "rating": 0,
+      "totalRevenue": 0,
+      "totalOrders": 0,
+      "relationshipSince": "2026-06-22",
+      "metadata": {},
+      "createdAt": "2026-06-22T00:59:09.503Z",
+      "updatedAt": "2026-06-22T00:59:09.503Z"
+    }
+  ]
+]

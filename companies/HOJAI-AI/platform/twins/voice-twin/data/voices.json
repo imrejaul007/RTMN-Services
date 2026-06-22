@@ -1,0 +1,67 @@
+[
+  [
+    "voice-emma",
+    {
+      "id": "voice-emma",
+      "name": "Emma",
+      "gender": "female",
+      "language": "en-US",
+      "style": "professional",
+      "pitch": 1,
+      "speed": 1,
+      "provider": "standard"
+    }
+  ],
+  [
+    "voice-james",
+    {
+      "id": "voice-james",
+      "name": "James",
+      "gender": "male",
+      "language": "en-US",
+      "style": "professional",
+      "pitch": 0.95,
+      "speed": 1,
+      "provider": "standard"
+    }
+  ],
+  [
+    "voice-sofia",
+    {
+      "id": "voice-sofia",
+      "name": "Sofia",
+      "gender": "female",
+      "language": "es-ES",
+      "style": "friendly",
+      "pitch": 1.1,
+      "speed": 1,
+      "provider": "standard"
+    }
+  ],
+  [
+    "voice-hans",
+    {
+      "id": "voice-hans",
+      "name": "Hans",
+      "gender": "male",
+      "language": "de-DE",
+      "style": "professional",
+      "pitch": 0.9,
+      "speed": 0.95,
+      "provider": "standard"
+    }
+  ],
+  [
+    "voice-luna",
+    {
+      "id": "voice-luna",
+      "name": "Luna",
+      "gender": "female",
+      "language": "en-US",
+      "style": "casual",
+      "pitch": 1.05,
+      "speed": 1.1,
+      "provider": "neural"
+    }
+  ]
+]

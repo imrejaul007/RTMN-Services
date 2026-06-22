@@ -1,0 +1,22 @@
+[
+  [
+    "u-admin",
+    [
+      "admin",
+      "role-persist-1782049824-81822",
+      "role-persist-1782050077-82779"
+    ]
+  ],
+  [
+    "u-manager",
+    [
+      "manager"
+    ]
+  ],
+  [
+    "u-customer",
+    [
+      "customer"
+    ]
+  ]
+]

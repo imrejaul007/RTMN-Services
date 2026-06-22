@@ -1,0 +1,546 @@
+version: '3.8'
+
+# HOJAI AI - Complete Platform Deployment
+# All services built June 2026
+#
+# Usage: docker-compose up -d
+
+services:
+  # ============================================
+  # DATABASE SERVICES
+  # ============================================
+
+  mongodb:
+    image: mongo:7-alpine
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # HOJAI CORE PACKAGES (14 services)
+  # ============================================
+
+  hojai-api-gateway:
+    build:
+      context: ./hojai-core/hojai-api-gateway
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4500:4500"
+    environment:
+      - NODE_ENV=production
+      - PORT=4500
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-gateway
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-event:
+    build:
+      context: ./hojai-core/hojai-event
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4510:4510"
+    environment:
+      - NODE_ENV=production
+      - PORT=4510
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-memory:
+    build:
+      context: ./hojai-core/hojai-memory
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4511:4511"
+    environment:
+      - NODE_ENV=production
+      - PORT=4511
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-memory
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-communications:
+    build:
+      context: ./hojai-core/hojai-communications
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4520:4520"
+    environment:
+      - NODE_ENV=production
+      - PORT=4520
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-agents:
+    build:
+      context: ./hojai-core/hojai-agents
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4550:4550"
+    environment:
+      - NODE_ENV=production
+      - PORT=4550
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-agents
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-intelligence:
+    build:
+      context: ./hojai-core/hojai-intelligence
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4580:4580"
+    environment:
+      - NODE_ENV=production
+      - PORT=4580
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-intelligence
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-hyperlocal:
+    build:
+      context: ./hojai-core/hojai-hyperlocal
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4590:4590"
+    environment:
+      - NODE_ENV=production
+      - PORT=4590
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-identity:
+    build:
+      context: ./hojai-core/hojai-identity
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4610:4610"
+    environment:
+      - NODE_ENV=production
+      - PORT=4610
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-governance:
+    build:
+      context: ./hojai-core/hojai-governance
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4620:4620"
+    environment:
+      - NODE_ENV=production
+      - PORT=4620
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-governance
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-workflow:
+    build:
+      context: ./hojai-core/hojai-workflow
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4810:4810"
+    environment:
+      - NODE_ENV=production
+      - PORT=4810
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-industry:
+    build:
+      context: ./hojai-core/hojai-industry
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4700:4700"
+    environment:
+      - NODE_ENV=production
+      - PORT=4700
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-analytics:
+    build:
+      context: ./hojai-core/hojai-analytics
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4750:4750"
+    environment:
+      - NODE_ENV=production
+      - PORT=4750
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-data:
+    build:
+      context: ./hojai-core/hojai-data
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4755:4755"
+    environment:
+      - NODE_ENV=production
+      - PORT=4755
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-ml:
+    build:
+      context: ./hojai-core/hojai-ml
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4760:4760"
+    environment:
+      - NODE_ENV=production
+      - PORT=4760
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  # ============================================
+  # MAIN SERVICES
+  # ============================================
+
+  hojai-expert-os:
+    build:
+      context: ./hojai-expert-os
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4551:4551"
+    environment:
+      - NODE_ENV=production
+      - PORT=4551
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-expert-os
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  workflow-bridge:
+    build:
+      context: ./workflow-bridge
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4800:4800"
+    environment:
+      - NODE_ENV=production
+      - PORT=4800
+      - MONGODB_URI=mongodb://mongodb:27017/workflow-bridge
+      - REDIS_URL=redis://redis:6379
+      - EXPERT_OS_URL=http://hojai-expert-os:4551
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hib-code-intelligence:
+    build:
+      context: ./hib-code-intelligence-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "3053:3053"
+    environment:
+      - NODE_ENV=production
+      - PORT=3053
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hib-soar:
+    build:
+      context: ./hib-soar
+      dockerfile: ../../Dockerfile
+    ports:
+      - "3054:3054"
+    environment:
+      - NODE_ENV=production
+      - PORT=3054
+      - MONGODB_URI=mongodb://mongodb:27017/hib-soar
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-clinic-ai:
+    build:
+      context: ./HOJAI-CLINIC-AI
+      dockerfile: ../../Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-clinic
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  hojai-voice-platform:
+    build:
+      context: ./HOJAI-VOICE-PLATFORM
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4850:4850"
+    environment:
+      - NODE_ENV=production
+      - PORT=4850
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  brandpulse:
+    build:
+      context: ./services/hojai-company-intelligence
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4770:4770"
+    environment:
+      - NODE_ENV=production
+      - PORT=4770
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  # ============================================
+  # GENIE ECOSYSTEM (11 services)
+  # ============================================
+
+  genie-personal-os-gateway:
+    build:
+      context: ./genie-personal-os-gateway
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4702:4702"
+    environment:
+      - NODE_ENV=production
+      - PORT=4702
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-memory-service:
+    build:
+      context: ./genie-memory-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4703:4703"
+    environment:
+      - NODE_ENV=production
+      - PORT=4703
+      - MONGODB_URI=mongodb://mongodb:27017/genie-memory
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-relationship-service:
+    build:
+      context: ./genie-relationship-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4704:4704"
+    environment:
+      - NODE_ENV=production
+      - PORT=4704
+      - MONGODB_URI=mongodb://mongodb:27017/genie-relationships
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-briefing-service:
+    build:
+      context: ./genie-briefing-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4706:4706"
+    environment:
+      - NODE_ENV=production
+      - PORT=4706
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-sync-service:
+    build:
+      context: ./genie-sync-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4707:4707"
+    environment:
+      - NODE_ENV=production
+      - PORT=4707
+      - MONGODB_URI=mongodb://mongodb:27017/genie-sync
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-project-service:
+    build:
+      context: ./genie-project-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4712:4712"
+    environment:
+      - NODE_ENV=production
+      - PORT=4712
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-memory-review-service:
+    build:
+      context: ./genie-memory-review-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4710:4710"
+    environment:
+      - NODE_ENV=production
+      - PORT=4710
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-browser-history-service:
+    build:
+      context: ./genie-browser-history-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4715:4715"
+    environment:
+      - NODE_ENV=production
+      - PORT=4715
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-household-service:
+    build:
+      context: ./genie-household-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4720:4720"
+    environment:
+      - NODE_ENV=production
+      - PORT=4720
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-privacy-service:
+    build:
+      context: ./genie-privacy-service
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4716:4716"
+    environment:
+      - NODE_ENV=production
+      - PORT=4716
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  genie-business-intelligence:
+    build:
+      context: ./genie-business-intelligence
+      dockerfile: ../../Dockerfile
+    ports:
+      - "4725:4725"
+    environment:
+      - NODE_ENV=production
+      - PORT=4725
+    networks:
+      - hojai-network
+    restart: unless-stopped
+
+  # ============================================
+  # NETWORKS & VOLUMES
+  # ============================================
+
+networks:
+  hojai-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:

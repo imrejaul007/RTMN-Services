@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  sutar-flow-os:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sutar-flow-os
+    restart: unless-stopped
+    ports:
+      - "4244:4244"
+    environment:
+      - NODE_ENV=production
+      - PORT=4244
+      - MONGODB_URI=mongodb://mongo:27017/sutar-flow-os
+      - CORS_ORIGIN=*
+      - JWT_SECRET=${JWT_SECRET:-sutar-flow-os-secret-change-in-production}
+    depends_on:
+      - mongo
+    networks:
+      - sutar-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4244/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  mongo:
+    image: mongo:7
+    container_name: sutar-flow-os-mongo
+    restart: unless-stopped
+    ports:
+      - "27027:27017"
+    volumes:
+      - sutar-flow-os-mongo-data:/data/db
+    networks:
+      - sutar-network
+
+networks:
+  sutar-network:
+    driver: bridge
+
+volumes:
+  sutar-flow-os-mongo-data:
+    driver: local

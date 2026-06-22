@@ -1,0 +1,19 @@
+{
+  "name": "@hojai/memory-substrate",
+  "version": "1.0.0",
+  "description": "Memory Substrate API — unified read/write across MemoryOS + TwinOS + Graphs",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node tests/substrate.test.cjs",
+    "smoke": "bash tests/smoke.sh"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@rtmn/shared": "file:../../shared",
+    "axios": "^1.6.0"
+  }
+}

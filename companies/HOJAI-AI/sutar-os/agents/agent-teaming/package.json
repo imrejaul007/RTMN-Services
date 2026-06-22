@@ -1,0 +1,32 @@
+{
+  "name": "@rtmn/agent-teaming",
+  "version": "1.1.0",
+  "description": "SUTAR Agent Teaming — multi-agent team formation, leader election, task DAGs, failure recovery, mission templates, and built-in observability (JSON /metrics + Prometheus /metrics/prom).",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node tests/teaming.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1",
+    "axios": "^1.6.0",
+    "@rtmn/shared": "file:../../shared"
+  },
+  "keywords": [
+    "rtmn",
+    "sutar",
+    "agent-teaming",
+    "multi-agent",
+    "leader-election",
+    "task-dag"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

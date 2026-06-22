@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/morning-briefing-v2",
+  "version": "1.0.0",
+  "description": "LLM-powered daily morning briefing — composes calendar, goals, weather, news, and a personal note into one warm daily message",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node tests/briefing.test.cjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@rtmn/shared": "file:../../shared"
+  }
+}

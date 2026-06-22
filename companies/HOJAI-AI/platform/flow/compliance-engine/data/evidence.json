@@ -1,0 +1,41 @@
+[
+  [
+    "ev-1782070161841-bcdbfe",
+    {
+      "id": "ev-1782070161841-bcdbfe",
+      "controlId": "gdpr.art32",
+      "kind": "config",
+      "summary": "AES-256 enabled on all DBs",
+      "source": "aws-config",
+      "capturedBy": "admin",
+      "capturedAt": "2026-06-21T19:29:21.841Z",
+      "metadata": {}
+    }
+  ],
+  [
+    "ev-1782070913614-d0c90d",
+    {
+      "id": "ev-1782070913614-d0c90d",
+      "controlId": "gdpr.art32",
+      "kind": "config",
+      "summary": "SDK smoke test evidence",
+      "source": "sdk-test",
+      "capturedBy": "admin",
+      "capturedAt": "2026-06-21T19:41:53.615Z",
+      "metadata": {}
+    }
+  ],
+  [
+    "ev-1782070947110-7247af",
+    {
+      "id": "ev-1782070947110-7247af",
+      "controlId": "gdpr.art32",
+      "kind": "config",
+      "summary": "AES-256 enabled on all DBs",
+      "source": "aws-config",
+      "capturedBy": "admin",
+      "capturedAt": "2026-06-21T19:42:27.110Z",
+      "metadata": {}
+    }
+  ]
+]

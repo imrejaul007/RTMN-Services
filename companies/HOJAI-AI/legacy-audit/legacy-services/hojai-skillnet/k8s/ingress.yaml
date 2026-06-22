@@ -1,0 +1,74 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hojai-skillnet
+  namespace: hojai
+  labels:
+    app: hojai-skillnet
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    prometheus.io/scrape: "true"
+spec:
+  tls:
+    - hosts:
+        - api.hojai.ai
+        - skillnet.hojai.ai
+      secretName: hojai-skillnet-tls
+  rules:
+    - host: api.hojai.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hojai-skillnet
+                port:
+                  name: http
+    - host: skillnet.hojai.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hojai-skillnet
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hojai-skillnet-websocket
+  namespace: hojai
+  labels:
+    app: hojai-skillnet
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/websocket-services: hojai-skillnet
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  tls:
+    - hosts:
+        - ws.hojai.ai
+      secretName: hojai-skillnet-ws-tls
+  rules:
+    - host: ws.hojai.ai
+      http:
+        paths:
+          - path: /ws
+            pathType: Exact
+            backend:
+              service:
+                name: hojai-skillnet
+                port:
+                  name: ws

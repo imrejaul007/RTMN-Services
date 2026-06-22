@@ -1,0 +1,25 @@
+{
+  "name": "@hojai/api-gateway",
+  "version": "1.0.0",
+  "description": "HOJAI AI Unified API Gateway - single entry point for all HOJAI services",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "NODE_ENV=test node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@rtmn/shared": "file:../../../shared",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "http-proxy-middleware": "^3.0.0",
+    "express-rate-limit": "^7.1.5"
+  },
+  "keywords": ["hojai", "api-gateway", "gateway", "proxy"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

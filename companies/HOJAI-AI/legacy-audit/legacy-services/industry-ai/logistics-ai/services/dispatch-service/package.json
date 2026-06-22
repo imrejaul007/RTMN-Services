@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/logistics-dispatch-service",
+  "version": "1.0.0",
+  "description": "Logistics dispatch and routing service",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

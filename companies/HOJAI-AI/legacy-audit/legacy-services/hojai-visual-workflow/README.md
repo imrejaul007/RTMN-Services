@@ -1,0 +1,96 @@
+# Hojai Visual Workflow
+
+> **HOJAI Core** | HOJAI Visual Workflow Builder - Drag-drop nodes
+
+---
+
+## Overview
+
+This is a hojai core service in the HOJAI AI ecosystem.
+
+## Quick Start
+
+```bash
+npm install
+npm run dev
+```
+
+**Default Port:** `4600`
+
+## Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| PORT | No | 4600 | Service port |
+| NODE_ENV | No | development | Environment |
+| MONGODB_URI | Yes | - | MongoDB connection |
+| JWT_SECRET | Yes | - | JWT signing secret |
+| REDIS_URL | No | redis://localhost:6379 | Redis connection |
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /health | Health check |
+| GET | /api/templates | GET request |
+| GET | /api/workflows/:id | GET request |
+| GET | /api/workflows | GET request |
+| GET | /api/executions/:id | GET request |
+| GET | /api/executions | GET request |
+| POST | /api/workflows | POST request |
+| POST | /api/workflows/:id/nodes | POST request |
+| POST | /api/workflows/:id/edges | POST request |
+| POST | /api/workflows/:id/test | POST request |
+| POST | /api/workflows/:id/deploy | POST request |
+| POST | /api/workflows/:id/run | POST request |
+| DELETE | /api/workflows/:workflowId/nodes/:nodeId | DELETE request |
+
+## Health Check
+
+```bash
+curl http://localhost:4600/health
+```
+
+**Response:**
+```json
+{"status": "healthy", "service": "hojai-visual-workflow", "timestamp": "..."}
+```
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|-------------|
+| Runtime | Node.js 20+ |
+| Framework | Express.js |
+| Language | TypeScript |
+| Database | MongoDB |
+| Cache | Redis |
+
+## Integration Points
+
+### RABTUL Services
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| RABTUL Auth | 4002 | User authentication |
+| RABTUL Payment | 4001 | Payment processing |
+| RABTUL Wallet | 4004 | Balance management |
+| RABTUL Notification | 4005 | Push notifications |
+
+### HOJAI AI
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| HOJAI SkillNet | 5120-5140 | Skill marketplace |
+| HOJAI BrandPulse | 4770 | Brand intelligence |
+| HOJAI Genie | - | Personal AI |
+| HOJAI Voice | 4850 | Voice AI |
+
+## License
+
+Proprietary - RTNM Digital
+
+---
+
+**Last Updated:** 2026-06-12
+**Version:** 1.0.0

@@ -1,0 +1,196 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Foundation Layer
+  corpid:
+    build: ../../foundation/corpid
+    ports: ["7001:7001"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - CORPID_PORT=7001
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  twinos:
+    build: ../../foundation/twinos
+    ports: ["7002:7002"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - TWINOS_PORT=7002
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  memoryos:
+    build: ../../foundation/memoryos
+    ports: ["7003:7003"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - MEMORYOS_PORT=7003
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  goalos:
+    build: ../../foundation/goalos
+    ports: ["7004:7004"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - GOALOS_PORT=7004
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  policyos:
+    build: ../../foundation/policyos
+    ports: ["7005:7005"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - POLICYOS_PORT=7005
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  skillos:
+    build: ../../foundation/skillos
+    ports: ["7006:7006"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - SKILLOS_PORT=7006
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  flowos:
+    build: ../../foundation/flowos
+    ports: ["7007:7007"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - FLOWOS_PORT=7007
+      - SKILLOS_URL=http://skillos:7006
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo, skillos]
+
+  # AI Runtime
+  genie:
+    build: ../../runtime/genie
+    ports: ["7100:7100"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - GENIE_PORT=7100
+      - CORPID_URL=http://corpid:7001
+      - MEMORYOS_URL=http://memoryos:7003
+      - TWINOS_URL=http://twinos:7002
+      - GOALOS_URL=http://goalos:7004
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo, corpid, memoryos, twinos, goalos]
+
+  sutar:
+    build: ../../runtime/sutar
+    ports: ["7200:7200"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - SUTAR_PORT=7200
+      - CORPID_URL=http://corpid:7001
+      - POLICYOS_URL=http://policyos:7005
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo, corpid, policyos]
+
+  agentos:
+    build: ../../runtime/agentos
+    ports: ["7300:7300"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - AGENTOS_PORT=7300
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  # Products
+  do-wallet:
+    build: ../../products/do/wallet
+    ports: ["8002:8002"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - DO_WALLET_PORT=8002
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  do-merchant:
+    build: ../../products/do/merchant
+    ports: ["8003:8003"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - DO_MERCHANT_PORT=8003
+      - SUTAR_URL=http://sutar:7200
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo, sutar]
+
+  do-backend:
+    build: ../../products/do/backend
+    ports: ["8000:8000"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - DO_PORT=8000
+      - GENIE_URL=http://genie:7100
+      - SUTAR_URL=http://sutar:7200
+      - DO_WALLET_URL=http://do-wallet:8002
+      - DO_MERCHANT_URL=http://do-merchant:8003
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo, genie, sutar, do-wallet, do-merchant]
+
+  nexha-rfq:
+    build: ../../products/nexha/rfq
+    ports: ["8101:8101"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - NEXHA_RFQ_PORT=8101
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo]
+
+  nexha:
+    build: ../../products/nexha
+    ports: ["8100:8100"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - NEXHA_PORT=8100
+      - SUTAR_URL=http://sutar:7200
+      - NEXHA_RFQ_URL=http://nexha-rfq:8101
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo, sutar, nexha-rfq]
+
+  salar:
+    build: ../../products/salar
+    ports: ["8200:8200"]
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/hojai
+      - SALAR_PORT=8200
+      - CORPID_URL=http://corpid:7001
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    depends_on: [mongo, corpid]
+
+  web:
+    build: ../../frontend/web
+    ports: ["3000:3000"]
+    environment:
+      - WEB_PORT=3000
+      - DO_URL=http://do-backend:8000
+      - GENIE_URL=http://genie:7100
+      - NEXHA_URL=http://nexha:8100
+      - SALAR_URL=http://salar:8200
+    depends_on: [do-backend, genie, nexha, salar]
+
+volumes:
+  mongo_data:

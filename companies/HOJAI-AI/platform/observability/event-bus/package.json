@@ -1,0 +1,22 @@
+{
+  "name": "@rtmn/event-bus",
+  "version": "2.0.0",
+  "description": "RTMN Event Bus - Cross-service pub/sub with webhooks, replay, DLQ, filtering, and schema versioning",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "helmet": "^8.0.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  },
+  "keywords": ["rtmn", "event-bus", "pubsub", "webhooks", "messaging"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

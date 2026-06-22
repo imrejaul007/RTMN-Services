@@ -1,0 +1,50 @@
+[
+  [
+    "RTMN-HQ",
+    {
+      "id": "RTMN-HQ",
+      "name": "RTMN Headquarters",
+      "industry": "technology",
+      "plan": "enterprise",
+      "status": "active",
+      "createdAt": "2026-06-21T06:14:46.264Z",
+      "updatedAt": "2026-06-21T06:14:46.265Z"
+    }
+  ],
+  [
+    "TBIZ",
+    {
+      "id": "TBIZ",
+      "name": "TBIZ",
+      "industry": "general",
+      "plan": "starter",
+      "status": "active",
+      "createdAt": "2026-06-21T06:14:55.201Z",
+      "updatedAt": "2026-06-21T06:14:55.201Z"
+    }
+  ],
+  [
+    "biz2",
+    {
+      "id": "biz2",
+      "name": "biz2",
+      "industry": "general",
+      "plan": "starter",
+      "status": "active",
+      "createdAt": "2026-06-21T14:15:16.247Z",
+      "updatedAt": "2026-06-21T14:15:16.248Z"
+    }
+  ],
+  [
+    "biz3",
+    {
+      "id": "biz3",
+      "name": "biz3",
+      "industry": "general",
+      "plan": "starter",
+      "status": "active",
+      "createdAt": "2026-06-21T14:16:49.569Z",
+      "updatedAt": "2026-06-21T14:16:49.569Z"
+    }
+  ]
+]

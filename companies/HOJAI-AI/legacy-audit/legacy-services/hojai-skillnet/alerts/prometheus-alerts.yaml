@@ -1,0 +1,184 @@
+# Prometheus Alert Rules for HOJAI SkillNet
+# Place in /etc/prometheus/rules/ or include via prometheus.yml
+
+groups:
+  - name: hojai-skillnet
+    rules:
+      # Service Health Alerts
+      - alert: SkillNetDown
+        expr: up{job="hojai-skillnet"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: hojai-skillnet
+        annotations:
+          summary: "HOJAI SkillNet is down"
+          description: "HOJAI SkillNet has been down for more than 1 minute"
+
+      - alert: SkillNetHighErrorRate
+        expr: rate(hojai_http_requests_total{status=~"5.."}[5m]) / rate(hojai_http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High error rate on HOJAI SkillNet"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # HTTP Metrics Alerts
+      - alert: SkillNetHighLatency
+        expr: histogram_quantile(0.95, rate(hojai_http_request_duration_seconds_bucket[5m])) > 2
+        for: 10m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High latency on HOJAI SkillNet"
+          description: "95th percentile latency is {{ $value | humanizeDuration }} (threshold: 2s)"
+
+      - alert: SkillNetCriticalLatency
+        expr: histogram_quantile(0.99, rate(hojai_http_request_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: critical
+          service: hojai-skillnet
+        annotations:
+          summary: "Critical latency on HOJAI SkillNet"
+          description: "99th percentile latency is {{ $value | humanizeDuration }} (threshold: 5s)"
+
+      - alert: SkillNetHighRequestRate
+        expr: rate(hojai_http_requests_total[5m]) > 10000
+        for: 10m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High request rate on HOJAI SkillNet"
+          description: "Request rate is {{ $value | humanize }} req/s (potential DDoS or load spike)"
+
+      # Prediction Alerts
+      - alert: SkillNetLowPredictionConfidence
+        expr: histogram_quantile(0.5, rate(hojai_prediction_confidence_bucket[1h])) < 0.5
+        for: 30m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "Low prediction confidence"
+          description: "Median prediction confidence is {{ $value }} (model may need retraining)"
+
+      - alert: SkillNetPredictionErrors
+        expr: rate(hojai_predictions_total{type="error"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: hojai-skillnet
+        annotations:
+          summary: "High prediction error rate"
+          description: "Prediction error rate is {{ $value }} per second"
+
+      # WebSocket Alerts
+      - alert: SkillNetHighWSConnections
+        expr: hojai_ws_connections_active > 10000
+        for: 10m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High WebSocket connection count"
+          description: "{{ $value }} active WebSocket connections"
+
+      - alert: SkillNetWSMessageBacklog
+        expr: rate(hojai_ws_messages_total{direction="in"}[5m]) - rate(hojai_ws_messages_total{direction="out"}[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "WebSocket message backlog growing"
+          description: "Message backlog is growing (in: {{ $value }} msg/s)"
+
+      # Database Alerts
+      - alert: SkillNetMongoDBConnectionPoolExhausted
+        expr: hojai_mongodb_connection_pool_size / 100 > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          service: hojai-skillnet
+        annotations:
+          summary: "MongoDB connection pool nearly exhausted"
+          description: "Connection pool utilization is {{ $value | humanizePercentage }}"
+
+      - alert: SkillNetMongoDBHighLatency
+        expr: histogram_quantile(0.95, rate(hojai_mongodb_operation_duration_seconds_bucket[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High MongoDB latency"
+          description: "95th percentile MongoDB operation latency is {{ $value | humanizeDuration }}"
+
+      # Tenant Alerts
+      - alert: SkillNetHighTenantAPIUsage
+        expr: topk(5, hojai_tenant_api_calls_total) > 100000
+        for: 1h
+        labels:
+          severity: info
+          service: hojai-skillnet
+        annotations:
+          summary: "High API usage by tenant"
+          description: "Tenant {{ $labels.tenant_id }} has made {{ $value }} API calls"
+
+      # Error Alerts
+      - alert: SkillNetHighErrorRate
+        expr: rate(hojai_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High error rate on HOJAI SkillNet"
+          description: "Error rate is {{ $value }} errors/second"
+
+      - alert: SkillNetCriticalErrors
+        expr: rate(hojai_errors_total{type="critical"}[5m]) > 1
+        for: 2m
+        labels:
+          severity: critical
+          service: hojai-skillnet
+        annotations:
+          summary: "Critical errors on HOJAI SkillNet"
+          description: "Critical error rate is {{ $value }} errors/second"
+
+      # Insight Alerts
+      - alert: SkillNetCriticalInsightsSpike
+        expr: increase(hojai_insights_total{severity="critical"}[1h]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "Spike in critical insights"
+          description: "{{ $value }} critical insights generated in the last hour"
+
+      # Memory/CPU Alerts
+      - alert: SkillNetHighMemoryUsage
+        expr: process_resident_memory_bytes{job="hojai-skillnet"} / 1024 / 1024 / 1024 > 3
+        for: 10m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High memory usage on HOJAI SkillNet"
+          description: "Memory usage is {{ $value | humanize }} GB"
+
+      - alert: SkillNetHighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="hojai-skillnet"}[5m]) * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: hojai-skillnet
+        annotations:
+          summary: "High CPU usage on HOJAI SkillNet"
+          description: "CPU usage is {{ $value | humanizePercentage }}"

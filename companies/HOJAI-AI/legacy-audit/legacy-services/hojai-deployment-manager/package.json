@@ -1,0 +1,5 @@
+{
+  "name": "hojai-deployment-manager",
+  "version": "1.0.0",
+  "description": "HOJAI Deployment Manager - Zero-downtime deploys"
+}

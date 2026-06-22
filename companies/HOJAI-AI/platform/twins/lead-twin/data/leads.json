@@ -1,0 +1,3348 @@
+[
+  [
+    "lead_1782064476465_2d133107",
+    {
+      "id": "lead_1782064476465_2d133107",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.465Z"
+    }
+  ],
+  [
+    "lead_1782064476466_a57476b5",
+    {
+      "id": "lead_1782064476466_a57476b5",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_a6b18e1e",
+    {
+      "id": "lead_1782064476466_a6b18e1e",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_34420b57",
+    {
+      "id": "lead_1782064476466_34420b57",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_788d8557",
+    {
+      "id": "lead_1782064476466_788d8557",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_51633d2f",
+    {
+      "id": "lead_1782064476466_51633d2f",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_da3fdc92",
+    {
+      "id": "lead_1782064476466_da3fdc92",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_ca0baf9f",
+    {
+      "id": "lead_1782064476466_ca0baf9f",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_39299e6b",
+    {
+      "id": "lead_1782064476466_39299e6b",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_9aa9a09e",
+    {
+      "id": "lead_1782064476466_9aa9a09e",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_06feb8b3",
+    {
+      "id": "lead_1782064476466_06feb8b3",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_bd48a916",
+    {
+      "id": "lead_1782064476466_bd48a916",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_2e550aac",
+    {
+      "id": "lead_1782064476466_2e550aac",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_3b4687fa",
+    {
+      "id": "lead_1782064476466_3b4687fa",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_1f36bf94",
+    {
+      "id": "lead_1782064476466_1f36bf94",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_0b6162a2",
+    {
+      "id": "lead_1782064476466_0b6162a2",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_a8d8682f",
+    {
+      "id": "lead_1782064476466_a8d8682f",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_b4739458",
+    {
+      "id": "lead_1782064476466_b4739458",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_9d6b6223",
+    {
+      "id": "lead_1782064476466_9d6b6223",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782064476466_2b0bd6a9",
+    {
+      "id": "lead_1782064476466_2b0bd6a9",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T17:54:36.466Z"
+    }
+  ],
+  [
+    "lead_1782068031399_228d4ed6",
+    {
+      "id": "lead_1782068031399_228d4ed6",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.399Z"
+    }
+  ],
+  [
+    "lead_1782068031400_b87305c7",
+    {
+      "id": "lead_1782068031400_b87305c7",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_066f140e",
+    {
+      "id": "lead_1782068031400_066f140e",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_acc5187a",
+    {
+      "id": "lead_1782068031400_acc5187a",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_1ef5930e",
+    {
+      "id": "lead_1782068031400_1ef5930e",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_92e14d78",
+    {
+      "id": "lead_1782068031400_92e14d78",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_8eb2d702",
+    {
+      "id": "lead_1782068031400_8eb2d702",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_08e16ccd",
+    {
+      "id": "lead_1782068031400_08e16ccd",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_2494edda",
+    {
+      "id": "lead_1782068031400_2494edda",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_215c5ad9",
+    {
+      "id": "lead_1782068031400_215c5ad9",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_d4a3d7d5",
+    {
+      "id": "lead_1782068031400_d4a3d7d5",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_8c50ae95",
+    {
+      "id": "lead_1782068031400_8c50ae95",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_52c00482",
+    {
+      "id": "lead_1782068031400_52c00482",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_de0ffe40",
+    {
+      "id": "lead_1782068031400_de0ffe40",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_caf891b9",
+    {
+      "id": "lead_1782068031400_caf891b9",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_8f19778c",
+    {
+      "id": "lead_1782068031400_8f19778c",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_92dafc1a",
+    {
+      "id": "lead_1782068031400_92dafc1a",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_2bf6563e",
+    {
+      "id": "lead_1782068031400_2bf6563e",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_fb6fb63a",
+    {
+      "id": "lead_1782068031400_fb6fb63a",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782068031400_a9447678",
+    {
+      "id": "lead_1782068031400_a9447678",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T18:53:51.400Z"
+    }
+  ],
+  [
+    "lead_1782071062014_d6252542",
+    {
+      "id": "lead_1782071062014_d6252542",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.015Z"
+    }
+  ],
+  [
+    "lead_1782071062016_e2d7d567",
+    {
+      "id": "lead_1782071062016_e2d7d567",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_748b5526",
+    {
+      "id": "lead_1782071062016_748b5526",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_12109578",
+    {
+      "id": "lead_1782071062016_12109578",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_f7a2f0e6",
+    {
+      "id": "lead_1782071062016_f7a2f0e6",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_b3e5f2f6",
+    {
+      "id": "lead_1782071062016_b3e5f2f6",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_6a181990",
+    {
+      "id": "lead_1782071062016_6a181990",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_f32cc06b",
+    {
+      "id": "lead_1782071062016_f32cc06b",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_f0d3a6ce",
+    {
+      "id": "lead_1782071062016_f0d3a6ce",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_e5aca976",
+    {
+      "id": "lead_1782071062016_e5aca976",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_2883bda1",
+    {
+      "id": "lead_1782071062016_2883bda1",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_28c1e86f",
+    {
+      "id": "lead_1782071062016_28c1e86f",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_c179f754",
+    {
+      "id": "lead_1782071062016_c179f754",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_ec709c96",
+    {
+      "id": "lead_1782071062016_ec709c96",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_6c6c02a4",
+    {
+      "id": "lead_1782071062016_6c6c02a4",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_5128dd8f",
+    {
+      "id": "lead_1782071062016_5128dd8f",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_59250ff7",
+    {
+      "id": "lead_1782071062016_59250ff7",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_bb53f2aa",
+    {
+      "id": "lead_1782071062016_bb53f2aa",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_53dd5996",
+    {
+      "id": "lead_1782071062016_53dd5996",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071062016_cd152d74",
+    {
+      "id": "lead_1782071062016_cd152d74",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:44:22.016Z"
+    }
+  ],
+  [
+    "lead_1782071655428_cdf38eb7",
+    {
+      "id": "lead_1782071655428_cdf38eb7",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.428Z"
+    }
+  ],
+  [
+    "lead_1782071655429_502834e6",
+    {
+      "id": "lead_1782071655429_502834e6",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_044c16f7",
+    {
+      "id": "lead_1782071655429_044c16f7",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_a0863070",
+    {
+      "id": "lead_1782071655429_a0863070",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_2267a781",
+    {
+      "id": "lead_1782071655429_2267a781",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_0536f54d",
+    {
+      "id": "lead_1782071655429_0536f54d",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_8d30028e",
+    {
+      "id": "lead_1782071655429_8d30028e",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_84005179",
+    {
+      "id": "lead_1782071655429_84005179",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_57bcbac3",
+    {
+      "id": "lead_1782071655429_57bcbac3",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_c383b814",
+    {
+      "id": "lead_1782071655429_c383b814",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_0c88c7e0",
+    {
+      "id": "lead_1782071655429_0c88c7e0",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_0a187241",
+    {
+      "id": "lead_1782071655429_0a187241",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_f67a148e",
+    {
+      "id": "lead_1782071655429_f67a148e",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_33759684",
+    {
+      "id": "lead_1782071655429_33759684",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_39e6e222",
+    {
+      "id": "lead_1782071655429_39e6e222",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_0673e0f8",
+    {
+      "id": "lead_1782071655429_0673e0f8",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_017e94f0",
+    {
+      "id": "lead_1782071655429_017e94f0",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_1a397488",
+    {
+      "id": "lead_1782071655429_1a397488",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_c5d45bcf",
+    {
+      "id": "lead_1782071655429_c5d45bcf",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782071655429_aa5ab667",
+    {
+      "id": "lead_1782071655429_aa5ab667",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T19:54:15.429Z"
+    }
+  ],
+  [
+    "lead_1782075149689_6956f519",
+    {
+      "id": "lead_1782075149689_6956f519",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.690Z"
+    }
+  ],
+  [
+    "lead_1782075149691_5b57acec",
+    {
+      "id": "lead_1782075149691_5b57acec",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_9dcc35b9",
+    {
+      "id": "lead_1782075149691_9dcc35b9",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_dc67483a",
+    {
+      "id": "lead_1782075149691_dc67483a",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_55826459",
+    {
+      "id": "lead_1782075149691_55826459",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_b503a78f",
+    {
+      "id": "lead_1782075149691_b503a78f",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_08f8343e",
+    {
+      "id": "lead_1782075149691_08f8343e",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_68618b35",
+    {
+      "id": "lead_1782075149691_68618b35",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_8fa0d3b3",
+    {
+      "id": "lead_1782075149691_8fa0d3b3",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_93920ca9",
+    {
+      "id": "lead_1782075149691_93920ca9",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_1d09787d",
+    {
+      "id": "lead_1782075149691_1d09787d",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_e425e4da",
+    {
+      "id": "lead_1782075149691_e425e4da",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_995ad7ef",
+    {
+      "id": "lead_1782075149691_995ad7ef",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_fd9e48cf",
+    {
+      "id": "lead_1782075149691_fd9e48cf",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_3644c29a",
+    {
+      "id": "lead_1782075149691_3644c29a",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_3196d79c",
+    {
+      "id": "lead_1782075149691_3196d79c",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_60300e97",
+    {
+      "id": "lead_1782075149691_60300e97",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_3e201021",
+    {
+      "id": "lead_1782075149691_3e201021",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_bee8d6f7",
+    {
+      "id": "lead_1782075149691_bee8d6f7",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782075149691_34ede202",
+    {
+      "id": "lead_1782075149691_34ede202",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-21T20:52:29.691Z"
+    }
+  ],
+  [
+    "lead_1782077538974_c5666baa",
+    {
+      "id": "lead_1782077538974_c5666baa",
+      "name": "Phase4-Lead",
+      "email": "p4@t.com",
+      "company": null,
+      "phone": null,
+      "industry": "Other",
+      "type": "cold",
+      "score": 50,
+      "status": "active",
+      "notes": null,
+      "tags": [],
+      "source": "smoke",
+      "owner": null,
+      "metadata": {},
+      "businessId": "RTMN-HQ",
+      "createdAt": "2026-06-21T21:32:18.974Z",
+      "updatedAt": null,
+      "createdBy": "user-test"
+    }
+  ],
+  [
+    "lead_1782089931044_9d6a1815",
+    {
+      "id": "lead_1782089931044_9d6a1815",
+      "name": "L9927",
+      "email": "l9927@t.com",
+      "company": null,
+      "phone": null,
+      "industry": "Other",
+      "type": "cold",
+      "score": 50,
+      "status": "active",
+      "notes": null,
+      "tags": [],
+      "source": "smoke",
+      "owner": null,
+      "metadata": {},
+      "businessId": "FINAL-HQ",
+      "createdAt": "2026-06-22T00:58:51.045Z",
+      "updatedAt": null,
+      "createdBy": "user-final"
+    }
+  ],
+  [
+    "lead_1782092357709_4c0b0f10",
+    {
+      "id": "lead_1782092357709_4c0b0f10",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.710Z"
+    }
+  ],
+  [
+    "lead_1782092357711_16365b63",
+    {
+      "id": "lead_1782092357711_16365b63",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_577a3652",
+    {
+      "id": "lead_1782092357711_577a3652",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_048f0015",
+    {
+      "id": "lead_1782092357711_048f0015",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_9afad7c2",
+    {
+      "id": "lead_1782092357711_9afad7c2",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_c3255246",
+    {
+      "id": "lead_1782092357711_c3255246",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_9b46f42d",
+    {
+      "id": "lead_1782092357711_9b46f42d",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_dc1959f2",
+    {
+      "id": "lead_1782092357711_dc1959f2",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_9d92f41d",
+    {
+      "id": "lead_1782092357711_9d92f41d",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_e462b3ac",
+    {
+      "id": "lead_1782092357711_e462b3ac",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_0f1980d4",
+    {
+      "id": "lead_1782092357711_0f1980d4",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_c6a8623a",
+    {
+      "id": "lead_1782092357711_c6a8623a",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_61e21ed3",
+    {
+      "id": "lead_1782092357711_61e21ed3",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_f3b46bec",
+    {
+      "id": "lead_1782092357711_f3b46bec",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_5784a185",
+    {
+      "id": "lead_1782092357711_5784a185",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_881e7051",
+    {
+      "id": "lead_1782092357711_881e7051",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_827ab83c",
+    {
+      "id": "lead_1782092357711_827ab83c",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_4aa8e482",
+    {
+      "id": "lead_1782092357711_4aa8e482",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_2802d13e",
+    {
+      "id": "lead_1782092357711_2802d13e",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092357711_b65a7c0e",
+    {
+      "id": "lead_1782092357711_b65a7c0e",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:39:17.711Z"
+    }
+  ],
+  [
+    "lead_1782092971817_95cd73cb",
+    {
+      "id": "lead_1782092971817_95cd73cb",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_227ac6d3",
+    {
+      "id": "lead_1782092971818_227ac6d3",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_7b290a0e",
+    {
+      "id": "lead_1782092971818_7b290a0e",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_334f2dcd",
+    {
+      "id": "lead_1782092971818_334f2dcd",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_e146258a",
+    {
+      "id": "lead_1782092971818_e146258a",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_ac8ac2cd",
+    {
+      "id": "lead_1782092971818_ac8ac2cd",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_ccc47a77",
+    {
+      "id": "lead_1782092971818_ccc47a77",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_2ff32d2a",
+    {
+      "id": "lead_1782092971818_2ff32d2a",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_9c433c41",
+    {
+      "id": "lead_1782092971818_9c433c41",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.818Z"
+    }
+  ],
+  [
+    "lead_1782092971818_a59bcbe9",
+    {
+      "id": "lead_1782092971818_a59bcbe9",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_b04fb57d",
+    {
+      "id": "lead_1782092971819_b04fb57d",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_09d6c737",
+    {
+      "id": "lead_1782092971819_09d6c737",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_4bee9508",
+    {
+      "id": "lead_1782092971819_4bee9508",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_a3cff341",
+    {
+      "id": "lead_1782092971819_a3cff341",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_84003f75",
+    {
+      "id": "lead_1782092971819_84003f75",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_7971fe8f",
+    {
+      "id": "lead_1782092971819_7971fe8f",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_34b29325",
+    {
+      "id": "lead_1782092971819_34b29325",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_306f05a5",
+    {
+      "id": "lead_1782092971819_306f05a5",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_eaa6fa9f",
+    {
+      "id": "lead_1782092971819_eaa6fa9f",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782092971819_215d1619",
+    {
+      "id": "lead_1782092971819_215d1619",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T01:49:31.819Z"
+    }
+  ],
+  [
+    "lead_1782093730900_07979e93",
+    {
+      "id": "lead_1782093730900_07979e93",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.900Z"
+    }
+  ],
+  [
+    "lead_1782093730901_ce1eb85e",
+    {
+      "id": "lead_1782093730901_ce1eb85e",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_ed32297d",
+    {
+      "id": "lead_1782093730901_ed32297d",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_ce941592",
+    {
+      "id": "lead_1782093730901_ce941592",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_40e4a19f",
+    {
+      "id": "lead_1782093730901_40e4a19f",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_e9edfb58",
+    {
+      "id": "lead_1782093730901_e9edfb58",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_0d84883f",
+    {
+      "id": "lead_1782093730901_0d84883f",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_fc06c474",
+    {
+      "id": "lead_1782093730901_fc06c474",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_71e1546e",
+    {
+      "id": "lead_1782093730901_71e1546e",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_1a387f57",
+    {
+      "id": "lead_1782093730901_1a387f57",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_516f994e",
+    {
+      "id": "lead_1782093730901_516f994e",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_871a1f04",
+    {
+      "id": "lead_1782093730901_871a1f04",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_76bdd254",
+    {
+      "id": "lead_1782093730901_76bdd254",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_a2a6bc64",
+    {
+      "id": "lead_1782093730901_a2a6bc64",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_ba10d21c",
+    {
+      "id": "lead_1782093730901_ba10d21c",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_2a1e8047",
+    {
+      "id": "lead_1782093730901_2a1e8047",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_6018bae5",
+    {
+      "id": "lead_1782093730901_6018bae5",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_d7fd50dc",
+    {
+      "id": "lead_1782093730901_d7fd50dc",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_5f65de05",
+    {
+      "id": "lead_1782093730901_5f65de05",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093730901_1e6692c1",
+    {
+      "id": "lead_1782093730901_1e6692c1",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:02:10.901Z"
+    }
+  ],
+  [
+    "lead_1782093782082_08ab93ea",
+    {
+      "id": "lead_1782093782082_08ab93ea",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.083Z"
+    }
+  ],
+  [
+    "lead_1782093782084_49ffc934",
+    {
+      "id": "lead_1782093782084_49ffc934",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_0d0224f4",
+    {
+      "id": "lead_1782093782084_0d0224f4",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_fb15d638",
+    {
+      "id": "lead_1782093782084_fb15d638",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_cfc302f7",
+    {
+      "id": "lead_1782093782084_cfc302f7",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_5676d86e",
+    {
+      "id": "lead_1782093782084_5676d86e",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_d5ce8a40",
+    {
+      "id": "lead_1782093782084_d5ce8a40",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_636756f8",
+    {
+      "id": "lead_1782093782084_636756f8",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_a09ecabc",
+    {
+      "id": "lead_1782093782084_a09ecabc",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_c3ea525c",
+    {
+      "id": "lead_1782093782084_c3ea525c",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_b4b55f67",
+    {
+      "id": "lead_1782093782084_b4b55f67",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_d859e83a",
+    {
+      "id": "lead_1782093782084_d859e83a",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_9e64bdb0",
+    {
+      "id": "lead_1782093782084_9e64bdb0",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_dee797a7",
+    {
+      "id": "lead_1782093782084_dee797a7",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_cf2e01ba",
+    {
+      "id": "lead_1782093782084_cf2e01ba",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_1d9f46c0",
+    {
+      "id": "lead_1782093782084_1d9f46c0",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_5937b4f8",
+    {
+      "id": "lead_1782093782084_5937b4f8",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_229da383",
+    {
+      "id": "lead_1782093782084_229da383",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_4192e5ea",
+    {
+      "id": "lead_1782093782084_4192e5ea",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782093782084_14c7ed66",
+    {
+      "id": "lead_1782093782084_14c7ed66",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:03:02.084Z"
+    }
+  ],
+  [
+    "lead_1782095194985_2c2f6201",
+    {
+      "id": "lead_1782095194985_2c2f6201",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_8682341e",
+    {
+      "id": "lead_1782095194986_8682341e",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_395b3f44",
+    {
+      "id": "lead_1782095194986_395b3f44",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_fa6dc9dd",
+    {
+      "id": "lead_1782095194986_fa6dc9dd",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_a1f9830b",
+    {
+      "id": "lead_1782095194986_a1f9830b",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_fe346993",
+    {
+      "id": "lead_1782095194986_fe346993",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_ed7fd17e",
+    {
+      "id": "lead_1782095194986_ed7fd17e",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_d3e3faab",
+    {
+      "id": "lead_1782095194986_d3e3faab",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_533e81bd",
+    {
+      "id": "lead_1782095194986_533e81bd",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.986Z"
+    }
+  ],
+  [
+    "lead_1782095194986_80667ff6",
+    {
+      "id": "lead_1782095194986_80667ff6",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_9e104bd1",
+    {
+      "id": "lead_1782095194987_9e104bd1",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_70fc217f",
+    {
+      "id": "lead_1782095194987_70fc217f",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_1a0ce65e",
+    {
+      "id": "lead_1782095194987_1a0ce65e",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_fa2c69cf",
+    {
+      "id": "lead_1782095194987_fa2c69cf",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_dda11a63",
+    {
+      "id": "lead_1782095194987_dda11a63",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_c31966d5",
+    {
+      "id": "lead_1782095194987_c31966d5",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_761aa4d5",
+    {
+      "id": "lead_1782095194987_761aa4d5",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_db3ff8d2",
+    {
+      "id": "lead_1782095194987_db3ff8d2",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_10d73b3e",
+    {
+      "id": "lead_1782095194987_10d73b3e",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095194987_8d107164",
+    {
+      "id": "lead_1782095194987_8d107164",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:26:34.987Z"
+    }
+  ],
+  [
+    "lead_1782095585237_58c4ecad",
+    {
+      "id": "lead_1782095585237_58c4ecad",
+      "name": "Sarah Johnson",
+      "email": "sarah@techcorp.com",
+      "company": "TechCorp",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 85,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.237Z"
+    }
+  ],
+  [
+    "lead_1782095585238_1936501e",
+    {
+      "id": "lead_1782095585238_1936501e",
+      "name": "Michael Chen",
+      "email": "michael@acme.com",
+      "company": "Acme Corp",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 65,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_41aca82c",
+    {
+      "id": "lead_1782095585238_41aca82c",
+      "name": "Emily Rodriguez",
+      "email": "emily.r@globaltech.io",
+      "company": "GlobalTech",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 92,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_9d1b91f7",
+    {
+      "id": "lead_1782095585238_9d1b91f7",
+      "name": "James Wilson",
+      "email": "jwilson@startup.co",
+      "company": "StartupCo",
+      "industry": "SaaS",
+      "type": "warm",
+      "score": 72,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_b3d57245",
+    {
+      "id": "lead_1782095585238_b3d57245",
+      "name": "Lisa Anderson",
+      "email": "lisa@enterprise.net",
+      "company": "Enterprise Solutions",
+      "industry": "Enterprise",
+      "type": "hot",
+      "score": 88,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_b5e10ae3",
+    {
+      "id": "lead_1782095585238_b5e10ae3",
+      "name": "David Kim",
+      "email": "dkim@nexus.com",
+      "company": "Nexus Industries",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 68,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_c496255a",
+    {
+      "id": "lead_1782095585238_c496255a",
+      "name": "Amanda Foster",
+      "email": "amanda.f@innovate.tech",
+      "company": "InnovateTech",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 45,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_675a2041",
+    {
+      "id": "lead_1782095585238_675a2041",
+      "name": "Robert Martinez",
+      "email": "rmartinez@corp.biz",
+      "company": "CorpBiz",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 62,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_21dfb11c",
+    {
+      "id": "lead_1782095585238_21dfb11c",
+      "name": "Jennifer Lee",
+      "email": "jlee@cloudops.io",
+      "company": "CloudOps",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 78,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_290e0d0d",
+    {
+      "id": "lead_1782095585238_290e0d0d",
+      "name": "Christopher Brown",
+      "email": "cbrown@datawise.com",
+      "company": "DataWise",
+      "industry": "Analytics",
+      "type": "warm",
+      "score": 70,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_2f1f283a",
+    {
+      "id": "lead_1782095585238_2f1f283a",
+      "name": "Michelle Taylor",
+      "email": "mtaylor@growthco.com",
+      "company": "GrowthCo",
+      "industry": "Marketing",
+      "type": "cold",
+      "score": 42,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_f184fa46",
+    {
+      "id": "lead_1782095585238_f184fa46",
+      "name": "Daniel Garcia",
+      "email": "dgarcia@retailmax.com",
+      "company": "RetailMax",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 58,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_62ff49cc",
+    {
+      "id": "lead_1782095585238_62ff49cc",
+      "name": "Stephanie White",
+      "email": "swhite@healthplus.com",
+      "company": "HealthPlus",
+      "industry": "Healthcare",
+      "type": "hot",
+      "score": 82,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_2773e587",
+    {
+      "id": "lead_1782095585238_2773e587",
+      "name": "Andrew Jackson",
+      "email": "ajackson@finstream.com",
+      "company": "FinStream",
+      "industry": "Finance",
+      "type": "warm",
+      "score": 74,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_c8b72e22",
+    {
+      "id": "lead_1782095585238_c8b72e22",
+      "name": "Nicole Harris",
+      "email": "nharris@cloudscale.io",
+      "company": "CloudScale",
+      "industry": "Technology",
+      "type": "hot",
+      "score": 90,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_ceeec366",
+    {
+      "id": "lead_1782095585238_ceeec366",
+      "name": "Kevin Thompson",
+      "email": "kthompson@logistics.co",
+      "company": "LogiTech",
+      "industry": "Logistics",
+      "type": "cold",
+      "score": 48,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_95af4e82",
+    {
+      "id": "lead_1782095585238_95af4e82",
+      "name": "Rachel Clark",
+      "email": "rclark@medtech.com",
+      "company": "MedTech Solutions",
+      "industry": "Healthcare",
+      "type": "warm",
+      "score": 66,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_c8321040",
+    {
+      "id": "lead_1782095585238_c8321040",
+      "name": "Brandon Lewis",
+      "email": "blewis@scaleware.io",
+      "company": "ScaleWare",
+      "industry": "Technology",
+      "type": "cold",
+      "score": 38,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_e9626b94",
+    {
+      "id": "lead_1782095585238_e9626b94",
+      "name": "Samantha Walker",
+      "email": "swalker@retailgen.com",
+      "company": "RetailGen",
+      "industry": "Retail",
+      "type": "warm",
+      "score": 71,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ],
+  [
+    "lead_1782095585238_bdc48fa4",
+    {
+      "id": "lead_1782095585238_bdc48fa4",
+      "name": "Tyler Hall",
+      "email": "thall@digitalsales.co",
+      "company": "DigitalSales",
+      "industry": "Sales",
+      "type": "hot",
+      "score": 86,
+      "status": "active",
+      "businessId": null,
+      "createdAt": "2026-06-22T02:33:05.238Z"
+    }
+  ]
+]

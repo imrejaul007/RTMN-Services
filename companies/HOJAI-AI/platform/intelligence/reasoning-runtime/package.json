@@ -1,0 +1,22 @@
+{
+  "name": "@rtmn/reasoning-runtime",
+  "version": "1.0.0",
+  "description": "Reasoning Runtime (4253) — ReAct / Chain-of-Thought / Tree-of-Thought reasoning framework. Bridges SkillOS and Intelligence; consumed by FlowOS.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hojai", "reasoning", "react", "chain-of-thought", "tree-of-thought", "agent"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

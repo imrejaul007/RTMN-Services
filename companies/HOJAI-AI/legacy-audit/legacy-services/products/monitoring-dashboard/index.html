@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hojai AI - Monitoring Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen" x-data="monitoring()">
+  <nav class="bg-gray-800 border-b border-gray-700 p-4">
+    <div class="flex justify-between items-center max-w-7xl mx-auto">
+      <div class="flex items-center gap-4">
+        <h1 class="text-xl font-bold">Hojai AI Monitoring</h1>
+        <span class="text-xs bg-green-500 px-2 py-1 rounded">LIVE</span>
+      </div>
+      <div class="text-sm text-gray-400">
+        Last updated: <span x-text="new Date().toLocaleTimeString()"></span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6">
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-gray-800 rounded-xl p-4">
+        <p class="text-gray-400 text-sm">Active Sessions</p>
+        <p class="text-3xl font-bold text-green-400" x-text="metrics.activeSessions">0</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-4">
+        <p class="text-gray-400 text-sm">Messages/min</p>
+        <p class="text-3xl font-bold text-blue-400" x-text="metrics.messagesPerMin">0</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-4">
+        <p class="text-gray-400 text-sm">Errors/min</p>
+        <p class="text-3xl font-bold text-red-400" x-text="metrics.errorsPerMin">0</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-4">
+        <p class="text-gray-400 text-sm">P95 Latency</p>
+        <p class="text-3xl font-bold text-yellow-400" x-text="metrics.p95Latency + 'ms'">0ms</p>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <!-- Request Volume -->
+      <div class="bg-gray-800 rounded-xl p-4">
+        <h3 class="font-semibold mb-4">Request Volume</h3>
+        <div class="h-48 bg-gray-700 rounded flex items-end justify-between p-2 gap-1">
+          <template x-for="(val, i) in chartData" :key="i">
+            <div class="bg-blue-500 rounded" :style="'height: ' + val + '%'"></div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Error Rate -->
+      <div class="bg-gray-800 rounded-xl p-4">
+        <h3 class="font-semibold mb-4">Error Rate</h3>
+        <div class="h-48 flex items-center justify-center">
+          <div class="text-center">
+            <p class="text-5xl font-bold" :class="errorRate > 1 ? 'text-red-400' : 'text-green-400'" x-text="errorRate.toFixed(2) + '%'">0.00%</p>
+            <p class="text-gray-400 text-sm mt-2">Target: < 1%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Services Status -->
+    <div class="bg-gray-800 rounded-xl p-4 mb-6">
+      <h3 class="font-semibold mb-4">Services</h3>
+      <div class="grid grid-cols-4 gap-4">
+        <template x-for="service in services" :key="service.name">
+          <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+            <span x-text="service.name"></span>
+            <span class="w-3 h-3 rounded-full" :class="service.status === 'up' ? 'bg-green-500' : 'bg-red-500'"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Recent Logs -->
+    <div class="bg-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-4">Recent Logs</h3>
+      <div class="font-mono text-xs space-y-1">
+        <template x-for="log in logs" :key="log.time">
+          <div class="flex gap-4">
+            <span class="text-gray-500" x-text="log.time"></span>
+            <span class="px-1 rounded text-xs" :class="log.level === 'ERROR' ? 'bg-red-900 text-red-400' : 'bg-blue-900 text-blue-400'" x-text="log.level"></span>
+            <span class="text-gray-300" x-text="log.message"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function monitoring() {
+      return {
+        metrics: { activeSessions: 127, messagesPerMin: 847, errorsPerMin: 3, p95Latency: 127 },
+        errorRate: 0.35,
+        chartData: [40, 65, 45, 80, 55, 70, 60, 85, 75, 90, 65, 55],
+        services: [
+          { name: 'WhatsApp AI', status: 'up' },
+          { name: 'REZ Bridge', status: 'up' },
+          { name: 'OpenAI', status: 'up' },
+          { name: 'MongoDB', status: 'up' }
+        ],
+        logs: [
+          { time: '10:42:15', level: 'INFO', message: 'Webhook received from WhatsApp' },
+          { time: '10:42:14', level: 'INFO', message: 'Signal emitted to REZ Intelligence' },
+          { time: '10:42:13', level: 'INFO', message: 'AI response generated' },
+          { time: '10:42:12', level: 'ERROR', message: 'Redis timeout (retrying)' },
+          { time: '10:42:11', level: 'INFO', message: 'Merchant onboarded' }
+        ]
+      };
+    }
+    setInterval(() => location.reload(), 30000);
+  </script>
+</body>
+</html>

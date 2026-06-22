@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Data Consent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen" x-data="consent()">
+  <div class="max-w-2xl mx-auto p-6">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-indigo-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+          <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">Your Data, Your Control</h1>
+        <p class="text-gray-600 mt-2">Manage how your data is used across the REZ ecosystem</p>
+      </div>
+
+      <!-- Tiers -->
+      <div class="space-y-4">
+        <template x-for="tier in tiers" :key="tier.id">
+          <div class="border rounded-xl p-4" :class="tier.required ? 'bg-gray-50' : 'bg-white'">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-900" x-text="tier.name"></h3>
+                  <span x-show="tier.required" class="text-xs bg-gray-200 px-2 py-0.5 rounded">Required</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1" x-text="tier.description"></p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <template x-for="cat in tier.categories" :key="cat">
+                    <span class="text-xs bg-gray-100 px-2 py-1 rounded" x-text="cat"></span>
+                  </template>
+                </div>
+              </div>
+              <div class="ml-4" x-show="!tier.required">
+                <button
+                  @click="toggleTier(tier.id)"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                  :class="tier.enabled ? 'bg-indigo-600' : 'bg-gray-200'"
+                >
+                  <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform" :class="tier.enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+                </button>
+              </div>
+              <div x-show="tier.required" class="text-green-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-8 flex justify-between items-center">
+        <button class="text-gray-600 hover:text-gray-900">Export My Data</button>
+        <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function consent() {
+      return {
+        tiers: [
+          {
+            id: 'basic',
+            name: 'Essential',
+            description: 'Basic functionality, login, and app features',
+            required: true,
+            enabled: true,
+            categories: ['Login', 'Basic Features', 'App Performance']
+          },
+          {
+            id: 'commerce',
+            name: 'Shopping & Commerce',
+            description: 'Recommendations and personalized offers based on your shopping',
+            required: false,
+            enabled: true,
+            categories: ['Purchase History', 'Browsing', 'Wishlists', 'Reviews']
+          },
+          {
+            id: 'personalization',
+            name: 'Personalization',
+            description: 'AI-powered recommendations across travel, dining, and lifestyle',
+            required: false,
+            enabled: false,
+            categories: ['Travel Preferences', 'Dining', 'Events', 'Loyalty']
+          },
+          {
+            id: 'wellness',
+            name: 'Health & Wellness',
+            description: 'Personalized health insights and wellness recommendations',
+            required: false,
+            enabled: false,
+            categories: ['Fitness', 'Sleep', 'Nutrition', 'Medical (Encrypted)'],
+            consent: 'explicit'
+          },
+          {
+            id: 'finance',
+            name: 'Financial Insights',
+            description: 'Smart finance tracking and personalized banking offers',
+            required: false,
+            enabled: false,
+            categories: ['Transactions', 'Spending', 'Credit', 'Investments'],
+            consent: 'explicit'
+          },
+          {
+            id: 'social',
+            name: 'Social & Relationships',
+            description: 'Connect with friends and discover people with similar interests',
+            required: false,
+            enabled: false,
+            categories: ['Social Graph', 'Connections', 'Interests'],
+            consent: 'explicit'
+          }
+        ],
+        toggleTier(id) {
+          const tier = this.tiers.find(t => t.id === id);
+          if (tier && !tier.required) {
+            tier.enabled = !tier.enabled;
+          }
+        }
+      };
+    }
+  </script>
+</body>
+</html>

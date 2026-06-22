@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  glamai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${GLAMAI_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/glamai
+      - REDIS_URL=redis://redis:6379
+      - SALON_CRM_URL=http://rez-salon-crm:4012
+      - SALON_BOOKING_URL=http://rez-salon-booking:4201
+      - SALON_POS_URL=http://rez-salon-pos:4902
+      - SALON_INVENTORY_URL=http://rez-salon-inventory:4906
+      - MIND_SALON_URL=http://rez-mind-salon:4010
+      - GENIE_MEMORY_URL=http://genie-memory:4703
+      - NEXHA_URL=http://nexha:5000
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - hojai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  mongodb:
+    image: mongo:6-alpine
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - hojai
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hojai
+    restart: unless-stopped
+
+networks:
+  hojai:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:

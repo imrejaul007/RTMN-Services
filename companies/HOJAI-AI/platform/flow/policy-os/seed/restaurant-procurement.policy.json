@@ -1,0 +1,58 @@
+{
+  "id": "restaurant-procurement-v1",
+  "name": "Restaurant Procurement Policy",
+  "description": "Auto-approve POs from known suppliers under ₹50,000. Require human approval for amounts above ₹50,000 OR for any new supplier. Block POs above ₹500,000 unless pre-approved by owner.",
+  "category": "procurement",
+  "version": 1,
+  "priority": 80,
+  "status": "active",
+  "owner": "nexha-system",
+  "tags": ["nexha", "restaurant", "procurement", "auto-generated"],
+  "conditions": {
+    "contextType": "procurement.award",
+    "match": { "industry": "restaurant" }
+  },
+  "rules": [
+    {
+      "id": "block-huge-purchase",
+      "description": "Block any PO above ₹500,000 — must be split or pre-approved",
+      "when": { "field": "total", "op": ">", "value": 500000 },
+      "then": { "effect": "deny", "reason": "PO exceeds ₹500,000; requires pre-approval from owner" }
+    },
+    {
+      "id": "require-approval-medium",
+      "description": "Require approval for POs between ₹50,000 and ₹500,000",
+      "when": { "field": "total", "op": "between", "value": [50000, 500000] },
+      "then": { "effect": "require_approval", "reason": "Medium-value PO requires manager approval", "approver": "manager" }
+    },
+    {
+      "id": "auto-approve-trusted-small",
+      "description": "Auto-approve small POs from known suppliers",
+      "when": {
+        "all": [
+          { "field": "total", "op": "<=", "value": 50000 },
+          { "field": "supplier.knownToBuyer", "op": "==", "value": true }
+        ]
+      },
+      "then": { "effect": "allow", "reason": "Trusted supplier, amount within auto-approve limit" }
+    },
+    {
+      "id": "require-approval-new-supplier",
+      "description": "New suppliers always require approval regardless of amount",
+      "when": { "field": "supplier.knownToBuyer", "op": "==", "value": false },
+      "then": { "effect": "require_approval", "reason": "New supplier — first-time verification required", "approver": "manager" }
+    }
+  ],
+  "actions": {
+    "onAllow": { "log": true, "notify": false },
+    "onDeny": { "log": true, "notify": true, "notifyChannel": "ops-alerts" }
+  },
+  "exceptions": [],
+  "approvals": {
+    "strategy": "single",
+    "requiredApprovers": ["manager"]
+  },
+  "composition": null,
+  "effectiveFrom": null,
+  "effectiveUntil": null
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@hojai/compliance-engine",
+  "version": "1.0.0",
+  "description": "Compliance Engine - Regulatory framework mapping, controls, attestations, audit evidence (GDPR/SOC2/HIPAA/PCI/ISO27001)",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "bash tests/smoke.sh"
+  },
+  "keywords": [
+    "rtmn",
+    "compliance",
+    "governance",
+    "gdpr",
+    "soc2",
+    "hipaa",
+    "pci",
+    "iso27001",
+    "audit"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.0.0",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  }
+}

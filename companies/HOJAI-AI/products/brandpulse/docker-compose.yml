@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  brandpulse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brandpulse
+    ports:
+      - "4770:4770"
+    environment:
+      - PORT=4770
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/brandpulse
+      - REDIS_URL=redis://redis:6379
+      - API_KEY=${BRANDPULSE_API_KEY}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+      - RTNM_GATEWAY_URL=${RTNM_GATEWAY_URL:-http://rez-unified-hub:4600}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - rez-ecosystem
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4770/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  mongodb:
+    image: mongo:6
+    container_name: brandpulse-mongodb
+    volumes:
+      - brandpulse-mongo-data:/data/db
+    networks:
+      - rez-ecosystem
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: brandpulse-redis
+    volumes:
+      - brandpulse-redis-data:/data
+    networks:
+      - rez-ecosystem
+    restart: unless-stopped
+
+networks:
+  rez-ecosystem:
+    external: true
+
+volumes:
+  brandpulse-mongo-data:
+  brandpulse-redis-data:

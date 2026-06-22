@@ -1,0 +1,43 @@
+{
+  "name": "@hojai/performance",
+  "version": "1.0.0",
+  "description": "HOJAI Performance Dashboard - KPI tracking, evaluations, and compensation for AI employees",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node --esm src/index.ts",
+    "seed": "ts-node --esm src/scripts/seed.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "mongoose": "^8.0.0",
+    "redis": "^4.6.10",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.22.4",
+    "uuid": "^9.0.1",
+    "axios": "^1.6.2",
+    "date-fns": "^2.30.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "@types/uuid": "^9.0.7",
+    "@types/cors": "^2.8.17",
+    "typescript": "^5.3.2",
+    "ts-node": "^10.9.2"
+  },
+  "keywords": [
+    "performance",
+    "kpi",
+    "evaluation",
+    "compensation",
+    "ai-employees",
+    "hojai"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

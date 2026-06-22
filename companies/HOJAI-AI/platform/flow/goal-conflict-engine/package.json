@@ -1,0 +1,19 @@
+{
+  "name": "@hojai/goal-conflict-engine",
+  "version": "1.0.0",
+  "description": "Goal Conflict Engine (4151) — detects conflicts between active goals (resource, metric, temporal, strategic), quantifies tradeoffs, and proposes resolutions. Pairs with GoalOS (4242).",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

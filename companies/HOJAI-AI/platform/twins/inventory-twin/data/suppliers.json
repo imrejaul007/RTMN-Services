@@ -1,0 +1,60 @@
+[
+  [
+    "sup-1",
+    {
+      "id": "sup-1",
+      "name": "Acme Manufacturing",
+      "code": "ACM-001",
+      "contactPerson": "Jane Doe",
+      "email": "jane@acme.com",
+      "phone": "555-1000",
+      "address": {
+        "street": "100 Factory Rd",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60601",
+        "country": "USA"
+      },
+      "categories": [
+        "electronics",
+        "components"
+      ],
+      "rating": 4.5,
+      "leadTimeDays": 7,
+      "minimumOrder": 500,
+      "paymentTerms": "net_30",
+      "status": "active",
+      "owner": "org-1",
+      "createdAt": "2024-01-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "sup-2",
+    {
+      "id": "sup-2",
+      "name": "Global Parts Co",
+      "code": "GPC-002",
+      "contactPerson": "Bob Wilson",
+      "email": "bob@globalparts.com",
+      "phone": "555-2000",
+      "address": {
+        "street": "200 Supplier Ave",
+        "city": "Dallas",
+        "state": "TX",
+        "zip": "75201",
+        "country": "USA"
+      },
+      "categories": [
+        "raw_materials",
+        "packaging"
+      ],
+      "rating": 4.2,
+      "leadTimeDays": 14,
+      "minimumOrder": 1000,
+      "paymentTerms": "net_45",
+      "status": "active",
+      "owner": "org-1",
+      "createdAt": "2024-02-01T00:00:00.000Z"
+    }
+  ]
+]

@@ -1,0 +1,26 @@
+{
+  "name": "@rtmn/merchant-agents",
+  "version": "1.0.0",
+  "description": "SUTAR OS - Merchant AI Agents for autonomous business operations",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "merchant",
+    "agent",
+    "sutar",
+    "business",
+    "ai"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "uuid": "^14.0.0",
+    "@rtmn/shared": "file:../../shared",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5"
+  }
+}

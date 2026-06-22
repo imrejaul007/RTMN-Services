@@ -1,0 +1,14 @@
+{
+  "name": "@hojai/salon-inventory-service",
+  "version": "1.0.0",
+  "description": "Salon product inventory management",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

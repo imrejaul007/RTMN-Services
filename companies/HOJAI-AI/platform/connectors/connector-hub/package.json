@@ -1,0 +1,22 @@
+{
+  "name": "@rtmn/connector-hub",
+  "version": "1.0.0",
+  "description": "Connector Hub (4785) — pre-built integration adapters for 8 external SaaS systems (Salesforce, HubSpot, Stripe, Shopify, Slack, Notion, Google Sheets, Twilio) with a unified adapter contract.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["hojai", "connector", "integration", "salesforce", "hubspot", "stripe", "shopify", "slack", "notion", "sheets", "twilio"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "uuid": "^11.1.0"
+  }
+}

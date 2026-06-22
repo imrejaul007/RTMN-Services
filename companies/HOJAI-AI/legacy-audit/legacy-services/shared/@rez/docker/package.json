@@ -1,0 +1,13 @@
+{
+  "name": "@rez/docker",
+  "version": "1.0.0",
+  "description": "Docker templates for REZ services",
+  "files": [
+    "Dockerfile.template",
+    "docker-compose.template.yml",
+    ".dockerignore"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

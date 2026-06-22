@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-4260}:4260"
+    environment:
+      - NODE_ENV=production
+      - PORT=4260
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - HOJAI_REVENUE_URL=${HOJAI_REVENUE_URL:-http://hojai-revenue-intelligence:4780}
+      - HOJAI_CUSTOMER_URL=${HOJAI_CUSTOMER_URL:-http://hojai-customer-intelligence:4752}
+      - HOJAI_PRODUCT_URL=${HOJAI_PRODUCT_URL:-http://hojai-product-intelligence:4790}
+      - HOJAI_GOAL_URL=${HOJAI_GOAL_URL:-http://hojai-goal-os:4800}
+      - HOJAI_MEETING_URL=${HOJAI_MEETING_URL:-http://hojai-meeting-intelligence:4810}
+      - HOJAI_WORKFORCE_URL=${HOJAI_WORKFORCE_URL:-http://hojai-workforce:4820}
+    depends_on:
+      - mongodb
+    networks:
+      - rtnm
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4260/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  mongodb:
+    image: mongo:6-alpine
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - rtnm
+    restart: unless-stopped
+
+networks:
+  rtnm:
+    driver: bridge
+
+volumes:
+  mongo_data:

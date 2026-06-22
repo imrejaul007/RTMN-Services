@@ -1,0 +1,141 @@
+[
+  [
+    "inv-1",
+    {
+      "id": "inv-1",
+      "sku": "SKU-LAPTOP-001",
+      "name": "Business Laptop Pro 15",
+      "description": "High-performance business laptop with 16GB RAM",
+      "category": "electronics",
+      "warehouseId": "wh-1",
+      "quantity": 150,
+      "minimumStock": 20,
+      "maximumStock": 500,
+      "reorderPoint": 50,
+      "unitCost": 899.99,
+      "unitPrice": 1299.99,
+      "supplierId": "sup-1",
+      "location": {
+        "aisle": "A",
+        "rack": "12",
+        "shelf": "3"
+      },
+      "batchNumber": "BATCH-2024-001",
+      "expiryDate": "2027-12-31",
+      "status": "active",
+      "owner": "org-1",
+      "createdAt": "2024-01-20T00:00:00.000Z",
+      "updatedAt": "2024-06-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "inv-2",
+    {
+      "id": "inv-2",
+      "sku": "SKU-MONITOR-001",
+      "name": "27\" 4K Monitor",
+      "description": "Ultra HD 4K monitor with USB-C",
+      "category": "electronics",
+      "warehouseId": "wh-1",
+      "quantity": 85,
+      "minimumStock": 15,
+      "maximumStock": 300,
+      "reorderPoint": 30,
+      "unitCost": 299.99,
+      "unitPrice": 449.99,
+      "supplierId": "sup-1",
+      "location": {
+        "aisle": "A",
+        "rack": "14",
+        "shelf": "1"
+      },
+      "batchNumber": "BATCH-2024-002",
+      "expiryDate": "2028-06-30",
+      "status": "active",
+      "owner": "org-1",
+      "createdAt": "2024-02-10T00:00:00.000Z",
+      "updatedAt": "2024-06-05T00:00:00.000Z"
+    }
+  ],
+  [
+    "inv-3",
+    {
+      "id": "inv-3",
+      "sku": "SKU-PACKAGING-001",
+      "name": "Shipping Boxes (Medium)",
+      "description": "12x12x8 inch corrugated boxes",
+      "category": "packaging",
+      "warehouseId": "wh-2",
+      "quantity": 12,
+      "minimumStock": 100,
+      "maximumStock": 2000,
+      "reorderPoint": 200,
+      "unitCost": 1.5,
+      "unitPrice": 3.99,
+      "supplierId": "sup-2",
+      "location": {
+        "aisle": "C",
+        "rack": "1",
+        "shelf": "5"
+      },
+      "batchNumber": "BATCH-2024-003",
+      "expiryDate": "2026-06-30",
+      "status": "low_stock",
+      "owner": "org-1",
+      "createdAt": "2024-03-01T00:00:00.000Z",
+      "updatedAt": "2024-06-10T00:00:00.000Z"
+    }
+  ],
+  [
+    "inv-4",
+    {
+      "id": "inv-4",
+      "sku": "SKU-CHAIR-001",
+      "name": "Ergonomic Office Chair",
+      "description": "Adjustable ergonomic chair with lumbar support",
+      "category": "furniture",
+      "warehouseId": "wh-3",
+      "quantity": 0,
+      "minimumStock": 10,
+      "maximumStock": 100,
+      "reorderPoint": 20,
+      "unitCost": 199.99,
+      "unitPrice": 399.99,
+      "supplierId": "sup-1",
+      "location": {
+        "aisle": "D",
+        "rack": "2",
+        "shelf": "1"
+      },
+      "batchNumber": "BATCH-2024-004",
+      "expiryDate": "2029-01-01",
+      "status": "out_of_stock",
+      "owner": "org-1",
+      "createdAt": "2024-03-15T00:00:00.000Z",
+      "updatedAt": "2024-06-12T00:00:00.000Z"
+    }
+  ],
+  [
+    "inv-b416b831",
+    {
+      "id": "inv-b416b831",
+      "sku": "P4-INV-1",
+      "name": "P4 Inv Item",
+      "category": "general",
+      "warehouseId": "wh-b4878a2a",
+      "quantity": 0,
+      "minimumStock": 10,
+      "maximumStock": 1000,
+      "reorderPoint": 5,
+      "unitCost": 0,
+      "unitPrice": 1,
+      "supplierId": null,
+      "location": null,
+      "expiryDate": null,
+      "status": "out_of_stock",
+      "owner": "RTMN-HQ",
+      "createdAt": "2026-06-22T00:09:35.353Z",
+      "updatedAt": "2026-06-22T00:09:35.353Z"
+    }
+  ]
+]

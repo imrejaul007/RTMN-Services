@@ -1,0 +1,616 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1A3EDC4B19427C043B59C4A00905E487 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 2B80D70BFEA13CA5C76528E7ED807CA2 /* README.md */; };
+		2409871D0B08726CD1146655 /* Pods_RAZOKeyboardExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C1D3D0F89D77CDC9BD86A70 /* Pods_RAZOKeyboardExtension.framework */; };
+		3ED2BB248C5BCFE862371A79 /* Pods_RAZOKeyboardApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 11F2CF51996DA4068140430E /* Pods_RAZOKeyboardApp.framework */; };
+		4C3AE19458CB47AA62F8884C2B3A103D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 822630C1350D55F4BEF1C73BA924577A /* Security.framework */; };
+		60D2FC5EF34D8C6001E7D11F8571D288 /* CredentialProviderInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = C9B9E20597030140DB29187F1A3B0BCF /* CredentialProviderInfo.plist */; };
+		654DCAC0E2745B2821D1F5FF73BE6D40 /* Speech.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20895EFECDF40EFDAD2F38A9D20831D8 /* Speech.framework */; };
+		82D325370C4C738509D928FC1CDC1081 /* RazoKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73AE00078B20779B5CD96A1160208B73 /* RazoKeyboardView.swift */; };
+		85C2D83AE0F7368800C33FC08DC7F4BB /* RazoKeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCBF59E2CE8E14E2C218C9F817FFDAB1 /* RazoKeyboardViewController.swift */; };
+		89168A6C864F3EF0C6C9A43D066BD497 /* RAZOCredentialProvider.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 598538EEE6EE64290C5C30687C701A5B /* RAZOCredentialProvider.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9AEC69DDAEA6832D04E4DD4067F0532B /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DBDBB8F9D695105EA086D49393DC1CB /* LocalAuthentication.framework */; };
+		9D96DDC7D239E38BC4E069B9A82374AA /* RAZOKeyboardExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 07A49C8E1B612A1B358DB95EFBE434BD /* RAZOKeyboardExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BFD37399EA591437C262EC2D4698D5E9 /* RazoCredentialProviderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90934AC99C4897BAA91AD2A6B6EECA90 /* RazoCredentialProviderViewController.swift */; };
+		C6FE40285F22A8DA95D84166 /* Pods_RAZOCredentialProvider.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B400D347EE035CF605095F /* Pods_RAZOCredentialProvider.framework */; };
+		D8F094AAE65A3C36EB92B6936E5ABD3A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 822630C1350D55F4BEF1C73BA924577A /* Security.framework */; };
+		DF397866D0E6E8797AA35DF2D021C9A6 /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DBDBB8F9D695105EA086D49393DC1CB /* LocalAuthentication.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E9709786571A4AD8BA7C94BB679B6795 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0F072C966255691966601847226DF233 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E0FEC90985CC676014E4339173B49450;
+			remoteInfo = RAZOCredentialProvider;
+		};
+		F3CF426F432D0BD62C0C52479F102C6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0F072C966255691966601847226DF233 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 25DB89A25E5108D3EA5CF10CA3190D4F;
+			remoteInfo = RAZOKeyboardExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		72ACFEA352271F7257117CF353ED7F66 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9D96DDC7D239E38BC4E069B9A82374AA /* RAZOKeyboardExtension.appex in Embed App Extensions */,
+				89168A6C864F3EF0C6C9A43D066BD497 /* RAZOCredentialProvider.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		07A49C8E1B612A1B358DB95EFBE434BD /* RAZOKeyboardExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = RAZOKeyboardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0925C959FA656DFAE923698D /* Pods-RAZOCredentialProvider.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RAZOCredentialProvider.debug.xcconfig"; path = "Target Support Files/Pods-RAZOCredentialProvider/Pods-RAZOCredentialProvider.debug.xcconfig"; sourceTree = "<group>"; };
+		11F2CF51996DA4068140430E /* Pods_RAZOKeyboardApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RAZOKeyboardApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		20895EFECDF40EFDAD2F38A9D20831D8 /* Speech.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Speech.framework; path = System/Library/Frameworks/Speech.framework; sourceTree = SDKROOT; };
+		2B80D70BFEA13CA5C76528E7ED807CA2 /* README.md */ = {isa = PBXFileReference; path = README.md; sourceTree = "<group>"; };
+		3C540A087626398374386B1C90D7AFBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3DBDBB8F9D695105EA086D49393DC1CB /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
+		550C9FCDA73D9C10FB924795 /* Pods-RAZOCredentialProvider.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RAZOCredentialProvider.release.xcconfig"; path = "Target Support Files/Pods-RAZOCredentialProvider/Pods-RAZOCredentialProvider.release.xcconfig"; sourceTree = "<group>"; };
+		598538EEE6EE64290C5C30687C701A5B /* RAZOCredentialProvider.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = RAZOCredentialProvider.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		60B400D347EE035CF605095F /* Pods_RAZOCredentialProvider.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RAZOCredentialProvider.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		689703EE7E69F1F8D62A2CBC /* Pods-RAZOKeyboardExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RAZOKeyboardExtension.release.xcconfig"; path = "Target Support Files/Pods-RAZOKeyboardExtension/Pods-RAZOKeyboardExtension.release.xcconfig"; sourceTree = "<group>"; };
+		73AE00078B20779B5CD96A1160208B73 /* RazoKeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RazoKeyboardView.swift; sourceTree = "<group>"; };
+		822630C1350D55F4BEF1C73BA924577A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		8244319CA5346C449D273F08696EDD14 /* RAZOKeyboardApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RAZOKeyboardApp.entitlements; sourceTree = "<group>"; };
+		82EBF5B1D30CF241F09D2283 /* Pods-RAZOKeyboardApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RAZOKeyboardApp.release.xcconfig"; path = "Target Support Files/Pods-RAZOKeyboardApp/Pods-RAZOKeyboardApp.release.xcconfig"; sourceTree = "<group>"; };
+		852BE58FB992CE6A54BBE657FC335EFD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		90934AC99C4897BAA91AD2A6B6EECA90 /* RazoCredentialProviderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RazoCredentialProviderViewController.swift; sourceTree = "<group>"; };
+		9C1D3D0F89D77CDC9BD86A70 /* Pods_RAZOKeyboardExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RAZOKeyboardExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C51CC7462A957CB6C1F208BC377467D1 /* RAZOKeyboardExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RAZOKeyboardExtension.entitlements; sourceTree = "<group>"; };
+		C9B9E20597030140DB29187F1A3B0BCF /* CredentialProviderInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CredentialProviderInfo.plist; sourceTree = "<group>"; };
+		DC44BF3DAA6DA9768030CA00 /* Pods-RAZOKeyboardExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RAZOKeyboardExtension.debug.xcconfig"; path = "Target Support Files/Pods-RAZOKeyboardExtension/Pods-RAZOKeyboardExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		E8D055E49156792AC122BF68003AD9FE /* RAZOKeyboardApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RAZOKeyboardApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDB58AA6F4F30306524396BE /* Pods-RAZOKeyboardApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RAZOKeyboardApp.debug.xcconfig"; path = "Target Support Files/Pods-RAZOKeyboardApp/Pods-RAZOKeyboardApp.debug.xcconfig"; sourceTree = "<group>"; };
+		FCBF59E2CE8E14E2C218C9F817FFDAB1 /* RazoKeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RazoKeyboardViewController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		107F209AC71689B411D2B6982729AC97 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				654DCAC0E2745B2821D1F5FF73BE6D40 /* Speech.framework in Frameworks */,
+				9AEC69DDAEA6832D04E4DD4067F0532B /* LocalAuthentication.framework in Frameworks */,
+				4C3AE19458CB47AA62F8884C2B3A103D /* Security.framework in Frameworks */,
+				2409871D0B08726CD1146655 /* Pods_RAZOKeyboardExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24F15A5BE268B4D9315CF64AE299358E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF397866D0E6E8797AA35DF2D021C9A6 /* LocalAuthentication.framework in Frameworks */,
+				D8F094AAE65A3C36EB92B6936E5ABD3A /* Security.framework in Frameworks */,
+				C6FE40285F22A8DA95D84166 /* Pods_RAZOCredentialProvider.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		30A397A756BD909C7C009F6A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3ED2BB248C5BCFE862371A79 /* Pods_RAZOKeyboardApp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		194D24E4B00036B2CE487A5D7F3DA924 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				598538EEE6EE64290C5C30687C701A5B /* RAZOCredentialProvider.appex */,
+				E8D055E49156792AC122BF68003AD9FE /* RAZOKeyboardApp.app */,
+				07A49C8E1B612A1B358DB95EFBE434BD /* RAZOKeyboardExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1C649B53D08CF3773E591C2453D23EAE /* RAZOCredentialProvider */ = {
+			isa = PBXGroup;
+			children = (
+				C9B9E20597030140DB29187F1A3B0BCF /* CredentialProviderInfo.plist */,
+				90934AC99C4897BAA91AD2A6B6EECA90 /* RazoCredentialProviderViewController.swift */,
+			);
+			path = RAZOCredentialProvider;
+			sourceTree = "<group>";
+		};
+		60DAD64ECA62163B2F417121 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0925C959FA656DFAE923698D /* Pods-RAZOCredentialProvider.debug.xcconfig */,
+				550C9FCDA73D9C10FB924795 /* Pods-RAZOCredentialProvider.release.xcconfig */,
+				EDB58AA6F4F30306524396BE /* Pods-RAZOKeyboardApp.debug.xcconfig */,
+				82EBF5B1D30CF241F09D2283 /* Pods-RAZOKeyboardApp.release.xcconfig */,
+				DC44BF3DAA6DA9768030CA00 /* Pods-RAZOKeyboardExtension.debug.xcconfig */,
+				689703EE7E69F1F8D62A2CBC /* Pods-RAZOKeyboardExtension.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		84DB0FDA1CE0048612162BC4D65CEE91 /* RAZO-Keyboard */ = {
+			isa = PBXGroup;
+			children = (
+				ABFD83D00A3A6E86306FA50EBE038DC9 /* iOS */,
+			);
+			name = "RAZO-Keyboard";
+			path = "/Users/rejaulkarim/Documents/RTMN/companies/hojai-ai/RAZO-Keyboard";
+			sourceTree = "<group>";
+		};
+		9C509C2B028A9F6B94DA64B21A275C1B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3DBDBB8F9D695105EA086D49393DC1CB /* LocalAuthentication.framework */,
+				822630C1350D55F4BEF1C73BA924577A /* Security.framework */,
+				20895EFECDF40EFDAD2F38A9D20831D8 /* Speech.framework */,
+				60B400D347EE035CF605095F /* Pods_RAZOCredentialProvider.framework */,
+				11F2CF51996DA4068140430E /* Pods_RAZOKeyboardApp.framework */,
+				9C1D3D0F89D77CDC9BD86A70 /* Pods_RAZOKeyboardExtension.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A434AEA8DEFD57771FEACDC47644BCC4 /* RAZOKeyboardApp */ = {
+			isa = PBXGroup;
+			children = (
+				852BE58FB992CE6A54BBE657FC335EFD /* Info.plist */,
+				8244319CA5346C449D273F08696EDD14 /* RAZOKeyboardApp.entitlements */,
+			);
+			path = RAZOKeyboardApp;
+			sourceTree = "<group>";
+		};
+		ABFD83D00A3A6E86306FA50EBE038DC9 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				3C540A087626398374386B1C90D7AFBD /* Info.plist */,
+				C51CC7462A957CB6C1F208BC377467D1 /* RAZOKeyboardExtension.entitlements */,
+				73AE00078B20779B5CD96A1160208B73 /* RazoKeyboardView.swift */,
+				FCBF59E2CE8E14E2C218C9F817FFDAB1 /* RazoKeyboardViewController.swift */,
+				2B80D70BFEA13CA5C76528E7ED807CA2 /* README.md */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		FDBA7A3C9017AB4C3959EAAC9CC05E75 = {
+			isa = PBXGroup;
+			children = (
+				84DB0FDA1CE0048612162BC4D65CEE91 /* RAZO-Keyboard */,
+				1C649B53D08CF3773E591C2453D23EAE /* RAZOCredentialProvider */,
+				A434AEA8DEFD57771FEACDC47644BCC4 /* RAZOKeyboardApp */,
+				9C509C2B028A9F6B94DA64B21A275C1B /* Frameworks */,
+				194D24E4B00036B2CE487A5D7F3DA924 /* Products */,
+				60DAD64ECA62163B2F417121 /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		20FA7FC6160CD3C53478096AE4EA38F4 /* RAZOKeyboardApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65B5B8B238591EDE1BEFB921D63B67AF /* Build configuration list for PBXNativeTarget "RAZOKeyboardApp" */;
+			buildPhases = (
+				9B0624E596066D360C6C29F5 /* [CP] Check Pods Manifest.lock */,
+				294843A1C3C0964A3DA6628145458C93 /* Sources */,
+				72ACFEA352271F7257117CF353ED7F66 /* Embed App Extensions */,
+				30A397A756BD909C7C009F6A /* Frameworks */,
+				C3F1000C7522235B00638962 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60F04BA2BCD37FD37C5B1AC7FA9C12B9 /* PBXTargetDependency */,
+				6CE66505116700006CE8CED33DE7C06B /* PBXTargetDependency */,
+			);
+			name = RAZOKeyboardApp;
+			productName = RAZOKeyboardApp;
+			productReference = E8D055E49156792AC122BF68003AD9FE /* RAZOKeyboardApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		25DB89A25E5108D3EA5CF10CA3190D4F /* RAZOKeyboardExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 96BD34E820FE9606F4005472276DE428 /* Build configuration list for PBXNativeTarget "RAZOKeyboardExtension" */;
+			buildPhases = (
+				50BD2C2079456353DDAD4CC7 /* [CP] Check Pods Manifest.lock */,
+				6BF0548001A26C01BB25D69358E5F09E /* Sources */,
+				C7F813CEB17D4FCF3B025E7599B0E8A5 /* Resources */,
+				107F209AC71689B411D2B6982729AC97 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RAZOKeyboardExtension;
+			productName = RAZOKeyboardExtension;
+			productReference = 07A49C8E1B612A1B358DB95EFBE434BD /* RAZOKeyboardExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		E0FEC90985CC676014E4339173B49450 /* RAZOCredentialProvider */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2E69A899F019A722C5CEE63F23E5B8F1 /* Build configuration list for PBXNativeTarget "RAZOCredentialProvider" */;
+			buildPhases = (
+				D60EDD4545CE7CC13C7598EE /* [CP] Check Pods Manifest.lock */,
+				A735C879BBE93C6F6C99FC014F5261D1 /* Sources */,
+				4793D86CAEEAEFEA6F1DE53814424522 /* Resources */,
+				24F15A5BE268B4D9315CF64AE299358E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RAZOCredentialProvider;
+			productName = RAZOCredentialProvider;
+			productReference = 598538EEE6EE64290C5C30687C701A5B /* RAZOCredentialProvider.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0F072C966255691966601847226DF233 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					20FA7FC6160CD3C53478096AE4EA38F4 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					25DB89A25E5108D3EA5CF10CA3190D4F = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					E0FEC90985CC676014E4339173B49450 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = CA61D49D78D923169D027FAEE3DD8BCA /* Build configuration list for PBXProject "RAZOKeyboard" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = FDBA7A3C9017AB4C3959EAAC9CC05E75;
+			productRefGroup = 194D24E4B00036B2CE487A5D7F3DA924 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E0FEC90985CC676014E4339173B49450 /* RAZOCredentialProvider */,
+				20FA7FC6160CD3C53478096AE4EA38F4 /* RAZOKeyboardApp */,
+				25DB89A25E5108D3EA5CF10CA3190D4F /* RAZOKeyboardExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4793D86CAEEAEFEA6F1DE53814424522 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60D2FC5EF34D8C6001E7D11F8571D288 /* CredentialProviderInfo.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7F813CEB17D4FCF3B025E7599B0E8A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A3EDC4B19427C043B59C4A00905E487 /* README.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		50BD2C2079456353DDAD4CC7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RAZOKeyboardExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9B0624E596066D360C6C29F5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RAZOKeyboardApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C3F1000C7522235B00638962 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RAZOKeyboardApp/Pods-RAZOKeyboardApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RAZOKeyboardApp/Pods-RAZOKeyboardApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RAZOKeyboardApp/Pods-RAZOKeyboardApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D60EDD4545CE7CC13C7598EE /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RAZOCredentialProvider-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		294843A1C3C0964A3DA6628145458C93 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6BF0548001A26C01BB25D69358E5F09E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				82D325370C4C738509D928FC1CDC1081 /* RazoKeyboardView.swift in Sources */,
+				85C2D83AE0F7368800C33FC08DC7F4BB /* RazoKeyboardViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A735C879BBE93C6F6C99FC014F5261D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BFD37399EA591437C262EC2D4698D5E9 /* RazoCredentialProviderViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		60F04BA2BCD37FD37C5B1AC7FA9C12B9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 25DB89A25E5108D3EA5CF10CA3190D4F /* RAZOKeyboardExtension */;
+			targetProxy = F3CF426F432D0BD62C0C52479F102C6A /* PBXContainerItemProxy */;
+		};
+		6CE66505116700006CE8CED33DE7C06B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E0FEC90985CC676014E4339173B49450 /* RAZOCredentialProvider */;
+			targetProxy = E9709786571A4AD8BA7C94BB679B6795 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0FD147CDACB94A0414755D4AFDD8B4B4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DC44BF3DAA6DA9768030CA00 /* Pods-RAZOKeyboardExtension.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RAZOKeyboardExtension.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.razo.keyboard;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		1428AA40E297BFEB31026989BBA0EDD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 82EBF5B1D30CF241F09D2283 /* Pods-RAZOKeyboardApp.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_ENTITLEMENTS = RAZOKeyboardApp/RAZOKeyboardApp.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = RAZOKeyboardApp/Info.plist;
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.razo.keyboard.app;
+			};
+			name = Release;
+		};
+		2024369810ADD587B223A5AED4B0C02C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 550C9FCDA73D9C10FB924795 /* Pods-RAZOCredentialProvider.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RAZOCredentialProvider/RAZOCredentialProvider.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = RAZOCredentialProvider/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.razo.credentialprovider;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		465D36892E0879A959469F0A04E08854 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0925C959FA656DFAE923698D /* Pods-RAZOCredentialProvider.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RAZOCredentialProvider/RAZOCredentialProvider.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = RAZOCredentialProvider/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.razo.credentialprovider;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		6471F94DA6AEF97801DBE2A2ED4C3E50 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EDB58AA6F4F30306524396BE /* Pods-RAZOKeyboardApp.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_ENTITLEMENTS = RAZOKeyboardApp/RAZOKeyboardApp.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = RAZOKeyboardApp/Info.plist;
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.razo.keyboard.app;
+			};
+			name = Debug;
+		};
+		725010E979A583EA929D7858D56F2BF0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		79995EA68735C963EB4D8A823E2043A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 689703EE7E69F1F8D62A2CBC /* Pods-RAZOKeyboardExtension.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = RAZOKeyboardExtension.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.razo.keyboard;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		AA159601E5538F557A975571AB66C938 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2E69A899F019A722C5CEE63F23E5B8F1 /* Build configuration list for PBXNativeTarget "RAZOCredentialProvider" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				465D36892E0879A959469F0A04E08854 /* Debug */,
+				2024369810ADD587B223A5AED4B0C02C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "";
+		};
+		65B5B8B238591EDE1BEFB921D63B67AF /* Build configuration list for PBXNativeTarget "RAZOKeyboardApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6471F94DA6AEF97801DBE2A2ED4C3E50 /* Debug */,
+				1428AA40E297BFEB31026989BBA0EDD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "";
+		};
+		96BD34E820FE9606F4005472276DE428 /* Build configuration list for PBXNativeTarget "RAZOKeyboardExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0FD147CDACB94A0414755D4AFDD8B4B4 /* Debug */,
+				79995EA68735C963EB4D8A823E2043A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = "";
+		};
+		CA61D49D78D923169D027FAEE3DD8BCA /* Build configuration list for PBXProject "RAZOKeyboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA159601E5538F557A975571AB66C938 /* Debug */,
+				725010E979A583EA929D7858D56F2BF0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0F072C966255691966601847226DF233 /* Project object */;
+}

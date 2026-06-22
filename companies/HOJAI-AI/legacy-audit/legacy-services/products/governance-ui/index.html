@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Governance Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100" x-data="governance">
+  <nav class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold">Hojai Governance</h1>
+      <span class="text-sm text-gray-500">Privacy Dashboard</span>
+    </div>
+  </nav>
+  <main class="max-w-7xl mx-auto p-6">
+    <div class="grid grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-sm text-gray-500">Active Tenants</p>
+        <p class="text-3xl font-bold" x-text="stats.tenants">127</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-sm text-gray-500">Consents Active</p>
+        <p class="text-3xl font-bold text-green-600" x-text="stats.consents">1,247</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-sm text-gray-500">Data Requests</p>
+        <p class="text-3xl font-bold text-blue-600" x-text="stats.requests">89</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow">
+        <p class="text-sm text-gray-500">Audits Today</p>
+        <p class="text-3xl font-bold text-purple-600" x-text="stats.audits">2,847</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl p-6 shadow">
+        <h2 class="text-lg font-semibold mb-4">Consent Management</h2>
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-gray-500"><th>Tenant</th><th>Category</th><th>Status</th></tr></thead>
+          <tbody>
+            <template x-for="item in consents" :key="item.id">
+              <tr class="border-t"><td class="py-2" x-text="item.tenant"></td><td x-text="item.category"></td><td><span class="px-2 py-1 rounded text-xs" :class="item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100'" x-text="item.status"></span></td></tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow">
+        <h2 class="text-lg font-semibold mb-4">Data Rights</h2>
+        <template x-for="req in dataRequests" :key="req.id">
+          <div class="border-b py-3"><div class="flex justify-between"><span x-text="req.type"></span><span class="text-sm text-gray-500" x-text="req.status"></span></div></div>
+        </template>
+      </div>
+    </div>
+  </main>
+  <script>
+    function governance() {
+      return {
+        stats: { tenants: 127, consents: 1247, requests: 89, audits: 2847 },
+        consents: [
+          { id: 1, tenant: 'Salon Magic', category: 'Health Data', status: 'active' },
+          { id: 2, tenant: 'Cafe Rosso', category: 'Location', status: 'pending' }
+        ],
+        dataRequests: [
+          { id: 1, type: 'Erasure Request', status: 'Pending Review' },
+          { id: 2, type: 'Access Request', status: 'In Progress' }
+        ]
+      };
+    }
+  </script>
+</body>
+</html>

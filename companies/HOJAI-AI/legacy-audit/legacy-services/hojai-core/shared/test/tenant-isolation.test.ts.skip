@@ -1,0 +1,578 @@
+/**
+ * Hojai Core - Tenant Isolation Test Suite
+ * Version: 1.0 | Date: May 29, 2026
+ * Purpose: Verify tenant isolation works correctly
+ */
+
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { HojaiEventPlatform } from '../hojai-event';
+import { HojaiMemoryPlatform } from '../hojai-memory';
+import { HojaiWorkflowPlatform } from '../hojai-workflow';
+import { HojaiAgentPlatform } from '../hojai-agents';
+
+// ============================================
+// TEST UTILITIES
+// ============================================
+
+const TENANTS = {
+  tenantA: 'tenant_a',
+  tenantB: 'tenant_b',
+  internal: 'rez_internal'
+};
+
+const createHeaders = (tenantId: string) => ({
+  'x-tenant-id': tenantId
+});
+
+describe('Tenant Isolation Tests', () => {
+
+  // ============================================
+  // EVENT PLATFORM TESTS
+  // ============================================
+
+  describe('HojaiEventPlatform', () => {
+    let eventPlatform: HojaiEventPlatform;
+
+    beforeEach(() => {
+      eventPlatform = new HojaiEventPlatform();
+    });
+
+    it('tenant_a cannot see tenant_b events', async () => {
+      // Tenant A publishes event
+      const event = await eventPlatform.publish(
+        TENANTS.tenantA,
+        'order.created',
+        { orderId: '123' }
+      );
+
+      let tenantBReceivedEvents: any[] = [];
+
+      // Tenant B subscribes to events
+      eventPlatform.subscribe(
+        TENANTS.tenantB,
+        'order.created',
+        (e) => tenantBReceivedEvents.push(e)
+      );
+
+      // Wait for event propagation
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Tenant B should NOT receive Tenant A's event
+      expect(tenantBReceivedEvents.length).toBe(0);
+      expect(tenantBReceivedEvents.find(e => e.id === event.id)).toBeUndefined();
+    });
+
+    it('tenant_a CAN see their own events', async () => {
+      let tenantAReceivedEvents: any[] = [];
+
+      // Tenant A subscribes
+      eventPlatform.subscribe(
+        TENANTS.tenantA,
+        'order.created',
+        (e) => tenantAReceivedEvents.push(e)
+      );
+
+      // Tenant A publishes event
+      await eventPlatform.publish(
+        TENANTS.tenantA,
+        'order.created',
+        { orderId: '456' }
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Tenant A should receive their own event
+      expect(tenantAReceivedEvents.length).toBe(1);
+      expect(tenantAReceivedEvents[0].tenant_id).toBe(TENANTS.tenantA);
+    });
+
+    it('events always include tenant_id', async () => {
+      const event = await eventPlatform.publish(
+        TENANTS.tenantA,
+        'customer.created',
+        { name: 'Test Customer' }
+      );
+
+      expect(event.tenant_id).toBe(TENANTS.tenantA);
+      expect(event.id).toBeDefined();
+      expect(event.timestamp).toBeDefined();
+    });
+
+    it('reject publish without tenant_id', async () => {
+      await expect(
+        eventPlatform.publish('', 'test.event', {})
+      ).rejects.toThrow('tenant_id is required');
+    });
+
+    it('tenant_id is validated', async () => {
+      await expect(
+        eventPlatform.publish('invalid tenant id!@#', 'test', {})
+      ).rejects.toThrow();
+    });
+  });
+
+  // ============================================
+  // MEMORY PLATFORM TESTS
+  // ============================================
+
+  describe('HojaiMemoryPlatform', () => {
+    let memoryPlatform: HojaiMemoryPlatform;
+
+    beforeEach(() => {
+      memoryPlatform = new HojaiMemoryPlatform();
+    });
+
+    it('tenant_a cannot access tenant_b memory', async () => {
+      // Tenant A adds memory
+      await memoryPlatform.addCustomerMemory(
+        TENANTS.tenantA,
+        'customer_123',
+        {
+          type: 'preference',
+          key: 'dietary',
+          value: 'vegetarian',
+          source: 'manual',
+          confidence: 1.0
+        }
+      );
+
+      // Tenant B tries to read
+      const tenantBMemory = await memoryPlatform.getCustomerMemory(
+        TENANTS.tenantB,
+        'customer_123'
+      );
+
+      // Should be empty
+      expect(tenantBMemory.length).toBe(0);
+    });
+
+    it('tenant_a CAN access their own memory', async () => {
+      await memoryPlatform.addCustomerMemory(
+        TENANTS.tenantA,
+        'customer_123',
+        {
+          type: 'preference',
+          key: 'dietary',
+          value: 'vegetarian',
+          source: 'manual',
+          confidence: 1.0
+        }
+      );
+
+      const tenantAMemory = await memoryPlatform.getCustomerMemory(
+        TENANTS.tenantA,
+        'customer_123'
+      );
+
+      expect(tenantAMemory.length).toBe(1);
+      expect(tenantAMemory[0].value).toBe('vegetarian');
+      expect(tenantAMemory[0].tenant_id).toBe(TENANTS.tenantA);
+    });
+
+    it('business memory is tenant-scoped', async () => {
+      // Tenant A adds SOP
+      await memoryPlatform.addBusinessMemory(TENANTS.tenantA, {
+        type: 'sop',
+        key: 'refund_policy',
+        value: 'Full refund within 7 days',
+        source: 'manual',
+        confidence: 1.0
+      });
+
+      // Tenant B tries to read
+      const tenantBMemory = await memoryPlatform.getBusinessMemory(TENANTS.tenantB);
+
+      // Should be empty
+      expect(tenantBMemory.length).toBe(0);
+    });
+
+    it('memory entries always include tenant_id', async () => {
+      const memory = await memoryPlatform.addCustomerMemory(
+        TENANTS.tenantA,
+        'customer_456',
+        {
+          type: 'history',
+          key: 'last_order',
+          value: '2024-01-15',
+          source: 'behavior',
+          confidence: 0.95
+        }
+      );
+
+      expect(memory.tenant_id).toBe(TENANTS.tenantA);
+      expect(memory.scope_type).toBe('customer');
+      expect(memory.scope_id).toBe('customer_456');
+    });
+  });
+
+  // ============================================
+  // WORKFLOW PLATFORM TESTS
+  // ============================================
+
+  describe('HojaiWorkflowPlatform', () => {
+    let workflowPlatform: HojaiWorkflowPlatform;
+
+    beforeEach(() => {
+      workflowPlatform = new HojaiWorkflowPlatform();
+    });
+
+    it('tenant_a cannot see tenant_b workflows', async () => {
+      // Tenant A creates workflow
+      await workflowPlatform.createWorkflow(TENANTS.tenantA, {
+        name: 'Tenant A Workflow',
+        type: 'automation',
+        status: 'active',
+        trigger: { type: 'event', event_type: 'order.created' },
+        steps: []
+      });
+
+      // Tenant B lists workflows
+      const tenantBWorkflows = await workflowPlatform.listWorkflows(TENANTS.tenantB);
+
+      // Should be empty
+      expect(tenantBWorkflows.length).toBe(0);
+    });
+
+    it('tenant_a CAN see their own workflows', async () => {
+      const workflow = await workflowPlatform.createWorkflow(TENANTS.tenantA, {
+        name: 'My Workflow',
+        type: 'automation',
+        status: 'active',
+        trigger: { type: 'event', event_type: 'order.created' },
+        steps: []
+      });
+
+      const tenantAWorkflows = await workflowPlatform.listWorkflows(TENANTS.tenantA);
+
+      expect(tenantAWorkflows.length).toBe(1);
+      expect(tenantAWorkflows[0].name).toBe('My Workflow');
+      expect(tenantAWorkflows[0].tenant_id).toBe(TENANTS.tenantA);
+    });
+
+    it('cannot delete another tenant workflow', async () => {
+      const workflow = await workflowPlatform.createWorkflow(TENANTS.tenantA, {
+        name: 'Protected Workflow',
+        type: 'automation',
+        status: 'active',
+        trigger: { type: 'manual' },
+        steps: []
+      });
+
+      // Tenant B tries to delete
+      const deleted = await workflowPlatform.deleteWorkflow(TENANTS.tenantB, workflow.id);
+
+      expect(deleted).toBe(false);
+
+      // Workflow should still exist for Tenant A
+      const tenantAWorkflow = await workflowPlatform.getWorkflow(TENANTS.tenantA, workflow.id);
+      expect(tenantAWorkflow).not.toBeNull();
+    });
+
+    it('workflows always include tenant_id', async () => {
+      const workflow = await workflowPlatform.createWorkflow(TENANTS.tenantA, {
+        name: 'Test Workflow',
+        type: 'sequence',
+        status: 'draft',
+        trigger: { type: 'schedule', schedule_cron: '0 9 * * *' },
+        steps: []
+      });
+
+      expect(workflow.tenant_id).toBe(TENANTS.tenantA);
+      expect(workflow.version).toBe(1);
+    });
+  });
+
+  // ============================================
+  // AGENT PLATFORM TESTS
+  // ============================================
+
+  describe('HojaiAgentPlatform', () => {
+    let agentPlatform: HojaiAgentPlatform;
+
+    beforeEach(() => {
+      agentPlatform = new HojaiAgentPlatform();
+    });
+
+    it('tenant_a cannot see tenant_b agents', async () => {
+      // Tenant A creates agent
+      await agentPlatform.createAgent(TENANTS.tenantA, {
+        name: 'Support Bot',
+        type: 'support',
+        status: 'active',
+        config: {
+          working_hours: { enabled: false, timezone: 'Asia/Kolkata' },
+          channels: ['whatsapp'],
+          languages: ['en'],
+          handoff_enabled: false
+        },
+        behavior: {
+          tone: 'friendly',
+          use_emoji: true,
+          max_response_length: 500,
+          traits: ['helpful'],
+          disallowed_topics: []
+        },
+        knowledge_base_ids: []
+      });
+
+      // Tenant B lists agents
+      const tenantBAgents = await agentPlatform.listAgents(TENANTS.tenantB);
+
+      expect(tenantBAgents.length).toBe(0);
+    });
+
+    it('tenant_a CAN invoke their own agent', async () => {
+      const agent = await agentPlatform.createAgent(TENANTS.tenantA, {
+        name: 'Sales Bot',
+        type: 'sales',
+        status: 'active',
+        config: {
+          working_hours: { enabled: false, timezone: 'Asia/Kolkata' },
+          channels: ['whatsapp'],
+          languages: ['en'],
+          handoff_enabled: false
+        },
+        behavior: {
+          tone: 'friendly',
+          use_emoji: false,
+          max_response_length: 300,
+          traits: ['persuasive'],
+          disallowed_topics: []
+        },
+        knowledge_base_ids: []
+      });
+
+      const result = await agentPlatform.invokeAgent(TENANTS.tenantA, agent.id, {
+        customerId: 'cust_123',
+        message: 'What are your hours?'
+      });
+
+      expect(result.response).toBeDefined();
+      expect(result.escalated).toBe(false);
+    });
+
+    it('tenant_b CANNOT invoke tenant_a agent', async () => {
+      const agent = await agentPlatform.createAgent(TENANTS.tenantA, {
+        name: 'Private Bot',
+        type: 'support',
+        status: 'active',
+        config: {
+          working_hours: { enabled: false, timezone: 'Asia/Kolkata' },
+          channels: ['whatsapp'],
+          languages: ['en'],
+          handoff_enabled: false
+        },
+        behavior: {
+          tone: 'friendly',
+          use_emoji: false,
+          max_response_length: 300,
+          traits: ['helpful'],
+          disallowed_topics: []
+        },
+        knowledge_base_ids: []
+      });
+
+      // Tenant B tries to invoke
+      await expect(
+        agentPlatform.invokeAgent(TENANTS.tenantB, agent.id, {
+          customerId: 'cust_999',
+          message: 'Hello'
+        })
+      ).rejects.toThrow('Agent not found');
+    });
+
+    it('agents always include tenant_id', async () => {
+      const agent = await agentPlatform.createAgent(TENANTS.tenantA, {
+        name: 'Test Agent',
+        type: 'support',
+        status: 'active',
+        config: {
+          working_hours: { enabled: false, timezone: 'UTC' },
+          channels: ['webchat'],
+          languages: ['en'],
+          handoff_enabled: false
+        },
+        behavior: {
+          tone: 'formal',
+          use_emoji: false,
+          max_response_length: 200,
+          traits: ['professional'],
+          disallowed_topics: []
+        },
+        knowledge_base_ids: []
+      });
+
+      expect(agent.tenant_id).toBe(TENANTS.tenantA);
+      expect(agent.version).toBe(1);
+      expect(agent.stats.total_conversations).toBe(0);
+    });
+  });
+
+  // ============================================
+  // CROSS-PLATFORM ISOLATION TESTS
+  // ============================================
+
+  describe('Cross-Platform Isolation', () => {
+    let eventPlatform: HojaiEventPlatform;
+    let memoryPlatform: HojaiMemoryPlatform;
+    let workflowPlatform: HojaiWorkflowPlatform;
+    let agentPlatform: HojaiAgentPlatform;
+
+    beforeEach(() => {
+      eventPlatform = new HojaiEventPlatform();
+      memoryPlatform = new HojaiMemoryPlatform();
+      workflowPlatform = new HojaiWorkflowPlatform();
+      agentPlatform = new HojaiAgentPlatform();
+    });
+
+    it('tenant data is completely isolated across platforms', async () => {
+      // Create data in Tenant A
+      const event = await eventPlatform.publish(TENANTS.tenantA, 'order.created', { id: 1 });
+      await memoryPlatform.addCustomerMemory(TENANTS.tenantA, 'cust_1', {
+        type: 'preference', key: 'test', value: 'A', source: 'manual', confidence: 1.0
+      });
+      await workflowPlatform.createWorkflow(TENANTS.tenantA, {
+        name: 'A Workflow', type: 'automation', status: 'active',
+        trigger: { type: 'manual' }, steps: []
+      });
+      await agentPlatform.createAgent(TENANTS.tenantA, {
+        name: 'A Agent', type: 'support', status: 'active',
+        config: {
+          working_hours: { enabled: false, timezone: 'UTC' },
+          channels: ['webchat'], languages: ['en'], handoff_enabled: false
+        },
+        behavior: {
+          tone: 'friendly', use_emoji: false, max_response_length: 200,
+          traits: [], disallowed_topics: []
+        },
+        knowledge_base_ids: []
+      });
+
+      // Create data in Tenant B
+      await eventPlatform.publish(TENANTS.tenantB, 'order.created', { id: 2 });
+      await memoryPlatform.addCustomerMemory(TENANTS.tenantB, 'cust_2', {
+        type: 'preference', key: 'test', value: 'B', source: 'manual', confidence: 1.0
+      });
+      await workflowPlatform.createWorkflow(TENANTS.tenantB, {
+        name: 'B Workflow', type: 'automation', status: 'active',
+        trigger: { type: 'manual' }, steps: []
+      });
+      await agentPlatform.createAgent(TENANTS.tenantB, {
+        name: 'B Agent', type: 'support', status: 'active',
+        config: {
+          working_hours: { enabled: false, timezone: 'UTC' },
+          channels: ['webchat'], languages: ['en'], handoff_enabled: false
+        },
+        behavior: {
+          tone: 'friendly', use_emoji: false, max_response_length: 200,
+          traits: [], disallowed_topics: []
+        },
+        knowledge_base_ids: []
+      });
+
+      // Verify Tenant A sees only Tenant A data
+      const aMemories = await memoryPlatform.getCustomerMemory(TENANTS.tenantA, 'cust_1');
+      const aWorkflows = await workflowPlatform.listWorkflows(TENANTS.tenantA);
+      const aAgents = await agentPlatform.listAgents(TENANTS.tenantA);
+
+      expect(aMemories[0]?.value).toBe('A');
+      expect(aWorkflows[0]?.name).toBe('A Workflow');
+      expect(aAgents[0]?.name).toBe('A Agent');
+
+      // Verify Tenant B sees only Tenant B data
+      const bMemories = await memoryPlatform.getCustomerMemory(TENANTS.tenantB, 'cust_2');
+      const bWorkflows = await workflowPlatform.listWorkflows(TENANTS.tenantB);
+      const bAgents = await agentPlatform.listAgents(TENANTS.tenantB);
+
+      expect(bMemories[0]?.value).toBe('B');
+      expect(bWorkflows[0]?.name).toBe('B Workflow');
+      expect(bAgents[0]?.name).toBe('B Agent');
+
+      // Verify no cross-contamination
+      expect(aMemories.length).toBe(1);
+      expect(bMemories.length).toBe(1);
+      expect(aWorkflows.length).toBe(1);
+      expect(bWorkflows.length).toBe(1);
+      expect(aAgents.length).toBe(1);
+      expect(bAgents.length).toBe(1);
+    });
+  });
+
+  // ============================================
+  // INTERNAL TENANT TESTS
+  // ============================================
+
+  describe('Internal Tenant (REZ)', () => {
+    let memoryPlatform: HojaiMemoryPlatform;
+
+    beforeEach(() => {
+      memoryPlatform = new HojaiMemoryPlatform();
+    });
+
+    it('internal tenant is isolated from commercial tenants', async () => {
+      // Internal tenant adds data
+      await memoryPlatform.addBusinessMemory(TENANTS.internal, {
+        type: 'sop',
+        key: 'internal_policy',
+        value: 'Internal only',
+        source: 'manual',
+        confidence: 1.0
+      });
+
+      // Commercial tenant tries to read
+      const commercialMemory = await memoryPlatform.getBusinessMemory(TENANTS.tenantA);
+
+      expect(commercialMemory.length).toBe(0);
+    });
+
+    it('internal tenant has privileged access patterns', async () => {
+      // Internal tenant can access privileged features
+      const memory = await memoryPlatform.addBusinessMemory(TENANTS.internal, {
+        type: 'sop',
+        key: 'privileged_sop',
+        value: 'Privileged content',
+        source: 'manual',
+        confidence: 1.0
+      });
+
+      const retrieved = await memoryPlatform.getBusinessMemory(TENANTS.internal);
+      expect(retrieved.length).toBe(1);
+      expect(retrieved[0].key).toBe('privileged_sop');
+    });
+  });
+});
+
+// ============================================
+// PERFORMANCE TESTS
+// ============================================
+
+describe('Tenant Isolation Performance', () => {
+  it('tenant operations complete within acceptable time', async () => {
+    const memoryPlatform = new HojaiMemoryPlatform();
+    const start = Date.now();
+
+    // Create 100 memories for each of 3 tenants
+    for (let i = 0; i < 100; i++) {
+      await memoryPlatform.addCustomerMemory(TENANTS.tenantA, `cust_a_${i}`, {
+        type: 'preference', key: `key_a_${i}`, value: `value_${i}`, source: 'manual', confidence: 1.0
+      });
+      await memoryPlatform.addCustomerMemory(TENANTS.tenantB, `cust_b_${i}`, {
+        type: 'preference', key: `key_b_${i}`, value: `value_${i}`, source: 'manual', confidence: 1.0
+      });
+    }
+
+    const duration = Date.now() - start;
+
+    // Should complete in reasonable time (10 seconds)
+    expect(duration).toBeLessThan(10000);
+
+    // Verify isolation still works
+    const aMemories = await memoryPlatform.getCustomerMemory(TENANTS.tenantA, 'cust_a_50');
+    const bMemories = await memoryPlatform.getCustomerMemory(TENANTS.tenantB, 'cust_b_50');
+
+    expect(aMemories.length).toBe(1);
+    expect(bMemories.length).toBe(1);
+    expect(aMemories[0].key).toBe('key_a_50');
+    expect(bMemories[0].key).toBe('key_b_50');
+  });
+});

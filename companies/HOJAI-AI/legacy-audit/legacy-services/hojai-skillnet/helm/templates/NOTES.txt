@@ -1,0 +1,47 @@
+# NOTES.txt - Helm release notes
+
+{{- if .Values.ingress.enabled }}
+## Access URLs
+
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+    {{- if eq .service "http" }}
+  HTTP API: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+    {{- else if eq .service "ws" }}
+  WebSocket: ws{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- else }}
+## Service Access
+
+  HTTP API: http://{{ include "hojai-skillnet.fullname" . }}:{{ .Values.service.httpPort }}
+  gRPC: {{ include "hojai-skillnet.fullname" . }}:{{ .Values.service.grpcPort }}
+  WebSocket: ws://{{ include "hojai-skillnet.fullname" . }}:{{ .Values.service.wsPort }}
+{{- end }}
+
+## Health Checks
+
+  Liveness: http://{{ include "hojai-skillnet.fullname" . }}:{{ .Values.service.httpPort }}/health/live
+  Readiness: http://{{ include "hojai-skillnet.fullname" . }}:{{ .Values.service.httpPort }}/health/ready
+  Metrics: http://{{ include "hojai-skillnet.fullname" . }}:{{ .Values.service.httpPort }}/metrics
+
+## Configuration
+
+  Replicas: {{ .Values.replicaCount }}
+  Image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+
+## Next Steps
+
+  1. Create a secret with your MongoDB URI and JWT secret:
+     kubectl create secret generic hojai-skillnet-secrets \
+       --from-literal=mongodb-uri="mongodb://user:pass@host:27017/hojai-skillnet" \
+       --from-literal=jwt-secret="your-32-char-secret-here" \
+       -n {{ .Release.Namespace }}
+
+  2. Update the secret references in k8s/overrides.yaml if using external secrets
+
+  3. For TLS, ensure cert-manager is installed and ClusterIssuer exists
+
+{{ include "hojai-skillnet.validateValues" . }}

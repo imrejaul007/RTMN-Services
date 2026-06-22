@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Audit Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100" x-data="audit">
+  <nav class="bg-gray-900 text-white p-4">
+    <h1 class="text-lg font-bold">Hojai Audit Dashboard</h1>
+  </nav>
+  <main class="max-w-7xl mx-auto p-6">
+    <div class="grid grid-cols-4 gap-6 mb-6">
+      <div class="bg-white rounded-xl p-6 shadow"><p class="text-sm text-gray-500">Events/min</p><p class="text-3xl font-bold text-indigo-600" x-text="metrics.eventsPerMin">847</p></div>
+      <div class="bg-white rounded-xl p-6 shadow"><p class="text-sm text-gray-500">Sessions</p><p class="text-3xl font-bold text-green-600" x-text="metrics.activeSessions">2</p></div>
+      <div class="bg-white rounded-xl p-6 shadow"><p class="text-sm text-gray-500">Errors/min</p><p class="text-3xl font-bold text-red-500" x-text="metrics.errorsPerMin">3</p></div>
+      <div class="bg-white rounded-xl p-6 shadow"><p class="text-sm text-gray-500">P95 Latency</p><p class="text-3xl font-bold" x-text="metrics.p95Latency">127</p>ms</div>
+    </div>
+    <div class="grid grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl p-6 shadow"><h2 class="text-lg font-semibold mb-4">Live Events</h2>
+        <template x-for="event in events"><div class="flex gap-4 py-2 border-b"><span class="text-xs text-gray-400" x-text="event.time"></span><span x-text="event.source"></span></div></template>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow"><h2 class="text-lg font-semibold mb-4">Alerts</h2>
+        <template x-for="alert in alerts"><div class="p-3 rounded mb-2" :class="alert.level === 'critical' ? 'bg-red-50' : 'bg-yellow-50'"><span x-text="alert.message"></span></div></template>
+      </div>
+    </div>
+  </main>
+  <script>
+    function audit() {
+      return {
+        metrics: { eventsPerMin: 847, activeSessions: 2, errorsPerMin: 3, p95Latency: 127 },
+        events: [{ time: '10:42', source: 'Commerce API' }, { time: '10:41', source: 'WhatsApp AI' }],
+        alerts: [{ message: 'Health access without consent', level: 'critical' }]
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  genie-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: genie-dashboard
+    ports:
+      - "4701:4701"
+    environment:
+      - NODE_ENV=production
+      - PORT=4701
+      - SERVICE_NAME=genie-dashboard-service
+      - GENIE_MEMORY_URL=http://genie-memory:4703
+      - GENIE_RELATIONSHIP_URL=http://genie-relationship:4704
+      - GENIE_BRIEFING_URL=http://genie-briefing:4706
+      - GENIE_CALENDAR_URL=http://genie-calendar:4709
+      - GENIE_EMAIL_URL=http://genie-email:4710
+      - GENIE_MEETING_URL=http://genie-meeting:4713
+      - GENIE_PROJECT_URL=http://genie-project:4721
+    networks:
+      - rtnm-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4701/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  rtnm-network:
+    driver: bridge

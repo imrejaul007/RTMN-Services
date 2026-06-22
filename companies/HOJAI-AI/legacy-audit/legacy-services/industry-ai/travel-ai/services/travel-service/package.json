@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/travel-service",
+  "version": "1.0.0",
+  "description": "Travel booking and itinerary service",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

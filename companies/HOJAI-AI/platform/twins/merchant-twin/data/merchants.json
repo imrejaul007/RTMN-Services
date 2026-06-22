@@ -1,0 +1,221 @@
+[
+  [
+    "mer-f82ee580",
+    {
+      "id": "mer-f82ee580",
+      "type": "merchant",
+      "businessName": "Acme Coffee Co",
+      "ownerName": "John Smith",
+      "email": "john@acme.com",
+      "category": "restaurant",
+      "businessType": "llc",
+      "businessId": "RTMN-HQ",
+      "rating": 0,
+      "totalRatings": 0,
+      "totalReviews": 0,
+      "storeCount": 0,
+      "staffCount": 0,
+      "totalRevenue": 0,
+      "pendingSettlements": 0,
+      "metadata": {},
+      "status": "active",
+      "health": "healthy",
+      "version": 1,
+      "createdAt": "2026-06-22T00:07:27.597Z",
+      "updatedAt": "2026-06-22T00:07:27.597Z",
+      "_metadata": {
+        "service": "merchant-twin",
+        "twinVersion": "1.0.0"
+      }
+    }
+  ],
+  [
+    "mer-53940ff2",
+    {
+      "id": "mer-53940ff2",
+      "type": "merchant",
+      "businessName": "M9927",
+      "ownerName": "Owner 9927",
+      "email": "m9927@t.com",
+      "category": "restaurant",
+      "businessType": "sole_proprietorship",
+      "businessId": "FINAL-HQ",
+      "rating": 0,
+      "totalRatings": 0,
+      "totalReviews": 0,
+      "storeCount": 0,
+      "staffCount": 0,
+      "totalRevenue": 0,
+      "pendingSettlements": 0,
+      "metadata": {},
+      "status": "active",
+      "health": "healthy",
+      "version": 1,
+      "createdAt": "2026-06-22T00:58:54.112Z",
+      "updatedAt": "2026-06-22T00:58:54.112Z",
+      "_metadata": {
+        "service": "merchant-twin",
+        "twinVersion": "1.0.0"
+      }
+    }
+  ],
+  [
+    "mer-foo",
+    {
+      "id": "mer-foo",
+      "status": "active",
+      "version": 1,
+      "updatedAt": "2026-06-22T02:10:13.148Z"
+    }
+  ],
+  [
+    "mer-05a0ca57",
+    {
+      "id": "mer-05a0ca57",
+      "type": "merchant",
+      "businessName": "Test",
+      "ownerName": "Owner",
+      "category": "retail",
+      "businessType": "sole_proprietorship",
+      "businessId": "b1",
+      "rating": 0,
+      "totalRatings": 0,
+      "totalReviews": 0,
+      "storeCount": 0,
+      "staffCount": 0,
+      "totalRevenue": 0,
+      "pendingSettlements": 0,
+      "metadata": {},
+      "status": "archived",
+      "health": "healthy",
+      "version": 2,
+      "createdAt": "2026-06-22T02:23:05.625Z",
+      "updatedAt": "2026-06-22T02:23:22.387Z",
+      "_metadata": {
+        "service": "merchant-twin",
+        "twinVersion": "1.0.0"
+      },
+      "mergedInto": "mer-81c1c91b",
+      "mergedAt": "2026-06-22T02:23:22.387Z"
+    }
+  ],
+  [
+    "mer-81c1c91b",
+    {
+      "id": "mer-81c1c91b",
+      "type": "merchant",
+      "businessName": "Test 2",
+      "ownerName": "Owner 2",
+      "category": "retail",
+      "businessType": "sole_proprietorship",
+      "businessId": "b1",
+      "rating": 0,
+      "totalRatings": 0,
+      "totalReviews": 0,
+      "storeCount": 0,
+      "staffCount": 0,
+      "totalRevenue": 0,
+      "pendingSettlements": 0,
+      "metadata": {},
+      "status": "active",
+      "health": "healthy",
+      "version": 2,
+      "createdAt": "2026-06-22T02:23:05.658Z",
+      "updatedAt": "2026-06-22T02:23:22.387Z",
+      "_metadata": {
+        "service": "merchant-twin",
+        "twinVersion": "1.0.0"
+      },
+      "mergedFrom": [
+        "mer-05a0ca57"
+      ],
+      "mergedAt": "2026-06-22T02:23:22.387Z"
+    }
+  ],
+  [
+    "mer-acefafff",
+    {
+      "id": "mer-acefafff",
+      "type": "merchant",
+      "businessName": "Phase5 Test 1",
+      "ownerName": "Owner 1",
+      "category": "retail",
+      "businessType": "sole_proprietorship",
+      "businessId": "b1",
+      "rating": 0,
+      "totalRatings": 0,
+      "totalReviews": 0,
+      "storeCount": 0,
+      "staffCount": 0,
+      "totalRevenue": 0,
+      "pendingSettlements": 0,
+      "metadata": {},
+      "status": "archived",
+      "health": "healthy",
+      "version": 2,
+      "createdAt": "2026-06-22T02:36:17.617Z",
+      "updatedAt": "2026-06-22T02:36:17.701Z",
+      "_metadata": {
+        "service": "merchant-twin",
+        "twinVersion": "1.0.0"
+      },
+      "mergedInto": "mer-5fca1ff9",
+      "mergedAt": "2026-06-22T02:36:17.701Z"
+    }
+  ],
+  [
+    "mer-5fca1ff9",
+    {
+      "id": "mer-5fca1ff9",
+      "type": "merchant",
+      "businessName": "Phase5 Test 2",
+      "ownerName": "Owner 2",
+      "category": "retail",
+      "businessType": "sole_proprietorship",
+      "businessId": "b1",
+      "rating": 0,
+      "totalRatings": 0,
+      "totalReviews": 0,
+      "storeCount": 0,
+      "staffCount": 0,
+      "totalRevenue": 0,
+      "pendingSettlements": 0,
+      "metadata": {},
+      "status": "active",
+      "health": "healthy",
+      "version": 4,
+      "createdAt": "2026-06-22T02:36:17.667Z",
+      "updatedAt": "2026-06-22T02:36:17.755Z",
+      "_metadata": {
+        "service": "merchant-twin",
+        "twinVersion": "1.0.0"
+      },
+      "mergedFrom": [
+        "mer-acefafff"
+      ],
+      "mergedAt": "2026-06-22T02:36:17.701Z",
+      "lastTransitionAt": "2026-06-22T02:36:17.755Z",
+      "archivedAt": "2026-06-22T02:36:17.736Z",
+      "lifecycleHistory": [
+        {
+          "id": "lc-06fb230d",
+          "from": "active",
+          "to": "archived",
+          "reason": "archived via shortcut",
+          "actorId": null,
+          "at": "2026-06-22T02:36:17.736Z"
+        },
+        {
+          "id": "lc-c255d14c",
+          "from": "archived",
+          "to": "active",
+          "reason": "restored via shortcut",
+          "actorId": null,
+          "at": "2026-06-22T02:36:17.755Z"
+        }
+      ],
+      "mergedInto": null,
+      "restoredAt": "2026-06-22T02:36:17.755Z"
+    }
+  ]
+]

@@ -1,0 +1,467 @@
+// HOJAI SkillNet gRPC Protocol Buffer Definitions
+
+syntax = "proto3";
+
+package skillnet.v1;
+
+option go_package = "github.com/hojai/skillnet/v1;pb";
+option java_multiple_files = true;
+option java_package = "com.hojai.skillnet.v1";
+
+// ============================================
+// Intelligence Service
+// ============================================
+
+service IntelligenceService {
+  // Predictions
+  rpc CreateChurnPrediction(CreateChurnPredictionRequest) returns (PredictionResponse);
+  rpc CreateLTVPrediction(CreateLTVPredictionRequest) returns (PredictionResponse);
+  rpc CreateIntentPrediction(CreateIntentPredictionRequest) returns (PredictionResponse);
+  rpc GetPredictions(GetPredictionsRequest) returns (GetPredictionsResponse);
+  rpc GetPrediction(GetPredictionRequest) returns (PredictionResponse);
+
+  // Recommendations
+  rpc CreateProductRecommendation(CreateRecommendationRequest) returns (RecommendationResponse);
+  rpc GetRecommendations(GetRecommendationsRequest) returns (GetRecommendationsResponse);
+
+  // Insights
+  rpc CreateInsight(CreateInsightRequest) returns (InsightResponse);
+  rpc GetInsights(GetInsightsRequest) returns (GetInsightsResponse);
+  rpc GetCriticalInsights(GetCriticalInsightsRequest) returns (GetInsightsResponse);
+  rpc GenerateSegmentInsights(GenerateInsightsRequest) returns (GenerateInsightsResponse);
+  rpc GenerateTrendInsights(GenerateInsightsRequest) returns (GenerateInsightsResponse);
+  rpc GenerateAnomalyInsights(GenerateInsightsRequest) returns (GenerateInsightsResponse);
+}
+
+// ============================================
+// Event Service
+// ============================================
+
+service EventService {
+  rpc PublishEvent(PublishEventRequest) returns (EventResponse);
+  rpc GetEvents(GetEventsRequest) returns (GetEventsResponse);
+  rpc GetEvent(GetEventRequest) returns (EventResponse);
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (SubscriptionResponse);
+  rpc GetSubscriptions(GetSubscriptionsRequest) returns (GetSubscriptionsResponse);
+  rpc PauseSubscription(PauseSubscriptionRequest) returns (SubscriptionResponse);
+  rpc ResumeSubscription(ResumeSubscriptionRequest) returns (SubscriptionResponse);
+  rpc DeleteSubscription(DeleteSubscriptionRequest) returns (DeleteResponse);
+}
+
+// ============================================
+// Tenant Service
+// ============================================
+
+service TenantService {
+  rpc CreateTenant(CreateTenantRequest) returns (TenantResponse);
+  rpc GetTenant(GetTenantRequest) returns (TenantResponse);
+  rpc GetTenants(GetTenantsRequest) returns (GetTenantsResponse);
+  rpc UpdateTenant(UpdateTenantRequest) returns (TenantResponse);
+  rpc DeleteTenant(DeleteTenantRequest) returns (DeleteResponse);
+  rpc CreateApiKey(CreateApiKeyRequest) returns (ApiKeyResponse);
+  rpc RevokeApiKey(RevokeApiKeyRequest) returns (DeleteResponse);
+}
+
+// ============================================
+// Health Service
+// ============================================
+
+service HealthService {
+  rpc CheckHealth(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc WatchHealth(HealthCheckRequest) returns (stream HealthCheckResponse);
+}
+
+// ============================================
+// Common Messages
+// ============================================
+
+message Empty {}
+
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// ============================================
+// Prediction Messages
+// ============================================
+
+message Prediction {
+  string id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  string type = 4;
+  string model = 5;
+  double score = 6;
+  double confidence = 7;
+  map<string, string> features = 8;
+  map<string, string> prediction = 9;
+  int64 created_at = 10;
+}
+
+message PredictionRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  map<string, string> features = 3;
+}
+
+message CreateChurnPredictionRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  map<string, string> features = 3;
+}
+
+message CreateLTVPredictionRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  map<string, string> features = 3;
+}
+
+message CreateIntentPredictionRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  map<string, string> features = 3;
+}
+
+message PredictionResponse {
+  bool success = 1;
+  Prediction prediction = 2;
+  string error = 3;
+}
+
+message GetPredictionsRequest {
+  string tenant_id = 1;
+  string type = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetPredictionsResponse {
+  bool success = 1;
+  repeated Prediction predictions = 2;
+  int32 total = 3;
+}
+
+message GetPredictionRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+// ============================================
+// Recommendation Messages
+// ============================================
+
+message RecommendationItem {
+  string id = 1;
+  string type = 2;
+  double score = 3;
+  string reason = 4;
+}
+
+message Recommendation {
+  string id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  string type = 4;
+  repeated RecommendationItem items = 5;
+  string strategy = 6;
+  int64 created_at = 7;
+}
+
+message CreateRecommendationRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  string type = 3;
+}
+
+message RecommendationResponse {
+  bool success = 1;
+  Recommendation recommendation = 2;
+  string error = 3;
+}
+
+message GetRecommendationsRequest {
+  string tenant_id = 1;
+  string type = 2;
+  int32 limit = 3;
+}
+
+message GetRecommendationsResponse {
+  bool success = 1;
+  repeated Recommendation recommendations = 2;
+  int32 total = 3;
+}
+
+// ============================================
+// Insight Messages
+// ============================================
+
+message Insight {
+  string id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  string type = 4;
+  string title = 5;
+  string description = 6;
+  string severity = 7;
+  string recommendation = 8;
+  map<string, string> data = 9;
+  int64 created_at = 10;
+}
+
+message CreateInsightRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  string type = 3;
+  string title = 4;
+  string description = 5;
+  string severity = 6;
+  string recommendation = 7;
+  map<string, string> data = 8;
+}
+
+message InsightResponse {
+  bool success = 1;
+  Insight insight = 2;
+  string error = 3;
+}
+
+message GetInsightsRequest {
+  string tenant_id = 1;
+  string type = 2;
+  string severity = 3;
+  int32 limit = 4;
+}
+
+message GetInsightsResponse {
+  bool success = 1;
+  repeated Insight insights = 2;
+  int32 total = 3;
+}
+
+message GetCriticalInsightsRequest {
+  string tenant_id = 1;
+}
+
+message GenerateInsightsRequest {
+  string tenant_id = 1;
+  string segment_name = 2;
+  map<string, string> context = 3;
+}
+
+message GenerateInsightsResponse {
+  bool success = 1;
+  repeated Insight insights = 2;
+  string error = 3;
+}
+
+// ============================================
+// Event Messages
+// ============================================
+
+message Event {
+  string id = 1;
+  string tenant_id = 2;
+  string type = 3;
+  string source = 4;
+  map<string, string> data = 5;
+  map<string, string> metadata = 6;
+  int64 occurred_at = 7;
+}
+
+message EventResponse {
+  bool success = 1;
+  Event event = 2;
+  string error = 3;
+}
+
+message PublishEventRequest {
+  string tenant_id = 1;
+  string type = 2;
+  string source = 3;
+  map<string, string> data = 4;
+  map<string, string> metadata = 5;
+}
+
+message GetEventsRequest {
+  string tenant_id = 1;
+  string type = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetEventsResponse {
+  bool success = 1;
+  repeated Event events = 2;
+  int32 total = 3;
+  bool has_more = 4;
+}
+
+message GetEventRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+// ============================================
+// Subscription Messages
+// ============================================
+
+message SubscriptionStats {
+  int64 received = 1;
+  int64 processed = 2;
+  int64 failed = 3;
+}
+
+message Subscription {
+  string id = 1;
+  string tenant_id = 2;
+  string name = 3;
+  string event_type = 4;
+  string event_pattern = 5;
+  string handler = 6;
+  bool active = 7;
+  SubscriptionStats stats = 8;
+  int64 created_at = 9;
+}
+
+message CreateSubscriptionRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string event_type = 3;
+  string event_pattern = 4;
+  string handler = 5;
+  map<string, string> filter = 6;
+}
+
+message SubscriptionResponse {
+  bool success = 1;
+  Subscription subscription = 2;
+  string error = 3;
+}
+
+message GetSubscriptionsRequest {
+  string tenant_id = 1;
+  bool active = 2;
+}
+
+message GetSubscriptionsResponse {
+  bool success = 1;
+  repeated Subscription subscriptions = 2;
+}
+
+message PauseSubscriptionRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+message ResumeSubscriptionRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+message DeleteSubscriptionRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+// ============================================
+// Tenant Messages
+// ============================================
+
+message TenantQuota {
+  int32 api_calls = 1;
+  int32 storage = 2;
+  int32 users = 3;
+}
+
+message TenantUsage {
+  int32 api_calls = 1;
+  int32 storage = 2;
+  int32 users = 3;
+}
+
+message Tenant {
+  string id = 1;
+  string name = 2;
+  string plan = 3;
+  TenantQuota quota = 4;
+  TenantUsage usage = 5;
+  string status = 6;
+  int64 created_at = 7;
+}
+
+message TenantResponse {
+  bool success = 1;
+  Tenant tenant = 2;
+  string error = 3;
+}
+
+message CreateTenantRequest {
+  string name = 1;
+  string plan = 2;
+}
+
+message GetTenantRequest {
+  string id = 1;
+}
+
+message GetTenantsRequest {}
+
+message GetTenantsResponse {
+  bool success = 1;
+  repeated Tenant tenants = 2;
+  int32 total = 3;
+}
+
+message UpdateTenantRequest {
+  string id = 1;
+  string name = 2;
+  string plan = 3;
+  string status = 4;
+}
+
+message DeleteTenantRequest {
+  string id = 1;
+}
+
+message ApiKey {
+  string id = 1;
+  string tenant_id = 2;
+  string key = 3;
+  string name = 4;
+  repeated string permissions = 5;
+  string status = 6;
+  int64 created_at = 7;
+}
+
+message ApiKeyResponse {
+  bool success = 1;
+  ApiKey api_key = 2;
+  string error = 3;
+}
+
+message CreateApiKeyRequest {
+  string tenant_id = 1;
+  string name = 2;
+  repeated string permissions = 3;
+}
+
+message RevokeApiKeyRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+// ============================================
+// Health Messages
+// ============================================
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+  string service = 2;
+  string version = 3;
+  string mongodb = 4;
+  int64 uptime = 5;
+  int64 timestamp = 6;
+}

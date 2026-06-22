@@ -1,0 +1,30 @@
+[
+  [
+    "att-1782070161864-39a9a6",
+    {
+      "id": "att-1782070161864-39a9a6",
+      "controlId": "gdpr.art32",
+      "attestedBy": "ciso@example.com",
+      "attestedAt": "2026-06-21T19:29:21.865Z",
+      "validUntil": "2026-12-31T00:00:00Z",
+      "status": "revoked",
+      "notes": null,
+      "revokedAt": "2026-06-21T19:29:21.921Z",
+      "revokedBy": "admin"
+    }
+  ],
+  [
+    "att-1782070947175-5ce895",
+    {
+      "id": "att-1782070947175-5ce895",
+      "controlId": "gdpr.art32",
+      "attestedBy": "ciso@example.com",
+      "attestedAt": "2026-06-21T19:42:27.175Z",
+      "validUntil": "2026-12-31T00:00:00Z",
+      "status": "revoked",
+      "notes": null,
+      "revokedAt": "2026-06-21T19:42:27.277Z",
+      "revokedBy": "admin"
+    }
+  ]
+]

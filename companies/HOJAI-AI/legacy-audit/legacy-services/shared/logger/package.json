@@ -1,0 +1,37 @@
+{
+  "name": "@rez/logger",
+  "version": "1.0.0",
+  "description": "Production-ready structured JSON logging with PII masking, request tracking, and performance metrics for RTNM services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts"
+  },
+  "peerDependencies": {
+    "express": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0",
+    "@types/express": "^4.17.21"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "logging",
+    "structured-logging",
+    "json-logging",
+    "pii-masking",
+    "express-logging"
+  ]
+}

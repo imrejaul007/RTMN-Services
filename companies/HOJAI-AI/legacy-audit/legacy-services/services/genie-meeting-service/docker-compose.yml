@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  genie-meeting-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: genie-meeting
+    ports:
+      - "4713:4713"
+    environment:
+      - NODE_ENV=production
+      - PORT=4713
+      - SERVICE_NAME=genie-meeting-service
+      - MONGODB_URI=mongodb://genie-mongo:27017/genie_meeting
+      - REDIS_URL=redis://genie-redis:6379
+      - CORS_ORIGINS=*
+    depends_on:
+      - genie-mongo
+      - genie-redis
+    networks:
+      - rtnm-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4713/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  genie-mongo:
+    image: mongo:6-alpine
+    container_name: genie-meeting-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - genie-meeting-mongo-data:/data/db
+    networks:
+      - rtnm-network
+    restart: unless-stopped
+
+  genie-redis:
+    image: redis:7-alpine
+    container_name: genie-meeting-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - genie-meeting-redis-data:/data
+    networks:
+      - rtnm-network
+    restart: unless-stopped
+
+networks:
+  rtnm-network:
+    driver: bridge
+
+volumes:
+  genie-meeting-mongo-data:
+  genie-meeting-redis-data:

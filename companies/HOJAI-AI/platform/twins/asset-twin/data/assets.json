@@ -1,0 +1,119 @@
+[
+  [
+    "asset-1",
+    {
+      "id": "asset-1",
+      "name": "Office Building A",
+      "type": "property",
+      "category": "real_estate",
+      "value": 5000000,
+      "status": "active",
+      "location": {
+        "address": "123 Main St",
+        "city": "San Francisco"
+      },
+      "owner": "org-1",
+      "depreciation": 2.5,
+      "createdAt": "2024-01-15T00:00:00.000Z"
+    }
+  ],
+  [
+    "asset-2",
+    {
+      "id": "asset-2",
+      "name": "Dell Server Cluster",
+      "type": "equipment",
+      "category": "it",
+      "value": 250000,
+      "status": "active",
+      "location": {
+        "address": "Data Center 1"
+      },
+      "owner": "org-1",
+      "depreciation": 20,
+      "nextMaintenance": "2025-07-01",
+      "createdAt": "2024-02-20T00:00:00.000Z"
+    }
+  ],
+  [
+    "asset-3",
+    {
+      "id": "asset-3",
+      "name": "Fleet Vehicle #15",
+      "type": "vehicle",
+      "category": "transport",
+      "value": 45000,
+      "status": "active",
+      "location": {
+        "address": "Warehouse"
+      },
+      "owner": "org-1",
+      "depreciation": 15,
+      "mileage": 45000,
+      "createdAt": "2024-03-10T00:00:00.000Z"
+    }
+  ],
+  [
+    "asset-4",
+    {
+      "id": "asset-4",
+      "name": "Customer Database",
+      "type": "digital",
+      "category": "software",
+      "value": 100000,
+      "status": "active",
+      "owner": "org-1",
+      "depreciation": 0,
+      "licenseKey": "XXXX-XXXX-XXXX",
+      "createdAt": "2024-04-05T00:00:00.000Z"
+    }
+  ],
+  [
+    "asset-1143c2be",
+    {
+      "id": "asset-1143c2be",
+      "name": "Test Asset",
+      "type": "vehicle",
+      "category": "equipment",
+      "value": 5000,
+      "status": "active",
+      "location": {},
+      "owner": "RTMN-HQ",
+      "depreciation": 0,
+      "createdAt": "2026-06-21T21:27:28.096Z",
+      "updatedAt": "2026-06-21T21:27:28.096Z"
+    }
+  ],
+  [
+    "asset-a63f5fae",
+    {
+      "id": "asset-a63f5fae",
+      "name": "Phase4-FinalAsset",
+      "type": "vehicle",
+      "category": "equipment",
+      "value": 100,
+      "status": "active",
+      "location": {},
+      "owner": "RTMN-HQ",
+      "depreciation": 0,
+      "createdAt": "2026-06-21T21:32:15.941Z",
+      "updatedAt": "2026-06-21T21:32:15.941Z"
+    }
+  ],
+  [
+    "asset-0d28e835",
+    {
+      "id": "asset-0d28e835",
+      "name": "A9927",
+      "type": "vehicle",
+      "category": "equipment",
+      "value": 1,
+      "status": "active",
+      "location": {},
+      "owner": "FINAL-HQ",
+      "depreciation": 0,
+      "createdAt": "2026-06-22T00:58:47.982Z",
+      "updatedAt": "2026-06-22T00:58:47.982Z"
+    }
+  ]
+]

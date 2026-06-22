@@ -1,0 +1,165 @@
+version: '3.8'
+
+services:
+  # Business Copilot - Main unified entry point
+  business-copilot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hojai-business-copilot
+    ports:
+      - "4600:4600"
+    environment:
+      - NODE_ENV=production
+      - PORT=4600
+      - MONGODB_URI=mongodb://mongodb:27017/hojai-business-copilot
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+      # Backing Services
+      - MEMORY_SERVICE_URL=http://memory-service:4520
+      - TWIN_SERVICE_URL=http://twin-service:4860
+      - GRAPH_SERVICE_URL=http://graph-service:4810
+      - INTELLIGENCE_SERVICE_URL=http://intelligence-service:4530
+      - EXPERT_OS_URL=http://expert-os:4550
+      - FLOW_OS_URL=http://flow-os:4244
+      - PROJECT_SERVICE_URL=http://project-service:4708
+      - SIMULATION_OS_URL=http://simulation-os:4241
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      # TODO: Uncomment when backing services are available
+      # memory-service:
+      #   condition: service_healthy
+      # twin-service:
+      #   condition: service_healthy
+      # graph-service:
+      #   condition: service_healthy
+      # intelligence-service:
+      #   condition: service_healthy
+      # expert-os:
+      #   condition: service_healthy
+      # flow-os:
+      #   condition: service_healthy
+      # project-service:
+      #   condition: service_healthy
+      # simulation-os:
+      #   condition: service_healthy
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4600/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # MongoDB for Business Copilot
+  mongodb:
+    image: mongo:7
+    container_name: hojai-copilot-mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - copilot-mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=hojai-business-copilot
+    networks:
+      - hojai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # TODO: Add backing service containers when they are containerized
+  # Uncomment and configure the following services as they become available:
+  #
+  # memory-service:
+  #   build:
+  #     context: ../hojai-memory
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-memory-service
+  #   ports:
+  #     - "4520:4520"
+  #   environment:
+  #     - MONGODB_URI=mongodb://mongodb:27017/hojai-memory
+  #   networks:
+  #     - hojai-network
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4520/health/live"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #
+  # twin-service:
+  #   build:
+  #     context: ../hojai-twin
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-twin-service
+  #   ports:
+  #     - "4860:4860"
+  #   ...
+  #
+  # graph-service:
+  #   build:
+  #     context: ../hojai-graph
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-graph-service
+  #   ports:
+  #     - "4810:4810"
+  #   ...
+  #
+  # intelligence-service:
+  #   build:
+  #     context: ../hojai-intelligence
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-intelligence-service
+  #   ports:
+  #     - "4530:4530"
+  #   ...
+  #
+  # expert-os:
+  #   build:
+  #     context: ../expert-os
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-expert-os
+  #   ports:
+  #     - "4550:4550"
+  #   ...
+  #
+  # flow-os:
+  #   build:
+  #     context: ../flow-os
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-flow-os
+  #   ports:
+  #     - "4244:4244"
+  #   ...
+  #
+  # project-service:
+  #   build:
+  #     context: ../project-service
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-project-service
+  #   ports:
+  #     - "4708:4708"
+  #   ...
+  #
+  # simulation-os:
+  #   build:
+  #     context: ../simulation-os
+  #     dockerfile: Dockerfile
+  #   container_name: hojai-simulation-os
+  #   ports:
+  #     - "4241:4241"
+  #   ...
+
+networks:
+  hojai-network:
+    driver: bridge
+
+volumes:
+  copilot-mongo-data:

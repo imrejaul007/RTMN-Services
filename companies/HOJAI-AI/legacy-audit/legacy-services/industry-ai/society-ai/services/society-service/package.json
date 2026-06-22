@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/society-management-service",
+  "version": "1.0.0",
+  "description": "Society/apartment management",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@hojai/shared": "workspace:*"
+  }
+}

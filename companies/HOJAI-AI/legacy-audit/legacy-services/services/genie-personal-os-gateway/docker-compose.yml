@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  genie-personal-os-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: genie-gateway
+    ports:
+      - "4702:4702"
+    environment:
+      - NODE_ENV=production
+      - PORT=4702
+      - SERVICE_NAME=genie-personal-os-gateway
+      - CORS_ORIGINS=*
+      - GENIE_MEMORY=http://genie-memory:4703
+      - GENIE_RELATIONSHIP=http://genie-relationship:4704
+      - GENIE_BRIEFING=http://genie-briefing:4706
+      - GENIE_MEETING=http://genie-meeting:4713
+      - HOJAI_GATEWAY=http://hojai-gateway:4500
+    networks:
+      - rtnm-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4702/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  rtnm-network:
+    driver: bridge

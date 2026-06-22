@@ -1,0 +1,41 @@
+[
+  [
+    "inv-3",
+    {
+      "inventoryId": "inv-3",
+      "sku": "SKU-PACKAGING-001",
+      "name": "Shipping Boxes (Medium)",
+      "currentQuantity": 12,
+      "reorderPoint": 200,
+      "shortage": 188,
+      "severity": "warning",
+      "createdAt": "2026-06-22T02:26:26.971Z"
+    }
+  ],
+  [
+    "inv-4",
+    {
+      "inventoryId": "inv-4",
+      "sku": "SKU-CHAIR-001",
+      "name": "Ergonomic Office Chair",
+      "currentQuantity": 0,
+      "reorderPoint": 20,
+      "shortage": 20,
+      "severity": "critical",
+      "createdAt": "2026-06-22T02:26:26.971Z"
+    }
+  ],
+  [
+    "inv-b416b831",
+    {
+      "inventoryId": "inv-b416b831",
+      "sku": "P4-INV-1",
+      "name": "P4 Inv Item",
+      "currentQuantity": 0,
+      "reorderPoint": 5,
+      "shortage": 5,
+      "severity": "critical",
+      "createdAt": "2026-06-22T02:26:26.971Z"
+    }
+  ]
+]
