@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/relationship-graph",
+  "version": "1.0.0",
+  "description": "People × strength × last_contact × context — the relationship memory for Genie",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/relationship-graph.test.mjs"
+  },
+  "engines": { "node": ">=18.0.0" },
+  "dependencies": { "@rtmn/shared": "file:../../shared" }
+}

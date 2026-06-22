@@ -143,6 +143,59 @@ async function gatherRawCounts(userId) {
   };
 }
 
+/**
+ * Convert a flat overrides object (as accepted by tests / debug tools) into
+ * the same rawCounts shape that gatherRawCounts() returns. The flat shape is
+ * convenient for clients: { memories, contextHits, learnedFacts, ... }.
+ *
+ * We interpret each override as a "high" signal — e.g. contextHits=500 means
+ * 500 successful retrievals (usefulRetrievals=contextHits, successRate=1.0).
+ * This is the most useful interpretation for testing/debugging.
+ */
+function applyOverrides(overrides = {}) {
+  const o = overrides || {};
+  const ctxHits = o.contextHits || 0;
+  const learned = o.learnedFacts || 0;
+  return {
+    memory: {
+      memoryCount: o.memories || 0,
+      avgConfidence: 0.9,
+      highImportanceCount: Math.floor((o.memories || 0) * 0.4),
+    },
+    context: {
+      totalRetrievals: ctxHits,
+      usefulRetrievals: ctxHits,  // assume 100% success rate when override is high
+      avgContextItems: Math.min(20, ctxHits / 10),
+    },
+    learning: {
+      feedbackCount: learned,
+      positiveFeedback: Math.floor(learned * 0.8),
+      correctionsAccepted: Math.floor(learned * 0.3),
+    },
+    relationships: {
+      peopleTracked: o.contacts || 0,
+      recentlyContacted: o.interactions || 0,
+      accuracyScore: 0.9,
+    },
+    goals: {
+      activeGoals: o.goalsActive || 0,
+      progressUpdates: (o.goalsActive || 0) * 3,
+      completedGoals: o.goalsCompleted || 0,
+    },
+    wellness: {
+      sleepDays: o.wellnessCheckins || 0,
+      moodDays: o.wellnessCheckins || 0,
+      workoutDays: o.wellnessCheckins || 0,
+      waterDays: o.wellnessCheckins || 0,
+    },
+    reflection: {
+      insightsSurfaced: o.reflections || 0,
+      insightsActedOn: Math.floor((o.reflections || 0) * 0.7),
+      reflectionsRead: Math.min(8, o.reflections || 0),
+    },
+  };
+}
+
 // === Compute a fresh score from raw counts ===
 function computeScore(rawCounts) {
   const components = {
@@ -185,12 +238,13 @@ app.get('/api/pi-score/:userId', requireAuth, async (req, res) => {
 // === FORCE RECOMPUTE ===
 app.post('/api/pi-score/:userId/compute', requireAuth, async (req, res) => {
   const { userId } = req.params;
-  const raw = await gatherRawCounts(userId);
+  const overrides = req.body && req.body.overrides ? req.body.overrides : null;
+  const raw = overrides ? applyOverrides(overrides) : await gatherRawCounts(userId);
   const score = computeScore(raw);
   const today = score.computedAt.slice(0, 10);
   const previous = scoreHistory.get(`${userId}:${today}`);
   const delta = computeDelta(score, previous);
-  const result = { userId, ...score, delta };
+  const result = { userId, ...score, delta, source: overrides ? 'overrides' : 'live' };
   cachedScores.set(userId, result);
   scoreHistory.set(`${userId}:${today}`, result);
   return send(res, 200, result);

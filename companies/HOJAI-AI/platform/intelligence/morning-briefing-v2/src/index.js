@@ -48,6 +48,12 @@ const GENIE_CALENDAR_URL = process.env.GENIE_CALENDAR_URL || 'http://localhost:4
 const GENIE_RELATIONSHIP_URL = process.env.GENIE_RELATIONSHIP_URL || 'http://localhost:4747';
 const GENIE_WELLNESS_URL = process.env.GENIE_WELLNESS_URL || 'http://localhost:4723';
 const GENIE_GOAL_URL = process.env.GENIE_GOAL_URL || 'http://localhost:4763';
+// Phase 3 — Personal Intelligence OS
+const PI_SCORE_URL = process.env.PI_SCORE_URL || 'http://localhost:4798';
+const RELATIONSHIP_GRAPH_URL = process.env.RELATIONSHIP_GRAPH_URL || 'http://localhost:4799';
+const LEARNING_OS_V2_URL = process.env.LEARNING_OS_V2_URL || 'http://localhost:4800';
+const REFLECTION_ENGINE_URL = process.env.REFLECTION_ENGINE_URL || 'http://localhost:4796';
+const PROACTIVE_ENGINE_URL = process.env.PROACTIVE_ENGINE_URL || 'http://localhost:4797';
 const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
 
 const log = createLogger('morning-briefing-v2');
@@ -91,6 +97,11 @@ app.get('/health', (req, res) => send(res, 200, {
     calendar: GENIE_CALENDAR_URL,
     relationships: GENIE_RELATIONSHIP_URL,
     wellness: GENIE_WELLNESS_URL,
+    pi_score: PI_SCORE_URL,
+    relationship_graph: RELATIONSHIP_GRAPH_URL,
+    learning_os_v2: LEARNING_OS_V2_URL,
+    reflection_engine: REFLECTION_ENGINE_URL,
+    proactive_engine: PROACTIVE_ENGINE_URL,
   },
 }));
 app.get('/ready', (req, res) => send(res, 200, { ready: true }));

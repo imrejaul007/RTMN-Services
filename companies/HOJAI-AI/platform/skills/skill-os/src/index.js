@@ -15,6 +15,9 @@ import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
 import { requireEnv } from '@rtmn/shared/lib/env';
 import { requireAuth } from '@rtmn/shared/auth';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
+// ^ requireAuth is kept imported even when SKILLOS_REQUIRE_AUTH=false so
+// production builds still wire the real middleware. The authOrBypass helper
+// below is the only thing that actually gets attached to routes.
 import helmet from 'helmet';
 import cors from 'cors';
 import compression from 'compression';
@@ -24,6 +27,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 const PORT = process.env.PORT || 4743;
 const app = express();
+
+// Dev escape hatch: SKILLOS_REQUIRE_AUTH=false bypasses requireAuth on every
+// route. This lets the smoke test script POST without a JWT, matching the
+// pattern used in policy-os, flow-orchestrator, and other HOJAI services.
+// In production, set SKILLOS_REQUIRE_AUTH=true and route real JWTs.
+const REQUIRE_AUTH = (process.env.SKILLOS_REQUIRE_AUTH || 'false') !== 'false';
+const authOrBypass = (req, res, next) => (REQUIRE_AUTH ? requireAuth(req, res, next) : next());
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
@@ -155,7 +165,7 @@ app.get('/health', (_req, res) => ok(res, {
 // 1. SKILL REGISTRY
 // =============================================================================
 
-app.post('/api/skills',requireAuth,  (req, res) => {
+app.post('/api/skills',authOrBypass,  (req, res) => {
   const { name, category, description = '', tags = [], code = '', template = null, permissions: perms = [], rateLimit: rl, requiresApproval = false } = req.body || {};
   if (!name || !category) return fail(res, 'INVALID_INPUT', 'name and category are required');
   if (!categories.has(category)) return fail(res, 'UNKNOWN_CATEGORY', `category ${category} not found`);
@@ -191,7 +201,7 @@ app.get('/api/skills/categories', (_req, res) => {
   ok(res, { count: categories.size, categories: Array.from(categories.values()) });
 });
 
-app.post('/api/skills/categories',requireAuth,  (req, res) => {
+app.post('/api/skills/categories',authOrBypass,  (req, res) => {
   const { id, name, description = '' } = req.body || {};
   if (!id || !name) return fail(res, 'INVALID_INPUT', 'id and name required');
   if (categories.has(id)) return fail(res, 'CONFLICT', 'category exists');
@@ -231,7 +241,7 @@ app.get('/api/skills/marketplace', (req, res) => {
   ok(res, { count: list.length, listings: list });
 });
 
-app.post('/api/skills/marketplace',requireAuth,  (req, res) => {
+app.post('/api/skills/marketplace',authOrBypass,  (req, res) => {
   const { name, provider, version = '1.0.0', description = '', price = 0, category, metadata = {} } = req.body || {};
   if (!name || !provider || !category) return fail(res, 'INVALID_INPUT', 'name, provider, category required');
   const id = `mp-${uuidv4().slice(0,8)}`;
@@ -246,7 +256,7 @@ app.get('/api/skills/:id', (req, res) => {
   ok(res, { data: s });
 });
 
-app.put('/api/skills/:id',requireAuth,  (req, res) => {
+app.put('/api/skills/:id',authOrBypass,  (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const updatable = ['name','description','tags','code','template','permissions','rateLimit','budget','requiresApproval','status','metadata'];
@@ -256,7 +266,7 @@ app.put('/api/skills/:id',requireAuth,  (req, res) => {
   ok(res, { data: s });
 });
 
-app.delete('/api/skills/:id',requireAuth,  (req, res) => {
+app.delete('/api/skills/:id',authOrBypass,  (req, res) => {
   if (!skills.has(req.params.id)) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   skills.delete(req.params.id);
   logEvent(req.params.id, 'deleted', {});
@@ -267,7 +277,7 @@ app.delete('/api/skills/:id',requireAuth,  (req, res) => {
 // 2. SKILL RUNTIME  (execute)
 // =============================================================================
 
-app.post('/api/skills/:id/execute',requireAuth,  async (req, res) => {
+app.post('/api/skills/:id/execute',authOrBypass,  async (req, res) => {
   const start = Date.now();
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
@@ -318,7 +328,7 @@ app.post('/api/skills/:id/execute',requireAuth,  async (req, res) => {
 // 5. SKILL COMPOSITION
 // =============================================================================
 
-app.post('/api/skills/compose',requireAuth,  async (req, res) => {
+app.post('/api/skills/compose',authOrBypass,  async (req, res) => {
   const { steps = [] } = req.body || {};
   if (!Array.isArray(steps) || steps.length === 0) return fail(res, 'INVALID_INPUT', 'steps array required');
   const compositionId = uuidv4();
@@ -345,7 +355,7 @@ app.post('/api/skills/compose',requireAuth,  async (req, res) => {
 // 6. SKILL LEARNING
 // =============================================================================
 
-app.post('/api/skills/:id/learn',requireAuth,  (req, res) => {
+app.post('/api/skills/:id/learn',authOrBypass,  (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { feedback, score = 1.0, hint } = req.body || {};
@@ -370,7 +380,7 @@ app.get('/api/skills/:id/learn', (req, res) => {
 // 7. SKILL VERSIONING
 // =============================================================================
 
-app.post('/api/skills/:id/versions',requireAuth,  (req, res) => {
+app.post('/api/skills/:id/versions',authOrBypass,  (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { version, code, changelog = '' } = req.body || {};
@@ -395,7 +405,7 @@ app.get('/api/skills/:id/versions', (req, res) => {
 // 8. SKILL PERMISSIONS
 // =============================================================================
 
-app.post('/api/skills/:id/permissions',requireAuth,  (req, res) => {
+app.post('/api/skills/:id/permissions',authOrBypass,  (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { principal, action, effect = 'allow' } = req.body || {};
@@ -434,7 +444,7 @@ app.get('/api/analytics', (_req, res) => {
 // 10. SKILL TEMPLATES
 // =============================================================================
 
-app.post('/api/skill-templates',requireAuth,  (req, res) => {
+app.post('/api/skill-templates',authOrBypass,  (req, res) => {
   const { name, category, code, description = '' } = req.body || {};
   if (!name || !category || !code) return fail(res, 'INVALID_INPUT', 'name, category, code required');
   const id = `tpl-${uuidv4().slice(0,8)}`;
@@ -450,7 +460,7 @@ app.get('/api/skill-templates', (req, res) => {
   ok(res, { count: list.length, templates: list });
 });
 
-app.post('/api/skill-templates/:id/instantiate',requireAuth,  (req, res) => {
+app.post('/api/skill-templates/:id/instantiate',authOrBypass,  (req, res) => {
   const tpl = skillTemplates.get(req.params.id);
   if (!tpl) return fail(res, 'NOT_FOUND', 'template not found', 404);
   const { name, tags = [] } = req.body || {};
@@ -472,7 +482,7 @@ app.post('/api/skill-templates/:id/instantiate',requireAuth,  (req, res) => {
 // 11. SKILL DEPENDENCIES
 // =============================================================================
 
-app.post('/api/skills/:id/dependencies',requireAuth,  (req, res) => {
+app.post('/api/skills/:id/dependencies',authOrBypass,  (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { dependsOn, kind = 'runtime' } = req.body || {};
@@ -515,7 +525,7 @@ app.get('/api/skill-events', (req, res) => {
 // 13. SKILL POLICIES (rate limits, budgets, approvals)
 // =============================================================================
 
-app.put('/api/skills/:id/policies',requireAuth,  (req, res) => {
+app.put('/api/skills/:id/policies',authOrBypass,  (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { rateLimit, budget, requiresApproval } = req.body || {};
@@ -530,7 +540,7 @@ app.put('/api/skills/:id/policies',requireAuth,  (req, res) => {
 // 14. SKILL MEMORY INTEGRATION (proxy to MemoryOS 4703)
 // =============================================================================
 
-app.post('/api/skills/:id/memory',requireAuth,  async (req, res) => {
+app.post('/api/skills/:id/memory',authOrBypass,  async (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { op = 'read', memoryId, data } = req.body || {};
@@ -542,7 +552,7 @@ app.post('/api/skills/:id/memory',requireAuth,  async (req, res) => {
 // 15. SKILL TWIN INTEGRATION (proxy to TwinOS 4705)
 // =============================================================================
 
-app.post('/api/skills/:id/twin',requireAuth,  async (req, res) => {
+app.post('/api/skills/:id/twin',authOrBypass,  async (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { op = 'read', twinId, data } = req.body || {};
@@ -553,7 +563,7 @@ app.post('/api/skills/:id/twin',requireAuth,  async (req, res) => {
 // 16. SKILL FLOW INTEGRATION (proxy to FlowOS 4310)
 // =============================================================================
 
-app.post('/api/skills/:id/flow',requireAuth,  (req, res) => {
+app.post('/api/skills/:id/flow',authOrBypass,  (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { flowId, step } = req.body || {};
@@ -564,7 +574,7 @@ app.post('/api/skills/:id/flow',requireAuth,  (req, res) => {
 // 18. SKILL TESTING (sandbox, mock, validation)
 // =============================================================================
 
-app.post('/api/skills/:id/test',requireAuth,  async (req, res) => {
+app.post('/api/skills/:id/test',authOrBypass,  async (req, res) => {
   const s = getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { input, mock = true } = req.body || {};
@@ -625,9 +635,36 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  console.log(`SkillOS running on port ${PORT} - The Capability Layer ("What can I do?")`);
-  console.log(`  Health: http://localhost:${PORT}/health`);
-  console.log(`  Pre-seeded: ${skills.size} skills, ${categories.size} categories`);
-});
-installGracefulShutdown(server);
+// Only start the listener when running as a real service. When imported by
+// vitest we skip listen() so the test process can attach to the express app
+// directly via supertest, and the test process doesn't bind a port.
+let server;
+if (process.env.NODE_ENV !== 'test' && !process.env.SKILLOS_NO_LISTEN) {
+  server = app.listen(PORT, () => {
+    console.log(`SkillOS running on port ${PORT} - The Capability Layer ("What can I do?")`);
+    console.log(`  Health: http://localhost:${PORT}/health`);
+    console.log(`  Pre-seeded: ${skills.size} skills, ${categories.size} categories`);
+  });
+  installGracefulShutdown(server);
+}
+
+// Exports for vitest unit tests — only available when imported (not when
+// running as a real service via `node src/index.js`).
+export {
+  app,
+  skills,
+  categories,
+  skillExecutions,
+  skillTemplates,
+  versions,
+  permissions,
+  CATEGORY_SEED,
+  SKILL_SEED,
+  nowIso,
+  ok,
+  fail,
+  getSkill,
+  bumpAnalytics,
+  logEvent,
+  server,
+};

@@ -14,5 +14,53 @@
       "lastDeliveryAt": "2026-06-21T19:20:00.410Z",
       "lastError": "fetch failed"
     }
+  ],
+  [
+    "wh-1782125216592-42943b",
+    {
+      "id": "wh-1782125216592-42943b",
+      "url": "http://127.0.0.1:65500/hook",
+      "events": [
+        "policy.created",
+        "policy.evaluated"
+      ],
+      "secret": "a58ed047-9b46-46f3-9e70-06460092a272",
+      "active": true,
+      "createdAt": "2026-06-22T10:46:56.592Z",
+      "lastDeliveryAt": null,
+      "lastError": "fetch failed"
+    }
+  ],
+  [
+    "wh-1782125266662-143b1c",
+    {
+      "id": "wh-1782125266662-143b1c",
+      "url": "http://127.0.0.1:65500/hook",
+      "events": [
+        "policy.created",
+        "policy.evaluated"
+      ],
+      "secret": "b07d706d-fd08-4470-8522-b673791ecef5",
+      "active": true,
+      "createdAt": "2026-06-22T10:47:46.662Z",
+      "lastDeliveryAt": null,
+      "lastError": "fetch failed"
+    }
+  ],
+  [
+    "wh-1782125298994-0e6bd9",
+    {
+      "id": "wh-1782125298994-0e6bd9",
+      "url": "http://127.0.0.1:65500/hook",
+      "events": [
+        "policy.created",
+        "policy.evaluated"
+      ],
+      "secret": "586bd80e-d703-4967-8c53-51e481ada828",
+      "active": true,
+      "createdAt": "2026-06-22T10:48:18.994Z",
+      "lastDeliveryAt": null,
+      "lastError": "fetch failed"
+    }
   ]
 ]

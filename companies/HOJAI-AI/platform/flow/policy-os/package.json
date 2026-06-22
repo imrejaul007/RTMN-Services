@@ -1,12 +1,14 @@
 {
   "name": "@hojai/policy-os",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "PolicyOS - Universal governance, trust, authorization, compliance, decision policy platform",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "test": "bash tests/smoke.sh && bash tests/e2e.sh",
+    "test:unit": "vitest run __tests__/unit/",
+    "test:all": "bash tests/smoke.sh && bash tests/e2e.sh && bash tests/expression.test.sh && bash tests/phase6.test.sh && bash tests/webhook-analytics.test.sh && bash tests/load.test.sh && vitest run __tests__/unit/",
     "test:expression": "bash tests/expression.test.sh",
     "test:auth": "bash tests/auth.test.sh",
     "test:persistence": "bash tests/persistence.test.sh"
@@ -19,5 +21,9 @@
     "helmet": "^7.0.0",
     "morgan": "^1.10.0",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }
+
