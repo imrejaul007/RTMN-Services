@@ -158,19 +158,23 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 
 ## 📁 RTMN Root Sales Integrations (`services/`)
 
-The RTMN root `services/` folder hosts **integration-level sales/CRM services** that complement (not replace) the canonical Department OS at `industry-os/services/sales-os/`. Each is a standalone integration, not a duplicate of Sales OS:
+The RTMN root `services/` folder hosts **integration-level sales/CRM services** that complement (not replace) the canonical Department OS at `industry-os/services/sales-os/`. Each is a standalone integration, not a duplicate of Sales OS.
+
+> **Reorganization (2026-06-22):** Reduced from 73 services → 9 root integrations. See [SERVICES-AUDIT-2026-06-22.md](SERVICES-AUDIT-2026-06-22.md) for the full plan; all 64 services moved to their canonical homes (HOJAI-AI divisions, industry-os verticals, REZ-Workspace core engines, REZ-Merchant/Consumer support).
+
+The 9 remaining root integrations are:
 
 | Service | Purpose | Integration With |
 |---------|---------|------------------|
 | **`REZ-SalesMind`** (5167) | 8 AI sales agents (qualification, outreach, follow-up) — *moved here from AdBazaar 2026-06-22* | Sales OS (5055) |
 | **`customer-graph-360`** (4808) | 360° customer graph aggregating CRM + Wallet + Support — *moved here from AdBazaar 2026-06-22* | Sales OS + CRM Hub |
 | **`crm-engine`** | Standalone CRM engine (legacy) | Sales OS |
-| **`sales-automation`** | Sales workflow automation scripts | Sales OS |
-| **`sales-hub`** | Aggregator hub for sales signals (cross-OS) | Sales OS + Marketing OS |
-| **`sales-intelligence`** | Sales analytics + forecasting | Sales OS + Revenue Intelligence |
-| **`sales-sync`** | Cross-system lead/customer sync | Sales OS + Marketing OS + CRM |
+| **`sales-automation`** (5183) | Sales workflow automation scripts | Sales OS |
+| **`sales-hub`** (5180) | Aggregator hub for sales signals (cross-OS) | Sales OS + Marketing OS |
+| **`sales-intelligence`** (5181) | Sales analytics + forecasting | Sales OS + Revenue Intelligence |
+| **`sales-sync`** (5182) | Cross-system lead/customer sync | Sales OS + Marketing OS + CRM |
 | **`lead-os-gateway`** | Lead ingestion gateway | Sales OS + Marketing OS |
-| **`customer-success-os`** | Legacy CS (rooted variant) — see `industry-os/services/customer-success-os/` as canonical | Customer Success OS (4050) |
+| **`customer-success-os`** (4050) | Legacy CS (rooted variant) — see `industry-os/services/customer-success-os/` as canonical | Customer Success OS (4050) |
 
 **Rule:** Sales/CRM features belong in `industry-os/services/sales-os/` (the canonical Sales OS). The root `services/` list above are **integrations/connectors** that extend Sales OS to other OS — they are NOT replacements.
 
@@ -543,7 +547,7 @@ What this gives you:
 - Hub on **:4399** with `/api/sutar/*` and `/api/nexha/*` proxies that actually reach upstream
 - Trust Engine **:4291** with `/api/v1/sada/status` federation health probe
 - Decision Engine **:4290** with multi-option ranking (`POST /api/v1/rank`)
-- Economy OS **:4251** with 105 passing tests (vitest)
+- Economy OS **:4294** with 105 passing tests (vitest)
 
 ### Legacy per-service start
 
@@ -1009,14 +1013,15 @@ All 86+ twins now have:
 | Service | Port | Purpose |
 |---------|------|---------|
 | **sutar-gateway** | 4140 | API gateway for all SUTAR services |
-| **sutar-decision-engine** | 4240 | AI-powered policy decisions |
+| **sutar-decision-engine** | 4290 | AI-powered policy decisions |
 | **sutar-goal-os** | 4242 | Goal decomposition and tracking |
 | ~~sutar-marketplace~~ → **BLR AI Marketplace** | 4250 | AI Service Marketplace (moved 2026-06-21) |
-| **sutar-economy-os** | 4251 | Economic layer for transactions |
-| **sutar-negotiation-engine** | 4191 | Multi-party negotiation |
-| **sutar-trust-engine** | 4180 | Trust scoring and reputation |
-| **sutar-contract-os** | 4185 | Smart contracts |
+| **sutar-economy-os** | 4294 | Economic layer for transactions |
+| **sutar-negotiation-engine** | 4293 | Multi-party negotiation |
+| **sutar-trust-engine** | 4291 | Trust scoring and reputation |
+| **sutar-contract-os** | 4292 | Smart contracts |
 | **sutar-discovery-engine** | 4256 | Opportunity discovery |
+| **sutar-pricing-intelligence** | 4286 | Market price aggregation + dynamic pricing recommendations (Phase C.6) |
 
 ### SUTAR OS vs ACN (Agent Commerce Network)
 

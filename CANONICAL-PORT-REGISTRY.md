@@ -38,7 +38,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` |
 | 4705 | twinos-hub | `services/twinos-hub/` |
 | 4000 | graphql-federation | `services/graphql-federation/` |
-| 4750 | analytics-os | `services/analytics-os/` |
+| 4750 | analytics-os | `industry-os/services/analytics-os/` |
 
 ---
 
@@ -203,7 +203,7 @@ All 23 Genie services have unique, non-overlapping port assignments. The histori
 | 4929 | marketing-copilot | `services/marketing-copilot/` |
 | 4930 | finance-copilot | `services/finance-copilot/` |
 | 4933 | executive-copilot | `services/executive-copilot/` |
-| 4878 | smart-chatbot | `services/smart-chatbot/` |
+| 4878 | smart-chatbot | `companies/REZ-Merchant/smart-chatbot/` |
 
 ---
 
@@ -212,8 +212,8 @@ All 23 Genie services have unique, non-overlapping port assignments. The histori
 | Port | Service | Path |
 |------|---------|------|
 | 4870 | notification-service | `services/notification-service/` |
-| 4870 | unified-inbox | `services/unified-inbox/` (collision) |
-| 4872 | ticket-engine | `services/ticket-engine/` |
+| 4870 | unified-inbox | `companies/REZ-Merchant/unified-inbox/` (collision) |
+| 4872 | ticket-engine | `companies/REZ-Merchant/ticket-engine/` |
 | 4873 | sla-manager | `services/sla-manager/` |
 | 4874 | reports-dashboard | `services/reports-dashboard/` |
 | 4938 | workflow-marketplace | `services/workflow-marketplace/` |
@@ -505,7 +505,7 @@ AdBazaar's 348 top-level directories were audited for scope pollution. **44 (~13
 |---|---:|---|
 | `companies/REZ-Merchant/` | 20 | REZ-checkout-sdk, REZ-crm-hub, REZ-lead-intelligence, REZ-rto-engine, REZ-communications-platform, REZ-journey-service, REZ-engagement-platform, crm-service, customer-health-score-service, cart-recovery-service, journey-orchestrator, lead-scoring-service, push-notification-service, broadcast-service, rez-voice-billing, rez-voice-cart-recovery, rez-whatsapp-commerce, rez-whatsapp-store, rez-whatsapp-provisioning, whatsapp-ads-service |
 | `companies/Karma-Foundation/` | 7 | REZ-anniversary-rewards, REZ-birthday-rewards, REZ-gamification-service, loyalty-program-service, rewards-catalog-service, points-expiration-service, tier-management-service |
-| `/services/` (RTMN-Group) | 7 | REZ-discovery-platform, REZ-economic-engine, REZ-feature-flags, REZ-graph-api, REZ-referral-graph, rez-viral-loop, governance-service |
+| `companies/REZ-Workspace/services/` | 7 | economic-engine, discovery-platform, feature-flags, graph-api, referral-graph, viral-loop, governance-service *(moved 2026-06-22 from RTMN services/)* |
 | `companies/HOJAI-AI/services/` | 6 | REZ-support-tools-hub, customer-support-service, helpdesk-ticketing-service, support-escalation-service, support-sla-service, knowledge-base-service |
 | `companies/CorpPerks/` | 2 | corpperks-hr-integration, corpperks-integration |
 | `companies/REZ-Consumer/` | 1 | REZ-consumer-kb |
