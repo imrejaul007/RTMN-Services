@@ -117,7 +117,7 @@ app.use('/api/', apiLimiter);
 // specifically so /health, /ready, /api/v1/info stay reachable for k8s
 // probes and the info endpoint.
 const tenantMiddleware = createTenantContext({
-  publicPathPatterns: [/^\/api\/v1\/info$/],
+  publicPathPatterns: [/^\/info$/],
 });
 app.use('/api/v1/', tenantMiddleware);
 

@@ -120,9 +120,9 @@ test('HTTP — /health returns healthy', async () => {
 test('HTTP — GET /api/ambient/schedule returns kinds + currentKind', async () => {
   const r = await fetch('/api/ambient/schedule?tz=UTC');
   assert.equal(r.status, 200);
-  assert.equal(Array.isArray(r.body.todaySchedule));
+  assert.ok(Array.isArray(r.body.todaySchedule));
   assert.equal(r.body.todaySchedule.length, 5);
-  assert.equal(typeof r.body.currentKind === 'string' || r.body.currentKind === null);
+  assert.ok(typeof r.body.currentKind === 'string' || r.body.currentKind === null);
 });
 
 test('HTTP — POST /api/ambient/evening with userId generates a briefing', async () => {

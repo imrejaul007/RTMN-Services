@@ -129,7 +129,29 @@ app.get('/api/ambient/schedule', requireAuth, (req, res) => {
   });
 });
 
-// GENERATE — produce a briefing
+// PREFERENCES — defined before the /:kind route so it isn't matched as a kind
+app.get('/api/ambient/preferences/:userId', requireAuth, (req, res) => {
+  const { userId } = req.params;
+  const p = prefs.get(userId) || defaultPrefs(userId);
+  send(res, 200, p);
+});
+
+app.post('/api/ambient/preferences', requireAuth, (req, res) => {
+  const { userId, ...patch } = req.body || {};
+  if (!userId) return sendErr(res, 400, 'VALIDATION', 'userId required');
+  const current = prefs.get(userId) || defaultPrefs(userId);
+  const merged = {
+    ...current,
+    ...patch,
+    userId, // never overwrite
+    kinds: { ...(current.kinds || {}), ...(patch.kinds || {}) },
+  };
+  prefs.set(userId, merged);
+  send(res, 200, merged);
+});
+
+// GENERATE — produce a briefing (must come AFTER /preferences so it's not
+// matched as a kind)
 app.post('/api/ambient/:kind', requireAuth, async (req, res) => {
   const { kind } = req.params;
   const { userId } = req.body || {};
@@ -148,8 +170,6 @@ app.post('/api/ambient/:kind', requireAuth, async (req, res) => {
   }
 
   // Fetch fresh data from morning-briefing-v2's downstream sources
-  // (reuses the calendar/wellness/goals/relationships/memory fetches the
-  // morning briefing does, but we don't need its LLM-generated note)
   const [calendar, relationships, wellness, memoryCtx, goals, piScore] = await Promise.all([
     tryFetch(`${process.env.GENIE_CALENDAR_URL || 'http://localhost:4709'}/api/events/today?userId=${userId}`, { headers: internalHeaders() }),
     tryFetch(`${process.env.GENIE_RELATIONSHIP_URL || 'http://localhost:4747'}/api/relationships/due?userId=${userId}`, { headers: internalHeaders() }),
@@ -244,27 +264,6 @@ Tone: ${meta.tone}. Keep it 2-3 sentences. Don't be saccharine. Reference someth
   markSent(sentLog, userId, kind, today);
 
   send(res, 200, briefing);
-});
-
-// PREFERENCES
-app.get('/api/ambient/preferences/:userId', requireAuth, (req, res) => {
-  const { userId } = req.params;
-  const p = prefs.get(userId) || defaultPrefs(userId);
-  send(res, 200, p);
-});
-
-app.post('/api/ambient/preferences', requireAuth, (req, res) => {
-  const { userId, ...patch } = req.body || {};
-  if (!userId) return sendErr(res, 400, 'VALIDATION', 'userId required');
-  const current = prefs.get(userId) || defaultPrefs(userId);
-  const merged = {
-    ...current,
-    ...patch,
-    userId, // never overwrite
-    kinds: { ...(current.kinds || {}), ...(patch.kinds || {}) },
-  };
-  prefs.set(userId, merged);
-  send(res, 200, merged);
 });
 
 // HISTORY
