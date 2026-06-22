@@ -300,11 +300,14 @@ The 10-week roadmap is complete. **Every phase from A through E is done.**
 |---|---|---|
 | **A. Foundation** | Hub on :4399 with `/api/sutar/*` proxy, `proxyToUpstream()` body-forwarding fix, vitest setup | ✅ |
 | **B. SUTAR OS** | sutar-economy-os 105 tests, sutar-trust-engine `/api/v1/sada/status`, sutar-contract-os 179 tests + real bug fix in `versions.ts`, sutar-decision-engine multi-option ranking | ✅ |
-| **C. Nexha network** | Routes wired through Hub + 5 real services: C.1 nexha-supplier-network (4280, 20 tests), C.2 nexha-distribution-network (4285, 22 tests + bug fix), C.4 nexha-trade-finance-network (4287, 38 tests), C.5 nexha-warehouse-network (4288, 49 tests = 20 slot booking + 29 WMS), C.6 nexha-pricing-network (4286, 31 tests). Moved from HOJAI-AI/sutar-os/core/sutar-* to companies/Nexha/services/nexha-* on 2026-06-22 per ADR-0009 Phase 0. Old `sutar-*` names kept as Hub deprecation aliases. | ✅ |
+| **C. Nexha network** | Routes wired through Hub + 5 real services: C.1 nexha-supplier-network (4280, 20 tests), C.2 nexha-distribution-network (4285, 22 tests + bug fix), C.4 nexha-trade-finance-network (4287, 38 tests), C.5 nexha-warehouse-network (4288, 49 tests = 20 slot booking + 29 WMS), C.6 nexha-pricing-network (4286, 31 tests). Moved from HOJAI-AI/sutar-os/core/sutar-* to companies/Nexha/services/nexha-* on 2026-06-22 per ADR-0009 (Phase 0). Old `sutar-*` names kept as Hub deprecation aliases. See [`docs/adr/0009-PHASE-WISE-UPGRADE-PLAN.md`](docs/adr/0009-PHASE-WISE-UPGRADE-PLAN.md). | ✅ |
+| **D. ADR-0010 Multi-Tenant Federation** | Phase 0-3 done (Jun 22 2026): Repo reshape, Hub de-aliasing, Event Bus, **Business Directory** (port 4360, 68 tests) + SADA public trust API (19 tests) + shared directory client (22 tests). Hub wired at `/api/nexha/nexha-business-directory/*`. Phase 4-11 in progress. See [`docs/adr/0010-MULTI-TENANT-FEDERATION.md`](docs/adr/0010-MULTI-TENANT-FEDERATION.md) + [`docs/nexha/PHASE-LOG.md`](docs/nexha/PHASE-LOG.md). | 🔄 |
 | **D. do-app** | Backend `nexha` client with 7 unit tests, autopilot Step 5 surface-suppliers, mobile autopilot tab | ✅ |
 | **E. Docs/Ops** | `docker-compose.dev.yml`, `scripts/dev-stack.sh`, `demos/full-stack-demo.sh`, 6 ADRs, root README | ✅ |
 
 **425 vitest tests** across 7 SUTAR services, **0 failures**. **2 real service bugs** caught and fixed by tests. All 5 git repos in sync.
+
+> **📈 ADR-0010 Phase 3 update (2026-06-22):** +109 vitest tests added (SADA public 19 + shared directory-client 22 + nexha-business-directory 68). New total: **534 vitest tests, 0 failures**. See [`docs/nexha/PHASE-LOG.md`](docs/nexha/PHASE-LOG.md).
 
 ### Try it in 30 seconds
 
