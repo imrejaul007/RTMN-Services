@@ -45472,5 +45472,161 @@
       "durationMs": 33,
       "timestamp": "2026-06-22T10:56:35.078Z"
     }
+  ],
+  [
+    "wh-1782134382131-2",
+    {
+      "id": "wh-1782134382131-2",
+      "webhookId": "wh-1782125216592-42943b",
+      "event": "policy.created",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 8,
+      "timestamp": "2026-06-22T13:19:42.139Z"
+    }
+  ],
+  [
+    "wh-1782134382132-3",
+    {
+      "id": "wh-1782134382132-3",
+      "webhookId": "wh-1782125266662-143b1c",
+      "event": "policy.created",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 21,
+      "timestamp": "2026-06-22T13:19:42.153Z"
+    }
+  ],
+  [
+    "wh-1782134382132-4",
+    {
+      "id": "wh-1782134382132-4",
+      "webhookId": "wh-1782125298994-0e6bd9",
+      "event": "policy.created",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 25,
+      "timestamp": "2026-06-22T13:19:42.157Z"
+    }
+  ],
+  [
+    "wh-1782134382114-1",
+    {
+      "id": "wh-1782134382114-1",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.created",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 50,
+      "timestamp": "2026-06-22T13:19:42.164Z"
+    }
+  ],
+  [
+    "wh-1782134477595-6",
+    {
+      "id": "wh-1782134477595-6",
+      "webhookId": "wh-1782125216592-42943b",
+      "event": "policy.created",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 2,
+      "timestamp": "2026-06-22T13:21:17.597Z"
+    }
+  ],
+  [
+    "wh-1782134477595-7",
+    {
+      "id": "wh-1782134477595-7",
+      "webhookId": "wh-1782125266662-143b1c",
+      "event": "policy.created",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 13,
+      "timestamp": "2026-06-22T13:21:17.608Z"
+    }
+  ],
+  [
+    "wh-1782134477595-8",
+    {
+      "id": "wh-1782134477595-8",
+      "webhookId": "wh-1782125298994-0e6bd9",
+      "event": "policy.created",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 18,
+      "timestamp": "2026-06-22T13:21:17.613Z"
+    }
+  ],
+  [
+    "wh-1782134477593-5",
+    {
+      "id": "wh-1782134477593-5",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.created",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 33,
+      "timestamp": "2026-06-22T13:21:17.626Z"
+    }
+  ],
+  [
+    "wh-1782134477621-10",
+    {
+      "id": "wh-1782134477621-10",
+      "webhookId": "wh-1782125216592-42943b",
+      "event": "policy.evaluated",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 11,
+      "timestamp": "2026-06-22T13:21:17.632Z"
+    }
+  ],
+  [
+    "wh-1782134477622-11",
+    {
+      "id": "wh-1782134477622-11",
+      "webhookId": "wh-1782125266662-143b1c",
+      "event": "policy.evaluated",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 15,
+      "timestamp": "2026-06-22T13:21:17.637Z"
+    }
+  ],
+  [
+    "wh-1782134477622-12",
+    {
+      "id": "wh-1782134477622-12",
+      "webhookId": "wh-1782125298994-0e6bd9",
+      "event": "policy.evaluated",
+      "url": "http://127.0.0.1:65500/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 20,
+      "timestamp": "2026-06-22T13:21:17.642Z"
+    }
+  ],
+  [
+    "wh-1782134477620-9",
+    {
+      "id": "wh-1782134477620-9",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 28,
+      "timestamp": "2026-06-22T13:21:17.648Z"
+    }
   ]
 ]

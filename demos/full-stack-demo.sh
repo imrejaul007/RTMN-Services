@@ -186,16 +186,21 @@ check_2xx "$code" "GET /api/foundation/skill-os/health"
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/skill-os/api/skills/categories")
 check_2xx "$code" "GET /api/foundation/skill-os/api/skills/categories"
 
-# PolicyOS — create + evaluate a policy end-to-end
+# PolicyOS — create + evaluate a policy end-to-end. Use a unique ID per run so
+# repeated demo runs don't 409 on duplicate IDs.
+POLICY_ID="demo-foundation-$$-$(date +%s)"
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/policy-os/api/policies" \
   -H "Content-Type: application/json" \
-  -d '{"id":"demo-foundation-1","name":"Demo US payment allow","category":"security","effect":"allow","rules":[{"if":{"context.country":"US"},"then":{"allow":true}}]}')
+  -d "{\"id\":\"$POLICY_ID\",\"name\":\"Demo US payment allow\",\"category\":\"security\",\"effect\":\"allow\",\"rules\":[{\"if\":{\"context.country\":\"US\"},\"then\":{\"allow\":true}}]}")
 check_2xx "$code" "POST /api/foundation/policy-os/api/policies"
 
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/policy-os/api/policies/evaluate" \
   -H "Content-Type: application/json" \
-  -d '{"policyId":"demo-foundation-1","context":{"country":"US","amount":1500}}')
+  -d "{\"policyId\":\"$POLICY_ID\",\"context\":{\"country\":\"US\",\"amount\":1500}}")
 check_2xx "$code" "POST /api/foundation/policy-os/api/policies/evaluate"
+
+# Cleanup the demo policy so we don't accumulate state across runs
+curl -s -o /dev/null -X DELETE "$HUB_URL/api/foundation/policy-os/api/policies/$POLICY_ID"
 
 # SkillOS — discover + create a skill
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/skill-os/api/skills/discover")

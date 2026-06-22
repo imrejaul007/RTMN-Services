@@ -11,7 +11,12 @@
     "./lib/errors": "./lib/errors.js",
     "./lib/persistent-store": "./lib/persistent-store.js",
     "./lib/persistent-map": "./lib/persistent-map.js",
-    "./lib/shutdown": "./lib/shutdown.js",
+    "./lib/shutdown": {
+      "types": "./lib/shutdown.d.ts",
+      "import": "./lib/shutdown.js",
+      "require": "./lib/shutdown.cjs",
+      "default": "./lib/shutdown.cjs"
+    },
     "./lib/governance-sdk": "./lib/governance-sdk.js",
     "./lib/llm": "./lib/llm/index.js",
     "./lib/llm/client": "./lib/llm/client.js",

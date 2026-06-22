@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/ambient-briefings",
+  "version": "1.0.0",
+  "description": "Mid-day, evening, and weekend briefings — Genie is there between the morning briefing and the next day",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/ambient-briefings.test.mjs"
+  },
+  "engines": { "node": ">=18.0.0" },
+  "dependencies": { "@rtmn/shared": "file:../../shared" }
+}
