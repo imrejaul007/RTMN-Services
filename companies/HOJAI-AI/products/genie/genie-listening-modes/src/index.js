@@ -133,6 +133,47 @@ function recordHistory(deviceId, fromMode, toMode, reason) {
   return entry;
 }
 
+// Decide which wake-word session state a mode implies.
+//   continuous + smart → "start" (wake-word detection is desired)
+//   manual + passive   → "stop"  (no wake-word detection; push-to-talk or ambient only)
+function actionForMode(mode) {
+  return (mode === 'continuous' || mode === 'smart') ? 'start' : 'stop';
+}
+
+// Fire-and-forget POST to each registered device-integration webhook.
+async function fanoutModeChange(deviceId, fromMode, toMode, reason) {
+  if (!USE_DEVICE_INTEGRATION_HOOK) return;
+  if (!INTERNAL_TOKEN) return;
+  const action = actionForMode(toMode);
+  const payload = {
+    deviceId,
+    fromMode,
+    toMode,
+    reason,
+    action,
+    timestamp: new Date().toISOString(),
+  };
+  await Promise.allSettled(deviceHooks.map(async (hook) => {
+    try {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), DEVICE_HOOK_TIMEOUT_MS);
+      const r = await fetch(`${hook.url}/api/devices/${encodeURIComponent(deviceId)}/mode`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-internal-token': INTERNAL_TOKEN },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      clearTimeout(tid);
+      hook.lastStatus = r.status;
+      hook.lastDeliveredAt = new Date().toISOString();
+      hook.deliveries = (hook.deliveries || 0) + 1;
+    } catch (e) {
+      hook.lastError = e.message;
+      hook.errors = (hook.errors || 0) + 1;
+    }
+  }));
+}
+
 function smartSuggest(context) {
   if (!context) return 'manual';
   const { time, location, activity, battery } = context;
@@ -183,7 +224,15 @@ app.post('/api/switch',requireAuth,  (req, res) => {
   const from = currentModes.get(did) || 'manual';
   currentModes.set(did, mode);
   const h = recordHistory(did, from, mode, reason || 'manual');
-  res.json({ deviceId: did, mode, previousMode: from, history: h });
+  // Fire device-integration webhook (non-blocking — don't make the switch wait)
+  fanoutModeChange(did, from, mode, reason || 'manual').catch(e => console.warn('[listening-modes] fanout error:', e.message));
+  res.json({
+    deviceId: did,
+    mode,
+    previousMode: from,
+    action: actionForMode(mode),
+    history: h,
+  });
 });
 
 app.get('/api/history', (req, res) => {
@@ -225,7 +274,45 @@ app.post('/api/auto',requireAuth,  (req, res) => {
   const from = currentModes.get(did) || 'manual';
   currentModes.set(did, suggested);
   const h = recordHistory(did, from, suggested, 'auto-suggested');
-  res.json({ deviceId: did, suggested, previousMode: from, history: h });
+  // Fire device-integration webhook (non-blocking)
+  fanoutModeChange(did, from, suggested, 'auto-suggested').catch(e => console.warn('[listening-modes] fanout error:', e.message));
+  res.json({ deviceId: did, suggested, previousMode: from, action: actionForMode(suggested), history: h });
+});
+
+// =================================================================
+// Phase 7+: device-integration webhook registry
+// =================================================================
+app.post('/api/integration/device-integration',requireAuth,  (req, res) => {
+  const { url } = req.body || {};
+  if (!url) return res.status(400).json({ error: 'url required' });
+  // De-dupe by url
+  const existing = deviceHooks.find(h => h.url === url);
+  if (existing) {
+    return res.status(200).json({ registered: true, deduped: true, hook: existing });
+  }
+  const hook = {
+    url,
+    registeredAt: new Date().toISOString(),
+    deliveries: 0,
+    errors: 0,
+  };
+  deviceHooks.push(hook);
+  res.status(201).json({ registered: true, hook });
+});
+
+app.get('/api/integration/device-integration', (req, res) => {
+  res.json({
+    enabled: USE_DEVICE_INTEGRATION_HOOK,
+    hooks: deviceHooks,
+    total: deviceHooks.length,
+    healthy: USE_DEVICE_INTEGRATION_HOOK ? 'check /health on each target' : 'disabled',
+  });
+});
+
+app.delete('/api/integration/device-integration', (req, res) => {
+  const before = deviceHooks.length;
+  deviceHooks.length = 0;
+  res.json({ cleared: before });
 });
 
 app.use((req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));

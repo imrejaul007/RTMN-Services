@@ -47,6 +47,9 @@ KNOWLEDGE_EXTRACTION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence
 # Decision Intelligence (Phase F.6, 2026-06-22) — Recommendations, NBA, multi-criteria decision
 DECISION_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/decision-intelligence && PORT=4756 DECISION_INTELLIGENCE_REQUIRE_AUTH=false npm start"
 
+# Knowledge Marketplace (Phase F.7, 2026-06-22) — SOPs, templates, documentation marketplace
+KNOWLEDGE_MARKETPLACE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/knowledge-marketplace && PORT=4939 KNOWLEDGE_MARKETPLACE_PORT=4939 KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH=false npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -118,6 +121,7 @@ status() {
     "AI Intelligence:4881" \
     "Knowledge Extraction:4784" \
     "Decision Intelligence:4756" \
+    "Knowledge Marketplace:4939" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -152,6 +156,8 @@ start_all() {
   start_service "knowledge-extraction"   "$KNOWLEDGE_EXTRACTION_CMD" 4784
   # Decision Intelligence (Phase F.6)
   start_service "decision-intelligence"  "$DECISION_INTELLIGENCE_CMD" 4756
+  # Knowledge Marketplace (Phase F.7)
+  start_service "knowledge-marketplace"  "$KNOWLEDGE_MARKETPLACE_CMD" 4939
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -180,6 +186,7 @@ stop_all() {
   stop_port 4881 "AI Intelligence"
   stop_port 4784 "Knowledge Extraction"
   stop_port 4756 "Decision Intelligence"
+  stop_port 4939 "Knowledge Marketplace"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"

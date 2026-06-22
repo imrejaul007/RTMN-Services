@@ -35,6 +35,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { negotiationService } from './services/negotiation.service.js';
 import { computeZOPA, diagnostics } from './services/zopa.service.js';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { emit: emitEvent, shutdown: shutdownEvents } = require('./services/events');
 import {
   CreateNegotiationSchema,
   NegotiationQuerySchema,
@@ -197,6 +199,12 @@ app.post('/api/v1/negotiations', requireAuth, safe((req, res) => {
     return;
   }
   const negotiation = negotiationService.create(parsed.data);
+  emitEvent(req, 'negotiation.started', {
+    negotiationId: negotiation.id,
+    buyerId: parsed.data.buyer?.email,
+    sellerId: parsed.data.seller?.email,
+    productOrService: parsed.data.title,
+  });
   res.status(201).json(apiResponse(true, negotiation, undefined, requestId));
 }));
 
@@ -308,6 +316,10 @@ app.post('/api/v1/negotiations/:id/accept', requireAuth, safe((req, res) => {
     return;
   }
   const n = negotiationService.acceptOffer(idCheck.data.id, partyId);
+  emitEvent(req, 'negotiation.accepted', {
+    negotiationId: idCheck.data.id,
+    partyId,
+  });
   res.json(apiResponse(true, n, undefined, requestId));
 }));
 
@@ -338,6 +350,11 @@ app.post('/api/v1/negotiations/:id/cancel', requireAuth, safe((req, res) => {
   const parsed = CancelSchema.safeParse(req.body || {});
   const performedBy = (req.body.performedBy as string) || (req as any).user?.id || 'unknown';
   const n = negotiationService.cancel(idCheck.data.id, performedBy, parsed.success ? parsed.data.reason : undefined);
+  emitEvent(req, 'negotiation.cancelled', {
+    negotiationId: idCheck.data.id,
+    performedBy,
+    reason: parsed.success ? parsed.data.reason : undefined,
+  });
   res.json(apiResponse(true, n, undefined, requestId));
 }));
 
@@ -469,6 +486,8 @@ const server = app.listen(PORT, () => {
   `);
 });
 
-installGracefulShutdown(server);
+installGracefulShutdown(server, async () => {
+  await shutdownEvents();
+});
 
 export default app;

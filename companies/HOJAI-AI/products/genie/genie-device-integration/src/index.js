@@ -373,6 +373,77 @@ app.get('/api/integration/wake-word', (req, res) => {
   });
 });
 
+// Receive a mode-change webhook from the listening-modes service.
+// Body: {deviceId, fromMode, toMode, reason, action, timestamp}
+// action is "start" or "stop" — derived from the mode by listening-modes.
+// Auth: x-internal-token only (service-to-service, no JWT — listening-modes
+// doesn't have a user context for this call).
+app.post('/api/devices/:id/mode', async (req, res) => {
+  // Verify internal token — this is a service-to-service webhook, not user-facing
+  const token = req.headers['x-internal-token'];
+  if (!INTERNAL_TOKEN || token !== INTERNAL_TOKEN) {
+    return res.status(401).json({ error: 'invalid internal token' });
+  }
+  if (!USE_WAKE_WORD_FORWARD) {
+    return res.status(503).json({ error: 'wake-word forward disabled' });
+  }
+  const device = devices.get(req.params.id);
+  if (!device) return res.status(404).json({ error: 'Device not found' });
+  const { fromMode, toMode, reason, action } = req.body || {};
+  if (!action) return res.status(400).json({ error: 'action required' });
+
+  const session = deviceWakeSession.get(device.id);
+  const result = { deviceId: device.id, fromMode, toMode, reason, action };
+
+  if (action === 'stop') {
+    if (!session) {
+      result.stopped = false;
+      result.reason_extra = 'no active session';
+      return res.json(result);
+    }
+    await postToWakeWord('/api/listen/stop', { clientId: session.wakeSessionId });
+    deviceWakeSession.delete(device.id);
+    result.stopped = true;
+    result.wakeSessionId = session.wakeSessionId;
+    return res.json(result);
+  }
+  if (action === 'start') {
+    // If a session is already active, leave it alone but record the action
+    if (session) {
+      result.started = false;
+      result.reason_extra = 'session already active';
+      result.wakeSessionId = session.wakeSessionId;
+      return res.json(result);
+    }
+    const lang = session?.language || 'english';
+    const startRes = await postToWakeWord('/api/listen/start', {
+      clientId: device.id,
+      language: lang,
+      userId: device.userId,
+      genieForward: true,
+    });
+    if (!startRes) {
+      return res.status(502).json({ ...result, error: 'wake-word service unreachable' });
+    }
+    const wakeSessionId = startRes.id || startRes.data?.id;
+    if (!wakeSessionId) {
+      return res.status(502).json({ ...result, error: 'wake-word returned no session id' });
+    }
+    deviceWakeSession.set(device.id, {
+      wakeSessionId,
+      language: lang,
+      userId: device.userId,
+      genieForward: true,
+      startedAt: new Date().toISOString(),
+      startedBy: 'listening-modes-webhook',
+    });
+    result.started = true;
+    result.wakeSessionId = wakeSessionId;
+    return res.status(201).json(result);
+  }
+  return res.status(400).json({ ...result, error: 'action must be start or stop' });
+});
+
 app.use((req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {

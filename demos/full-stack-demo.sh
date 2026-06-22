@@ -367,6 +367,41 @@ else
 fi
 
 # ============================================================================
+# 3n. Knowledge Marketplace (Phase F.7, 2026-06-22)
+# ============================================================================
+step "3n. Knowledge Marketplace (Phase F.7)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-marketplace/health")
+check_2xx "$code" "GET /api/foundation/knowledge-marketplace/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-marketplace/api/categories")
+check_2xx "$code" "GET /api/foundation/knowledge-marketplace/api/categories"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-marketplace/api/industries")
+check_2xx "$code" "GET /api/foundation/knowledge-marketplace/api/industries"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-marketplace/api/knowledge")
+check_2xx "$code" "GET /api/foundation/knowledge-marketplace/api/knowledge"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-marketplace/api/stats")
+check_2xx "$code" "GET /api/foundation/knowledge-marketplace/api/stats"
+
+# Create a knowledge pack via the Hub
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/knowledge-marketplace/api/knowledge" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Demo SOP Pack","category":"sop","creator":{"id":"demo-creator","name":"Demo Creator"}}')
+check_2xx "$code" "POST /api/foundation/knowledge-marketplace/api/knowledge"
+
+# Verify capability map exposes Knowledge Marketplace
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "knowledge-marketplace" /tmp/demo-out; then
+  ok "Capability map exposes knowledge-marketplace"
+else
+  warn "Capability map missing knowledge-marketplace (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -394,6 +429,7 @@ echo "   • /api/foundation/sada-os/* routes handle trust + risk + verification
 echo "   • /api/foundation/ai-intelligence/* routes run intent + sentiment + retrieval + prediction (Phase F.4)"
 echo "   • /api/foundation/knowledge-extraction/* routes run NER + entity linking + fact triples (Phase F.5)"
 echo "   • /api/foundation/decision-intelligence/* routes rank recommendations + run WSM/TOPSIS (Phase F.6)"
+echo "   • /api/foundation/knowledge-marketplace/* routes browse + purchase + review knowledge packs (Phase F.7)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"

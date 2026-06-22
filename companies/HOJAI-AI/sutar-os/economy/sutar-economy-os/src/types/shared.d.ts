@@ -5,5 +5,9 @@ declare module '@rtmn/shared/auth' {
 
 declare module '@rtmn/shared/lib/shutdown' {
   import type { Server } from 'http';
-  export function installGracefulShutdown(server: Server): void;
+  export function installGracefulShutdown(
+    server: Server,
+    cleanup?: () => Promise<void>,
+    options?: { hardTimeoutMs?: number; serviceName?: string }
+  ): void;
 }

@@ -32,6 +32,7 @@ import { TrustScore, TrustHistory, TrustRelationship } from './models/trustScore
 import { Policy, PolicyViolation, ComplianceCheck, AuditLog } from './models/policy.js';
 import { RiskAssessment, FraudAlert, RiskLimit, AnomalyModel } from './models/risk.js';
 import { Verification, VerificationProvider, VerificationAudit } from './models/verification.js';
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 
 // Import the rich trust router (was orphaned before the move to HOJAI-AI)
 import { trustRouter } from './modules/trustService.js';
@@ -320,6 +321,14 @@ app.post('/trust/:entityId/activity', authMiddleware, async (req: Request, res: 
     else trust.riskLevel = 'CRITICAL';
 
     await trust.save();
+
+    emitEvent(req, 'sada.trust.activity', {
+      entityId,
+      success,
+      overallScore: trust.overallScore,
+      riskLevel: trust.riskLevel,
+      amount,
+    });
 
     res.json({
       success: true,
@@ -748,7 +757,9 @@ app.get('/ready', (_req, res) => {
 ╚═══════════════════════════════════════════════════════════════╝
       `);
     });
-    installGracefulShutdown(server);
+    installGracefulShutdown(server, async () => {
+      await shutdownEvents();
+    });
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);

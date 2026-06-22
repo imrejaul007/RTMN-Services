@@ -24,6 +24,12 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
 
+// Auth bypass for internal/test use
+const KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH =
+  (process.env.KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const authOrBypass = (req, res, next) =>
+  KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH ? requireAuth(req, res, next) : next();
+
 const app = express();
 
 // Validate required env at startup
@@ -993,7 +999,7 @@ app.get('/api/knowledge', (req, res) => {
     result = result.filter(p =>
       p.name.toLowerCase().includes(s) ||
       p.description.toLowerCase().includes(s) ||
-      p.tags.some(t => t.toLowerCase().includes(s)))
+      p.tags.some(t => t.toLowerCase().includes(s))
     );
   }
 
@@ -1085,7 +1091,7 @@ app.get('/api/industries', (req, res) => {
 // ============================================================
 
 // Purchase knowledge pack
-app.post('/api/knowledge/:id/purchase',requireAuth,  (req, res) => {
+app.post('/api/knowledge/:id/purchase', authOrBypass,  (req, res) => {
   const pack = knowledgePacks.get(req.params.id);
   if (!pack) {
     return res.status(404).json({ success: false, error: 'Knowledge pack not found' });
@@ -1170,7 +1176,7 @@ app.get('/api/knowledge/:id/download', (req, res) => {
 // ============================================================
 
 // Add review
-app.post('/api/knowledge/:id/reviews',requireAuth,  (req, res) => {
+app.post('/api/knowledge/:id/reviews', authOrBypass,  (req, res) => {
   const pack = knowledgePacks.get(req.params.id);
   if (!pack) {
     return res.status(404).json({ success: false, error: 'Knowledge pack not found' });
@@ -1220,7 +1226,7 @@ app.get('/api/creator/packs', (req, res) => {
 });
 
 // Create knowledge pack (for creators)
-app.post('/api/knowledge',requireAuth,  (req, res) => {
+app.post('/api/knowledge', authOrBypass,  (req, res) => {
   const { name, description, category, type, price, preview, industries, tags, creator } = req.body;
 
   if (!name || !category || !creator) {
@@ -1263,7 +1269,7 @@ app.post('/api/knowledge',requireAuth,  (req, res) => {
 });
 
 // Update knowledge pack
-app.patch('/api/knowledge/:id',requireAuth,  (req, res) => {
+app.patch('/api/knowledge/:id', authOrBypass,  (req, res) => {
   const pack = knowledgePacks.get(req.params.id);
   if (!pack) {
     return res.status(404).json({ success: false, error: 'Knowledge pack not found' });
@@ -1326,11 +1332,19 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  console.log(`[Knowledge Marketplace] Service started on port ${PORT}`);
-  console.log(`[Knowledge Marketplace] ${knowledgePacks.size} knowledge packs loaded`);
-  console.log(`[Knowledge Marketplace] ${categories.size} categories available`);
-});
-installGracefulShutdown(server);
+// Auto-start gated — skip listen() in test mode or when explicitly disabled
+if (process.env.NODE_ENV !== 'test' && !process.env.KNOWLEDGE_MARKETPLACE_NO_LISTEN) {
+  const server = app.listen(PORT, () => {
+    console.log(`[Knowledge Marketplace] Service started on port ${PORT}`);
+    console.log(`[Knowledge Marketplace] ${knowledgePacks.size} knowledge packs loaded`);
+    console.log(`[Knowledge Marketplace] ${categories.size} categories available`);
+  });
+  installGracefulShutdown(server);
+}
 
+// Named exports for vitest
 module.exports = app;
+module.exports.app = app;
+module.exports.authOrBypass = authOrBypass;
+module.exports.KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH = KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH;
+module.exports.PORT = PORT;

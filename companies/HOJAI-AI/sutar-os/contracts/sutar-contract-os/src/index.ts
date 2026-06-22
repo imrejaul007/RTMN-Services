@@ -9,6 +9,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { v4 as uuidv4 } from 'uuid';
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 
 // Types
 export type ContractStatus = 'draft' | 'pending' | 'active' | 'expired' | 'terminated' | 'disputed';
@@ -133,6 +134,14 @@ app.post('/api/v1/contracts',requireAuth,  (req: Request, res: Response) => {
     };
     contracts.set(contract.id, contract);
     console.log(`[CONTRACT] Created: ${contract.id}`);
+    emitEvent(req, 'contract.created', {
+      contractId: contract.id,
+      type: contract.type,
+      title: contract.title,
+      partyCount: contract.parties.length,
+      value: contract.value,
+      currency: contract.currency,
+    });
     res.status(201).json(apiResponse(true, contract, undefined, (req as any).requestId));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error), (req as any).requestId));
@@ -183,6 +192,13 @@ app.post('/api/v1/contracts/:id/sign',requireAuth,  (req: Request, res: Response
   contract.updatedAt = new Date().toISOString();
   contracts.set(contract.id, contract);
   console.log(`[CONTRACT] Signed: ${contract.id} by ${party.email}`);
+  emitEvent(req, 'contract.signed', {
+    contractId: contract.id,
+    partyId,
+    partyEmail: party.email,
+    newStatus: contract.status,
+    fullySigned: contract.status === 'active',
+  });
   res.json(apiResponse(true, contract));
 });
 
@@ -192,6 +208,10 @@ app.post('/api/v1/contracts/:id/terminate',requireAuth,  (req: Request, res: Res
   contract.status = 'terminated';
   contract.updatedAt = new Date().toISOString();
   console.log(`[CONTRACT] Terminated: ${contract.id}`);
+  emitEvent(req, 'contract.terminated', {
+    contractId: contract.id,
+    previousStatus: req.body?.previousStatus ?? null,
+  });
   res.json(apiResponse(true, contract));
 });
 
@@ -234,6 +254,8 @@ const server = app.listen(PORT, () => {
 ║  Status:   RUNNING                                     ║
 ╚═══════════════════════════════════════════════════════╝\n`);
 });
-installGracefulShutdown(server);
+installGracefulShutdown(server, async () => {
+  await shutdownEvents();
+});
 
 export default app;

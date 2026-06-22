@@ -21,6 +21,7 @@ import { escrowService } from './services/escrow.service.js';
 import { leaderboardService } from './services/leaderboard.service.js';
 import { redemptionService } from './services/redemption.service.js';
 import { integrationService } from './services/integration.service.js';
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 
 // Import types
 import type { KarmaAction, TransactionType, TransactionStatus, BillingStatus, BillingCycle, EarningSource } from './types/index.js';
@@ -186,6 +187,14 @@ app.post('/api/v1/karma/earn',requireAuth,  async (req, res) => {
       metadata
     });
 
+    emitEvent(req, 'karma.earned', {
+      entityId,
+      entityType,
+      action,
+      points: history?.points ?? points ?? 0,
+      reason,
+    });
+
     res.json(apiResponse(true, { history }));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -210,6 +219,12 @@ app.post('/api/v1/karma/spend',requireAuth,  async (req, res) => {
       reason,
       referenceId,
       metadata
+    });
+
+    emitEvent(req, 'karma.spent', {
+      entityId,
+      points,
+      reason,
     });
 
     res.json(apiResponse(true, { history }));
@@ -286,6 +301,13 @@ app.get('/api/v1/karma/leaderboard', async (req, res) => {
 app.post('/api/v1/transactions',requireAuth,  async (req, res) => {
   try {
     const transaction = await transactionService.createTransaction(req.body);
+    emitEvent(req, 'transaction.created', {
+      transactionId: transaction?.transactionId ?? null,
+      entityId: req.body?.entityId,
+      type: req.body?.type,
+      amount: req.body?.amount,
+      currency: req.body?.currency,
+    });
     res.status(201).json(apiResponse(true, { transaction }));
   } catch (error) {
     res.status(400).json(apiResponse(false, undefined, String(error)));
@@ -366,6 +388,12 @@ app.patch('/api/v1/transactions/:transactionId/status',requireAuth,  async (req,
     if (!transaction) {
       return res.status(404).json(apiResponse(false, undefined, 'Transaction not found'));
     }
+
+    emitEvent(req, 'transaction.status.updated', {
+      transactionId,
+      status,
+      failureReason,
+    });
 
     res.json(apiResponse(true, { transaction }));
   } catch (error) {
@@ -1386,6 +1414,8 @@ const server = app.listen(PORT, () => {
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`API info: http://localhost:${PORT}/api/v1/info`);
 });
-installGracefulShutdown(server);
+installGracefulShutdown(server, async () => {
+  await shutdownEvents();
+});
 
 export default app;
