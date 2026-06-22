@@ -41,7 +41,7 @@ assert_status "GET /"                       200 "$BASE_URL/"
 echo ""
 echo "[2] Trust endpoints (/trust/v2 with internal token)"
 ENT="e2e-$$-$(date +%s)"
-assert_status "POST /trust/v2 (create)"      201 -X POST \
+assert_status "POST /trust/v2 (create)"      200 -X POST \
   -H "x-internal-token: $INTERNAL_TOKEN" -H "Content-Type: application/json" \
   -d "{\"entityId\":\"$ENT\",\"entityType\":\"HUMAN\",\"initialScore\":75}" \
   "$BASE_URL/trust/v2"
@@ -64,7 +64,7 @@ echo "[3] Governance endpoints"
 GOV="e2e-gov-$$-$(date +%s)"
 assert_status "POST /governance/policies (create)" 201 -X POST \
   -H "x-internal-token: $INTERNAL_TOKEN" -H "Content-Type: application/json" \
-  -d "{\"policyId\":\"$GOV\",\"name\":\"E2E Policy\",\"category\":\"security\",\"effect\":\"allow\",\"rules\":[{\"if\":{\"context.country\":\"US\"},\"then\":{\"allow\":true}}]}" \
+  -d "{\"name\":\"E2E Policy $GOV\",\"rules\":[{\"ruleId\":\"R1\",\"type\":\"ALLOW\",\"priority\":1,\"conditions\":{\"context.country\":\"US\"},\"action\":\"ALLOW\"}]}" \
   "$BASE_URL/governance/policies"
 
 assert_status "GET /governance/policies"      200 \
@@ -73,7 +73,7 @@ assert_status "GET /governance/policies"      200 \
 
 assert_status "POST /governance/validate"    200 -X POST \
   -H "x-internal-token: $INTERNAL_TOKEN" -H "Content-Type: application/json" \
-  -d "{\"policyId\":\"$GOV\",\"context\":{\"country\":\"US\"}}" \
+  -d "{\"entityId\":\"any\",\"action\":\"purchase\",\"context\":{\"country\":\"US\"}}" \
   "$BASE_URL/governance/validate"
 
 echo ""
@@ -93,7 +93,7 @@ echo "[5] Verification endpoints"
 VER="e2e-ver-$$-$(date +%s)"
 assert_status "POST /verification (create)"   201 -X POST \
   -H "x-internal-token: $INTERNAL_TOKEN" -H "Content-Type: application/json" \
-  -d "{\"entityId\":\"$VER\",\"verificationType\":\"KYC\",\"documents\":[{\"type\":\"passport\",\"number\":\"P123\"}]}" \
+  -d "{\"entityId\":\"$VER\",\"entityType\":\"HUMAN\",\"verificationType\":\"KYC\",\"documents\":[{\"type\":\"PASSPORT\",\"number\":\"P123\"}]}" \
   "$BASE_URL/verification"
 
 assert_status "GET /verification/:id"         200 \

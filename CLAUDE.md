@@ -29,6 +29,118 @@
 
 ---
 
+## 🌐 GLOBAL NEXHA + HOJAI PLATFORM-AS-AN-ECONOMY (June 22, 2026)
+
+> **The strategic vision for the next 5 years.** RTMN is evolving from "50+ services connected via a hub" to **the platform where the autonomous economy is built and operated.**
+>
+> **Date:** 2026-06-22
+>
+> **Status:** ✅ **Strategic direction approved.** Implementation begins immediately with Phase D of the 18-month roadmap.
+
+### The 5-Year Vision
+
+```
+RTMN Digital (parent holding)
+├── HOJAI AI (multi-product AI company)
+│   ├── HOJAI Intelligence (foundation models)
+│   ├── HOJAI Foundation (CorpID, MemoryOS, TwinOS, etc.)
+│   ├── HOJAI SUTAR OS (Autonomous Business OS — workforce + apps + engines)
+│   ├── HOJAI Foundry (AI startup generator — 14 layers)
+│   ├── HOJAI Cloud, Skills, Copilot, Genie
+│
+├── Nexha (autonomous business network)
+│   ├── Nexha OS (self-hostable runtime)
+│   ├── Network services (CapabilityOS, ReputationOS, DiscoveryOS, etc.)
+│   ├── Global Nexha federation
+│
+├── RABTUL (economic infrastructure — payments, wallet, BNPL, treasury)
+├── KHAIRMOVE (agentic logistics — mobility, delivery, nexha-autonomous-logistics)
+├── Industry Networks (StayOwn = Hospitality, RisaCare = Healthcare, etc.)
+├── Karma Foundation (loyalty + ESG)
+├── AdBazaar (transition product: paid → reputation-based discovery)
+└── [external consumers: do-app, REZ-Consumer, etc.]
+```
+
+### Canonical Positioning (one-liner each)
+
+| Entity | Position |
+|---|---|
+| **RTMN Digital** | Parent holding company for the autonomous economy |
+| **HOJAI AI** | The multi-product AI company (8 product lines including Intelligence, Foundation, SUTAR OS, Foundry, Cloud, Skills, Copilot, Genie) |
+| **Nexha** | The internet of autonomous businesses (federation layer where Nexhas connect) |
+| **SUTAR OS** | The Autonomous Business OS embedded in every Nexha (Linux-in-Android model) |
+| **HOJAI Foundry** | The Platform-as-an-Economy — lets anyone build AI-native businesses in 30 minutes |
+| **RABTUL** | Economic infrastructure (payments + treasury + trust) |
+| **KHAIRMOVE** | Agentic logistics (delivery, mobility, nexha-autonomous-logistics) |
+
+### The 14 Layers of HOJAI Foundry
+
+Anyone can build on HOJAI: Consumer Apps, B2B Platforms, Industry OS, Enterprise Software, AI Products, Department OS, Marketplaces, Company Builders, Government Platforms, Financial Infrastructure, Developer Products, Autonomous Networks, Digital Twin Platforms, Knowledge Platforms.
+
+### 5-Year Targets
+
+| Year | Nexhas | Platforms on HOJAI | Companies | ARR | Autonomous GMV |
+|---|---|---|---|---|---|
+| Y1 | 100 | 50 | 500 | $11M | $10M |
+| Y2 | 1,000 | 5,000 | 10,000 | $130M | $1B |
+| Y3 | 10,000 | 50,000 | 100,000 | $600M | $50B |
+| Y4 | 100,000 | 500,000 | 1M | $2.2B | $500B |
+| Y5 | 1M | 5M | 10M | $7.4B | $5T |
+
+### 📚 The 5 Strategic Planning Documents (canonical)
+
+All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these 5 documents:
+
+| # | Document | What it covers | When to read |
+|---|---|---|---|
+| 1 | **[global-nexha-development-plan.md](.claude/plans/global-nexha-development-plan.md)** | 18-month Phase D-I roadmap for the foundation | When planning immediate work |
+| 2 | **[rtmn-companies-contribution-audit.md](.claude/plans/rtmn-companies-contribution-audit.md)** | Audit of all RTMN companies (RABTUL, KHAIRMOVE, AdBazaar, etc.) | When deciding what each company builds |
+| 3 | **[hojai-platform-as-an-economy-5year-plan.md](.claude/plans/hojai-platform-as-an-economy-5year-plan.md)** | 5-year vision with 14 layers, 3 parallel workstreams, revenue model | When planning beyond 18 months |
+| 4 | **[hojai-developer-platform-spec.md](.claude/plans/hojai-developer-platform-spec.md)** | Lego-block SDKs, CLI, AI-native spec for Claude Code/Cursor | When building the developer platform |
+| 5 | **[global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)** | Spec-level details: CapabilityOS schema, ACI formula, nexha-autonomous-logistics, CLI prompts, governance, funding, risk scenarios | When implementing specific features |
+
+**Plus investor + sample artifacts:**
+
+| Document | What it covers |
+|---|---|
+| **[hojai-investor-pitch-deck.md](.claude/plans/hojai-investor-pitch-deck.md)** | HOJAI 10-slide investor pitch deck (platform company — $28M Series A) |
+| **[nexha-investor-pitch-deck.md](.claude/plans/nexha-investor-pitch-deck.md)** | Nexha 10-slide investor pitch deck (network company — $50M Series A) |
+| **[sample-marketplace-hojai-ai.md](.claude/plans/sample-marketplace-hojai-ai.md)** | Sample `hojai.ai.md` file for a B2B marketplace starter (the AI-native spec for Claude Code / Cursor / Codex) |
+
+### Key Strategic Decisions (baked into all 5 docs)
+
+| Decision | Choice | Why |
+|---|---|---|
+| Market structure | Federation (not a centralized marketplace) | Internet won over AOL; same logic |
+| Org structure | HOJAI = multi-product AI company; Nexha = network company | Two separate businesses, different economics |
+| SUTAR's role | Embedded Autonomous Business OS in every Nexha | Linux-in-Android model; maximum leverage |
+| HOJAI Foundry | Platform for generating AI-native startups | Founder flywheel; 10x leverage |
+| Messaging | "Run your business with AI" not "SUTAR OS" | Customers buy outcomes, not technology |
+| ACP protocol | Open spec, closed impl initially; SDKs at Year 3; Foundation at Year 5 | Kubernetes / OAuth / Linux Foundation pattern |
+| Cold-start | SME restaurant → Logistics → Government | Proven sequence (SWIFT, Visa) |
+| Build vs partner | Build the AI-differentiated stuff; partner for commodities | Don't build what already exists well |
+| Pricing | Free Nexha OS; paid foundation services; federation subs; transaction fees; Foundry subscriptions | Distribution + value capture |
+
+### What This Means for RTMN Today
+
+1. **HOJAI is the strategic AI company**, not just infrastructure. It has 8 product lines.
+2. **Nexha is the network company**, separate from HOJAI.
+3. **SUTAR OS is the Autonomous Business OS** that ships inside every Nexha (customers don't see SUTAR).
+4. **RABTUL, KHAIRMOVE, Industry Networks** are core contributors, not separate silos.
+5. **The 14 layers of HOJAI Foundry** are the long-term moat — anyone can build on HOJAI.
+
+### Where to Find What
+
+- **Immediate roadmap (18 months):** [global-nexha-development-plan.md](.claude/plans/global-nexha-development-plan.md) — Phases D-I
+- **5-year vision:** [hojai-platform-as-an-economy-5year-plan.md](.claude/plans/hojai-platform-as-an-economy-5year-plan.md)
+- **Developer platform spec:** [hojai-developer-platform-spec.md](.claude/plans/hojai-developer-platform-spec.md)
+- **Detailed specs (schema, formulas, prompts, governance):** [global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)
+- **Company contributions + gaps:** [rtmn-companies-contribution-audit.md](.claude/plans/rtmn-companies-contribution-audit.md)
+- **Investor pitch:** [hojai-investor-pitch-deck.md](.claude/plans/hojai-investor-pitch-deck.md) (HOJAI — platform) and [nexha-investor-pitch-deck.md](.claude/plans/nexha-investor-pitch-deck.md) (Nexha — network)
+- **Sample `hojai.ai.md`:** [sample-marketplace-hojai-ai.md](.claude/plans/sample-marketplace-hojai-ai.md)
+
+---
+
 ## 🎯 Executive Summary
 
 RTMN is a unified ecosystem connecting **50+ services** across **24 industry verticals**, powered by AI agents, digital twins, and autonomous operations through a **single unified hub**.

@@ -10,51 +10,99 @@
 
 ## 0. Executive Summary
 
-We are not building a marketplace. We are building **the trust, discovery, and opportunity layer for the autonomous economy** — and the operating system that powers every autonomous business in it.
+We are not building a marketplace. We are building **the trust, discovery, and opportunity layer for the autonomous economy** — and the multi-product AI company that powers every autonomous business in it.
+
+### The corrected view of HOJAI AI
+
+HOJAI AI is **not just an infrastructure company**. It is a **multi-product AI company** with several distinct product lines, each serving different customers:
+
+| HOJAI product line | What it is | Like | Customers |
+|---|---|---|---|
+| **HOJAI Intelligence** | Foundation models, training, fine-tuning, inference | OpenAI / Anthropic | AI developers, enterprises |
+| **HOJAI Foundation** | CorpID, MemoryOS, TwinOS, SkillOS, PolicyOS, etc. | AWS primitives | Any developer, Nexha |
+| **HOJAI SUTAR OS** | The Autonomous Business OS (workforce + apps + engines) | Linux / Android | Nexha, enterprises |
+| **HOJAI Foundry** | Platform for building AI-native startups | Shopify / Vercel | Founders, startups |
+| **HOJAI Cloud** | Hosting, deployment, scaling | AWS / Vercel | Everyone |
+| **HOJAI Skills** | Skill marketplace | App Store | Developers, enterprises |
+| **HOJAI Copilot** | Employee AI assistant | Microsoft Copilot | Enterprises |
+| **HOJAI Genie** | Consumer AI | Siri / Alexa / ChatGPT | Consumers |
+
+**Nexha is one of HOJAI's most important customers** — but not the only one. HOJAI has its own multi-product strategy independent of Nexha.
 
 ### The one-paragraph version
 
-Every business, marketplace, government, and industry deploys **Nexha OS** — a self-hostable runtime that embeds **SUTAR OS** (the Autonomous Business Operating System built by HOJAI AI) and adds a network layer (CapabilityOS, DiscoveryOS, ReputationOS, OpportunityOS, MarketOS, FederationOS, Global Directory). Each Nexha gets its own private AI workforce (16 AI executives + 25+ specialist agents) and its own business applications (CRM, ERP, POS, etc.) for free. Nexhas federate through **Global Nexha** using the **ACP protocol** (open spec, HOJAI-controlled reference implementation). Reputation becomes the new marketing: companies compete on measurable performance, not on ad budgets. The result is the **autonomous economy** — a self-reinforcing network where better-performing businesses naturally receive more opportunities.
+Every business, marketplace, government, and industry deploys **Nexha OS** — a self-hostable runtime that embeds **SUTAR OS** (the Autonomous Business Operating System built by HOJAI AI) and adds a network layer (CapabilityOS, DiscoveryOS, ReputationOS, OpportunityOS, MarketOS, FederationOS, Global Directory). Each Nexha gets its own private AI workforce (16 AI executives + 25+ specialist agents) and its own business applications (CRM, ERP, POS, etc.) for free. Nexhas federate through **Global Nexha** using the **ACP protocol** (open spec, HOJAI-controlled reference implementation). Reputation becomes the new marketing: companies compete on measurable performance, not on ad budgets. Meanwhile, **HOJAI Foundry** lets any founder launch an AI-native startup (marketplace, D2C, B2B, etc.) in days — generating the backend, frontend, mobile, AI workforce, commerce, and federation automatically. The result is the **autonomous economy** — a self-reinforcing network where better-performing businesses naturally receive more opportunities, and where the next generation of AI-native companies is born.
+
+### The org structure (RTMN Digital)
+
+```
+RTMN Digital (parent holding)
+│
+├── HOJAI AI (the multi-product AI company)
+│   ├── HOJAI Intelligence (models, training, inference)
+│   ├── HOJAI Foundation (CorpID, MemoryOS, TwinOS, etc.)
+│   ├── HOJAI SUTAR OS (autonomous business OS)
+│   ├── HOJAI Foundry (startup generator platform)
+│   ├── HOJAI Cloud (hosting + deployment)
+│   ├── HOJAI Skills (skill marketplace)
+│   ├── HOJAI Copilot (employee AI)
+│   └── HOJAI Genie (consumer AI)
+│
+└── Nexha (the autonomous business network)
+    ├── Nexha OS (self-hostable runtime)
+    ├── Nexha networks (supplier, distribution, etc.)
+    ├── Global Nexha (federation layer)
+    └── Nexha Portal (marketplace UI)
+```
 
 ### The Linux-in-Android model (relationship summary)
 
 ```
-HOJAI AI (the Google)              Nexha (the Samsung)
-─────────────────────             ─────────────────────
-Builds & open-sources:            Embeds & distributes:
-• Foundation services             • Nexha OS runtime
-  (CorpID, MemoryOS, TwinOS)      • Wiring SUTAR ↔ network
-• SUTAR OS                        • Network layer services
-  (workforce + apps + engines)      (CapabilityOS, DiscoveryOS...)
-• ACP protocol                    • Federation governance
-                                  • Industry bundles
+HOJAI AI (the Google — many products)     Nexha (the Samsung — one product)
+─────────────────────────────────         ─────────────────────────────────
+Builds & open-sources:                    Embeds & distributes:
+• HOJAI Intelligence (models)             • Nexha OS runtime
+• Foundation services                    • Wiring SUTAR ↔ network
+  (CorpID, MemoryOS, TwinOS)              • Network layer services
+• SUTAR OS                                  (CapabilityOS, DiscoveryOS...)
+  (workforce + apps + engines)            • Federation governance
+• ACP protocol                            • Industry bundles
+• HOJAI Foundry (startup platform)        • Federation registration
+• HOJAI Cloud                             • Network participants
+• HOJAI Skills marketplace
 Customers see only Nexha OS.
 SUTAR is transparent to them.
+But HOJAI has many OTHER customers too:
+developers, enterprises, governments,
+other AI companies.
 ```
 
 ### The architecture is settled. The open questions are:
 
 1. **What ships first** — the cold-start wedge that gets the first Nexha deployed externally
 2. **What gets built in-house vs federated vs partnered** — don't try to build all 15 foundation services
-3. **What HOJAI owns vs Nexha owns** — the company split (infrastructure vs network)
+3. **What HOJAI owns vs Nexha owns** — the company split (multi-product AI company vs network)
 4. **What SUTAR contains** — the Autonomous Business Operating System (workforce + apps + engines + collaboration)
-5. **What the 18-month roadmap looks like** — with milestones, not just features
+5. **What HOJAI Foundry looks like** — the AI-native startup generator platform
+6. **What the 18-month roadmap looks like** — with milestones, not just features
 
-This plan answers all five.
+This plan answers all six.
 
 ### The key decisions baked in
 
 | Decision | Choice | Why |
 |---|---|---|
 | **Marketplace vs federation** | Federation (not a centralized marketplace) | Internet won over AOL; same logic |
-| **HOJAI vs Nexha split** | HOJAI = infrastructure; Nexha = network | Two separate businesses with different economics |
+| **HOJAI vs Nexha split** | HOJAI = multi-product AI company; Nexha = network company | HOJAI has many products beyond Nexha |
 | **SUTAR's role** | Embedded Autonomous Business OS in every Nexha | Linux-in-Android model; maximum leverage |
+| **HOJAI Foundry** | Platform for generating AI-native startups | Founder flywheel; 10x more value than just selling infra |
+| **Outcomes-led messaging** | "Run your business with AI" not "SUTAR OS" | Customers buy outcomes, not technology |
 | **ACP openness** | Open spec, closed impl initially; SDKs at Year 3; Foundation at Year 5 | Kubernetes / OAuth / Linux Foundation pattern |
 | **Cold-start anchors** | SME restaurant → Logistics → Government | Proven sequence (SWIFT, Visa) |
 | **Build vs partner** | Build the AI-differentiated stuff; partner for commodities | Don't build what already exists well |
-| **Pricing** | Free Nexha OS; paid foundation services; federation subs; transaction fees | Distribution strategy + value capture |
+| **Pricing** | Free Nexha OS; paid foundation services; federation subs; transaction fees; Foundry subscriptions | Distribution strategy + value capture |
 
-### What ships in 18 months (8 new services + SUTAR evolution)
+### What ships in 18 months
 
 **Network layer (Nexha builds):**
 - CapabilityOS (the schema)
@@ -72,12 +120,21 @@ This plan answers all five.
 - SUTAR Engines (workflow, negotiation, contract, decision, trust, economy, learning)
 - SUTAR Collaboration (agent-to-agent, department coordination)
 - ACP v2.1 → v3.0 (federation extensions + multi-party negotiation)
+- HOJAI Foundry v1 (5 starter kits: B2B marketplace, D2C marketplace, hotel, restaurant, ERP)
+- HOJAI SDKs (foundation SDK, SUTAR SDK, commerce SDK, Nexha SDK, ACP SDK)
+- HOJAI Cloud GA (hosting for Nexha OS + Foundry projects)
+- HOJAI Skills marketplace expansion
+
+**AI layer (HOJAI builds in parallel — independent of Nexha):**
+- HOJAI Intelligence v2 (next-gen foundation model)
+- Fine-tuning APIs (enterprise customers)
+- Inference optimization (10x cheaper tokens)
 
 ### What we measure success by
 
-- **Year 1:** 100 Nexhas deployed, $2M ARR
-- **Year 2:** 1,000 Nexhas, $1B autonomous GMV, $50M ARR
-- **Year 3:** 100,000 Nexhas, $100B autonomous GMV, $500M ARR
+- **Year 1:** 100 Nexhas deployed, 50 founders using Foundry, $2M ARR
+- **Year 2:** 1,000 Nexhas, 5,000 Foundry projects, $1B autonomous GMV, $50M ARR
+- **Year 3:** 100,000 Nexhas, 100,000 Foundry projects, $100B autonomous GMV, $500M ARR
 
 ---
 
@@ -173,29 +230,40 @@ Before any code is written, this org decision must be documented and committed. 
 
 ```
 RTNM Digital (parent)
-├── HOJAI AI (operating company: infrastructure)
-└── Nexha (operating company: network)
+├── HOJAI AI (operating company: multi-product AI company)
+└── Nexha (operating company: autonomous business network)
 ```
 
-### HOJAI AI — "The AWS of Agent Infrastructure"
+### HOJAI AI — "The multi-product AI company"
 
-**What it builds:** Everything that's useful OUTSIDE of any particular network. Generic AI primitives, identity, memory, the runtime, the protocol, the agent platform.
+**What it builds:** HOJAI is **not just an infrastructure company**. HOJAI is a **multi-product AI company** with several distinct product lines, each with its own customers, business model, and roadmap.
 
-**Products:**
-- **Foundation services:** CorpID, MemoryOS (15 types + 4 sub-services), TwinOS (86+ twins), SkillOS, KnowledgeOS, GoalOS, PolicyOS, FlowOS, EconomyOS
-- **Trust infrastructure:** SADA OS, Agent Reputation, Trust Network (verifies and adjudicates)
-- **ACP protocol:** The wire protocol specification + reference implementation (open spec, closed impl initially)
-- **SUTAR OS:** The agent runtime, agent IDs, agent network, decision engine, trust engine, economy engine, gateway
-- **AI Workspace / Genie:** Consumer + employee AI (24 Genie services)
+**Product lines:**
 
-**Customers:** Anyone building AI products or agents. Includes Nexha itself as one customer, but not exclusive.
+| Product line | What | Like | Customers |
+|---|---|---|---|
+| **HOJAI Intelligence** | Foundation models, training, fine-tuning, inference APIs | OpenAI / Anthropic | AI developers, enterprises |
+| **HOJAI Foundation** | CorpID, MemoryOS, TwinOS, SkillOS, PolicyOS, GoalOS, KnowledgeOS, FlowOS, EconomyOS, SADA | AWS primitives | Developers, Nexha |
+| **HOJAI SUTAR OS** | Autonomous Business OS — workforce + apps + engines + collaboration | Linux / Android | Nexha, enterprises, Foundry users |
+| **HOJAI Foundry** | Platform for generating AI-native startups (B2B marketplace, D2C, etc.) | Shopify / Vercel | Founders, startups, agencies |
+| **HOJAI Cloud** | Hosting, deployment, scaling, observability, billing | AWS / Vercel | Everyone (Nexha, Foundry, enterprises) |
+| **HOJAI Skills** | Skill marketplace (specialist agents, capabilities) | App Store | Developers, enterprises |
+| **HOJAI Copilot** | Employee AI assistant | Microsoft Copilot | Enterprises |
+| **HOJAI Genie** | Consumer AI | Siri / Alexa / ChatGPT | Consumers |
 
-**Business model:**
-- Usage-based API pricing (per agent, per call, per token)
-- Enterprise licensing for on-prem deployments
-- Reference ACP implementation license
+**Note:** This list is exhaustive. **Nexha is one of HOJAI's most important customers** — but it is NOT HOJAI's reason for existing. HOJAI has its own independent multi-product strategy.
 
-**Valuation profile:** 8-15x revenue (infrastructure / SaaS)
+**Business model (per product line):**
+- HOJAI Intelligence: per-token pricing, enterprise licensing
+- HOJAI Foundation: per-API-call pricing, monthly subscriptions
+- HOJAI SUTAR OS: per-agent subscription, enterprise licenses
+- HOJAI Foundry: subscription tiers ($0 free / $200/mo starter / $2K/mo growth / enterprise)
+- HOJAI Cloud: usage-based, reserved instances
+- HOJAI Skills: revenue share on skill marketplace transactions
+- HOJAI Copilot: per-seat pricing
+- HOJAI Genie: freemium, ad-supported, premium
+
+**Valuation profile:** 15-30x revenue (multi-product AI company; comparable to OpenAI, Anthropic)
 
 ### Nexha — "The Internet of Autonomous Business"
 
@@ -237,7 +305,7 @@ RTNM Digital (parent)
 | TwinOS | API | Each Nexha member has a business twin |
 | SADA | API | Verifying reputation events |
 | Agent Reputation | API | Scoring agents (used by ReputationOS) |
-| SUTAR agents | Runtime | Every Nexha member gets AI agents |
+| SUTAR OS | Embedded | Every Nexha member gets the full autonomous business OS |
 | ACP protocol | Spec | All cross-Nexha communication |
 | EconomyOS | API | Settlement, escrow, payments |
 | SkillOS | API | Skills sold on Skill Marketplace |
@@ -1407,4 +1475,4 @@ To remove any remaining ambiguity:
 
 *This plan is intentionally aggressive but achievable. Each phase has a clear demo, a clear customer milestone, and clear exit criteria. If we hit Phase D exit criteria, the whole vision is validated. If we don't, we learn fast and adjust.*
 
-*Last updated: 2026-06-22 (Executive Summary + Section 4.5 + Appendix A updated to reflect SUTAR as the Autonomous Business Operating System embedded in every Nexha)*
+*Last updated: 2026-06-22 (Executive Summary + Section 2 updated to reflect HOJAI as a multi-product AI company, not just infrastructure; SUTAR vision + Appendix A reflect Autonomous Business Operating System embedded in every Nexha)*

@@ -56,6 +56,7 @@ app.use(rateLimit({ windowMs: 60 * 1000, max: 100 }));
 // Config
 const PORT = parseInt(process.env.PORT || '4190', 10);
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sada';
+const SADA_REQUIRE_AUTH = (process.env.SADA_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
 // SECURITY FIX (HOJAI C-5): No hardcoded fallback for the internal
 // token. SADA OS now refuses to start in production if
 // INTERNAL_SERVICE_TOKEN is missing or shorter than 32 bytes.
@@ -66,6 +67,10 @@ if (process.env.NODE_ENV === 'production' &&
     '[sada-os] INTERNAL_SERVICE_TOKEN must be set (>= 32 chars) in production. ' +
     'No insecure fallback is permitted.'
   );
+}
+// Always log the service token fingerprint at boot so test scripts can find it
+if (INTERNAL_TOKEN) {
+  logger.info('[sada-os] internal service token fingerprint:', INTERNAL_TOKEN.slice(0, 8) + '...');
 }
 
 // Connected services
@@ -87,8 +92,16 @@ function generateId(prefix: string = 'SADA'): string {
  *
  * For service-to-service calls, uses timing-safe comparison against
  * INTERNAL_SERVICE_TOKEN (no fallback in production).
+ *
+ * Bypass: when SADA_REQUIRE_AUTH=false (set by dev-stack.sh for local dev),
+ * the middleware is a no-op. Production must keep SADA_REQUIRE_AUTH unset
+ * or true.
  */
 function authMiddleware(req: Request, res: Response, next: NextFunction) {
+  if (!SADA_REQUIRE_AUTH) {
+    (req as any).user = { id: 'dev-bypass', role: 'service', internal: true };
+    return next();
+  }
   // 1. Service-to-service: timing-safe compare against INTERNAL_TOKEN
   const presented = req.headers['x-internal-token'];
   if (presented && INTERNAL_TOKEN) {
@@ -546,12 +559,13 @@ app.get('/risk/:entityId/history', authMiddleware, async (req: Request, res: Res
  */
 app.post('/verification', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { entityId, type, documents } = req.body;
+    const { entityId, type, entityType, documents } = req.body;
 
     const verification = new Verification({
       verificationId: generateId('VER'),
       entityId,
       type: type || 'KYC',
+      entityType: entityType || 'HUMAN',
       level: 1,
       status: 'INITIATED',
       documents: (documents || []).map((d: any) => ({
@@ -709,6 +723,12 @@ app.get('/ready', (_req, res) => {
 
 
 
+    // Gated listen — skip in test mode or when SADA_NO_LISTEN is set,
+    // so vitest can import the app without binding the port.
+    if (process.env.NODE_ENV === 'test' || process.env.SADA_NO_LISTEN) {
+      logger.info('[sada-os] listen() skipped (test/no-listen mode)');
+      return;
+    }
     const server = app.listen(PORT, () => {
       logger.info(`
 ╔═══════════════════════════════════════════════════════════════╗
@@ -735,6 +755,19 @@ app.get('/ready', (_req, res) => {
   }
 }
 
-startServer();
+// Only auto-start when invoked as a script (not when imported by vitest).
+// tsx sets `process.argv[1]` to the script path; vitest does not import
+// index.ts as a script entry, so this guard keeps the test suite from
+// calling mongoose.connect() (which would hang without a real Mongo).
+if (process.env.NODE_ENV !== 'test' && !process.env.SADA_NO_LISTEN) {
+  startServer();
+}
 
 export default app;
+export {
+  app,
+  authMiddleware,
+  generateId,
+  SADA_REQUIRE_AUTH,
+  PORT,
+};
