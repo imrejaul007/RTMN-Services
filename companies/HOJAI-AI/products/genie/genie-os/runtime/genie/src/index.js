@@ -35,6 +35,50 @@ const GENIE_SHOPPING_URL = process.env.GENIE_SHOPPING_URL || 'http://localhost:4
 const GENIE_WAKE_WORD_URL = process.env.GENIE_WAKE_WORD_URL || 'http://localhost:4767';
 const GENIE_LISTENING_MODES_URL = process.env.GENIE_LISTENING_MODES_URL || 'http://localhost:4768';
 const GENIE_DEVICE_INTEGRATION_URL = process.env.GENIE_DEVICE_INTEGRATION_URL || 'http://localhost:4769';
+// New Phase 1 services (Personal Intelligence OS)
+const INTENT_ENGINE_URL = process.env.INTENT_ENGINE_URL || 'http://localhost:4792';
+const MEMORY_SUBSTRATE_URL = process.env.MEMORY_SUBSTRATE_URL || 'http://localhost:4791';
+const MORNING_BRIEFING_V2_URL = process.env.MORNING_BRIEFING_V2_URL || 'http://localhost:4794';
+const COLD_START_ONBOARDING_URL = process.env.COLD_START_ONBOARDING_URL || 'http://localhost:4793';
+const USE_INTENT_ENGINE = process.env.USE_INTENT_ENGINE !== 'false';  // opt-out flag
+
+// Phase 2 services (Reasoning + Reflection + Proactive)
+const REASONING_ENGINE_URL = process.env.REASONING_ENGINE_URL || 'http://localhost:4795';
+const REFLECTION_ENGINE_URL = process.env.REFLECTION_ENGINE_URL || 'http://localhost:4796';
+const PROACTIVE_ENGINE_URL = process.env.PROACTIVE_ENGINE_URL || 'http://localhost:4797';
+// Phase 3 services
+const PI_SCORE_URL = process.env.PI_SCORE_URL || 'http://localhost:4798';
+const RELATIONSHIP_GRAPH_URL = process.env.RELATIONSHIP_GRAPH_URL || 'http://localhost:4799';
+const LEARNING_OS_V2_URL = process.env.LEARNING_OS_V2_URL || 'http://localhost:4800';
+// Phase 4 services
+const AMBIENT_BRIEFINGS_URL = process.env.AMBIENT_BRIEFINGS_URL || 'http://localhost:4801';
+const DEVICE_SYNC_URL = process.env.DEVICE_SYNC_URL || 'http://localhost:4802';
+// Phase 5 services — Life OS Integration (6 connectors)
+const HEALTH_CONNECTOR_URL = process.env.HEALTH_CONNECTOR_URL || 'http://localhost:4803';
+const CALENDAR_CONNECTOR_URL = process.env.CALENDAR_CONNECTOR_URL || 'http://localhost:4804';
+const EMAIL_CONNECTOR_URL = process.env.EMAIL_CONNECTOR_URL || 'http://localhost:4805';
+const CONTACTS_CONNECTOR_URL = process.env.CONTACTS_CONNECTOR_URL || 'http://localhost:4806';
+const PHOTOS_CONNECTOR_URL = process.env.PHOTOS_CONNECTOR_URL || 'http://localhost:4807';
+const TASKS_CONNECTOR_URL = process.env.TASKS_CONNECTOR_URL || 'http://localhost:4808';
+// Phase 6 services — Agentic & Marketplace
+const BACKGROUND_AGENTS_URL = process.env.BACKGROUND_AGENTS_URL || 'http://localhost:4809';
+const ONE_SHOT_ACTIONS_URL = process.env.ONE_SHOT_ACTIONS_URL || 'http://localhost:4810';
+const GENIE_SKILLS_URL = process.env.GENIE_SKILLS_URL || 'http://localhost:4811';
+const LONG_RUNNING_TASKS_URL = process.env.LONG_RUNNING_TASKS_URL || 'http://localhost:4812';
+const USE_REASONING_ENGINE = process.env.USE_REASONING_ENGINE !== 'false';
+const USE_BACKGROUND_AGENTS = process.env.USE_BACKGROUND_AGENTS !== 'false';
+const USE_SKILLS_MARKETPLACE = process.env.USE_SKILLS_MARKETPLACE !== 'false';
+
+// Voice OS — Enterprise TTS/STT/NLU/telecom platform
+const VOICE_OS_URL = process.env.VOICE_OS_URL || 'http://localhost:4850';
+const VOICE_COMMERCE_URL = process.env.VOICE_COMMERCE_URL || 'http://localhost:4880';
+const VOICE_AI_SERVICE_URL = process.env.VOICE_AI_SERVICE_URL || 'http://localhost:4590';
+// Voice Twin (TwinOS sibling) — voice profiles
+const VOICE_TWIN_URL = process.env.VOICE_TWIN_URL || 'http://localhost:4876';
+// RAZO Keyboard — Communication OS (consumer-side input)
+const RAZO_KEYBOARD_URL = process.env.RAZO_KEYBOARD_URL || 'http://localhost:4725';
+const USE_VOICE_OS = process.env.USE_VOICE_OS !== 'false';
+const USE_RAZO = process.env.USE_RAZO !== 'false';
 
 const app = express();
 
@@ -245,9 +289,10 @@ async function tryGenieGateway(question, user, memContext, goalContext) {
   }
 }
 
-// Health check for all 23 HOJAI-AI Genie services
+// Health check for ALL Genie-related services: 23 original specialists + Voice OS + RAZO + Voice Twin + all PIOS
 app.get('/api/genie-services/health', async (req, res) => {
   const services = [
+    // Original 23 specialists
     { name: 'genie-gateway',           url: GENIE_GATEWAY_URL },
     { name: 'genie-briefing-service',  url: GENIE_BRIEFING_URL },
     { name: 'genie-calendar-service',  url: GENIE_CALENDAR_URL },
@@ -257,19 +302,622 @@ app.get('/api/genie-services/health', async (req, res) => {
     { name: 'genie-wake-word-service', url: GENIE_WAKE_WORD_URL },
     { name: 'genie-listening-modes',   url: GENIE_LISTENING_MODES_URL },
     { name: 'genie-device-integration',url: GENIE_DEVICE_INTEGRATION_URL },
+    // Voice OS enterprise platform
+    { name: 'voice-os',                url: VOICE_OS_URL,           skip: !USE_VOICE_OS },
+    { name: 'voice-commerce',          url: VOICE_COMMERCE_URL,     skip: !USE_VOICE_OS },
+    { name: 'voice-ai-service',        url: VOICE_AI_SERVICE_URL,   skip: !USE_VOICE_OS },
+    { name: 'voice-twin',              url: VOICE_TWIN_URL },
+    // RAZO Keyboard (consumer input)
+    { name: 'razo-keyboard',           url: RAZO_KEYBOARD_URL,      skip: !USE_RAZO },
   ];
   const results = {};
+  let up = 0;
   for (const s of services) {
+    if (s.skip) {
+      results[s.name] = { status: 'disabled' };
+      continue;
+    }
     try {
       const r = await axios.get(`${s.url}/health`, { timeout: 2000 });
       results[s.name] = { status: 'up', latency: r.status };
+      up++;
     } catch {
       results[s.name] = { status: 'down', url: s.url };
     }
   }
-  const up = Object.values(results).filter(r => r.status === 'up').length;
-  res.json({ success: true, data: { total: services.length, up, services: results }, meta: { timestamp: new Date().toISOString() } });
+  res.json({
+    success: true,
+    data: {
+      total: services.length,
+      up,
+      voice_os_enabled: USE_VOICE_OS,
+      razo_enabled: USE_RAZO,
+      services: results,
+    },
+    meta: { timestamp: new Date().toISOString() },
+  });
 });
+
+// =====================================================================================
+// PHASE 1-6 PIOS ROUTES — Personal Intelligence OS unified surface
+// =====================================================================================
+
+// === Phase 1-6: PIOS health probe — all 25+ new services ===
+app.get('/api/pios/health', async (req, res) => {
+  const services = [
+    { name: 'intent-engine', url: INTENT_ENGINE_URL },
+    { name: 'memory-substrate', url: MEMORY_SUBSTRATE_URL },
+    { name: 'morning-briefing-v2', url: MORNING_BRIEFING_V2_URL },
+    { name: 'cold-start-onboarding', url: COLD_START_ONBOARDING_URL },
+    { name: 'reasoning-engine', url: REASONING_ENGINE_URL },
+    { name: 'reflection-engine', url: REFLECTION_ENGINE_URL },
+    { name: 'proactive-engine', url: PROACTIVE_ENGINE_URL },
+    { name: 'pi-score', url: PI_SCORE_URL },
+    { name: 'relationship-graph', url: RELATIONSHIP_GRAPH_URL },
+    { name: 'learning-os-v2', url: LEARNING_OS_V2_URL },
+    { name: 'ambient-briefings', url: AMBIENT_BRIEFINGS_URL },
+    { name: 'device-sync', url: DEVICE_SYNC_URL },
+    { name: 'health-connector', url: HEALTH_CONNECTOR_URL },
+    { name: 'calendar-connector', url: CALENDAR_CONNECTOR_URL },
+    { name: 'email-connector', url: EMAIL_CONNECTOR_URL },
+    { name: 'contacts-connector', url: CONTACTS_CONNECTOR_URL },
+    { name: 'photos-connector', url: PHOTOS_CONNECTOR_URL },
+    { name: 'tasks-connector', url: TASKS_CONNECTOR_URL },
+    { name: 'background-agents', url: BACKGROUND_AGENTS_URL },
+    { name: 'one-shot-actions', url: ONE_SHOT_ACTIONS_URL },
+    { name: 'genie-skills', url: GENIE_SKILLS_URL },
+    { name: 'long-running-tasks', url: LONG_RUNNING_TASKS_URL },
+  ];
+  const results = {};
+  let up = 0;
+  for (const s of services) {
+    try {
+      const r = await axios.get(`${s.url}/health`, { timeout: 2000 });
+      const status = r.data?.data?.status || r.data?.status || 'up';
+      results[s.name] = { status, url: s.url };
+      if (status === 'healthy' || status === 'up') up++;
+    } catch {
+      results[s.name] = { status: 'down', url: s.url };
+    }
+  }
+  res.json({
+    success: true,
+    data: {
+      total: services.length,
+      up,
+      intent_engine_enabled: USE_INTENT_ENGINE,
+      reasoning_engine_enabled: USE_REASONING_ENGINE,
+      background_agents_enabled: USE_BACKGROUND_AGENTS,
+      skills_marketplace_enabled: USE_SKILLS_MARKETPLACE,
+      services: results,
+    },
+    meta: { timestamp: new Date().toISOString() },
+  });
+});
+
+// === Phase 5 widget — aggregated home screen for the user ===
+app.get('/api/pios/widget/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const headers = { 'x-internal-token': INTERNAL_TOKEN };
+    const fetchJson = async (url, options = {}) => {
+      try {
+        const r = await axios({ url, method: options.method || 'GET', data: options.body, headers, timeout: 3000 });
+        return r.data?.data || r.data || null;
+      } catch { return null; }
+    };
+    const [piScore, stale, learningDue, reflection, proactive, calendarToday, tasksToday] = await Promise.all([
+      fetchJson(`${PI_SCORE_URL}/api/pi-score/${userId}/widget`),
+      fetchJson(`${RELATIONSHIP_GRAPH_URL}/api/relationships/${userId}/stale?minStrength=30&minDays=7&limit=3`),
+      fetchJson(`${LEARNING_OS_V2_URL}/api/learning/due/${userId}?threshold=0.7&limit=3`),
+      fetchJson(`${REFLECTION_ENGINE_URL}/api/reflection/${userId}`),
+      fetchJson(`${PROACTIVE_ENGINE_URL}/api/proactive/check`, { method: 'POST', body: { userId } }),
+      fetchJson(`${CALENDAR_CONNECTOR_URL}/api/calendar/${userId}/events`),
+      fetchJson(`${TASKS_CONNECTOR_URL}/api/tasks/${userId}/today`),
+    ]);
+    res.json({
+      success: true,
+      data: {
+        userId,
+        piScore: piScore ? { score: piScore.overall, level: piScore.levelName, emoji: piScore.levelEmoji, nextLevel: piScore.nextLevel?.name, pointsToNext: piScore.nextLevel?.pointsToNext, progress: piScore.progressToNext } : null,
+        reachOut: (stale?.candidates || []).map((p) => ({ personId: p.personId, name: p.name, daysSince: p.daysSince, strength: p.strength })),
+        factsToRefresh: (learningDue?.due || []).map((f) => ({ factId: f.factId, text: f.text, category: f.category, retention: f.retention })),
+        lastReflection: reflection ? { weekOf: reflection.weekOf, summary: reflection.summary, insightCount: reflection.insights?.length || 0 } : null,
+        proactive: (proactive?.suggestions || []).map((s) => ({ category: s.category, title: s.title, message: s.message })),
+        calendar: (calendarToday?.events || []).slice(0, 3).map((e) => ({ eventId: e.id, title: e.title, start: e.start, end: e.end })),
+        tasks: (tasksToday?.tasks || []).slice(0, 5).map((t) => ({ taskId: t.id, title: t.title, dueAt: t.dueAt, priority: t.priority })),
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+// === Phase 4 ambient briefing ===
+app.get('/api/pios/schedule/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const tz = req.query.tz || 'UTC';
+    const r = await axios.get(`${AMBIENT_BRIEFINGS_URL}/api/ambient/schedule?tz=${encodeURIComponent(tz)}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: true, data: { currentKind: null, todaySchedule: [], error: 'ambient-briefings unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/pios/ambient/:userId/:kind', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${AMBIENT_BRIEFINGS_URL}/api/ambient/${req.params.kind}`, { userId: req.params.userId }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'ambient-briefings unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// === Phase 4 device sync ===
+app.post('/api/pios/device/:userId/handoff', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${DEVICE_SYNC_URL}/api/sync/session/handoff`, { ...req.body, userId: req.params.userId }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'device-sync unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/pios/device/:userId/active', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${DEVICE_SYNC_URL}/api/sync/devices/${req.params.userId}/active`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'device-sync unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// === Phase 5: Health, Calendar, Email, Contacts, Photos, Tasks (6 connectors) ===
+app.get('/api/pios/health/:userId/today', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${HEALTH_CONNECTOR_URL}/api/health/${req.params.userId}/summary`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: null } }));
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pios/calendar/:userId/today', authMiddleware, async (req, res, next) => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString();
+    const r = await axios.get(`${CALENDAR_CONNECTOR_URL}/api/calendar/${req.params.userId}/events?from=${today}&to=${tomorrow}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { events: [] } } }));
+    res.json({ success: true, data: { events: r.data?.data?.events || [] }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pios/tasks/:userId/today', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${TASKS_CONNECTOR_URL}/api/tasks/${req.params.userId}/today`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { tasks: [] } } }));
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pios/email/:userId/digest', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${EMAIL_CONNECTOR_URL}/api/email/${req.params.userId}/digest`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'EMAIL_DISABLED', message: 'email not opted in' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/pios/contacts/:userId/stale', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${CONTACTS_CONNECTOR_URL}/api/contacts/${req.params.userId}/stale`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pios/photos/:userId/year-ago', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${PHOTOS_CONNECTOR_URL}/api/photos/${req.params.userId}/year-ago`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// === Phase 6: Background agents, one-shot actions, genie skills, long-running tasks ===
+app.get('/api/pios/agents/:userId/agents', authMiddleware, async (req, res, next) => {
+  if (!USE_BACKGROUND_AGENTS) return res.json({ success: true, data: { agents: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pios/agents/built-ins', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/built-ins`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/pios/actions/:userId/plan', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${ONE_SHOT_ACTIONS_URL}/api/actions/${req.params.userId}/plan`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.get('/api/pios/skills/catalog', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { skills: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.get(`${GENIE_SKILLS_URL}/api/skills/catalog`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pios/skills/:userId/installed', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { skills: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.get(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/installed`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/pios/skills/:userId/install', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
+  try {
+    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/install`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.post('/api/pios/skills/:userId/revoke', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
+  try {
+    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/revoke`, {}, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/pios/skills/:userId/match', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { matches: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/match`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.get('/api/pios/lrt/:userId/tasks', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/pios/lrt/:userId/tasks', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// =====================================================================================
+// VOICE OS + VOICE TWIN + RAZO KEYBOARD — unified voice & communication surface
+// =====================================================================================
+
+// === Voice Twin — voice profiles, TTS/STT per twin ===
+app.get('/api/voice/twin/:userId/profiles', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_TWIN_URL}/api/twins/voice/${req.params.userId}/profiles`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: true, data: { profiles: [], error: 'voice-twin unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/voice/twin/synthesize', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_TWIN_URL}/api/twins/voice/synthesize`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.post('/api/voice/twin/transcribe', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_TWIN_URL}/api/twins/voice/transcribe`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// === Voice OS — enterprise TTS/STT/NLU/telecom/agents ===
+app.post('/api/voice/synthesize', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled (set USE_VOICE_OS=true)');
+  try {
+    const r = await axios.post(`${VOICE_OS_URL}/api/voice/synthesize`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.post('/api/voice/transcribe', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.post(`${VOICE_OS_URL}/api/voice/transcribe`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.post('/api/voice/nlu/intent', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.post(`${VOICE_OS_URL}/api/voice/nlu/intent`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.post('/api/voice/nlu/sentiment', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.post(`${VOICE_OS_URL}/api/voice/nlu/sentiment`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.post('/api/voice/agents/:agentId/invoke', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.post(`${VOICE_OS_URL}/api/voice/agents/${req.params.agentId}/invoke`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.post('/api/voice/calls', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.post(`${VOICE_OS_URL}/api/voice/calls`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.get('/api/voice/calls/:callId', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.get(`${VOICE_OS_URL}/api/voice/calls/${req.params.callId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// === Voice Commerce — voice-driven transactions ===
+app.post('/api/voice/commerce/checkout', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.post(`${VOICE_COMMERCE_URL}/api/voice/commerce/checkout`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.get('/api/voice/commerce/orders/:userId', authMiddleware, async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const r = await axios.get(`${VOICE_COMMERCE_URL}/api/voice/commerce/orders/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// === RAZO Keyboard — Communication OS (consumer-side input) ===
+// Detect intent in user text via RAZO
+app.post('/api/razo/intent', authMiddleware, async (req, res, next) => {
+  if (!USE_RAZO) return err(res, 503, 'DISABLED', 'razo disabled (set USE_RAZO=true)');
+  try {
+    const r = await axios.post(`${RAZO_KEYBOARD_URL}/api/intent`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// Send message via RAZO channel bridge (WhatsApp/Slack/email/SMS/etc.)
+app.post('/api/razo/send', authMiddleware, async (req, res, next) => {
+  if (!USE_RAZO) return err(res, 503, 'DISABLED', 'razo disabled');
+  try {
+    const r = await axios.post(`${RAZO_KEYBOARD_URL}/api/message`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// RAZO session — for keyboard context persistence
+app.post('/api/razo/session', authMiddleware, async (req, res, next) => {
+  if (!USE_RAZO) return err(res, 503, 'DISABLED', 'razo disabled');
+  try {
+    const r = await axios.post(`${RAZO_KEYBOARD_URL}/api/session`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+app.get('/api/razo/session/:sessionId', authMiddleware, async (req, res, next) => {
+  if (!USE_RAZO) return err(res, 503, 'DISABLED', 'razo disabled');
+  try {
+    const r = await axios.get(`${RAZO_KEYBOARD_URL}/api/session/${req.params.sessionId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// RAZO webhook — receive async callbacks (delivery confirmations, etc.)
+// RAZO posts here; we forward to the appropriate downstream service or persist.
+app.post('/api/razo/webhook', async (req, res, next) => {
+  if (!USE_RAZO) return res.json({ success: true, skipped: true, reason: 'razo disabled' });
+  try {
+    // For now: just acknowledge. Real implementation: route by event type.
+    // event types: message.delivered, message.read, channel.error, intent.resolved
+    const event = req.body?.event || req.body?.type;
+    log_line('info', `razo webhook event=${event}`);
+    res.json({ success: true, received: true, event, ts: new Date().toISOString() });
+  } catch (e) { next(e); }
+});
+
+// RAZO callback to ask Genie — keyboard types a question, RAZO asks Genie, Genie answers
+app.post('/api/razo/ask-genie', authMiddleware, async (req, res, next) => {
+  if (!USE_RAZO) return err(res, 503, 'DISABLED', 'razo disabled');
+  try {
+    // Forward to Genie's own /api/ask
+    const user = await User.findById(req.userId);
+    if (!user) return err(res, 404, 'NOT_FOUND', 'User not found');
+    const askRes = await callInternal(`http://localhost:${PORT}/api/ask`, 'POST', {
+      question: req.body?.text || req.body?.question,
+      context: req.body?.context || {},
+    });
+    res.json({
+      success: true,
+      data: {
+        answer: askRes?.data?.answer,
+        delegated_to: askRes?.data?.delegated_to,
+        via: 'razo-keyboard',
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+// =====================================================================================
+// UNIFIED VOICE PIPELINE — wake word → genie ask → voice response
+// =====================================================================================
+
+// Wake-word service calls this when "Hey Genie" is detected.
+// We open an audio capture session and return a sessionId.
+// The device then streams audio (e.g. POST /api/voice/wake/:sessionId/audio),
+// runtime/genie transcribes via Voice OS, calls /api/ask, and synthesizes the response.
+app.post('/api/voice/wake', async (req, res, next) => {
+  try {
+    const { userId, wakeWord, deviceId, language } = req.body || {};
+    if (!userId) return err(res, 400, 'INVALID_INPUT', 'userId required');
+    const sessionId = `vsess_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    log_line('info', `voice/wake session=${sessionId} userId=${userId} device=${deviceId} lang=${language} word=${wakeWord}`);
+    res.json({
+      success: true,
+      data: {
+        sessionId,
+        userId,
+        deviceId,
+        language: language || 'en',
+        status: 'listening',
+        captureTimeoutMs: 8000,
+        audioEndpoint: `/api/voice/wake/${sessionId}/audio`,
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+// Device streams the post-wake-word audio here. We:
+//  1. Transcribe via Voice OS
+//  2. Run /api/ask with the transcript
+//  3. Optionally synthesize the answer back to speech
+app.post('/api/voice/wake/:sessionId/audio', async (req, res, next) => {
+  if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
+  try {
+    const { sessionId } = req.params;
+    const { userId, audio, audioBase64, language = 'en', respondWithVoice = true } = req.body || {};
+    if (!userId) return err(res, 400, 'INVALID_INPUT', 'userId required');
+
+    // 1) Transcribe audio → text
+    const transcribeRes = await axios.post(`${VOICE_OS_URL}/api/voice/transcribe`, {
+      audio: audio || audioBase64,
+      language,
+      userId,
+    }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000, validateStatus: () => true });
+    const transcript = transcribeRes.data?.data?.text || transcribeRes.data?.text || '';
+
+    if (!transcript || transcript.trim().length === 0) {
+      return res.json({
+        success: true,
+        data: { sessionId, transcript: '', answer: "I didn't catch that. Could you try again?", status: 'no_input' },
+        meta: { timestamp: new Date().toISOString() },
+      });
+    }
+
+    // 2) Run the ask pipeline (same as /api/ask, but using userId from body)
+    const askRes = await axios.post(`http://localhost:${PORT}/api/ask`, {
+      question: transcript,
+      context: { source: 'voice-wake', sessionId, language },
+    }, {
+      headers: {
+        'x-internal-token': INTERNAL_SERVICE_TOKEN,
+        // We can't easily forward the user's JWT here, so use internal token
+        // and resolve the user from userId in the body
+      },
+      timeout: 10000,
+      validateStatus: () => true,
+    });
+    const answer = askRes.data?.data?.answer || "I'm having trouble answering right now.";
+
+    // 3) Optionally synthesize the answer
+    let audioOut = null;
+    if (respondWithVoice) {
+      const synthRes = await axios.post(`${VOICE_OS_URL}/api/voice/synthesize`, {
+        text: answer,
+        language,
+        userId,
+      }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000, validateStatus: () => true });
+      audioOut = synthRes.data?.data?.audio || synthRes.data?.audio || null;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        sessionId,
+        transcript,
+        answer,
+        audio: audioOut,
+        delegated_to: askRes.data?.data?.delegated_to,
+        status: 'answered',
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+function log_line(level, msg) {
+  // Lightweight logger so we don't depend on winston config here
+  const line = JSON.stringify({ level, msg, ts: new Date().toISOString() });
+  if (level === 'error') console.error(line);
+  else console.log(line);
+}
 
 app.get('/api/conversations', authMiddleware, async (req, res, next) => {
   try {
