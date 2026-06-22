@@ -179,15 +179,19 @@ Quick summary (updated 2026-06-22):
   - **F.4b ✅ AI Intelligence e2e** — 9/9 e2e checks (health, metrics, route, agents, 404, 3 POSTs validation, /ready known-bug). All 9 routes (5 POST with authOrBypass + 4 GET public) productionized. **23/23 tests passing**.
   - **F.4c ✅ Hub `/api/foundation/ai-intelligence/*`** — 9 new capabilities (intent-analysis, sentiment-analysis, knowledge-retrieval, prediction, recommendation, brief-generation, policy-evaluate-ai, intelligence-route, intelligence-metrics); demo step 3k proves health + route + agents + metrics end-to-end.
   - **F.4d ✅ Committed + pushed** (HOJAI `a576bdb0`, Hub `63178b89`, root `f3c6a7197`)
-  - **F.5+** (planned): Reasoning Engine, Decision Intelligence, Knowledge Extraction, Knowledge Marketplace
+  - **F.5a ✅ Knowledge Extraction (port 4784) auth bypass + tests** — `KNOWLEDGE_EXTRACTION_REQUIRE_AUTH` env support; `listen()` gated; vitest 19/19 unit tests covering config exports, health/stats/ner/types/kb routes, validation, NER + facts + link + extract-all happy path, KB CRUD, auth bypass, 404.
+  - **F.5b ✅ Knowledge Extraction e2e** — 17/17 e2e checks (health, stats, ner/types, kb/stats, kb/entities, 4 catalog routes, 4 POST happy-path, 3 POST validation 400, 404). All 17 public routes (10 GET + 7 POST with authOrBypass) productionized. **36/36 tests passing**.
+  - **F.5c ✅ Hub `/api/foundation/knowledge-extraction/*`** — 7 new capabilities (ner-extract, entity-link, fact-extract, extract-all, kb-entity-crud, kb-stats, entity-catalog); demo step 3l proves health + stats + kb + ner + types + extract end-to-end.
+  - **F.5d ✅ Committed + pushed** (HOJAI `f2bd28d3`, Hub `7a0ecb3d`, root `28509dbbc`)
+  - **F.6+** (planned): Decision Intelligence (4756), Knowledge Marketplace (4939), Reasoning Engine
 - **Phase G** (planned): Build **MissionOS** (4295) + **ExecutionOS** (4296) — the two genuinely-missing pieces of the architecture (Mission as first-class unit of execution, Execution as universal execution layer)
 - **Phase H** (planned): Collapse do-app 144-method client to ~5 method calls (Hub does the routing)
 - **Phase I** (planned): Docs, demos, observability, ship
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **551 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + **AI Intelligence (14)**, **0 failures**
-- **156 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + **AI Intelligence (9 e2e)**, **0 failures**
+- **570 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + AI Intelligence (14) + **Knowledge Extraction (19)**, **0 failures**
+- **173 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + AI Intelligence (9 e2e) + **Knowledge Extraction (17 e2e)**, **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push
