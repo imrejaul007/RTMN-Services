@@ -123,6 +123,12 @@ companies/HOJAI-AI-restored/**/node_modules/
 companies/HOJAI-AI-restored/dist/
 companies/HOJAI-AI-restored/**/dist/
 
+# Legacy-audit archives - track all legacy content from monorepo companies
+!/companies/LawGens/legacy-audit/
+!/companies/Nexha/legacy-audit/
+!/companies/RTNM-Digital/legacy-audit/
+!/companies/RTNM-Group/legacy-audit/
+
 # AdBazaar - separate repo
 companies/AdBazaar/
 
