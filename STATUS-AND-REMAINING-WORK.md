@@ -158,7 +158,7 @@ See [ROADMAP-TO-VISION.md](ROADMAP-TO-VISION.md) for the full 10-week plan.
 Quick summary (updated 2026-06-22):
 - **Phase A** (✅ done): Foundation — Hub start, SADA wire-up, voice input, **body-forwarding bug fix in `proxyToUpstream()`**
 - **Phase B** (✅ done): SUTAR OS Real — Decision/Negotiation/Economy/Trust/Contracts all hardened with 321 new tests + a real bug fix in `sutar-contract-os/versions.ts`
-- **Phase C** (✅ done): Nexha Network — **routes wired through Hub** for 8 services + **C.1 sutar-supplier-registry** (20 tests) + **C.2 sutar-logistics** (22 tests) + **C.5 sutar-warehouse-network** (49 tests — slot booking + full WMS: bins, stock, transfers, pick lists, audit log) all shipped. do-app autopilot re-pointed at the new services.
+- **Phase C** (✅ done): Nexha Network — **routes wired through Hub** for 8 services + **C.1 sutar-supplier-registry** (20 tests) + **C.2 sutar-logistics** (22 tests) + **C.4 sutar-trade-finance** (38 tests — 5-band risk engine, BNPL offers, loans, repayments, disputes, FX) + **C.5 sutar-warehouse-network** (49 tests — slot booking + full WMS: bins, stock, transfers, pick lists, audit log) all shipped. do-app autopilot re-pointed at the new services.
 - **Phase D** (✅ done): End-to-End — do-app autopilot now calls SUTAR + Nexha for "buy groceries" Step 5; mobile autopilot tab shipped
 - **Phase E** (✅ done): Production polish — `scripts/dev-stack.sh`, `docker-compose.dev.yml`, `demos/full-stack-demo.sh`, this status doc, ADRs (6 of them), root README all shipped
 
