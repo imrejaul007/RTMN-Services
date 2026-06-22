@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nexha-config
+  namespace: nexha
+data:
+  # Service Configuration
+  RATE_LIMIT_WINDOW_MS: "60000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+  CORS_ORIGIN: "https://nexha.rez.money,https://www.nexha.rez.money"
+  LOG_LEVEL: "info"
+
+  # Service URLs (for inter-service communication)
+  DISTRIBUTION_OS_URL: "http://nexha-distribution-os"
+  FRANCHISE_OS_URL: "http://nexha-franchise-os"
+  PROCUREMENT_OS_URL: "http://nexha-procurement-os"
+  MANUFACTURING_OS_URL: "http://nexha-manufacturing-os"
+  TRADE_FINANCE_URL: "http://nexha-trade-finance"
+  INTELLIGENCE_URL: "http://nexha-intelligence"
+  CONNECTOR_URL: "http://nexha-ecosystem-connector"
+
+  # External Service URLs (configure for production)
+  REZ_MERCHANT_URL: "http://rez-merchant:4003"
+  REZ_INTELLIGENCE_URL: "http://rez-intelligence:4018"
+  RTNM_FINANCE_URL: "http://nexha-trade-finance"
+  NEXTABIZZ_URL: "http://nexha-nextabizz:3000"
+
+  # HOJAI Integration
+  HOJAI_BRIDGE_URL: "http://hojai-bridge:5140"
+  HOJAI_MEMORY_URL: "http://hojai-memory:4520"
+  HOJAI_INTELLIGENCE_URL: "http://hojai-intelligence:4530"
+  SKILLNET_RUNTIME_URL: "http://skillnet-runtime:5120"
+  SKILLNET_REGISTRY_URL: "http://skillnet-registry:5121"
+
+  # Feature Flags
+  ENABLE_AI_FEATURES: "true"
+  ENABLE_AUTO_RFQ: "true"
+  ENABLE_SCORE_UPDATES: "true"
+  ENABLE_HOJAI_INTEGRATION: "true"

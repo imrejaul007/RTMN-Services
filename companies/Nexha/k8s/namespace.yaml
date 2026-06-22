@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nexha
+  labels:
+    name: nexha
+    environment: production
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nexha-config
+  namespace: nexha
+data:
+  NODE_ENV: "production"
+  PORT: "4000"
+  # Add other non-sensitive config here
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nexha-secrets
+  namespace: nexha
+type: Opaque
+stringData:
+  # MONGODB_URI: "mongodb+srv://user:pass@cluster.mongodb.net/nexha"
+  # INTERNAL_SERVICE_TOKEN: "generate-a-secure-token"
+  # AUTH_SERVICE_URL: "https://rez-auth-service.onrender.com"

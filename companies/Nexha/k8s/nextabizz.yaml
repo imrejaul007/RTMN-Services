@@ -1,0 +1,118 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexha-nextabizz
+  namespace: nexha
+  labels:
+    app: nexha-nextabizz
+    tier: frontend
+    product: nextabizz
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nexha-nextabizz
+  template:
+    metadata:
+      labels:
+        app: nexha-nextabizz
+        tier: frontend
+        product: nextabizz
+    spec:
+      containers:
+      - name: nextabizz
+        image: nexha/nextabizz:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: NEXT_PUBLIC_SUPABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: nexha-secrets
+              key: SUPABASE_URL
+              optional: true
+        - name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nexha-secrets
+              key: SUPABASE_ANON_KEY
+              optional: true
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nexha-secrets
+              key: SUPABASE_SERVICE_ROLE_KEY
+              optional: true
+        - name: NEXT_PUBLIC_API_URL
+          value: "https://api.nexha.rez.money"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexha-nextabizz
+  namespace: nexha
+  labels:
+    app: nexha-nextabizz
+    product: nextabizz
+spec:
+  selector:
+    app: nexha-nextabizz
+  ports:
+  - port: 80
+    targetPort: 3000
+    name: http
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nexha-nextabizz-hpa
+  namespace: nexha
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nexha-nextabizz
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

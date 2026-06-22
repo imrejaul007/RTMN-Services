@@ -1,0 +1,36 @@
+{
+  "name": "@rez/nexha-mobile",
+  "version": "1.0.0",
+  "description": "NeXha Mobile - B2B Commerce Network App",
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "jest"
+  },
+  "dependencies": {
+    "expo": "~52.0.0",
+    "expo-status-bar": "~2.0.0",
+    "expo-router": "~4.0.0",
+    "expo-secure-store": "~14.0.0",
+    "expo-constants": "~17.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.5",
+    "@react-navigation/native": "^7.0.0",
+    "@react-navigation/native-stack": "^7.0.0",
+    "@react-navigation/bottom-tabs": "^7.0.0",
+    "axios": "^1.7.0",
+    "@tanstack/react-query": "^5.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@types/react": "^18.3.0",
+    "@types/react-native": "^0.73.0",
+    "jest": "^29.7.0",
+    "typescript": "^5.7.0"
+  },
+  "private": true
+}

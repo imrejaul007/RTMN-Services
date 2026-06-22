@@ -1,0 +1,132 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nexha-ingress
+  namespace: nexha
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/websocket-services: "nexha-ecosystem-connector"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  tls:
+  - hosts:
+    - nexha.rez.money
+    - api.nexha.rez.money
+    - portal.nexha.rez.money
+    secretName: nexha-tls
+  rules:
+  # ===========================================
+  # Frontend Portal
+  # ===========================================
+  - host: nexha.rez.money
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nexha-portal
+            port:
+              number: 80
+
+  # ===========================================
+  # API Gateway / Distribution OS
+  # ===========================================
+  - host: api.nexha.rez.money
+    http:
+      paths:
+      # Distribution OS - /distributors/*
+      - path: /distributors(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-distribution-os
+            port:
+              number: 80
+
+      # Franchise OS - /franchises/*
+      - path: /franchises(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-franchise-os
+            port:
+              number: 80
+
+      # Procurement OS - /rfqs/*, /suppliers/*
+      - path: /rfqs(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-procurement-os
+            port:
+              number: 80
+      - path: /suppliers(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-procurement-os
+            port:
+              number: 80
+
+      # Manufacturing OS - /manufacturing/*, /boms/*
+      - path: /manufacturing(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-manufacturing-os
+            port:
+              number: 80
+      - path: /boms(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-manufacturing-os
+            port:
+              number: 80
+
+      # Trade Finance - /finance/*
+      - path: /finance(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-trade-finance
+            port:
+              number: 80
+
+      # Intelligence - /intelligence/*
+      - path: /intelligence(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-intelligence
+            port:
+              number: 80
+
+      # Ecosystem Connector - /events/*, /webhooks/*
+      - path: /events(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-ecosystem-connector
+            port:
+              number: 80
+      - path: /webhooks(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-ecosystem-connector
+            port:
+              number: 80
+      - path: /status(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nexha-ecosystem-connector
+            port:
+              number: 80
