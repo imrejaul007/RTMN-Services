@@ -29,7 +29,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { ZodError } from 'zod';
 
-import { requireAuth } from '@rtmn/shared/auth';
+import { requireAuth, createTenantContext } from '@rtmn/shared/auth';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -105,6 +105,40 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   });
   next();
 });
+
+// ADR-0009 Phase 1: tenant context middleware. /api/v1/info stays
+// public. Everything else under /api/v1/ requires a tenant.
+const tenantMiddleware = createTenantContext({
+  publicPathPatterns: [/^\/info$/],
+});
+app.use('/api/v1/', tenantMiddleware);
+
+// Helper: get the companyId from the resolved tenant context.
+function getTenantId(req: Request): string {
+  const t = (req as any).tenant;
+  if (t && typeof t.companyId === 'string' && t.companyId) return t.companyId;
+  return 'default';
+}
+
+/**
+ * ADR-0009 helper: ensure a negotiation exists and belongs to the current
+ * tenant. Returns the negotiation on success; otherwise sends the
+ * appropriate error response and returns null.
+ */
+function tenantGuardNegotiation(req: Request, res: Response, id: string): any | null {
+  const tenantId = getTenantId(req);
+  const n = negotiationService.get(id);
+  if (!n) {
+    res.status(404).json(apiResponse(false, undefined, 'Not found', req.headers['x-request-id'] as string));
+    return null;
+  }
+  if (n.tenantId && n.tenantId !== tenantId) {
+    // Don't leak existence — return 404 instead of 403.
+    res.status(404).json(apiResponse(false, undefined, 'Not found', req.headers['x-request-id'] as string));
+    return null;
+  }
+  return n;
+}
 
 // ============================================================================
 // Helpers
@@ -191,7 +225,10 @@ app.get('/api/v1/info', (_req, res) => {
 
 app.post('/api/v1/negotiations', requireAuth, safe((req, res) => {
   const requestId = req.headers['x-request-id'] as string;
-  const parsed = CreateNegotiationSchema.safeParse(req.body);
+  // ADR-0009: inject tenantId from req.tenant. Override any client-provided
+  // tenantId so callers can never impersonate a different tenant.
+  const body = { ...(req.body || {}), tenantId: getTenantId(req) };
+  const parsed = CreateNegotiationSchema.safeParse(body);
   if (!parsed.success) {
     res.status(400).json(apiResponse(false, undefined, handleZodError(parsed.error), requestId));
     return;
@@ -202,7 +239,9 @@ app.post('/api/v1/negotiations', requireAuth, safe((req, res) => {
 
 app.get('/api/v1/negotiations', requireAuth, safe((req, res) => {
   const requestId = req.headers['x-request-id'] as string;
-  const parsed = NegotiationQuerySchema.safeParse(req.query);
+  // ADR-0009: inject tenantId from req.tenant.
+  const query = { ...req.query, tenantId: getTenantId(req) };
+  const parsed = NegotiationQuerySchema.safeParse(query);
   if (!parsed.success) {
     res.status(400).json(apiResponse(false, undefined, handleZodError(parsed.error), requestId));
     return;
@@ -213,11 +252,10 @@ app.get('/api/v1/negotiations', requireAuth, safe((req, res) => {
 
 app.get('/api/v1/negotiations/stats', requireAuth, safe((req, res) => {
   const requestId = req.headers['x-request-id'] as string;
-  const tenantId = (req.query.tenantId as string) || (req as any).user?.tenantId;
-  if (!tenantId) {
-    res.status(400).json(apiResponse(false, undefined, 'tenantId required', requestId));
-    return;
-  }
+  // ADR-0009: stats are always scoped to req.tenant.tenantId from the
+  // resolved tenant context (the legacy ?tenantId= query param is
+  // ignored; callers cannot view another tenant's stats).
+  const tenantId = getTenantId(req);
   res.json(apiResponse(true, negotiationService.stats(tenantId), undefined, requestId));
 }));
 
@@ -228,8 +266,15 @@ app.get('/api/v1/negotiations/:id', requireAuth, safe((req, res) => {
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  const tenantId = getTenantId(req);
   const n = negotiationService.get(idCheck.data.id);
   if (!n) {
+    res.status(404).json(apiResponse(false, undefined, 'Not found', requestId));
+    return;
+  }
+  // ADR-0009: enforce tenant boundary — a tenant may only read its own
+  // negotiations.
+  if (n.tenantId && n.tenantId !== tenantId) {
     res.status(404).json(apiResponse(false, undefined, 'Not found', requestId));
     return;
   }
@@ -247,6 +292,7 @@ app.post('/api/v1/negotiations/:id/offers', requireAuth, safe((req, res) => {
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  if (!tenantGuardNegotiation(req, res, idCheck.data.id)) return;
   const parsed = AddOfferSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json(apiResponse(false, undefined, handleZodError(parsed.error), requestId));
@@ -263,17 +309,14 @@ app.post('/api/v1/negotiations/:id/counter', requireAuth, safe((req, res) => {
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  const n = tenantGuardNegotiation(req, res, idCheck.data.id);
+  if (!n) return;
   const parsed = CounterOfferSchema.safeParse({ ...req.body, negotiationId: idCheck.data.id });
   if (!parsed.success) {
     res.status(400).json(apiResponse(false, undefined, handleZodError(parsed.error), requestId));
     return;
   }
   // Find a party id from the negotiation (buyer.id by default if not in body)
-  const n = negotiationService.get(idCheck.data.id);
-  if (!n) {
-    res.status(404).json(apiResponse(false, undefined, 'Not found', requestId));
-    return;
-  }
   const partyId = (req.body.partyId as string) || n.buyer.id;
   const updated = negotiationService.addCounterOffer(partyId, parsed.data);
   res.status(201).json(apiResponse(true, updated, undefined, requestId));
@@ -286,6 +329,7 @@ app.post('/api/v1/negotiations/:id/auto-counter', requireAuth, safe((req, res) =
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  if (!tenantGuardNegotiation(req, res, idCheck.data.id)) return;
   const parsed = GenerateCounterSchema.safeParse({ ...req.body, negotiationId: idCheck.data.id });
   if (!parsed.success) {
     res.status(400).json(apiResponse(false, undefined, handleZodError(parsed.error), requestId));
@@ -302,6 +346,7 @@ app.post('/api/v1/negotiations/:id/accept', requireAuth, safe((req, res) => {
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  if (!tenantGuardNegotiation(req, res, idCheck.data.id)) return;
   const partyId = (req.body.partyId as string) || '';
   if (!partyId) {
     res.status(400).json(apiResponse(false, undefined, 'partyId required', requestId));
@@ -318,6 +363,7 @@ app.post('/api/v1/negotiations/:id/reject', requireAuth, safe((req, res) => {
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  if (!tenantGuardNegotiation(req, res, idCheck.data.id)) return;
   const parsed = RejectSchema.safeParse(req.body || {});
   const partyId = (req.body.partyId as string) || '';
   if (!partyId) {
@@ -335,6 +381,7 @@ app.post('/api/v1/negotiations/:id/cancel', requireAuth, safe((req, res) => {
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  if (!tenantGuardNegotiation(req, res, idCheck.data.id)) return;
   const parsed = CancelSchema.safeParse(req.body || {});
   const performedBy = (req.body.performedBy as string) || (req as any).user?.id || 'unknown';
   const n = negotiationService.cancel(idCheck.data.id, performedBy, parsed.success ? parsed.data.reason : undefined);
@@ -348,12 +395,12 @@ app.get('/api/v1/negotiations/:id/zopa', requireAuth, safe((req, res) => {
     res.status(400).json(apiResponse(false, undefined, 'Invalid id', requestId));
     return;
   }
+  if (!tenantGuardNegotiation(req, res, idCheck.data.id)) return;
   const parsed = AnalyzeZOPASchema.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json(apiResponse(false, undefined, handleZodError(parsed.error), requestId));
     return;
   }
-  // Also return the raw ZOPA without needing the negotiation
   const zopa = computeZOPA({ buyerMax: parsed.data.buyerMax, sellerMin: parsed.data.sellerMin });
   res.json(apiResponse(true, { zopa }, undefined, requestId));
 }));
@@ -419,6 +466,17 @@ app.post('/api/v1/event', requireAuth, (req, res) => {
   const { type, data } = req.body;
   console.log(`[EVENT] ${type}:`, data);
   res.json(apiResponse(true, { eventId: uuidv4(), type, status: 'processed' }));
+});
+
+// ============================================================================
+// Tenant admin endpoints (ADR-0009 Phase 1)
+// ============================================================================
+
+app.get('/api/v1/admin/tenant/whoami', (req, res) => {
+  res.json(apiResponse(true, {
+    tenant: (req as any).tenant || null,
+    tenantId: getTenantId(req),
+  }));
 });
 
 // ============================================================================
