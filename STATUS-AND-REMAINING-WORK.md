@@ -154,16 +154,34 @@ Genie → reply + suggested merchant → Mobile → manual order placement
 
 See [ROADMAP-TO-VISION.md](ROADMAP-TO-VISION.md) for the full 10-week plan.
 
-Quick summary:
-- **Phase A** (1 week, ✅ done): Foundation — Hub start, SADA wire-up, voice input, docs
-- **Phase B** (2 weeks): SUTAR OS Real — make Decision/Negotiation/Economy/Trust/Contracts actually do something
-- **Phase C** (4 weeks): Nexha Network — build the 5 missing services (supplier registry, warehouses, logistics, banking, orchestrator)
-- **Phase D** (2 weeks): End-to-End — wire do-app autopilot to use SUTAR + Nexha for "buy groceries"
-- **Phase E** (1 week): Production polish — docs, deployment, demo
+Quick summary (updated 2026-06-22):
+- **Phase A** (✅ done): Foundation — Hub start, SADA wire-up, voice input, **body-forwarding bug fix in `proxyToUpstream()`**
+- **Phase B** (✅ done): SUTAR OS Real — Decision/Negotiation/Economy/Trust/Contracts all hardened with 321 new tests + a real bug fix in `sutar-contract-os/versions.ts`
+- **Phase C** (🟡 partial): Nexha Network — **routes wired through Hub** for 8 services, but **no upstream services running yet** (C.5 warehouse-network is the next big build)
+- **Phase D** (✅ done): End-to-End — do-app autopilot now calls SUTAR + Nexha for "buy groceries" Step 5; mobile autopilot tab shipped
+- **Phase E** (🟡 in progress): Production polish — `scripts/dev-stack.sh`, `docker-compose.dev.yml`, `demos/full-stack-demo.sh`, this status doc, ADRs, root README
+
+Verified today (2026-06-22):
+- `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
+- 321 new vitest tests across 3 SUTAR services
+- 7 new unit tests for do-app `nexha` client
+- 1 real service bug found and fixed via tests
 
 ---
 
 ## How to start the stack today
+
+### One command (Phase A+B+C+D dev stack)
+
+```bash
+cd /Users/rejaulkarim/Documents/RTMN
+bash scripts/dev-stack.sh start     # Hub + 3 SUTAR services
+bash demos/full-stack-demo.sh        # verify end-to-end
+```
+
+`scripts/dev-stack.sh` brings up exactly the four services the demo script exercises: Hub (:4399), Trust Engine (:4291), Decision Engine (:4290), Economy OS (:4251). Logs land in `/tmp/rtmn-dev/*.log`.
+
+### Manual per-service start (legacy)
 
 ```bash
 # 1. Hub (port 4399)
