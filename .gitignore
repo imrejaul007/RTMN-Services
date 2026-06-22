@@ -40,6 +40,12 @@ Thumbs.db
 companies/Nexha/commerce-identity/node_modules/
 companies/Nexha/commerce-identity/dist/
 
+# Exception: NeXha full OS (10 services) - imported from REZ-Workspace 2026-06-22
+# (re-include rules are placed BEFORE companies/* at line 116+)
+/companies/Nexha/**/node_modules/
+/companies/Nexha/**/dist/
+/companies/Nexha/portal/.next/
+
 # Exception: RTNM-Group Services
 !companies/RTNM-Group/boa-os/
 !companies/RTNM-Group/boa-sutar-bridge/
@@ -95,6 +101,23 @@ companies/hojai-ai/hojai-multilingual/dist/
 
 # Default: Ignore ALL companies (each has its own repo)
 companies/*
+# Re-include specific Nexha subdirs (so the new imports get tracked)
+!companies/Nexha/
+!companies/Nexha/**
+!companies/Nexha/services/
+!companies/Nexha/services/**
+!companies/Nexha/sutar-mock/
+!companies/Nexha/sutar-mock/**
+!companies/Nexha/portal/
+!companies/Nexha/portal/**
+!companies/Nexha/shared/
+!companies/Nexha/shared/**
+!companies/Nexha/scripts/
+!companies/Nexha/scripts/**
+!companies/Nexha/tests/
+!companies/Nexha/tests/**
+!companies/Nexha/docs/
+!companies/Nexha/docs/**
 
 # BUT: Do App (imrejaul007/do-app) gets re-included below because it lives in this folder for convenience
 !/companies/do-app
