@@ -13,7 +13,7 @@ declare module 'express-serve-static-core' {
 
 let _bus: EventBus | null = null;
 
-function getBus(): EventBus {
+export function getBus(): EventBus {
   if (_bus) return _bus;
   _bus = new EventBus({
     serviceName: process.env.SERVICE_NAME || 'sutar-decision-engine',
@@ -39,4 +39,19 @@ export async function shutdown(): Promise<void> {
     try { await _bus.quit(); } catch (_) { /* ignore */ }
     _bus = null;
   }
+}
+
+/**
+ * Test-only helper: replace the lazy singleton bus with a stub.
+ * Production code MUST NOT call this — it's exposed strictly for vitest.
+ */
+export function _setBusForTesting(bus: EventBus | null): void {
+  _bus = bus;
+}
+
+/**
+ * Test-only helper: read the current bus without triggering lazy creation.
+ */
+export function _getBusForTesting(): EventBus | null {
+  return _bus;
 }

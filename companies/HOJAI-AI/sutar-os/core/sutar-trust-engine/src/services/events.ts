@@ -1,5 +1,5 @@
 /**
- * SUTAR Negotiation Engine — Event Bus helper (ADR-0009 Phase 2).
+ * SUTAR Trust Engine — Event Bus helper (ADR-0009 Phase 2).
  */
 
 import { EventBus } from '@rtmn/shared/event-bus';
@@ -16,11 +16,11 @@ let _bus: EventBus | null = null;
 export function getBus(): EventBus {
   if (_bus) return _bus;
   _bus = new EventBus({
-    serviceName: process.env.SERVICE_NAME || 'sutar-negotiation-engine',
+    serviceName: process.env.SERVICE_NAME || 'sutar-trust-engine',
   });
   _bus.connect().catch((err) => {
     // eslint-disable-next-line no-console
-    console.warn(`[sutar-negotiation events] connect failed: ${err.message}`);
+    console.warn(`[sutar-trust events] connect failed: ${err.message}`);
   });
   return _bus;
 }

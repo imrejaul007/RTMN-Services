@@ -35,7 +35,11 @@
       "default": "./event-bus/index.cjs"
     },
     "./event-bus/index.js": "./event-bus/index.js",
-    "./event-bus/index.cjs": "./event-bus/index.cjs"
+    "./event-bus/index.cjs": "./event-bus/index.cjs",
+    "./event-bus/test-helpers": {
+      "import": "./event-bus/test-helpers.js",
+      "require": "./event-bus/test-helpers.js"
+    }
   },
   "engines": {
     "node": ">=18.0.0"
