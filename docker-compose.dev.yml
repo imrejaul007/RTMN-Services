@@ -40,12 +40,16 @@ services:
       - SUTAR_ECONOMY_URL=http://economy-os:4251
       - SUTAR_WAREHOUSE_NETWORK_URL=http://warehouse-network:4288
       - NEXHA_PROCUREMENT_URL=http://nexha-procurement:4320
+      - NEXHA_DISTRIBUTION_URL=http://nexha-distribution:4300
       - NEXHA_TRADE_FINANCE_URL=http://nexha-trade-finance:4340
     depends_on:
       - decision-engine
       - trust-engine
       - economy-os
       - warehouse-network
+      - nexha-procurement
+      - nexha-distribution
+      - nexha-trade-finance
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4399/health"]
       interval: 15s
@@ -182,6 +186,44 @@ services:
       - PORT=4320
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4320/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  nexha-distribution:
+    build:
+      context: ./companies/Nexha/services/distribution-os
+      dockerfile: Dockerfile
+    container_name: rtmn-nexha-distribution
+    ports:
+      - "4300:4300"
+    environment:
+      - NODE_ENV=production
+      - PORT=4300
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4300/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  nexha-trade-finance:
+    build:
+      context: ./companies/Nexha/services/trade-finance
+      dockerfile: Dockerfile
+    container_name: rtmn-nexha-trade-finance
+    ports:
+      - "4340:4340"
+    environment:
+      - NODE_ENV=production
+      - PORT=4340
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4340/health"]
       interval: 15s
       timeout: 5s
       retries: 6

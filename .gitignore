@@ -107,6 +107,15 @@ companies/HOJAI-AI/**/node_modules/
 companies/HOJAI-AI/dist/
 companies/HOJAI-AI/**/dist/
 
+# NeXha services built in-tree (procurement-os, distribution-os, trade-finance).
+# These are full TypeScript services with their own tests + Dockerfile.
+# See ADR-0008. The blanket companies/* rule above needs explicit negations here.
+!/companies/Nexha/services/procurement-os/
+!/companies/Nexha/services/distribution-os/
+!/companies/Nexha/services/trade-finance/
+/companies/Nexha/services/*/node_modules/
+/companies/Nexha/services/*/dist/
+
 # HOJAI AI - recovered source from commit 08a6bf87e (historical snapshot)
 !companies/HOJAI-AI-restored/
 companies/HOJAI-AI-restored/node_modules/

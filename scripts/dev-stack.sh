@@ -23,6 +23,9 @@ TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-eng
 DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 npm start"
 ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4251 npm start"
 WAREHOUSE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-warehouse-network && PORT=4288 npm start"
+PROCUREMENT_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/procurement-os && PORT=4320 npm start"
+DISTRIBUTION_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/distribution-os && PORT=4300 npm start"
+TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/trade-finance && PORT=4340 npm start"
 
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
@@ -55,7 +58,15 @@ stop_port() {
 
 status() {
   echo "RTMN dev stack status:"
-  for entry in "Hub:4399" "Trust Engine:4291" "Decision Engine:4290" "Economy OS:4251" "Warehouse Network:4288"; do
+  for entry in \
+    "Hub:4399" \
+    "Trust Engine:4291" \
+    "Decision Engine:4290" \
+    "Economy OS:4251" \
+    "Warehouse Network:4288" \
+    "Procurement OS:4320" \
+    "Distribution OS:4300" \
+    "Trade Finance:4340"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
@@ -72,6 +83,9 @@ start_all() {
   start_service "trust-engine"      "$TRUST_ENGINE_CMD"     4291
   start_service "decision-engine"   "$DECISION_ENGINE_CMD"  4290
   start_service "economy-os"        "$ECONOMY_OS_CMD"       4251
+  start_service "procurement-os"    "$PROCUREMENT_OS_CMD"   4320
+  start_service "distribution-os"   "$DISTRIBUTION_OS_CMD"  4300
+  start_service "trade-finance"     "$TRADE_FINANCE_CMD"    4340
   start_service "hub"               "$HUB_CMD"              4399
   sleep 3
   status
@@ -87,6 +101,9 @@ stop_all() {
   stop_port 4290 "Decision Engine"
   stop_port 4251 "Economy OS"
   stop_port 4288 "Warehouse Network"
+  stop_port 4320 "Procurement OS"
+  stop_port 4300 "Distribution OS"
+  stop_port 4340 "Trade Finance"
 }
 
 case "${1:-start}" in
