@@ -9,6 +9,8 @@ import trustService from "./services/trustService";
 import reputationService from "./services/reputationService";
 import creditCheckService from "./services/creditCheck";
 import verificationService from "./services/verificationService";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { emit: emitEvent, shutdown: shutdownEvents } = require("./services/events");
 import logger from "./utils/logger";
 
 const app = express();
@@ -149,6 +151,12 @@ app.post(
   asyncRoute(async (req, res) => {
     const body = CalculateScoreSchema.parse(req.body);
     const result = trustService.calculateTrustScore(body);
+    emitEvent(req, 'trust.score.calculated', {
+      entityId: body.entityId,
+      overallScore: result.overallScore,
+      trustLevel: result.trustLevel,
+      riskLevel: result.riskLevel,
+    });
     res.json(apiResponse(true, result));
   })
 );
@@ -236,6 +244,13 @@ app.post(
   asyncRoute(async (req, res) => {
     const body = CreditCheckSchema.parse(req.body);
     const result = creditCheckService.performCreditCheck(body);
+    emitEvent(req, 'trust.credit.checked', {
+      entityId: body.entityId,
+      requestType: body.requestType,
+      amount: body.amount,
+      creditScore: result.creditScore,
+      riskLevel: result.riskLevel,
+    });
     res.json(apiResponse(true, result));
   })
 );
@@ -288,6 +303,12 @@ app.post(
   asyncRoute(async (req, res) => {
     const body = VerifyEntitySchema.parse(req.body);
     const result = await verificationService.verifyEntity(body);
+    emitEvent(req, 'trust.entity.verified', {
+      entityId: body.entityId,
+      verificationType: body.verificationType ?? 'standard',
+      status: result.status,
+      requestId: result.requestId,
+    });
     res.json(apiResponse(true, result));
   })
 );
@@ -316,6 +337,12 @@ app.post(
   asyncRoute(async (req, res) => {
     const body = KYCSchema.parse(req.body);
     const result = await verificationService.processKYC(body);
+    emitEvent(req, 'trust.kyc.processed', {
+      entityId: body.entityId,
+      status: result.status,
+      requestId: result.requestId,
+      verifiedAt: result.verifiedAt,
+    });
     res.json(apiResponse(true, result));
   })
 );
@@ -332,6 +359,8 @@ const server = app.listen(PORT, () => {
   logger.info(`SADA federation: ${SADA_URL}`);
 });
 
-installGracefulShutdown(server);
+installGracefulShutdown(server, async () => {
+  await shutdownEvents();
+});
 
 export default app;

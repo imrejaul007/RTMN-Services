@@ -15,6 +15,7 @@ import { DecisionEngine } from './services/decisionEngine.js';
 import { PolicyEngine } from './services/policyEngine.js';
 import { RiskAssessmentService } from './services/riskAssessment.js';
 import { rankOptions, rankerDiagnostics } from './services/optionRanker.js';
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 import {
   DecisionRequestSchema,
   SimulationRequestSchema,
@@ -300,6 +301,17 @@ app.post('/api/v1/decide',requireAuth,  async (req: Request, res: Response) => {
       processingTime: `${decision.processingTimeMs}ms`,
     });
 
+    emitEvent(req, 'decision.made', {
+      decisionId: decision.id,
+      decisionType: context.decisionType,
+      outcome: decision.outcome,
+      riskLevel: decision.riskAssessment.level,
+      riskScore: decision.riskAssessment.overallScore,
+      confidence: decision.confidence,
+      policyId: decision.policyId,
+      processingTimeMs: decision.processingTimeMs,
+    });
+
     res.json(apiResponse(true, decision, undefined, requestId));
   } catch (error) {
     console.error(`[DECISION] Error ${requestId}:`, error);
@@ -406,6 +418,14 @@ app.post('/api/v1/rank', requireAuth, async (req: Request, res: Response) => {
 
     console.log(`[RANK] ${requestId}: ${result.ranked.length} options ranked, winner=${result.winner.id} (score=${result.winner.score}, confidence=${result.confidence})`);
 
+    emitEvent(req, 'decision.options.ranked', {
+      winnerId: result.winner.id,
+      winnerScore: result.winner.score,
+      confidence: result.confidence,
+      optionCount: result.ranked.length,
+      weights,
+    });
+
     res.json(apiResponse(true, result, undefined, requestId));
   } catch (error) {
     console.error(`[RANK] Error ${requestId}:`, error);
@@ -485,6 +505,13 @@ app.post('/api/v1/risk/assess',requireAuth,  (req: Request, res: Response) => {
 
     const riskAssessment = riskAssessmentService.assess(context);
 
+    emitEvent(req, 'decision.risk.assessed', {
+      riskLevel: riskAssessment.level,
+      riskScore: riskAssessment.overallScore,
+      decisionType: context.decisionType,
+      amount: context.amount,
+    });
+
     res.json(apiResponse(true, riskAssessment, undefined, requestId));
   } catch (error) {
     res.status(500).json(apiResponse(
@@ -549,8 +576,9 @@ const gracefulShutdown = (signal: string) => {
   console.log(`\n[SHUTDOWN] Received ${signal}, shutting down gracefully...`);
 
   // Stop accepting new connections
-  server.close(() => {
+  server.close(async () => {
     console.log('[SHUTDOWN] HTTP server closed');
+    try { await shutdownEvents(); } catch (_) { /* ignore */ }
     process.exit(0);
   });
 

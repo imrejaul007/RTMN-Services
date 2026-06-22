@@ -332,6 +332,41 @@ else
 fi
 
 # ============================================================================
+# 3m. Decision Intelligence (Phase F.6, 2026-06-22)
+# ============================================================================
+step "3m. Decision Intelligence (Phase F.6)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/decision-intelligence/api/health")
+check_2xx "$code" "GET /api/foundation/decision-intelligence/api/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/decision-intelligence/api/methods")
+check_2xx "$code" "GET /api/foundation/decision-intelligence/api/methods"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/decision-intelligence/api/stats")
+check_2xx "$code" "GET /api/foundation/decision-intelligence/api/stats"
+
+# Run a multi-criteria decision via the Hub
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/decision-intelligence/api/decision/wsm" \
+  -H "Content-Type: application/json" \
+  -d '{"alternatives":[{"name":"A","scores":{"cost":0.7,"speed":0.5}},{"name":"B","scores":{"cost":0.5,"speed":0.9}}],"weights":{"cost":0.5,"speed":0.5}}')
+check_2xx "$code" "POST /api/foundation/decision-intelligence/api/decision/wsm"
+
+# Record a recommendation event
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/decision-intelligence/api/recommend/event" \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"demo-u","itemId":"demo-i","eventType":"view"}')
+check_2xx "$code" "POST /api/foundation/decision-intelligence/api/recommend/event"
+
+# Verify capability map exposes Decision Intelligence
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "decision-intelligence" /tmp/demo-out; then
+  ok "Capability map exposes decision-intelligence"
+else
+  warn "Capability map missing decision-intelligence (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -358,6 +393,7 @@ echo "   • /api/foundation/flow-orchestrator/* routes compose plans end-to-end
 echo "   • /api/foundation/sada-os/* routes handle trust + risk + verification (Phase F.3)"
 echo "   • /api/foundation/ai-intelligence/* routes run intent + sentiment + retrieval + prediction (Phase F.4)"
 echo "   • /api/foundation/knowledge-extraction/* routes run NER + entity linking + fact triples (Phase F.5)"
+echo "   • /api/foundation/decision-intelligence/* routes rank recommendations + run WSM/TOPSIS (Phase F.6)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"

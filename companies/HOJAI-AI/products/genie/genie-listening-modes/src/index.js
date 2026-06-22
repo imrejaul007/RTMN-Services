@@ -14,6 +14,17 @@
  *   GET  /api/config/:mode          - get mode config
  *   GET  /api/stats                 - per-mode usage statistics
  *   POST /api/auto                  - smart auto-switch based on context
+ *
+ * Phase 7+ device-integration hook:
+ *   POST /api/integration/device-integration   - register webhook target
+ *   GET  /api/integration/device-integration   - list registered webhooks
+ *   DELETE /api/integration/device-integration  - clear all webhooks
+ *
+ *   When /api/switch or /api/auto changes a device's mode, we POST to each
+ *   registered device-integration webhook so it can start/stop the wake-word
+ *   session for that device:
+ *     continuous + smart → start wake session (genieForward=true)
+ *     manual + passive   → stop wake session
  */
 
 const express = require('express');
@@ -26,6 +37,17 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
+
+// === device-integration hook (Phase 7+) ===
+// When a mode switches, fan out the event to registered webhooks so the
+// device-integration layer can start/stop wake-word sessions.
+const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
+const USE_DEVICE_INTEGRATION_HOOK = process.env.USE_DEVICE_INTEGRATION_HOOK !== 'false';
+const DEVICE_HOOK_TIMEOUT_MS = parseInt(process.env.DEVICE_HOOK_TIMEOUT_MS || '3000', 10);
+
+// Webhook registry: stored in memory (no persistence needed across restarts;
+// device-integration re-registers on boot).
+const deviceHooks = [];
 
 const app = express();
 

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "node tests/wake-word.test.mjs",
+    "test": "node tests/wake-word.test.mjs && node tests/e2e-voice-pipeline.test.mjs",
     "smoke": "bash tests/smoke.sh"
   },
   "dependencies": {

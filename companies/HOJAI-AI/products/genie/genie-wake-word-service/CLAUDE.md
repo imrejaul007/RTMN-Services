@@ -121,8 +121,9 @@ npm start
 ## Tests
 
 ```bash
-npm test          # 46 assertions across full forward lifecycle
+npm test          # 80 assertions: 46 unit + 34 E2E pipeline
 npm run smoke     # curl-based smoke tests against a running instance
 ```
 
-The unit test spawns the service as a child process against a real port and uses an in-process mock for runtime/genie. It covers: forward on detect, forward disabled per-session, forward disabled by env flag, missing userId, runtime/genie 500, runtime/genie unreachable, and auth required.
+- **Unit tests** (`tests/wake-word.test.mjs`): spawns the service as a child process against a real port and uses an in-process mock for runtime/genie. Covers: forward on detect, forward disabled per-session, forward disabled by env flag, missing userId, runtime/genie 500, runtime/genie unreachable, and auth required.
+- **E2E pipeline tests** (`tests/e2e-voice-pipeline.test.mjs`): simulates the full Phase 7 voice flow across 3 passes — (1) device → wake-word → mock runtime/genie, (2) Hindi wake phrase, (3) runtime/genie wake handler pipeline with mocked Voice OS (transcribe → answer → synthesize). 34 assertions, all green.

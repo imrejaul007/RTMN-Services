@@ -26,6 +26,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
 
+// Auth bypass for internal/test use
+const DECISION_INTELLIGENCE_REQUIRE_AUTH =
+  (process.env.DECISION_INTELLIGENCE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const authOrBypass = (req, res, next) =>
+  DECISION_INTELLIGENCE_REQUIRE_AUTH ? requireAuth(req, res, next) : next();
+
 const PORT = process.env.PORT || 4756;
 const SERVICE_NAME = 'decision-intelligence';
 const DEFAULT_K = 10;
@@ -705,7 +711,7 @@ app.get('/api/stats', (req, res) => {
  * POST /api/recommend/event
  * Record a user-item interaction. Body: { userId, itemId, eventType, metadata? }
  */
-app.post('/api/recommend/event',requireAuth,  (req, res) => {
+app.post('/api/recommend/event', authOrBypass,  (req, res) => {
   const { userId, itemId, eventType, metadata } = req.body || {};
   if (!userId || typeof userId !== 'string') {
     return res.status(400).json({ error: 'userId (string) is required' });
@@ -744,7 +750,7 @@ app.post('/api/recommend/event',requireAuth,  (req, res) => {
  * Body: { userId, itemPool?, method?, k?, weights? }
  * Returns top-k recommendations.
  */
-app.post('/api/recommend/items',requireAuth,  (req, res) => {
+app.post('/api/recommend/items', authOrBypass,  (req, res) => {
   const { userId, itemPool, method, k, weights } = req.body || {};
   if (!userId || typeof userId !== 'string') {
     return res.status(400).json({ error: 'userId (string) is required' });
@@ -815,7 +821,7 @@ app.post('/api/recommend/items',requireAuth,  (req, res) => {
  * POST /api/recommend/items/batch
  * Body: { userIds: [...], itemPool?, method?, k? }
  */
-app.post('/api/recommend/items/batch',requireAuth,  (req, res) => {
+app.post('/api/recommend/items/batch', authOrBypass,  (req, res) => {
   const { userIds, itemPool, method, k } = req.body || {};
   if (!Array.isArray(userIds) || userIds.length === 0) {
     return res.status(400).json({ error: 'userIds (non-empty array) is required' });
@@ -933,7 +939,7 @@ app.get('/api/recommend/similarity/:itemId', (req, res) => {
  * POST /api/nba/actions
  * Register a reusable action template. Body: { id, name, description?, expectedValue, cost, tags?, goal? }
  */
-app.post('/api/nba/actions',requireAuth,  (req, res) => {
+app.post('/api/nba/actions', authOrBypass,  (req, res) => {
   const { id, name, description, expectedValue, cost, tags, goal } = req.body || {};
   if (!name || typeof name !== 'string') {
     return res.status(400).json({ error: 'name (string) is required' });
@@ -971,7 +977,7 @@ app.get('/api/nba/actions', (req, res) => {
  * Body: { customer: {tier, lifecycleStage, nps, ...}, availableActions?: [...], goal: 'revenue'|'retention'|'expansion'|'engagement' }
  * If availableActions is omitted, all templates are used.
  */
-app.post('/api/nba',requireAuth,  (req, res) => {
+app.post('/api/nba', authOrBypass,  (req, res) => {
   const { customer, availableActions, goal } = req.body || {};
   if (!customer || typeof customer !== 'object') {
     return res.status(400).json({ error: 'customer (object) is required' });
@@ -1016,7 +1022,7 @@ app.post('/api/nba',requireAuth,  (req, res) => {
  * POST /api/decision/wsm
  * Body: { alternatives: [{name, scores: {criterion: value}}], weights: {criterion: weight}, sensitivity?: {pivot?, pct?} }
  */
-app.post('/api/decision/wsm',requireAuth,  (req, res) => {
+app.post('/api/decision/wsm', authOrBypass,  (req, res) => {
   const { alternatives, weights, sensitivity } = req.body || {};
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
     return res.status(400).json({ error: 'alternatives (non-empty array) is required' });
@@ -1059,7 +1065,7 @@ app.post('/api/decision/wsm',requireAuth,  (req, res) => {
  * POST /api/decision/topsis
  * Body: { alternatives, criteria, weights, impacts }
  */
-app.post('/api/decision/topsis',requireAuth,  (req, res) => {
+app.post('/api/decision/topsis', authOrBypass,  (req, res) => {
   const { alternatives, criteria, weights, impacts } = req.body || {};
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
     return res.status(400).json({ error: 'alternatives (non-empty array) is required' });
@@ -1132,7 +1138,21 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
-});
-installGracefulShutdown(server);
+// Auto-start gated — skip listen() in test mode or when explicitly disabled
+if (process.env.NODE_ENV !== 'test' && !process.env.DECISION_INTELLIGENCE_NO_LISTEN) {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
+  });
+  installGracefulShutdown(server);
+}
+
+// Named exports for vitest
+module.exports = app;
+module.exports.app = app;
+module.exports.authOrBypass = authOrBypass;
+module.exports.DECISION_INTELLIGENCE_REQUIRE_AUTH = DECISION_INTELLIGENCE_REQUIRE_AUTH;
+module.exports.PORT = PORT;
+module.exports.SERVICE_NAME = SERVICE_NAME;
+module.exports.items = items;
+module.exports.users = users;
+module.exports.events = events;
