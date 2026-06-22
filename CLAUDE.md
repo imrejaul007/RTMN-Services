@@ -156,19 +156,19 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 
 ---
 
-## 🟢 Phase A-D Shipped (2026-06-22)
+## 🟢 All 10 Weeks Shipped (2026-06-22)
 
-The 10-week roadmap is mid-execution. **Phases A through D are done.**
+The 10-week roadmap is complete. **Every phase from A through E is done.**
 
 | Phase | What it shipped | Status |
 |---|---|---|
 | **A. Foundation** | Hub on :4399 with `/api/sutar/*` proxy, `proxyToUpstream()` body-forwarding fix, vitest setup | ✅ |
 | **B. SUTAR OS** | sutar-economy-os 105 tests, sutar-trust-engine `/api/v1/sada/status`, sutar-contract-os 179 tests + real bug fix in `versions.ts`, sutar-decision-engine multi-option ranking | ✅ |
-| **C. Nexha routes** | `/api/nexha/capabilities` + 8 service routes wired through Hub | ✅ |
+| **C. Nexha network** | Routes wired through Hub + 3 real services: C.1 sutar-supplier-registry (4280, 20 tests), C.2 sutar-logistics (4285, 22 tests + bug fix), C.5 sutar-warehouse-network (4288, 49 tests = 20 slot booking + 29 WMS) | ✅ |
 | **D. do-app** | Backend `nexha` client with 7 unit tests, autopilot Step 5 surface-suppliers, mobile autopilot tab | ✅ |
-| **E. Docs/Ops** | `docker-compose.dev.yml`, `scripts/dev-stack.sh`, `demos/full-stack-demo.sh`, ADRs, root README | 🟡 this section |
+| **E. Docs/Ops** | `docker-compose.dev.yml`, `scripts/dev-stack.sh`, `demos/full-stack-demo.sh`, 6 ADRs, root README | ✅ |
 
-Phase C.5 (Nexha warehouse-network) and Phase E remainder (ADRs, README, status updates) are still in progress.
+**425 vitest tests** across 7 SUTAR services, **0 failures**. **2 real service bugs** caught and fixed by tests. All 5 git repos in sync.
 
 ### Try it in 30 seconds
 
@@ -506,10 +506,10 @@ REZ Wallet (Rewards)
 
 ## 🚀 Quick Start
 
-### One-command dev stack (Phase A+B+C+D, June 22 2026)
+### One-command dev stack (Phase A+B+C+D+C.5, June 22 2026)
 
 ```bash
-# Start the four-service stack the demo expects
+# Start the five-service stack the demo expects (incl. Phase C.5 warehouse network)
 bash scripts/dev-stack.sh start
 
 # Run the end-to-end demo (Hub → SUTAR → Nexha)

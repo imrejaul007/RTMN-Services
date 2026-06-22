@@ -38,12 +38,14 @@ services:
       - SUTAR_DECISION_URL=http://decision-engine:4290
       - SUTAR_TRUST_ENGINE_URL=http://trust-engine:4291
       - SUTAR_ECONOMY_URL=http://economy-os:4251
+      - SUTAR_WAREHOUSE_NETWORK_URL=http://warehouse-network:4288
       - NEXHA_PROCUREMENT_URL=http://nexha-procurement:4320
       - NEXHA_TRADE_FINANCE_URL=http://nexha-trade-finance:4340
     depends_on:
       - decision-engine
       - trust-engine
       - economy-os
+      - warehouse-network
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4399/health"]
       interval: 15s
@@ -146,9 +148,28 @@ services:
 
   # ---------------------------------------------------------------------------
   # Nexha sample — one upstream so the /api/nexha/* proxies have somewhere to
-  # point. procurement-os is the most representative Nexha service for the
-  # do-app supplier-discovery flow.
+  # point. sutar-warehouse-network is the most representative real Phase C.5
+  # service. procurement-os is the L1 stub.
   # ---------------------------------------------------------------------------
+  warehouse-network:
+    build:
+      context: ./companies/HOJAI-AI/sutar-os/core/sutar-warehouse-network
+      dockerfile: Dockerfile
+    container_name: rtmn-warehouse-network
+    ports:
+      - "4288:4288"
+    environment:
+      - NODE_ENV=production
+      - PORT=4288
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4288/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
   nexha-procurement:
     build:
       context: ./companies/Nexha/services/procurement-os

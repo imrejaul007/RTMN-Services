@@ -139,6 +139,15 @@ code=$(curl -s -o /tmp/demo-out -w "%{http_code}" \
   -d '{"entityId":"demo-user","amount":1000,"currency":"USD"}')
 check_2xx "$code" "POST /api/nexha/trade-finance/api/credit-offer"
 
+step "3e. Nexha warehouse discovery (sutar-warehouse-network via Hub)"
+code=$(call_hub "/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH")
+check_2xx "$code" "GET /api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
+
+step "3f. Nexha warehouse stats (sutar-warehouse-network via Hub)"
+code=$(call_hub "/api/nexha/sutar-warehouse-network/api/v1/stats")
+check_2xx "$code" "GET /api/nexha/sutar-warehouse-network/api/v1/stats"
+check_2xx "$code" "POST /api/nexha/trade-finance/api/credit-offer"
+
 # ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================

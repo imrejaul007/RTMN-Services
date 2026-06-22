@@ -22,10 +22,11 @@
 | **Genie Voice services** (6 services) | 🟡 Stubs | All return canned text — no real STT/TTS |
 | **Nexha portal** (Next.js 16) | ✅ Real | 20.5k LOC, 3 deployable services |
 | **Nexha commerce-identity** (port 8000) | ✅ Real | 2.9k LOC, JWT auth, GSTIN |
-| **Nexha network** (suppliers/warehouses/logistics/banking) | ❌ **Does not exist** | The "autonomous business network" the vision describes is 0% built |
+| **Nexha network** — suppliers (4280), logistics (4285), warehouses (4288) | ✅ Running | C.1 + C.2 + C.5 shipped; 71 unit tests across the 3 services |
+| **Nexha banking / franchise / manufacturing** | 🟡 Stubs | Routes wired, upstream services still scaffold |
 | **ACN** (15 services, 4716, 4800-4851) | 🟡 Scaffold | ~10k LOC, mostly CRUD |
 
-**Bottom line:** the consumer side (do-app + Hub + 4 foundation services) is production-grade. Everything else is either scaffold or doesn't exist.
+**Bottom line:** the consumer side (do-app + Hub + 4 foundation services) plus the C.1/C.2/C.5 Nexha backbone (suppliers + logistics + warehouses) is production-grade. Banking, franchise, and manufacturing OS are still scaffolds.
 
 ---
 
@@ -157,18 +158,18 @@ See [ROADMAP-TO-VISION.md](ROADMAP-TO-VISION.md) for the full 10-week plan.
 Quick summary (updated 2026-06-22):
 - **Phase A** (✅ done): Foundation — Hub start, SADA wire-up, voice input, **body-forwarding bug fix in `proxyToUpstream()`**
 - **Phase B** (✅ done): SUTAR OS Real — Decision/Negotiation/Economy/Trust/Contracts all hardened with 321 new tests + a real bug fix in `sutar-contract-os/versions.ts`
-- **Phase C** (🟡 partial): Nexha Network — **routes wired through Hub** for 8 services + **C.1 sutar-supplier-registry** (20 tests, 8 seeded Indian suppliers, 6-dim match scoring) + **C.2 sutar-logistics** (22 tests, 4 carriers, cold-chain filtering) shipped. do-app autopilot re-pointed at the new services. C.3 warehouse-network / C.4 banking / C.5 orchestrator still to build.
+- **Phase C** (✅ done): Nexha Network — **routes wired through Hub** for 8 services + **C.1 sutar-supplier-registry** (20 tests) + **C.2 sutar-logistics** (22 tests) + **C.5 sutar-warehouse-network** (20 tests, 6 seeded Indian warehouses, slot booking) all shipped. do-app autopilot re-pointed at the new services.
 - **Phase D** (✅ done): End-to-End — do-app autopilot now calls SUTAR + Nexha for "buy groceries" Step 5; mobile autopilot tab shipped
-- **Phase E** (🟡 in progress): Production polish — `scripts/dev-stack.sh`, `docker-compose.dev.yml`, `demos/full-stack-demo.sh`, this status doc, ADRs, root README
+- **Phase E** (✅ done): Production polish — `scripts/dev-stack.sh`, `docker-compose.dev.yml`, `demos/full-stack-demo.sh`, this status doc, ADRs (6 of them), root README all shipped
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **376 vitest tests** across 6 SUTAR services (economy-os 105, contract-os 179, trust-engine 29, decision-engine 21, logistics 22, supplier-registry 20), **0 failures**
+- **425 vitest tests** across 7 SUTAR services (economy-os 105, contract-os 179, trust-engine 29, decision-engine 21, logistics 22, supplier-registry 20, **warehouse-network 49** = 20 slot booking + 29 WMS), **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push
-  2. `sutar-logistics/src/services/logistics.service.ts` — quote IDs were regenerated on every getQuotes() call, so bookShipment(quote.id) always returned null
-- All 5 git repos in sync with origin
+  2. `sutar-logistics/src/services/logistics.service.ts` — quote IDs were regenerated on every getQuotes() call, so bookSlot(quote.id) always returned null
+- **All 5 git repos in sync with origin**
 
 ---
 

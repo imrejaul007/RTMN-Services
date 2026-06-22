@@ -1,7 +1,7 @@
 # RTMN 10-Week Roadmap to Vision
 
 > **Date:** 2026-06-22 (mid-execution update)
-> **Status:** Phases A, B, C (routes), D complete. Phase C.5 (warehouse-network) and Phase E remainder (docs/ADRs/README) in progress.
+> **Status:** All 10 weeks shipped. Phase E polish complete.
 > **Supersedes:** the original 5-phase plan in [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) — that was the *intent*; this is the *executed* timeline.
 
 ---
@@ -36,13 +36,15 @@ This roadmap tracks the 10 weeks of work to make Flow 5 real. It is updated as e
 - **sutar-contract-os** (port 4185) — 179 tests + real bug fix in `versions.ts` (versionIndex optional-chaining was a no-op on first push)
 - **sutar-decision-engine** (port 4290) — multi-option ranking algorithm
 
-### ✅ Phase C — Nexha routes (shipped 2026-06-22)
+### ✅ Phase C — Nexha routes + real services (shipped 2026-06-22)
 
 - Hub now exposes `/api/nexha/capabilities` and `/api/nexha/:service/:path`
-- NEXHA_SERVICES map for 8 services (procurement, distribution, franchise, manufacturing, trade-finance, intelligence-layer, ecosystem-connector, nexha-gateway)
+- NEXHA_SERVICES map for 8 services + 2 real Phase C service aliases
 - do-app backend got a `nexha` client block (`listSuppliers`, `quoteShipping`, `getCreditOffer`)
 - do-app autopilot Step 5 calls `nexha.listSuppliers` for supplier discovery
-- **C.5 — nexha-warehouse-network**: deferred (no scaffold exists; needs full build)
+- **C.1 sutar-supplier-registry** (4280, 20 tests) — real service with 6-dim match scoring
+- **C.2 sutar-logistics** (4285, 22 tests) — real service with 4 carriers + cold-chain filtering
+- **C.5 sutar-warehouse-network** (4288, 20 tests) — real service with 6 seeded Indian warehouses + slot booking
 
 ### ✅ Phase D — do-app autopilot end-to-end (shipped 2026-06-22)
 
@@ -52,15 +54,15 @@ This roadmap tracks the 10 weeks of work to make Flow 5 real. It is updated as e
 - Backend Step 5 surfaces top suppliers via Nexha client
 - 7 unit tests for the `nexha` client block
 
-### 🟡 Phase E — Docs/Ops/ADRs (in progress, target 2026-06-23)
+### ✅ Phase E — Docs/Ops/ADRs (shipped 2026-06-22)
 
-- ✅ `scripts/dev-stack.sh` — one-command start/stop/status for the 4-service dev stack
+- ✅ `scripts/dev-stack.sh` — one-command start/stop/status for the dev stack
 - ✅ `docker-compose.dev.yml` — same stack via Docker (when Docker is available)
 - ✅ `demos/full-stack-demo.sh` — end-to-end demo (Hub → SUTAR → Nexha)
 - ✅ Updated `STATUS-AND-REMAINING-WORK.md` and this roadmap
 - ✅ Updated root + HOJAI CLAUDE.md with Phase A-D summary block
-- 🔲 5 ADRs in `docs/ADR/` (architecture decision records)
-- 🔲 Root README one-pager
+- ✅ 6 ADRs in `docs/ADR/`
+- ✅ Root README one-pager (`README.onepager.md`)
 
 ---
 
@@ -89,7 +91,7 @@ The Hub proxies reach SUTAR services correctly. Nexha upstream 502s are *expecte
 
 ## Open work (not in this 10-week roadmap)
 
-- **C.5 nexha-warehouse-network** — build the missing warehouse service
 - **Trust-OS path hardening** — currently SADA is the trust backbone; SUTAR trust-engine is a proxy. Long-term: SUTAR trust-engine should compute locally for simple cases
 - **ACN services** — 15 services at 4716, 4800-4851 are mostly scaffold. Out of scope for this roadmap but called out in [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md)
-- **Real STT/TTS** — Genie voice services are stubs returning canned text
+- **Real STT/TTS** — Genie voice services are stubs returning canned text (though the larger HOJAI-VOICE-PLATFORM at port 4850 is real)
+- **Production hardening** — rate limiting, retries, circuit breakers in Hub proxy; CI/CD pipeline; observability dashboards

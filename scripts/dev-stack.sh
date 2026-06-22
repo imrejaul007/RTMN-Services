@@ -1,5 +1,5 @@
 #!/bin/bash
-# RTMN Phase A+B+C+D dev stack — one-command spin-up
+# RTMN Phase A-E dev stack — one-command spin-up
 # ----------------------------------------------------------------------------
 # Starts the same services docker-compose.dev.yml would start, but using the
 # in-repo start scripts. Use this when Docker isn't available or you want
@@ -16,11 +16,13 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RTMN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Service registry — exactly mirrors docker-compose.dev.yml
+# Service registry — mirrors docker-compose.dev.yml. Phase C.5
+# (sutar-warehouse-network) added 2026-06-22.
 HUB_CMD="cd $RTMN_ROOT/companies/RABTUL-Technologies/REZ-ecosystem-connector && PORT=4399 node dist/index.js"
 TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-engine && PORT=4291 SADA_URL=http://localhost:4190 npm start"
 DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 npm start"
 ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4251 npm start"
+WAREHOUSE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-warehouse-network && PORT=4288 npm start"
 
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
@@ -53,19 +55,20 @@ stop_port() {
 
 status() {
   echo "RTMN dev stack status:"
-  for entry in "Hub:4399" "Trust Engine:4291" "Decision Engine:4290" "Economy OS:4251"; do
+  for entry in "Hub:4399" "Trust Engine:4291" "Decision Engine:4290" "Economy OS:4251" "Warehouse Network:4288"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
-      echo "  ✓ $name (port $port)"
+      echo "  [UP]   $name (port $port)"
     else
-      echo "  ✗ $name (port $port)"
+      echo "  [DOWN] $name (port $port)"
     fi
   done
 }
 
 start_all() {
   echo "Starting RTMN dev stack..."
+  start_service "warehouse-network" "$WAREHOUSE_CMD"        4288
   start_service "trust-engine"      "$TRUST_ENGINE_CMD"     4291
   start_service "decision-engine"   "$DECISION_ENGINE_CMD"  4290
   start_service "economy-os"        "$ECONOMY_OS_CMD"       4251
@@ -83,6 +86,7 @@ stop_all() {
   stop_port 4291 "Trust Engine"
   stop_port 4290 "Decision Engine"
   stop_port 4251 "Economy OS"
+  stop_port 4288 "Warehouse Network"
 }
 
 case "${1:-start}" in
