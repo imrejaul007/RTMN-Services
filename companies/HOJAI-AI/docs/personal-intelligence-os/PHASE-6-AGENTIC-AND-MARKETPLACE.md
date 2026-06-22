@@ -1,7 +1,60 @@
 # Personal Intelligence OS — Phase 6: Agentic + Marketplace
 
-**Status:** 🟡 Planned (target: end of November 2026)
+**Status:** ✅ **SHIPPED** (2026-06-22) — All 4 features live with **102/102 tests passing**
 **Tagline:** *Genie acts for you — and you can teach it new tricks.*
+
+---
+
+## ✅ SHIPPED SUMMARY (2026-06-22)
+
+| # | Feature | Port | Tests | What it does |
+|---|---------|------|-------|--------------|
+| 6.1 | **background-agents** | 4809 | 28/28 | Persistent cron-scheduled tasks, budgets, audit log, 5 built-in agents |
+| 6.2 | **one-shot-actions** | 4810 | 24/24 | Plan, detect intent, confirmation gates (none/soft/hard/irreversible), execute |
+| 6.3 | **genie-skills** | 4811 | 39/39 | Marketplace: 7 built-in skills, install/uninstall, trigger matching, rate limits, revoke |
+| 6.4 | **long-running-tasks** | 4812 | 11/11 | Multi-hour/multi-day task tracking (compose background-agents + one-shot-actions) |
+
+**Total Phase 6 tests: 102/102 passing** (all 4 services live).
+
+All four services are wired into `runtime/genie` (port 7100) via `/api/pios/agents/*`, `/api/pios/actions/*`, and `/api/pios/skills/*`. Each can be opted out via env flags (`USE_BACKGROUND_AGENTS=false`, `USE_SKILLS_MARKETPLACE=false`).
+
+### 6.1 Background agents (28/28 tests, port 4809)
+
+- Cron expressions with `matchesCron` + `nextMatches`
+- Budget enforcement (`budgetPerDay`, `budgetPerRun`, `costExceeded` halt)
+- 5 built-in agents: weekly-reflection, daily-priorities, money-check, relationship-warmth, learning-review
+- Per-user audit log of every run (success / failed / budget_exceeded)
+- Manual `tick` for testing
+- `shouldRun` decision (per-agent due check)
+- Endpoints: list/create/get/update/delete/tick/audit/runs/built-ins/schedule-preview
+
+### 6.2 One-shot actions (24/24 tests, port 4810)
+
+- Confirmation tiers: none (<$10), soft ($10-100), hard (>$100), irreversible
+- Intent detection via regex: restaurant booking, calendar add, shopping, message send
+- `buildPlan` → `confirmPlan` → `executePlan` flow
+- Per-user plan storage + audit trail
+- Function-registry execution (real tool calls in-process; HTTP test halts cleanly)
+- Endpoints: plan / plans / confirm / execute / audit
+
+### 6.3 Genie Skills (39/39 tests, port 4811)
+
+- 7 built-in skills: opentable, google-maps, spotify, whatsapp, slack, notion, linear
+- Curated catalog with safety-review queue (pending/approved/rejected)
+- Per-user install/uninstall, enable/disable toggle
+- Trigger matching (`scoreTriggerMatch`, `findMatchingSkills`) — LLM router uses this to load only relevant skills
+- Daily rate limit per user per skill (`checkRateLimit`, `recordUsage`)
+- One-click revoke — uninstalls everything and clears usage
+- Endpoints: catalog / pending / install / uninstall / installed / toggle / submit / review / match / check-rate / record-usage / revoke / built-ins
+
+### 6.4 Long-running tasks (11/11 tests, port 4812)
+
+- Per-user task tracking with status state machine (pending → in_progress → awaiting_input → completed / failed / cancelled)
+- Progress 0-100% (clamped)
+- History log (capped at 50 entries) for audit
+- Soft-delete (cancel) — task remains readable with `status: cancelled`
+- Composes with `background-agents` and `one-shot-actions` via `agentRefs` / `planRef` (Phase 7 will wire this end-to-end)
+- Endpoints: list / create / get / progress / cancel
 
 ---
 

@@ -53,7 +53,21 @@ const LEARNING_OS_V2_URL = process.env.LEARNING_OS_V2_URL || 'http://localhost:4
 // Phase 4 services
 const AMBIENT_BRIEFINGS_URL = process.env.AMBIENT_BRIEFINGS_URL || 'http://localhost:4801';
 const DEVICE_SYNC_URL = process.env.DEVICE_SYNC_URL || 'http://localhost:4802';
+// Phase 5 services — Life OS Integration (6 connectors)
+const HEALTH_CONNECTOR_URL = process.env.HEALTH_CONNECTOR_URL || 'http://localhost:4803';
+const CALENDAR_CONNECTOR_URL = process.env.CALENDAR_CONNECTOR_URL || 'http://localhost:4804';
+const EMAIL_CONNECTOR_URL = process.env.EMAIL_CONNECTOR_URL || 'http://localhost:4805';
+const CONTACTS_CONNECTOR_URL = process.env.CONTACTS_CONNECTOR_URL || 'http://localhost:4806';
+const PHOTOS_CONNECTOR_URL = process.env.PHOTOS_CONNECTOR_URL || 'http://localhost:4807';
+const TASKS_CONNECTOR_URL = process.env.TASKS_CONNECTOR_URL || 'http://localhost:4808';
+// Phase 6 services — Agentic & Marketplace
+const BACKGROUND_AGENTS_URL = process.env.BACKGROUND_AGENTS_URL || 'http://localhost:4809';
+const ONE_SHOT_ACTIONS_URL = process.env.ONE_SHOT_ACTIONS_URL || 'http://localhost:4810';
+const GENIE_SKILLS_URL = process.env.GENIE_SKILLS_URL || 'http://localhost:4811';
+const LONG_RUNNING_TASKS_URL = process.env.LONG_RUNNING_TASKS_URL || 'http://localhost:4812';
 const USE_REASONING_ENGINE = process.env.USE_REASONING_ENGINE !== 'false';  // opt-out flag
+const USE_BACKGROUND_AGENTS = process.env.USE_BACKGROUND_AGENTS !== 'false';  // opt-out flag
+const USE_SKILLS_MARKETPLACE = process.env.USE_SKILLS_MARKETPLACE !== 'false';  // opt-out flag
 
 // Heuristic: detect complex multi-step requests that should go to the Reasoning Engine
 // (vs. simple single-intent questions that the Intent Engine handles)
@@ -484,6 +498,18 @@ app.get('/api/pios/health', async (req, res) => {
     // Phase 4
     { name: 'ambient-briefings', url: AMBIENT_BRIEFINGS_URL },
     { name: 'device-sync', url: DEVICE_SYNC_URL },
+    // Phase 5 — Life OS Integration (6 connectors)
+    { name: 'health-connector', url: HEALTH_CONNECTOR_URL },
+    { name: 'calendar-connector', url: CALENDAR_CONNECTOR_URL },
+    { name: 'email-connector', url: EMAIL_CONNECTOR_URL },
+    { name: 'contacts-connector', url: CONTACTS_CONNECTOR_URL },
+    { name: 'photos-connector', url: PHOTOS_CONNECTOR_URL },
+    { name: 'tasks-connector', url: TASKS_CONNECTOR_URL },
+    // Phase 6 — Agentic & Marketplace
+    { name: 'background-agents', url: BACKGROUND_AGENTS_URL },
+    { name: 'one-shot-actions', url: ONE_SHOT_ACTIONS_URL },
+    { name: 'genie-skills', url: GENIE_SKILLS_URL },
+    { name: 'long-running-tasks', url: LONG_RUNNING_TASKS_URL },
   ];
   const results = {};
   for (const s of services) {
@@ -529,12 +555,17 @@ app.get('/api/pios/widget/:userId', authMiddleware, async (req, res, next) => {
       }
     };
 
-    const [piScore, stale, learningDue, reflection, proactive] = await Promise.all([
+    const [piScore, stale, learningDue, reflection, proactive, calendarToday, tasksToday, emailDigest, yearAgo] = await Promise.all([
       fetchJson(`${PI_SCORE_URL}/api/pi-score/${userId}/widget`),
       fetchJson(`${RELATIONSHIP_GRAPH_URL}/api/relationships/${userId}/stale?minStrength=30&minDays=7&limit=3`),
       fetchJson(`${LEARNING_OS_V2_URL}/api/learning/due/${userId}?threshold=0.7&limit=3`),
       fetchJson(`${REFLECTION_ENGINE_URL}/api/reflection/${userId}`),
       fetchJson(`${PROACTIVE_ENGINE_URL}/api/proactive/check`, { method: 'POST', body: { userId } }),
+      // Phase 5: Life OS Integration data
+      fetchJson(`${CALENDAR_CONNECTOR_URL}/api/calendar/${userId}/events`),
+      fetchJson(`${TASKS_CONNECTOR_URL}/api/tasks/${userId}/today`),
+      fetchJson(`${EMAIL_CONNECTOR_URL}/api/email/${userId}/digest`).catch(() => null),
+      fetchJson(`${PHOTOS_CONNECTOR_URL}/api/photos/${userId}/year-ago`).catch(() => null),
     ]);
 
     res.json({
@@ -571,6 +602,32 @@ app.get('/api/pios/widget/:userId', authMiddleware, async (req, res, next) => {
           title: s.title,
           message: s.message,
         })),
+        // Phase 5: Life OS Integration surfaces
+        calendar: (calendarToday?.events || []).slice(0, 3).map((e) => ({
+          eventId: e.id,
+          title: e.title,
+          start: e.start,
+          end: e.end,
+        })),
+        tasks: (tasksToday?.tasks || []).slice(0, 5).map((t) => ({
+          taskId: t.id,
+          title: t.title,
+          dueAt: t.dueAt,
+          priority: t.priority,
+        })),
+        emailDigest: emailDigest ? {
+          date: emailDigest.date,
+          items: (emailDigest.items || []).map((i) => ({
+            id: i.id,
+            from: i.from,
+            subject: i.subject,
+            category: i.category,
+          })),
+        } : null,
+        yearAgo: yearAgo ? {
+          today: yearAgo.today,
+          buckets: (yearAgo.buckets || []).slice(0, 3).map((b) => ({ yearsBack: b.yearsBack, count: b.count })),
+        } : null,
       },
       meta: { timestamp: new Date().toISOString() },
     });
@@ -637,6 +694,314 @@ app.get('/api/pios/device/:userId/active', authMiddleware, async (req, res, next
   } catch (e) {
     res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'device-sync unreachable' }, meta: { timestamp: new Date().toISOString() } });
   }
+});
+
+// === Phase 5: Life OS Integration — 6 connector services ===
+
+// Health: today's summary + nudges (correlation engine output)
+app.get('/api/pios/health/:userId/today', authMiddleware, async (req, res, next) => {
+  try {
+    const [summary, nudges, correlations] = await Promise.all([
+      axios.get(`${HEALTH_CONNECTOR_URL}/api/health/${req.params.userId}/summary`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: null } })),
+      axios.get(`${HEALTH_CONNECTOR_URL}/api/health/${req.params.userId}/nudges`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { nudges: [] } } })),
+      axios.get(`${HEALTH_CONNECTOR_URL}/api/health/${req.params.userId}/correlations`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { correlations: [] } } })),
+    ]);
+    res.json({ success: true, data: { summary: summary.data?.data, nudges: nudges.data?.data?.nudges || [], correlations: correlations.data?.data?.correlations || [] }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Calendar: upcoming events + any prep nudges due in next 30 min
+app.get('/api/pios/calendar/:userId/today', authMiddleware, async (req, res, next) => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString();
+    const [events, prep] = await Promise.all([
+      axios.get(`${CALENDAR_CONNECTOR_URL}/api/calendar/${req.params.userId}/events?from=${today}&to=${tomorrow}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { events: [] } } })),
+      axios.get(`${CALENDAR_CONNECTOR_URL}/api/calendar/${req.params.userId}/prep?horizonMin=30`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { events: [] } } })),
+    ]);
+    res.json({ success: true, data: { events: events.data?.data?.events || [], prep: prep.data?.data?.events || [] }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Calendar: parse natural-language schedule request
+app.post('/api/pios/calendar/:userId/parse', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${CALENDAR_CONNECTOR_URL}/api/calendar/${req.params.userId}/parse`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    const status = e.response?.status || 502;
+    res.status(status).json({ success: false, error: { code: 'CALENDAR_PARSE_FAILED', message: e.response?.data?.error?.message || e.message }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Email: today's digest
+app.get('/api/pios/email/:userId/digest', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${EMAIL_CONNECTOR_URL}/api/email/${req.params.userId}/digest`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'EMAIL_DISABLED', message: 'email not opted in' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Contacts: stale people (who should you reach out to today?)
+app.get('/api/pios/contacts/:userId/stale', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${CONTACTS_CONNECTOR_URL}/api/contacts/${req.params.userId}/stale`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Photos: year-ago-today
+app.get('/api/pios/photos/:userId/year-ago', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${PHOTOS_CONNECTOR_URL}/api/photos/${req.params.userId}/year-ago`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Tasks: today + overdue (the "what's on my plate" widget feed)
+app.get('/api/pios/tasks/:userId/today', authMiddleware, async (req, res, next) => {
+  try {
+    const [today, overdue] = await Promise.all([
+      axios.get(`${TASKS_CONNECTOR_URL}/api/tasks/${req.params.userId}/today`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { tasks: [] } } })),
+      axios.get(`${TASKS_CONNECTOR_URL}/api/tasks/${req.params.userId}/overdue`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { tasks: [] } } })),
+    ]);
+    res.json({ success: true, data: { today: today.data?.data?.tasks || [], overdue: overdue.data?.data?.tasks || [] }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// === Phase 6: Agentic & Marketplace ===
+
+// Background agents — list
+app.get('/api/pios/agents/:userId/agents', authMiddleware, async (req, res, next) => {
+  if (!USE_BACKGROUND_AGENTS) return res.json({ success: true, data: { agents: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Background agents — create custom
+app.post('/api/pios/agents/:userId/agents', authMiddleware, async (req, res, next) => {
+  if (!USE_BACKGROUND_AGENTS) return err(res, 503, 'DISABLED', 'background agents disabled');
+  try {
+    const r = await axios.post(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// Background agents — toggle enable/disable
+app.put('/api/pios/agents/:userId/agents/:agentId', authMiddleware, async (req, res, next) => {
+  if (!USE_BACKGROUND_AGENTS) return err(res, 503, 'DISABLED', 'background agents disabled');
+  try {
+    const r = await axios.put(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents/${req.params.agentId}`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Background agents — list built-in templates
+app.get('/api/pios/agents/built-ins', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/built-ins`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Background agents — run all due agents for user
+app.post('/api/pios/agents/:userId/tick', authMiddleware, async (req, res, next) => {
+  if (!USE_BACKGROUND_AGENTS) return err(res, 503, 'DISABLED', 'background agents disabled');
+  try {
+    const r = await axios.post(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/tick`, req.body || {}, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Background agents — get audit/run history for one agent
+app.get('/api/pios/agents/:userId/agents/:agentId/audit', authMiddleware, async (req, res, next) => {
+  if (!USE_BACKGROUND_AGENTS) return res.json({ success: true, data: { runs: [] }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents/${req.params.agentId}/audit`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// One-shot actions — build a plan
+app.post('/api/pios/actions/:userId/plan', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${ONE_SHOT_ACTIONS_URL}/api/actions/${req.params.userId}/plan`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000,
+    });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// One-shot actions — list plans for user
+app.get('/api/pios/actions/:userId/plans', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${ONE_SHOT_ACTIONS_URL}/api/actions/${req.params.userId}/plans`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// One-shot actions — confirm a plan
+app.post('/api/pios/actions/:userId/plans/:planId/confirm', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${ONE_SHOT_ACTIONS_URL}/api/actions/${req.params.userId}/plans/${req.params.planId}/confirm`, req.body || {}, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Genie Skills — list catalog
+app.get('/api/pios/skills/catalog', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { skills: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.get(`${GENIE_SKILLS_URL}/api/skills/catalog`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Genie Skills — list installed skills for user
+app.get('/api/pios/skills/:userId/installed', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { skills: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.get(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/installed`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Genie Skills — install
+app.post('/api/pios/skills/:userId/install', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
+  try {
+    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/install`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// Genie Skills — uninstall
+app.delete('/api/pios/skills/:userId/install/:skillId', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
+  try {
+    const r = await axios.delete(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/install/${req.params.skillId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Genie Skills — one-click revoke
+app.post('/api/pios/skills/:userId/revoke', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
+  try {
+    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/revoke`, {}, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Genie Skills — match skills to user text (used by router)
+app.post('/api/pios/skills/:userId/match', authMiddleware, async (req, res, next) => {
+  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { matches: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
+  try {
+    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/match`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Long-running tasks — list
+app.get('/api/pios/lrt/:userId/tasks', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Long-running tasks — create
+app.post('/api/pios/lrt/:userId/tasks', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.status(r.status).json(r.data);
+  } catch (e) {
+    if (e.response) res.status(e.response.status).json(e.response.data);
+    else next(e);
+  }
+});
+
+// Long-running tasks — get one
+app.get('/api/pios/lrt/:userId/tasks/:taskId', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks/${req.params.taskId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Long-running tasks — update progress
+app.post('/api/pios/lrt/:userId/tasks/:taskId/progress', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks/${req.params.taskId}/progress`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// Long-running tasks — cancel
+app.delete('/api/pios/lrt/:userId/tasks/:taskId', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.delete(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks/${req.params.taskId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
 });
 
 app.get('/api/conversations', authMiddleware, async (req, res, next) => {

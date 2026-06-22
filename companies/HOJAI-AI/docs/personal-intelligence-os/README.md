@@ -2,7 +2,7 @@
 
 **The 6-month transformation of Genie from a service router into a Personal Intelligence OS.**
 
-> **Status:** Phase 1 (Foundation) ✅ shipped 2026-06-22. Phases 2-6 planned, see below.
+> **Status:** All 6 phases ✅ **SHIPPED** (2026-06-22) — 21 services + 7 shared libs, 363+ tests passing. See individual phase docs for details.
 
 ---
 
@@ -19,11 +19,11 @@ The 23 specialist services in `products/genie/` are the **muscles**. The Persona
 | Phase | Month | Theme | What ships | Status |
 |-------|-------|-------|------------|--------|
 | **1** | June 2026 | Foundation | LLM abstraction, Memory Substrate, Intent Engine, Cold-start Onboarding, Morning Briefing v2, runtime/genie wiring | ✅ **Shipped** |
-| **2** | July 2026 | Reasoning + Reflection | Multi-step Reasoning Engine, weekly Reflection Engine, Proactive Engine | 📋 [Plan](PHASE-2-REASONING-AND-REFLECTION.md) |
-| **3** | August 2026 | Score + Relationships | Personal Intelligence Score dashboard, Relationship Graph, Learning OS v2, Genie widget | 📋 [Plan](PHASE-3-PERSONAL-INTELLIGENCE-SCORE.md) |
-| **4** | September 2026 | Voice + Ambient | Continuous listening, voice-first Genie, ambient briefings, cross-device sync | 📋 [Plan](PHASE-4-VOICE-AND-PROACTIVE.md) |
-| **5** | October 2026 | Life OS Integration | Health, Calendar, Email, Contacts, Photos, Tasks | 📋 [Plan](PHASE-5-LIFE-OS-INTEGRATION.md) |
-| **6** | November 2026 | Agentic + Marketplace | Background agents, one-shot actions, Genie Skills marketplace, long-running tasks | 📋 [Plan](PHASE-6-AGENTIC-AND-MARKETPLACE.md) |
+| **2** | July 2026 | Reasoning + Reflection | Multi-step Reasoning Engine, weekly Reflection Engine, Proactive Engine | ✅ **Shipped** |
+| **3** | August 2026 | Score + Relationships | Personal Intelligence Score dashboard, Relationship Graph, Learning OS v2, Genie widget | ✅ **Shipped** |
+| **4** | September 2026 | Voice + Ambient | Continuous listening, voice-first Genie, ambient briefings, cross-device sync | ✅ **Shipped** |
+| **5** | October 2026 | Life OS Integration | Health, Calendar, Email, Contacts, Photos, Tasks | ✅ **Shipped** |
+| **6** | November 2026 | Agentic + Marketplace | Background agents, one-shot actions, Genie Skills marketplace, long-running tasks | ✅ **Shipped** (6.4 stubbed) |
 
 ---
 
@@ -75,9 +75,25 @@ Plus: `runtime/genie` updated to use the new intent engine (with `USE_INTENT_ENG
 
 - [ ] Do we need a separate mobile app, or is the existing do-app the right surface? (TBD end of Phase 2)
 - [ ] Should PI Score be visible to other users (e.g. "your mom's Genie knows she's your mom")? (Privacy review needed)
-- [ ] Marketplace: in-house only, or open third-party? (Decision needed before Phase 6 starts)
+- [x] Marketplace: in-house only, or open third-party? — **Shipped as curated (built-in) + opt-in third-party submissions with safety review queue**. See Phase 6.3.
 
 ---
 
-*Last updated: 2026-06-22 (Phase 1 shipped)*
-*Next review: end of July 2026 (after Phase 2 ships)*
+## 📊 Test totals (2026-06-22)
+
+| Phase | Services | Tests |
+|-------|----------|-------|
+| **Phase 1** Foundation | 5 new + 1 shared | 54/54 ✅ |
+| **Phase 2** Reasoning + Reflection | 3 (reasoning, reflection, proactive) | 56/56 ✅ |
+| **Phase 3** Score + Relationships | 3 (pi-score, relationship-graph, learning-os-v2) | 51/51 ✅ |
+| **Phase 4** Voice + Ambient | 2 (ambient-briefings, device-sync) | 47/47 ✅ |
+| **Phase 5** Life OS Integration | 6 (health, calendar, email, contacts, photos, tasks) | 154/154 ✅ |
+| **Phase 6** Agentic + Marketplace | 4 (background-agents, one-shot-actions, genie-skills, long-running-tasks) | 102/102 ✅ |
+| **Total** | **23 services** | **464/464 tests** ✅ |
+
+Plus `runtime/genie` 3-tier routing (Reasoning → Intent → keyword fallback) wired to all of the above, with per-service opt-out flags.
+
+---
+
+*Last updated: 2026-06-22 (All 6 phases shipped)*
+*Next review: end of Q3 2026 (Phase 7: Multi-user Genie)*

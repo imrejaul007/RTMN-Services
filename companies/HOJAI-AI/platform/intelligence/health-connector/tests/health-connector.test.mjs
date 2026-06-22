@@ -152,9 +152,9 @@ test('lib — pearson returns null for zero variance', () => {
 });
 
 test('lib — pearson returns 0 for uncorrelated series', () => {
-  // [1,2,3,4] vs [2,1,4,3] is roughly uncorrelated
-  const r = lib.pearson([1, 2, 3, 4], [2, 1, 4, 3]);
-  assert.ok(Math.abs(r) < 0.3);
+  // Two independent quasi-random sequences (e-digits, pi-digits)
+  const r = lib.pearson([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8], [2, 7, 1, 8, 2, 8, 1, 8, 2, 8, 4, 5]);
+  assert.ok(Math.abs(r) < 0.3, `expected |r| < 0.3, got ${r}`);
 });
 
 test('lib — findCorrelations surfaces strong mood↔sleep relationships', () => {
@@ -326,3 +326,5 @@ test('http — DELETE /api/health/:userId deletes everything', async () => {
   const after = await fetch(`/api/health/${userId}/readings`);
   assert.equal(after.body.count, 0);
 });
+
+process.on('exit', () => { try { server.close(); } catch {} });

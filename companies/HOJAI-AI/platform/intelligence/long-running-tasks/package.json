@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/long-running-tasks",
+  "version": "0.1.0",
+  "description": "Phase 6.4 stub — Long-running tasks (multi-hour, multi-day) — composed of background-agents + one-shot-actions; full implementation in Phase 7",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/long-running-tasks.test.mjs"
+  },
+  "engines": { "node": ">=18.0.0" },
+  "dependencies": { "@rtmn/shared": "file:../../shared" }
+}
