@@ -29,6 +29,11 @@ TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-eng
 DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 REDIS_URL=redis://localhost:6379 npm start"
 ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4294 REDIS_URL=redis://localhost:6379 npm start"
 
+# SADA Trust (Phase F.3, 2026-06-22) — Trust + Governance + Risk + Verification
+# Uses in-memory Mongo (mongodb-memory-server) when MONGODB_MEMORY=true,
+# otherwise expects a real MongoDB. Auth bypass for local dev.
+SADA_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/trust/sada-os && PORT=4190 SADA_REQUIRE_AUTH=false INTERNAL_SERVICE_TOKEN=sada-internal-token MONGODB_URI=mongodb://127.0.0.1:27017/sada_dev npm start"
+
 # HOJAI AI — Foundation (Phase F.1: PolicyOS + SkillOS productionized 2026-06-22)
 POLICY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/policy-os && PORT=4254 POLICYOS_REQUIRE_AUTH=false POLICYOS_EVAL_LIMIT=10000 POLICYOS_WRITE_LIMIT=10000 REDIS_URL=redis://localhost:6379 npm start"
 SKILL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/skills/skill-os && PORT=4743 SKILLOS_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
@@ -94,6 +99,7 @@ status() {
   echo "RTMN dev stack status:"
   for entry in \
     "Hub:4399" \
+    "SADA Trust:4190" \
     "Trust Engine:4291" \
     "Decision Engine:4290" \
     "Economy OS:4294" \
@@ -119,6 +125,7 @@ start_all() {
   echo "Starting RTMN dev stack..."
   check_redis
   # SUTAR OS (HOJAI AI)
+  start_service "sada-os"                  "$SADA_OS_CMD"             4190
   start_service "trust-engine"             "$TRUST_ENGINE_CMD"        4291
   start_service "decision-engine"          "$DECISION_ENGINE_CMD"     4290
   start_service "economy-os"               "$ECONOMY_OS_CMD"          4294
@@ -145,6 +152,7 @@ start_all() {
 stop_all() {
   echo "Stopping RTMN dev stack..."
   stop_port 4399 "Hub"
+  stop_port 4190 "SADA Trust"
   stop_port 4291 "Trust Engine"
   stop_port 4290 "Decision Engine"
   stop_port 4294 "Economy OS"
