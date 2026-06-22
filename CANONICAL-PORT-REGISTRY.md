@@ -238,6 +238,67 @@ On startup, `flowos@7007` reads the 4 canonical templates from `flow-os-canonica
 
 ---
 
+## 🤖 SUTAR OS — canonical ports from source (Layer 14: Autonomous)
+
+SUTAR OS lives at `companies/HOJAI-AI/sutar-os/` (29 services, ~30k LOC). The RTMN Hub (`companies/RABTUL-Technologies/REZ-ecosystem-connector@4399`) exposes all of these via `/api/sutar/<service>/<path>`. Source-of-truth for the table below: `companies/HOJAI-AI/sutar-os/<group>/<svc>/src/index.{ts,js}`. Last audited 2026-06-22 — see [SUTAR-HUB-WIRING-AUDIT-2026-06-22.md](companies/RABTUL-Technologies/REZ-ecosystem-connector/docs/SUTAR-HUB-WIRING-AUDIT-2026-06-22.md).
+
+### Real services (the 16 keys currently in Hub `SUTAR_SERVICES`)
+
+| Port | Service | Layer | Hub key | Path |
+|------|---------|------:|---------|------|
+| 3100 | sutar-monitoring | 1 | `sutar-monitoring` | `sutar-os/core/sutar-monitoring/` |
+| 4140 | sutar-gateway | 2 | `sutar-gateway` | `sutar-os/core/sutar-gateway/` |
+| 4142 | sutar-twin-os | 2 | `sutar-twin-os` | `sutar-os/core/sutar-twin-os/` |
+| 4143 | sutar-memory-bridge | 2 | `sutar-memory-bridge` | `sutar-os/core/sutar-memory-bridge/` |
+| 4145 | sutar-agent-id | 2 | `sutar-agent-id` | `sutar-os/core/sutar-agent-id/` |
+| 4155 | sutar-agent-network | 3 | `sutar-agent-network` | `sutar-os/core/sutar-agent-network/` |
+| 4280 | sutar-supplier-registry | 4 (Phase C) | `sutar-supplier-registry` (Nexha alias) | `sutar-os/core/sutar-supplier-registry/` |
+| 4285 | sutar-logistics | 4 (Phase C) | `sutar-logistics` (Nexha alias) | `sutar-os/core/sutar-logistics/` |
+| 4288 | sutar-warehouse-network | 4 (Phase C.5) | `sutar-warehouse-network` (Nexha alias) | `sutar-os/core/sutar-warehouse-network/` |
+| 4290 | sutar-decision-engine | 4 | `sutar-decision-engine` | `sutar-os/core/sutar-decision-engine/` |
+| 4291 | sutar-trust-engine | 6 | `sutar-trust-engine` | `sutar-os/core/sutar-trust-engine/` |
+| 4292 | sutar-contract-os | 6 | `sutar-contract-os` | `sutar-os/contracts/sutar-contract-os/` |
+| 4293 | sutar-negotiation-engine | 6 | `sutar-negotiation` | `sutar-os/contracts/sutar-negotiation-engine/` |
+| 4294 | sutar-economy-os | 5 | `sutar-economy-os` | `sutar-os/economy/sutar-economy-os/` |
+| 4830 | agent-contracts | 7 | `sutar-agent-contracts` | `sutar-os/agents/agent-contracts/` |
+| 4845 | agent-marketplace | 7 | `sutar-agent-marketplace` | `sutar-os/agents/agent-marketplace/` |
+| 4848 | agent-analytics | 7 | `sutar-agent-analytics` | `sutar-os/agents/agent-analytics/` |
+| 4851 | agent-orchestration | 7 | `sutar-agent-orchestration` | `sutar-os/agents/agent-orchestration/` |
+| 4853 | agent-teaming | 7 | `sutar-agent-teaming` | `sutar-os/agents/agent-teaming/` |
+
+### Aliases not in `SUTAR_SERVICES` (also real, but accessed differently)
+
+| Port | Service | Real? | Notes |
+|------|---------|:---:|-------|
+| 4850 | negotiation-ai | ✅ real | Different scope than `sutar-negotiation-engine` (4293) — AI strategy, not engine CRUD. Capability-map `negotiation` → `sutar-negotiation` (4293) only |
+| 4800 | acp-protocol | ✅ real | ACP message bus. Not yet exposed via Hub |
+| 4801 | acn-network | ✅ real | ACN agent registry. Not yet exposed via Hub |
+| 4895 | customer-twin | ✅ real | Lives in `platform/twins/customer-twin/`, not `sutar-os/`. Out of SUTAR scope |
+| 4155 | twin-marketplace | ⚠️ not in sutar-os | Listed in `PORT-REGISTRY.md` but no source. Possibly confused with `sutar-agent-marketplace` (4845) |
+
+### Removed from Hub `SUTAR_SERVICES` (2026-06-22)
+
+These were in the Hub as of 2026-06-21 but had no matching real service. See audit doc for rationale.
+
+| Old Hub key | Old port | Why removed |
+|-------------|---------:|-------------|
+| `sutar-agent-reputation` | 4820 | Port 4820 actually serves `genie-consultant-agent` from `genie-os/`, not a SUTAR service |
+| `sutar-wallet-service` | 4840 | No `agent-wallets` service in `sutar-os/` — closest is `agents/agent-contracts` (4830) but is contracts not wallets |
+| `sutar-trust-network` | 4252 | Duplicate purpose with `sutar-trust-engine` (4291) |
+| `sutar-dispute` | 4847 | `disputeResolution` capability never built |
+| `sutar-marketplace` | 4250 | Moved to BLR Marketplace (`companies/HOJAI-AI/blr-ai-marketplace/services/`) on 2026-06-21 |
+| `sutar-goal-os` | 4242 | `goal-os` lives in `genie-os/`, not `sutar-os/` |
+
+### Port-history (migrations)
+
+| Service | Was | Now | When | Why |
+|---------|----:|----:|------|-----|
+| sutar-contract-os | 4190 | 4292 | 2026-06-22 | Renumbered to give 41xx range to Layer-2 services; Hub b7132761 |
+| sutar-negotiation (engine) | 4191 | 4293 | 2026-06-22 | Same; Hub b7132761 |
+| sutar-economy-os | 4251 | 4294 | 2026-06-22 | Source code was using 4251, then renumbered to 4294. A stale `dist/index.js` from `/private/tmp/rtmn-dev/` still holds 4251 — operator should kill it |
+
+---
+
 ## 🔴 STALE ENTRIES in old PORT-REGISTRY.md (to delete)
 
 The following ports/services appear in `PORT-REGISTRY.md` but **do not exist in source code** and should be removed from any canonical registry:
