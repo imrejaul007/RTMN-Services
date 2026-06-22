@@ -365,6 +365,7 @@ const menus = new Map();
 const orders = new Map();
 const tables = new Map();
 const customers = new Map();
+const reservations = new Map();
 const kitchenQueue = new Map();
 
 // Initialize sample tables
@@ -1578,6 +1579,127 @@ app.get('/api/layers', requireAuth, async (req, res) => {
     service: 'Restaurant AI Company',
     layers: results.map((r, i) => r.status === 'fulfilled' ? r.value : { layer: layerEndpoints[i].layer, name: layerEndpoints[i].name, status: 'error' }),
   });
+});
+
+// ============================================
+// COPILOT INTENTS (Phase D — vertical alignment)
+// ============================================
+// 3 intents the restaurant-os CoPilot should handle directly. These match
+// the categories wired in mission-control / goal-os / agent-teaming:
+//   - procurement  → reduce-cost mission (commerce)
+//   - reservation  → manage table bookings (operational)
+//   - menu         → menu optimization (product)
+//
+// Each intent returns a structured action the CoPilot can execute or
+// delegate to Nexha / SUTAR.
+
+// 1. procurement intent — analyze current ingredient spend and recommend
+//    a "reduce-cost" workflow to SUTAR (mirrors the 14-step flow).
+app.post('/api/copilot/intent/procurement', requireAuth, async (req, res) => {
+  try {
+    const { targetReduction = 0.15, category = 'ingredient', timeWindowDays = 30 } = req.body || {};
+    // Fire a goal to goal-os (it will fan out to event-bus → flow + agent-teaming)
+    const goalOsUrl = process.env.GOAL_OS_URL || 'http://localhost:4242';
+    const goalResp = await fetch(`${goalOsUrl}/api/goals`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: `Reduce ${category} cost by ${(targetReduction * 100).toFixed(0)}%`,
+        description: `Restaurant procurement intent: reduce ${category} spend over ${timeWindowDays} days via Nexha supplier renegotiation.`,
+        ownerCorpId: 'demo-restaurant-001',
+        category: 'commerce',
+        level: 'goal',
+        priority: 'high',
+        metrics: {
+          target: `-${(targetReduction * 100).toFixed(0)}%`,
+          baseline: 'current_cost',
+          templateHint: 'reduce-cost',
+          source: 'restaurant-os/copilot/intent/procurement',
+        },
+      }),
+    });
+    const goal = goalResp.ok ? await goalResp.json() : null;
+    res.json({
+      intent: 'procurement',
+      accepted: goalResp.ok,
+      targetReduction,
+      category,
+      timeWindowDays,
+      goalId: goal?.id,
+      nextStep: 'GoalOS → event-bus → flow-orchestrator (negotiate-and-execute) + agent-teaming (reduce-cost mission)',
+      nexhaEndpoint: '/api/suppliers/search',
+    });
+  } catch (err) {
+    res.status(500).json({ intent: 'procurement', error: err.message });
+  }
+});
+
+// 2. reservation intent — confirm or modify a table reservation.
+app.post('/api/copilot/intent/reservation', requireAuth, async (req, res) => {
+  try {
+    const { partySize, date, time, name, phone, tablePreference } = req.body || {};
+    if (!partySize || !date || !time || !name) {
+      return res.status(400).json({ intent: 'reservation', error: 'partySize, date, time, name required' });
+    }
+    const reservation = {
+      id: 'rsv_' + Date.now(),
+      partySize,
+      date,
+      time,
+      name,
+      phone: phone || null,
+      tablePreference: tablePreference || 'any',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    reservations.set(reservation.id, reservation);
+    res.status(201).json({
+      intent: 'reservation',
+      accepted: true,
+      reservation,
+      nextStep: 'Confirm with customer; assign table via Nexha inventory twin',
+      nexhaEndpoint: '/api/tables/assign',
+    });
+  } catch (err) {
+    res.status(500).json({ intent: 'reservation', error: err.message });
+  }
+});
+
+// 3. menu intent — recommend menu optimization based on current orders.
+app.post('/api/copilot/intent/menu', requireAuth, async (req, res) => {
+  try {
+    const { horizonDays = 30, focusOn = 'margin' } = req.body || {};
+    // Aggregate order stats from in-memory `orders` map
+    const now = Date.now();
+    const cutoff = now - horizonDays * 24 * 60 * 60 * 1000;
+    const recent = Array.from(orders.values()).filter((o) => new Date(o.createdAt).getTime() >= cutoff);
+    const itemCounts = {};
+    for (const o of recent) {
+      for (const it of o.items || []) {
+        itemCounts[it.name] = (itemCounts[it.name] || 0) + (it.qty || 1);
+      }
+    }
+    const topItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, qty]) => ({ name, qty }));
+    res.json({
+      intent: 'menu',
+      accepted: true,
+      horizonDays,
+      focusOn,
+      ordersAnalyzed: recent.length,
+      topItems,
+      recommendations: topItems.length === 0
+        ? ['No orders in window — seed sample data to enable recommendations']
+        : [
+            `Promote top item "${topItems[0]?.name}" via AdBazaar ads`,
+            `Review underperforming items for removal`,
+            focusOn === 'margin' ? 'Run price-elasticity simulation via SUTAR decision engine' : 'Run demand-forecast via SUTAR',
+          ],
+      nextStep: 'Apply recommendations → trigger SUTAR decision-engine workflow',
+      nexhaEndpoint: '/api/menu/optimize',
+    });
+  } catch (err) {
+    res.status(500).json({ intent: 'menu', error: err.message });
+  }
 });
 
 // ============================================
