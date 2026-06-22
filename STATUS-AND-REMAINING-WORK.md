@@ -183,15 +183,19 @@ Quick summary (updated 2026-06-22):
   - **F.5b ✅ Knowledge Extraction e2e** — 17/17 e2e checks (health, stats, ner/types, kb/stats, kb/entities, 4 catalog routes, 4 POST happy-path, 3 POST validation 400, 404). All 17 public routes (10 GET + 7 POST with authOrBypass) productionized. **36/36 tests passing**.
   - **F.5c ✅ Hub `/api/foundation/knowledge-extraction/*`** — 7 new capabilities (ner-extract, entity-link, fact-extract, extract-all, kb-entity-crud, kb-stats, entity-catalog); demo step 3l proves health + stats + kb + ner + types + extract end-to-end.
   - **F.5d ✅ Committed + pushed** (HOJAI `f2bd28d3`, Hub `7a0ecb3d`, root `28509dbbc`)
-  - **F.6+** (planned): Decision Intelligence (4756), Knowledge Marketplace (4939), Reasoning Engine
+  - **F.6a ✅ Decision Intelligence (port 4756) auth bypass + tests** — `DECISION_INTELLIGENCE_REQUIRE_AUTH` env support; `listen()` gated; vitest 22/22 unit tests covering config exports, health/methods/stats/audit, recommendation flow, NBA flow, multi-criteria decision (WSM + TOPSIS), auth bypass, 404.
+  - **F.6b ✅ Decision Intelligence e2e** — 16/16 e2e checks (health, methods, stats, audit, 3 recommend POSTs, similarity GET, nba GET+POST+recommend, wsm+topsis, 2 validation 400, 404). All 16 public routes (6 GET + 10 POST with authOrBypass) productionized. **38/38 tests passing**.
+  - **F.6c ✅ Hub `/api/foundation/decision-intelligence/*`** — 9 new capabilities (recommend-event, recommend-items, recommend-batch, recommend-similarity, nba-actions, nba-recommend, decision-wsm, decision-topsis, decision-audit); demo step 3m proves health + methods + stats + WSM + recommend end-to-end.
+  - **F.6d ✅ Committed + pushed** (HOJAI `533f4b02`, Hub `25b16e30`, root `323b19b76`)
+  - **F.7+** (planned): Knowledge Marketplace (4939), Reasoning Engine, Intent Engine, Reflection Engine, Behavior Intelligence, Proactive Engine
 - **Phase G** (planned): Build **MissionOS** (4295) + **ExecutionOS** (4296) — the two genuinely-missing pieces of the architecture (Mission as first-class unit of execution, Execution as universal execution layer)
 - **Phase H** (planned): Collapse do-app 144-method client to ~5 method calls (Hub does the routing)
 - **Phase I** (planned): Docs, demos, observability, ship
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **570 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + AI Intelligence (14) + **Knowledge Extraction (19)**, **0 failures**
-- **173 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + AI Intelligence (9 e2e) + **Knowledge Extraction (17 e2e)**, **0 failures**
+- **592 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + AI Intelligence (14) + Knowledge Extraction (19) + **Decision Intelligence (22)**, **0 failures**
+- **189 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + AI Intelligence (9 e2e) + Knowledge Extraction (17 e2e) + **Decision Intelligence (16 e2e)**, **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push
