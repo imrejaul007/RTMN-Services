@@ -190,3 +190,7 @@ services copy/
 
 # Git worktrees (per-session scratch; not part of the source tree)
 .worktrees/
+
+# Demo / runtime droppings (policy-os writes to repo root when DATA_DIR is unset)
+/data/
+/tmp-*
