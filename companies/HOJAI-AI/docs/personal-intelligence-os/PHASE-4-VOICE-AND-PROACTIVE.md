@@ -1,7 +1,46 @@
 # Personal Intelligence OS — Phase 4: Voice + Ambient
 
-**Status:** 🟡 Planned (target: end of September 2026)
+**Status:** 🚀 SHIPPED (2026-06-22)
 **Tagline:** *Genie is there before you ask.*
+
+---
+
+## 🚀 SHIPPED — 2026-06-22
+
+**4.3 Ambient Briefings** and **4.4 Cross-Device Sync** are now live services in the platform. They sit on top of the existing Genie Voice specialists (wake-word :4767, listening-modes :4768, voice-twin :4876) without modifying them.
+
+| Service | Port | Tests | Endpoints |
+|---|---|---:|---|
+| `ambient-briefings` | 4801 | 24/24 ✅ | `/api/ambient/schedule`, `/api/ambient/preferences`, `/api/ambient/:kind`, `/api/ambient/kinds`, `/api/ambient/sent/:userId/:kind` |
+| `device-sync` | 4802 | 25/25 ✅ | `/api/sync/devices/:userId/register`, `/api/sync/devices/:userId`, `/api/sync/devices/:userId/active`, `/api/sync/session/handoff`, `/api/sync/session/:userId`, `/api/sync/session/:userId/message` |
+
+### 5 Briefing Kinds
+
+| Kind | Window | Purpose |
+|---|---|---|
+| `mid-day` | 12-2pm | "What's on this afternoon?" |
+| `evening` | 6-8pm | "How did today go? Anything loose ends?" |
+| `weekend-prep` | Fri 5-7pm | "What's the weekend look like?" |
+| `weekly-recap` | Sun 7-9pm | "Reflection on the week" |
+| `monthly` | First of month | "Monthly review" |
+
+### Cross-Device Sync
+
+- `pickActive(devices)` — picks most-recently-active device
+- `mergeHistories(history1, history2)` — de-duplicated merge with source tags
+- `isStale(device, minutes)` — staleness check for handoff eligibility
+- `normalize(message)` — cross-platform message shape normalization
+
+### Wired into runtime/genie
+
+```javascript
+GET  /api/pios/schedule/:userId                      // When are briefings due?
+POST /api/pios/ambient/:userId/:kind                  // Trigger a briefing
+POST /api/pios/device/:userId/handoff                 // Hand off to active device
+GET  /api/pios/device/:userId/active                  // Get active device
+```
+
+Both new endpoints gated by `authMiddleware` and use graceful degradation via `axios` + `AbortSignal.timeout(3000)`. Both services added to `/api/pios/health`.
 
 ---
 

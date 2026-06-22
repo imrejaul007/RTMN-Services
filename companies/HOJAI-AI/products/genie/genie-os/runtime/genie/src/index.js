@@ -50,6 +50,9 @@ const PROACTIVE_ENGINE_URL = process.env.PROACTIVE_ENGINE_URL || 'http://localho
 const PI_SCORE_URL = process.env.PI_SCORE_URL || 'http://localhost:4798';
 const RELATIONSHIP_GRAPH_URL = process.env.RELATIONSHIP_GRAPH_URL || 'http://localhost:4799';
 const LEARNING_OS_V2_URL = process.env.LEARNING_OS_V2_URL || 'http://localhost:4800';
+// Phase 4 services
+const AMBIENT_BRIEFINGS_URL = process.env.AMBIENT_BRIEFINGS_URL || 'http://localhost:4801';
+const DEVICE_SYNC_URL = process.env.DEVICE_SYNC_URL || 'http://localhost:4802';
 const USE_REASONING_ENGINE = process.env.USE_REASONING_ENGINE !== 'false';  // opt-out flag
 
 // Heuristic: detect complex multi-step requests that should go to the Reasoning Engine
@@ -478,6 +481,9 @@ app.get('/api/pios/health', async (req, res) => {
     { name: 'pi-score', url: PI_SCORE_URL },
     { name: 'relationship-graph', url: RELATIONSHIP_GRAPH_URL },
     { name: 'learning-os-v2', url: LEARNING_OS_V2_URL },
+    // Phase 4
+    { name: 'ambient-briefings', url: AMBIENT_BRIEFINGS_URL },
+    { name: 'device-sync', url: DEVICE_SYNC_URL },
   ];
   const results = {};
   for (const s of services) {
@@ -569,6 +575,68 @@ app.get('/api/pios/widget/:userId', authMiddleware, async (req, res, next) => {
       meta: { timestamp: new Date().toISOString() },
     });
   } catch (e) { next(e); }
+});
+
+// === Phase 4: Ambient briefing schedule — what kinds should fire today ===
+app.get('/api/pios/schedule/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const tz = req.query.tz || 'UTC';
+    const r = await axios.get(`${AMBIENT_BRIEFINGS_URL}/api/ambient/schedule?tz=${encodeURIComponent(tz)}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({
+      success: true,
+      data: { currentKind: null, todaySchedule: [], error: 'ambient-briefings unreachable' },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  }
+});
+
+// === Phase 4: Trigger an ambient briefing (e.g. mid-day push) ===
+app.post('/api/pios/ambient/:userId/:kind', authMiddleware, async (req, res, next) => {
+  try {
+    const { userId, kind } = req.params;
+    const r = await axios.post(
+      `${AMBIENT_BRIEFINGS_URL}/api/ambient/${kind}`,
+      { userId },
+      { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000 }
+    );
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    if (e.response) {
+      res.status(e.response.status).json(e.response.data);
+    } else {
+      res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'ambient-briefings unreachable' }, meta: { timestamp: new Date().toISOString() } });
+    }
+  }
+});
+
+// === Phase 4: Device sync — handoff + heartbeat ===
+app.post('/api/pios/device/:userId/handoff', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(
+      `${DEVICE_SYNC_URL}/api/sync/session/handoff`,
+      { ...req.body, userId: req.params.userId },
+      { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }
+    );
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'device-sync unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/pios/device/:userId/active', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${DEVICE_SYNC_URL}/api/sync/devices/${req.params.userId}/active`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
+    });
+    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'device-sync unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
 });
 
 app.get('/api/conversations', authMiddleware, async (req, res, next) => {
