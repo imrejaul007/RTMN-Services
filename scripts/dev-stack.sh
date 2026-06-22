@@ -50,6 +50,9 @@ DECISION_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/decisi
 # Knowledge Marketplace (Phase F.7, 2026-06-22) — SOPs, templates, documentation marketplace
 KNOWLEDGE_MARKETPLACE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/knowledge-marketplace && PORT=4939 KNOWLEDGE_MARKETPLACE_PORT=4939 KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH=false npm start"
 
+# Vector DB (Phase F.8, 2026-06-22) — In-memory vector store with cosine similarity, namespaced collections
+VECTOR_DB_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/vector-db && PORT=4780 VECTOR_DB_REQUIRE_AUTH=false npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -122,6 +125,7 @@ status() {
     "Knowledge Extraction:4784" \
     "Decision Intelligence:4756" \
     "Knowledge Marketplace:4939" \
+    "Vector DB:4780" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -158,6 +162,8 @@ start_all() {
   start_service "decision-intelligence"  "$DECISION_INTELLIGENCE_CMD" 4756
   # Knowledge Marketplace (Phase F.7)
   start_service "knowledge-marketplace"  "$KNOWLEDGE_MARKETPLACE_CMD" 4939
+  # Vector DB (Phase F.8)
+  start_service "vector-db"              "$VECTOR_DB_CMD"            4780
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -187,6 +193,7 @@ stop_all() {
   stop_port 4784 "Knowledge Extraction"
   stop_port 4756 "Decision Intelligence"
   stop_port 4939 "Knowledge Marketplace"
+  stop_port 4780 "Vector DB"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"

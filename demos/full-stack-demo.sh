@@ -402,6 +402,41 @@ else
 fi
 
 # ============================================================================
+# 3o. Vector DB (Phase F.8, 2026-06-22)
+# ============================================================================
+step "3o. Vector DB (Phase F.8)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/vector-db/api/health")
+check_2xx "$code" "GET /api/foundation/vector-db/api/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/vector-db/api/stats")
+check_2xx "$code" "GET /api/foundation/vector-db/api/stats"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/vector-db/api/collections")
+check_2xx "$code" "GET /api/foundation/vector-db/api/collections"
+
+# Create a collection via the Hub
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/vector-db/api/collections" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"demo-vec-coll","dimension":4}')
+check_2xx "$code" "POST /api/foundation/vector-db/api/collections"
+
+# Compute an embedding
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/vector-db/api/embed" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"hello world"}')
+check_2xx "$code" "POST /api/foundation/vector-db/api/embed"
+
+# Verify capability map exposes Vector DB
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "vector-db" /tmp/demo-out; then
+  ok "Capability map exposes vector-db"
+else
+  warn "Capability map missing vector-db (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -430,6 +465,7 @@ echo "   • /api/foundation/ai-intelligence/* routes run intent + sentiment + r
 echo "   • /api/foundation/knowledge-extraction/* routes run NER + entity linking + fact triples (Phase F.5)"
 echo "   • /api/foundation/decision-intelligence/* routes rank recommendations + run WSM/TOPSIS (Phase F.6)"
 echo "   • /api/foundation/knowledge-marketplace/* routes browse + purchase + review knowledge packs (Phase F.7)"
+echo "   • /api/foundation/vector-db/* routes embed + store + search vectors (Phase F.8)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
