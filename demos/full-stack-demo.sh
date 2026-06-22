@@ -207,6 +207,37 @@ code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/skill
 check_2xx "$code" "GET /api/foundation/skill-os/api/skills/discover"
 
 # ============================================================================
+# 3i. Flow Orchestrator (Phase F.2, 2026-06-22)
+# ============================================================================
+step "3i. Flow Orchestrator (Phase F.2)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/flow-orchestrator/health")
+check_2xx "$code" "GET /api/foundation/flow-orchestrator/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/flow-orchestrator/api/templates")
+check_2xx "$code" "GET /api/foundation/flow-orchestrator/api/templates"
+
+# Instantiate the 'answer-question' template via Hub
+FLOW_PLAN_ID=$(curl -s -X POST "$HUB_URL/api/foundation/flow-orchestrator/api/templates/answer-question/instantiate" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"demo-flow-$$-$(date +%s)\",\"inputs\":{\"twinId\":\"demo-customer\"}}" \
+  | python3 -c 'import sys,json; print(json.load(sys.stdin)["id"])' 2>/dev/null)
+if [[ -n "$FLOW_PLAN_ID" ]]; then
+  ok "instantiated answer-question template → plan $FLOW_PLAN_ID"
+else
+  fail "instantiate answer-question template via Hub"
+fi
+
+# Synchronous execution
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/flow-orchestrator/api/executions/sync" \
+  -H "Content-Type: application/json" \
+  -d "{\"planId\":\"$FLOW_PLAN_ID\",\"twinId\":\"demo-customer\"}")
+check_2xx "$code" "POST /api/foundation/flow-orchestrator/api/executions/sync"
+
+# Cleanup
+curl -s -o /dev/null -X DELETE "$HUB_URL/api/foundation/flow-orchestrator/api/plans/$FLOW_PLAN_ID"
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -229,6 +260,7 @@ echo "   • RTMN Hub (4399) is the single front door for 50+ services"
 echo "   • /api/sutar/* routes reach the autonomous-economic layer"
 echo "   • /api/nexha/* routes reach the Nexha commerce network"
 echo "   • /api/foundation/* routes reach PolicyOS + SkillOS (Phase F.1)"
+echo "   • /api/foundation/flow-orchestrator/* routes compose plans end-to-end (Phase F.2)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"

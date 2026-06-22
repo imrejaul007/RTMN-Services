@@ -165,17 +165,21 @@ Quick summary (updated 2026-06-22):
 - **Phase F** (🚧 in progress, started 2026-06-22): Foundation productionization — bringing the 10 scaffolded foundation services from "scaffold" to "production-ready" with real tests, auth bypass, and dev wiring:
   - **F.1a ✅ PolicyOS (port 4254)** — 84/84 bash tests passing (smoke 12, e2e 34, expression 9, phase6 14, webhook-analytics 12, load 3) + 30/30 vitest unit tests. Auth bypass via `authOrBypass` middleware. Service token always logged at boot for test scripts.
   - **F.1b ✅ SkillOS (port 4743)** — 18/18 e2e tests + 11/11 vitest unit tests. All 37 routes wired with `authOrBypass`. `listen()` gated on `NODE_ENV !== 'test'` so vitest can import without binding the port.
-  - **F.1c** (next): Wire both into `dev-stack.sh` + `docker-compose.dev.yml` + Hub `/api/skill/*` and Hub `/api/policy/*` routes
-  - **F.1d** (next): Commit + push
-  - **F.2–F.4** (planned): Flow Orchestrator (4244), SADA Trust (4190), AI Intelligence (4881), Reasoning Engine, Decision Intelligence, Knowledge Extraction, Knowledge Marketplace
+  - **F.1c ✅ Hub `/api/foundation/*` routes** — both services exposed via `REZ-ecosystem-connector` Hub; capability map covers policy-* (9 caps), skill-* (12 caps); demo step 3h proves end-to-end.
+  - **F.1d ✅ Committed + pushed** to `feat/phase-c-nexha-supplier-logistics` branch.
+  - **F.2a ✅ Flow Orchestrator (port 4244) auth bypass + tests** — 23 routes wired with `authOrBypass`; `listen()` gated; vitest 17/17 unit tests for `evaluateValue`/`evaluateExpr`/step handlers.
+  - **F.2b ✅ Flow Orchestrator e2e + policy-fail-mode** — 13/13 policy-fail-mode tests (closed/open/cached) + 16/16 e2e tests (health, templates, plan CRUD, version, rollback, execute sync, feedback, policy-cache, instantiate, delete). **46/46 tests passing**.
+  - **F.2c ✅ Hub `/api/foundation/flow-orchestrator/*`** — 8 new capabilities (plan-crud, plan-execution, plan-templates, plan-versions, plan-feedback, plan-rollback, policy-cache, goal-subscriber); demo step 3i proves templates + plan instantiate + sync execution end-to-end.
+  - **F.2d** (next): Commit + push
+  - **F.3–F.4** (planned): SADA Trust (4190), AI Intelligence (4881), Reasoning Engine, Decision Intelligence, Knowledge Extraction, Knowledge Marketplace
 - **Phase G** (planned): Build **MissionOS** (4295) + **ExecutionOS** (4296) — the two genuinely-missing pieces of the architecture (Mission as first-class unit of execution, Execution as universal execution layer)
 - **Phase H** (planned): Collapse do-app 144-method client to ~5 method calls (Hub does the routing)
 - **Phase I** (planned): Docs, demos, observability, ship
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **525 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + do-app `nexha` client (7), **0 failures**
-- **102 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e), **0 failures**
+- **542 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + do-app `nexha` client (7), **0 failures**
+- **131 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e), **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push

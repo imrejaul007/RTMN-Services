@@ -62,6 +62,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 const PORT = process.env.FLOW_ORCHESTRATOR_PORT || 4244;
 
+// Dev escape hatch: FLOW_REQUIRE_AUTH=false bypasses requireAuth on every
+// route. Matches the pattern used in policy-os, skill-os, and other HOJAI
+// services — production builds set FLOW_REQUIRE_AUTH=true and route real
+// JWTs. The authOrBypass helper below is the only thing attached to routes.
+const REQUIRE_AUTH = (process.env.FLOW_REQUIRE_AUTH || 'false') !== 'false';
+const authOrBypass = (req, res, next) => (REQUIRE_AUTH ? requireAuth(req, res, next) : next());
+
 // =============================================================================
 // POLICY FAIL MODE (fail-CLOSED by default)
 // =============================================================================
@@ -880,7 +887,7 @@ app.get('/api/policy-cache', (_req, res) => {
   });
 });
 
-app.delete('/api/policy-cache',requireAuth,  (_req, res) => {
+app.delete('/api/policy-cache',authOrBypass,  (_req, res) => {
   const size = policyDecisionCache.size;
   policyDecisionCache.clear();
   res.json({ cleared: size });
@@ -888,7 +895,7 @@ app.delete('/api/policy-cache',requireAuth,  (_req, res) => {
 
 // ── Plans ──────────────────────────────────────────────────────────────────
 
-app.post('/api/plans',requireAuth,  (req, res) => {
+app.post('/api/plans',authOrBypass,  (req, res) => {
   const { name, description, steps } = req.body || {};
   if (!name || !Array.isArray(steps) || steps.length === 0) {
     return res.status(400).json({ error: 'name and non-empty steps[] required' });
@@ -935,17 +942,17 @@ app.post('/api/plans',requireAuth,  (req, res) => {
   res.status(201).json(plan);
 });
 
-app.get('/api/plans', requireAuth, (_req, res) => {
+app.get('/api/plans', authOrBypass, (_req, res) => {
   res.json({ plans: Array.from(plans.values()) });
 });
 
-app.get('/api/plans/:id', requireAuth, (req, res) => {
+app.get('/api/plans/:id', authOrBypass, (req, res) => {
   const plan = plans.get(req.params.id);
   if (!plan) return res.status(404).json({ error: 'plan not found' });
   res.json(plan);
 });
 
-app.delete('/api/plans/:id',requireAuth,  (req, res) => {
+app.delete('/api/plans/:id',authOrBypass,  (req, res) => {
   const plan = plans.get(req.params.id);
   if (!plan) return res.status(404).json({ error: 'plan not found' });
   plans.delete(req.params.id);
@@ -956,7 +963,7 @@ app.delete('/api/plans/:id',requireAuth,  (req, res) => {
 // ── Plan Versioning ────────────────────────────────────────────────────────
 // Snapshot, list, and rollback. We keep full snapshots in-memory.
 
-app.post('/api/plans/:id/version',requireAuth,  (req, res) => {
+app.post('/api/plans/:id/version',authOrBypass,  (req, res) => {
   const plan = plans.get(req.params.id);
   if (!plan) return res.status(404).json({ error: 'plan not found' });
   const versions = planVersions.get(req.params.id) || [];
@@ -974,13 +981,13 @@ app.post('/api/plans/:id/version',requireAuth,  (req, res) => {
   res.status(201).json(entry);
 });
 
-app.get('/api/plans/:id/versions', requireAuth, (req, res) => {
+app.get('/api/plans/:id/versions', authOrBypass, (req, res) => {
   const versions = planVersions.get(req.params.id);
   if (!versions) return res.status(404).json({ error: 'plan not found' });
   res.json({ planId: req.params.id, versions: versions.map((v) => ({ version: v.version, label: v.label, createdAt: v.createdAt, name: v.snapshot.name, stepCount: v.snapshot.steps.length })) });
 });
 
-app.post('/api/plans/:id/rollback',requireAuth,  (req, res) => {
+app.post('/api/plans/:id/rollback',authOrBypass,  (req, res) => {
   const plan = plans.get(req.params.id);
   if (!plan) return res.status(404).json({ error: 'plan not found' });
   const { version } = req.body || {};
@@ -1013,7 +1020,7 @@ app.get('/api/templates/:name', (req, res) => {
 });
 
 // Instantiate a template into a saved plan
-app.post('/api/templates/:name/instantiate',requireAuth,  (req, res) => {
+app.post('/api/templates/:name/instantiate',authOrBypass,  (req, res) => {
   const t = templates.get(req.params.name);
   if (!t) return res.status(404).json({ error: 'template not found' });
   const { name, description, stepsOverride } = req.body || {};
@@ -1036,7 +1043,7 @@ app.post('/api/templates/:name/instantiate',requireAuth,  (req, res) => {
 
 // ── Executions ─────────────────────────────────────────────────────────────
 
-app.post('/api/executions',requireAuth,  async (req, res) => {
+app.post('/api/executions',authOrBypass,  async (req, res) => {
   const { planId, templateName, twinId, context } = req.body || {};
 
   let plan;
@@ -1072,7 +1079,7 @@ app.post('/api/executions',requireAuth,  async (req, res) => {
 
 // Run-and-wait variant — useful for synchronous consumers (Genie, CoPilot).
 // Polling is fine too; both endpoints share the same engine.
-app.post('/api/executions/sync',requireAuth,  async (req, res) => {
+app.post('/api/executions/sync',authOrBypass,  async (req, res) => {
   const { planId, templateName, twinId, context, timeoutMs = 8000 } = req.body || {};
   let plan;
   if (planId) plan = plans.get(planId);
@@ -1106,11 +1113,11 @@ app.post('/api/executions/sync',requireAuth,  async (req, res) => {
   }
 });
 
-app.get('/api/executions', requireAuth, (_req, res) => {
+app.get('/api/executions', authOrBypass, (_req, res) => {
   res.json({ executions: Array.from(executions.values()).slice(-200) });
 });
 
-app.get('/api/executions/:id', requireAuth, (req, res) => {
+app.get('/api/executions/:id', authOrBypass, (req, res) => {
   const e = executions.get(req.params.id);
   if (!e) return res.status(404).json({ error: 'execution not found' });
   res.json(e);
@@ -1118,7 +1125,7 @@ app.get('/api/executions/:id', requireAuth, (req, res) => {
 
 // ── Flow Learning: feedback + insights ─────────────────────────────────────
 
-app.post('/api/executions/:id/feedback',requireAuth,  (req, res) => {
+app.post('/api/executions/:id/feedback',authOrBypass,  (req, res) => {
   const exec = executions.get(req.params.id);
   if (!exec) return res.status(404).json({ error: 'execution not found' });
   const { outcome, notes } = req.body || {};
@@ -1143,7 +1150,7 @@ app.post('/api/executions/:id/feedback',requireAuth,  (req, res) => {
   res.status(201).json(record);
 });
 
-app.get('/api/plans/:id/learn', requireAuth, (req, res) => {
+app.get('/api/plans/:id/learn', authOrBypass, (req, res) => {
   if (!plans.has(req.params.id) && req.params.id !== 'null') {
     // Allow template-based plans where planId may be 'null'
   }
@@ -1233,7 +1240,7 @@ app.get('/api/plans/:id/learn', requireAuth, (req, res) => {
 
 // ── Flow Analytics ─────────────────────────────────────────────────────────
 
-app.get('/api/analytics/plans', requireAuth, (_req, res) => {
+app.get('/api/analytics/plans', authOrBypass, (_req, res) => {
   const stats = [];
   for (const plan of plans.values()) {
     const exs = Array.from(executions.values()).filter((e) => e.planId === plan.id);
@@ -1258,7 +1265,7 @@ app.get('/api/analytics/plans', requireAuth, (_req, res) => {
   res.json({ plans: stats });
 });
 
-app.get('/api/analytics/steps', requireAuth, (_req, res) => {
+app.get('/api/analytics/steps', authOrBypass, (_req, res) => {
   const byType = new Map();
   for (const e of executions.values()) {
     for (const t of e.trace || []) {
@@ -1282,7 +1289,7 @@ app.get('/api/analytics/steps', requireAuth, (_req, res) => {
   res.json({ steps });
 });
 
-app.get('/api/analytics/bottlenecks', requireAuth, (_req, res) => {
+app.get('/api/analytics/bottlenecks', authOrBypass, (_req, res) => {
   // Top-N slowest steps (by average duration) across all executions
   const byType = new Map();
   for (const e of executions.values()) {
@@ -1357,7 +1364,7 @@ app.get('/api/foundation', (_req, res) => {
   res.json(FOUNDATION);
 });
 
-app.put('/api/foundation/:key',requireAuth,  (req, res) => {
+app.put('/api/foundation/:key',authOrBypass,  (req, res) => {
   const allowed = Object.keys(FOUNDATION);
   if (!allowed.includes(req.params.key)) {
     return res.status(400).json({ error: `unknown foundation key; allowed: ${allowed.join(',')}` });
@@ -1372,7 +1379,7 @@ app.put('/api/foundation/:key',requireAuth,  (req, res) => {
 // ── Audit ──────────────────────────────────────────────────────────────────
 // Supports both a simple list and aggregation queries via query params.
 
-app.get('/api/audit', requireAuth, (req, res) => {
+app.get('/api/audit', authOrBypass, (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 200, 1000);
 
   // Aggregation mode
@@ -1429,7 +1436,7 @@ app.get('/api/_internal/goal-subscriber/status', (_req, res) => {
 });
 
 // Phase A: manual replay of a specific event from event-bus
-app.post('/api/_internal/goal-subscriber/replay/:eventId',requireAuth,  async (req, res) => {
+app.post('/api/_internal/goal-subscriber/replay/:eventId',authOrBypass,  async (req, res) => {
   const result = await replayGoalEvent(req.params.eventId);
   res.json(result);
 });
@@ -1452,15 +1459,21 @@ app.get('/ready', (_req, res) => {
 });
 
 
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[flow-orchestrator] listening on :${PORT} (foundation: ${JSON.stringify(FOUNDATION)})`);
-  // Phase A: register goal.created subscriber (non-blocking)
-  registerGoalSubscriber().catch((err) => {
-    console.warn('[flow-orchestrator] goal subscriber registration failed (non-fatal):', err.message);
+let server;
+// Only start the listener when running as a real service. When imported by
+// vitest we skip listen() so the test process can attach to the express app
+// directly via supertest, and the test process doesn't bind a port.
+if (process.env.NODE_ENV !== 'test' && !process.env.FLOW_NO_LISTEN) {
+  server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[flow-orchestrator] listening on :${PORT} (foundation: ${JSON.stringify(FOUNDATION)})`);
+    // Phase A: register goal.created subscriber (non-blocking)
+    registerGoalSubscriber().catch((err) => {
+      console.warn('[flow-orchestrator] goal subscriber registration failed (non-fatal):', err.message);
+    });
   });
-});
-installGracefulShutdown(server);
+  installGracefulShutdown(server);
+}
 
 async function gracefulShutdown(signal) {
   if (isShuttingDown) return;
@@ -1503,3 +1516,19 @@ process.on('uncaughtException', (err) => {
 });
 
 export default app;
+export {
+  app,
+  evaluateExpr,
+  evaluateValue,
+  stepHandlers,
+  templates,
+  plans,
+  executions,
+  planVersions,
+  audit,
+  policyDecisionCache,
+  POLICY_FAIL_MODE,
+  POLICY_CACHE_TTL_MS,
+  FOUNDATION,
+  sleep,
+};

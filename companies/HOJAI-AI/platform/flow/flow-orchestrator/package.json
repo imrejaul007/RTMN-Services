@@ -1,22 +1,39 @@
 {
   "name": "@rtmn/flow-orchestrator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Flow Orchestrator (4244) — central orchestrator coordinating TwinOS + MemoryOS + Intelligence + SkillOS + PolicyOS. Genie / CoPilot / SUTAR connect here, not directly to TwinOS.",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "bash tests/policy-fail-mode.test.sh && bash tests/e2e.sh",
+    "test:policy": "bash tests/policy-fail-mode.test.sh",
+    "test:e2e": "bash tests/e2e.sh",
+    "test:unit": "vitest run __tests__/unit/",
+    "test:all": "bash tests/policy-fail-mode.test.sh && bash tests/e2e.sh && vitest run __tests__/unit/"
   },
-  "keywords": ["hojai", "flow", "orchestrator", "twin", "memory", "intelligence", "skill", "policy"],
+  "keywords": [
+    "hojai",
+    "flow",
+    "orchestrator",
+    "twin",
+    "memory",
+    "intelligence",
+    "skill",
+    "policy"
+  ],
   "author": "HOJAI AI",
   "license": "MIT",
   "dependencies": {
-    "express": "^5.2.1",
-    "cors": "^2.8.5",
-    "helmet": "^8.1.0",
     "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
     "morgan": "^1.10.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.6"
   }
 }
