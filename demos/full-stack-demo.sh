@@ -152,6 +152,25 @@ code=$(call_hub "/api/nexha/sutar-warehouse-network/api/v1/stats")
 check_2xx "$code" "GET /api/nexha/sutar-warehouse-network/api/v1/stats"
 check_2xx "$code" "POST /api/nexha/trade-finance/api/credit-offer"
 
+step "3g. Nexha pricing intelligence (sutar-pricing-intelligence via Hub)"
+# Register a product, add prices, compare, recommend a dynamic price.
+curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/products" \
+  -H "Content-Type: application/json" \
+  -d '{"sku":"RICE-5KG","name":"Basmati Rice 5kg","category":"groceries","ourCost":400,"currency":"INR","unit":"pack","targetMargin":0.25}'
+for body in \
+  '{"sku":"RICE-5KG","supplierId":"sup-a","supplierName":"AgroMart","price":520,"currency":"INR","inStock":true,"source":"feed"}' \
+  '{"sku":"RICE-5KG","supplierId":"sup-b","supplierName":"BigBazaar","price":540,"currency":"INR","inStock":true,"source":"feed"}' \
+  '{"sku":"RICE-5KG","supplierId":"sup-c","supplierName":"LocalKirana","price":500,"currency":"INR","inStock":true,"source":"feed"}'; do
+  curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/prices" \
+    -H "Content-Type: application/json" -d "$body"
+done
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/compare" \
+  -H "Content-Type: application/json" -d '{"sku":"RICE-5KG"}')
+check_2xx "$code" "POST /api/nexha/sutar-pricing-intelligence/api/v1/compare"
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/dynamic-price" \
+  -H "Content-Type: application/json" -d '{"sku":"RICE-5KG","strategy":"undercut","ourCost":400,"marginFloor":0.1}')
+check_2xx "$code" "POST /api/nexha/sutar-pricing-intelligence/api/v1/dynamic-price"
+
 # ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
