@@ -174,16 +174,20 @@ Quick summary (updated 2026-06-22):
   - **F.3a ✅ SADA Trust (port 4190) auth bypass + tests** — `SADA_REQUIRE_AUTH` env support; `listen()` gated; vitest 9/9 unit tests for `calculateTrustScore`/`determineRiskLevel`/`generateId`.
   - **F.3b ✅ SADA Trust e2e** — 16/16 e2e tests (health, /trust CRUD, /trust/v2 router, /governance policies + validate, /risk assess, /verification create + get). Real bugs caught: route missing `entityType` field on Verification model, and policy.action must be 'ALLOW' not 'PERMIT'. **25/25 tests passing**.
   - **F.3c ✅ Hub `/api/foundation/sada-os/*`** — 10 new capabilities (trust-scores, trust-activity, trust-history, trust-leaderboard, governance-policies, governance-validate, risk-assess, risk-history, verification-create, verification-status, sada-audit); demo step 3j proves trust create + read + risk assess + verification create end-to-end.
-  - **F.3d** (next): Commit + push
-  - **F.4** (planned): AI Intelligence (4881), Reasoning Engine, Decision Intelligence, Knowledge Extraction, Knowledge Marketplace
+  - **F.3d ✅ SADA Trust committed + pushed** (HOJAI `4099c3ac`, Hub `01c1219c`, root `c641bca89` + `794191e68`)
+  - **F.4a ✅ AI Intelligence (port 4881) auth bypass + tests** — `INTELLIGENCE_REQUIRE_AUTH` env support; `listen()` gated; vitest 14/14 unit tests covering config exports, health/metrics/route/agents routes, validation behavior, 404 handling, auth-bypass semantics.
+  - **F.4b ✅ AI Intelligence e2e** — 9/9 e2e checks (health, metrics, route, agents, 404, 3 POSTs validation, /ready known-bug). All 9 routes (5 POST with authOrBypass + 4 GET public) productionized. **23/23 tests passing**.
+  - **F.4c ✅ Hub `/api/foundation/ai-intelligence/*`** — 9 new capabilities (intent-analysis, sentiment-analysis, knowledge-retrieval, prediction, recommendation, brief-generation, policy-evaluate-ai, intelligence-route, intelligence-metrics); demo step 3k proves health + route + agents + metrics end-to-end.
+  - **F.4d ✅ Committed + pushed** (HOJAI `a576bdb0`, Hub `63178b89`, root `f3c6a7197`)
+  - **F.5+** (planned): Reasoning Engine, Decision Intelligence, Knowledge Extraction, Knowledge Marketplace
 - **Phase G** (planned): Build **MissionOS** (4295) + **ExecutionOS** (4296) — the two genuinely-missing pieces of the architecture (Mission as first-class unit of execution, Execution as universal execution layer)
 - **Phase H** (planned): Collapse do-app 144-method client to ~5 method calls (Hub does the routing)
 - **Phase I** (planned): Docs, demos, observability, ship
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **551 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7), **0 failures**
-- **147 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e), **0 failures**
+- **551 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + **AI Intelligence (14)**, **0 failures**
+- **156 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + **AI Intelligence (9 e2e)**, **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push
