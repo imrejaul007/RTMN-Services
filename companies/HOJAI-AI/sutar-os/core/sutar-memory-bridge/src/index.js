@@ -22,6 +22,8 @@ const morgan = require('morgan');
 const { v4: uuid } = require('uuid');
 const axios = require('axios');
 
+const { applyTenantContext } = require('../../sutar-shared/tenant');
+
 const app = express();
 
 // Validate required env at startup
@@ -29,6 +31,13 @@ requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4143;
 const SERVICE_NAME = 'sutar-memory-bridge';
 setupSecurity(app, { serviceName: 'sutar-memory-bridge' });
+// ADR-0009 Phase 1: tenant context middleware. /health, /ready,
+// /v1/info (if present) stay public; everything else under /api/ requires
+// a tenant. Returns { getTenantId, tkey } for route-level use.
+applyTenantContext(app, {
+  serviceName: 'sutar-memory-bridge',
+  publicPathPatterns: ["^\\/health$","^\\/health\\/.*$","^\\/ready$","^\\/v1\\/info$"].map(s => new RegExp(s)),
+});
 const MEMORYOS_URL = process.env.MEMORYOS_URL || 'http://localhost:4703';
 const memoryOsClient = axios.create({ baseURL: MEMORYOS_URL, timeout: 2000 });
 

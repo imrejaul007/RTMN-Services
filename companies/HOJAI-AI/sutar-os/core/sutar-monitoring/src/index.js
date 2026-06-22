@@ -35,6 +35,8 @@ const compression = require('compression');
 const morgan = require('morgan');
 const { v4: uuid } = require('uuid');
 
+const { applyTenantContext } = require('../../sutar-shared/tenant');
+
 const app = express();
 
 // Validate required env at startup
@@ -42,6 +44,13 @@ requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 3100;
 const SERVICE_NAME = 'sutar-monitoring';
 setupSecurity(app, { serviceName: 'sutar-monitoring' });
+// ADR-0009 Phase 1: tenant context middleware. /health, /ready,
+// /v1/info (if present) stay public; everything else under /api/ requires
+// a tenant. Returns { getTenantId, tkey } for route-level use.
+applyTenantContext(app, {
+  serviceName: 'sutar-monitoring',
+  publicPathPatterns: ["^\\/health$","^\\/health\\/.*$","^\\/ready$","^\\/v1\\/info$"].map(s => new RegExp(s)),
+});
 // ---------- Stores ----------
 const services = new PersistentMap('services', { serviceName: 'sutar-monitoring' });   // id -> { id, name, url, port, lastStatus, lastProbedAt }
 const probes = [];            // history: { serviceId, status, latencyMs, httpStatus, timestamp, error }
