@@ -161,3 +161,125 @@ GET  /public/trust/health
 - Decide whether `nexha-pricing-network` should also publish (it has supplier-list-like data)
 - Decide whether `nexha-supplier-network` should also publish (instead of relying on agent-twin)
 - Add rate limiting on the public trust endpoints (currently only the shared `@rtmn/shared/auth` middleware applies)
+
+
+---
+
+## Phase 4 — ACP-Messaging ✅ DONE (2026-06-22)
+
+**Goal:** `nexha-acp-messaging` (port 4340) — per-tenant Agent Commerce Protocol with persistent negotiation state, message logs, and full state-machine semantics. Implements the 8 ACP message types (QUERY, QUOTE, COUNTER, ACCEPT, REJECT, ORDER, TRACK, DISPUTE) from `HOJAI-AI/sutar-os/agents/acp-protocol/SPEC.md` with per-tenant isolation.
+
+**Repos touched:** Nexha, HOJAI-AI, RABTUL-Technologies (Hub), do-app, REZ-Workspace, RTMN root (this doc)
+
+### Sub-tasks
+
+| # | Sub-task | Owner repo | Status |
+|---|---|---|---|
+| 4.1 | `nexha-acp-messaging` service (port 4340) — state machine, MongoDB persistence, JWT + internal-token auth | Nexha | ✅ done |
+| 4.2 | Vitest tests for state machine + routes | Nexha | ✅ done (59 tests) |
+| 4.3 | Service CLAUDE.md + README.md | Nexha | ✅ done |
+| 4.4 | Hub `NEXHA_SERVICES` map + capability entries (acp-messaging, agent-negotiation, dispute-handling) | RABTUL | ✅ done |
+| 4.5 | do-app backend client (`nexha.acpMessaging.*`) + tests | do-app | ✅ done (9 new tests) |
+| 4.6 | REZ-Workspace client (`NexhaConnection.sendAcpMessage`, etc.) + tests | REZ-Workspace | ✅ done (10 new tests) |
+| 4.7 | RTMN root docs (this file + `docs/nexha/acp-messaging.md`) | RTMN | ✅ done |
+| 4.8 | Commit + push all 5 repos | All | ✅ done |
+
+### Files added/modified
+
+#### Nexha
+
+| File | What |
+|---|---|
+| `services/nexha-acp-messaging/package.json` | NEW — `@nexha/acp-messaging` v1.0.0 |
+| `services/nexha-acp-messaging/vitest.config.js` | NEW — node env, 30s timeout |
+| `services/nexha-acp-messaging/src/index.js` | NEW — Express app on port 4340 |
+| `services/nexha-acp-messaging/src/models/Message.js` | NEW — 8 message types + MESSAGE_NEXT_VALID transition table |
+| `services/nexha-acp-messaging/src/models/Negotiation.js` | NEW — 6 statuses (ACTIVE/ACCEPTED/REJECTED/COMPLETED/DISPUTED/EXPIRED) |
+| `services/nexha-acp-messaging/src/services/stateMachine.js` | NEW — `StateTransitionError`, `ValidationError`, `appendMessage`, `listMessages`, `listNegotiations`, `getNegotiation`, `getStats` |
+| `services/nexha-acp-messaging/src/middleware/auth.js` | NEW — JWT (RS256) + x-internal-token; env read at request time so tests can swap |
+| `services/nexha-acp-messaging/src/routes/index.js` | NEW — Zod-validated routes (negotiations, messages, stats, validate, health) |
+| `services/nexha-acp-messaging/__tests__/helpers/db.js` | NEW — mongodb-memory-server helpers |
+| `services/nexha-acp-messaging/__tests__/unit/stateMachine.test.js` | NEW — 37 tests (full state machine + tenant isolation) |
+| `services/nexha-acp-messaging/__tests__/unit/routes.test.js` | NEW — 22 tests (HTTP routes, auth gating, error mapping) |
+| `services/nexha-acp-messaging/README.md` | NEW — full API doc + state machine reference |
+| `services/nexha-acp-messaging/CLAUDE.md` | NEW — service architecture + design rationale |
+
+**Tests:** 59 vitest tests, 0 failures (37 state machine + 22 routes).
+
+**Commit:** `feat(acp-messaging): ADR-0010 Phase 4 - per-tenant ACP service (port 4340)` (pushed to origin + nexha-target).
+
+#### RABTUL-Technologies (Hub)
+
+| File | What |
+|---|---|
+| `REZ-ecosystem-connector/src/index.ts` | add `nexha-acp-messaging` to `NEXHA_SERVICES` map; add 3 capability entries: `acp-messaging`, `agent-negotiation`, `dispute-handling` |
+| `REZ-ecosystem-connector/package.json` | bump 1.1.0 → 1.3.0 |
+
+**Commit:** `feat(hub): ADR-0010 Phase 4 - wire nexha-acp-messaging (port 4340)` (pushed to origin).
+
+#### do-app
+
+| File | What |
+|---|---|
+| `backend/src/services/hojaiClient.ts` | add `nexha.acpMessaging` namespace: `sendMessage`, `validate`, `listNegotiations`, `getNegotiation`, `listMessages`, `stats`, `health` |
+| `backend/__tests__/unit/hojaiClient.nexha.test.ts` | add 9 tests for the new namespace (21 total in file) |
+
+**Commit:** `feat(do-app): ADR-0010 Phase 4 - nexha.acpMessaging client (9 tests)` (pushed to do-app feature branch).
+
+#### REZ-Workspace
+
+| File | What |
+|---|---|
+| `core/unified-fabric/src/connections/nexha.js` | add 6 `NexhaConnection` methods: `sendAcpMessage`, `validateAcpMessage`, `listAcpNegotiations`, `getAcpNegotiation`, `listAcpMessages`, `getAcpStats` |
+| `core/unified-fabric/test-acp-messaging.js` | NEW — 10 node:test tests (HTTP mock-based, no Hub required) |
+
+**Commit:** `feat(rez-workspace): ADR-0010 Phase 4 - nexha-acp-messaging client` (pushed to main).
+
+#### RTMN root (this doc)
+
+| File | What |
+|---|---|
+| `docs/nexha/PHASE-LOG.md` | add this Phase 4 section |
+| `docs/nexha/acp-messaging.md` | NEW — service-level doc (architecture, API, state machine, data model, auth) |
+| `CLAUDE.md` | add Phase 4 row + vitest test count update |
+
+### State machine (the contract)
+
+| Current | Next valid |
+|---|---|
+| _start_ | `QUERY` |
+| `QUERY` | `QUOTE`, `REJECT` |
+| `QUOTE` | `COUNTER`, `ACCEPT`, `REJECT` |
+| `COUNTER` | `COUNTER`, `ACCEPT`, `REJECT`, `QUOTE` |
+| `ACCEPT` | `ORDER`, `REJECT` |
+| `REJECT` | _(terminal)_ |
+| `ORDER` | `TRACK`, `DISPUTE` |
+| `TRACK` | `TRACK`, `DISPUTE`, `ORDER` |
+| `DISPUTE` | `REJECT`, `ACCEPT`, `TRACK` |
+
+### Endpoints exposed at the Hub
+
+```
+POST /api/nexha/nexha-acp-messaging/api/negotiations           # create + send first message
+GET  /api/nexha/nexha-acp-messaging/api/negotiations           # list (filters: status, agent, limit)
+GET  /api/nexha/nexha-acp-messaging/api/negotiations/:id
+GET  /api/nexha/nexha-acp-messaging/api/negotiations/:id/messages
+POST /api/nexha/nexha-acp-messaging/api/negotiations/:id/messages
+GET  /api/nexha/nexha-acp-messaging/api/stats                  # per-tenant
+POST /api/nexha/nexha-acp-messaging/api/validate
+GET  /api/nexha/nexha-acp-messaging/health
+```
+
+### Test count
+
+- nexha-acp-messaging state machine: **37**
+- nexha-acp-messaging routes: **22**
+- do-app `nexha.acpMessaging` client: **9**
+- REZ-Workspace `NexhaConnection` ACP methods: **10**
+- **Phase 4 total new tests: 78** (all pass)
+- **RTMN total vitest count: 612 (was 534)** — +78 in Phase 4
+
+### Deviations from plan
+
+- **None significant.** All Phase 4 sub-tasks shipped as planned. Service uses Mongoose (not a separate database) — this is intentional and consistent with `nexha-business-directory`.
+- **Status mapping nuance:** `COMPLETED` is informational, not terminal. Per the ACP spec, `ORDER → TRACK` is a valid flow (e.g., "where's my order?"). The state machine allows `TRACK`/`DISPUTE` after `COMPLETED`. Only `REJECTED` is terminal. This was clarified by the test suite and matches `sutar-acp-protocol`'s behavior.
