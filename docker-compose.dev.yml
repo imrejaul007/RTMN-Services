@@ -38,6 +38,8 @@ services:
       - SUTAR_DECISION_URL=http://decision-engine:4290
       - SUTAR_TRUST_ENGINE_URL=http://trust-engine:4291
       - SUTAR_ECONOMY_URL=http://economy-os:4294
+      - POLICY_OS_URL=http://policy-os:4254
+      - SKILL_OS_URL=http://skill-os:4743
       - NEXHA_SUPPLIER_NETWORK_URL=http://nexha-supplier-network:4280
       - NEXHA_DISTRIBUTION_NETWORK_URL=http://nexha-distribution-network:4285
       - NEXHA_WAREHOUSE_NETWORK_URL=http://nexha-warehouse-network:4288
@@ -47,6 +49,8 @@ services:
       - decision-engine
       - trust-engine
       - economy-os
+      - policy-os
+      - skill-os
       - nexha-supplier-network
       - nexha-distribution-network
       - nexha-warehouse-network
@@ -252,9 +256,59 @@ services:
     networks:
       - rtmn-dev
 
+  # ---------------------------------------------------------------------------
+  # HOJAI AI — Foundation (Phase F.1, 2026-06-22)
+  # PolicyOS + SkillOS are now production-ready and reachable via the Hub
+  # at /api/foundation/<service>/<path>.
+  # ---------------------------------------------------------------------------
+  policy-os:
+    build:
+      context: ./companies/HOJAI-AI/platform/flow/policy-os
+      dockerfile: Dockerfile
+    container_name: rtmn-policy-os
+    ports:
+      - "4254:4254"
+    environment:
+      - NODE_ENV=production
+      - PORT=4254
+      - DATA_DIR=/data
+    volumes:
+      - policy-os-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4254/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  skill-os:
+    build:
+      context: ./companies/HOJAI-AI/platform/skills/skill-os
+      dockerfile: Dockerfile
+    container_name: rtmn-skill-os
+    ports:
+      - "4743:4743"
+    environment:
+      - NODE_ENV=production
+      - PORT=4743
+    volumes:
+      - skill-os-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4743/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
 networks:
   rtmn-dev:
     driver: bridge
 
 volumes:
   decision-data:
+  policy-os-data:
+  skill-os-data:

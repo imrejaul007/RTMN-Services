@@ -222,6 +222,131 @@ export const requireAuth = createAuthMiddleware({ required: true });
 // without having to re-implement the base64/exp encoding.
 export { createToken, verifyToken, generateApiKey };
 
+// =============================================================================
+// TENANT CONTEXT (ADR-0009 Phase 1 multi-tenancy)
+// =============================================================================
+//
+// Every SUTAR service (and any other multi-tenant RTMN service) needs to
+// resolve the calling companyId before doing any data work. This middleware
+// reads it from the verified auth context (req.user for CorpID-backed JWTs,
+// req.auth for the simple token middleware) and stuffs it on req.tenant so
+// downstream handlers can do `const { companyId } = req.tenant;` without
+// re-implementing the lookup.
+//
+// Options:
+//   publicPaths         exact-match paths that skip tenant resolution
+//   publicPathPatterns  regex paths that skip tenant resolution
+//   requireTenantEnv    env var name; 'true' => reject if no tenant
+//   allowHeaderFallback if true, accept X-Company-Id header when no auth
+//                       (dev/test only; off in production)
+//
+// Behaviour:
+//   - REQUIRE_TENANT=false (default) => req.tenant may be undefined; callers
+//     must handle the "no tenant" case (typically by treating it as the
+//     'default' tenant or 403-ing the request themselves).
+//   - REQUIRE_TENANT=true            => missing tenant returns 400 TENANT_REQUIRED.
+//   - ALLOW_HEADER_TENANT=true       => missing auth falls back to X-Company-Id
+//     header (useful for service-to-service calls that carry tenant but not JWT).
+//
+// Example:
+//   import { requireAuth, createTenantContext } from '@rtmn/shared/auth';
+//   app.use(requireAuth);
+//   app.use(createTenantContext({ publicPaths: ['/health'] }));
+//
+//   app.post('/api/v1/decide', (req, res) => {
+//     const { companyId } = req.tenant;
+//     // ...tenant-scoped business logic
+//   });
+//
+// Test helpers:
+//   getTenant(req)                   returns req.tenant or undefined
+//   requireTenant(req, res, next)    same as middleware but synchronous
+
+export function createTenantContext(options = {}) {
+  const {
+    publicPaths = [],
+    publicPathPatterns = [],
+    requireTenantEnv = 'REQUIRE_TENANT',
+    allowHeaderFallbackEnv = 'ALLOW_HEADER_TENANT',
+  } = options;
+
+  const PUBLIC = new Set(publicPaths);
+  const PATTERNS = publicPathPatterns;
+
+  function isTenantRequired() { return process.env[requireTenantEnv] === 'true'; }
+  function isHeaderFallback() { return process.env[allowHeaderFallbackEnv] === 'true'; }
+  function isPublic(req) {
+    if (PUBLIC.has(req.path)) return true;
+    for (const re of PATTERNS) if (re.test(req.path)) return true;
+    return false;
+  }
+
+  function resolveFromAuth(req) {
+    // CorpID-backed JWT middleware sets req.user with businessId
+    if (req.user && req.user.businessId) {
+      return { companyId: req.user.businessId, source: 'jwt-user' };
+    }
+    // Simple token middleware sets req.auth (type: 'token' | 'api-key' | 'service')
+    if (req.auth) {
+      if (req.auth.businessId) {
+        return { companyId: req.auth.businessId, source: `auth-${req.auth.type || 'token'}` };
+      }
+      // Service-to-service internal tokens have no tenant by design
+      if (req.auth.type === 'service') return null;
+    }
+    return null;
+  }
+
+  function resolveFromHeader(req) {
+    const h = req.headers['x-company-id'] || req.headers['X-Company-Id'];
+    if (!h) return null;
+    const trimmed = String(h).trim();
+    return trimmed ? { companyId: trimmed, source: 'header' } : null;
+  }
+
+  function middleware(req, res, next) {
+    if (isPublic(req)) return next();
+
+    let tenant = resolveFromAuth(req);
+    if (!tenant && isHeaderFallback()) tenant = resolveFromHeader(req);
+
+    if (!tenant && isTenantRequired()) {
+      return res.status(400).json({
+        success: false,
+        error: 'TENANT_REQUIRED',
+        message: 'No tenant could be resolved from JWT or X-Company-Id header',
+      });
+    }
+
+    if (tenant) req.tenant = tenant;
+    next();
+  }
+
+  // Introspection helpers (useful for tests and admin tools)
+  middleware.resolveFromAuth = resolveFromAuth;
+  middleware.resolveFromHeader = resolveFromHeader;
+  middleware.isTenantRequired = isTenantRequired;
+  middleware.isHeaderFallback = isHeaderFallback;
+
+  return middleware;
+}
+
+/** Read tenant off a request. Returns undefined if no tenant was resolved. */
+export function getTenant(req) {
+  return req && req.tenant;
+}
+
+/** Synchronous guard for use inside route handlers (e.g. legacy code paths
+ *  that already have req and want to 403 if no tenant). */
+export function requireTenant(req, res, next) {
+  if (req.tenant) return next();
+  return res.status(400).json({
+    success: false,
+    error: 'TENANT_REQUIRED',
+    message: 'No tenant on request',
+  });
+}
+
 export function createIndustryAuth(industry, industryConfig = {}) {
   const {
     defaultRole = 'customer',

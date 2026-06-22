@@ -46,6 +46,10 @@ const USE_INTENT_ENGINE = process.env.USE_INTENT_ENGINE !== 'false';  // opt-out
 const REASONING_ENGINE_URL = process.env.REASONING_ENGINE_URL || 'http://localhost:4795';
 const REFLECTION_ENGINE_URL = process.env.REFLECTION_ENGINE_URL || 'http://localhost:4796';
 const PROACTIVE_ENGINE_URL = process.env.PROACTIVE_ENGINE_URL || 'http://localhost:4797';
+// Phase 3 services
+const PI_SCORE_URL = process.env.PI_SCORE_URL || 'http://localhost:4798';
+const RELATIONSHIP_GRAPH_URL = process.env.RELATIONSHIP_GRAPH_URL || 'http://localhost:4799';
+const LEARNING_OS_V2_URL = process.env.LEARNING_OS_V2_URL || 'http://localhost:4800';
 const USE_REASONING_ENGINE = process.env.USE_REASONING_ENGINE !== 'false';  // opt-out flag
 
 // Heuristic: detect complex multi-step requests that should go to the Reasoning Engine
@@ -460,7 +464,7 @@ app.get('/api/genie-services/health', async (req, res) => {
   res.json({ success: true, data: { total: services.length, up, services: results }, meta: { timestamp: new Date().toISOString() } });
 });
 
-// === Phase 1.6 + 2.5: New Personal Intelligence OS services health ===
+// === Phase 1.6 + 2.5 + 3: New Personal Intelligence OS services health ===
 app.get('/api/pios/health', async (req, res) => {
   const services = [
     { name: 'intent-engine', url: INTENT_ENGINE_URL },
@@ -470,6 +474,10 @@ app.get('/api/pios/health', async (req, res) => {
     { name: 'reasoning-engine', url: REASONING_ENGINE_URL },
     { name: 'reflection-engine', url: REFLECTION_ENGINE_URL },
     { name: 'proactive-engine', url: PROACTIVE_ENGINE_URL },
+    // Phase 3
+    { name: 'pi-score', url: PI_SCORE_URL },
+    { name: 'relationship-graph', url: RELATIONSHIP_GRAPH_URL },
+    { name: 'learning-os-v2', url: LEARNING_OS_V2_URL },
   ];
   const results = {};
   for (const s of services) {
@@ -492,6 +500,75 @@ app.get('/api/pios/health', async (req, res) => {
     },
     meta: { timestamp: new Date().toISOString() },
   });
+});
+
+// === Phase 3: Genie Widget — aggregated "home screen" data for the user ===
+// Calls PI Score, relationship-graph, learning-os-v2, reflection-engine, and
+// proactive-engine in parallel and returns a single payload that mobile/web
+// can render without making 5 separate calls.
+//
+// Each section is optional — if a service is down, the section is just empty.
+app.get('/api/pios/widget/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    const headers = { 'x-internal-token': INTERNAL_SERVICE_TOKEN };
+
+    const fetchJson = async (url, options = {}) => {
+      try {
+        const r = await axios({ url, method: options.method || 'GET', data: options.body, headers, timeout: 3000 });
+        return r.data?.data || r.data || null;
+      } catch {
+        return null;
+      }
+    };
+
+    const [piScore, stale, learningDue, reflection, proactive] = await Promise.all([
+      fetchJson(`${PI_SCORE_URL}/api/pi-score/${userId}/widget`),
+      fetchJson(`${RELATIONSHIP_GRAPH_URL}/api/relationships/${userId}/stale?minStrength=30&minDays=7&limit=3`),
+      fetchJson(`${LEARNING_OS_V2_URL}/api/learning/due/${userId}?threshold=0.7&limit=3`),
+      fetchJson(`${REFLECTION_ENGINE_URL}/api/reflection/${userId}`),
+      fetchJson(`${PROACTIVE_ENGINE_URL}/api/proactive/check`, { method: 'POST', body: { userId } }),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        userId,
+        piScore: piScore ? {
+          score: piScore.overall,
+          level: piScore.levelName,
+          emoji: piScore.levelEmoji,
+          nextLevel: piScore.nextLevel?.name,
+          pointsToNext: piScore.nextLevel?.pointsToNext,
+          progress: piScore.progressToNext,
+        } : null,
+        reachOut: (stale?.candidates || []).map((p) => ({
+          personId: p.personId,
+          name: p.name,
+          daysSince: p.daysSince,
+          strength: p.strength,
+        })),
+        factsToRefresh: (learningDue?.due || []).map((f) => ({
+          factId: f.factId,
+          text: f.text,
+          category: f.category,
+          retention: f.retention,
+        })),
+        lastReflection: reflection ? {
+          weekOf: reflection.weekOf,
+          summary: reflection.summary,
+          insightCount: reflection.insights?.length || 0,
+        } : null,
+        proactive: (proactive?.suggestions || []).map((s) => ({
+          category: s.category,
+          title: s.title,
+          message: s.message,
+        })),
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
 });
 
 app.get('/api/conversations', authMiddleware, async (req, res, next) => {

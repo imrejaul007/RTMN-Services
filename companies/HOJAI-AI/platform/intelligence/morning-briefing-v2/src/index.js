@@ -114,12 +114,18 @@ app.post('/api/briefing/morning', requireAuth, async (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
 
   // Fan out to all data sources in parallel — any one being down doesn't kill the briefing
-  const [calendar, relationships, wellness, memoryCtx, goals] = await Promise.all([
+  // Phase 1/2 sources + Phase 3 (PI Score, relationship-graph, learning-os-v2, reflection, proactive)
+  const [calendar, relationships, wellness, memoryCtx, goals, piScore, relGraph, learningDue, reflection, proactive] = await Promise.all([
     tryFetch(`${GENIE_CALENDAR_URL}/api/events/today?userId=${userId}`, { headers: internalHeaders() }),
     tryFetch(`${GENIE_RELATIONSHIP_URL}/api/relationships/due?userId=${userId}`, { headers: internalHeaders() }),
     tryFetch(`${GENIE_WELLNESS_URL}/api/wellness/today?userId=${userId}`, { headers: internalHeaders() }),
     tryFetch(`${MEMORY_SUBSTRATE_URL}/api/context/${userId}?query=briefing&limit=10`, { headers: internalHeaders() }),
     tryFetch(`${GENIE_GOAL_URL}/api/goals/${userId}?status=active`, { headers: internalHeaders() }),
+    tryFetch(`${PI_SCORE_URL}/api/pi-score/${userId}/widget`, { headers: internalHeaders() }),
+    tryFetch(`${RELATIONSHIP_GRAPH_URL}/api/relationships/${userId}/stale?minStrength=30&minDays=7&limit=5`, { headers: internalHeaders() }),
+    tryFetch(`${LEARNING_OS_V2_URL}/api/learning/due/${userId}?threshold=0.7&limit=5`, { headers: internalHeaders() }),
+    tryFetch(`${REFLECTION_ENGINE_URL}/api/reflection/${userId}`, { headers: internalHeaders() }),
+    tryFetch(`${PROACTIVE_ENGINE_URL}/api/proactive/check`, { method: 'POST', headers: internalHeaders(), body: JSON.stringify({ userId }) }),
   ]);
 
   // Build structured sections
@@ -148,6 +154,42 @@ app.post('/api/briefing/morning', requireAuth, async (req, res) => {
       available: !!memoryCtx,
       recentFacts: memoryCtx?.data?.facts || memoryCtx?.facts || [],
     },
+    // Phase 3 sections
+    piScore: {
+      available: !!piScore,
+      widget: piScore?.data || null,
+      summary: piScore?.data
+        ? `${piScore.data.levelEmoji || ''} Genie is a ${piScore.data.levelName} (${piScore.data.overall}/100)`
+        : 'PI Score offline',
+    },
+    relationshipGraph: {
+      available: !!relGraph,
+      stale: relGraph?.data?.candidates || [],
+      summary: relGraph?.data
+        ? `${(relGraph.data.candidates || []).length} relationships could use attention`
+        : 'Relationship graph offline',
+    },
+    learning: {
+      available: !!learningDue,
+      due: learningDue?.data?.due || [],
+      summary: learningDue?.data
+        ? `${(learningDue.data.due || []).length} facts to refresh`
+        : 'Learning OS offline',
+    },
+    reflection: {
+      available: !!reflection,
+      latest: reflection?.data || null,
+      summary: reflection?.data
+        ? `Last reflection: ${reflection.data.summary?.slice(0, 80) || ''}`
+        : 'No reflection yet',
+    },
+    proactive: {
+      available: !!proactive,
+      suggestions: proactive?.data?.suggestions || proactive?.suggestions || [],
+      summary: proactive?.data?.suggestions?.length
+        ? `${proactive.data.suggestions.length} proactive suggestions`
+        : 'No proactive nudges',
+    },
   };
 
   // Generate the personal note via LLM
@@ -160,6 +202,11 @@ app.post('/api/briefing/morning', requireAuth, async (req, res) => {
     const today_events = sections.calendar.events.map(e => e.title || e.summary).filter(Boolean).slice(0, 3);
     const goal_titles = sections.goals.active.map(g => g.title || g.name).filter(Boolean).slice(0, 2);
     const people = sections.relationships.dueOutreach.map(r => r.name).filter(Boolean).slice(0, 2);
+    const piLine = sections.piScore.available
+      ? `Your Genie is a ${sections.piScore.widget.levelName} (${sections.piScore.widget.overall}/100)`
+      : '';
+    const duePeople = sections.relationshipGraph.stale.slice(0, 2).map(r => r.name).filter(Boolean);
+    const dueFacts = sections.learning.due.slice(0, 2).map(f => f.text).filter(Boolean);
 
     const prompt = `Write a warm, brief morning greeting for ${userName}. Today is ${today}.
 
@@ -168,6 +215,9 @@ What I know about their day:
 - Active goals: ${goal_titles.length ? goal_titles.join(', ') : 'none set'}
 - People to reach out to: ${people.length ? people.join(', ') : 'no one flagged'}
 - Wellness: ${sections.wellness.available ? 'tracked' : 'not tracked'}
+${piLine ? `- ${piLine}` : ''}
+${duePeople.length ? `- Stale relationships: ${duePeople.join(', ')}` : ''}
+${dueFacts.length ? `- Facts due for refresh: ${dueFacts.join('; ')}` : ''}
 
 Write 2-3 sentences. Be warm but not saccharine. Use a casual tone unless otherwise noted. Don't be a generic assistant. Reference something specific if available.`;
 
@@ -192,6 +242,8 @@ Write 2-3 sentences. Be warm but not saccharine. Use a casual tone unless otherw
     `📅 ${sections.calendar.summary}`,
     `🎯 ${sections.goals.summary}`,
     `💌 ${sections.relationships.summary}`,
+    sections.piScore.available ? `🌱 ${sections.piScore.summary}` : null,
+    sections.learning.due.length ? `🧠 ${sections.learning.summary}` : null,
   ].filter(Boolean).join('\n');
 
   // Save to history
