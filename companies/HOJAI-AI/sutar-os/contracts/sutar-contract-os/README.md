@@ -6,7 +6,7 @@
 
 This is a SUTAR OS service providing Contract OS - Smart contract management.
 
-**Port:** 4292 (renumbered 2026-06-22; was 4190)
+**Port:** 4190
 **Company:** HOJAI AI
 **Product:** SUTAR OS
 
@@ -52,7 +52,7 @@ This service follows the SUTAR OS 12-layer canonical architecture:
 
 ```
 Layer: Contract Os
-Port: 4292 (renumbered 2026-06-22; was 4190)
+Port: 4190
 Type: Microservice
 ```
 
@@ -60,7 +60,7 @@ Type: Microservice
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4292 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4190 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

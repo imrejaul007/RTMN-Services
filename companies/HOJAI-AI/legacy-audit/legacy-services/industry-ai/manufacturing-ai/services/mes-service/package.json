@@ -1,9 +1,0 @@
-{
-  "name": "@hojai/manufacturing-mes-service",
-  "version": "1.0.0",
-  "description": "Manufacturing execution system",
-  "main": "src/index.ts",
-  "dependencies": {
-    "@hojai/shared": "workspace:*"
-  }
-}

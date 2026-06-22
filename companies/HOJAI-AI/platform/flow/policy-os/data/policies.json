@@ -509,6 +509,40 @@
     }
   ],
   [
+    "pol-lifecycle-test",
+    {
+      "id": "pol-lifecycle-test",
+      "name": "Lifecycle Test",
+      "description": "",
+      "category": "business",
+      "version": 1,
+      "priority": 50,
+      "status": "archived",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T13:22:17.653Z",
+      "updatedAt": "2026-06-21T14:38:48.574Z"
+    }
+  ],
+  [
     "pol-persist-1782049684-79477",
     {
       "id": "pol-persist-1782049684-79477",
@@ -679,228 +713,6 @@
     }
   ],
   [
-    "pol-b781cd9e",
-    {
-      "id": "pol-b781cd9e",
-      "name": "webhook-test",
-      "description": "",
-      "category": "security",
-      "version": 1,
-      "priority": 50,
-      "status": "draft",
-      "conditions": {},
-      "rules": [
-        {
-          "id": "r1",
-          "action": "read",
-          "effect": "allow"
-        }
-      ],
-      "actions": {
-        "onAllow": {},
-        "onDeny": {}
-      },
-      "exceptions": [],
-      "approvals": {
-        "strategy": "single",
-        "requiredApprovers": []
-      },
-      "owner": "u-admin",
-      "createdAt": "2026-06-21T19:20:00.406Z",
-      "updatedAt": "2026-06-21T19:20:00.406Z"
-    }
-  ],
-  [
-    "pol-ec60e877",
-    {
-      "id": "pol-ec60e877",
-      "name": "smoke-test-policy",
-      "description": "",
-      "category": "security",
-      "version": 1,
-      "priority": 50,
-      "status": "draft",
-      "conditions": {},
-      "rules": [
-        {
-          "if": {},
-          "then": {
-            "allow": true,
-            "action": "smoke"
-          }
-        }
-      ],
-      "actions": {
-        "onAllow": {},
-        "onDeny": {}
-      },
-      "exceptions": [],
-      "approvals": {
-        "strategy": "single",
-        "requiredApprovers": []
-      },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
-      "owner": "u-admin",
-      "createdAt": "2026-06-22T10:39:00.982Z",
-      "updatedAt": "2026-06-22T10:39:00.982Z"
-    }
-  ],
-  [
-    "pol-1dd1cff1",
-    {
-      "id": "pol-1dd1cff1",
-      "name": "smoke-test-policy",
-      "description": "",
-      "category": "security",
-      "version": 1,
-      "priority": 50,
-      "status": "draft",
-      "conditions": {},
-      "rules": [
-        {
-          "if": {},
-          "then": {
-            "allow": true,
-            "action": "smoke"
-          }
-        }
-      ],
-      "actions": {
-        "onAllow": {},
-        "onDeny": {}
-      },
-      "exceptions": [],
-      "approvals": {
-        "strategy": "single",
-        "requiredApprovers": []
-      },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
-      "owner": "u-admin",
-      "createdAt": "2026-06-22T10:39:29.302Z",
-      "updatedAt": "2026-06-22T10:39:29.302Z"
-    }
-  ],
-  [
-    "pol-0f8529b5",
-    {
-      "id": "pol-0f8529b5",
-      "name": "smoke-test-policy",
-      "description": "",
-      "category": "security",
-      "version": 1,
-      "priority": 50,
-      "status": "draft",
-      "conditions": {},
-      "rules": [
-        {
-          "if": {},
-          "then": {
-            "allow": true,
-            "action": "smoke"
-          }
-        }
-      ],
-      "actions": {
-        "onAllow": {},
-        "onDeny": {}
-      },
-      "exceptions": [],
-      "approvals": {
-        "strategy": "single",
-        "requiredApprovers": []
-      },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
-      "owner": "u-admin",
-      "createdAt": "2026-06-22T10:46:50.315Z",
-      "updatedAt": "2026-06-22T10:46:50.315Z"
-    }
-  ],
-  [
-    "pol-395d34b9",
-    {
-      "id": "pol-395d34b9",
-      "name": "smoke-test-policy",
-      "description": "",
-      "category": "security",
-      "version": 1,
-      "priority": 50,
-      "status": "draft",
-      "conditions": {},
-      "rules": [
-        {
-          "if": {},
-          "then": {
-            "allow": true,
-            "action": "smoke"
-          }
-        }
-      ],
-      "actions": {
-        "onAllow": {},
-        "onDeny": {}
-      },
-      "exceptions": [],
-      "approvals": {
-        "strategy": "single",
-        "requiredApprovers": []
-      },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
-      "owner": "u-admin",
-      "createdAt": "2026-06-22T10:48:58.903Z",
-      "updatedAt": "2026-06-22T10:48:58.903Z"
-    }
-  ],
-  [
-    "pol-5cc0008e",
-    {
-      "id": "pol-5cc0008e",
-      "name": "smoke-test-policy",
-      "description": "",
-      "category": "security",
-      "version": 1,
-      "priority": 50,
-      "status": "draft",
-      "conditions": {},
-      "rules": [
-        {
-          "if": {},
-          "then": {
-            "allow": true,
-            "action": "smoke"
-          }
-        }
-      ],
-      "actions": {
-        "onAllow": {},
-        "onDeny": {}
-      },
-      "exceptions": [],
-      "approvals": {
-        "strategy": "single",
-        "requiredApprovers": []
-      },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
-      "owner": "u-admin",
-      "createdAt": "2026-06-22T10:56:01.322Z",
-      "updatedAt": "2026-06-22T10:56:01.322Z"
-    }
-  ],
-  [
     "pol-e2e-test",
     {
       "id": "pol-e2e-test",
@@ -951,25 +763,21 @@
           "u-admin"
         ]
       },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
       "owner": "u-admin",
-      "createdAt": "2026-06-22T10:56:01.370Z",
-      "updatedAt": "2026-06-22T10:56:01.370Z"
+      "createdAt": "2026-06-21T14:38:47.168Z",
+      "updatedAt": "2026-06-21T14:38:47.168Z"
     }
   ],
   [
-    "pol-lifecycle-test",
+    "pol-expr-1",
     {
-      "id": "pol-lifecycle-test",
-      "name": "Lifecycle Test",
+      "id": "pol-expr-1",
+      "name": "Process Exit",
       "description": "",
-      "category": "business",
+      "category": "security",
       "version": 1,
       "priority": 50,
-      "status": "archived",
+      "status": "retired",
       "conditions": {},
       "rules": [
         {
@@ -984,55 +792,182 @@
         "onAllow": {},
         "onDeny": {}
       },
-      "exceptions": [],
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "process.exit(0)"
+        }
+      ],
       "approvals": {
         "strategy": "single",
         "requiredApprovers": []
       },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
       "owner": "u-admin",
-      "createdAt": "2026-06-22T10:56:02.557Z",
-      "updatedAt": "2026-06-22T10:56:02.740Z"
+      "createdAt": "2026-06-21T14:38:48.794Z",
+      "updatedAt": "2026-06-21T14:38:48.986Z"
     }
   ],
   [
-    "hub-test",
+    "pol-expr-2",
     {
-      "id": "hub-test",
-      "name": "Hub Test",
+      "id": "pol-expr-2",
+      "name": "Valid Exception",
       "description": "",
       "category": "security",
       "version": 1,
       "priority": 50,
-      "status": "draft",
+      "status": "retired",
       "conditions": {},
-      "rules": [],
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
       "actions": {
         "onAllow": {},
         "onDeny": {}
       },
-      "exceptions": [],
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "context.amount < 100"
+        }
+      ],
       "approvals": {
         "strategy": "single",
         "requiredApprovers": []
       },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
       "owner": "u-admin",
-      "createdAt": "2026-06-22T13:19:42.111Z",
-      "updatedAt": "2026-06-22T13:19:42.111Z"
+      "createdAt": "2026-06-21T14:38:49.009Z",
+      "updatedAt": "2026-06-21T14:38:49.158Z"
     }
   ],
   [
-    "demo-foundation-1",
+    "pol-expr-3",
     {
-      "id": "demo-foundation-1",
-      "name": "Demo US payment allow",
+      "id": "pol-expr-3",
+      "name": "Composite",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "(context.country == \"US\") && (context.amount > 1000)"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:49.186Z",
+      "updatedAt": "2026-06-21T14:38:49.316Z"
+    }
+  ],
+  [
+    "pol-expr-4",
+    {
+      "id": "pol-expr-4",
+      "name": "In Array",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "context.country in [\"US\", \"UK\", \"DE\"]"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:49.337Z",
+      "updatedAt": "2026-06-21T14:38:49.448Z"
+    }
+  ],
+  [
+    "pol-expr-5",
+    {
+      "id": "pol-expr-5",
+      "name": "Proto Test",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "published",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {},
+          "then": {
+            "allow": true,
+            "action": "allow_all"
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [
+        {
+          "name": "test-exception",
+          "condition": "context.constructor != null"
+        }
+      ],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "owner": "u-admin",
+      "createdAt": "2026-06-21T14:38:49.470Z",
+      "updatedAt": "2026-06-21T14:38:49.470Z"
+    }
+  ],
+  [
+    "pol-b781cd9e",
+    {
+      "id": "pol-b781cd9e",
+      "name": "webhook-test",
       "description": "",
       "category": "security",
       "version": 1,
@@ -1041,12 +976,9 @@
       "conditions": {},
       "rules": [
         {
-          "if": {
-            "context.country": "US"
-          },
-          "then": {
-            "allow": true
-          }
+          "id": "r1",
+          "action": "read",
+          "effect": "allow"
         }
       ],
       "actions": {
@@ -1058,13 +990,9 @@
         "strategy": "single",
         "requiredApprovers": []
       },
-      "composition": null,
-      "effectiveFrom": null,
-      "effectiveUntil": null,
-      "tags": [],
       "owner": "u-admin",
-      "createdAt": "2026-06-22T13:21:17.591Z",
-      "updatedAt": "2026-06-22T13:21:17.591Z"
+      "createdAt": "2026-06-21T19:20:00.406Z",
+      "updatedAt": "2026-06-21T19:20:00.406Z"
     }
   ]
 ]

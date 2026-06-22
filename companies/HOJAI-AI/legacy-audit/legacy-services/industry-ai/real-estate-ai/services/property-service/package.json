@@ -1,9 +1,0 @@
-{
-  "name": "@hojai/real-estate-property-service",
-  "version": "1.0.0",
-  "description": "Real estate property management",
-  "main": "src/index.ts",
-  "dependencies": {
-    "@hojai/shared": "workspace:*"
-  }
-}

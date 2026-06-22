@@ -1,9 +1,0 @@
-{
-  "name": "@hojai/logistics-fleet-service",
-  "version": "1.0.0",
-  "description": "Logistics fleet management service",
-  "main": "src/index.ts",
-  "dependencies": {
-    "@hojai/shared": "workspace:*"
-  }
-}

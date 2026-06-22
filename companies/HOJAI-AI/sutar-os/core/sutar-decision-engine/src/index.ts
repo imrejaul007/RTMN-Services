@@ -1,4 +1,4 @@
-import { requireAuth, createTenantContext, getTenant } from '@rtmn/shared/auth';
+import { requireAuth } from '@rtmn/shared/auth';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 // ============================================================================
 // SUTAR Decision Engine - Main Entry Point
@@ -15,7 +15,6 @@ import { DecisionEngine } from './services/decisionEngine.js';
 import { PolicyEngine } from './services/policyEngine.js';
 import { RiskAssessmentService } from './services/riskAssessment.js';
 import { rankOptions, rankerDiagnostics } from './services/optionRanker.js';
-import { TenantDecisionRegistry } from './services/tenantRegistry.js';
 import {
   DecisionRequestSchema,
   SimulationRequestSchema,
@@ -50,20 +49,6 @@ const LOG_LEVEL = (process.env.LOG_LEVEL || 'info') as 'debug' | 'info' | 'warn'
 const decisionEngine = new DecisionEngine(SIMULATION_OS_URL);
 const policyEngine = new PolicyEngine();
 const riskAssessmentService = new RiskAssessmentService();
-
-// ADR-0009 Phase 1: per-tenant DecisionEngine registry. Each companyId gets
-// its own engine instance so stats counters are isolated. The legacy global
-// `decisionEngine` above is kept for backward compat with the no-tenant
-// `/api/v1/stats` and `/api/v1/stats/reset` endpoints.
-const tenantRegistry = new TenantDecisionRegistry(SIMULATION_OS_URL);
-
-/** Resolve the DecisionEngine for a request, by tenant. Falls back to the
- *  global singleton when no tenant is on the request (dev / pre-tenant). */
-function engineFor(req: Request): DecisionEngine {
-  const t = getTenant(req);
-  if (!t || !t.companyId) return decisionEngine;
-  return tenantRegistry.for(t.companyId).engine;
-}
 
 // ============================================================================
 // Create Express App
@@ -109,17 +94,6 @@ const apiLimiter = rateLimit({
 
 app.use(limiter);
 app.use('/api/', apiLimiter);
-
-// ADR-0009 Phase 1: tenant context middleware. Public paths (e.g. /health)
-// skip tenant resolution; everything under /api/ requires a tenant from JWT
-// (or X-Company-Id header when ALLOW_HEADER_TENANT=true). REQUIRE_TENANT=true
-// rejects requests that can't be tied to a company. We mount on /api/v1/
-// specifically so /health, /ready, /api/v1/info stay reachable for k8s
-// probes and the info endpoint.
-const tenantMiddleware = createTenantContext({
-  publicPathPatterns: [/^\/info$/],
-});
-app.use('/api/v1/', tenantMiddleware);
 
 // Structured logging middleware
 app.use((req: Request, _res: Response, next: NextFunction) => {
@@ -311,11 +285,10 @@ app.post('/api/v1/decide',requireAuth,  async (req: Request, res: Response) => {
     console.log(`[DECISION] Request ${requestId}: ${context.decisionType}`, {
       userId: context.userId,
       amount: context.amount,
-      companyId: req.tenant?.companyId,
     });
 
-    // Make decision (per-tenant engine via tenantRegistry)
-    const decision = await engineFor(req).makeDecision({
+    // Make decision
+    const decision = await decisionEngine.makeDecision({
       context,
       skipRiskAssessment,
       overridePolicyId,
@@ -363,11 +336,10 @@ app.post('/api/v1/decide/simulate',requireAuth,  async (req: Request, res: Respo
     console.log(`[SIMULATE] Request ${requestId}: ${scenarioVariations.length} variations`, {
       decisionType: context.decisionType,
       variations: scenarioVariations.map(v => v.name),
-      companyId: req.tenant?.companyId,
     });
 
-    // Run simulation (per-tenant engine via tenantRegistry)
-    const result = await engineFor(req).simulateWithSimulationOS({
+    // Run simulation
+    const result = await decisionEngine.simulateWithSimulationOS({
       context,
       scenarioVariations,
       comparePolicies,
@@ -484,37 +456,14 @@ app.get('/api/v1/policies/:decisionType', (req: Request, res: Response) => {
 
 // Get decision statistics
 app.get('/api/v1/stats', (req: Request, res: Response) => {
-  const t = getTenant(req);
-  if (t && t.companyId) {
-    const entry = tenantRegistry.for(t.companyId);
-    res.json(apiResponse(true, {
-      tenant: { companyId: t.companyId, source: t.source },
-      stats: entry.engine.getStats(),
-      requestCount: entry.requestCount,
-      createdAt: entry.createdAt,
-      lastUsedAt: entry.lastUsedAt,
-    }));
-    return;
-  }
-  // No tenant on request — return the global singleton + registry totals
-  res.json(apiResponse(true, {
-    tenant: null,
-    stats: decisionEngine.getStats(),
-    registry: tenantRegistry.totals(),
-  }));
+  const stats = decisionEngine.getStats();
+  res.json(apiResponse(true, stats));
 });
 
 // Reset statistics
-app.post('/api/v1/stats/reset',requireAuth,  (req: Request, res: Response) => {
-  const t = getTenant(req);
-  if (t && t.companyId) {
-    tenantRegistry.resetTenant(t.companyId);
-    res.json(apiResponse(true, { message: `Statistics reset for ${t.companyId}`, companyId: t.companyId }));
-    return;
-  }
-  tenantRegistry.resetAll();
+app.post('/api/v1/stats/reset',requireAuth,  (_req: Request, res: Response) => {
   decisionEngine.resetStats();
-  res.json(apiResponse(true, { message: 'Statistics reset (global + all tenants)' }));
+  res.json(apiResponse(true, { message: 'Statistics reset successfully' }));
 });
 
 // Evaluate risk directly
@@ -614,24 +563,6 @@ const gracefulShutdown = (signal: string) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
-// ============================================================================
-// Tenant Admin API (ADR-0009 Phase 1)
-// ============================================================================
-//
-// Lightweight admin surface so SREs can inspect and reset tenant buckets
-// without restarting the service. These require auth (the simple bearer
-// token used elsewhere in the service) and are read-only or reset-only —
-// they don't mutate policy or risk state.
-
-app.get('/api/v1/admin/tenants', requireAuth, (_req, res) => {
-  res.json(apiResponse(true, { tenants: tenantRegistry.list(), totals: tenantRegistry.totals() }));
-});
-
-app.post('/api/v1/admin/tenants/:companyId/reset', requireAuth, (req, res) => {
-  const ok = tenantRegistry.resetTenant(req.params.companyId);
-  res.json(apiResponse(ok, ok ? { reset: req.params.companyId } : { notFound: req.params.companyId }));
-});
 
 // ============================================================================
 // Start Server

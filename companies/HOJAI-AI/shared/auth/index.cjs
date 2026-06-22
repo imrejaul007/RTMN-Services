@@ -314,87 +314,6 @@ const auth = {
   referral: createIndustryAuth('referral-twin', { port: 3016 }),
 };
 
-// =============================================================================
-// TENANT CONTEXT (ADR-0009 Phase 1 multi-tenancy)
-// =============================================================================
-//
-// CJS mirror of createTenantContext in index.js. See the ESM file for full
-// documentation. Same behaviour; works with both req.user (CorpID JWT) and
-// req.auth (simple token middleware).
-
-function createTenantContext(options) {
-  options = options || {};
-  const publicPaths = options.publicPaths || [];
-  const publicPathPatterns = options.publicPathPatterns || [];
-  const requireTenantEnv = options.requireTenantEnv || 'REQUIRE_TENANT';
-  const allowHeaderFallbackEnv = options.allowHeaderFallbackEnv || 'ALLOW_HEADER_TENANT';
-
-  const PUBLIC = new Set(publicPaths);
-  const PATTERNS = publicPathPatterns;
-
-  function isTenantRequired() { return process.env[requireTenantEnv] === 'true'; }
-  function isHeaderFallback() { return process.env[allowHeaderFallbackEnv] === 'true'; }
-  function isPublic(req) {
-    if (PUBLIC.has(req.path)) return true;
-    for (let i = 0; i < PATTERNS.length; i++) {
-      if (PATTERNS[i].test(req.path)) return true;
-    }
-    return false;
-  }
-
-  function resolveFromAuth(req) {
-    if (req.user && req.user.businessId) {
-      return { companyId: req.user.businessId, source: 'jwt-user' };
-    }
-    if (req.auth) {
-      if (req.auth.businessId) {
-        return { companyId: req.auth.businessId, source: 'auth-' + (req.auth.type || 'token') };
-      }
-      if (req.auth.type === 'service') return null;
-    }
-    return null;
-  }
-
-  function resolveFromHeader(req) {
-    const h = req.headers['x-company-id'] || req.headers['X-Company-Id'];
-    if (!h) return null;
-    const trimmed = String(h).trim();
-    return trimmed ? { companyId: trimmed, source: 'header' } : null;
-  }
-
-  function middleware(req, res, next) {
-    if (isPublic(req)) return next();
-    let tenant = resolveFromAuth(req);
-    if (!tenant && isHeaderFallback()) tenant = resolveFromHeader(req);
-    if (!tenant && isTenantRequired()) {
-      return res.status(400).json({
-        success: false,
-        error: 'TENANT_REQUIRED',
-        message: 'No tenant could be resolved from JWT or X-Company-Id header',
-      });
-    }
-    if (tenant) req.tenant = tenant;
-    next();
-  }
-
-  middleware.resolveFromAuth = resolveFromAuth;
-  middleware.resolveFromHeader = resolveFromHeader;
-  middleware.isTenantRequired = isTenantRequired;
-  middleware.isHeaderFallback = isHeaderFallback;
-  return middleware;
-}
-
-function getTenant(req) { return req && req.tenant; }
-
-function requireTenant(req, res, next) {
-  if (req.tenant) return next();
-  return res.status(400).json({
-    success: false,
-    error: 'TENANT_REQUIRED',
-    message: 'No tenant on request',
-  });
-}
-
 module.exports = {
   createAuthMiddleware,
   requireAuth,
@@ -405,8 +324,5 @@ module.exports = {
   createCorpIdAuthMiddleware,
   setRequireAuth,
   getRequireAuth,
-  createTenantContext,
-  getTenant,
-  requireTenant,
   auth,
 };

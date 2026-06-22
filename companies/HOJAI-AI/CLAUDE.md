@@ -265,42 +265,6 @@ Located at [./shared/](./shared/). Provides:
 
 ---
 
-## 🟢 Phase B + C SUTAR OS Hardening (2026-06-22)
-
-Six SUTAR OS services now have full vitest suites and **376 tests pass with 0 failures**. Two real service bugs were found and fixed via tests.
-
-**ADR-0009 Phase 0+1 (2026-06-22):** the 4 Phase C services below (sutar-logistics, sutar-supplier-registry, and 2 more) were moved to Nexha and renamed (sutar-* → nexha-*). They no longer live under `companies/HOJAI-AI/sutar-os/core/`. The bug fixes that were landed in this phase still apply — they were the reason these services were production-grade enough to move.
-
-| Service | Port | Tests | Notable |
-|---|---:|---:|---|
-| `sutar-economy-os` | 4294 | 105 | Switched jest → vitest; transaction, billing, earnings, payment, leaderboard, redemption, integration |
-| `sutar-contract-os` | 4292 | 179 | **Bug fix:** `versions.ts` versionIndex optional-chaining no-op on first push |
-| `sutar-trust-engine` | 4291 | 29 | `/api/v1/sada/status` federation health probe (2s AbortController, never throws) |
-| `sutar-decision-engine` | 4290 | 21 | Multi-option ranking algorithm (relevance × confidence × recency) |
-| `nexha-distribution-network` | 4285 | 22 | **Bug fix:** quote IDs were regenerated on every `getQuotes()` call → `bookShipment(quote.id)` always returned null; added deterministic request-signature cache |
-| `nexha-supplier-network` | 4280 | 20 | 6-dim match scoring (price, lead time, MOQ, rating, location, certifications) |
-
-### Run them all
-
-```bash
-# SUTAR OS services (still in HOJAI)
-for svc in economy/sutar-economy-os core/sutar-trust-engine contracts/sutar-contract-os \
-           core/sutar-decision-engine; do
-  cd "$svc" && npm test && cd -
-done
-
-# Nexha network services (now in companies/Nexha/services/)
-cd companies/Nexha/services
-for svc in nexha-supplier-network nexha-distribution-network nexha-warehouse-network \
-           nexha-trade-finance-network nexha-pricing-network; do
-  cd "$svc" && npm test && cd ..
-done
-```
-
-Or just the demo: `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh`.
-
----
-
 ## 🔍 TwinOS Re-Audit (2026-06-21)
 
 A comprehensive audit was performed on the entire TwinOS platform. **All 15 twin services are now healthy and the cross-service auth works end-to-end.**
@@ -419,33 +383,6 @@ Agents, copilots, reasoning, RAG, knowledge graphs.
 Genie assistants, SUTAR OS marketplace, industry OS, marketplaces.
 
 **Services:** genie-* (15 services), sutar-* (12 services), industry-twin, flow-orchestrator, connector-hub, connector-marketplace, skill-marketplace, prompt-marketplace, blr-ai-marketplace, acn-*, customer-support-service, billing, ai-safety, sandbox, webhook-bus
-
-### Per-Service Documentation Coverage (2026-06-22)
-
-All 240 buildable services in HOJAI-AI now have a per-service `CLAUDE.md`. Distribution:
-
-| Home | Services | Per-service docs |
-|---|---|---|
-| `platform/intelligence/` | 18 | ✅ 18/18 |
-| `platform/flow/` | 5 | ✅ 5/5 |
-| `platform/memory/` | 8 | ✅ 8/8 |
-| `platform/twins/` | 21 | ✅ 21/21 |
-| `platform/observability/` | 2 | ✅ 2/2 |
-| `platform/skills/` | 2 | ✅ 2/2 |
-| `platform/trust/` | 3 | ✅ 3/3 |
-| `platform/identity/` | 4 | ✅ 4/4 |
-| `platform/economy/` | 3 | ✅ 3/3 |
-| `platform/infra/` | 6 | ✅ 6/6 |
-| `platform/connectors/` | 1 | ✅ 1/1 |
-| `platform/training/` | 1 | ✅ 1/1 |
-| `platform/onboarding/` | 1 | ✅ 1/1 |
-| `products/genie/` | 23 | ✅ 23/23 |
-| `products/voice-os/`, `products/razo/`, etc. | ~140 | ✅ All documented |
-| `sutar-os/core/` | 4 | ✅ 4/4 |
-| `blr-ai-marketplace/services/` | 1 | ✅ 1/1 |
-| `divisions/` | 12 division CLAUDE.md | ✅ 12/12 |
-
-**Total:** 240/240 per-service CLAUDE.md files (100% coverage). The previous gap (60 undocumented services) was closed on 2026-06-22 in commit `docs(per-service): add 62 CLAUDE.md files` (this repo's commit log).
 
 ### Why not reorganize now?
 

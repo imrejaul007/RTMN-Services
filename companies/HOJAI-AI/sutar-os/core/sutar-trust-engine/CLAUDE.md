@@ -4,8 +4,8 @@
 
 **Name:** sutar-trust-engine
 **Type:** SUTAR OS Service
-**Port:** 4291 (renumbered 2026-06-22; was 4180)
-**Description:** Trust Engine - Trust score verification (with SADA :4190 federation)
+**Port:** 4180
+**Description:** Trust Engine - Trust score verification
 **Company:** HOJAI AI
 **Product:** SUTAR OS
 
@@ -29,7 +29,7 @@
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4291 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4180 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

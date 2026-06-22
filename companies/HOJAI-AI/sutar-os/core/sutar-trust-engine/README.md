@@ -6,7 +6,7 @@
 
 This is a SUTAR OS service providing Trust Engine - Trust score verification.
 
-**Port:** 4291 (renumbered 2026-06-22; was 4180)
+**Port:** 4180
 **Company:** HOJAI AI
 **Product:** SUTAR OS
 
@@ -52,7 +52,7 @@ This service follows the SUTAR OS 12-layer canonical architecture:
 
 ```
 Layer: Trust Engine
-Port: 4291 (renumbered 2026-06-22; was 4180)
+Port: 4180
 Type: Microservice
 ```
 
@@ -60,7 +60,7 @@ Type: Microservice
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4291 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4180 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

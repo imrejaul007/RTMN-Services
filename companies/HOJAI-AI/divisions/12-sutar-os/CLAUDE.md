@@ -1,9 +1,9 @@
 # Division 12 — SUTAR OS (Autonomous Economic OS)
 
-> **Status:** 🟢 **~100% of spec built and running** as of June 22, 2026. **Per ADR-0009 (2026-06-22):** the 4 Phase C network services (sutar-supplier-registry, sutar-logistics, sutar-pricing-intelligence, sutar-trade-finance) were moved to Nexha and renamed to nexha-supplier-network, nexha-distribution-network, nexha-pricing-network, nexha-trade-finance-network. The remaining 9 SUTAR core services (gateway 4140, decision 4290, trust 4291, contract 4292, negotiation 4293, economy 4294, plus agent-id, agent-network, twin-os, memory-bridge, identity, monitoring) are still in HOJAI. SUTAR Gateway (4140) is the single entry point. ai-intelligence exposes all 17 sutar-* agents. RTMN Hub (4399) routes at `/api/sutar/*`.
+> **Status:** 🟢 **~100% of spec built and running** as of June 20, 2026 — **all 25 SUTAR services now have working code** (11 newly built today: sutar-gateway, sutar-twin-os, sutar-memory-bridge, sutar-identity, sutar-agent-id, sutar-agent-network, sutar-contracts, sutar-exploration, sutar-multi-agent-evaluator, sutar-reputation-aggregator, sutar-founder-os). 18/27 services responding on /health via SUTAR Gateway.
 > **Owner:** HOJAI AI (per user clarification — SUTAR is a HOJAI AI standalone product consumed by all RTMN OSes)
 > **Architecture docs:** [docs/sutar-os/](../../../docs/sutar-os/) — complete 7-layer specification
-> **Updated:** June 22, 2026 — Division 12 complete plus Phase C (Nexha network) shipped. All sutar-* spec services built and documented.
+> **Updated:** June 20, 2026 — **Division 12 complete.** All 25 spec services built. SUTAR Gateway (4140) is the single entry point. ai-intelligence exposes all 17 sutar-* agents (48 total, up from 37). RTMN Hub (4399) routes at `/api/sutar/*`, `/api/sutar-twins/*`, `/api/sutar-memory/*`, etc.
 
 ---
 

@@ -6,7 +6,7 @@
 
 This is a SUTAR OS service providing Economy OS - Economic flow management.
 
-**Port:** 4294 (renumbered 2026-06-22; was 4251)
+**Port:** 4251
 **Company:** HOJAI AI
 **Product:** SUTAR OS
 
@@ -52,7 +52,7 @@ This service follows the SUTAR OS 12-layer canonical architecture:
 
 ```
 Layer: Economy Os
-Port: 4294 (renumbered 2026-06-22; was 4251)
+Port: 4251
 Type: Microservice
 ```
 
@@ -60,7 +60,7 @@ Type: Microservice
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4294 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4251 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

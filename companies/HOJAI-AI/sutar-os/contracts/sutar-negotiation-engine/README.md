@@ -6,7 +6,7 @@
 
 This is a SUTAR OS service providing Negotiation Engine - RFQ and counter-offer.
 
-**Port:** 4293 (renumbered 2026-06-22; was 4191)
+**Port:** 4191
 **Company:** HOJAI AI
 **Product:** SUTAR OS
 
@@ -52,7 +52,7 @@ This service follows the SUTAR OS 12-layer canonical architecture:
 
 ```
 Layer: Negotiation Engine
-Port: 4293 (renumbered 2026-06-22; was 4191)
+Port: 4191
 Type: Microservice
 ```
 
@@ -60,7 +60,7 @@ Type: Microservice
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4293 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4191 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

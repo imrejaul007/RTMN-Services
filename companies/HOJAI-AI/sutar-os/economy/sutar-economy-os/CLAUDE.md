@@ -4,7 +4,7 @@
 
 **Name:** sutar-economy-os
 **Type:** SUTAR OS Service
-**Port:** 4294 (renumbered 2026-06-22; was 4251)
+**Port:** 4251
 **Description:** Economy OS - Economic flow management
 **Company:** HOJAI AI
 **Product:** SUTAR OS
@@ -29,7 +29,7 @@
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4294 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4251 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

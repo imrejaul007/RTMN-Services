@@ -1,6 +1,6 @@
 # Division 8 — AI Products
 
-> **Status:** 🟢 **100% of spec built and running** as of June 22, 2026 — All Products services live in HOJAI-AI at [../products/](../products/): **Investor Copilot (4265)**, **Founder OS Product (4266)**, **Startup Studio (4267)**, **Company Builder Suite (4268)**, **BrandPulse Dashboard**, **Energy OS (4296)**, **HOJAI WhatsApp AI (4570)**, **Mission Control (4960)**, plus Bizora, HIB, AI Workspace, Board Intelligence (already documented), and Genie/Razo/Copilots families. Per-service CLAUDE.md docs now in place for all 8 newly-documented product services.
+> **Status:** 🟢 **100% of spec built and running** as of June 20, 2026 — All 8 Products services live on parent RTMN at [../../../../services/](../../../../services/): **Bizora (4261)** BI, **HIB (4262)** Human-in-the-Loop, **AI Workspace (4263)** docs+threads, **Board Intelligence (4264)** meetings+resolutions, **Investor Copilot (4265)** rounds+cap-table, **Founder OS Product (4266)** OKRs+journal, **Startup Studio (4267)** cohorts+mentors, **Company Builder Suite (4268)** entity formation. Plus Genie, Razo, Copilots.
 > **Owner:** HOJAI AI Products team + RTMN Department OS teams
 
 ---

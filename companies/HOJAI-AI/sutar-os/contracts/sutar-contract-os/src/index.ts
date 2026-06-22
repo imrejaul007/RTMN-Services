@@ -1,4 +1,4 @@
-import { requireAuth, createTenantContext } from '@rtmn/shared/auth';
+import { requireAuth } from '@rtmn/shared/auth';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 // ============================================================================
 // SUTAR Contract OS - Main Entry Point
@@ -64,14 +64,9 @@ export interface ApiResponse<T = unknown> {
   requestId?: string;
 }
 
-// In-memory store — ADR-0009 Phase 1: now per-tenant via TenantRouter.
-// Routes go through tenantStores.contracts.for(req) / .templates.for(req)
-// which partition by companyId. The legacy global Maps are kept ONLY for
-// existing unit tests that import them directly. New routes MUST use the
-// per-tenant helpers.
-import { tenantStores } from './services/tenantStore.js';
-const contracts = new Map<string, Contract>(); // legacy global, kept for tests
-const templates = new Map<string, any>(); // legacy global, kept for tests
+// In-memory store
+const contracts = new Map<string, Contract>();
+const templates = new Map<string, any>();
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4292;
@@ -107,18 +102,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// ADR-0009 Phase 1: tenant context middleware. /api/v1/info (none here),
-// /health, /health/ready, /health/live stay public. Everything else under
-// /api/v1/ requires a tenant.
-const tenantMiddleware = createTenantContext({
-  publicPathPatterns: [],
-});
-app.use('/api/v1/', tenantMiddleware);
-
-// Helpers: per-tenant Map accessors
-const tenantContracts = (req: Request) => tenantStores.contracts.for(req);
-const tenantTemplates = (req: Request) => tenantStores.templates.for(req);
-
 const apiResponse = <T>(success: boolean, data?: T, error?: string, requestId?: string): ApiResponse<T> => ({ success, data, error, timestamp: new Date().toISOString(), requestId });
 
 // Health
@@ -148,7 +131,7 @@ app.post('/api/v1/contracts',requireAuth,  (req: Request, res: Response) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    tenantContracts(req).set(contract.id, contract);
+    contracts.set(contract.id, contract);
     console.log(`[CONTRACT] Created: ${contract.id}`);
     res.status(201).json(apiResponse(true, contract, undefined, (req as any).requestId));
   } catch (error) {
@@ -158,7 +141,7 @@ app.post('/api/v1/contracts',requireAuth,  (req: Request, res: Response) => {
 
 app.get('/api/v1/contracts', (req: Request, res: Response) => {
   const { status, type, limit = 50, offset = 0 } = req.query;
-  let result = Array.from(tenantContracts(req).values());
+  let result = Array.from(contracts.values());
   if (status) result = result.filter(c => c.status === status);
   if (type) result = result.filter(c => c.type === type);
   result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -168,13 +151,13 @@ app.get('/api/v1/contracts', (req: Request, res: Response) => {
 });
 
 app.get('/api/v1/contracts/:id', (req: Request, res: Response) => {
-  const contract = tenantContracts(req).get(req.params.id);
+  const contract = contracts.get(req.params.id);
   if (!contract) { res.status(404).json(apiResponse(false, undefined, 'Contract not found')); return; }
   res.json(apiResponse(true, contract));
 });
 
 app.put('/api/v1/contracts/:id',requireAuth,  (req: Request, res: Response) => {
-  const contract = tenantContracts(req).get(req.params.id);
+  const contract = contracts.get(req.params.id);
   if (!contract) { res.status(404).json(apiResponse(false, undefined, 'Contract not found')); return; }
   const { terms, clauses, endDate, status } = req.body;
   if (terms) contract.terms = terms;
@@ -182,12 +165,12 @@ app.put('/api/v1/contracts/:id',requireAuth,  (req: Request, res: Response) => {
   if (endDate) contract.endDate = endDate;
   if (status) contract.status = status;
   contract.updatedAt = new Date().toISOString();
-  tenantContracts(req).set(contract.id, contract);
+  contracts.set(contract.id, contract);
   res.json(apiResponse(true, contract));
 });
 
 app.post('/api/v1/contracts/:id/sign',requireAuth,  (req: Request, res: Response) => {
-  const contract = tenantContracts(req).get(req.params.id);
+  const contract = contracts.get(req.params.id);
   if (!contract) { res.status(404).json(apiResponse(false, undefined, 'Contract not found')); return; }
   const { partyId, signature } = req.body;
   if (!partyId || !signature) { res.status(400).json(apiResponse(false, undefined, 'partyId and signature required')); return; }
@@ -198,13 +181,13 @@ app.post('/api/v1/contracts/:id/sign',requireAuth,  (req: Request, res: Response
   contract.signatures.push({ partyId, signature, ipAddress: req.ip || 'unknown', timestamp: new Date().toISOString(), status: 'signed' });
   contract.status = contract.parties.every(p => p.signed) ? 'active' : 'pending';
   contract.updatedAt = new Date().toISOString();
-  tenantContracts(req).set(contract.id, contract);
+  contracts.set(contract.id, contract);
   console.log(`[CONTRACT] Signed: ${contract.id} by ${party.email}`);
   res.json(apiResponse(true, contract));
 });
 
 app.post('/api/v1/contracts/:id/terminate',requireAuth,  (req: Request, res: Response) => {
-  const contract = tenantContracts(req).get(req.params.id);
+  const contract = contracts.get(req.params.id);
   if (!contract) { res.status(404).json(apiResponse(false, undefined, 'Contract not found')); return; }
   contract.status = 'terminated';
   contract.updatedAt = new Date().toISOString();
@@ -216,47 +199,15 @@ app.post('/api/v1/contracts/:id/terminate',requireAuth,  (req: Request, res: Res
 app.post('/api/v1/templates',requireAuth,  (req: Request, res: Response) => {
   const { name, type, terms, clauses } = req.body;
   const template = { id: `template-${uuidv4()}`, name, type, terms, clauses: clauses || [], createdAt: new Date().toISOString() };
-  tenantTemplates(req).set(template.id, template);
+  templates.set(template.id, template);
   res.status(201).json(apiResponse(true, template));
 });
 
 app.get('/api/v1/templates', (req: Request, res: Response) => {
   const { type } = req.query;
-  let result = Array.from(tenantTemplates(req).values());
+  let result = Array.from(templates.values());
   if (type) result = result.filter((t: any) => t.type === type);
   res.json(apiResponse(true, { templates: result }));
-});
-
-// Tenant admin endpoints (ADR-0009 Phase 1)
-app.get('/api/v1/admin/tenants', (req: Request, res: Response) => {
-  const t = tenantStores.totals();
-  res.json(apiResponse(true, {
-    service: 'sutar-contract-os',
-    version: '1.0.0',
-    strategy: 'per-tenant-map',
-    current: (req as any).tenant || null,
-    totals: t,
-    tenants: {
-      contracts: tenantStores.contracts.listTenants(),
-      templates: tenantStores.templates.listTenants(),
-    },
-  }));
-});
-
-app.get('/api/v1/admin/tenant/whoami', (req: Request, res: Response) => {
-  res.json(apiResponse(true, {
-    tenant: (req as any).tenant || null,
-  }));
-});
-
-app.post('/api/v1/admin/tenant/reset', (req: Request, res: Response) => {
-  const changed = tenantStores.resetTenant(req);
-  res.json(apiResponse(true, { reset: changed }));
-});
-
-app.post('/api/v1/admin/tenants/reset-all', (req: Request, res: Response) => {
-  const n = tenantStores.resetAll();
-  res.json(apiResponse(true, { resetTenants: n }));
 });
 
 // 404 & Error

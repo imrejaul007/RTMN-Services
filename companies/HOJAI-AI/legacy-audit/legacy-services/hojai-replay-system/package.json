@@ -1,5 +1,0 @@
-{
-  "name": "hojai-replay-system",
-  "version": "1.0.0",
-  "description": "HOJAI Replay System - Save failure, replay locally, fix, redeploy"
-}

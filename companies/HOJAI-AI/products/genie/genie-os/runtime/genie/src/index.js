@@ -35,51 +35,6 @@ const GENIE_SHOPPING_URL = process.env.GENIE_SHOPPING_URL || 'http://localhost:4
 const GENIE_WAKE_WORD_URL = process.env.GENIE_WAKE_WORD_URL || 'http://localhost:4767';
 const GENIE_LISTENING_MODES_URL = process.env.GENIE_LISTENING_MODES_URL || 'http://localhost:4768';
 const GENIE_DEVICE_INTEGRATION_URL = process.env.GENIE_DEVICE_INTEGRATION_URL || 'http://localhost:4769';
-// New Phase 1 services (Personal Intelligence OS)
-const INTENT_ENGINE_URL = process.env.INTENT_ENGINE_URL || 'http://localhost:4792';
-const MEMORY_SUBSTRATE_URL = process.env.MEMORY_SUBSTRATE_URL || 'http://localhost:4791';
-const MORNING_BRIEFING_V2_URL = process.env.MORNING_BRIEFING_V2_URL || 'http://localhost:4794';
-const COLD_START_ONBOARDING_URL = process.env.COLD_START_ONBOARDING_URL || 'http://localhost:4793';
-const USE_INTENT_ENGINE = process.env.USE_INTENT_ENGINE !== 'false';  // opt-out flag
-
-// Phase 2 services (Reasoning + Reflection + Proactive)
-const REASONING_ENGINE_URL = process.env.REASONING_ENGINE_URL || 'http://localhost:4795';
-const REFLECTION_ENGINE_URL = process.env.REFLECTION_ENGINE_URL || 'http://localhost:4796';
-const PROACTIVE_ENGINE_URL = process.env.PROACTIVE_ENGINE_URL || 'http://localhost:4797';
-// Phase 3 services
-const PI_SCORE_URL = process.env.PI_SCORE_URL || 'http://localhost:4798';
-const RELATIONSHIP_GRAPH_URL = process.env.RELATIONSHIP_GRAPH_URL || 'http://localhost:4799';
-const LEARNING_OS_V2_URL = process.env.LEARNING_OS_V2_URL || 'http://localhost:4800';
-// Phase 4 services
-const AMBIENT_BRIEFINGS_URL = process.env.AMBIENT_BRIEFINGS_URL || 'http://localhost:4801';
-const DEVICE_SYNC_URL = process.env.DEVICE_SYNC_URL || 'http://localhost:4802';
-// Phase 5 services — Life OS Integration (6 connectors)
-const HEALTH_CONNECTOR_URL = process.env.HEALTH_CONNECTOR_URL || 'http://localhost:4803';
-const CALENDAR_CONNECTOR_URL = process.env.CALENDAR_CONNECTOR_URL || 'http://localhost:4804';
-const EMAIL_CONNECTOR_URL = process.env.EMAIL_CONNECTOR_URL || 'http://localhost:4805';
-const CONTACTS_CONNECTOR_URL = process.env.CONTACTS_CONNECTOR_URL || 'http://localhost:4806';
-const PHOTOS_CONNECTOR_URL = process.env.PHOTOS_CONNECTOR_URL || 'http://localhost:4807';
-const TASKS_CONNECTOR_URL = process.env.TASKS_CONNECTOR_URL || 'http://localhost:4808';
-// Phase 6 services — Agentic & Marketplace
-const BACKGROUND_AGENTS_URL = process.env.BACKGROUND_AGENTS_URL || 'http://localhost:4809';
-const ONE_SHOT_ACTIONS_URL = process.env.ONE_SHOT_ACTIONS_URL || 'http://localhost:4810';
-const GENIE_SKILLS_URL = process.env.GENIE_SKILLS_URL || 'http://localhost:4811';
-const LONG_RUNNING_TASKS_URL = process.env.LONG_RUNNING_TASKS_URL || 'http://localhost:4812';
-const USE_REASONING_ENGINE = process.env.USE_REASONING_ENGINE !== 'false';  // opt-out flag
-const USE_BACKGROUND_AGENTS = process.env.USE_BACKGROUND_AGENTS !== 'false';  // opt-out flag
-const USE_SKILLS_MARKETPLACE = process.env.USE_SKILLS_MARKETPLACE !== 'false';  // opt-out flag
-
-// Heuristic: detect complex multi-step requests that should go to the Reasoning Engine
-// (vs. simple single-intent questions that the Intent Engine handles)
-const COMPLEX_REQUEST_PATTERNS = [
-  /\bplan (me|my) .*(trip|week|day|evening|weekend)\b/i,
-  /\b(make|move|transfer) .*\b(and|then|,).*\b(to|into|from)\b/i,
-  /\b(help me|can you) (figure out|decide|organize|set up)\b/i,
-  /\bremember .* and .* remind me\b/i,
-  /\b(burned out|stressed|overwhelmed)\b.*\b(what|should|help)\b/i,
-  /\bI just got paid\b/i,
-  /\b(add|create|book|schedule|find|search) .* (and|then|,).*(and|then|,)?.*\b(add|create|book|schedule|find|search|tell|show)\b/i,
-];
 
 const app = express();
 
@@ -134,105 +89,6 @@ async function callInternal(url, method, body) {
     // (e.g. NOT_FOUND) and decide whether to fall back gracefully.
     return res.data;
   } catch (e) { return null; }
-}
-
-// === INTENT ENGINE BRIDGE (Phase 1.6) ===
-// Calls the LLM-based intent engine, falling back to keyword routing if unavailable.
-async function classifyIntent({ question, conversationHistory, userContext }) {
-  if (!USE_INTENT_ENGINE) return null;
-  try {
-    const res = await callInternal(`${INTENT_ENGINE_URL}/api/intent/route`, 'POST', {
-      message: question,
-      conversationHistory,
-      userId: userContext?.userId,
-      userContext,
-    });
-    if (res?.success && res?.data?.routing) return res.data;
-    return null;
-  } catch (e) {
-    return null;
-  }
-}
-
-// === COMPLEX REQUEST DETECTION (Phase 2.5) ===
-// Returns true if the question looks like it needs multi-step planning.
-// Conservative: better to skip the reasoning engine than to misroute a simple question.
-function isComplexRequest(question) {
-  if (!question || question.length < 10) return false;
-  // Check against patterns
-  for (const p of COMPLEX_REQUEST_PATTERNS) {
-    if (p.test(question)) return true;
-  }
-  // Heuristic: questions with multiple clauses joined by "and" / "then" / ","
-  const lower = question.toLowerCase();
-  const hasMultipleClauses = (lower.match(/\b(and|then|,)\b/g) || []).length >= 2;
-  const hasActionVerbs = (lower.match(/\b(add|create|book|schedule|find|search|move|transfer|plan|send|tell|show|remind|set up)\b/g) || []).length >= 2;
-  return hasMultipleClauses && hasActionVerbs;
-}
-
-// === KEYWORD FALLBACK (existing behavior) ===
-// Kept as a safety net for when the intent engine is offline.
-// The whole block is what's being replaced going forward.
-function classifyByKeywords(question) {
-  const lower = question.toLowerCase();
-  if (lower.includes('buy') || lower.includes('purchase') || lower.includes('order') || lower.includes('shop')) {
-    return { targetSpecialist: 'genie-shopping-agent', primaryIntent: 'shop', confidence: 0.7 };
-  }
-  if (lower.includes('calendar') || lower.includes('meeting') || lower.includes('schedule')) {
-    return { targetSpecialist: 'genie-calendar-service', primaryIntent: 'calendar', confidence: 0.7 };
-  }
-  if (lower.includes('budget') || lower.includes('spend') || lower.includes('money') || lower.includes('finance')) {
-    return { targetSpecialist: 'genie-money-os', primaryIntent: 'budget', confidence: 0.7 };
-  }
-  if (lower.includes('wellness') || lower.includes('health') || lower.includes('sleep') || lower.includes('workout') || lower.includes('mood')) {
-    return { targetSpecialist: 'genie-wellness-os', primaryIntent: 'wellness', confidence: 0.7 };
-  }
-  if (lower.includes('goal') || lower.includes('progress')) {
-    return { targetSpecialist: 'genie-conversation', primaryIntent: 'goal', confidence: 0.6 };
-  }
-  if (lower.includes('remember') || lower.includes('prefer')) {
-    return { targetSpecialist: 'memory-substrate', primaryIntent: 'remember', confidence: 0.6 };
-  }
-  return null;
-}
-
-// === ROUTING EXECUTOR (specialist dispatcher) ===
-// Given a routing decision, call the appropriate specialist.
-// Returns { answer, delegated, gatewayHandled } or null on failure.
-async function executeRouting(routing, user, question, memContext, goalContext) {
-  const { targetSpecialist, endpoint, confidence, shouldCall } = routing;
-
-  if (!shouldCall || !targetSpecialist || !endpoint) {
-    return null;  // let the conversation fallback handle it
-  }
-
-  // Map specialist → URL (most are already in the env config; memory-substrate is new)
-  const specialistUrl = {
-    'genie-shopping-agent': GENIE_SHOPPING_URL,
-    'genie-calendar-service': GENIE_CALENDAR_URL,
-    'genie-money-os': GENIE_MONEY_URL,
-    'genie-wellness-os': GENIE_WELLNESS_URL,
-    'genie-relationship-os': process.env.GENIE_RELATIONSHIP_URL || 'http://localhost:4747',
-    'genie-learning-os': process.env.GENIE_LEARNING_URL || 'http://localhost:4765',
-    'genie-briefing-service': GENIE_BRIEFING_URL,
-    'genie-life-gps': process.env.GENIE_LIFE_GPS_URL || 'http://localhost:4742',
-    'memory-substrate': MEMORY_SUBSTRATE_URL,
-  }[targetSpecialist];
-
-  if (!specialistUrl) return null;
-
-  const callUrl = `${specialistUrl}${endpoint.path}`;
-  const callBody = endpoint.method === 'GET' ? undefined : { userId: user._id, item: question, preferences: user.preferences, query: question };
-
-  const res = await callInternal(callUrl, endpoint.method, callBody);
-  if (res && res.success !== false && res.error?.code !== 'NOT_FOUND') {
-    return {
-      answer: `I found what you need via ${targetSpecialist}: ${JSON.stringify(res).slice(0, 200)}`,
-      delegated: targetSpecialist,
-      gatewayHandled: false,
-    };
-  }
-  return null;
 }
 
 app.get('/health', (req, res) => send(res, 200, { service: 'genie', status: 'healthy', version: '1.0.0' }));
@@ -290,152 +146,86 @@ app.post('/api/ask', authMiddleware, async (req, res, next) => {
     const goalContext = (goals?.data?.items || []).slice(0, 3).map(g => g.title).join(', ');
 
     // === Intent detection → delegate to specialized HOJAI-AI Genie services ===
-    // Phase 1.6: Try the LLM-based Intent Engine first; fall back to keyword routing.
-    // Phase 2.5: For complex multi-step requests, route to the Reasoning Engine.
+    const lower = question.toLowerCase();
     let answer = '';
     let delegated = null;
     let gatewayHandled = false;
-    let intentEngineUsed = false;
-    let reasoningEngineUsed = false;
-    let intentMeta = null;
 
-    // Build a short conversation history for context-aware routing
-    const recentMessages = conv.messages.slice(-6).map(m => ({ role: m.role === 'genie' ? 'assistant' : 'user', content: m.content }));
-
-    // === Phase 2.5: Detect complex requests and route to Reasoning Engine ===
-    if (USE_REASONING_ENGINE && isComplexRequest(question)) {
-      const reasonRes = await callInternal(`${REASONING_ENGINE_URL}/api/reason`, 'POST', {
-        question,
-        userId: user._id.toString(),
-        userContext: { memories: memContext, goals: goalContext, name: user.name, preferences: user.preferences },
-        conversationHistory: recentMessages,
-      });
-      if (reasonRes && reasonRes.success && reasonRes.data && reasonRes.data.answer) {
-        reasoningEngineUsed = true;
-        answer = reasonRes.data.answer;
-        delegated = 'reasoning-engine';
-        // Save the response and return early
-        conv.messages.push({ role: 'genie', content: answer, timestamp: new Date() });
-        if (conv.messages.length > 50) conv.messages = conv.messages.slice(-50);
-        await conv.save();
-        return res.json({
-          success: true,
-          data: {
-            answer,
-            delegated_to: delegated,
-            reasoning_engine_used: true,
-            steps_planned: reasonRes.data.plan?.steps?.length || 0,
-            steps_succeeded: Object.keys(reasonRes.data.results || {}).length,
-            conversation_id: conv._id,
-          },
-          meta: { timestamp: new Date().toISOString() },
-        });
-      }
-      // Reasoning failed — fall through to intent engine
-    }
-
-    const routing = await classifyIntent({
-      question,
-      conversationHistory: recentMessages,
-      userContext: { userId: user._id, memories: memContext, goals: goalContext },
-    });
-
-    if (routing && routing.routing && routing.routing.confidence > 0) {
-      intentEngineUsed = true;
-      intentMeta = routing.intent;
-      const execution = await executeRouting(routing.routing, user, question, memContext, goalContext);
-      if (execution) {
-        answer = execution.answer;
-        delegated = execution.delegated;
-        gatewayHandled = execution.gatewayHandled;
+    // Shopping intent → genie-shopping-agent
+    if (lower.includes('buy') || lower.includes('purchase') || lower.includes('order') || lower.includes('shop')) {
+      const shopRes = await callInternal(`${GENIE_SHOPPING_URL}/api/shop`, 'POST', { userId: user._id, item: question, preferences: user.preferences });
+      if (shopRes) {
+        answer = `I found your shopping session! ${JSON.stringify(shopRes).slice(0, 200)}`;
+        delegated = 'genie-shopping-agent';
       } else {
-        // Specialist was down — try genie-gateway as a safety net
-        const gatewayAnswer = await tryGenieGateway(question, user, memContext, goalContext);
-        if (gatewayAnswer) {
-          answer = gatewayAnswer;
-          delegated = 'genie-gateway';
-          gatewayHandled = true;
-        } else {
-          answer = `I'd handle that via ${routing.routing.targetSpecialist}, but it's offline. ${routing.intent?.reasoning || ''}`.trim();
-          delegated = routing.routing.targetSpecialist;
-        }
+        answer = `I'll help you shop! Based on your preferences${memContext ? ` (${memContext})` : ''}, let me search for "${question}".`;
       }
-    } else {
-      // === FALLBACK: keyword-based routing (preserved for backward compat) ===
-      const lower = question.toLowerCase();
-
-      // Shopping intent → genie-shopping-agent
-      if (lower.includes('buy') || lower.includes('purchase') || lower.includes('order') || lower.includes('shop')) {
-        const shopRes = await callInternal(`${GENIE_SHOPPING_URL}/api/shop`, 'POST', { userId: user._id, item: question, preferences: user.preferences });
-        if (shopRes) {
-          answer = `I found your shopping session! ${JSON.stringify(shopRes).slice(0, 200)}`;
-          delegated = 'genie-shopping-agent';
-        } else {
-          answer = `I'll help you shop! Based on your preferences${memContext ? ` (${memContext})` : ''}, let me search for "${question}".`;
-        }
+    }
+    // Calendar intent → genie-calendar-service
+    else if (lower.includes('calendar') || lower.includes('meeting') || lower.includes('schedule')) {
+      // The actual endpoint on genie-calendar-service is /api/events (not /api/calendar/events).
+      const calRes = await callInternal(`${GENIE_CALENDAR_URL}/api/events/today`, 'GET');
+      if (calRes && calRes.success !== false) {
+        answer = `Here's your calendar for today: ${JSON.stringify(calRes).slice(0, 200)}`;
+        delegated = 'genie-calendar-service';
+      } else {
+        answer = `I'd check your calendar but the calendar service is offline. Try again in a moment.`;
       }
-      // Calendar intent → genie-calendar-service
-      else if (lower.includes('calendar') || lower.includes('meeting') || lower.includes('schedule')) {
-        const calRes = await callInternal(`${GENIE_CALENDAR_URL}/api/events/today`, 'GET');
-        if (calRes && calRes.success !== false) {
-          answer = `Here's your calendar for today: ${JSON.stringify(calRes).slice(0, 200)}`;
-          delegated = 'genie-calendar-service';
-        } else {
-          answer = `I'd check your calendar but the calendar service is offline. Try again in a moment.`;
-        }
+    }
+    // Money intent → genie-money-os
+    else if (lower.includes('budget') || lower.includes('spend') || lower.includes('money') || lower.includes('finance')) {
+      // genie-money-os is currently a stub — it only has /, /health, /ready.
+      // We try a likely endpoint and gracefully fall back if it returns HTML/404.
+      const moneyRes = await callInternal(`${GENIE_MONEY_URL}/api/budget`, 'GET', { userId: user._id });
+      const isUsable = moneyRes && typeof moneyRes === 'object' && moneyRes.success !== false && moneyRes.error?.code !== 'NOT_FOUND';
+      if (isUsable) {
+        answer = `Your money snapshot: ${JSON.stringify(moneyRes).slice(0, 200)}`;
+      } else {
+        answer = `I don't have a money snapshot for you yet, but I can help you think through budgeting. What's your goal?`;
       }
-      // Money intent → genie-money-os
-      else if (lower.includes('budget') || lower.includes('spend') || lower.includes('money') || lower.includes('finance')) {
-        const moneyRes = await callInternal(`${GENIE_MONEY_URL}/api/budget`, 'GET', { userId: user._id });
-        const isUsable = moneyRes && typeof moneyRes === 'object' && moneyRes.success !== false && moneyRes.error?.code !== 'NOT_FOUND';
-        if (isUsable) {
-          answer = `Your money snapshot: ${JSON.stringify(moneyRes).slice(0, 200)}`;
-        } else {
-          answer = `I don't have a money snapshot for you yet, but I can help you think through budgeting. What's your goal?`;
-        }
-        delegated = 'genie-money-os';
+      delegated = 'genie-money-os';
+    }
+    // Wellness intent → genie-wellness-os
+    else if (lower.includes('wellness') || lower.includes('health') || lower.includes('sleep') || lower.includes('workout') || lower.includes('mood')) {
+      // genie-wellness-os is a stub. Try a likely endpoint and gracefully fall back.
+      const wellRes = await callInternal(`${GENIE_WELLNESS_URL}/api/wellness/today`, 'GET', { userId: user._id });
+      const isUsable = wellRes && typeof wellRes === 'object' && wellRes.success !== false && wellRes.error?.code !== 'NOT_FOUND';
+      if (isUsable) {
+        answer = `Your wellness snapshot: ${JSON.stringify(wellRes).slice(0, 200)}`;
+      } else {
+        answer = `I don't have your wellness data yet. Would you like to start tracking sleep, mood, or workouts?`;
       }
-      // Wellness intent → genie-wellness-os
-      else if (lower.includes('wellness') || lower.includes('health') || lower.includes('sleep') || lower.includes('workout') || lower.includes('mood')) {
-        const wellRes = await callInternal(`${GENIE_WELLNESS_URL}/api/wellness/today`, 'GET', { userId: user._id });
-        const isUsable = wellRes && typeof wellRes === 'object' && wellRes.success !== false && wellRes.error?.code !== 'NOT_FOUND';
-        if (isUsable) {
-          answer = `Your wellness snapshot: ${JSON.stringify(wellRes).slice(0, 200)}`;
-        } else {
-          answer = `I don't have your wellness data yet. Would you like to start tracking sleep, mood, or workouts?`;
-        }
-        delegated = 'genie-wellness-os';
-      }
-      // Goals intent → use own GoalOS
-      else if (lower.includes('goal') || lower.includes('progress')) {
-        answer = `Your active goals: ${goalContext || 'none set'}. Would you like to update progress on any?`;
-        delegated = 'goalos';
-      }
-      // Remember intent → use own MemoryOS
-      else if (lower.includes('remember') || lower.includes('prefer')) {
-        await callInternal(`${MEMORYOS_URL}/api/memory`, 'POST', { corpId: user.corpId, type: 'preference', content: question, importance: 0.7 });
-        answer = `Got it! I've remembered that for you.`;
-        delegated = 'memoryos';
-      }
-      // Fallback: try genie-gateway
-      else {
-        const gatewayAnswer = await tryGenieGateway(question, user, memContext, goalContext);
-        if (gatewayAnswer) {
-          answer = gatewayAnswer;
-          delegated = 'genie-gateway';
-          gatewayHandled = true;
-        } else if (memContext) {
-          answer = `Based on what I know about you (${memContext}), here's my take: ${question}. Want me to take action?`;
-        } else {
-          answer = `Hi ${user.name}! I'm Genie. I can help you shop, manage goals, remember preferences, and connect with merchants. What would you like to do?`;
-        }
+      delegated = 'genie-wellness-os';
+    }
+    // Goals intent → use own GoalOS
+    else if (lower.includes('goal') || lower.includes('progress')) {
+      answer = `Your active goals: ${goalContext || 'none set'}. Would you like to update progress on any?`;
+      delegated = 'goalos';
+    }
+    // Remember intent → use own MemoryOS
+    else if (lower.includes('remember') || lower.includes('prefer')) {
+      await callInternal(`${MEMORYOS_URL}/api/memory`, 'POST', { corpId: user.corpId, type: 'preference', content: question, importance: 0.7 });
+      answer = `Got it! I've remembered that for you.`;
+      delegated = 'memoryos';
+    }
+    // Fallback: try genie-gateway (which knows about all 23 services)
+    else {
+      const gatewayAnswer = await tryGenieGateway(question, user, memContext, goalContext);
+      if (gatewayAnswer) {
+        answer = gatewayAnswer;
+        delegated = 'genie-gateway';
+        gatewayHandled = true;
+      } else if (memContext) {
+        answer = `Based on what I know about you (${memContext}), here's my take: ${question}. Want me to take action?`;
+      } else {
+        answer = `Hi ${user.name}! I'm Genie. I can help you shop, manage goals, remember preferences, and connect with merchants. What would you like to do?`;
       }
     }
 
     conv.messages.push({ role: 'genie', content: answer, timestamp: new Date() });
     if (conv.messages.length > 50) conv.messages = conv.messages.slice(-50);
     await conv.save();
-    res.json({ success: true, data: { answer, delegated_to: delegated, memories_used: memContext ? 1 : 0, goals_used: goalContext ? 1 : 0, conversation_id: conv._id, intent_engine_used: intentEngineUsed, reasoning_engine_used: reasoningEngineUsed, intent: intentMeta }, meta: { timestamp: new Date().toISOString() } });
+    res.json({ success: true, data: { answer, delegated_to: delegated, memories_used: memContext ? 1 : 0, goals_used: goalContext ? 1 : 0, conversation_id: conv._id }, meta: { timestamp: new Date().toISOString() } });
   } catch (e) { next(e); }
 });
 
@@ -479,529 +269,6 @@ app.get('/api/genie-services/health', async (req, res) => {
   }
   const up = Object.values(results).filter(r => r.status === 'up').length;
   res.json({ success: true, data: { total: services.length, up, services: results }, meta: { timestamp: new Date().toISOString() } });
-});
-
-// === Phase 1.6 + 2.5 + 3: New Personal Intelligence OS services health ===
-app.get('/api/pios/health', async (req, res) => {
-  const services = [
-    { name: 'intent-engine', url: INTENT_ENGINE_URL },
-    { name: 'memory-substrate', url: MEMORY_SUBSTRATE_URL },
-    { name: 'morning-briefing-v2', url: MORNING_BRIEFING_V2_URL },
-    { name: 'cold-start-onboarding', url: COLD_START_ONBOARDING_URL },
-    { name: 'reasoning-engine', url: REASONING_ENGINE_URL },
-    { name: 'reflection-engine', url: REFLECTION_ENGINE_URL },
-    { name: 'proactive-engine', url: PROACTIVE_ENGINE_URL },
-    // Phase 3
-    { name: 'pi-score', url: PI_SCORE_URL },
-    { name: 'relationship-graph', url: RELATIONSHIP_GRAPH_URL },
-    { name: 'learning-os-v2', url: LEARNING_OS_V2_URL },
-    // Phase 4
-    { name: 'ambient-briefings', url: AMBIENT_BRIEFINGS_URL },
-    { name: 'device-sync', url: DEVICE_SYNC_URL },
-    // Phase 5 — Life OS Integration (6 connectors)
-    { name: 'health-connector', url: HEALTH_CONNECTOR_URL },
-    { name: 'calendar-connector', url: CALENDAR_CONNECTOR_URL },
-    { name: 'email-connector', url: EMAIL_CONNECTOR_URL },
-    { name: 'contacts-connector', url: CONTACTS_CONNECTOR_URL },
-    { name: 'photos-connector', url: PHOTOS_CONNECTOR_URL },
-    { name: 'tasks-connector', url: TASKS_CONNECTOR_URL },
-    // Phase 6 — Agentic & Marketplace
-    { name: 'background-agents', url: BACKGROUND_AGENTS_URL },
-    { name: 'one-shot-actions', url: ONE_SHOT_ACTIONS_URL },
-    { name: 'genie-skills', url: GENIE_SKILLS_URL },
-    { name: 'long-running-tasks', url: LONG_RUNNING_TASKS_URL },
-  ];
-  const results = {};
-  for (const s of services) {
-    try {
-      const r = await axios.get(`${s.url}/health`, { timeout: 2000 });
-      results[s.name] = { status: r.data?.data?.status || 'up', url: s.url };
-    } catch {
-      results[s.name] = { status: 'down', url: s.url };
-    }
-  }
-  const up = Object.values(results).filter(r => r.status === 'healthy' || r.status === 'up').length;
-  res.json({
-    success: true,
-    data: {
-      total: services.length,
-      up,
-      intent_engine_enabled: USE_INTENT_ENGINE,
-      reasoning_engine_enabled: USE_REASONING_ENGINE,
-      services: results,
-    },
-    meta: { timestamp: new Date().toISOString() },
-  });
-});
-
-// === Phase 3: Genie Widget — aggregated "home screen" data for the user ===
-// Calls PI Score, relationship-graph, learning-os-v2, reflection-engine, and
-// proactive-engine in parallel and returns a single payload that mobile/web
-// can render without making 5 separate calls.
-//
-// Each section is optional — if a service is down, the section is just empty.
-app.get('/api/pios/widget/:userId', authMiddleware, async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-
-    const headers = { 'x-internal-token': INTERNAL_SERVICE_TOKEN };
-
-    const fetchJson = async (url, options = {}) => {
-      try {
-        const r = await axios({ url, method: options.method || 'GET', data: options.body, headers, timeout: 3000 });
-        return r.data?.data || r.data || null;
-      } catch {
-        return null;
-      }
-    };
-
-    const [piScore, stale, learningDue, reflection, proactive, calendarToday, tasksToday, emailDigest, yearAgo] = await Promise.all([
-      fetchJson(`${PI_SCORE_URL}/api/pi-score/${userId}/widget`),
-      fetchJson(`${RELATIONSHIP_GRAPH_URL}/api/relationships/${userId}/stale?minStrength=30&minDays=7&limit=3`),
-      fetchJson(`${LEARNING_OS_V2_URL}/api/learning/due/${userId}?threshold=0.7&limit=3`),
-      fetchJson(`${REFLECTION_ENGINE_URL}/api/reflection/${userId}`),
-      fetchJson(`${PROACTIVE_ENGINE_URL}/api/proactive/check`, { method: 'POST', body: { userId } }),
-      // Phase 5: Life OS Integration data
-      fetchJson(`${CALENDAR_CONNECTOR_URL}/api/calendar/${userId}/events`),
-      fetchJson(`${TASKS_CONNECTOR_URL}/api/tasks/${userId}/today`),
-      fetchJson(`${EMAIL_CONNECTOR_URL}/api/email/${userId}/digest`).catch(() => null),
-      fetchJson(`${PHOTOS_CONNECTOR_URL}/api/photos/${userId}/year-ago`).catch(() => null),
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        userId,
-        piScore: piScore ? {
-          score: piScore.overall,
-          level: piScore.levelName,
-          emoji: piScore.levelEmoji,
-          nextLevel: piScore.nextLevel?.name,
-          pointsToNext: piScore.nextLevel?.pointsToNext,
-          progress: piScore.progressToNext,
-        } : null,
-        reachOut: (stale?.candidates || []).map((p) => ({
-          personId: p.personId,
-          name: p.name,
-          daysSince: p.daysSince,
-          strength: p.strength,
-        })),
-        factsToRefresh: (learningDue?.due || []).map((f) => ({
-          factId: f.factId,
-          text: f.text,
-          category: f.category,
-          retention: f.retention,
-        })),
-        lastReflection: reflection ? {
-          weekOf: reflection.weekOf,
-          summary: reflection.summary,
-          insightCount: reflection.insights?.length || 0,
-        } : null,
-        proactive: (proactive?.suggestions || []).map((s) => ({
-          category: s.category,
-          title: s.title,
-          message: s.message,
-        })),
-        // Phase 5: Life OS Integration surfaces
-        calendar: (calendarToday?.events || []).slice(0, 3).map((e) => ({
-          eventId: e.id,
-          title: e.title,
-          start: e.start,
-          end: e.end,
-        })),
-        tasks: (tasksToday?.tasks || []).slice(0, 5).map((t) => ({
-          taskId: t.id,
-          title: t.title,
-          dueAt: t.dueAt,
-          priority: t.priority,
-        })),
-        emailDigest: emailDigest ? {
-          date: emailDigest.date,
-          items: (emailDigest.items || []).map((i) => ({
-            id: i.id,
-            from: i.from,
-            subject: i.subject,
-            category: i.category,
-          })),
-        } : null,
-        yearAgo: yearAgo ? {
-          today: yearAgo.today,
-          buckets: (yearAgo.buckets || []).slice(0, 3).map((b) => ({ yearsBack: b.yearsBack, count: b.count })),
-        } : null,
-      },
-      meta: { timestamp: new Date().toISOString() },
-    });
-  } catch (e) { next(e); }
-});
-
-// === Phase 4: Ambient briefing schedule — what kinds should fire today ===
-app.get('/api/pios/schedule/:userId', authMiddleware, async (req, res, next) => {
-  try {
-    const tz = req.query.tz || 'UTC';
-    const r = await axios.get(`${AMBIENT_BRIEFINGS_URL}/api/ambient/schedule?tz=${encodeURIComponent(tz)}`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
-      timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) {
-    res.json({
-      success: true,
-      data: { currentKind: null, todaySchedule: [], error: 'ambient-briefings unreachable' },
-      meta: { timestamp: new Date().toISOString() },
-    });
-  }
-});
-
-// === Phase 4: Trigger an ambient briefing (e.g. mid-day push) ===
-app.post('/api/pios/ambient/:userId/:kind', authMiddleware, async (req, res, next) => {
-  try {
-    const { userId, kind } = req.params;
-    const r = await axios.post(
-      `${AMBIENT_BRIEFINGS_URL}/api/ambient/${kind}`,
-      { userId },
-      { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000 }
-    );
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) {
-    if (e.response) {
-      res.status(e.response.status).json(e.response.data);
-    } else {
-      res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'ambient-briefings unreachable' }, meta: { timestamp: new Date().toISOString() } });
-    }
-  }
-});
-
-// === Phase 4: Device sync — handoff + heartbeat ===
-app.post('/api/pios/device/:userId/handoff', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.post(
-      `${DEVICE_SYNC_URL}/api/sync/session/handoff`,
-      { ...req.body, userId: req.params.userId },
-      { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }
-    );
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) {
-    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'device-sync unreachable' }, meta: { timestamp: new Date().toISOString() } });
-  }
-});
-
-app.get('/api/pios/device/:userId/active', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${DEVICE_SYNC_URL}/api/sync/devices/${req.params.userId}/active`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) {
-    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'device-sync unreachable' }, meta: { timestamp: new Date().toISOString() } });
-  }
-});
-
-// === Phase 5: Life OS Integration — 6 connector services ===
-
-// Health: today's summary + nudges (correlation engine output)
-app.get('/api/pios/health/:userId/today', authMiddleware, async (req, res, next) => {
-  try {
-    const [summary, nudges, correlations] = await Promise.all([
-      axios.get(`${HEALTH_CONNECTOR_URL}/api/health/${req.params.userId}/summary`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: null } })),
-      axios.get(`${HEALTH_CONNECTOR_URL}/api/health/${req.params.userId}/nudges`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { nudges: [] } } })),
-      axios.get(`${HEALTH_CONNECTOR_URL}/api/health/${req.params.userId}/correlations`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { correlations: [] } } })),
-    ]);
-    res.json({ success: true, data: { summary: summary.data?.data, nudges: nudges.data?.data?.nudges || [], correlations: correlations.data?.data?.correlations || [] }, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Calendar: upcoming events + any prep nudges due in next 30 min
-app.get('/api/pios/calendar/:userId/today', authMiddleware, async (req, res, next) => {
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 86400000).toISOString();
-    const [events, prep] = await Promise.all([
-      axios.get(`${CALENDAR_CONNECTOR_URL}/api/calendar/${req.params.userId}/events?from=${today}&to=${tomorrow}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { events: [] } } })),
-      axios.get(`${CALENDAR_CONNECTOR_URL}/api/calendar/${req.params.userId}/prep?horizonMin=30`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { events: [] } } })),
-    ]);
-    res.json({ success: true, data: { events: events.data?.data?.events || [], prep: prep.data?.data?.events || [] }, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Calendar: parse natural-language schedule request
-app.post('/api/pios/calendar/:userId/parse', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.post(`${CALENDAR_CONNECTOR_URL}/api/calendar/${req.params.userId}/parse`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) {
-    const status = e.response?.status || 502;
-    res.status(status).json({ success: false, error: { code: 'CALENDAR_PARSE_FAILED', message: e.response?.data?.error?.message || e.message }, meta: { timestamp: new Date().toISOString() } });
-  }
-});
-
-// Email: today's digest
-app.get('/api/pios/email/:userId/digest', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${EMAIL_CONNECTOR_URL}/api/email/${req.params.userId}/digest`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) {
-    res.json({ success: false, error: { code: 'EMAIL_DISABLED', message: 'email not opted in' }, meta: { timestamp: new Date().toISOString() } });
-  }
-});
-
-// Contacts: stale people (who should you reach out to today?)
-app.get('/api/pios/contacts/:userId/stale', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${CONTACTS_CONNECTOR_URL}/api/contacts/${req.params.userId}/stale`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Photos: year-ago-today
-app.get('/api/pios/photos/:userId/year-ago', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${PHOTOS_CONNECTOR_URL}/api/photos/${req.params.userId}/year-ago`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Tasks: today + overdue (the "what's on my plate" widget feed)
-app.get('/api/pios/tasks/:userId/today', authMiddleware, async (req, res, next) => {
-  try {
-    const [today, overdue] = await Promise.all([
-      axios.get(`${TASKS_CONNECTOR_URL}/api/tasks/${req.params.userId}/today`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { tasks: [] } } })),
-      axios.get(`${TASKS_CONNECTOR_URL}/api/tasks/${req.params.userId}/overdue`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000 }).catch(() => ({ data: { data: { tasks: [] } } })),
-    ]);
-    res.json({ success: true, data: { today: today.data?.data?.tasks || [], overdue: overdue.data?.data?.tasks || [] }, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// === Phase 6: Agentic & Marketplace ===
-
-// Background agents — list
-app.get('/api/pios/agents/:userId/agents', authMiddleware, async (req, res, next) => {
-  if (!USE_BACKGROUND_AGENTS) return res.json({ success: true, data: { agents: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
-  try {
-    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Background agents — create custom
-app.post('/api/pios/agents/:userId/agents', authMiddleware, async (req, res, next) => {
-  if (!USE_BACKGROUND_AGENTS) return err(res, 503, 'DISABLED', 'background agents disabled');
-  try {
-    const r = await axios.post(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.status(r.status).json(r.data);
-  } catch (e) {
-    if (e.response) res.status(e.response.status).json(e.response.data);
-    else next(e);
-  }
-});
-
-// Background agents — toggle enable/disable
-app.put('/api/pios/agents/:userId/agents/:agentId', authMiddleware, async (req, res, next) => {
-  if (!USE_BACKGROUND_AGENTS) return err(res, 503, 'DISABLED', 'background agents disabled');
-  try {
-    const r = await axios.put(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents/${req.params.agentId}`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Background agents — list built-in templates
-app.get('/api/pios/agents/built-ins', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/built-ins`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Background agents — run all due agents for user
-app.post('/api/pios/agents/:userId/tick', authMiddleware, async (req, res, next) => {
-  if (!USE_BACKGROUND_AGENTS) return err(res, 503, 'DISABLED', 'background agents disabled');
-  try {
-    const r = await axios.post(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/tick`, req.body || {}, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Background agents — get audit/run history for one agent
-app.get('/api/pios/agents/:userId/agents/:agentId/audit', authMiddleware, async (req, res, next) => {
-  if (!USE_BACKGROUND_AGENTS) return res.json({ success: true, data: { runs: [] }, meta: { timestamp: new Date().toISOString() } });
-  try {
-    const r = await axios.get(`${BACKGROUND_AGENTS_URL}/api/agents/${req.params.userId}/agents/${req.params.agentId}/audit`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// One-shot actions — build a plan
-app.post('/api/pios/actions/:userId/plan', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.post(`${ONE_SHOT_ACTIONS_URL}/api/actions/${req.params.userId}/plan`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000,
-    });
-    res.status(r.status).json(r.data);
-  } catch (e) {
-    if (e.response) res.status(e.response.status).json(e.response.data);
-    else next(e);
-  }
-});
-
-// One-shot actions — list plans for user
-app.get('/api/pios/actions/:userId/plans', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${ONE_SHOT_ACTIONS_URL}/api/actions/${req.params.userId}/plans`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// One-shot actions — confirm a plan
-app.post('/api/pios/actions/:userId/plans/:planId/confirm', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.post(`${ONE_SHOT_ACTIONS_URL}/api/actions/${req.params.userId}/plans/${req.params.planId}/confirm`, req.body || {}, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Genie Skills — list catalog
-app.get('/api/pios/skills/catalog', authMiddleware, async (req, res, next) => {
-  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { skills: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
-  try {
-    const r = await axios.get(`${GENIE_SKILLS_URL}/api/skills/catalog`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Genie Skills — list installed skills for user
-app.get('/api/pios/skills/:userId/installed', authMiddleware, async (req, res, next) => {
-  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { skills: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
-  try {
-    const r = await axios.get(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/installed`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Genie Skills — install
-app.post('/api/pios/skills/:userId/install', authMiddleware, async (req, res, next) => {
-  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
-  try {
-    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/install`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.status(r.status).json(r.data);
-  } catch (e) {
-    if (e.response) res.status(e.response.status).json(e.response.data);
-    else next(e);
-  }
-});
-
-// Genie Skills — uninstall
-app.delete('/api/pios/skills/:userId/install/:skillId', authMiddleware, async (req, res, next) => {
-  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
-  try {
-    const r = await axios.delete(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/install/${req.params.skillId}`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Genie Skills — one-click revoke
-app.post('/api/pios/skills/:userId/revoke', authMiddleware, async (req, res, next) => {
-  if (!USE_SKILLS_MARKETPLACE) return err(res, 503, 'DISABLED', 'skills marketplace disabled');
-  try {
-    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/revoke`, {}, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Genie Skills — match skills to user text (used by router)
-app.post('/api/pios/skills/:userId/match', authMiddleware, async (req, res, next) => {
-  if (!USE_SKILLS_MARKETPLACE) return res.json({ success: true, data: { matches: [], disabled: true }, meta: { timestamp: new Date().toISOString() } });
-  try {
-    const r = await axios.post(`${GENIE_SKILLS_URL}/api/skills/${req.params.userId}/match`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Long-running tasks — list
-app.get('/api/pios/lrt/:userId/tasks', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Long-running tasks — create
-app.post('/api/pios/lrt/:userId/tasks', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.post(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.status(r.status).json(r.data);
-  } catch (e) {
-    if (e.response) res.status(e.response.status).json(e.response.data);
-    else next(e);
-  }
-});
-
-// Long-running tasks — get one
-app.get('/api/pios/lrt/:userId/tasks/:taskId', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.get(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks/${req.params.taskId}`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Long-running tasks — update progress
-app.post('/api/pios/lrt/:userId/tasks/:taskId/progress', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.post(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks/${req.params.taskId}/progress`, req.body, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
-});
-
-// Long-running tasks — cancel
-app.delete('/api/pios/lrt/:userId/tasks/:taskId', authMiddleware, async (req, res, next) => {
-  try {
-    const r = await axios.delete(`${LONG_RUNNING_TASKS_URL}/api/lrt/${req.params.userId}/tasks/${req.params.taskId}`, {
-      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000,
-    });
-    res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
-  } catch (e) { next(e); }
 });
 
 app.get('/api/conversations', authMiddleware, async (req, res, next) => {

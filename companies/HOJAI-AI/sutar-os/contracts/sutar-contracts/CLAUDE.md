@@ -1,10 +1,10 @@
 # sutar-contracts
 
-> **Service:** SUTAR OS Contracts (legacy alias)
+> **Service:** SUTAR OS Contracts
 > **Port:** 4185
 > **Layer:** 6 (Trust + Contracts + Negotiation)
 > **Built:** June 20, 2026
-> **Status:** ⚠️ Legacy alias — primary Contract OS is at `sutar-contract-os` (port **4292**, renumbered 2026-06-22). Prefer using `sutar-contract-os` via the Hub: `/api/sutar/sutar-contract-os/...`
+> **Status:** ✅ Production-ready v1.0
 
 ## What it does
 

@@ -1,23 +1,15 @@
 /**
- * Local type augmentations for sutar-trust-engine.
- *
- * The @rtmn/shared package ships its own type declarations
- * (auth/index.d.ts) so we don't redeclare its modules here. We only
- * augment Express.Request to carry the tenant context set by the
- * createTenantContext middleware.
- *
- * ADR-0009 Phase 1.
+ * Ambient type declarations for the @rtmn/shared package.
+ * The shared package is plain JS (no .d.ts) so we declare the modules
+ * we use here.
  */
 
-export {};
+declare module '@rtmn/shared/auth' {
+  import type { RequestHandler } from 'express';
+  export const requireAuth: RequestHandler;
+}
 
-declare global {
-  namespace Express {
-    interface Request {
-      tenant?: {
-        companyId: string;
-        source: string;
-      };
-    }
-  }
+declare module '@rtmn/shared/lib/shutdown' {
+  import type { Server } from 'http';
+  export function installGracefulShutdown(server: Server): void;
 }

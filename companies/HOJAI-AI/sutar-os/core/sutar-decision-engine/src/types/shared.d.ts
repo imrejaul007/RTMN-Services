@@ -1,25 +1,15 @@
 /**
- * Local type augmentations for sutar-decision-engine.
- *
- * The @rtmn/shared package ships its own type declarations
- * (auth/index.d.ts) so we don't need to declare its modules here. We only
- * augment Express.Request to carry the tenant context set by the
- * createTenantContext middleware.
- *
- * ADR-0009 Phase 1.
+ * Ambient module declarations for the @rtmn/shared JS-only modules used
+ * by sutar-decision-engine. The shared package ships as plain JS (no .d.ts)
+ * so we declare just the surface area we use.
  */
 
-// Marker export makes this file a module, which is required for the global
-// namespace augmentation below to be valid.
-export {};
+declare module '@rtmn/shared/auth' {
+  import type { RequestHandler } from 'express';
+  export const requireAuth: RequestHandler;
+}
 
-declare global {
-  namespace Express {
-    interface Request {
-      tenant?: {
-        companyId: string;
-        source: string;
-      };
-    }
-  }
+declare module '@rtmn/shared/lib/shutdown' {
+  import type { Server } from 'http';
+  export function installGracefulShutdown(server: Server): void;
 }

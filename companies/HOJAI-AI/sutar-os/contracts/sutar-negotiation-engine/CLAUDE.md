@@ -4,7 +4,7 @@
 
 **Name:** sutar-negotiation-engine
 **Type:** SUTAR OS Service
-**Port:** 4293 (renumbered 2026-06-22; was 4191)
+**Port:** 4191
 **Description:** Negotiation Engine - RFQ and counter-offer
 **Company:** HOJAI AI
 **Product:** SUTAR OS
@@ -29,7 +29,7 @@
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4293 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4191 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

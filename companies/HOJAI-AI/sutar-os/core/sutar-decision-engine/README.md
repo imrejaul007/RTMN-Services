@@ -6,7 +6,7 @@
 
 This is a SUTAR OS service providing Decision Engine - Policy and risk evaluation.
 
-**Port:** 4290 (renumbered 2026-06-22; was 4240)
+**Port:** 4240
 **Company:** HOJAI AI
 **Product:** SUTAR OS
 
@@ -52,7 +52,7 @@ This service follows the SUTAR OS 12-layer canonical architecture:
 
 ```
 Layer: Decision Engine
-Port: 4290 (renumbered 2026-06-22; was 4240)
+Port: 4240
 Type: Microservice
 ```
 
@@ -60,7 +60,7 @@ Type: Microservice
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4290 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4240 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 

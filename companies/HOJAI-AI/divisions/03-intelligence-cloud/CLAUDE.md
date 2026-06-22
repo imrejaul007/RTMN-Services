@@ -1,7 +1,7 @@
 # Division 3 — AI Intelligence Cloud
 
-> **Status:** 🟢 **100% of buildable items DONE** as of June 22, 2026
-> **Last updated:** June 22, 2026 — Behavior Intelligence (4158) + 5 Company Intelligences (4159-4163) shipped. Plus 13 Genie-facing engines newly housed at `platform/intelligence/` (Intent Engine 4792, Cold Start Onboarding 4793, Morning Briefing v2 4794, Reasoning Engine 4795, Reflection Engine 4796, Proactive Engine 4797, PI Score 4798, Relationship Graph 4799, Learning OS v2 4800, plus the 5 Agent Cloud services — see Division 4). Per-service CLAUDE.md docs now in place for all 18 platform/intelligence services. Remaining items are EXTERNAL (other companies' services) or DEFERRED.
+> **Status:** 🟢 **100% of buildable items DONE** as of June 20, 2026
+> **Last updated:** June 20, 2026 — Behavior Intelligence (4158) + 5 Company Intelligences (4159-4163) shipped. Remaining items are EXTERNAL (other companies' services) or DEFERRED.
 > **Owner:** HOJAI AI Applications team
 
 ---

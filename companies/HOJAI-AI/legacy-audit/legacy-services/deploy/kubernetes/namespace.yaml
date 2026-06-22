@@ -1,8 +1,0 @@
-# HOJAI AI - Kubernetes Namespace
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: hojai
-  labels:
-    name: hojai
-    environment: production

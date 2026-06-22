@@ -4,7 +4,7 @@
 
 **Name:** sutar-contract-os
 **Type:** SUTAR OS Service
-**Port:** 4292 (renumbered 2026-06-22; was 4190)
+**Port:** 4190
 **Description:** Contract OS - Smart contract management
 **Company:** HOJAI AI
 **Product:** SUTAR OS
@@ -29,7 +29,7 @@
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | No | 4292 | Service port (renumbered 2026-06-22) |
+| PORT | No | 4190 | Service port |
 | NODE_ENV | No | development | Environment |
 | LOG_LEVEL | No | info | Logging level |
 
