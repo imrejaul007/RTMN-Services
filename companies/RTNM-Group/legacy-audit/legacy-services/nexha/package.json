@@ -1,0 +1,29 @@
+{
+  "name": "@rez/nexha",
+  "version": "1.0.0",
+  "description": "NeXha - Unified Commerce Network Infrastructure",
+  "private": true,
+  "workspaces": [
+    "shared/*",
+    "distribution-os",
+    "franchise-os",
+    "procurement-os",
+    "manufacturing-os",
+    "ecosystem-connector"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "dev:distribution": "cd distribution-os && npm run dev",
+    "dev:franchise": "cd franchise-os && npm run dev",
+    "dev:procurement": "cd procurement-os && npm run dev",
+    "dev:manufacturing": "cd manufacturing-os && npm run dev",
+    "dev:connector": "cd ecosystem-connector && npm run dev",
+    "lint": "turbo lint",
+    "clean": "turbo clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,165 @@
+# RTNM-Group Render Deployment Configuration
+# https://render.com/docs/deploys
+
+# ============================================
+# Identity Service
+# ============================================
+identity-service:
+  type: web
+  region: singapore
+  plan: starter
+  dockerfilePath: ./Dockerfile
+  dockerCommand: node dist/index.js
+  dockerTarget: production-identity
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: 3003
+    - key: MONGODB_URI
+      sync: false
+    - key: REDIS_URL
+      sync: false
+    - key: IDENTITY_SALT
+      sync: false
+    - key: INTERNAL_SERVICE_TOKENS_JSON
+      sync: false
+    - key: CORS_ORIGIN
+      value: "https://rez.money,https://admin.rez.money"
+    - key: LOG_LEVEL
+      value: info
+
+# ============================================
+# Access Control Service
+# ============================================
+access-control-service:
+  type: web
+  region: singapore
+  plan: starter
+  dockerfilePath: ./Dockerfile
+  dockerCommand: node dist/index.js
+  dockerTarget: production-access-control
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: 3000
+    - key: MONGODB_URI
+      sync: false
+    - key: REDIS_URL
+      sync: false
+    - key: INTERNAL_SERVICE_TOKENS_JSON
+      sync: false
+    - key: LOG_LEVEL
+      value: info
+
+# ============================================
+# Capital Service
+# ============================================
+capital-service:
+  type: web
+  region: singapore
+  plan: starter
+  dockerfilePath: ./Dockerfile
+  dockerCommand: node dist/index.js
+  dockerTarget: production-capital
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: 3005
+    - key: MONGODB_URI
+      sync: false
+    - key: REDIS_URL
+      sync: false
+    - key: CAPITAL_FLOAT_API_KEY
+      sync: false
+    - key: PINELABS_API_KEY
+      sync: false
+    - key: INDIFI_API_KEY
+      sync: false
+    - key: LENDINGKART_API_KEY
+      sync: false
+    - key: INTERNAL_SERVICE_TOKENS_JSON
+      sync: false
+    - key: LOG_LEVEL
+      value: info
+
+# ============================================
+# BNPL Service
+# ============================================
+bnpl-service:
+  type: web
+  region: singapore
+  plan: starter
+  dockerfilePath: ./Dockerfile
+  dockerCommand: node dist/index.js
+  dockerTarget: production-bnpl
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: 3080
+    - key: MONGODB_URI
+      sync: false
+    - key: REDIS_URL
+      sync: false
+    - key: INTERNAL_SERVICE_TOKENS_JSON
+      sync: false
+    - key: LOG_LEVEL
+      value: info
+
+# ============================================
+# Payment Links Service
+# ============================================
+payment-links-service:
+  type: web
+  region: singapore
+  plan: starter
+  dockerfilePath: ./Dockerfile
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: 4018
+    - key: MONGODB_URI
+      sync: false
+    - key: INTERNAL_SERVICE_TOKENS_JSON
+      sync: false
+    - key: LOG_LEVEL
+      value: info
+
+# ============================================
+# Ops Dashboard
+# ============================================
+ops-dashboard:
+  type: web
+  region: singapore
+  plan: starter
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: 4032
+    - key: MONGODB_URI
+      sync: false
+    - key: OPS_ADMIN_TOKEN
+      sync: false
+
+# ============================================
+# Redis (Managed)
+# ============================================
+rtnm-redis:
+  type: redis
+  region: singapore
+  plan: starter
+  ipAllowList: []
+
+# ============================================
+# MongoDB (Managed)
+# ============================================
+rtnm-mongodb:
+  type: mongodbs
+  region: singapore
+  plan: starter
+  ipAllowList: []

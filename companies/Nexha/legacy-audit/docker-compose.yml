@@ -1,0 +1,391 @@
+version: '3.8'
+
+services:
+  # ===========================================
+  # NeXha Gateway - Unified API (Port 5002)
+  # ===========================================
+  nexha-gateway:
+    build:
+      context: ./nexha-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    environment:
+      - NODE_ENV=production
+      - PORT=5002
+      - DISTRIBUTION_OS_URL=http://distribution-os:4000
+      - FRANCHISE_OS_URL=http://franchise-os:4000
+      - PROCUREMENT_OS_URL=http://procurement-os:4000
+      - MANUFACTURING_OS_URL=http://manufacturing-os:4000
+      - TRADE_FINANCE_URL=http://trade-finance:4000
+      - INTELLIGENCE_URL=http://intelligence-layer:4000
+      - CONNECTOR_URL=http://ecosystem-connector:4000
+      - HOJAI_BRIDGE_URL=http://hojai-bridge:5140
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      distribution-os:
+        condition: service_healthy
+      franchise-os:
+        condition: service_healthy
+      procurement-os:
+        condition: service_healthy
+      manufacturing-os:
+        condition: service_healthy
+      trade-finance:
+        condition: service_healthy
+      intelligence-layer:
+        condition: service_healthy
+      ecosystem-connector:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha DistributionOS (Port 4300)
+  # ===========================================
+  distribution-os:
+    build:
+      context: ./distribution-os
+      dockerfile: Dockerfile
+    ports:
+      - "4300:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/nexha_distribution
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth:4002
+      - SERVICE_NAME=distribution-os
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha FranchiseOS (Port 4310)
+  # ===========================================
+  franchise-os:
+    build:
+      context: ./franchise-os
+      dockerfile: Dockerfile
+    ports:
+      - "4310:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/nexha_franchise
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth:4002
+      - SERVICE_NAME=franchise-os
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha ProcurementOS (Port 4320)
+  # ===========================================
+  procurement-os:
+    build:
+      context: ./procurement-os
+      dockerfile: Dockerfile
+    ports:
+      - "4320:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/nexha_procurement
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth:4002
+      - SERVICE_NAME=procurement-os
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha ManufacturingOS (Port 4330)
+  # ===========================================
+  manufacturing-os:
+    build:
+      context: ./manufacturing-os
+      dockerfile: Dockerfile
+    ports:
+      - "4330:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/nexha_manufacturing
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth:4002
+      - SERVICE_NAME=manufacturing-os
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha Trade Finance (Port 4340)
+  # ===========================================
+  trade-finance:
+    build:
+      context: ./trade-finance
+      dockerfile: Dockerfile
+    ports:
+      - "4340:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/nexha_finance
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth:4002
+      - SERVICE_NAME=trade-finance
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha Intelligence Layer (Port 4350)
+  # ===========================================
+  intelligence-layer:
+    build:
+      context: ./intelligence-layer
+      dockerfile: Dockerfile
+    ports:
+      - "4350:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/nexha_intelligence
+      - REDIS_URL=redis://redis:6379
+      - DISTRIBUTION_OS_URL=http://distribution-os:4000
+      - PROCUREMENT_OS_URL=http://procurement-os:4000
+      - SERVICE_NAME=intelligence-layer
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      distribution-os:
+        condition: service_healthy
+      procurement-os:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha Ecosystem Connector (Port 4399)
+  # ===========================================
+  ecosystem-connector:
+    build:
+      context: ./ecosystem-connector
+      dockerfile: Dockerfile
+    ports:
+      - "4399:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo:27017/nexha_connector
+      - REDIS_URL=redis://redis:6379
+      - DISTRIBUTION_OS_URL=http://distribution-os:4000
+      - FRANCHISE_OS_URL=http://franchise-os:4000
+      - PROCUREMENT_OS_URL=http://procurement-os:4000
+      - MANUFACTURING_OS_URL=http://manufacturing-os:4000
+      - REZ_MERCHANT_URL=http://rez-merchant:4003
+      - REZ_INTELLIGENCE_URL=http://rez-intelligence:4018
+      - RTNM_FINANCE_URL=http://trade-finance:4000
+      - SERVICE_NAME=ecosystem-connector
+    depends_on:
+      distribution-os:
+        condition: service_healthy
+      franchise-os:
+        condition: service_healthy
+      procurement-os:
+        condition: service_healthy
+      manufacturing-os:
+        condition: service_healthy
+      trade-finance:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # NeXha Portal (Frontend - Port 4388)
+  # ===========================================
+  portal:
+    build:
+      context: ./portal
+      dockerfile: Dockerfile
+    ports:
+      - "4388:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://nexha-gateway:5002
+      - NEXT_PUBLIC_GATEWAY_URL=http://nexha-gateway:5002
+      - NEXT_PUBLIC_DISTRIBUTION_URL=http://distribution-os:4000
+      - NEXT_PUBLIC_FRANCHISE_URL=http://franchise-os:4000
+      - NEXT_PUBLIC_PROCUREMENT_URL=http://procurement-os:4000
+      - NEXT_PUBLIC_MANUFACTURING_URL=http://manufacturing-os:4000
+      - NEXT_PUBLIC_TRADE_FINANCE_URL=http://trade-finance:4000
+    depends_on:
+      nexha-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # Databases
+  # ===========================================
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=nexha
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - nexha-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # External Services (stubs for local development)
+  # ===========================================
+  auth:
+    image: node:20-alpine
+    command: "sleep infinity"
+    environment:
+      - PORT=4002
+    networks:
+      - nexha-network
+
+  rez-merchant:
+    image: node:20-alpine
+    command: "sleep infinity"
+    ports:
+      - "4003:4003"
+    environment:
+      - PORT=4003
+    networks:
+      - nexha-network
+
+  rez-intelligence:
+    image: node:20-alpine
+    command: "sleep infinity"
+    ports:
+      - "4018:4018"
+    environment:
+      - PORT=4018
+    networks:
+      - nexha-network
+
+  # ===========================================
+  # HOJAI Bridge (Port 5140) - Optional external service
+  # ===========================================
+  # Uncomment if HOJAI Bridge is not running externally
+  # hojai-bridge:
+  #   image: node:20-alpine
+  #   command: "sleep infinity"
+  #   ports:
+  #     - "5140:5140"
+  #   networks:
+  #     - nexha-network
+
+networks:
+  nexha-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  redis-data:

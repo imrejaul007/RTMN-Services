@@ -1,0 +1,692 @@
+openapi: 3.0.3
+info:
+  title: ReZ Auth Service API
+  description: |
+    Authentication and authorization microservice handling OTP, TOTP, JWT, and session management.
+
+    ## Features
+    - OTP Authentication: Phone number + OTP login via SMS/WhatsApp
+    - PIN Authentication: 4-6 digit PIN for returning users
+    - JWT Tokens: Access and refresh token management
+    - MFA Support: TOTP-based two-factor authentication
+    - Session Management: Device tracking and session control
+    - Guest Authentication: Web-menu guest sessions
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4002
+    description: Development server
+  - url: https://api.rez.money/auth
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Authentication
+    description: Authentication endpoints
+  - name: MFA
+    description: Multi-factor authentication
+  - name: User
+    description: User management
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/v1/auth/otp/send:
+    post:
+      tags:
+        - Authentication
+      summary: Send OTP
+      description: Sends an OTP to the specified phone number
+      operationId: sendOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendOtpRequest'
+      responses:
+        '200':
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendOtpResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/otp/verify:
+    post:
+      tags:
+        - Authentication
+      summary: Verify OTP
+      description: Verifies OTP and returns authentication tokens
+      operationId: verifyOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOtpRequest'
+      responses:
+        '200':
+          description: OTP verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyOtpResponse'
+        '400':
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/login-pin:
+    post:
+      tags:
+        - Authentication
+      summary: PIN Login
+      description: Authenticates user with phone and PIN
+      operationId: loginWithPin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinLoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh token
+      description: Refreshes access and refresh tokens
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+
+  /api/v1/auth/me:
+    get:
+      tags:
+        - User
+      summary: Get current user
+      description: Returns the current authenticated user
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/set-pin:
+    post:
+      tags:
+        - Authentication
+      summary: Set PIN
+      description: Sets or updates user PIN
+      operationId: setPin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPinRequest'
+      responses:
+        '200':
+          description: PIN set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout
+      description: Logs out the current session
+      operationId: logout
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/guest:
+    post:
+      tags:
+        - Authentication
+      summary: Guest authentication
+      description: Creates a guest session for web-menu
+      operationId: guestAuth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuestAuthRequest'
+      responses:
+        '200':
+          description: Guest session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestAuthResponse'
+
+  /api/v1/auth/mfa/setup:
+    post:
+      tags:
+        - MFA
+      summary: Setup MFA
+      description: Initiates MFA setup and returns QR code URI
+      operationId: setupMfa
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: MFA setup initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaSetupResponse'
+
+  /api/v1/auth/mfa/verify-setup:
+    post:
+      tags:
+        - MFA
+      summary: Verify MFA setup
+      description: Verifies MFA setup with a TOTP code
+      operationId: verifyMfaSetup
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyMfaCodeRequest'
+      responses:
+        '200':
+          description: MFA setup verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/mfa/verify:
+    post:
+      tags:
+        - MFA
+      summary: Verify MFA (login)
+      description: Verifies MFA code during login
+      operationId: verifyMfaLogin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyMfaCodeRequest'
+      responses:
+        '200':
+          description: MFA verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyMfaResponse'
+
+  /api/v1/auth/mfa/backup-verify:
+    post:
+      tags:
+        - MFA
+      summary: Verify backup code
+      description: Verifies a backup code for MFA
+      operationId: verifyBackupCode
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyBackupCodeRequest'
+      responses:
+        '200':
+          description: Backup code verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyMfaResponse'
+
+  /api/v1/auth/mfa/disable:
+    delete:
+      tags:
+        - MFA
+      summary: Disable MFA
+      description: Disables MFA for the user
+      operationId: disableMfa
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisableMfaRequest'
+      responses:
+        '200':
+          description: MFA disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/mfa/status:
+    get:
+      tags:
+        - MFA
+      summary: Get MFA status
+      description: Returns MFA status for the current user
+      operationId: getMfaStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: MFA status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MfaStatusResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SendOtpRequest:
+      type: object
+      required:
+        - phone
+      properties:
+        phone:
+          type: string
+          pattern: '^[0-9]{5,15}$'
+        countryCode:
+          type: string
+          default: '+91'
+        channel:
+          type: string
+          enum:
+            - sms
+            - whatsapp
+          default: sms
+        force:
+          type: boolean
+          default: false
+
+    VerifyOtpRequest:
+      type: object
+      required:
+        - phone
+        - otp
+      properties:
+        phone:
+          type: string
+        otp:
+          type: string
+          pattern: '^[0-9]{4,8}$'
+        countryCode:
+          type: string
+          default: '+91'
+
+    PinLoginRequest:
+      type: object
+      required:
+        - phone
+        - pin
+      properties:
+        phone:
+          type: string
+        pin:
+          type: string
+          pattern: '^[0-9]{4,6}$'
+        countryCode:
+          type: string
+          default: '+91'
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    SetPinRequest:
+      type: object
+      required:
+        - pin
+      properties:
+        pin:
+          type: string
+          pattern: '^[0-9]{4,6}$'
+
+    LogoutRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+
+    GuestAuthRequest:
+      type: object
+      properties:
+        tableId:
+          type: string
+        storeId:
+          type: string
+
+    VerifyMfaCodeRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          pattern: '^[0-9]{6}$'
+
+    VerifyBackupCodeRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+
+    DisableMfaRequest:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+            - merchant
+        isVerified:
+          type: boolean
+        isOnboarded:
+          type: boolean
+        profile:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            avatar:
+              type: string
+
+    Tokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+
+    SendOtpResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        messageId:
+          type: string
+        isNewUser:
+          type: boolean
+        hasPIN:
+          type: boolean
+
+    VerifyOtpResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        isNewUser:
+          type: boolean
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokens:
+          $ref: '#/components/schemas/Tokens'
+        user:
+          $ref: '#/components/schemas/User'
+        mfaRequired:
+          type: boolean
+        mfaSessionToken:
+          type: string
+        backupCodesAvailable:
+          type: integer
+        deviceRisk:
+          type: string
+          enum:
+            - new
+            - trusted
+            - suspicious
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        deviceRisk:
+          type: string
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/User'
+
+    GuestAuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        guestToken:
+          type: string
+        guestId:
+          type: string
+        tableId:
+          type: string
+        storeId:
+          type: string
+
+    MfaSetupResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        keyUri:
+          type: string
+        backupCodes:
+          type: array
+          items:
+            type: string
+        message:
+          type: string
+
+    VerifyMfaResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    MfaStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            isEnabled:
+              type: boolean
+            enabledAt:
+              type: string
+              format: date-time
+            lastVerifiedAt:
+              type: string
+              format: date-time
+            unUsedBackupCodesCount:
+              type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

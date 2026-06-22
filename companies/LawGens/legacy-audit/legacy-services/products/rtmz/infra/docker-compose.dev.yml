@@ -1,0 +1,443 @@
+version: '3.8'
+
+# Development compose with hot reload
+# Usage: docker-compose -f docker-compose.dev.yml up
+
+services:
+  # === INFRASTRUCTURE ===
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev:/data/db
+    networks:
+      - rtmz-dev
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - rtmz-dev
+
+  # === AUTH SERVICES ===
+  rez-auth:
+    build:
+      context: ../apps/services/rez-auth-service
+    ports:
+      - "4002:4002"
+    volumes:
+      - ../apps/services/rez-auth-service:/app
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - NODE_ENV=development
+      - PORT=4002
+      - MONGODB_URI=mongodb://mongodb:27017/rez-auth
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=dev-secret
+      - INTERNAL_SERVICE_TOKENS_JSON={"graphql-gateway":"dev-token","automl":"dev-token","invoice-ocr":"dev-token","contract-mgmt":"dev-token","legal-ai":"dev-token","cosmic-twin":"dev-token","ranking":"dev-token","mcp-servers":"dev-token"}
+    networks:
+      - rtmz-dev
+
+  rez-sso:
+    build:
+      context: ../apps/services/REZ-sso-service
+    ports:
+      - "4003:4003"
+    volumes:
+      - ../apps/services/REZ-sso-service:/app
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=4003
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  # === BUSINESS SERVICES ===
+  graphql-gateway:
+    build:
+      context: ../apps/services/REZ-graphql-federation
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../apps/services/REZ-graphql-federation:/app
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  automl:
+    build:
+      context: ../apps/services/REZ-automl-pipeline
+    ports:
+      - "5001:5001"
+    volumes:
+      - ../apps/services/REZ-automl-pipeline:/app
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=5001
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  invoice-ocr:
+    build:
+      context: ../apps/services/REZ-invoice-ocr
+    ports:
+      - "5002:5002"
+    volumes:
+      - ../apps/services/REZ-invoice-ocr:/app
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=5002
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  contract-mgmt:
+    build:
+      context: ../apps/services/REZ-contract-management
+    ports:
+      - "5003:5003"
+    volumes:
+      - ../apps/services/REZ-contract-management:/app
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=5003
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  legal-ai:
+    build:
+      context: ../apps/services/REZ-legal-document-ai
+    ports:
+      - "5004:5004"
+    volumes:
+      - ../apps/services/REZ-legal-document-ai:/app
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=5004
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  cosmic-twin:
+    build:
+      context: ../apps/services/REZ-cosmic-twin
+    ports:
+      - "5005:5005"
+    volumes:
+      - ../apps/services/REZ-cosmic-twin:/app
+    depends_on:
+      - mongodb
+      - redis
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=5005
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  ranking:
+    build:
+      context: ../apps/services/REZ-ranking-service
+    ports:
+      - "5006:5006"
+    volumes:
+      - ../apps/services/REZ-ranking-service:/app
+    depends_on:
+      - mongodb
+      - redis
+      - rez-auth
+    environment:
+      - NODE_ENV=development
+      - PORT=5006
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+    networks:
+      - rtmz-dev
+
+  # === MCP SERVERS ===
+  mcp-analytics:
+    build:
+      context: ../apps/mcp/rez-mcp-analytics
+    ports:
+      - "3100:3100"
+    volumes:
+      - ../apps/mcp/rez-mcp-analytics:/app
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=development
+      - PORT=3100
+    networks:
+      - rtmz-dev
+
+  mcp-identity:
+    build:
+      context: ../apps/mcp/rez-mcp-identity
+    ports:
+      - "3101:3101"
+    volumes:
+      - ../apps/mcp/rez-mcp-identity:/app
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=development
+      - PORT=3101
+    networks:
+      - rtmz-dev
+
+  mcp-event-bus:
+    build:
+      context: ../apps/mcp/rez-mcp-event-bus
+    ports:
+      - "3102:3102"
+    volumes:
+      - ../apps/mcp/rez-mcp-event-bus:/app
+    depends_on:
+      - redis
+    environment:
+      - NODE_ENV=development
+      - PORT=3102
+    networks:
+      - rtmz-dev
+
+  mcp-notification:
+    build:
+      context: ../apps/mcp/rez-mcp-notification
+    ports:
+      - "3103:3103"
+    volumes:
+      - ../apps/mcp/rez-mcp-notification:/app
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=development
+      - PORT=3103
+    networks:
+      - rtmz-dev
+
+  mcp-order:
+    build:
+      context: ../apps/mcp/rez-mcp-order
+    ports:
+      - "3104:3104"
+    volumes:
+      - ../apps/mcp/rez-mcp-order:/app
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=development
+      - PORT=3104
+    networks:
+      - rtmz-dev
+
+  mcp-payment:
+    build:
+      context: ../apps/mcp/rez-mcp-payment
+    ports:
+      - "3105:3105"
+    volumes:
+      - ../apps/mcp/rez-mcp-payment:/app
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=development
+      - PORT=3105
+    networks:
+      - rtmz-dev
+
+  mcp-inventory:
+    build:
+      context: ../apps/mcp/rez-mcp-inventory
+    ports:
+      - "3106:3106"
+    volumes:
+      - ../apps/mcp/rez-mcp-inventory:/app
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=development
+      - PORT=3106
+    networks:
+      - rtmz-dev
+
+  mcp-logs:
+    build:
+      context: ../apps/mcp/rez-mcp-logs
+    ports:
+      - "3107:3107"
+    volumes:
+      - ../apps/mcp/rez-mcp-logs:/app
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - NODE_ENV=development
+      - PORT=3107
+    networks:
+      - rtmz-dev
+
+  mcp-service-discovery:
+    build:
+      context: ../apps/mcp/rez-mcp-service-discovery
+    ports:
+      - "3108:3108"
+    volumes:
+      - ../apps/mcp/rez-mcp-service-discovery:/app
+    depends_on:
+      - redis
+    environment:
+      - NODE_ENV=development
+      - PORT=3108
+    networks:
+      - rtmz-dev
+
+  mcp-agent-invoke:
+    build:
+      context: ../apps/mcp/rez-mcp-agent-invoke
+    ports:
+      - "3109:3109"
+    volumes:
+      - ../apps/mcp/rez-mcp-agent-invoke:/app
+    depends_on:
+      - graphql-gateway
+    environment:
+      - NODE_ENV=development
+      - PORT=3109
+    networks:
+      - rtmz-dev
+
+  mcp-automl:
+    build:
+      context: ../apps/mcp/rez-mcp-automl
+    ports:
+      - "3110:3110"
+    volumes:
+      - ../apps/mcp/rez-mcp-automl:/app
+    depends_on:
+      - automl
+    environment:
+      - NODE_ENV=development
+      - PORT=3110
+    networks:
+      - rtmz-dev
+
+  mcp-invoice:
+    build:
+      context: ../apps/mcp/rez-mcp-invoice
+    ports:
+      - "3111:3111"
+    volumes:
+      - ../apps/mcp/rez-mcp-invoice:/app
+    depends_on:
+      - invoice-ocr
+    environment:
+      - NODE_ENV=development
+      - PORT=3111
+    networks:
+      - rtmz-dev
+
+  mcp-contracts:
+    build:
+      context: ../apps/mcp/rez-mcp-contracts
+    ports:
+      - "3112:3112"
+    volumes:
+      - ../apps/mcp/rez-mcp-contracts:/app
+    depends_on:
+      - contract-mgmt
+    environment:
+      - NODE_ENV=development
+      - PORT=3112
+    networks:
+      - rtmz-dev
+
+  mcp-legal:
+    build:
+      context: ../apps/mcp/rez-mcp-legal
+    ports:
+      - "3113:3113"
+    volumes:
+      - ../apps/mcp/rez-mcp-legal:/app
+    depends_on:
+      - legal-ai
+    environment:
+      - NODE_ENV=development
+      - PORT=3113
+    networks:
+      - rtmz-dev
+
+  mcp-cosmic-twin:
+    build:
+      context: ../apps/mcp/rez-mcp-cosmic-twin
+    ports:
+      - "3114:3114"
+    volumes:
+      - ../apps/mcp/rez-mcp-cosmic-twin:/app
+    depends_on:
+      - cosmic-twin
+    environment:
+      - NODE_ENV=development
+      - PORT=3114
+    networks:
+      - rtmz-dev
+
+  mcp-ranking:
+    build:
+      context: ../apps/mcp/rez-mcp-ranking
+    ports:
+      - "3115:3115"
+    volumes:
+      - ../apps/mcp/rez-mcp-ranking:/app
+    depends_on:
+      - ranking
+    environment:
+      - NODE_ENV=development
+      - PORT=3115
+    networks:
+      - rtmz-dev
+
+  # === DASHBOARD ===
+  dashboard:
+    image: node:20-alpine
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../apps/monitoring:/app
+    command: sh -c "npm install && npx serve -s . -l 3000"
+    networks:
+      - rtmz-dev
+
+networks:
+  rtmz-dev:
+    driver: bridge
+
+volumes:
+  mongodb_dev:

@@ -1,0 +1,705 @@
+openapi: 3.0.3
+info:
+  title: ReZ Refund Service API
+  description: |
+    A comprehensive refund processing service for the ReZ ecosystem, providing refund initiation,
+    status tracking, cancellation, and dispute management.
+
+    ## Features
+    - Refund Initiation: Process refunds for orders and payments
+    - Partial Refunds: Support for partial refund amounts
+    - Refund Status Tracking: Real-time refund status updates
+    - Automated Processing: Automatic refund processing for eligible orders
+    - Dispute Management: Handle refund disputes and escalations
+    - Audit Trail: Complete logging of refund operations
+    - Multi-payment Support: Handle refunds across payment methods
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4030
+    description: Development server
+  - url: https://api.rez.money/refund
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Refunds
+    description: Refund operations
+  - name: Disputes
+    description: Dispute management
+  - name: Statistics
+    description: Refund statistics
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/refunds:
+    get:
+      tags:
+        - Refunds
+      summary: List refunds
+      description: Returns a list of refunds
+      operationId: listRefunds
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/RefundStatus'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/RefundType'
+        - name: orderId
+          in: query
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of refunds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundListResponse'
+
+    post:
+      tags:
+        - Refunds
+      summary: Initiate refund
+      description: Initiates a new refund request
+      operationId: initiateRefund
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InititateRefundRequest'
+      responses:
+        '201':
+          description: Refund initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Refund not eligible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/refunds/{id}:
+    get:
+      tags:
+        - Refunds
+      summary: Get refund
+      description: Returns a single refund
+      operationId: getRefund
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Refund details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '404':
+          description: Refund not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/refunds/{id}/cancel:
+    post:
+      tags:
+        - Refunds
+      summary: Cancel refund
+      description: Cancels a pending refund
+      operationId: cancelRefund
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Refund cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '400':
+          description: Cannot cancel refund in current state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/refunds/{id}/process:
+    post:
+      tags:
+        - Refunds
+      summary: Process refund
+      description: Manually processes a refund
+      operationId: processRefund
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Refund processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+
+  /api/refunds/order/{orderId}:
+    get:
+      tags:
+        - Refunds
+      summary: Get order refunds
+      description: Returns all refunds for an order
+      operationId: getOrderRefunds
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order refunds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundListResponse'
+
+  /api/disputes:
+    get:
+      tags:
+        - Disputes
+      summary: List disputes
+      description: Returns a list of refund disputes
+      operationId: listDisputes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - open
+              - under_review
+              - resolved
+              - rejected
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: List of disputes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisputeListResponse'
+
+    post:
+      tags:
+        - Disputes
+      summary: Raise dispute
+      description: Raises a dispute for a refund
+      operationId: raiseDispute
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RaiseDisputeRequest'
+      responses:
+        '201':
+          description: Dispute raised
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisputeResponse'
+
+  /api/disputes/{id}:
+    get:
+      tags:
+        - Disputes
+      summary: Get dispute
+      description: Returns a single dispute
+      operationId: getDispute
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dispute details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisputeResponse'
+        '404':
+          description: Dispute not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/disputes/{id}/update:
+    post:
+      tags:
+        - Disputes
+      summary: Update dispute
+      description: Updates a dispute status
+      operationId: updateDispute
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDisputeRequest'
+      responses:
+        '200':
+          description: Dispute updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisputeResponse'
+
+  /api/stats:
+    get:
+      tags:
+        - Statistics
+      summary: Get refund statistics
+      description: Returns refund statistics
+      operationId: getRefundStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Refund statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundStatsResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RefundStatus:
+      type: string
+      enum:
+        - pending
+        - processing
+        - completed
+        - failed
+        - cancelled
+        - disputed
+
+    RefundType:
+      type: string
+      enum:
+        - full
+        - partial
+        - automatic
+        - manual
+
+    Refund:
+      type: object
+      properties:
+        id:
+          type: string
+        orderId:
+          type: string
+        paymentId:
+          type: string
+        customerId:
+          type: string
+        merchantId:
+          type: string
+        type:
+          $ref: '#/components/schemas/RefundType'
+        status:
+          $ref: '#/components/schemas/RefundStatus'
+        originalAmount:
+          type: number
+        refundAmount:
+          type: number
+        refundedAmount:
+          type: number
+        currency:
+          type: string
+          default: INR
+        reason:
+          type: string
+        reasonCode:
+          type: string
+        paymentMethod:
+          type: string
+        transactionId:
+          type: string
+        initiatedBy:
+          type: string
+          enum:
+            - customer
+            - merchant
+            - system
+            - admin
+        processedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Dispute:
+      type: object
+      properties:
+        id:
+          type: string
+        refundId:
+          type: string
+        orderId:
+          type: string
+        customerId:
+          type: string
+        status:
+          type: string
+          enum:
+            - open
+            - under_review
+            - resolved
+            - rejected
+        reason:
+          type: string
+        evidence:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              url:
+                type: string
+              description:
+                type: string
+        resolution:
+          type: string
+        resolvedBy:
+          type: string
+        resolvedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    InititateRefundRequest:
+      type: object
+      required:
+        - orderId
+        - amount
+      properties:
+        orderId:
+          type: string
+        paymentId:
+          type: string
+        amount:
+          type: number
+        reason:
+          type: string
+        reasonCode:
+          type: string
+        isAutomatic:
+          type: boolean
+          default: false
+
+    RaiseDisputeRequest:
+      type: object
+      required:
+        - refundId
+        - reason
+      properties:
+        refundId:
+          type: string
+        reason:
+          type: string
+        evidence:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              url:
+                type: string
+              description:
+                type: string
+
+    UpdateDisputeRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - under_review
+            - resolved
+            - rejected
+        resolution:
+          type: string
+
+    RefundResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Refund'
+
+    RefundListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refund'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    DisputeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Dispute'
+
+    DisputeListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dispute'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    RefundStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalRefunds:
+              type: integer
+            totalAmount:
+              type: number
+            pendingRefunds:
+              type: integer
+            pendingAmount:
+              type: number
+            completedRefunds:
+              type: integer
+            completedAmount:
+              type: number
+            failedRefunds:
+              type: integer
+            disputedRefunds:
+              type: integer
+            byReason:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  amount:
+                    type: number
+            byDay:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                  count:
+                    type: integer
+                  amount:
+                    type: number
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object

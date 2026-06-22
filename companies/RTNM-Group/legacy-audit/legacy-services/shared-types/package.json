@@ -1,0 +1,64 @@
+{
+  "name": "@rez/shared-types",
+  "version": "2.0.0",
+  "description": "Canonical TypeScript interfaces, zod schemas, FSM helpers, branded IDs, and runtime guards for all RuFlo/REZ services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "MIGRATION.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "echo '(tests live in __tests__; run via parent repo jest)'",
+    "publish:npm": "npm run build && npm publish --access public"
+  },
+  "keywords": [
+    "types",
+    "interfaces",
+    "entities",
+    "zod",
+    "fsm",
+    "branded-ids",
+    "rez"
+  ],
+  "dependencies": {
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.6.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "express": "^4.18.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./fsm": {
+      "types": "./dist/fsm/index.d.ts",
+      "default": "./dist/fsm/index.js"
+    },
+    "./guards": {
+      "types": "./dist/guards/index.d.ts",
+      "default": "./dist/guards/index.js"
+    },
+    "./branded": {
+      "types": "./dist/branded/ids.d.ts",
+      "default": "./dist/branded/ids.js"
+    },
+    "./validation": {
+      "types": "./dist/validation/index.d.ts",
+      "default": "./dist/validation/index.js"
+    }
+  }
+}

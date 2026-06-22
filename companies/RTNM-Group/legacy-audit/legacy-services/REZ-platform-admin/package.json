@@ -1,0 +1,25 @@
+{
+  "name": "rez-platform-admin",
+  "version": "1.0.0",
+  "description": "REZ Platform Admin - Complete ecosystem control",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "next": "14.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "axios": "1.6.0",
+    "recharts": "2.10.0",
+    "lucide-react": "0.300.0",
+    "date-fns": "2.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.10.0",
+    "@types/react": "18.2.0",
+    "typescript": "5.3.0"
+  }
+}

@@ -1,0 +1,115 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+rule_files: []
+
+scrape_configs:
+  # REZ Auth
+  - job_name: 'rez-auth'
+    static_configs:
+      - targets: ['rez-auth:4002']
+    metrics_path: '/metrics'
+
+  # REZ SSO
+  - job_name: 'rez-sso'
+    static_configs:
+      - targets: ['rez-sso:4003']
+    metrics_path: '/metrics'
+
+  # GraphQL Gateway
+  - job_name: 'graphql-gateway'
+    static_configs:
+      - targets: ['graphql-gateway:5000']
+    metrics_path: '/metrics'
+
+  # AutoML
+  - job_name: 'automl'
+    static_configs:
+      - targets: ['automl:5001']
+    metrics_path: '/metrics'
+
+  # Invoice OCR
+  - job_name: 'invoice-ocr'
+    static_configs:
+      - targets: ['invoice-ocr:5002']
+    metrics_path: '/metrics'
+
+  # Contract Management
+  - job_name: 'contract-mgmt'
+    static_configs:
+      - targets: ['contract-mgmt:5003']
+    metrics_path: '/metrics'
+
+  # Legal AI
+  - job_name: 'legal-ai'
+    static_configs:
+      - targets: ['legal-ai:5004']
+    metrics_path: '/metrics'
+
+  # Cosmic Twin
+  - job_name: 'cosmic-twin'
+    static_configs:
+      - targets: ['cosmic-twin:5005']
+    metrics_path: '/metrics'
+
+  # Ranking
+  - job_name: 'ranking'
+    static_configs:
+      - targets: ['ranking:5006']
+    metrics_path: '/metrics'
+
+  # MCP Servers
+  - job_name: 'mcp-servers'
+    static_configs:
+      - targets: [
+          'mcp-analytics:3100',
+          'mcp-identity:3101',
+          'mcp-event-bus:3102',
+          'mcp-notification:3103',
+          'mcp-order:3104',
+          'mcp-payment:3105',
+          'mcp-inventory:3106',
+          'mcp-logs:3107',
+          'mcp-service-discovery:3108',
+          'mcp-agent-invoke:3109',
+          'mcp-automl:3110',
+          'mcp-invoice:3111',
+          'mcp-contracts:3112',
+          'mcp-legal:3113',
+          'mcp-cosmic-twin:3114',
+          'mcp-ranking:3115'
+        ]
+    metrics_path: '/metrics'
+
+  # Forensics MCP Servers
+  - job_name: 'forensics-mcp-servers'
+    static_configs:
+      - targets: [
+          'mcp-evidence-ingestion:3120',
+          'mcp-deepfake-detector:3121',
+          'mcp-chain-of-custody:3122',
+          'mcp-digital-forensics:3123',
+          'mcp-social-intelligence:3130',
+          'mcp-financial-forensics:3131',
+          'mcp-location-intelligence:3132',
+          'mcp-expert-reports:3133'
+        ]
+    metrics_path: '/metrics'
+
+  # Forensics Gateway
+  - job_name: 'forensics-gateway'
+    static_configs:
+      - targets: ['forensics-gateway:5100']
+    metrics_path: '/metrics'
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

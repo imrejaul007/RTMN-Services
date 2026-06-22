@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: istio
+  namespace: istio-system
+  labels:
+    app: istiod
+    istio: istiod
+data:
+  mesh: |-
+    # Default Mesh Configuration for RTMN Services
+
+    # Enable automatic mTLS
+    enableAutoMtls: true
+
+    # Mutual TLS Configuration
+    defaultConfig:
+      # Proxy metadata
+      proxyMetadata:
+        ISTIO_META_DNS_CAPTURE: "true"
+        ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+        ISTIO_META_PROTOCOL_VERSION: "1.0.0"
+
+      # Tracing configuration
+      tracing:
+        sampling: 10.0
+        zipkin:
+          address: jaeger-collector.istio-system:9411
+        openCensusAgent: localhost:55678
+
+      # Proxy bootstrap configuration
+      bootstrap:
+        stats:
+          tags:
+            - tag_name: cluster_name
+              label_to_tag: source_canonical_service_cluster
+            - tag_name: pod_name
+              label_to_tag: pod_name
+
+      # Envoy access log
+      envoyAccessLogService:
+        tcpKeepalive:
+          seconds: 10
+          interval: 5
+        address: logging.istio-system:15004
+
+    # Outbound traffic policy
+    outboundTrafficPolicy:
+      mode: ALLOW_ANY
+      egressCluster: Passthrough
+
+    # Locality-based load balancing
+    localityLbSetting:
+      enabled: true
+      failover:
+        - from: region/zone/cluster
+          to: region/zone/cluster
+      distribute:
+        - from: region/zone/cluster
+          to:
+            "region/zone/*": 100
+
+    # DNS Configuration
+    defaultServiceExportTo:
+      - "*"
+    defaultVirtualServiceExportTo:
+      - "*"
+    defaultDestinationRuleExportTo:
+      - "*"
+
+    # Resource settings
+    defaultProviders:
+      tracing:
+        - jaeger
+      metrics:
+        - prometheus
+
+    # Thrift configuration (disabled)
+    thriftConfig:
+      enabled: false
+
+    # Protocol detection timeout
+    protocolDetectionTimeout: 0.5s
+
+    # Connection pool settings
+    connectTimeout: 10s
+
+    # DNS refresh rate
+    dnsRefreshRate: 5s
+
+    # Enable gzip compression
+    enableGzipCompression: false
+
+    # Report intervals
+    reportInterval: 10s
+
+  meshNetworks: |-
+    # External networks (if any)
+    networks: {}
+
+  providers: |-
+    # Tracing providers
+    tracing:
+      - provider: jaeger
+        service:
+          ports:
+            - name: jaeger-collector-http
+              port: 9411
+              protocol: TCP
+            - name: jaeger-collector-grpc
+              port: 14250
+              protocol: TCP
+        sampler:
+          type: traceidratio
+          param: "0.1"
+        env:
+          COLLECTOR_ZIPKIN_HOST_PORT: ":9411"
+
+    # Metrics providers
+    metrics:
+      - provider: prometheus
+        metrics:
+          - name: request_duration_milliseconds
+            instance_name: requestduration.instance.istio-system
+            kind: DISTRIBUTION
+            description: HTTP request duration in milliseconds
+          - name: request_count
+            instance_name: requestcount.instance.istio-system
+            kind: COUNTER
+            description: Total number of HTTP requests
+          - name: request_size
+            instance_name: requestsize.instance.istio-system
+            kind: DISTRIBUTION
+            description: HTTP request size in bytes
+          - name: response_size
+            instance_name: responsesize.instance.istio-system
+            kind: DISTRIBUTION
+            description: HTTP response size in bytes
+          - name: tcp_connections_opened_total
+            instance_name: tcpconnectionsopened.instance.istio-system
+            kind: COUNTER
+            description: Total count of TCP connections opened
+          - name: tcp_connections_closed_total
+            instance_name: tcpconnectionsclosed.instance.istio-system
+            kind: COUNTER
+            description: Total count of TCP connections closed

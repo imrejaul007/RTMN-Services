@@ -1,0 +1,1479 @@
+openapi: 3.0.3
+info:
+  title: ReZ Journey Service API
+  description: |
+    A customer journey automation service that enables creating, managing, and executing
+    multi-step customer journeys with triggers, conditions, actions, and A/B testing capabilities.
+
+    ## Features
+    - Visual Journey Builder: Create customer journeys with multiple step types
+    - Trigger System: Multiple trigger types (signup, purchase, behavior, schedule)
+    - Conditional Branching: Route customers based on attributes and behaviors
+    - Step Types: Messages, notifications, webhooks, delays, conditions
+    - A/B Testing: Test different journey variants
+    - Analytics: Track journey performance and conversion
+    - Templates: Pre-built journey templates
+    - Journey Cloning: Copy existing journeys
+    - Real-time Execution: Process journey events in real-time
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3009
+    description: Development server
+  - url: https://api.rez.money/journey
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Journeys
+    description: Journey management operations
+  - name: Steps
+    description: Journey step management
+  - name: Entries
+    description: Customer journey entries
+  - name: Templates
+    description: Journey templates
+  - name: Analytics
+    description: Journey analytics
+  - name: Events
+    description: Event processing
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/journeys:
+    get:
+      tags:
+        - Journeys
+      summary: List all journeys
+      description: Returns a list of all customer journeys
+      operationId: listJourneys
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/JourneyStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of journeys
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyListResponse'
+
+    post:
+      tags:
+        - Journeys
+      summary: Create a new journey
+      description: Creates a new customer journey with trigger and steps
+      operationId: createJourney
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJourneyRequest'
+      responses:
+        '201':
+          description: Journey created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/journeys/{id}:
+    get:
+      tags:
+        - Journeys
+      summary: Get journey by ID
+      description: Returns a single journey by ID
+      operationId: getJourneyById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Journey details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+        '404':
+          description: Journey not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Journeys
+      summary: Update journey
+      description: Updates an existing journey
+      operationId: updateJourney
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateJourneyRequest'
+      responses:
+        '200':
+          description: Journey updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+        '404':
+          description: Journey not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Journeys
+      summary: Delete journey
+      description: Deletes an existing journey
+      operationId: deleteJourney
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Journey deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Journey not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journeys/{id}/activate:
+    post:
+      tags:
+        - Journeys
+      summary: Activate journey
+      description: Activates a draft journey to start processing events
+      operationId: activateJourney
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Journey activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+        '400':
+          description: Cannot activate journey
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journeys/{id}/pause:
+    post:
+      tags:
+        - Journeys
+      summary: Pause journey
+      description: Pauses an active journey
+      operationId: pauseJourney
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Journey paused
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+
+  /api/journeys/{id}/resume:
+    post:
+      tags:
+        - Journeys
+      summary: Resume journey
+      description: Resumes a paused journey
+      operationId: resumeJourney
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Journey resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+
+  /api/journeys/{id}/clone:
+    post:
+      tags:
+        - Journeys
+      summary: Clone journey
+      description: Creates a copy of an existing journey
+      operationId: cloneJourney
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Optional new name for cloned journey
+      responses:
+        '201':
+          description: Journey cloned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+
+  /api/journeys/{id}/test:
+    post:
+      tags:
+        - Journeys
+      summary: Test journey execution
+      description: Tests journey execution with a test customer
+      operationId: testJourney
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestJourneyRequest'
+      responses:
+        '200':
+          description: Test results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestJourneyResponse'
+
+  /api/journeys/{id}/steps:
+    post:
+      tags:
+        - Steps
+      summary: Add step to journey
+      description: Adds a new step to an existing journey
+      operationId: addStep
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStepRequest'
+      responses:
+        '201':
+          description: Step added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+        '400':
+          description: Cannot add step
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/journeys/{id}/steps/{stepId}:
+    put:
+      tags:
+        - Steps
+      summary: Update step
+      description: Updates an existing step
+      operationId: updateStep
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stepId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStepRequest'
+      responses:
+        '200':
+          description: Step updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+
+    delete:
+      tags:
+        - Steps
+      summary: Remove step
+      description: Removes a step from the journey
+      operationId: removeStep
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stepId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Step removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/journeys/{id}/steps/{stepId}/connect:
+    post:
+      tags:
+        - Steps
+      summary: Connect steps
+      description: Connects a step to another step
+      operationId: connectSteps
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stepId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectStepsRequest'
+      responses:
+        '200':
+          description: Steps connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+
+  /api/journeys/{id}/entries:
+    post:
+      tags:
+        - Entries
+      summary: Enroll customer in journey
+      description: Enrolls a customer in a journey
+      operationId: enrollCustomer
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollCustomerRequest'
+      responses:
+        '201':
+          description: Customer enrolled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryResponse'
+
+    get:
+      tags:
+        - Entries
+      summary: List journey entries
+      description: Returns all entries for a journey
+      operationId: listJourneyEntries
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - completed
+              - failed
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryListResponse'
+
+  /api/entries/{entryId}:
+    get:
+      tags:
+        - Entries
+      summary: Get entry details
+      description: Returns details of a specific entry
+      operationId: getEntry
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Entry details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryResponse'
+        '404':
+          description: Entry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Entries
+      summary: Remove customer from journey
+      description: Removes a customer entry from a journey
+      operationId: removeEntry
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Entry removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/templates:
+    get:
+      tags:
+        - Templates
+      summary: List journey templates
+      description: Returns all available journey templates
+      operationId: listTemplates
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatesListResponse'
+
+  /api/templates/{id}:
+    get:
+      tags:
+        - Templates
+      summary: Get template
+      description: Returns a specific template
+      operationId: getTemplate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Template details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+
+  /api/templates/{id}/create:
+    post:
+      tags:
+        - Templates
+      summary: Create journey from template
+      description: Creates a new journey from a template
+      operationId: createFromTemplate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Journey created from template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+
+  /api/journeys/{id}/analytics:
+    get:
+      tags:
+        - Analytics
+      summary: Get journey analytics
+      description: Returns analytics for a journey
+      operationId: getJourneyAnalytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Journey analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyAnalyticsResponse'
+
+  /api/journeys/{id}/steps/{stepId}/analytics:
+    get:
+      tags:
+        - Analytics
+      summary: Get step analytics
+      description: Returns analytics for a specific step
+      operationId: getStepAnalytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stepId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Step analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepAnalyticsResponse'
+
+  /api/events:
+    post:
+      tags:
+        - Events
+      summary: Trigger a journey event
+      description: Triggers a journey event to start processing
+      operationId: triggerEvent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerEventRequest'
+      responses:
+        '202':
+          description: Event accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventAcceptedResponse'
+        '400':
+          description: Invalid event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/events/process:
+    post:
+      tags:
+        - Events
+      summary: Process event batch
+      description: Processes a batch of events
+      operationId: processEventBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - events
+              properties:
+                events:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TriggerEventRequest'
+      responses:
+        '202':
+          description: Events accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchEventResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    JourneyStatus:
+      type: string
+      enum:
+        - draft
+        - active
+        - paused
+        - archived
+
+    StepType:
+      type: string
+      enum:
+        - entry
+        - message
+        - email
+        - sms
+        - push
+        - webhook
+        - condition
+        - delay
+        - end
+
+    TriggerCondition:
+      type: object
+      properties:
+        field:
+          type: string
+        operator:
+          type: string
+          enum:
+            - eq
+            - ne
+            - gt
+            - gte
+            - lt
+            - lte
+            - in
+            - nin
+            - contains
+            - exists
+            - between
+            - regex
+        value:
+          type: string
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TriggerCondition'
+        logic:
+          type: string
+          enum:
+            - and
+            - or
+
+    TriggerConfig:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - signup
+            - purchase
+            - abandoned_cart
+            - inactivity
+            - schedule
+            - manual
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TriggerCondition'
+        schedule:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+            frequency:
+              type: string
+              enum:
+                - once
+                - daily
+                - weekly
+                - monthly
+
+    StepCondition:
+      type: object
+      properties:
+        field:
+          type: string
+        operator:
+          type: string
+        value:
+          type: string
+
+    Step:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/StepType'
+        config:
+          type: object
+          additionalProperties: true
+        nextStepId:
+          type: string
+        errorStepId:
+          type: string
+        delay:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - immediate
+                - delay
+                - scheduled
+            value:
+              type: integer
+            unit:
+              type: string
+              enum:
+                - minutes
+                - hours
+                - days
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/StepCondition'
+
+    ABTestConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              variant:
+                type: string
+                enum:
+                  - A
+                  - B
+                  - C
+                  - D
+              weight:
+                type: number
+              stepIds:
+                type: array
+                items:
+                  type: string
+
+    Journey:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/JourneyStatus'
+        trigger:
+          $ref: '#/components/schemas/TriggerConfig'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/Step'
+        entryStepId:
+          type: string
+        abTest:
+          $ref: '#/components/schemas/ABTestConfig'
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isTemplate:
+          type: boolean
+        templateName:
+          type: string
+
+    JourneyAnalyticsSummary:
+      type: object
+      properties:
+        journeyId:
+          type: string
+        totalEntries:
+          type: integer
+        activeEntries:
+          type: integer
+        completedEntries:
+          type: integer
+        failedEntries:
+          type: integer
+        conversionRate:
+          type: number
+        avgCompletionTime:
+          type: number
+        stepAnalytics:
+          type: array
+          items:
+            $ref: '#/components/schemas/StepAnalytics'
+        lastUpdated:
+          type: string
+          format: date-time
+
+    StepAnalytics:
+      type: object
+      properties:
+        stepId:
+          type: string
+        stepName:
+          type: string
+        totalExecutions:
+          type: integer
+        successfulExecutions:
+          type: integer
+        failedExecutions:
+          type: integer
+        avgExecutionTime:
+          type: number
+        conversionRate:
+          type: number
+
+    JourneyEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        journeyId:
+          type: string
+        customerId:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+          enum:
+            - active
+            - completed
+            - failed
+        currentStepId:
+          type: string
+        progress:
+          type: number
+        enteredAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        lastActivityAt:
+          type: string
+          format: date-time
+        variant:
+          type: string
+          enum:
+            - A
+            - B
+            - C
+            - D
+
+    CreateJourneyRequest:
+      type: object
+      required:
+        - name
+        - trigger
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        trigger:
+          $ref: '#/components/schemas/TriggerConfig'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/Step'
+        entryStepId:
+          type: string
+        abTest:
+          $ref: '#/components/schemas/ABTestConfig'
+        tags:
+          type: array
+          items:
+            type: string
+        isTemplate:
+          type: boolean
+
+    UpdateJourneyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        trigger:
+          $ref: '#/components/schemas/TriggerConfig'
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/Step'
+        tags:
+          type: array
+          items:
+            type: string
+
+    CreateStepRequest:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/StepType'
+        config:
+          type: object
+          additionalProperties: true
+        nextStepId:
+          type: string
+        errorStepId:
+          type: string
+        delay:
+          type: object
+          properties:
+            type:
+              type: string
+            value:
+              type: integer
+            unit:
+              type: string
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/StepCondition'
+
+    UpdateStepRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        config:
+          type: object
+          additionalProperties: true
+        nextStepId:
+          type: string
+        errorStepId:
+          type: string
+        delay:
+          type: object
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/StepCondition'
+
+    ConnectStepsRequest:
+      type: object
+      required:
+        - nextStepId
+      properties:
+        nextStepId:
+          type: string
+        condition:
+          type: object
+          properties:
+            field:
+              type: string
+            operator:
+              type: string
+            value:
+              type: string
+
+    EnrollCustomerRequest:
+      type: object
+      required:
+        - customerId
+      properties:
+        customerId:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+        triggerNow:
+          type: boolean
+          default: true
+
+    TestJourneyRequest:
+      type: object
+      required:
+        - customerId
+      properties:
+        customerId:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+        variant:
+          type: string
+          enum:
+            - A
+            - B
+            - C
+            - D
+
+    TriggerEventRequest:
+      type: object
+      required:
+        - event
+        - customerId
+      properties:
+        event:
+          type: string
+        customerId:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+        triggerJourneyIds:
+          type: array
+          items:
+            type: string
+
+    JourneyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/Journey'
+            - type: object
+              properties:
+                analytics:
+                  $ref: '#/components/schemas/JourneyAnalyticsSummary'
+
+    JourneyListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Journey'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    StepResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Step'
+
+    EntryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/JourneyEntry'
+
+    EntryListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/JourneyEntry'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    TemplatesListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Journey'
+
+    JourneyAnalyticsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/JourneyAnalyticsSummary'
+
+    StepAnalyticsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/StepAnalytics'
+
+    TestJourneyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            entryId:
+              type: string
+            stepsExecuted:
+              type: array
+              items:
+                type: object
+                properties:
+                  stepId:
+                    type: string
+                  name:
+                    type: string
+                  status:
+                    type: string
+                  executionTime:
+                    type: number
+            actionsTriggered:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  config:
+                    type: object
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  stepId:
+                    type: string
+                  message:
+                    type: string
+
+    EventAcceptedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            eventId:
+              type: string
+            journeysTriggered:
+              type: array
+              items:
+                type: string
+
+    BatchEventResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            processed:
+              type: integer
+            failed:
+              type: integer
+            events:
+              type: array
+              items:
+                type: object
+                properties:
+                  eventId:
+                    type: string
+                  status:
+                    type: string
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

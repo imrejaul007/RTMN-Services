@@ -1,0 +1,1102 @@
+openapi: 3.0.3
+info:
+  title: ReZ Payment Links Service API
+  description: |
+    A comprehensive payment links service with UPI integration for creating, managing, and tracking
+    payment requests in the ReZ ecosystem.
+
+    ## Features
+    - Payment Link Creation: Generate unique payment links with customizable expiry
+    - QR Code Generation: Automatic QR code generation for UPI payments
+    - Short URLs: Branded short URLs for easy sharing
+    - Multi-channel Sharing: SMS, WhatsApp, and email delivery
+    - Webhook Notifications: Real-time payment status updates
+    - Refund Management: Partial and full refunds
+    - Usage Limits: Single or multi-use payment links
+    - Merchant Management: Per-merchant payment link tracking
+    - Security: HMAC signature verification for webhooks
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3008
+    description: Development server
+  - url: https://api.rez.money/payment-links
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Payment Links
+    description: Payment link management
+  - name: QR Codes
+    description: QR code generation
+  - name: Refunds
+    description: Refund management
+  - name: Webhooks
+    description: Webhook endpoints
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /:
+    get:
+      tags:
+        - Health
+      summary: Service information
+      operationId: getServiceInfo
+      responses:
+        '200':
+          description: Service information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceInfoResponse'
+
+  /api/payment-links:
+    get:
+      tags:
+        - Payment Links
+      summary: List payment links
+      description: Returns a paginated list of payment links with optional filters
+      operationId: listPaymentLinks
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: merchantId
+          in: query
+          description: Filter by merchant ID
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of payment links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Payment Links
+      summary: Create a new payment link
+      description: Creates a new payment link with specified amount and details
+      operationId: createPaymentLink
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentLinkRequest'
+      responses:
+        '201':
+          description: Payment link created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payment-links/{id}:
+    get:
+      tags:
+        - Payment Links
+      summary: Get payment link by ID
+      description: Returns a single payment link by ID
+      operationId: getPaymentLinkById
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Payment link ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment link details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkResponse'
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payment-links/short/{shortId}:
+    get:
+      tags:
+        - Payment Links
+      summary: Get by short URL ID
+      description: Returns a payment link by its short URL identifier
+      operationId: getPaymentLinkByShortId
+      parameters:
+        - name: shortId
+          in: path
+          required: true
+          description: Short URL ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment link details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkPublicResponse'
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payment-links/{id}/status:
+    get:
+      tags:
+        - Payment Links
+      summary: Get payment status
+      description: Returns the current payment status of a payment link
+      operationId: getPaymentStatus
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Payment link ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatusResponse'
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payment-links/{id}:
+    delete:
+      tags:
+        - Payment Links
+      summary: Cancel payment link
+      description: Cancels an existing payment link
+      operationId: cancelPaymentLink
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Payment link ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment link cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkResponse'
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Cannot cancel payment link in current state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payment-links/{id}/share:
+    post:
+      tags:
+        - Payment Links
+      summary: Share payment link
+      description: Shares the payment link via specified channels
+      operationId: sharePaymentLink
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Payment link ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharePaymentLinkRequest'
+      responses:
+        '200':
+          description: Payment link shared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharePaymentLinkResponse'
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payment-links/{id}/qr:
+    get:
+      tags:
+        - QR Codes
+      summary: Get QR code image
+      description: Returns the QR code image for a payment link
+      operationId: getQRCode
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Payment link ID
+          schema:
+            type: string
+        - name: size
+          in: query
+          description: QR code size in pixels
+          schema:
+            type: integer
+            default: 300
+            maximum: 600
+      responses:
+        '200':
+          description: QR code image
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/svg+xml:
+              schema:
+                type: string
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/qr/generate:
+    post:
+      tags:
+        - QR Codes
+      summary: Generate QR code for amount
+      description: Generates a QR code for a specific amount
+      operationId: generateQRCode
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateQRCodeRequest'
+      responses:
+        '200':
+          description: QR code generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCodeResponse'
+
+  /api/refunds:
+    post:
+      tags:
+        - Refunds
+      summary: Initiate a refund
+      description: Initiates a refund for a completed payment
+      operationId: initiateRefund
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+      responses:
+        '201':
+          description: Refund initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Refund amount exceeds available amount
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/refunds/{id}:
+    get:
+      tags:
+        - Refunds
+      summary: Get refund status
+      description: Returns the status of a refund
+      operationId: getRefundStatus
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Refund ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Refund details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundDetailResponse'
+        '404':
+          description: Refund not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payment-links/{id}/refunds:
+    get:
+      tags:
+        - Refunds
+      summary: Get refunds for payment
+      description: Returns all refunds for a specific payment link
+      operationId: getPaymentRefunds
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Payment link ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of refunds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundListResponse'
+        '404':
+          description: Payment link not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/webhooks/payment:
+    post:
+      tags:
+        - Webhooks
+      summary: UPI payment webhook
+      description: Receives payment status updates from UPI gateway
+      operationId: paymentWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentWebhookPayload'
+      headers:
+        X-Webhook-Signature:
+          type: string
+          required: true
+          description: HMAC-SHA256 signature of the payload
+      responses:
+        '200':
+          description: Webhook processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid signature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/webhooks/refund:
+    post:
+      tags:
+        - Webhooks
+      summary: Refund status webhook
+      description: Receives refund status updates from payment gateway
+      operationId: refundWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundWebhookPayload'
+      headers:
+        X-Webhook-Signature:
+          type: string
+          required: true
+          description: HMAC-SHA256 signature of the payload
+      responses:
+        '200':
+          description: Webhook processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+  schemas:
+    PaymentStatus:
+      type: string
+      enum:
+        - pending
+        - paid
+        - expired
+        - failed
+        - cancelled
+        - refunded
+        - partially_refunded
+      description: Status of the payment link
+
+    PaymentLink:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique payment link ID
+        merchantId:
+          type: string
+          description: Merchant ID
+        amount:
+          type: number
+          format: double
+          description: Payment amount
+        currency:
+          type: string
+          default: INR
+          description: Currency code
+        purpose:
+          type: string
+          description: Purpose of payment
+        description:
+          type: string
+          description: Payment description
+        customerName:
+          type: string
+          description: Customer name
+        customerPhone:
+          type: string
+          description: Customer phone number
+        customerEmail:
+          type: string
+          description: Customer email
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        upiId:
+          type: string
+          description: UPI ID for payment
+        url:
+          type: string
+          format: uri
+          description: Full payment URL
+        shortUrl:
+          type: string
+          format: uri
+          description: Shortened payment URL
+        qrCodeDataUrl:
+          type: string
+          description: Base64 encoded QR code
+        expiresAt:
+          type: string
+          format: date-time
+          description: Expiration time
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional metadata
+        webhookUrl:
+          type: string
+          format: uri
+          description: Webhook URL for notifications
+        redirectUrl:
+          type: string
+          format: uri
+          description: Redirect URL after payment
+        maxUsageCount:
+          type: integer
+          description: Maximum number of uses (null for unlimited)
+        currentUsageCount:
+          type: integer
+          description: Current number of uses
+        transactionId:
+          type: string
+          description: Transaction ID when paid
+        paidAt:
+          type: string
+          format: date-time
+          description: Time when payment was completed
+        paymentMethod:
+          type: string
+          description: Payment method used
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Refund:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique refund ID
+        paymentLinkId:
+          type: string
+          description: Associated payment link ID
+        originalAmount:
+          type: number
+          format: double
+          description: Original payment amount
+        refundedAmount:
+          type: number
+          format: double
+          description: Amount refunded
+        reason:
+          type: string
+          description: Reason for refund
+        status:
+          type: string
+          enum:
+            - INITIATED
+            - COMPLETED
+            - FAILED
+        initiatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        transactionId:
+          type: string
+          description: Refund transaction ID
+
+    CreatePaymentLinkRequest:
+      type: object
+      required:
+        - merchantId
+        - amount
+        - purpose
+      properties:
+        merchantId:
+          type: string
+          description: Merchant ID
+        amount:
+          type: number
+          format: double
+          minimum: 1
+          description: Payment amount
+        currency:
+          type: string
+          default: INR
+          description: Currency code (ISO 4217)
+        purpose:
+          type: string
+          maxLength: 200
+          description: Purpose of payment
+        description:
+          type: string
+          maxLength: 500
+          description: Payment description
+        customerName:
+          type: string
+          description: Customer name
+        customerPhone:
+          type: string
+          description: Customer phone number
+        customerEmail:
+          type: string
+          format: email
+          description: Customer email
+        expiresIn:
+          type: integer
+          default: 72
+          description: Expiration time in hours
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional metadata
+        webhookUrl:
+          type: string
+          format: uri
+          description: Webhook URL for notifications
+        redirectUrl:
+          type: string
+          format: uri
+          description: Redirect URL after payment
+        maxUsageCount:
+          type: integer
+          minimum: 1
+          description: Maximum number of uses (null for unlimited)
+
+    SharePaymentLinkRequest:
+      type: object
+      required:
+        - channels
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum:
+              - SMS
+              - WHATSAPP
+              - EMAIL
+          minItems: 1
+          description: Channels to share via
+        customMessage:
+          type: string
+          maxLength: 500
+          description: Custom message to include
+        recipientPhone:
+          type: string
+          description: Phone number for SMS/WhatsApp
+        recipientEmail:
+          type: string
+          format: email
+          description: Email address for email channel
+
+    GenerateQRCodeRequest:
+      type: object
+      required:
+        - amount
+        - upiId
+      properties:
+        amount:
+          type: number
+          format: double
+          minimum: 1
+          description: Payment amount
+        upiId:
+          type: string
+          description: UPI ID
+        purpose:
+          type: string
+          description: Payment purpose
+        size:
+          type: integer
+          default: 300
+          minimum: 100
+          maximum: 600
+          description: QR code size in pixels
+
+    RefundRequest:
+      type: object
+      required:
+        - paymentLinkId
+        - amount
+      properties:
+        paymentLinkId:
+          type: string
+          description: Payment link ID to refund
+        amount:
+          type: number
+          format: double
+          minimum: 1
+          description: Amount to refund
+        reason:
+          type: string
+          description: Reason for refund
+
+    PaymentWebhookPayload:
+      type: object
+      required:
+        - event
+        - timestamp
+        - data
+      properties:
+        event:
+          type: string
+          enum:
+            - payment.completed
+            - payment.failed
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            merchantId:
+              type: string
+            amount:
+              type: number
+            currency:
+              type: string
+            status:
+              type: string
+            transactionId:
+              type: string
+            paidAt:
+              type: string
+              format: date-time
+            customerPhone:
+              type: string
+            customerEmail:
+              type: string
+            metadata:
+              type: object
+
+    RefundWebhookPayload:
+      type: object
+      required:
+        - event
+        - timestamp
+        - data
+      properties:
+        event:
+          type: string
+          enum:
+            - refund.initiated
+            - refund.completed
+            - refund.failed
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+          properties:
+            refundId:
+              type: string
+            paymentLinkId:
+              type: string
+            amount:
+              type: number
+            status:
+              type: string
+            transactionId:
+              type: string
+            completedAt:
+              type: string
+              format: date-time
+
+    PaymentLinkResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/PaymentLink'
+
+    PaymentLinkPublicResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        purpose:
+          type: string
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        qrCodeDataUrl:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+
+    PaymentLinkListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentLink'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PaymentStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              $ref: '#/components/schemas/PaymentStatus'
+            amount:
+              type: number
+            paidAt:
+              type: string
+              format: date-time
+            transactionId:
+              type: string
+
+    SharePaymentLinkResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            sentTo:
+              type: object
+              properties:
+                phone:
+                  type: boolean
+                email:
+                  type: boolean
+
+    QRCodeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            qrCodeDataUrl:
+              type: string
+              description: Base64 encoded QR code
+            upiString:
+              type: string
+              description: UPI payment string
+
+    RefundResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Refund'
+
+    RefundDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/Refund'
+            - type: object
+              properties:
+                paymentLink:
+                  $ref: '#/components/schemas/PaymentLink'
+
+    RefundListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refund'
+
+    WebhookResponse:
+      type: object
+      properties:
+        received:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ServiceInfoResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string

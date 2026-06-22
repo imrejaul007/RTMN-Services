@@ -1,0 +1,41 @@
+# PeerAuthentication for STRICT mTLS across the entire mesh
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: rtmz-mesh-mtls-strict
+  namespace: rtmz
+spec:
+  mtls:
+    mode: STRICT
+  # Port-level mTLS settings (if needed for specific ports)
+  portLevelMtls:
+    9090:
+      mode: DISABLE  # Metrics endpoint can be plain HTTP
+---
+# Global mesh-level STRICT mTLS enforcement
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: global-mesh-mtls-strict
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    15090:
+      mode: DISABLE  # Envoy stats/prometheus endpoint
+    15020:
+      mode: DISABLE  # Health check/status port
+---
+# Per-namespace mTLS inheritance
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: rtmz-strict-mtls
+  namespace: rtmz
+spec:
+  selector:
+    matchLabels:
+      security.istio.io/mtlsMode: strict
+  mtls:
+    mode: STRICT

@@ -1,0 +1,41 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
+
+export const styles = StyleSheet.create({
+  container: { flex: 1 },
+  background: { flex: 1 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  headerTitle: { fontSize: 20, fontWeight: '700' },
+  funnelTab: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8 },
+  funnelTabActive: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8 },
+  funnelTabText: { fontSize: 13, fontWeight: '500' },
+  funnelTabTextActive: { fontSize: 13, fontWeight: '600' },
+  funnelSelector: { paddingHorizontal: 16, marginBottom: 12 },
+  funnelChart: { paddingHorizontal: 16, marginBottom: 12 },
+  card: { borderRadius: 12, padding: 16, marginHorizontal: 16, marginBottom: 12 },
+  dropoffBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  dropoffText: { fontSize: 12, fontWeight: '600' },
+  count: { fontSize: 14 },
+  data: {},
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 60 },
+  emptyMessage: { fontSize: 16, fontWeight: '600', marginTop: 8 },
+  emptyTitle: { fontSize: 14 },
+  filter: { paddingHorizontal: 16, marginBottom: 12 },
+  error: { color: '#EF4444' },
+  errorLight: { color: '#F87171' },
+  gray200: { color: '#E5E7EB' },
+  gray700: { color: '#374151' },
+  stepRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  stepLeft: { width: 120 },
+  stepLabel: { fontSize: 13, fontWeight: '600' },
+  stepCount: { fontSize: 12, color: Colors.light.secondaryText },
+  stepBarArea: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  stepBar: { height: 8, backgroundColor: Colors.light.info, borderRadius: 4 },
+  stepPct: { fontSize: 12, fontWeight: '600', width: 40 },
+});
+export const s = styles;

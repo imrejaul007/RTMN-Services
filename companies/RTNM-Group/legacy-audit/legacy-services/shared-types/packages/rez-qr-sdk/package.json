@@ -1,0 +1,74 @@
+{
+  "name": "@rez/qr-sdk",
+  "version": "1.0.0",
+  "description": "Unified SDK for all REZ QR systems - Room QR, Menu QR, Rez Now, Ads QR",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./room": {
+      "types": "./dist/modules/room.d.ts",
+      "import": "./dist/modules/room.mjs",
+      "require": "./dist/modules/room.js"
+    },
+    "./menu": {
+      "types": "./dist/modules/menu.d.ts",
+      "import": "./dist/modules/menu.mjs",
+      "require": "./dist/modules/menu.js"
+    },
+    "./store": {
+      "types": "./dist/modules/store.d.ts",
+      "import": "./dist/modules/store.mjs",
+      "require": "./dist/modules/store.js"
+    },
+    "./campaign": {
+      "types": "./dist/modules/campaign.d.ts",
+      "import": "./dist/modules/campaign.mjs",
+      "require": "./dist/modules/campaign.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsc && tsc -m esnext --outDir dist --moduleResolution node16",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "test:integration": "jest __tests__/integration",
+    "lint": "eslint src --ext .ts",
+    "docs": "typedoc"
+  },
+  "keywords": [
+    "qr",
+    "sdk",
+    "rez",
+    "hotel",
+    "restaurant",
+    "payments",
+    "wallet"
+  ],
+  "dependencies": {
+    "@rez/shared-types": "^2.0.0",
+    "axios": "^1.6.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^25.6.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "@rez/shared-types": "^2.0.0"
+  }
+}

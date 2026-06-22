@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REZ Circuit Breaker Dashboard</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-yellow: #eab308;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --border-color: #334155;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header h1 .icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+    }
+
+    .connection-dot.connected {
+      background: var(--accent-green);
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: calc(100vh - 73px);
+    }
+
+    .sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .sidebar-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 0.875rem;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .nav-item .count {
+      margin-left: auto;
+      font-size: 0.75rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      background: var(--bg-tertiary);
+    }
+
+    .nav-item.active .count {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-item .state-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .state-closed { background: var(--accent-green); }
+    .state-open { background: var(--accent-red); }
+    .state-half-open { background: var(--accent-yellow); }
+
+    .content {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .stat-card .value.green { color: var(--accent-green); }
+    .stat-card .value.red { color: var(--accent-red); }
+    .stat-card .value.yellow { color: var(--accent-yellow); }
+    .stat-card .value.blue { color: var(--accent-blue); }
+    .stat-card .value.purple { color: var(--accent-purple); }
+
+    .stat-card .subtext {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .btn-danger {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .table-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.875rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background: var(--bg-tertiary);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--bg-tertiary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-healthy {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--accent-green);
+    }
+
+    .status-unhealthy {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--accent-red);
+    }
+
+    .status-degraded {
+      background: rgba(234, 179, 8, 0.1);
+      color: var(--accent-yellow);
+    }
+
+    .status-unknown {
+      background: rgba(100, 116, 139, 0.1);
+      color: var(--text-muted);
+    }
+
+    .circuit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .circuit-closed {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--accent-green);
+    }
+
+    .circuit-open {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--accent-red);
+    }
+
+    .circuit-half-open {
+      background: rgba(234, 179, 8, 0.1);
+      color: var(--accent-yellow);
+    }
+
+    .alert-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .alert-card.critical {
+      border-left: 4px solid var(--accent-red);
+    }
+
+    .alert-card.high {
+      border-left: 4px solid var(--accent-yellow);
+    }
+
+    .alert-card.medium {
+      border-left: 4px solid var(--accent-blue);
+    }
+
+    .alert-card.low {
+      border-left: 4px solid var(--text-muted);
+    }
+
+    .alert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+
+    .alert-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .alert-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .alert-message {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .alert-actions {
+      margin-top: 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .search-input {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      min-width: 250px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .chart-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .detail-item .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-item .value {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 1.5s infinite;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 300;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success { border-left: 4px solid var(--accent-green); }
+    .toast.error { border-left: 4px solid var(--accent-red); }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .tab {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.15s ease;
+    }
+
+    .tab:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .tab.active {
+      background: var(--accent-blue);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>
+      <div class="icon">
+        <svg width="18" height="18" fill="white" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      </div>
+      REZ Circuit Breaker Dashboard
+    </h1>
+    <div class="connection-status">
+      <div class="connection-dot" id="connectionDot"></div>
+      <span id="connectionText">Disconnected</span>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Overview</div>
+        <nav>
+          <div class="nav-item active" data-view="dashboard">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            Dashboard
+          </div>
+          <div class="nav-item" data-view="circuits">
+            <div class="state-dot state-closed"></div>
+            Circuit Breakers
+            <span class="count" id="circuitCount">0</span>
+          </div>
+          <div class="nav-item" data-view="services">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8 19H5v-2h3v2zm0-4H5v-2h3v2zm0-4H5V9h3v2zm0-4H5V5h3v2zm7 12h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3v-2h3v2zm0-4h-3V9h3v2zm0-4h-3V5h3v2z"/>
+            </svg>
+            Services
+            <span class="count" id="serviceCount">0</span>
+          </div>
+          <div class="nav-item" data-view="alerts">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            Alerts
+            <span class="count" id="alertCount">0</span>
+          </div>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Circuit States</div>
+        <nav>
+          <div class="nav-item" data-filter="state" data-value="OPEN">
+            <div class="state-dot state-open"></div>
+            Open
+            <span class="count" id="openCount">0</span>
+          </div>
+          <div class="nav-item" data-filter="state" data-value="HALF_OPEN">
+            <div class="state-dot state-half-open"></div>
+            Half Open
+            <span class="count" id="halfOpenCount">0</span>
+          </div>
+          <div class="nav-item" data-filter="state" data-value="CLOSED">
+            <div class="state-dot state-closed"></div>
+            Closed
+            <span class="count" id="closedCount">0</span>
+          </div>
+        </nav>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Categories</div>
+        <nav id="categoryNav">
+          <div class="nav-item" data-filter="category" data-value="RABTUL">
+            RABTUL
+            <span class="count" id="rabtulCount">0</span>
+          </div>
+          <div class="nav-item" data-filter="category" data-value="RTNM_GROUP">
+            RTNM-Group
+            <span class="count" id="rtnmCount">0</span>
+          </div>
+          <div class="nav-item" data-filter="category" data-value="REZ_MEDIA">
+            REZ-Media
+            <span class="count" id="mediaCount">0</span>
+          </div>
+          <div class="nav-item" data-filter="category" data-value="REZ_INTELLIGENCE">
+            REZ-Intelligence
+            <span class="count" id="intelCount">0</span>
+          </div>
+        </nav>
+      </div>
+    </aside>
+
+    <main class="content" id="mainContent">
+      <!-- Dashboard View -->
+      <div id="dashboardView">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="label">Total Services</div>
+            <div class="value blue" id="statTotalServices">0</div>
+            <div class="subtext" id="statHealthyServices">0 healthy</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Open Circuits</div>
+            <div class="value red" id="statOpenCircuits">0</div>
+            <div class="subtext">Requires attention</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Failure Rate (24h)</div>
+            <div class="value yellow" id="statFailureRate">0%</div>
+            <div class="subtext" id="statTotalFailures">0 failures</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Avg Response Time</div>
+            <div class="value green" id="statResponseTime">0ms</div>
+            <div class="subtext">Across all services</div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div class="section-title">
+            <span>Circuit States Distribution</span>
+          </div>
+          <canvas id="circuitChart" height="200"></canvas>
+        </div>
+
+        <div class="section-title">
+          <span>Recent Alerts</span>
+          <button class="btn btn-ghost" onclick="navigateTo('alerts')">View All</button>
+        </div>
+        <div id="recentAlerts">
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            <p>No recent alerts</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Circuits View -->
+      <div id="circuitsView" style="display: none;">
+        <div class="section-title">
+          <span>Circuit Breakers</span>
+          <button class="btn btn-primary" onclick="refreshData()">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
+
+        <div class="filter-bar">
+          <select class="filter-select" id="circuitStateFilter" onchange="filterCircuits()">
+            <option value="">All States</option>
+            <option value="OPEN">Open</option>
+            <option value="HALF_OPEN">Half Open</option>
+            <option value="CLOSED">Closed</option>
+          </select>
+          <select class="filter-select" id="circuitCategoryFilter" onchange="filterCircuits()">
+            <option value="">All Categories</option>
+            <option value="RABTUL">RABTUL</option>
+            <option value="RTNM_GROUP">RTNM-Group</option>
+            <option value="REZ_MEDIA">REZ-Media</option>
+            <option value="REZ_INTELLIGENCE">REZ-Intelligence</option>
+            <option value="STAY_OWN">StayOwn</option>
+            <option value="REZ_CONSUMER">REZ-Consumer</option>
+          </select>
+          <input type="text" class="search-input" id="circuitSearch" placeholder="Search circuits..." oninput="filterCircuits()">
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Category</th>
+                <th>State</th>
+                <th>Failures</th>
+                <th>Success Rate</th>
+                <th>Last Failure</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="circuitsTableBody">
+              <tr>
+                <td colspan="7" class="empty-state">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Services View -->
+      <div id="servicesView" style="display: none;">
+        <div class="section-title">
+          <span>Service Health</span>
+          <button class="btn btn-primary" onclick="forceHealthCheck()">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+            Force Check
+          </button>
+        </div>
+
+        <div class="filter-bar">
+          <select class="filter-select" id="serviceStatusFilter" onchange="filterServices()">
+            <option value="">All Status</option>
+            <option value="healthy">Healthy</option>
+            <option value="degraded">Degraded</option>
+            <option value="unhealthy">Unhealthy</option>
+            <option value="unknown">Unknown</option>
+          </select>
+          <select class="filter-select" id="serviceCategoryFilter" onchange="filterServices()">
+            <option value="">All Categories</option>
+            <option value="RABTUL">RABTUL</option>
+            <option value="RTNM_GROUP">RTNM-Group</option>
+            <option value="REZ_MEDIA">REZ-Media</option>
+            <option value="REZ_INTELLIGENCE">REZ-Intelligence</option>
+          </select>
+          <input type="text" class="search-input" id="serviceSearch" placeholder="Search services..." oninput="filterServices()">
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Response Time</th>
+                <th>Uptime</th>
+                <th>Circuit</th>
+                <th>Last Check</th>
+              </tr>
+            </thead>
+            <tbody id="servicesTableBody">
+              <tr>
+                <td colspan="7" class="empty-state">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Alerts View -->
+      <div id="alertsView" style="display: none;">
+        <div class="section-title">
+          <span>Alerts</span>
+          <button class="btn btn-ghost" onclick="acknowledgeAllAlerts()">Acknowledge All</button>
+        </div>
+
+        <div class="filter-bar">
+          <select class="filter-select" id="alertSeverityFilter" onchange="filterAlerts()">
+            <option value="">All Severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select class="filter-select" id="alertTypeFilter" onchange="filterAlerts()">
+            <option value="">All Types</option>
+            <option value="circuit_open">Circuit Open</option>
+            <option value="circuit_close">Circuit Close</option>
+            <option value="circuit_half_open">Circuit Half Open</option>
+            <option value="high_failure_rate">High Failure Rate</option>
+            <option value="slow_response">Slow Response</option>
+            <option value="service_down">Service Down</option>
+          </select>
+          <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+            <button class="btn btn-ghost" id="showUnacknowledgedBtn" onclick="toggleUnacknowledged()">Show Unacknowledged</button>
+          </div>
+        </div>
+
+        <div id="alertsContainer">
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            <p>No alerts</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Modal -->
+      <div class="modal" id="detailModal">
+        <div class="modal-content">
+          <div class="modal-title" id="modalTitle">Details</div>
+          <div id="modalContent"></div>
+          <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+            <button class="btn btn-danger" id="modalActionBtn" onclick="performAction()">Action</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">
+    <span id="toastMessage"></span>
+  </div>
+
+  <script>
+    // Global state
+    let socket = null;
+    let circuits = [];
+    let services = [];
+    let alerts = [];
+    let healthStats = {};
+    let currentView = 'dashboard';
+    let showOnlyUnacknowledged = false;
+    let circuitChart = null;
+    let selectedItem = null;
+    let selectedAction = null;
+
+    // Initialize Socket.IO connection
+    function initSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const socketUrl = `${protocol}//${window.location.host}`;
+
+      socket = io(socketUrl, {
+        transports: ['websocket', 'polling']
+      });
+
+      socket.on('connect', () => {
+        document.getElementById('connectionDot').classList.add('connected');
+        document.getElementById('connectionText').textContent = 'Connected';
+        refreshData();
+      });
+
+      socket.on('disconnect', () => {
+        document.getElementById('connectionDot').classList.remove('connected');
+        document.getElementById('connectionText').textContent = 'Disconnected';
+      });
+
+      socket.on('event', (event) => {
+        handleWsEvent(event);
+      });
+    }
+
+    // Handle WebSocket events
+    function handleWsEvent(event) {
+      switch (event.type) {
+        case 'circuit_state_changed':
+          updateCircuitState(event.payload);
+          showToast(`Circuit ${event.payload.circuit} changed to ${event.payload.state}`, 'success');
+          break;
+        case 'service_health_changed':
+          updateServiceHealth(event.payload);
+          break;
+        case 'alert_created':
+          alerts.unshift(event.payload);
+          updateAlertCounts();
+          showToast(`New alert: ${event.payload.message}`, 'error');
+          break;
+        case 'health_stats_updated':
+          healthStats = event.payload;
+          updateDashboard();
+          break;
+        case 'recovery_detected':
+          showToast(`Service recovered: ${event.payload.serviceName}`, 'success');
+          break;
+      }
+    }
+
+    // Update circuit state from event
+    function updateCircuitState(payload) {
+      const index = circuits.findIndex(c => c.name === payload.circuit);
+      if (index !== -1) {
+        circuits[index] = { ...circuits[index], ...payload };
+        renderCircuits();
+      }
+      updateSidebarCounts();
+    }
+
+    // Update service health from event
+    function updateServiceHealth(payload) {
+      const index = services.findIndex(s => s.name === payload.name);
+      if (index !== -1) {
+        services[index] = payload;
+        renderServices();
+      }
+      updateSidebarCounts();
+    }
+
+    // Fetch data from API
+    async function refreshData() {
+      try {
+        const [dashboardRes, circuitsRes, servicesRes, alertsRes] = await Promise.all([
+          fetch('/api/v1/dashboard'),
+          fetch('/api/v1/circuits'),
+          fetch('/api/v1/services'),
+          fetch('/api/v1/alerts?unacknowledged=false')
+        ]);
+
+        const dashboard = await dashboardRes.json();
+        const circuitsData = await circuitsRes.json();
+        const servicesData = await servicesRes.json();
+        const alertsData = await alertsRes.json();
+
+        if (dashboard.success) {
+          healthStats = dashboard.data.healthStats;
+          updateDashboard();
+        }
+
+        if (circuitsData.success) {
+          circuits = circuitsData.data;
+          renderCircuits();
+        }
+
+        if (servicesData.success) {
+          services = servicesData.data;
+          renderServices();
+        }
+
+        if (alertsData.success) {
+          alerts = alertsData.data;
+          renderAlerts();
+        }
+
+        updateSidebarCounts();
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+        showToast('Failed to fetch data', 'error');
+      }
+    }
+
+    // Update sidebar counts
+    function updateSidebarCounts() {
+      document.getElementById('circuitCount').textContent = circuits.length;
+      document.getElementById('serviceCount').textContent = services.length;
+      document.getElementById('alertCount').textContent = alerts.filter(a => !a.acknowledged).length;
+
+      document.getElementById('openCount').textContent = circuits.filter(c => c.state === 'OPEN').length;
+      document.getElementById('halfOpenCount').textContent = circuits.filter(c => c.state === 'HALF_OPEN').length;
+      document.getElementById('closedCount').textContent = circuits.filter(c => c.state === 'CLOSED').length;
+
+      document.getElementById('rabtulCount').textContent = circuits.filter(c => c.category === 'RABTUL').length;
+      document.getElementById('rtnmCount').textContent = circuits.filter(c => c.category === 'RTNM_GROUP').length;
+      document.getElementById('mediaCount').textContent = circuits.filter(c => c.category === 'REZ_MEDIA').length;
+      document.getElementById('intelCount').textContent = circuits.filter(c => c.category === 'REZ_INTELLIGENCE').length;
+    }
+
+    // Update dashboard stats
+    function updateDashboard() {
+      if (!healthStats.totalServices) return;
+
+      document.getElementById('statTotalServices').textContent = healthStats.totalServices;
+      document.getElementById('statHealthyServices').textContent = `${healthStats.healthyServices} healthy`;
+      document.getElementById('statOpenCircuits').textContent = healthStats.openCircuits;
+      document.getElementById('statFailureRate').textContent = `${healthStats.failureRate24h}%`;
+      document.getElementById('statTotalFailures').textContent = `${healthStats.totalFailures24h} failures`;
+      document.getElementById('statResponseTime').textContent = `${healthStats.averageResponseTime}ms`;
+
+      updateCircuitChart();
+      renderRecentAlerts();
+    }
+
+    // Update circuit chart
+    function updateCircuitChart() {
+      const ctx = document.getElementById('circuitChart').getContext('2d');
+
+      if (circuitChart) {
+        circuitChart.destroy();
+      }
+
+      circuitChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Closed', 'Open', 'Half Open'],
+          datasets: [{
+            data: [
+              healthStats.closedCircuits || 0,
+              healthStats.openCircuits || 0,
+              healthStats.halfOpenCircuits || 0
+            ],
+            backgroundColor: ['#22c55e', '#ef4444', '#eab308'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                color: '#94a3b8',
+                font: { size: 12 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Render recent alerts on dashboard
+    function renderRecentAlerts() {
+      const container = document.getElementById('recentAlerts');
+      const recentAlerts = alerts.slice(0, 5);
+
+      if (recentAlerts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            <p>No recent alerts</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = recentAlerts.map(alert => `
+        <div class="alert-card ${alert.severity}">
+          <div class="alert-header">
+            <span class="alert-title">${formatAlertType(alert.type)}</span>
+            <span class="alert-time">${formatTime(alert.timestamp)}</span>
+          </div>
+          <div class="alert-message">${alert.message}</div>
+          <div class="alert-actions">
+            <button class="btn btn-ghost" onclick="acknowledgeAlert('${alert.id}')">Acknowledge</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render circuits table
+    function renderCircuits() {
+      const tbody = document.getElementById('circuitsTableBody');
+      const stateFilter = document.getElementById('circuitStateFilter').value;
+      const categoryFilter = document.getElementById('circuitCategoryFilter').value;
+      const search = document.getElementById('circuitSearch').value.toLowerCase();
+
+      let filtered = circuits;
+
+      if (stateFilter) {
+        filtered = filtered.filter(c => c.state === stateFilter);
+      }
+
+      if (categoryFilter) {
+        filtered = filtered.filter(c => c.category === categoryFilter);
+      }
+
+      if (search) {
+        filtered = filtered.filter(c =>
+          c.name.toLowerCase().includes(search) ||
+          c.serviceName.toLowerCase().includes(search)
+        );
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No circuits found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(circuit => `
+        <tr onclick="showCircuitDetail('${circuit.name}')" style="cursor: pointer;">
+          <td>${circuit.serviceName}</td>
+          <td>${formatCategory(circuit.category)}</td>
+          <td><span class="circuit-badge circuit-${circuit.state.toLowerCase()}">${formatState(circuit.state)}</span></td>
+          <td>${circuit.failureCount}</td>
+          <td>${circuit.totalRequests > 0 ? ((circuit.successfulRequests / circuit.totalRequests) * 100).toFixed(1) : 100}%</td>
+          <td>${circuit.lastFailure ? formatTime(circuit.lastFailure) : 'Never'}</td>
+          <td>
+            <button class="btn btn-ghost" onclick="event.stopPropagation(); showCircuitActions('${circuit.name}')">Actions</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Render services table
+    function renderServices() {
+      const tbody = document.getElementById('servicesTableBody');
+      const statusFilter = document.getElementById('serviceStatusFilter').value;
+      const categoryFilter = document.getElementById('serviceCategoryFilter').value;
+      const search = document.getElementById('serviceSearch').value.toLowerCase();
+
+      let filtered = services;
+
+      if (statusFilter) {
+        filtered = filtered.filter(s => s.status === statusFilter);
+      }
+
+      if (categoryFilter) {
+        filtered = filtered.filter(s => s.category === categoryFilter);
+      }
+
+      if (search) {
+        filtered = filtered.filter(s =>
+          s.name.toLowerCase().includes(search) ||
+          s.serviceName.toLowerCase().includes(search)
+        );
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No services found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(service => `
+        <tr>
+          <td>${service.serviceName}</td>
+          <td>${formatCategory(service.category)}</td>
+          <td><span class="status-badge status-${service.status}">${formatStatus(service.status)}</span></td>
+          <td>${service.responseTime ? `${service.responseTime}ms` : 'N/A'}</td>
+          <td>${service.uptimePercentage.toFixed(1)}%</td>
+          <td><span class="circuit-badge circuit-${(service.circuitState || 'CLOSED').toLowerCase()}">${formatState(service.circuitState || 'CLOSED')}</span></td>
+          <td>${formatTime(service.lastCheck)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Render alerts
+    function renderAlerts() {
+      const container = document.getElementById('alertsContainer');
+      const severityFilter = document.getElementById('alertSeverityFilter').value;
+      const typeFilter = document.getElementById('alertTypeFilter').value;
+
+      let filtered = alerts;
+
+      if (showOnlyUnacknowledged) {
+        filtered = filtered.filter(a => !a.acknowledged);
+      }
+
+      if (severityFilter) {
+        filtered = filtered.filter(a => a.severity === severityFilter);
+      }
+
+      if (typeFilter) {
+        filtered = filtered.filter(a => a.type === typeFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            <p>No alerts found</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(alert => `
+        <div class="alert-card ${alert.severity}">
+          <div class="alert-header">
+            <span class="alert-title">${formatAlertType(alert.type)} - ${alert.serviceName}</span>
+            <span class="alert-time">${formatTime(alert.timestamp)}</span>
+          </div>
+          <div class="alert-message">${alert.message}</div>
+          ${alert.acknowledged ? `<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Acknowledged by ${alert.acknowledgedBy} at ${formatTime(alert.acknowledgedAt)}</div>` : ''}
+          <div class="alert-actions">
+            ${alert.acknowledged ? '' : `<button class="btn btn-ghost" onclick="acknowledgeAlert('${alert.id}')">Acknowledge</button>`}
+            <button class="btn btn-ghost" onclick="showAlertDetail('${alert.id}')">Details</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter functions
+    function filterCircuits() {
+      renderCircuits();
+    }
+
+    function filterServices() {
+      renderServices();
+    }
+
+    function filterAlerts() {
+      renderAlerts();
+    }
+
+    function toggleUnacknowledged() {
+      showOnlyUnacknowledged = !showOnlyUnacknowledged;
+      document.getElementById('showUnacknowledgedBtn').textContent = showOnlyUnacknowledged ? 'Show All' : 'Show Unacknowledged';
+      renderAlerts();
+    }
+
+    // Navigation
+    function navigateTo(view) {
+      currentView = view;
+
+      // Update nav items
+      document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+        item.classList.toggle('active', item.dataset.view === view);
+      });
+
+      // Show/hide views
+      document.querySelectorAll('#mainContent > div').forEach(div => {
+        div.style.display = 'none';
+      });
+
+      document.getElementById(`${view}View`).style.display = 'block';
+
+      // Trigger render for the view
+      if (view === 'dashboard') {
+        updateDashboard();
+      } else if (view === 'circuits') {
+        renderCircuits();
+      } else if (view === 'services') {
+        renderServices();
+      } else if (view === 'alerts') {
+        renderAlerts();
+      }
+    }
+
+    // Setup navigation
+    document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+      item.addEventListener('click', () => navigateTo(item.dataset.view));
+    });
+
+    // Setup filter navigation
+    document.querySelectorAll('.nav-item[data-filter]').forEach(item => {
+      item.addEventListener('click', () => {
+        const filter = item.dataset.filter;
+        const value = item.dataset.value;
+
+        if (filter === 'state') {
+          document.getElementById('circuitStateFilter').value = value;
+          navigateTo('circuits');
+          filterCircuits();
+        } else if (filter === 'category') {
+          document.getElementById('circuitCategoryFilter').value = value;
+          navigateTo('circuits');
+          filterCircuits();
+        }
+      });
+    });
+
+    // Circuit detail modal
+    async function showCircuitDetail(name) {
+      try {
+        const res = await fetch(`/api/v1/circuits/${name}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          showToast('Failed to fetch circuit details', 'error');
+          return;
+        }
+
+        const { circuit, recentFailures, recentRecoveries } = data.data;
+        selectedItem = name;
+        selectedAction = 'circuit_detail';
+
+        document.getElementById('modalTitle').textContent = circuit.serviceName;
+        document.getElementById('modalContent').innerHTML = `
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="label">State</div>
+              <div class="value"><span class="circuit-badge circuit-${circuit.state.toLowerCase()}">${formatState(circuit.state)}</span></div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Category</div>
+              <div class="value">${formatCategory(circuit.category)}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Total Requests</div>
+              <div class="value">${circuit.totalRequests}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Failed Requests</div>
+              <div class="value">${circuit.failedRequests}</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Success Rate</div>
+              <div class="value">${circuit.totalRequests > 0 ? ((circuit.successfulRequests / circuit.totalRequests) * 100).toFixed(1) : 100}%</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">Failure Count</div>
+              <div class="value">${circuit.failureCount}</div>
+            </div>
+          </div>
+          ${recentFailures.length > 0 ? `
+            <div class="section-title" style="margin-top: 1rem;">Recent Failures</div>
+            ${recentFailures.slice(0, 5).map(f => `
+              <div style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                <div style="color: var(--accent-red);">${f.errorType}</div>
+                <div style="color: var(--text-secondary);">${f.errorMessage}</div>
+                <div style="color: var(--text-muted); font-size: 0.75rem;">${formatTime(f.timestamp)}</div>
+              </div>
+            `).join('')}
+          ` : ''}
+        `;
+        document.getElementById('modalActionBtn').style.display = 'none';
+        document.getElementById('detailModal').classList.add('active');
+      } catch (error) {
+        showToast('Failed to fetch circuit details', 'error');
+      }
+    }
+
+    // Circuit actions modal
+    async function showCircuitActions(name) {
+      selectedItem = name;
+      selectedAction = 'circuit_action';
+
+      document.getElementById('modalTitle').textContent = `Actions: ${name}`;
+      document.getElementById('modalContent').innerHTML = `
+        <p style="margin-bottom: 1rem; color: var(--text-secondary);">Select an action to perform on this circuit:</p>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <button class="btn btn-danger" onclick="forceCircuitState('${name}', 'OPEN')">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            Force Open
+          </button>
+          <button class="btn btn-ghost" onclick="forceCircuitState('${name}', 'HALF_OPEN')">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+            </svg>
+            Force Half Open
+          </button>
+          <button class="btn btn-primary" onclick="forceCircuitState('${name}', 'CLOSED')">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            Force Close
+          </button>
+          <button class="btn btn-ghost" onclick="resetCircuitCounters('${name}')">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+            Reset Counters
+          </button>
+        </div>
+      `;
+      document.getElementById('modalActionBtn').style.display = 'none';
+      document.getElementById('detailModal').classList.add('active');
+    }
+
+    // Force circuit state
+    async function forceCircuitState(name, state) {
+      try {
+        const res = await fetch(`/api/v1/circuits/${name}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'force_state', state })
+        });
+
+        if (res.ok) {
+          showToast(`Circuit ${name} set to ${state}`, 'success');
+          closeModal();
+          refreshData();
+        } else {
+          showToast('Failed to update circuit state', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to update circuit state', 'error');
+      }
+    }
+
+    // Reset circuit counters
+    async function resetCircuitCounters(name) {
+      try {
+        const res = await fetch(`/api/v1/circuits/${name}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'reset_counters' })
+        });
+
+        if (res.ok) {
+          showToast(`Counters reset for ${name}`, 'success');
+          closeModal();
+          refreshData();
+        } else {
+          showToast('Failed to reset counters', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to reset counters', 'error');
+      }
+    }
+
+    // Acknowledge alert
+    async function acknowledgeAlert(alertId) {
+      try {
+        const res = await fetch(`/api/v1/alerts/${alertId}/acknowledge`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ acknowledgedBy: 'dashboard-user' })
+        });
+
+        if (res.ok) {
+          showToast('Alert acknowledged', 'success');
+          refreshData();
+        } else {
+          showToast('Failed to acknowledge alert', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to acknowledge alert', 'error');
+      }
+    }
+
+    // Acknowledge all alerts
+    async function acknowledgeAllAlerts() {
+      const unacknowledged = alerts.filter(a => !a.acknowledged);
+      for (const alert of unacknowledged) {
+        await acknowledgeAlert(alert.id);
+      }
+    }
+
+    // Show alert detail
+    function showAlertDetail(alertId) {
+      const alert = alerts.find(a => a.id === alertId);
+      if (!alert) return;
+
+      selectedItem = alertId;
+      selectedAction = 'alert_detail';
+
+      document.getElementById('modalTitle').textContent = `Alert: ${alert.serviceName}`;
+      document.getElementById('modalContent').innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="label">Type</div>
+            <div class="value">${formatAlertType(alert.type)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Severity</div>
+            <div class="value" style="color: var(--accent-${alert.severity === 'critical' ? 'red' : alert.severity === 'high' ? 'yellow' : 'blue'});">${alert.severity.toUpperCase()}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Category</div>
+            <div class="value">${formatCategory(alert.category)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Time</div>
+            <div class="value">${formatTime(alert.timestamp)}</div>
+          </div>
+        </div>
+        <div style="margin-top: 1rem;">
+          <div class="label">Message</div>
+          <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; margin-top: 0.5rem;">${alert.message}</div>
+        </div>
+        ${Object.keys(alert.details).length > 0 ? `
+          <div style="margin-top: 1rem;">
+            <div class="label">Details</div>
+            <pre style="padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; margin-top: 0.5rem; overflow-x: auto; font-size: 0.875rem;">${JSON.stringify(alert.details, null, 2)}</pre>
+          </div>
+        ` : ''}
+      `;
+      document.getElementById('modalActionBtn').style.display = alert.acknowledged ? 'none' : 'block';
+      document.getElementById('modalActionBtn').textContent = 'Acknowledge';
+      document.getElementById('modalActionBtn').onclick = () => {
+        acknowledgeAlert(alertId);
+        closeModal();
+      };
+      document.getElementById('detailModal').classList.add('active');
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // Force health check
+    async function forceHealthCheck() {
+      try {
+        socket.emit('force:healthcheck');
+        showToast('Health check triggered', 'success');
+        setTimeout(refreshData, 2000);
+      } catch (error) {
+        showToast('Failed to trigger health check', 'error');
+      }
+    }
+
+    // Perform action from modal
+    function performAction() {
+      if (selectedAction === 'alert_detail' && selectedItem) {
+        acknowledgeAlert(selectedItem);
+        closeModal();
+      }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+
+      toast.className = `toast ${type}`;
+      toastMessage.textContent = message;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Format functions
+    function formatState(state) {
+      const states = {
+        'CLOSED': 'Closed',
+        'OPEN': 'Open',
+        'HALF_OPEN': 'Half Open'
+      };
+      return states[state] || state;
+    }
+
+    function formatStatus(status) {
+      return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    function formatCategory(category) {
+      return category.replace(/_/g, ' ');
+    }
+
+    function formatAlertType(type) {
+      return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function formatTime(timestamp) {
+      if (!timestamp) return 'Never';
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
+
+    // Modal close on outside click
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('detailModal')) {
+        closeModal();
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      initSocket();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# Kustomization for RTMN Services
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: rtmz
+
+resources:
+  - REZ-services.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: rtmz
+
+images:
+  - name: ghcr.io/imrejaul007/rez-graphql-federation
+    newTag: latest
+  - name: ghcr.io/imrejaul007/rez-automl-pipeline
+    newTag: latest
+  - name: ghcr.io/imrejaul007/rez-invoice-ocr
+    newTag: latest
+  - name: ghcr.io/imrejaul007/rez-contract-management
+    newTag: latest
+  - name: ghcr.io/imrejaul007/rez-legal-document-ai
+    newTag: latest
+  - name: ghcr.io/imrejaul007/rez-cosmic-twin
+    newTag: latest
+  - name: ghcr.io/imrejaul007/rez-ranking-service
+    newTag: latest
+
+replicas:
+  - name: graphql-federation
+    count: 2
+  - name: automl-pipeline
+    count: 2
+  - name: invoice-ocr
+    count: 2
+  - name: contract-management
+    count: 2
+  - name: legal-document-ai
+    count: 2
+  - name: cosmic-twin
+    count: 2
+  - name: ranking-service
+    count: 3

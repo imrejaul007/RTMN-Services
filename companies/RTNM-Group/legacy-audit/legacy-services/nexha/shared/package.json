@@ -1,0 +1,17 @@
+{
+  "name": "@rez/nexha-shared",
+  "version": "1.0.0",
+  "description": "Shared packages for NeXha OS",
+  "private": true,
+  "workspaces": [
+    "webhook-sdk",
+    "auth-client",
+    "shared-types",
+    "integration-framework"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint"
+  }
+}

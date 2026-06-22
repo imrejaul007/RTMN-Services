@@ -1,0 +1,976 @@
+openapi: 3.0.3
+info:
+  title: ReZ Tracking Service API
+  description: |
+    Real-time delivery driver tracking service with GPS tracking, ETA calculation,
+    route optimization, and geofencing alerts.
+
+    ## Features
+    - Real-time Tracking: Track delivery driver locations with WebSocket updates
+    - ETA Calculation: Accurate estimated time of arrival
+    - Route Optimization: Optimize delivery routes using nearest neighbor algorithm
+    - Geofencing Alerts: Trigger events when drivers enter or exit defined zones
+    - Historical Tracking: Store and retrieve historical tracking data
+    - Batch Updates: Handle high-frequency location updates efficiently
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4032
+    description: Development server
+  - url: https://api.rez.money/tracking
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Tracking Sessions
+    description: Session management
+  - name: Driver Tracking
+    description: Driver location tracking
+  - name: Geofences
+    description: Geofence management
+  - name: Routes
+    description: Route optimization
+  - name: Statistics
+    description: Service statistics
+
+paths:
+  /api/tracking/sessions:
+    get:
+      tags:
+        - Tracking Sessions
+      summary: Get active sessions
+      description: Returns all active tracking sessions
+      operationId: getActiveSessions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Active sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionsListResponse'
+
+    post:
+      tags:
+        - Tracking Sessions
+      summary: Create session
+      description: Creates a new tracking session
+      operationId: createSession
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+
+  /api/tracking/sessions/{id}:
+    get:
+      tags:
+        - Tracking Sessions
+      summary: Get session
+      description: Returns a single tracking session
+      operationId: getSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tracking/sessions/{id}/location:
+    put:
+      tags:
+        - Tracking Sessions
+      summary: Update location
+      description: Updates driver location for a session
+      operationId: updateSessionLocation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdateRequest'
+      responses:
+        '200':
+          description: Location updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationUpdateResponse'
+
+  /api/tracking/sessions/{id}/destination:
+    put:
+      tags:
+        - Tracking Sessions
+      summary: Set destination
+      description: Sets the destination for a session
+      operationId: setDestination
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDestinationRequest'
+      responses:
+        '200':
+          description: Destination set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+
+  /api/tracking/sessions/{id}/route:
+    put:
+      tags:
+        - Tracking Sessions
+      summary: Set route
+      description: Sets the route for a session
+      operationId: setRoute
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRouteRequest'
+      responses:
+        '200':
+          description: Route set
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+
+  /api/tracking/sessions/{id}/complete:
+    post:
+      tags:
+        - Tracking Sessions
+      summary: Complete session
+      description: Marks a tracking session as complete
+      operationId: completeSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+
+  /api/tracking/sessions/{id}/cancel:
+    post:
+      tags:
+        - Tracking Sessions
+      summary: Cancel session
+      description: Cancels a tracking session
+      operationId: cancelSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+
+  /api/tracking/sessions/{id}/history:
+    get:
+      tags:
+        - Tracking Sessions
+      summary: Get session history
+      description: Returns location history for a session
+      operationId: getSessionHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionHistoryResponse'
+
+  /api/tracking/drivers/{id}/active:
+    get:
+      tags:
+        - Driver Tracking
+      summary: Get active session
+      description: Returns active session for a driver
+      operationId: getDriverActiveSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Active session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '404':
+          description: No active session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tracking/drivers/{id}/history:
+    get:
+      tags:
+        - Driver Tracking
+      summary: Get driver history
+      description: Returns tracking history for a driver
+      operationId: getDriverHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Driver history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverHistoryResponse'
+
+  /api/tracking/drivers/{id}/stats:
+    get:
+      tags:
+        - Driver Tracking
+      summary: Get driver stats
+      description: Returns tracking statistics for a driver
+      operationId: getDriverStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Driver statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverTrackingStatsResponse'
+
+  /api/tracking/geofences:
+    get:
+      tags:
+        - Geofences
+      summary: List geofences
+      description: Returns all geofences
+      operationId: listGeofences
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of geofences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeofenceListResponse'
+
+    post:
+      tags:
+        - Geofences
+      summary: Create geofence
+      description: Creates a new geofence
+      operationId: createGeofence
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGeofenceRequest'
+      responses:
+        '201':
+          description: Geofence created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeofenceResponse'
+
+  /api/tracking/geofences/{id}:
+    get:
+      tags:
+        - Geofences
+      summary: Get geofence
+      description: Returns a single geofence
+      operationId: getGeofence
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Geofence details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeofenceResponse'
+        '404':
+          description: Geofence not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Geofences
+      summary: Update geofence
+      description: Updates a geofence
+      operationId: updateGeofence
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGeofenceRequest'
+      responses:
+        '200':
+          description: Geofence updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeofenceResponse'
+
+    delete:
+      tags:
+        - Geofences
+      summary: Delete geofence
+      description: Deletes a geofence
+      operationId: deleteGeofence
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Geofence deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/tracking/routes/optimize:
+    post:
+      tags:
+        - Routes
+      summary: Optimize route
+      description: Optimizes a route between waypoints
+      operationId: optimizeRoute
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptimizeRouteRequest'
+      responses:
+        '200':
+          description: Route optimized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizedRouteResponse'
+
+  /api/tracking/stats:
+    get:
+      tags:
+        - Statistics
+      summary: Get service stats
+      description: Returns service statistics
+      operationId: getServiceStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Service statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatsResponse'
+
+  /api/tracking/locations/batch:
+    post:
+      tags:
+        - Tracking Sessions
+      summary: Batch location update
+      description: Updates multiple locations at once
+      operationId: batchUpdateLocations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - locations
+              properties:
+                locations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/LocationUpdateRequest'
+      responses:
+        '200':
+          description: Locations updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchLocationUpdateResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    GeoPoint:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+
+    LocationPoint:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        timestamp:
+          type: string
+          format: date-time
+        speed:
+          type: number
+          format: double
+        heading:
+          type: number
+          format: double
+
+    TrackingSession:
+      type: object
+      properties:
+        id:
+          type: string
+        driverId:
+          type: string
+        deliveryId:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - completed
+            - cancelled
+        currentLocation:
+          $ref: '#/components/schemas/GeoPoint'
+        destination:
+          type: object
+          properties:
+            coordinates:
+              $ref: '#/components/schemas/GeoPoint'
+            address:
+              type: string
+            radius:
+              type: number
+        route:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeoPoint'
+        eta:
+          type: object
+          properties:
+            estimatedArrival:
+              type: string
+              format: date-time
+            distanceRemaining:
+              type: number
+            timeRemaining:
+              type: number
+        distanceTraveled:
+          type: number
+        startedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+
+    Geofence:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - restricted
+            - allowed
+            - informational
+        coordinates:
+          $ref: '#/components/schemas/GeoPoint'
+        radius:
+          type: number
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    OptimizedRoute:
+      type: object
+      properties:
+        waypoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeoPoint'
+        distance:
+          type: number
+          description: Total distance in meters
+        duration:
+          type: number
+          description: Estimated duration in seconds
+        polyline:
+          type: string
+
+    LocationUpdateRequest:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        speed:
+          type: number
+          format: double
+        heading:
+          type: number
+          format: double
+        accuracy:
+          type: number
+          format: double
+
+    CreateSessionRequest:
+      type: object
+      required:
+        - driverId
+      properties:
+        driverId:
+          type: string
+        deliveryId:
+          type: string
+
+    SetDestinationRequest:
+      type: object
+      required:
+        - coordinates
+      properties:
+        coordinates:
+          $ref: '#/components/schemas/GeoPoint'
+        address:
+          type: string
+        radius:
+          type: number
+          default: 100
+
+    SetRouteRequest:
+      type: object
+      required:
+        - waypoints
+      properties:
+        waypoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeoPoint'
+
+    OptimizeRouteRequest:
+      type: object
+      required:
+        - waypoints
+      properties:
+        waypoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeoPoint'
+        startLocation:
+          $ref: '#/components/schemas/GeoPoint'
+
+    CreateGeofenceRequest:
+      type: object
+      required:
+        - name
+        - coordinates
+        - radius
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - restricted
+            - allowed
+            - informational
+          default: informational
+        coordinates:
+          $ref: '#/components/schemas/GeoPoint'
+        radius:
+          type: number
+        isActive:
+          type: boolean
+          default: true
+
+    UpdateGeofenceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - restricted
+            - allowed
+            - informational
+        coordinates:
+          $ref: '#/components/schemas/GeoPoint'
+        radius:
+          type: number
+        isActive:
+          type: boolean
+
+    SessionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/TrackingSession'
+
+    SessionsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackingSession'
+
+    SessionHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            sessionId:
+              type: string
+            locations:
+              type: array
+              items:
+                $ref: '#/components/schemas/LocationPoint'
+
+    DriverHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              sessionId:
+                type: string
+              date:
+                type: string
+                format: date
+              distance:
+                type: number
+              duration:
+                type: number
+              locations:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocationPoint'
+
+    DriverTrackingStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            driverId:
+              type: string
+            totalSessions:
+              type: integer
+            totalDistance:
+              type: number
+            totalDuration:
+              type: number
+            averageSpeed:
+              type: number
+            geofenceEvents:
+              type: integer
+            lastLocation:
+              $ref: '#/components/schemas/LocationPoint'
+
+    GeofenceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Geofence'
+
+    GeofenceListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Geofence'
+
+    OptimizedRouteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/OptimizedRoute'
+
+    LocationUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+        eta:
+          type: object
+          properties:
+            estimatedArrival:
+              type: string
+              format: date-time
+            distanceRemaining:
+              type: number
+
+    ServiceStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            activeSessions:
+              type: integer
+            totalSessions:
+              type: integer
+            totalGeofences:
+              type: integer
+            geofenceEvents:
+              type: integer
+            lastUpdated:
+              type: string
+              format: date-time
+
+    BatchLocationUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            processed:
+              type: integer
+            failed:
+              type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

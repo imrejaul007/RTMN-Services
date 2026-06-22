@@ -1,0 +1,22 @@
+{
+  "name": "ados",
+  "version": "0.1.0",
+  "description": "AdOS - Intelligence Layer for Real-World Advertising",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "advertising",
+    "attribution",
+    "roi",
+    "ados"
+  ],
+  "author": "ReZ",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

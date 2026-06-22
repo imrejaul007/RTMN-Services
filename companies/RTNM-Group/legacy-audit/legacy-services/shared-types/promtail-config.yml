@@ -1,0 +1,63 @@
+# Promtail Configuration
+# Log collection and forwarding to Loki
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Scrape Docker container logs
+  - job_name: containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: container
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: stream
+
+  # Scrape service logs (for non-Docker environments)
+  - job_name: services
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: rez-auth-service
+          __path__: /var/log/rez/auth-service/*.log
+      - targets:
+          - localhost
+        labels:
+          job: rez-merchant-service
+          __path__: /var/log/rez/merchant-service/*.log
+      - targets:
+          - localhost
+        labels:
+          job: rendez-backend
+          __path__: /var/log/rez/rendez/*.log
+      - targets:
+          - localhost
+        labels:
+          job: hotel-ota
+          __path__: /var/log/rez/hotel-ota/*.log
+
+  # Scrape Prometheus and Grafana logs
+  - job_name: observability
+    static_configs:
+      - targets:
+          - prometheus
+        labels:
+          job: prometheus
+          __path__: /prometheus/*.log
+      - targets:
+          - grafana
+        labels:
+          job: grafana
+          __path__: /var/log/grafana/*.log

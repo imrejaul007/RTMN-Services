@@ -1,0 +1,1341 @@
+openapi: 3.0.0
+info:
+  title: REZ Contract Management Service
+  description: |
+    Contract Management Service for creating, managing, and tracking legal contracts.
+
+    Features:
+    - Contract creation and versioning
+    - Clause library management
+    - Template management
+    - Digital signature workflow
+    - PDF generation
+    - Multi-tenant support
+  version: 1.0.0
+  contact:
+    name: REZ Platform Team
+    email: platform@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5003
+    description: Local development server
+  - url: https://api.rez.ai/contracts
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Contracts
+    description: Contract lifecycle management
+  - name: Clauses
+    description: Clause library management
+  - name: Templates
+    description: Contract template management
+  - name: Signatures
+    description: Digital signature operations
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  /api/contracts:
+    get:
+      summary: List contracts
+      description: Get a paginated list of contracts with optional filtering
+      operationId: listContracts
+      tags:
+        - Contracts
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, pending_signature, partially_signed, signed, expired, terminated]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [nda, msa, sow, employment, vendor, custom]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of contracts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractListResponse'
+    post:
+      summary: Create contract
+      description: Create a new contract
+      operationId: createContract
+      tags:
+        - Contracts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContractRequest'
+            example:
+              title: "Software Development Agreement"
+              type: "sow"
+              parties:
+                - name: "Acme Corp"
+                  email: "legal@acme.com"
+                  role: "signer"
+                - name: "Developer Inc"
+                  email: "contracts@developer.com"
+                  role: "signer"
+              content: "This Statement of Work..."
+              startDate: "2026-01-01T00:00:00Z"
+              endDate: "2026-12-31T23:59:59Z"
+              autoRenew: true
+              renewalTermMonths: 12
+      responses:
+        '201':
+          description: Contract created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+
+  /api/contracts/upcoming-renewals:
+    get:
+      summary: Get upcoming renewals
+      description: Get contracts that are due for renewal
+      operationId: getUpcomingRenewals
+      tags:
+        - Contracts
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+      responses:
+        '200':
+          description: Upcoming renewals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contract'
+                  count:
+                    type: integer
+
+  /api/contracts/stats:
+    get:
+      summary: Get contract statistics
+      description: Get aggregate statistics about contracts
+      operationId: getContractStats
+      tags:
+        - Contracts
+      responses:
+        '200':
+          description: Contract statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractStats'
+
+  /api/contracts/{id}:
+    get:
+      summary: Get contract
+      description: Get contract details by ID
+      operationId: getContract
+      tags:
+        - Contracts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contract details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+        '404':
+          description: Contract not found
+    put:
+      summary: Update contract
+      description: Update contract details
+      operationId: updateContract
+      tags:
+        - Contracts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContractRequest'
+      responses:
+        '200':
+          description: Contract updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Contract'
+                  message:
+                    type: string
+    delete:
+      summary: Delete contract
+      description: Delete a contract
+      operationId: deleteContract
+      tags:
+        - Contracts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contract deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/contracts/{id}/history:
+    get:
+      summary: Get contract history
+      description: Get version history of a contract
+      operationId: getContractHistory
+      tags:
+        - Contracts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contract history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+
+  /api/contracts/{id}/generate-pdf:
+    post:
+      summary: Generate PDF
+      description: Generate PDF document for a contract
+      operationId: generateContractPDF
+      tags:
+        - Contracts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                includeSignaturePage:
+                  type: boolean
+                includeAuditTrail:
+                  type: boolean
+                includePartyDetails:
+                  type: boolean
+                pageSize:
+                  type: string
+                  enum: [Letter, A4]
+      responses:
+        '200':
+          description: PDF generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      filename:
+                        type: string
+                      filepath:
+                        type: string
+                      size:
+                        type: integer
+                      downloadUrl:
+                        type: string
+
+  /api/contracts/{id}/send-for-signature:
+    post:
+      summary: Send for signature
+      description: Send contract for digital signature
+      operationId: sendForSignature
+      tags:
+        - Contracts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignatureRequest'
+      responses:
+        '200':
+          description: Signature requests sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      signatures:
+                        type: array
+                        items:
+                          type: object
+                      message:
+                        type: string
+
+  /api/clauses:
+    get:
+      summary: List clauses
+      description: Get a paginated list of standard clauses
+      operationId: listClauses
+      tags:
+        - Clauses
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [confidentiality, termination, liability, payment, intellectual_property, compliance, dispute, general]
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: tags
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of clauses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClauseListResponse'
+    post:
+      summary: Create clause
+      description: Add a new clause to the library
+      operationId: createClause
+      tags:
+        - Clauses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClauseRequest'
+            example:
+              name: "Standard Confidentiality"
+              category: "confidentiality"
+              content: "The Receiving Party agrees to hold all Confidential Information in strict confidence..."
+              description: "Standard 2-year confidentiality clause"
+              tags: ["nda", "standard", "confidentiality"]
+      responses:
+        '201':
+          description: Clause created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Clause'
+
+  /api/clauses/categories:
+    get:
+      summary: Get clause categories
+      description: Get all available clause categories
+      operationId: getClauseCategories
+      tags:
+        - Clauses
+      responses:
+        '200':
+          description: Clause categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+
+  /api/clauses/{id}:
+    get:
+      summary: Get clause
+      description: Get clause details by ID
+      operationId: getClause
+      tags:
+        - Clauses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Clause details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Clause'
+        '404':
+          description: Clause not found
+    put:
+      summary: Update clause
+      description: Update a clause
+      operationId: updateClause
+      tags:
+        - Clauses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClauseRequest'
+      responses:
+        '200':
+          description: Clause updated
+    delete:
+      summary: Delete clause
+      description: Delete a clause
+      operationId: deleteClause
+      tags:
+        - Clauses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Clause deleted
+
+  /api/clauses/{id}/duplicate:
+    post:
+      summary: Duplicate clause
+      description: Create a copy of an existing clause
+      operationId: duplicateClause
+      tags:
+        - Clauses
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Clause duplicated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Clause'
+
+  /api/templates:
+    get:
+      summary: List templates
+      description: Get a paginated list of contract templates
+      operationId: listTemplates
+      tags:
+        - Templates
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [nda, msa, sow, employment, vendor, custom]
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateListResponse'
+    post:
+      summary: Create template
+      description: Create a new contract template
+      operationId: createTemplate
+      tags:
+        - Templates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+
+  /api/templates/active:
+    get:
+      summary: Get active templates
+      description: Get all active templates
+      operationId: getActiveTemplates
+      tags:
+        - Templates
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [nda, msa, sow, employment, vendor, custom]
+      responses:
+        '200':
+          description: Active templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Template'
+
+  /api/templates/{id}:
+    get:
+      summary: Get template
+      description: Get template details by ID
+      operationId: getTemplate
+      tags:
+        - Templates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Template details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '404':
+          description: Template not found
+    put:
+      summary: Update template
+      description: Update a template
+      operationId: updateTemplate
+      tags:
+        - Templates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Template updated
+    delete:
+      summary: Delete template
+      description: Delete a template
+      operationId: deleteTemplate
+      tags:
+        - Templates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Template deleted
+
+  /api/templates/{id}/render:
+    post:
+      summary: Render template
+      description: Render a template with provided variables
+      operationId: renderTemplate
+      tags:
+        - Templates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variables:
+                  type: object
+      responses:
+        '200':
+          description: Rendered template
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      content:
+                        type: string
+                      templateId:
+                        type: string
+
+  /api/templates/{id}/variables:
+    get:
+      summary: Get template variables
+      description: Get the variable schema for a template
+      operationId: getTemplateVariables
+      tags:
+        - Templates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Template variables
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+
+  /api/templates/load-from-file:
+    post:
+      summary: Load template from file
+      description: Load a template from a file path
+      operationId: loadTemplateFromFile
+      tags:
+        - Templates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+      responses:
+        '201':
+          description: Template loaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+
+  /api/signatures/{contractId}/signatures:
+    get:
+      summary: Get signature status
+      description: Get signature status for a contract
+      operationId: getSignatureStatus
+      tags:
+        - Signatures
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Signature status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  /api/signatures/{contractId}/sign:
+    post:
+      summary: Sign contract
+      description: Sign a contract with a signature token
+      operationId: signContract
+      tags:
+        - Signatures
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - signatureToken
+                - signatureData
+              properties:
+                signatureToken:
+                  type: string
+                signatureData:
+                  type: string
+      responses:
+        '200':
+          description: Contract signed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      contractId:
+                        type: string
+                      remainingSignatures:
+                        type: integer
+
+  /api/signatures/{contractId}/decline:
+    post:
+      summary: Decline signature
+      description: Decline to sign a contract
+      operationId: declineSignature
+      tags:
+        - Signatures
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - signatureToken
+                - reason
+              properties:
+                signatureToken:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Signature declined
+
+  /api/signatures/{signatureId}/resend:
+    post:
+      summary: Resend signature request
+      description: Resend a signature request email
+      operationId: resendSignatureRequest
+      tags:
+        - Signatures
+      parameters:
+        - name: signatureId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Signature request resent
+
+  /api/signatures/verify/{token}:
+    get:
+      summary: Verify signature token
+      description: Verify if a signature token is valid
+      operationId: verifySignatureToken
+      tags:
+        - Signatures
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Token verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      valid:
+                        type: boolean
+                      status:
+                        type: string
+                      contractId:
+                        type: string
+                      partyName:
+                        type: string
+                      partyEmail:
+                        type: string
+                      expiryDate:
+                        type: string
+                        format: date-time
+
+  /api/signatures/pending:
+    get:
+      summary: Get pending signatures
+      description: Get all pending signature requests
+      operationId: getPendingSignatures
+      tags:
+        - Signatures
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Pending signatures
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Contract:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum: [nda, msa, sow, employment, vendor, custom]
+        status:
+          type: string
+          enum: [draft, pending_signature, partially_signed, signed, expired, terminated]
+        parties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+              role:
+                type: string
+        content:
+          type: string
+        variables:
+          type: object
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        autoRenew:
+          type: boolean
+        renewalTermMonths:
+          type: integer
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateContractRequest:
+      type: object
+      required:
+        - title
+        - type
+        - parties
+        - content
+        - startDate
+        - endDate
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [nda, msa, sow, employment, vendor, custom]
+        parties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+              role:
+                type: string
+        content:
+          type: string
+        variables:
+          type: object
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        autoRenew:
+          type: boolean
+        renewalTermMonths:
+          type: integer
+        terms:
+          type: array
+          items:
+            type: string
+
+    UpdateContractRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [nda, msa, sow, employment, vendor, custom]
+        parties:
+          type: array
+        content:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        autoRenew:
+          type: boolean
+        renewalTermMonths:
+          type: integer
+        terms:
+          type: array
+          items:
+            type: string
+
+    ContractListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contract'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ContractStats:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+            byStatus:
+              type: object
+            byType:
+              type: object
+
+    Clause:
+      type: object
+      properties:
+        clauseId:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+          enum: [confidentiality, termination, liability, payment, intellectual_property, compliance, dispute, general]
+        content:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateClauseRequest:
+      type: object
+      required:
+        - name
+        - category
+        - content
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        content:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    UpdateClauseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        content:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    ClauseListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Clause'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Template:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [nda, msa, sow, employment, vendor, custom]
+        description:
+          type: string
+        content:
+          type: string
+        variables:
+          type: array
+          items:
+            type: object
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateTemplateRequest:
+      type: object
+      required:
+        - name
+        - type
+        - content
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [nda, msa, sow, employment, vendor, custom]
+        description:
+          type: string
+        content:
+          type: string
+        variables:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              label:
+                type: string
+              type:
+                type: string
+              required:
+                type: boolean
+              defaultValue:
+                type: string
+              options:
+                type: array
+                items:
+                  type: string
+
+    UpdateTemplateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        variables:
+          type: array
+        isActive:
+          type: boolean
+
+    TemplateListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Template'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    SignatureRequest:
+      type: object
+      required:
+        - parties
+      properties:
+        parties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+              role:
+                type: string
+        expiryDays:
+          type: integer
+          minimum: 1
+          maximum: 365
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer

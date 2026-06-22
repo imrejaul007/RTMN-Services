@@ -1,0 +1,105 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: graphql-federation-virtualservice
+  namespace: rtmz
+  labels:
+    app: graphql-federation
+spec:
+  hosts:
+    - graphql-federation.rtmz.svc.cluster.local
+    - graphql-federation
+  http:
+    # GraphQL endpoint with federation support
+    - name: graphql-main
+      match:
+        - uri:
+            prefix: "/graphql"
+        - uri:
+            prefix: "/query"
+      route:
+        - destination:
+            host: graphql-federation.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream
+        retryRemoteLocalities: true
+      timeout: 30s
+      rewrite:
+        uri: "/graphql"
+      # Fault injection for testing (commented out by default)
+      # fault:
+      #   delay:
+      #     percentage:
+      #       value: 0.1
+      #     fixedDelay: 5s
+      #   abort:
+      #     percentage:
+      #       value: 0.1
+      #     httpStatus: 500
+      # Traffic mirroring for zero-downtime deployments
+      mirrors:
+        - destination:
+            host: graphql-federation.rtmz.svc.cluster.local
+            port:
+              number: 8080
+            subset: canary
+          weight: 10
+
+    # Health check endpoint
+    - name: health
+      match:
+        - uri:
+            prefix: "/health"
+      route:
+        - destination:
+            host: graphql-federation.rtmz.svc.cluster.local
+            port:
+              number: 8080
+      retries:
+        attempts: 2
+        perTryTimeout: 1s
+
+    # Readiness probe
+    - name: ready
+      match:
+        - uri:
+            prefix: "/ready"
+      route:
+        - destination:
+            host: graphql-federation.rtmz.svc.cluster.local
+            port:
+              number: 8080
+
+    # Metrics endpoint
+    - name: metrics
+      match:
+        - uri:
+            prefix: "/metrics"
+      route:
+        - destination:
+            host: graphql-federation.rtmz.svc.cluster.local
+            port:
+              number: 9090
+
+    # WebSocket support for subscriptions
+    - name: websocket
+      match:
+        - uri:
+            prefix: "/ws"
+        - scheme:
+            regex: "ws|wss"
+      route:
+        - destination:
+            host: graphql-federation.rtmz.svc.cluster.local
+            port:
+              number: 8080
+      timeout: 3600s
+
+  # Export to ingress gateway
+  exportTo:
+    - "istio-system"

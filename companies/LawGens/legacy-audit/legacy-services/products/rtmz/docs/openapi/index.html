@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RTMN API Documentation</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui-bundle.js"></script>
+  <script>
+    window.onload = function() {
+      const urls = [
+        { url: "graphql-federation.yaml", name: "GraphQL Gateway" },
+        { url: "automl.yaml", name: "AutoML Pipeline" },
+        { url: "invoice-ocr.yaml", name: "Invoice OCR" },
+        { url: "contracts.yaml", name: "Contract Management" },
+        { url: "legal.yaml", name: "Legal Document AI" },
+        { url: "cosmic-twin.yaml", name: "Cosmic Twin" },
+        { url: "ranking.yaml", name: "Ranking Service" }
+      ];
+      const ui = SwaggerUIBundle({
+        urls: urls,
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+        layout: "StandaloneLayout"
+      });
+      window.ui = ui;
+    };
+  </script>
+</body>
+</html>

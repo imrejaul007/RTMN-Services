@@ -1,0 +1,179 @@
+openapi: 3.0.0
+info:
+  title: REZ Platform API
+  description: |
+    Unified API documentation for all RTMN Services in the REZ ecosystem.
+
+    ## Services
+
+    This documentation covers the following microservices:
+
+    | Service | Port | Description |
+    |---------|------|-------------|
+    | GraphQL Federation | 5000 | GraphQL Gateway for unified API access |
+    | AutoML Pipeline | 5001 | Automated ML model training and registry |
+    | Invoice OCR | 5002 | Invoice document processing and extraction |
+    | Contract Management | 5003 | Contract lifecycle management |
+    | Legal Document AI | 5004 | Legal document analysis and compliance |
+    | Cosmic Twin | 5005 | Digital twin management |
+    | Ranking Service | 5006 | ML-driven ranking and personalization |
+
+    ## Authentication
+
+    All endpoints require Bearer token authentication:
+    ```
+    Authorization: Bearer <jwt_token>
+    ```
+
+    ## Common Response Format
+
+    Success:
+    ```json
+    {
+      "success": true,
+      "data": { ... }
+    }
+    ```
+
+    Error:
+    ```json
+    {
+      "success": false,
+      "error": "Error message"
+    }
+    ```
+
+    ## Rate Limiting
+
+    API requests are rate-limited to 100 requests per minute per tenant.
+
+  version: 1.0.0
+  contact:
+    name: REZ Platform Team
+    email: platform@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5000
+    description: GraphQL Federation Gateway (Port 5000)
+  - url: http://localhost:5001
+    description: AutoML Pipeline (Port 5001)
+  - url: http://localhost:5002
+    description: Invoice OCR Service (Port 5002)
+  - url: http://localhost:5003
+    description: Contract Management Service (Port 5003)
+  - url: http://localhost:5004
+    description: Legal Document AI Service (Port 5004)
+  - url: http://localhost:5005
+    description: Cosmic Twin Service (Port 5005)
+  - url: http://localhost:5006
+    description: Ranking Service (Port 5006)
+  - url: https://api.rez.ai
+    description: Production API Gateway
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Gateway
+    description: GraphQL Federation Gateway (Port 5000)
+  - name: AutoML
+    description: AutoML Pipeline (Port 5001)
+  - name: Invoice
+    description: Invoice OCR Service (Port 5002)
+  - name: Contracts
+    description: Contract Management (Port 5003)
+  - name: Legal
+    description: Legal Document AI (Port 5004)
+  - name: Twins
+    description: Cosmic Twin Service (Port 5005)
+  - name: Ranking
+    description: Ranking Service (Port 5006)
+  - name: Health
+    description: Health check endpoints
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check health status of the API gateway
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  services:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        status:
+                          type: string
+                        port:
+                          type: integer
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from authentication service
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        hasMore:
+          type: boolean
+
+    ServiceInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        port:
+          type: integer
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+        lastCheck:
+          type: string
+          format: date-time
+
+# Reusable references
+x-readme:
+  language: en
+  theme: light

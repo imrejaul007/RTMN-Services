@@ -1,0 +1,155 @@
+# ============================================================
+# Redis Sentinel Configuration for High Availability
+# ============================================================
+# Setup: 1 primary + 2 replicas + 3 sentinels
+# Connection: Apps connect to sentinel, which routes to primary
+# ============================================================
+# Usage:
+#   docker compose -f docker-compose.redis-sentinel.yml up -d
+#   Stop primary: docker compose -f docker-compose.redis-sentinel.yml stop redis-primary
+#   Verify failover: docker compose -f docker-compose.redis-sentinel.yml logs redis-sentinel-1
+# ============================================================
+
+services:
+  # ── Redis Primary ──────────────────────────────
+  redis-primary:
+    image: redis:7-alpine
+    container_name: redis-primary
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_primary_data:/data
+    command: >
+      redis-server
+      --requirepass redis_primary_password
+      --replica-read-only yes
+      --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'redis_primary_password', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - redis-network
+
+  # ── Redis Replica 1 ───────────────────────────
+  redis-replica-1:
+    image: redis:7-alpine
+    container_name: redis-replica-1
+    restart: unless-stopped
+    ports:
+      - '6380:6379'
+    volumes:
+      - redis_replica1_data:/data
+    command: >
+      redis-server
+      --requirepass redis_primary_password
+      --masterauth redis_primary_password
+      --replica-read-only yes
+      --appendonly yes
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'redis_primary_password', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - redis-network
+
+  # ── Redis Replica 2 ───────────────────────────
+  redis-replica-2:
+    image: redis:7-alpine
+    container_name: redis-replica-2
+    restart: unless-stopped
+    ports:
+      - '6381:6379'
+    volumes:
+      - redis_replica2_data:/data
+    command: >
+      redis-server
+      --requirepass redis_primary_password
+      --masterauth redis_primary_password
+      --replica-read-only yes
+      --appendonly yes
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'redis_primary_password', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - redis-network
+
+  # ── Redis Sentinel 1 ───────────────────────────
+  redis-sentinel-1:
+    image: redis:7-alpine
+    container_name: redis-sentinel-1
+    restart: unless-stopped
+    ports:
+      - '26379:26379'
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf:ro
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    environment:
+      - REDIS_PASSWORD=redis_primary_password
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    networks:
+      - redis-network
+
+  # ── Redis Sentinel 2 ───────────────────────────
+  redis-sentinel-2:
+    image: redis:7-alpine
+    container_name: redis-sentinel-2
+    restart: unless-stopped
+    ports:
+      - '26380:26379'
+    volumes:
+      - ./sentinel2.conf:/usr/local/etc/redis/sentinel.conf:ro
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    environment:
+      - REDIS_PASSWORD=redis_primary_password
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    networks:
+      - redis-network
+
+  # ── Redis Sentinel 3 ───────────────────────────
+  redis-sentinel-3:
+    image: redis:7-alpine
+    container_name: redis-sentinel-3
+    restart: unless-stopped
+    ports:
+      - '26381:26379'
+    volumes:
+      - ./sentinel3.conf:/usr/local/etc/redis/sentinel.conf:ro
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    environment:
+      - REDIS_PASSWORD=redis_primary_password
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    networks:
+      - redis-network
+
+# ── Volumes ───────────────────────────────────────
+volumes:
+  redis_primary_data:
+    driver: local
+  redis_replica1_data:
+    driver: local
+  redis_replica2_data:
+    driver: local
+
+# ── Networks ──────────────────────────────────────
+networks:
+  redis-network:
+    name: redis-network
+    driver: bridge

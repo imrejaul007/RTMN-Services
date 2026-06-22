@@ -1,0 +1,70 @@
+{
+  "name": "@rez/merchant-sdk",
+  "version": "1.0.0",
+  "description": "Rez Merchant SDK - Unified SDK for QR integrations across Room QR, Menu QR, Rez Now, and Ads QR",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./store": {
+      "types": "./dist/store.d.ts",
+      "import": "./dist/store.mjs",
+      "require": "./dist/store.js"
+    },
+    "./menu": {
+      "types": "./dist/menu.d.ts",
+      "import": "./dist/menu.mjs",
+      "require": "./dist/menu.js"
+    },
+    "./hotel": {
+      "types": "./dist/hotel.d.ts",
+      "import": "./dist/hotel.mjs",
+      "require": "./dist/hotel.js"
+    },
+    "./campaign": {
+      "types": "./dist/campaign.d.ts",
+      "import": "./dist/campaign.mjs",
+      "require": "./dist/campaign.js"
+    },
+    "./analytics": {
+      "types": "./dist/analytics.d.ts",
+      "import": "./dist/analytics.mjs",
+      "require": "./dist/analytics.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/store.ts src/menu.ts src/hotel.ts src/campaign.ts src/analytics.ts --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.ts src/store.ts src/menu.ts src/hotel.ts src/campaign.ts src/analytics.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/**/*.ts",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "rez",
+    "merchant",
+    "qr",
+    "sdk",
+    "api"
+  ],
+  "author": "Rez",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}

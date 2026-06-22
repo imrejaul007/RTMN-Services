@@ -1,0 +1,1160 @@
+openapi: 3.0.0
+info:
+  title: REZ AutoML Pipeline
+  description: |
+    Automated Machine Learning Pipeline for model training, experiment tracking, and model registry.
+
+    Features:
+    - Experiment management and tracking
+    - Automated model training with hyperparameter optimization
+    - Model registry with versioning
+    - Training job queue management
+    - Metrics tracking and visualization
+  version: 1.0.0
+  contact:
+    name: REZ Intelligence Team
+    email: intelligence@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5001
+    description: Local development server
+  - url: https://api.rez.ai/automl
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Experiments
+    description: Experiment lifecycle management
+  - name: Training
+    description: Training job management
+  - name: Models
+    description: Model registry and management
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  /api/experiments:
+    get:
+      summary: List experiments
+      description: Get a paginated list of experiments with optional filtering
+      operationId: listExperiments
+      tags:
+        - Experiments
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, running, completed, failed, cancelled]
+          description: Filter by experiment status
+        - name: taskType
+          in: query
+          schema:
+            type: string
+            enum: [classification, regression, clustering]
+          description: Filter by task type
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, name]
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: List of experiments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentListResponse'
+    post:
+      summary: Create experiment
+      description: Create a new AutoML experiment
+      operationId: createExperiment
+      tags:
+        - Experiments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExperimentRequest'
+            example:
+              name: "Customer Churn Prediction v1"
+              description: "Predict customer churn for subscription service"
+              config:
+                taskType: "classification"
+                targetColumn: "churned"
+                features:
+                  - "tenure_months"
+                  - "monthly_charges"
+                  - "contract_type"
+                algorithms:
+                  - "random_forest"
+                  - "gradient_boosting"
+                  - "neural_network"
+              tags:
+                - "production"
+                - "churn"
+      responses:
+        '201':
+          description: Experiment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+
+  /api/experiments/{id}:
+    get:
+      summary: Get experiment
+      description: Get experiment details by ID
+      operationId: getExperiment
+      tags:
+        - Experiments
+      parameters:
+        - $ref: '#/components/parameters/ExperimentId'
+      responses:
+        '200':
+          description: Experiment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      summary: Update experiment
+      description: Update experiment status or metadata
+      operationId: updateExperiment
+      tags:
+        - Experiments
+      parameters:
+        - $ref: '#/components/parameters/ExperimentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentUpdate'
+      responses:
+        '200':
+          description: Experiment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+    delete:
+      summary: Delete experiment
+      description: Delete an experiment and its associated data
+      operationId: deleteExperiment
+      tags:
+        - Experiments
+      parameters:
+        - $ref: '#/components/parameters/ExperimentId'
+      responses:
+        '204':
+          description: Experiment deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/experiments/{id}/results:
+    get:
+      summary: Get experiment results
+      description: Get the results of a completed experiment
+      operationId: getExperimentResults
+      tags:
+        - Experiments
+      parameters:
+        - $ref: '#/components/parameters/ExperimentId'
+      responses:
+        '200':
+          description: Experiment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentResults'
+
+  /api/experiments/{id}/metrics:
+    get:
+      summary: Get experiment metrics
+      description: Get metrics history for an experiment
+      operationId: getExperimentMetrics
+      tags:
+        - Experiments
+      parameters:
+        - $ref: '#/components/parameters/ExperimentId'
+        - name: metric
+          in: query
+          schema:
+            type: string
+          description: Specific metric to retrieve
+        - name: jobId
+          in: query
+          schema:
+            type: string
+          description: Specific job ID
+      responses:
+        '200':
+          description: Metrics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+
+  /api/experiments/compare:
+    post:
+      summary: Compare experiments
+      description: Compare multiple experiments side by side
+      operationId: compareExperiments
+      tags:
+        - Experiments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - experimentIds
+              properties:
+                experimentIds:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 2
+                  example: ["exp_abc123", "exp_def456"]
+      responses:
+        '200':
+          description: Comparison results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentComparison'
+
+  /api/experiments/{id}/export:
+    get:
+      summary: Export experiment metrics
+      description: Export experiment metrics in JSON or CSV format
+      operationId: exportExperimentMetrics
+      tags:
+        - Experiments
+      parameters:
+        - $ref: '#/components/parameters/ExperimentId'
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv]
+            default: json
+      responses:
+        '200':
+          description: Metrics export file
+
+  /api/training/start:
+    post:
+      summary: Start training job
+      description: Start a new training job
+      operationId: startTrainingJob
+      tags:
+        - Training
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrainingJobRequest'
+            example:
+              name: "Churn Model Training v2"
+              experimentId: "exp_abc123"
+              config:
+                targetColumn: "churned"
+                testSize: 0.2
+                crossValidationFolds: 5
+              priority: "normal"
+              maxRetries: 3
+              tags: ["production", "churn"]
+      responses:
+        '201':
+          description: Training job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResponse'
+
+  /api/training:
+    get:
+      summary: List training jobs
+      description: Get a list of training jobs with optional filtering
+      operationId: listTrainingJobs
+      tags:
+        - Training
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, running, completed, failed, cancelled]
+        - name: experimentId
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, normal, high, urgent]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: List of training jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobListResponse'
+
+  /api/training/{jobId}:
+    get:
+      summary: Get training job
+      description: Get training job details
+      operationId: getTrainingJob
+      tags:
+        - Training
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training job details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJob'
+
+  /api/training/{jobId}/status:
+    get:
+      summary: Get training job status
+      description: Get current status of a training job
+      operationId: getTrainingJobStatus
+      tags:
+        - Training
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobStatus'
+
+  /api/training/{jobId}/cancel:
+    post:
+      summary: Cancel training job
+      description: Cancel a running or queued training job
+      operationId: cancelTrainingJob
+      tags:
+        - Training
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training job cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResponse'
+
+  /api/training/{jobId}/retry:
+    post:
+      summary: Retry training job
+      description: Retry a failed training job
+      operationId: retryTrainingJob
+      tags:
+        - Training
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training job queued for retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResponse'
+
+  /api/training/{jobId}/result:
+    get:
+      summary: Get training job result
+      description: Get the result of a completed training job
+      operationId: getTrainingJobResult
+      tags:
+        - Training
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training job result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResult'
+        '400':
+          description: Job has not completed yet
+
+  /api/training/stats/summary:
+    get:
+      summary: Get training statistics
+      description: Get aggregate training statistics
+      operationId: getTrainingStats
+      tags:
+        - Training
+      responses:
+        '200':
+          description: Training statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingStatistics'
+
+  /api/models:
+    get:
+      summary: List models
+      description: Get a list of registered models
+      operationId: listModels
+      tags:
+        - Models
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [training, ready, deployed, archived, failed]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [classifier, regressor, clusterer, transformer]
+        - name: experimentId
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelListResponse'
+
+  /api/models/{id}:
+    get:
+      summary: Get model
+      description: Get model details by ID
+      operationId: getModel
+      tags:
+        - Models
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      summary: Update model
+      description: Update model metadata or status
+      operationId: updateModel
+      tags:
+        - Models
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelUpdate'
+      responses:
+        '200':
+          description: Model updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+    delete:
+      summary: Delete model
+      description: Delete a model from the registry
+      operationId: deleteModel
+      tags:
+        - Models
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Model deleted
+
+  /api/models/{id}/versions:
+    get:
+      summary: Get model versions
+      description: Get all versions of a model
+      operationId: getModelVersions
+      tags:
+        - Models
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model versions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelVersionsResponse'
+
+  /api/models/{id}/download:
+    get:
+      summary: Download model
+      description: Download model file
+      operationId: downloadModel
+      tags:
+        - Models
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model file download
+        '400':
+          description: Model not ready for download
+
+  /api/models/compare:
+    post:
+      summary: Compare models
+      description: Compare multiple models side by side
+      operationId: compareModels
+      tags:
+        - Models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - modelIds
+              properties:
+                modelIds:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 2
+                metrics:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Model comparison
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelComparison'
+
+  /api/models/best:
+    get:
+      summary: Get best model
+      description: Get the best model by a specific metric
+      operationId: getBestModel
+      tags:
+        - Models
+      parameters:
+        - name: experimentId
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [classifier, regressor, clusterer, transformer]
+        - name: metric
+          in: query
+          schema:
+            type: string
+            default: accuracy
+      responses:
+        '200':
+          description: Best model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BestModelResponse'
+        '404':
+          description: No models found
+
+  /api/models/leaderboard:
+    get:
+      summary: Get model leaderboard
+      description: Get ranked list of models by metric
+      operationId: getModelLeaderboard
+      tags:
+        - Models
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [classifier, regressor, clusterer, transformer]
+        - name: metric
+          in: query
+          schema:
+            type: string
+            default: accuracy
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Model leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardResponse'
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ExperimentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Experiment not found"
+
+  schemas:
+    Experiment:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+        taskType:
+          type: string
+          enum: [classification, regression, clustering]
+        config:
+          type: object
+        result:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+
+    CreateExperimentRequest:
+      type: object
+      required:
+        - name
+        - config
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        config:
+          type: object
+          required:
+            - taskType
+            - targetColumn
+          properties:
+            taskType:
+              type: string
+              enum: [classification, regression, clustering]
+            targetColumn:
+              type: string
+            features:
+              type: array
+              items:
+                type: string
+            algorithms:
+              type: array
+              items:
+                type: string
+        tags:
+          type: array
+          items:
+            type: string
+        userId:
+          type: string
+
+    ExperimentUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+        result:
+          type: object
+        error:
+          type: string
+
+    ExperimentListResponse:
+      type: object
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Experiment'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    ExperimentResults:
+      type: object
+      properties:
+        experimentId:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        result:
+          type: object
+        summary:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+
+    MetricsResponse:
+      type: object
+      properties:
+        experimentId:
+          type: string
+        metric:
+          type: string
+        history:
+          type: array
+          items:
+            type: object
+        bestMetrics:
+          type: object
+
+    ExperimentComparison:
+      type: object
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Experiment'
+        comparison:
+          type: object
+
+    CreateTrainingJobRequest:
+      type: object
+      required:
+        - name
+        - config
+      properties:
+        name:
+          type: string
+        config:
+          type: object
+          required:
+            - targetColumn
+          properties:
+            targetColumn:
+              type: string
+            testSize:
+              type: number
+            crossValidationFolds:
+              type: integer
+        experimentId:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+          default: normal
+        maxRetries:
+          type: integer
+          minimum: 0
+          maximum: 10
+        tags:
+          type: array
+          items:
+            type: string
+        userId:
+          type: string
+
+    TrainingJob:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+        progress:
+          type: number
+        progressMessage:
+          type: string
+        experimentId:
+          type: string
+        priority:
+          type: string
+        retryCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        error:
+          type: string
+
+    TrainingJobResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        job:
+          $ref: '#/components/schemas/TrainingJob'
+
+    TrainingJobStatus:
+      type: object
+      properties:
+        jobId:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        progressMessage:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        actualDuration:
+          type: integer
+        error:
+          type: string
+        retryCount:
+          type: integer
+
+    TrainingJobListResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingJob'
+
+    TrainingJobResult:
+      type: object
+      properties:
+        jobId:
+          type: string
+        result:
+          type: object
+
+    TrainingStatistics:
+      type: object
+      properties:
+        totalJobs:
+          type: integer
+        completedJobs:
+          type: integer
+        failedJobs:
+          type: integer
+        runningJobs:
+          type: integer
+        averageDuration:
+          type: number
+
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        type:
+          type: string
+          enum: [classifier, regressor, clusterer, transformer]
+        status:
+          type: string
+          enum: [training, ready, deployed, archived, failed]
+        metrics:
+          type: object
+          properties:
+            accuracy:
+              type: number
+            f1Score:
+              type: number
+            precision:
+              type: number
+            recall:
+              type: number
+        experimentId:
+          type: string
+        metadata:
+          type: object
+        filePath:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ModelUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [training, ready, deployed, archived, failed]
+        metrics:
+          type: object
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    ModelListResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    ModelVersionsResponse:
+      type: object
+      properties:
+        modelName:
+          type: string
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              version:
+                type: string
+              status:
+                type: string
+              metrics:
+                type: object
+              createdAt:
+                type: string
+                format: date-time
+
+    ModelComparison:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+        comparisons:
+          type: object
+
+    BestModelResponse:
+      type: object
+      properties:
+        bestModel:
+          $ref: '#/components/schemas/Model'
+        metric:
+          type: string
+        score:
+          type: number
+
+    LeaderboardResponse:
+      type: object
+      properties:
+        leaderboard:
+          type: array
+          items:
+            type: object
+            properties:
+              rank:
+                type: integer
+              modelId:
+                type: string
+              name:
+                type: string
+              version:
+                type: string
+              score:
+                type: number
+              type:
+                type: string
+              algorithm:
+                type: string
+              createdAt:
+                type: string
+                format: date-time
+        metric:
+          type: string
+        total:
+          type: integer

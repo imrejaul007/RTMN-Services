@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rez_admin
+      MONGO_INITDB_ROOT_PASSWORD: changeme
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass changeme
+    volumes:
+      - redis_data:/data
+
+  # Services
+  rez-auth-service:
+    build: ./rez-auth-service
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGO_INITDB_ROOT_PASSWORD=changeme
+      - REDIS_PASSWORD=changeme
+    depends_on:
+      - mongodb
+      - redis
+
+  rez-order-service:
+    build: ./rez-order-service
+    ports:
+      - "4001:4001"
+    environment:
+      - MONGO_INITDB_ROOT_PASSWORD=changeme
+      - REDIS_PASSWORD=changeme
+    depends_on:
+      - mongodb
+      - redis
+
+  # Add all other services...
+
+volumes:
+  mongodb_data:
+  redis_data:

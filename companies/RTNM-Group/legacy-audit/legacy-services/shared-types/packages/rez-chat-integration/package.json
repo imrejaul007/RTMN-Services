@@ -1,0 +1,19 @@
+{
+  "name": "@rez/chat-integration",
+  "version": "1.0.0",
+  "description": "ReZ Chat AI integration with ecosystem services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --project src/tsconfig.json",
+    "dev": "tsc --project src/tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@rez/chat-ai": "^1.0.0",
+    "axios": "^1.6.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

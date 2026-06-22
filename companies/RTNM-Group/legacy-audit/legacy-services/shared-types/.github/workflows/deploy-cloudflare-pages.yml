@@ -1,0 +1,134 @@
+# ============================================================
+# REZ — Deploy to Cloudflare Pages
+# ============================================================
+# Reusable workflow for deploying Next.js apps to Cloudflare Pages
+# with WAF protection, bot management, and caching rules.
+#
+# Usage: call from service-specific workflow or workflow_dispatch
+#
+# Required secrets:
+#   CLOUDFLARE_API_TOKEN — Cloudflare API token
+#   CLOUDFLARE_ACCOUNT_ID — Cloudflare account ID
+#
+# Required variables:
+#   CLOUDFLARE_PROJECT_NAME — Cloudflare Pages project name
+# ============================================================
+
+name: Deploy to Cloudflare Pages
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: 'Cloudflare Pages project name'
+        required: true
+        type: string
+      directory:
+        description: 'Directory to deploy'
+        required: false
+        type: string
+        default: '.'
+      node_version:
+        description: 'Node.js version'
+        required: false
+        type: string
+        default: '20'
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
+
+env:
+  NODE_VERSION: ${{ inputs.node_version || '20' }}
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ inputs.directory }}
+
+      - name: Build
+        run: npm run build
+        working-directory: ${{ inputs.directory }}
+
+      - name: Configure Cloudflare Pages
+        uses: cloudflare/pages-configure-action@v1
+        with:
+          api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          project-name: ${{ inputs.project_name }}
+          # Enable bot detection
+          protection-mode: 'firewall'
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-deploy@v4
+        with:
+          api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          project-name: ${{ inputs.project_name }}
+          directory: ${{ inputs.directory }}/.next
+          git-source-directory: ${{ inputs.directory }}
+          wrangler-version: '3'
+
+  # ────────────────────────────────────────────────────────
+  # Deploy WAF Worker for this project
+  # ────────────────────────────────────────────────────────
+  deploy-waf-worker:
+    name: Deploy WAF Worker
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Deploy WAF Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # The worker lives in cloudflare/waf-workers/api-gateway/
+          working-directory: ./cloudflare/waf-workers/api-gateway
+          environment: production
+          # Route: https://api-gateway.<your-domain>.workers.dev
+          vars: |
+            UPSTREAM_HOST=${{ inputs.project_name }}.pages.dev
+
+  # ────────────────────────────────────────────────────────
+  # Verify WAF is active
+  # ────────────────────────────────────────────────────────
+  waf-verification:
+    name: WAF Verification
+    runs-on: ubuntu-latest
+    needs: deploy-waf-worker
+    environment: production
+    steps:
+      - name: Verify WAF Worker is live
+        run: |
+          WORKER_URL="https://${{ inputs.project_name }}-waf.${{ secrets.CLOUDFLARE_ACCOUNT_ID }.workers.dev/health"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$WORKER_URL" || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ WAF Worker is live"
+          else
+            echo "⚠️  WAF Worker returned HTTP $STATUS"
+          fi

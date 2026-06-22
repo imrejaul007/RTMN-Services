@@ -1,0 +1,43 @@
+# External Uptime Monitoring Configuration
+# Use with Better Uptime, Pingdom, or similar services
+
+services:
+  # Core API Services
+  - name: rez-auth-service
+    url: https://api.rez.money/auth/health
+    interval: 60s
+
+  - name: rez-payment-service
+    url: https://api.rez.money/payments/health
+    interval: 60s
+
+  - name: rez-order-service
+    url: https://api.rez.money/orders/health
+    interval: 60s
+
+  - name: rez-merchant-service
+    url: https://api.rez.money/merchant/health
+    interval: 60s
+
+  - name: rez-wallet-service
+    url: https://api.rez.money/wallet/health
+    interval: 60s
+
+  # Web Applications
+  - name: rez-admin
+    url: https://admin.rez.money
+    interval: 120s
+
+  - name: rez-consumer-app
+    url: https://rez.money
+    interval: 120s
+
+  - name: rez-merchant-app
+    url: https://merchant.rez.money
+    interval: 120s
+
+# Alert endpoints
+alerts:
+  slack: '#uptime-alerts'
+  email: ops@rez.money
+  pagerduty: true

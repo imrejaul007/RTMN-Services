@@ -1,0 +1,114 @@
+name: Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - name: REZ-identity-service
+            path: REZ-identity-service
+          - name: REZ-access-control-service
+            path: REZ-access-control-service
+          - name: REZ-capital-service
+            path: REZ-capital-service
+          - name: REZ-bnpl-service
+            path: REZ-bnpl-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: '${{ matrix.service.path }}/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./${{ matrix.service.path }}
+        run: npm ci
+
+      - name: Run tests with vitest
+        working-directory: ./${{ matrix.service.path }}
+        run: npx vitest run --reporter=verbose
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.service.name }}
+          path: ${{ matrix.service.path }}/coverage
+          retention-days: 7
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          for dir in */; do
+            if [ -f "$dir/package.json" ]; then
+              (cd "$dir" && npm ci)
+            fi
+          done
+
+      - name: Run ESLint
+        run: |
+          for dir in */; do
+            if [ -f "$dir/package.json" ] && grep -q '"lint"' "$dir/package.json"; then
+              echo "Linting $dir"
+              (cd "$dir" && npm run lint || true)
+            fi
+          done
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          for dir in */; do
+            if [ -f "$dir/package.json" ]; then
+              (cd "$dir" && npm ci)
+            fi
+          done
+
+      - name: Run TypeScript type checking
+        run: |
+          for dir in */; do
+            if [ -f "$dir/package.json" ] && grep -q '"typecheck"' "$dir/package.json"; then
+              echo "Type checking $dir"
+              (cd "$dir" && npm run typecheck || npm run build || true)
+            fi
+          done

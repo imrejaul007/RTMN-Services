@@ -1,0 +1,1671 @@
+openapi: 3.0.3
+info:
+  title: ReZ Analytics Service API
+  description: |
+    A comprehensive real-time analytics and business intelligence service providing dashboards,
+    data aggregation, chart generation, and reporting capabilities for the ReZ ecosystem.
+
+    ## Features
+    - Real-time Dashboards: Pre-configured dashboard layouts with live data
+    - Data Aggregation: Flexible aggregation by hour, day, week, month
+    - Chart Generation: Multiple chart types (bar, line, pie, funnel, gauge)
+    - Revenue Analytics: Track revenue, refunds, and trends
+    - Order Metrics: Order counts, status distribution, fulfillment rates
+    - Customer Analytics: Cohort analysis, growth tracking, lifetime value
+    - Merchant Performance: Top merchants, ratings, fulfillment metrics
+    - Product Analytics: Top products, category performance
+    - Conversion Funnels: Visitor to purchase conversion tracking
+    - Scheduled Reports: Automated report generation and export
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3007
+    description: Development server
+  - url: https://api.rez.money/analytics
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Dashboard
+    description: Dashboard data endpoints
+  - name: Aggregation
+    description: Data aggregation endpoints
+  - name: Charts
+    description: Chart data endpoints
+  - name: KPIs
+    description: Key Performance Indicators
+  - name: Reports
+    description: Report generation endpoints
+  - name: Filters
+    description: Filter options
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get main dashboard data
+      description: Returns aggregated data for the main analytics dashboard
+      operationId: getDashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+        - $ref: '#/components/parameters/category'
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+  /api/dashboard/revenue:
+    get:
+      tags:
+        - Dashboard
+      summary: Revenue dashboard
+      description: Returns revenue-specific dashboard data
+      operationId: getRevenueDashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Revenue dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevenueDashboardResponse'
+
+  /api/dashboard/orders:
+    get:
+      tags:
+        - Dashboard
+      summary: Orders dashboard
+      description: Returns order-specific dashboard data
+      operationId: getOrdersDashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Orders dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersDashboardResponse'
+
+  /api/dashboard/customers:
+    get:
+      tags:
+        - Dashboard
+      summary: Customers dashboard
+      description: Returns customer-specific dashboard data
+      operationId: getCustomersDashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: Customers dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomersDashboardResponse'
+
+  /api/dashboard/merchants:
+    get:
+      tags:
+        - Dashboard
+      summary: Merchants dashboard
+      description: Returns merchant-specific dashboard data
+      operationId: getMerchantsDashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: Merchants dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantsDashboardResponse'
+
+  /api/aggregation/revenue:
+    get:
+      tags:
+        - Aggregation
+      summary: Get revenue aggregation
+      description: Returns aggregated revenue data
+      operationId: getRevenueAggregation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+        - $ref: '#/components/parameters/category'
+      responses:
+        '200':
+          description: Revenue aggregation data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregationResponse'
+
+  /api/aggregation/orders:
+    get:
+      tags:
+        - Aggregation
+      summary: Get order aggregation
+      description: Returns aggregated order data
+      operationId: getOrderAggregation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Order aggregation data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderAggregationResponse'
+
+  /api/aggregation/customers:
+    get:
+      tags:
+        - Aggregation
+      summary: Get customer cohort data
+      description: Returns customer cohort analysis data
+      operationId: getCustomerCohortData
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Customer cohort data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortAggregationResponse'
+
+  /api/aggregation/merchants:
+    get:
+      tags:
+        - Aggregation
+      summary: Get merchant performance
+      description: Returns aggregated merchant performance data
+      operationId: getMerchantPerformance
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: Merchant performance data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantAggregationResponse'
+
+  /api/aggregation/refresh:
+    post:
+      tags:
+        - Aggregation
+      summary: Force refresh aggregation
+      description: Forces a refresh of the aggregation cache
+      operationId: refreshAggregation
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshAggregationRequest'
+      responses:
+        '200':
+          description: Aggregation refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshAggregationResponse'
+
+  /api/aggregation/status:
+    get:
+      tags:
+        - Aggregation
+      summary: Get last aggregation time
+      description: Returns the timestamp of the last aggregation run
+      operationId: getAggregationStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Aggregation status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregationStatusResponse'
+
+  /api/charts/revenue-bar:
+    get:
+      tags:
+        - Charts
+      summary: Revenue bar chart
+      description: Returns bar chart data for revenue over time
+      operationId: getRevenueBarChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Revenue bar chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartResponse'
+
+  /api/charts/order-line:
+    get:
+      tags:
+        - Charts
+      summary: Order trend line chart
+      description: Returns line chart data for order trends
+      operationId: getOrderLineChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Order line chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartResponse'
+
+  /api/charts/order-status-pie:
+    get:
+      tags:
+        - Charts
+      summary: Order status pie chart
+      description: Returns pie chart data for order status distribution
+      operationId: getOrderStatusPieChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Order status pie chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PieChartResponse'
+
+  /api/charts/revenue-category:
+    get:
+      tags:
+        - Charts
+      summary: Revenue by category
+      description: Returns pie chart data for revenue by category
+      operationId: getRevenueCategoryChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Revenue category chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PieChartResponse'
+
+  /api/charts/merchant-performance:
+    get:
+      tags:
+        - Charts
+      summary: Merchant comparison
+      description: Returns bar chart data for merchant comparison
+      operationId: getMerchantPerformanceChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Merchant performance chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartResponse'
+
+  /api/charts/customer-growth:
+    get:
+      tags:
+        - Charts
+      summary: Customer growth chart
+      description: Returns line chart data for customer growth
+      operationId: getCustomerGrowthChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: Customer growth chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartResponse'
+
+  /api/charts/top-products:
+    get:
+      tags:
+        - Charts
+      summary: Top products bar chart
+      description: Returns bar chart data for top selling products
+      operationId: getTopProductsChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Top products chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartResponse'
+
+  /api/charts/comparison:
+    get:
+      tags:
+        - Charts
+      summary: Period comparison
+      description: Returns comparison data between two time periods
+      operationId: getComparisonChart
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: compareStartDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: compareEndDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: Comparison chart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonChartResponse'
+
+  /api/charts/conversion-funnel:
+    get:
+      tags:
+        - Charts
+      summary: Conversion funnel
+      description: Returns funnel chart data for conversion tracking
+      operationId: getConversionFunnel
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Conversion funnel data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunnelChartResponse'
+
+  /api/charts/all:
+    get:
+      tags:
+        - Charts
+      summary: Get all charts
+      description: Returns data for all available charts
+      operationId: getAllCharts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: All charts data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllChartsResponse'
+
+  /api/kpis:
+    get:
+      tags:
+        - KPIs
+      summary: Get all KPIs
+      description: Returns all key performance indicators
+      operationId: getKPIs
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: KPIs data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KPIResponse'
+
+  /api/kpis/summary:
+    get:
+      tags:
+        - KPIs
+      summary: Get KPI summary
+      description: Returns a summary of key metrics
+      operationId: getKPISummary
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: KPI summary data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KPISummaryResponse'
+
+  /api/kpis/trends:
+    get:
+      tags:
+        - KPIs
+      summary: Get KPI trends
+      description: Returns historical KPI trend data
+      operationId: getKPITrends
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/period'
+      responses:
+        '200':
+          description: KPI trends data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KPITrendsResponse'
+
+  /api/reports/executive-summary:
+    get:
+      tags:
+        - Reports
+      summary: Executive summary report
+      description: Returns an executive summary report
+      operationId: getExecutiveSummaryReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Executive summary report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutiveSummaryResponse'
+
+  /api/reports/revenue:
+    get:
+      tags:
+        - Reports
+      summary: Revenue report
+      description: Returns a detailed revenue report
+      operationId: getRevenueReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/merchantId'
+        - $ref: '#/components/parameters/category'
+      responses:
+        '200':
+          description: Revenue report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevenueReportResponse'
+
+  /api/reports/customers:
+    get:
+      tags:
+        - Reports
+      summary: Customer report
+      description: Returns a detailed customer report
+      operationId: getCustomerReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Customer report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerReportResponse'
+
+  /api/reports/merchants:
+    get:
+      tags:
+        - Reports
+      summary: Merchant report
+      description: Returns a detailed merchant report
+      operationId: getMerchantReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Merchant report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantReportResponse'
+
+  /api/reports/export/{format}:
+    get:
+      tags:
+        - Reports
+      summary: Export report
+      description: Exports a report in the specified format
+      operationId: exportReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: format
+          in: path
+          required: true
+          description: Export format
+          schema:
+            type: string
+            enum:
+              - pdf
+              - csv
+              - xlsx
+        - name: type
+          in: query
+          required: true
+          description: Report type
+          schema:
+            type: string
+            enum:
+              - revenue
+              - orders
+              - customers
+              - merchants
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/merchantId'
+      responses:
+        '200':
+          description: Exported report file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResponse'
+
+  /api/filters/date-range:
+    get:
+      tags:
+        - Filters
+      summary: Get date range options
+      description: Returns available date range filter options
+      operationId: getDateRangeFilters
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Date range options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DateRangeFiltersResponse'
+
+  /api/filters/merchants:
+    get:
+      tags:
+        - Filters
+      summary: Get merchant filter options
+      description: Returns available merchant filter options
+      operationId: getMerchantFilters
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Merchant filter options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantFiltersResponse'
+
+  /api/filters/categories:
+    get:
+      tags:
+        - Filters
+      summary: Get category filter options
+      description: Returns available category filter options
+      operationId: getCategoryFilters
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Category filter options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryFiltersResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    startDate:
+      name: startDate
+      in: query
+      description: Start of date range (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+    endDate:
+      name: endDate
+      in: query
+      description: End of date range (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+    period:
+      name: period
+      in: query
+      description: Aggregation period
+      schema:
+        type: string
+        enum:
+          - hourly
+          - daily
+          - weekly
+          - monthly
+        default: daily
+    merchantId:
+      name: merchantId
+      in: query
+      description: Filter by merchant ID
+      schema:
+        type: string
+    category:
+      name: category
+      in: query
+      description: Filter by category
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      description: Maximum number of results
+      schema:
+        type: integer
+        default: 10
+        maximum: 100
+
+  schemas:
+    ChartDataset:
+      type: object
+      properties:
+        label:
+          type: string
+        data:
+          type: array
+          items:
+            type: number
+        backgroundColor:
+          type: string
+        borderColor:
+          type: string
+        fill:
+          type: boolean
+
+    ChartResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            labels:
+              type: array
+              items:
+                type: string
+            datasets:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChartDataset'
+        meta:
+          type: object
+          properties:
+            generatedAt:
+              type: string
+              format: date-time
+            period:
+              type: string
+            dateRange:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: date
+                end:
+                  type: string
+                  format: date
+
+    PieChartResponse:
+      allOf:
+        - $ref: '#/components/schemas/ChartResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                labels:
+                  type: array
+                  items:
+                    type: string
+                datasets:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: number
+                      backgroundColor:
+                        type: array
+                        items:
+                          type: string
+
+    FunnelChartResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            steps:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  count:
+                    type: integer
+                  percentage:
+                    type: number
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    ComparisonChartResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            currentPeriod:
+              type: object
+              properties:
+                labels:
+                  type: array
+                  items:
+                    type: string
+                datasets:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ChartDataset'
+            previousPeriod:
+              type: object
+              properties:
+                labels:
+                  type: array
+                  items:
+                    type: string
+                datasets:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ChartDataset'
+            changes:
+              type: object
+              additionalProperties:
+                type: number
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    AllChartsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            revenueBar:
+              $ref: '#/components/schemas/ChartResponse/properties/data'
+            orderLine:
+              $ref: '#/components/schemas/ChartResponse/properties/data'
+            orderStatusPie:
+              $ref: '#/components/schemas/PieChartResponse/properties/data'
+            revenueCategory:
+              $ref: '#/components/schemas/PieChartResponse/properties/data'
+            merchantPerformance:
+              $ref: '#/components/schemas/ChartResponse/properties/data'
+            customerGrowth:
+              $ref: '#/components/schemas/ChartResponse/properties/data'
+            topProducts:
+              $ref: '#/components/schemas/ChartResponse/properties/data'
+
+    AggregationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+            data:
+              type: object
+              properties:
+                revenue:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                        format: date
+                      revenue:
+                        type: number
+                      orders:
+                        type: integer
+                      averageOrderValue:
+                        type: number
+                total:
+                  type: number
+            computedAt:
+              type: string
+              format: date-time
+
+    OrderAggregationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            orders:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  total:
+                    type: integer
+                  completed:
+                    type: integer
+                  cancelled:
+                    type: integer
+                  pending:
+                    type: integer
+            totals:
+              type: object
+              properties:
+                total:
+                  type: integer
+                completed:
+                  type: integer
+                cancelled:
+                  type: integer
+                pending:
+                  type: integer
+
+    CohortAggregationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            cohorts:
+              type: array
+              items:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  size:
+                    type: integer
+                  retention:
+                    type: array
+                    items:
+                      type: number
+            totalCustomers:
+              type: integer
+            averageRetention:
+              type: number
+
+    MerchantAggregationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            merchants:
+              type: array
+              items:
+                type: object
+                properties:
+                  merchantId:
+                    type: string
+                  name:
+                    type: string
+                  totalOrders:
+                    type: integer
+                  totalRevenue:
+                    type: number
+                  averageRating:
+                    type: number
+            topPerformers:
+              type: array
+              items:
+                type: string
+
+    DashboardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalRevenue:
+              type: number
+            totalOrders:
+              type: integer
+            averageOrderValue:
+              type: number
+            totalCustomers:
+              type: integer
+            newCustomers:
+              type: integer
+            returningCustomers:
+              type: integer
+            fulfillmentRate:
+              type: number
+            refundRate:
+              type: number
+            charts:
+              $ref: '#/components/schemas/AllChartsResponse/properties/data'
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    RevenueDashboardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalRevenue:
+              type: number
+            revenueChange:
+              type: number
+            averageOrderValue:
+              type: number
+            revenueByCategory:
+              type: object
+              additionalProperties:
+                type: number
+            revenueTrend:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  revenue:
+                    type: number
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    OrdersDashboardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalOrders:
+              type: integer
+            ordersChange:
+              type: number
+            completedOrders:
+              type: integer
+            cancelledOrders:
+              type: integer
+            pendingOrders:
+              type: integer
+            ordersByStatus:
+              type: object
+              additionalProperties:
+                type: integer
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    CustomersDashboardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalCustomers:
+              type: integer
+            newCustomers:
+              type: integer
+            returningCustomers:
+              type: integer
+            churnRate:
+              type: number
+            lifetimeValue:
+              type: number
+            customerGrowth:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  total:
+                    type: integer
+                  new:
+                    type: integer
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    MerchantsDashboardResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalMerchants:
+              type: integer
+            activeMerchants:
+              type: integer
+            topMerchants:
+              type: array
+              items:
+                type: object
+                properties:
+                  merchantId:
+                    type: string
+                  name:
+                    type: string
+                  revenue:
+                    type: number
+                  orders:
+                    type: integer
+            merchantPerformance:
+              type: array
+              items:
+                type: object
+                properties:
+                  merchantId:
+                    type: string
+                  name:
+                    type: string
+                  performance:
+                    type: number
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    KPIResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalRevenue:
+              type: number
+            totalOrders:
+              type: integer
+            averageOrderValue:
+              type: number
+            totalCustomers:
+              type: integer
+            newCustomersThisMonth:
+              type: integer
+            returningCustomerRate:
+              type: number
+            fulfillmentRate:
+              type: number
+            refundRate:
+              type: number
+            trends:
+              type: object
+              properties:
+                revenue:
+                  type: array
+                  items:
+                    type: number
+                orders:
+                  type: array
+                  items:
+                    type: number
+
+    KPISummaryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            summary:
+              type: object
+              properties:
+                revenue:
+                  type: number
+                orders:
+                  type: integer
+                customers:
+                  type: integer
+            changes:
+              type: object
+              properties:
+                revenue:
+                  type: number
+                orders:
+                  type: number
+                customers:
+                  type: number
+            topMetrics:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  value:
+                    type: number
+                  change:
+                    type: number
+
+    KPITrendsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            revenue:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  value:
+                    type: number
+            orders:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  value:
+                    type: number
+            customers:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  value:
+                    type: number
+
+    RefreshAggregationRequest:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            type: string
+            enum:
+              - revenue
+              - orders
+              - customers
+              - merchants
+          description: Types of aggregation to refresh
+
+    RefreshAggregationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            refreshed:
+              type: array
+              items:
+                type: string
+            timestamp:
+              type: string
+              format: date-time
+
+    AggregationStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            lastAggregation:
+              type: string
+              format: date-time
+            status:
+              type: string
+              enum:
+                - idle
+                - running
+                - error
+            nextScheduled:
+              type: string
+              format: date-time
+
+    ExecutiveSummaryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            overview:
+              type: object
+              properties:
+                totalRevenue:
+                  type: number
+                totalOrders:
+                  type: integer
+                totalCustomers:
+                  type: integer
+            highlights:
+              type: array
+              items:
+                type: object
+                properties:
+                  metric:
+                    type: string
+                  value:
+                    type: number
+                  change:
+                    type: number
+                  trend:
+                    type: string
+                    enum:
+                      - up
+                      - down
+                      - stable
+            recommendations:
+              type: array
+              items:
+                type: string
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    RevenueReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            summary:
+              type: object
+              properties:
+                totalRevenue:
+                  type: number
+                averageOrderValue:
+                  type: number
+                totalTransactions:
+                  type: integer
+            byCategory:
+              type: array
+              items:
+                type: object
+                properties:
+                  category:
+                    type: string
+                  revenue:
+                    type: number
+                  percentage:
+                    type: number
+            byMerchant:
+              type: array
+              items:
+                type: object
+                properties:
+                  merchantId:
+                    type: string
+                  merchantName:
+                    type: string
+                  revenue:
+                    type: number
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    CustomerReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            summary:
+              type: object
+              properties:
+                totalCustomers:
+                  type: integer
+                newCustomers:
+                  type: integer
+                activeCustomers:
+                  type: integer
+                churnRate:
+                  type: number
+            cohorts:
+              type: array
+              items:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  customers:
+                    type: integer
+                  retention:
+                    type: number
+            topCustomers:
+              type: array
+              items:
+                type: object
+                properties:
+                  customerId:
+                    type: string
+                  totalSpent:
+                    type: number
+                  orderCount:
+                    type: integer
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    MerchantReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            summary:
+              type: object
+              properties:
+                totalMerchants:
+                  type: integer
+                activeMerchants:
+                  type: integer
+                totalOrders:
+                  type: integer
+                totalRevenue:
+                  type: number
+            topMerchants:
+              type: array
+              items:
+                type: object
+                properties:
+                  merchantId:
+                    type: string
+                  name:
+                    type: string
+                  orders:
+                    type: integer
+                  revenue:
+                    type: number
+                  rating:
+                    type: number
+            performance:
+              type: object
+              additionalProperties:
+                type: number
+        meta:
+          $ref: '#/components/schemas/ChartResponse/properties/meta'
+
+    ExportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            downloadUrl:
+              type: string
+              format: uri
+            expiresAt:
+              type: string
+              format: date-time
+            format:
+              type: string
+            type:
+              type: string
+
+    DateRangeFiltersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              value:
+                type: string
+              days:
+                type: integer
+
+    MerchantFiltersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              category:
+                type: string
+
+    CategoryFiltersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              productCount:
+                type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string

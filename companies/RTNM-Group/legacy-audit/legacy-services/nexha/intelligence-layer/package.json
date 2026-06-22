@@ -1,0 +1,28 @@
+{
+  "name": "@rez/nexha-intelligence",
+  "version": "1.0.0",
+  "description": "NeXha Intelligence Layer - AI Predictions & Analytics",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@rez/shared-types": "workspace:*",
+    "@rez/webhook-sdk": "workspace:*",
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.23.8",
+    "express-rate-limit": "^7.1.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2"
+  }
+}

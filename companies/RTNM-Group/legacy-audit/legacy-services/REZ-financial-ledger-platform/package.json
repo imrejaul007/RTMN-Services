@@ -1,0 +1,44 @@
+{
+  "name": "rez-financial-ledger-platform",
+  "version": "1.0.0",
+  "description": "Enterprise-grade financial ledger platform with double-entry accounting, revenue recognition, payouts, settlements, and reconciliation",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@types/node": "^20.11.0",
+    "decimal.js": "^10.4.3",
+    "typescript": "^5.3.3",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.7",
+    "ts-node": "^10.9.2",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "financial",
+    "ledger",
+    "accounting",
+    "double-entry",
+    "revenue-recognition",
+    "payouts",
+    "settlements"
+  ],
+  "author": "REZ Financial Architecture Team",
+  "license": "PROPRIETARY"
+}

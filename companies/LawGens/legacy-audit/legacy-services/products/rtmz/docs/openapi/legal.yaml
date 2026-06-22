@@ -1,0 +1,1431 @@
+openapi: 3.0.0
+info:
+  title: REZ Legal Document AI Service
+  description: |
+    Legal Document AI Service for analyzing, comparing, and managing legal documents.
+
+    Features:
+    - Document upload and processing
+    - AI-powered clause extraction
+    - Risk assessment and scoring
+    - Compliance checking against frameworks
+    - Q&A on legal documents
+    - Standard clause library management
+  version: 1.0.0
+  contact:
+    name: REZ Platform Team
+    email: platform@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5004
+    description: Local development server
+  - url: https://api.rez.ai/legal
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Documents
+    description: Document management and analysis
+  - name: Clauses
+    description: Standard clause library
+  - name: Q&A
+    description: Question answering on documents
+  - name: Compliance
+    description: Compliance checking
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  /api/documents/upload:
+    post:
+      summary: Upload document
+      description: Upload and process a legal document
+      operationId: uploadDocument
+      tags:
+        - Documents
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF, DOC, DOCX, or TXT file
+                title:
+                  type: string
+                  description: Document title
+                description:
+                  type: string
+                  description: Document description
+                tags:
+                  type: string
+                  description: JSON array of tags
+      responses:
+        '201':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+
+  /api/documents:
+    get:
+      summary: List documents
+      description: Get a paginated list of documents
+      operationId: listDocuments
+      tags:
+        - Documents
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: string
+            default: "1"
+        - name: limit
+          in: query
+          schema:
+            type: string
+            default: "20"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [uploaded, analyzing, completed, failed]
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+
+  /api/documents/{id}:
+    get:
+      summary: Get document
+      description: Get document details
+      operationId: getDocument
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetail'
+        '404':
+          description: Document not found
+    delete:
+      summary: Delete document
+      description: Delete a document and its analysis
+      operationId: deleteDocument
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document deleted
+
+  /api/documents/{id}/analyze:
+    post:
+      summary: Analyze document
+      description: Analyze a document (extract text, clauses, risk, compliance)
+      operationId: analyzeDocument
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+              example:
+                success: true
+                document:
+                  documentId: "doc_abc123"
+                  title: "Service Agreement"
+                  status: "completed"
+                  analysisId: "ana_xyz789"
+                  riskReportId: "risk_def456"
+                analysis:
+                  riskScore: 45
+                  clauses:
+                    - id: "cls_001"
+                      type: "confidentiality"
+                      title: "Confidentiality Obligations"
+                      risk: "low"
+                    - id: "cls_002"
+                      type: "termination"
+                      title: "Termination Rights"
+                      risk: "high"
+                riskReport:
+                  reportId: "risk_def456"
+                  overallRiskScore: 45
+                  riskLevel: "medium"
+                  summary: "Document has moderate risk due to termination clauses"
+
+  /api/documents/{id}/clauses:
+    get:
+      summary: Get clauses
+      description: Get extracted clauses for a document
+      operationId: getDocumentClauses
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by clause type
+        - name: risk
+          in: query
+          schema:
+            type: string
+          description: Filter by risk level
+      responses:
+        '200':
+          description: Document clauses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClauseListResponse'
+
+  /api/documents/{id}/risk-report:
+    get:
+      summary: Get risk report
+      description: Get risk assessment report
+      operationId: getRiskReport
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Risk report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskReportResponse'
+        '404':
+          description: Risk report not generated
+
+  /api/documents/{id}/compare:
+    post:
+      summary: Compare to standard
+      description: Compare document clauses against standard library
+      operationId: compareDocumentClauses
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clauseId:
+                  type: string
+                clauseType:
+                  type: string
+            example:
+              clauseId: "cls_001"
+              clauseType: "confidentiality"
+      responses:
+        '200':
+          description: Comparison result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonResponse'
+
+  /api/documents/{id}/compliance:
+    post:
+      summary: Check compliance
+      description: Check compliance against frameworks
+      operationId: checkCompliance
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                frameworks:
+                  type: array
+                  items:
+                    type: string
+                  example: ["GDPR", "SOC2", "ISO27001"]
+      responses:
+        '200':
+          description: Compliance results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceResponse'
+
+  /api/documents/{id}/qa:
+    post:
+      summary: Ask question
+      description: Ask questions about the document
+      operationId: askDocumentQuestion
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - question
+              properties:
+                question:
+                  type: string
+                maxTokens:
+                  type: integer
+                  default: 500
+            example:
+              question: "What are the termination clauses in this agreement?"
+              maxTokens: 500
+      responses:
+        '200':
+          description: Answer generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QAResponse'
+
+  /api/documents/{id}/summarize:
+    post:
+      summary: Summarize document
+      description: Generate document summary
+      operationId: summarizeDocument
+      tags:
+        - Documents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [detailed, brief, executive]
+                  default: detailed
+                focus:
+                  type: string
+      responses:
+        '200':
+          description: Summary generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummaryResponse'
+
+  /api/clauses/library:
+    get:
+      summary: List standard clauses
+      description: Get standard clause library
+      operationId: listStandardClauses
+      tags:
+        - Clauses
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: string
+            default: "1"
+        - name: limit
+          in: query
+          schema:
+            type: string
+            default: "20"
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: riskLevel
+          in: query
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Standard clauses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardClauseListResponse'
+    post:
+      summary: Add standard clause
+      description: Add a clause to the standard library
+      operationId: addStandardClause
+      tags:
+        - Clauses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStandardClauseRequest'
+            example:
+              title: "Standard Non-Compete Clause"
+              type: "non_compete"
+              content: "The Employee agrees not to engage in competitive business activities..."
+              summary: "Standard 12-month non-compete clause"
+              keywords: ["non-compete", "competition", "employment"]
+              riskLevel: "high"
+              riskFactors: ["Restrictive covenant", "Geographic limitations"]
+              recommendations: ["Consider narrow geographic scope", "Add compensation provision"]
+      responses:
+        '201':
+          description: Clause added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardClause'
+
+  /api/clauses/library/{clauseId}:
+    get:
+      summary: Get standard clause
+      description: Get a specific standard clause
+      operationId: getStandardClause
+      tags:
+        - Clauses
+      parameters:
+        - name: clauseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Standard clause
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardClause'
+        '404':
+          description: Clause not found
+    put:
+      summary: Update standard clause
+      description: Update a standard clause
+      operationId: updateStandardClause
+      tags:
+        - Clauses
+      parameters:
+        - name: clauseId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStandardClauseRequest'
+      responses:
+        '200':
+          description: Clause updated
+    delete:
+      summary: Delete standard clause
+      description: Soft delete a standard clause
+      operationId: deleteStandardClause
+      tags:
+        - Clauses
+      parameters:
+        - name: clauseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Clause deleted
+
+  /api/clauses/types:
+    get:
+      summary: Get clause types
+      description: Get all available clause types
+      operationId: getClauseTypes
+      tags:
+        - Clauses
+      responses:
+        '200':
+          description: Clause types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  types:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                        label:
+                          type: string
+
+  /api/clauses/search:
+    get:
+      summary: Search clauses
+      description: Search standard clauses
+      operationId: searchClauses
+      tags:
+        - Clauses
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: riskLevel
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+            default: "5"
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  query:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StandardClause'
+                  total:
+                    type: integer
+
+  /api/clauses/compare:
+    post:
+      summary: Compare clauses
+      description: Compare two clauses
+      operationId: compareClauses
+      tags:
+        - Clauses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clause1Id:
+                  type: string
+                clause2Id:
+                  type: string
+                content1:
+                  type: string
+                content2:
+                  type: string
+      responses:
+        '200':
+          description: Comparison result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  comparison:
+                    type: object
+
+  /api/clauses/stats:
+    get:
+      summary: Get clause statistics
+      description: Get statistics about the clause library
+      operationId: getClauseStats
+      tags:
+        - Clauses
+      responses:
+        '200':
+          description: Clause statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  stats:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      byType:
+                        type: object
+                      byRiskLevel:
+                        type: object
+                      avgKeywords:
+                        type: number
+
+  /api/qa/ask:
+    post:
+      summary: Ask question
+      description: Ask a question about a document
+      operationId: askQuestion
+      tags:
+        - Q&A
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentId
+                - question
+              properties:
+                documentId:
+                  type: string
+                question:
+                  type: string
+                maxTokens:
+                  type: integer
+                  default: 1000
+      responses:
+        '200':
+          description: Answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QAResponse'
+
+  /api/qa/compare:
+    post:
+      summary: Compare documents
+      description: Compare two documents
+      operationId: compareDocuments
+      tags:
+        - Q&A
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentId1
+                - documentId2
+              properties:
+                documentId1:
+                  type: string
+                documentId2:
+                  type: string
+                question:
+                  type: string
+      responses:
+        '200':
+          description: Comparison result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentComparisonResponse'
+
+  /api/qa/extract:
+    post:
+      summary: Extract information
+      description: Extract specific information from document
+      operationId: extractInformation
+      tags:
+        - Q&A
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentId
+                - extractionType
+              properties:
+                documentId:
+                  type: string
+                extractionType:
+                  type: string
+                  enum: [parties, dates, amounts, obligations, risks, clauses]
+      responses:
+        '200':
+          description: Extracted information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  documentId:
+                    type: string
+                  extractionType:
+                    type: string
+                  extracted:
+                    type: array
+
+  /api/qa/summarize:
+    post:
+      summary: Quick summarize
+      description: Generate quick summary
+      operationId: quickSummarize
+      tags:
+        - Q&A
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentId
+              properties:
+                documentId:
+                  type: string
+                format:
+                  type: string
+                  enum: [paragraph, bullet, tl_dr, key_terms]
+                  default: paragraph
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  documentId:
+                    type: string
+                  format:
+                    type: string
+                  summary:
+                    type: string
+                  wordCount:
+                    type: integer
+
+  /api/qa/analyze-risk:
+    post:
+      summary: Quick risk analysis
+      description: Quick risk analysis
+      operationId: quickRiskAnalysis
+      tags:
+        - Q&A
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentId
+              properties:
+                documentId:
+                  type: string
+      responses:
+        '200':
+          description: Risk analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  documentId:
+                    type: string
+                  quickRiskAnalysis:
+                    type: object
+
+  /api/compliance/frameworks:
+    get:
+      summary: Get compliance frameworks
+      description: Get all supported compliance frameworks
+      operationId: getComplianceFrameworks
+      tags:
+        - Compliance
+      responses:
+        '200':
+          description: Compliance frameworks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  frameworks:
+                    type: array
+                    items:
+                      type: object
+
+  /api/compliance/check:
+    post:
+      summary: Check compliance
+      description: Check compliance for a document
+      operationId: checkDocumentCompliance
+      tags:
+        - Compliance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentId
+              properties:
+                documentId:
+                  type: string
+                frameworks:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Compliance check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceCheckResponse'
+
+  /api/compliance/check/clause:
+    post:
+      summary: Check clause compliance
+      description: Check compliance for a specific clause
+      operationId: checkClauseCompliance
+      tags:
+        - Compliance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - clause
+                - framework
+              properties:
+                clause:
+                  type: object
+                framework:
+                  type: string
+      responses:
+        '200':
+          description: Clause compliance result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  isCompliant:
+                    type: boolean
+                  issues:
+                    type: array
+
+  /api/compliance/report/{documentId}:
+    get:
+      summary: Get compliance report
+      description: Get detailed compliance report
+      operationId: getComplianceReport
+      tags:
+        - Compliance
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: frameworks
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Compliance report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceReportResponse'
+
+  /api/compliance/dashboard:
+    get:
+      summary: Get compliance dashboard
+      description: Get compliance dashboard data
+      operationId: getComplianceDashboard
+      tags:
+        - Compliance
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  dashboard:
+                    type: object
+
+  /api/compliance/batch:
+    post:
+      summary: Batch compliance check
+      description: Check compliance for multiple documents
+      operationId: batchComplianceCheck
+      tags:
+        - Compliance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentIds
+              properties:
+                documentIds:
+                  type: array
+                  items:
+                    type: string
+                frameworks:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Batch results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  totalChecked:
+                    type: integer
+                  results:
+                    type: array
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UploadResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        document:
+          type: object
+          properties:
+            documentId:
+              type: string
+            title:
+              type: string
+            type:
+              type: string
+            status:
+              type: string
+            metadata:
+              type: object
+
+    DocumentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documents:
+          type: array
+          items:
+            type: object
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            pages:
+              type: integer
+
+    DocumentDetail:
+      type: object
+      properties:
+        success:
+          type: boolean
+        document:
+          type: object
+
+    AnalysisResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        document:
+          type: object
+          properties:
+            documentId:
+              type: string
+            title:
+              type: string
+            status:
+              type: string
+            analysisId:
+              type: string
+            riskReportId:
+              type: string
+        analysis:
+          type: object
+          properties:
+            riskScore:
+              type: integer
+            clauses:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExtractedClause'
+        riskReport:
+          $ref: '#/components/schemas/RiskReport'
+
+    ExtractedClause:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        risk:
+          type: string
+          enum: [low, medium, high]
+        riskFactors:
+          type: array
+          items:
+            type: string
+
+    ClauseListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documentId:
+          type: string
+        clauseCount:
+          type: integer
+        clauses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtractedClause'
+        metadata:
+          type: object
+
+    RiskReport:
+      type: object
+      properties:
+        reportId:
+          type: string
+        overallRiskScore:
+          type: integer
+        riskLevel:
+          type: string
+          enum: [minimal, low, moderate, high, critical]
+        summary:
+          type: string
+        clauses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtractedClause'
+
+    RiskReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        riskReport:
+          $ref: '#/components/schemas/RiskReport'
+
+    ComparisonResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documentId:
+          type: string
+        clause:
+          type: object
+        comparison:
+          type: object
+        similarClauses:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandardClause'
+
+    ComplianceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documentId:
+          type: string
+        complianceResults:
+          type: array
+
+    QAResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documentId:
+          type: string
+        question:
+          type: string
+        answer:
+          type: string
+        sources:
+          type: object
+        confidence:
+          type: number
+
+    SummaryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documentId:
+          type: string
+        summary:
+          type: object
+
+    StandardClause:
+      type: object
+      properties:
+        clauseId:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        riskLevel:
+          type: string
+          enum: [low, medium, high]
+        riskFactors:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        complianceMappings:
+          type: array
+          items:
+            type: string
+        usageExamples:
+          type: array
+          items:
+            type: string
+        jurisdiction:
+          type: array
+          items:
+            type: string
+        version:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isActive:
+          type: boolean
+
+    StandardClauseListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        clauses:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandardClause'
+        pagination:
+          type: object
+        filters:
+          type: object
+
+    CreateStandardClauseRequest:
+      type: object
+      required:
+        - title
+        - type
+        - content
+        - summary
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        riskLevel:
+          type: string
+          enum: [low, medium, high]
+        riskFactors:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        complianceMappings:
+          type: array
+          items:
+            type: string
+        usageExamples:
+          type: array
+          items:
+            type: string
+        jurisdiction:
+          type: array
+          items:
+            type: string
+        version:
+          type: string
+
+    UpdateStandardClauseRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        riskLevel:
+          type: string
+        riskFactors:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        complianceMappings:
+          type: array
+          items:
+            type: string
+        usageExamples:
+          type: array
+          items:
+            type: string
+        jurisdiction:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    DocumentComparisonResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documents:
+          type: object
+        comparison:
+          type: object
+          properties:
+            summary:
+              type: string
+            keyDifferences:
+              type: array
+              items:
+                type: string
+            similarities:
+              type: array
+              items:
+                type: string
+            riskComparison:
+              type: object
+            recommendation:
+              type: string
+
+    ComplianceCheckResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        documentId:
+          type: string
+        overallScore:
+          type: integer
+        summary:
+          type: object
+          properties:
+            totalFrameworks:
+              type: integer
+            compliant:
+              type: integer
+            nonCompliant:
+              type: integer
+            partial:
+              type: integer
+        results:
+          type: array
+
+    ComplianceReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        report:
+          type: object
+          properties:
+            document:
+              type: object
+            overallSummary:
+              type: object
+            frameworkResults:
+              type: array
+            criticalIssues:
+              type: array
+            generatedAt:
+              type: string
+              format: date-time

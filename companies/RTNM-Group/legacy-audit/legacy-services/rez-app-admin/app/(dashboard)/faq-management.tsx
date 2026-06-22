@@ -1,0 +1,836 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  RefreshControl,
+  useColorScheme,
+  Modal,
+  Switch,
+  FlatList,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/Colors';
+import { showAlert, showConfirm } from '../../utils/alert';
+import { faqAdminService, FAQItem } from '../../services/api/faq';
+import { s } from './styles/faq-management.styles';
+
+// ============================================
+// TYPES & CONSTANTS
+// ============================================
+interface FAQFormData {
+  question: string;
+  answer: string;
+  category: string;
+  subcategory: string;
+  tags: string;
+  order: string;
+  imageUrl: string;
+  isActive: boolean;
+}
+
+const FAQ_CATEGORIES = [
+  'All',
+  'Account',
+  'Orders',
+  'Payments',
+  'Delivery',
+  'Returns',
+  'Coins & Rewards',
+  'Wallet',
+  'Promotions',
+  'Technical',
+  'General',
+];
+
+const getCatColors = (colors: typeof Colors.light): Record<string, string> => ({
+  Account: colors.info,
+  Orders: colors.orange,
+  Payments: colors.success,
+  Delivery: colors.purple,
+  Returns: colors.error,
+  'Coins & Rewards': colors.warning,
+  Wallet: colors.cyan,
+  Promotions: colors.pink,
+  Technical: colors.indigo,
+  General: colors.mutedDark,
+});
+
+const ACTIVE_FILTERS = [
+  { label: 'All', value: undefined as boolean | undefined },
+  { label: 'Active', value: true as boolean | undefined },
+  { label: 'Inactive', value: false as boolean | undefined },
+];
+
+const DEFAULT_FORM: FAQFormData = {
+  question: '',
+  answer: '',
+  category: 'General',
+  subcategory: '',
+  tags: '',
+  order: '0',
+  imageUrl: '',
+  isActive: true,
+};
+
+const PAGE_LIMIT = 15;
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
+export default function FAQManagementScreen() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const CAT_COLORS = useMemo(() => getCatColors(colors), [colors]);
+
+  // Data state
+  const [faqs, setFaqs] = useState<FAQItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Filter state
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [activeFilter, setActiveFilter] = useState<boolean | undefined>(undefined);
+  const [searchText, setSearchText] = useState('');
+  const [searchDebounce, setSearchDebounce] = useState('');
+
+  // Modal state
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingFaq, setEditingFaq] = useState<FAQItem | null>(null);
+  const [formData, setFormData] = useState<FAQFormData>(DEFAULT_FORM);
+
+  // Toggling state (track which ID is being toggled)
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  // ============================================
+  // SEARCH DEBOUNCE
+  // ============================================
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(searchText);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  // ============================================
+  // DATA LOADING
+  // ============================================
+  const loadFaqs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const filters: {
+        page?: number;
+        limit?: number;
+        category?: string;
+        isActive?: boolean;
+        search?: string;
+      } = {
+        page: currentPage,
+        limit: PAGE_LIMIT,
+      };
+      if (selectedCategory !== 'All') filters.category = selectedCategory;
+      if (activeFilter !== undefined) filters.isActive = activeFilter;
+      if (searchDebounce.trim()) filters.search = searchDebounce.trim();
+
+      const response = await faqAdminService.list(filters);
+      setFaqs(response.faqs || []);
+      setTotalItems(response.total || 0);
+      setTotalPages(response.pages || 0);
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Failed to load FAQs');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [selectedCategory, activeFilter, searchDebounce, currentPage]);
+
+  useEffect(() => {
+    loadFaqs();
+  }, [loadFaqs]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadFaqs();
+  }, [loadFaqs]);
+
+  // ============================================
+  // ACTIONS
+  // ============================================
+  const handleCreate = () => {
+    setEditingFaq(null);
+    setFormData({ ...DEFAULT_FORM });
+    setShowFormModal(true);
+  };
+
+  const handleEdit = (faq: FAQItem) => {
+    setEditingFaq(faq);
+    setFormData({
+      question: faq.question,
+      answer: faq.answer,
+      category: faq.category || 'General',
+      subcategory: faq.subcategory || '',
+      tags: (faq.tags || []).join(', '),
+      order: String(faq.order || 0),
+      imageUrl: faq.imageUrl || '',
+      isActive: faq.isActive,
+    });
+    setShowFormModal(true);
+  };
+
+  const handleSave = async () => {
+    if (!formData.question.trim()) {
+      showAlert('Error', 'Question is required');
+      return;
+    }
+    if (!formData.answer.trim()) {
+      showAlert('Error', 'Answer is required');
+      return;
+    }
+    if (!formData.category.trim()) {
+      showAlert('Error', 'Category is required');
+      return;
+    }
+    try {
+      setIsSaving(true);
+      const tagsArray = formData.tags
+        .split(',')
+        .map((t) => t.trim().toLowerCase())
+        .filter((t) => t.length > 0);
+      const payload = {
+        question: formData.question.trim(),
+        answer: formData.answer.trim(),
+        category: formData.category,
+        subcategory: formData.subcategory.trim() || undefined,
+        tags: tagsArray.length > 0 ? tagsArray : undefined,
+        order: Number(formData.order) || 0,
+        isActive: formData.isActive,
+        imageUrl: formData.imageUrl.trim() || undefined,
+      };
+      if (editingFaq) {
+        const result = await faqAdminService.update(editingFaq._id, payload);
+        if (!result) throw new Error('Failed to update FAQ');
+        showAlert('Success', 'FAQ updated successfully');
+      } else {
+        const result = await faqAdminService.create(payload);
+        if (!result) throw new Error('Failed to create FAQ');
+        showAlert('Success', 'FAQ created successfully');
+      }
+      setShowFormModal(false);
+      loadFaqs();
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Failed to save FAQ');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = (faq: FAQItem) => {
+    showConfirm(
+      'Delete FAQ',
+      `Are you sure you want to delete "${(faq.question || 'this FAQ').substring(0, 60)}..."?`,
+      async () => {
+        try {
+          const success = await faqAdminService.delete(faq._id);
+          if (!success) throw new Error('Failed to delete FAQ');
+          showAlert('Success', 'FAQ deleted');
+          loadFaqs();
+        } catch (error: any) {
+          showAlert('Error', error.message || 'Failed to delete FAQ');
+        }
+      }
+    );
+  };
+
+  const handleToggleActive = async (faq: FAQItem) => {
+    try {
+      setTogglingId(faq._id);
+      const success = await faqAdminService.toggleActive(faq._id);
+      if (!success) throw new Error('Failed to toggle status');
+      // Optimistic update
+      setFaqs((prev) => prev.map((f) => (f._id === faq._id ? { ...f, isActive: !f.isActive } : f)));
+    } catch (error: any) {
+      showAlert('Error', error.message || 'Failed to toggle active status');
+      loadFaqs(); // Revert on failure
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  // ============================================
+  // HELPERS
+  // ============================================
+  const getHelpfulPercent = (faq: FAQItem): string => {
+    const helpful = faq.helpfulCount || 0;
+    const notHelpful = faq.notHelpfulCount || 0;
+    const total = helpful + notHelpful;
+    if (total === 0) return '-';
+    return `${Math.round((helpful / total) * 100)}%`;
+  };
+
+  const truncateText = (text: string, maxLen: number): string => {
+    if (text.length <= maxLen) return text;
+    return text.substring(0, maxLen) + '...';
+  };
+
+  // ============================================
+  // PAGINATION
+  // ============================================
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+      setCurrentPage(page);
+    }
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    const end = Math.min(totalPages, start + maxVisible - 1);
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    return (
+      <View style={s.paginationBar}>
+        <Text style={[s.paginationInfo, { color: colors.secondaryText }]}>
+          {totalItems} items | Page {currentPage} of {totalPages}
+        </Text>
+        <View style={s.paginationButtons}>
+          <TouchableOpacity
+            style={[s.pageBtn, currentPage === 1 && s.pageBtnDisabled]}
+            onPress={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={16}
+              color={currentPage === 1 ? colors.gray300 : colors.info}
+            />
+          </TouchableOpacity>
+          {pages.map((p) => (
+            <TouchableOpacity
+              key={p}
+              style={[s.pageBtn, p === currentPage && s.pageBtnActive]}
+              onPress={() => handlePageChange(p)}
+            >
+              <Text style={[s.pageBtnText, p === currentPage && s.pageBtnTextActive]}>
+                {p}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            style={[s.pageBtn, currentPage === totalPages && s.pageBtnDisabled]}
+            onPress={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={currentPage === totalPages ? colors.gray300 : colors.info}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  // ============================================
+  // RENDER FAQ ROW
+  // ============================================
+  const renderFaqItem = ({ item }: { item: FAQItem }) => {
+    const catColor = CAT_COLORS[item.category] || colors.mutedDark;
+    const helpfulPct = getHelpfulPercent(item);
+    const isToggling = togglingId === item._id;
+
+    return (
+      <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={[s.colorStrip, { backgroundColor: catColor }]} />
+        <View style={s.cardBody}>
+          {/* Top: Question + Category Badge */}
+          <View style={s.cardTopRow}>
+            <Text style={[s.cardQuestion, { color: colors.text }]} numberOfLines={2}>
+              {truncateText(item.question, 80)}
+            </Text>
+            <View style={[s.catBadge, { backgroundColor: `${catColor}18` }]}>
+              <Text style={[s.catBadgeText, { color: catColor }]}>{item.category}</Text>
+            </View>
+          </View>
+
+          {/* Stats Row */}
+          <View style={s.statsRow}>
+            <View style={s.statItem}>
+              <Ionicons name="eye-outline" size={13} color={colors.mutedDark} />
+              <Text style={s.statText}>{item.views ?? 0} views</Text>
+            </View>
+            <View style={s.statItem}>
+              <Ionicons name="thumbs-up-outline" size={13} color={colors.success} />
+              <Text style={s.statText}>{helpfulPct} helpful</Text>
+            </View>
+            <View style={s.statItem}>
+              <Ionicons name="swap-vertical-outline" size={13} color={colors.mutedDark} />
+              <Text style={s.statText}>Order: {item.order ?? 0}</Text>
+            </View>
+          </View>
+
+          {/* Tags row */}
+          {item.tags && item.tags.length > 0 && (
+            <View style={s.tagsRow}>
+              {item.tags.slice(0, 4).map((tag, i) => (
+                <View key={i} style={[s.tagPill, { backgroundColor: colors.background }]}>
+                  <Text style={s.tagText}>{tag}</Text>
+                </View>
+              ))}
+              {item.tags.length > 4 && <Text style={s.moreText}>+{item.tags.length - 4}</Text>}
+            </View>
+          )}
+
+          {/* Bottom: Active Toggle + Actions */}
+          <View style={s.cardBottomRow}>
+            <View style={s.toggleRow}>
+              {isToggling ? (
+                <ActivityIndicator size="small" color={colors.info} />
+              ) : (
+                <Switch
+                  value={item.isActive}
+                  onValueChange={() => handleToggleActive(item)}
+                  trackColor={{ false: colors.border, true: colors.success }}
+                  thumbColor={colors.card}
+                />
+              )}
+              <View
+                style={[s.statusBadge, item.isActive ? s.activeBg : s.inactiveBg]}
+              >
+                <Text
+                  style={{
+                    fontSize: 11,
+                    fontWeight: '600',
+                    color: item.isActive ? colors.successDark : colors.mutedDark,
+                  }}
+                >
+                  {item.isActive ? 'Active' : 'Inactive'}
+                </Text>
+              </View>
+            </View>
+            <View style={s.cardActions}>
+              <TouchableOpacity style={s.actionBtn} onPress={() => handleEdit(item)}>
+                <Ionicons name="create-outline" size={18} color={colors.info} />
+                <Text style={[s.actionText, { color: colors.info }]}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.actionBtn} onPress={() => handleDelete(item)}>
+                <Ionicons name="trash-outline" size={18} color={colors.error} />
+                <Text style={[s.actionText, { color: colors.error }]}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  // ============================================
+  // FORM HELPERS
+  // ============================================
+  const inp = (key: keyof FAQFormData, ph: string, opts?: { multi?: boolean; num?: boolean }) => (
+    <TextInput
+      style={[
+        s.formInput,
+        opts?.multi && s.multiline,
+        { color: colors.text, borderColor: colors.border },
+      ]}
+      value={String(formData[key])}
+      onChangeText={(v) => setFormData((p) => ({ ...p, [key]: v }))}
+      placeholder={ph}
+      placeholderTextColor={colors.muted}
+      multiline={opts?.multi}
+      keyboardType={opts?.num ? 'numeric' : 'default'}
+    />
+  );
+
+  // ============================================
+  // FORM MODAL
+  // ============================================
+  const renderFormModal = () => (
+    <Modal visible={showFormModal} animationType="slide" presentationStyle="pageSheet">
+      <SafeAreaView style={[s.modalContainer, { backgroundColor: colors.background }]}>
+        <View style={s.modalHeader}>
+          <TouchableOpacity onPress={() => setShowFormModal(false)}>
+            <Ionicons name="close" size={28} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={[s.modalTitle, { color: colors.text }]}>
+            {editingFaq ? 'Edit FAQ' : 'New FAQ'}
+          </Text>
+          <TouchableOpacity onPress={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <ActivityIndicator size="small" color={colors.info} />
+            ) : (
+              <Text style={s.saveBtn}>Save</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+        <ScrollView style={s.formScroll} contentContainerStyle={{ paddingBottom: 40 }}>
+          <Text style={s.formLabel}>Question *</Text>
+          {inp('question', 'e.g. How do I reset my password?')}
+
+          <Text style={s.formLabel}>Answer *</Text>
+          {inp('answer', 'Enter the detailed answer...', { multi: true })}
+
+          <Text style={s.formLabel}>Category *</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 6 }}>
+            {FAQ_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
+              <TouchableOpacity
+                key={cat}
+                style={[s.filterChip, formData.category === cat && s.filterChipActive]}
+                onPress={() => setFormData((p) => ({ ...p, category: cat }))}
+              >
+                <Text style={[s.chipText, formData.category === cat && s.chipTextActive]}>
+                  {cat}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <Text style={s.formLabel}>Subcategory</Text>
+          {inp('subcategory', 'e.g. Password Issues')}
+
+          <Text style={s.formLabel}>Tags (comma-separated)</Text>
+          {inp('tags', 'e.g. password, login, reset')}
+
+          <Text style={s.formLabel}>Order</Text>
+          {inp('order', '0', { num: true })}
+
+          <Text style={s.formLabel}>Image URL</Text>
+          {inp('imageUrl', 'https://...')}
+
+          <View style={s.switchRow}>
+            <Text style={s.formLabel}>Active</Text>
+            <Switch
+              value={formData.isActive}
+              onValueChange={(v) => setFormData((p) => ({ ...p, isActive: v }))}
+              trackColor={{ false: colors.border, true: colors.info }}
+              thumbColor={colors.card}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+
+  // ============================================
+  // MAIN RENDER
+  // ============================================
+  return (
+    <View style={[s.container, { backgroundColor: colors.background }]}>
+      {/* Header */}
+      <View
+        style={[s.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}
+      >
+        <Text style={[s.headerTitle, { color: colors.text }]}>FAQ Management</Text>
+        <TouchableOpacity style={s.createBtn} onPress={handleCreate}>
+          <Ionicons name="add" size={20} color={colors.card} />
+          <Text style={s.createBtnText}>Add FAQ</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Search Bar */}
+      <View
+        style={[
+          s.searchBar,
+          { backgroundColor: colors.card, borderBottomColor: colors.border },
+        ]}
+      >
+        <View
+          style={[
+            s.searchInput,
+            { borderColor: colors.border, backgroundColor: colors.background },
+          ]}
+        >
+          <Ionicons name="search-outline" size={18} color={colors.muted} />
+          <TextInput
+            style={[s.searchTextInput, { color: colors.text }]}
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder="Search questions, answers, tags..."
+            placeholderTextColor={colors.muted}
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchText('')}>
+              <Ionicons name="close-circle" size={18} color={colors.muted} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* Category Filters */}
+      <View style={[s.filtersBar, { backgroundColor: colors.card }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.filterRow}>
+          {FAQ_CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[s.filterChip, selectedCategory === cat && s.filterChipActive]}
+              onPress={() => {
+                setSelectedCategory(cat);
+                setCurrentPage(1);
+              }}
+            >
+              <Text style={[s.chipText, selectedCategory === cat && s.chipTextActive]}>
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <View style={s.activeFilterRow}>
+          <Text style={{ fontSize: 12, color: colors.mutedDark, marginRight: 6 }}>Status:</Text>
+          {ACTIVE_FILTERS.map((af) => (
+            <TouchableOpacity
+              key={af.label}
+              style={[s.activeChip, activeFilter === af.value && s.activeChipSelected]}
+              onPress={() => {
+                setActiveFilter(af.value);
+                setCurrentPage(1);
+              }}
+            >
+              <Text
+                style={[
+                  s.activeChipText,
+                  activeFilter === af.value && s.activeChipTextSelected,
+                ]}
+              >
+                {af.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* FAQ List */}
+      <FlatList
+        data={faqs}
+        renderItem={renderFaqItem}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        ListEmptyComponent={
+          loading ? (
+            <ActivityIndicator size="large" color={colors.info} style={{ paddingVertical: 40 }} />
+          ) : (
+            <View style={s.emptyBox}>
+              <Ionicons name="help-circle-outline" size={48} color={colors.gray300} />
+              <Text style={s.emptyText}>No FAQs found</Text>
+              <Text style={s.emptySubtext}>
+                Try adjusting your filters or create a new FAQ
+              </Text>
+            </View>
+          )
+        }
+        ListFooterComponent={renderPagination}
+      />
+
+      {renderFormModal()}
+    </View>
+  );
+}
+
+// ============================================
+// STYLES
+// ============================================
+const createStyles = (colors: typeof Colors.light) =>
+  StyleSheet.create({
+    container: { flex: 1 },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+    },
+    headerTitle: { fontSize: 22, fontWeight: '700' },
+    createBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.info,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 8,
+      gap: 4,
+    },
+    createBtnText: { color: colors.card, fontWeight: '600', fontSize: 14 },
+
+    // Search
+    searchBar: {
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+    },
+    searchInput: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      gap: 8,
+    },
+    searchTextInput: { flex: 1, fontSize: 14, padding: 0 },
+
+    // Filters
+    filtersBar: {
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.gray200,
+    },
+    filterRow: { flexDirection: 'row', marginBottom: 6 },
+    filterChip: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+      backgroundColor: colors.backgroundSecondary,
+      marginRight: 8,
+    },
+    filterChipActive: { backgroundColor: colors.info },
+    chipText: { fontSize: 12, color: colors.mutedDark, fontWeight: '500' },
+    chipTextActive: { color: colors.card, fontWeight: '600' },
+    activeFilterRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+    activeChip: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+      backgroundColor: colors.backgroundSecondary,
+      marginRight: 6,
+    },
+    activeChipSelected: { backgroundColor: colors.info },
+    activeChipText: { fontSize: 11, color: colors.mutedDark, fontWeight: '500' },
+    activeChipTextSelected: { color: colors.card, fontWeight: '600' },
+
+    // Card
+    card: {
+      borderRadius: 12,
+      marginBottom: 10,
+      borderWidth: 1,
+      flexDirection: 'row',
+      overflow: 'hidden',
+    },
+    colorStrip: { width: 5 },
+    cardBody: { flex: 1, padding: 14 },
+    cardTopRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    cardQuestion: { fontSize: 14, fontWeight: '600', flex: 1, marginRight: 8, lineHeight: 20 },
+    catBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
+    catBadgeText: { fontSize: 11, fontWeight: '600' },
+
+    // Stats
+    statsRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 8 },
+    statItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    statText: { fontSize: 12, color: colors.mutedDark, fontWeight: '500' },
+
+    // Tags
+    tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
+    tagPill: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
+    tagText: { fontSize: 11, fontWeight: '600', color: colors.gray700 },
+    moreText: { fontSize: 11, color: colors.muted, alignSelf: 'center' },
+
+    // Bottom row
+    cardBottomRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderTopWidth: 1,
+      borderTopColor: colors.backgroundSecondary,
+      paddingTop: 10,
+    },
+    toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+    activeBg: { backgroundColor: colors.successLight },
+    inactiveBg: { backgroundColor: colors.backgroundSecondary },
+    cardActions: { flexDirection: 'row', gap: 12 },
+    actionBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      paddingVertical: 4,
+      paddingHorizontal: 6,
+    },
+    actionText: { fontSize: 12, fontWeight: '500' },
+
+    // Pagination
+    paginationBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 4,
+    },
+    paginationInfo: { fontSize: 12 },
+    paginationButtons: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    pageBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.backgroundSecondary,
+    },
+    pageBtnActive: { backgroundColor: colors.info },
+    pageBtnDisabled: { opacity: 0.4 },
+    pageBtnText: { fontSize: 13, fontWeight: '500', color: colors.gray700 },
+    pageBtnTextActive: { color: colors.card, fontWeight: '600' },
+
+    // Empty
+    emptyBox: { paddingVertical: 40, alignItems: 'center' },
+    emptyText: { fontSize: 14, color: colors.muted, marginTop: 10 },
+    emptySubtext: { fontSize: 12, color: colors.gray300, marginTop: 4 },
+
+    // Modal / Form
+    modalContainer: { flex: 1 },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.gray200,
+    },
+    modalTitle: { fontSize: 17, fontWeight: '600' },
+    saveBtn: { fontSize: 16, fontWeight: '600', color: colors.info },
+    formScroll: { paddingHorizontal: 20 },
+    formLabel: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: colors.mutedDark,
+      marginTop: 10,
+      marginBottom: 4,
+    },
+    formInput: {
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 14,
+    },
+    multiline: { minHeight: 100, textAlignVertical: 'top' },
+    switchRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 10,
+    },
+  });

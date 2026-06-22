@@ -1,0 +1,1621 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ReZ Platform API",
+    "description": "## Overview\n\nComplete API reference for the ReZ platform ecosystem. This combined specification includes all microservice APIs.\n\n### Architecture\n\nThe ReZ platform uses a microservices architecture with the following components:\n\n| Service | Port | Description |\n|---------|------|-------------|\n| API Gateway | 3001 | Central entry point, routing, rate limiting |\n| Auth Service | 4002 | Authentication, user management, MFA |\n| Delivery Service | 3005 | Delivery management, driver tracking |\n| Analytics Service | 3007 | Real-time analytics, dashboards |\n| Payment Links Service | 3008 | UPI payment links, QR codes |\n| Journey Service | 3009 | Customer journey automation |\n| Automation Service | 4014 | Rule-based automation |\n| GDPR Service | 4021 | Consent management, data erasure |\n| Validation Service | 3022 | Input validation, sanitization |\n| Cohort Service | 4024 | Customer cohort analytics |\n| Currency Service | 4026 | Currency conversion, exchange rates |\n| Invoice Service | 4028 | GST-compliant invoice generation |\n| Menu Service | 4022 | Digital menu management |\n| Refund Service | 4030 | Refund processing |\n| Tracking Service | 4032 | GPS tracking, ETA calculation |\n| Marketing Service | 4000 | Campaign management |\n\n### Authentication\n\nAll authenticated endpoints require a Bearer token in the Authorization header:\n\n```\nAuthorization: Bearer <accessToken>\n```\n\nJWT tokens are obtained from the Auth Service.\n\n### Rate Limits\n\n| Endpoint Pattern | Limit | Window |\n|-----------------|-------|--------|\n| `/api/v1/auth/otp/*` | 3 | 1 minute |\n| `/api/v1/auth/login-pin` | 5 | 15 minutes |\n| General API | 100 | 1 minute |\n\n### Response Format\n\nAll API responses follow this structure:\n\n```json\n{\n  \"success\": true,\n  \"data\": { ... },\n  \"message\": \"Optional message\"\n}\n```\n\nError responses:\n\n```json\n{\n  \"success\": false,\n  \"error\": \"Error message\",\n  \"code\": \"ERROR_CODE\"\n}\n```\n\n### Individual Service Specs\n\nEach service has its own OpenAPI specification:\n\n- [rez-auth-service](./rez-auth-service/openapi.yaml) - Authentication and authorization\n- [rez-delivery-service](./rez-delivery-service/openapi.yaml) - Delivery management\n- [rez-analytics-service](./rez-analytics-service/openapi.yaml) - Analytics and reporting\n- [rez-payment-links-service](./rez-payment-links-service/openapi.yaml) - Payment links\n- [rez-journey-service](./rez-journey-service/openapi.yaml) - Journey automation\n- [rez-automation-service](./rez-automation-service/openapi.yaml) - Rule automation\n- [rez-gdpr-service](./rez-gdpr-service/openapi.yaml) - GDPR compliance\n- [rez-validation-service](./rez-validation-service/openapi.yaml) - Input validation\n- [rez-cohort-service](./rez-cohort-service/openapi.yaml) - Cohort analytics\n- [rez-currency-service](./rez-currency-service/openapi.yaml) - Currency services\n- [rez-invoice-service](./rez-invoice-service/openapi.yaml) - Invoice generation\n- [rez-menu-service](./rez-menu-service/openapi.yaml) - Menu management\n- [rez-refund-service](./rez-refund-service/openapi.yaml) - Refund processing\n- [rez-tracking-service](./rez-tracking-service/openapi.yaml) - GPS tracking\n- [rez-marketing](./rez-marketing/openapi.yaml) - Marketing campaigns\n",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ReZ API Support",
+      "email": "api-support@rez.money"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.rez.money",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Gateway health check",
+        "operationId": "gatewayHealth",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" },
+                    "version": { "type": "string" },
+                    "uptime": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/otp/send": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Send OTP",
+        "description": "Sends an OTP to the specified phone number via SMS or WhatsApp",
+        "operationId": "sendOtp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone"],
+                "properties": {
+                  "phone": { "type": "string", "pattern": "^[0-9]{5,15}$" },
+                  "countryCode": { "type": "string", "default": "+91" },
+                  "channel": { "type": "string", "enum": ["sms", "whatsapp"], "default": "sms" },
+                  "force": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "messageId": { "type": "string" },
+                    "isNewUser": { "type": "boolean" },
+                    "hasPIN": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/api/auth/otp/verify": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Verify OTP",
+        "description": "Verifies the OTP and returns authentication tokens",
+        "operationId": "verifyOtp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "otp"],
+                "properties": {
+                  "phone": { "type": "string" },
+                  "otp": { "type": "string", "pattern": "^[0-9]{4,8}$" },
+                  "countryCode": { "type": "string", "default": "+91" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "isNewUser": { "type": "boolean" },
+                    "accessToken": { "type": "string" },
+                    "refreshToken": { "type": "string" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "phone": { "type": "string" },
+                        "role": { "type": "string" },
+                        "isVerified": { "type": "boolean" }
+                      }
+                    },
+                    "mfaRequired": { "type": "boolean" },
+                    "deviceRisk": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid OTP"
+          }
+        }
+      }
+    },
+    "/api/auth/login-pin": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "PIN Login",
+        "description": "Authenticates user with phone and PIN",
+        "operationId": "loginWithPin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "pin"],
+                "properties": {
+                  "phone": { "type": "string" },
+                  "pin": { "type": "string", "pattern": "^[0-9]{4,6}$" },
+                  "countryCode": { "type": "string", "default": "+91" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "accessToken": { "type": "string" },
+                    "refreshToken": { "type": "string" },
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get current user",
+        "description": "Returns the authenticated user's profile",
+        "operationId": "getCurrentUser",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Refresh token",
+        "description": "Refreshes access and refresh tokens",
+        "operationId": "refreshToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["refreshToken"],
+                "properties": {
+                  "refreshToken": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "accessToken": { "type": "string" },
+                    "refreshToken": { "type": "string" },
+                    "expiresIn": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logout",
+        "description": "Logs out the current session",
+        "operationId": "logout",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged out successfully"
+          }
+        }
+      }
+    },
+    "/api/auth/guest": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Guest authentication",
+        "description": "Creates a guest session for web-menu",
+        "operationId": "guestAuth",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tableId": { "type": "string" },
+                  "storeId": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Guest session created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "guestToken": { "type": "string" },
+                    "guestId": { "type": "string" },
+                    "tableId": { "type": "string" },
+                    "storeId": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/deliveries": {
+      "get": {
+        "tags": ["Delivery"],
+        "summary": "List deliveries",
+        "description": "Returns a paginated list of all deliveries",
+        "operationId": "listDeliveries",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "assigned", "picked_up", "in_transit", "out_for_delivery", "delivered", "failed", "cancelled"] } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20, "maximum": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of deliveries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Delivery" } },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Delivery"],
+        "summary": "Create delivery",
+        "description": "Creates a new delivery order",
+        "operationId": "createDelivery",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateDeliveryRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delivery created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Delivery" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/deliveries/{id}": {
+      "get": {
+        "tags": ["Delivery"],
+        "summary": "Get delivery",
+        "operationId": "getDelivery",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": {
+            "description": "Delivery details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Delivery" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Delivery not found" }
+        }
+      },
+      "patch": {
+        "tags": ["Delivery"],
+        "summary": "Update delivery",
+        "operationId": "updateDelivery",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateDeliveryRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delivery updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Delivery" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drivers": {
+      "get": {
+        "tags": ["Drivers"],
+        "summary": "List drivers",
+        "operationId": "listDrivers",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of drivers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Driver" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Drivers"],
+        "summary": "Register driver",
+        "operationId": "registerDriver",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateDriverRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Driver registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Driver" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/drivers/nearby": {
+      "get": {
+        "tags": ["Drivers"],
+        "summary": "Find nearby drivers",
+        "operationId": "findNearbyDrivers",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "latitude", "in": "query", "required": true, "schema": { "type": "number", "format": "double" } },
+          { "name": "longitude", "in": "query", "required": true, "schema": { "type": "number", "format": "double" } },
+          { "name": "radius", "in": "query", "schema": { "type": "number", "default": 5000 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nearby drivers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Driver" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Get dashboard",
+        "description": "Returns aggregated data for the main analytics dashboard",
+        "operationId": "getDashboard",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "startDate", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "endDate", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "period", "in": "query", "schema": { "type": "string", "enum": ["hourly", "daily", "weekly", "monthly"], "default": "daily" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "totalRevenue": { "type": "number" },
+                        "totalOrders": { "type": "integer" },
+                        "averageOrderValue": { "type": "number" },
+                        "totalCustomers": { "type": "integer" },
+                        "newCustomers": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kpis": {
+      "get": {
+        "tags": ["KPIs"],
+        "summary": "Get KPIs",
+        "description": "Returns all key performance indicators",
+        "operationId": "getKPIs",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "startDate", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "endDate", "in": "query", "schema": { "type": "string", "format": "date-time" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "KPIs data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/KPIResponse" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payment-links": {
+      "get": {
+        "tags": ["Payment Links"],
+        "summary": "List payment links",
+        "operationId": "listPaymentLinks",
+        "security": [{ "apiKeyAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of payment links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/PaymentLink" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Payment Links"],
+        "summary": "Create payment link",
+        "operationId": "createPaymentLink",
+        "security": [{ "apiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePaymentLinkRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment link created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/PaymentLink" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/refunds": {
+      "post": {
+        "tags": ["Refunds"],
+        "summary": "Initiate refund",
+        "operationId": "initiateRefund",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["orderId", "amount"],
+                "properties": {
+                  "orderId": { "type": "string" },
+                  "paymentId": { "type": "string" },
+                  "amount": { "type": "number" },
+                  "reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Refund initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Refund" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/invoices": {
+      "get": {
+        "tags": ["Invoices"],
+        "summary": "List invoices",
+        "operationId": "listInvoices",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of invoices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Invoice" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Invoices"],
+        "summary": "Create invoice",
+        "operationId": "createInvoice",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateInvoiceRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invoice created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Invoice" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/consents": {
+      "post": {
+        "tags": ["GDPR"],
+        "summary": "Record consent",
+        "operationId": "recordConsent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userId", "consentType", "granted"],
+                "properties": {
+                  "userId": { "type": "string" },
+                  "consentType": { "type": "string", "enum": ["essential", "analytics", "marketing", "personalization", "third_party"] },
+                  "granted": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Consent recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Consent" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/erasure/request": {
+      "post": {
+        "tags": ["GDPR"],
+        "summary": "Request data erasure",
+        "operationId": "requestDataErasure",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userId"],
+                "properties": {
+                  "userId": { "type": "string" },
+                  "verificationMethod": { "type": "string", "enum": ["email", "sms", "manual"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Erasure request created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/ErasureRequest" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export/{userId}": {
+      "post": {
+        "tags": ["GDPR"],
+        "summary": "Generate data export",
+        "operationId": "generateDataExport",
+        "parameters": [{ "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "202": {
+            "description": "Export initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "exportId": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/journeys": {
+      "get": {
+        "tags": ["Journey"],
+        "summary": "List journeys",
+        "operationId": "listJourneys",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of journeys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Journey" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Journey"],
+        "summary": "Create journey",
+        "operationId": "createJourney",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateJourneyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Journey created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Journey" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rules": {
+      "get": {
+        "tags": ["Automation"],
+        "summary": "List rules",
+        "operationId": "listRules",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of rules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Rule" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Automation"],
+        "summary": "Create rule",
+        "operationId": "createRule",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateRuleRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rule created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Rule" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/campaigns": {
+      "get": {
+        "tags": ["Marketing"],
+        "summary": "List campaigns",
+        "operationId": "listCampaigns",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of campaigns",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Campaign" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Marketing"],
+        "summary": "Create campaign",
+        "operationId": "createCampaign",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateCampaignRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Campaign created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Campaign" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/menus": {
+      "get": {
+        "tags": ["Menu"],
+        "summary": "List menus",
+        "operationId": "listMenus",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of menus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Menu" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Menu"],
+        "summary": "Create menu",
+        "operationId": "createMenu",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateMenuRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Menu created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/Menu" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/convert": {
+      "post": {
+        "tags": ["Currency"],
+        "summary": "Convert currency",
+        "operationId": "convertCurrency",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["amount", "from", "to"],
+                "properties": {
+                  "amount": { "type": "number" },
+                  "from": { "type": "string" },
+                  "to": { "type": "string" },
+                  "roundResult": { "type": "boolean", "default": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Conversion result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "originalAmount": { "type": "number" },
+                        "convertedAmount": { "type": "number" },
+                        "rate": { "type": "number" },
+                        "fromCurrency": { "type": "string" },
+                        "toCurrency": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cohorts": {
+      "get": {
+        "tags": ["Cohort"],
+        "summary": "List cohorts",
+        "operationId": "listCohorts",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of cohorts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Cohort" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/validate": {
+      "post": {
+        "tags": ["Validation"],
+        "summary": "Validate request",
+        "operationId": "validateRequest",
+        "security": [{ "apiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "schemaName": { "type": "string" },
+                  "data": { "type": "object", "additionalProperties": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "valid": { "type": "boolean" },
+                    "data": { "type": "object" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string", "enum": ["user", "admin", "merchant"] },
+          "isVerified": { "type": "boolean" },
+          "isOnboarded": { "type": "boolean" }
+        }
+      },
+      "GeoLocation": {
+        "type": "object",
+        "properties": {
+          "latitude": { "type": "number", "format": "double" },
+          "longitude": { "type": "number", "format": "double" },
+          "address": { "type": "string" }
+        }
+      },
+      "Delivery": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "orderId": { "type": "string" },
+          "driverId": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "assigned", "picked_up", "in_transit", "out_for_delivery", "delivered", "failed", "cancelled"] },
+          "pickup": { "$ref": "#/components/schemas/GeoLocation" },
+          "dropoff": { "$ref": "#/components/schemas/GeoLocation" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateDeliveryRequest": {
+        "type": "object",
+        "required": ["orderId", "customerId", "pickup", "dropoff"],
+        "properties": {
+          "orderId": { "type": "string" },
+          "customerId": { "type": "string" },
+          "merchantId": { "type": "string" },
+          "pickup": { "$ref": "#/components/schemas/GeoLocation" },
+          "dropoff": { "$ref": "#/components/schemas/GeoLocation" }
+        }
+      },
+      "UpdateDeliveryRequest": {
+        "type": "object",
+        "properties": {
+          "pickup": { "$ref": "#/components/schemas/GeoLocation" },
+          "dropoff": { "$ref": "#/components/schemas/GeoLocation" }
+        }
+      },
+      "Driver": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "status": { "type": "string", "enum": ["available", "busy", "offline", "on_break"] },
+          "currentLocation": { "$ref": "#/components/schemas/GeoLocation" },
+          "rating": { "type": "number", "format": "double" },
+          "totalDeliveries": { "type": "integer" }
+        }
+      },
+      "CreateDriverRequest": {
+        "type": "object",
+        "required": ["userId", "name", "email", "phone", "vehicle"],
+        "properties": {
+          "userId": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "vehicle": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["motorcycle", "car", "van", "truck"] },
+              "licensePlate": { "type": "string" },
+              "model": { "type": "string" },
+              "color": { "type": "string" }
+            }
+          }
+        }
+      },
+      "KPIResponse": {
+        "type": "object",
+        "properties": {
+          "totalRevenue": { "type": "number" },
+          "totalOrders": { "type": "integer" },
+          "averageOrderValue": { "type": "number" },
+          "totalCustomers": { "type": "integer" },
+          "newCustomersThisMonth": { "type": "integer" },
+          "returningCustomerRate": { "type": "number" },
+          "fulfillmentRate": { "type": "number" },
+          "refundRate": { "type": "number" }
+        }
+      },
+      "PaymentLink": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "merchantId": { "type": "string" },
+          "amount": { "type": "number", "format": "double" },
+          "currency": { "type": "string", "default": "INR" },
+          "purpose": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "paid", "expired", "failed", "cancelled", "refunded"] },
+          "url": { "type": "string", "format": "uri" },
+          "shortUrl": { "type": "string", "format": "uri" },
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreatePaymentLinkRequest": {
+        "type": "object",
+        "required": ["merchantId", "amount", "purpose"],
+        "properties": {
+          "merchantId": { "type": "string" },
+          "amount": { "type": "number", "format": "double", "minimum": 1 },
+          "currency": { "type": "string", "default": "INR" },
+          "purpose": { "type": "string" },
+          "description": { "type": "string" },
+          "customerName": { "type": "string" },
+          "customerPhone": { "type": "string" },
+          "customerEmail": { "type": "string" },
+          "expiresIn": { "type": "integer", "default": 72 },
+          "webhookUrl": { "type": "string", "format": "uri" },
+          "redirectUrl": { "type": "string", "format": "uri" }
+        }
+      },
+      "Refund": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "orderId": { "type": "string" },
+          "paymentId": { "type": "string" },
+          "type": { "type": "string", "enum": ["full", "partial", "automatic", "manual"] },
+          "status": { "type": "string", "enum": ["pending", "processing", "completed", "failed", "cancelled", "disputed"] },
+          "originalAmount": { "type": "number" },
+          "refundAmount": { "type": "number" },
+          "refundedAmount": { "type": "number" },
+          "currency": { "type": "string", "default": "INR" },
+          "reason": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "invoiceNumber": { "type": "string" },
+          "status": { "type": "string", "enum": ["draft", "sent", "viewed", "partial", "paid", "overdue", "cancelled"] },
+          "customerName": { "type": "string" },
+          "totalAmount": { "type": "number" },
+          "amountPaid": { "type": "number" },
+          "amountDue": { "type": "number" },
+          "currency": { "type": "string", "default": "INR" },
+          "issueDate": { "type": "string", "format": "date" },
+          "dueDate": { "type": "string", "format": "date" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateInvoiceRequest": {
+        "type": "object",
+        "required": ["customerName", "items"],
+        "properties": {
+          "customerName": { "type": "string" },
+          "customerAddress": {
+            "type": "object",
+            "properties": {
+              "line1": { "type": "string" },
+              "city": { "type": "string" },
+              "state": { "type": "string" },
+              "postalCode": { "type": "string" },
+              "country": { "type": "string" },
+              "email": { "type": "string" },
+              "phone": { "type": "string" },
+              "gstin": { "type": "string" }
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["description", "quantity", "rate"],
+              "properties": {
+                "description": { "type": "string" },
+                "hsnCode": { "type": "string" },
+                "quantity": { "type": "number" },
+                "unit": { "type": "string" },
+                "rate": { "type": "number" },
+                "discountPercent": { "type": "number", "default": 0 },
+                "gstRate": { "type": "number", "default": 18 }
+              }
+            }
+          },
+          "notes": { "type": "string" },
+          "dueDate": { "type": "string", "format": "date" }
+        }
+      },
+      "Consent": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "consentType": { "type": "string", "enum": ["essential", "analytics", "marketing", "personalization", "third_party"] },
+          "granted": { "type": "boolean" },
+          "grantedAt": { "type": "string", "format": "date-time" },
+          "withdrawnAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ErasureRequest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending_verification", "verified", "scheduled", "processing", "completed", "partially_completed", "failed"] },
+          "requestedAt": { "type": "string", "format": "date-time" },
+          "completedAt": { "type": "string", "format": "date-time" },
+          "verificationCode": { "type": "string" }
+        }
+      },
+      "Journey": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["draft", "active", "paused", "archived"] },
+          "trigger": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["signup", "purchase", "abandoned_cart", "inactivity", "schedule", "manual"] }
+            }
+          },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateJourneyRequest": {
+        "type": "object",
+        "required": ["name", "trigger"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "trigger": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": { "type": "string", "enum": ["signup", "purchase", "abandoned_cart", "inactivity", "schedule", "manual"] },
+              "conditions": { "type": "array", "items": { "type": "object" } }
+            }
+          },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "Rule": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "trigger": {
+            "type": "object",
+            "properties": {
+              "event": { "type": "string" },
+              "conditions": { "type": "array", "items": { "type": "object" } }
+            }
+          },
+          "action": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["send_offer", "create_po", "update_price", "notify", "webhook", "email", "sms"] },
+              "config": { "type": "object" }
+            }
+          },
+          "enabled": { "type": "boolean" },
+          "priority": { "type": "integer" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateRuleRequest": {
+        "type": "object",
+        "required": ["name", "trigger", "action"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "trigger": { "type": "object" },
+          "action": { "type": "object" },
+          "enabled": { "type": "boolean", "default": true },
+          "priority": { "type": "integer", "default": 5 },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "campaignId": { "type": "string" },
+          "name": { "type": "string" },
+          "channel": { "type": "string", "enum": ["whatsapp", "sms", "email", "push"] },
+          "status": { "type": "string", "enum": ["draft", "scheduled", "sending", "completed", "failed"] },
+          "templateId": { "type": "string" },
+          "segmentId": { "type": "string" },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "total": { "type": "integer" },
+              "sent": { "type": "integer" },
+              "delivered": { "type": "integer" },
+              "opened": { "type": "integer" },
+              "clicked": { "type": "integer" }
+            }
+          },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateCampaignRequest": {
+        "type": "object",
+        "required": ["name", "channel", "templateId", "segmentId"],
+        "properties": {
+          "name": { "type": "string" },
+          "channel": { "type": "string", "enum": ["whatsapp", "sms", "email", "push"] },
+          "templateId": { "type": "string" },
+          "segmentId": { "type": "string" },
+          "scheduledAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Menu": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "storeId": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "inactive", "draft"] },
+          "categories": { "type": "array", "items": { "$ref": "#/components/schemas/Category" } },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "menuId": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "isActive": { "type": "boolean" },
+          "sortOrder": { "type": "integer" }
+        }
+      },
+      "CreateMenuRequest": {
+        "type": "object",
+        "required": ["storeId", "name"],
+        "properties": {
+          "storeId": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "isPublic": { "type": "boolean", "default": true }
+        }
+      },
+      "Cohort": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["acquisition", "retention", "revenue", "engagement"] },
+          "period": { "type": "string", "enum": ["daily", "weekly", "monthly"] },
+          "size": { "type": "integer" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "total": { "type": "integer" },
+          "pages": { "type": "integer" },
+          "hasNext": { "type": "boolean" },
+          "hasPrev": { "type": "boolean" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Health", "description": "Service health endpoints" },
+    { "name": "Authentication", "description": "OTP, PIN, and token authentication" },
+    { "name": "User", "description": "User profile management" },
+    { "name": "Delivery", "description": "Delivery management" },
+    { "name": "Drivers", "description": "Driver management" },
+    { "name": "Analytics", "description": "Analytics and dashboards" },
+    { "name": "KPIs", "description": "Key Performance Indicators" },
+    { "name": "Payment Links", "description": "Payment link management" },
+    { "name": "Refunds", "description": "Refund processing" },
+    { "name": "Invoices", "description": "Invoice generation" },
+    { "name": "GDPR", "description": "GDPR compliance and consent" },
+    { "name": "Journey", "description": "Customer journey automation" },
+    { "name": "Automation", "description": "Rule-based automation" },
+    { "name": "Marketing", "description": "Marketing campaigns" },
+    { "name": "Menu", "description": "Digital menu management" },
+    { "name": "Currency", "description": "Currency conversion" },
+    { "name": "Cohort", "description": "Cohort analytics" },
+    { "name": "Validation", "description": "Input validation" }
+  ]
+}

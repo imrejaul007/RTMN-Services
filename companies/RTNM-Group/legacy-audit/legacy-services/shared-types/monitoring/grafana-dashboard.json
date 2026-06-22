@@ -1,0 +1,57 @@
+{
+  "dashboard": {
+    "title": "REZ Ecosystem Overview",
+    "panels": [
+      {
+        "title": "Service Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job='rez-services'}",
+            "legendFormat": "{{service}}"
+          }
+        ]
+      },
+      {
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{service}} - {{method}}"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_errors_total[5m])",
+            "legendFormat": "{{service}}"
+          }
+        ]
+      },
+      {
+        "title": "Queue Length",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "bullmq_queue_length",
+            "legendFormat": "{{queue}}"
+          }
+        ]
+      },
+      {
+        "title": "DLQ Failed Jobs",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "bullmq_dlq_length",
+            "legendFormat": "{{queue}}"
+          }
+        ]
+      }
+    ]
+  }
+}

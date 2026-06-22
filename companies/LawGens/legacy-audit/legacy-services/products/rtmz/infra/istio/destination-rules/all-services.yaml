@@ -1,0 +1,291 @@
+# DestinationRule for GraphQL Federation Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: graphql-federation-destination
+  namespace: rtmz
+  labels:
+    app: graphql-federation
+spec:
+  host: graphql-federation.rtmz.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 10s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 1000
+        maxRequestsPerConnection: 100
+        maxRetries: 3
+        idleTimeout: 60s
+    loadBalancer:
+      simple: LEAST_CONN
+      consistentHash:
+        minimalLatency: true
+        useSourceIp: false
+    circuitBreaker:
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+    tls:
+      mode: ISTIO_MUTUAL
+      clientCertificate: /etc/istio/certs-cert/tls.crt
+      privateKey: /etc/istio/certs-cert/tls.key
+      caCertificates: /etc/istio/certs-cert/ca.crt
+    portLevelSettings:
+      - port:
+          number: 8080
+        connectionPool:
+          tcp:
+            maxConnections: 200
+          http:
+            h2UpgradePolicy: UPGRADE
+            http1MaxPendingRequests: 200
+            maxRetries: 5
+        loadBalancer:
+          simple: ROUND_ROBIN
+---
+# DestinationRule for AutoML Pipeline Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: automl-pipeline-destination
+  namespace: rtmz
+  labels:
+    app: automl-pipeline
+spec:
+  host: automl-pipeline.rtmz.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 50
+        connectTimeout: 30s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 500
+        maxRequestsPerConnection: 50
+        maxRetries: 3
+        idleTimeout: 300s
+    loadBalancer:
+      simple: LEAST_CONN
+    circuitBreaker:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 50
+      minHealthPercent: 40
+    tls:
+      mode: ISTIO_MUTUAL
+    portLevelSettings:
+      - port:
+          number: 8080
+        connectionPool:
+          tcp:
+            maxConnections: 100
+          http:
+            http2MaxRequests: 200
+            maxRetries: 2
+        circuitBreaker:
+          consecutive5xxErrors: 3
+      - port:
+          number: 9090
+        loadBalancer:
+          simple: RANDOM
+---
+# DestinationRule for Invoice OCR Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: invoice-ocr-destination
+  namespace: rtmz
+  labels:
+    app: invoice-ocr
+spec:
+  host: invoice-ocr.rtmz.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 15s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 500
+        maxRequestsPerConnection: 100
+        maxRetries: 3
+        idleTimeout: 120s
+    loadBalancer:
+      simple: ROUND_ROBIN
+    circuitBreaker:
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+    tls:
+      mode: ISTIO_MUTUAL
+---
+# DestinationRule for Contract Management Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: contract-management-destination
+  namespace: rtmz
+  labels:
+    app: contract-management
+spec:
+  host: contract-management.rtmz.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 20s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 500
+        maxRequestsPerConnection: 100
+        maxRetries: 3
+        idleTimeout: 180s
+    loadBalancer:
+      simple: LEAST_CONN
+      localityLbSetting:
+        enabled: true
+        distribute:
+          - from: region/*
+            to:
+              "region/zone-1/*": 80
+              "region/zone-2/*": 20
+    circuitBreaker:
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+    tls:
+      mode: ISTIO_MUTUAL
+---
+# DestinationRule for Legal Document AI Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: legal-document-ai-destination
+  namespace: rtmz
+  labels:
+    app: legal-document-ai
+spec:
+  host: legal-document-ai.rtmz.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 75
+        connectTimeout: 25s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 75
+        http2MaxRequests: 400
+        maxRequestsPerConnection: 75
+        maxRetries: 3
+        idleTimeout: 240s
+    loadBalancer:
+      simple: LEAST_CONN
+    circuitBreaker:
+      consecutive5xxErrors: 5
+      interval: 15s
+      baseEjectionTime: 45s
+      maxEjectionPercent: 50
+      minHealthPercent: 35
+    tls:
+      mode: ISTIO_MUTUAL
+---
+# DestinationRule for Cosmic Twin Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: cosmic-twin-destination
+  namespace: rtmz
+  labels:
+    app: cosmic-twin
+spec:
+  host: cosmic-twin.rtmz.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 150
+        connectTimeout: 15s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 150
+        http2MaxRequests: 1000
+        maxRequestsPerConnection: 150
+        maxRetries: 3
+        idleTimeout: 90s
+    loadBalancer:
+      simple: LEAST_CONN
+      warmupIntervalSecs: 10
+    circuitBreaker:
+      consecutive5xxErrors: 10
+      interval: 5s
+      baseEjectionTime: 20s
+      maxEjectionPercent: 60
+      minHealthPercent: 20
+    tls:
+      mode: ISTIO_MUTUAL
+    portLevelSettings:
+      - port:
+          number: 8080
+        loadBalancer:
+          simple: ROUND_ROBIN
+      - port:
+          number: 9090
+        connectionPool:
+          http:
+            maxRetries: 1
+        circuitBreaker:
+          consecutive5xxErrors: 20
+---
+# DestinationRule for Ranking Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: ranking-service-destination
+  namespace: rtmz
+  labels:
+    app: ranking-service
+spec:
+  host: ranking-service.rtmz.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 10s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 200
+        http2MaxRequests: 2000
+        maxRequestsPerConnection: 200
+        maxRetries: 3
+        idleTimeout: 60s
+    loadBalancer:
+      simple: LEAST_CONN
+      localityLbSetting:
+        enabled: true
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+    circuitBreaker:
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+    tls:
+      mode: ISTIO_MUTUAL

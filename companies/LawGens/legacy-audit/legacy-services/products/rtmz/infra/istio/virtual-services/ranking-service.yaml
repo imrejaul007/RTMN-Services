@@ -1,0 +1,166 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ranking-service-virtualservice
+  namespace: rtmz
+  labels:
+    app: ranking-service
+spec:
+  hosts:
+    - ranking-service.rtmz.svc.cluster.local
+    - ranking-service
+  http:
+    # Ranking requests (low latency)
+    - name: rank
+      match:
+        - uri:
+            prefix: "/rank"
+        - uri:
+            prefix: "/score"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream
+      timeout: 10s
+
+    # Batch ranking
+    - name: batch-rank
+      match:
+        - uri:
+            prefix: "/batch"
+        - uri:
+            prefix: "/rank/batch"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 2
+        perTryTimeout: 5s
+        retryOn: gateway-error
+      timeout: 60s
+
+    # Feature retrieval for ML models
+    - name: features
+      match:
+        - uri:
+            prefix: "/features"
+        - uri:
+            prefix: "/feature"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 3s
+        retryOn: gateway-error,connect-failure
+      timeout: 30s
+
+    # Model inference
+    - name: infer
+      match:
+        - uri:
+            prefix: "/infer"
+        - uri:
+            prefix: "/predict"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: gateway-error,connect-failure
+      timeout: 30s
+
+    # A/B test assignment
+    - name: assign
+      match:
+        - uri:
+            prefix: "/assign"
+        - uri:
+            prefix: "/experiment"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 2
+        perTryTimeout: 1s
+        retryOn: gateway-error
+      timeout: 5s
+
+    # Personalization
+    - name: personalize
+      match:
+        - uri:
+            prefix: "/personalize"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 4s
+        retryOn: gateway-error,connect-failure
+      timeout: 20s
+
+    # Health and metrics
+    - name: health
+      match:
+        - uri:
+            prefix: "/health"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+
+    - name: metrics
+      match:
+        - uri:
+            prefix: "/metrics"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 9090
+
+    # Traffic mirroring for ranking algorithm testing
+    - name: mirrored-ranking
+      match:
+        - uri:
+            prefix: "/rank/ab"
+      route:
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+            subset: stable
+          weight: 90
+        - destination:
+            host: ranking-service.rtmz.svc.cluster.local
+            port:
+              number: 8080
+            subset: canary
+          weight: 10
+
+  exportTo:
+    - "istio-system"

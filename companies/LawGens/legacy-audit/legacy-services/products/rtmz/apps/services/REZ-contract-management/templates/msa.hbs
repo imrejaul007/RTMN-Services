@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12pt;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      color: #333;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+    }
+    h1 {
+      font-size: 18pt;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      font-size: 14pt;
+      color: #666;
+    }
+    .section {
+      margin-bottom: 25px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 12pt;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .party-info {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-left: 4px solid #333;
+      margin-bottom: 20px;
+    }
+    .terms-list {
+      margin-left: 20px;
+    }
+    .signature-block {
+      margin-top: 60px;
+      page-break-inside: avoid;
+    }
+    .signature-line {
+      border-bottom: 1px solid #333;
+      width: 280px;
+      height: 40px;
+      margin-bottom: 5px;
+    }
+    .date-line {
+      font-size: 10pt;
+      color: #666;
+    }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 10pt;
+      color: #999;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+    .highlight-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>MASTER SERVICE AGREEMENT</h1>
+    <p class="subtitle">MSA Agreement No: {{contractId}}</p>
+  </div>
+
+  <div class="section">
+    <p>This Master Service Agreement ("Agreement") is entered into as of <strong>{{formatDate effectiveDate}}</strong> (the "Effective Date") by and between:</p>
+
+    <div class="party-info">
+      <strong>Service Provider:</strong><br>
+      {{providerName}}<br>
+      {{#if providerAddress}}
+      Address: {{providerAddress}}<br>
+      {{/if}}
+      Email: {{providerEmail}}<br>
+      {{#if providerPhone}}
+      Phone: {{providerPhone}}
+      {{/if}}
+    </div>
+
+    <p>and</p>
+
+    <div class="party-info">
+      <strong>Client:</strong><br>
+      {{clientName}}<br>
+      {{#if clientAddress}}
+      Address: {{clientAddress}}<br>
+      {{/if}}
+      Email: {{clientEmail}}<br>
+      {{#if clientPhone}}
+      Phone: {{clientPhone}}
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">1. Purpose and Scope</div>
+    <p>This Master Service Agreement establishes the terms and conditions under which the Service Provider shall provide services to the Client. Specific services will be detailed in individual Statements of Work ("SOW") executed under this Agreement.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. Services</div>
+    <p>The Service Provider agrees to provide the following services:</p>
+    <ul class="terms-list">
+      <li>Professional consulting and advisory services</li>
+      <li>Project implementation and management</li>
+      <li>Technical development and support</li>
+      <li>Training and documentation</li>
+    </ul>
+    <p>Specific deliverables, timelines, and requirements shall be outlined in each SOW.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">3. Compensation</div>
+    <div class="highlight-box">
+      <p><strong>Payment Terms:</strong> Net {{paymentTermsDays}} days from invoice date</p>
+      <p><strong>Payment Method:</strong> {{paymentMethod}}</p>
+      {{#if lateFeeRate}}
+      <p><strong>Late Fee:</strong> {{lateFeeRate}}% per month on overdue amounts</p>
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">4. Term and Termination</div>
+    <p>This Agreement shall commence on the Effective Date and continue until <strong>{{formatDate endDate}}</strong>, unless terminated earlier in accordance with this section.</p>
+    <p>Either party may terminate this Agreement:</p>
+    <ul class="terms-list">
+      <li>For convenience upon {{noticePeriodDays}} days written notice</li>
+      <li>Immediately upon material breach by the other party, if breach remains uncured for {{curePeriodDays}} days after written notice</li>
+      <li>Immediately if the other party becomes insolvent or files for bankruptcy</li>
+    </ul>
+    {{#if autoRenew}}
+    <p>This Agreement shall automatically renew for successive {{renewalTermMonths}} month periods unless either party provides written notice of non-renewal at least {{noticePeriodDays}} days prior to the end of the current term.</p>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">5. Intellectual Property</div>
+    <p>{{ipOwnershipClause}}</p>
+    <p>All pre-existing intellectual property of either party shall remain the property of that party. The Client shall receive a license to use any pre-existing materials incorporated into deliverables as specified in each SOW.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">6. Confidentiality</div>
+    <p>Each party agrees to maintain the confidentiality of the other party's proprietary information and to use such information only for purposes of performing under this Agreement. This obligation shall survive termination of this Agreement for a period of {{confidentialityPeriodYears}} years.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">7. Limitation of Liability</div>
+    <p>{{liabilityLimitationClause}}</p>
+    <p>In no event shall either party's total liability exceed the greater of {{liabilityCapAmount}} or the total fees paid under this Agreement during the twelve (12) months preceding the claim.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">8. Warranties</div>
+    <p>The Service Provider warrants that:</p>
+    <ul class="terms-list">
+      <li>Services will be performed in a professional and workmanlike manner</li>
+      <li>Deliverables will conform to specifications agreed upon in writing</li>
+      <li>Services and deliverables will not infringe any third-party intellectual property rights</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">9. Insurance</div>
+    <p>The Service Provider shall maintain adequate insurance coverage, including:</p>
+    <ul class="terms-list">
+      <li>Commercial General Liability: {{glCoverageAmount}} minimum</li>
+      <li>Professional Liability: {{plCoverageAmount}} minimum</li>
+      <li>Workers' Compensation as required by law</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">10. Governing Law and Dispute Resolution</div>
+    <p>This Agreement shall be governed by the laws of {{governingLaw}}. Any disputes shall be resolved through {{disputeResolutionMethod}}.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">11. General Provisions</div>
+    <ul class="terms-list">
+      <li><strong>Assignment:</strong> Neither party may assign this Agreement without prior written consent</li>
+      <li><strong>Entire Agreement:</strong> This Agreement constitutes the entire agreement</li>
+      <li><strong>Amendments:</strong> Modifications must be in writing and signed by both parties</li>
+      <li><strong>Severability:</strong> Invalid provisions shall not affect remaining provisions</li>
+      <li><strong>Waiver:</strong> Failure to enforce shall not constitute a waiver</li>
+    </ul>
+  </div>
+
+  <div class="signature-block">
+    <p><strong>IN WITNESS WHEREOF</strong>, the parties have executed this Agreement as of the date first written above.</p>
+
+    <table style="width: 100%; margin-top: 30px;">
+      <tr>
+        <td style="width: 50%; padding-right: 20px;">
+          <strong>SERVICE PROVIDER:</strong><br><br>
+          {{providerName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Authorized Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name & Title</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+        <td style="width: 50%; padding-left: 20px;">
+          <strong>CLIENT:</strong><br><br>
+          {{clientName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Authorized Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name & Title</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Generated on {{generatedDateFormatted}} by REZ Contract Management System</p>
+    <p>Contract ID: {{contractId}}</p>
+  </div>
+</body>
+</html>

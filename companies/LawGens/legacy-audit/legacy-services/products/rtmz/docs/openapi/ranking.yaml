@@ -1,0 +1,1496 @@
+openapi: 3.0.0
+info:
+  title: REZ Ranking Service
+  description: |
+    Ranking and Personalization Service for ML-driven item ranking.
+
+    Features:
+    - ML-driven item ranking with personalization
+    - A/B experiment management
+    - Feature management and computation
+    - Feedback logging and analytics
+    - Batch ranking operations
+  version: 1.0.0
+  contact:
+    name: REZ Intelligence Team
+    email: intelligence@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5006
+    description: Local development server
+  - url: https://api.rez.ai/ranking
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Rank
+    description: Ranking operations
+  - name: Experiments
+    description: A/B experiment management
+  - name: Features
+    description: Feature management
+  - name: Feedback
+    description: Feedback and analytics
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  /api/rank:
+    post:
+      summary: Rank items
+      description: Rank items for a user with personalization
+      operationId: rankItems
+      tags:
+        - Rank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RankRequest'
+            example:
+              userId: "user_abc123"
+              experimentId: "exp_xyz789"
+              context:
+                location: "New York"
+                device: "mobile"
+                timeOfDay: "evening"
+              items:
+                - id: "item_001"
+                  type: "product"
+                  score: 0.8
+                  features:
+                    price: 29.99
+                    rating: 4.5
+                - id: "item_002"
+                  type: "product"
+                  score: 0.6
+                  features:
+                    price: 49.99
+                    rating: 4.2
+              options:
+                limit: 10
+                diversity: 0.3
+                personalization: 0.5
+      responses:
+        '200':
+          description: Ranking result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankResponse'
+              example:
+                success: true
+                data:
+                  userId: "user_abc123"
+                  experimentId: "exp_xyz789"
+                  ranked:
+                    - id: "item_001"
+                      type: "product"
+                      score: 0.95
+                      position: 1
+                      features:
+                        price: 29.99
+                        rating: 4.5
+                    - id: "item_002"
+                      type: "product"
+                      score: 0.85
+                      position: 2
+                      features:
+                        price: 49.99
+                        rating: 4.2
+                  latencyMs: 45
+                meta:
+                  latencyMs: 52
+                  timestamp: "2026-06-02T10:00:00Z"
+
+  /api/rank/batch:
+    post:
+      summary: Batch rank
+      description: Execute multiple ranking requests in batch
+      operationId: batchRank
+      tags:
+        - Rank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requests
+              properties:
+                requests:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/RankRequest'
+                  minItems: 1
+                  maxItems: 50
+      responses:
+        '200':
+          description: Batch ranking results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankResponse'
+                  meta:
+                    type: object
+                    properties:
+                      latencyMs:
+                        type: integer
+                      requestCount:
+                        type: integer
+                      timestamp:
+                        type: string
+                        format: date-time
+
+  /api/rank/{experimentId}/results:
+    get:
+      summary: Get experiment results
+      description: Get ranking results from an experiment
+      operationId: getExperimentResults
+      tags:
+        - Rank
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Experiment results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      experimentId:
+                        type: string
+                      totalRankings:
+                        type: integer
+                      topItems:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            itemId:
+                              type: string
+                            avgPosition:
+                              type: number
+                            impressions:
+                              type: integer
+                      variantPerformance:
+                        type: object
+                        additionalProperties:
+                          type: object
+                          properties:
+                            impressions:
+                              type: integer
+                            ctr:
+                              type: number
+                  meta:
+                    type: object
+
+  /api/experiments:
+    get:
+      summary: List experiments
+      description: Get all A/B experiments
+      operationId: listExperiments
+      tags:
+        - Experiments
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, running, paused, completed]
+      responses:
+        '200':
+          description: List of experiments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentListResponse'
+    post:
+      summary: Create experiment
+      description: Create a new A/B experiment
+      operationId: createExperiment
+      tags:
+        - Experiments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExperimentRequest'
+            example:
+              name: "Product Ranking v2"
+              description: "Test new ranking algorithm"
+              variants:
+                - name: "control"
+                  description: "Current algorithm"
+                  config:
+                    weights:
+                      relevance: 0.6
+                      popularity: 0.3
+                      recency: 0.1
+                    diversityWeight: 0.3
+                    personalizationWeight: 0.5
+                  traffic: 50
+                - name: "treatment"
+                  description: "New algorithm with ML"
+                  config:
+                    weights:
+                      relevance: 0.4
+                      popularity: 0.2
+                      mlScore: 0.4
+                    diversityWeight: 0.4
+                    personalizationWeight: 0.6
+                    modelVersion: "rank_v2.1"
+                  traffic: 50
+              targeting:
+                userSegments:
+                  - "premium"
+                countries:
+                  - "US"
+                  - "UK"
+                platforms:
+                  - "mobile"
+      responses:
+        '201':
+          description: Experiment created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      experimentId:
+                        type: string
+                      name:
+                        type: string
+                      status:
+                        type: string
+                      variants:
+                        type: array
+                      createdAt:
+                        type: string
+                        format: date-time
+
+  /api/experiments/{id}:
+    get:
+      summary: Get experiment
+      description: Get experiment details
+      operationId: getExperiment
+      tags:
+        - Experiments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+        '404':
+          description: Experiment not found
+
+  /api/experiments/{id}/stats:
+    get:
+      summary: Get experiment stats
+      description: Get experiment statistics
+      operationId: getExperimentStats
+      tags:
+        - Experiments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/ExperimentStats'
+
+  /api/experiments/{id}/start:
+    post:
+      summary: Start experiment
+      description: Start an experiment
+      operationId: startExperiment
+      tags:
+        - Experiments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      experimentId:
+                        type: string
+                      status:
+                        type: string
+                      startDate:
+                        type: string
+                        format: date-time
+
+  /api/experiments/{id}/pause:
+    post:
+      summary: Pause experiment
+      description: Pause a running experiment
+      operationId: pauseExperiment
+      tags:
+        - Experiments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment paused
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      experimentId:
+                        type: string
+                      status:
+                        type: string
+
+  /api/experiments/{id}/complete:
+    post:
+      summary: Complete experiment
+      description: Mark experiment as completed
+      operationId: completeExperiment
+      tags:
+        - Experiments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      experimentId:
+                        type: string
+                      status:
+                        type: string
+                      endDate:
+                        type: string
+                        format: date-time
+
+  /api/experiments/{id}/reallocate:
+    post:
+      summary: Reallocate traffic
+      description: Adaptive traffic reallocation based on performance
+      operationId: reallocateTraffic
+      tags:
+        - Experiments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Traffic reallocated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      experimentId:
+                        type: string
+                      variants:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            traffic:
+                              type: number
+                            ctr:
+                              type: number
+
+  /api/features/{entityId}:
+    get:
+      summary: Get entity features
+      description: Get features for an entity
+      operationId: getEntityFeatures
+      tags:
+        - Features
+      parameters:
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            default: "default"
+      responses:
+        '200':
+          description: Entity features
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityFeatures'
+        '404':
+          description: Features not found
+    post:
+      summary: Update features
+      description: Update features for an entity
+      operationId: updateFeatures
+      tags:
+        - Features
+      parameters:
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeaturesRequest'
+      responses:
+        '200':
+          description: Features updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/EntityFeatures'
+
+  /api/features/batch:
+    post:
+      summary: Bulk update features
+      description: Update features for multiple entities
+      operationId: bulkUpdateFeatures
+      tags:
+        - Features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - updates
+              properties:
+                updates:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UpdateFeaturesRequest'
+                  minItems: 1
+                  maxItems: 1000
+      responses:
+        '200':
+          description: Bulk update completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      updatedCount:
+                        type: integer
+
+  /api/features/{entityId}/trending:
+    get:
+      summary: Get trending score
+      description: Get trending score for an entity
+      operationId: getTrendingScore
+      tags:
+        - Features
+      parameters:
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            default: "default"
+      responses:
+        '200':
+          description: Trending score
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      entityId:
+                        type: string
+                      entityType:
+                        type: string
+                      trendScore:
+                        type: number
+                      timestamp:
+                        type: string
+                        format: date-time
+
+  /api/features/compute:
+    post:
+      summary: Compute features
+      description: Compute features for multiple items
+      operationId: computeFeatures
+      tags:
+        - Features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - items
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      entityId:
+                        type: string
+                      entityType:
+                        type: string
+      responses:
+        '200':
+          description: Computed features
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EntityFeatures'
+                  meta:
+                    type: object
+                    properties:
+                      requested:
+                        type: integer
+                      found:
+                        type: integer
+                      timestamp:
+                        type: string
+                        format: date-time
+
+  /api/rank/feedback:
+    post:
+      summary: Log feedback
+      description: Log click/conversion feedback
+      operationId: logFeedback
+      tags:
+        - Feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackInput'
+            example:
+              userId: "user_abc123"
+              itemId: "item_001"
+              itemType: "product"
+              eventType: "click"
+              experimentId: "exp_xyz789"
+              variantId: "var_001"
+              position: 3
+              score: 0.8
+              context:
+                location: "New York"
+                device: "mobile"
+                sessionId: "sess_123"
+      responses:
+        '201':
+          description: Feedback logged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      feedbackId:
+                        type: string
+                      timestamp:
+                        type: string
+                        format: date-time
+
+  /api/rank/feedback/batch:
+    post:
+      summary: Batch feedback
+      description: Log batch feedback
+      operationId: logBatchFeedback
+      tags:
+        - Feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - feedback
+              properties:
+                feedback:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FeedbackInput'
+                  minItems: 1
+                  maxItems: 100
+      responses:
+        '201':
+          description: Batch feedback logged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                      feedbackIds:
+                        type: array
+                        items:
+                          type: string
+
+  /api/feedback/user/{userId}:
+    get:
+      summary: Get user feedback
+      description: Get feedback for a user
+      operationId: getUserFeedback
+      tags:
+        - Feedback
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: itemType
+          in: query
+          schema:
+            type: string
+        - name: eventType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: User feedback
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feedback'
+                  meta:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                      timestamp:
+                        type: string
+                        format: date-time
+
+  /api/feedback/item/{itemId}:
+    get:
+      summary: Get item feedback
+      description: Get feedback for an item
+      operationId: getItemFeedback
+      tags:
+        - Feedback
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: eventType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: Item feedback
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feedback'
+                  meta:
+                    type: object
+
+  /api/feedback/item/{itemId}/stats:
+    get:
+      summary: Get item stats
+      description: Get statistics for an item
+      operationId: getItemStats
+      tags:
+        - Feedback
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  /api/feedback/item/{itemId}/positions:
+    get:
+      summary: Get click positions
+      description: Get click position distribution for an item
+      operationId: getClickPositions
+      tags:
+        - Feedback
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Click positions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      itemId:
+                        type: string
+                      positions:
+                        type: array
+                        items:
+                          type: integer
+                      count:
+                        type: integer
+                      avgPosition:
+                        type: number
+
+  /api/feedback/activity:
+    get:
+      summary: Get activity
+      description: Get recent feedback activity
+      operationId: getActivity
+      tags:
+        - Feedback
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: eventTypes
+          in: query
+          schema:
+            type: string
+          description: Comma-separated event types
+      responses:
+        '200':
+          description: Activity data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Feedback'
+                  meta:
+                    type: object
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RankItem:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+        features:
+          type: object
+          additionalProperties:
+            type: number
+
+    RankRequest:
+      type: object
+      required:
+        - userId
+        - items
+      properties:
+        userId:
+          type: string
+        experimentId:
+          type: string
+        context:
+          type: object
+          properties:
+            location:
+              type: string
+            device:
+              type: string
+            timeOfDay:
+              type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RankItem'
+          minItems: 1
+        options:
+          type: object
+          properties:
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+              default: 20
+            diversity:
+              type: number
+              minimum: 0
+              maximum: 1
+              default: 0.3
+            personalization:
+              type: number
+              minimum: 0
+              maximum: 1
+              default: 0.5
+
+    RankedItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        score:
+          type: number
+        position:
+          type: integer
+        features:
+          type: object
+          additionalProperties:
+            type: number
+
+    RankResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            experimentId:
+              type: string
+            ranked:
+              type: array
+              items:
+                $ref: '#/components/schemas/RankedItem'
+            latencyMs:
+              type: integer
+        meta:
+          type: object
+          properties:
+            latencyMs:
+              type: integer
+            timestamp:
+              type: string
+              format: date-time
+
+    VariantConfig:
+      type: object
+      properties:
+        weights:
+          type: object
+          additionalProperties:
+            type: number
+        diversityWeight:
+          type: number
+          minimum: 0
+          maximum: 1
+        personalizationWeight:
+          type: number
+          minimum: 0
+          maximum: 1
+        modelVersion:
+          type: string
+
+    Variant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        config:
+          $ref: '#/components/schemas/VariantConfig'
+        traffic:
+          type: number
+          minimum: 0
+          maximum: 100
+        metrics:
+          type: object
+          properties:
+            impressions:
+              type: integer
+            clicks:
+              type: integer
+            conversions:
+              type: integer
+
+    Experiment:
+      type: object
+      properties:
+        experimentId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [draft, running, paused, completed]
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variant'
+        targeting:
+          type: object
+          properties:
+            userSegments:
+              type: array
+              items:
+                type: string
+            countries:
+              type: array
+              items:
+                type: string
+            platforms:
+              type: array
+              items:
+                type: string
+            minImpressions:
+              type: integer
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateExperimentRequest:
+      type: object
+      required:
+        - name
+        - variants
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              config:
+                $ref: '#/components/schemas/VariantConfig'
+              traffic:
+                type: number
+                minimum: 0
+                maximum: 100
+          minItems: 2
+          maxItems: 10
+        targeting:
+          type: object
+          properties:
+            userSegments:
+              type: array
+              items:
+                type: string
+            countries:
+              type: array
+              items:
+                type: string
+            platforms:
+              type: array
+              items:
+                type: string
+            minImpressions:
+              type: integer
+
+    ExperimentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              experimentId:
+                type: string
+              name:
+                type: string
+              status:
+                type: string
+              variantCount:
+                type: integer
+              totalImpressions:
+                type: integer
+              totalClicks:
+                type: integer
+              startDate:
+                type: string
+                format: date-time
+              createdAt:
+                type: string
+                format: date-time
+        meta:
+          type: object
+          properties:
+            count:
+              type: integer
+            timestamp:
+              type: string
+              format: date-time
+
+    ExperimentStats:
+      type: object
+      properties:
+        experimentId:
+          type: string
+        totalImpressions:
+          type: integer
+        totalClicks:
+          type: integer
+        overallCTR:
+          type: number
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              impressions:
+                type: integer
+              clicks:
+                type: integer
+              ctr:
+                type: number
+              conversionRate:
+                type: number
+
+    EntityFeatures:
+      type: object
+      properties:
+        entityId:
+          type: string
+        entityType:
+          type: string
+        relevance:
+          type: object
+          properties:
+            textMatch:
+              type: number
+            semanticScore:
+              type: number
+            categoryMatch:
+              type: number
+        popularity:
+          type: object
+          properties:
+            views:
+              type: integer
+            clicks:
+              type: integer
+            purchases:
+              type: integer
+            ratings:
+              type: number
+            avgRating:
+              type: number
+        recency:
+          type: object
+          properties:
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+            hoursSinceUpdate:
+              type: number
+        quality:
+          type: object
+          properties:
+            avgRating:
+              type: number
+            reviewCount:
+              type: integer
+            qaCount:
+              type: integer
+            completionRate:
+              type: number
+        location:
+          type: object
+          properties:
+            country:
+              type: string
+            region:
+              type: string
+            city:
+              type: string
+            distance:
+              type: number
+        personalization:
+          type: object
+          properties:
+            userAffinity:
+              type: number
+            viewCount:
+              type: integer
+            purchaseCount:
+              type: integer
+            avgPosition:
+              type: number
+        trending:
+          type: object
+          properties:
+            velocity:
+              type: number
+            trendScore:
+              type: number
+            spikeCount:
+              type: integer
+        custom:
+          type: object
+          additionalProperties:
+            type: number
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdateFeaturesRequest:
+      type: object
+      required:
+        - entityId
+        - entityType
+        - features
+      properties:
+        entityId:
+          type: string
+        entityType:
+          type: string
+        features:
+          type: object
+          required:
+            - relevance
+          properties:
+            relevance:
+              type: object
+            popularity:
+              type: object
+            recency:
+              type: object
+            quality:
+              type: object
+            location:
+              type: object
+            personalization:
+              type: object
+            trending:
+              type: object
+            custom:
+              type: object
+
+    FeedbackInput:
+      type: object
+      required:
+        - userId
+        - itemId
+        - itemType
+        - eventType
+      properties:
+        userId:
+          type: string
+        itemId:
+          type: string
+        itemType:
+          type: string
+        eventType:
+          type: string
+          enum: [impression, click, view, conversion, purchase, dismiss]
+        experimentId:
+          type: string
+        variantId:
+          type: string
+        position:
+          type: integer
+          minimum: 0
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+        context:
+          type: object
+          properties:
+            location:
+              type: string
+            device:
+              type: string
+            timeOfDay:
+              type: string
+            sessionId:
+              type: string
+            referrer:
+              type: string
+        metadata:
+          type: object
+          properties:
+            duration:
+              type: number
+            scrollDepth:
+              type: number
+            revenue:
+              type: number
+            quantity:
+              type: integer
+            rating:
+              type: number
+
+    Feedback:
+      type: object
+      properties:
+        feedbackId:
+          type: string
+        userId:
+          type: string
+        itemId:
+          type: string
+        itemType:
+          type: string
+        eventType:
+          type: string
+        experimentId:
+          type: string
+        variantId:
+          type: string
+        position:
+          type: integer
+        score:
+          type: number
+        context:
+          type: object
+        metadata:
+          type: object
+        timestamp:
+          type: string
+          format: date-time

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: rez-feedback-service
+    env: node
+    region: mumbai
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: EVENT_PLATFORM_URL
+        value: https://rez-event-platform.onrender.com

@@ -1,0 +1,124 @@
+# LawGens - Docker Compose for Development & Production
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: lawgens-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: lawgens
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - lawgens-network
+
+  # Redis Cache (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: lawgens-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - lawgens-network
+
+  # Elasticsearch (optional - for legal search)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: lawgens-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - lawgens-network
+
+  # Contract OS Service
+  contract-os:
+    build:
+      context: .
+      dockerfile: Dockerfile.contract-os
+    container_name: lawgens-contract-os
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4190
+      MONGODB_URI: mongodb://mongodb:27017/contract-os
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX: 100
+      LOG_LEVEL: info
+    depends_on:
+      - mongodb
+      - redis
+    ports:
+      - "4190:4190"
+    networks:
+      - lawgens-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lawgens-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5099
+      MONGODB_URI: mongodb://mongodb:27017/lawgens
+      REDIS_HOST: redis
+      ELASTICSEARCH_NODE: http://elasticsearch:9200
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      HOJAI_GATEWAY_URL: ${HOJAI_GATEWAY_URL:-http://host.docker.internal:4500}
+    depends_on:
+      - mongodb
+      - redis
+      - elasticsearch
+    ports:
+      - "5099:5099"
+    networks:
+      - lawgens-network
+
+  # LawGens Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: lawgens-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://api-gateway:5099
+      NEXT_PUBLIC_INTEGRATION_URL: http://api-gateway:5098
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api-gateway
+    networks:
+      - lawgens-network
+
+volumes:
+  mongodb_data:
+  redis_data:
+  elasticsearch_data:
+
+networks:
+  lawgens-network:
+    driver: bridge

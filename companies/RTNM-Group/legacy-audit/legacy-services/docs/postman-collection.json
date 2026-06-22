@@ -1,0 +1,1124 @@
+{
+  "info": {
+    "name": "RTNM-Group API Collection",
+    "description": "Complete API testing collection for RTNM-Group services including Identity, Access Control, Capital, BNPL, and Payment Links",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3003",
+      "type": "string"
+    },
+    {
+      "key": "identityServiceUrl",
+      "value": "http://localhost:3003",
+      "type": "string"
+    },
+    {
+      "key": "accessControlUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "capitalServiceUrl",
+      "value": "http://localhost:3005",
+      "type": "string"
+    },
+    {
+      "key": "bnplServiceUrl",
+      "value": "http://localhost:3080",
+      "type": "string"
+    },
+    {
+      "key": "paymentLinksUrl",
+      "value": "http://localhost:4018",
+      "type": "string"
+    },
+    {
+      "key": "opsDashboardUrl",
+      "value": "http://localhost:4032",
+      "type": "string"
+    },
+    {
+      "key": "internalToken",
+      "value": "test-internal-token",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "admin-token",
+      "type": "string"
+    },
+    {
+      "key": "merchantId",
+      "value": "merchant_123",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "user_123",
+      "type": "string"
+    },
+    {
+      "key": "clusterId",
+      "value": "cluster_123",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "{{internalToken}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "X-Internal-Token",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Identity Service Health",
+          "request": {
+            "method": "GET",
+            "url": "{{identityServiceUrl}}/health",
+            "header": []
+          }
+        },
+        {
+          "name": "Access Control Service Health",
+          "request": {
+            "method": "GET",
+            "url": "{{accessControlUrl}}/health",
+            "header": []
+          }
+        },
+        {
+          "name": "Capital Service Health",
+          "request": {
+            "method": "GET",
+            "url": "{{capitalServiceUrl}}/health",
+            "header": []
+          }
+        },
+        {
+          "name": "BNPL Service Health",
+          "request": {
+            "method": "GET",
+            "url": "{{bnplServiceUrl}}/health",
+            "header": []
+          }
+        },
+        {
+          "name": "Payment Links Health",
+          "request": {
+            "method": "GET",
+            "url": "{{paymentLinksUrl}}/health",
+            "header": []
+          }
+        },
+        {
+          "name": "Ops Dashboard Health",
+          "request": {
+            "method": "GET",
+            "url": "{{opsDashboardUrl}}/health",
+            "header": [
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Identity Service",
+      "item": [
+        {
+          "name": "Create Identity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Identity created successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data.identityId).to.be.a('string');",
+                  "    pm.collectionVariables.set('identityId', jsonData.data.identityId);",
+                  "    pm.collectionVariables.set('clusterId', jsonData.data.clusterId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"type\": \"app_user\",\n    \"identifier\": \"test@example.com\",\n    \"metadata\": {\n        \"source\": \"web\",\n        \"platform\": \"ios\",\n        \"appVersion\": \"1.0.0\"\n    },\n    \"privacySettings\": {\n        \"trackingEnabled\": true,\n        \"marketingConsent\": false,\n        \"analyticsConsent\": true\n    }\n}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity"]
+            }
+          }
+        },
+        {
+          "name": "Get Identity by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity/{{identityId}}",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity", "{{identityId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Identity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"metadata\": {\n        \"source\": \"web\",\n        \"platform\": \"android\",\n        \"appVersion\": \"2.0.0\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity/{{identityId}}",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity", "{{identityId}}"]
+            }
+          }
+        },
+        {
+          "name": "Resolve Identity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"type\": \"email\",\n    \"identifier\": \"test@example.com\",\n    \"includeProfile\": true\n}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/resolve",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "resolve"]
+            }
+          }
+        },
+        {
+          "name": "Link Identities",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sourceIdentityId\": \"{{identityId}}\",\n    \"targetIdentityId\": \"identity_target_123\",\n    \"linkType\": \"phone_link\",\n    \"confidence\": 1.0\n}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/link",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "link"]
+            }
+          }
+        },
+        {
+          "name": "Get Trust Score",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity/trust/{{clusterId}}",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity", "trust", "{{clusterId}}"]
+            }
+          }
+        },
+        {
+          "name": "Calculate Trust Score",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"clusterId\": \"{{clusterId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity/trust/calculate",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity", "trust", "calculate"]
+            }
+          }
+        },
+        {
+          "name": "Fraud Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"clusterId\": \"{{clusterId}}\",\n    \"indicators\": {\n        \"deviceFingerprint\": \"fp_123\",\n        \"ipAddress\": \"192.168.1.1\",\n        \"userAgent\": \"Mozilla/5.0\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity/fraud/check",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity", "fraud", "check"]
+            }
+          }
+        },
+        {
+          "name": "Search Identities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity/search?query=test&limit=10",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "test"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Identity (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identity/{{identityId}}",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identity", "{{identityId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Access Control",
+      "item": [
+        {
+          "name": "Check Access Permission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"user_123\",\n    \"resource\": \"documents\",\n    \"action\": \"read\",\n    \"attributes\": {\n        \"owner\": \"user_123\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/access/check",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "access", "check"]
+            }
+          }
+        },
+        {
+          "name": "Get User Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/users/{{userId}}/permissions",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "users", "{{userId}}", "permissions"]
+            }
+          }
+        },
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/roles",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "roles"]
+            }
+          }
+        },
+        {
+          "name": "Get Role by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/roles/admin",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "roles", "admin"]
+            }
+          }
+        },
+        {
+          "name": "Get All Policies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/policies",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "policies"]
+            }
+          }
+        },
+        {
+          "name": "Create Policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"AllowReadDocuments\",\n    \"effect\": \"allow\",\n    \"priority\": 100,\n    \"conditions\": [\n        {\n            \"attribute\": \"action\",\n            \"operator\": \"eq\",\n            \"value\": \"read\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/policies",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "policies"]
+            }
+          }
+        },
+        {
+          "name": "Query Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/audit/logs?limit=50",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "audit", "logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01T00:00:00Z"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Resource Attributes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{accessControlUrl}}/api/v1/resources/resource_123/attributes",
+              "host": ["{{accessControlUrl}}"],
+              "path": ["api", "v1", "resources", "resource_123", "attributes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Capital Service",
+      "item": [
+        {
+          "name": "Get Credit Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/credit/{{merchantId}}",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "credit", "{{merchantId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Credit Score",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/credit/{{merchantId}}/score",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "credit", "{{merchantId}}", "score"]
+            }
+          }
+        },
+        {
+          "name": "Get Credit Limit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/credit/{{merchantId}}/limit",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "credit", "{{merchantId}}", "limit"]
+            }
+          }
+        },
+        {
+          "name": "Update Merchant Metrics",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"monthlyRevenue\": 150000,\n    \"orderCount\": 450,\n    \"avgOrderValue\": 333,\n    \"onTimePayments\": 48,\n    \"latePayments\": 2,\n    \"defaults\": 0\n}"
+            },
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/credit/{{merchantId}}/metrics",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "credit", "{{merchantId}}", "metrics"]
+            }
+          }
+        },
+        {
+          "name": "Apply for Loan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"merchantId\": \"{{merchantId}}\",\n    \"amount\": 100000,\n    \"type\": \"revenue_advance\",\n    \"purpose\": \"Inventory purchase\"\n}"
+            },
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/loans/apply",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "loans", "apply"]
+            }
+          }
+        },
+        {
+          "name": "Get Loan Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/loans/loan_123",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "loans", "loan_123"]
+            }
+          }
+        },
+        {
+          "name": "Approve Loan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"approvedAmount\": 100000,\n    \"interestRate\": 15,\n    \"tenure\": 90,\n    \"notes\": \"Approved based on credit history\"\n}"
+            },
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/loans/loan_123/approve",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "loans", "loan_123", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Disburse Loan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"partnerId\": \"capital_float\"\n}"
+            },
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/loans/loan_123/disburse",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "loans", "loan_123", "disburse"]
+            }
+          }
+        },
+        {
+          "name": "Process Repayment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"loanId\": \"loan_123\",\n    \"amount\": 8500,\n    \"paymentMethod\": \"bank_transfer\"\n}"
+            },
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/repayments/process",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "repayments", "process"]
+            }
+          }
+        },
+        {
+          "name": "Get Merchant Loans",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{capitalServiceUrl}}/api/loans/merchant/{{merchantId}}",
+              "host": ["{{capitalServiceUrl}}"],
+              "path": ["api", "loans", "merchant", "{{merchantId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "BNPL Service",
+      "item": [
+        {
+          "name": "Calculate EMI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 30000,\n    \"tenure\": 6\n}"
+            },
+            "url": {
+              "raw": "{{bnplServiceUrl}}/api/bnpl/calculate",
+              "host": ["{{bnplServiceUrl}}"],
+              "path": ["api", "bnpl", "calculate"]
+            }
+          }
+        },
+        {
+          "name": "Create BNPL Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"{{userId}}\",\n    \"merchantId\": \"{{merchantId}}\",\n    \"orderId\": \"order_456\",\n    \"amount\": 30000,\n    \"tenure\": 6,\n    \"downPayment\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{bnplServiceUrl}}/api/bnpl/create-order",
+              "host": ["{{bnplServiceUrl}}"],
+              "path": ["api", "bnpl", "create-order"]
+            }
+          }
+        },
+        {
+          "name": "Get BNPL Order Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{bnplServiceUrl}}/api/bnpl/order/bnpl_order_123",
+              "host": ["{{bnplServiceUrl}}"],
+              "path": ["api", "bnpl", "order", "bnpl_order_123"]
+            }
+          }
+        },
+        {
+          "name": "Make Repayment (Idempotent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Idempotency-Key",
+                "value": "repay-123"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"applicationId\": \"bnpl_order_123\",\n    \"emiNumber\": 1\n}"
+            },
+            "url": {
+              "raw": "{{bnplServiceUrl}}/api/bnpl/repay",
+              "host": ["{{bnplServiceUrl}}"],
+              "path": ["api", "bnpl", "repay"]
+            }
+          }
+        },
+        {
+          "name": "EMI Calculation - 3 Months",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 15000,\n    \"tenure\": 3\n}"
+            },
+            "url": {
+              "raw": "{{bnplServiceUrl}}/api/bnpl/calculate",
+              "host": ["{{bnplServiceUrl}}"],
+              "path": ["api", "bnpl", "calculate"]
+            }
+          }
+        },
+        {
+          "name": "EMI Calculation - 12 Months",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 50000,\n    \"tenure\": 12\n}"
+            },
+            "url": {
+              "raw": "{{bnplServiceUrl}}/api/bnpl/calculate",
+              "host": ["{{bnplServiceUrl}}"],
+              "path": ["api", "bnpl", "calculate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Links",
+      "item": [
+        {
+          "name": "Create Payment Link",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Payment link created', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.be.a('string');",
+                  "    pm.expect(jsonData.shortUrl).to.be.a('string');",
+                  "    pm.collectionVariables.set('linkId', jsonData.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 999,\n    \"description\": \"Test Payment\",\n    \"customerEmail\": \"customer@example.com\",\n    \"customerPhone\": \"9876543210\",\n    \"expiryDate\": \"2026-12-31T23:59:59Z\",\n    \"metadata\": {\n        \"orderId\": \"ORD-123\"\n    },\n    \"singleUse\": false\n}"
+            },
+            "url": {
+              "raw": "{{paymentLinksUrl}}/api/v1/links",
+              "host": ["{{paymentLinksUrl}}"],
+              "path": ["api", "v1", "links"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Link Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{paymentLinksUrl}}/api/v1/links/{{linkId}}/status",
+              "host": ["{{paymentLinksUrl}}"],
+              "path": ["api", "v1", "links", "{{linkId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get QR Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{paymentLinksUrl}}/api/v1/links/{{linkId}}/qrcode",
+              "host": ["{{paymentLinksUrl}}"],
+              "path": ["api", "v1", "links", "{{linkId}}", "qrcode"]
+            }
+          }
+        },
+        {
+          "name": "Get Short URL Redirect",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{paymentLinksUrl}}/l/abc123",
+              "host": ["{{paymentLinksUrl}}"],
+              "path": ["l", "abc123"]
+            }
+          }
+        },
+        {
+          "name": "Share Payment Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"linkId\": \"{{linkId}}\",\n    \"channel\": \"whatsapp\",\n    \"phone\": \"919876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{paymentLinksUrl}}/api/v1/links/{{linkId}}/share",
+              "host": ["{{paymentLinksUrl}}"],
+              "path": ["api", "v1", "links", "{{linkId}}", "share"]
+            }
+          }
+        },
+        {
+          "name": "Refund Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Internal-Token",
+                "value": "{{internalToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"linkId\": \"{{linkId}}\",\n    \"amount\": 500,\n    \"reason\": \"Customer request\"\n}"
+            },
+            "url": {
+              "raw": "{{paymentLinksUrl}}/api/v1/links/{{linkId}}/refund",
+              "host": ["{{paymentLinksUrl}}"],
+              "path": ["api", "v1", "links", "{{linkId}}", "refund"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ops Dashboard",
+      "item": [
+        {
+          "name": "Get Feature Flags",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{opsDashboardUrl}}/flags",
+              "host": ["{{opsDashboardUrl}}"],
+              "path": ["flags"]
+            }
+          }
+        },
+        {
+          "name": "Get Quick Actions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{opsDashboardUrl}}/quick-actions",
+              "host": ["{{opsDashboardUrl}}"],
+              "path": ["quick-actions"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Feature Flag",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{opsDashboardUrl}}/flags/learning_enabled/toggle",
+              "host": ["{{opsDashboardUrl}}"],
+              "path": ["flags", "learning_enabled", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Get Health Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin-Token",
+                "value": "{{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{opsDashboardUrl}}/health/status",
+              "host": ["{{opsDashboardUrl}}"],
+              "path": ["health", "status"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

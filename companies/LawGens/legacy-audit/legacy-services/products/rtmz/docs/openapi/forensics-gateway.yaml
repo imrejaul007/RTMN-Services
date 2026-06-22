@@ -1,0 +1,885 @@
+openapi: 3.0.0
+info:
+  title: REZ Forensics Gateway
+  description: |
+    Unified forensics orchestration service for RTMZ platform.
+
+    Connects 8 forensics MCPs:
+    - Evidence Ingestion (3120)
+    - Deepfake Detection (3121)
+    - Chain of Custody (3122)
+    - Digital Forensics (3123)
+    - Social Intelligence (3130)
+    - Financial Forensics (3131)
+    - Location Intelligence (3132)
+    - Expert Reports (3133)
+
+    Features:
+    - Cross-MCP investigation workflows
+    - Expert witness report generation
+    - Chain of custody management
+    - Multi-source evidence correlation
+  version: 1.0.0
+  contact:
+    name: REZ Platform Team
+    email: platform@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5100
+    description: Local development
+  - url: https://api.rez.ai/forensics
+    description: Production
+
+security:
+  - bearerAuth: []
+  - tenantId: []
+
+tags:
+  - name: Investigation
+    description: Investigation management
+  - name: Evidence
+    description: Evidence ingestion and verification
+  - name: Deepfake
+    description: AI content detection
+  - name: Custody
+    description: Chain of custody operations
+  - name: Financial
+    description: Financial forensics
+  - name: Social
+    description: OSINT and social intelligence
+  - name: Location
+    description: Location intelligence
+  - name: Reports
+    description: Expert report generation
+  - name: Health
+    description: Service health
+
+paths:
+  # Investigation endpoints
+  /api/investigation:
+    post:
+      summary: Start investigation
+      description: Start a new cross-MCP investigation
+      operationId: startInvestigation
+      tags:
+        - Investigation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvestigationRequest'
+            example:
+              title: "Fraud Investigation Case 001"
+              query: "investigate john.doe@email.com"
+              type: "full"
+              priority: "high"
+              mcpServices: ["evidence", "financial", "social"]
+      responses:
+        '201':
+          description: Investigation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvestigationResponse'
+        '400':
+          description: Invalid request
+
+  /api/investigations:
+    get:
+      summary: List investigations
+      description: Get paginated list of investigations
+      operationId: listInvestigations
+      tags:
+        - Investigation
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, failed]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [evidence, deepfake, osint, financial, location, full]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of investigations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvestigations'
+
+  /api/investigation/{id}:
+    get:
+      summary: Get investigation
+      description: Get investigation by ID
+      operationId: getInvestigation
+      tags:
+        - Investigation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Investigation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Investigation'
+        '404':
+          description: Investigation not found
+
+  # Evidence endpoints
+  /api/evidence:
+    post:
+      summary: Ingest evidence
+      description: Ingest new evidence into the system
+      operationId: ingestEvidence
+      tags:
+        - Evidence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceRequest'
+      responses:
+        '201':
+          description: Evidence ingested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Evidence'
+        '400':
+          description: Invalid evidence data
+
+  /api/evidence/{id}:
+    get:
+      summary: Get evidence
+      description: Get evidence by ID
+      operationId: getEvidence
+      tags:
+        - Evidence
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Evidence details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Evidence'
+
+  /api/evidence/verify:
+    post:
+      summary: Verify evidence
+      description: Verify evidence by SHA256 hash
+      operationId: verifyEvidence
+      tags:
+        - Evidence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hash]
+              properties:
+                hash:
+                  type: string
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceVerification'
+
+  # Deepfake endpoints
+  /api/deepfake/analyze:
+    post:
+      summary: Analyze for deepfake
+      description: Analyze media for AI-generated content
+      operationId: analyzeDeepfake
+      tags:
+        - Deepfake
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeepfakeAnalysisRequest'
+      responses:
+        '200':
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeepfakeAnalysis'
+
+  # Chain of Custody endpoints
+  /api/custody/chain:
+    post:
+      summary: Create custody chain
+      description: Create a new chain of custody for evidence
+      operationId: createCustodyChain
+      tags:
+        - Custody
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [evidenceId]
+              properties:
+                evidenceId:
+                  type: string
+      responses:
+        '201':
+          description: Chain created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustodyChain'
+
+  /api/custody/chain/{evidenceId}:
+    get:
+      summary: Get custody chain
+      description: Get chain of custody for evidence
+      operationId: getCustodyChain
+      tags:
+        - Custody
+      parameters:
+        - name: evidenceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Custody chain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustodyChain'
+
+  /api/custody/transfer:
+    post:
+      summary: Transfer custody
+      description: Transfer evidence custody to another custodian
+      operationId: transferCustody
+      tags:
+        - Custody
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustodyTransferRequest'
+      responses:
+        '201':
+          description: Transfer completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustodyTransfer'
+
+  # Financial endpoints
+  /api/financial/analyze:
+    post:
+      summary: Analyze financials
+      description: Analyze financial data for anomalies
+      operationId: analyzeFinancial
+      tags:
+        - Financial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinancialAnalysisRequest'
+      responses:
+        '200':
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialAnalysis'
+
+  # Social/OSINT endpoints
+  /api/social/profile:
+    post:
+      summary: Lookup social profile
+      description: Look up a social media profile via OSINT
+      operationId: lookupSocialProfile
+      tags:
+        - Social
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier]
+              properties:
+                identifier:
+                  type: string
+                  description: Email, phone, or username
+                platform:
+                  type: string
+                  enum: [twitter, linkedin, facebook, instagram, github]
+      responses:
+        '200':
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProfile'
+
+  /api/social/connections:
+    post:
+      summary: Analyze connections
+      description: Analyze social connections for an identifier
+      operationId: analyzeConnections
+      tags:
+        - Social
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier]
+              properties:
+                identifier:
+                  type: string
+      responses:
+        '200':
+          description: Connection analysis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SocialConnection'
+
+  # Location endpoints
+  /api/location/lookup:
+    post:
+      summary: Lookup location
+      description: Lookup location from various identifiers
+      operationId: lookupLocation
+      tags:
+        - Location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+      responses:
+        '200':
+          description: Location data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationData'
+
+  # Report endpoints
+  /api/report/generate:
+    post:
+      summary: Generate report
+      description: Generate expert witness report
+      operationId: generateReport
+      tags:
+        - Reports
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [investigationId, type]
+              properties:
+                investigationId:
+                  type: string
+                type:
+                  type: string
+                  enum: [preliminary, interim, final, supplementary]
+                format:
+                  type: string
+                  enum: [pdf, html, docx]
+                  default: pdf
+      responses:
+        '201':
+          description: Report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+
+  # Tools endpoint
+  /api/tools:
+    get:
+      summary: List forensics tools
+      description: List all available forensics MCP tools
+      operationId: listForensicsTools
+      tags:
+        - Investigation
+      responses:
+        '200':
+          description: List of tools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tools:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ForensicsTool'
+
+  # Health endpoint
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    tenantId:
+      type: apiKey
+      in: header
+      name: X-Tenant-ID
+
+  schemas:
+    InvestigationRequest:
+      type: object
+      required: [title, query, type]
+      properties:
+        title:
+          type: string
+        query:
+          type: string
+          description: Search query (email, phone, IP, hash, etc.)
+        type:
+          type: string
+          enum: [evidence, deepfake, osint, financial, location, full]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+          default: medium
+        mcpServices:
+          type: array
+          items:
+            type: string
+          description: Specific MCPs to use
+
+    Investigation:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        priority:
+          type: string
+        query:
+          type: string
+        results:
+          type: object
+        mcpResults:
+          type: object
+        reportId:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    InvestigationResponse:
+      type: object
+      properties:
+        investigationId:
+          type: string
+        status:
+          type: string
+        results:
+          type: object
+
+    PaginatedInvestigations:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Investigation'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        hasMore:
+          type: boolean
+
+    EvidenceRequest:
+      type: object
+      required: [type, filename, fileData, source]
+      properties:
+        type:
+          type: string
+          enum: [whatsapp, email, cctv, document, image, video, audio, other]
+        filename:
+          type: string
+        fileData:
+          type: string
+          description: Base64 encoded file data
+        source:
+          type: string
+        metadata:
+          type: object
+        investigationId:
+          type: string
+
+    Evidence:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        filename:
+          type: string
+        fileSize:
+          type: integer
+        mimeType:
+          type: string
+        sha256Hash:
+          type: string
+        metadata:
+          type: object
+        source:
+          type: string
+        importedBy:
+          type: string
+        investigationId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    EvidenceVerification:
+      type: object
+      properties:
+        verified:
+          type: boolean
+        evidence:
+          $ref: '#/components/schemas/Evidence'
+        message:
+          type: string
+
+    DeepfakeAnalysisRequest:
+      type: object
+      required: [fileId, fileType]
+      properties:
+        fileId:
+          type: string
+        fileType:
+          type: string
+          enum: [image, video, audio]
+        analysisType:
+          type: string
+          enum: [image, video, audio, exif]
+          default: image
+
+    DeepfakeAnalysis:
+      type: object
+      properties:
+        id:
+          type: string
+        fileId:
+          type: string
+        fileType:
+          type: string
+        analysisType:
+          type: string
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        verdict:
+          type: string
+          enum: [real, fake, uncertain]
+        details:
+          type: object
+        examinedBy:
+          type: string
+        examinedAt:
+          type: string
+          format: date-time
+
+    CustodyChain:
+      type: object
+      properties:
+        evidenceId:
+          type: string
+        chain:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustodyTransfer'
+        isIntact:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    CustodyTransferRequest:
+      type: object
+      required: [evidenceId, fromCustodian, toCustodian, purpose]
+      properties:
+        evidenceId:
+          type: string
+        fromCustodian:
+          type: string
+        toCustodian:
+          type: string
+        purpose:
+          type: string
+          enum: [analysis, storage, transfer, court, other]
+        notes:
+          type: string
+
+    CustodyTransfer:
+      type: object
+      properties:
+        id:
+          type: string
+        evidenceId:
+          type: string
+        fromCustodian:
+          type: string
+        toCustodian:
+          type: string
+        purpose:
+          type: string
+        hashVerified:
+          type: boolean
+        transferredAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+
+    FinancialAnalysisRequest:
+      type: object
+      required: [caseId, analysisType]
+      properties:
+        caseId:
+          type: string
+        analysisType:
+          type: string
+          enum: [invoice, fraud, transaction, pattern]
+        transactionData:
+          type: object
+
+    FinancialAnalysis:
+      type: object
+      properties:
+        id:
+          type: string
+        caseId:
+          type: string
+        analysisType:
+          type: string
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialFinding'
+        anomalies:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialAnomaly'
+        summary:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    FinancialFinding:
+      type: object
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        details:
+          type: object
+
+    FinancialAnomaly:
+      type: object
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+        confidence:
+          type: number
+        affectedTransactions:
+          type: integer
+
+    SocialProfile:
+      type: object
+      properties:
+        identifier:
+          type: string
+        platform:
+          type: string
+        profileData:
+          type: object
+        riskScore:
+          type: number
+        lastUpdated:
+          type: string
+          format: date-time
+
+    SocialConnection:
+      type: object
+      properties:
+        identifier:
+          type: string
+        platform:
+          type: string
+        relationship:
+          type: string
+        strength:
+          type: number
+
+    LocationRequest:
+      type: object
+      required: [type, identifier]
+      properties:
+        type:
+          type: string
+          enum: [gps, ip, cell_tower, wifi, address]
+        identifier:
+          type: string
+
+    LocationData:
+      type: object
+      properties:
+        identifier:
+          type: string
+        type:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+        address:
+          type: string
+        confidence:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+    ReportResponse:
+      type: object
+      properties:
+        reportId:
+          type: string
+        status:
+          type: string
+        downloadUrl:
+          type: string
+
+    ForensicsTool:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        endpoint:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        mcpPort:
+          type: integer
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        services:
+          type: object
+          additionalProperties:
+            type: string

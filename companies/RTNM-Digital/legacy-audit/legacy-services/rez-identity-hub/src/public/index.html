@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REZ Identity Hub - Admin Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; }
+
+    .header { background: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+    .header h1 { font-size: 1.5rem; color: #60a5fa; }
+    .header .status { display: flex; align-items: center; gap: 0.5rem; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; }
+    .status-dot.error { background: #ef4444; }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+
+    .card { background: #1e293b; border-radius: 12px; padding: 1.5rem; border: 1px solid #334155; }
+    .card h2 { font-size: 1rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .stat { font-size: 2.5rem; font-weight: bold; color: #f1f5f9; }
+    .stat-label { font-size: 0.875rem; color: #64748b; margin-top: 0.25rem; }
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .stat-item { text-align: center; }
+
+    .data-sources { display: flex; flex-direction: column; gap: 0.5rem; }
+    .source-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #0f172a; border-radius: 6px; }
+    .source-name { font-size: 0.875rem; }
+    .source-status { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 4px; background: #22c55e; color: #fff; }
+    .source-status.inactive { background: #64748b; }
+    .source-status.error { background: #ef4444; }
+
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #334155; }
+    .table th { color: #94a3b8; font-weight: 500; font-size: 0.75rem; text-transform: uppercase; }
+    .table tr:hover { background: #0f172a; }
+
+    .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+    .badge.customer { background: #3b82f6; color: #fff; }
+    .badge.merchant { background: #8b5cf6; color: #fff; }
+    .badge.vendor { background: #f59e0b; color: #000; }
+    .badge.employee { background: #10b981; color: #fff; }
+
+    .search-box { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .search-box input { flex: 1; padding: 0.75rem 1rem; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; font-size: 1rem; }
+    .search-box input:focus { outline: none; border-color: #60a5fa; }
+
+    .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-primary:hover { background: #2563eb; }
+
+    .tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #334155; }
+    .tab { padding: 0.75rem 1.5rem; background: none; border: none; color: #94a3b8; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab.active { color: #60a5fa; border-color: #60a5fa; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .quality-bar { height: 8px; background: #334155; border-radius: 4px; margin: 0.5rem 0; overflow: hidden; }
+    .quality-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .quality-bar-fill.good { background: #22c55e; }
+    .quality-bar-fill.warning { background: #f59e0b; }
+    .quality-bar-fill.bad { background: #ef4444; }
+
+    .profile-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .profile-section { background: #0f172a; padding: 1rem; border-radius: 8px; }
+    .profile-section h3 { font-size: 0.875rem; color: #60a5fa; margin-bottom: 0.75rem; }
+    .profile-field { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #1e293b; }
+    .profile-field:last-child { border-bottom: none; }
+    .profile-field-label { color: #64748b; }
+    .profile-field-value { font-weight: 500; }
+
+    .loading { display: flex; justify-content: center; align-items: center; height: 200px; color: #64748b; }
+    .loading::after { content: 'Loading...'; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    .refresh-btn { background: #334155; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; }
+    .refresh-btn:hover { background: #475569; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #22c55e; color: #fff; padding: 1rem 1.5rem; border-radius: 8px; display: none; }
+    .toast.show { display: block; }
+    .toast.error { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>🆔 REZ Identity Hub</h1>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Connected</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Overview Cards -->
+    <div class="grid">
+      <div class="card">
+        <h2>Total Identities</h2>
+        <div class="stat" id="totalIdentities">-</div>
+        <div class="stat-label" id="verifiedIdentities">- verified</div>
+      </div>
+      <div class="card">
+        <h2>By Type</h2>
+        <div class="stat-grid">
+          <div class="stat-item">
+            <div class="stat" id="customers">-</div>
+            <div class="stat-label">Customers</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat" id="merchants">-</div>
+            <div class="stat-label">Merchants</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat" id="vendors">-</div>
+            <div class="stat-label">Vendors</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat" id="employees">-</div>
+            <div class="stat-label">Employees</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Data Sources</h2>
+        <div class="stat" id="activeSources">-</div>
+        <div class="stat-label">of <span id="totalSources">-</span> sources active</div>
+      </div>
+      <div class="card">
+        <h2>Data Quality</h2>
+        <div class="stat" id="avgQuality">-</div>
+        <div class="quality-bar">
+          <div class="quality-bar-fill" id="qualityBar" style="width: 0%"></div>
+        </div>
+        <div class="stat-label">Average completeness</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="identities">Identities</button>
+      <button class="tab" data-tab="sources">Data Sources</button>
+      <button class="tab" data-tab="quality">Data Quality</button>
+      <button class="tab" data-tab="profile">Profile Detail</button>
+    </div>
+
+    <!-- Identities Tab -->
+    <div class="section active" id="identities">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by name, phone, email, or GSTIN...">
+        <button class="btn btn-primary" onclick="searchIdentities()">Search</button>
+        <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+      </div>
+      <div class="card">
+        <table class="table" id="identitiesTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Score</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="identitiesBody">
+            <tr><td colspan="7" class="loading"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Data Sources Tab -->
+    <div class="section" id="sources">
+      <div class="grid">
+        <div class="card" style="grid-column: 1 / -1;">
+          <h2>Connected Data Sources</h2>
+          <div class="data-sources" id="sourcesList">
+            <div class="loading"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Quality Tab -->
+    <div class="section" id="quality">
+      <div class="grid">
+        <div class="card">
+          <h2>Completeness by Type</h2>
+          <div id="qualityByType"></div>
+        </div>
+        <div class="card">
+          <h2>Recommendations</h2>
+          <div id="recommendations"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Detail Tab -->
+    <div class="section" id="profile">
+      <div class="card">
+        <h2>Select an identity to view details</h2>
+        <p style="color: #64748b; margin-top: 0.5rem;">Click "View" on any identity above to see their complete profile with all data sources.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = 'http://localhost:6000/api';
+    let identities = [];
+    let currentProfile = null;
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        const [dashRes, qualityRes] = await Promise.all([
+          fetch(`${API_BASE}/admin/dashboard`),
+          fetch(`${API_BASE}/admin/quality`)
+        ]);
+
+        const dash = await dashRes.json();
+        const quality = await qualityRes.json();
+
+        // Update overview
+        document.getElementById('totalIdentities').textContent = dash.data.overview.totalIdentities;
+        document.getElementById('verifiedIdentities').textContent = `${dash.data.overview.verified} verified`;
+        document.getElementById('customers').textContent = dash.data.overview.customers || 0;
+        document.getElementById('merchants').textContent = dash.data.overview.merchants || 0;
+        document.getElementById('vendors').textContent = dash.data.overview.vendors || 0;
+        document.getElementById('employees').textContent = dash.data.overview.employees || 0;
+        document.getElementById('activeSources').textContent = dash.data.dataSources.active;
+        document.getElementById('totalSources').textContent = dash.data.dataSources.total;
+
+        // Quality
+        const avgQuality = quality.data.overall.avgCompleteness;
+        document.getElementById('avgQuality').textContent = avgQuality + '%';
+        const bar = document.getElementById('qualityBar');
+        bar.style.width = avgQuality + '%';
+        bar.className = 'quality-bar-fill ' + (avgQuality > 60 ? 'good' : avgQuality > 30 ? 'warning' : 'bad');
+
+        // Load identities
+        await loadIdentities();
+
+        // Load sources
+        renderSources(dash.data.dataSources.sources);
+
+        // Load quality
+        renderQuality(quality.data);
+
+      } catch (error) {
+        console.error('Failed to load dashboard:', error);
+        showToast('Failed to load dashboard', true);
+      }
+    }
+
+    async function loadIdentities() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/identities?limit=50`);
+        const data = await res.json();
+        identities = data.data.identities;
+        renderIdentities(identities);
+      } catch (error) {
+        console.error('Failed to load identities:', error);
+      }
+    }
+
+    function renderIdentities(list) {
+      const tbody = document.getElementById('identitiesBody');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748b">No identities found</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(i => `
+        <tr>
+          <td>${i.name || '-'}</td>
+          <td>${i.types.map(t => \`<span class="badge ${t}">${t}</span>\`).join(' ')}</td>
+          <td>${i.primaryPhone || '-'}</td>
+          <td>${i.primaryEmail || '-'}</td>
+          <td>${i.score || 0}</td>
+          <td><span class="badge" style="background:${i.status === 'verified' ? '#22c55e' : '#64748b'}">${i.status}</span></td>
+          <td><button class="btn btn-primary" onclick="viewProfile('${i.id}')">View</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderSources(sources) {
+      const list = document.getElementById('sourcesList');
+      list.innerHTML = sources.map(s => \`
+        <div class="source-item">
+          <span class="source-name">\${s.name}</span>
+          <span class="source-status \${s.status !== 'active' ? s.status : ''}">\${s.status || 'unknown'}</span>
+        </div>
+      \`).join('');
+    }
+
+    function renderQuality(data) {
+      const byType = document.getElementById('qualityByType');
+      byType.innerHTML = Object.entries(data.byType).map(([type, metrics]) => \`
+        <div style="margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="text-transform:capitalize;">\${type}s</span>
+            <span>\${metrics.avgCompleteness}%</span>
+          </div>
+          <div class="quality-bar">
+            <div class="quality-bar-fill \${metrics.avgCompleteness > 60 ? 'good' : metrics.avgCompleteness > 30 ? 'warning' : 'bad'}" style="width:\${metrics.avgCompleteness}%"></div>
+          </div>
+        </div>
+      \`).join('');
+
+      const recs = document.getElementById('recommendations');
+      recs.innerHTML = data.recommendations.length > 0
+        ? data.recommendations.map(r => \`<p style="margin-bottom:0.5rem;padding:0.5rem;background:#0f172a;border-radius:6px;">\${r}</p>\`).join('')
+        : '<p style="color:#64748b;">No recommendations at this time.</p>';
+    }
+
+    async function viewProfile(id) {
+      try {
+        const res = await fetch(\`\${API_BASE}/admin/identities/\${id}\`);
+        const data = await res.json();
+        currentProfile = data.data;
+
+        // Switch to profile tab
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelector('[data-tab="profile"]').classList.add('active');
+        document.getElementById('profile').classList.add('active');
+
+        renderProfile(data.data);
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        showToast('Failed to load profile', true);
+      }
+    }
+
+    function renderProfile(profile) {
+      const container = document.getElementById('profile');
+      const summary = profile.summary;
+      const identity = profile.identity;
+
+      container.innerHTML = \`
+        <div class="card" style="margin-bottom:1.5rem;">
+          <h2 style="margin-bottom:0.5rem;">\${summary.primaryPhone || 'Unknown'}</h2>
+          <p style="color:#64748b;">\${summary.types.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')} | Score: \${summary.score} | \${summary.status}</p>
+        </div>
+
+        <div class="profile-detail">
+          <div class="profile-section">
+            <h3>Core Identity</h3>
+            <div class="profile-field"><span class="profile-field-label">Phone</span><span class="profile-field-value">\${identity.primaryPhone || '-'}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Email</span><span class="profile-field-value">\${identity.primaryEmail || '-'}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Status</span><span class="profile-field-value">\${identity.status}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Identity Score</span><span class="profile-field-value">\${identity.identityScore}</span></div>
+          </div>
+
+          <div class="profile-section">
+            <h3>Social Media</h3>
+            <div class="profile-field"><span class="profile-field-label">Profiles</span><span class="profile-field-value">\${summary.socialProfiles}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Total Followers</span><span class="profile-field-value">\${summary.totalFollowers.toLocaleString()}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Data Sources</span><span class="profile-field-value">\${summary.sources.join(', ')}</span></div>
+          </div>
+
+          <div class="profile-section">
+            <h3>Activity</h3>
+            <div class="profile-field"><span class="profile-field-label">Total Transactions</span><span class="profile-field-value">\${identity.activity.totalTransactions}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Total Spent</span><span class="profile-field-value">₹\${(identity.activity.totalSpent || 0).toLocaleString()}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Apps Used</span><span class="profile-field-value">\${identity.activity.totalAppsUsed}</span></div>
+            <div class="profile-field"><span class="profile-field-label">Last Active</span><span class="profile-field-value">\${new Date(identity.activity.lastActivity).toLocaleDateString()}</span></div>
+          </div>
+
+          <div class="profile-section">
+            <h3>Linked Identities</h3>
+            \${identity.linkedIdentities.customerId ? \`<div class="profile-field"><span class="profile-field-label">Customer</span><span class="profile-field-value">\${identity.linkedIdentities.customerId}</span></div>\` : ''}
+            \${identity.linkedIdentities.merchantId ? \`<div class="profile-field"><span class="profile-field-label">Merchant</span><span class="profile-field-value">\${identity.linkedIdentities.merchantId}</span></div>\` : ''}
+            \${identity.linkedIdentities.vendorId ? \`<div class="profile-field"><span class="profile-field-label">Vendor</span><span class="profile-field-value">\${identity.linkedIdentities.vendorId}</span></div>\` : ''}
+            \${identity.linkedIdentities.employeeId ? \`<div class="profile-field"><span class="profile-field-label">Employee</span><span class="profile-field-value">\${identity.linkedIdentities.employeeId}</span></div>\` : ''}
+            \${!identity.linkedIdentities.customerId && !identity.linkedIdentities.merchantId && !identity.linkedIdentities.vendorId && !identity.linkedIdentities.employeeId ? '<p style="color:#64748b;">No linked identities</p>' : ''}
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:1.5rem;">
+          <button class="btn btn-primary" onclick="loadDashboard()">← Back to Dashboard</button>
+        </div>
+      \`;
+    }
+
+    async function searchIdentities() {
+      const query = document.getElementById('searchInput').value;
+      if (!query) {
+        renderIdentities(identities);
+        return;
+      }
+      // Filter locally for now
+      const filtered = identities.filter(i =>
+        (i.name && i.name.toLowerCase().includes(query.toLowerCase())) ||
+        (i.primaryPhone && i.primaryPhone.includes(query)) ||
+        (i.primaryEmail && i.primaryEmail.toLowerCase().includes(query.toLowerCase()))
+      );
+      renderIdentities(filtered);
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => toast.className = 'toast', 3000);
+    }
+
+    // Init
+    loadDashboard();
+  </script>
+</body>
+</html>

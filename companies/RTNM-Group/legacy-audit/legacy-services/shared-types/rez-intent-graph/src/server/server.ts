@@ -1,0 +1,195 @@
+// ── Intent Graph Server ───────────────────────────────────────────────────────────
+// Standalone Express server for RTMN Commerce Memory Intent Graph
+// Uses MongoDB for data storage
+import 'dotenv/config';
+
+
+import express, { Request, Response, NextFunction } from 'express';
+import { connectDB, getConnectionStatus } from '../database/mongodb.js';
+import intentRouter from '../api/intent.routes.js';
+import commerceMemoryRouter from '../api/commerce-memory.routes.js';
+import metricsRouter from '../api/metrics.routes.js';
+import {
+  standardLimiter,
+  strictLimiter,
+  captureLimiter,
+  nudgeLimiter,
+} from '../middleware/rateLimit.js';
+import { dormantIntentCronJob } from '../jobs/dormantIntentCron.js';
+import { getSwarmCoordinator, getSwarmStatus } from '../agents/index.js';
+import { metricsStore, METRICS } from '../monitoring/metrics.js';
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// ── Middleware ───────────────────────────────────────────────────────────────
+
+app.use(express.json());
+
+// CORS - restrict origins in production
+// SECURITY: Explicitly validate origins to prevent misconfiguration
+const allowedOrigins = (() => {
+  const env = process.env.ALLOWED_ORIGINS;
+  if (env) {
+    const origins = env.split(',').map(s => s.trim());
+    // SECURITY: Reject localhost in production even if accidentally configured
+    if (process.env.NODE_ENV === 'production') {
+      const hasLocalhost = origins.some(o => o.includes('localhost'));
+      if (hasLocalhost) {
+        console.error('[CORS] CRITICAL: localhost origins are not allowed in production!');
+        // Filter out localhost origins in production
+        return origins.filter(o => !o.includes('localhost'));
+      }
+    }
+    return origins;
+  }
+  // Default: localhost only for dev safety - NO localhost in production
+  if (process.env.NODE_ENV === 'production') {
+    console.log('[CORS] Production mode: no CORS origins configured (secure default)');
+    return [];
+  }
+  return ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'];
+})();
+
+// Validate on startup
+if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
+  console.log('[CORS] Production: CORS disabled (no origins allowed)');
+}
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-cron-secret, x-user-id, x-internal-token, x-merchant-token, x-api-key');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+// Rate limiting - global standard limit
+app.use(standardLimiter);
+
+// Request logging
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.info([${new Date().toISOString()}] ${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+  });
+  next();
+});
+
+// ── Health Check ────────────────────────────────────────────────────────────
+
+app.get('/health', async (_req: Request, res: Response) => {
+  const mongoConnected = getConnectionStatus();
+  res.json({
+    status: 'healthy',
+    service: 'intent-graph',
+    mongodb: mongoConnected ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ── API Routes ─────────────────────────────────────────────────────────────
+
+app.use('/api/intent', intentRouter);
+app.use('/api/commerce-memory', commerceMemoryRouter);
+app.use('/metrics', metricsRouter); // Prometheus metrics
+
+// ── Latency Tracking Middleware ──────────────────────────────────────────────
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    if (req.path.startsWith('/api/intent/capture')) {
+      metricsStore.record(METRICS.CAPTURE_LATENCY, duration, 'histogram');
+    } else if (req.path.startsWith('/api/intent/')) {
+      metricsStore.record(METRICS.QUERY_LATENCY, duration, 'histogram');
+    }
+  });
+  next();
+});
+
+// ── Error Handler ─────────────────────────────────────────────────────────
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[Error]', err);
+  res.status(500).json({ error: 'Internal server error', message: err.message });
+});
+
+// ── Database Connection & Server Start ─────────────────────────────────────
+
+let server: ReturnType<typeof app.listen> | null = null;
+let isShuttingDown = false;
+
+async function startServer() {
+  try {
+    // Connect to MongoDB
+    console.log('[MongoDB] Connecting to ReZ ecosystem database...');
+    await connectDB();
+    console.log('[MongoDB] Connected successfully');
+
+    // Start Dormant Intent Cron Job (Phase 2)
+    const ENABLE_DORMANT_CRON = process.env.ENABLE_DORMANT_CRON !== 'false';
+    if (ENABLE_DORMANT_CRON) {
+      console.log('[Intent Graph] Starting Dormant Intent Cron Job...');
+      dormantIntentCronJob.start();
+      console.log('[Intent Graph] Dormant Intent Cron Job started (runs daily)');
+    }
+
+    // Start Agent Swarm (Phase 3)
+    const ENABLE_AGENTS = process.env.ENABLE_AGENTS === 'true';
+    if (ENABLE_AGENTS) {
+      console.log('[Intent Graph] Starting Agent Swarm...');
+      const swarm = getSwarmCoordinator();
+      await swarm.start();
+      console.log('[Intent Graph] Agent Swarm started');
+    }
+
+    // Start Express server
+    server = app.listen(PORT, () => {
+      logger.info([Intent Graph] Server running on port ${PORT}`);
+      logger.info([Intent Graph] Health check: http://localhost:${PORT}/health`);
+      logger.info([Intent Graph] Intent API: http://localhost:${PORT}/api/intent`);
+      logger.info([Intent Graph] Commerce Memory API: http://localhost:${PORT}/api/commerce-memory`);
+      logger.info([Intent Graph] Available features:`);
+      logger.info([Intent Graph]   - Dormant Intent Cron: ${ENABLE_DORMANT_CRON ? 'enabled' : 'disabled'}`);
+      logger.info([Intent Graph]   - Agent Swarm: ${ENABLE_AGENTS ? 'enabled' : 'disabled'}`);
+    });
+  } catch (error) {
+    console.error('[Intent Graph] Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// L17 FIX: Graceful shutdown — stop accepting new connections and drain existing ones
+async function shutdown(signal: string) {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  logger.info([Intent Graph] ${signal} received — graceful shutdown starting`);
+
+  // Stop accepting new connections
+  if (server) {
+    server.close(() => {
+      console.log('[Intent Graph] HTTP server closed');
+    });
+  }
+
+  // Give existing connections 10 seconds to finish
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+
+  console.log('[Intent Graph] Graceful shutdown complete');
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+startServer();
+
+export default app;

@@ -1,0 +1,78 @@
+import { logger } from './utils/logger.js';
+import { tools, toolHandlers } from './tools.js';
+import 'dotenv/config';
+
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
+
+// Environment configuration
+const LEGAL_SERVICE_URL = process.env.LEGAL_SERVICE_URL || 'http://localhost:5004';
+const USE_REAL_API = process.env.USE_REAL_LEGAL === 'true';
+
+// Create MCP server
+const server = new Server(
+  {
+    name: "rez-legal",
+    version: "1.0.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  }
+);
+
+// Register tool handlers
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+  return {
+    tools: tools.map((tool) => ({
+      name: tool.name,
+      description: tool.description,
+      inputSchema: tool.inputSchema,
+    })),
+  };
+});
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const tool = tools.find((t) => t.name === request.params.name);
+  if (!tool) {
+    return {
+      content: [{ type: "text", text: `Error: Unknown tool ${request.params.name}` }],
+      isError: true,
+    };
+  }
+
+  const handler = toolHandlers[request.params.name];
+  if (!handler) {
+    return {
+      content: [{ type: "text", text: `Error: No handler for tool ${request.params.name}` }],
+      isError: true,
+    };
+  }
+
+  try {
+    const result = await handler(request.params.arguments ?? {});
+    return result;
+  } catch (error) {
+    return {
+      content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` }],
+      isError: true,
+    };
+  }
+});
+
+// Start server
+async function main() {
+  logger.info("REZ Legal AI MCP Server running on stdio");
+  logger.info(`Legal Service URL: ${LEGAL_SERVICE_URL}`);
+  logger.info(`Real API: ${USE_REAL_API ? 'ENABLED' : 'DISABLED (set USE_REAL_LEGAL=true to enable)'}`);
+
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
+
+main().catch(console.error);

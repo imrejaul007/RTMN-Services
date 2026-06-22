@@ -1,0 +1,682 @@
+openapi: 3.0.3
+info:
+  title: NeXha API
+  description: |
+    NeXha - The Operating System for Commerce Networks
+
+    This API provides access to:
+    - DistributionOS: Distributor & wholesaler management
+    - FranchiseOS: Multi-location franchise operations
+    - ProcurementOS: Supplier network & RFQ
+    - ManufacturingOS: Production & BOM management
+    - TradeFinance: BNPL, credit lines, invoice financing
+    - Intelligence: AI predictions & analytics
+  version: 1.0.0
+  contact:
+    name: RTNM Group
+    email: support@rez.money
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:4300
+    description: DistributionOS
+  - url: http://localhost:4310
+    description: FranchiseOS
+  - url: http://localhost:4320
+    description: ProcurementOS
+  - url: http://localhost:4330
+    description: ManufacturingOS
+  - url: http://localhost:4340
+    description: TradeFinance
+  - url: http://localhost:4350
+    description: Intelligence
+  - url: http://localhost:4399
+    description: Ecosystem Connector
+
+tags:
+  - name: Distributors
+    description: Distributor management
+  - name: Franchises
+    description: Franchise operations
+  - name: Suppliers
+    description: Supplier management
+  - name: RFQ
+    description: Request for Quotation
+  - name: Credit
+    description: Credit & BNPL services
+  - name: Intelligence
+    description: AI predictions
+
+# ============================================================================
+# Security
+# ============================================================================
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    internalToken:
+      type: apiKey
+      in: header
+      name: X-Internal-Token
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    Distributor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        distributorNumber:
+          type: string
+        businessName:
+          type: string
+        ownerName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        type:
+          type: string
+          enum: [distributor, wholesaler, stockist, dealer]
+        status:
+          type: string
+          enum: [active, inactive, suspended, pending_onboarding]
+        territory:
+          type: object
+          properties:
+            regions:
+              type: array
+              items:
+                type: string
+            cities:
+              type: array
+              items:
+                type: string
+        score:
+          type: object
+          properties:
+            sales:
+              type: number
+            collections:
+              type: number
+            logistics:
+              type: number
+            overall:
+              type: number
+
+    Franchise:
+      type: object
+      properties:
+        id:
+          type: string
+        franchiseNumber:
+          type: string
+        brandName:
+          type: string
+        locationName:
+          type: string
+        franchiseeName:
+          type: string
+        type:
+          type: string
+          enum: [owned, franchise, licensed]
+        status:
+          type: string
+        performance:
+          type: object
+          properties:
+            revenue:
+              type: number
+            orders:
+              type: number
+            score:
+              type: number
+
+    CreditLine:
+      type: object
+      properties:
+        id:
+          type: string
+        businessId:
+          type: string
+        creditLimit:
+          type: number
+        usedAmount:
+          type: number
+        availableAmount:
+          type: number
+        status:
+          type: string
+          enum: [pending, approved, rejected, suspended]
+        interestRate:
+          type: number
+
+    RFQ:
+      type: object
+      properties:
+        id:
+          type: string
+        rfqNumber:
+          type: string
+        title:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productName:
+                type: string
+              quantity:
+                type: number
+              unit:
+                type: string
+        status:
+          type: string
+          enum: [draft, open, quoted, awarded, closed]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+
+# ============================================================================
+# Paths - Distributors
+# ============================================================================
+
+paths:
+  /api/distributors:
+    get:
+      tags: [Distributors]
+      summary: List distributors
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      distributors:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Distributor'
+                      total:
+                        type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags: [Distributors]
+      summary: Create distributor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [businessName, ownerName, email, phone, type]
+              properties:
+                businessName:
+                  type: string
+                ownerName:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                type:
+                  type: string
+                territory:
+                  $ref: '#/components/schemas/Distributor/properties/territory'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+
+  /api/distributors/{id}:
+    get:
+      tags: [Distributors]
+      summary: Get distributor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Distributor'
+        '404':
+          description: Not found
+
+  /api/distributors/{id}/activate:
+    post:
+      tags: [Distributors]
+      summary: Activate distributor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/distributors/{id}/suspend:
+    post:
+      tags: [Distributors]
+      summary: Suspend distributor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Success
+
+# ============================================================================
+# Paths - Franchises
+# ============================================================================
+
+  /api/franchises:
+    get:
+      tags: [Franchises]
+      summary: List franchises
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+
+    post:
+      tags: [Franchises]
+      summary: Create franchise
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+
+  /api/franchises/{id}:
+    get:
+      tags: [Franchises]
+      summary: Get franchise
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/franchises/{id}/royalty/calculate:
+    post:
+      tags: [Franchises]
+      summary: Calculate royalty
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: date
+                end:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Success
+
+# ============================================================================
+# Paths - Credit
+# ============================================================================
+
+  /api/credits/apply:
+    post:
+      tags: [Credit]
+      summary: Apply for credit line
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [businessId, businessName, type, requestedLimit]
+              properties:
+                businessId:
+                  type: string
+                businessName:
+                  type: string
+                type:
+                  type: string
+                  enum: [distributor, merchant, franchise, manufacturer]
+                requestedLimit:
+                  type: number
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/CreditLine'
+
+  /api/credits/{id}:
+    get:
+      tags: [Credit]
+      summary: Get credit line
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/bnpl/create:
+    post:
+      tags: [Credit]
+      summary: Create BNPL transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [buyerId, buyerName, sellerId, sellerName, orderId, orderAmount]
+              properties:
+                buyerId:
+                  type: string
+                buyerName:
+                  type: string
+                sellerId:
+                  type: string
+                sellerName:
+                  type: string
+                orderId:
+                  type: string
+                orderAmount:
+                  type: number
+                tenureDays:
+                  type: integer
+                  default: 30
+      responses:
+        '201':
+          description: Created
+
+# ============================================================================
+# Paths - Intelligence
+# ============================================================================
+
+  /api/predict/demand:
+    post:
+      tags: [Intelligence]
+      summary: Forecast demand
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, productName]
+              properties:
+                productId:
+                  type: string
+                productName:
+                  type: string
+                periodDays:
+                  type: integer
+                  default: 7
+      responses:
+        '200':
+          description: Success
+
+  /api/predict/reorder:
+    post:
+      tags: [Intelligence]
+      summary: Get reorder recommendation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, currentStock]
+              properties:
+                productId:
+                  type: string
+                productName:
+                  type: string
+                currentStock:
+                  type: number
+                historicalSales:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: Success
+
+  /api/detect/fraud:
+    post:
+      tags: [Intelligence]
+      summary: Detect fraud risk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [entityId, entityType]
+              properties:
+                entityId:
+                  type: string
+                entityType:
+                  type: string
+                  enum: [order, supplier, distributor, franchise]
+                orderValue:
+                  type: number
+                velocityAnomaly:
+                  type: boolean
+                addressMismatch:
+                  type: boolean
+      responses:
+        '200':
+          description: Success
+
+# ============================================================================
+# Paths - RFQ
+# ============================================================================
+
+  /api/rfqs:
+    post:
+      tags: [RFQ]
+      summary: Create RFQ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RFQ'
+      responses:
+        '201':
+          description: Created
+
+  /api/rfqs/{id}:
+    get:
+      tags: [RFQ]
+      summary: Get RFQ
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/rfqs/{id}/quotes:
+    post:
+      tags: [RFQ]
+      summary: Submit quote
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [supplierId, supplierName, items]
+              properties:
+                supplierId:
+                  type: string
+                supplierName:
+                  type: string
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      rfqItemId:
+                        type: string
+                      unitPrice:
+                        type: number
+                      notes:
+                        type: string
+                discount:
+                  type: number
+                deliveryTime:
+                  type: string
+                paymentTerms:
+                  type: string
+      responses:
+        '201':
+          description: Created
+
+# ============================================================================
+# Health & Metrics
+# ============================================================================
+
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Healthy
+        '503':
+          description: Unhealthy
+
+  /metrics:
+    get:
+      summary: Prometheus metrics
+      responses:
+        '200':
+          description: Metrics in Prometheus format
+          content:
+            text/plain:
+              schema:
+                type: string

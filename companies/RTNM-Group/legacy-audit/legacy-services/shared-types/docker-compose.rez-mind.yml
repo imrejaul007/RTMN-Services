@@ -1,0 +1,51 @@
+# ReZ Mind - Docker Compose for local development
+# Usage: docker-compose -f docker-compose.rez-mind.yml up -d
+#
+# IMPORTANT: Uses MongoDB Atlas (remote) - no local MongoDB needed
+# All ReZ apps share the rez-app MongoDB database on Atlas
+
+version: '3.8'
+
+services:
+  # ReZ Mind Server - Intent Graph
+  rez-mind:
+    build:
+      context: ./packages/rez-intent-graph
+      dockerfile: Dockerfile
+    container_name: rez-mind-server
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      # MongoDB Atlas - ReZ ecosystem database (SHARED by all apps)
+      MONGODB_URI: mongodb+srv://work_db_user:RmptskyDLFNSJGCA@cluster0.ku78x6g.mongodb.net/rez-app
+      # Optional Redis for shared memory
+      # REDIS_URL: redis://redis:6379
+    ports:
+      - "3005:3005"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Optional: Redis for session/queue storage (if needed)
+  # Uncomment if you want local Redis instead of managed service
+  #
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: rez-ecosystem-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+networks:
+  default:
+    name: rez-ecosystem-network

@@ -1,0 +1,223 @@
+# RTNM-Group Docker Compose Configuration
+# Development and Production environments
+
+version: '3.8'
+
+services:
+  # ============================================
+  # Infrastructure
+  # ============================================
+  mongodb:
+    image: mongo:6
+    container_name: rtnm-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand({ping:1})"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rtnm-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # RTNM-Group Services
+  # ============================================
+  identity-service:
+    build:
+      context: ../REZ-identity-service
+      dockerfile: ../deploy/Dockerfile
+      target: production-identity
+    container_name: rtnm-identity
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/rez_identity_service?authSource=admin
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379
+      IDENTITY_SALT: ${IDENTITY_SALT}
+      CORS_ORIGIN: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      INTERNAL_SERVICE_TOKENS_JSON: ${INTERNAL_SERVICE_TOKENS_JSON}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "3003:3003"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  access-control:
+    build:
+      context: ../REZ-access-control-service
+      dockerfile: ../deploy/Dockerfile
+      target: production-access-control
+    container_name: rtnm-access-control
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/rez_access_control?authSource=admin
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379
+      INTERNAL_SERVICE_TOKENS_JSON: ${INTERNAL_SERVICE_TOKENS_JSON}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  capital-service:
+    build:
+      context: ../REZ-capital-service
+      dockerfile: ../deploy/Dockerfile
+      target: production-capital
+    container_name: rtnm-capital
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/rez_capital?authSource=admin
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379
+      # NBFC Partner API Keys
+      CAPITAL_FLOAT_API_KEY: ${CAPITAL_FLOAT_API_KEY}
+      CAPITAL_FLOAT_API_URL: ${CAPITAL_FLOAT_API_URL:-https://api.capitalfloat.com/v2}
+      PINELABS_API_KEY: ${PINELABS_API_KEY}
+      INDIFI_API_KEY: ${INDIFI_API_KEY}
+      LENDINGKART_API_KEY: ${LENDINGKART_API_KEY}
+      INTERNAL_SERVICE_TOKENS_JSON: ${INTERNAL_SERVICE_TOKENS_JSON}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "3005:3005"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  bnpl-service:
+    build:
+      context: ../REZ-bnpl-service
+      dockerfile: ../deploy/Dockerfile
+      target: production-bnpl
+    container_name: rtnm-bnpl
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3080
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/rez_bnpl?authSource=admin
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis}@redis:6379
+      INTERNAL_SERVICE_TOKENS_JSON: ${INTERNAL_SERVICE_TOKENS_JSON}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "3080:3080"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # Monitoring
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rtnm-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rtnm-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  mongodb_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  default:
+    name: rtnm-network
+    driver: bridge

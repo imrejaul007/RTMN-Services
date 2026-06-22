@@ -1,0 +1,796 @@
+openapi: 3.0.0
+info:
+  title: REZ Invoice OCR Service
+  description: |
+    Invoice OCR Processing Service for extracting data from invoice documents.
+
+    Features:
+    - PDF and image upload
+    - AI-powered text extraction using Claude
+    - Duplicate detection
+    - Data validation
+    - Multi-tenant support
+  version: 1.0.0
+  contact:
+    name: REZ Platform Team
+    email: platform@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5002
+    description: Local development server
+  - url: https://api.rez.ai/invoice-ocr
+    description: Production server
+
+security:
+  - bearerAuth: []
+  - tenantId: []
+
+tags:
+  - name: Upload
+    description: File upload operations
+  - name: Extract
+    description: Data extraction operations
+  - name: Validate
+    description: Data validation operations
+  - name: Invoices
+    description: Invoice management
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  /api/upload:
+    post:
+      summary: Upload invoice
+      description: Upload a PDF or image file for invoice processing
+      operationId: uploadInvoice
+      tags:
+        - Upload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF or image file (JPG, PNG)
+            encoding:
+              file:
+                contentType: [image/jpeg, image/png, application/pdf]
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+              example:
+                success: true
+                data:
+                  invoiceOcrId: "ocr_abc123"
+                  fileName: "invoice_march.pdf"
+                  fileSize: 245678
+                  mimeType: "application/pdf"
+                  status: "uploaded"
+                  message: "File uploaded successfully. Use POST /extract to process the invoice."
+        '400':
+          description: Invalid file or missing file
+
+  /api/upload/base64:
+    post:
+      summary: Upload invoice as base64
+      description: Upload invoice from base64 encoded data (for mobile apps)
+      operationId: uploadInvoiceBase64
+      tags:
+        - Upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Base64UploadRequest'
+            example:
+              base64Data: "JVBERi0xLjQK..."
+              fileName: "invoice.jpg"
+              mimeType: "image/jpeg"
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+
+  /api/upload/{id}:
+    delete:
+      summary: Delete uploaded file
+      description: Delete an uploaded file and its record
+      operationId: deleteUpload
+      tags:
+        - Upload
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Invoice OCR ID
+      responses:
+        '200':
+          description: File deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Invoice not found
+
+  /api/extract/{id}:
+    post:
+      summary: Extract data from invoice
+      description: Extract data from an uploaded invoice using OCR
+      operationId: extractInvoice
+      tags:
+        - Extract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Invoice OCR ID
+      responses:
+        '200':
+          description: Extraction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtractionResponse'
+              example:
+                success: true
+                data:
+                  invoiceOcrId: "ocr_abc123"
+                  status: "extracted"
+                  extractedData:
+                    invoiceNumber: "INV-2024-001"
+                    date: "2024-03-15"
+                    vendor:
+                      name: "Acme Corp"
+                      address: "123 Main St"
+                    lineItems:
+                      - description: "Service A"
+                        quantity: 2
+                        unitPrice: 100
+                        total: 200
+                    subtotal: 200
+                    tax: 18
+                    total: 218
+                  processingTimeMs: 2345
+                  message: "Invoice data extracted successfully"
+        '400':
+          description: Invoice already extracted
+        '404':
+          description: Invoice not found
+
+  /api/extract/text:
+    post:
+      summary: Extract from text
+      description: Extract invoice data from raw text (for testing)
+      operationId: extractFromText
+      tags:
+        - Extract
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextExtractionRequest'
+            example:
+              text: |
+                INVOICE
+                Invoice #: INV-001
+                Date: March 15, 2024
+                Vendor: Acme Corp
+                Item: Service A - $100 x 2 = $200
+                Total: $218
+              invoiceOcrId: "ocr_abc123"
+      responses:
+        '200':
+          description: Extraction successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/ExtractedData'
+
+  /api/validate/{id}:
+    post:
+      summary: Validate invoice data
+      description: Validate extracted invoice data against business rules
+      operationId: validateInvoice
+      tags:
+        - Validate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+              example:
+                success: true
+                data:
+                  invoiceOcrId: "ocr_abc123"
+                  status: "validated"
+                  isValid: true
+                  errors: []
+                  warnings:
+                    - "Invoice date is more than 30 days old"
+                  message: "Invoice data is valid"
+        '400':
+          description: Invoice not extracted yet
+    get:
+      summary: Get validation result
+      description: Get the validation result for an invoice
+      operationId: getValidationResult
+      tags:
+        - Validate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/ValidationResult'
+        '404':
+          description: Validation not yet performed
+
+  /api/validate/{id}/revalidate:
+    post:
+      summary: Re-validate invoice
+      description: Re-validate after corrections
+      operationId: revalidateInvoice
+      tags:
+        - Validate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                correctedData:
+                  type: object
+      responses:
+        '200':
+          description: Re-validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+
+  /api/invoices:
+    get:
+      summary: List invoices
+      description: Get a paginated list of processed invoices
+      operationId: listInvoices
+      tags:
+        - Invoices
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [uploaded, processing, extracted, validated, failed, duplicate]
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+
+  /api/invoices/{id}:
+    get:
+      summary: Get invoice details
+      description: Get detailed information about an invoice
+      operationId: getInvoice
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDetail'
+        '404':
+          description: Invoice not found
+    delete:
+      summary: Delete invoice
+      description: Delete an invoice and its extracted data
+      operationId: deleteInvoice
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/invoices/{id}/retry:
+    post:
+      summary: Retry failed extraction
+      description: Retry extraction for a failed invoice
+      operationId: retryInvoice
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retry initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetryResponse'
+        '400':
+          description: Maximum retries reached or invalid status
+
+  /api/invoices/{id}/export:
+    get:
+      summary: Export invoice data
+      description: Export invoice data in JSON or CSV format
+      operationId: exportInvoice
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv]
+            default: json
+      responses:
+        '200':
+          description: Export data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  /api/invoices/stats/summary:
+    get:
+      summary: Get invoice statistics
+      description: Get aggregate statistics about processed invoices
+      operationId: getInvoiceStats
+      tags:
+        - Invoices
+      responses:
+        '200':
+          description: Invoice statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceStats'
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    tenantId:
+      type: apiKey
+      in: header
+      name: X-Tenant-ID
+
+  schemas:
+    UploadResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            invoiceOcrId:
+              type: string
+            fileName:
+              type: string
+            fileSize:
+              type: integer
+            mimeType:
+              type: string
+            status:
+              type: string
+            message:
+              type: string
+
+    Base64UploadRequest:
+      type: object
+      required:
+        - base64Data
+        - fileName
+        - mimeType
+      properties:
+        base64Data:
+          type: string
+          description: Base64 encoded file data
+        fileName:
+          type: string
+        mimeType:
+          type: string
+          enum: [image/jpeg, image/png, application/pdf]
+
+    ExtractionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            invoiceOcrId:
+              type: string
+            status:
+              type: string
+            extractedData:
+              $ref: '#/components/schemas/ExtractedData'
+            processingTimeMs:
+              type: integer
+            duplicate:
+              type: object
+              properties:
+                duplicateOfId:
+                  type: string
+                confidence:
+                  type: number
+            message:
+              type: string
+
+    TextExtractionRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+        invoiceOcrId:
+          type: string
+          description: Optional invoice ID to link extracted data
+
+    ExtractedData:
+      type: object
+      properties:
+        invoiceNumber:
+          type: string
+        date:
+          type: string
+        dueDate:
+          type: string
+        vendor:
+          type: object
+          properties:
+            name:
+              type: string
+            address:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            taxId:
+              type: string
+        customer:
+          type: object
+          properties:
+            name:
+              type: string
+            address:
+              type: string
+            email:
+              type: string
+        lineItems:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              quantity:
+                type: number
+              unitPrice:
+                type: number
+              total:
+                type: number
+        subtotal:
+          type: number
+        tax:
+          type: number
+        taxRate:
+          type: number
+        total:
+          type: number
+        currency:
+          type: string
+        paymentTerms:
+          type: string
+        notes:
+          type: string
+
+    ValidationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ValidationResult'
+
+    ValidationResult:
+      type: object
+      properties:
+        invoiceOcrId:
+          type: string
+        status:
+          type: string
+        isValid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        message:
+          type: string
+
+    InvoiceListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              invoiceOcrId:
+                type: string
+              status:
+                type: string
+              originalFileName:
+                type: string
+              fileType:
+                type: string
+              fileSize:
+                type: integer
+              retryCount:
+                type: integer
+              processingTimeMs:
+                type: integer
+              createdAt:
+                type: string
+                format: date-time
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    InvoiceDetail:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            invoiceOcrId:
+              type: string
+            status:
+              type: string
+            originalFileName:
+              type: string
+            fileType:
+              type: string
+            fileSize:
+              type: integer
+            mimeType:
+              type: string
+            filePath:
+              type: string
+            extractedData:
+              $ref: '#/components/schemas/ExtractedData'
+            validationResult:
+              $ref: '#/components/schemas/ValidationResult'
+            duplicateOfId:
+              type: string
+            duplicateConfidence:
+              type: number
+            retryCount:
+              type: integer
+            lastError:
+              type: string
+            processingTimeMs:
+              type: integer
+            claudeModelUsed:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    RetryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            invoiceOcrId:
+              type: string
+            status:
+              type: string
+            retryCount:
+              type: integer
+            message:
+              type: string
+
+    InvoiceStats:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+            byStatus:
+              type: object
+              properties:
+                uploaded:
+                  type: integer
+                processing:
+                  type: integer
+                extracted:
+                  type: integer
+                validated:
+                  type: integer
+                failed:
+                  type: integer
+                duplicate:
+                  type: integer
+            validationRate:
+              type: string
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        hasMore:
+          type: boolean

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12pt;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      color: #333;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+    }
+    h1 {
+      font-size: 18pt;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      font-size: 14pt;
+      color: #666;
+    }
+    .reference {
+      font-size: 10pt;
+      color: #666;
+      margin-top: 5px;
+    }
+    .section {
+      margin-bottom: 25px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 12pt;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .party-info {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-left: 4px solid #333;
+      margin-bottom: 20px;
+    }
+    .deliverable-item {
+      margin-bottom: 15px;
+      padding-left: 20px;
+      border-left: 2px solid #eee;
+    }
+    .milestone-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    .milestone-table th,
+    .milestone-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    .milestone-table th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+    }
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    .cost-table th,
+    .cost-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    .cost-table th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+    }
+    .cost-table tfoot td {
+      font-weight: bold;
+      background-color: #f9f9f9;
+    }
+    .highlight-box {
+      background-color: #e8f4f8;
+      border: 1px solid #b8d4e3;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    .signature-block {
+      margin-top: 60px;
+      page-break-inside: avoid;
+    }
+    .signature-line {
+      border-bottom: 1px solid #333;
+      width: 280px;
+      height: 40px;
+      margin-bottom: 5px;
+    }
+    .date-line {
+      font-size: 10pt;
+      color: #666;
+    }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 10pt;
+      color: #999;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>STATEMENT OF WORK</h1>
+    <p class="subtitle">SOW No: {{sowNumber}}</p>
+    <p class="reference">Reference MSA: {{msaReference}}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Project Information</div>
+    <div class="party-info">
+      <strong>Project Name:</strong> {{projectName}}<br>
+      <strong>SOW Effective Date:</strong> {{formatDate effectiveDate}}<br>
+      <strong>Expected Completion:</strong> {{formatDate expectedCompletionDate}}<br>
+      <strong>Project Manager:</strong> {{projectManagerName}}
+    </div>
+  </div>
+
+  <div class="section">
+    <p>This Statement of Work ("SOW") is entered into pursuant to the Master Service Agreement dated {{formatDate msaDate}} between {{providerName}} ("Service Provider") and {{clientName}} ("Client").</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">1. Project Overview</div>
+    <p>{{projectDescription}}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. Scope of Work</div>
+    <p>The Service Provider agrees to perform the following work:</p>
+    <div class="deliverable-item">
+      <strong>Phase 1: {{phase1Name}}</strong><br>
+      {{phase1Description}}
+    </div>
+    <div class="deliverable-item">
+      <strong>Phase 2: {{phase2Name}}</strong><br>
+      {{phase2Description}}
+    </div>
+    <div class="deliverable-item">
+      <strong>Phase 3: {{phase3Name}}</strong><br>
+      {{phase3Description}}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">3. Deliverables</div>
+    <p>The Service Provider shall provide the following deliverables:</p>
+    <table class="milestone-table">
+      <thead>
+        <tr>
+          <th>Deliverable</th>
+          <th>Description</th>
+          <th>Due Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#listItems deliverables}}
+        {{/listItems}}
+        <tr>
+          <td>{{deliverable1Name}}</td>
+          <td>{{deliverable1Description}}</td>
+          <td>{{formatDate deliverable1Date}}</td>
+        </tr>
+        <tr>
+          <td>{{deliverable2Name}}</td>
+          <td>{{deliverable2Description}}</td>
+          <td>{{formatDate deliverable2Date}}</td>
+        </tr>
+        <tr>
+          <td>{{deliverable3Name}}</td>
+          <td>{{deliverable3Description}}</td>
+          <td>{{formatDate deliverable3Date}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">4. Milestones</div>
+    <table class="milestone-table">
+      <thead>
+        <tr>
+          <th>Milestone</th>
+          <th>Completion Criteria</th>
+          <th>Target Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{milestone1Name}}</td>
+          <td>{{milestone1Criteria}}</td>
+          <td>{{formatDate milestone1Date}}</td>
+        </tr>
+        <tr>
+          <td>{{milestone2Name}}</td>
+          <td>{{milestone2Criteria}}</td>
+          <td>{{formatDate milestone2Date}}</td>
+        </tr>
+        <tr>
+          <td>{{milestone3Name}}</td>
+          <td>{{milestone3Criteria}}</td>
+          <td>{{formatDate milestone3Date}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">5. Client Responsibilities</div>
+    <p>The Client agrees to provide:</p>
+    <ul>
+      <li>Timely access to required systems, data, and resources</li>
+      <li>Designated point of contact for project communications</li>
+      <li>Prompt review and feedback on deliverables</li>
+      <li>Necessary approvals and sign-offs</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">6. Fees and Payment Schedule</div>
+    <div class="highlight-box">
+      <p><strong>Total Project Cost:</strong> {{totalProjectCost}}</p>
+      <p><strong>Payment Schedule:</strong> {{paymentSchedule}}</p>
+    </div>
+
+    <table class="cost-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Description</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{costItem1Name}}</td>
+          <td>{{costItem1Description}}</td>
+          <td>{{costItem1Amount}}</td>
+        </tr>
+        <tr>
+          <td>{{costItem2Name}}</td>
+          <td>{{costItem2Description}}</td>
+          <td>{{costItem2Amount}}</td>
+        </tr>
+        <tr>
+          <td>{{costItem3Name}}</td>
+          <td>{{costItem3Description}}</td>
+          <td>{{costItem3Amount}}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="text-align: right;"><strong>Total:</strong></td>
+          <td><strong>{{totalProjectCost}}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">7. Change Management</div>
+    <p>Any changes to the scope of work must be documented in a Change Request form and approved by both parties before implementation. Changes may affect timeline and costs as agreed upon by the parties.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">8. Acceptance Criteria</div>
+    <p>Deliverables shall be considered accepted if the Client does not provide written rejection within {{acceptancePeriodDays}} business days of delivery, specifying in reasonable detail any material deficiencies.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">9. Term</div>
+    <p>This SOW shall commence on {{formatDate effectiveDate}} and be completed by {{formatDate expectedCompletionDate}}, unless extended by mutual written agreement.</p>
+  </div>
+
+  <div class="signature-block">
+    <p><strong>AGREED AND ACCEPTED:</strong></p>
+
+    <table style="width: 100%; margin-top: 30px;">
+      <tr>
+        <td style="width: 50%; padding-right: 20px;">
+          <strong>SERVICE PROVIDER:</strong><br><br>
+          {{providerName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Authorized Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name & Title</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+        <td style="width: 50%; padding-left: 20px;">
+          <strong>CLIENT:</strong><br><br>
+          {{clientName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Authorized Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name & Title</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Generated on {{generatedDateFormatted}} by REZ Contract Management System</p>
+    <p>SOW ID: {{sowNumber}} | Contract ID: {{contractId}}</p>
+  </div>
+</body>
+</html>

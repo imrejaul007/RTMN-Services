@@ -1,0 +1,105 @@
+# Access Control Service Kubernetes Deployment
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: access-control-config
+  namespace: rtnm-group
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: access-control-secret
+  namespace: rtnm-group
+type: Opaque
+stringData:
+  MONGODB_URI: "mongodb://user:password@mongo:27017/rez_access_control?authSource=admin"
+  REDIS_URL: "redis://:password@redis:6379"
+  INTERNAL_SERVICE_TOKENS_JSON: '{"admin-panel":"CHANGE_ME"}'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: access-control-service
+  namespace: rtnm-group
+spec:
+  type: ClusterIP
+  selector:
+    app: access-control-service
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: access-control-service
+  namespace: rtnm-group
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: access-control-service
+  template:
+    metadata:
+      labels:
+        app: access-control-service
+    spec:
+      containers:
+        - name: access-control-service
+          image: rtnm/access-control-service:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: access-control-config
+            - secretRef:
+                name: access-control-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: access-control-service-hpa
+  namespace: rtnm-group
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: access-control-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

@@ -1,0 +1,1731 @@
+openapi: 3.0.3
+info:
+  title: ReZ Delivery Service API
+  description: |
+    A comprehensive delivery management service for the ReZ ecosystem, handling driver management,
+    delivery tracking, route optimization, and real-time delivery status updates via WebSocket.
+
+    ## Features
+    - Driver Management: Register, track, and manage delivery drivers with location updates
+    - Delivery Lifecycle: Create, assign, track, and complete delivery orders
+    - Real-time Tracking: Live location updates via Socket.IO integration
+    - Route Optimization: Calculate optimal routes with ETA predictions
+    - Geo-spatial Queries: Find nearby drivers using MongoDB geospatial indexes
+    - Proof of Delivery: Capture signatures, photos, and recipient information
+    - Pricing Engine: Calculate delivery fees with base, distance, and surge pricing
+    - Event Sourcing: Complete audit trail of all delivery events and status changes
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3005
+    description: Development server
+  - url: https://api.rez.money/delivery
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Deliveries
+    description: Delivery management operations
+  - name: Drivers
+    description: Driver management operations
+  - name: Analytics
+    description: Analytics and reporting
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      description: Returns the health status of the delivery service
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/ready:
+    get:
+      tags:
+        - Health
+      summary: Readiness probe
+      description: Returns whether the service is ready to accept traffic
+      operationId: getReadiness
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+
+  /health/live:
+    get:
+      tags:
+        - Health
+      summary: Liveness probe
+      description: Returns whether the service is alive
+      operationId: getLiveness
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LivenessResponse'
+
+  /api/deliveries:
+    get:
+      tags:
+        - Deliveries
+      summary: List all deliveries
+      description: Returns a paginated list of all deliveries with optional filters
+      operationId: listDeliveries
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by delivery status
+          schema:
+            $ref: '#/components/schemas/DeliveryStatus'
+        - name: driverId
+          in: query
+          description: Filter by assigned driver
+          schema:
+            type: string
+        - name: merchantId
+          in: query
+          description: Filter by merchant
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: startDate
+          in: query
+          description: Filter by start date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Filter by end date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of deliveries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Deliveries
+      summary: Create a new delivery
+      description: Creates a new delivery order with pickup and dropoff locations
+      operationId: createDelivery
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliveryRequest'
+      responses:
+        '201':
+          description: Delivery created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}:
+    get:
+      tags:
+        - Deliveries
+      summary: Get delivery by ID
+      description: Returns a single delivery by its ID
+      operationId: getDeliveryById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Deliveries
+      summary: Update delivery
+      description: Updates an existing delivery's details
+      operationId: updateDelivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeliveryRequest'
+      responses:
+        '200':
+          description: Delivery updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Deliveries
+      summary: Cancel delivery
+      description: Cancels an existing delivery
+      operationId: cancelDelivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Cannot cancel delivery in current state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}/assign:
+    post:
+      tags:
+        - Deliveries
+      summary: Assign driver to delivery
+      description: Assigns a driver to handle the delivery
+      operationId: assignDriverToDelivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignDriverRequest'
+      responses:
+        '200':
+          description: Driver assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '404':
+          description: Delivery or driver not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Delivery already assigned or driver not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}/pickup:
+    post:
+      tags:
+        - Deliveries
+      summary: Mark delivery as picked up
+      description: Updates the delivery status to picked_up
+      operationId: markDeliveryPickedUp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PickupRequest'
+      responses:
+        '200':
+          description: Delivery picked up
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '400':
+          description: Invalid status transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}/dropoff:
+    post:
+      tags:
+        - Deliveries
+      summary: Complete delivery
+      description: Marks the delivery as delivered (dropoff complete)
+      operationId: completeDelivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DropoffRequest'
+      responses:
+        '200':
+          description: Delivery completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '400':
+          description: Invalid status transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}/fail:
+    post:
+      tags:
+        - Deliveries
+      summary: Mark delivery as failed
+      description: Marks the delivery as failed with a reason
+      operationId: failDelivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FailDeliveryRequest'
+      responses:
+        '200':
+          description: Delivery marked as failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '400':
+          description: Invalid status transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}/proof:
+    post:
+      tags:
+        - Deliveries
+      summary: Add proof of delivery
+      description: Adds proof of delivery (signature, photo, recipient info)
+      operationId: addProofOfDelivery
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProofOfDeliveryRequest'
+      responses:
+        '200':
+          description: Proof added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}/route:
+    get:
+      tags:
+        - Deliveries
+      summary: Get delivery route
+      description: Returns the optimized route for the delivery
+      operationId: getDeliveryRoute
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Route information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/deliveries/{id}/eta:
+    get:
+      tags:
+        - Deliveries
+      summary: Get delivery ETA
+      description: Returns the estimated time of arrival
+      operationId: getDeliveryEta
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delivery ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ETA information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ETAResponse'
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/drivers:
+    get:
+      tags:
+        - Drivers
+      summary: List all drivers
+      description: Returns a list of all drivers with optional filters
+      operationId: listDrivers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by driver status
+          schema:
+            $ref: '#/components/schemas/DriverStatus'
+        - name: isAvailable
+          in: query
+          description: Filter by availability
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Drivers
+      summary: Register a new driver
+      description: Registers a new delivery driver
+      operationId: registerDriver
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDriverRequest'
+      responses:
+        '201':
+          description: Driver registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/drivers/{id}:
+    get:
+      tags:
+        - Drivers
+      summary: Get driver by ID
+      description: Returns a single driver by ID
+      operationId: getDriverById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Driver ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Driver details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+        '404':
+          description: Driver not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Drivers
+      summary: Update driver
+      description: Updates an existing driver's details
+      operationId: updateDriver
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Driver ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDriverRequest'
+      responses:
+        '200':
+          description: Driver updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+        '404':
+          description: Driver not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Drivers
+      summary: Remove driver
+      description: Removes a driver from the system
+      operationId: deleteDriver
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Driver ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Driver removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Driver not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/drivers/{id}/location:
+    post:
+      tags:
+        - Drivers
+      summary: Update driver location
+      description: Updates the driver's current GPS location
+      operationId: updateDriverLocation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Driver ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdateRequest'
+      responses:
+        '200':
+          description: Location updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationUpdateResponse'
+        '404':
+          description: Driver not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/drivers/nearby:
+    get:
+      tags:
+        - Drivers
+      summary: Find nearby drivers
+      description: Finds drivers within a specified radius of a location
+      operationId: findNearbyDrivers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          description: Latitude coordinate
+          schema:
+            type: number
+            format: double
+        - name: longitude
+          in: query
+          required: true
+          description: Longitude coordinate
+          schema:
+            type: number
+            format: double
+        - name: radius
+          in: query
+          description: Search radius in meters
+          schema:
+            type: number
+            default: 5000
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Nearby drivers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NearbyDriversResponse'
+
+  /api/drivers/available:
+    get:
+      tags:
+        - Drivers
+      summary: List available drivers
+      description: Returns all available drivers
+      operationId: listAvailableDrivers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: latitude
+          in: query
+          description: Center latitude for distance sorting
+          schema:
+            type: number
+            format: double
+        - name: longitude
+          in: query
+          description: Center longitude for distance sorting
+          schema:
+            type: number
+            format: double
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Available drivers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverListResponse'
+
+  /api/analytics/summary:
+    get:
+      tags:
+        - Analytics
+      summary: Get delivery statistics summary
+      description: Returns aggregate statistics for deliveries
+      operationId: getDeliverySummary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: merchantId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliverySummaryResponse'
+
+  /api/analytics/driver/{id}:
+    get:
+      tags:
+        - Analytics
+      summary: Get driver performance metrics
+      description: Returns performance metrics for a specific driver
+      operationId: getDriverMetrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Driver ID
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Driver metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverMetricsResponse'
+
+  /api/analytics/merchant/{id}:
+    get:
+      tags:
+        - Analytics
+      summary: Get merchant delivery metrics
+      description: Returns delivery metrics for a specific merchant
+      operationId: getMerchantMetrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Merchant ID
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Merchant metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantMetricsResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication service
+
+  schemas:
+    DeliveryStatus:
+      type: string
+      enum:
+        - pending
+        - assigned
+        - picked_up
+        - in_transit
+        - out_for_delivery
+        - delivered
+        - failed
+        - cancelled
+      description: Status of the delivery
+
+    DriverStatus:
+      type: string
+      enum:
+        - available
+        - busy
+        - offline
+        - on_break
+      description: Status of the driver
+
+    GeoLocation:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate
+          minimum: -180
+          maximum: 180
+        address:
+          type: string
+          description: Human-readable address
+        instructions:
+          type: string
+          description: Special delivery instructions
+
+    PackageDetails:
+      type: object
+      required:
+        - dimensions
+        - description
+      properties:
+        weight:
+          type: number
+          format: double
+          description: Package weight in kg
+        dimensions:
+          type: object
+          required:
+            - length
+            - width
+            - height
+          properties:
+            length:
+              type: number
+              format: double
+              description: Length in cm
+            width:
+              type: number
+              format: double
+              description: Width in cm
+            height:
+              type: number
+              format: double
+              description: Height in cm
+        description:
+          type: string
+          description: Package description
+        specialInstructions:
+          type: string
+          description: Special handling instructions
+
+    Pricing:
+      type: object
+      properties:
+        basePrice:
+          type: number
+          format: double
+          description: Base delivery price
+        distanceFee:
+          type: number
+          format: double
+          description: Fee based on distance
+        surgeFee:
+          type: number
+          format: double
+          description: Surge pricing fee
+        totalPrice:
+          type: number
+          format: double
+          description: Total delivery price
+
+    ProofOfDelivery:
+      type: object
+      properties:
+        signature:
+          type: string
+          description: Base64 encoded signature image
+        photo:
+          type: string
+          description: Base64 encoded photo
+        recipientName:
+          type: string
+          description: Name of person who received the package
+        recipientPhone:
+          type: string
+          description: Phone number of recipient
+        notes:
+          type: string
+          description: Additional notes
+
+    DeliveryEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Event ID
+        type:
+          type: string
+          description: Event type
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        timestamp:
+          type: string
+          format: date-time
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        message:
+          type: string
+          description: Event description
+        metadata:
+          type: object
+          additionalProperties: true
+
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique delivery ID
+        orderId:
+          type: string
+          description: Associated order ID
+        customerId:
+          type: string
+          description: Customer ID
+        driverId:
+          type: string
+          description: Assigned driver ID
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        pickup:
+          $ref: '#/components/schemas/GeoLocation'
+        dropoff:
+          $ref: '#/components/schemas/GeoLocation'
+        packageDetails:
+          $ref: '#/components/schemas/PackageDetails'
+        pricing:
+          $ref: '#/components/schemas/Pricing'
+        proofOfDelivery:
+          $ref: '#/components/schemas/ProofOfDelivery'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryEvent'
+        scheduledPickup:
+          type: string
+          format: date-time
+        scheduledDropoff:
+          type: string
+          format: date-time
+        actualPickup:
+          type: string
+          format: date-time
+        actualDropoff:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Driver:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique driver ID
+        userId:
+          type: string
+          description: Associated user ID
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        status:
+          $ref: '#/components/schemas/DriverStatus'
+        currentLocation:
+          $ref: '#/components/schemas/GeoLocation'
+        vehicle:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - motorcycle
+                - car
+                - van
+                - truck
+            licensePlate:
+              type: string
+            model:
+              type: string
+            color:
+              type: string
+        rating:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 5
+        totalDeliveries:
+          type: integer
+        completedDeliveries:
+          type: integer
+        failedDeliveries:
+          type: integer
+        currentDeliveryId:
+          type: string
+        availability:
+          type: object
+          properties:
+            isAvailable:
+              type: boolean
+            maxRadius:
+              type: number
+              description: Maximum delivery radius in meters
+            workingHours:
+              type: object
+              properties:
+                start:
+                  type: string
+                  description: Start time (HH:mm format)
+                end:
+                  type: string
+                  description: End time (HH:mm format)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateDeliveryRequest:
+      type: object
+      required:
+        - orderId
+        - customerId
+        - pickup
+        - dropoff
+        - packageDetails
+      properties:
+        orderId:
+          type: string
+          description: Associated order ID
+        customerId:
+          type: string
+          description: Customer ID
+        merchantId:
+          type: string
+          description: Merchant ID
+        pickup:
+          $ref: '#/components/schemas/GeoLocation'
+        dropoff:
+          $ref: '#/components/schemas/GeoLocation'
+        packageDetails:
+          $ref: '#/components/schemas/PackageDetails'
+        scheduledPickup:
+          type: string
+          format: date-time
+        scheduledDropoff:
+          type: string
+          format: date-time
+
+    UpdateDeliveryRequest:
+      type: object
+      properties:
+        pickup:
+          $ref: '#/components/schemas/GeoLocation'
+        dropoff:
+          $ref: '#/components/schemas/GeoLocation'
+        packageDetails:
+          $ref: '#/components/schemas/PackageDetails'
+        scheduledPickup:
+          type: string
+          format: date-time
+        scheduledDropoff:
+          type: string
+          format: date-time
+
+    AssignDriverRequest:
+      type: object
+      required:
+        - driverId
+      properties:
+        driverId:
+          type: string
+          description: Driver ID to assign
+
+    PickupRequest:
+      type: object
+      properties:
+        actualPickupTime:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+
+    DropoffRequest:
+      type: object
+      required:
+        - proofOfDelivery
+      properties:
+        actualDropoffTime:
+          type: string
+          format: date-time
+        proofOfDelivery:
+          $ref: '#/components/schemas/ProofOfDelivery'
+
+    FailDeliveryRequest:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          description: Reason for failure
+        attemptPhoto:
+          type: string
+          description: Base64 encoded photo of failed attempt
+
+    ProofOfDeliveryRequest:
+      type: object
+      properties:
+        signature:
+          type: string
+          description: Base64 encoded signature
+        photo:
+          type: string
+          description: Base64 encoded photo
+        recipientName:
+          type: string
+        recipientPhone:
+          type: string
+        notes:
+          type: string
+
+    CreateDriverRequest:
+      type: object
+      required:
+        - userId
+        - name
+        - email
+        - phone
+        - vehicle
+      properties:
+        userId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        vehicle:
+          type: object
+          required:
+            - type
+            - licensePlate
+          properties:
+            type:
+              type: string
+              enum:
+                - motorcycle
+                - car
+                - van
+                - truck
+            licensePlate:
+              type: string
+            model:
+              type: string
+            color:
+              type: string
+        availability:
+          $ref: '#/components/schemas/Driver/properties/availability'
+
+    UpdateDriverRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        status:
+          $ref: '#/components/schemas/DriverStatus'
+        vehicle:
+          type: object
+          properties:
+            type:
+              type: string
+            licensePlate:
+              type: string
+            model:
+              type: string
+            color:
+              type: string
+        availability:
+          $ref: '#/components/schemas/Driver/properties/availability'
+
+    LocationUpdateRequest:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        speed:
+          type: number
+          format: double
+          description: Speed in m/s
+        heading:
+          type: number
+          format: double
+          description: Heading in degrees (0-360)
+        accuracy:
+          type: number
+          format: double
+          description: GPS accuracy in meters
+        timestamp:
+          type: string
+          format: date-time
+
+    DeliverySummaryResponse:
+      type: object
+      properties:
+        totalDeliveries:
+          type: integer
+        completedDeliveries:
+          type: integer
+        failedDeliveries:
+          type: integer
+        cancelledDeliveries:
+          type: integer
+        pendingDeliveries:
+          type: integer
+        averageDeliveryTime:
+          type: number
+          format: double
+          description: Average time in minutes
+        totalRevenue:
+          type: number
+          format: double
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+
+    DriverMetricsResponse:
+      type: object
+      properties:
+        driverId:
+          type: string
+        period:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+        totalDeliveries:
+          type: integer
+        completedDeliveries:
+          type: integer
+        failedDeliveries:
+          type: integer
+        successRate:
+          type: number
+          format: double
+        averageDeliveryTime:
+          type: number
+          format: double
+        averageRating:
+          type: number
+          format: double
+        totalEarnings:
+          type: number
+          format: double
+
+    MerchantMetricsResponse:
+      type: object
+      properties:
+        merchantId:
+          type: string
+        totalDeliveries:
+          type: integer
+        completedDeliveries:
+          type: integer
+        failedDeliveries:
+          type: integer
+        cancelledDeliveries:
+          type: integer
+        averageDeliveryTime:
+          type: number
+          format: double
+        totalDeliveryCost:
+          type: number
+          format: double
+        averageOrderValue:
+          type: number
+          format: double
+
+    RouteResponse:
+      type: object
+      properties:
+        deliveryId:
+          type: string
+        distance:
+          type: number
+          description: Total distance in meters
+        duration:
+          type: number
+          description: Estimated duration in seconds
+        waypoints:
+          type: array
+          items:
+            type: object
+            properties:
+              location:
+                $ref: '#/components/schemas/GeoLocation'
+              type:
+                type: string
+                enum:
+                  - pickup
+                  - dropoff
+                  - stop
+        polyline:
+          type: string
+          description: Encoded polyline for the route
+
+    ETAResponse:
+      type: object
+      properties:
+        deliveryId:
+          type: string
+        estimatedPickup:
+          type: string
+          format: date-time
+        estimatedDropoff:
+          type: string
+          format: date-time
+        currentDistance:
+          type: number
+          description: Distance remaining in meters
+        currentDuration:
+          type: number
+          description: Time remaining in seconds
+        lastUpdated:
+          type: string
+          format: date-time
+
+    LocationUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+        nearbyDeliveries:
+          type: array
+          items:
+            type: object
+            properties:
+              deliveryId:
+                type: string
+              distance:
+                type: number
+
+    NearbyDriversResponse:
+      type: object
+      properties:
+        drivers:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Driver'
+              - type: object
+                properties:
+                  distance:
+                    type: number
+                    description: Distance from search point in meters
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+            - degraded
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        uptime:
+          type: number
+
+    ReadinessResponse:
+      type: object
+      properties:
+        ready:
+          type: boolean
+        checks:
+          type: object
+          properties:
+            database:
+              type: boolean
+            redis:
+              type: boolean
+
+    LivenessResponse:
+      type: object
+      properties:
+        alive:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+    DeliveryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Delivery'
+
+    DeliveryListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    DriverResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Driver'
+
+    DriverListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid request payload
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

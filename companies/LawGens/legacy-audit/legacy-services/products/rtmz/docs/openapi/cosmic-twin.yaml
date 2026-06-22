@@ -1,0 +1,1017 @@
+openapi: 3.0.0
+info:
+  title: REZ Cosmic Twin Service
+  description: |
+    Digital Twin Service for creating and managing virtual representations of entities.
+
+    Features:
+    - Create and manage digital twins (company, person, product, location, event)
+    - State management with versioning
+    - Relationship management between twins
+    - Event history and audit trail
+    - Snapshot and restore functionality
+    - Real-time synchronization
+  version: 1.0.0
+  contact:
+    name: REZ Platform Team
+    email: platform@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5005
+    description: Local development server
+  - url: https://api.rez.ai/cosmic-twin
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Twins
+    description: Digital twin management
+  - name: Relationships
+    description: Twin relationship management
+  - name: Snapshots
+    description: Snapshot and restore operations
+  - name: History
+    description: Event history and audit
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  /api/twins:
+    get:
+      summary: List twins
+      description: List all twins with optional filtering
+      operationId: listTwins
+      tags:
+        - Twins
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [company, person, product, location, event]
+        - name: tenantId
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: List of twins
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwinListResponse'
+    post:
+      summary: Create twin
+      description: Create a new digital twin
+      operationId: createTwin
+      tags:
+        - Twins
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTwinRequest'
+            example:
+              type: "company"
+              name: "Acme Corporation"
+              state:
+                industry: "Technology"
+                founded: "2020-01-01"
+                employees: 150
+                revenue: 5000000
+              metadata:
+                source: "CRM"
+                syncId: "crm_12345"
+      responses:
+        '201':
+          description: Twin created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Twin'
+
+  /api/twins/{id}:
+    get:
+      summary: Get twin
+      description: Get twin details by ID
+      operationId: getTwin
+      tags:
+        - Twins
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Twin details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Twin'
+        '404':
+          description: Twin not found
+    patch:
+      summary: Update twin
+      description: Update twin metadata or name
+      operationId: updateTwin
+      tags:
+        - Twins
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTwinRequest'
+      responses:
+        '200':
+          description: Twin updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Twin'
+    delete:
+      summary: Delete twin
+      description: Delete a twin
+      operationId: deleteTwin
+      tags:
+        - Twins
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Twin deleted
+
+  /api/twins/{id}/full:
+    get:
+      summary: Get twin with relationships
+      description: Get twin with all its relationships
+      operationId: getTwinWithRelationships
+      tags:
+        - Twins
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Twin with relationships
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwinWithRelationships'
+        '404':
+          description: Twin not found
+
+  /api/twins/{id}/state:
+    put:
+      summary: Replace twin state
+      description: Full state replacement for a twin
+      operationId: replaceTwinState
+      tags:
+        - Twins
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              temperature: 72
+              pressure: 1013.25
+              lastUpdated: "2026-06-02T10:00:00Z"
+      responses:
+        '200':
+          description: State replaced
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Twin'
+    patch:
+      summary: Update twin state
+      description: Partial state update (patch)
+      operationId: patchTwinState
+      tags:
+        - Twins
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchStateRequest'
+            example:
+              patch:
+                status: "active"
+                lastSeen: "2026-06-02T10:30:00Z"
+      responses:
+        '200':
+          description: State patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Twin'
+
+  /api/twins/{id}/history:
+    get:
+      summary: Get event history
+      description: Get event history for a twin
+      operationId: getEventHistory
+      tags:
+        - History
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: since
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Event history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventHistoryResponse'
+
+  /api/twins/{id}/history/stats:
+    get:
+      summary: Get event statistics
+      description: Get event statistics for a twin
+      operationId: getEventStats
+      tags:
+        - History
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Event statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventStats'
+
+  /api/twins/{id}/state-at:
+    get:
+      summary: Get state at time
+      description: Get twin state at a specific point in time
+      operationId: getStateAtTime
+      tags:
+        - History
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: State at time
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  twinId:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  state:
+                    type: object
+        '404':
+          description: No state found
+
+  /api/twins/{id}/snapshot:
+    get:
+      summary: Get latest snapshot
+      description: Get the latest snapshot for a twin
+      operationId: getLatestSnapshot
+      tags:
+        - Snapshots
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Latest snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Snapshot'
+        '404':
+          description: No snapshot found
+    post:
+      summary: Create snapshot
+      description: Create a new snapshot of the twin
+      operationId: createSnapshot
+      tags:
+        - Snapshots
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: label
+          in: query
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Snapshot created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Snapshot'
+
+  /api/twins/{id}/snapshots:
+    get:
+      summary: List snapshots
+      description: List all snapshots for a twin
+      operationId: listSnapshots
+      tags:
+        - Snapshots
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: since
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: List of snapshots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SnapshotListResponse'
+
+  /api/twins/{id}/restore:
+    post:
+      summary: Restore twin
+      description: Restore twin to a snapshot or version
+      operationId: restoreTwin
+      tags:
+        - Snapshots
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                snapshotId:
+                  type: string
+                version:
+                  type: integer
+              example:
+                snapshotId: "snap_abc123"
+      responses:
+        '200':
+          description: Twin restored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Twin'
+        '400':
+          description: Invalid request
+
+  /api/twins/{id}/relationships:
+    get:
+      summary: Get relationships
+      description: Get all relationships for a twin
+      operationId: getTwinRelationships
+      tags:
+        - Relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Relationships
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwinRelationshipsResponse'
+    post:
+      summary: Add relationship
+      description: Add a relationship to a twin
+      operationId: addRelationship
+      tags:
+        - Relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRelationshipRequest'
+            example:
+              targetId: "twin_xyz789"
+              targetType: "company"
+              type: "supplier"
+              metadata:
+                since: "2020-01-01"
+      responses:
+        '201':
+          description: Relationship added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '404':
+          description: Twin not found
+        '409':
+          description: Relationship already exists
+
+  /api/twins/{id}/relationships/incoming:
+    get:
+      summary: Get incoming relationships
+      description: Get incoming relationships for a twin
+      operationId: getIncomingRelationships
+      tags:
+        - Relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Incoming relationships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  twinId:
+                    type: string
+                  relationships:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Relationship'
+                  total:
+                    type: integer
+
+  /api/twins/{id}/relationships/outgoing:
+    get:
+      summary: Get outgoing relationships
+      description: Get outgoing relationships for a twin
+      operationId: getOutgoingRelationships
+      tags:
+        - Relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Outgoing relationships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  twinId:
+                    type: string
+                  relationships:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Relationship'
+                  total:
+                    type: integer
+
+  /api/twins/{id}/relationships/{relationshipId}:
+    get:
+      summary: Get relationship
+      description: Get a specific relationship
+      operationId: getRelationship
+      tags:
+        - Relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: relationshipId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relationship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '404':
+          description: Relationship not found
+    patch:
+      summary: Update relationship
+      description: Update relationship metadata
+      operationId: updateRelationship
+      tags:
+        - Relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: relationshipId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: object
+      responses:
+        '200':
+          description: Relationship updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+    delete:
+      summary: Delete relationship
+      description: Delete a relationship
+      operationId: deleteRelationship
+      tags:
+        - Relationships
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: relationshipId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Relationship deleted
+
+  /api/relationships:
+    get:
+      summary: Query relationships
+      description: Query relationships across all twins
+      operationId: queryRelationships
+      tags:
+        - Relationships
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: targetType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Relationships
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipListResponse'
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Twin:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [company, person, product, location, event]
+        name:
+          type: string
+        state:
+          type: object
+          description: Current state of the twin
+        metadata:
+          type: object
+        version:
+          type: integer
+        tenantId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateTwinRequest:
+      type: object
+      required:
+        - type
+        - name
+      properties:
+        type:
+          type: string
+          enum: [company, person, product, location, event]
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        state:
+          type: object
+        metadata:
+          type: object
+        tenantId:
+          type: string
+
+    UpdateTwinRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        state:
+          type: object
+        metadata:
+          type: object
+
+    TwinListResponse:
+      type: object
+      properties:
+        twins:
+          type: array
+          items:
+            $ref: '#/components/schemas/Twin'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    TwinWithRelationships:
+      type: object
+      properties:
+        twin:
+          $ref: '#/components/schemas/Twin'
+        outgoingRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        incomingRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+
+    PatchStateRequest:
+      type: object
+      required:
+        - patch
+      properties:
+        patch:
+          type: object
+          description: Partial state update
+
+    Event:
+      type: object
+      properties:
+        eventId:
+          type: string
+        twinId:
+          type: string
+        action:
+          type: string
+        previousState:
+          type: object
+        newState:
+          type: object
+        source:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    EventHistoryResponse:
+      type: object
+      properties:
+        twinId:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    EventStats:
+      type: object
+      properties:
+        twinId:
+          type: string
+        totalEvents:
+          type: integer
+        byAction:
+          type: object
+          additionalProperties:
+            type: integer
+        firstEvent:
+          type: string
+          format: date-time
+        lastEvent:
+          type: string
+          format: date-time
+
+    Snapshot:
+      type: object
+      properties:
+        snapshotId:
+          type: string
+        twinId:
+          type: string
+        label:
+          type: string
+        state:
+          type: object
+        version:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    SnapshotListResponse:
+      type: object
+      properties:
+        twinId:
+          type: string
+        snapshots:
+          type: array
+          items:
+            $ref: '#/components/schemas/Snapshot'
+        total:
+          type: integer
+
+    Relationship:
+      type: object
+      properties:
+        relationshipId:
+          type: string
+        sourceTwinId:
+          type: string
+        targetTwinId:
+          type: string
+        targetType:
+          type: string
+        type:
+          type: string
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateRelationshipRequest:
+      type: object
+      required:
+        - targetId
+        - targetType
+        - type
+      properties:
+        targetId:
+          type: string
+        targetType:
+          type: string
+          enum: [company, person, product, location, event]
+        type:
+          type: string
+        metadata:
+          type: object
+
+    TwinRelationshipsResponse:
+      type: object
+      properties:
+        twinId:
+          type: string
+        outgoing:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        incoming:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        totalOutgoing:
+          type: integer
+        totalIncoming:
+          type: integer
+
+    RelationshipListResponse:
+      type: object
+      properties:
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer

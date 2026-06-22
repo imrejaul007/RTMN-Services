@@ -1,0 +1,14 @@
+name: Cost Alerts
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly Monday
+
+jobs:
+  cost-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cost Report
+        run: |
+          echo "Checking costs..."
+          # Add AWS CLI or Vercel API calls here

@@ -1,0 +1,1123 @@
+openapi: 3.0.3
+info:
+  title: ReZ Invoice Service API
+  description: |
+    A GST-compliant invoice generation service with PDF generation, email delivery, payment tracking,
+    and automated reminders.
+
+    ## Features
+    - GST-compliant Invoices: Full support for CGST, SGST, IGST calculations
+    - PDF Generation: Professional, branded invoice PDFs
+    - Email Delivery: Send invoices and reminders via SMTP
+    - Payment Tracking: Record partial and full payments
+    - Automated Reminders: Cron-based reminder system for overdue invoices
+    - RESTful API: Complete CRUD operations with filtering and pagination
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4028
+    description: Development server
+  - url: https://api.rez.money/invoice
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Invoices
+    description: Invoice management
+  - name: Payments
+    description: Payment tracking
+  - name: Reports
+    description: Reporting and statistics
+  - name: Utilities
+    description: Utility endpoints
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api:
+    get:
+      tags:
+        - Health
+      summary: API information
+      operationId: getApiInfo
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiInfoResponse'
+
+  /api/invoices:
+    get:
+      tags:
+        - Invoices
+      summary: List invoices
+      description: Returns a paginated list of invoices
+      operationId: listInvoices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/InvoiceStatus'
+        - name: customerId
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+
+    post:
+      tags:
+        - Invoices
+      summary: Create invoice
+      description: Creates a new invoice
+      operationId: createInvoice
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvoiceRequest'
+      responses:
+        '201':
+          description: Invoice created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceResponse'
+
+  /api/invoices/{id}:
+    get:
+      tags:
+        - Invoices
+      summary: Get invoice by ID
+      description: Returns a single invoice
+      operationId: getInvoiceById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceResponse'
+        '404':
+          description: Invoice not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/invoices/number/{number}:
+    get:
+      tags:
+        - Invoices
+      summary: Get by invoice number
+      description: Returns invoice by invoice number
+      operationId: getInvoiceByNumber
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: number
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceResponse'
+
+  /api/invoices/{id}:
+    patch:
+      tags:
+        - Invoices
+      summary: Update invoice
+      description: Updates an existing invoice
+      operationId: updateInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInvoiceRequest'
+      responses:
+        '200':
+          description: Invoice updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceResponse'
+
+    delete:
+      tags:
+        - Invoices
+      summary: Delete invoice
+      description: Deletes an invoice
+      operationId: deleteInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/invoices/{id}/status:
+    patch:
+      tags:
+        - Invoices
+      summary: Update invoice status
+      description: Updates the status of an invoice
+      operationId: updateInvoiceStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/InvoiceStatus'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceResponse'
+
+  /api/invoices/{id}/payments:
+    post:
+      tags:
+        - Payments
+      summary: Record payment
+      description: Records a payment for an invoice
+      operationId: recordPayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordPaymentRequest'
+      responses:
+        '201':
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+
+    get:
+      tags:
+        - Payments
+      summary: Get payment history
+      description: Returns payment history for an invoice
+      operationId: getPaymentHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentListResponse'
+
+  /api/invoices/{id}/send:
+    post:
+      tags:
+        - Invoices
+      summary: Send invoice via email
+      description: Sends an invoice to the customer via email
+      operationId: sendInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendInvoiceRequest'
+      responses:
+        '200':
+          description: Invoice sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendInvoiceResponse'
+
+  /api/invoices/{id}/pdf:
+    get:
+      tags:
+        - Invoices
+      summary: Download PDF
+      description: Downloads the invoice as PDF
+      operationId: downloadPdf
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /api/invoices/{id}/preview:
+    get:
+      tags:
+        - Invoices
+      summary: Preview PDF
+      description: Returns a preview of the invoice PDF
+      operationId: previewPdf
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: PDF preview
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /api/invoices/{id}/reminders:
+    post:
+      tags:
+        - Invoices
+      summary: Send reminder
+      description: Sends a payment reminder for an invoice
+      operationId: sendReminder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendReminderRequest'
+      responses:
+        '200':
+          description: Reminder sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/invoices/reminders/batch:
+    post:
+      tags:
+        - Invoices
+      summary: Batch reminders
+      description: Sends reminders to multiple overdue invoices
+      operationId: batchReminders
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - invoiceIds
+              properties:
+                invoiceIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Reminders sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchReminderResponse'
+
+  /api/invoices/stats/summary:
+    get:
+      tags:
+        - Reports
+      summary: Invoice statistics
+      description: Returns invoice statistics
+      operationId: getInvoiceStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Invoice statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceStatsResponse'
+
+  /api/invoices/reports/gst:
+    get:
+      tags:
+        - Reports
+      summary: GST summary
+      description: Returns GST summary report
+      operationId: getGstReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: fromDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: GST summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GstReportResponse'
+
+  /api/invoices/reports/overdue:
+    get:
+      tags:
+        - Reports
+      summary: Overdue invoices
+      description: Returns list of overdue invoices
+      operationId: getOverdueInvoices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Overdue invoices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+
+  /api/emails/verify:
+    post:
+      tags:
+        - Utilities
+      summary: Verify email connection
+      description: Tests the email configuration
+      operationId: verifyEmail
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailVerifyResponse'
+
+  /api/reminders/trigger:
+    post:
+      tags:
+        - Utilities
+      summary: Manual reminder trigger
+      description: Triggers reminder scheduler manually
+      operationId: triggerReminders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Reminders triggered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriggerRemindersResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    InvoiceStatus:
+      type: string
+      enum:
+        - draft
+        - sent
+        - viewed
+        - partial
+        - paid
+        - overdue
+        - cancelled
+
+    InvoiceItem:
+      type: object
+      required:
+        - description
+        - quantity
+        - rate
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        hsnCode:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        rate:
+          type: number
+        discountPercent:
+          type: number
+          default: 0
+        discountAmount:
+          type: number
+        taxableAmount:
+          type: number
+        gstRate:
+          type: number
+          default: 18
+        cgstAmount:
+          type: number
+        sgstAmount:
+          type: number
+        igstAmount:
+          type: number
+        totalAmount:
+          type: number
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        invoiceId:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date
+        method:
+          type: string
+          enum:
+            - bank_transfer
+            - upi
+            - cash
+            - check
+            - card
+            - other
+        reference:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+        invoiceNumber:
+          type: string
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+        customerName:
+          type: string
+        customerAddress:
+          type: object
+          properties:
+            line1:
+              type: string
+            line2:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            postalCode:
+              type: string
+            country:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            gstin:
+              type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        subtotal:
+          type: number
+        totalDiscount:
+          type: number
+        taxableAmount:
+          type: number
+        cgstAmount:
+          type: number
+        sgstAmount:
+          type: number
+        igstAmount:
+          type: number
+        totalTax:
+          type: number
+        totalAmount:
+          type: number
+        amountPaid:
+          type: number
+        amountDue:
+          type: number
+        currency:
+          type: string
+          default: INR
+        issueDate:
+          type: string
+          format: date
+        dueDate:
+          type: string
+          format: date
+        notes:
+          type: string
+        terms:
+          type: string
+        bankDetails:
+          type: object
+          properties:
+            bankName:
+              type: string
+            branch:
+              type: string
+            accountNumber:
+              type: string
+            ifscCode:
+              type: string
+            upiId:
+              type: string
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateInvoiceRequest:
+      type: object
+      required:
+        - customerName
+        - items
+      properties:
+        customerName:
+          type: string
+        customerAddress:
+          type: object
+          properties:
+            line1:
+              type: string
+            line2:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            postalCode:
+              type: string
+            country:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            gstin:
+              type: string
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - description
+              - quantity
+              - rate
+            properties:
+              description:
+                type: string
+              hsnCode:
+                type: string
+              quantity:
+                type: number
+              unit:
+                type: string
+              rate:
+                type: number
+              discountPercent:
+                type: number
+              gstRate:
+                type: number
+        notes:
+          type: string
+        terms:
+          type: string
+        bankDetails:
+          type: object
+        dueDate:
+          type: string
+          format: date
+        metadata:
+          type: object
+
+    UpdateInvoiceRequest:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerAddress:
+          type: object
+        items:
+          type: array
+          items:
+            type: object
+        notes:
+          type: string
+        terms:
+          type: string
+        dueDate:
+          type: string
+          format: date
+
+    RecordPaymentRequest:
+      type: object
+      required:
+        - amount
+        - date
+      properties:
+        amount:
+          type: number
+        date:
+          type: string
+          format: date
+        method:
+          type: string
+          enum:
+            - bank_transfer
+            - upi
+            - cash
+            - check
+            - card
+            - other
+        reference:
+          type: string
+        notes:
+          type: string
+
+    SendInvoiceRequest:
+      type: object
+      required:
+        - to
+      properties:
+        to:
+          type: string
+          format: email
+        cc:
+          type: array
+          items:
+            type: string
+            format: email
+        subject:
+          type: string
+        message:
+          type: string
+        attachPdf:
+          type: boolean
+          default: true
+
+    SendReminderRequest:
+      type: object
+      properties:
+        to:
+          type: string
+          format: email
+        subject:
+          type: string
+        message:
+          type: string
+
+    InvoiceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Invoice'
+
+    InvoiceListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PaymentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Payment'
+
+    PaymentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+
+    SendInvoiceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            sentTo:
+              type: string
+            sentAt:
+              type: string
+              format: date-time
+
+    BatchReminderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+            sent:
+              type: integer
+            failed:
+              type: integer
+
+    InvoiceStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalInvoices:
+              type: integer
+            totalAmount:
+              type: number
+            paidAmount:
+              type: number
+            pendingAmount:
+              type: number
+            overdueAmount:
+              type: number
+            byStatus:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  amount:
+                    type: number
+
+    GstReportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            period:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: date
+                to:
+                  type: string
+                  format: date
+            summary:
+              type: object
+              properties:
+                totalTaxableAmount:
+                  type: number
+                totalCgst:
+                  type: number
+                totalSgst:
+                  type: number
+                totalIgst:
+                  type: number
+                totalTax:
+                  type: number
+            byRate:
+              type: array
+              items:
+                type: object
+                properties:
+                  rate:
+                    type: number
+                  taxableAmount:
+                    type: number
+                  cgst:
+                    type: number
+                  sgst:
+                    type: number
+                  igst:
+                    type: number
+
+    EmailVerifyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            connected:
+              type: boolean
+            message:
+              type: string
+
+    TriggerRemindersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            remindersSent:
+              type: integer
+            invoicesProcessed:
+              type: integer
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ApiInfoResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

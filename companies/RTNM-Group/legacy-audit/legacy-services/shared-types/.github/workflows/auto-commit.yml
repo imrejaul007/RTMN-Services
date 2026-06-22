@@ -1,0 +1,22 @@
+name: Auto Commit & Push
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+
+jobs:
+  auto-push:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: |
+          git config --local user.email "ci@rez.app"
+          git config --local user.name "CI Bot"
+          git add -A
+          git diff --staged --quiet || echo "No changes to commit"
+          git push origin main

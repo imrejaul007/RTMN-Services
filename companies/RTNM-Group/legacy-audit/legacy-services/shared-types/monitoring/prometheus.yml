@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'rez-services'
+    static_configs:
+      - targets:
+          - 'rez-api:3000'
+          - 'rez-worker:3001'
+          - 'rez-websocket:3002'
+          - 'rez-graphql:4000'
+          - 'rez-karma-service:5000'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'bullmq-exporter'
+    static_configs:
+      - targets:
+          - 'bullmq-exporter:9090'
+    scrape_interval: 30s
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+          - 'node-exporter:9100'

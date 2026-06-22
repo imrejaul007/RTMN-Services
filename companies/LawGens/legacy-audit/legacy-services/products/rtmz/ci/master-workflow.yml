@@ -1,0 +1,459 @@
+name: Master Orchestration Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Services to deploy'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - graphql-federation
+          - automl-pipeline
+          - invoice-ocr
+          - contract-management
+          - legal-document-ai
+          - cosmic-twin
+          - ranking-service
+      environment:
+        description: 'Target environment'
+        required: false
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip tests (not recommended)'
+        required: false
+        default: 'false'
+        type: boolean
+      skip_docker:
+        description: 'Skip Docker builds'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
+  SKIP_TESTS: ${{ github.event.inputs.skip_tests || 'false' }}
+  SKIP_DOCKER: ${{ github.event.inputs.skip_docker || 'false' }}
+
+jobs:
+  # GraphQL Federation
+  graphql-federation:
+    name: GraphQL Federation
+    runs-on: ubuntu-latest
+    if: github.event.inputs.services == 'all' || github.event.inputs.services == 'graphql-federation'
+    environment: ${{ env.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: RABTUL-Technologies/REZ-graphql-federation
+          path: graphql-federation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+        working-directory: ./graphql-federation
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./graphql-federation
+
+      - name: Run lint
+        run: npm run lint || true
+        working-directory: ./graphql-federation
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Run build
+        run: npm run build
+        working-directory: ./graphql-federation
+
+      - name: Run tests
+        run: npm test
+        working-directory: ./graphql-federation
+        if: env.SKIP_TESTS != 'true'
+        env:
+          CI: true
+
+      - name: Build and push Docker image
+        if: env.SKIP_DOCKER != 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./graphql-federation
+          push: true
+          tags: |
+            ghcr.io/imrejaul007/rez-graphql-federation:${{ github.sha }}
+            ghcr.io/imrejaul007/rez-graphql-federation:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          DOCKER_BUILDKIT: 1
+
+  # AutoML Pipeline
+  automl-pipeline:
+    name: AutoML Pipeline
+    runs-on: ubuntu-latest
+    if: github.event.inputs.services == 'all' || github.event.inputs.services == 'automl-pipeline'
+    environment: ${{ env.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: REZ-Intelligence/REZ-automl-pipeline
+          path: automl-pipeline
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+        working-directory: ./automl-pipeline
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt || true
+        working-directory: ./automl-pipeline
+
+      - name: Run lint
+        run: ruff check . || true
+        working-directory: ./automl-pipeline
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Run tests
+        run: pytest tests/ -v || true
+        working-directory: ./automl-pipeline
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Build and push Docker image
+        if: env.SKIP_DOCKER != 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./automl-pipeline
+          push: true
+          tags: |
+            ghcr.io/imrejaul007/rez-automl-pipeline:${{ github.sha }}
+            ghcr.io/imrejaul007/rez-automl-pipeline:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          DOCKER_BUILDKIT: 1
+
+  # Invoice OCR
+  invoice-ocr:
+    name: Invoice OCR
+    runs-on: ubuntu-latest
+    if: github.event.inputs.services == 'all' || github.event.inputs.services == 'invoice-ocr'
+    environment: ${{ env.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: RABTUL-Technologies/REZ-invoice-ocr
+          path: invoice-ocr
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+        working-directory: ./invoice-ocr
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./invoice-ocr
+
+      - name: Run lint
+        run: npm run lint || true
+        working-directory: ./invoice-ocr
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Run build
+        run: npm run build
+        working-directory: ./invoice-ocr
+
+      - name: Run tests
+        run: npm test
+        working-directory: ./invoice-ocr
+        if: env.SKIP_TESTS != 'true'
+        env:
+          CI: true
+
+      - name: Build and push Docker image
+        if: env.SKIP_DOCKER != 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./invoice-ocr
+          push: true
+          tags: |
+            ghcr.io/imrejaul007/rez-invoice-ocr:${{ github.sha }}
+            ghcr.io/imrejaul007/rez-invoice-ocr:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          DOCKER_BUILDKIT: 1
+
+  # Contract Management
+  contract-management:
+    name: Contract Management
+    runs-on: ubuntu-latest
+    if: github.event.inputs.services == 'all' || github.event.inputs.services == 'contract-management'
+    environment: ${{ env.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: RABTUL-Technologies/REZ-contract-management
+          path: contract-management
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+        working-directory: ./contract-management
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./contract-management
+
+      - name: Run lint
+        run: npm run lint || true
+        working-directory: ./contract-management
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Run build
+        run: npm run build
+        working-directory: ./contract-management
+
+      - name: Run tests
+        run: npm test
+        working-directory: ./contract-management
+        if: env.SKIP_TESTS != 'true'
+        env:
+          CI: true
+
+      - name: Build and push Docker image
+        if: env.SKIP_DOCKER != 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./contract-management
+          push: true
+          tags: |
+            ghcr.io/imrejaul007/rez-contract-management:${{ github.sha }}
+            ghcr.io/imrejaul007/rez-contract-management:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          DOCKER_BUILDKIT: 1
+
+  # Legal Document AI
+  legal-document-ai:
+    name: Legal Document AI
+    runs-on: ubuntu-latest
+    if: github.event.inputs.services == 'all' || github.event.inputs.services == 'legal-document-ai'
+    environment: ${{ env.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: hojai-ai/REZ-legal-document-ai
+          path: legal-document-ai
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+        working-directory: ./legal-document-ai
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt || true
+        working-directory: ./legal-document-ai
+
+      - name: Run lint
+        run: ruff check . || true
+        working-directory: ./legal-document-ai
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Run tests
+        run: pytest tests/ -v || true
+        working-directory: ./legal-document-ai
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Build and push Docker image
+        if: env.SKIP_DOCKER != 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./legal-document-ai
+          push: true
+          tags: |
+            ghcr.io/imrejaul007/rez-legal-document-ai:${{ github.sha }}
+            ghcr.io/imrejaul007/rez-legal-document-ai:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          DOCKER_BUILDKIT: 1
+
+  # Cosmic Twin
+  cosmic-twin:
+    name: Cosmic Twin
+    runs-on: ubuntu-latest
+    if: github.event.inputs.services == 'all' || github.event.inputs.services == 'cosmic-twin'
+    environment: ${{ env.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: Axom/REZ-cosmic-twin
+          path: cosmic-twin
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+        working-directory: ./cosmic-twin
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./cosmic-twin
+
+      - name: Run lint
+        run: npm run lint || true
+        working-directory: ./cosmic-twin
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Run build
+        run: npm run build
+        working-directory: ./cosmic-twin
+
+      - name: Run tests
+        run: npm test
+        working-directory: ./cosmic-twin
+        if: env.SKIP_TESTS != 'true'
+        env:
+          CI: true
+
+      - name: Build and push Docker image
+        if: env.SKIP_DOCKER != 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./cosmic-twin
+          push: true
+          tags: |
+            ghcr.io/imrejaul007/rez-cosmic-twin:${{ github.sha }}
+            ghcr.io/imrejaul007/rez-cosmic-twin:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          DOCKER_BUILDKIT: 1
+
+  # Ranking Service
+  ranking-service:
+    name: Ranking Service
+    runs-on: ubuntu-latest
+    if: github.event.inputs.services == 'all' || github.event.inputs.services == 'ranking-service'
+    environment: ${{ env.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: REZ-Intelligence/REZ-ranking-service
+          path: ranking-service
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+        working-directory: ./ranking-service
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./ranking-service
+
+      - name: Run lint
+        run: npm run lint || true
+        working-directory: ./ranking-service
+        if: env.SKIP_TESTS != 'true'
+
+      - name: Run build
+        run: npm run build
+        working-directory: ./ranking-service
+
+      - name: Run tests
+        run: npm test
+        working-directory: ./ranking-service
+        if: env.SKIP_TESTS != 'true'
+        env:
+          CI: true
+
+      - name: Build and push Docker image
+        if: env.SKIP_DOCKER != 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ranking-service
+          push: true
+          tags: |
+            ghcr.io/imrejaul007/rez-ranking-service:${{ github.sha }}
+            ghcr.io/imrejaul007/rez-ranking-service:latest
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        env:
+          DOCKER_BUILDKIT: 1
+
+  # Summary job
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs:
+      - graphql-federation
+      - automl-pipeline
+      - invoice-ocr
+      - contract-management
+      - legal-document-ai
+      - cosmic-twin
+      - ranking-service
+    if: always()
+
+    steps:
+      - name: Generate deployment report
+        run: |
+          echo "# Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+          echo "Triggered by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "Run ID: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Service Status" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| GraphQL Federation | ${{ needs.graphql-federation.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| AutoML Pipeline | ${{ needs.automl-pipeline.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Invoice OCR | ${{ needs.invoice-ocr.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contract Management | ${{ needs.contract-management.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Legal Document AI | ${{ needs.legal-document-ai.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cosmic Twin | ${{ needs.cosmic-twin.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Ranking Service | ${{ needs.ranking-service.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All services deployed successfully!" >> $GITHUB_STEP_SUMMARY

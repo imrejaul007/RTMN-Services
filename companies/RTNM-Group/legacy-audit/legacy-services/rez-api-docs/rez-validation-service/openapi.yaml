@@ -1,0 +1,505 @@
+openapi: 3.0.3
+info:
+  title: ReZ Validation Service API
+  description: |
+    A comprehensive input validation and sanitization service providing schema validation,
+    security scanning, and data sanitization utilities for the ReZ ecosystem.
+
+    ## Features
+    - Schema Validation: Zod-based schema validation for API requests
+    - Input Sanitization: Protection against XSS, SQL injection, and command injection
+    - Rate Limiting: Endpoint-specific rate limiting middleware
+    - Request Size Limits: Configurable request size restrictions
+    - API Key Authentication: Secure API key validation middleware
+    - Security Scanning: Detect potential security threats in requests
+    - Custom Validators: Define custom validation rules and schemas
+    - Error Formatting: Consistent error response formatting
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3022
+    description: Development server
+  - url: https://api.rez.money/validation
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Validation
+    description: Input validation endpoints
+  - name: Sanitization
+    description: Input sanitization endpoints
+  - name: Schemas
+    description: Schema management
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/validate:
+    post:
+      tags:
+        - Validation
+      summary: Validate request body
+      description: Validates the request body against defined rules
+      operationId: validateRequest
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/validate/schema:
+    post:
+      tags:
+        - Validation
+      summary: Validate against custom schema
+      description: Validates data against a custom Zod schema
+      operationId: validateSchema
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomSchemaValidationRequest'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/sanitize:
+    post:
+      tags:
+        - Sanitization
+      summary: Sanitize input data
+      description: Sanitizes input data to remove potential security threats
+      operationId: sanitizeInput
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SanitizationRequest'
+      responses:
+        '200':
+          description: Sanitization result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SanitizationResponse'
+
+  /api/schemas:
+    get:
+      tags:
+        - Schemas
+      summary: List schemas
+      description: Returns all registered validation schemas
+      operationId: listSchemas
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: List of schemas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaListResponse'
+
+    post:
+      tags:
+        - Schemas
+      summary: Create validation schema
+      description: Creates a new validation schema
+      operationId: createSchema
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSchemaRequest'
+      responses:
+        '201':
+          description: Schema created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaResponse'
+
+  /api/schemas/{name}:
+    get:
+      tags:
+        - Schemas
+      summary: Get schema by name
+      description: Returns a schema by name
+      operationId: getSchema
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Schema details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaResponse'
+        '404':
+          description: Schema not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Schemas
+      summary: Update schema
+      description: Updates an existing schema
+      operationId: updateSchema
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSchemaRequest'
+      responses:
+        '200':
+          description: Schema updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaResponse'
+
+    delete:
+      tags:
+        - Schemas
+      summary: Delete schema
+      description: Deletes a validation schema
+      operationId: deleteSchema
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Schema deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    FieldRule:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - string
+            - number
+            - boolean
+            - email
+            - url
+            - uuid
+            - object
+            - array
+        required:
+          type: boolean
+        minLength:
+          type: integer
+        maxLength:
+          type: integer
+        min:
+          type: number
+        max:
+          type: number
+        pattern:
+          type: string
+        enum:
+          type: array
+          items: {}
+        transform:
+          type: string
+          enum:
+            - trim
+            - lowercase
+            - uppercase
+
+    ValidationSchema:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FieldRule'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ValidationRequest:
+      type: object
+      required:
+        - data
+      properties:
+        schemaName:
+          type: string
+          description: Name of a registered schema
+        data:
+          type: object
+          additionalProperties: true
+          description: Data to validate
+
+    CustomSchemaValidationRequest:
+      type: object
+      required:
+        - schema
+        - data
+      properties:
+        schema:
+          type: object
+          description: Inline Zod-like schema definition
+        data:
+          type: object
+          additionalProperties: true
+          description: Data to validate
+
+    SanitizationRequest:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+          description: Data to sanitize
+        options:
+          type: object
+          properties:
+            stripHtml:
+              type: boolean
+              default: true
+            escapeSql:
+              type: boolean
+              default: true
+            removeScripts:
+              type: boolean
+              default: true
+
+    ValidationResult:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+
+    SanitizationRequest:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+        options:
+          type: object
+          properties:
+            stripHtml:
+              type: boolean
+            escapeSql:
+              type: boolean
+            removeScripts:
+              type: boolean
+
+    CreateSchemaRequest:
+      type: object
+      required:
+        - name
+        - fields
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FieldRule'
+
+    UpdateSchemaRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FieldRule'
+
+    ValidationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        valid:
+          type: boolean
+        data:
+          type: object
+          additionalProperties: true
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        valid:
+          type: boolean
+          example: false
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationResult'
+        security:
+          type: array
+          items:
+            type: string
+
+    SanitizationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        sanitized:
+          type: object
+          additionalProperties: true
+
+    SchemaResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ValidationSchema'
+
+    SchemaListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationSchema'
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

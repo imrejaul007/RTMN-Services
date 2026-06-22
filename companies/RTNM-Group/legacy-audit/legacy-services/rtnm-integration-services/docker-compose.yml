@@ -1,0 +1,272 @@
+# RTMN Integration Services - Production Docker Compose
+# Version 3.0.0 | Date: June 8, 2026
+
+version: '3.8'
+
+services:
+  # ============================================
+  # UNIFIED API GATEWAY
+  # ============================================
+  api-gateway:
+    build: ./unified-api-gateway
+    container_name: rtmn-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY=7d
+      # RTNM Service URLs
+      - HOJAi_URL=${HOJAi_URL:-http://hojai:4800}
+      - RABTUL_URL=${RABTUL_URL:-http://rabtul:4005}
+      - CORPPERKS_URL=${CORPPERKS_URL:-http://corpperks:4700}
+      - ADBAZAAR_URL=${ADBAZAAR_URL:-http://adbazaar:4200}
+      - SAFEQR_URL=${SAFEQR_URL:-http://safeqr:4001}
+      - NEXHA_URL=${NEXHA_URL:-http://nexha:4100}
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # SSO SERVICE (Real Auth)
+  # ============================================
+  sso:
+    build: ./sso-service
+    container_name: rtmn-sso
+    ports:
+      - "3015:3015"
+    environment:
+      - NODE_ENV=production
+      - PORT=3015
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRY=7d
+      - SSO_DB_HOST=postgres
+      - SSO_DB_PORT=5432
+      - SSO_DB_USER=rtmn
+      - SSO_DB_PASSWORD=${DB_PASSWORD}
+      - SSO_DB=rtmn_sso
+    depends_on:
+      - postgres
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # BILLING SERVICE (Real Database + RABTUL)
+  # ============================================
+  billing:
+    build: ./billing-service
+    container_name: rtmn-billing
+    ports:
+      - "3016:3016"
+    environment:
+      - NODE_ENV=production
+      - PORT=3016
+      - BILLING_DB_HOST=postgres
+      - BILLING_DB_PORT=5432
+      - BILLING_DB_USER=rtmn
+      - BILLING_DB_PASSWORD=${DB_PASSWORD}
+      - BILLING_DB=rtmn_billing
+      - RABTUL_URL=${RABTUL_URL:-http://rabtul:4005}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_TOKEN}
+    depends_on:
+      - postgres
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # API DOCS PORTAL
+  # ============================================
+  api-docs:
+    build: ./api-docs
+    container_name: rtmn-api-docs
+    ports:
+      - "3017:3017"
+    environment:
+      - NODE_ENV=production
+      - PORT=3017
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # HELP CENTER
+  # ============================================
+  help-center:
+    build: ./help-center
+    container_name: rtmn-help
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # INTEGRATION SERVICE (Real RTNM connections)
+  # ============================================
+  integration:
+    build: ./integrations/corpperks-rabtul
+    container_name: rtmn-integration
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=production
+      - PORT=3010
+      # RTNM Service URLs (connect to actual services)
+      - CORPPERKS_URL=${CORPPERKS_URL:-http://corpperks:4700}
+      - RABTUL_URL=${RABTUL_URL:-http://rabtul:4005}
+      - SAFEQR_URL=${SAFEQR_URL:-http://safeqr:4001}
+      - NEXHA_URL=${NEXHA_URL:-http://nexha:4100}
+      - HOJAi_URL=${HOJAi_URL:-http://hojai:4800}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_TOKEN}
+      # Integration database
+      - INTEGRATION_DB_HOST=postgres
+      - INTEGRATION_DB_PORT=5432
+      - INTEGRATION_DB_USER=rtmn
+      - INTEGRATION_DB_PASSWORD=${DB_PASSWORD}
+      - INTEGRATION_DB=rtmn_integration
+    depends_on:
+      - postgres
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # UNIFIED DASHBOARD
+  # ============================================
+  dashboard:
+    build: ./unified-dashboard
+    container_name: rtmn-dashboard
+    ports:
+      - "3012:3012"
+    environment:
+      - NODE_ENV=production
+      - PORT=3012
+      - API_GATEWAY_URL=http://api-gateway:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # NGINX REVERSE PROXY
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: rtmn-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api-gateway
+      - sso
+      - billing
+      - api-docs
+      - dashboard
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # POSTGRESQL (All databases)
+  # ============================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: rtmn-postgres
+    environment:
+      - POSTGRES_USER=rtmn
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # REDIS (Sessions, Cache, Rate Limiting)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: rtmn-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+
+  # ============================================
+  # PROMETHEUS (Metrics)
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rtmn-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # ============================================
+  # GRAFANA (Dashboards)
+  # ============================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rtmn-grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - rtmn-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  rtmn-network:
+    driver: bridge
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:

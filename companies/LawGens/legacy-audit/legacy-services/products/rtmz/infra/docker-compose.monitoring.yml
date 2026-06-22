@@ -1,0 +1,496 @@
+version: '3.8'
+
+services:
+  # === INFRASTRUCTURE ===
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - rtmz-monitoring
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - rtmz-monitoring
+
+  # === AUTH SERVICES ===
+  rez-auth:
+    build: ../apps/services/rez-auth-service
+    ports:
+      - "4002:4002"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - PORT=4002
+      - MONGODB_URI=mongodb://mongodb:27017/rez-auth
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-rez123secret456jwt789token012secret345}
+      - JWT_MERCHANT_SECRET=${JWT_MERCHANT_SECRET:-merchant789secret012jwt345token678secret901}
+      - JWT_ADMIN_SECRET=${JWT_ADMIN_SECRET:-admin901secret234jwt567token890secret123}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-refresh456secret789jwt012token345secret678}
+      - INTERNAL_SERVICE_TOKENS_JSON=${INTERNAL_SERVICE_TOKENS:-'{"graphql-gateway":"graphql-internal-token","automl":"automl-internal-token","invoice-ocr":"invoice-internal-token","contract-mgmt":"contract-internal-token","legal-ai":"legal-internal-token","cosmic-twin":"cosmic-internal-token","ranking":"ranking-internal-token","mcp-servers":"mcp-internal-token"}'}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000,http://localhost:5000}
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  rez-sso:
+    build: ../apps/services/REZ-sso-service
+    ports:
+      - "4003:4003"
+    depends_on:
+      - mongodb
+      - redis
+      - rez-auth
+    environment:
+      - PORT=4003
+      - MONGODB_URI=mongodb://mongodb:27017/rez-sso
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-sso-internal-token}
+      - OKTA_CLIENT_ID=${OKTA_CLIENT_ID:-}
+      - OKTA_CLIENT_SECRET=${OKTA_CLIENT_SECRET:-}
+      - OKTA_DOMAIN=${OKTA_DOMAIN:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  # === BUSINESS SERVICES ===
+  graphql-gateway:
+    build: ../apps/services/REZ-graphql-federation
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - redis
+      - rez-auth
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/rez-graphql
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=graphql-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  automl:
+    build: ../apps/services/REZ-automl-pipeline
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - PORT=5001
+      - MONGODB_URI=mongodb://mongodb:27017/rez-automl
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=automl-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  invoice-ocr:
+    build: ../apps/services/REZ-invoice-ocr
+    ports:
+      - "5002:5002"
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - PORT=5002
+      - MONGODB_URI=mongodb://mongodb:27017/rez-invoice
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=invoice-internal-token
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  contract-mgmt:
+    build: ../apps/services/REZ-contract-management
+    ports:
+      - "5003:5003"
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - PORT=5003
+      - MONGODB_URI=mongodb://mongodb:27017/rez-contracts
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=contract-internal-token
+      - SMTP_HOST=${SMTP_HOST:-smtp.mailtrap.io}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  legal-ai:
+    build: ../apps/services/REZ-legal-document-ai
+    ports:
+      - "5004:5004"
+    depends_on:
+      - mongodb
+      - rez-auth
+    environment:
+      - PORT=5004
+      - MONGODB_URI=mongodb://mongodb:27017/rez-legal
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=legal-internal-token
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  cosmic-twin:
+    build: ../apps/services/REZ-cosmic-twin
+    ports:
+      - "5005:5005"
+    depends_on:
+      - mongodb
+      - redis
+      - rez-auth
+    environment:
+      - PORT=5005
+      - MONGODB_URI=mongodb://mongodb:27017/rez-twin
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=cosmic-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  ranking:
+    build: ../apps/services/REZ-ranking-service
+    ports:
+      - "5006:5006"
+    depends_on:
+      - mongodb
+      - redis
+      - rez-auth
+    environment:
+      - PORT=5006
+      - MONGODB_URI=mongodb://mongodb:27017/rez-ranking
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=ranking-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  # === MCP SERVERS ===
+  mcp-analytics:
+    build: ../apps/mcp/rez-mcp-analytics
+    ports:
+      - "3100:3100"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - PORT=3100
+      - MONGODB_URI=mongodb://mongodb:27017/rez-analytics
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-identity:
+    build: ../apps/mcp/rez-mcp-identity
+    ports:
+      - "3101:3101"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=3101
+      - MONGODB_URI=mongodb://mongodb:27017/rez-identity
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-event-bus:
+    build: ../apps/mcp/rez-mcp-event-bus
+    ports:
+      - "3102:3102"
+    depends_on:
+      - redis
+    environment:
+      - PORT=3102
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-notification:
+    build: ../apps/mcp/rez-mcp-notification
+    ports:
+      - "3103:3103"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=3103
+      - MONGODB_URI=mongodb://mongodb:27017/rez-notifications
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-order:
+    build: ../apps/mcp/rez-mcp-order
+    ports:
+      - "3104:3104"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=3104
+      - MONGODB_URI=mongodb://mongodb:27017/rez-orders
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-payment:
+    build: ../apps/mcp/rez-mcp-payment
+    ports:
+      - "3105:3105"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=3105
+      - MONGODB_URI=mongodb://mongodb:27017/rez-payments
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-inventory:
+    build: ../apps/mcp/rez-mcp-inventory
+    ports:
+      - "3106:3106"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=3106
+      - MONGODB_URI=mongodb://mongodb:27017/rez-inventory
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-logs:
+    build: ../apps/mcp/rez-mcp-logs
+    ports:
+      - "3107:3107"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - PORT=3107
+      - MONGODB_URI=mongodb://mongodb:27017/rez-logs
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-service-discovery:
+    build: ../apps/mcp/rez-mcp-service-discovery
+    ports:
+      - "3108:3108"
+    depends_on:
+      - redis
+    environment:
+      - PORT=3108
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-agent-invoke:
+    build: ../apps/mcp/rez-mcp-agent-invoke
+    ports:
+      - "3109:3109"
+    depends_on:
+      - graphql-gateway
+    environment:
+      - PORT=3109
+      - GRAPHQL_URL=http://graphql-gateway:5000
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-automl:
+    build: ../apps/mcp/rez-mcp-automl
+    ports:
+      - "3110:3110"
+    depends_on:
+      - automl
+    environment:
+      - PORT=3110
+      - AUTOML_URL=http://automl:5001
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-invoice:
+    build: ../apps/mcp/rez-mcp-invoice
+    ports:
+      - "3111:3111"
+    depends_on:
+      - invoice-ocr
+    environment:
+      - PORT=3111
+      - INVOICE_OCR_URL=http://invoice-ocr:5002
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-contracts:
+    build: ../apps/mcp/rez-mcp-contracts
+    ports:
+      - "3112:3112"
+    depends_on:
+      - contract-mgmt
+    environment:
+      - PORT=3112
+      - CONTRACT_URL=http://contract-mgmt:5003
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-legal:
+    build: ../apps/mcp/rez-mcp-legal
+    ports:
+      - "3113:3113"
+    depends_on:
+      - legal-ai
+    environment:
+      - PORT=3113
+      - LEGAL_AI_URL=http://legal-ai:5004
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-cosmic-twin:
+    build: ../apps/mcp/rez-mcp-cosmic-twin
+    ports:
+      - "3114:3114"
+    depends_on:
+      - cosmic-twin
+    environment:
+      - PORT=3114
+      - COSMIC_TWIN_URL=http://cosmic-twin:5005
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  mcp-ranking:
+    build: ../apps/mcp/rez-mcp-ranking
+    ports:
+      - "3115:3115"
+    depends_on:
+      - ranking
+    environment:
+      - PORT=3115
+      - RANKING_URL=http://ranking:5006
+      - AUTH_SERVICE_URL=http://rez-auth:4002
+      - INTERNAL_SERVICE_TOKEN=mcp-internal-token
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  # === MONITORING STACK ===
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3030:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+  # === DASHBOARD ===
+  dashboard:
+    build: ../apps/monitoring
+    ports:
+      - "3000:3000"
+    depends_on:
+      - graphql-gateway
+      - mongodb
+    environment:
+      - API_URL=http://graphql-gateway:5000
+      - MONGODB_URI=mongodb://mongodb:27017/rez-dashboard
+    networks:
+      - rtmz-monitoring
+    restart: unless-stopped
+
+networks:
+  rtmz-monitoring:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  prometheus_data:
+  grafana_data:

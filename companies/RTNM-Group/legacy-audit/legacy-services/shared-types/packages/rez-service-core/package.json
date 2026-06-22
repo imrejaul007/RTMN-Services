@@ -1,0 +1,62 @@
+{
+  "name": "@rez/service-core",
+  "version": "1.0.1",
+  "description": "Shared infrastructure for REZ BullMQ microservices. Eliminates copy-paste across 8+ service repos.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./redis": {
+      "types": "./dist/redis.d.ts",
+      "default": "./dist/redis.js"
+    },
+    "./mongodb": {
+      "types": "./dist/mongodb.d.ts",
+      "default": "./dist/mongodb.js"
+    },
+    "./logger": {
+      "types": "./dist/logger.d.ts",
+      "default": "./dist/logger.js"
+    },
+    "./health": {
+      "types": "./dist/health.d.ts",
+      "default": "./dist/health.js"
+    },
+    "./gracefulShutdown": {
+      "types": "./dist/gracefulShutdown.d.ts",
+      "default": "./dist/gracefulShutdown.js"
+    },
+    "./errorTracker": {
+      "types": "./dist/errorTracker.d.ts",
+      "default": "./dist/errorTracker.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@sentry/node": "^8.0.0",
+    "bullmq": "^5.1.0",
+    "express": "^4.18.0",
+    "ioredis": "^5.3.0",
+    "mongoose": "^8.8.0",
+    "pino": "^8.17.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "express": "^4.18.0"
+  },
+  "overrides": {
+    "mongoose": "^8.8.0",
+    "@sentry/node": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}

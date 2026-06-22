@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12pt;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      color: #333;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+    }
+    h1 {
+      font-size: 18pt;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      font-size: 14pt;
+      color: #666;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 12pt;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .party-info {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-left: 4px solid #333;
+      margin-bottom: 20px;
+    }
+    .signature-block {
+      margin-top: 60px;
+      page-break-inside: avoid;
+    }
+    .signature-line {
+      border-bottom: 1px solid #333;
+      width: 300px;
+      height: 40px;
+      margin-bottom: 5px;
+    }
+    .date-line {
+      font-size: 10pt;
+      color: #666;
+    }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 10pt;
+      color: #999;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>NON-DISCLOSURE AGREEMENT</h1>
+    <p class="subtitle">NDA Agreement No: {{contractId}}</p>
+  </div>
+
+  <div class="section">
+    <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <strong>{{formatDate effectiveDate}}</strong> (the "Effective Date") by and between:</p>
+
+    <div class="party-info">
+      <strong>Disclosing Party:</strong><br>
+      {{disclosingPartyName}}<br>
+      {{#if disclosingPartyAddress}}
+      Address: {{disclosingPartyAddress}}<br>
+      {{/if}}
+      Email: {{disclosingPartyEmail}}
+    </div>
+
+    <p>and</p>
+
+    <div class="party-info">
+      <strong>Receiving Party:</strong><br>
+      {{receivingPartyName}}<br>
+      {{#if receivingPartyAddress}}
+      Address: {{receivingPartyAddress}}<br>
+      {{/if}}
+      Email: {{receivingPartyEmail}}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">1. Definition of Confidential Information</div>
+    <p>For purposes of this Agreement, "Confidential Information" shall include all information or material that has or could have commercial value or other utility in the business in which Disclosing Party is engaged, including but not limited to:</p>
+    <ul>
+      <li>Technical data, trade secrets, and know-how</li>
+      <li>Research and development activities</li>
+      <li>Product plans and features</li>
+      <li>Financial information and projections</li>
+      <li>Customer and supplier lists</li>
+      <li>Business strategies and marketing plans</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. Obligations of Receiving Party</div>
+    <p>The Receiving Party agrees to:</p>
+    <ul>
+      <li>Hold and maintain the Confidential Information in strict confidence</li>
+      <li>Not to disclose any Confidential Information to third parties without prior written approval</li>
+      <li>Protect the Confidential Information using the same degree of care used to protect its own confidential information</li>
+      <li>Limit access to Confidential Information to employees and agents with a need to know</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">3. Term</div>
+    <p>This Agreement shall remain in effect from the Effective Date until <strong>{{formatDate endDate}}</strong>, unless terminated earlier by either party with thirty (30) days written notice.</p>
+    {{#if autoRenew}}
+    <p>This Agreement shall automatically renew for successive {{renewalTermMonths}} month periods unless either party provides written notice of non-renewal.</p>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">4. Return of Materials</div>
+    <p>Upon termination of this Agreement or upon request by the Disclosing Party, the Receiving Party shall promptly return or destroy all Confidential Information and any copies thereof.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">5. Governing Law</div>
+    <p>This Agreement shall be governed by and construed in accordance with the laws of {{governingLaw}}, without regard to its conflicts of law principles.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">6. Entire Agreement</div>
+    <p>This Agreement constitutes the entire agreement between the parties with respect to the subject matter hereof and supersedes all prior negotiations, representations, or agreements relating thereto.</p>
+  </div>
+
+  <div class="signature-block">
+    <p><strong>IN WITNESS WHEREOF</strong>, the parties have executed this Agreement as of the date first written above.</p>
+
+    <table style="width: 100%; margin-top: 30px;">
+      <tr>
+        <td style="width: 50%; padding-right: 20px;">
+          <strong>DISCLOSING PARTY:</strong><br><br>
+          {{disclosingPartyName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name</p>
+          <div class="signature-line"></div>
+          <p>Title</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+        <td style="width: 50%; padding-left: 20px;">
+          <strong>RECEIVING PARTY:</strong><br><br>
+          {{receivingPartyName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name</p>
+          <div class="signature-line"></div>
+          <p>Title</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Generated on {{generatedDateFormatted}} by REZ Contract Management System</p>
+    <p>Contract ID: {{contractId}}</p>
+  </div>
+</body>
+</html>

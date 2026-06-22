@@ -1,0 +1,31 @@
+{
+  "name": "@rtmn/sdk",
+  "version": "1.0.0",
+  "description": "RTMN SDK - Unified API for all RTMN products",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "rtmn",
+    "ai",
+    "payments",
+    "hrms",
+    "marketing",
+    "crm",
+    "api"
+  ],
+  "author": "RTMN",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "jest": "^29.7.0"
+  }
+}

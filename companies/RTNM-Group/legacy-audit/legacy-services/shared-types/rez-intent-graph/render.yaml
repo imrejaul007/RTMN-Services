@@ -1,0 +1,116 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy both servers with one render.yaml
+# Repo: https://github.com/imrejaul007/rez-intent-graph
+
+services:
+  # ── API Server (port 3001) ────────────────────────────────────────────────
+  # OPS-001: Horizontal scaling - 3 instances minimum for production
+  - type: web
+    name: rez-intent-api
+    env: node
+    region: singapore
+    plan: starter
+    numInstances: 3
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: node dist/server/server.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: MONGODB_URI
+        sync: false
+      - key: INTERNAL_SERVICE_TOKEN
+        sync: false
+      - key: INTENT_WEBHOOK_SECRET
+        sync: false
+      - key: INTENT_CRON_SECRET
+        sync: false
+      - key: MERCHANT_API_KEY
+        sync: false
+      - key: WALLET_SERVICE_URL
+        sync: false
+      - key: MONOLITH_URL
+        sync: false
+      - key: ORDER_SERVICE_URL
+        sync: false
+      - key: PAYMENT_SERVICE_URL
+        sync: false
+      - key: MERCHANT_SERVICE_URL
+        sync: false
+      - key: NOTIFICATION_SERVICE_URL
+        sync: false
+      - key: AUTH_SERVICE_URL
+        sync: false
+      - key: CATALOG_SERVICE_URL
+        sync: false
+      - key: SEARCH_SERVICE_URL
+        sync: false
+      - key: MARKETING_SERVICE_URL
+        sync: false
+      - key: GAMIFICATION_SERVICE_URL
+        sync: false
+      - key: ADS_SERVICE_URL
+        sync: false
+      - key: PMS_SERVICE_URL
+        sync: false
+      - key: ANALYTICS_SERVICE_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: REZ_DANGEROUS_MODE
+        value: "false"
+      - key: ENABLE_DORMANT_CRON
+        value: "true"
+      - key: ENABLE_AGENTS
+        value: "false"
+      # Redis for caching and streams (OPS-001)
+      - key: REDIS_URL
+        sync: false
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: '6379'
+      - key: REDIS_PASSWORD
+        sync: false
+      # Event Platform integration
+      - key: EVENT_PLATFORM_ENABLED
+        value: 'true'
+      # Vector search (optional - requires MongoDB 7.0+)
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: EMBEDDING_MODEL
+        value: "text-embedding-3-small"
+      - key: EMBEDDING_DIMENSION
+        value: "384"
+
+  # ── Agent Server (port 3005) ──────────────────────────────────────────────
+  # Background agent workers - separate from API for reliability
+  - type: worker
+    name: rez-intent-agent
+    env: node
+    region: singapore
+    plan: starter
+    numInstances: 2
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: node dist/server/agent-server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3005
+      - key: AGENT_PORT
+        value: 3005
+      - key: MONGODB_URI
+        sync: false
+      - key: INTERNAL_SERVICE_TOKEN
+        sync: false
+      - key: WALLET_SERVICE_URL
+        sync: false
+      - key: MONOLITH_URL
+        sync: false
+      - key: REZ_DANGEROUS_MODE
+        value: "false"

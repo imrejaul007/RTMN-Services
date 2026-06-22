@@ -1,0 +1,21 @@
+{
+  "name": "@rez/auth-client",
+  "version": "1.0.0",
+  "description": "REZ Auth Client - Unified authentication for all REZ ecosystem products",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

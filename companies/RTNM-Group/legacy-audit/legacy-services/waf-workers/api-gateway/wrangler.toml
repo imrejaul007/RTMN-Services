@@ -1,0 +1,69 @@
+name = "rez-api-gateway"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+node_compat = true
+
+# Environment: production
+[env.production]
+name = "rez-api-gateway"
+routes = [
+  # Route all /api/* traffic through the WAF worker
+  { pattern = "api.rez.money/*", zone_name = "rez.money" },
+  { pattern = "auth.rez.money/*", zone_name = "rez.money" },
+  { pattern = "merchant.rez.money/*", zone_name = "rez.money" },
+]
+
+# ── WAF Upstream Services ──────────────────────────────────────────────────
+# The upstream services this worker proxies to
+[vars]
+UPSTREAM_HOST = "api.rez.money.pages.dev"
+AUTH_UPSTREAM_HOST = "rez-auth-service.onrender.com"
+MERCHANT_UPSTREAM_HOST = "rez-merchant-service.onrender.com"
+WALLET_UPSTREAM_HOST = "rez-wallet-service.onrender.com"
+
+# ── Rate Limiting ──────────────────────────────────────────────────────────
+# Per-IP rate limits (Cloudflare handles this, we just check headers)
+[vars]
+RATE_LIMIT_AUTH = "10"      # 10 req/min for auth endpoints
+RATE_LIMIT_API = "100"      # 100 req/min for general API
+
+# ── Security Headers ────────────────────────────────────────────────────────
+[headers]
+# Force HTTPS
+[[headers.rules]]
+name = "Force HTTPS"
+description = "Redirect all HTTP to HTTPS"
+request_rules = [{ if = { ssl = "off" }, then = { url = { expression = "concat('https://', http.host, url.path)" } } }]
+
+# Security headers for all responses
+[[headers.rules]]
+name = "Security Headers"
+description = "Add security headers to all responses"
+response_rules = [
+  { then = { set = { name = "X-Content-Type-Options", value = "nosniff" } } },
+  { then = { set = { name = "X-Frame-Options", value = "DENY" } } },
+  { then = { set = { name = "X-XSS-Protection", value = "1; mode=block" } } },
+  { then = { set = { name = "Referrer-Policy", value = "strict-origin-when-cross-origin" } } },
+  { then = { set = { name = "Permissions-Policy", value = "camera=(), microphone=(), geolocation=()" } } },
+  { then = { set = { name = "Strict-Transport-Security", value = "max-age=31536000; includeSubDomains; preload" } } },
+]
+
+# ── CORS Headers ──────────────────────────────────────────────────────────
+[[headers.rules]]
+name = "CORS Headers"
+description = "Set CORS headers for API responses"
+match = { protocols = { http = true, http2 = true, spdy = true } }
+request_rules = [
+  { then = { set = { name = "Access-Control-Allow-Origin", value = "https://rez.money" } } },
+  { then = { set = { name = "Access-Control-Allow-Methods", value = "GET, POST, PUT, DELETE, OPTIONS" } } },
+  { then = { set = { name = "Access-Control-Allow-Headers", value = "Content-Type, Authorization, X-Requested-With" } } },
+]
+
+# ── Cache Rules ────────────────────────────────────────────────────────────
+# Cache successful GET responses for 60s (reduce upstream load)
+[[caches]]
+name = "API Cache"
+description = "Cache GET responses for 60 seconds"
+match = { request = { methods = ["GET"], url = { wildcard = { pattern = "/api/*" } } } }
+default_ttl = 60
+max_age = 60

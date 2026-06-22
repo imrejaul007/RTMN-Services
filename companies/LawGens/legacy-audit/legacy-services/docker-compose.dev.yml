@@ -1,0 +1,46 @@
+# Docker Compose Override for Development
+version: '3.8'
+
+services:
+  mongodb:
+    ports:
+      - "27017:27017"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  elasticsearch:
+    ports:
+      - "9200:9200"
+
+  contract-os:
+    build:
+      target: development
+    volumes:
+      - ./contract-os:/app/contract-os
+      - /app/contract-os/node_modules
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://host.docker.internal:27017/lawgens
+
+  api-gateway:
+    volumes:
+      - ./apps/lawgens-web:/app/apps/lawgens-web
+      - /app/apps/lawgens-web/node_modules
+      - ./src:/app/src
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://host.docker.internal:27017/lawgens
+
+  web:
+    build:
+      target: development
+    volumes:
+      - ./apps/lawgens-web:/app/apps/lawgens-web
+      - /app/apps/lawgens-web/node_modules
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development

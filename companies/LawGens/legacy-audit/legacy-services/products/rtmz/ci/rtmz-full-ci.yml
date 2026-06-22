@@ -1,0 +1,142 @@
+# RTMZ Comprehensive CI/CD
+
+name: RTMZ Full Stack CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # 1. Lint and Type Check
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint monorepo
+        run: npm run lint
+
+      - name: Type check
+        run: npx turbo run build --filter=./packages/*
+
+  # 2. Test packages
+  test-packages:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run test
+
+  # 3. Build Docker images
+  build-services:
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      matrix:
+        service:
+          - rez-auth-service
+          - REZ-sso-service
+          - REZ-graphql-federation
+          - REZ-automl-pipeline
+          - REZ-invoice-ocr
+          - REZ-contract-management
+          - REZ-legal-document-ai
+          - REZ-cosmic-twin
+          - REZ-ranking-service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.service }}
+        run: |
+          cd apps/services/${{ matrix.service }}
+          docker build -t rtmz/${{ matrix.service }}:${{ github.sha }} .
+
+  # 4. Build MCP servers
+  build-mcp:
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      matrix:
+        server: [rez-mcp-analytics, rez-mcp-identity, rez-mcp-event-bus, rez-mcp-notification, rez-mcp-order, rez-mcp-payment, rez-mcp-inventory, rez-mcp-logs, rez-mcp-service-discovery, rez-mcp-agent-invoke, rez-mcp-automl, rez-mcp-invoice, rez-mcp-contracts, rez-mcp-legal, rez-mcp-cosmic-twin, rez-mcp-ranking]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.server }}
+        run: |
+          cd apps/mcp/${{ matrix.server }}
+          docker build -t rtmz/${{ matrix.server }}:${{ github.sha }} .
+
+  # 5. Deploy to staging (on main push)
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build-services, build-mcp]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to staging
+        run: |
+          echo "Deploying RTMZ to staging..."
+          # Add deployment commands here
+
+      - name: Run health checks
+        run: |
+          sleep 30
+          curl -f http://localhost:4002/health || exit 1
+          curl -f http://localhost:5000/health || exit 1
+
+  # 6. Generate docs
+  docs:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - name: Generate API docs
+        run: npm run docs
+      - name: Upload docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs/
+
+  # 7. Security scan
+  security:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      - name: Upload results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # 8. Notify on completion
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, security]
+    if: always()
+    steps:
+      - name: GitHub Status
+        run: |
+          echo "CI Pipeline completed"
+          echo "Status: ${{ needs.deploy-staging.result }}"

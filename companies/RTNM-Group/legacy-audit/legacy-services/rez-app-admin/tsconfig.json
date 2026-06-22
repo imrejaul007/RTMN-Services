@@ -1,0 +1,33 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    // ⚠️ Strict mode disabled — 788 errors remain (down from 808 after prior cleanup).
+    // Errors: TS7053 (useColorScheme indexing), TS7031/TS7006 (implicit any params).
+    // Enable once remaining 302 `as any` casts + ~788 strict errors are groomed.
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@rez/shared": [
+        "../../rez-shared/src"
+      ],
+      "@rez/shared/*": [
+        "../../rez-shared/src/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "app",
+    "components"
+  ]
+}

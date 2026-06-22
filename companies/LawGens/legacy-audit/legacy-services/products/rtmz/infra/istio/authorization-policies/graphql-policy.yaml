@@ -1,0 +1,55 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: graphql-federation-authz
+  namespace: rtmz
+spec:
+  selector:
+    matchLabels:
+      app: graphql-federation
+  action: ALLOW
+  rules:
+    # Allow ingress gateway traffic
+    - from:
+        - source:
+            principals: ["cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]
+      to:
+        - operation:
+            methods: ["POST", "GET", "OPTIONS"]
+            paths: ["/graphql", "/query", "/health", "/ready", "/metrics"]
+    # Allow internal service-to-service communication
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/rtmz/sa/automl-pipeline"
+              - "cluster.local/ns/rtmz/sa/invoice-ocr"
+              - "cluster.local/ns/rtmz/sa/contract-management"
+              - "cluster.local/ns/rtmz/sa/legal-document-ai"
+              - "cluster.local/ns/rtmz/sa/cosmic-twin"
+              - "cluster.local/ns/rtmz/sa/ranking-service"
+      to:
+        - operation:
+            methods: ["POST", "GET"]
+            paths: ["*"]
+---
+# Rate limiting policy for GraphQL endpoint
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: graphql-rate-limits
+  namespace: rtmz
+spec:
+  selector:
+    matchLabels:
+      app: graphql-federation
+  action: ALLOW
+  rules:
+    # Limit per authenticated source
+    - from:
+        - source:
+            principals: ["*"]
+      to:
+        - operation:
+            methods: ["POST"]
+            paths: ["/graphql"]
+            ports: ["8080", "3000"]

@@ -1,0 +1,22 @@
+{
+  "name": "@rez/eslint-plugin",
+  "version": "1.0.0",
+  "description": "ESLint rules for REZ codebase",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo 'No tests yet'"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "rez",
+    "security",
+    "validation"
+  ],
+  "peerDependencies": {
+    "eslint": ">=8.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "rez-payment-links-service",
+  "version": "1.0.0",
+  "description": "Payment Links API Service with UPI integration",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "uuid": "^9.0.1",
+    "qrcode": "^1.5.3",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0",
+    "mongoose": "^8.0.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^20.10.0",
+    "@types/uuid": "^9.0.7",
+    "@types/qrcode": "^1.5.5",
+    "typescript": "^5.3.2",
+    "ts-node": "^10.9.2"
+  }
+}

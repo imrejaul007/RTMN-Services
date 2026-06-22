@@ -1,0 +1,221 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: rtmz-istio-operator
+  namespace: istio-system
+spec:
+  profile: default
+  revision: default
+
+  meshConfig:
+    enableAutoMtls: true
+    defaultConfig:
+      proxyMetadata:
+        ISTIO_META_DNS_CAPTURE: "true"
+        ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      tracing:
+        sampling: 10
+        zipkin:
+          address: jaeger-collector.istio-system:9411
+      metrics:
+        - port: 15090
+          path: /stats/prometheus
+      terminationDrainDuration:
+        seconds: 5
+
+    outboundTrafficPolicy:
+      mode: ALLOW_ANY
+
+    localityLbSetting:
+      enabled: true
+
+    defaultServiceExportTo:
+      - "*"
+    defaultVirtualServiceExportTo:
+      - "*"
+    defaultDestinationRuleExportTo:
+      - "*"
+
+  values:
+    global:
+      imagePullPolicy: IfNotPresent
+      enableHelmVersionCheck: false
+
+    pilot:
+      autoscaleEnabled: true
+      autoscaleMin: 1
+      autoscaleMax: 5
+      configSource:
+        enabled: false
+
+    ingressGateways:
+      - name: istio-ingressgateway
+        enabled: true
+        label:
+          istio: ingressgateway
+        k8s:
+          hpaSpec:
+            minReplicas: 2
+            maxReplicas: 5
+            scaleTargetRef:
+              apiVersion: apps/v1
+              kind: Deployment
+              name: istio-ingressgateway
+          resources:
+            requests:
+              cpu: 10m
+              memory: 40Mi
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
+          serviceAnnotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "15090"
+            prometheus.io/path: "/stats/prometheus"
+          ports:
+            - port: 15020
+              targetPort: 15020
+              name: status-port
+            - port: 80
+              targetPort: 8080
+              name: http2
+              protocol: TCP
+            - port: 443
+              targetPort: 8443
+              name: https
+              protocol: TCP
+            - port: 15029
+              targetPort: 15029
+              name: kiali
+              protocol: TCP
+            - port: 31400
+              targetPort: 31400
+              name: tcp
+              protocol: TCP
+            - port: 15443
+              targetPort: 15443
+              name: tls
+              protocol: TCP
+
+    egressGateways:
+      - name: istio-egressgateway
+        enabled: true
+        k8s:
+          hpaSpec:
+            minReplicas: 1
+            maxReplicas: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 40Mi
+            limits:
+              cpu: 1000m
+              memory: 256Mi
+
+    meshExpansion:
+      enabled: false
+
+    telemetry:
+      enabled: true
+      v2:
+        enabled: true
+        prometheus:
+          enabled: true
+          configOverride:
+            gateway:
+              metrics:
+                - name: grpc.RequestMessagesCount
+                  dimensions:
+                    destination_service_name: destination.service.name
+                    destination_service_namespace: destination.service.namespace
+                - name: grpc.ResponseMessagesCount
+            inbound:
+              metrics:
+                - name: grpc_server_handling_time_histogram_stream
+                - name: grpc_server_handling_time_histogram
+            outbound:
+              metrics:
+                - name: grpc_client_handling_time_histogram
+                - name: grpc_client_stream_rcvd_total
+                - name: grpc_client_stream_sent_total
+        stackdriver:
+          enabled: false
+          configOverride: {}
+
+    kiali:
+      enabled: true
+      dashboard:
+        secretName: kiali
+        usernameKey: username
+        passphraseKey: passphrase
+        viewOnlyMode: false
+      prometheusAddr: http://prometheus:9090
+      grafanaURL: http://grafana:3000
+      jaegerURL: http://jaeger-query:16686
+
+    tracing:
+      enabled: true
+      provider: jaeger
+      jaeger:
+        accessMode: ReadWriteMany
+        hub: docker.io/jaegertracing
+        tag: 1.22
+        storage:
+          type: elasticsearch
+        spoolStorage:
+          type: memory
+
+    grafana:
+      enabled: true
+      persist: false
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+            - name: istio
+              folder: istio
+              type: file
+              options:
+                path: /var/lib/grafana/dashboards/istio
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://prometheus:9090
+          isDefault: true
+          jsonData:
+            timeInterval: 5s
+          editable: true
+
+    prometheus:
+      enabled: true
+      retention: 6h
+      scrapeInterval: 15s
+      contextPath: /prometheus
+      routePrefix: /
+      replicaCount: 1
+      hpaSpec:
+        maxReplicas: 3
+        minReplicas: 1
+      resources:
+        requests:
+          cpu: 100m
+          memory: 200Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      service:
+        annotations:
+          prometheus.io/scrape: "true"
+
+  addons:
+    grafana:
+      enabled: true
+    jaeger:
+      enabled: true
+    kiali:
+      enabled: true
+    prometheus:
+      enabled: true
+
+  namespace: istio-system

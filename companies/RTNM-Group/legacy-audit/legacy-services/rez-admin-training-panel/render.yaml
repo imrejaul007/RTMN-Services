@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: rez-admin-training-panel
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s dist -l ${PORT}
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      # API Configuration
+      - key: VITE_API_BASE_URL
+        sync: false

@@ -1,0 +1,20 @@
+[Unit]
+Description=LawGens API Gateway
+After=network.target mongodb.service redis.service elasticsearch.service
+
+[Service]
+Type=simple
+User=lawgens
+WorkingDirectory=/opt/lawgens/services
+Environment=NODE_ENV=production
+Environment=PORT=5099
+EnvironmentFile=/opt/lawgens/.env
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lawgens-api
+
+[Install]
+WantedBy=multi-user.target

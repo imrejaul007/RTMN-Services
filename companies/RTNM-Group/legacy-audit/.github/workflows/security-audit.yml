@@ -1,0 +1,133 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run weekly on Sunday at 2 AM
+    - cron: '0 2 * * 0'
+
+jobs:
+  security-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - REZ-identity-service
+          - REZ-access-control-service
+          - REZ-capital-service
+          - REZ-bnpl-service
+          - REZ-central-permissions
+          - REZ-ops-dashboard
+          - shared-types
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: '${{ matrix.service }}/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./${{ matrix.service }}
+        run: npm ci
+
+      - name: Run npm audit
+        working-directory: ./${{ matrix.service }}
+        run: npm audit --audit-level=high
+
+      - name: Run npm audit (all vulnerabilities)
+        working-directory: ./${{ matrix.service }}
+        run: npm audit --json > npm-audit.json
+        continue-on-error: true
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-${{ matrix.service }}
+          path: ${{ matrix.service }}/npm-audit.json
+
+      - name: Check for critical vulnerabilities
+        if: always()
+        working-directory: ./${{ matrix.service }}
+        run: |
+          CRITICAL=$(npm audit --audit-level=critical 2>&1 | grep -c "critical" || echo "0")
+          if [ "$CRITICAL" -gt "0" ]; then
+            echo "::error::Critical vulnerabilities found in ${{ matrix.service }}"
+            exit 1
+          fi
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Review Dependencies
+        uses: actions/dependency-review-action@v4
+
+  secrets-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        uses: edplato/trufflehog-actions-scan@v0.11.0
+        with:
+          scanSubmodules: false
+          baseDepth: 10
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['typescript']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Build
+        run: |
+          for dir in */; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Building $dir"
+              (cd "$dir" && npm ci && npm run build || true)
+            fi
+          done
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:${{ matrix.language }}'

@@ -1,0 +1,858 @@
+openapi: 3.0.3
+info:
+  title: ReZ Menu Service API
+  description: |
+    A comprehensive digital menu service for restaurants and food businesses, providing menu management,
+    item customization, availability tracking, and pricing for the ReZ ecosystem.
+
+    ## Features
+    - Menu Management: Create and manage restaurant menus
+    - Category Organization: Organize items by categories
+    - Item Customization: Support for variants, add-ons, and modifiers
+    - Availability Tracking: Track item availability and out-of-stock items
+    - Pricing Management: Support for base price, offers, and dynamic pricing
+    - Multi-language Support: Localized menu content
+    - Image Management: Menu item images and thumbnails
+    - QR Code Integration: Generate QR codes for menu access
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4022
+    description: Development server
+  - url: https://api.rez.money/menu
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Menus
+    description: Menu management
+  - name: Categories
+    description: Category management
+  - name: Items
+    description: Menu item management
+  - name: QR Codes
+    description: QR code generation
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/menus:
+    get:
+      tags:
+        - Menus
+      summary: List menus
+      description: Returns list of menus
+      operationId: listMenus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: storeId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - inactive
+              - draft
+      responses:
+        '200':
+          description: List of menus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuListResponse'
+
+    post:
+      tags:
+        - Menus
+      summary: Create menu
+      description: Creates a new menu
+      operationId: createMenu
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMenuRequest'
+      responses:
+        '201':
+          description: Menu created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuResponse'
+
+  /api/menus/{id}:
+    get:
+      tags:
+        - Menus
+      summary: Get menu
+      description: Returns a single menu
+      operationId: getMenu
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Menu details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuResponse'
+        '404':
+          description: Menu not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Menus
+      summary: Update menu
+      description: Updates an existing menu
+      operationId: updateMenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMenuRequest'
+      responses:
+        '200':
+          description: Menu updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuResponse'
+
+    delete:
+      tags:
+        - Menus
+      summary: Delete menu
+      description: Deletes a menu
+      operationId: deleteMenu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Menu deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/menus/{id}/categories:
+    get:
+      tags:
+        - Categories
+      summary: List categories
+      description: Returns categories in a menu
+      operationId: listCategories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryListResponse'
+
+    post:
+      tags:
+        - Categories
+      summary: Create category
+      description: Creates a new category
+      operationId: createCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+
+  /api/categories/{categoryId}:
+    put:
+      tags:
+        - Categories
+      summary: Update category
+      description: Updates a category
+      operationId: updateCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryRequest'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+
+    delete:
+      tags:
+        - Categories
+      summary: Delete category
+      description: Deletes a category
+      operationId: deleteCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/categories/{categoryId}/items:
+    get:
+      tags:
+        - Items
+      summary: List items
+      description: Returns items in a category
+      operationId: listItems
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemListResponse'
+
+    post:
+      tags:
+        - Items
+      summary: Create item
+      description: Creates a new menu item
+      operationId: createItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemRequest'
+      responses:
+        '201':
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+
+  /api/items/{itemId}:
+    get:
+      tags:
+        - Items
+      summary: Get item
+      description: Returns a single item
+      operationId: getItem
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+
+    put:
+      tags:
+        - Items
+      summary: Update item
+      description: Updates a menu item
+      operationId: updateItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemRequest'
+      responses:
+        '200':
+          description: Item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+
+    delete:
+      tags:
+        - Items
+      summary: Delete item
+      description: Deletes a menu item
+      operationId: deleteItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/items/{itemId}/availability:
+    patch:
+      tags:
+        - Items
+      summary: Update availability
+      description: Updates item availability
+      operationId: updateItemAvailability
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - isAvailable
+              properties:
+                isAvailable:
+                  type: boolean
+                availableQuantity:
+                  type: integer
+      responses:
+        '200':
+          description: Availability updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+
+  /api/menus/{id}/qr:
+    get:
+      tags:
+        - QR Codes
+      summary: Get menu QR code
+      description: Returns QR code for menu access
+      operationId: getMenuQRCode
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 300
+      responses:
+        '200':
+          description: QR code image
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: string
+        categoryId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        offerPrice:
+          type: number
+        currency:
+          type: string
+          default: INR
+        image:
+          type: string
+          format: uri
+        isAvailable:
+          type: boolean
+        availableQuantity:
+          type: integer
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemVariant'
+        addOns:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemAddOn'
+        nutrition:
+          type: object
+          properties:
+            calories:
+              type: number
+            protein:
+              type: number
+            carbs:
+              type: number
+            fat:
+              type: number
+        tags:
+          type: array
+          items:
+            type: string
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ItemVariant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        priceModifier:
+          type: number
+        isDefault:
+          type: boolean
+
+    ItemAddOn:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        isRequired:
+          type: boolean
+        maxSelections:
+          type: integer
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        menuId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+          format: uri
+        isActive:
+          type: boolean
+        sortOrder:
+          type: integer
+        itemCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Menu:
+      type: object
+      properties:
+        id:
+          type: string
+        storeId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - draft
+        language:
+          type: string
+          default: en
+        currency:
+          type: string
+          default: INR
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        qrCodeUrl:
+          type: string
+          format: uri
+        isPublic:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateMenuRequest:
+      type: object
+      required:
+        - storeId
+        - name
+      properties:
+        storeId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        language:
+          type: string
+        currency:
+          type: string
+        isPublic:
+          type: boolean
+
+    UpdateMenuRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - draft
+        isPublic:
+          type: boolean
+
+    CreateCategoryRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        sortOrder:
+          type: integer
+
+    UpdateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        isActive:
+          type: boolean
+        sortOrder:
+          type: integer
+
+    CreateItemRequest:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        offerPrice:
+          type: number
+        image:
+          type: string
+        isAvailable:
+          type: boolean
+          default: true
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              priceModifier:
+                type: number
+              isDefault:
+                type: boolean
+        addOns:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              price:
+                type: number
+              isRequired:
+                type: boolean
+              maxSelections:
+                type: integer
+        nutrition:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        sortOrder:
+          type: integer
+
+    UpdateItemRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        offerPrice:
+          type: number
+        image:
+          type: string
+        variants:
+          type: array
+          items:
+            type: object
+        addOns:
+          type: array
+          items:
+            type: object
+        nutrition:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        sortOrder:
+          type: integer
+
+    MenuResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Menu'
+
+    MenuListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Menu'
+
+    CategoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Category'
+
+    CategoryListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    ItemResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/MenuItem'
+
+    ItemListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

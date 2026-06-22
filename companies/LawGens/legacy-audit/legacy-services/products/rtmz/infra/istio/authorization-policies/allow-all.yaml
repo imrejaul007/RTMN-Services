@@ -1,0 +1,42 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-all-rtmz
+  namespace: rtmz
+spec:
+  selector:
+    matchLabels:
+      app: rtmz
+  action: ALLOW
+  rules:
+    # Allow all traffic within the mesh
+    - from:
+        - source:
+            principals: ["*"]
+      to:
+        - operation:
+            methods: ["*"]
+            ports: ["*"]
+---
+# Namespace-level default deny policy (optional security hardening)
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all-external
+  namespace: rtmz
+spec:
+  selector:
+    matchLabels:
+      app: rtmz
+  action: DENY
+  rules:
+    # Only deny if no proper service account or external requests
+    - to:
+        - operation:
+            ports: ["22", "23", "3389"]
+      when:
+        - key: source.ip
+          notValues:
+            - "10.0.0.0/8"
+            - "172.16.0.0/12"
+            - "192.168.0.0/16"

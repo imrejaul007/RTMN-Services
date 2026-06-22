@@ -1,0 +1,16 @@
+# Grafana Dashboards
+# Auto-provisioned dashboards
+
+apiVersion: 1
+
+providers:
+  - name: 'REZ Ecosystem'
+    orgId: 1
+    folder: 'REZ'
+    folderUid: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

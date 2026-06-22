@@ -1,0 +1,238 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      service:
+        description: 'Service to deploy (leave as all for full deployment)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - distribution-os
+          - franchise-os
+          - procurement-os
+          - manufacturing-os
+          - trade-finance
+          - intelligence
+          - ecosystem-connector
+          - portal
+
+env:
+  NODE_VERSION: '20'
+  KUBERNETES_VERSION: '1.28.0'
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'staging'
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: ${{ env.KUBERNETES_VERSION }}
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBECONFIG_STAGING }}" | base64 -d > kubeconfig
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+
+      - name: Create namespace
+        run: kubectl apply -f k8s/namespace.yaml
+
+      - name: Create secrets
+        run: |
+          # Apply secrets from GitHub Actions secrets
+          kubectl create secret generic nexha-secrets \
+            --from-literal=MONGODB_URI="${{ secrets.STAGING_MONGODB_URI }}" \
+            --from-literal=REDIS_URL="${{ secrets.STAGING_REDIS_URL }}" \
+            --from-literal=INTERNAL_SERVICE_TOKEN="${{ secrets.INTERNAL_SERVICE_TOKEN }}" \
+            --from-literal=WEBHOOK_SECRET="${{ secrets.WEBHOOK_SECRET }}" \
+            --from-literal=AUTH_SERVICE_URL="${{ secrets.AUTH_SERVICE_URL }}" \
+            --namespace=nexha \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply ConfigMap
+        run: kubectl apply -f k8s/configmap.yaml
+
+      - name: Deploy services
+        run: |
+          # Deploy backend services
+          kubectl apply -f k8s/distribution-os.yaml
+          kubectl apply -f k8s/franchise-os.yaml
+          kubectl apply -f k8s/procurement-os.yaml
+          kubectl apply -f k8s/manufacturing-os.yaml
+          kubectl apply -f k8s/trade-finance.yaml
+          kubectl apply -f k8s/intelligence-layer.yaml
+          kubectl apply -f k8s/ecosystem-connector.yaml
+          kubectl apply -f k8s/portal.yaml
+
+      - name: Deploy ingress
+        run: kubectl apply -f k8s/ingress.yaml
+
+      - name: Wait for deployments
+        run: |
+          kubectl rollout status deployment/nexha-distribution-os -n nexha --timeout=300s || true
+          kubectl rollout status deployment/nexha-franchise-os -n nexha --timeout=300s || true
+          kubectl rollout status deployment/nexha-procurement-os -n nexha --timeout=300s || true
+          kubectl rollout status deployment/nexha-manufacturing-os -n nexha --timeout=300s || true
+          kubectl rollout status deployment/nexha-trade-finance -n nexha --timeout=300s || true
+          kubectl rollout status deployment/nexha-intelligence -n nexha --timeout=300s || true
+          kubectl rollout status deployment/nexha-ecosystem-connector -n nexha --timeout=300s || true
+          kubectl rollout status deployment/nexha-portal -n nexha --timeout=300s || true
+
+      - name: Verify deployment
+        run: |
+          echo "=== Deployment Status ==="
+          kubectl get pods -n nexha
+          echo ""
+          echo "=== Service Status ==="
+          kubectl get svc -n nexha
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "Staging deployment completed at $(date)"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'production'
+    environment: production
+    needs: []
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: ${{ env.KUBERNETES_VERSION }}
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBECONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+
+      - name: Create namespace
+        run: kubectl apply -f k8s/namespace.yaml
+
+      - name: Create secrets
+        run: |
+          kubectl create secret generic nexha-secrets \
+            --from-literal=MONGODB_URI="${{ secrets.PROD_MONGODB_URI }}" \
+            --from-literal=REDIS_URL="${{ secrets.PROD_REDIS_URL }}" \
+            --from-literal=INTERNAL_SERVICE_TOKEN="${{ secrets.INTERNAL_SERVICE_TOKEN }}" \
+            --from-literal=WEBHOOK_SECRET="${{ secrets.WEBHOOK_SECRET }}" \
+            --from-literal=AUTH_SERVICE_URL="${{ secrets.AUTH_SERVICE_URL }}" \
+            --namespace=nexha \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply ConfigMap
+        run: kubectl apply -f k8s/configmap.yaml
+
+      - name: Deploy services
+        run: |
+          kubectl apply -f k8s/distribution-os.yaml
+          kubectl apply -f k8s/franchise-os.yaml
+          kubectl apply -f k8s/procurement-os.yaml
+          kubectl apply -f k8s/manufacturing-os.yaml
+          kubectl apply -f k8s/trade-finance.yaml
+          kubectl apply -f k8s/intelligence-layer.yaml
+          kubectl apply -f k8s/ecosystem-connector.yaml
+          kubectl apply -f k8s/portal.yaml
+
+      - name: Deploy ingress
+        run: kubectl apply -f k8s/ingress.yaml
+
+      - name: Wait for deployments
+        run: |
+          kubectl rollout status deployment/nexha-distribution-os -n nexha --timeout=600s || true
+          kubectl rollout status deployment/nexha-franchise-os -n nexha --timeout=600s || true
+          kubectl rollout status deployment/nexha-procurement-os -n nexha --timeout=600s || true
+          kubectl rollout status deployment/nexha-manufacturing-os -n nexha --timeout=600s || true
+          kubectl rollout status deployment/nexha-trade-finance -n nexha --timeout=600s || true
+          kubectl rollout status deployment/nexha-intelligence -n nexha --timeout=600s || true
+          kubectl rollout status deployment/nexha-ecosystem-connector -n nexha --timeout=600s || true
+          kubectl rollout status deployment/nexha-portal -n nexha --timeout=600s || true
+
+      - name: Verify deployment
+        run: |
+          echo "=== Deployment Status ==="
+          kubectl get pods -n nexha
+          echo ""
+          echo "=== Service Status ==="
+          kubectl get svc -n nexha
+
+      - name: Health check
+        run: |
+          echo "Checking service health..."
+          sleep 30
+          kubectl exec -n nexha deployment/nexha-distribution-os -- curl -s http://localhost:4000/health || echo "Health check skipped"
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "Production deployment completed at $(date)"
+
+  rollback:
+    name: Rollback
+    runs-on: ubuntu-latest
+    if: contains(github.event.inputs.service, 'rollback')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: ${{ env.KUBERNETES_VERSION }}
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBECONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+
+      - name: Rollback deployment
+        run: |
+          SERVICE="${{ github.event.inputs.service }}"
+          kubectl rollout undo deployment/nexha-${SERVICE} -n nexha
+          kubectl rollout status deployment/nexha-${SERVICE} -n nexha --timeout=300s

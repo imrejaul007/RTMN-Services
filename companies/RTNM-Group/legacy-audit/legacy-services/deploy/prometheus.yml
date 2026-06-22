@@ -1,0 +1,81 @@
+# Prometheus Configuration for RTNM-Group
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  # RTNM-Group Services
+  - job_name: 'identity-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - rtnm-group
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: identity-service
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: "3003"
+
+  - job_name: 'access-control-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - rtnm-group
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: access-control-service
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: "3000"
+
+  - job_name: 'capital-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - rtnm-group
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: capital-service
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: "3005"
+
+  - job_name: 'bnpl-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - rtnm-group
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: bnpl-service
+      - source_labels: [__meta_kubernetes_pod_container_port_number]
+        action: keep
+        regex: "3080"
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Redis monitoring
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']

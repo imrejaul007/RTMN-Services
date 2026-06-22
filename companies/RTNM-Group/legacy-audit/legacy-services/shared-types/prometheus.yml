@@ -1,0 +1,59 @@
+# Prometheus Configuration
+# Scrapes metrics from all REZ services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alert_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Auth Service
+  - job_name: 'rez-auth-service'
+    static_configs:
+      - targets: ['rez-auth-service:4002']
+    metrics_path: '/metrics'
+
+  # Merchant Service
+  - job_name: 'rez-merchant-service'
+    static_configs:
+      - targets: ['rez-merchant-service:4005']
+    metrics_path: '/metrics'
+
+  # Rendez Backend
+  - job_name: 'rendez-backend'
+    static_configs:
+      - targets: ['rendez-backend:4000']
+    metrics_path: '/metrics'
+
+  # Hotel OTA API
+  - job_name: 'hotel-ota-api'
+    static_configs:
+      - targets: ['hotel-ota-api:3000']
+    metrics_path: '/metrics'
+
+  # Intent Graph
+  - job_name: 'rez-intent-graph'
+    static_configs:
+      - targets: ['rez-intent-graph:3001']
+    metrics_path: '/metrics'
+
+  # Node Exporter (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']

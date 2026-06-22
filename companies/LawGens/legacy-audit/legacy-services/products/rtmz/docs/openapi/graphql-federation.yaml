@@ -1,0 +1,283 @@
+openapi: 3.0.0
+info:
+  title: REZ GraphQL Federation Gateway
+  description: |
+    GraphQL Federation Gateway for the REZ ecosystem.
+    Provides unified GraphQL API aggregating data from multiple microservices.
+
+    Features:
+    - Schema federation across services
+    - Tenant-aware multi-tenancy
+    - JWT authentication
+    - Real-time subscriptions
+    - Rate limiting
+  version: 1.0.0
+  contact:
+    name: REZ Platform Team
+    email: platform@rez.ai
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+  - url: https://api.rez.ai/graphql
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: GraphQL
+    description: GraphQL endpoint operations
+  - name: Health
+    description: Service health and readiness
+  - name: Meta
+    description: GraphQL introspection
+
+paths:
+  /graphql:
+    post:
+      summary: Execute GraphQL operation
+      description: Execute a GraphQL query, mutation, or subscription
+      operationId: executeGraphQL
+      tags:
+        - GraphQL
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: GraphQL query string
+                  example: |
+                    query GetUser($id: ID!) {
+                      user(id: $id) {
+                        id
+                        name
+                        email
+                      }
+                    }
+                variables:
+                  type: object
+                  description: GraphQL variables
+                  example:
+                    id: "user_123"
+                operationName:
+                  type: string
+                  description: Operation name for debugging
+                extensions:
+                  type: object
+                  description: Client extensions
+      responses:
+        '200':
+          description: Successful GraphQL execution
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    description: Result data
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GraphQLError'
+                  extensions:
+                    type: object
+              examples:
+                success:
+                  summary: Successful query
+                  value:
+                    data:
+                      user:
+                        id: "user_123"
+                        name: "John Doe"
+                        email: "john@example.com"
+                error:
+                  summary: Query with error
+                  value:
+                    data: null
+                    errors:
+                      - message: "User not found"
+                        locations:
+                          - line: 2
+                            column: 3
+                        path:
+                          - user
+  /health:
+    get:
+      summary: Service health status
+      description: Returns detailed health status of all dependencies
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+              example:
+                status: "healthy"
+                timestamp: "2026-06-02T10:00:00Z"
+                services:
+                  - name: "mongodb"
+                    status: "healthy"
+                    latencyMs: 5
+                  - name: "company-memory"
+                    status: "healthy"
+                    latencyMs: 45
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+  /live:
+    get:
+      summary: Liveness probe
+      description: Simple liveness check for Kubernetes
+      operationId: getLiveness
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  timestamp:
+                    type: string
+                    format: date-time
+  /ready:
+    get:
+      summary: Readiness probe
+      description: Readiness check ensuring all dependencies are available
+      operationId: getReadiness
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ready, not_ready]
+                  timestamp:
+                    type: string
+                    format: date-time
+        '503':
+          description: Service is not ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from authentication service
+
+  schemas:
+    GraphQLError:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+        locations:
+          type: array
+          items:
+            type: object
+            properties:
+              line:
+                type: integer
+              column:
+                type: integer
+        path:
+          type: array
+          items:
+            type: string
+        extensions:
+          type: object
+          properties:
+            code:
+              type: string
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+        timestamp:
+          type: string
+          format: date-time
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              status:
+                type: string
+                enum: [healthy, unhealthy]
+              latencyMs:
+                type: integer
+              error:
+                type: string
+
+    GraphQLRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+        variables:
+          type: object
+        operationName:
+          type: string
+        extensions:
+          type: object
+
+    GraphQLResponse:
+      type: object
+      properties:
+        data:
+          type: object
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphQLError'
+        extensions:
+          type: object

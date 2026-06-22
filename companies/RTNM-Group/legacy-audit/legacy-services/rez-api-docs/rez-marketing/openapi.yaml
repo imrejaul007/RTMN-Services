@@ -1,0 +1,954 @@
+openapi: 3.0.3
+info:
+  title: ReZ Marketing Service API
+  description: |
+    Marketing automation microservice handling campaigns, notifications (WhatsApp, SMS, Email, Push).
+
+    ## Features
+    - Multi-channel campaign management
+    - WhatsApp Business API integration
+    - SMS via Twilio/MSG91
+    - Email via SMTP/SES
+    - Firebase push notifications
+    - Campaign scheduling with BullMQ
+    - Intent capture for analytics
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4000
+    description: Development server
+  - url: https://api.rez.money/marketing
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Campaigns
+    description: Campaign management
+  - name: Broadcasts
+    description: Broadcast messaging
+  - name: Templates
+    description: Message templates
+  - name: Segments
+    description: User segmentation
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/campaigns:
+    get:
+      tags:
+        - Campaigns
+      summary: List campaigns
+      description: Returns a list of all campaigns
+      operationId: listCampaigns
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/CampaignStatus'
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/Channel'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignListResponse'
+
+    post:
+      tags:
+        - Campaigns
+      summary: Create campaign
+      description: Creates a new marketing campaign
+      operationId: createCampaign
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCampaignRequest'
+      responses:
+        '201':
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+
+  /api/campaigns/{campaignId}:
+    get:
+      tags:
+        - Campaigns
+      summary: Get campaign
+      description: Returns a single campaign
+      operationId: getCampaign
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Campaign details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+        '404':
+          description: Campaign not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Campaigns
+      summary: Update campaign
+      description: Updates an existing campaign
+      operationId: updateCampaign
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignRequest'
+      responses:
+        '200':
+          description: Campaign updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+
+    delete:
+      tags:
+        - Campaigns
+      summary: Delete campaign
+      description: Deletes a campaign
+      operationId: deleteCampaign
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Campaign deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/campaigns/{campaignId}/send:
+    post:
+      tags:
+        - Campaigns
+      summary: Send campaign
+      description: Sends a campaign immediately
+      operationId: sendCampaign
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Campaign queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignSendResponse'
+
+  /api/campaigns/{campaignId}/schedule:
+    post:
+      tags:
+        - Campaigns
+      summary: Schedule campaign
+      description: Schedules a campaign for later sending
+      operationId: scheduleCampaign
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleCampaignRequest'
+      responses:
+        '200':
+          description: Campaign scheduled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+
+  /api/broadcasts:
+    get:
+      tags:
+        - Broadcasts
+      summary: List broadcasts
+      description: Returns broadcast history
+      operationId: listBroadcasts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/Channel'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: List of broadcasts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastListResponse'
+
+  /api/broadcasts/whatsapp:
+    post:
+      tags:
+        - Broadcasts
+      summary: Send WhatsApp broadcast
+      description: Sends a WhatsApp broadcast message
+      operationId: sendWhatsAppBroadcast
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhatsAppBroadcastRequest'
+      responses:
+        '202':
+          description: Broadcast queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastResponse'
+
+  /api/broadcasts/sms:
+    post:
+      tags:
+        - Broadcasts
+      summary: Send SMS broadcast
+      description: Sends an SMS broadcast
+      operationId: sendSmsBroadcast
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsBroadcastRequest'
+      responses:
+        '202':
+          description: Broadcast queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastResponse'
+
+  /api/broadcasts/email:
+    post:
+      tags:
+        - Broadcasts
+      summary: Send email broadcast
+      description: Sends an email broadcast
+      operationId: sendEmailBroadcast
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailBroadcastRequest'
+      responses:
+        '202':
+          description: Broadcast queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastResponse'
+
+  /api/broadcasts/push:
+    post:
+      tags:
+        - Broadcasts
+      summary: Send push notification
+      description: Sends a push notification broadcast
+      operationId: sendPushBroadcast
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushBroadcastRequest'
+      responses:
+        '202':
+          description: Broadcast queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastResponse'
+
+  /api/templates:
+    get:
+      tags:
+        - Templates
+      summary: List templates
+      description: Returns all message templates
+      operationId: listTemplates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/Channel'
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateListResponse'
+
+    post:
+      tags:
+        - Templates
+      summary: Create template
+      description: Creates a new message template
+      operationId: createTemplate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTemplateRequest'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+
+  /api/templates/{templateId}:
+    put:
+      tags:
+        - Templates
+      summary: Update template
+      description: Updates a template
+      operationId: updateTemplate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTemplateRequest'
+      responses:
+        '200':
+          description: Template updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponse'
+
+    delete:
+      tags:
+        - Templates
+      summary: Delete template
+      description: Deletes a template
+      operationId: deleteTemplate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Template deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/segments:
+    get:
+      tags:
+        - Segments
+      summary: List segments
+      description: Returns all user segments
+      operationId: listSegments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of segments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentListResponse'
+
+    post:
+      tags:
+        - Segments
+      summary: Create segment
+      description: Creates a new user segment
+      operationId: createSegment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSegmentRequest'
+      responses:
+        '201':
+          description: Segment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentResponse'
+
+  /api/segments/preview:
+    post:
+      tags:
+        - Segments
+      summary: Preview segment size
+      description: Previews the size of a segment
+      operationId: previewSegment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewSegmentRequest'
+      responses:
+        '200':
+          description: Segment preview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentPreviewResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Channel:
+      type: string
+      enum:
+        - whatsapp
+        - sms
+        - email
+        - push
+
+    CampaignStatus:
+      type: string
+      enum:
+        - draft
+        - scheduled
+        - sending
+        - completed
+        - failed
+
+    Campaign:
+      type: object
+      properties:
+        campaignId:
+          type: string
+        name:
+          type: string
+        channel:
+          $ref: '#/components/schemas/Channel'
+        status:
+          $ref: '#/components/schemas/CampaignStatus'
+        templateId:
+          type: string
+        segmentId:
+          type: string
+        scheduledAt:
+          type: string
+          format: date-time
+        sentAt:
+          type: string
+          format: date-time
+        stats:
+          type: object
+          properties:
+            total:
+              type: integer
+            sent:
+              type: integer
+            delivered:
+              type: integer
+            opened:
+              type: integer
+            clicked:
+              type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Template:
+      type: object
+      properties:
+        templateId:
+          type: string
+        name:
+          type: string
+        channel:
+          $ref: '#/components/schemas/Channel'
+        content:
+          type: string
+        variables:
+          type: array
+          items:
+            type: string
+        approved:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    Segment:
+      type: object
+      properties:
+        segmentId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        filters:
+          type: array
+          items:
+            type: object
+        count:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateCampaignRequest:
+      type: object
+      required:
+        - name
+        - channel
+        - templateId
+        - segmentId
+      properties:
+        name:
+          type: string
+        channel:
+          $ref: '#/components/schemas/Channel'
+        templateId:
+          type: string
+        segmentId:
+          type: string
+        scheduledAt:
+          type: string
+          format: date-time
+
+    UpdateCampaignRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        templateId:
+          type: string
+        segmentId:
+          type: string
+
+    ScheduleCampaignRequest:
+      type: object
+      required:
+        - scheduledAt
+      properties:
+        scheduledAt:
+          type: string
+          format: date-time
+
+    CreateTemplateRequest:
+      type: object
+      required:
+        - name
+        - channel
+        - content
+      properties:
+        name:
+          type: string
+        channel:
+          $ref: '#/components/schemas/Channel'
+        content:
+          type: string
+        variables:
+          type: array
+          items:
+            type: string
+
+    UpdateTemplateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        content:
+          type: string
+        variables:
+          type: array
+          items:
+            type: string
+
+    CreateSegmentRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        filters:
+          type: array
+          items:
+            type: object
+
+    PreviewSegmentRequest:
+      type: object
+      required:
+        - filters
+      properties:
+        filters:
+          type: array
+          items:
+            type: object
+
+    WhatsAppBroadcastRequest:
+      type: object
+      required:
+        - templateName
+        - recipientPhone
+      properties:
+        templateName:
+          type: string
+        recipientPhone:
+          type: string
+        variables:
+          type: object
+          additionalProperties:
+            type: string
+        mediaUrl:
+          type: string
+          format: uri
+
+    SmsBroadcastRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        recipientPhone:
+          type: string
+        segmentId:
+          type: string
+
+    EmailBroadcastRequest:
+      type: object
+      required:
+        - subject
+        - body
+      properties:
+        subject:
+          type: string
+        body:
+          type: string
+        recipientEmail:
+          type: string
+        segmentId:
+          type: string
+        templateId:
+          type: string
+
+    PushBroadcastRequest:
+      type: object
+      required:
+        - title
+        - body
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+        segmentId:
+          type: string
+
+    CampaignResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Campaign'
+
+    CampaignListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Campaign'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    CampaignSendResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            jobId:
+              type: string
+            estimatedRecipients:
+              type: integer
+
+    BroadcastResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            broadcastId:
+              type: string
+            status:
+              type: string
+            recipients:
+              type: integer
+
+    BroadcastListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              broadcastId:
+                type: string
+              channel:
+                $ref: '#/components/schemas/Channel'
+              status:
+                type: string
+              sentAt:
+                type: string
+                format: date-time
+              stats:
+                type: object
+
+    TemplateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Template'
+
+    TemplateListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Template'
+
+    SegmentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Segment'
+
+    SegmentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+
+    SegmentPreviewResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            count:
+              type: integer
+            breakdown:
+              type: object
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

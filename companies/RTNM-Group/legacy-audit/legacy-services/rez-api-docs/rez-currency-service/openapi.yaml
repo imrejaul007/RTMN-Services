@@ -1,0 +1,629 @@
+openapi: 3.0.3
+info:
+  title: ReZ Currency Service API
+  description: |
+    A comprehensive currency conversion and exchange rate service providing real-time exchange rates,
+    multi-currency conversion, fee calculations, and currency formatting for the ReZ ecosystem.
+
+    ## Features
+    - Multi-Currency Support: 20+ supported currencies worldwide
+    - Real-time Exchange Rates: Live exchange rate updates
+    - Currency Conversion: Fast and accurate currency conversion
+    - Batch Conversion: Convert multiple amounts at once
+    - Fee Calculation: Calculate transaction and conversion fees
+    - Currency Formatting: Locale-aware currency formatting
+    - Historical Rates: View historical exchange rate data
+    - Currency Metadata: Country associations, symbols, decimal places
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4026
+    description: Development server
+  - url: https://api.rez.money/currency
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Currencies
+    description: Currency information
+  - name: Exchange Rates
+    description: Exchange rate operations
+  - name: Conversion
+    description: Currency conversion
+  - name: Fees
+    description: Fee calculations
+  - name: Formatting
+    description: Currency formatting
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/currencies:
+    get:
+      tags:
+        - Currencies
+      summary: List all currencies
+      description: Returns list of all supported currencies
+      operationId: listCurrencies
+      responses:
+        '200':
+          description: List of currencies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyListResponse'
+
+  /api/currencies/{code}:
+    get:
+      tags:
+        - Currencies
+      summary: Get currency details
+      description: Returns details for a specific currency
+      operationId: getCurrency
+      parameters:
+        - name: code
+          in: path
+          required: true
+          description: Currency code (ISO 4217)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Currency details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+        '404':
+          description: Currency not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/rates:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Get all exchange rates
+      description: Returns all current exchange rates
+      operationId: getAllRates
+      parameters:
+        - name: base
+          in: query
+          description: Base currency code
+          schema:
+            type: string
+            default: USD
+      responses:
+        '200':
+          description: Exchange rates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRatesResponse'
+
+  /api/rates/{from}/{to}:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Get specific exchange rate
+      description: Returns exchange rate between two currencies
+      operationId: getExchangeRate
+      parameters:
+        - name: from
+          in: path
+          required: true
+          description: Source currency code
+          schema:
+            type: string
+        - name: to
+          in: path
+          required: true
+          description: Target currency code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exchange rate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRateResponse'
+        '404':
+          description: Currency not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/rates/{from}/{to}/history:
+    get:
+      tags:
+        - Exchange Rates
+      summary: Get historical rates
+      description: Returns historical exchange rates
+      operationId: getHistoricalRates
+      parameters:
+        - name: from
+          in: path
+          required: true
+          description: Source currency code
+          schema:
+            type: string
+        - name: to
+          in: path
+          required: true
+          description: Target currency code
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Historical rates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoricalRatesResponse'
+
+  /api/rates/refresh:
+    post:
+      tags:
+        - Exchange Rates
+      summary: Refresh exchange rates
+      description: Forces a refresh of exchange rates from external API
+      operationId: refreshRates
+      security:
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Rates refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshRatesResponse'
+
+  /api/convert:
+    post:
+      tags:
+        - Conversion
+      summary: Convert currency amount
+      description: Converts an amount from one currency to another
+      operationId: convertCurrency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionRequest'
+      responses:
+        '200':
+          description: Conversion result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/convert/batch:
+    post:
+      tags:
+        - Conversion
+      summary: Batch currency conversion
+      description: Converts multiple amounts at once
+      operationId: batchConvert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchConversionRequest'
+      responses:
+        '200':
+          description: Batch conversion result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchConversionResponse'
+
+  /api/fee:
+    post:
+      tags:
+        - Fees
+      summary: Calculate transaction fee
+      description: Calculates transaction fee for a given amount
+      operationId: calculateFee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeCalculationRequest'
+      responses:
+        '200':
+          description: Fee calculation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeCalculationResponse'
+
+  /api/format:
+    get:
+      tags:
+        - Formatting
+      summary: Format currency amount
+      description: Formats a currency amount according to locale rules
+      operationId: formatCurrency
+      parameters:
+        - name: amount
+          in: query
+          required: true
+          description: Amount to format
+          schema:
+            type: number
+        - name: currency
+          in: query
+          required: true
+          description: Currency code
+          schema:
+            type: string
+        - name: locale
+          in: query
+          description: Locale code
+          schema:
+            type: string
+            default: en-US
+      responses:
+        '200':
+          description: Formatted currency
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormattedCurrencyResponse'
+
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Currency:
+      type: object
+      properties:
+        code:
+          type: string
+          description: ISO 4217 currency code
+        name:
+          type: string
+        symbol:
+          type: string
+        decimalPlaces:
+          type: integer
+        countries:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    ExchangeRate:
+      type: object
+      properties:
+        fromCurrency:
+          type: string
+        toCurrency:
+          type: string
+        rate:
+          type: number
+        inverseRate:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+        source:
+          type: string
+
+    ConversionRequest:
+      type: object
+      required:
+        - amount
+        - from
+        - to
+      properties:
+        amount:
+          type: number
+          minimum: 0
+        from:
+          type: string
+          description: Source currency code
+        to:
+          type: string
+          description: Target currency code
+        roundResult:
+          type: boolean
+          default: true
+        decimalPlaces:
+          type: integer
+          default: 2
+
+    ConversionResult:
+      type: object
+      properties:
+        originalAmount:
+          type: number
+        convertedAmount:
+          type: number
+        rate:
+          type: number
+        fromCurrency:
+          type: string
+        toCurrency:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    BatchConversionRequest:
+      type: object
+      required:
+        - conversions
+      properties:
+        conversions:
+          type: array
+          items:
+            type: object
+            required:
+              - amount
+              - from
+              - to
+            properties:
+              amount:
+                type: number
+              from:
+                type: string
+              to:
+                type: string
+              roundResult:
+                type: boolean
+              decimalPlaces:
+                type: integer
+
+    BatchConversionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            results:
+              type: array
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/ConversionResult'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                      error:
+                        type: string
+
+    FeeCalculationRequest:
+      type: object
+      required:
+        - amount
+        - currency
+        - feeType
+      properties:
+        amount:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+        feeType:
+          type: string
+          enum:
+            - transaction
+            - conversion
+            - withdrawal
+            - deposit
+            - transfer
+        percentage:
+          type: number
+          description: Custom fee percentage (overrides default)
+
+    FeeCalculation:
+      type: object
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+        feeType:
+          type: string
+        feeAmount:
+          type: number
+        feePercentage:
+          type: number
+        totalAmount:
+          type: number
+
+    CurrencyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Currency'
+
+    CurrencyListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Currency'
+
+    ExchangeRateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ExchangeRate'
+
+    ExchangeRatesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            base:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+            rates:
+              type: object
+              additionalProperties:
+                type: number
+
+    HistoricalRatesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            from:
+              type: string
+            to:
+              type: string
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+            rates:
+              type: array
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  rate:
+                    type: number
+
+    RefreshRatesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            updatedAt:
+              type: string
+              format: date-time
+            currencies:
+              type: integer
+
+    ConversionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ConversionResult'
+
+    FeeCalculationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/FeeCalculation'
+
+    FormattedCurrencyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            original:
+              type: string
+            formatted:
+              type: string
+            currency:
+              type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string

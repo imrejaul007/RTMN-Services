@@ -1,0 +1,43 @@
+{
+  "name": "@rez/ui",
+  "version": "1.0.0",
+  "description": "ReZ UI component library",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./Button": {
+      "types": "./dist/Button.d.ts",
+      "default": "./dist/Button.js"
+    },
+    "./Card": {
+      "types": "./dist/Card.d.ts",
+      "default": "./dist/Card.js"
+    },
+    "./Input": {
+      "types": "./dist/Input.d.ts",
+      "default": "./dist/Input.js"
+    },
+    "./List": {
+      "types": "./dist/List.d.ts",
+      "default": "./dist/List.js"
+    },
+    "./Modal": {
+      "types": "./dist/Modal.d.ts",
+      "default": "./dist/Modal.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.3.0"
+  }
+}

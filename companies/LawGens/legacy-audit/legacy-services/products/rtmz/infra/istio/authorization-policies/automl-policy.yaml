@@ -1,0 +1,95 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: automl-pipeline-authz
+  namespace: rtmz
+spec:
+  selector:
+    matchLabels:
+      app: automl-pipeline
+  action: ALLOW
+  rules:
+    # Allow GraphQL federation to call AutoML
+    - from:
+        - source:
+            principals: ["cluster.local/ns/rtmz/sa/graphql-federation"]
+      to:
+        - operation:
+            methods: ["POST", "GET"]
+            paths:
+              - "/predict"
+              - "/train"
+              - "/evaluate"
+              - "/health"
+              - "/ready"
+    # Allow contract management to access AutoML features
+    - from:
+        - source:
+            principals: ["cluster.local/ns/rtmz/sa/contract-management"]
+      to:
+        - operation:
+            methods: ["POST", "GET"]
+            paths:
+              - "/classify"
+              - "/analyze"
+              - "/health"
+    # Allow ranking service for feature engineering
+    - from:
+        - source:
+            principals: ["cluster.local/ns/rtmz/sa/ranking-service"]
+      to:
+        - operation:
+            methods: ["POST", "GET"]
+            paths:
+              - "/features"
+              - "/embeddings"
+    # Allow legal document AI for analysis
+    - from:
+        - source:
+            principals: ["cluster.local/ns/rtmz/sa/legal-document-ai"]
+      to:
+        - operation:
+            methods: ["POST", "GET"]
+            paths:
+              - "/nlp"
+              - "/analyze"
+    # Self-access for health checks and metrics
+    - from:
+        - source:
+            principals: ["cluster.local/ns/rtmz/sa/automl-pipeline"]
+      to:
+        - operation:
+            methods: ["*"]
+            paths: ["*"]
+---
+# AutoML Pipeline specific resource limits
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: automl-resource-limits
+  namespace: rtmz
+spec:
+  selector:
+    matchLabels:
+      app: automl-pipeline
+  action: ALLOW
+  rules:
+    # Training operations should have longer timeouts
+    - from:
+        - source:
+            principals: ["*"]
+      to:
+        - operation:
+            paths:
+              - "/train/*"
+              - "/evaluate/*"
+            notPorts: ["8080"]
+    # Inference should be fast
+    - from:
+        - source:
+            principals: ["*"]
+      to:
+        - operation:
+            paths:
+              - "/predict/*"
+              - "/classify/*"

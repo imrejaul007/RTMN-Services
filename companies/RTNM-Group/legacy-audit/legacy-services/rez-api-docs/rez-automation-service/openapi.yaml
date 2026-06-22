@@ -1,0 +1,1091 @@
+openapi: 3.0.3
+info:
+  title: ReZ Automation Service API
+  description: |
+    Rule engine for automated triggers and workflow automation in the ReZ ecosystem.
+
+    ## Features
+    - Event-Driven Architecture: React to events like orders, payments, customer actions
+    - Rule Engine: Flexible rule matching with conditions and priorities
+    - Multiple Action Types: Send offers, create purchase orders, update prices, notifications
+    - Scheduled Tasks: Cron-based scheduling for time-based automation
+    - Real-time Processing: Redis pub/sub for distributed event handling
+    - Comprehensive Logging: Full execution history with statistics
+    - RESTful API: Full CRUD operations for rules and logs
+
+    ## Supported Events
+    - Order Events: order.created, order.completed, order.cancelled, order.refunded
+    - Payment Events: payment.success, payment.failed, payment.pending
+    - Wallet Events: wallet.created, wallet.deposit, wallet.withdrawal
+    - Customer Events: customer.created, customer.updated, customer.inactive
+    - Inventory Events: inventory.low, inventory.updated, inventory.out_of_stock
+    - Hotel Events: hotel.booking.created, hotel.booking.cancelled
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4014
+    description: Development server
+  - url: https://api.rez.money/automation
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Rules
+    description: Automation rules management
+  - name: Events
+    description: Event processing
+  - name: Logs
+    description: Execution logs
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Detailed health check
+      operationId: getDetailedHealth
+      responses:
+        '200':
+          description: Detailed health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedHealthResponse'
+
+  /api/rules:
+    get:
+      tags:
+        - Rules
+      summary: List all rules
+      description: Returns a paginated list of all automation rules
+      operationId: listRules
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: enabled
+          in: query
+          schema:
+            type: boolean
+        - name: event
+          in: query
+          schema:
+            type: string
+        - name: tag
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of rules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RulesListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Rules
+      summary: Create new rule
+      description: Creates a new automation rule
+      operationId: createRule
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRuleRequest'
+      responses:
+        '201':
+          description: Rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/rules/{id}:
+    get:
+      tags:
+        - Rules
+      summary: Get rule by ID
+      description: Returns a single rule by ID
+      operationId: getRuleById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rule details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+        '404':
+          description: Rule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Rules
+      summary: Update rule
+      description: Updates an existing rule
+      operationId: updateRule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRuleRequest'
+      responses:
+        '200':
+          description: Rule updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+        '404':
+          description: Rule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Rules
+      summary: Delete rule
+      description: Deletes an existing rule
+      operationId: deleteRule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rule deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Rule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/rules/{id}/execute:
+    post:
+      tags:
+        - Rules
+      summary: Execute rule manually
+      description: Triggers manual execution of a rule
+      operationId: executeRule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteRuleRequest'
+      responses:
+        '200':
+          description: Rule executed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecuteRuleResponse'
+        '404':
+          description: Rule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/rules/{id}/toggle:
+    post:
+      tags:
+        - Rules
+      summary: Toggle rule enabled/disabled
+      description: Toggles the enabled status of a rule
+      operationId: toggleRule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rule toggled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+
+  /api/rules/stats:
+    get:
+      tags:
+        - Rules
+      summary: Get rule statistics
+      description: Returns execution statistics for all rules
+      operationId: getRuleStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - today
+              - week
+              - month
+              - all
+            default: week
+      responses:
+        '200':
+          description: Rule statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleStatsResponse'
+
+  /api/events:
+    get:
+      tags:
+        - Events
+      summary: List supported events
+      description: Returns list of all supported event types
+      operationId: listSupportedEvents
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of supported events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsListResponse'
+
+    post:
+      tags:
+        - Events
+      summary: Trigger an event
+      description: Triggers an event for processing by rules
+      operationId: triggerEvent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerEventRequest'
+      responses:
+        '202':
+          description: Event accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventAcceptedResponse'
+        '400':
+          description: Invalid event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/events/history:
+    get:
+      tags:
+        - Events
+      summary: Get event history
+      description: Returns history of processed events
+      operationId: getEventHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: event
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - processed
+              - failed
+              - skipped
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: Event history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventHistoryResponse'
+
+  /api/logs:
+    get:
+      tags:
+        - Logs
+      summary: List execution logs
+      description: Returns execution logs for rule actions
+      operationId: listLogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ruleId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - success
+              - failure
+              - pending
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: Execution logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogsListResponse'
+
+  /api/logs/{id}:
+    get:
+      tags:
+        - Logs
+      summary: Get log by ID
+      description: Returns a single execution log
+      operationId: getLogById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Log details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogResponse'
+        '404':
+          description: Log not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/logs/stats:
+    get:
+      tags:
+        - Logs
+      summary: Get execution statistics
+      description: Returns aggregated execution statistics
+      operationId: getLogStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - today
+              - week
+              - month
+              - all
+            default: week
+      responses:
+        '200':
+          description: Execution statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogStatsResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    TriggerCondition:
+      type: object
+      properties:
+        field:
+          type: string
+        operator:
+          type: string
+          enum:
+            - eq
+            - ne
+            - gt
+            - gte
+            - lt
+            - lte
+            - in
+            - nin
+            - contains
+            - exists
+            - between
+            - regex
+        value: {}
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TriggerCondition'
+        logic:
+          type: string
+          enum:
+            - and
+            - or
+
+    TriggerConfig:
+      type: object
+      required:
+        - event
+      properties:
+        event:
+          type: string
+          description: Event type to trigger on
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TriggerCondition'
+
+    ActionConfig:
+      type: object
+      properties:
+        target:
+          type: string
+        template:
+          type: string
+        priority:
+          type: string
+        url:
+          type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        payload: {}
+        to:
+          type: string
+        subject:
+          type: string
+        discount:
+          type: number
+        offerType:
+          type: string
+        duration:
+          type: integer
+        type:
+          type: string
+        category:
+          type: string
+        content:
+          type: string
+
+    Action:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - send_offer
+            - create_po
+            - update_price
+            - notify
+            - webhook
+            - email
+            - sms
+            - api_call
+            - insight
+            - delay
+            - condition
+        config:
+          $ref: '#/components/schemas/ActionConfig'
+
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        trigger:
+          $ref: '#/components/schemas/TriggerConfig'
+        action:
+          $ref: '#/components/schemas/Action'
+        enabled:
+          type: boolean
+        priority:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        cooldown:
+          type: integer
+          description: Cooldown period in seconds
+        lastTriggeredAt:
+          type: string
+          format: date-time
+        executionCount:
+          type: integer
+        successCount:
+          type: integer
+        failureCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ExecutionLog:
+      type: object
+      properties:
+        id:
+          type: string
+        ruleId:
+          type: string
+        ruleName:
+          type: string
+        eventType:
+          type: string
+        eventData: {}
+        actionType:
+          type: string
+        actionConfig: {}
+        status:
+          type: string
+          enum:
+            - success
+            - failure
+            - pending
+        result: {}
+        error: {}
+        executionTime:
+          type: number
+          description: Execution time in milliseconds
+        triggeredBy:
+          type: string
+          description: Event or manual trigger
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateRuleRequest:
+      type: object
+      required:
+        - name
+        - trigger
+        - action
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 500
+        trigger:
+          $ref: '#/components/schemas/TriggerConfig'
+        action:
+          $ref: '#/components/schemas/Action'
+        enabled:
+          type: boolean
+          default: true
+        priority:
+          type: integer
+          default: 5
+          minimum: 1
+          maximum: 10
+        tags:
+          type: array
+          items:
+            type: string
+        cooldown:
+          type: integer
+          minimum: 0
+
+    UpdateRuleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        trigger:
+          $ref: '#/components/schemas/TriggerConfig'
+        action:
+          $ref: '#/components/schemas/Action'
+        priority:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        cooldown:
+          type: integer
+
+    ExecuteRuleRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+          description: Data to pass to the rule execution
+
+    TriggerEventRequest:
+      type: object
+      required:
+        - event
+        - data
+      properties:
+        event:
+          type: string
+          description: Event type
+        data:
+          type: object
+          additionalProperties: true
+          description: Event payload data
+
+    RuleResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Rule'
+
+    RulesListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ExecuteRuleResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            logId:
+              type: string
+            status:
+              type: string
+            result: {}
+
+    RuleStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalRules:
+              type: integer
+            enabledRules:
+              type: integer
+            disabledRules:
+              type: integer
+            totalExecutions:
+              type: integer
+            successfulExecutions:
+              type: integer
+            failedExecutions:
+              type: integer
+            topRules:
+              type: array
+              items:
+                type: object
+                properties:
+                  ruleId:
+                    type: string
+                  name:
+                    type: string
+                  executions:
+                    type: integer
+            byEventType:
+              type: object
+              additionalProperties:
+                type: integer
+
+    EventsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            orderEvents:
+              type: array
+              items:
+                type: string
+            paymentEvents:
+              type: array
+              items:
+                type: string
+            walletEvents:
+              type: array
+              items:
+                type: string
+            customerEvents:
+              type: array
+              items:
+                type: string
+            inventoryEvents:
+              type: array
+              items:
+                type: string
+            hotelEvents:
+              type: array
+              items:
+                type: string
+
+    EventAcceptedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            eventId:
+              type: string
+            rulesTriggered:
+              type: array
+              items:
+                type: string
+
+    EventHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              eventType:
+                type: string
+              data: {}
+              status:
+                type: string
+              rulesTriggered:
+                type: array
+                items:
+                  type: string
+              processedAt:
+                type: string
+                format: date-time
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    LogsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExecutionLog'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    LogResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ExecutionLog'
+
+    LogStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalExecutions:
+              type: integer
+            successfulExecutions:
+              type: integer
+            failedExecutions:
+              type: integer
+            pendingExecutions:
+              type: integer
+            avgExecutionTime:
+              type: number
+            byActionType:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  success:
+                    type: integer
+                  failure:
+                    type: integer
+            byRule:
+              type: array
+              items:
+                type: object
+                properties:
+                  ruleId:
+                    type: string
+                  ruleName:
+                    type: string
+                  total:
+                    type: integer
+                  success:
+                    type: integer
+                  failure:
+                    type: integer
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    DetailedHealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        services:
+          type: object
+          properties:
+            database:
+              type: string
+            redis:
+              type: string
+            eventBus:
+              type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

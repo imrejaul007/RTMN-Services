@@ -1,0 +1,27 @@
+services:
+  - name: rez-identity-service
+    region: oregon
+    plan: starter
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3003
+      - key: MONGODB_URI
+        sync: false
+      - key: LOG_LEVEL
+        value: info
+      - key: IDENTITY_SALT
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "*"
+
+databases:
+  - name: rez-identity-service-db
+    plan: starter
+    databaseName: rez_identity_service
+    ipAllowList: []

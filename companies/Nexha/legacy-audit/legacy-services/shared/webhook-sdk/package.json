@@ -1,0 +1,21 @@
+{
+  "name": "@rez/webhook-sdk",
+  "version": "1.0.0",
+  "description": "Universal webhook SDK for REZ ecosystem - HMAC verification, replay protection, timing-safe comparison",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

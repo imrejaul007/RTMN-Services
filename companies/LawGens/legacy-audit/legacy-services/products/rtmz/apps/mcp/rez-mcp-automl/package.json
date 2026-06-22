@@ -1,0 +1,21 @@
+{
+  "name": "rez-mcp-automl",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MCP server for REZ AutoML Pipeline",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.3"
+  }
+}

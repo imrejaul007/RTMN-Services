@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nexha-mongo
+  namespace: nexha
+spec:
+  serviceName: nexha-mongo
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nexha-mongo
+  template:
+    metadata:
+      labels:
+        app: nexha-mongo
+    spec:
+      containers:
+      - name: nexha-mongo
+        image: mongo:7
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: nexha-mongo-data
+          mountPath: /data/db
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+        livenessProbe:
+          exec:
+            command:
+            - mongosh
+            - --eval
+            - "db.adminCommand('ping')"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: nexha-mongo-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: standard
+      resources:
+        requests:
+          storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexha-mongo
+  namespace: nexha
+spec:
+  clusterIP: None
+  selector:
+    app: nexha-mongo
+  ports:
+  - port: 27017
+    targetPort: 27017

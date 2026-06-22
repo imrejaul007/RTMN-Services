@@ -1,0 +1,98 @@
+name: Forensics MCP Integration Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mcp/rez-mcp-*/**'
+      - 'apps/services/REZ-forensics-gateway/**'
+      - 'ci/integration/**'
+  pull_request:
+    branches: [main]
+
+jobs:
+  forensics-integration:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd apps/services/REZ-forensics-gateway
+          npm install
+
+      - name: Start Forensics Gateway
+        run: |
+          cd apps/services/REZ-forensics-gateway
+          npm run build
+          node dist/index.js &
+        env:
+          PORT: 5100
+          MONGODB_URI: mongodb://localhost:27017/rez-test
+          REDIS_URL: redis://localhost:6379
+          AUTH_SERVICE_URL: http://localhost:4002
+          MCP_EVIDENCE_URL: http://localhost:3120
+          MCP_DEEPFAKE_URL: http://localhost:3121
+          MCP_CUSTODY_URL: http://localhost:3122
+          MCP_FORENSICS_URL: http://localhost:3123
+          MCP_SOCIAL_URL: http://localhost:3130
+          MCP_FINANCIAL_URL: http://localhost:3131
+          MCP_LOCATION_URL: http://localhost:3132
+          MCP_REPORTS_URL: http://localhost:3133
+
+      - name: Run Integration Tests
+        run: |
+          npm install -g jest ts-node
+          npx jest ci/integration/forensics.test.ts
+        env:
+          FORENSICS_GATEWAY_URL: http://localhost:5100
+          AUTH_SERVICE_URL: http://localhost:4002
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forensics-test-results
+          path: coverage/
+
+  docker-build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Forensics Gateway Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/services/REZ-forensics-gateway
+          push: false
+          load: true
+          tags: rez-forensics-gateway:test
+
+      - name: Test Docker Container
+        run: |
+          docker run --rm rez-forensics-gateway:test node --version

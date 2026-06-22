@@ -1,0 +1,1331 @@
+openapi: 3.0.3
+info:
+  title: ReZ GDPR Service API
+  description: |
+    A comprehensive GDPR compliance service providing consent management, data erasure,
+    data portability, and privacy policy management for the ReZ ecosystem.
+
+    ## Features
+    - Consent Management: Granular consent tracking for different data processing purposes
+    - Data Erasure: Automated data deletion with verification and audit trails
+    - Data Portability: Export user data in machine-readable formats
+    - Privacy Policy Management: Version-controlled privacy policies with user acceptance tracking
+    - Data Requests: Handle access, correction, and deletion requests
+    - Cookie Banners: Configurable consent banners for cookie tracking
+    - Audit Trail: Complete logging of all GDPR-related operations
+    - Statistics Dashboard: Track compliance metrics and consent rates
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4021
+    description: Development server
+  - url: https://api.rez.money/gdpr
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Data Requests
+    description: GDPR data request management
+  - name: Consents
+    description: Consent management
+  - name: Data Erasure
+    description: Data erasure operations
+  - name: Data Export
+    description: Data portability
+  - name: Privacy Policy
+    description: Privacy policy management
+  - name: Audit
+    description: Audit trail
+  - name: Statistics
+    description: Compliance statistics
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /:
+    get:
+      tags:
+        - Health
+      summary: Service information
+      operationId: getServiceInfo
+      responses:
+        '200':
+          description: Service information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceInfoResponse'
+
+  /api/requests:
+    get:
+      tags:
+        - Data Requests
+      summary: List data requests
+      description: Returns a list of all data requests
+      operationId: listDataRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/RequestStatus'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/RequestType'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of data requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRequestListResponse'
+
+    post:
+      tags:
+        - Data Requests
+      summary: Create data request
+      description: Creates a new GDPR data request
+      operationId: createDataRequest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDataRequestRequest'
+      responses:
+        '201':
+          description: Request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRequestResponse'
+
+  /api/requests/{id}:
+    get:
+      tags:
+        - Data Requests
+      summary: Get request by ID
+      description: Returns a single data request
+      operationId: getDataRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Data request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRequestResponse'
+        '404':
+          description: Request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/requests/user/{userId}:
+    get:
+      tags:
+        - Data Requests
+      summary: Get requests for user
+      description: Returns all data requests for a user
+      operationId: getUserRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User data requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRequestListResponse'
+
+  /api/requests/{id}:
+    patch:
+      tags:
+        - Data Requests
+      summary: Update request status
+      description: Updates the status of a data request
+      operationId: updateDataRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDataRequestRequest'
+      responses:
+        '200':
+          description: Request updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataRequestResponse'
+
+  /api/consents:
+    post:
+      tags:
+        - Consents
+      summary: Grant or deny consent
+      description: Records user consent
+      operationId: recordConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordConsentRequest'
+      responses:
+        '201':
+          description: Consent recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/consents/batch:
+    post:
+      tags:
+        - Consents
+      summary: Batch consent update
+      description: Updates multiple consents at once
+      operationId: batchUpdateConsents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - consents
+              properties:
+                userId:
+                  type: string
+                consents:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      consentType:
+                        $ref: '#/components/schemas/ConsentType'
+                      granted:
+                        type: boolean
+      responses:
+        '200':
+          description: Consents updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchConsentResponse'
+
+  /api/consents/user/{userId}:
+    get:
+      tags:
+        - Consents
+      summary: Get user consents
+      description: Returns all consents for a user
+      operationId: getUserConsents
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User consents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentListResponse'
+
+  /api/consents/{userId}/{consentType}:
+    delete:
+      tags:
+        - Consents
+      summary: Withdraw consent
+      description: Withdraws a specific consent
+      operationId: withdrawConsent
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: consentType
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ConsentType'
+      responses:
+        '200':
+          description: Consent withdrawn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+
+  /api/consents/banner/active:
+    get:
+      tags:
+        - Consents
+      summary: Get active consent banner
+      description: Returns the currently active consent banner
+      operationId: getActiveBanner
+      responses:
+        '200':
+          description: Active banner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentBannerResponse'
+
+  /api/consents/banner:
+    get:
+      tags:
+        - Consents
+      summary: List all banners
+      description: Returns all consent banners
+      operationId: listBanners
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of banners
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BannerListResponse'
+
+    post:
+      tags:
+        - Consents
+      summary: Create consent banner
+      description: Creates a new consent banner
+      operationId: createBanner
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBannerRequest'
+      responses:
+        '201':
+          description: Banner created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentBannerResponse'
+
+  /api/erasure/request:
+    post:
+      tags:
+        - Data Erasure
+      summary: Request data erasure
+      description: Initiates a data erasure request
+      operationId: requestDataErasure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErasureRequestRequest'
+      responses:
+        '201':
+          description: Erasure request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErasureRequestResponse'
+
+  /api/erasure/process/{requestId}:
+    post:
+      tags:
+        - Data Erasure
+      summary: Process erasure request
+      description: Processes an erasure request
+      operationId: processErasure
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Erasure processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErasureRequestResponse'
+
+  /api/erasure/verify/{requestId}:
+    post:
+      tags:
+        - Data Erasure
+      summary: Verify erasure completion
+      description: Verifies erasure has been completed
+      operationId: verifyErasure
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - verificationCode
+              properties:
+                verificationCode:
+                  type: string
+      responses:
+        '200':
+          description: Erasure verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErasureRequestResponse'
+
+  /api/export/{userId}:
+    post:
+      tags:
+        - Data Export
+      summary: Generate data export
+      description: Initiates export of user data
+      operationId: generateDataExport
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  type: string
+                  enum:
+                    - json
+                    - csv
+                  default: json
+      responses:
+        '202':
+          description: Export initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportInitResponse'
+
+  /api/export/{exportId}:
+    get:
+      tags:
+        - Data Export
+      summary: Download export file
+      description: Downloads the exported data file
+      operationId: downloadExport
+      parameters:
+        - name: exportId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Export data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportDataResponse'
+            text/csv:
+              schema:
+                type: string
+        '404':
+          description: Export not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/privacy-policy/active:
+    get:
+      tags:
+        - Privacy Policy
+      summary: Get active privacy policy
+      description: Returns the currently active privacy policy
+      operationId: getActivePolicy
+      responses:
+        '200':
+          description: Active policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyPolicyResponse'
+
+  /api/privacy-policy/{id}:
+    get:
+      tags:
+        - Privacy Policy
+      summary: Get specific policy version
+      description: Returns a specific version of the privacy policy
+      operationId: getPolicyById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Policy version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyPolicyResponse'
+
+  /api/privacy-policy:
+    get:
+      tags:
+        - Privacy Policy
+      summary: List all policy versions
+      description: Returns all versions of the privacy policy
+      operationId: listPolicies
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyListResponse'
+
+    post:
+      tags:
+        - Privacy Policy
+      summary: Create policy version
+      description: Creates a new privacy policy version
+      operationId: createPolicy
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePolicyRequest'
+      responses:
+        '201':
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyPolicyResponse'
+
+  /api/privacy-policy/{id}/publish:
+    post:
+      tags:
+        - Privacy Policy
+      summary: Publish policy version
+      description: Publishes a policy version
+      operationId: publishPolicy
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Policy published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyPolicyResponse'
+
+  /api/privacy-policy/{id}/accept/{userId}:
+    post:
+      tags:
+        - Privacy Policy
+      summary: Record user acceptance
+      description: Records user acceptance of a policy version
+      operationId: acceptPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Policy accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyAcceptanceResponse'
+
+  /api/privacy-policy/user/{userId}/status:
+    get:
+      tags:
+        - Privacy Policy
+      summary: Get user policy status
+      description: Returns user's privacy policy acceptance status
+      operationId: getUserPolicyStatus
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User policy status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPolicyStatusResponse'
+
+  /api/audit/user/{userId}:
+    get:
+      tags:
+        - Audit
+      summary: Get audit history for user
+      description: Returns GDPR audit history for a user
+      operationId: getUserAuditHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Audit history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditHistoryResponse'
+
+  /api/audit/export:
+    get:
+      tags:
+        - Audit
+      summary: Export audit logs
+      description: Exports audit logs
+      operationId: exportAuditLogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum:
+              - json
+              - csv
+            default: json
+      responses:
+        '200':
+          description: Exported audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditExportResponse'
+
+  /api/stats:
+    get:
+      tags:
+        - Statistics
+      summary: Get compliance statistics
+      description: Returns GDPR compliance statistics
+      operationId: getComplianceStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Compliance statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceStatsResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ConsentType:
+      type: string
+      enum:
+        - essential
+        - analytics
+        - marketing
+        - personalization
+        - third_party
+
+    RequestType:
+      type: string
+      enum:
+        - access
+        - rectification
+        - erasure
+        - portability
+        - restriction
+        - objection
+
+    RequestStatus:
+      type: string
+      enum:
+        - pending
+        - verified
+        - processing
+        - completed
+        - rejected
+
+    ErasureStatus:
+      type: string
+      enum:
+        - pending_verification
+        - verified
+        - scheduled
+        - processing
+        - completed
+        - partially_completed
+        - failed
+
+    Consent:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        consentType:
+          $ref: '#/components/schemas/ConsentType'
+        granted:
+          type: boolean
+        grantedAt:
+          type: string
+          format: date-time
+        withdrawnAt:
+          type: string
+          format: date-time
+        version:
+          type: string
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+
+    DataRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        type:
+          $ref: '#/components/schemas/RequestType'
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        requestedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        verifiedAt:
+          type: string
+          format: date-time
+        verificationCode:
+          type: string
+        metadata:
+          type: object
+
+    ErasureRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        status:
+          $ref: '#/components/schemas/ErasureStatus'
+        requestedAt:
+          type: string
+          format: date-time
+        scheduledAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        verificationCode:
+          type: string
+        servicesToErase:
+          type: array
+          items:
+            type: string
+        servicesErased:
+          type: array
+          items:
+            type: string
+        failedServices:
+          type: array
+          items:
+            type: string
+        verificationMethod:
+          type: string
+          enum:
+            - email
+            - sms
+            - manual
+
+    PrivacyPolicy:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        publishedAt:
+          type: string
+          format: date-time
+        publishedBy:
+          type: string
+        isActive:
+          type: boolean
+        acceptanceRate:
+          type: number
+        totalAcceptances:
+          type: integer
+
+    ConsentBanner:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        consentTypes:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                $ref: '#/components/schemas/ConsentType'
+              label:
+                type: string
+              description:
+                type: string
+              required:
+                type: boolean
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    AuditEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        action:
+          type: string
+        resourceType:
+          type: string
+        resourceId:
+          type: string
+        details:
+          type: object
+        ipAddress:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    RecordConsentRequest:
+      type: object
+      required:
+        - userId
+        - consentType
+        - granted
+      properties:
+        userId:
+          type: string
+        consentType:
+          $ref: '#/components/schemas/ConsentType'
+        granted:
+          type: boolean
+
+    CreateDataRequestRequest:
+      type: object
+      required:
+        - userId
+        - type
+      properties:
+        userId:
+          type: string
+        type:
+          $ref: '#/components/schemas/RequestType'
+        verificationMethod:
+          type: string
+          enum:
+            - email
+            - sms
+            - manual
+        metadata:
+          type: object
+
+    UpdateDataRequestRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/RequestStatus'
+        notes:
+          type: string
+
+    ErasureRequestRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+        verificationMethod:
+          type: string
+          enum:
+            - email
+            - sms
+            - manual
+        services:
+          type: array
+          items:
+            type: string
+
+    CreateBannerRequest:
+      type: object
+      required:
+        - title
+        - message
+      properties:
+        title:
+          type: string
+        message:
+          type: string
+        consentTypes:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                $ref: '#/components/schemas/ConsentType'
+              label:
+                type: string
+              description:
+                type: string
+              required:
+                type: boolean
+        isActive:
+          type: boolean
+
+    CreatePolicyRequest:
+      type: object
+      required:
+        - version
+        - content
+        - summary
+      properties:
+        version:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+
+    ConsentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Consent'
+
+    BatchConsentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            updated:
+              type: integer
+            consents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Consent'
+
+    ConsentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Consent'
+
+    DataRequestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/DataRequest'
+
+    DataRequestListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataRequest'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ErasureRequestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ErasureRequest'
+
+    ConsentBannerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ConsentBanner'
+
+    BannerListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsentBanner'
+
+    PrivacyPolicyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/PrivacyPolicy'
+
+    PolicyListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrivacyPolicy'
+
+    PolicyAcceptanceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            policyId:
+              type: string
+            acceptedAt:
+              type: string
+              format: date-time
+
+    UserPolicyStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            currentPolicyAccepted:
+              type: boolean
+            acceptedPolicies:
+              type: array
+              items:
+                type: object
+                properties:
+                  policyId:
+                    type: string
+                  version:
+                    type: string
+                  acceptedAt:
+                    type: string
+                    format: date-time
+
+    ExportInitResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            exportId:
+              type: string
+            status:
+              type: string
+            estimatedTime:
+              type: integer
+
+    ExportDataResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            exportedAt:
+              type: string
+              format: date-time
+            data:
+              type: object
+
+    AuditHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEntry'
+
+    AuditExportResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEntry'
+
+    ComplianceStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            consentRates:
+              type: object
+              additionalProperties:
+                type: number
+            pendingRequests:
+              type: integer
+            completedRequests:
+              type: integer
+            avgCompletionTime:
+              type: number
+            erasureStats:
+              type: object
+              properties:
+                total:
+                  type: integer
+                completed:
+                  type: integer
+                failed:
+                  type: integer
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ServiceInfoResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string

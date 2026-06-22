@@ -1,0 +1,358 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
+
+export const s = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+  },
+  headerWrap: {
+    paddingBottom: 12,
+  },
+  heroCard: {
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: 16,
+    gap: 14,
+  },
+  heroTopRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  heroCopy: {
+    flex: 1,
+    gap: 6,
+  },
+  screenTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+  },
+  screenSubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  refreshButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liveStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+  },
+  liveStripText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  healthPill: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  healthPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  summaryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  summaryCard: {
+    width: '47%',
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    gap: 4,
+  },
+  summaryValue: {
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  summaryLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  searchShell: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    paddingVertical: 0,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  filterChip: {
+    flex: 1,
+    minHeight: 42,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  filterChipText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  listContent: {
+    padding: 12,
+    gap: 12,
+    paddingBottom: 28,
+  },
+  card: {
+    borderWidth: 1,
+    borderRadius: 20,
+    padding: 14,
+    gap: 12,
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  initials: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  initialsText: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  userInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  userName: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  metaText: {
+    fontSize: 12,
+  },
+  badge: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  metricRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  metricCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    gap: 3,
+  },
+  metricValue: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  metricLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  timelineCard: {
+    borderRadius: 16,
+    padding: 12,
+    gap: 8,
+  },
+  timelineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  timelineText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  secondaryButton: {
+    flex: 1,
+    minWidth: 108,
+    minHeight: 42,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+  },
+  secondaryButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  positiveButton: {
+    flex: 1,
+    minWidth: 92,
+    minHeight: 42,
+    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+  },
+  positiveButtonText: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  negativeButton: {
+    flex: 1,
+    minWidth: 92,
+    minHeight: 42,
+    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+  },
+  negativeButtonText: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  emptyState: {
+    borderWidth: 1,
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 32,
+    alignItems: 'center',
+    gap: 10,
+  },
+  emptyIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 16,
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    gap: 12,
+  },
+  modalTitle: {
+    fontSize: 19,
+    fontWeight: '800',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  reasonInput: {
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 12,
+    minHeight: 100,
+    fontSize: 14,
+  },
+  modalActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4,
+  },
+  modalSecondary: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalSecondaryText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  modalPrimary: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalPrimaryText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+});

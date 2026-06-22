@@ -1,0 +1,1565 @@
+openapi: 3.0.3
+info:
+  title: RTNM-Group API
+  description: |
+    RTNM-Group Controls & Financial Services API
+
+    ## Overview
+    RTNM-Group provides identity management, access control, capital lending,
+    BNPL services, and compliance tools for the ReZ Commerce OS.
+
+    ## Authentication
+    - **User Authentication**: JWT Bearer token in Authorization header
+    - **Service Authentication**: X-Internal-Token header for service-to-service calls
+  version: 1.0.0
+  contact:
+    name: ReZ Engineering
+    email: engineering@rez.money
+
+servers:
+  - url: https://api.rez.money
+    description: Production
+  - url: https://staging-api.rez.money
+    description: Staging
+  - url: http://localhost:3003
+    description: Local Development
+
+tags:
+  - name: Identity
+    description: Identity management and resolution
+  - name: Access Control
+    description: RBAC/ABAC permission management
+  - name: Capital
+    description: Merchant credit and lending
+  - name: BNPL
+    description: Buy Now Pay Later services
+  - name: Payment Links
+    description: UPI payment link generation
+  - name: Compliance
+    description: GDPR/DPDP compliance endpoints
+
+paths:
+  # ============================================
+  # IDENTITY ENDPOINTS
+  # ============================================
+  /api/v1/identity:
+    post:
+      tags: [Identity]
+      summary: Create new identity
+      description: Create a new identity in the identity graph
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIdentityRequest'
+      responses:
+        '201':
+          description: Identity created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    get:
+      tags: [Identity]
+      summary: List identities
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [app_user, whatsapp, web, qr, device, wallet, phone, email, merchant, staff, admin]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of identities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Identity'
+                  total:
+                    type: integer
+
+  /api/v1/identity/{identityId}:
+    get:
+      tags: [Identity]
+      summary: Get identity by ID
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: identityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Identity details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Identity]
+      summary: Update identity
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: identityId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIdentityRequest'
+      responses:
+        '200':
+          description: Identity updated
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Identity]
+      summary: Delete identity (soft delete)
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: identityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Identity deleted
+
+  /api/v1/resolve:
+    post:
+      tags: [Identity]
+      summary: Resolve identity by identifier
+      description: |
+        Resolve a unified identity using phone, email, or device ID.
+        Returns the unified identity with all linked accounts.
+      security:
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier, type]
+              properties:
+                identifier:
+                  type: string
+                  description: Phone number or email address
+                type:
+                  type: string
+                  enum: [phone, email, device_id, wallet_id]
+                includeProfile:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Identity resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolvedIdentity'
+        '404':
+          description: Identity not found
+
+  /api/v1/link:
+    post:
+      tags: [Identity]
+      summary: Link multiple identities
+      description: Link two identities to the same unified profile
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sourceIdentityId, targetIdentityId, linkType]
+              properties:
+                sourceIdentityId:
+                  type: string
+                targetIdentityId:
+                  type: string
+                linkType:
+                  type: string
+                  enum: [phone_link, email_link, device_link, social_link, manual]
+                confidence:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                  default: 1
+      responses:
+        '200':
+          description: Identities linked
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ============================================
+  # TRUST SCORE ENDPOINTS
+  # ============================================
+  /api/v1/identity/trust/{clusterId}:
+    get:
+      tags: [Identity]
+      summary: Get trust score for cluster
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: clusterId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trust score details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrustScore'
+
+  /api/v1/identity/trust/calculate:
+    post:
+      tags: [Identity]
+      summary: Calculate trust score
+      description: Recalculate trust score based on current factors
+      security:
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clusterId]
+              properties:
+                clusterId:
+                  type: string
+      responses:
+        '200':
+          description: Trust score calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrustScore'
+
+  # ============================================
+  # FRAUD DETECTION ENDPOINTS
+  # ============================================
+  /api/v1/identity/fraud/check:
+    post:
+      tags: [Identity]
+      summary: Check for fraud indicators
+      security:
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clusterId]
+              properties:
+                clusterId:
+                  type: string
+                indicators:
+                  type: object
+                  properties:
+                    deviceFingerprint:
+                      type: string
+                    ipAddress:
+                      type: string
+                    userAgent:
+                      type: string
+      responses:
+        '200':
+          description: Fraud check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FraudCheckResult'
+
+  # ============================================
+  # ACCESS CONTROL ENDPOINTS
+  # ============================================
+  /api/v1/access/check:
+    post:
+      tags: [Access Control]
+      summary: Check access permission
+      description: |
+        Evaluate if a user has permission to perform an action.
+        Combines RBAC and ABAC evaluation.
+      security:
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessCheckRequest'
+      responses:
+        '200':
+          description: Access decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessDecision'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/users/{userId}/permissions:
+    get:
+      tags: [Access Control]
+      summary: Get user permissions
+      security:
+        - InternalToken: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+                  permissions:
+                    type: array
+                    items:
+                      type: string
+
+  /api/v1/roles:
+    get:
+      tags: [Access Control]
+      summary: List all roles
+      security:
+        - InternalToken: []
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+
+  /api/v1/roles/{roleId}:
+    get:
+      tags: [Access Control]
+      summary: Get role by ID
+      security:
+        - InternalToken: []
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/policies:
+    get:
+      tags: [Access Control]
+      summary: List all policies
+      security:
+        - InternalToken: []
+      responses:
+        '200':
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Policy'
+
+    post:
+      tags: [Access Control]
+      summary: Create policy
+      security:
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePolicyRequest'
+      responses:
+        '201':
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+
+  /api/v1/audit/logs:
+    get:
+      tags: [Access Control]
+      summary: Query audit logs
+      security:
+        - InternalToken: []
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+        - name: resource
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+            maximum: 1000
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  total:
+                    type: integer
+
+  # ============================================
+  # CAPITAL & CREDIT ENDPOINTS
+  # ============================================
+  /api/credit/{merchantId}:
+    get:
+      tags: [Capital]
+      summary: Get full credit profile
+      description: Returns complete credit assessment for a merchant
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Credit profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditProfile'
+
+  /api/credit/{merchantId}/score:
+    get:
+      tags: [Capital]
+      summary: Get credit score
+      description: Returns credit score (300-900)
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Credit score
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merchantId:
+                    type: string
+                  creditScore:
+                    type: integer
+                    minimum: 300
+                    maximum: 900
+                  riskRating:
+                    type: string
+                    enum: [LOW, MEDIUM, HIGH, VERY_HIGH]
+                  healthScore:
+                    type: number
+                    minimum: 0
+                    maximum: 100
+
+  /api/credit/{merchantId}/limit:
+    get:
+      tags: [Capital]
+      summary: Get credit limit
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Credit limit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  merchantId:
+                    type: string
+                  creditLimit:
+                    type: number
+                  utilizedAmount:
+                    type: number
+                  availableCredit:
+                    type: number
+
+  # ============================================
+  # LOAN ENDPOINTS
+  # ============================================
+  /api/loans/apply:
+    post:
+      tags: [Capital]
+      summary: Create loan application
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanApplicationRequest'
+      responses:
+        '201':
+          description: Loan application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+        '400':
+          description: Application rejected
+        '402':
+          description: Payment required (future use)
+
+  /api/loans/{loanId}:
+    get:
+      tags: [Capital]
+      summary: Get loan details
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Loan details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+
+  /api/loans/{loanId}/approve:
+    post:
+      tags: [Capital]
+      summary: Approve loan
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Loan approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+
+  /api/loans/{loanId}/disburse:
+    post:
+      tags: [Capital]
+      summary: Disburse loan funds
+      description: Initiates disbursement through NBFC partner
+      security:
+        - InternalToken: []
+      parameters:
+        - name: loanId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                partnerId:
+                  type: string
+                  enum: [capital_float, pinelabs, indifi, lending_kart]
+                  default: capital_float
+      responses:
+        '200':
+          description: Disbursement initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  loanId:
+                    type: string
+                  status:
+                    type: string
+                    enum: [disbursed, pending, failed]
+                  partnerRef:
+                    type: string
+                  disbursedAmount:
+                    type: number
+
+  # ============================================
+  # BNPL ENDPOINTS
+  # ============================================
+  /api/bnpl/create-order:
+    post:
+      tags: [BNPL]
+      summary: Create BNPL order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BNPLOrderRequest'
+      responses:
+        '201':
+          description: BNPL order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BNPLOrder'
+        '400':
+          description: Order rejected
+        '429':
+          description: Rate limit exceeded
+
+  /api/bnpl/order/{orderId}:
+    get:
+      tags: [BNPL]
+      summary: Get BNPL order
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BNPLOrder'
+
+  /api/bnpl/repay:
+    post:
+      tags: [BNPL]
+      summary: Make repayment
+      description: |
+        Process EMI repayment. Idempotent - same idempotency key
+        returns cached result.
+      security:
+        - BearerAuth: []
+      headers:
+        - name: X-Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [applicationId, emiNumber]
+              properties:
+                applicationId:
+                  type: string
+                emiNumber:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Payment processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  transactionId:
+                    type: string
+                  emiNumber:
+                    type: integer
+                  amount:
+                    type: number
+                  remainingEMIs:
+                    type: integer
+                  cached:
+                    type: boolean
+                    description: True if result was cached
+
+  /api/bnpl/calculate:
+    post:
+      tags: [BNPL]
+      summary: Calculate EMI
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, tenure]
+              properties:
+                amount:
+                  type: number
+                  minimum: 500
+                  maximum: 500000
+                tenure:
+                  type: integer
+                  enum: [3, 6, 9, 12]
+                downPayment:
+                  type: number
+                  minimum: 0
+      responses:
+        '200':
+          description: EMI calculation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  principal:
+                    type: number
+                  emi:
+                    type: number
+                  totalAmount:
+                    type: number
+                  totalInterest:
+                    type: number
+                  interestRate:
+                    type: number
+                  tenureMonths:
+                    type: integer
+
+  # ============================================
+  # PAYMENT LINKS ENDPOINTS
+  # ============================================
+  /api/v1/links:
+    post:
+      tags: [Payment Links]
+      summary: Create payment link
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentLinkRequest'
+      responses:
+        '201':
+          description: Payment link created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLink'
+
+  /api/v1/links/{linkId}/status:
+    get:
+      tags: [Payment Links]
+      summary: Get payment status
+      security:
+        - BearerAuth: []
+        - InternalToken: []
+      parameters:
+        - name: linkId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLink'
+
+  /api/v1/links/{linkId}/qrcode:
+    get:
+      tags: [Payment Links]
+      summary: Get QR code
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: linkId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: QR code image
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+
+  # ============================================
+  # COMPLIANCE ENDPOINTS
+  # ============================================
+  /api/v1/consent:
+    post:
+      tags: [Compliance]
+      summary: Record consent
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, consentType, granted]
+              properties:
+                userId:
+                  type: string
+                consentType:
+                  type: string
+                  enum: [marketing, analytics, third_party_sharing, data_processing]
+                granted:
+                  type: boolean
+                purpose:
+                  type: string
+      responses:
+        '201':
+          description: Consent recorded
+
+  /api/v1/consent/{userId}:
+    get:
+      tags: [Compliance]
+      summary: Get user consents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User consents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  consents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        consentType:
+                          type: string
+                        granted:
+                          type: boolean
+                        grantedAt:
+                          type: string
+                          format: date-time
+
+  /api/v1/consent/{userId}/delete:
+    post:
+      tags: [Compliance]
+      summary: Delete user data (GDPR right to deletion)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Data deletion scheduled
+
+# ============================================
+# COMPONENTS
+# ============================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: User JWT token
+    InternalToken:
+      type: apiKey
+      in: header
+      name: X-Internal-Token
+      description: Service-to-service authentication token
+
+  schemas:
+    # Identity Schemas
+    CreateIdentityRequest:
+      type: object
+      required: [type, identifier]
+      properties:
+        type:
+          type: string
+          enum: [app_user, whatsapp, web, qr, device, wallet, phone, email, merchant, staff, admin]
+        identifier:
+          type: string
+        metadata:
+          type: object
+          properties:
+            source:
+              type: string
+            userAgent:
+              type: string
+            ipAddress:
+              type: string
+            platform:
+              type: string
+            appVersion:
+              type: string
+        privacySettings:
+          type: object
+          properties:
+            trackingEnabled:
+              type: boolean
+            dataRetentionDays:
+              type: integer
+            marketingConsent:
+              type: boolean
+            analyticsConsent:
+              type: boolean
+            thirdPartySharing:
+              type: boolean
+
+    UpdateIdentityRequest:
+      type: object
+      properties:
+        metadata:
+          type: object
+        privacySettings:
+          type: object
+
+    Identity:
+      type: object
+      properties:
+        identityId:
+          type: string
+        type:
+          type: string
+        hashIdentifier:
+          type: string
+        clusterId:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, deleted]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    IdentityResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Identity'
+
+    ResolvedIdentity:
+      type: object
+      properties:
+        clusterId:
+          type: string
+        primaryIdentifier:
+          type: string
+        linkedIdentities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identity'
+        trustScore:
+          type: number
+        riskLevel:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, VERY_HIGH]
+
+    TrustScore:
+      type: object
+      properties:
+        clusterId:
+          type: string
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+        level:
+          type: string
+          enum: [VERY_HIGH, HIGH, MEDIUM, LOW, VERY_LOW]
+        factors:
+          type: object
+          properties:
+            identityVerification:
+              type: number
+            kycStatus:
+              type: number
+            transactionHistory:
+              type: number
+            karmaScore:
+              type: number
+
+    FraudCheckResult:
+      type: object
+      properties:
+        clusterId:
+          type: string
+        riskLevel:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, VERY_HIGH]
+        indicators:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              severity:
+                type: string
+                enum: [low, medium, high, critical]
+
+    # Access Control Schemas
+    AccessCheckRequest:
+      type: object
+      required: [userId, resource, action]
+      properties:
+        userId:
+          type: string
+        resource:
+          type: string
+        action:
+          type: string
+        attributes:
+          type: object
+        environment:
+          type: object
+
+    AccessDecision:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+        reason:
+          type: string
+        evaluatedAt:
+          type: string
+          format: date-time
+        matchedPolicies:
+          type: array
+          items:
+            type: string
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+
+    Permission:
+      type: object
+      properties:
+        resource:
+          type: string
+        actions:
+          type: array
+          items:
+            type: string
+        conditions:
+          type: array
+          items:
+            type: object
+
+    Policy:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        effect:
+          type: string
+          enum: [allow, deny]
+        priority:
+          type: integer
+        conditions:
+          type: array
+          items:
+            type: object
+
+    CreatePolicyRequest:
+      type: object
+      required: [name, effect, conditions]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        effect:
+          type: string
+          enum: [allow, deny]
+        priority:
+          type: integer
+        conditions:
+          type: array
+          items:
+            type: object
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        eventType:
+          type: string
+        userId:
+          type: string
+        resource:
+          type: string
+        action:
+          type: string
+        decision:
+          type: object
+          properties:
+            allowed:
+              type: boolean
+            reason:
+              type: string
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+
+    # Capital & Loan Schemas
+    CreditProfile:
+      type: object
+      properties:
+        merchantId:
+          type: string
+        healthScore:
+          type: number
+          minimum: 0
+          maximum: 100
+        creditScore:
+          type: integer
+          minimum: 300
+          maximum: 900
+        creditLimit:
+          type: number
+        utilizedAmount:
+          type: number
+        availableCredit:
+          type: number
+        riskRating:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, VERY_HIGH]
+        monthlyRevenue:
+          type: number
+        orderCount:
+          type: integer
+        avgOrderValue:
+          type: number
+        onTimePayments:
+          type: integer
+        latePayments:
+          type: integer
+        defaults:
+          type: integer
+        lastUpdated:
+          type: string
+          format: date-time
+
+    LoanApplicationRequest:
+      type: object
+      required: [merchantId, amount]
+      properties:
+        merchantId:
+          type: string
+        amount:
+          type: number
+          minimum: 10000
+          maximum: 5000000
+        type:
+          type: string
+          enum: [revenue_advance, term_loan, credit_line]
+          default: revenue_advance
+        purpose:
+          type: string
+
+    Loan:
+      type: object
+      properties:
+        id:
+          type: string
+        merchantId:
+          type: string
+        type:
+          type: string
+        amount:
+          type: number
+        disbursedAmount:
+          type: number
+        interestRate:
+          type: number
+        tenure:
+          type: integer
+        status:
+          type: string
+          enum: [pending, approved, disbursed, repaid, defaulted]
+        repaymentSchedule:
+          type: array
+          items:
+            type: object
+            properties:
+              dueDate:
+                type: string
+                format: date-time
+              amount:
+                type: number
+              principal:
+                type: number
+              interest:
+                type: number
+              status:
+                type: string
+        partnerRef:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # BNPL Schemas
+    BNPLOrderRequest:
+      type: object
+      required: [userId, orderId, amount, tenure]
+      properties:
+        userId:
+          type: string
+        merchantId:
+          type: string
+        orderId:
+          type: string
+        amount:
+          type: number
+          minimum: 500
+          maximum: 500000
+        tenure:
+          type: integer
+          enum: [3, 6, 9, 12]
+        downPayment:
+          type: number
+          minimum: 0
+
+    BNPLOrder:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        orderId:
+          type: string
+        amount:
+          type: number
+        tenure:
+          type: integer
+        status:
+          type: string
+          enum: [pending, approved, active, repaid, defaulted]
+        emiAmount:
+          type: number
+        interestRate:
+          type: number
+        emiSchedule:
+          type: array
+          items:
+            type: object
+            properties:
+              emiNumber:
+                type: integer
+              dueDate:
+                type: string
+                format: date-time
+              amount:
+                type: number
+              status:
+                type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # Payment Link Schemas
+    CreatePaymentLinkRequest:
+      type: object
+      required: [amount, description]
+      properties:
+        amount:
+          type: number
+          minimum: 1
+        description:
+          type: string
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+          format: email
+        customerPhone:
+          type: string
+        expiryDate:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+        singleUse:
+          type: boolean
+          default: false
+
+    PaymentLink:
+      type: object
+      properties:
+        id:
+          type: string
+        shortUrl:
+          type: string
+        upiUrl:
+          type: string
+        qrCodeUrl:
+          type: string
+        amount:
+          type: number
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, paid, expired, cancelled]
+        expiresAt:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+        transactionId:
+          type: string
+
+    # Error Responses
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        error:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Bad Request
+            code: VALIDATION_ERROR
+            message: Invalid request parameters
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Unauthorized
+            code: MISSING_TOKEN
+            message: X-Internal-Token header is required
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Not Found
+            code: NOT_FOUND
+            message: Resource not found
+
+    RateLimited:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Too Many Requests
+            code: RATE_LIMIT_EXCEEDED
+            message: Rate limit exceeded. Please try again later.
+
+  parameters:
+    limitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 50
+        maximum: 100
+
+    offsetParam:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0

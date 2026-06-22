@@ -1,0 +1,65 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nexha-ingress
+  namespace: nexha
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - nexha.rez.money
+    - api.nexha.rez.money
+    secretName: nexha-tls
+  rules:
+  - host: nexha.rez.money
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nexha-portal
+            port:
+              number: 80
+  - host: api.nexha.rez.money
+    http:
+      paths:
+      - path: /distributors
+        pathType: Prefix
+        backend:
+          service:
+            name: nexha-distribution-os
+            port:
+              number: 80
+      - path: /franchises
+        pathType: Prefix
+        backend:
+          service:
+            name: nexha-franchise-os
+            port:
+              number: 80
+      - path: /rfqs
+        pathType: Prefix
+        backend:
+          service:
+            name: nexha-procurement-os
+            port:
+              number: 80
+      - path: /finance
+        pathType: Prefix
+        backend:
+          service:
+            name: nexha-trade-finance
+            port:
+              number: 80
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: nexha-ecosystem-connector
+            port:
+              number: 8080

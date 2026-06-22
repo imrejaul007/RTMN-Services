@@ -1,0 +1,20 @@
+[Unit]
+Description=LawGens Web Application
+After=network.target mongodb.service
+
+[Service]
+Type=simple
+User=lawgens
+WorkingDirectory=/opt/lawgens/apps/lawgens-web
+Environment=NODE_ENV=production
+Environment=PORT=3001
+EnvironmentFile=/opt/lawgens/.env
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lawgens-web
+
+[Install]
+WantedBy=multi-user.target

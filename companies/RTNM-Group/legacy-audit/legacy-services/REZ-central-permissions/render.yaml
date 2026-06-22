@@ -1,0 +1,59 @@
+# Render Blueprint - REZ Central Permissions Service
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: rez-central-permissions
+    runtime: node
+    region: oregon
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+      - key: CACHE_TTL_SECONDS
+        value: "300"
+      - key: AUDIT_ENABLED
+        value: "true"
+      - key: AUDIT_RETENTION_DAYS
+        value: "90"
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: "1000"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "60000"
+      - key: MAX_FAILED_ATTEMPTS
+        value: "5"
+      - key: LOCKOUT_DURATION_MINUTES
+        value: "30"
+      - key: POLICY_CACHE_TTL_SECONDS
+        value: "600"
+      - key: MAX_POLICY_DEPTH
+        value: "10"
+      - key: LOG_LEVEL
+        value: info
+      - key: LOG_FORMAT
+        value: json
+      # Redis for distributed caching (optional)
+      - fromGroup: rez-redis-credentials
+        sync: false
+
+  # Background worker for audit log cleanup (optional)
+  # - type: worker
+  #   name: rez-permissions-cleanup
+  #   runtime: node
+  #   plan: starter
+  #   buildCommand: npm install && npm run build
+  #   startCommand: node dist/cleanup.js
+  #   envVars:
+  #     - key: NODE_ENV
+  #       value: production
+
+# Redis for distributed caching
+redis:
+  - name: rez-permissions-redis
+    plan: starter
+    ipAllowList: [] # Allow access from anywhere

@@ -1,0 +1,40 @@
+{
+  "name": "@rez/chat",
+  "version": "1.0.0",
+  "description": "Unified real-time chat service for ReZ ecosystem",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --max-warnings 0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "socket.io-client": ">=4.0.0"
+  },
+  "dependencies": {
+    "socket.io-client": ">=4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^18.3.0",
+    "typescript": "^5.8.3"
+  }
+}

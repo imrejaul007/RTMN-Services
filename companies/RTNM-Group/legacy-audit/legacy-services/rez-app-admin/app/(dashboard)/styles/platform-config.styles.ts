@@ -1,0 +1,292 @@
+import { Platform, StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
+
+export const s = StyleSheet.create({
+  root: { flex: 1 },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 56 : 16,
+    paddingBottom: 14,
+    paddingHorizontal: 16,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  backBtn: { padding: 4 },
+  headerTitle: { fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
+  headerSub: { fontSize: 12, marginTop: 2 },
+  addBtn: {
+    marginLeft: 'auto',
+    backgroundColor: '#7C3AED',
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Tabs
+  tabBar: { maxHeight: 48, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
+  tabBarContent: { paddingHorizontal: 16, gap: 4, alignItems: 'center' },
+  tab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  tabText: { fontSize: 13, fontWeight: '500', color: '#9CA3AF' },
+
+  // Search
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  searchInput: { flex: 1, fontSize: 14 },
+
+  // Body
+  body: { flex: 1 },
+  bodyContent: { padding: 16, paddingBottom: 60 },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
+
+  // Section
+  section: { marginBottom: 24 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  // Quick links
+  quickGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  quickCard: {
+    width: '30%',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  quickIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickLabel: { fontSize: 11, fontWeight: '600', textAlign: 'center' },
+
+  // Category section
+  categorySection: { marginBottom: 20 },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  categoryIconBg: {
+    width: 28,
+    height: 28,
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryTitle: { fontSize: 14, fontWeight: '700', flex: 1 },
+  countBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  countText: { fontSize: 11, fontWeight: '700' },
+
+  // Config row
+  configRow: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  configRowDirty: {
+    borderWidth: 1.5,
+    borderColor: '#7C3AED',
+    backgroundColor: '#FAFAFF',
+  },
+  configLeft: { flex: 1 },
+  configRight: { alignItems: 'flex-end', gap: 8, minWidth: 120 },
+  configKey: {
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
+  configDesc: { fontSize: 11, marginTop: 3, lineHeight: 16 },
+  configMeta: { fontSize: 10, marginTop: 4 },
+  configInput: {
+    borderWidth: 1,
+    borderRadius: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 13,
+    fontWeight: '600',
+    minWidth: 100,
+    textAlign: 'right',
+  },
+  configActions: { flexDirection: 'row', gap: 6, alignItems: 'center' },
+  saveBtn: {
+    backgroundColor: '#7C3AED',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 7,
+    minWidth: 52,
+    alignItems: 'center',
+  },
+  saveBtnText: { color: 'white', fontSize: 12, fontWeight: '700' },
+  discardBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 7,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Empty state
+  emptyBox: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    backgroundColor: 'white',
+    borderRadius: 12,
+  },
+
+  // Merchant plan cards
+  planCard: {
+    backgroundColor: 'white',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  planCardDirty: {
+    borderWidth: 1.5,
+    borderColor: '#7C3AED',
+  },
+  planBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginBottom: 14,
+  },
+  planBadgeText: { color: 'white', fontSize: 11, fontWeight: '800', letterSpacing: 1 },
+  planRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  planLabel: { fontSize: 13, fontWeight: '500', flex: 1 },
+  planInput: {
+    borderWidth: 1,
+    borderRadius: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 13,
+    fontWeight: '600',
+    width: 120,
+    textAlign: 'right',
+  },
+  planActions: { flexDirection: 'row', gap: 10, alignItems: 'center', marginTop: 8 },
+  planSaveBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  // Add config modal
+  modalRoot: { flex: 1 },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    paddingTop: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  modalTitle: { fontSize: 18, fontWeight: '800' },
+  modalBody: { padding: 20 },
+  modalLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+    marginTop: 16,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+  },
+  typeRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  boolRow: { flexDirection: 'row', gap: 8 },
+  typeChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
+  },
+  typeChipActive: {
+    borderColor: '#7C3AED',
+    backgroundColor: '#EDE9FE',
+  },
+  typeChipText: { fontSize: 13, fontWeight: '600', color: '#6B7280' },
+  typeChipTextActive: { color: '#7C3AED' },
+  modalSaveBtn: {
+    backgroundColor: '#7C3AED',
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 40,
+  },
+  modalSaveBtnDisabled: { opacity: 0.6 },
+});

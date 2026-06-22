@@ -1,0 +1,186 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
+
+export const s = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+  },
+  headerTitle: { fontSize: 22, fontWeight: '700' },
+  createBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.info,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 4,
+  },
+  createBtnText: { color: Colors.light.card, fontWeight: '600', fontSize: 14 },
+
+  // Filters
+  filtersBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.gray200,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  filterChips: { flexDirection: 'row' },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: Colors.light.backgroundSecondary,
+    marginRight: 8,
+  },
+  filterChipActive: { backgroundColor: Colors.light.info },
+  filterChipText: { fontSize: 12, color: Colors.light.mutedDark, fontWeight: '500' },
+  filterChipTextActive: { color: Colors.light.card, fontWeight: '600' },
+
+  // Card
+  card: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.light.gray200,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 10 },
+  cardEmoji: { fontSize: 28 },
+  cardTitle: { fontSize: 15, fontWeight: '600' },
+  cardSubtitle: { fontSize: 12, color: Colors.light.mutedDark, marginTop: 1 },
+  cardInfoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
+  infoChip: {
+    backgroundColor: Colors.light.backgroundSecondary,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoChipText: { fontSize: 11, fontWeight: '500', color: Colors.light.gray700 },
+  cardActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.backgroundSecondary,
+    paddingTop: 10,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  actionText: { fontSize: 12, fontWeight: '500' },
+
+  // Form Modal
+  modalContainer: { flex: 1 },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.gray200,
+  },
+  modalTitle: { fontSize: 17, fontWeight: '600' },
+  saveBtn: { fontSize: 16, fontWeight: '600', color: Colors.light.info },
+  formScroll: { paddingHorizontal: 20 },
+  formSectionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.light.navy,
+    marginTop: 20,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.backgroundSecondary,
+    paddingBottom: 6,
+  },
+  formLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.light.mutedDark,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  formInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  // Emoji preview
+  emojiPreview: { fontSize: 36, marginTop: 8, textAlign: 'center' },
+
+  // Card Preview
+  previewCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.light.gray200,
+    backgroundColor: Colors.light.backgroundTertiary,
+  },
+  previewEmoji: { fontSize: 32 },
+  previewTitle: { fontSize: 16, fontWeight: '700', color: Colors.light.navy },
+  previewSubtitle: { fontSize: 13, color: Colors.light.gray600, marginTop: 2 },
+  previewLabel: {
+    fontSize: 11,
+    color: Colors.light.muted,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+
+  // Empty & Pagination
+  emptyContainer: { paddingVertical: 40, alignItems: 'center' },
+  emptyText: { fontSize: 14, color: Colors.light.muted, marginTop: 10 },
+  pagination: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  pageBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: Colors.light.info,
+    borderRadius: 8,
+  },
+  pageBtnDisabled: { opacity: 0.4 },
+  pageBtnText: { color: Colors.light.card, fontWeight: '500', fontSize: 13 },
+  pageInfo: { fontSize: 13, color: Colors.light.mutedDark },
+});

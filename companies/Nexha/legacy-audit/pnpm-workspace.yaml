@@ -1,0 +1,10 @@
+packages:
+  - 'shared/*'
+  - 'distribution-os'
+  - 'franchise-os'
+  - 'procurement-os'
+  - 'manufacturing-os'
+  - 'trade-finance'
+  - 'intelligence-layer'
+  - 'ecosystem-connector'
+  - 'tests'

@@ -1,0 +1,424 @@
+// ── Intent Graph API Routes ──────────────────────────────────────────────────────
+// Express routes for RTMN Commerce Memory Intent Graph
+// Uses MongoDB for data storage
+
+import { Router, Request, Response, NextFunction } from 'express';
+import { intentCaptureService } from '../services/IntentCaptureService.js';
+import { dormantIntentService } from '../services/DormantIntentService.js';
+import { crossAppAggregationService } from '../services/CrossAppAggregationService.js';
+import { vibeScoringService } from '../services/VibeScoringService.js';
+import { Intent, Nudge } from '../models/index.js';
+import {
+  verifyInternalToken,
+  verifyApiKey,
+  verifyCronSecret,
+  verifyUserToken,
+} from '../middleware/auth.js';
+import { captureLimiter, nudgeLimiter } from '../middleware/rateLimit.js';
+
+// Helper to check userId param matches authenticated user
+function requireUserMatch(req: Request, res: Response, next: NextFunction) {
+  const headerUserId = (req as any).userId;
+  const paramUserId = req.params.userId;
+  if (headerUserId && paramUserId && headerUserId !== paramUserId) {
+    res.status(403).json({ error: 'Cannot access another user\'s data' });
+    return;
+  }
+  next();
+}
+
+const router = Router();
+
+// ── Capture Intent ────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/intent/capture
+ * Capture a new intent event.
+ * Auth: requires API key or internal token (anyone can capture events).
+ * Rate limited to prevent abuse.
+ */
+router.post('/capture', verifyApiKey, captureLimiter, async (req: Request, res: Response) => {
+  try {
+    const { userId, appType, intentKey, eventType, category, intentQuery, metadata, merchantId } = req.body;
+
+    if (!userId || !appType || !intentKey || !eventType || !category) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const result = await intentCaptureService.capture({
+      userId,
+      appType,
+      intentKey,
+      eventType,
+      category,
+      intentQuery,
+      metadata,
+      merchantId,
+    });
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('[IntentAPI] Capture failed:', error);
+    res.status(500).json({ error: 'Failed to capture intent' });
+  }
+});
+
+// ── Get Active Intents ────────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/active/:userId
+ * Get active intents for a user
+ */
+router.get('/active/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const intents = await intentCaptureService.getActiveIntents(userId, page, limit);
+    res.json(intents);
+  } catch (error) {
+    console.error('[IntentAPI] Get active intents failed:', error);
+    res.status(500).json({ error: 'Failed to get active intents' });
+  }
+});
+
+// ── Get All User Intents ──────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/user/:userId
+ * Get all intents for a user
+ */
+router.get('/user/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const intents = await intentCaptureService.getUserIntents(userId, page, limit);
+    res.json(intents);
+  } catch (error) {
+    console.error('[IntentAPI] Get user intents failed:', error);
+    res.status(500).json({ error: 'Failed to get user intents' });
+  }
+});
+
+// ── Get Dormant Intents ──────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/dormant/:userId
+ * Get dormant intents for a user
+ */
+router.get('/dormant/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const dormantIntents = await dormantIntentService.getUserDormantIntents(userId, page, limit);
+    res.json(dormantIntents);
+  } catch (error) {
+    console.error('[IntentAPI] Get dormant intents failed:', error);
+    res.status(500).json({ error: 'Failed to get dormant intents' });
+  }
+});
+
+// ── Get Cross-App Profile ─────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/profile/:userId
+ * Get cross-app intent profile for a user
+ */
+router.get('/profile/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const profile = await crossAppAggregationService.getProfile(userId);
+    res.json(profile);
+  } catch (error) {
+    console.error('[IntentAPI] Get profile failed:', error);
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
+
+// ── Get Enriched Context ──────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/enriched/:userId
+ * Get comprehensive enriched context for an agent
+ */
+router.get('/enriched/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const context = await crossAppAggregationService.getEnrichedContext(userId);
+    res.json(context);
+  } catch (error) {
+    console.error('[IntentAPI] Get enriched context failed:', error);
+    res.status(500).json({ error: 'Failed to get enriched context' });
+  }
+});
+
+// ── Trigger Revival ────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/intent/revival
+ * Trigger revival for a dormant intent
+ * Auth: internal service token only
+ */
+router.post('/revival', verifyInternalToken, async (req: Request, res: Response) => {
+  try {
+    const { dormantIntentId, triggerType } = req.body;
+
+    if (!dormantIntentId || !triggerType) {
+      return res.status(400).json({ error: 'dormantIntentId and triggerType are required' });
+    }
+
+    const candidate = await dormantIntentService.triggerRevival(
+      dormantIntentId,
+      triggerType as 'price_drop' | 'return_user' | 'seasonality' | 'offer_match' | 'manual'
+    );
+
+    if (!candidate) {
+      return res.status(404).json({ error: 'Dormant intent not found or not eligible for revival' });
+    }
+
+    res.json({ success: true, data: candidate });
+  } catch (error) {
+    console.error('[IntentAPI] Trigger revival failed:', error);
+    res.status(500).json({ error: 'Failed to trigger revival' });
+  }
+});
+
+// ── Mark Revived ─────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/intent/revived/:dormantIntentId
+ * Mark a dormant intent as revived (user converted)
+ * Auth: internal service token only
+ */
+router.post('/revived/:dormantIntentId', verifyInternalToken, async (req: Request, res: Response) => {
+  try {
+    const { dormantIntentId } = req.params;
+    await dormantIntentService.markRevived(dormantIntentId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[IntentAPI] Mark revived failed:', error);
+    res.status(500).json({ error: 'Failed to mark as revived' });
+  }
+});
+
+// ── Get Scheduled Revivals ───────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/scheduled-revivals
+ * Get dormant intents due for nudge
+ * Auth: internal service token only
+ */
+router.get('/scheduled-revivals', verifyInternalToken, async (req: Request, res: Response) => {
+  try {
+    const candidates = await dormantIntentService.getScheduledRevivals();
+    res.json(candidates);
+  } catch (error) {
+    console.error('[IntentAPI] Get scheduled revivals failed:', error);
+    res.status(500).json({ error: 'Failed to get scheduled revivals' });
+  }
+});
+
+// ── Pause Nudges ─────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/intent/pause/:dormantIntentId
+ * Pause nudges for a dormant intent
+ * Auth: internal service token only
+ */
+router.post('/pause/:dormantIntentId', verifyInternalToken, async (req: Request, res: Response) => {
+  try {
+    const { dormantIntentId } = req.params;
+    await dormantIntentService.pauseNudges(dormantIntentId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[IntentAPI] Pause nudges failed:', error);
+    res.status(500).json({ error: 'Failed to pause nudges' });
+  }
+});
+
+// ── Merchant Demand Aggregation ────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/merchant-demand/:merchantId
+ * Get demand signals for a merchant
+ * Auth: internal service token only (merchant-specific data)
+ */
+router.get('/merchant-demand/:merchantId', verifyInternalToken, async (req: Request, res: Response) => {
+  try {
+    const { merchantId } = req.params;
+    const category = (req.query.category as string) || 'DINING';
+    const demand = await crossAppAggregationService.aggregateMerchantDemand(merchantId, category);
+    res.json(demand);
+  } catch (error) {
+    console.error('[IntentAPI] Get merchant demand failed:', error);
+    res.status(500).json({ error: 'Failed to get merchant demand' });
+  }
+});
+
+// ── User Affinities ───────────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/affinities/:userId
+ * Get user affinity scores across categories
+ */
+router.get('/affinities/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const affinities = await crossAppAggregationService.getUserAffinities(userId);
+    res.json(affinities);
+  } catch (error) {
+    console.error('[IntentAPI] Get affinities failed:', error);
+    res.status(500).json({ error: 'Failed to get affinities' });
+  }
+});
+
+// ── Cron: Detect Dormant Intents ──────────────────────────────────────────────
+
+/**
+ * POST /api/intent/cron/detect-dormant
+ * Detect and mark intents as dormant (called by scheduler)
+ */
+router.post('/cron/detect-dormant', verifyCronSecret, async (req: Request, res: Response) => {
+  try {
+    const result = await dormantIntentService.detectAndMarkDormant();
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('[IntentAPI] Detect dormant failed:', error);
+    res.status(500).json({ error: 'Failed to detect dormant intents' });
+  }
+});
+
+// ── Cron: Update Revival Scores ─────────────────────────────────────────────
+
+/**
+ * POST /api/intent/cron/update-scores
+ * Update revival scores for all dormant intents (called by scheduler)
+ */
+router.post('/cron/update-scores', verifyCronSecret, async (req: Request, res: Response) => {
+  try {
+    const updated = await dormantIntentService.updateRevivalScores();
+    res.json({ success: true, data: { updated } });
+  } catch (error) {
+    console.error('[IntentAPI] Update scores failed:', error);
+    res.status(500).json({ error: 'Failed to update revival scores' });
+  }
+});
+
+// ── Nudge Management ─────────────────────────────────────────────────────────
+
+/**
+ * POST /api/intent/nudge/send
+ * Manually send a nudge — requires internal service token
+ */
+router.post('/nudge/send', verifyInternalToken, nudgeLimiter, async (req: Request, res: Response) => {
+  try {
+    const { userId, intentKey, message, channel = 'push' } = req.body;
+
+    if (!userId || !intentKey) {
+      return res.status(400).json({ error: 'userId and intentKey are required' });
+    }
+
+    const dormant = await dormantIntentService.getUserDormantIntents(userId);
+    const match = dormant.find((d) => d.intentKey === intentKey);
+
+    if (match) {
+      await dormantIntentService.createNudge(
+        match._id.toString(),
+        userId,
+        channel as 'push' | 'email' | 'sms' | 'in_app',
+        message || `We noticed you were interested in ${intentKey}`
+      );
+      await dormantIntentService.recordNudgeSent(match._id.toString());
+    }
+
+    res.json({ success: true, intentKey, channel });
+  } catch (error) {
+    console.error('[IntentAPI] Send nudge failed:', error);
+    res.status(500).json({ error: 'Failed to send nudge' });
+  }
+});
+
+/**
+ * GET /api/intent/nudge/history/:userId
+ * Get nudge history for a user
+ */
+router.get('/nudge/history/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const nudges = await Nudge.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+    res.json(nudges);
+  } catch (error) {
+    console.error('[IntentAPI] Get nudge history failed:', error);
+    res.status(500).json({ error: 'Failed to get nudge history' });
+  }
+});
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/stats
+ * Get intent graph statistics
+ * Auth: internal service token only
+ */
+router.get('/stats', verifyInternalToken, async (req: Request, res: Response) => {
+  try {
+    const summary = await crossAppAggregationService.getCrossAppSummary();
+    const intentCount = await Intent.countDocuments();
+    const dormantCount = await Intent.countDocuments({ status: 'DORMANT' });
+
+    res.json({
+      totalIntents: intentCount,
+      dormantIntents: dormantCount,
+      ...summary,
+    });
+  } catch (error) {
+    console.error('[IntentAPI] Get stats failed:', error);
+    res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// ── Vibe Profile ──────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/vibe/:userId
+ * Get vibe profile for a user
+ * Auth: user auth (userId param + valid bearer token)
+ */
+router.get('/vibe/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const vibe = await vibeScoringService.getVibeProfile(userId);
+    res.json(vibe || { userId, primaryVibe: 'unknown', confidence: 0 });
+  } catch (error) {
+    console.error('[IntentAPI] Get vibe profile failed:', error);
+    res.status(500).json({ error: 'Failed to get vibe profile' });
+  }
+});
+
+// ── Micro Moments ────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/intent/micro-moments/:userId
+ * Get recent micro moments for a user
+ * Auth: user auth (userId param + valid bearer token)
+ */
+router.get('/micro-moments/:userId', verifyUserToken, requireUserMatch, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const limit = Math.min(parseInt(req.query.limit as string) || 5, 20);
+    const moments = await vibeScoringService.getRecentMicroMoments(userId, limit);
+    res.json(moments);
+  } catch (error) {
+    console.error('[IntentAPI] Get micro moments failed:', error);
+    res.status(500).json({ error: 'Failed to get micro moments' });
+  }
+});
+
+export default router;

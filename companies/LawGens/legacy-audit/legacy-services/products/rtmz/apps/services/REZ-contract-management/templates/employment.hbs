@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 12pt;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      color: #333;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+    }
+    h1 {
+      font-size: 18pt;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      font-size: 14pt;
+      color: #666;
+    }
+    .section {
+      margin-bottom: 25px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 12pt;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .party-info {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-left: 4px solid #333;
+      margin-bottom: 20px;
+    }
+    .compensation-box {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .benefit-item {
+      margin-bottom: 10px;
+      padding-left: 20px;
+    }
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    .schedule-table th,
+    .schedule-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    .schedule-table th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+    }
+    .signature-block {
+      margin-top: 60px;
+      page-break-inside: avoid;
+    }
+    .signature-line {
+      border-bottom: 1px solid #333;
+      width: 300px;
+      height: 40px;
+      margin-bottom: 5px;
+    }
+    .date-line {
+      font-size: 10pt;
+      color: #666;
+    }
+    .initials-line {
+      border-bottom: 1px solid #999;
+      width: 60px;
+      height: 20px;
+      display: inline-block;
+    }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 10pt;
+      color: #999;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+    .notice-box {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 15px;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>EMPLOYMENT AGREEMENT</h1>
+    <p class="subtitle">Agreement No: {{contractId}}</p>
+  </div>
+
+  <div class="section">
+    <p>This Employment Agreement ("Agreement") is entered into as of <strong>{{formatDate effectiveDate}}</strong> (the "Effective Date") by and between:</p>
+
+    <div class="party-info">
+      <strong>Employer:</strong><br>
+      {{employerName}}<br>
+      {{#if employerAddress}}
+      Address: {{employerAddress}}<br>
+      {{/if}}
+      {{#if employerPhone}}
+      Phone: {{employerPhone}}
+      {{/if}}
+    </div>
+
+    <p>and</p>
+
+    <div class="party-info">
+      <strong>Employee:</strong><br>
+      {{employeeName}}<br>
+      {{#if employeeAddress}}
+      Address: {{employeeAddress}}<br>
+      {{/if}}
+      Email: {{employeeEmail}}<br>
+      {{#if employeePhone}}
+      Phone: {{employeePhone}}
+      {{/if}}
+      {{#if employeeSSN}}
+      SSN: {{employeeSSN}} (for payroll purposes)
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">1. Position and Duties</div>
+    <p>The Employer hereby employs the Employee as <strong>{{jobTitle}}</strong> in the <strong>{{department}}</strong> department. The Employee shall:</p>
+    <ul>
+      <li>Report to: {{reportingManager}}</li>
+      <li>Work Location: {{workLocation}}</li>
+      <li>Employment Type: {{employmentType}}</li>
+    </ul>
+    <p>The Employee agrees to perform all duties and responsibilities associated with this position faithfully and to the best of their ability, in accordance with Employer's policies and procedures.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. Term of Employment</div>
+    <p>This Agreement shall be effective from <strong>{{formatDate effectiveDate}}</strong> and shall continue until terminated in accordance with the provisions of this Agreement.</p>
+    {{#if probationPeriodMonths}}
+    <div class="notice-box">
+      <strong>Probationary Period:</strong> The first {{probationPeriodMonths}} months of employment shall be a probationary period during which either party may terminate with {{probationNoticeDays}} days written notice.
+    </div>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">3. Compensation</div>
+    <div class="compensation-box">
+      <p><strong>Base Salary:</strong> {{baseSalary}} per {{payFrequency}}</p>
+      <p><strong>Annualized:</strong> {{annualizedSalary}}</p>
+      {{#if signingBonus}}
+      <p><strong>Signing Bonus:</strong> {{signingBonus}} (payable upon satisfactory completion of probation)</p>
+      {{/if}}
+      <p>Salary shall be paid {{payFrequency}} in accordance with Employer's standard payroll practices.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">4. Bonus and Incentive Programs</div>
+    {{#if hasBonusProgram}}
+    <p>The Employee may be eligible for the following bonus programs:</p>
+    <ul>
+      <li><strong>Annual Performance Bonus:</strong> Up to {{annualBonusPercent}}% of base salary based on individual and company performance</li>
+      {{#if stiPercent}}
+      <li><strong>Short-Term Incentive:</strong> {{stiPercent}}% of base salary</li>
+      {{/if}}
+      {{#if ltiGrant}}
+      <li><strong>Long-Term Incentive:</strong> {{ltiGrant}} stock options/RSUs (vesting over {{vestingPeriod}})</li>
+      {{/if}}
+    </ul>
+    <p>Bonus eligibility and amounts are at the sole discretion of the Employer and subject to change.</p>
+    {{else}}
+    <p>No bonus programs are currently applicable to this position.</p>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">5. Benefits</div>
+    <p>The Employee shall be entitled to participate in the following benefit programs (subject to eligibility requirements):</p>
+    <div class="benefit-item">
+      <strong>Health Insurance:</strong> {{healthPlanType}} - Coverage begins {{healthCoverageStart}}
+    </div>
+    <div class="benefit-item">
+      <strong>Paid Time Off:</strong> {{ptoDays}} days per year
+    </div>
+    <div class="benefit-item">
+      <strong>Sick Leave:</strong> {{sickLeaveDays}} days per year
+    </div>
+    <div class="benefit-item">
+      <strong>Holidays:</strong> {{holidayCount}} paid holidays per year
+    </div>
+    <div class="benefit-item">
+      <strong>Retirement Plan:</strong> {{retirementPlan}} - Employer match up to {{employerMatchPercent}}
+    </div>
+    <div class="benefit-item">
+      <strong>Life Insurance:</strong> {{lifeInsuranceAmount}} coverage (2x base salary)
+    </div>
+    {{#if hasStockPurchase}}
+    <div class="benefit-item">
+      <strong>Employee Stock Purchase Plan (ESPP):</strong> Available after {{esppEligibilityMonths}} months
+    </div>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">6. Work Schedule</div>
+    <p>The Employee's regular work schedule shall be:</p>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Break</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Monday</td>
+          <td>{{mondayStart}}</td>
+          <td>{{mondayEnd}}</td>
+          <td>{{mondayBreak}}</td>
+        </tr>
+        <tr>
+          <td>Tuesday</td>
+          <td>{{tuesdayStart}}</td>
+          <td>{{tuesdayEnd}}</td>
+          <td>{{tuesdayBreak}}</td>
+        </tr>
+        <tr>
+          <td>Wednesday</td>
+          <td>{{wednesdayStart}}</td>
+          <td>{{wednesdayEnd}}</td>
+          <td>{{wednesdayBreak}}</td>
+        </tr>
+        <tr>
+          <td>Thursday</td>
+          <td>{{thursdayStart}}</td>
+          <td>{{thursdayEnd}}</td>
+          <td>{{thursdayBreak}}</td>
+        </tr>
+        <tr>
+          <td>Friday</td>
+          <td>{{fridayStart}}</td>
+          <td>{{fridayEnd}}</td>
+          <td>{{fridayBreak}}</td>
+        </tr>
+      </tbody>
+    </table>
+    {{#if remoteWorkAllowed}}
+    <p><strong>Remote Work:</strong> {{remoteWorkPolicy}}</p>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">7. Confidentiality and Intellectual Property</div>
+    <p>The Employee agrees to:</p>
+    <ul>
+      <li>Maintain strict confidentiality of all proprietary information, trade secrets, and business data</li>
+      <li>Assign to the Employer all inventions, developments, and works of authorship created during employment</li>
+      <li>Comply with all confidentiality and non-disclosure agreements</li>
+      <li>Return all company property and confidential information upon termination</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">8. Non-Compete and Non-Solicitation</div>
+    {{#if hasNonCompete}}
+    <p>During employment and for {{nonCompetePeriod}} months following termination, the Employee shall not:</p>
+    <ul>
+      <li>Work for any competitor in a similar capacity</li>
+      <li>Solicit Employer's customers or clients</li>
+      <li>Solicit Employer's employees for employment</li>
+    </ul>
+    <p><strong>Geographic Scope:</strong> {{nonCompeteScope}}</p>
+    {{else}}
+    <p>No non-compete restrictions apply to this position.</p>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">9. Termination</div>
+    <p><strong>By Employer:</strong></p>
+    <ul>
+      <li>For Cause: Immediate termination without notice</li>
+      <li>Without Cause: {{employerNoticePeriod}} weeks notice or payment in lieu of notice</li>
+    </ul>
+    <p><strong>By Employee:</strong></p>
+    <ul>
+      <li>{{employeeNoticePeriod}} weeks written notice required</li>
+    </ul>
+    {{#if severancePackage}}
+    <p><strong>Severance Package:</strong> {{severancePackage}}</p>
+    {{/if}}
+  </div>
+
+  <div class="section">
+    <div class="section-title">10. General Provisions</div>
+    <ul>
+      <li><strong>Governing Law:</strong> This Agreement shall be governed by the laws of {{governingLaw}}</li>
+      <li><strong>Entire Agreement:</strong> This Agreement constitutes the entire employment agreement</li>
+      <li><strong>Amendments:</strong> Modifications must be in writing and signed by both parties</li>
+      <li><strong>Severability:</strong> Invalid provisions shall not affect remaining provisions</li>
+      <li><strong>Waiver:</strong> Failure to enforce shall not constitute a waiver</li>
+    </ul>
+  </div>
+
+  <div class="signature-block">
+    <p><strong>IN WITNESS WHEREOF</strong>, the parties have executed this Agreement as of the date first written above.</p>
+
+    <table style="width: 100%; margin-top: 30px;">
+      <tr>
+        <td style="width: 50%; padding-right: 20px;">
+          <strong>EMPLOYER:</strong><br><br>
+          {{employerName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Authorized Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name & Title</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+        <td style="width: 50%; padding-left: 20px;">
+          <strong>EMPLOYEE:</strong><br><br>
+          {{employeeName}}<br><br>
+          <div class="signature-line"></div>
+          <p>Employee Signature</p>
+          <div class="signature-line"></div>
+          <p>Print Name</p>
+          <p class="date-line">Date: _______________</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="margin-top: 40px; padding: 20px; background-color: #f5f5f5; border: 1px solid #ddd;">
+    <p style="margin-bottom: 10px;"><strong>ACKNOWLEDGMENT:</strong></p>
+    <p>I acknowledge that I have received, read, and understand this Employment Agreement. I agree to comply with all terms and conditions set forth herein.</p>
+    <p style="margin-top: 20px;">
+      Employee Initials: <span class="initials-line"></span>
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>Generated on {{generatedDateFormatted}} by REZ Contract Management System</p>
+    <p>Contract ID: {{contractId}}</p>
+  </div>
+</body>
+</html>

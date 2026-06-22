@@ -1,0 +1,713 @@
+openapi: 3.0.3
+info:
+  title: ReZ Cohort Service API
+  description: |
+    A comprehensive customer cohort analytics service providing cohort analysis, segmentation,
+    and behavioral tracking for the ReZ ecosystem.
+
+    ## Features
+    - Cohort Analysis: Track customer behavior over time
+    - Customer Segmentation: Dynamic customer segments based on behavior
+    - Retention Metrics: Track customer retention and churn
+    - Lifetime Value: Calculate customer lifetime value
+    - Behavioral Patterns: Identify customer behavior patterns
+    - Trend Analysis: Analyze trends in customer cohorts
+  version: 1.0.0
+  contact:
+    name: ReZ API Support
+    email: api-support@rez.money
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:4024
+    description: Development server
+  - url: https://api.rez.money/cohort
+    description: Production server
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Cohorts
+    description: Cohort analysis
+  - name: Segments
+    description: Customer segments
+  - name: Analytics
+    description: Analytics and metrics
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/cohorts:
+    get:
+      tags:
+        - Cohorts
+      summary: List cohorts
+      description: Returns list of customer cohorts
+      operationId: listCohorts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum:
+              - acquisition
+              - retention
+              - revenue
+              - engagement
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - daily
+              - weekly
+              - monthly
+            default: monthly
+      responses:
+        '200':
+          description: List of cohorts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortListResponse'
+
+  /api/cohorts/{id}:
+    get:
+      tags:
+        - Cohorts
+      summary: Get cohort
+      description: Returns details of a cohort
+      operationId: getCohort
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cohort details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CohortResponse'
+        '404':
+          description: Cohort not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/cohorts/retention:
+    get:
+      tags:
+        - Cohorts
+      summary: Get retention cohort
+      description: Returns retention cohort analysis
+      operationId: getRetentionCohort
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: granularity
+          in: query
+          schema:
+            type: string
+            enum:
+              - daily
+              - weekly
+              - monthly
+            default: monthly
+      responses:
+        '200':
+          description: Retention cohort data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetentionCohortResponse'
+
+  /api/segments:
+    get:
+      tags:
+        - Segments
+      summary: List segments
+      description: Returns list of customer segments
+      operationId: listSegments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of segments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentListResponse'
+
+    post:
+      tags:
+        - Segments
+      summary: Create segment
+      description: Creates a new customer segment
+      operationId: createSegment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSegmentRequest'
+      responses:
+        '201':
+          description: Segment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentResponse'
+
+  /api/segments/{id}:
+    get:
+      tags:
+        - Segments
+      summary: Get segment
+      description: Returns segment details
+      operationId: getSegment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Segment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentResponse'
+        '404':
+          description: Segment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Segments
+      summary: Delete segment
+      description: Deletes a customer segment
+      operationId: deleteSegment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Segment deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/segments/{id}/customers:
+    get:
+      tags:
+        - Segments
+      summary: Get segment customers
+      description: Returns customers in a segment
+      operationId: getSegmentCustomers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Segment customers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentCustomersResponse'
+
+  /api/analytics/lifetime-value:
+    get:
+      tags:
+        - Analytics
+      summary: Get lifetime value
+      description: Returns customer lifetime value metrics
+      operationId: getLifetimeValue
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: segmentId
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lifetime value data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LifetimeValueResponse'
+
+  /api/analytics/churn:
+    get:
+      tags:
+        - Analytics
+      summary: Get churn analysis
+      description: Returns churn analysis metrics
+      operationId: getChurnAnalysis
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - daily
+              - weekly
+              - monthly
+            default: monthly
+      responses:
+        '200':
+          description: Churn analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChurnAnalysisResponse'
+
+  /api/analytics/engagement:
+    get:
+      tags:
+        - Analytics
+      summary: Get engagement metrics
+      description: Returns customer engagement metrics
+      operationId: getEngagementMetrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: segmentId
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Engagement metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EngagementMetricsResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Cohort:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - acquisition
+            - retention
+            - revenue
+            - engagement
+        period:
+          type: string
+          enum:
+            - daily
+            - weekly
+            - monthly
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        size:
+          type: integer
+        metrics:
+          type: object
+          additionalProperties:
+            type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    CohortRow:
+      type: object
+      properties:
+        period:
+          type: string
+        size:
+          type: integer
+        retention:
+          type: number
+        revenue:
+          type: number
+        avgOrderValue:
+          type: number
+
+    Segment:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        criteria:
+          type: array
+          items:
+            type: object
+        count:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SegmentCriteria:
+      type: object
+      properties:
+        field:
+          type: string
+        operator:
+          type: string
+          enum:
+            - eq
+            - ne
+            - gt
+            - gte
+            - lt
+            - lte
+            - contains
+            - in
+            - between
+        value: {}
+        logic:
+          type: string
+          enum:
+            - and
+            - or
+
+    CreateSegmentRequest:
+      type: object
+      required:
+        - name
+        - criteria
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/SegmentCriteria'
+
+    CohortResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Cohort'
+
+    CohortListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cohort'
+
+    RetentionCohortResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            cohorts:
+              type: array
+              items:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  size:
+                    type: integer
+                  retention:
+                    type: array
+                    items:
+                      type: number
+            averageRetention:
+              type: object
+              additionalProperties:
+                type: number
+
+    SegmentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Segment'
+
+    SegmentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+
+    SegmentCustomersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              customerId:
+                type: string
+              firstActivity:
+                type: string
+                format: date-time
+              lastActivity:
+                type: string
+                format: date-time
+              totalOrders:
+                type: integer
+              totalSpent:
+                type: number
+              lifetimeValue:
+                type: number
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    LifetimeValueResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            averageLTV:
+              type: number
+            medianLTV:
+              type: number
+            totalLTV:
+              type: number
+            distribution:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  avgLTV:
+                    type: number
+            bySegment:
+              type: object
+              additionalProperties:
+                type: number
+
+    ChurnAnalysisResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            overallChurnRate:
+              type: number
+            periodChurnRates:
+              type: array
+              items:
+                type: object
+                properties:
+                  period:
+                    type: string
+                  churnRate:
+                    type: number
+                  churnedCustomers:
+                    type: integer
+            atRiskCustomers:
+              type: integer
+            predictedChurn:
+              type: number
+
+    EngagementMetricsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            avgSessionDuration:
+              type: number
+            avgSessionsPerUser:
+              type: number
+            avgOrdersPerUser:
+              type: number
+            conversionRate:
+              type: number
+            engagementScore:
+              type: number
+            bySegment:
+              type: object
+              additionalProperties:
+                type: object
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string

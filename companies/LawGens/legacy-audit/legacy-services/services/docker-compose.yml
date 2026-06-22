@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lawgens-api
+    ports:
+      - "${PORT:-5099}:5099"
+    environment:
+      - NODE_ENV=production
+      - PORT=5099
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/lawgens}
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3001}
+      - HOJAI_GATEWAY_URL=${HOJAI_GATEWAY_URL:-http://host.docker.internal:4500}
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - lawgens-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5099/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  mongodb:
+    image: mongo:7-alpine
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - lawgens-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lawgens-network
+    restart: unless-stopped
+
+networks:
+  lawgens-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local

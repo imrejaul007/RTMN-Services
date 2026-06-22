@@ -1,0 +1,62 @@
+{
+  "name": "lawgens",
+  "version": "2.0.0",
+  "description": "LawGens Legal AI Platform - Contract Analysis, Compliance, Court Research",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "contract-os",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/lawgens-web",
+    "dev:contract-os": "npm run dev --workspace=contract-os",
+    "dev:services": "npm run dev --workspace=services",
+    "dev:all": "concurrently \"npm run dev:contract-os\" \"npm run dev:services\" \"npm run dev\"",
+    "build": "npm run build --workspaces --if-present",
+    "build:web": "npm run build --workspace=apps/lawgens-web",
+    "build:contract-os": "npm run build --workspace=contract-os",
+    "start": "npm run start --workspace=apps/lawgens-web",
+    "start:contract-os": "npm run start --workspace=contract-os",
+    "start:services": "npm run start --workspace=services",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:watch": "npm run test:watch --workspace=contract-os",
+    "clean": "rm -rf node_modules apps/*/node_modules contract-os/node_modules services/*/node_modules",
+    "clean:build": "rm -rf apps/*/.next contract-os/dist services/*/dist",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "docker:build": "docker build -t lawgens-web:latest ./apps/lawgens-web",
+    "docker:build:contract-os": "docker build -t lawgens-contract-os:latest ./contract-os",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "db:migrate": "npm run migrate --workspace=contract-os",
+    "db:seed": "npm run seed --workspace=contract-os",
+    "prepare": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "legal",
+    "ai",
+    "contract-analysis",
+    "compliance",
+    "court-research",
+    "legal-tech"
+  ],
+  "author": "RTNM Digital",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rtnm/lawgens"
+  },
+  "bugs": {
+    "url": "https://github.com/rtnm/lawgens/issues"
+  },
+  "homepage": "https://lawgens.app"
+}

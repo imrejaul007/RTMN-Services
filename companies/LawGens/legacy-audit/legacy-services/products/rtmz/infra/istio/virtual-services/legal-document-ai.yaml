@@ -1,0 +1,168 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: legal-document-ai-virtualservice
+  namespace: rtmz
+  labels:
+    app: legal-document-ai
+spec:
+  hosts:
+    - legal-document-ai.rtmz.svc.cluster.local
+    - legal-document-ai
+  http:
+    # Document analysis
+    - name: analyze
+      match:
+        - uri:
+            prefix: "/analyze"
+        - uri:
+            prefix: "/document"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 15s
+        retryOn: gateway-error,connect-failure,reset
+      timeout: 120s
+
+    # Entity extraction
+    - name: extract
+      match:
+        - uri:
+            prefix: "/extract"
+        - uri:
+            prefix: "/entities"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 10s
+        retryOn: gateway-error,connect-failure
+      timeout: 90s
+
+    # Risk assessment
+    - name: risk
+      match:
+        - uri:
+            prefix: "/risk"
+        - uri:
+            prefix: "/assess"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 20s
+        retryOn: gateway-error,connect-failure
+      timeout: 180s
+
+    # Clause comparison
+    - name: compare
+      match:
+        - uri:
+            prefix: "/compare"
+        - uri:
+            prefix: "/clause"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 12s
+        retryOn: gateway-error,connect-failure
+      timeout: 150s
+
+    # NLP processing
+    - name: nlp
+      match:
+        - uri:
+            prefix: "/nlp"
+        - uri:
+            prefix: "/text"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 8s
+        retryOn: gateway-error,connect-failure
+      timeout: 60s
+
+    # Summary generation
+    - name: summarize
+      match:
+        - uri:
+            prefix: "/summarize"
+        - uri:
+            prefix: "/summary"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 2
+        perTryTimeout: 30s
+        retryOn: gateway-error
+      timeout: 240s
+
+    # Health and metrics
+    - name: health
+      match:
+        - uri:
+            prefix: "/health"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+
+    - name: metrics
+      match:
+        - uri:
+            prefix: "/metrics"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 9090
+
+    # Traffic mirroring for new model validation
+    - name: mirrored-analysis
+      match:
+        - uri:
+            prefix: "/analyze/v2"
+      route:
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+            subset: stable
+          weight: 90
+        - destination:
+            host: legal-document-ai.rtmz.svc.cluster.local
+            port:
+              number: 8080
+            subset: canary
+          weight: 10
+
+  exportTo:
+    - "istio-system"

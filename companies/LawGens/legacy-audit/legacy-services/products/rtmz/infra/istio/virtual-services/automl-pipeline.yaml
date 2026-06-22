@@ -1,0 +1,142 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: automl-pipeline-virtualservice
+  namespace: rtmz
+  labels:
+    app: automl-pipeline
+spec:
+  hosts:
+    - automl-pipeline.rtmz.svc.cluster.local
+    - automl-pipeline
+  http:
+    # Prediction endpoint (low latency, fast responses)
+    - name: predict
+      match:
+        - uri:
+            prefix: "/predict"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: gateway-error,connect-failure,reset
+      timeout: 10s
+
+    # Training endpoint (long-running operations)
+    - name: train
+      match:
+        - uri:
+            prefix: "/train"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 2
+        perTryTimeout: 60s
+        retryOn: gateway-error,connect-failure
+      timeout: 3600s
+
+    # Classification endpoint
+    - name: classify
+      match:
+        - uri:
+            prefix: "/classify"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 3s
+        retryOn: gateway-error,connect-failure,refused-stream
+      timeout: 15s
+
+    # Feature engineering for ranking
+    - name: features
+      match:
+        - uri:
+            prefix: "/features"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 2
+        perTryTimeout: 2s
+        retryOn: gateway-error
+      timeout: 30s
+
+    # NLP analysis
+    - name: nlp
+      match:
+        - uri:
+            prefix: "/nlp"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+          weight: 100
+      retries:
+        attempts: 3
+        perTryTimeout: 10s
+        retryOn: gateway-error,connect-failure
+      timeout: 60s
+
+    # Health check
+    - name: health
+      match:
+        - uri:
+            prefix: "/health"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+      retries:
+        attempts: 1
+
+    # Metrics endpoint
+    - name: metrics
+      match:
+        - uri:
+            prefix: "/metrics"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 9090
+
+    # Traffic mirroring for ML model validation
+    - name: mirrored-traffic
+      match:
+        - uri:
+            prefix: "/validate"
+      route:
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+            subset: stable
+          weight: 90
+        - destination:
+            host: automl-pipeline.rtmz.svc.cluster.local
+            port:
+              number: 8080
+            subset: canary
+          weight: 10
+
+  exportTo:
+    - "istio-system"

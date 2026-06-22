@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RTMZ Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; }
+    .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #334155; margin-bottom: 20px; }
+    h1 { color: #38bdf8; font-size: 24px; }
+    .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .status-healthy { background: #10b981; color: #fff; }
+    .status-unhealthy { background: #ef4444; color: #fff; }
+    .status-starting { background: #f59e0b; color: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .card { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .card-title { font-size: 16px; font-weight: 600; color: #f1f5f9; }
+    .card-port { font-size: 12px; color: #94a3b8; background: #334155; padding: 2px 8px; border-radius: 4px; }
+    .card-status { font-size: 14px; margin: 8px 0; }
+    .card-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .metric { background: #0f172a; padding: 8px; border-radius: 6px; }
+    .metric-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
+    .metric-value { font-size: 18px; font-weight: 600; color: #38bdf8; }
+    .section { margin: 40px 0; }
+    .section-title { font-size: 20px; color: #f1f5f9; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #38bdf8; display: flex; align-items: center; gap: 8px; }
+    .refresh { background: #38bdf8; color: #0f172a; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .refresh:hover { background: #0ea5e9; }
+    footer { text-align: center; padding: 20px; color: #64748b; font-size: 12px; border-top: 1px solid #334155; margin-top: 40px; }
+
+    /* Investigation Workspace Styles */
+    .workspace { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #334155; }
+    .workspace-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .workspace-title { font-size: 18px; font-weight: 600; color: #f1f5f9; }
+    .workspace-stats { display: flex; gap: 24px; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 28px; font-weight: 700; color: #38bdf8; }
+    .stat-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; margin-top: 4px; }
+
+    /* Investigation Form */
+    .investigation-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; margin-bottom: 20px; }
+    .form-input { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px 16px; color: #f1f5f9; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .form-input:focus { border-color: #38bdf8; }
+    .form-input::placeholder { color: #64748b; }
+    .btn-primary { background: #38bdf8; color: #0f172a; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+    .btn-primary:hover { background: #0ea5e9; }
+
+    /* Results Panel */
+    .results-panel { background: #0f172a; border-radius: 8px; padding: 16px; margin-top: 16px; max-height: 400px; overflow-y: auto; }
+    .result-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #1e293b; }
+    .result-item:last-child { border-bottom: none; }
+    .result-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .result-info { flex: 1; }
+    .result-title { font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
+    .result-meta { font-size: 12px; color: #64748b; }
+    .result-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .badge-high { background: #ef4444; color: #fff; }
+    .badge-medium { background: #f59e0b; color: #fff; }
+    .badge-low { background: #10b981; color: #fff; }
+
+    /* Forensics Grid */
+    .forensics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .forensic-card { background: #0f172a; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform 0.2s, border-color 0.2s; cursor: pointer; }
+    .forensic-card:hover { transform: translateY(-2px); border-color: #38bdf8; }
+    .forensic-icon { font-size: 32px; margin-bottom: 8px; }
+    .forensic-name { font-weight: 600; color: #f1f5f9; font-size: 13px; }
+    .forensic-desc { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 16px; color: #94a3b8; cursor: pointer; transition: all 0.2s; }
+    .tab:hover { border-color: #38bdf8; color: #38bdf8; }
+    .tab.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔍 RTMZ Investigation Workspace</h1>
+      <div>
+        <span id="last-update" style="color: #94a3b8; margin-right: 16px; font-size: 12px;">Last updated: --</span>
+        <button class="refresh" onclick="loadServices()">Refresh</button>
+      </div>
+    </header>
+
+    <!-- Investigation Workspace -->
+    <div class="workspace">
+      <div class="workspace-header">
+        <div class="workspace-title">🎯 New Investigation</div>
+        <div class="workspace-stats">
+          <div class="stat"><div class="stat-value" id="total-investigations">0</div><div class="stat-label">Total Cases</div></div>
+          <div class="stat"><div class="stat-value" id="active-investigations">0</div><div class="stat-label">Active</div></div>
+          <div class="stat"><div class="stat-value" id="evidence-items">0</div><div class="stat-label">Evidence Items</div></div>
+          <div class="stat"><div class="stat-value" id="reports-generated">0</div><div class="stat-label">Reports</div></div>
+        </div>
+      </div>
+      <div class="investigation-form">
+        <input type="text" class="form-input" id="investigation-input" placeholder="Enter case ID, suspect name, email, phone, IP address, or evidence hash..." />
+        <select class="form-input" id="investigation-type">
+          <option value="evidence">Evidence Search</option>
+          <option value="deepfake">Deepfake Detection</option>
+          <option value="osint">OSINT Lookup</option>
+          <option value="financial">Financial Analysis</option>
+          <option value="location">Location Intelligence</option>
+          <option value="full">Full Investigation</option>
+        </select>
+        <select class="form-input" id="priority-level">
+          <option value="low">Low Priority</option>
+          <option value="medium">Medium Priority</option>
+          <option value="high">High Priority</option>
+        </select>
+        <button class="btn-primary" onclick="startInvestigation()">🔍 Investigate</button>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('evidence')">Evidence</div>
+        <div class="tab" onclick="switchTab('deepfake')">Deepfake</div>
+        <div class="tab" onclick="switchTab('osint')">OSINT</div>
+        <div class="tab" onclick="switchTab('financial')">Financial</div>
+        <div class="tab" onclick="switchTab('location')">Location</div>
+        <div class="tab" onclick="switchTab('chain')">Chain of Custody</div>
+        <div class="tab" onclick="switchTab('reports')">Reports</div>
+      </div>
+      <div class="results-panel" id="results-panel">
+        <div style="text-align: center; color: #64748b; padding: 40px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+          <div>Enter a search term above to begin investigation</div>
+          <div style="font-size: 12px; margin-top: 8px;">Results from 8 forensic MCPs will appear here</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forensics MCP Tools -->
+    <div class="section">
+      <h2 class="section-title">🛠️ Forensic MCP Tools</h2>
+      <div class="forensics-grid">
+        <div class="forensic-card" onclick="openForensicTool('evidence')">
+          <div class="forensic-icon">📁</div>
+          <div class="forensic-name">Evidence Ingestion</div>
+          <div class="forensic-desc">WhatsApp, Email, CCTV</div>
+        </div>
+        <div class="forensic-card" onclick="openForensicTool('deepfake')">
+          <div class="forensic-icon">🤖</div>
+          <div class="forensic-name">Deepfake Detector</div>
+          <div class="forensic-desc">AI Content Analysis</div>
+        </div>
+        <div class="forensic-card" onclick="openForensicTool('custody')">
+          <div class="forensic-icon">⛓️</div>
+          <div class="forensic-name">Chain of Custody</div>
+          <div class="forensic-desc">Legal Tracking</div>
+        </div>
+        <div class="forensic-card" onclick="openForensicTool('forensics')">
+          <div class="forensic-icon">💻</div>
+          <div class="forensic-name">Digital Forensics</div>
+          <div class="forensic-desc">Disk & Mobile</div>
+        </div>
+        <div class="forensic-card" onclick="openForensicTool('social')">
+          <div class="forensic-icon">🌐</div>
+          <div class="forensic-name">Social Intelligence</div>
+          <div class="forensic-desc">OSINT & Networks</div>
+        </div>
+        <div class="forensic-card" onclick="openForensicTool('financial')">
+          <div class="forensic-icon">💰</div>
+          <div class="forensic-name">Financial Forensics</div>
+          <div class="forensic-desc">Fraud Detection</div>
+        </div>
+        <div class="forensic-card" onclick="openForensicTool('location')">
+          <div class="forensic-icon">📍</div>
+          <div class="forensic-name">Location Intelligence</div>
+          <div class="forensic-desc">GPS & Cell Towers</div>
+        </div>
+        <div class="forensic-card" onclick="openForensicTool('reports')">
+          <div class="forensic-icon">📋</div>
+          <div class="forensic-name">Expert Reports</div>
+          <div class="forensic-desc">Court-Ready Docs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traditional Service Sections -->
+    <div class="section">
+      <h2 class="section-title">🔐 Auth Services</h2>
+      <div class="grid" id="auth-services"></div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">⚡ Business Services</h2>
+      <div class="grid" id="business-services"></div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">🤖 MCP Servers (Business)</h2>
+      <div class="grid" id="mcp-services"></div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">🔬 Forensics MCP Servers</h2>
+      <div class="grid" id="forensics-mcp-services"></div>
+    </div>
+
+    <footer>
+      RTMZ v1.0.0 | AI-Powered Business Operating System | Forensics Gateway: <span style="color: #38bdf8;">:5100</span> | <a href="/health" style="color: #38bdf8;">API</a> | <a href="http://localhost:9090" style="color: #38bdf8;">Prometheus</a>
+    </footer>
+  </div>
+
+  <script>
+    const services = {
+      auth: [
+        { name: 'REZ Auth', port: 4002, url: 'http://localhost:4002/health', description: 'JWT/OTP/TOTP' },
+        { name: 'REZ SSO', port: 4003, url: 'http://localhost:4003/health', description: 'OAuth2/SSO' }
+      ],
+      business: [
+        { name: 'GraphQL Gateway', port: 5000, url: 'http://localhost:5000/health', description: 'API Gateway' },
+        { name: 'AutoML Pipeline', port: 5001, url: 'http://localhost:5001/health', description: 'ML Automation' },
+        { name: 'Invoice OCR', port: 5002, url: 'http://localhost:5002/health', description: 'Document Processing' },
+        { name: 'Contract Management', port: 5003, url: 'http://localhost:5003/health', description: 'E-Signatures' },
+        { name: 'Legal Document AI', port: 5004, url: 'http://localhost:5004/health', description: 'Legal Analysis' },
+        { name: 'Cosmic Twin', port: 5005, url: 'http://localhost:5005/health', description: 'Digital Twin' },
+        { name: 'Ranking Service', port: 5006, url: 'http://localhost:5006/health', description: 'ML Ranking' }
+      ],
+      mcp: [
+        { name: 'MCP Analytics', port: 3100, url: 'http://localhost:3100/health' },
+        { name: 'MCP Identity', port: 3101, url: 'http://localhost:3101/health' },
+        { name: 'MCP Event Bus', port: 3102, url: 'http://localhost:3102/health' },
+        { name: 'MCP Notification', port: 3103, url: 'http://localhost:3103/health' },
+        { name: 'MCP Order', port: 3104, url: 'http://localhost:3104/health' },
+        { name: 'MCP Payment', port: 3105, url: 'http://localhost:3105/health' },
+        { name: 'MCP Inventory', port: 3106, url: 'http://localhost:3106/health' },
+        { name: 'MCP Logs', port: 3107, url: 'http://localhost:3107/health' },
+        { name: 'MCP Service Discovery', port: 3108, url: 'http://localhost:3108/health' },
+        { name: 'MCP Agent Invoke', port: 3109, url: 'http://localhost:3109/health' },
+        { name: 'MCP AutoML', port: 3110, url: 'http://localhost:3110/health' },
+        { name: 'MCP Invoice', port: 3111, url: 'http://localhost:3111/health' },
+        { name: 'MCP Contracts', port: 3112, url: 'http://localhost:3112/health' },
+        { name: 'MCP Legal', port: 3113, url: 'http://localhost:3113/health' },
+        { name: 'MCP Cosmic Twin', port: 3114, url: 'http://localhost:3114/health' },
+        { name: 'MCP Ranking', port: 3115, url: 'http://localhost:3115/health' }
+      ],
+      forensics: [
+        { name: 'Evidence Ingestion', port: 3120, url: 'http://localhost:3120/health', description: 'WhatsApp/Email/CCTV' },
+        { name: 'Deepfake Detector', port: 3121, url: 'http://localhost:3121/health', description: 'AI Content Analysis' },
+        { name: 'Chain of Custody', port: 3122, url: 'http://localhost:3122/health', description: 'Legal Tracking' },
+        { name: 'Digital Forensics', port: 3123, url: 'http://localhost:3123/health', description: 'Disk/Mobile Forensics' },
+        { name: 'Social Intelligence', port: 3130, url: 'http://localhost:3130/health', description: 'OSINT & Contact Network' },
+        { name: 'Financial Forensics', port: 3131, url: 'http://localhost:3131/health', description: 'Invoice & Fraud Detection' },
+        { name: 'Location Intelligence', port: 3132, url: 'http://localhost:3132/health', description: 'GPS, Cell Tower, IP' },
+        { name: 'Expert Reports', port: 3133, url: 'http://localhost:3133/health', description: 'Court-Ready Reports' }
+      ]
+    };
+
+    function createCard(service, description) {
+      return `<div class="card">
+        <div class="card-header">
+          <span class="card-title">${service.name}</span>
+          <span class="card-port">:${service.port}</span>
+        </div>
+        <p class="card-status">${description || service.description || 'AI Agent Tool'}</p>
+        <div class="card-metrics">
+          <div class="metric"><div class="metric-label">Status</div><div class="metric-value" id="status-${service.port}">--</div></div>
+          <div class="metric"><div class="metric-label">Uptime</div><div class="metric-value">--</div></div>
+        </div>
+      </div>`;
+    }
+
+    function renderServices() {
+      document.getElementById('auth-services').innerHTML = services.auth.map(s => createCard(s, s.description)).join('');
+      document.getElementById('business-services').innerHTML = services.business.map(s => createCard(s, s.description)).join('');
+      document.getElementById('mcp-services').innerHTML = services.mcp.map(s => createCard(s)).join('');
+      document.getElementById('forensics-mcp-services').innerHTML = services.forensics.map(s => createCard(s, s.description)).join('');
+    }
+
+    async function checkService(url) {
+      try {
+        const res = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(3000) });
+        return res.ok ? 'healthy' : 'unhealthy';
+      } catch { return 'unreachable'; }
+    }
+
+    async function loadServices() {
+      const all = [...services.auth, ...services.business, ...services.mcp, ...services.forensics];
+      for (const s of all) {
+        const statusEl = document.getElementById(`status-${s.port}`);
+        if (statusEl) {
+          const status = await checkService(s.url);
+          statusEl.textContent = status;
+          statusEl.style.color = status === 'healthy' ? '#10b981' : status === 'unreachable' ? '#ef4444' : '#f59e0b';
+        }
+      }
+      document.getElementById('last-update').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      showResults(`Switched to ${tab} analysis - connect to forensics gateway for full results`);
+    }
+
+    function showResults(content) {
+      document.getElementById('results-panel').innerHTML = `<div style="color: #94a3b8; padding: 20px;">${content}</div>`;
+    }
+
+    function openForensicTool(tool) {
+      document.getElementById('investigation-type').value = tool;
+      showResults(`<div style="text-align: center; color: #38bdf8; padding: 40px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🔬</div>
+        <div style="font-size: 18px; font-weight: 600;">${tool.toUpperCase()} Tool Selected</div>
+        <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Configure parameters and start investigation</div>
+      </div>`);
+    }
+
+    async function startInvestigation() {
+      const input = document.getElementById('investigation-input').value;
+      const type = document.getElementById('investigation-type').value;
+      const priority = document.getElementById('priority-level').value;
+
+      if (!input) {
+        alert('Please enter a search term');
+        return;
+      }
+
+      showResults(`<div style="text-align: center; color: #38bdf8; padding: 40px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+        <div style="font-size: 18px; font-weight: 600;">Investigating: ${input}</div>
+        <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Type: ${type} | Priority: ${priority}</div>
+        <div style="margin-top: 16px; font-size: 14px;">Connecting to Forensics Gateway...</div>
+      </div>`);
+
+      // Simulate investigation progress
+      setTimeout(() => {
+        document.getElementById('total-investigations').textContent = Math.floor(Math.random() * 50) + 10;
+        document.getElementById('active-investigations').textContent = Math.floor(Math.random() * 10) + 1;
+        document.getElementById('evidence-items').textContent = Math.floor(Math.random() * 500) + 100;
+        document.getElementById('reports-generated').textContent = Math.floor(Math.random() * 30) + 5;
+      }, 1000);
+    }
+
+    renderServices();
+    loadServices();
+    setInterval(loadServices, 30000);
+  </script>
+</body>
+</html>

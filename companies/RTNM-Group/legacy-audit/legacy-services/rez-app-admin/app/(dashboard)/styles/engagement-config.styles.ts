@@ -1,0 +1,58 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/constants/Colors';
+
+export const s = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  headerTitle: { fontSize: 18, fontWeight: '700' },
+  headerSubtitle: { fontSize: 12, marginTop: 2 },
+  statsRow: { flexDirection: 'row', padding: 16, gap: 8 },
+  statCard: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  statValue: { fontSize: 20, fontWeight: '700' },
+  statLabel: { fontSize: 10, marginTop: 2 },
+  actionsList: { padding: 16, paddingTop: 4 },
+  actionCard: {
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  actionHeader: { flexDirection: 'row', alignItems: 'center' },
+  actionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  actionInfo: { flex: 1, marginLeft: 12 },
+  actionLabel: { fontSize: 15, fontWeight: '600' },
+  actionKey: { fontSize: 11, marginTop: 1 },
+  coinDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 3,
+    marginRight: 8,
+  },
+  coinValue: { fontSize: 12, fontWeight: '700' },
+  badgeRow: { flexDirection: 'row', marginTop: 8, gap: 6 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  expandedContent: { marginTop: 12, paddingTop: 12, borderTopWidth: 1 },
+});
