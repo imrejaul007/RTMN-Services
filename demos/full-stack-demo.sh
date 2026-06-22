@@ -473,6 +473,41 @@ else
 fi
 
 # ============================================================================
+# 3q. Predictive Intelligence (Phase F.10, 2026-06-22)
+# ============================================================================
+step "3q. Predictive Intelligence (Phase F.10)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/predictive-intelligence/api/health")
+check_2xx "$code" "GET /api/foundation/predictive-intelligence/api/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/predictive-intelligence/api/methods")
+check_2xx "$code" "GET /api/foundation/predictive-intelligence/api/methods"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/predictive-intelligence/api/forecasts")
+check_2xx "$code" "GET /api/foundation/predictive-intelligence/api/forecasts"
+
+# Run a forecast
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/predictive-intelligence/api/forecast" \
+  -H "Content-Type: application/json" \
+  -d '{"series":[{"t":"2026-01-01","v":100},{"t":"2026-01-02","v":102},{"t":"2026-01-03","v":104},{"t":"2026-01-04","v":106},{"t":"2026-01-05","v":108}],"method":"moving-average","horizon":3}')
+check_2xx "$code" "POST /api/foundation/predictive-intelligence/api/forecast"
+
+# Anomaly detect
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/predictive-intelligence/api/anomaly/detect" \
+  -H "Content-Type: application/json" \
+  -d '{"series":[{"t":"2026-01-01","v":100},{"t":"2026-01-02","v":102},{"t":"2026-01-03","v":104},{"t":"2026-01-04","v":106},{"t":"2026-01-05","v":108}],"threshold":3}')
+check_2xx "$code" "POST /api/foundation/predictive-intelligence/api/anomaly/detect"
+
+# Verify capability map exposes Predictive Intelligence
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "predictive-intelligence" /tmp/demo-out; then
+  ok "Capability map exposes predictive-intelligence"
+else
+  warn "Capability map missing predictive-intelligence (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -503,6 +538,7 @@ echo "   • /api/foundation/decision-intelligence/* routes rank recommendations
 echo "   • /api/foundation/knowledge-marketplace/* routes browse + purchase + review knowledge packs (Phase F.7)"
 echo "   • /api/foundation/vector-db/* routes embed + store + search vectors (Phase F.8)"
 echo "   • /api/foundation/graph-database/* routes run Cypher-lite + BFS + PageRank on a property graph (Phase F.9)"
+echo "   • /api/foundation/predictive-intelligence/* routes forecast + detect anomalies + predict demand (Phase F.10)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
