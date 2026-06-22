@@ -1,9 +1,14 @@
 # SUTAR OS — Complete Documentation
 
-**Version:** 4.0.0
+**Version:** 4.1.0
 **Last Updated:** June 22, 2026
-**Status:** ✅ Production Ready — 29 Services, 425 vitest tests passing
+**Status:** ✅ Production Ready — 24 SUTAR Services + 5 Nexha Network Services, 425 vitest tests passing
 **Layer:** 14 (Autonomous Layer) of RTMN Ecosystem
+
+> **Change log v4.1 (2026-06-22) — ADR-0009 Phase 0:**
+> - **Moved 5 Phase C services out of SUTAR** to Nexha: `sutar-supplier-registry` → `nexha-supplier-network` (4280), `sutar-warehouse-network` → `nexha-warehouse-network` (4288), `sutar-logistics` → `nexha-distribution-network` (4285), `sutar-trade-finance` → `nexha-trade-finance-network` (4287), `sutar-pricing-intelligence` → `nexha-pricing-network` (4286). These are commerce network services, not SUTAR intelligence services. SUTAR = intelligence, Nexha = commerce network. See [ADR-0009](../ADR/0009-hojai-nexha-canonical-architecture.md).
+> - Hub keeps old `sutar-*` names as **deprecation aliases** pointing at the same ports. Removal target: Phase 1 of ADR-0009.
+> - `sutar-mock` (Nexha L1) renamed to `sutar-dev-mock` and moved to `companies/HOJAI-AI/sutar-os/sutar-dev-mock/` (HOJAI-owned, since it's a SUTAR-family service).
 
 > **Change log v4.0 (2026-06-22):**
 > - Renumbered ports: Trust 4180→**4291**, Contract 4185→**4292**, Negotiation 4191→**4293**, Economy 4251→**4294**, Decision 4240→**4290** (Phase B+C audit)
@@ -154,16 +159,16 @@ See [Hub wiring audit 2026-06-22](companies/RABTUL-Technologies/REZ-ecosystem-co
 
 | Service | Port | Purpose | Source |
 |---------|------|---------|--------|
-| **sutar-supplier-registry** | 4280 | Supplier discovery + trust-gated sourcing | [src/index.ts](companies/HOJAI-AI/sutar-os/core/sutar-supplier-registry/src/index.ts) |
-| **sutar-logistics** | 4285 | Shipping quotes, booking, carriers | [src/index.ts](companies/HOJAI-AI/sutar-os/core/sutar-logistics/src/index.ts) |
-| **sutar-warehouse-network** | 4288 | Warehouse discovery, slot booking, WMS | [src/index.ts](companies/HOJAI-AI/sutar-os/core/sutar-warehouse-network/src/index.ts) |
-| **sutar-trade-finance** | 4287 | BNPL credit offers, loans, escrow | [src/index.ts](companies/HOJAI-AI/sutar-os/core/sutar-trade-finance/src/index.ts) |
+| **nexha-supplier-network** | 4280 | Supplier discovery + trust-gated sourcing | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-supplier-network/src/index.ts) |
+| **nexha-distribution-network** | 4285 | Shipping quotes, booking, carriers | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-distribution-network/src/index.ts) |
+| **nexha-warehouse-network** | 4288 | Warehouse discovery, slot booking, WMS | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-warehouse-network/src/index.ts) |
+| **nexha-trade-finance-network** | 4287 | BNPL credit offers, loans, escrow | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-trade-finance-network/src/index.ts) |
 
 ### 9. Agent Layer (orthogonal to the 7 layers, ports 4716, 4720, 4800-4853)
 
 | Service | Port | Purpose | Source |
 |---------|------|---------|--------|
-| **sutar-pricing-intelligence** | 4286 | Market price aggregation, comparison, dynamic pricing | [src/](companies/HOJAI-AI/sutar-os/core/sutar-pricing-intelligence/src/) |
+| **nexha-pricing-network** | 4286 | Market price aggregation, comparison, dynamic pricing | [src/](companies/HOJAI-AI/sutar-os/core/nexha-pricing-network/src/) |
 | **negotiation-ai** | 4850 | Advanced ML negotiation strategies | [src/index.js](companies/HOJAI-AI/sutar-os/contracts/negotiation-ai/src/index.js) |
 | **sutar-contracts** (legacy alias) | 4292 | Older contract service (deprecated 2026-06-22 — use sutar-contract-os) | [src/index.js](companies/HOJAI-AI/sutar-os/contracts/sutar-contracts/src/index.js) |
 | **acp-protocol** | 4800 | Agent-to-agent message protocol (QUERY/QUOTE/COUNTER/ACCEPT/REJECT/ORDER) | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acp-protocol/src/index.js) |
@@ -230,18 +235,18 @@ The 4 Phase C services (built 2026-06-22) are the **real implementations of the 
 **Call via Hub (recommended):**
 ```bash
 # Supplier lookup
-curl "http://localhost:4399/api/nexha/sutar-supplier-registry/api/v1/suppliers?category=cement"
+curl "http://localhost:4399/api/nexha/nexha-supplier-network/api/v1/suppliers?category=cement"
 
 # Shipping quote
-curl -X POST http://localhost:4399/api/nexha/sutar-logistics/api/v1/quote \
+curl -X POST http://localhost:4399/api/nexha/nexha-distribution-network/api/v1/quote \
   -H "Content-Type: application/json" \
   -d '{"origin":"Mumbai","destination":"Bengaluru","package":{"weightKg":10}}'
 
 # Warehouse discovery
-curl "http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
+curl "http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
 
 # BNPL credit offer
-curl -X POST http://localhost:4399/api/nexha/sutar-trade-finance/api/v1/credit-offers \
+curl -X POST http://localhost:4399/api/nexha/nexha-trade-finance-network/api/v1/credit-offers \
   -H "Content-Type: application/json" \
   -d '{"entityId":"ent_001","amount":100000,"termMonths":3,"trustScore":78}'
 ```
@@ -260,10 +265,10 @@ companies/HOJAI-AI/sutar-os/
 │   ├── sutar-gateway/                 # Port 4140
 │   ├── sutar-decision-engine/         # Port 4290
 │   ├── sutar-trust-engine/            # Port 4291 (SADA federation)
-│   ├── sutar-supplier-registry/       # Port 4280 (Phase C.1)
-│   ├── sutar-logistics/               # Port 4285 (Phase C.2)
-│   ├── sutar-trade-finance/           # Port 4287 (Phase C.4)
-│   ├── sutar-warehouse-network/       # Port 4288 (Phase C.5)
+│   ├── nexha-supplier-network/       # Port 4280 (Phase C.1)
+│   ├── nexha-distribution-network/               # Port 4285 (Phase C.2)
+│   ├── nexha-trade-finance-network/           # Port 4287 (Phase C.4)
+│   ├── nexha-warehouse-network/       # Port 4288 (Phase C.5)
 │   └── …
 ├── contracts/                         # Contract OS, negotiation
 │   ├── sutar-contract-os/             # Port 4292
@@ -351,10 +356,10 @@ cd companies/HOJAI-AI/sutar-os/core
 node sutar-gateway/index.js &          # 4140
 node sutar-decision-engine/index.js &   # 4290
 node sutar-trust-engine/index.js &      # 4291
-node sutar-supplier-registry/index.js & # 4280
-node sutar-logistics/index.js &         # 4285
-node sutar-warehouse-network/index.js & # 4288
-node sutar-trade-finance/index.js &     # 4287
+node nexha-supplier-network/index.js & # 4280
+node nexha-distribution-network/index.js &         # 4285
+node nexha-warehouse-network/index.js & # 4288
+node nexha-trade-finance-network/index.js &     # 4287
 
 # SUTAR contracts + economy
 cd ../contracts
@@ -383,7 +388,7 @@ curl -X POST http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/tea
   -d '{"name":"price-compare","mission":"compare-prices","size":3}'
 
 # Phase C backbone
-curl "http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
+curl "http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
 ```
 
 ### Per-service endpoints (development)

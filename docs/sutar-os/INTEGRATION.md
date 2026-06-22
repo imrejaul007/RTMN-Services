@@ -47,7 +47,7 @@ curl -X POST http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/tea
   -d '{"name":"price-compare","mission":"compare-prices","size":3}'
 
 # Phase C backbone
-curl "http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
+curl "http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
 ```
 
 The Hub's `proxyToUpstream()` helper at [REZ-ecosystem-connector/src/index.ts:87-133](companies/RABTUL-Technologies/REZ-ecosystem-connector/src/index.ts#L87) handles the `express.json()` body-parsing pitfall and the URL path rewriting for you.
@@ -113,7 +113,7 @@ async function getTrustScore(entityId: string) {
 // Get warehouse availability via Hub
 async function findWarehouses(state: string) {
   const response = await axios.get(
-    `${HUB_URL}/api/nexha/sutar-warehouse-network/api/v1/warehouses`,
+    `${HUB_URL}/api/nexha/nexha-warehouse-network/api/v1/warehouses`,
     { params: { state } }
   );
   return response.data;
@@ -204,7 +204,7 @@ export class SutarBridge {
 
 The Restaurant OS uses SUTAR for:
 - **Ingredient Sourcing** — supplier-registry (Phase C.1)
-- **Dynamic Pricing** — Decision engine (sutar-decision-engine :4290) + sutar-pricing-intelligence (:4286, Phase C.6) for market-aggregated supplier price comparison
+- **Dynamic Pricing** — Decision engine (sutar-decision-engine :4290) + nexha-pricing-network (:4286, Phase C.6) for market-aggregated supplier price comparison
 - **Reservation Negotiation** — Negotiation engine
 
 **File:** [industry-os/services/restaurant-os/src/industry-integration.js](industry-os/services/restaurant-os/src/industry-integration.js)
@@ -227,7 +227,7 @@ class RestaurantSutarIntegration {
   async findBestSupplier(requirements) {
     // Via Hub → supplier-registry
     const response = await fetch(
-      `http://localhost:4399/api/nexha/sutar-supplier-registry/api/v1/suppliers?` +
+      `http://localhost:4399/api/nexha/nexha-supplier-network/api/v1/suppliers?` +
       `category=${requirements.ingredient}&minTrustScore=80`
     );
     const { suppliers } = await response.json();
@@ -267,12 +267,12 @@ sutar: {
 
 // Nexha client (Phase C backbone)
 nexha: {
-  listSuppliers: async (params) => { /* GET via Hub → sutar-supplier-registry */ },
-  getShippingQuote: async (req) => { /* POST via Hub → sutar-logistics */ },
-  findWarehouses: async (params) => { /* GET via Hub → sutar-warehouse-network */ },
-  getCreditOffer: async (req) => { /* POST via Hub → sutar-trade-finance */ },
-  comparePrices: async (req) => { /* POST via Hub → sutar-pricing-intelligence (Phase C.6) */ },
-  recommendPrice: async (req) => { /* POST via Hub → sutar-pricing-intelligence (Phase C.6) */ },
+  listSuppliers: async (params) => { /* GET via Hub → nexha-supplier-network */ },
+  getShippingQuote: async (req) => { /* POST via Hub → nexha-distribution-network */ },
+  findWarehouses: async (params) => { /* GET via Hub → nexha-warehouse-network */ },
+  getCreditOffer: async (req) => { /* POST via Hub → nexha-trade-finance-network */ },
+  comparePrices: async (req) => { /* POST via Hub → nexha-pricing-network (Phase C.6) */ },
+  recommendPrice: async (req) => { /* POST via Hub → nexha-pricing-network (Phase C.6) */ },
 },
 
 // SADA direct call (NOT via Hub)
@@ -325,12 +325,12 @@ export const sutarIntegrations = {
     trust: 'sutar-trust-engine'                // :4291
   },
   restaurant: {
-    sourcing: 'sutar-supplier-registry',       // :4280 (Phase C.1)
+    sourcing: 'nexha-supplier-network',       // :4280 (Phase C.1)
     pricing: 'sutar-decision-engine',          // :4290
-    marketPrices: 'sutar-pricing-intelligence', // :4286 (Phase C.6)
-    logistics: 'sutar-logistics',              // :4285 (Phase C.2)
-    warehousing: 'sutar-warehouse-network',    // :4288 (Phase C.5)
-    finance: 'sutar-trade-finance'             // :4287 (Phase C.4)
+    marketPrices: 'nexha-pricing-network', // :4286 (Phase C.6)
+    logistics: 'nexha-distribution-network',              // :4285 (Phase C.2)
+    warehousing: 'nexha-warehouse-network',    // :4288 (Phase C.5)
+    finance: 'nexha-trade-finance-network'             // :4287 (Phase C.4)
   },
   hotel: {
     booking: 'sutar-negotiation-engine',
@@ -351,17 +351,17 @@ export const sutarIntegrations = {
 | Industry | SUTAR Use Case | Services |
 |---|---|---|
 | **Sales** | Deal negotiation, lead scoring, contracts | sutar-negotiation, sutar-trust-engine, sutar-contract-os |
-| **Restaurant** | Supplier sourcing, dynamic pricing, BNPL | sutar-supplier-registry, sutar-decision-engine, sutar-trade-finance |
+| **Restaurant** | Supplier sourcing, dynamic pricing, BNPL | nexha-supplier-network, sutar-decision-engine, nexha-trade-finance-network |
 | **Hotel** | Booking negotiation, pricing optimization | sutar-negotiation, sutar-decision-engine |
 | **Healthcare** | Appointment scheduling, patient contracts | sutar-negotiation, sutar-contract-os |
 | **Real Estate** | Property negotiation, lease contracts | sutar-negotiation, sutar-contract-os |
 | **Legal** | Contract drafting, compliance checking | sutar-contract-os, sutar-policy-os |
-| **Finance** | Loan approval, risk assessment | sutar-decision-engine, sutar-trade-finance |
+| **Finance** | Loan approval, risk assessment | sutar-decision-engine, nexha-trade-finance-network |
 | **Education** | Course pricing, enrollment contracts | sutar-decision-engine, sutar-contract-os |
-| **Retail** | Inventory sourcing, dynamic pricing | sutar-supplier-registry, sutar-decision-engine |
+| **Retail** | Inventory sourcing, dynamic pricing | nexha-supplier-network, sutar-decision-engine |
 | **Travel** | Booking negotiation, price optimization | sutar-negotiation, sutar-decision-engine |
-| **Manufacturing** | Supplier contracts, quality contracts | sutar-supplier-registry, sutar-contract-os |
-| **Construction** | Project contracts, vendor management | sutar-supplier-registry, sutar-contract-os |
+| **Manufacturing** | Supplier contracts, quality contracts | nexha-supplier-network, sutar-contract-os |
+| **Construction** | Project contracts, vendor management | nexha-supplier-network, sutar-contract-os |
 
 ---
 
@@ -372,11 +372,11 @@ The 4 Phase C services are the **real implementations of the Nexha commerce netw
 ```typescript
 // Supplier lookup
 const suppliers = await fetch(
-  'http://localhost:4399/api/nexha/sutar-supplier-registry/api/v1/suppliers?category=cement&minTrustScore=80'
+  'http://localhost:4399/api/nexha/nexha-supplier-network/api/v1/suppliers?category=cement&minTrustScore=80'
 ).then(r => r.json());
 
 // Shipping quote (with cache-friendly signature)
-const quote = await fetch('http://localhost:4399/api/nexha/sutar-logistics/api/v1/quote', {
+const quote = await fetch('http://localhost:4399/api/nexha/nexha-distribution-network/api/v1/quote', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -389,11 +389,11 @@ const quote = await fetch('http://localhost:4399/api/nexha/sutar-logistics/api/v
 
 // Warehouse discovery + slot booking
 const warehouses = await fetch(
-  'http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH&needsColdChain=true'
+  'http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH&needsColdChain=true'
 ).then(r => r.json());
 
 // BNPL credit offer
-const offer = await fetch('http://localhost:4399/api/nexha/sutar-trade-finance/api/v1/credit-offers', {
+const offer = await fetch('http://localhost:4399/api/nexha/nexha-trade-finance-network/api/v1/credit-offers', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({

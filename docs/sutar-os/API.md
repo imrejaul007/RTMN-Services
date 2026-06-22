@@ -618,11 +618,11 @@ GET /api/flows/:id/status
 
 > **Built:** 2026-06-22 — Real implementations of the Nexha procurement/distribution/trade-finance backbone. These services are registered in BOTH the Hub's `SUTAR_SERVICES` and `NEXHA_SERVICES` maps, so they can be reached via either pattern.
 
-### 13.1 sutar-supplier-registry (Port 4280)
+### 13.1 nexha-supplier-network (Port 4280)
 
 ```bash
 # Via Hub (recommended)
-curl http://localhost:4399/api/nexha/sutar-supplier-registry/api/v1/suppliers?category=cement
+curl http://localhost:4399/api/nexha/nexha-supplier-network/api/v1/suppliers?category=cement
 ```
 
 ```http
@@ -659,11 +659,11 @@ Content-Type: application/json
 }
 ```
 
-### 13.2 sutar-logistics (Port 4285)
+### 13.2 nexha-distribution-network (Port 4285)
 
 ```bash
 # Via Hub
-curl -X POST http://localhost:4399/api/nexha/sutar-logistics/api/v1/quote \
+curl -X POST http://localhost:4399/api/nexha/nexha-distribution-network/api/v1/quote \
   -H "Content-Type: application/json" \
   -d '{"origin":"Mumbai","destination":"Bengaluru","package":{"weightKg":10},"serviceLevel":"standard"}'
 ```
@@ -689,12 +689,12 @@ Content-Type: application/json
 { "quoteId": "qt-...", "senderId": "...", "recipientId": "..." }
 ```
 
-### 13.3 sutar-warehouse-network (Port 4288)
+### 13.3 nexha-warehouse-network (Port 4288)
 
 ```bash
 # Via Hub
-curl "http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
-curl http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/stats
+curl "http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
+curl http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/stats
 ```
 
 ```http
@@ -732,11 +732,11 @@ POST /api/v1/wms/transfers        # inter-warehouse transfer (pick→receive→c
 POST /api/v1/wms/pick-lists       # generate pick list for an order
 ```
 
-### 13.4 sutar-trade-finance (Port 4287)
+### 13.4 nexha-trade-finance-network (Port 4287)
 
 ```bash
 # Via Hub
-curl -X POST http://localhost:4399/api/nexha/sutar-trade-finance/api/v1/credit-offers \
+curl -X POST http://localhost:4399/api/nexha/nexha-trade-finance-network/api/v1/credit-offers \
   -H "Content-Type: application/json" \
   -d '{"entityId":"ent_001","amount":100000,"termMonths":3,"trustScore":78}'
 ```
@@ -782,7 +782,7 @@ POST /api/v1/loans/:id/repay
 POST /api/v1/loans/:id/dispute     # held escrow
 ```
 
-### 13.5 sutar-pricing-intelligence (Port 4286, Phase C.6)
+### 13.5 nexha-pricing-network (Port 4286, Phase C.6)
 
 Market price aggregation, comparison, alerts, and dynamic pricing recommendations. do-app autopilot uses it to pick the best supplier for "buy groceries" flows.
 
@@ -806,7 +806,7 @@ GET  /api/v1/alerts                     # price alerts history
 **Compare prices** (cheapest + best-value detection):
 
 ```bash
-curl -X POST http://localhost:4399/api/nexha/sutar-pricing-intelligence/api/v1/compare \
+curl -X POST http://localhost:4399/api/nexha/nexha-pricing-network/api/v1/compare \
   -H "Content-Type: application/json" \
   -d '{
     "productId": "prod_001",
@@ -818,7 +818,7 @@ curl -X POST http://localhost:4399/api/nexha/sutar-pricing-intelligence/api/v1/c
 **Dynamic price recommendation** (match/undercut/premium with floor/ceiling):
 
 ```bash
-curl -X POST http://localhost:4399/api/nexha/sutar-pricing-intelligence/api/v1/dynamic-price \
+curl -X POST http://localhost:4399/api/nexha/nexha-pricing-network/api/v1/dynamic-price \
   -H "Content-Type: application/json" \
   -d '{
     "productId": "prod_001",
@@ -852,7 +852,7 @@ The Hub's `proxyToUpstream()` helper handles the `express.json()` body-parsing p
 For Phase C backbone services, use the `/api/nexha/` prefix:
 
 ```bash
-curl "http://localhost:4399/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
+curl "http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
 ```
 
 ---
