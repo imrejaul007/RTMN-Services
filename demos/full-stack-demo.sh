@@ -549,6 +549,41 @@ else
 fi
 
 # ============================================================================
+# 3s. Trust Intelligence (Phase F.12, 2026-06-22)
+# ============================================================================
+step "3s. Trust Intelligence (Phase F.12)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/trust-intelligence/health")
+check_2xx "$code" "GET /api/foundation/trust-intelligence/health"
+
+# Trust score event
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/trust-intelligence/api/agents/demo-agent/trust/score" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"observation","score":85}')
+check_2xx "$code" "POST /api/foundation/trust-intelligence/api/agents/demo-agent/trust/score"
+
+# Read back trust
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/trust-intelligence/api/agents/demo-agent/trust/score")
+check_2xx "$code" "GET /api/foundation/trust-intelligence/api/agents/demo-agent/trust/score"
+
+# Trust levels (thresholds)
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/trust-intelligence/api/trust/levels")
+check_2xx "$code" "GET /api/foundation/trust-intelligence/api/trust/levels"
+
+# Analytics
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/trust-intelligence/api/analytics/distribution")
+check_2xx "$code" "GET /api/foundation/trust-intelligence/api/analytics/distribution"
+
+# Verify capability map exposes Trust Intelligence
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "trust-intelligence" /tmp/demo-out; then
+  ok "Capability map exposes trust-intelligence"
+else
+  warn "Capability map missing trust-intelligence (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -581,6 +616,7 @@ echo "   • /api/foundation/vector-db/* routes embed + store + search vectors (
 echo "   • /api/foundation/graph-database/* routes run Cypher-lite + BFS + PageRank on a property graph (Phase F.9)"
 echo "   • /api/foundation/predictive-intelligence/* routes forecast + detect anomalies + predict demand (Phase F.10)"
 echo "   • /api/foundation/risk-intelligence/* routes score fraud + churn + credit + composite (Phase F.11)"
+echo "   • /api/foundation/trust-intelligence/* routes score agent trust + reputation + risk + confidence (Phase F.12)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
