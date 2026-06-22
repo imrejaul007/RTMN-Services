@@ -584,6 +584,45 @@ else
 fi
 
 # ============================================================================
+# 3t. Semantic Cache (Phase F.13, 2026-06-22)
+# ============================================================================
+step "3t. Semantic Cache (Phase F.13)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/semantic-cache/api/health")
+check_2xx "$code" "GET /api/foundation/semantic-cache/api/health"
+
+# Embed
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/semantic-cache/api/embed" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"hello semantic cache"}')
+check_2xx "$code" "POST /api/foundation/semantic-cache/api/embed"
+
+# Cache store
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/semantic-cache/api/cache" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"hello semantic cache","response":"cached answer","model":"gpt-4"}')
+check_2xx "$code" "POST /api/foundation/semantic-cache/api/cache"
+
+# Lookup
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/semantic-cache/api/lookup" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"hello semantic cache"}')
+check_2xx "$code" "POST /api/foundation/semantic-cache/api/lookup"
+
+# Stats
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/semantic-cache/api/stats")
+check_2xx "$code" "GET /api/foundation/semantic-cache/api/stats"
+
+# Verify capability map exposes Semantic Cache
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "semantic-cache" /tmp/demo-out; then
+  ok "Capability map exposes semantic-cache"
+else
+  warn "Capability map missing semantic-cache (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -617,6 +656,7 @@ echo "   • /api/foundation/graph-database/* routes run Cypher-lite + BFS + Pag
 echo "   • /api/foundation/predictive-intelligence/* routes forecast + detect anomalies + predict demand (Phase F.10)"
 echo "   • /api/foundation/risk-intelligence/* routes score fraud + churn + credit + composite (Phase F.11)"
 echo "   • /api/foundation/trust-intelligence/* routes score agent trust + reputation + risk + confidence (Phase F.12)"
+echo "   • /api/foundation/semantic-cache/* routes embed + cache + lookup semantically-similar prompts (Phase F.13)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
