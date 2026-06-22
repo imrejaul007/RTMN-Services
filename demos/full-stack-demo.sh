@@ -121,55 +121,54 @@ step "3. Nexha capabilities"
 code=$(call_hub "/api/nexha/capabilities")
 check_2xx "$code" "GET /api/nexha/capabilities"
 
-step "3b. Nexha supplier lookup (sutar-supplier-registry via Hub)"
-code=$(call_hub "/api/nexha/sutar-supplier-registry/api/v1/suppliers?category=groceries&limit=3")
-check_2xx "$code" "GET /api/nexha/sutar-supplier-registry/api/v1/suppliers"
+step "3b. Nexha supplier lookup (nexha-supplier-network via Hub)"
+code=$(call_hub "/api/nexha/nexha-supplier-network/api/v1/suppliers?category=groceries&limit=3")
+check_2xx "$code" "GET /api/nexha/nexha-supplier-network/api/v1/suppliers"
 
-step "3c. Nexha shipping quote (sutar-logistics via Hub)"
+step "3c. Nexha shipping quote (nexha-distribution-network via Hub)"
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" \
-  -X POST "$HUB_URL/api/nexha/sutar-logistics/api/v1/quote" \
+  -X POST "$HUB_URL/api/nexha/nexha-distribution-network/api/v1/quote" \
   -H "Content-Type: application/json" \
   -d '{"origin":{"street":"x","city":"Mumbai","state":"MH","pincode":"400001","lat":19.076,"lng":72.8777},"destination":{"street":"x","city":"Delhi","state":"DL","pincode":"110001","lat":28.7041,"lng":77.1025},"package":{"weightKg":5},"serviceLevel":"standard"}')
-check_2xx "$code" "POST /api/nexha/sutar-logistics/api/v1/quote"
+check_2xx "$code" "POST /api/nexha/nexha-distribution-network/api/v1/quote"
 
-step "3d. Nexha credit offer (sutar-trade-finance via Hub)"
+step "3d. Nexha credit offer (nexha-trade-finance-network via Hub)"
 # Pre-register an entity so the credit offer has a profile to score against.
-curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/sutar-trade-finance/api/v1/entities" \
+curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/nexha-trade-finance-network/api/v1/entities" \
   -H "Content-Type: application/json" \
   -d '{"entityId":"demo-user","trustScore":78,"priorLoansCount":2,"priorDefaultsCount":0,"annualRevenueInr":3000000,"sector":"retail","monthsInBusiness":18}'
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" \
-  -X POST "$HUB_URL/api/nexha/sutar-trade-finance/api/v1/credit-offers" \
+  -X POST "$HUB_URL/api/nexha/nexha-trade-finance-network/api/v1/credit-offers" \
   -H "Content-Type: application/json" \
   -d '{"entityId":"demo-user","amount":100000,"currency":"INR","termMonths":6,"purpose":"inventory"}')
-check_2xx "$code" "POST /api/nexha/sutar-trade-finance/api/v1/credit-offers"
+check_2xx "$code" "POST /api/nexha/nexha-trade-finance-network/api/v1/credit-offers"
 
-step "3e. Nexha warehouse discovery (sutar-warehouse-network via Hub)"
-code=$(call_hub "/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH")
-check_2xx "$code" "GET /api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH"
+step "3e. Nexha warehouse discovery (nexha-warehouse-network via Hub)"
+code=$(call_hub "/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH")
+check_2xx "$code" "GET /api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
 
-step "3f. Nexha warehouse stats (sutar-warehouse-network via Hub)"
-code=$(call_hub "/api/nexha/sutar-warehouse-network/api/v1/stats")
-check_2xx "$code" "GET /api/nexha/sutar-warehouse-network/api/v1/stats"
-check_2xx "$code" "POST /api/nexha/trade-finance/api/credit-offer"
+step "3f. Nexha warehouse stats (nexha-warehouse-network via Hub)"
+code=$(call_hub "/api/nexha/nexha-warehouse-network/api/v1/stats")
+check_2xx "$code" "GET /api/nexha/nexha-warehouse-network/api/v1/stats"
 
-step "3g. Nexha pricing intelligence (sutar-pricing-intelligence via Hub)"
+step "3g. Nexha pricing intelligence (nexha-pricing-network via Hub)"
 # Register a product, add prices, compare, recommend a dynamic price.
-curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/products" \
+curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/nexha-pricing-network/api/v1/products" \
   -H "Content-Type: application/json" \
   -d '{"sku":"RICE-5KG","name":"Basmati Rice 5kg","category":"groceries","ourCost":400,"currency":"INR","unit":"pack","targetMargin":0.25}'
 for body in \
   '{"sku":"RICE-5KG","supplierId":"sup-a","supplierName":"AgroMart","price":520,"currency":"INR","inStock":true,"source":"feed"}' \
   '{"sku":"RICE-5KG","supplierId":"sup-b","supplierName":"BigBazaar","price":540,"currency":"INR","inStock":true,"source":"feed"}' \
   '{"sku":"RICE-5KG","supplierId":"sup-c","supplierName":"LocalKirana","price":500,"currency":"INR","inStock":true,"source":"feed"}'; do
-  curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/prices" \
+  curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/nexha-pricing-network/api/v1/prices" \
     -H "Content-Type: application/json" -d "$body"
 done
-code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/compare" \
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/nexha/nexha-pricing-network/api/v1/compare" \
   -H "Content-Type: application/json" -d '{"sku":"RICE-5KG"}')
-check_2xx "$code" "POST /api/nexha/sutar-pricing-intelligence/api/v1/compare"
-code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/nexha/sutar-pricing-intelligence/api/v1/dynamic-price" \
+check_2xx "$code" "POST /api/nexha/nexha-pricing-network/api/v1/compare"
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/nexha/nexha-pricing-network/api/v1/dynamic-price" \
   -H "Content-Type: application/json" -d '{"sku":"RICE-5KG","strategy":"undercut","ourCost":400,"marginFloor":0.1}')
-check_2xx "$code" "POST /api/nexha/sutar-pricing-intelligence/api/v1/dynamic-price"
+check_2xx "$code" "POST /api/nexha/nexha-pricing-network/api/v1/dynamic-price"
 
 # ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)

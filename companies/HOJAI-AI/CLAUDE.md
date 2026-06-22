@@ -269,21 +269,31 @@ Located at [./shared/](./shared/). Provides:
 
 Six SUTAR OS services now have full vitest suites and **376 tests pass with 0 failures**. Two real service bugs were found and fixed via tests.
 
+**ADR-0009 Phase 0+1 (2026-06-22):** the 4 Phase C services below (sutar-logistics, sutar-supplier-registry, and 2 more) were moved to Nexha and renamed (sutar-* → nexha-*). They no longer live under `companies/HOJAI-AI/sutar-os/core/`. The bug fixes that were landed in this phase still apply — they were the reason these services were production-grade enough to move.
+
 | Service | Port | Tests | Notable |
 |---|---:|---:|---|
-| `sutar-economy-os` | 4251 | 105 | Switched jest → vitest; transaction, billing, earnings, payment, leaderboard, redemption, integration |
-| `sutar-contract-os` | 4185 | 179 | **Bug fix:** `versions.ts` versionIndex optional-chaining no-op on first push |
+| `sutar-economy-os` | 4294 | 105 | Switched jest → vitest; transaction, billing, earnings, payment, leaderboard, redemption, integration |
+| `sutar-contract-os` | 4292 | 179 | **Bug fix:** `versions.ts` versionIndex optional-chaining no-op on first push |
 | `sutar-trust-engine` | 4291 | 29 | `/api/v1/sada/status` federation health probe (2s AbortController, never throws) |
 | `sutar-decision-engine` | 4290 | 21 | Multi-option ranking algorithm (relevance × confidence × recency) |
-| `sutar-logistics` | 4285 | 22 | **Bug fix:** quote IDs were regenerated on every `getQuotes()` call → `bookShipment(quote.id)` always returned null; added deterministic request-signature cache |
-| `sutar-supplier-registry` | 4280 | 20 | 6-dim match scoring (price, lead time, MOQ, rating, location, certifications) |
+| `nexha-distribution-network` | 4285 | 22 | **Bug fix:** quote IDs were regenerated on every `getQuotes()` call → `bookShipment(quote.id)` always returned null; added deterministic request-signature cache |
+| `nexha-supplier-network` | 4280 | 20 | 6-dim match scoring (price, lead time, MOQ, rating, location, certifications) |
 
 ### Run them all
 
 ```bash
+# SUTAR OS services (still in HOJAI)
 for svc in economy/sutar-economy-os core/sutar-trust-engine contracts/sutar-contract-os \
-           core/sutar-decision-engine core/sutar-logistics core/sutar-supplier-registry; do
+           core/sutar-decision-engine; do
   cd "$svc" && npm test && cd -
+done
+
+# Nexha network services (now in companies/Nexha/services/)
+cd companies/Nexha/services
+for svc in nexha-supplier-network nexha-distribution-network nexha-warehouse-network \
+           nexha-trade-finance-network nexha-pricing-network; do
+  cd "$svc" && npm test && cd ..
 done
 ```
 

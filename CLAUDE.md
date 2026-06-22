@@ -1021,7 +1021,7 @@ All 86+ twins now have:
 | **sutar-trust-engine** | 4291 | Trust scoring and reputation |
 | **sutar-contract-os** | 4292 | Smart contracts |
 | **sutar-discovery-engine** | 4256 | Opportunity discovery |
-| **sutar-pricing-intelligence** | 4286 | Market price aggregation + dynamic pricing recommendations (Phase C.6) |
+| **nexha-pricing-network** | 4286 | Market price aggregation + dynamic pricing recommendations (Phase C.6) — was sutar-pricing-intelligence, moved to Nexha 2026-06-22 |
 
 ### SUTAR OS vs ACN (Agent Commerce Network)
 

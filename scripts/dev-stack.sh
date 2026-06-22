@@ -1,5 +1,5 @@
 #!/bin/bash
-# RTMN Phase A-E dev stack — one-command spin-up
+# RTMN dev stack — one-command spin-up
 # ----------------------------------------------------------------------------
 # Starts the same services docker-compose.dev.yml would start, but using the
 # in-repo start scripts. Use this when Docker isn't available or you want
@@ -16,16 +16,25 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RTMN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Service registry — mirrors docker-compose.dev.yml. Phase C.5
-# (sutar-warehouse-network) added 2026-06-22.
+# Service registry — mirrors docker-compose.dev.yml. Updated 2026-06-22
+# per ADR-0009 Phase 1: the 5 Phase C network services now live in
+# companies/Nexha/services/nexha-* (renamed from sutar-*). The 3 L1 stubs
+# (procurement-os, distribution-os, trade-finance) were removed in
+# Phase 0 — their functionality is now in nexha-supplier-network,
+# nexha-distribution-network, nexha-trade-finance-network.
 HUB_CMD="cd $RTMN_ROOT/companies/RABTUL-Technologies/REZ-ecosystem-connector && PORT=4399 node dist/index.js"
+
+# SUTAR OS (HOJAI AI — intelligence layer)
 TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-engine && PORT=4291 SADA_URL=http://localhost:4190 npm start"
 DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 npm start"
-ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4251 npm start"
-WAREHOUSE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-warehouse-network && PORT=4288 npm start"
-PROCUREMENT_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/procurement-os && PORT=4320 npm start"
-DISTRIBUTION_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/distribution-os && PORT=4300 npm start"
-TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/trade-finance && PORT=4340 npm start"
+ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4294 npm start"
+
+# Nexha Commerce Network — Phase C services (replaces the 3 L1 stubs)
+NEXHA_SUPPLIER_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-supplier-network && PORT=4280 npm start"
+NEXHA_DISTRIBUTION_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-distribution-network && PORT=4285 npm start"
+NEXHA_WAREHOUSE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-warehouse-network && PORT=4288 npm start"
+NEXHA_TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-trade-finance-network && PORT=4287 npm start"
+NEXHA_PRICING_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-pricing-network && PORT=4286 npm start"
 
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
@@ -62,11 +71,12 @@ status() {
     "Hub:4399" \
     "Trust Engine:4291" \
     "Decision Engine:4290" \
-    "Economy OS:4251" \
-    "Warehouse Network:4288" \
-    "Procurement OS:4320" \
-    "Distribution OS:4300" \
-    "Trade Finance:4340"; do
+    "Economy OS:4294" \
+    "nexha-supplier-network:4280" \
+    "nexha-distribution-network:4285" \
+    "nexha-warehouse-network:4288" \
+    "nexha-trade-finance-network:4287" \
+    "nexha-pricing-network:4286"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
@@ -79,14 +89,18 @@ status() {
 
 start_all() {
   echo "Starting RTMN dev stack..."
-  start_service "warehouse-network" "$WAREHOUSE_CMD"        4288
-  start_service "trust-engine"      "$TRUST_ENGINE_CMD"     4291
-  start_service "decision-engine"   "$DECISION_ENGINE_CMD"  4290
-  start_service "economy-os"        "$ECONOMY_OS_CMD"       4251
-  start_service "procurement-os"    "$PROCUREMENT_OS_CMD"   4320
-  start_service "distribution-os"   "$DISTRIBUTION_OS_CMD"  4300
-  start_service "trade-finance"     "$TRADE_FINANCE_CMD"    4340
-  start_service "hub"               "$HUB_CMD"              4399
+  # SUTAR OS (HOJAI AI)
+  start_service "trust-engine"             "$TRUST_ENGINE_CMD"        4291
+  start_service "decision-engine"          "$DECISION_ENGINE_CMD"     4290
+  start_service "economy-os"               "$ECONOMY_OS_CMD"          4294
+  # Nexha Commerce Network (Phase C)
+  start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
+  start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
+  start_service "nexha-warehouse-network"     "$NEXHA_WAREHOUSE_CMD"     4288
+  start_service "nexha-trade-finance-network" "$NEXHA_TRADE_FINANCE_CMD" 4287
+  start_service "nexha-pricing-network"       "$NEXHA_PRICING_CMD"       4286
+  # Hub (must be last so all services are up)
+  start_service "hub"                      "$HUB_CMD"                 4399
   sleep 3
   status
   echo ""
@@ -99,11 +113,12 @@ stop_all() {
   stop_port 4399 "Hub"
   stop_port 4291 "Trust Engine"
   stop_port 4290 "Decision Engine"
-  stop_port 4251 "Economy OS"
-  stop_port 4288 "Warehouse Network"
-  stop_port 4320 "Procurement OS"
-  stop_port 4300 "Distribution OS"
-  stop_port 4340 "Trade Finance"
+  stop_port 4294 "Economy OS"
+  stop_port 4280 "nexha-supplier-network"
+  stop_port 4285 "nexha-distribution-network"
+  stop_port 4288 "nexha-warehouse-network"
+  stop_port 4287 "nexha-trade-finance-network"
+  stop_port 4286 "nexha-pricing-network"
 }
 
 case "${1:-start}" in

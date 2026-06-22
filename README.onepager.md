@@ -41,7 +41,7 @@ If you have Docker: `docker compose -f docker-compose.dev.yml up --build` instea
 | **Nexha logistics** (:4285) | ✅ Phase C.2 | nexha-distribution-network: 22 unit tests, multi-carrier shipping quotes + booking |
 | **Nexha pricing intelligence** (:4286) | ✅ **Phase C.6** | nexha-pricing-network: market price aggregation, comparison, dynamic pricing recommendations — used by do-app autopilot for "buy groceries" flows |
 
-> **ADR-0009 Phase 0 (2026-06-22):** The 3 L1 stubs (procurement-os :4320, distribution-os :4300, trade-finance :4340) were **deleted** — their functionality is fully covered by the 5 Phase C services now in Nexha. The 5 Phase C services were moved from `HOJAI-AI/sutar-os/core/sutar-*` to `companies/Nexha/services/nexha-*` and renamed. Old `sutar-*` names are kept as deprecation aliases on the Hub until Phase 1.
+> **ADR-0009 Phase 0+1 (2026-06-22):** The 3 L1 stubs (procurement-os :4320, distribution-os :4300, trade-finance :4340) were **deleted** — their functionality is fully covered by the 5 Phase C services now in Nexha. The 5 Phase C services were moved from `HOJAI-AI/sutar-os/core/sutar-*` to `companies/Nexha/services/nexha-*` and renamed. Deprecation aliases were removed in Phase 1; the canonical `nexha-*` names are now the only valid paths through the Hub.
 | **Nexha franchise / manufacturing upstreams** | ❌ Stub-only | Hub proxy plumbing works; upstream services still scaffold |
 | **TwinOS Phase 5** | ✅ Shipped | `recordTransition`, `merge`, `diff` primitives; 14 twins wired |
 | **24 Industry OS** | 🟡 Mostly scaffold | See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) |

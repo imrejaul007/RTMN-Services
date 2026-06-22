@@ -37,19 +37,21 @@ services:
       - PORT=4399
       - SUTAR_DECISION_URL=http://decision-engine:4290
       - SUTAR_TRUST_ENGINE_URL=http://trust-engine:4291
-      - SUTAR_ECONOMY_URL=http://economy-os:4251
-      - SUTAR_WAREHOUSE_NETWORK_URL=http://warehouse-network:4288
-      - NEXHA_PROCUREMENT_URL=http://nexha-procurement:4320
-      - NEXHA_DISTRIBUTION_URL=http://nexha-distribution:4300
-      - NEXHA_TRADE_FINANCE_URL=http://nexha-trade-finance:4340
+      - SUTAR_ECONOMY_URL=http://economy-os:4294
+      - NEXHA_SUPPLIER_NETWORK_URL=http://nexha-supplier-network:4280
+      - NEXHA_DISTRIBUTION_NETWORK_URL=http://nexha-distribution-network:4285
+      - NEXHA_WAREHOUSE_NETWORK_URL=http://nexha-warehouse-network:4288
+      - NEXHA_TRADE_FINANCE_URL=http://nexha-trade-finance-network:4287
+      - NEXHA_PRICING_NETWORK_URL=http://nexha-pricing-network:4286
     depends_on:
       - decision-engine
       - trust-engine
       - economy-os
-      - warehouse-network
-      - nexha-procurement
-      - nexha-distribution
-      - nexha-trade-finance
+      - nexha-supplier-network
+      - nexha-distribution-network
+      - nexha-warehouse-network
+      - nexha-trade-finance-network
+      - nexha-pricing-network
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4399/health"]
       interval: 15s
@@ -151,15 +153,53 @@ services:
       - rtmn-dev
 
   # ---------------------------------------------------------------------------
-  # Nexha sample — one upstream so the /api/nexha/* proxies have somewhere to
-  # point. sutar-warehouse-network is the most representative real Phase C.5
-  # service. procurement-os is the L1 stub.
+  # Nexha Commerce Network — Phase C services (2026-06-22, ADR-0009 Phase 0).
+  # These 5 services replaced the 3 L1 stubs (procurement-os, distribution-os,
+  # trade-finance) which were deleted. Each has its own Dockerfile.
   # ---------------------------------------------------------------------------
-  warehouse-network:
+  nexha-supplier-network:
     build:
-      context: ./companies/HOJAI-AI/sutar-os/core/sutar-warehouse-network
+      context: ./companies/Nexha/services/nexha-supplier-network
       dockerfile: Dockerfile
-    container_name: rtmn-warehouse-network
+    container_name: rtmn-nexha-supplier-network
+    ports:
+      - "4280:4280"
+    environment:
+      - NODE_ENV=production
+      - PORT=4280
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4280/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  nexha-distribution-network:
+    build:
+      context: ./companies/Nexha/services/nexha-distribution-network
+      dockerfile: Dockerfile
+    container_name: rtmn-nexha-distribution-network
+    ports:
+      - "4285:4285"
+    environment:
+      - NODE_ENV=production
+      - PORT=4285
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4285/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
+  nexha-warehouse-network:
+    build:
+      context: ./companies/Nexha/services/nexha-warehouse-network
+      dockerfile: Dockerfile
+    container_name: rtmn-nexha-warehouse-network
     ports:
       - "4288:4288"
     environment:
@@ -174,18 +214,18 @@ services:
     networks:
       - rtmn-dev
 
-  nexha-procurement:
+  nexha-trade-finance-network:
     build:
-      context: ./companies/Nexha/services/procurement-os
+      context: ./companies/Nexha/services/nexha-trade-finance-network
       dockerfile: Dockerfile
-    container_name: rtmn-nexha-procurement
+    container_name: rtmn-nexha-trade-finance-network
     ports:
-      - "4320:4320"
+      - "4287:4287"
     environment:
       - NODE_ENV=production
-      - PORT=4320
+      - PORT=4287
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:4320/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:4287/health"]
       interval: 15s
       timeout: 5s
       retries: 6
@@ -193,37 +233,18 @@ services:
     networks:
       - rtmn-dev
 
-  nexha-distribution:
+  nexha-pricing-network:
     build:
-      context: ./companies/Nexha/services/distribution-os
+      context: ./companies/Nexha/services/nexha-pricing-network
       dockerfile: Dockerfile
-    container_name: rtmn-nexha-distribution
+    container_name: rtmn-nexha-pricing-network
     ports:
-      - "4300:4300"
+      - "4286:4286"
     environment:
       - NODE_ENV=production
-      - PORT=4300
+      - PORT=4286
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:4300/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 6
-    restart: unless-stopped
-    networks:
-      - rtmn-dev
-
-  nexha-trade-finance:
-    build:
-      context: ./companies/Nexha/services/trade-finance
-      dockerfile: Dockerfile
-    container_name: rtmn-nexha-trade-finance
-    ports:
-      - "4340:4340"
-    environment:
-      - NODE_ENV=production
-      - PORT=4340
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:4340/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:4286/health"]
       interval: 15s
       timeout: 5s
       retries: 6
