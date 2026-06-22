@@ -95,6 +95,12 @@ companies/hojai-ai/hojai-multilingual/dist/
 
 # Default: Ignore ALL companies (each has its own repo)
 companies/*
+# ...but allow audit/audit-summary docs at the companies/ root
+!/companies/REZ-Workspace-AUDIT-*.md
+!/companies/AUDIT-FINAL-*.md
+!/companies/AUDIT-LEGACY-DUPLICATES-*.md
+!/companies/SESSION-SUMMARY-*.md
+!/companies/REORGANIZATION-SUMMARY-*.md
 
 # BUT: Do App (imrejaul007/do-app) gets re-included below because it lives in this folder for convenience
 !/companies/do-app
