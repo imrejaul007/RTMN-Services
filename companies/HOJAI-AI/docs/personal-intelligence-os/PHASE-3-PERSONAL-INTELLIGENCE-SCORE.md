@@ -212,3 +212,88 @@ Tapping "What can Genie do now?" → shows the level-unlocked features list.
 ---
 
 *Next: [PHASE-4-VOICE-AND-PROACTIVE.md](PHASE-4-VOICE-AND-PROACTIVE.md) — Month 4*
+
+---
+
+## 🚀 SHIPPED — Implementation Status (2026-06-22)
+
+**Phase 3 is FULLY IMPLEMENTED and TESTED.**
+
+### Services shipped
+
+| Service | Port | Tests | Status |
+|---------|------|-------|--------|
+| **`pi-score`** (`@hojai/pi-score`) | 4798 | **16/16 ✅** | ✅ Running |
+| **`relationship-graph`** (`@hojai/relationship-graph`) | 4799 | **25/25 ✅** | ✅ Running |
+| **`learning-os-v2`** (`@hojai/learning-os-v2`) | 4800 | **24/24 ✅** | ✅ Running |
+| **runtime/genie widget wiring** | — | **11/11 ✅** | ✅ Running |
+| **morning-briefing-v2 integration** | 4794 | **9/9 ✅** | ✅ Running |
+
+**Total: 85 new tests, 0 failures.**
+
+### Deliverables
+
+| # | What was built |
+|---|---|
+| **3.1** | `pi-score` service — 7 weighted sub-scores, 6 levels (Newborn → Soulmate), widget endpoint, feedback logging, 1-hour cache, override API for testing/debugging |
+| **3.2** | `relationship-graph` service — people × strength × last_contact × context. Strength formula: 50% base + 30% recency (Ebbinghaus decay) + 20% interaction volume. 5 strength levels: inner_circle → close → active → fading → dormant. Endpoints: list, get, upsert, delete, interaction, stale (reach-out), by-context, summary, seed |
+| **3.3** | `learning-os-v2` service — Ebbinghaus-style spaced repetition. `retention = e^(-t/S)` where S = stability. Stability doubles on remembered, halves on forgotten. Endpoints: facts CRUD, review, due (facts below retention threshold), stats (tier counts), seed |
+| **3.4** | `/api/pios/widget/:userId` on runtime/genie — aggregates PI Score, stale relationships, facts to refresh, last reflection, proactive suggestions in ONE call. Mobile/web renders directly |
+| **3.5** | Wired PI Score, relationship-graph, learning-os-v2, reflection-engine, proactive-engine into morning-briefing-v2. Briefing now shows 🌱 PI Score line and 🧠 facts-to-refresh line in the message |
+| **3.5b** | Added 3 new services to `/api/pios/health` on runtime/genie |
+
+### Code locations
+
+```
+companies/HOJAI-AI/platform/intelligence/
+├── pi-score/
+│   ├── lib/scoring.js                   # 7 sub-score algorithms + 6 levels
+│   ├── src/index.js                     # service (port 4798)
+│   └── tests/pi-score.test.mjs          # 16 tests
+├── relationship-graph/
+│   ├── lib/strength.js                  # computeStrength, strengthLevel, stale, summary
+│   ├── src/index.js                     # service (port 4799)
+│   └── tests/relationship-graph.test.mjs # 25 tests
+└── learning-os-v2/
+    ├── lib/ebbinghaus.js                # retention, review, dueForReview, stabilityTier
+    ├── src/index.js                     # service (port 4800)
+    └── tests/learning-os-v2.test.mjs    # 24 tests
+
+products/genie/genie-os/runtime/genie/
+├── src/index.js                         # /api/pios/widget/:userId + health wiring
+└── test/widget.test.cjs                 # 11 tests
+```
+
+### Opt-out / env flags
+
+All new services are opt-in via env vars (defaults to local URLs — disable by pointing to unreachable host or unsetting env):
+
+```bash
+PI_SCORE_URL=http://localhost:4798            # disable by setting to ""
+RELATIONSHIP_GRAPH_URL=http://localhost:4799
+LEARNING_OS_V2_URL=http://localhost:4800
+```
+
+Morning briefing gracefully degrades — any one service down → that section just doesn't render.
+
+### Try it
+
+```bash
+# Start all three services
+cd companies/HOJAI-AI/platform/intelligence/pi-score && node src/index.js &
+cd companies/HOJAI-AI/platform/intelligence/relationship-graph && node src/index.js &
+cd companies/HOJAI-AI/platform/intelligence/learning-os-v2 && node src/index.js &
+
+# Get the widget for a user
+curl http://localhost:4799/api/relationships/user-alice/widget
+
+# Add a fact
+curl -X POST http://localhost:4800/api/learning/facts \
+  -H 'x-internal-token: <TOKEN>' -H 'Content-Type: application/json' \
+  -d '{"userId":"u","factId":"likes-pizza","text":"User loves pizza"}'
+
+# Compute PI Score
+curl -X POST http://localhost:4798/api/pi-score/u/compute \
+  -H 'x-internal-token: <TOKEN>' -H 'Content-Type: application/json' \
+  -d '{"overrides":{"memories":100,"contacts":20,"reflections":10}}'
+```
