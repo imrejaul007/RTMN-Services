@@ -121,23 +121,27 @@ step "3. Nexha capabilities"
 code=$(call_hub "/api/nexha/capabilities")
 check_2xx "$code" "GET /api/nexha/capabilities"
 
-step "3b. Nexha supplier lookup (procurement-os via Hub)"
-code=$(call_hub "/api/nexha/procurement-os/api/suppliers?category=groceries&limit=3")
-check_2xx "$code" "GET /api/nexha/procurement-os/api/suppliers"
+step "3b. Nexha supplier lookup (sutar-supplier-registry via Hub)"
+code=$(call_hub "/api/nexha/sutar-supplier-registry/api/v1/suppliers?category=groceries&limit=3")
+check_2xx "$code" "GET /api/nexha/sutar-supplier-registry/api/v1/suppliers"
 
-step "3c. Nexha shipping quote (distribution-os via Hub)"
+step "3c. Nexha shipping quote (sutar-logistics via Hub)"
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" \
-  -X POST "$HUB_URL/api/nexha/distribution-os/api/quote" \
+  -X POST "$HUB_URL/api/nexha/sutar-logistics/api/v1/quote" \
   -H "Content-Type: application/json" \
-  -d '{"origin":"Mumbai","destination":"Delhi","weightKg":5}')
-check_2xx "$code" "POST /api/nexha/distribution-os/api/quote"
+  -d '{"origin":{"street":"x","city":"Mumbai","state":"MH","pincode":"400001","lat":19.076,"lng":72.8777},"destination":{"street":"x","city":"Delhi","state":"DL","pincode":"110001","lat":28.7041,"lng":77.1025},"package":{"weightKg":5},"serviceLevel":"standard"}')
+check_2xx "$code" "POST /api/nexha/sutar-logistics/api/v1/quote"
 
-step "3d. Nexha credit offer (trade-finance via Hub)"
-code=$(curl -s -o /tmp/demo-out -w "%{http_code}" \
-  -X POST "$HUB_URL/api/nexha/trade-finance/api/credit-offer" \
+step "3d. Nexha credit offer (sutar-trade-finance via Hub)"
+# Pre-register an entity so the credit offer has a profile to score against.
+curl -s -o /dev/null -X POST "$HUB_URL/api/nexha/sutar-trade-finance/api/v1/entities" \
   -H "Content-Type: application/json" \
-  -d '{"entityId":"demo-user","amount":1000,"currency":"USD"}')
-check_2xx "$code" "POST /api/nexha/trade-finance/api/credit-offer"
+  -d '{"entityId":"demo-user","trustScore":78,"priorLoansCount":2,"priorDefaultsCount":0,"annualRevenueInr":3000000,"sector":"retail","monthsInBusiness":18}'
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" \
+  -X POST "$HUB_URL/api/nexha/sutar-trade-finance/api/v1/credit-offers" \
+  -H "Content-Type: application/json" \
+  -d '{"entityId":"demo-user","amount":100000,"currency":"INR","termMonths":6,"purpose":"inventory"}')
+check_2xx "$code" "POST /api/nexha/sutar-trade-finance/api/v1/credit-offers"
 
 step "3e. Nexha warehouse discovery (sutar-warehouse-network via Hub)"
 code=$(call_hub "/api/nexha/sutar-warehouse-network/api/v1/warehouses?state=MH")
