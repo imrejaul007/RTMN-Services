@@ -171,6 +171,37 @@ code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/nexha/ne
 check_2xx "$code" "POST /api/nexha/nexha-pricing-network/api/v1/dynamic-price"
 
 # ============================================================================
+# 3h. HOJAI AI Foundation (Phase F.1: PolicyOS + SkillOS, 2026-06-22)
+# ============================================================================
+step "3h. HOJAI AI Foundation (PolicyOS + SkillOS)"
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/policy-os/health")
+check_2xx "$code" "GET /api/foundation/policy-os/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/skill-os/health")
+check_2xx "$code" "GET /api/foundation/skill-os/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/skill-os/api/skills/categories")
+check_2xx "$code" "GET /api/foundation/skill-os/api/skills/categories"
+
+# PolicyOS — create + evaluate a policy end-to-end
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/policy-os/api/policies" \
+  -H "Content-Type: application/json" \
+  -d '{"id":"demo-foundation-1","name":"Demo US payment allow","category":"security","effect":"allow","rules":[{"if":{"context.country":"US"},"then":{"allow":true}}]}')
+check_2xx "$code" "POST /api/foundation/policy-os/api/policies"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/policy-os/api/policies/evaluate" \
+  -H "Content-Type: application/json" \
+  -d '{"policyId":"demo-foundation-1","context":{"country":"US","amount":1500}}')
+check_2xx "$code" "POST /api/foundation/policy-os/api/policies/evaluate"
+
+# SkillOS — discover + create a skill
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/skill-os/api/skills/discover")
+check_2xx "$code" "GET /api/foundation/skill-os/api/skills/discover"
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -192,7 +223,8 @@ echo " What this proves:"
 echo "   • RTMN Hub (4399) is the single front door for 50+ services"
 echo "   • /api/sutar/* routes reach the autonomous-economic layer"
 echo "   • /api/nexha/* routes reach the Nexha commerce network"
-echo "   • do-app backend can talk to both via plain fetch()"
+echo "   • /api/foundation/* routes reach PolicyOS + SkillOS (Phase F.1)"
+echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
 echo "   • Start each upstream service to convert the 'skipped' steps"

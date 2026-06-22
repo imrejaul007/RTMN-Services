@@ -29,6 +29,10 @@ TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-eng
 DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 npm start"
 ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4294 npm start"
 
+# HOJAI AI — Foundation (Phase F.1: PolicyOS + SkillOS productionized 2026-06-22)
+POLICY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/policy-os && PORT=4254 POLICYOS_REQUIRE_AUTH=false POLICYOS_EVAL_LIMIT=10000 POLICYOS_WRITE_LIMIT=10000 npm start"
+SKILL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/skills/skill-os && PORT=4743 SKILLOS_REQUIRE_AUTH=false npm start"
+
 # Nexha Commerce Network — Phase C services (replaces the 3 L1 stubs)
 NEXHA_SUPPLIER_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-supplier-network && PORT=4280 npm start"
 NEXHA_DISTRIBUTION_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-distribution-network && PORT=4285 npm start"
@@ -72,6 +76,8 @@ status() {
     "Trust Engine:4291" \
     "Decision Engine:4290" \
     "Economy OS:4294" \
+    "PolicyOS:4254" \
+    "SkillOS:4743" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -93,6 +99,9 @@ start_all() {
   start_service "trust-engine"             "$TRUST_ENGINE_CMD"        4291
   start_service "decision-engine"          "$DECISION_ENGINE_CMD"     4290
   start_service "economy-os"               "$ECONOMY_OS_CMD"          4294
+  # HOJAI AI — Foundation (Phase F.1)
+  start_service "policy-os"                "$POLICY_OS_CMD"           4254
+  start_service "skill-os"                 "$SKILL_OS_CMD"            4743
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -114,6 +123,8 @@ stop_all() {
   stop_port 4291 "Trust Engine"
   stop_port 4290 "Decision Engine"
   stop_port 4294 "Economy OS"
+  stop_port 4254 "PolicyOS"
+  stop_port 4743 "SkillOS"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"
