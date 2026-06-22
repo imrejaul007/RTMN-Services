@@ -25,20 +25,23 @@ RTMN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HUB_CMD="cd $RTMN_ROOT/companies/RABTUL-Technologies/REZ-ecosystem-connector && PORT=4399 node dist/index.js"
 
 # SUTAR OS (HOJAI AI — intelligence layer)
-TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-engine && PORT=4291 SADA_URL=http://localhost:4190 npm start"
-DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 npm start"
-ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4294 npm start"
+TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-engine && PORT=4291 SADA_URL=http://localhost:4190 REDIS_URL=redis://localhost:6379 npm start"
+DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 REDIS_URL=redis://localhost:6379 npm start"
+ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4294 REDIS_URL=redis://localhost:6379 npm start"
 
 # HOJAI AI — Foundation (Phase F.1: PolicyOS + SkillOS productionized 2026-06-22)
-POLICY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/policy-os && PORT=4254 POLICYOS_REQUIRE_AUTH=false POLICYOS_EVAL_LIMIT=10000 POLICYOS_WRITE_LIMIT=10000 npm start"
-SKILL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/skills/skill-os && PORT=4743 SKILLOS_REQUIRE_AUTH=false npm start"
+POLICY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/policy-os && PORT=4254 POLICYOS_REQUIRE_AUTH=false POLICYOS_EVAL_LIMIT=10000 POLICYOS_WRITE_LIMIT=10000 REDIS_URL=redis://localhost:6379 npm start"
+SKILL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/skills/skill-os && PORT=4743 SKILLOS_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
+
+# Flow Orchestrator (Phase F.2, 2026-06-22)
+FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
 # Nexha Commerce Network — Phase C services (replaces the 3 L1 stubs)
-NEXHA_SUPPLIER_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-supplier-network && PORT=4280 npm start"
-NEXHA_DISTRIBUTION_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-distribution-network && PORT=4285 npm start"
-NEXHA_WAREHOUSE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-warehouse-network && PORT=4288 npm start"
-NEXHA_TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-trade-finance-network && PORT=4287 npm start"
-NEXHA_PRICING_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-pricing-network && PORT=4286 npm start"
+NEXHA_SUPPLIER_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-supplier-network && PORT=4280 REDIS_URL=redis://localhost:6379 npm start"
+NEXHA_DISTRIBUTION_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-distribution-network && PORT=4285 REDIS_URL=redis://localhost:6379 npm start"
+NEXHA_WAREHOUSE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-warehouse-network && PORT=4288 REDIS_URL=redis://localhost:6379 npm start"
+NEXHA_TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-trade-finance-network && PORT=4287 REDIS_URL=redis://localhost:6379 npm start"
+NEXHA_PRICING_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-pricing-network && PORT=4286 REDIS_URL=redis://localhost:6379 npm start"
 
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
@@ -54,6 +57,24 @@ start_service() {
   echo "  $name: starting..."
   nohup bash -c "$cmd" > "$logfile" 2>&1 &
   echo "    pid=$!  log=$logfile"
+}
+
+# Pre-flight: ensure Redis is reachable before starting services that depend on
+# the @rtmn/shared/event-bus Redis Streams backend (ADR-0009 Phase 2).
+check_redis() {
+  if ! command -v redis-cli >/dev/null 2>&1; then
+    echo "  redis: SKIP (redis-cli not installed)"
+    return 0
+  fi
+  if redis-cli ping 2>/dev/null | grep -q PONG; then
+    echo "  redis: PONG (redis://localhost:6379)"
+    return 0
+  fi
+  echo "  redis: NOT reachable at localhost:6379"
+  echo "    Start it with:  brew services start redis"
+  echo "                   OR  docker compose -f docker-compose.dev.yml up -d redis"
+  echo "    SUTAR services will still start but event publishing will fail until Redis is up."
+  return 0
 }
 
 stop_port() {
@@ -78,6 +99,7 @@ status() {
     "Economy OS:4294" \
     "PolicyOS:4254" \
     "SkillOS:4743" \
+    "Flow Orchestrator:4244" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -95,6 +117,7 @@ status() {
 
 start_all() {
   echo "Starting RTMN dev stack..."
+  check_redis
   # SUTAR OS (HOJAI AI)
   start_service "trust-engine"             "$TRUST_ENGINE_CMD"        4291
   start_service "decision-engine"          "$DECISION_ENGINE_CMD"     4290
@@ -102,6 +125,8 @@ start_all() {
   # HOJAI AI — Foundation (Phase F.1)
   start_service "policy-os"                "$POLICY_OS_CMD"           4254
   start_service "skill-os"                 "$SKILL_OS_CMD"            4743
+  # HOJAI AI — Orchestration (Phase F.2)
+  start_service "flow-orchestrator"       "$FLOW_ORCHESTRATOR_CMD"   4244
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -125,6 +150,7 @@ stop_all() {
   stop_port 4294 "Economy OS"
   stop_port 4254 "PolicyOS"
   stop_port 4743 "SkillOS"
+  stop_port 4244 "Flow Orchestrator"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"

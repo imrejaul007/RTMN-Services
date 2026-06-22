@@ -63,6 +63,7 @@ import {
 } from './wms.types.js';
 import * as slotSvc from './warehouse.service.js';
 import * as wms from './wms.service.js';
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 
 const PORT = parseInt(process.env.PORT || '4288', 10);
 const app = express();
@@ -151,6 +152,12 @@ app.post('/api/v1/bookings', (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   const result = slotSvc.bookSlot(parsed.data);
   if ('error' in result) return res.status(409).json(result);
+  emitEvent(req, 'warehouse.booking.created', {
+    bookingId: (result as { id?: string }).id,
+    slotId: (result as { slotId?: string }).slotId ?? parsed.data.slotId,
+    customerId: (result as { customerId?: string }).customerId ?? parsed.data.customerId,
+    pallets: parsed.data.pallets,
+  });
   res.status(201).json({ success: true, booking: result });
 });
 
@@ -199,6 +206,11 @@ app.post('/api/v1/stock/receive', (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   const result = wms.receiveStock(parsed.data);
   if ('error' in result) return res.status(409).json(result);
+  emitEvent(req, 'warehouse.stock.received', {
+    sku: parsed.data.sku,
+    quantity: parsed.data.quantity,
+    warehouseId: parsed.data.warehouseId,
+  });
   res.status(201).json({ success: true, stock: result });
 });
 
@@ -219,6 +231,13 @@ app.post('/api/v1/transfers', (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   const result = wms.createTransfer(parsed.data);
   if ('error' in result) return res.status(409).json(result);
+  emitEvent(req, 'warehouse.transfer.created', {
+    transferId: (result as { id?: string }).id,
+    sku: parsed.data.sku,
+    quantity: parsed.data.quantity,
+    sourceWarehouseId: parsed.data.sourceWarehouseId,
+    destWarehouseId: parsed.data.destWarehouseId,
+  });
   res.status(201).json({ success: true, transfer: result });
 });
 
@@ -313,6 +332,9 @@ const server = app.listen(PORT, () => {
   console.log(`  POST http://localhost:${PORT}/api/v1/stock/receive`);
   console.log(`  POST http://localhost:${PORT}/api/v1/transfers`);
 });
+
+process.on('SIGTERM', () => { shutdownEvents().catch(() => undefined); });
+process.on('SIGINT', () => { shutdownEvents().catch(() => undefined); });
 
 export { AddressSchema };
 export default app;

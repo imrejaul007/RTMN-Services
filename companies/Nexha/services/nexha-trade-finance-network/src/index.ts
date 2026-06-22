@@ -47,6 +47,7 @@ import {
   FxQuoteRequestSchema,
 } from './types/index.js';
 import * as svc from './services/trade-finance.service.js';
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 
 const PORT = parseInt(process.env.PORT || '4287', 10);
 const REQUIRE_AUTH = process.env.TRADE_FINANCE_REQUIRE_AUTH !== 'false';
@@ -154,12 +155,21 @@ app.post('/api/v1/loans', (req, res) => {
   if (!offerId) return res.status(400).json({ error: 'offerId required' });
   const result = svc.originateLoan(offerId);
   if ('error' in result) return res.status(409).json(result);
+  emitEvent(req, 'finance.loan.originated', {
+    loanId: (result as { id?: string }).id,
+    offerId,
+    principal: (result as { principal?: number }).principal,
+  });
   res.status(201).json({ success: true, loan: result });
 });
 
 app.post('/api/v1/loans/:id/disburse', (req, res) => {
   const result = svc.disburseLoan(req.params.id);
   if ('error' in result) return res.status(409).json(result);
+  emitEvent(req, 'finance.loan.disbursed', {
+    loanId: req.params.id,
+    disbursedAmount: (result as { disbursedAmount?: number }).disbursedAmount,
+  });
   res.json({ success: true, loan: result });
 });
 
@@ -219,6 +229,11 @@ app.post('/api/v1/disputes', (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   const result = svc.openDispute(parsed.data.loanId, parsed.data.amount, parsed.data.reason);
   if ('error' in result) return res.status(409).json(result);
+  emitEvent(req, 'finance.dispute.opened', {
+    disputeId: (result as { id?: string }).id,
+    loanId: parsed.data.loanId,
+    amount: parsed.data.amount,
+  });
   res.status(201).json({ success: true, dispute: result });
 });
 
@@ -261,5 +276,8 @@ app.listen(PORT, () => {
   console.log(`  GET  http://localhost:${PORT}/api/v1/info`);
   console.log(`  POST http://localhost:${PORT}/api/v1/credit-offers`);
 });
+
+process.on('SIGTERM', () => { shutdownEvents().catch(() => undefined); });
+process.on('SIGINT', () => { shutdownEvents().catch(() => undefined); });
 
 export default app;

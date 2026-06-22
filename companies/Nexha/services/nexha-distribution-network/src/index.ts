@@ -8,6 +8,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { z } from "zod";
 import logisticsService from "./services/logistics.service.js";
+import { emit as emitEvent, shutdown as shutdownEvents } from "./services/events.js";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4285;
@@ -129,6 +130,12 @@ app.post(
       res.status(400).json(apiResponse(false, undefined, "Quote not found or carrier mismatch"));
       return;
     }
+    emitEvent(req, 'shipment.booked', {
+      shipmentId: (shipment as { id?: string }).id,
+      carrier: body.carrier,
+      quoteId: body.quoteId,
+      destination: body.request.destination,
+    });
     res.status(201).json(apiResponse(true, shipment));
   }),
 );
@@ -162,6 +169,11 @@ app.post(
       res.status(404).json(apiResponse(false, undefined, "Shipment not found"));
       return;
     }
+    emitEvent(req, 'shipment.advanced', {
+      shipmentId: req.params.id,
+      status: (s as { status?: string }).status,
+      currentEvent: (s as { currentEvent?: string }).currentEvent,
+    });
     res.json(apiResponse(true, s));
   }),
 );
@@ -175,6 +187,10 @@ app.post(
       res.status(404).json(apiResponse(false, undefined, "Shipment not found"));
       return;
     }
+    emitEvent(req, 'shipment.cancelled', {
+      shipmentId: req.params.id,
+      reason,
+    });
     res.json(apiResponse(true, s));
   }),
 );
@@ -193,5 +209,8 @@ try {
 } catch {
   /* shutdown hook is best-effort */
 }
+
+process.on('SIGTERM', () => { shutdownEvents().catch(() => undefined); });
+process.on('SIGINT', () => { shutdownEvents().catch(() => undefined); });
 
 export default app;

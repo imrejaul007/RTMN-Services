@@ -43,6 +43,7 @@ import {
   DynamicPriceRequestSchema,
 } from './types/index.js';
 import * as svc from './services/pricing.service.js';
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 
 const PORT = parseInt(process.env.PORT || '4286', 10);
 const REQUIRE_AUTH = process.env.PRICING_REQUIRE_AUTH !== 'false';
@@ -107,6 +108,12 @@ app.post('/api/v1/products', (req, res) => {
   const parsed = ProductSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   const p = svc.registerProduct(parsed.data);
+  emitEvent(req, 'pricing.product.registered', {
+    sku: parsed.data.sku,
+    name: parsed.data.name,
+    category: parsed.data.category,
+    ourCost: parsed.data.ourCost,
+  });
   res.status(201).json({ success: true, product: p });
 });
 
@@ -131,6 +138,12 @@ app.post('/api/v1/prices', (req, res) => {
   const parsed = PricePointSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   const p = svc.recordPrice(parsed.data);
+  emitEvent(req, 'pricing.price.recorded', {
+    sku: parsed.data.sku,
+    supplierId: parsed.data.supplierId,
+    price: parsed.data.price,
+    currency: parsed.data.currency,
+  });
   res.status(201).json({ success: true, pricePoint: p });
 });
 
@@ -219,6 +232,11 @@ app.post('/api/v1/dynamic-price', (req, res) => {
     const status = result.error === 'product_not_found' ? 404 : 409;
     return res.status(status).json(result);
   }
+  emitEvent(req, 'pricing.dynamic.recommended', {
+    sku: parsed.data.sku,
+    recommendedPrice: (result as { recommendedPrice?: number }).recommendedPrice,
+    currency: parsed.data.currency,
+  });
   res.json({ success: true, recommendation: result });
 });
 
@@ -231,5 +249,8 @@ app.listen(PORT, () => {
   console.log(`  POST http://localhost:${PORT}/api/v1/products`);
   console.log(`  POST http://localhost:${PORT}/api/v1/compare`);
 });
+
+process.on('SIGTERM', () => { shutdownEvents().catch(() => undefined); });
+process.on('SIGINT', () => { shutdownEvents().catch(() => undefined); });
 
 export default app;

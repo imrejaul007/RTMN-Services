@@ -8,6 +8,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { z } from "zod";
 import supplierService from "./services/supplier.service.js";
+import { emit as emitEvent, shutdown as shutdownEvents } from "./services/events.js";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4280;
@@ -187,6 +188,12 @@ app.post(
   asyncRoute(async (req, res) => {
     const body = RegisterSupplierSchema.parse(req.body);
     const s = supplierService.registerSupplier(body as any);
+    emitEvent(req, 'supplier.registered', {
+      supplierId: (s as { id?: string }).id,
+      name: (s as { name?: string }).name,
+      category: (s as { category?: string }).category,
+      trustScore: (s as { trustScore?: number }).trustScore ?? null,
+    });
     res.status(201).json(apiResponse(true, s));
   }),
 );
@@ -209,5 +216,8 @@ try {
 } catch {
   /* shutdown hook is best-effort */
 }
+
+process.on('SIGTERM', () => { shutdownEvents().catch(() => undefined); });
+process.on('SIGINT', () => { shutdownEvents().catch(() => undefined); });
 
 export default app;

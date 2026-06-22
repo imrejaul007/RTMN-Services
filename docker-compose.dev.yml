@@ -20,7 +20,28 @@
 
 version: '3.8'
 
+# ---------------------------------------------------------------------------
+# Redis (ADR-0009 Phase 2: Event Bus backend)
+# Required by all SUTAR services for state-change event publishing via
+# @rtmn/shared/event-bus. Local dev uses redis:7-alpine, no auth, AOF off.
+# In docker, REDIS_URL is redis://redis:6379 for services on this network.
+# ---------------------------------------------------------------------------
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: rtmn-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+    restart: unless-stopped
+    networks:
+      - rtmn-dev
+
   # ---------------------------------------------------------------------------
   # RTMN Unified Hub — the single front door for 50+ services
   # (companies/RABTUL-Technologies/REZ-ecosystem-connector)
@@ -45,7 +66,9 @@ services:
       - NEXHA_WAREHOUSE_NETWORK_URL=http://nexha-warehouse-network:4288
       - NEXHA_TRADE_FINANCE_URL=http://nexha-trade-finance-network:4287
       - NEXHA_PRICING_NETWORK_URL=http://nexha-pricing-network:4286
+      - REDIS_URL=redis://redis:6379
     depends_on:
+      - redis
       - decision-engine
       - trust-engine
       - economy-os
@@ -81,8 +104,11 @@ services:
       - NODE_ENV=production
       - PORT=4290
       - DB_PATH=/data/decision.sqlite
+      - REDIS_URL=redis://redis:6379
     volumes:
       - decision-data:/data
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4290/health"]
       interval: 15s
@@ -103,12 +129,14 @@ services:
       - NODE_ENV=production
       - PORT=4291
       - SADA_URL=http://sada-os:4190
+      - REDIS_URL=redis://redis:6379
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4291/health"]
       interval: 15s
       timeout: 5s
       retries: 6
     depends_on:
+      - redis
       - sada-os
     restart: unless-stopped
     networks:
@@ -124,6 +152,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4251
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4251/health"]
       interval: 15s
@@ -147,6 +178,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4190
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4190/health"]
       interval: 15s
@@ -171,6 +205,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4280
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4280/health"]
       interval: 15s
@@ -190,6 +227,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4285
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4285/health"]
       interval: 15s
@@ -209,6 +249,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4288
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4288/health"]
       interval: 15s
@@ -228,6 +271,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4287
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4287/health"]
       interval: 15s
@@ -247,6 +293,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4286
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4286/health"]
       interval: 15s
@@ -272,8 +321,11 @@ services:
       - NODE_ENV=production
       - PORT=4254
       - DATA_DIR=/data
+      - REDIS_URL=redis://redis:6379
     volumes:
       - policy-os-data:/data
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4254/health"]
       interval: 15s
@@ -293,8 +345,11 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4743
+      - REDIS_URL=redis://redis:6379
     volumes:
       - skill-os-data:/data
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:4743/health"]
       interval: 15s
