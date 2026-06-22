@@ -1,6 +1,6 @@
 # Division 4 — AI Agent Cloud
 
-> **Status:** 🟢 **100% of spec built and running** as of June 20, 2026 — All 5 Agent Cloud services live on parent RTMN at [../../../../services/](../../../../services/): **Agent Security (4290)**, **Agent SDK (4291)**, **Agent Builder (4292)**, **Agent Studio (4293)**, **Multi-Agent Runtime (4294)**. Plus full ACN (14 services, ports 4800-4851). Wired into ai-intelligence (4881) and unified-os-hub (4399).
+> **Status:** 🟢 **100% of spec built and running** as of June 22, 2026 — All 5 Agent Cloud services live in HOJAI-AI at [../platform/intelligence/](../platform/intelligence/): **Agent Security (4186)**, **Agent SDK (4187)**, **Agent Builder (4188)**, **Agent Studio (4189)**, **Multi-Agent Runtime (4190)**. Plus full ACN (14 services, ports 4800-4851, at the RTMN root under `services/`). Wired into ai-intelligence (4881) and unified-os-hub (4399). Per-service CLAUDE.md docs now in place for all 5 platform/intelligence services.
 > **Owner:** HOJAI AI Agent Platform team
 
 ---
@@ -57,12 +57,12 @@ Agent Cloud
 
 ## 4. What's NOT Built
 
-| Missing | Why It Matters | Effort |
-|---|---|---|
-| **Agent Builder** (visual / declarative builder) | UX is critical for adoption | 8-12 weeks |
-| **Agent Studio** (debugger, profiler, evaluator) | Hard to debug agent loops without this | 4-6 weeks |
-| **Agent SDK** (TS/Python SDKs) | Currently each consumer rolls their own | 2-4 weeks |
-| **Agent Security** (capability tokens, sandboxed exec) | Critical before production deployment | 6-8 weeks |
+| Missing | Why It Matters | Effort | Status (Jun 22 2026) |
+|---|---|---|---|
+| **Agent Builder** (visual / declarative builder) | UX is critical for adoption | 8-12 weeks | ✅ **Built** — [platform/intelligence/agent-builder/](../platform/intelligence/agent-builder/) (4188) |
+| **Agent Studio** (debugger, profiler, evaluator) | Hard to debug agent loops without this | 4-6 weeks | ✅ **Built** — [platform/intelligence/agent-studio/](../platform/intelligence/agent-studio/) (4189) |
+| **Agent SDK** (TS/Python SDKs) | Currently each consumer rolls their own | 2-4 weeks | ✅ **Built** — [platform/intelligence/agent-sdk/](../platform/intelligence/agent-sdk/) (4187) |
+| **Agent Security** (capability tokens, sandboxed exec) | Critical before production deployment | 6-8 weeks | ✅ **Built** — [platform/intelligence/agent-security/](../platform/intelligence/agent-security/) (4186) |
 
 ## 5. Gap Score
 

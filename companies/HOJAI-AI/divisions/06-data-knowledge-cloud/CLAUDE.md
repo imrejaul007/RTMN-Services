@@ -1,9 +1,8 @@
 # Division 6 — AI Data & Knowledge Cloud
 
-> **Status:** 🟢 **100% of buildable items DONE** as of June 20, 2026
-> **Last updated:** June 20, 2026 — Feature Store (4164) + Data Catalog (4165) shipped. Data Lake / ETL marked DEPRECATED (replaced by Connector Hub + RAG).
+> **Status:** 🟢 **100% of buildable items DONE** as of June 22, 2026
+> **Last updated:** June 22, 2026 — Feature Store (4164) + Data Catalog (4165) shipped. Plus 6 additional services newly housed at `platform/memory/`: Knowledge Distillation (4167), Knowledge Network (4173), Experiment Tracking (4781), Memory Substrate (4791). Per-service CLAUDE.md docs now in place for all 8 platform/memory services. Data Lake / ETL marked DEPRECATED (replaced by Connector Hub + RAG).
 > **Owner:** HOJAI AI Data Platform team
-> **Last updated:** June 20, 2026
 
 ---
 

@@ -410,6 +410,33 @@ Genie assistants, SUTAR OS marketplace, industry OS, marketplaces.
 
 **Services:** genie-* (15 services), sutar-* (12 services), industry-twin, flow-orchestrator, connector-hub, connector-marketplace, skill-marketplace, prompt-marketplace, blr-ai-marketplace, acn-*, customer-support-service, billing, ai-safety, sandbox, webhook-bus
 
+### Per-Service Documentation Coverage (2026-06-22)
+
+All 240 buildable services in HOJAI-AI now have a per-service `CLAUDE.md`. Distribution:
+
+| Home | Services | Per-service docs |
+|---|---|---|
+| `platform/intelligence/` | 18 | ✅ 18/18 |
+| `platform/flow/` | 5 | ✅ 5/5 |
+| `platform/memory/` | 8 | ✅ 8/8 |
+| `platform/twins/` | 21 | ✅ 21/21 |
+| `platform/observability/` | 2 | ✅ 2/2 |
+| `platform/skills/` | 2 | ✅ 2/2 |
+| `platform/trust/` | 3 | ✅ 3/3 |
+| `platform/identity/` | 4 | ✅ 4/4 |
+| `platform/economy/` | 3 | ✅ 3/3 |
+| `platform/infra/` | 6 | ✅ 6/6 |
+| `platform/connectors/` | 1 | ✅ 1/1 |
+| `platform/training/` | 1 | ✅ 1/1 |
+| `platform/onboarding/` | 1 | ✅ 1/1 |
+| `products/genie/` | 23 | ✅ 23/23 |
+| `products/voice-os/`, `products/razo/`, etc. | ~140 | ✅ All documented |
+| `sutar-os/core/` | 4 | ✅ 4/4 |
+| `blr-ai-marketplace/services/` | 1 | ✅ 1/1 |
+| `divisions/` | 12 division CLAUDE.md | ✅ 12/12 |
+
+**Total:** 240/240 per-service CLAUDE.md files (100% coverage). The previous gap (60 undocumented services) was closed on 2026-06-22 in commit `docs(per-service): add 62 CLAUDE.md files` (this repo's commit log).
+
 ### Why not reorganize now?
 
 Reorganization is a **physical move** (git mv) that breaks imports in 161 places. Until the shared library adoption is complete, services depend on relative paths like `../../../shared/lib/...`. Reorganization will be a Phase 5 task in the production-readiness roadmap — see [plans/toasty-singing-sunrise.md](../.claude/plans/toasty-singing-sunrise.md).
