@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { requireAuth } from '@rtmn/shared/auth';
+import { requireAuth, createTenantContext } from '@rtmn/shared/auth';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -21,6 +21,7 @@ import { escrowService } from './services/escrow.service.js';
 import { leaderboardService } from './services/leaderboard.service.js';
 import { redemptionService } from './services/redemption.service.js';
 import { integrationService } from './services/integration.service.js';
+import { tkey, getCompanyId } from './services/tenantKey.js';
 
 // Import types
 import type { KarmaAction, TransactionType, TransactionStatus, BillingStatus, BillingCycle, EarningSource } from './types/index.js';
@@ -46,6 +47,14 @@ app.use((req, _res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
+
+// ADR-0009 Phase 1: tenant context middleware. Public paths under /api/v1/
+// (/info, /integration/health) stay open; everything else requires a
+// tenant (req.tenant.companyId).
+const tenantMiddleware = createTenantContext({
+  publicPathPatterns: [/^\/info$/, /^\/integration\/health$/],
+});
+app.use('/api/v1/', tenantMiddleware);
 
 // ============================================
 // Helper Functions
@@ -108,7 +117,7 @@ app.get('/api/v1/info', (_req, res) => {
 app.get('/api/v1/karma/:entityId', async (req, res) => {
   try {
     const { entityId } = req.params;
-    const balance = await karmaService.getKarmaBalance(entityId);
+    const balance = await karmaService.getKarmaBalance(tkey(req, entityId));
 
     if (!balance) {
       return res.status(404).json(apiResponse(false, undefined, 'Karma record not found'));
@@ -127,7 +136,7 @@ app.get('/api/v1/karma/:entityId', async (req, res) => {
 app.get('/api/v1/karma/:entityId/tier', async (req, res) => {
   try {
     const { entityId } = req.params;
-    const tierInfo = await karmaService.getTierInfo(entityId);
+    const tierInfo = await karmaService.getTierInfo(tkey(req, entityId));
 
     if (!tierInfo) {
       return res.status(404).json(apiResponse(false, undefined, 'Karma record not found'));
@@ -177,7 +186,7 @@ app.post('/api/v1/karma/earn',requireAuth,  async (req, res) => {
     }
 
     const history = await karmaService.earnKarma({
-      entityId,
+      entityId: tkey(req, entityId),
       entityType,
       action,
       points,
@@ -205,7 +214,7 @@ app.post('/api/v1/karma/spend',requireAuth,  async (req, res) => {
     }
 
     const history = await karmaService.spendKarma({
-      entityId,
+      entityId: tkey(req, entityId),
       points,
       reason,
       referenceId,
@@ -227,7 +236,7 @@ app.get('/api/v1/karma/:entityId/history', async (req, res) => {
     const { entityId } = req.params;
     const { page, limit, action, startDate, endDate } = req.query;
 
-    const result = await karmaService.getKarmaHistory(entityId, {
+    const result = await karmaService.getKarmaHistory(tkey(req, entityId), {
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
       action: action as KarmaAction,
@@ -248,7 +257,7 @@ app.get('/api/v1/karma/:entityId/history', async (req, res) => {
 app.get('/api/v1/karma/:entityId/progress', async (req, res) => {
   try {
     const { entityId } = req.params;
-    const balance = await karmaService.getKarmaBalance(entityId);
+    const balance = await karmaService.getKarmaBalance(tkey(req, entityId));
 
     if (!balance) {
       return res.status(404).json(apiResponse(false, undefined, 'Karma record not found'));
@@ -299,7 +308,7 @@ app.post('/api/v1/transactions',requireAuth,  async (req, res) => {
 app.get('/api/v1/transactions/:transactionId', async (req, res) => {
   try {
     const { transactionId } = req.params;
-    const transaction = await transactionService.getTransaction(transactionId);
+    const transaction = await transactionService.getTransaction(tkey(req, transactionId));
 
     if (!transaction) {
       return res.status(404).json(apiResponse(false, undefined, 'Transaction not found'));
@@ -323,7 +332,7 @@ app.get('/api/v1/transactions/entity/:entityId', async (req, res) => {
       startDate, endDate, minAmount, maxAmount, sortBy, sortOrder
     } = req.query;
 
-    const result = await transactionService.getTransactions(entityId, {
+    const result = await transactionService.getTransactions(tkey(req, entityId), {
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
       type: type as TransactionType,
@@ -358,7 +367,7 @@ app.patch('/api/v1/transactions/:transactionId/status',requireAuth,  async (req,
     }
 
     const transaction = await transactionService.updateTransactionStatus(
-      transactionId,
+      tkey(req, transactionId),
       status,
       failureReason
     );
@@ -382,7 +391,7 @@ app.post('/api/v1/transactions/:transactionId/reverse',requireAuth,  async (req,
     const { transactionId } = req.params;
     const { reason } = req.body;
 
-    const transaction = await transactionService.reverseTransaction(transactionId, reason || 'Manual reversal');
+    const transaction = await transactionService.reverseTransaction(tkey(req, transactionId), reason || 'Manual reversal');
 
     if (!transaction) {
       return res.status(404).json(apiResponse(false, undefined, 'Transaction not found'));
@@ -408,14 +417,14 @@ app.get('/api/v1/balances/:entityId', async (req, res) => {
     const { currency } = req.query;
 
     if (currency) {
-      const balance = await balanceService.getBalance(entityId, currency as string);
+      const balance = await balanceService.getBalance(tkey(req, entityId), currency as string);
       if (!balance) {
         return res.status(404).json(apiResponse(false, undefined, 'Balance not found'));
       }
       return res.json(apiResponse(true, { balance }));
     }
 
-    const result = await balanceService.getTotalBalanceInBaseCurrency(entityId);
+    const result = await balanceService.getTotalBalanceInBaseCurrency(tkey(req, entityId));
     res.json(apiResponse(true, result));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -436,7 +445,7 @@ app.post('/api/v1/balances/:entityId/deposit',requireAuth,  async (req, res) => 
     }
 
     const balance = await balanceService.addFunds(
-      entityId,
+      tkey(req, entityId),
       entityType,
       amount,
       currency || 'USD'
@@ -462,7 +471,7 @@ app.post('/api/v1/balances/:entityId/withdraw',requireAuth,  async (req, res) =>
     }
 
     const balance = await balanceService.deductFunds(
-      entityId,
+      tkey(req, entityId),
       amount,
       currency || 'USD'
     );
@@ -505,7 +514,7 @@ app.post('/api/v1/billing/:entityId/invoices',requireAuth,  async (req, res) => 
     }
 
     const invoice = await billingService.createInvoice({
-      entityId,
+      entityId: tkey(req, entityId),
       entityType,
       cycle,
       currency,
@@ -532,7 +541,7 @@ app.get('/api/v1/billing/:entityId/invoices', async (req, res) => {
       startDate, endDate, sortBy, sortOrder
     } = req.query;
 
-    const result = await billingService.getInvoices(entityId, {
+    const result = await billingService.getInvoices(tkey(req, entityId), {
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
       status: status as BillingStatus,
@@ -557,7 +566,7 @@ app.get('/api/v1/billing/:entityId/invoices', async (req, res) => {
 app.get('/api/v1/billing/invoices/:billingId', async (req, res) => {
   try {
     const { billingId } = req.params;
-    const invoice = await billingService.getInvoice(billingId);
+    const invoice = await billingService.getInvoice(tkey(req, billingId));
 
     if (!invoice) {
       return res.status(404).json(apiResponse(false, undefined, 'Invoice not found'));
@@ -582,7 +591,7 @@ app.patch('/api/v1/billing/invoices/:billingId/status',requireAuth,  async (req,
       return res.status(400).json(apiResponse(false, undefined, 'Status is required'));
     }
 
-    const invoice = await billingService.updateInvoiceStatus(billingId, status);
+    const invoice = await billingService.updateInvoiceStatus(tkey(req, billingId), status);
 
     if (!invoice) {
       return res.status(404).json(apiResponse(false, undefined, 'Invoice not found'));
@@ -603,7 +612,7 @@ app.post('/api/v1/billing/invoices/:billingId/pay',requireAuth,  async (req, res
     const { billingId } = req.params;
     const { amount, paymentMethod, transactionId } = req.body;
 
-    const invoice = await billingService.addPayment(billingId, amount, paymentMethod, transactionId);
+    const invoice = await billingService.addPayment(tkey(req, billingId), amount, paymentMethod, transactionId);
 
     if (!invoice) {
       return res.status(404).json(apiResponse(false, undefined, 'Invoice not found'));
@@ -641,7 +650,7 @@ app.get('/api/v1/earnings/entity/:entityId', async (req, res) => {
     const { entityId } = req.params;
     const { page, limit, source, status, startDate, endDate, sortBy, sortOrder } = req.query;
 
-    const result = await earningsService.getEarnings(entityId, {
+    const result = await earningsService.getEarnings(tkey(req, entityId), {
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
       source: source as EarningSource,
@@ -707,7 +716,7 @@ app.post('/api/v1/earnings/calculate',requireAuth,  async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Missing required fields: entityId, periodStart, periodEnd'));
     }
 
-    const summary = await earningsService.calculateEarnings(entityId, new Date(periodStart), new Date(periodEnd), {
+    const summary = await earningsService.calculateEarnings(tkey(req, entityId), new Date(periodStart), new Date(periodEnd), {
       source,
       applyTrustMultiplier,
       trustScore
@@ -739,8 +748,8 @@ app.post('/api/v1/escrow/create',requireAuth,  async (req, res) => {
     }
 
     const escrow = await escrowService.createEscrow({
-      senderId,
-      recipientId,
+      senderId: tkey(req, senderId),
+      recipientId: tkey(req, recipientId),
       amount,
       currency,
       title,
@@ -770,7 +779,7 @@ app.post('/api/v1/escrow/:escrowId/fund',requireAuth,  async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Funder ID is required'));
     }
 
-    const escrow = await escrowService.fundEscrow(escrowId, funderId);
+    const escrow = await escrowService.fundEscrow(tkey(req, escrowId), tkey(req, funderId));
     res.json(apiResponse(true, { escrow }));
   } catch (error) {
     res.status(400).json(apiResponse(false, undefined, String(error)));
@@ -789,7 +798,7 @@ app.post('/api/v1/escrow/release',requireAuth,  async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Escrow ID and releaser ID are required'));
     }
 
-    const escrow = await escrowService.releaseEscrow(escrowId, releaserId);
+    const escrow = await escrowService.releaseEscrow(tkey(req, escrowId), tkey(req, releaserId));
     res.json(apiResponse(true, { escrow }));
   } catch (error) {
     res.status(400).json(apiResponse(false, undefined, String(error)));
@@ -803,7 +812,7 @@ app.post('/api/v1/escrow/release',requireAuth,  async (req, res) => {
 app.get('/api/v1/escrow/:escrowId', async (req, res) => {
   try {
     const { escrowId } = req.params;
-    const escrow = await escrowService.getEscrow(escrowId);
+    const escrow = await escrowService.getEscrow(tkey(req, escrowId));
 
     if (!escrow) {
       return res.status(404).json(apiResponse(false, undefined, 'Escrow not found'));
@@ -824,7 +833,7 @@ app.get('/api/v1/escrow/entity/:entityId', async (req, res) => {
     const { entityId } = req.params;
     const { page, limit, role, status, startDate, endDate } = req.query;
 
-    const result = await escrowService.getEscrows(entityId, {
+    const result = await escrowService.getEscrows(tkey(req, entityId), {
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
       role: role as 'sender' | 'recipient' | 'both',
@@ -852,7 +861,7 @@ app.post('/api/v1/escrow/:escrowId/cancel',requireAuth,  async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Canceller ID and reason are required'));
     }
 
-    const escrow = await escrowService.cancelEscrow(escrowId, cancellerId, reason);
+    const escrow = await escrowService.cancelEscrow(tkey(req, escrowId), tkey(req, cancellerId), reason);
     res.json(apiResponse(true, { escrow }));
   } catch (error) {
     res.status(400).json(apiResponse(false, undefined, String(error)));
@@ -902,7 +911,7 @@ app.post('/api/v1/payments/refund',requireAuth,  async (req, res) => {
 app.get('/api/v1/payments/:paymentId', async (req, res) => {
   try {
     const { paymentId } = req.params;
-    const payment = await paymentService.getPayment(paymentId);
+    const payment = await paymentService.getPayment(tkey(req, paymentId));
 
     if (!payment) {
       return res.status(404).json(apiResponse(false, undefined, 'Payment not found'));
@@ -923,7 +932,7 @@ app.get('/api/v1/payments/entity/:entityId', async (req, res) => {
     const { entityId } = req.params;
     const { page, limit, status, methodType, startDate, endDate } = req.query;
 
-    const result = await paymentService.getPayments(entityId, {
+    const result = await paymentService.getPayments(tkey(req, entityId), {
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
       status: status as 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'cancelled',
@@ -958,7 +967,7 @@ app.post('/api/v1/payments/methods',requireAuth,  async (req, res) => {
 app.get('/api/v1/payments/methods/:entityId', async (req, res) => {
   try {
     const { entityId } = req.params;
-    const methods = await paymentService.getPaymentMethods(entityId);
+    const methods = await paymentService.getPaymentMethods(tkey(req, entityId));
     res.json(apiResponse(true, { methods }));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -981,7 +990,7 @@ app.get('/api/v1/redemption/options', async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Entity ID is required'));
     }
 
-    const options = await redemptionService.getAvailableOptions(entityId as string);
+    const options = await redemptionService.getAvailableOptions(tkey(req, entityId as string));
     res.json(apiResponse(true, { options }));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -1000,7 +1009,7 @@ app.post('/api/v1/redemption/redeem',requireAuth,  async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Entity ID and option ID are required'));
     }
 
-    const redemption = await redemptionService.redeemPoints(entityId, optionId, quantity);
+    const redemption = await redemptionService.redeemPoints(tkey(req, entityId), optionId, quantity);
     res.json(apiResponse(true, { redemption }));
   } catch (error) {
     res.status(400).json(apiResponse(false, undefined, String(error)));
@@ -1016,7 +1025,7 @@ app.get('/api/v1/redemption/:entityId', async (req, res) => {
     const { entityId } = req.params;
     const { page, limit, status, type, startDate, endDate } = req.query;
 
-    const result = await redemptionService.getRedemptions(entityId, {
+    const result = await redemptionService.getRedemptions(tkey(req, entityId), {
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
       status: status as 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled',
@@ -1136,14 +1145,14 @@ app.get('/api/v1/achievements/:entityId', async (req, res) => {
     const { entityId } = req.params;
     const { type, limit, sortBy, sortOrder } = req.query;
 
-    const achievements = await leaderboardService.getAchievements(entityId, {
+    const achievements = await leaderboardService.getAchievements(tkey(req, entityId), {
       type: type as 'milestone' | 'streak' | 'rank' | 'special',
       limit: limit ? parseInt(limit as string) : undefined,
       sortBy: sortBy as 'earnedAt' | 'points',
       sortOrder: sortOrder as 'asc' | 'desc'
     });
 
-    const totalPoints = await leaderboardService.getTotalAchievementPoints(entityId);
+    const totalPoints = await leaderboardService.getTotalAchievementPoints(tkey(req, entityId));
 
     res.json(apiResponse(true, { achievements, totalPoints }));
   } catch (error) {
@@ -1162,7 +1171,7 @@ app.get('/api/v1/achievements/:entityId', async (req, res) => {
 app.get('/api/v1/integration/trust/:entityId', async (req, res) => {
   try {
     const { entityId } = req.params;
-    const trustScore = await integrationService.getTrustScore(entityId);
+    const trustScore = await integrationService.getTrustScore(tkey(req, entityId));
     res.json(apiResponse(true, { trustScore }));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -1176,7 +1185,7 @@ app.get('/api/v1/integration/trust/:entityId', async (req, res) => {
 app.get('/api/v1/integration/profile/:entityId', async (req, res) => {
   try {
     const { entityId } = req.params;
-    const profile = await integrationService.getEntityProfile(entityId);
+    const profile = await integrationService.getEntityProfile(tkey(req, entityId));
     res.json(apiResponse(true, { profile }));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -1195,7 +1204,7 @@ app.post('/api/v1/integration/payment/process',requireAuth,  async (req, res) =>
       return res.status(400).json(apiResponse(false, undefined, 'Entity ID and amount are required'));
     }
 
-    const result = await integrationService.processPaymentWithIntegration(entityId, amount, currency, referenceId);
+    const result = await integrationService.processPaymentWithIntegration(tkey(req, entityId), amount, currency, referenceId);
     res.json(apiResponse(true, result));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -1214,7 +1223,7 @@ app.post('/api/v1/integration/validate',requireAuth,  async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Entity ID and amount are required'));
     }
 
-    const result = await integrationService.validateTransaction(entityId, amount);
+    const result = await integrationService.validateTransaction(tkey(req, entityId), amount);
     res.json(apiResponse(true, result));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -1241,7 +1250,7 @@ app.get('/api/v1/integration/health', async (_req, res) => {
 app.get('/api/v1/integration/dashboard/:entityId', async (req, res) => {
   try {
     const { entityId } = req.params;
-    const summary = await integrationService.getDashboardSummary(entityId);
+    const summary = await integrationService.getDashboardSummary(tkey(req, entityId));
     res.json(apiResponse(true, { summary }));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -1260,7 +1269,7 @@ app.post('/api/v1/integration/karma/award',requireAuth,  async (req, res) => {
       return res.status(400).json(apiResponse(false, undefined, 'Contract ID, entity ID, and action are required'));
     }
 
-    const result = await integrationService.awardContractKarma(contractId, entityId, action, reason || 'Contract milestone');
+    const result = await integrationService.awardContractKarma(contractId, tkey(req, entityId), action, reason || 'Contract milestone');
     res.json(apiResponse(true, result));
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
@@ -1322,7 +1331,7 @@ app.get('/api/v1/stats/transactions/:entityId', async (req, res) => {
     }
 
     const stats = await transactionService.getTransactionStatistics(
-      entityId,
+      tkey(req, entityId),
       new Date(startDate as string),
       new Date(endDate as string)
     );
@@ -1347,7 +1356,7 @@ app.get('/api/v1/stats/earnings/:entityId', async (req, res) => {
     }
 
     const stats = await earningsService.getEarningsStatistics(
-      entityId,
+      tkey(req, entityId),
       new Date(startDate as string),
       new Date(endDate as string)
     );
@@ -1356,6 +1365,39 @@ app.get('/api/v1/stats/earnings/:entityId', async (req, res) => {
   } catch (error) {
     res.status(500).json(apiResponse(false, undefined, String(error)));
   }
+});
+
+// ============================================
+// Tenant Admin Endpoints (ADR-0009 Phase 1)
+// ============================================
+
+/**
+ * GET /api/v1/admin/tenants
+ * List tenants that have data in this service. Each entry includes the
+ * resolved companyId, the source ('jwt' | 'header' | 'default'), and
+ * the current key prefix used to partition the in-memory stores.
+ */
+app.get('/api/v1/admin/tenants', (req, res) => {
+  const tenant = req.tenant;
+  res.json(apiResponse(true, {
+    service: 'sutar-economy-os',
+    version: '1.0.0',
+    strategy: 'in-memory-key-prefix',
+    note: 'Economy OS uses tkey(req, id) to prefix every entityId/accountId/transactionId before passing to services. Stores stay in their existing module-level Maps. Routes that look up via raw id are now isolated per tenant. Existing unit tests that call services directly (without req) continue to use the default bucket.',
+    current: tenant ? { companyId: tenant.companyId, source: tenant.source } : null,
+    defaults: { tenant: getCompanyId(req), prefix: `${getCompanyId(req)}::` },
+  }));
+});
+
+/**
+ * GET /api/v1/admin/tenant/whoami
+ * Return the current tenant context for diagnostic purposes.
+ */
+app.get('/api/v1/admin/tenant/whoami', (req, res) => {
+  res.json(apiResponse(true, {
+    tenant: req.tenant || null,
+    companyId: getCompanyId(req),
+  }));
 });
 
 // ============================================
