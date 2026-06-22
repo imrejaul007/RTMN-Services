@@ -16,11 +16,12 @@ const SUTAR_SERVICES: Record<string, string> = {
   'sutar-agent-teaming':    process.env.SUTAR_AGENT_TEAMING_URL     || 'http://localhost:4853',
   'sutar-agent-network':    process.env.SUTAR_AGENT_NETWORK_URL     || 'http://localhost:4155',
   'sutar-agent-reputation': process.env.SUTAR_AGENT_REPUTATION_URL  || 'http://localhost:4820',
-  'sutar-decision-engine':  process.env.SUTAR_DECISION_URL          || 'http://localhost:4240',
+  'sutar-decision-engine':  process.env.SUTAR_DECISION_URL          || 'http://localhost:4290',
   'sutar-contract-os':      process.env.SUTAR_CONTRACT_URL          || 'http://localhost:4190',
   'sutar-negotiation':      process.env.SUTAR_NEGOTIATION_URL       || 'http://localhost:4191',
   'sutar-wallet-service':   process.env.SUTAR_WALLET_URL            || 'http://localhost:4840',
   'sutar-economy-os':       process.env.SUTAR_ECONOMY_URL           || 'http://localhost:4251',
+  'sutar-trust-engine':     process.env.SUTAR_TRUST_ENGINE_URL      || 'http://localhost:4291',
   'sutar-trust-network':    process.env.SUTAR_TRUST_NETWORK_URL     || 'http://localhost:4252',
   'sutar-dispute':          process.env.SUTAR_DISPUTE_URL           || 'http://localhost:4847',
   'sutar-marketplace':      process.env.SUTAR_MARKETPLACE_URL       || 'http://localhost:4250',
@@ -57,6 +58,61 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'healthy', service: 'REZ-ecosystem-connector', port: PORT });
 });
 
+// ---------------------------------------------------------------------------
+// proxyToUpstream — generic HTTP proxy used by both /api/sutar/:service and
+// /api/nexha/:service. Crucially, after express.json() runs the body is
+// already parsed into req.body — we cannot use req.pipe() for those requests.
+// Instead we re-serialise from req.body when present, falling back to a raw
+// stream pipe for unparsed bodies (Content-Type other than application/json).
+// ---------------------------------------------------------------------------
+function proxyToUpstream(req: Request, res: Response, target: string, label: string) {
+  const url = new URL(target);
+  const headers: http.OutgoingHttpHeaders = { ...req.headers, host: url.host };
+  const hasBody = !['GET', 'HEAD'].includes(req.method);
+
+  const proxyReq = http.request(
+    {
+      hostname: url.hostname,
+      port: url.port || (url.protocol === 'https:' ? 443 : 80),
+      path: (url.pathname + url.search) || '/',
+      method: req.method,
+      headers,
+    },
+    proxyRes => {
+      res.status(proxyRes.statusCode || 502);
+      for (const [k, v] of Object.entries(proxyRes.headers)) {
+        if (v !== undefined) res.setHeader(k, v as string | string[]);
+      }
+      proxyRes.pipe(res);
+    }
+  );
+
+  proxyReq.on('error', err => {
+    logger.error(`${label} proxy error (→ ${target}): ${err.message}`);
+    if (!res.headersSent) {
+      res.status(502).json({
+        error: 'Upstream unavailable',
+        upstream: target,
+        details: err.message,
+      });
+    }
+  });
+
+  if (hasBody) {
+    if (req.body !== undefined && Object.keys(req.body).length > 0) {
+      // Body was parsed by express.json() — re-serialise.
+      const body = JSON.stringify(req.body);
+      proxyReq.setHeader('content-length', Buffer.byteLength(body).toString());
+      proxyReq.end(body);
+    } else {
+      // No parsed body — forward the raw stream (e.g. multipart, octet-stream).
+      req.pipe(proxyReq);
+    }
+  } else {
+    proxyReq.end();
+  }
+}
+
 // SUTAR OS top-level routing — exposes the autonomous-economic layer at the
 // RTMN Hub. Two paths:
 //   1) /api/sutar/<service>/<path>  — direct proxy to a specific SUTAR service
@@ -85,8 +141,8 @@ app.get('/api/sutar/capabilities', (_req: Request, res: Response) => {
 
 app.use('/api/sutar/:service', (req: Request, res: Response) => {
   const { service } = req.params;
-  const target = SUTAR_SERVICES[service as string];
-  if (!target) {
+  const base = SUTAR_SERVICES[service as string];
+  if (!base) {
     return res.status(404).json({
       error: `Unknown SUTAR service: ${service}`,
       available: Object.keys(SUTAR_SERVICES)
@@ -96,43 +152,7 @@ app.use('/api/sutar/:service', (req: Request, res: Response) => {
   // Reconstruct the upstream URL: strip /api/sutar/<service> and forward the
   // rest verbatim (path + query string).
   const upstreamPath = req.originalUrl.replace(`/api/sutar/${service}`, '') || '/';
-  const url = new URL(target + upstreamPath);
-
-  // Build headers — pass through but strip Host so the upstream sees its own.
-  const headers: http.OutgoingHttpHeaders = { ...req.headers, host: url.host };
-  const hasBody = !['GET', 'HEAD'].includes(req.method);
-
-  const proxyReq = http.request(
-    {
-      hostname: url.hostname,
-      port: url.port || (url.protocol === 'https:' ? 443 : 80),
-      path: url.pathname + url.search,
-      method: req.method,
-      headers
-    },
-    proxyRes => {
-      res.status(proxyRes.statusCode || 502);
-      for (const [k, v] of Object.entries(proxyRes.headers)) {
-        if (v !== undefined) res.setHeader(k, v as string | string[]);
-      }
-      proxyRes.pipe(res);
-    }
-  );
-
-  proxyReq.on('error', err => {
-    logger.error(`SUTAR proxy error (${service} → ${target}): ${err.message}`);
-    if (!res.headersSent) {
-      res.status(502).json({
-        error: 'Upstream unavailable',
-        service: service,
-        upstream: target,
-        details: err.message
-      });
-    }
-  });
-
-  if (hasBody) req.pipe(proxyReq);
-  else proxyReq.end();
+  proxyToUpstream(req, res, base + upstreamPath, `SUTAR ${service}`);
 });
 
 app.use('/api', connectorRoutes);
@@ -157,8 +177,8 @@ app.get('/api/nexha/capabilities', (_req: Request, res: Response) => {
 
 app.use('/api/nexha/:service', (req: Request, res: Response) => {
   const { service } = req.params;
-  const target = NEXHA_SERVICES[service as string];
-  if (!target) {
+  const base = NEXHA_SERVICES[service as string];
+  if (!base) {
     return res.status(404).json({
       error: `Unknown Nexha service: ${service}`,
       available: Object.keys(NEXHA_SERVICES)
@@ -166,42 +186,7 @@ app.use('/api/nexha/:service', (req: Request, res: Response) => {
   }
 
   const upstreamPath = req.originalUrl.replace(`/api/nexha/${service}`, '') || '/';
-  const url = new URL(target + upstreamPath);
-
-  const headers: http.OutgoingHttpHeaders = { ...req.headers, host: url.host };
-  const hasBody = !['GET', 'HEAD'].includes(req.method);
-
-  const proxyReq = http.request(
-    {
-      hostname: url.hostname,
-      port: url.port || (url.protocol === 'https:' ? 443 : 80),
-      path: url.pathname + url.search,
-      method: req.method,
-      headers
-    },
-    proxyRes => {
-      res.status(proxyRes.statusCode || 502);
-      for (const [k, v] of Object.entries(proxyRes.headers)) {
-        if (v !== undefined) res.setHeader(k, v as string | string[]);
-      }
-      proxyRes.pipe(res);
-    }
-  );
-
-  proxyReq.on('error', err => {
-    logger.error(`Nexha proxy error (${service} → ${target}): ${err.message}`);
-    if (!res.headersSent) {
-      res.status(502).json({
-        error: 'Upstream unavailable',
-        service: service,
-        upstream: target,
-        details: err.message
-      });
-    }
-  });
-
-  if (hasBody) req.pipe(proxyReq);
-  else proxyReq.end();
+  proxyToUpstream(req, res, base + upstreamPath, `Nexha ${service}`);
 });
 
 app.use((err: Error, req: Request, res: Response, _next: unknown) => {
