@@ -8,6 +8,12 @@ BASE="http://localhost:${PORT}"
 PASS=0
 FAIL=0
 
+# Phase 2 (ADR-0009): the service uses @rtmn/shared/auth `requireAuth` on
+# all write endpoints. Mint a base64 token via the same `createToken` helper
+# so the test is self-contained and doesn't need a live CorpID.
+SMOKE_TOKEN="$(node -e 'const t=Buffer.from(JSON.stringify({sub:"smoke-test",role:"owner",iat:Date.now(),exp:Date.now()+3600000})).toString("base64");console.log(t)')"
+AUTH_HDR="Authorization: Bearer ${SMOKE_TOKEN}"
+
 check() {
   local name="$1"
   local cmd="$2"
@@ -67,12 +73,12 @@ check "GET /api/stats has delivery stats" \
 
 # 8. POST /api/events (publish)
 check "POST /api/events publishes and returns id" \
-  "curl -fsS -X POST -H 'Content-Type: application/json' -d '{\"type\":\"smoke.test\",\"source\":\"smoke\",\"payload\":{\"hello\":\"world\"}}' $BASE/api/events" \
+  "curl -fsS -X POST -H 'Content-Type: application/json' -H \"$AUTH_HDR\" -d '{\"type\":\"smoke.test\",\"source\":\"smoke\",\"payload\":{\"hello\":\"world\"}}' $BASE/api/events" \
   '"id"'
 
 # 9. POST /api/subscriptions (register a no-op subscriber)
 check "POST /api/subscriptions registers new sub" \
-  "curl -fsS -X POST -H 'Content-Type: application/json' -d '{\"typePattern\":\"smoke.*\",\"webhookUrl\":\"http://localhost:4599/ok\"}' $BASE/api/subscriptions" \
+  "curl -fsS -X POST -H 'Content-Type: application/json' -H \"$AUTH_HDR\" -d '{\"typePattern\":\"smoke.*\",\"webhookUrl\":\"http://localhost:4599/ok\"}' $BASE/api/subscriptions" \
   '"typePattern":"smoke.*"'
 
 # 10. GET /api/events?type=order.created (filtered)

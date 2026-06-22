@@ -300,6 +300,38 @@ else
 fi
 
 # ============================================================================
+# 3l. Knowledge Extraction (Phase F.5, 2026-06-22)
+# ============================================================================
+step "3l. Knowledge Extraction (Phase F.5)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-extraction/api/health")
+check_2xx "$code" "GET /api/foundation/knowledge-extraction/api/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-extraction/api/stats")
+check_2xx "$code" "GET /api/foundation/knowledge-extraction/api/stats"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-extraction/api/kb/stats")
+check_2xx "$code" "GET /api/foundation/knowledge-extraction/api/kb/stats"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/knowledge-extraction/api/ner/types")
+check_2xx "$code" "GET /api/foundation/knowledge-extraction/api/ner/types"
+
+# Run NER via the Hub
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/knowledge-extraction/api/ner/extract" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Albert Einstein worked at Princeton University in the United States."}')
+check_2xx "$code" "POST /api/foundation/knowledge-extraction/api/ner/extract"
+
+# Verify capability map exposes Knowledge Extraction
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "knowledge-extraction" /tmp/demo-out; then
+  ok "Capability map exposes knowledge-extraction"
+else
+  warn "Capability map missing knowledge-extraction (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -325,6 +357,7 @@ echo "   • /api/foundation/* routes reach PolicyOS + SkillOS (Phase F.1)"
 echo "   • /api/foundation/flow-orchestrator/* routes compose plans end-to-end (Phase F.2)"
 echo "   • /api/foundation/sada-os/* routes handle trust + risk + verification (Phase F.3)"
 echo "   • /api/foundation/ai-intelligence/* routes run intent + sentiment + retrieval + prediction (Phase F.4)"
+echo "   • /api/foundation/knowledge-extraction/* routes run NER + entity linking + fact triples (Phase F.5)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"

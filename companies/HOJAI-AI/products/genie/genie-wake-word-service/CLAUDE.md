@@ -1,22 +1,24 @@
 # Genie Wake Word Service
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Port:** 4767  
-**Status:** ✅ Production Ready
+**Status:** ✅ Production Ready — wired into the runtime/genie unified voice pipeline
 
 ---
 
 ## Overview
 
-Detects wake words "Hey Genie" and "हे जिनी" (Hindi) for hands-free voice activation of Genie AI.
+Detects wake words ("Hey Genie", "हे जिनी", "oye genie", "يا جيني", "dis genie") for hands-free voice activation of Genie AI. When a wake word fires, the service can optionally POST a wake event to **runtime/genie** so the unified voice pipeline can transcribe the post-wake audio, run `/api/ask`, and synthesize the spoken answer.
 
 ## Features
 
-- Multi-language wake word detection (English, Hindi, Hinglish)
-- WebSocket-based real-time detection
-- Configurable sensitivity (0.0-1.0)
-- Integration with TwinOS for context
-- Detection logging and statistics
+- Multi-language wake-word detection (English, Hindi, Spanish, Arabic, French)
+- WebSocket-based real-time detection (clients + WebSocket audio)
+- Configurable per-language sensitivity (0.0–1.0)
+- Persistent session store (PersistentMap)
+- Detection logging + statistics + false-positive feedback
+- **runtime/genie forward** — when a wake is detected on a session that has `userId` + `genieForward: true`, POST to `${RUNTIME_GENIE_URL}/api/voice/wake` (3-second timeout). Failures do NOT break detection.
+- All forwarding is **opt-in** via env flags — disabled by default in the sense that the service only forwards when both the env flag and the per-session flag are on.
 
 ## Supported Wake Words
 
@@ -24,26 +26,87 @@ Detects wake words "Hey Genie" and "हे जिनी" (Hindi) for hands-free 
 |----------|---------|
 | **English** | "Hey Genie", "Hi Genie", "Ok Genie" |
 | **Hindi** | "हे जिनी", "अरे जिनी", "भाई जिनी" |
+| **Spanish** | "Oye Genie", "Hola Genie", "Genie" |
+| **Arabic** | "يا جيني", "جينى" |
+| **French** | "Dis Genie", "Salut Genie" |
 
 ## API Endpoints
 
+### Core
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/health` | Health check |
-| GET | `/api/detections` | Get detection logs |
-| GET | `/api/detections/latest` | Get latest detection |
-| GET | `/api/statistics` | Detection statistics |
-| POST | `/api/sessions` | Create session |
-| POST | `/api/listen/start` | Start listening |
-| POST | `/api/listen/stop` | Stop listening |
-| WS | `/ws` | WebSocket for audio |
+| GET | `/health` | Health check + counts |
+| GET | `/ready` | Readiness probe |
+| GET | `/api/wake-words` | List configured wake-word phrases per language |
+| GET | `/api/models` | List wake-word models |
+| POST | `/api/models/train` | Train a new model (requires auth) |
+| GET | `/api/models/:id` | Get one model |
+| GET | `/api/sensitivity` | Current sensitivity per language |
+| POST | `/api/sensitivity` | Update sensitivity (requires auth) |
+
+### Detection
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/detect` | One-shot detect from text. Body: `{text, language, source?, userId?, sessionId?, forwardToGenie?}`. Forwards to runtime/genie when `userId` is provided and `forwardToGenie` is not false. |
+| POST | `/api/detect/batch` | Batch detect |
+| GET | `/api/detections` | List recent detections |
+| GET | `/api/detections/:id` | Get one detection |
+| GET | `/api/clients` | List active WS clients |
+| GET | `/api/statistics` | Detection stats |
+| POST | `/api/feedback` | Submit false-positive feedback |
+| GET | `/api/feedback` | List feedback |
+
+### Sessions + runtime/genie forward (Phase 7+)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/listen/start` | Start a listening session. Body: `{clientId?, language?, userId?, genieForward?}`. When `userId` is set and `USE_RUNTIME_GENIE_FORWARD=true`, the session is created with `genieForward=true` so any wake triggers the forward. |
+| POST | `/api/listen/stop` | Stop a listening session |
+| POST | `/api/listen/:sessionId/detect` | Trigger detection against a running session (used by WS clients + device-integration). Forwards to runtime/genie if enabled. |
+| PUT | `/api/listen/:sessionId/forward` | Toggle forwarding on an active session. Body: `{genieForward?, userId?}`. |
+| GET | `/api/integration/runtime-genie` | Returns `{enabled, url, healthy}` for the runtime/genie forward integration. |
+
+## runtime/genie forward — how it works
+
+When a wake word is detected on a session where `genieForward === true`, the service POSTs to:
+
+```
+POST {RUNTIME_GENIE_URL}/api/voice/wake
+Headers:
+  x-internal-token: ${INTERNAL_SERVICE_TOKEN}
+  content-type: application/json
+Body:
+  {
+    "userId":   "<session.userId>",
+    "deviceId": "<session.clientId || session.id>",
+    "wakeWord": "<detection.phrase>",
+    "language": "<detection.language>",
+    "sessionId":"<detection.id>"
+  }
+```
+
+- Built-in `fetch()` with 3-second AbortController timeout.
+- Failures (network error, 4xx/5xx) are logged but **do not break** the wake detection — `runtime_genie` in the response is `null` and the local detection record is still saved.
+- Disabled by env flag: `USE_RUNTIME_GENIE_FORWARD=false`.
+- Disabled per-session when no `userId` is set on the session.
 
 ## Quick Start
 
 ```bash
-cd companies/HOJAI-AI/services/genie-wake-word-service
+cd companies/HOJAI-AI/products/genie/genie-wake-word-service
 npm install
 npm start  # Port 4767
+```
+
+To enable runtime/genie forwarding in dev:
+
+```bash
+export RUNTIME_GENIE_URL=http://localhost:7100
+export INTERNAL_SERVICE_TOKEN=hojai-internal-service-token-change-me
+export USE_RUNTIME_GENIE_FORWARD=true
+npm start
 ```
 
 ## Environment Variables
@@ -51,6 +114,15 @@ npm start  # Port 4767
 | Variable | Default | Description |
 |----------|---------|-------------|
 | PORT | 4767 | Service port |
-| INTERNAL_TOKEN | dev-internal-token | Internal API auth |
-| GENIE_THINK_URL | http://localhost:4701 | Genie Gateway |
-| VOICE_TWIN_URL | http://localhost:4876 | Voice Twin |
+| INTERNAL_SERVICE_TOKEN | (required for runtime/genie forward) | Shared internal token for service-to-service auth |
+| RUNTIME_GENIE_URL | `http://localhost:7100` | Where to forward wake events. Set to your runtime/genie host. |
+| USE_RUNTIME_GENIE_FORWARD | `true` | Set to `false` to disable the forward entirely (opt-out). |
+
+## Tests
+
+```bash
+npm test          # 46 assertions across full forward lifecycle
+npm run smoke     # curl-based smoke tests against a running instance
+```
+
+The unit test spawns the service as a child process against a real port and uses an in-process mock for runtime/genie. It covers: forward on detect, forward disabled per-session, forward disabled by env flag, missing userId, runtime/genie 500, runtime/genie unreachable, and auth required.

@@ -41,6 +41,9 @@ SKILL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/skills/skill-os && PORT=
 # HOJAI AI Intelligence (Phase F.4, 2026-06-22) — Multi-agent orchestration (intent, sentiment, retrieval, prediction, recommendation)
 AI_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/ai-intelligence && PORT=4881 INTELLIGENCE_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
+# Knowledge Extraction (Phase F.5, 2026-06-22) — NER, entity linking, fact triples
+KNOWLEDGE_EXTRACTION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/knowledge-extraction && PORT=4784 KNOWLEDGE_EXTRACTION_REQUIRE_AUTH=false npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -110,6 +113,7 @@ status() {
     "SkillOS:4743" \
     "Flow Orchestrator:4244" \
     "AI Intelligence:4881" \
+    "Knowledge Extraction:4784" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -140,6 +144,8 @@ start_all() {
   start_service "flow-orchestrator"       "$FLOW_ORCHESTRATOR_CMD"   4244
   # HOJAI AI Intelligence (Phase F.4)
   start_service "ai-intelligence"         "$AI_INTELLIGENCE_CMD"     4881
+  # Knowledge Extraction (Phase F.5)
+  start_service "knowledge-extraction"   "$KNOWLEDGE_EXTRACTION_CMD" 4784
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -166,6 +172,7 @@ stop_all() {
   stop_port 4743 "SkillOS"
   stop_port 4244 "Flow Orchestrator"
   stop_port 4881 "AI Intelligence"
+  stop_port 4784 "Knowledge Extraction"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"

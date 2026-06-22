@@ -16,6 +16,12 @@
  *   POST /api/pair/code                - generate pairing code
  *   POST /api/pair/redeem              - redeem pairing code
  *   GET  /api/statistics               - device stats
+ *
+ * Phase 7+ wake-word integration:
+ *   POST /api/devices/:id/listen/start     - start wake-word listening on device
+ *   POST /api/devices/:id/listen/stop      - stop wake-word listening
+ *   POST /api/devices/:id/audio            - send audio transcript; forwards to wake-word
+ *   GET  /api/integration/wake-word        - integration health/config
  */
 
 const express = require('express');
@@ -28,6 +34,15 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
+
+// === Wake-word integration (Phase 7+) ===
+// Devices push audio (or transcribed text) here. We forward to the wake-word
+// service (port 4767) which detects "Hey Genie" / "हे जिनी" and POSTs the wake
+// event to runtime/genie's unified voice pipeline.
+const WAKE_WORD_URL = process.env.WAKE_WORD_URL || 'http://localhost:4767';
+const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
+const USE_WAKE_WORD_FORWARD = process.env.USE_WAKE_WORD_FORWARD !== 'false';
+const WAKE_WORD_TIMEOUT_MS = parseInt(process.env.WAKE_WORD_TIMEOUT_MS || '3000', 10);
 
 const app = express();
 
@@ -226,6 +241,136 @@ app.get('/api/statistics', (req, res) => {
     byStatus[d.status] = (byStatus[d.status] || 0) + 1;
   }
   res.json({ total: devices.size, byType, byStatus, handoffs: handoffs.length });
+});
+
+// =================================================================
+// Phase 7+: Wake-word integration
+// =================================================================
+// Each device can hold ONE listening session at a time. The session id is
+// stored in `deviceWakeSession.set(deviceId, wakeSessionId)`. Devices send
+// transcripts (or audio chunks already transcribed by the device's on-board
+// STT) to /api/devices/:id/audio, and we POST them to the wake-word service
+// /api/listen/:sessionId/detect which detects the wake phrase and forwards
+// to runtime/genie.
+const deviceWakeSession = new PersistentMap('device-wake-session', { serviceName: 'genie-device-integration' });
+
+async function postToWakeWord(path, body) {
+  if (!USE_WAKE_WORD_FORWARD) return null;
+  if (!INTERNAL_TOKEN) return null;
+  try {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), WAKE_WORD_TIMEOUT_MS);
+    const r = await fetch(`${WAKE_WORD_URL}${path}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-internal-token': INTERNAL_TOKEN,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    clearTimeout(tid);
+    if (!r.ok) return null;
+    const parsed = await r.json();
+    return parsed;
+  } catch (e) {
+    console.warn(`[device-integration] wake-word call failed: ${e.message}`);
+    return null;
+  }
+}
+
+// Start a wake-word listening session for this device. Tells the wake-word
+// service "create a session owned by deviceId+userId, forward wakes to
+// runtime/genie" so any future /api/devices/:id/audio hits go through it.
+app.post('/api/devices/:id/listen/start',requireAuth,  async (req, res) => {
+  const device = devices.get(req.params.id);
+  if (!device) return res.status(404).json({ error: 'Device not found' });
+  const { language, userId, genieForward = true } = req.body || {};
+  // Map device language hint → wake-word language name (default 'english')
+  const lang = language || device.language || 'english';
+  const user = userId || device.userId;
+  if (!user) return res.status(400).json({ error: 'userId required (either on device or in body)' });
+  if (!USE_WAKE_WORD_FORWARD) {
+    return res.status(503).json({ error: 'wake-word forward disabled (USE_WAKE_WORD_FORWARD=false)' });
+  }
+  const result = await postToWakeWord('/api/listen/start', {
+    clientId: device.id,
+    language: lang,
+    userId: user,
+    genieForward,
+  });
+  if (!result) return res.status(502).json({ error: 'wake-word service unreachable' });
+  const sessionId = result.id || result.data?.id;
+  if (!sessionId) return res.status(502).json({ error: 'wake-word returned no session id', payload: result });
+  deviceWakeSession.set(device.id, {
+    wakeSessionId: sessionId,
+    language: lang,
+    userId: user,
+    genieForward,
+    startedAt: new Date().toISOString(),
+  });
+  res.status(201).json({
+    deviceId: device.id,
+    wakeSessionId: sessionId,
+    language: lang,
+    userId: user,
+    genieForward,
+    wakeWordUrl: WAKE_WORD_URL,
+  });
+});
+
+app.post('/api/devices/:id/listen/stop',requireAuth,  async (req, res) => {
+  const device = devices.get(req.params.id);
+  if (!device) return res.status(404).json({ error: 'Device not found' });
+  const session = deviceWakeSession.get(device.id);
+  if (!session) return res.status(404).json({ error: 'No active listening session for this device' });
+  await postToWakeWord('/api/listen/stop', { clientId: session.wakeSessionId });
+  deviceWakeSession.delete(device.id);
+  res.json({ stopped: true, deviceId: device.id, wakeSessionId: session.wakeSessionId });
+});
+
+// Send an audio transcript (already STT'd on-device or via Voice OS) to the
+// wake-word service. The wake-word service detects the wake phrase, and if
+// genieForward is enabled on the session it POSTs the wake event to
+// runtime/genie /api/voice/wake so the unified voice pipeline takes over.
+app.post('/api/devices/:id/audio',requireAuth,  async (req, res) => {
+  const device = devices.get(req.params.id);
+  if (!device) return res.status(404).json({ error: 'Device not found' });
+  const session = deviceWakeSession.get(device.id);
+  if (!session) return res.status(409).json({ error: 'No active listening session. POST /api/devices/:id/listen/start first.' });
+  const { text, source } = req.body || {};
+  if (!text) return res.status(400).json({ error: 'text required (transcribed audio)' });
+  const result = await postToWakeWord(`/api/listen/${session.wakeSessionId}/detect`, {
+    text,
+    source: source || device.id,
+  });
+  if (!result) return res.status(502).json({ error: 'wake-word service unreachable' });
+  res.json({
+    deviceId: device.id,
+    wakeSessionId: session.wakeSessionId,
+    detected: result.detected === true,
+    wakeWord: result.phrase || null,
+    language: result.language || session.language,
+    confidence: result.confidence || null,
+    runtime_genie: result.runtime_genie || null,
+  });
+});
+
+app.get('/api/integration/wake-word', (req, res) => {
+  const sessions = Array.from(deviceWakeSession.entries()).map(([deviceId, s]) => ({
+    deviceId,
+    wakeSessionId: s.wakeSessionId,
+    language: s.language,
+    userId: s.userId,
+    startedAt: s.startedAt,
+  }));
+  res.json({
+    enabled: USE_WAKE_WORD_FORWARD,
+    url: WAKE_WORD_URL,
+    activeSessions: sessions.length,
+    sessions,
+    healthy: USE_WAKE_WORD_FORWARD ? 'check /health on the target' : 'disabled',
+  });
 });
 
 app.use((req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));

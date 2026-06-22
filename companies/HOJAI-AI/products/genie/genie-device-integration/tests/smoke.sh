@@ -45,6 +45,7 @@ run "earbuds caps"          GET  "/api/capabilities/earbuds"
 run "pair new device"       POST "/api/devices" '{"type":"smartphone","brand":"Android","model":"Pixel 8","userId":"smoke-1"}'
 run "pair code"             POST "/api/pair/code" '{"userId":"smoke-2","deviceType":"smartwatch"}'
 run "stats"                 GET  "/api/statistics"
+run "integration wake-word"  GET  "/api/integration/wake-word"
 
 echo "============================================"
 echo "  Results: $PASS passed, $FAIL failed"

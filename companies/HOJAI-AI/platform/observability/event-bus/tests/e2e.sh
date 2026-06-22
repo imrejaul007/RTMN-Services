@@ -11,6 +11,12 @@ MOCK_OUT="/tmp/_eb_received.json"
 PASS=0
 FAIL=0
 
+# Phase 2 (ADR-0009): the service uses @rtmn/shared/auth `requireAuth` on
+# all write endpoints. Mint a base64 token via the same `createToken` helper
+# so the test is self-contained and doesn't need a live CorpID.
+SMOKE_TOKEN="$(node -e 'const t=Buffer.from(JSON.stringify({sub:"smoke-test",role:"owner",iat:Date.now(),exp:Date.now()+3600000})).toString("base64");console.log(t)')"
+AUTH_HDR="Authorization: Bearer ${SMOKE_TOKEN}"
+
 # Reset mock receiver log
 echo '[]' > "$MOCK_OUT"
 
@@ -55,15 +61,15 @@ print(json.dumps($1))" > "$2"
 }
 
 post() {
-  curl -fsS -X POST -H 'Content-Type: application/json' -d "$1" "$2"
+  curl -fsS -X POST -H 'Content-Type: application/json' -H "$AUTH_HDR" -d "$1" "$2"
 }
 
 patch_() {
-  curl -fsS -X PATCH -H 'Content-Type: application/json' -d "$1" "$2"
+  curl -fsS -X PATCH -H 'Content-Type: application/json' -H "$AUTH_HDR" -d "$1" "$2"
 }
 
 delete_() {
-  curl -fsS -X DELETE "$1"
+  curl -fsS -X DELETE -H "$AUTH_HDR" "$1"
 }
 
 get() {
@@ -131,12 +137,28 @@ echo "Setup..."
 HEALTH=$(get "$BASE/health")
 check_substr "service is up" "$HEALTH" '"status":"ok"'
 
-# Drop the seed subscription (port 5500 isn't running in tests; would create DLQ noise)
+# Phase 2 cleanup: wipe accumulated state from prior runs so the test
+# runs in isolation.
+#
+# Order matters: replay DLQ entries FIRST (they still reference the
+# subscriptions), then delete the subscriptions themselves. Otherwise
+# the replay handler returns 404 when the sub is already gone and the
+# DLQ entry sticks around, polluting later counts.
+ALL_DLQ=$(get "$BASE/api/dead-letter")
+echo "$ALL_DLQ" | python3 -c '
+import json,sys
+entries = json.load(sys.stdin)["entries"]
+for e in entries: print(e["id"])' | while read id; do
+  post '' "$BASE/api/dead-letter/$id/replay" > /dev/null 2>&1 || true
+done
 ALL_SUBS=$(get "$BASE/api/subscriptions")
-SEED_SUB_ID=$(echo "$ALL_SUBS" | python3 -c 'import json,sys
+echo "$ALL_SUBS" | python3 -c '
+import json,sys
 subs = json.load(sys.stdin)["subscriptions"]
-seed = next((s for s in subs if s.get("webhookUrl") == "http://localhost:5500/api/orders/webhook"), None)
-print(seed["id"] if seed else "")')
+for s in subs: print(s["id"])' | while read id; do
+  delete_ "$BASE/api/subscriptions/$id" > /dev/null 2>&1 || true
+done
+SEED_SUB_ID=""
 if [ -n "$SEED_SUB_ID" ]; then
   delete_ "$BASE/api/subscriptions/$SEED_SUB_ID" > /dev/null
   echo "  removed seed subscription: $SEED_SUB_ID"
@@ -280,6 +302,15 @@ check "replayed event has same id as published" "[[ \"$REPLAYED_ID\" == \"$EV_ID
 echo
 echo "Step 9: payload filter restricts delivery"
 reset_mock
+# Phase 2 cleanup: remove every pre-existing subscription so the test
+# runs in isolation.
+ALL_SUBS=$(get "$BASE/api/subscriptions")
+echo "$ALL_SUBS" | python3 -c '
+import json,sys
+subs = json.load(sys.stdin)["subscriptions"]
+for s in subs: print(s["id"])' | while read id; do
+  delete_ "$BASE/api/subscriptions/$id" > /dev/null 2>&1 || true
+done
 # Subscriber wants only tenant=t-1
 FILTER_SUB=$(post '{"typePattern":"*","webhookUrl":"http://localhost:4599/ok","filter":{"payload.tenantId":"t-1"}}' "$BASE/api/subscriptions" | py_json 'd["id"]')
 post '{"type":"anything","source":"e2e","payload":{"tenantId":"t-2"}}' "$BASE/api/events" > /dev/null

@@ -28,6 +28,12 @@ const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
+// Auth bypass for internal/test use
+const KNOWLEDGE_EXTRACTION_REQUIRE_AUTH =
+  (process.env.KNOWLEDGE_EXTRACTION_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const authOrBypass = (req, res, next) =>
+  KNOWLEDGE_EXTRACTION_REQUIRE_AUTH ? requireAuth(req, res, next) : next();
+
 const PORT = process.env.PORT || 4784;
 const SERVICE_NAME = 'knowledge-extraction';
 const SERVICE_VERSION = '1.0.0';
@@ -1031,7 +1037,7 @@ app.get('/api/health', (_req, res) => {
 
 // ---------- NER ----------
 
-app.post('/api/ner/extract',requireAuth,  (req, res) => {
+app.post('/api/ner/extract', authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { text, types, minConfidence, includeSpans } = req.body || {};
   if (typeof text !== 'string') {
@@ -1092,7 +1098,7 @@ app.get('/api/ner/types', (_req, res) => {
 
 // ---------- Entity Linking ----------
 
-app.post('/api/link',requireAuth,  (req, res) => {
+app.post('/api/link', authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { entities, knowledgeBase } = req.body || {};
   if (!Array.isArray(entities)) {
@@ -1131,7 +1137,7 @@ app.post('/api/link',requireAuth,  (req, res) => {
 
 // ---------- KB CRUD ----------
 
-app.post('/api/kb/entities',requireAuth,  (req, res) => {
+app.post('/api/kb/entities', authOrBypass,  (req, res) => {
   const { id, canonical, type, aliases, properties } = req.body || {};
   if (typeof canonical !== 'string' || !canonical.trim()) {
     return res.status(400).json({ error: 'canonical (non-empty string) is required', code: 'INVALID_CANONICAL' });
@@ -1191,7 +1197,7 @@ app.get('/api/kb/entities', (req, res) => {
   });
 });
 
-app.delete('/api/kb/entities/:id',requireAuth,  (req, res) => {
+app.delete('/api/kb/entities/:id', authOrBypass,  (req, res) => {
   const entry = kbEntities.get(req.params.id);
   if (!entry) {
     return res.status(404).json({ error: 'Entity not found', code: 'NOT_FOUND' });
@@ -1217,7 +1223,7 @@ app.get('/api/kb/stats', (_req, res) => {
 
 // ---------- Fact extraction ----------
 
-app.post('/api/facts/extract',requireAuth,  (req, res) => {
+app.post('/api/facts/extract', authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { text, minConfidence, maxFacts } = req.body || {};
   if (typeof text !== 'string') {
@@ -1255,7 +1261,7 @@ app.post('/api/facts/extract',requireAuth,  (req, res) => {
 
 // ---------- Combined ----------
 
-app.post('/api/extract-all',requireAuth,  (req, res) => {
+app.post('/api/extract-all', authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { text, options } = req.body || {};
   if (typeof text !== 'string') {
@@ -1374,7 +1380,7 @@ app.get('/api/stats', (_req, res) => {
   });
 });
 
-app.post('/api/stats/reset',requireAuth,  (req, res) => {
+app.post('/api/stats/reset', authOrBypass,  (req, res) => {
   stats.extractionsRun = 0;
   stats.entitiesFound = 0;
   stats.factsExtracted = 0;
@@ -1446,12 +1452,24 @@ app.get('/ready', (_req, res) => {
 });
 
 
-  const server = app.listen(PORT, () => {
-    console.log(`[${SERVICE_NAME}] listening on port ${PORT}`);
-    console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
-    console.log(`[${SERVICE_NAME}] seeded ${kbEntities.size} KB entities, ${TECH_CATALOG.length} TECH terms, ${PERSON_CATALOG.length} persons, ${ORG_CATALOG.length} orgs, ${LOCATION_CATALOG.length} locations`);
-  });
-  installGracefulShutdown(server);
+  // Auto-start gated — skip listen() in test mode or when explicitly disabled
+  if (process.env.NODE_ENV !== 'test' && !process.env.KNOWLEDGE_EXTRACTION_NO_LISTEN) {
+    const server = app.listen(PORT, () => {
+      console.log(`[${SERVICE_NAME}] listening on port ${PORT}`);
+      console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
+      console.log(`[${SERVICE_NAME}] seeded ${kbEntities.size} KB entities, ${TECH_CATALOG.length} TECH terms, ${PERSON_CATALOG.length} persons, ${ORG_CATALOG.length} orgs, ${LOCATION_CATALOG.length} locations`);
+    });
+    installGracefulShutdown(server);
+  }
 }
 
+// Named exports for vitest
 module.exports = app;
+module.exports.app = app;
+module.exports.authOrBypass = authOrBypass;
+module.exports.KNOWLEDGE_EXTRACTION_REQUIRE_AUTH = KNOWLEDGE_EXTRACTION_REQUIRE_AUTH;
+module.exports.PORT = PORT;
+module.exports.SERVICE_NAME = SERVICE_NAME;
+module.exports.SERVICE_VERSION = SERVICE_VERSION;
+module.exports.stats = stats;
+module.exports.auditLog = auditLog;
