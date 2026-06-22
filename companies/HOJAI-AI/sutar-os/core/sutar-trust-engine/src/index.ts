@@ -151,13 +151,35 @@ const CalculateScoreSchema = z.object({
     .optional(),
 });
 
+// ADR-0009 Phase 1: tenant-scoped key helper. Prefixes the entityId with
+// the resolved companyId so that two tenants asking about the same entityId
+// (e.g. "user_123") get isolated buckets in the service's in-memory stores.
+// The prefix is removed before returning to the caller so the wire format
+// is unchanged.
+function tkey(req: express.Request, entityId: string): string {
+  return `${resolveTenant(req)}::${entityId}`;
+}
+function tunkey(tenantKey: string, entityId: string): string {
+  // Inverse helper used when reading back tenant-prefixed entries
+  const prefix = `${entityId}::`;
+  if (tenantKey.startsWith(prefix)) return tenantKey.slice(prefix.length);
+  return tenantKey;
+}
+
 app.post(
   "/api/v1/trust/calculate",
   requireAuth,
   asyncRoute(async (req, res) => {
     const body = CalculateScoreSchema.parse(req.body);
-    const result = trustService.calculateTrustScore(body);
-    res.json(apiResponse(true, result));
+    // Tenant-prefix the entityId before passing to the singleton service so
+    // the in-memory Map partitions naturally by companyId.
+    const tenantBody = { ...body, entityId: tkey(req, body.entityId) };
+    const result = trustService.calculateTrustScore(tenantBody);
+    res.json(apiResponse(true, {
+      ...result,
+      entityId: body.entityId, // un-prefix before responding
+      companyId: req.tenant?.companyId,
+    }));
   })
 );
 
@@ -166,7 +188,7 @@ app.get(
   requireAuth,
   asyncRoute(async (req, res) => {
     const { entityId } = req.params;
-    const local = trustService.getTrustScore(entityId);
+    const local = trustService.getTrustScore(tkey(req, entityId));
     const sada = await fetchSadaScore(entityId);
 
     if (!local && !sada) {
@@ -176,6 +198,7 @@ app.get(
     res.json(
       apiResponse(true, {
         entityId,
+        companyId: req.tenant?.companyId,
         local: local
           ? {
               overallScore: local.overallScore,
@@ -192,7 +215,6 @@ app.get(
             }
           : null,
         sada: sada ?? null,
-        // Use the higher-confidence source as the authoritative score
         effectiveScore: sada ? sada.score : local?.overallScore ?? 0,
         effectiveLevel: sada ? sada.level : local?.trustLevel ?? "UNTRUSTED",
         source: sada ? "sada" : local ? "local" : "none",
@@ -208,12 +230,12 @@ app.get(
   "/api/v1/reputation/:entityId",
   requireAuth,
   asyncRoute(async (req, res) => {
-    const rep = reputationService.getReputation(req.params.entityId);
+    const rep = reputationService.getReputation(tkey(req, req.params.entityId));
     if (!rep) {
       res.status(404).json(apiResponse(false, undefined, "Reputation not found"));
       return;
     }
-    res.json(apiResponse(true, rep));
+    res.json(apiResponse(true, { ...rep, entityId: req.params.entityId, companyId: req.tenant?.companyId }));
   })
 );
 
@@ -222,8 +244,11 @@ app.post(
   requireAuth,
   asyncRoute(async (req, res) => {
     const { entityIds } = z.object({ entityIds: z.array(z.string()).min(1) }).parse(req.body);
-    const agg = reputationService.aggregateReputation(entityIds);
-    res.json(apiResponse(true, agg));
+    // Tenant-prefix every entityId so the aggregation only sees this
+    // tenant's reputation data.
+    const tenantIds = entityIds.map((e: string) => tkey(req, e));
+    const agg = reputationService.aggregateReputation(tenantIds);
+    res.json(apiResponse(true, { ...agg, companyId: req.tenant?.companyId }));
   })
 );
 
@@ -243,8 +268,9 @@ app.post(
   requireAuth,
   asyncRoute(async (req, res) => {
     const body = CreditCheckSchema.parse(req.body);
-    const result = creditCheckService.performCreditCheck(body);
-    res.json(apiResponse(true, result));
+    const tenantBody = { ...body, entityId: tkey(req, body.entityId) };
+    const result = creditCheckService.performCreditCheck(tenantBody);
+    res.json(apiResponse(true, { ...result, entityId: body.entityId, companyId: req.tenant?.companyId }));
   })
 );
 
@@ -252,12 +278,12 @@ app.get(
   "/api/v1/credit/:entityId",
   requireAuth,
   asyncRoute(async (req, res) => {
-    const score = creditCheckService.getCreditScore(req.params.entityId);
+    const score = creditCheckService.getCreditScore(tkey(req, req.params.entityId));
     if (!score) {
       res.status(404).json(apiResponse(false, undefined, "Credit score not found"));
       return;
     }
-    res.json(apiResponse(true, score));
+    res.json(apiResponse(true, { ...score, entityId: req.params.entityId, companyId: req.tenant?.companyId }));
   })
 );
 
@@ -265,12 +291,12 @@ app.get(
   "/api/v1/credit/:entityId/report",
   requireAuth,
   asyncRoute(async (req, res) => {
-    const report = creditCheckService.getCreditReport(req.params.entityId);
+    const report = creditCheckService.getCreditReport(tkey(req, req.params.entityId));
     if (!report) {
       res.status(404).json(apiResponse(false, undefined, "Credit report not found"));
       return;
     }
-    res.json(apiResponse(true, report));
+    res.json(apiResponse(true, { ...report, entityId: req.params.entityId, companyId: req.tenant?.companyId }));
   })
 );
 
@@ -295,8 +321,9 @@ app.post(
   requireAuth,
   asyncRoute(async (req, res) => {
     const body = VerifyEntitySchema.parse(req.body);
-    const result = await verificationService.verifyEntity(body);
-    res.json(apiResponse(true, result));
+    const tenantBody = { ...body, entityId: tkey(req, body.entityId) };
+    const result = await verificationService.verifyEntity(tenantBody);
+    res.json(apiResponse(true, { ...result, entityId: body.entityId, companyId: req.tenant?.companyId }));
   })
 );
 
@@ -323,10 +350,33 @@ app.post(
   requireAuth,
   asyncRoute(async (req, res) => {
     const body = KYCSchema.parse(req.body);
-    const result = await verificationService.processKYC(body);
-    res.json(apiResponse(true, result));
+    const tenantBody = { ...body, entityId: tkey(req, body.entityId) };
+    const result = await verificationService.processKYC(tenantBody);
+    res.json(apiResponse(true, { ...result, entityId: body.entityId, companyId: req.tenant?.companyId }));
   })
 );
+
+// ---------------------------------------------------------------------------
+// Tenant Admin API (ADR-0009 Phase 1)
+// ---------------------------------------------------------------------------
+app.get("/api/v1/admin/tenants", requireAuth, (_req, res) => {
+  res.json(apiResponse(true, {
+    buckets: {
+      trustScore: tenantStores.trustScore.listTenants(),
+      reputation: tenantStores.reputation.listTenants(),
+      creditScore: tenantStores.creditScore.listTenants(),
+      creditReport: tenantStores.creditReport.listTenants(),
+      verification: tenantStores.verification.listTenants(),
+      verificationKyc: tenantStores.verificationKyc.listTenants(),
+    },
+    totals: tenantStores.totals(),
+  }));
+});
+
+app.post("/api/v1/admin/tenants/reset-all", requireAuth, (_req, res) => {
+  const n = tenantStores.resetAll();
+  res.json(apiResponse(true, { resetEntries: n }));
+});
 
 // ---------------------------------------------------------------------------
 // 404 + boot
