@@ -11,7 +11,7 @@ There were **three competing definitions** of "Salar OS" in the RTMN codebase:
 |---|---|---|
 | `companies/CorpPerks/salar-os/` (port 4710) | Workforce Intelligence — capability registry + human/agent/hybrid digital twins | (Did not match) |
 | `docs/salar-os/` (this folder) | Aspirational documentation | "AI Marketplace with 600+ services" |
-| `companies/HOJAI-AI/sutar-os/marketplace/` (port 4250) | The actual marketplace | (Did not match) |
+| `companies/HOJAI-AI/sutar-os/marketplace/` (port 4250) | The actual marketplace (later moved to BLR AI Marketplace 2026-06-21) | (Did not match) |
 
 These three could not all be right. The marketplace IS in `HOJAI-AI/sutar-os/marketplace/`. The "Workforce Intelligence" service has now been moved to `HOJAI-AI/platform/twins/salar-os/`.
 

@@ -45,6 +45,7 @@ This roadmap tracks the 10 weeks of work to make Flow 5 real. It is updated as e
 - **C.1 sutar-supplier-registry** (4280, 20 tests) — real service with 6-dim match scoring
 - **C.2 sutar-logistics** (4285, 22 tests) — real service with 4 carriers + cold-chain filtering
 - **C.5 sutar-warehouse-network** (4288, 20 tests) — real service with 6 seeded Indian warehouses + slot booking
+- **C.6 sutar-pricing-intelligence** (4286) — market price aggregation, comparison, dynamic pricing recommendations (do-app autopilot supplier-price matching)
 
 ### ✅ Phase D — do-app autopilot end-to-end (shipped 2026-06-22)
 

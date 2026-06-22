@@ -42,6 +42,7 @@ If you have Docker: `docker compose -f docker-compose.dev.yml up --build` instea
 | **Nexha procurement OS** (:4320) | ✅ **NEW** | procurement-os: 16 unit tests, supplier ranking + RFQ lifecycle (create/shortlist/award) |
 | **Nexha distribution OS** (:4300) | ✅ **NEW** | distribution-os: 15 unit tests, 896 lanes (8 cities × 4 carriers × 4 service levels) + shipment tracking |
 | **Nexha trade finance** (:4340) | ✅ **NEW** | trade-finance: 17 unit tests, credit offer engine with risk-adjusted APR + loan lifecycle |
+| **Nexha pricing intelligence** (:4286) | ✅ **Phase C.6** | sutar-pricing-intelligence: market price aggregation, comparison, dynamic pricing recommendations — used by do-app autopilot for "buy groceries" flows |
 | **Nexha franchise / manufacturing upstreams** | ❌ Stub-only | Hub proxy plumbing works; upstream services still scaffold |
 | **TwinOS Phase 5** | ✅ Shipped | `recordTransition`, `merge`, `diff` primitives; 14 twins wired |
 | **24 Industry OS** | 🟡 Mostly scaffold | See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) |
@@ -52,11 +53,12 @@ The services that ship in dev-stack.sh:
 |---|---:|---:|---|
 | `sutar-decision-engine` | 4290 | — | Multi-option ranking (`POST /api/v1/rank`) |
 | `sutar-trust-engine` | 4291 | 37 | Trust scoring + SADA federation health probe |
-| `sutar-economy-os` | 4251 | 105 | Transactions, billing, earnings, leaderboard |
+| `sutar-economy-os` | 4294 | 105 | Transactions, billing, earnings, leaderboard |
 | `sutar-warehouse-network` | 4288 | 49 | Warehouse discovery, slot booking, WMS (bins/stock/transfers/picks) |
 | `procurement-os` | 4320 | 16 | Supplier ranking + RFQ workflow (create / shortlist / award) |
 | `distribution-os` | 4300 | 15 | Multi-lane shipping quotes + booking + tracking |
 | `trade-finance` | 4340 | 17 | Credit offer engine + loan lifecycle with risk-adjusted APR |
+| `sutar-pricing-intelligence` | 4286 | — | Market price aggregation, comparison, dynamic pricing recommendations |
 
 ---
 

@@ -39,7 +39,7 @@
 - [Digital Twins](concepts/DIGITAL-TWINS.md) — What they are, how they work
 - [RTNM SDK](concepts/RTNM-SDK.md) — Unified SDK architecture
 - [Agent Economy](concepts/AGENT-ECONOMY.md) — Karma, payments, agent marketplace
-- [SUTAR OS](concepts/SUTAR-OS.md) — Autonomous economic infrastructure
+- [SUTAR OS](sutar-os/README.md) — Autonomous economic infrastructure
 - [Event Bus](concepts/EVENT-BUS.md) — Real-time event streaming
 
 ### Deployment
