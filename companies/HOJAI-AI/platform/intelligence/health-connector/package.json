@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/health-connector",
+  "version": "1.0.0",
+  "description": "Life OS Integration 5.1 — Health data (steps, sleep, HRV, workouts) from Apple Health, Google Fit, Whoop, Oura",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/health-connector.test.mjs"
+  },
+  "engines": { "node": ">=18.0.0" },
+  "dependencies": { "@rtmn/shared": "file:../../shared" }
+}

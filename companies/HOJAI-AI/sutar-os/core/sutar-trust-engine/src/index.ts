@@ -1,5 +1,5 @@
 import express from "express";
-import { requireAuth } from '@rtmn/shared/auth';
+import { requireAuth, createTenantContext, getTenant } from '@rtmn/shared/auth';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import cors from "cors";
 import helmet from "helmet";
@@ -9,6 +9,7 @@ import trustService from "./services/trustService";
 import reputationService from "./services/reputationService";
 import creditCheckService from "./services/creditCheck";
 import verificationService from "./services/verificationService";
+import { tenantStores, resolveTenant } from "./services/tenantStore";
 import logger from "./utils/logger";
 
 const app = express();
@@ -21,6 +22,13 @@ const SADA_URL = process.env.SADA_URL || "http://localhost:4190";
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
+
+// ADR-0009 Phase 1: tenant context middleware. /api/v1/info, /health, /ready
+// stay public. Everything else under /api/v1/ runs after tenant resolution.
+const tenantMiddleware = createTenantContext({
+  publicPathPatterns: [/^\/info$/, /^\/sada\/status$/],
+});
+app.use('/api/v1/', tenantMiddleware);
 
 // ---------------------------------------------------------------------------
 // Helpers
