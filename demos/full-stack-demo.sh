@@ -238,6 +238,42 @@ check_2xx "$code" "POST /api/foundation/flow-orchestrator/api/executions/sync"
 curl -s -o /dev/null -X DELETE "$HUB_URL/api/foundation/flow-orchestrator/api/plans/$FLOW_PLAN_ID"
 
 # ============================================================================
+# 3j. SADA Trust (Phase F.3, 2026-06-22)
+# ============================================================================
+step "3j. SADA Trust (Phase F.3)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/sada-os/health")
+check_2xx "$code" "GET /api/foundation/sada-os/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/sada-os/")
+check_2xx "$code" "GET /api/foundation/sada-os/"
+
+# Create a trust score via the Hub (auth bypass is on for local dev)
+SADA_ENT="demo-sada-$$-$(date +%s)"
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/sada-os/trust" \
+  -H "Content-Type: application/json" \
+  -d "{\"entityId\":\"$SADA_ENT\",\"entityType\":\"HUMAN\",\"initialScore\":80}")
+check_2xx "$code" "POST /api/foundation/sada-os/trust"
+
+# Get the trust score back
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/sada-os/trust/v2/$SADA_ENT")
+check_2xx "$code" "GET /api/foundation/sada-os/trust/v2/$SADA_ENT"
+
+# Run a risk assessment via the Hub
+SADA_RISK="demo-sada-risk-$$-$(date +%s)"
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/sada-os/risk/assess" \
+  -H "Content-Type: application/json" \
+  -d "{\"entityId\":\"$SADA_RISK\",\"entityType\":\"HUMAN\",\"transactionAmount\":1500,\"country\":\"US\"}")
+check_2xx "$code" "POST /api/foundation/sada-os/risk/assess"
+
+# Create a verification via the Hub
+SADA_VER="demo-sada-ver-$$-$(date +%s)"
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/sada-os/verification" \
+  -H "Content-Type: application/json" \
+  -d "{\"entityId\":\"$SADA_VER\",\"entityType\":\"HUMAN\",\"verificationType\":\"KYC\",\"documents\":[{\"type\":\"PASSPORT\",\"number\":\"P123\"}]}")
+check_2xx "$code" "POST /api/foundation/sada-os/verification"
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -261,6 +297,7 @@ echo "   • /api/sutar/* routes reach the autonomous-economic layer"
 echo "   • /api/nexha/* routes reach the Nexha commerce network"
 echo "   • /api/foundation/* routes reach PolicyOS + SkillOS (Phase F.1)"
 echo "   • /api/foundation/flow-orchestrator/* routes compose plans end-to-end (Phase F.2)"
+echo "   • /api/foundation/sada-os/* routes handle trust + risk + verification (Phase F.3)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
