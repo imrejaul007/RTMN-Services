@@ -5,7 +5,7 @@
 > `0009-PHASE-WISE-UPGRADE-PLAN.md` which is the canonical "Phase 0-1 move"
 > ADR. ADR-0010 is the follow-on "Phase 2+ federation" ADR.
 
-**Status:** In Progress (Phase 3 / 11)
+**Status:** In Progress (Phase 4 / 11)
 **Date:** 2026-06-22
 **Authors:** Rejaul Karim (HOJAI AI / RTMN), with HOJAI AI engineering
 **Supersedes:** None
@@ -45,8 +45,8 @@ We will build a **federated, multi-tenant business directory** spanning all thre
 | **0** | Repo reshape (done 2026-06-22) | Nexha | Move 5 real nexha-* services out of HOJAI-AI into `companies/Nexha/services/`. Drop 3 L1 stubs. |
 | **1** | Hub de-aliasing (done 2026-06-22) | RABTUL | Remove 5 sutar-* deprecation aliases from `NEXHA_SERVICES`. Canonical `nexha-*` only. |
 | **2** | Event Bus — Redis Streams (done 2026-06-22) | Nexha | `nexha-event-bus` (port 4380). Pub/sub backbone for federation events. |
-| **3** | **Business Directory** (in progress, 2026-06-22) | Nexha + HOJAI + RTMN | `nexha-business-directory` (port 4360) — companies + agents + capabilities + trust linkage. Public trust API in SADA. Shared HTTP directory client. Hub wiring. do-app + REZ-Workspace clients. |
-| **4** | ACP-Messaging real impl | HOJAI AI | Replace the 14 ACP stubs in `nexha-acp-messaging` (port 4340) with real state-machine code. Per-tenant message logs. |
+| **3** | **Business Directory** (done 2026-06-22) | Nexha + HOJAI + RTMN | `nexha-business-directory` (port 4360) — companies + agents + capabilities + trust linkage. Public trust API in SADA. Shared HTTP directory client. Hub wiring. do-app + REZ-Workspace clients. |
+| **4** | **ACP-Messaging real impl** (done 2026-06-22) | Nexha + HOJAI + RTMN | `nexha-acp-messaging` (port 4340) — per-tenant Agent Commerce Protocol with persistent negotiation state and message logs. Full state machine (8 message types, 6 statuses). do-app + REZ-Workspace clients. |
 | **5** | Agent Marketplace | HOJAI AI | Public marketplace UI + listings + reviews backed by the directory. |
 | **6** | Mission Planner | HOJAI AI | Cross-tenant mission composition (capability graph → DAG → execution). |
 | **7** | Partner Graph | Nexha | "Companies I've transacted with" social graph + recommendation engine. |
