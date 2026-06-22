@@ -1,0 +1,29 @@
+{
+  "name": "@rez/nextabizz",
+  "version": "1.0.0",
+  "description": "NextaBizz - B2B Procurement Platform under NeXha",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "test": "turbo test"
+  },
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^16.2.4",
+    "eslint": "^9.17.0",
+    "next": "^15.1.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
