@@ -198,13 +198,13 @@ export class SutarBridge {
 }
 ```
 
-**Note:** Sales OS also has [industry-os/services/sales-os/integrations/sutar-karma.js](industry-os/services/sales-os/integrations/sutar-karma.js) which is a direct axios client to SUTAR's economy-os. **This file currently uses port 4251** (stale — should be 4294 after 2026-06-22 renumber). See [STATUS-AND-REMAINING-WORK.md](../../STATUS-AND-REMAINING-WORK.md) for the open fix.
+**Note:** Sales OS also has [industry-os/services/sales-os/integrations/sutar-karma.js](industry-os/services/sales-os/integrations/sutar-karma.js) which is a direct axios client to SUTAR's economy-os. Updated 2026-06-22 to port 4294 (renumbered from 4251).
 
 ### Restaurant OS Integration
 
 The Restaurant OS uses SUTAR for:
 - **Ingredient Sourcing** — supplier-registry (Phase C.1)
-- **Dynamic Pricing** — Decision engine
+- **Dynamic Pricing** — Decision engine (sutar-decision-engine :4290) + sutar-pricing-intelligence (:4286, Phase C.6) for market-aggregated supplier price comparison
 - **Reservation Negotiation** — Negotiation engine
 
 **File:** [industry-os/services/restaurant-os/src/industry-integration.js](industry-os/services/restaurant-os/src/industry-integration.js)
@@ -271,6 +271,8 @@ nexha: {
   getShippingQuote: async (req) => { /* POST via Hub → sutar-logistics */ },
   findWarehouses: async (params) => { /* GET via Hub → sutar-warehouse-network */ },
   getCreditOffer: async (req) => { /* POST via Hub → sutar-trade-finance */ },
+  comparePrices: async (req) => { /* POST via Hub → sutar-pricing-intelligence (Phase C.6) */ },
+  recommendPrice: async (req) => { /* POST via Hub → sutar-pricing-intelligence (Phase C.6) */ },
 },
 
 // SADA direct call (NOT via Hub)
@@ -325,6 +327,7 @@ export const sutarIntegrations = {
   restaurant: {
     sourcing: 'sutar-supplier-registry',       // :4280 (Phase C.1)
     pricing: 'sutar-decision-engine',          // :4290
+    marketPrices: 'sutar-pricing-intelligence', // :4286 (Phase C.6)
     logistics: 'sutar-logistics',              // :4285 (Phase C.2)
     warehousing: 'sutar-warehouse-network',    // :4288 (Phase C.5)
     finance: 'sutar-trade-finance'             // :4287 (Phase C.4)

@@ -60,7 +60,7 @@ The **RTMN Unified Hub** ([REZ-ecosystem-connector](companies/RABTUL-Technologie
 
 **Key rules:**
 1. **Every SUTAR call from outside SUTAR goes through the Hub** at `localhost:4399`.
-2. **Phase C backbone services are dual-registered** — `sutar-supplier-registry`, `sutar-logistics`, `sutar-warehouse-network`, `sutar-trade-finance` appear in BOTH `SUTAR_SERVICES` and `NEXHA_SERVICES` maps so Nexha can call them via `/api/nexha/sutar-supplier-registry/...`.
+2. **Phase C backbone services are dual-registered** — `sutar-supplier-registry`, `sutar-logistics`, `sutar-warehouse-network`, `sutar-trade-finance`, `sutar-pricing-intelligence` appear in BOTH `SUTAR_SERVICES` and `NEXHA_SERVICES` maps so Nexha can call them via `/api/nexha/sutar-supplier-registry/...`.
 3. **Nexha's own services are still stubs** — the real work is done by SUTAR's Phase C services.
 
 See [Hub wiring audit 2026-06-22](companies/RABTUL-Technologies/REZ-ecosystem-connector/docs/SUTAR-HUB-WIRING-AUDIT-2026-06-22.md) for the full port map and removed-stale-entries list.
@@ -311,6 +311,7 @@ Phase C backbone (built 2026-06-22):
   sutar-logistics (4285) — SUTAR+Nexha alias
   sutar-warehouse-network (4288) — SUTAR+Nexha alias
   sutar-trade-finance (4287) — SUTAR+Nexha alias
+  sutar-pricing-intelligence (4286) — SUTAR+Nexha alias (Phase C.6)
 ```
 
 ---
@@ -438,6 +439,7 @@ node core/sutar-supplier-registry/index.js &  # 4280
 node core/sutar-logistics/index.js &          # 4285
 node core/sutar-warehouse-network/index.js &  # 4288
 node core/sutar-trade-finance/index.js &      # 4287
+node core/sutar-pricing-intelligence/index.js & # 4286
 
 # Monitoring
 node core/sutar-monitoring/index.js &  # 3100

@@ -782,6 +782,54 @@ POST /api/v1/loans/:id/repay
 POST /api/v1/loans/:id/dispute     # held escrow
 ```
 
+### 13.5 sutar-pricing-intelligence (Port 4286, Phase C.6)
+
+Market price aggregation, comparison, alerts, and dynamic pricing recommendations. do-app autopilot uses it to pick the best supplier for "buy groceries" flows.
+
+**Endpoints:**
+
+```http
+GET  /health
+GET  /ready
+GET  /api/v1/info
+GET  /api/v1/stats
+POST /api/v1/products                   # register a product
+GET  /api/v1/products                   # list products
+GET  /api/v1/products/:productId        # product details
+POST /api/v1/prices                     # record a supplier price
+GET  /api/v1/prices/:productId          # all prices for a product
+POST /api/v1/compare                    # compare prices, fire alerts
+POST /api/v1/dynamic-price              # recommend price (match/undercut/premium)
+GET  /api/v1/alerts                     # price alerts history
+```
+
+**Compare prices** (cheapest + best-value detection):
+
+```bash
+curl -X POST http://localhost:4399/api/nexha/sutar-pricing-intelligence/api/v1/compare \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "prod_001",
+    "supplierIds": ["sup_a", "sup_b", "sup_c"]
+  }'
+# Returns: { cheapest: {...}, bestValue: {...}, avgPrice: 123.45, alert?: {...} }
+```
+
+**Dynamic price recommendation** (match/undercut/premium with floor/ceiling):
+
+```bash
+curl -X POST http://localhost:4399/api/nexha/sutar-pricing-intelligence/api/v1/dynamic-price \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productId": "prod_001",
+    "strategy": "undercut",
+    "floor": 100,
+    "ceiling": 200,
+    "supplierPrices": [{ "supplierId":"sup_a", "price":150 }]
+  }'
+# Returns: { recommendedPrice: 145, strategy: "undercut", reason: "..." }
+```
+
 ---
 
 ## 14. Hub Access Pattern (How to Call SUTAR from Outside)

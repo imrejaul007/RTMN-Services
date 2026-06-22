@@ -184,7 +184,7 @@ bash scripts/dev-stack.sh start     # Hub + 3 SUTAR services
 bash demos/full-stack-demo.sh        # verify end-to-end
 ```
 
-`scripts/dev-stack.sh` brings up exactly the four services the demo script exercises: Hub (:4399), Trust Engine (:4291), Decision Engine (:4290), Economy OS (:4251). Logs land in `/tmp/rtmn-dev/*.log`.
+`scripts/dev-stack.sh` brings up exactly the four services the demo script exercises: Hub (:4399), Trust Engine (:4291), Decision Engine (:4290), Economy OS (:4294). Logs land in `/tmp/rtmn-dev/*.log`.
 
 ### Manual per-service start (legacy)
 

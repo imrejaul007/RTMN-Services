@@ -1004,7 +1004,7 @@ All 86+ twins now have:
 | **Intent & Network** | 3 services (Intent Bus, Agent Network, REZ Bridge) | 4154-4155 |
 | **Decision & Flow** | 6 services (Decision, Simulation, Goal OS, Network Learning, Flow OS, Founder OS) | 4240-4244, 4260 |
 | **Marketplace & Economy** | 4 services (Economy OS, Usage Tracker, Policy OS + see BLR AI Marketplace) | 4250-4254 |
-| **Trust & Contracts** | 3 services (Trust Engine, Contract OS, Negotiation Engine) | 4180, 4185, 4191 |
+| **Trust & Contracts** | 3 services (Trust Engine, Contract OS, Negotiation Engine) | 4291, 4292, 4293 |
 | **Discovery & ROI** | 5 services (Exploration, Discovery, Multi-Agent Evaluator, Reputation, ROI Calculator) → **moved to BLR AI Marketplace 2026-06-21** | 4255-4259 |
 | **Monitoring** | 1 service (System Monitoring) | 3100 |
 

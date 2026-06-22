@@ -163,9 +163,9 @@ See [Hub wiring audit 2026-06-22](companies/RABTUL-Technologies/REZ-ecosystem-co
 
 | Service | Port | Purpose | Source |
 |---------|------|---------|--------|
-| **sutar-pricing-intelligence** | 4290 | Pricing strategies | [src/](companies/HOJAI-AI/sutar-os/core/sutar-pricing-intelligence/src/) |
+| **sutar-pricing-intelligence** | 4286 | Market price aggregation, comparison, dynamic pricing | [src/](companies/HOJAI-AI/sutar-os/core/sutar-pricing-intelligence/src/) |
 | **negotiation-ai** | 4850 | Advanced ML negotiation strategies | [src/index.js](companies/HOJAI-AI/sutar-os/contracts/negotiation-ai/src/index.js) |
-| **sutar-contracts** (legacy alias) | 4185 | Older contract service | [src/index.js](companies/HOJAI-AI/sutar-os/contracts/sutar-contracts/src/index.js) |
+| **sutar-contracts** (legacy alias) | 4292 | Older contract service (deprecated 2026-06-22 — use sutar-contract-os) | [src/index.js](companies/HOJAI-AI/sutar-os/contracts/sutar-contracts/src/index.js) |
 | **acp-protocol** | 4800 | Agent-to-agent message protocol (QUERY/QUOTE/COUNTER/ACCEPT/REJECT/ORDER) | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acp-protocol/src/index.js) |
 | **acn-network** | 4801 | Agent registry + routing | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acn-network/src/index.js) |
 | **acn-hub** | 4852 | ACN unified gateway | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acn-hub/src/index.js) |
@@ -188,7 +188,7 @@ See [Hub wiring audit 2026-06-22](companies/RABTUL-Technologies/REZ-ecosystem-co
 | 3100 | Monitoring |
 | 4140-4145 | Gateway & Twin |
 | 4154-4155 | Intent & Network |
-| 4185 | sutar-contracts (legacy alias) |
+| 4292 | sutar-contracts (legacy alias, deprecated) |
 | 4240-4244, 4260 | Decision & Flow |
 | 4250 | ~~Marketplace~~ MOVED to BLR AI Marketplace |
 | 4252, 4254 | Usage Tracker, Policy OS |
@@ -292,7 +292,7 @@ services/
 industry-os/services/
 ├── restaurant-os/src/index.js:53      # RTMN_SERVICES.sutarOS = 'http://localhost:4140'
 ├── restaurant-os/src/industry-integration.js
-├── sales-os/integrations/sutar-karma.js  # ⚠️ uses wrong port 4251, should be 4294
+├── sales-os/integrations/sutar-karma.js  # 2026-06-22 — port updated 4251→4294
 └── …
 
 companies/do-app/backend/src/services/

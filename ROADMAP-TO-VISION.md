@@ -31,9 +31,9 @@ This roadmap tracks the 10 weeks of work to make Flow 5 real. It is updated as e
 
 ### ✅ Phase B — SUTAR OS hardening (shipped 2026-06-22)
 
-- **sutar-economy-os** (port 4251) — 105 vitest tests across transaction, billing, earnings, payment, leaderboard, redemption, integration
+- **sutar-economy-os** (port 4294) — 105 vitest tests across transaction, billing, earnings, payment, leaderboard, redemption, integration
 - **sutar-trust-engine** (port 4291) — `/api/v1/sada/status` federation health probe (2s AbortController, never throws); 37 tests
-- **sutar-contract-os** (port 4185) — 179 tests + real bug fix in `versions.ts` (versionIndex optional-chaining was a no-op on first push)
+- **sutar-contract-os** (port 4292) — 179 tests + real bug fix in `versions.ts` (versionIndex optional-chaining was a no-op on first push)
 - **sutar-decision-engine** (port 4290) — multi-option ranking algorithm
 
 ### ✅ Phase C — Nexha routes + real services (shipped 2026-06-22)

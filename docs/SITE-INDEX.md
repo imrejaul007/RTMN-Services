@@ -36,11 +36,11 @@
 - [Build a Custom Workflow](tutorials/CUSTOM-WORKFLOW.md)
 
 ### Concepts
-- [Digital Twins](concepts/DIGITAL-TWINS.md) — What they are, how they work
-- [RTNM SDK](concepts/RTNM-SDK.md) — Unified SDK architecture
-- [Agent Economy](concepts/AGENT-ECONOMY.md) — Karma, payments, agent marketplace
+- [Digital Twins](../companies/HOJAI-AI/platform/twins/) — What they are, how they work (TwinOS Hub)
+- [RTNM SDK](../README.md) — Unified SDK architecture overview
+- [Agent Economy](sutar-os/README.md) — Karma, payments, agent marketplace
 - [SUTAR OS](sutar-os/README.md) — Autonomous economic infrastructure
-- [Event Bus](concepts/EVENT-BUS.md) — Real-time event streaming
+- [Event Bus](../STATUS-AND-REMAINING-WORK.md) — Real-time event streaming (see also Memory Layer)
 
 ### Deployment
 - [Production Deployment](deploy/PRODUCTION.md) — Deploy to production
@@ -73,8 +73,8 @@
 | [Pagination](api-reference/OVERVIEW.md#pagination) | Cursor-based pagination |
 | [Error Handling](api-reference/OVERVIEW.md#errors) | Error codes and handling |
 | [Webhooks](api-reference/WEBHOOKS.md) | Real-time events |
-| [Digital Twins](concepts/DIGITAL-TWINS.md) | 35+ digital twin types |
-| [RTNM SDK](concepts/RTNM-SDK.md) | Multi-language SDK |
+| [Digital Twins](../companies/HOJAI-AI/platform/twins/) | 35+ digital twin types |
+| [RTNM SDK](../README.md) | Multi-language SDK |
 
 ---
 

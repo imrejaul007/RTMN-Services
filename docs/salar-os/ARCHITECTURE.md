@@ -315,11 +315,11 @@ Salar OS services communicate via:
 Salar OS (4250)
     │
     ├──► SUTAR Services
-    │    ├── Decision Engine (4240) - For AI recommendations
-    │    ├── Negotiation Engine (4191) - For price negotiation
-    │    ├── Trust Engine (4180) - For provider/buyer trust
-    │    ├── Contract OS (4185) - For smart contracts
-    │    ├── Economy OS (4251) - For payments
+    │    ├── Decision Engine (4290) - For AI recommendations
+    │    ├── Negotiation Engine (4293) - For price negotiation
+    │    ├── Trust Engine (4291) - For provider/buyer trust
+    │    ├── Contract OS (4292) - For smart contracts
+    │    ├── Economy OS (4294) - For payments
     │    └── Goal OS (4242) - For usage tracking
     │
     ├──► RTMN Hub (4399)

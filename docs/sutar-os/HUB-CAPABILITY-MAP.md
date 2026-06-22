@@ -89,12 +89,13 @@ Source: [REZ-ecosystem-connector/src/index.ts:186-197](companies/RABTUL-Technolo
 | `warehouse-network` | `sutar-warehouse-network` | 4288 | **C.5** | ✅ Real (49 tests) |
 | `logistics` | `sutar-logistics` | 4285 | **C.2** | ✅ Real (22 tests) |
 | `banking` | `sutar-trade-finance`, `trade-finance` | 4287, 4340 | **C.4** | ✅ Real (sutar-trade-finance); stub (trade-finance) |
+| `pricing-intelligence` | `sutar-pricing-intelligence` | 4286 | **C.6** | ✅ Real (31 tests) |
 | `orchestrator` | `ecosystem-connector` | 4399 | n/a | The Hub itself |
 | `franchise` | `franchise-os` | 4310 | n/a | 🟡 Stub |
 | `manufacturing` | `manufacturing-os` | 4330 | n/a | 🟡 Stub |
 | `demand-forecast` | `intelligence-layer` | 4350 | n/a | 🟡 Stub |
 
-**Pattern:** the **real implementations** of the Nexha commerce network live in SUTAR (`sutar-supplier-registry`, `sutar-logistics`, `sutar-warehouse-network`, `sutar-trade-finance`) and are dual-registered so they can be reached via both `/api/sutar/*` and `/api/nexha/*`. Nexha's own L1 services (`procurement-os`, `distribution-os`, `franchise-os`, `manufacturing-os`, `intelligence-layer`) are still stubs.
+**Pattern:** the **real implementations** of the Nexha commerce network live in SUTAR (`sutar-supplier-registry`, `sutar-logistics`, `sutar-warehouse-network`, `sutar-trade-finance`, `sutar-pricing-intelligence`) and are dual-registered so they can be reached via both `/api/sutar/*` and `/api/nexha/*`. Nexha's own L1 services (`procurement-os`, `distribution-os`, `franchise-os`, `manufacturing-os`, `intelligence-layer`) are still stubs.
 
 ---
 
@@ -141,6 +142,7 @@ Source: [REZ-ecosystem-connector/src/index.ts:45-66](companies/RABTUL-Technologi
 | `sutar-logistics` | http://localhost:4285 | ✅ Real (C.2) |
 | `sutar-warehouse-network` | http://localhost:4288 | ✅ Real (C.5) |
 | `sutar-trade-finance` | http://localhost:4287 | ✅ Real (C.4) |
+| `sutar-pricing-intelligence` | http://localhost:4286 | ✅ Real (C.6) |
 
 ---
 

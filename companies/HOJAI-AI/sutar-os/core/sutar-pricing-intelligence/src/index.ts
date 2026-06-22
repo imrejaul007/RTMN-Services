@@ -1,5 +1,5 @@
 /**
- * sutar-pricing-intelligence — Express server (port 4290).
+ * sutar-pricing-intelligence — Express server (port 4286).
  *
  * Phase C.6 — Pricing Intelligence
  *
@@ -44,7 +44,7 @@ import {
 } from './types/index.js';
 import * as svc from './services/pricing.service.js';
 
-const PORT = parseInt(process.env.PORT || '4290', 10);
+const PORT = parseInt(process.env.PORT || '4286', 10);
 const REQUIRE_AUTH = process.env.PRICING_REQUIRE_AUTH !== 'false';
 
 const app = express();
