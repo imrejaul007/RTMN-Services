@@ -274,6 +274,32 @@ code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundati
 check_2xx "$code" "POST /api/foundation/sada-os/verification"
 
 # ============================================================================
+# 3k. AI Intelligence (Phase F.4, 2026-06-22)
+# ============================================================================
+step "3k. AI Intelligence (Phase F.4)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/ai-intelligence/api/health")
+check_2xx "$code" "GET /api/foundation/ai-intelligence/api/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/ai-intelligence/api/route")
+check_2xx "$code" "GET /api/foundation/ai-intelligence/api/route"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/ai-intelligence/api/agents")
+check_2xx "$code" "GET /api/foundation/ai-intelligence/api/agents"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/ai-intelligence/api/metrics")
+check_2xx "$code" "GET /api/foundation/ai-intelligence/api/metrics"
+
+# Verify capabilities map exposes the new AI Intelligence capabilities
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "ai-intelligence" /tmp/demo-out; then
+  ok "Capability map exposes ai-intelligence"
+else
+  warn "Capability map missing ai-intelligence (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -298,6 +324,7 @@ echo "   • /api/nexha/* routes reach the Nexha commerce network"
 echo "   • /api/foundation/* routes reach PolicyOS + SkillOS (Phase F.1)"
 echo "   • /api/foundation/flow-orchestrator/* routes compose plans end-to-end (Phase F.2)"
 echo "   • /api/foundation/sada-os/* routes handle trust + risk + verification (Phase F.3)"
+echo "   • /api/foundation/ai-intelligence/* routes run intent + sentiment + retrieval + prediction (Phase F.4)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"

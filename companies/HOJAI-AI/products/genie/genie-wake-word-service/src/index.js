@@ -34,6 +34,14 @@ const compression = require('compression');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
 
+// === Runtime/Genie integration (Phase 7+) ===
+// When a wake word is detected, forward the event to runtime/genie
+// (port 7100) so the unified voice pipeline can transcribe the
+// post-wake audio, run /api/ask, and synthesize the answer.
+const RUNTIME_GENIE_URL = process.env.RUNTIME_GENIE_URL || 'http://localhost:7100';
+const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || '';
+const USE_RUNTIME_GENIE_FORWARD = process.env.USE_RUNTIME_GENIE_FORWARD !== 'false';  // opt-out flag
+
 const app = express();
 
 // Validate required env at startup
@@ -122,6 +130,51 @@ function recordDetection(detection) {
   return full;
 }
 
+/**
+ * Forward a wake-word detection to runtime/genie (/api/voice/wake).
+ * Returns the runtime response (with sessionId) or null if disabled/down.
+ *
+ * @param {object} detection - the detection record we just stored
+ * @param {object} session   - the listen session that triggered it
+ */
+async function forwardToRuntimeGenie(detection, session) {
+  if (!USE_RUNTIME_GENIE_FORWARD) return null;
+  if (!session || !session.genieForward || !session.userId) return null;
+  if (!detection || !detection.phrase) return null;
+
+  try {
+    // Use built-in fetch (Node 18+). 3-second timeout to keep detection snappy.
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 3000);
+    const r = await fetch(`${RUNTIME_GENIE_URL}/api/voice/wake`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-internal-token': INTERNAL_SERVICE_TOKEN,
+      },
+      body: JSON.stringify({
+        userId: session.userId,
+        deviceId: session.clientId || session.id,
+        wakeWord: detection.phrase,
+        language: detection.language,
+        sessionId: detection.id,
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(tid);
+    if (!r.ok) {
+      console.warn(`[wake-word] runtime/genie forward failed: ${r.status}`);
+      return null;
+    }
+    const body = await r.json();
+    return body.data || null;
+  } catch (e) {
+    // Network blip or timeout — log and continue. Detection is still stored locally.
+    console.warn(`[wake-word] runtime/genie forward error: ${e.message}`);
+    return null;
+  }
+}
+
 // =================================================================
 // ENDPOINTS
 // =================================================================
@@ -151,8 +204,8 @@ app.get('/api/wake-words', (req, res) => {
   res.json({ wakeWords: all, total: all.length });
 });
 
-app.post('/api/detect',requireAuth,  (req, res) => {
-  const { text, language, source } = req.body;
+app.post('/api/detect',requireAuth,  async (req, res) => {
+  const { text, language, source, userId, sessionId, forwardToGenie = true } = req.body;
   if (!text || !language) return res.status(400).json({ error: 'text and language required' });
   const result = detectWakeWord(text, language);
   if (!result) return res.json({ detected: false });
@@ -164,7 +217,25 @@ app.post('/api/detect',requireAuth,  (req, res) => {
     source: source || 'unknown',
     context: 'api',
   });
-  res.json({ detected: true, ...det });
+
+  // Forward to runtime/genie if requested + we have a userId or session
+  let runtimeResponse = null;
+  if (forwardToGenie) {
+    const session = (userId || sessionId) ? {
+      id: sessionId,
+      userId,
+      clientId: source,
+      language,
+      genieForward: true,
+    } : null;
+    runtimeResponse = await forwardToRuntimeGenie(det, session);
+  }
+
+  res.json({
+    detected: true,
+    ...det,
+    runtime_genie: runtimeResponse,
+  });
 });
 
 app.post('/api/detect/batch',requireAuth,  (req, res) => {
@@ -252,7 +323,7 @@ app.get('/api/clients', (req, res) => {
 });
 
 app.post('/api/listen/start',requireAuth,  (req, res) => {
-  const { clientId, language } = req.body;
+  const { clientId, language, userId, genieForward = true } = req.body;
   const id = clientId || uuidv4().slice(0, 8);
   const session = {
     id,
@@ -260,6 +331,9 @@ app.post('/api/listen/start',requireAuth,  (req, res) => {
     status: 'active',
     startedAt: new Date().toISOString(),
     detections: 0,
+    // Phase 7: forward wake-word detections to runtime/genie
+    userId: userId || null,
+    genieForward: USE_RUNTIME_GENIE_FORWARD && genieForward && !!userId,
   };
   sessions.set(id, session);
   res.status(201).json(session);
@@ -272,6 +346,50 @@ app.post('/api/listen/stop',requireAuth,  (req, res) => {
   s.status = 'stopped';
   s.stoppedAt = new Date().toISOString();
   res.json(s);
+});
+
+// Trigger a detection against a running session. Used by WS clients and
+// by the device-integration service for streaming audio.
+app.post('/api/listen/:sessionId/detect',requireAuth,  async (req, res) => {
+  const { text, source } = req.body || {};
+  const s = sessions.get(req.params.sessionId);
+  if (!s) return res.status(404).json({ error: 'Session not found' });
+  if (s.status !== 'active') return res.status(409).json({ error: 'Session not active' });
+  if (!text) return res.status(400).json({ error: 'text required' });
+  const result = detectWakeWord(text, s.language);
+  if (!result) return res.json({ detected: false, sessionId: s.id });
+  s.detections = (s.detections || 0) + 1;
+  const det = recordDetection({
+    phrase: result.matched,
+    language: s.language,
+    modelId: result.modelId,
+    confidence: result.confidence,
+    source: source || s.id,
+    context: 'session',
+    sessionId: s.id,
+    userId: s.userId,
+  });
+  // Forward to runtime/genie if session has userId + genieForward enabled
+  const runtimeResponse = await forwardToRuntimeGenie(det, s);
+  res.json({ detected: true, ...det, runtime_genie: runtimeResponse });
+});
+
+// Enable/disable genie forwarding on a session (without stopping it)
+app.put('/api/listen/:sessionId/forward',requireAuth,  (req, res) => {
+  const s = sessions.get(req.params.sessionId);
+  if (!s) return res.status(404).json({ error: 'Session not found' });
+  s.genieForward = USE_RUNTIME_GENIE_FORWARD && req.body?.genieForward !== false && !!s.userId;
+  s.userId = req.body?.userId || s.userId;
+  res.json(s);
+});
+
+// Quick health check for the runtime/genie forward integration
+app.get('/api/integration/runtime-genie', (req, res) => {
+  res.json({
+    enabled: USE_RUNTIME_GENIE_FORWARD,
+    url: RUNTIME_GENIE_URL,
+    healthy: USE_RUNTIME_GENIE_FORWARD ? 'check /health on the target' : 'disabled',
+  });
 });
 
 app.post('/api/feedback',requireAuth,  (req, res) => {

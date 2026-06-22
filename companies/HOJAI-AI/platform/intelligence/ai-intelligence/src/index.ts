@@ -7,6 +7,12 @@ import { requireAuth } from '@rtmn/shared/auth';
 import express, { Request, Response, NextFunction } from 'express';
 import { requireEnv } from '@rtmn/shared/lib/env';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
+
+// Auth bypass for internal/test use
+export const INTELLIGENCE_REQUIRE_AUTH =
+  (process.env.INTELLIGENCE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const authOrBypass = (req: Request, res: Response, next: NextFunction) =>
+  INTELLIGENCE_REQUIRE_AUTH ? requireAuth(req, res, next) : next();
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
@@ -121,7 +127,7 @@ const metrics: IntelligenceMetrics = {
  * POST /api/analyze
  * Main analysis endpoint - runs all agents
  */
-app.post('/api/analyze',requireAuth,  async (req: Request, res: Response) => {
+app.post('/api/analyze', authOrBypass,  async (req: Request, res: Response) => {
   const startTime = Date.now();
   const requestId = uuidv4();
 
@@ -239,7 +245,7 @@ app.post('/api/analyze',requireAuth,  async (req: Request, res: Response) => {
  * POST /api/generate-brief
  * Generate customer brief with context
  */
-app.post('/api/generate-brief',requireAuth,  async (req: Request, res: Response) => {
+app.post('/api/generate-brief', authOrBypass,  async (req: Request, res: Response) => {
   const briefId = uuidv4();
 
   try {
@@ -332,7 +338,7 @@ app.post('/api/generate-brief',requireAuth,  async (req: Request, res: Response)
  * POST /api/policy/evaluate
  * Evaluate policies for given context
  */
-app.post('/api/policy/evaluate',requireAuth,  async (req: Request, res: Response) => {
+app.post('/api/policy/evaluate', authOrBypass,  async (req: Request, res: Response) => {
   const evaluationId = uuidv4();
 
   try {
@@ -1226,7 +1232,7 @@ app.get('/api/agents', (_req: Request, res: Response) => {
  * POST /api/conversation/session
  * Create new conversation session
  */
-app.post('/api/conversation/session',requireAuth,  async (req: Request, res: Response) => {
+app.post('/api/conversation/session', authOrBypass,  async (req: Request, res: Response) => {
   try {
     const { customerId, channel, agentId } = req.body;
 
@@ -1272,7 +1278,7 @@ app.get('/api/conversation/session/:sessionId', async (req: Request, res: Respon
  * POST /api/customer/profile
  * Get or create customer profile
  */
-app.post('/api/customer/profile',requireAuth,  async (req: Request, res: Response) => {
+app.post('/api/customer/profile', authOrBypass,  async (req: Request, res: Response) => {
   try {
     const { customerId } = req.body;
 
@@ -1347,11 +1353,18 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  logger.info(`HOJAI Intelligence Layer started on port ${PORT}`);
-  logger.info(`Health check: http://localhost:${PORT}/api/health`);
-  logger.info(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
-});
-installGracefulShutdown(server);
+// Auto-start gated — skip listen() in test mode or when explicitly disabled
+if (process.env.NODE_ENV !== 'test' && !process.env.INTELLIGENCE_NO_LISTEN) {
+  const server = app.listen(PORT, () => {
+    logger.info(`HOJAI Intelligence Layer started on port ${PORT}`);
+    logger.info(`Health check: http://localhost:${PORT}/api/health`);
+    logger.info(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
+  });
+  installGracefulShutdown(server);
+}
+
+// Named exports for vitest
+export { app, authOrBypass, INTELLIGENCE_REQUIRE_AUTH as REQUIRE_AUTH, PORT, metrics };
+export { intentAgent, sentimentAgent, retrievalAgent, predictionAgent, recommendationAgent };
 
 export default app;

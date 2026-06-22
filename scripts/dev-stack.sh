@@ -38,6 +38,9 @@ SADA_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/trust/sada-os && PORT=419
 POLICY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/policy-os && PORT=4254 POLICYOS_REQUIRE_AUTH=false POLICYOS_EVAL_LIMIT=10000 POLICYOS_WRITE_LIMIT=10000 REDIS_URL=redis://localhost:6379 npm start"
 SKILL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/skills/skill-os && PORT=4743 SKILLOS_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
+# HOJAI AI Intelligence (Phase F.4, 2026-06-22) — Multi-agent orchestration (intent, sentiment, retrieval, prediction, recommendation)
+AI_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/ai-intelligence && PORT=4881 INTELLIGENCE_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -106,6 +109,7 @@ status() {
     "PolicyOS:4254" \
     "SkillOS:4743" \
     "Flow Orchestrator:4244" \
+    "AI Intelligence:4881" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -134,6 +138,8 @@ start_all() {
   start_service "skill-os"                 "$SKILL_OS_CMD"            4743
   # HOJAI AI — Orchestration (Phase F.2)
   start_service "flow-orchestrator"       "$FLOW_ORCHESTRATOR_CMD"   4244
+  # HOJAI AI Intelligence (Phase F.4)
+  start_service "ai-intelligence"         "$AI_INTELLIGENCE_CMD"     4881
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -159,6 +165,7 @@ stop_all() {
   stop_port 4254 "PolicyOS"
   stop_port 4743 "SkillOS"
   stop_port 4244 "Flow Orchestrator"
+  stop_port 4881 "AI Intelligence"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"
