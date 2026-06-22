@@ -156,6 +156,28 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
 
 ---
 
+## 🟢 Phase A-D Shipped (2026-06-22)
+
+The 10-week roadmap is mid-execution. **Phases A through D are done.**
+
+| Phase | What it shipped | Status |
+|---|---|---|
+| **A. Foundation** | Hub on :4399 with `/api/sutar/*` proxy, `proxyToUpstream()` body-forwarding fix, vitest setup | ✅ |
+| **B. SUTAR OS** | sutar-economy-os 105 tests, sutar-trust-engine `/api/v1/sada/status`, sutar-contract-os 179 tests + real bug fix in `versions.ts`, sutar-decision-engine multi-option ranking | ✅ |
+| **C. Nexha routes** | `/api/nexha/capabilities` + 8 service routes wired through Hub | ✅ |
+| **D. do-app** | Backend `nexha` client with 7 unit tests, autopilot Step 5 surface-suppliers, mobile autopilot tab | ✅ |
+| **E. Docs/Ops** | `docker-compose.dev.yml`, `scripts/dev-stack.sh`, `demos/full-stack-demo.sh`, ADRs, root README | 🟡 this section |
+
+Phase C.5 (Nexha warehouse-network) and Phase E remainder (ADRs, README, status updates) are still in progress.
+
+### Try it in 30 seconds
+
+```bash
+bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh
+```
+
+---
+
 ## 🚀 LIVE DEPLOYMENTS
 
 | Platform | Service | Port | Status |
