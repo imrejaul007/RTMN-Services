@@ -169,7 +169,7 @@ cd industry-os/services/cxo-os && npm start &
 
 # Start External Services
 cd companies/Nexha/commerce-identity && npm start &
-cd companies/Nexha/sutar-mock && npm start &
+cd companies/HOJAI-AI/sutar-os/sutar-dev-mock && npm start &
 
 # Start RTMN Hub
 cd services/unified-os-hub && npm start
