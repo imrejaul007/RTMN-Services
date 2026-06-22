@@ -36,13 +36,12 @@ If you have Docker: `docker compose -f docker-compose.dev.yml up --build` instea
 | **SUTAR OS** (3 services hardened) | ✅ Running | sutar-economy-os 105 tests, sutar-trust-engine 37 tests, sutar-contract-os 179 tests + 1 bug fix |
 | **do-app mobile + backend** | ✅ Running | Mobile autopilot tab shipped, backend `nexha` client with 7 unit tests |
 | **Nexha routes** | ✅ Wired | 8 services reachable through `/api/nexha/<service>/<path>` |
-| **Nexha warehouse network** (:4288) | ✅ Phase C.5 | sutar-warehouse-network: 49 unit tests, 6 seeded Indian warehouses, slot booking + WMS (bins, stock, transfers, pick lists) |
-| **Nexha supplier registry** (:4280) | ✅ Phase C.1 | sutar-supplier-registry: 20 unit tests, capability-matched supplier discovery |
-| **Nexha logistics** (:4285) | ✅ Phase C.2 | sutar-logistics: 22 unit tests, multi-carrier shipping quotes + booking |
-| **Nexha procurement OS** (:4320) | ✅ **NEW** | procurement-os: 16 unit tests, supplier ranking + RFQ lifecycle (create/shortlist/award) |
-| **Nexha distribution OS** (:4300) | ✅ **NEW** | distribution-os: 15 unit tests, 896 lanes (8 cities × 4 carriers × 4 service levels) + shipment tracking |
-| **Nexha trade finance** (:4340) | ✅ **NEW** | trade-finance: 17 unit tests, credit offer engine with risk-adjusted APR + loan lifecycle |
-| **Nexha pricing intelligence** (:4286) | ✅ **Phase C.6** | sutar-pricing-intelligence: market price aggregation, comparison, dynamic pricing recommendations — used by do-app autopilot for "buy groceries" flows |
+| **Nexha warehouse network** (:4288) | ✅ Phase C.5 | nexha-warehouse-network: 49 unit tests, 6 seeded Indian warehouses, slot booking + WMS (bins, stock, transfers, pick lists) |
+| **Nexha supplier registry** (:4280) | ✅ Phase C.1 | nexha-supplier-network: 20 unit tests, capability-matched supplier discovery |
+| **Nexha logistics** (:4285) | ✅ Phase C.2 | nexha-distribution-network: 22 unit tests, multi-carrier shipping quotes + booking |
+| **Nexha pricing intelligence** (:4286) | ✅ **Phase C.6** | nexha-pricing-network: market price aggregation, comparison, dynamic pricing recommendations — used by do-app autopilot for "buy groceries" flows |
+
+> **ADR-0009 Phase 0 (2026-06-22):** The 3 L1 stubs (procurement-os :4320, distribution-os :4300, trade-finance :4340) were **deleted** — their functionality is fully covered by the 5 Phase C services now in Nexha. The 5 Phase C services were moved from `HOJAI-AI/sutar-os/core/sutar-*` to `companies/Nexha/services/nexha-*` and renamed. Old `sutar-*` names are kept as deprecation aliases on the Hub until Phase 1.
 | **Nexha franchise / manufacturing upstreams** | ❌ Stub-only | Hub proxy plumbing works; upstream services still scaffold |
 | **TwinOS Phase 5** | ✅ Shipped | `recordTransition`, `merge`, `diff` primitives; 14 twins wired |
 | **24 Industry OS** | 🟡 Mostly scaffold | See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) |
@@ -54,11 +53,11 @@ The services that ship in dev-stack.sh:
 | `sutar-decision-engine` | 4290 | — | Multi-option ranking (`POST /api/v1/rank`) |
 | `sutar-trust-engine` | 4291 | 37 | Trust scoring + SADA federation health probe |
 | `sutar-economy-os` | 4294 | 105 | Transactions, billing, earnings, leaderboard |
-| `sutar-warehouse-network` | 4288 | 49 | Warehouse discovery, slot booking, WMS (bins/stock/transfers/picks) |
-| `procurement-os` | 4320 | 16 | Supplier ranking + RFQ workflow (create / shortlist / award) |
-| `distribution-os` | 4300 | 15 | Multi-lane shipping quotes + booking + tracking |
-| `trade-finance` | 4340 | 17 | Credit offer engine + loan lifecycle with risk-adjusted APR |
-| `sutar-pricing-intelligence` | 4286 | — | Market price aggregation, comparison, dynamic pricing recommendations |
+| `nexha-warehouse-network` | 4288 | 49 | Warehouse discovery, slot booking, WMS (bins/stock/transfers/picks) |
+| `nexha-pricing-network` | 4286 | 31 | Market price aggregation, comparison, dynamic pricing recommendations |
+| `nexha-supplier-network` | 4280 | 20 | Supplier discovery/registry, capability-matched |
+| `nexha-distribution-network` | 4285 | 22 | Multi-carrier shipping quotes + booking |
+| `nexha-trade-finance-network` | 4287 | 38 | Credit offer engine + loan lifecycle with risk-adjusted APR |
 
 ---
 
