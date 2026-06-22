@@ -133,6 +133,28 @@ companies/HOJAI-AI-restored/**/dist/
 !/companies/RTNM-Group/
 !/companies/RTNM-Group/**
 
+# REZ-SalesMind is a standalone repo (has its own .git), not part of RTMN
+companies/RTNM-Digital/REZ-SalesMind/
+
+# Exclude build artifacts within tracked monorepo companies
+companies/LawGens/**/node_modules/
+companies/LawGens/**/dist/
+companies/LawGens/**/.next/
+companies/LawGens/**/.env.local
+companies/Nexha/**/node_modules/
+companies/Nexha/**/dist/
+companies/Nexha/**/.next/
+companies/Nexha/**/.env.local
+companies/RTNM-Digital/**/node_modules/
+companies/RTNM-Digital/**/dist/
+companies/RTNM-Digital/**/.next/
+companies/RTNM-Digital/**/frontend/.next/
+companies/RTNM-Digital/**/.env.local
+companies/RTNM-Group/**/node_modules/
+companies/RTNM-Group/**/dist/
+companies/RTNM-Group/**/.next/
+companies/RTNM-Group/**/.env.local
+
 # AdBazaar - separate repo
 companies/AdBazaar/
 
