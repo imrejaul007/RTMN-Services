@@ -163,9 +163,12 @@ Quick summary (updated 2026-06-22):
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- 321 new vitest tests across 3 SUTAR services
+- **376 vitest tests** across 6 SUTAR services (economy-os 105, contract-os 179, trust-engine 29, decision-engine 21, logistics 22, supplier-registry 20), **0 failures**
 - 7 new unit tests for do-app `nexha` client
-- 1 real service bug found and fixed via tests
+- **2 real service bugs** found and fixed via tests:
+  1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push
+  2. `sutar-logistics/src/services/logistics.service.ts` — quote IDs were regenerated on every getQuotes() call, so bookShipment(quote.id) always returned null
+- All 5 git repos in sync with origin
 
 ---
 
