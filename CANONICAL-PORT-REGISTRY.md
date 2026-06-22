@@ -252,9 +252,11 @@ SUTAR OS lives at `companies/HOJAI-AI/sutar-os/` (29 services, ~30k LOC). The RT
 | 4143 | sutar-memory-bridge | 2 | `sutar-memory-bridge` | `sutar-os/core/sutar-memory-bridge/` |
 | 4145 | sutar-agent-id | 2 | `sutar-agent-id` | `sutar-os/core/sutar-agent-id/` |
 | 4155 | sutar-agent-network | 3 | `sutar-agent-network` | `sutar-os/core/sutar-agent-network/` |
-| 4280 | sutar-supplier-registry | 4 (Phase C) | `sutar-supplier-registry` (Nexha alias) | `sutar-os/core/sutar-supplier-registry/` |
-| 4285 | sutar-logistics | 4 (Phase C) | `sutar-logistics` (Nexha alias) | `sutar-os/core/sutar-logistics/` |
-| 4288 | sutar-warehouse-network | 4 (Phase C.5) | `sutar-warehouse-network` (Nexha alias) | `sutar-os/core/sutar-warehouse-network/` |
+| 4280 | nexha-supplier-network | 4 (Phase C) | `nexha-supplier-network` (sutar-supplier-registry is a deprecation alias) | `companies/Nexha/services/nexha-supplier-network/` |
+| 4285 | nexha-distribution-network | 4 (Phase C) | `nexha-distribution-network` (sutar-logistics is a deprecation alias) | `companies/Nexha/services/nexha-distribution-network/` |
+| 4286 | nexha-pricing-network | 4 (Phase C.6) | `nexha-pricing-network` (sutar-pricing-intelligence is a deprecation alias) | `companies/Nexha/services/nexha-pricing-network/` |
+| 4287 | nexha-trade-finance-network | 4 (Phase C.4) | `nexha-trade-finance-network` (sutar-trade-finance is a deprecation alias) | `companies/Nexha/services/nexha-trade-finance-network/` |
+| 4288 | nexha-warehouse-network | 4 (Phase C.5) | `nexha-warehouse-network` (sutar-warehouse-network is a deprecation alias) | `companies/Nexha/services/nexha-warehouse-network/` |
 | 4290 | sutar-decision-engine | 4 | `sutar-decision-engine` | `sutar-os/core/sutar-decision-engine/` |
 | 4291 | sutar-trust-engine | 6 | `sutar-trust-engine` | `sutar-os/core/sutar-trust-engine/` |
 | 4292 | sutar-contract-os | 6 | `sutar-contract-os` | `sutar-os/contracts/sutar-contract-os/` |

@@ -42,10 +42,10 @@ This roadmap tracks the 10 weeks of work to make Flow 5 real. It is updated as e
 - NEXHA_SERVICES map for 8 services + 2 real Phase C service aliases
 - do-app backend got a `nexha` client block (`listSuppliers`, `quoteShipping`, `getCreditOffer`)
 - do-app autopilot Step 5 calls `nexha.listSuppliers` for supplier discovery
-- **C.1 sutar-supplier-registry** (4280, 20 tests) — real service with 6-dim match scoring
-- **C.2 sutar-logistics** (4285, 22 tests) — real service with 4 carriers + cold-chain filtering
-- **C.5 sutar-warehouse-network** (4288, 20 tests) — real service with 6 seeded Indian warehouses + slot booking
-- **C.6 sutar-pricing-intelligence** (4286) — market price aggregation, comparison, dynamic pricing recommendations (do-app autopilot supplier-price matching)
+- **C.1 nexha-supplier-network** (4280, 20 tests) — real service with 6-dim match scoring (moved to Nexha 2026-06-22 per ADR-0009)
+- **C.2 nexha-distribution-network** (4285, 22 tests) — real service with 4 carriers + cold-chain filtering (moved to Nexha 2026-06-22)
+- **C.5 nexha-warehouse-network** (4288, 20 tests) — real service with 6 seeded Indian warehouses + slot booking (moved to Nexha 2026-06-22)
+- **C.6 nexha-pricing-network** (4286) — market price aggregation, comparison, dynamic pricing recommendations (do-app autopilot supplier-price matching) (moved to Nexha 2026-06-22)
 
 ### ✅ Phase D — do-app autopilot end-to-end (shipped 2026-06-22)
 
