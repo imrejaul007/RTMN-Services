@@ -45,6 +45,10 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ success: true, service: 'sutar-mock', uptime: process.uptime() });
 });
 
+app.get('/ready', (_req: Request, res: Response) => {
+  res.json({ success: true, service: 'sutar-mock', status: 'ready' });
+});
+
 // --- CorpID ---
 
 function issueCorpId(type: 'supplier' | 'buyer' | 'unknown', isGuest?: boolean): string {

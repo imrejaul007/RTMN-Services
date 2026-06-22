@@ -61,6 +61,11 @@ export function createApp() {
     });
   });
 
+  // Readiness probe
+  app.get('/ready', (_req: Request, res: Response) => {
+    res.json({ success: true, service: 'commerce-identity', status: 'ready', timestamp: new Date().toISOString() });
+  });
+
   // Service routes
   app.use('/api/suppliers', supplierRouter);
   app.use('/api/buyers', buyerRouter);

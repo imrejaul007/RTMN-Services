@@ -214,6 +214,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'nextaBizz', timestamp: new Date().toISOString() });
 });
 
+// Readiness probe
+app.get('/ready', (req, res) => {
+  res.json({ status: 'ready', service: 'nextaBizz', timestamp: new Date().toISOString() });
+});
+
 // Start server
 mongoose.connect(MONGODB_URI)
   .then(() => {

@@ -161,6 +161,11 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
+// Readiness probe — minimal; can serve traffic
+app.get('/ready', (req: Request, res: Response) => {
+  res.json({ service: 'nexha-gateway', status: 'ready', timestamp: new Date().toISOString() });
+});
+
 // Metrics
 app.get('/metrics', async (req: Request, res: Response) => {
   res.set('Content-Type', register.contentType);
