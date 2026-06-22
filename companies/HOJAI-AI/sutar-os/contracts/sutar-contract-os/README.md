@@ -52,7 +52,7 @@ This service follows the SUTAR OS 12-layer canonical architecture:
 
 ```
 Layer: Contract Os
-Port: 4190
+Port: 4292 (renumbered 2026-06-22; was 4190)
 Type: Microservice
 ```
 
