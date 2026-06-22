@@ -22,11 +22,11 @@
 | **Genie Voice services** (6 services) | 🟡 Stubs | All return canned text — no real STT/TTS |
 | **Nexha portal** (Next.js 16) | ✅ Real | 20.5k LOC, 3 deployable services |
 | **Nexha commerce-identity** (port 8000) | ✅ Real | 2.9k LOC, JWT auth, GSTIN |
-| **Nexha network** — suppliers (4280), logistics (4285), warehouses (4288) | ✅ Running | C.1 + C.2 + C.5 shipped; 71 unit tests across the 3 services |
-| **Nexha banking / franchise / manufacturing** | 🟡 Stubs | Routes wired, upstream services still scaffold |
+| **Nexha network** — suppliers (4280), logistics (4285), warehouses (4288), procurement (4320), distribution (4300), trade-finance (4340) | ✅ Running | C.1 + C.2 + C.4 + C.5 + 3 Nexha OS shipped; 167 unit tests across the 6 services |
+| **Nexha franchise / manufacturing** | 🟡 Stubs | Routes wired, upstream services still scaffold |
 | **ACN** (15 services, 4716, 4800-4851) | 🟡 Scaffold | ~10k LOC, mostly CRUD |
 
-**Bottom line:** the consumer side (do-app + Hub + 4 foundation services) plus the C.1/C.2/C.5 Nexha backbone (suppliers + logistics + warehouses) is production-grade. Banking, franchise, and manufacturing OS are still scaffolds.
+**Bottom line:** the consumer side (do-app + Hub + 4 foundation services) plus the C.1/C.2/C.4/C.5 Nexha backbone (suppliers + logistics + trade-finance + warehouses) and the 3 Nexha OS workflow services (procurement-os + distribution-os + trade-finance) is production-grade. Franchise and manufacturing OS are still scaffolds.
 
 ---
 
@@ -159,12 +159,13 @@ Quick summary (updated 2026-06-22):
 - **Phase A** (✅ done): Foundation — Hub start, SADA wire-up, voice input, **body-forwarding bug fix in `proxyToUpstream()`**
 - **Phase B** (✅ done): SUTAR OS Real — Decision/Negotiation/Economy/Trust/Contracts all hardened with 321 new tests + a real bug fix in `sutar-contract-os/versions.ts`
 - **Phase C** (✅ done): Nexha Network — **routes wired through Hub** for 8 services + **C.1 sutar-supplier-registry** (20 tests) + **C.2 sutar-logistics** (22 tests) + **C.4 sutar-trade-finance** (38 tests — 5-band risk engine, BNPL offers, loans, repayments, disputes, FX) + **C.5 sutar-warehouse-network** (49 tests — slot booking + full WMS: bins, stock, transfers, pick lists, audit log) all shipped. do-app autopilot re-pointed at the new services.
+- **Nexha OS layer** (✅ done): 3 real Nexha Operating Systems — `procurement-os` (16 tests, supplier ranking + RFQ lifecycle), `distribution-os` (15 tests, 896 lanes + shipment tracking), `trade-finance` (17 tests, credit offers + loan lifecycle with risk-adjusted APR). Wired through Hub, dev-stack, and docker-compose. See ADR-0008.
 - **Phase D** (✅ done): End-to-End — do-app autopilot now calls SUTAR + Nexha for "buy groceries" Step 5; mobile autopilot tab shipped
 - **Phase E** (✅ done): Production polish — `scripts/dev-stack.sh`, `docker-compose.dev.yml`, `demos/full-stack-demo.sh`, this status doc, ADRs (6 of them), root README all shipped
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **425 vitest tests** across 7 SUTAR services (economy-os 105, contract-os 179, trust-engine 29, decision-engine 21, logistics 22, supplier-registry 20, **warehouse-network 49** = 20 slot booking + 29 WMS), **0 failures**
+- **473 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17), **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push

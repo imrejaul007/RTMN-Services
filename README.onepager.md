@@ -28,7 +28,7 @@ If you have Docker: `docker compose -f docker-compose.dev.yml up --build` instea
 
 ---
 
-## What's actually shipped (Phase A+B+C+D + C.5, 2026-06-22)
+## What's actually shipped (Phase A+B+C+D + C.5 + Nexha OS, 2026-06-22)
 
 | Layer | Status | Evidence |
 |---|---|---|
@@ -36,14 +36,17 @@ If you have Docker: `docker compose -f docker-compose.dev.yml up --build` instea
 | **SUTAR OS** (3 services hardened) | ✅ Running | sutar-economy-os 105 tests, sutar-trust-engine 37 tests, sutar-contract-os 179 tests + 1 bug fix |
 | **do-app mobile + backend** | ✅ Running | Mobile autopilot tab shipped, backend `nexha` client with 7 unit tests |
 | **Nexha routes** | ✅ Wired | 8 services reachable through `/api/nexha/<service>/<path>` |
-| **Nexha warehouse network** (:4288) | ✅ **Phase C.5 new** | sutar-warehouse-network: 49 unit tests, 6 seeded Indian warehouses, slot booking + WMS (bins, stock, transfers, pick lists) |
+| **Nexha warehouse network** (:4288) | ✅ Phase C.5 | sutar-warehouse-network: 49 unit tests, 6 seeded Indian warehouses, slot booking + WMS (bins, stock, transfers, pick lists) |
 | **Nexha supplier registry** (:4280) | ✅ Phase C.1 | sutar-supplier-registry: 20 unit tests, capability-matched supplier discovery |
 | **Nexha logistics** (:4285) | ✅ Phase C.2 | sutar-logistics: 22 unit tests, multi-carrier shipping quotes + booking |
-| **Nexha banking / franchise / manufacturing upstreams** | ❌ Stub-only | Hub proxy plumbing works; upstream services still scaffold |
+| **Nexha procurement OS** (:4320) | ✅ **NEW** | procurement-os: 16 unit tests, supplier ranking + RFQ lifecycle (create/shortlist/award) |
+| **Nexha distribution OS** (:4300) | ✅ **NEW** | distribution-os: 15 unit tests, 896 lanes (8 cities × 4 carriers × 4 service levels) + shipment tracking |
+| **Nexha trade finance** (:4340) | ✅ **NEW** | trade-finance: 17 unit tests, credit offer engine with risk-adjusted APR + loan lifecycle |
+| **Nexha franchise / manufacturing upstreams** | ❌ Stub-only | Hub proxy plumbing works; upstream services still scaffold |
 | **TwinOS Phase 5** | ✅ Shipped | `recordTransition`, `merge`, `diff` primitives; 14 twins wired |
 | **24 Industry OS** | 🟡 Mostly scaffold | See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) |
 
-The SUTAR services that ship in dev-stack.sh:
+The services that ship in dev-stack.sh:
 
 | Service | Port | Tests | Use case |
 |---|---:|---:|---|
@@ -51,6 +54,9 @@ The SUTAR services that ship in dev-stack.sh:
 | `sutar-trust-engine` | 4291 | 37 | Trust scoring + SADA federation health probe |
 | `sutar-economy-os` | 4251 | 105 | Transactions, billing, earnings, leaderboard |
 | `sutar-warehouse-network` | 4288 | 49 | Warehouse discovery, slot booking, WMS (bins/stock/transfers/picks) |
+| `procurement-os` | 4320 | 16 | Supplier ranking + RFQ workflow (create / shortlist / award) |
+| `distribution-os` | 4300 | 15 | Multi-lane shipping quotes + booking + tracking |
+| `trade-finance` | 4340 | 17 | Credit offer engine + loan lifecycle with risk-adjusted APR |
 
 ---
 
