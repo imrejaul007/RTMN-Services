@@ -27,7 +27,7 @@ const t = (name, cond) => {
   else { fail++; console.log(`  ✗ ${name}`); }
 };
 
-console.log('Phase 1.6 integration test:');
+console.log('Phase 1.6 + 2.5 integration test:');
 
 t('intent-engine URL configured', src.includes('INTENT_ENGINE_URL'));
 t('memory-substrate URL configured', src.includes('MEMORY_SUBSTRATE_URL'));
@@ -41,6 +41,22 @@ t('/api/pios/health endpoint exists', src.includes("'/api/pios/health'"));
 t('response payload includes intent_engine_used', src.includes('intent_engine_used'));
 t('response payload includes intent metadata', src.includes('intent: intentMeta'));
 t('Phase 1.6 env defaults to 4792', src.includes("'http://localhost:4792'"));
+
+// Phase 2.5 — Reasoning Engine wiring
+t('reasoning-engine URL configured', src.includes('REASONING_ENGINE_URL'));
+t('reflection-engine URL configured', src.includes('REFLECTION_ENGINE_URL'));
+t('proactive-engine URL configured', src.includes('PROACTIVE_ENGINE_URL'));
+t('USE_REASONING_ENGINE flag exists', src.includes('USE_REASONING_ENGINE'));
+t('isComplexRequest() helper defined', src.includes('function isComplexRequest'));
+t('COMPLEX_REQUEST_PATTERNS defined', src.includes('COMPLEX_REQUEST_PATTERNS'));
+t('/api/ask calls reasoning-engine for complex requests', src.includes("`${REASONING_ENGINE_URL}/api/reason`"));
+t('reasoning_engine_used in response payload', src.includes('reasoning_engine_used'));
+t('reasoning_engine_enabled in pios health', src.includes('reasoning_engine_enabled'));
+t('Phase 2.5 env defaults to 4795', src.includes("'http://localhost:4795'"));
+t('Phase 2.5 env defaults to 4796', src.includes("'http://localhost:4796'"));
+t('Phase 2.5 env defaults to 4797', src.includes("'http://localhost:4797'"));
+t('Complex patterns include trip planning', src.includes('plan (me|my) .*(trip|week|day|evening|weekend)'));
+t('Complex patterns include multi-action', src.includes('(add|create|book|schedule|find|search)'));
 
 // Verify the 23 specialists are STILL listed (not removed)
 t('genie-shopping-agent still referenced', src.includes('GENIE_SHOPPING_URL'));

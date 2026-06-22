@@ -42,6 +42,24 @@ const MORNING_BRIEFING_V2_URL = process.env.MORNING_BRIEFING_V2_URL || 'http://l
 const COLD_START_ONBOARDING_URL = process.env.COLD_START_ONBOARDING_URL || 'http://localhost:4793';
 const USE_INTENT_ENGINE = process.env.USE_INTENT_ENGINE !== 'false';  // opt-out flag
 
+// Phase 2 services (Reasoning + Reflection + Proactive)
+const REASONING_ENGINE_URL = process.env.REASONING_ENGINE_URL || 'http://localhost:4795';
+const REFLECTION_ENGINE_URL = process.env.REFLECTION_ENGINE_URL || 'http://localhost:4796';
+const PROACTIVE_ENGINE_URL = process.env.PROACTIVE_ENGINE_URL || 'http://localhost:4797';
+const USE_REASONING_ENGINE = process.env.USE_REASONING_ENGINE !== 'false';  // opt-out flag
+
+// Heuristic: detect complex multi-step requests that should go to the Reasoning Engine
+// (vs. simple single-intent questions that the Intent Engine handles)
+const COMPLEX_REQUEST_PATTERNS = [
+  /\bplan (me|my) .*(trip|week|day|evening|weekend)\b/i,
+  /\b(make|move|transfer) .*\b(and|then|,).*\b(to|into|from)\b/i,
+  /\b(help me|can you) (figure out|decide|organize|set up)\b/i,
+  /\bremember .* and .* remind me\b/i,
+  /\b(burned out|stressed|overwhelmed)\b.*\b(what|should|help)\b/i,
+  /\bI just got paid\b/i,
+  /\b(add|create|book|schedule|find|search) .* (and|then|,).*(and|then|,)?.*\b(add|create|book|schedule|find|search|tell|show)\b/i,
+];
+
 const app = express();
 
 // Validate required env at startup
@@ -113,6 +131,22 @@ async function classifyIntent({ question, conversationHistory, userContext }) {
   } catch (e) {
     return null;
   }
+}
+
+// === COMPLEX REQUEST DETECTION (Phase 2.5) ===
+// Returns true if the question looks like it needs multi-step planning.
+// Conservative: better to skip the reasoning engine than to misroute a simple question.
+function isComplexRequest(question) {
+  if (!question || question.length < 10) return false;
+  // Check against patterns
+  for (const p of COMPLEX_REQUEST_PATTERNS) {
+    if (p.test(question)) return true;
+  }
+  // Heuristic: questions with multiple clauses joined by "and" / "then" / ","
+  const lower = question.toLowerCase();
+  const hasMultipleClauses = (lower.match(/\b(and|then|,)\b/g) || []).length >= 2;
+  const hasActionVerbs = (lower.match(/\b(add|create|book|schedule|find|search|move|transfer|plan|send|tell|show|remind|set up)\b/g) || []).length >= 2;
+  return hasMultipleClauses && hasActionVerbs;
 }
 
 // === KEYWORD FALLBACK (existing behavior) ===
@@ -236,14 +270,48 @@ app.post('/api/ask', authMiddleware, async (req, res, next) => {
 
     // === Intent detection → delegate to specialized HOJAI-AI Genie services ===
     // Phase 1.6: Try the LLM-based Intent Engine first; fall back to keyword routing.
+    // Phase 2.5: For complex multi-step requests, route to the Reasoning Engine.
     let answer = '';
     let delegated = null;
     let gatewayHandled = false;
     let intentEngineUsed = false;
+    let reasoningEngineUsed = false;
     let intentMeta = null;
 
     // Build a short conversation history for context-aware routing
     const recentMessages = conv.messages.slice(-6).map(m => ({ role: m.role === 'genie' ? 'assistant' : 'user', content: m.content }));
+
+    // === Phase 2.5: Detect complex requests and route to Reasoning Engine ===
+    if (USE_REASONING_ENGINE && isComplexRequest(question)) {
+      const reasonRes = await callInternal(`${REASONING_ENGINE_URL}/api/reason`, 'POST', {
+        question,
+        userId: user._id.toString(),
+        userContext: { memories: memContext, goals: goalContext, name: user.name, preferences: user.preferences },
+        conversationHistory: recentMessages,
+      });
+      if (reasonRes && reasonRes.success && reasonRes.data && reasonRes.data.answer) {
+        reasoningEngineUsed = true;
+        answer = reasonRes.data.answer;
+        delegated = 'reasoning-engine';
+        // Save the response and return early
+        conv.messages.push({ role: 'genie', content: answer, timestamp: new Date() });
+        if (conv.messages.length > 50) conv.messages = conv.messages.slice(-50);
+        await conv.save();
+        return res.json({
+          success: true,
+          data: {
+            answer,
+            delegated_to: delegated,
+            reasoning_engine_used: true,
+            steps_planned: reasonRes.data.plan?.steps?.length || 0,
+            steps_succeeded: Object.keys(reasonRes.data.results || {}).length,
+            conversation_id: conv._id,
+          },
+          meta: { timestamp: new Date().toISOString() },
+        });
+      }
+      // Reasoning failed — fall through to intent engine
+    }
 
     const routing = await classifyIntent({
       question,
@@ -346,7 +414,7 @@ app.post('/api/ask', authMiddleware, async (req, res, next) => {
     conv.messages.push({ role: 'genie', content: answer, timestamp: new Date() });
     if (conv.messages.length > 50) conv.messages = conv.messages.slice(-50);
     await conv.save();
-    res.json({ success: true, data: { answer, delegated_to: delegated, memories_used: memContext ? 1 : 0, goals_used: goalContext ? 1 : 0, conversation_id: conv._id, intent_engine_used: intentEngineUsed, intent: intentMeta }, meta: { timestamp: new Date().toISOString() } });
+    res.json({ success: true, data: { answer, delegated_to: delegated, memories_used: memContext ? 1 : 0, goals_used: goalContext ? 1 : 0, conversation_id: conv._id, intent_engine_used: intentEngineUsed, reasoning_engine_used: reasoningEngineUsed, intent: intentMeta }, meta: { timestamp: new Date().toISOString() } });
   } catch (e) { next(e); }
 });
 
@@ -392,13 +460,16 @@ app.get('/api/genie-services/health', async (req, res) => {
   res.json({ success: true, data: { total: services.length, up, services: results }, meta: { timestamp: new Date().toISOString() } });
 });
 
-// === Phase 1.6: New Personal Intelligence OS services health ===
+// === Phase 1.6 + 2.5: New Personal Intelligence OS services health ===
 app.get('/api/pios/health', async (req, res) => {
   const services = [
     { name: 'intent-engine', url: INTENT_ENGINE_URL },
     { name: 'memory-substrate', url: MEMORY_SUBSTRATE_URL },
     { name: 'morning-briefing-v2', url: MORNING_BRIEFING_V2_URL },
     { name: 'cold-start-onboarding', url: COLD_START_ONBOARDING_URL },
+    { name: 'reasoning-engine', url: REASONING_ENGINE_URL },
+    { name: 'reflection-engine', url: REFLECTION_ENGINE_URL },
+    { name: 'proactive-engine', url: PROACTIVE_ENGINE_URL },
   ];
   const results = {};
   for (const s of services) {
@@ -416,6 +487,7 @@ app.get('/api/pios/health', async (req, res) => {
       total: services.length,
       up,
       intent_engine_enabled: USE_INTENT_ENGINE,
+      reasoning_engine_enabled: USE_REASONING_ENGINE,
       services: results,
     },
     meta: { timestamp: new Date().toISOString() },
