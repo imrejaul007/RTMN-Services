@@ -437,6 +437,42 @@ else
 fi
 
 # ============================================================================
+# 3p. Graph Database (Phase F.9, 2026-06-22)
+# ============================================================================
+step "3p. Graph Database (Phase F.9)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/graph-database/api/health")
+check_2xx "$code" "GET /api/foundation/graph-database/api/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/graph-database/api/stats")
+check_2xx "$code" "GET /api/foundation/graph-database/api/stats"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/graph-database/api/labels")
+check_2xx "$code" "GET /api/foundation/graph-database/api/labels"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/graph-database/api/edge-types")
+check_2xx "$code" "GET /api/foundation/graph-database/api/edge-types"
+
+# Create a node via the Hub
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/graph-database/api/nodes" \
+  -H "Content-Type: application/json" \
+  -d '{"labels":["Demo"],"properties":{"name":"demo-node"}}')
+check_2xx "$code" "POST /api/foundation/graph-database/api/nodes"
+
+# List nodes via the Hub
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/graph-database/api/nodes")
+check_2xx "$code" "GET /api/foundation/graph-database/api/nodes"
+
+# Verify capability map exposes Graph Database
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "graph-database" /tmp/demo-out; then
+  ok "Capability map exposes graph-database"
+else
+  warn "Capability map missing graph-database (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -466,6 +502,7 @@ echo "   • /api/foundation/knowledge-extraction/* routes run NER + entity link
 echo "   • /api/foundation/decision-intelligence/* routes rank recommendations + run WSM/TOPSIS (Phase F.6)"
 echo "   • /api/foundation/knowledge-marketplace/* routes browse + purchase + review knowledge packs (Phase F.7)"
 echo "   • /api/foundation/vector-db/* routes embed + store + search vectors (Phase F.8)"
+echo "   • /api/foundation/graph-database/* routes run Cypher-lite + BFS + PageRank on a property graph (Phase F.9)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
