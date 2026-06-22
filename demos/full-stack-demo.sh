@@ -508,6 +508,47 @@ else
 fi
 
 # ============================================================================
+# 3r. Risk Intelligence (Phase F.11, 2026-06-22)
+# ============================================================================
+step "3r. Risk Intelligence (Phase F.11)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/risk-intelligence/api/health")
+check_2xx "$code" "GET /api/foundation/risk-intelligence/api/health"
+
+# Fraud score
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/risk-intelligence/api/fraud/score" \
+  -H "Content-Type: application/json" \
+  -d '{"transaction":{"amount":100,"merchantCategory":"grocery","country":"US"},"context":{"deviceFingerprint":"a","ipRiskScore":0.1,"velocityLast1h":0,"velocityLast24h":0,"accountAge":365,"priorFraudFlags":0}}')
+check_2xx "$code" "POST /api/foundation/risk-intelligence/api/fraud/score"
+
+# Churn score
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/risk-intelligence/api/churn/score" \
+  -H "Content-Type: application/json" \
+  -d '{"customerId":"c-1","features":{"recencyDays":30,"frequency30d":5,"monetary30d":100,"tenureMonths":12,"supportTickets":0,"nps":9}}')
+check_2xx "$code" "POST /api/foundation/risk-intelligence/api/churn/score"
+
+# Credit score
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/risk-intelligence/api/credit/score" \
+  -H "Content-Type: application/json" \
+  -d '{"applicant":{"age":30,"income":50000,"debtToIncome":0.2,"creditHistoryYears":5,"recentInquiries":1}}')
+check_2xx "$code" "POST /api/foundation/risk-intelligence/api/credit/score"
+
+# Composite risk
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/risk-intelligence/api/risk/composite" \
+  -H "Content-Type: application/json" \
+  -d '{"fraud":30,"churn":0.2,"credit":720}')
+check_2xx "$code" "POST /api/foundation/risk-intelligence/api/risk/composite"
+
+# Verify capability map exposes Risk Intelligence
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "risk-intelligence" /tmp/demo-out; then
+  ok "Capability map exposes risk-intelligence"
+else
+  warn "Capability map missing risk-intelligence (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -539,6 +580,7 @@ echo "   • /api/foundation/knowledge-marketplace/* routes browse + purchase + 
 echo "   • /api/foundation/vector-db/* routes embed + store + search vectors (Phase F.8)"
 echo "   • /api/foundation/graph-database/* routes run Cypher-lite + BFS + PageRank on a property graph (Phase F.9)"
 echo "   • /api/foundation/predictive-intelligence/* routes forecast + detect anomalies + predict demand (Phase F.10)"
+echo "   • /api/foundation/risk-intelligence/* routes score fraud + churn + credit + composite (Phase F.11)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"

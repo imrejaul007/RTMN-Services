@@ -59,6 +59,9 @@ GRAPH_DATABASE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/graph
 # Predictive Intelligence (Phase F.10, 2026-06-22) — Time-series forecasting, anomaly detection, trend, demand prediction
 PREDICTIVE_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/predictive-intelligence && PORT=4754 PREDICTIVE_INTELLIGENCE_REQUIRE_AUTH=false npm start"
 
+# Risk Intelligence (Phase F.11, 2026-06-22) — Cross-domain risk scoring (fraud, churn, credit, composite)
+RISK_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/risk-intelligence && PORT=4755 RISK_INTELLIGENCE_REQUIRE_AUTH=false npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -134,6 +137,7 @@ status() {
     "Vector DB:4780" \
     "Graph Database:4783" \
     "Predictive Intelligence:4754" \
+    "Risk Intelligence:4755" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -176,6 +180,8 @@ start_all() {
   start_service "graph-database"         "$GRAPH_DATABASE_CMD"       4783
   # Predictive Intelligence (Phase F.10)
   start_service "predictive-intelligence" "$PREDICTIVE_INTELLIGENCE_CMD" 4754
+  # Risk Intelligence (Phase F.11)
+  start_service "risk-intelligence"      "$RISK_INTELLIGENCE_CMD"      4755
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -208,6 +214,7 @@ stop_all() {
   stop_port 4780 "Vector DB"
   stop_port 4783 "Graph Database"
   stop_port 4754 "Predictive Intelligence"
+  stop_port 4755 "Risk Intelligence"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"
