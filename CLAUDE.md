@@ -101,10 +101,12 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these docu
 | 6 | **[global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)** | Spec-level details: CapabilityOS schema, ACI formula, nexha-autonomous-logistics, CLI prompts, governance, funding, risk scenarios | When implementing specific features |
 | 7 | **[phase3-startup-developer-plan.md](.claude/plans/phase3-startup-developer-plan.md)** | External Studio plan for founders + developers (30-min startup wizard) | When building the founder/developer experience |
 | 8 | **[blr-ai-marketplace-role.md](.claude/plans/blr-ai-marketplace-role.md)** | How BAM (BLR AI Marketplace) helps every component of HOJAI Platform (1,200+ catalog items) | When working on the marketplace / install flows |
-| 9 | **[bam-complete-spec.md](.claude/plans/bam-complete-spec.md)** | Complete BAM spec: 28+ categories, 13 competitor categories, "AI Employees" reframing, 11 revenue streams, certification program, AI recommender | When planning BAM features, certification, or AI recommender |
-| 10 | **[blr-marketplace-agent-inventory.md](.claude/plans/blr-marketplace-agent-inventory.md)** | Complete inventory of existing BLR agents/workflows/twins/services | When integrating BAM with the platform |
-| 11 | **[skillos-usage.md](.claude/plans/skillos-usage.md)** | How SkillOS (the capability layer) is used across the whole HOJAI project | When building skills, agents, or workflow composition |
-| 12 | **[strategic-moat-acp-positioning.md](.claude/plans/strategic-moat-acp-positioning.md)** | 5-layer moat analysis, OpenAI threat, ACP as universal AI-to-AI protocol | When positioning HOJAI vs competitors |
+| 9 | **[bam-complete-spec.md](.claude/plans/bam-complete-spec.md)** | Complete BAM spec: 35+ categories (Business Capability Packs, HOJAI Widget, REZ Intel Packs, Local Nexha Packs), 13 competitor categories, "AI Employees" reframing, 11 revenue streams | When planning BAM features, certification, or AI recommender |
+| 10 | **[hojai-widget-spec.md](.claude/plans/hojai-widget-spec.md)** | HOJAI Widget (5KB embeddable) — the billion-dollar distribution channel for every website | When building the widget / distribution |
+| 11 | **[developer-platform-gaps.md](.claude/plans/developer-platform-gaps.md)** | The 12 missing developer platform pieces (Developer Portal, Local Runtime, Debugger, Package Manager, etc.) | When building the developer ecosystem |
+| 12 | **[rez-intelligence-local-economy.md](.claude/plans/rez-intelligence-local-economy.md)** | REZ Intelligence (12+ services, unused) + Local Nexha (city-level networks) + BuzzLocal + DO (consumer gateway) | When building REZ Intelligence integration or Local Nexha |
+| 13 | **[skillos-usage.md](.claude/plans/skillos-usage.md)** | How SkillOS (the capability layer) is used across the whole HOJAI project | When building skills, agents, or workflow composition |
+| 14 | **[strategic-moat-acp-positioning.md](.claude/plans/strategic-moat-acp-positioning.md)** | 5-layer moat analysis, OpenAI threat, ACP as universal AI-to-AI protocol | When positioning HOJAI vs competitors |
 
 **Plus investor + sample artifacts:**
 
@@ -165,7 +167,10 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these docu
 - **Detailed specs (schema, formulas, prompts, governance):** [global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)
 - **Company contributions + gaps:** [rtmn-companies-contribution-audit.md](.claude/plans/rtmn-companies-contribution-audit.md)
 - **BLR AI Marketplace (BAM) role:** [blr-ai-marketplace-role.md](.claude/plans/blr-ai-marketplace-role.md) — how BAM helps every component
-- **BAM complete spec:** [bam-complete-spec.md](.claude/plans/bam-complete-spec.md) — 28+ categories, "AI Employees" reframing, 13 competitor categories, 11 revenue streams
+- **BAM complete spec:** [bam-complete-spec.md](.claude/plans/bam-complete-spec.md) — 35+ categories, "AI Employees" reframing, 13 competitor categories, 11 revenue streams, Business Capability Packs
+- **HOJAI Widget:** [hojai-widget-spec.md](.claude/plans/hojai-widget-spec.md) — the billion-dollar distribution channel
+- **Developer Platform gaps:** [developer-platform-gaps.md](.claude/plans/developer-platform-gaps.md) — the 12 missing pieces
+- **REZ Intelligence + Local Economy:** [rez-intelligence-local-economy.md](.claude/plans/rez-intelligence-local-economy.md) — REZ Intel + Local Nexha + BuzzLocal
 - **BLR inventory:** [blr-marketplace-agent-inventory.md](.claude/plans/blr-marketplace-agent-inventory.md) — 1,200+ catalog items
 - **SkillOS usage:** [skillos-usage.md](.claude/plans/skillos-usage.md) — how SkillOS powers the whole project
 - **Strategic moat + ACP:** [strategic-moat-acp-positioning.md](.claude/plans/strategic-moat-acp-positioning.md) — 5-layer moat, OpenAI threat analysis
