@@ -1273,3 +1273,66 @@ Hub version bumped `1.10.0` → `1.11.0`.
 - `[to be added]` Phase 13 Hub wiring commit — RABTUL
 - `[to be added]` Phase 13 client wiring commit — REZ-Workspace
 - `[to be added]` Phase 13 client + tests commit — do-app
+
+---
+
+## ADR-0011 Phase 14 — Ecosystem Map + Test Framework Consolidation (2026-06-23)
+
+> **No new services. Pure documentation + tooling.** The single source of truth for the whole RTMN ecosystem, plus a partial migration of do-app tests from jest to vitest.
+
+### What shipped
+
+- **`docs/ecosystem-map.md`** — NEW. 13-section single-page map of all 480 services at the Hub. Replaces the scattered "Service Registry" tables in sub-CLAUDE.md files. Includes test framework consolidation status, repo health, and the road here.
+- **`do-app/backend/vitest.config.ts`** — NEW. Adds vitest as the runner for the do-app client test namespace.
+- **Phase 12 test migrated** — `hojaiClient.nexha.provisioningHooks.test.ts` rewritten to use `vi.fn()` instead of `jest.fn()`. Works under both jest and vitest.
+- **Phase 13 test already vitest-compatible** — `hojaiClient.nexha.tenantSummary.test.ts` was written vitest-first.
+
+### Ecosystem map sections
+
+1. Unified Hub (4399) — entry point + capability routing
+2. Nexha Network (17 services, including 3 from Phase 12-13)
+3. Department OS (9 services)
+4. Industry OS (26 services)
+5. Foundation (4 services)
+6. HOJAI AI Suite (5 services)
+7. REZ + AdBazaar (8 services)
+8. SUTAR OS (5 services)
+9. TwinOS (86+ digital twins)
+10. Test framework consolidation status
+11. Repos at a glance
+12. Per-service deep dive links
+13. The road here (ADR-0010 → 0011)
+
+### Test framework consolidation (Phase 14 partial)
+
+| Repo | Runner | Status | Notes |
+|------|--------|--------|-------|
+| Nexha (16 services) | vitest 2.x | ✅ 100% | All Nexha services on vitest since ADR-0009 |
+| RABTUL connector | (none) | n/a | v1.11.0, no tests yet |
+| do-app backend | vitest 2.x (new) + jest 29 (legacy) | 🔄 Partial | Phase 12-13 tests migrated; 9 legacy tests still on jest |
+| REZ-Workspace | node:test | ✅ 100% | All in-process client tests on built-in node:test |
+| HOJAI-AI | vitest 2.x | ✅ 100% | All on vitest |
+
+**Migrated in Phase 14:**
+- ✅ Added vitest.config.ts to do-app backend.
+- ✅ Phase 12 test converted from `import { jest } from '@jest/globals'` to `import { vi } from 'vitest'`.
+- ✅ Verified: 31 do-app tests run cleanly under vitest (10 Phase 13 + 21 Phase 12).
+
+**Out of scope for Phase 14 (deferred):**
+- ⏳ Migrate 9 legacy `*.test.ts` files in do-app backend that still use `@jest/globals`.
+- ⏳ Switch do-app backend's `package.json` `test` script from jest to vitest.
+
+### Files touched
+
+| File | Action |
+|---|---|
+| `docs/ecosystem-map.md` | NEW (300+ lines, 13 sections) |
+| `docs/nexha/PHASE-LOG.md` | append Phase 14 |
+| `companies/do-app/backend/vitest.config.ts` | NEW |
+| `companies/do-app/backend/package.json` | +vitest@^2.0.0 devDep |
+| `companies/do-app/backend/__tests__/unit/hojaiClient.nexha.provisioningHooks.test.ts` | jest → vitest (vi.fn()) |
+
+### Commits
+
+- `[to be added]` Phase 14 wiring commit — RTMN-root
+- `[to be added]` Phase 14 vitest config + migration commit — do-app
