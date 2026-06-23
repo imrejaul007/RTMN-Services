@@ -144,6 +144,205 @@ async function run() {
   // (already covered above, but explicit)
   a('voice/wake rejects missing userId', wakeNoUser.data?.error?.code === 'INVALID_INPUT');
 
+  // === Phase 8: Memory-inbox + Universal-search + Serendipity wiring ===
+
+  // genie-services health includes the 3 new specialists
+  a('genie-services health lists genie-memory-inbox', health.data?.data?.services?.['genie-memory-inbox'] !== undefined);
+  a('genie-services health lists genie-universal-search', health.data?.data?.services?.['genie-universal-search'] !== undefined);
+  a('genie-services health lists genie-serendipity', health.data?.data?.services?.['genie-serendipity'] !== undefined);
+
+  // Routes exist + auth-gated
+  const inboxCapture = await req('POST', '/api/genie-inbox/capture', { content: 'remember this' });
+  a('genie-inbox/capture requires auth (401)', inboxCapture.status === 401);
+
+  const inboxRecent = await req('GET', '/api/genie-inbox/recent');
+  a('genie-inbox/recent requires auth (401)', inboxRecent.status === 401);
+
+  const searchNoQ = await req('GET', '/api/genie-search');
+  a('genie-search requires auth (401)', searchNoQ.status === 401);
+
+  const serendipity = await req('GET', '/api/genie-serendipity/random');
+  a('genie-serendipity/random requires auth (401)', serendipity.status === 401);
+
+  // === Phase 8 (cont.): Memory-graph + Relationship-os + Learning-os wiring ===
+
+  // genie-services health includes the 3 new specialists
+  a('genie-services health lists genie-memory-graph', health.data?.data?.services?.['genie-memory-graph'] !== undefined);
+  a('genie-services health lists genie-relationship-os', health.data?.data?.services?.['genie-relationship-os'] !== undefined);
+  a('genie-services health lists genie-learning-os', health.data?.data?.services?.['genie-learning-os'] !== undefined);
+
+  // --- memory-graph ---
+  const graph = await req('GET', '/api/genie-graph/user-1');
+  a('genie-graph/:userId requires auth (401)', graph.status === 401);
+
+  // --- relationship-os ---
+  const relDash = await req('GET', '/api/genie-relationships/user-1/dashboard');
+  a('genie-relationships/:userId/dashboard requires auth (401)', relDash.status === 401);
+
+  const relInsights = await req('GET', '/api/genie-relationships/user-1/insights');
+  a('genie-relationships/:userId/insights requires auth (401)', relInsights.status === 401);
+
+  const relStale = await req('GET', '/api/genie-relationships/user-1/stale');
+  a('genie-relationships/:userId/stale requires auth (401)', relStale.status === 401);
+
+  const relPeople = await req('GET', '/api/genie-relationships/user-1/people');
+  a('genie-relationships/:userId/people requires auth (401)', relPeople.status === 401);
+
+  const relPeoplePost = await req('POST', '/api/genie-relationships/user-1/people', { name: 'Alice' });
+  a('genie-relationships/:userId/people POST requires auth (401)', relPeoplePost.status === 401);
+
+  const relInteract = await req('POST', '/api/genie-relationships/user-1/interactions', { personId: 'p-1', type: 'call' });
+  a('genie-relationships/:userId/interactions requires auth (401)', relInteract.status === 401);
+
+  const relReminders = await req('GET', '/api/genie-relationships/user-1/reminders');
+  a('genie-relationships/:userId/reminders requires auth (401)', relReminders.status === 401);
+
+  // --- learning-os ---
+  const learnCurr = await req('GET', '/api/genie-learning/user-1/curriculum');
+  a('genie-learning/:userId/curriculum requires auth (401)', learnCurr.status === 401);
+
+  const learnBiz = await req('GET', '/api/genie-learning/business/curriculum');
+  a('genie-learning/business/curriculum requires auth (401)', learnBiz.status === 401);
+
+  const learnProgress = await req('GET', '/api/genie-learning/user-1/progress');
+  a('genie-learning/:userId/progress requires auth (401)', learnProgress.status === 401);
+
+  const learnRecs = await req('GET', '/api/genie-learning/user-1/recommendations');
+  a('genie-learning/:userId/recommendations requires auth (401)', learnRecs.status === 401);
+
+  const learnEnroll = await req('POST', '/api/genie-learning/user-1/enroll', { trackId: 't-1' });
+  a('genie-learning/:userId/enroll requires auth (401)', learnEnroll.status === 401);
+
+  const learnStart = await req('POST', '/api/genie-learning/user-1/course/c-1/start', {});
+  a('genie-learning/:userId/course/:courseId/start requires auth (401)', learnStart.status === 401);
+
+  // === Phase 9: Final 8 specialists wiring ===
+
+  // genie-services health includes the 8 new specialists
+  a('genie-services health lists genie-companion-service', health.data?.data?.services?.['genie-companion-service'] !== undefined);
+  a('genie-services health lists genie-smart-forgetting-service', health.data?.data?.services?.['genie-smart-forgetting-service'] !== undefined);
+  a('genie-services health lists genie-thinking-engine', health.data?.data?.services?.['genie-thinking-engine'] !== undefined);
+  a('genie-services health lists genie-life-gps', health.data?.data?.services?.['genie-life-gps'] !== undefined);
+  a('genie-services health lists genie-execution-engine', health.data?.data?.services?.['genie-execution-engine'] !== undefined);
+  a('genie-services health lists genie-life-university', health.data?.data?.services?.['genie-life-university'] !== undefined);
+  a('genie-services health lists genie-creation-os', health.data?.data?.services?.['genie-creation-os'] !== undefined);
+  a('genie-services health lists genie-consultant-agent', health.data?.data?.services?.['genie-consultant-agent'] !== undefined);
+
+  // --- companion-service ---
+  const compStory = await req('GET', '/api/genie-companion/user-1/story');
+  a('genie-companion/:userId/story requires auth (401)', compStory.status === 401);
+
+  const compJournal = await req('GET', '/api/genie-companion/user-1/journal');
+  a('genie-companion/:userId/journal GET requires auth (401)', compJournal.status === 401);
+
+  const compJournalPost = await req('POST', '/api/genie-companion/user-1/journal', { content: 'today was great' });
+  a('genie-companion/:userId/journal POST requires auth (401)', compJournalPost.status === 401);
+
+  // --- thinking-engine ---
+  const thinkProsCons = await req('POST', '/api/genie-thinking/decide/pros-cons', { question: 'should I move?' });
+  a('genie-thinking/decide/pros-cons requires auth (401)', thinkProsCons.status === 401);
+
+  const thinkGoNoGo = await req('POST', '/api/genie-thinking/decide/go-no-go', { question: 'should I invest?' });
+  a('genie-thinking/decide/go-no-go requires auth (401)', thinkGoNoGo.status === 401);
+
+  const thinkBrainstorm = await req('POST', '/api/genie-thinking/brainstorm', { topic: 'apps' });
+  a('genie-thinking/brainstorm requires auth (401)', thinkBrainstorm.status === 401);
+
+  const thinkSwot = await req('POST', '/api/genie-thinking/analyze/swot', { subject: 'product X' });
+  a('genie-thinking/analyze/swot requires auth (401)', thinkSwot.status === 401);
+
+  const thinkResearch = await req('POST', '/api/genie-thinking/research/summarize', { text: 'long text' });
+  a('genie-thinking/research/summarize requires auth (401)', thinkResearch.status === 401);
+
+  // --- life-gps ---
+  const gpsFuture = await req('GET', '/api/genie-life-gps/user-1/future-self');
+  a('genie-life-gps/:userId/future-self requires auth (401)', gpsFuture.status === 401);
+
+  const gpsNext = await req('GET', '/api/genie-life-gps/user-1/next');
+  a('genie-life-gps/:userId/next requires auth (401)', gpsNext.status === 401);
+
+  const gpsGoals = await req('GET', '/api/genie-life-gps/user-1/goals');
+  a('genie-life-gps/:userId/goals requires auth (401)', gpsGoals.status === 401);
+
+  const gpsGoalsPost = await req('POST', '/api/genie-life-gps/user-1/goals', { title: 'retire at 50' });
+  a('genie-life-gps/:userId/goals POST requires auth (401)', gpsGoalsPost.status === 401);
+
+  // --- execution-engine ---
+  const execTasks = await req('GET', '/api/genie-execution/user-1/tasks');
+  a('genie-execution/:userId/tasks requires auth (401)', execTasks.status === 401);
+
+  const execTasksPost = await req('POST', '/api/genie-execution/user-1/tasks', { title: 'finish report' });
+  a('genie-execution/:userId/tasks POST requires auth (401)', execTasksPost.status === 401);
+
+  const execAuto = await req('POST', '/api/genie-execution/user-1/automations/auto-1/run', {});
+  a('genie-execution/:userId/automations/:id/run requires auth (401)', execAuto.status === 401);
+
+  // --- life-university ---
+  const uni = await req('GET', '/api/genie-university/user-1');
+  a('genie-university/:userId requires auth (401)', uni.status === 401);
+
+  const uniCourses = await req('GET', '/api/genie-university/courses');
+  a('genie-university/courses requires auth (401)', uniCourses.status === 401);
+
+  const uniComplete = await req('POST', '/api/genie-university/courses/c-1/lessons/l-1/complete', {});
+  a('genie-university/courses/:courseId/lessons/:lessonId/complete requires auth (401)', uniComplete.status === 401);
+
+  const uniVerify = await req('GET', '/api/genie-university/verify/ver-1');
+  a('genie-university/verify/:verificationId requires auth (401)', uniVerify.status === 401);
+
+  // --- creation-os ---
+  const createTts = await req('POST', '/api/genie-creation/tts', { text: 'hello' });
+  a('genie-creation/tts requires auth (401)', createTts.status === 401);
+
+  const createPodcast = await req('POST', '/api/genie-creation/podcast', { topic: 'tech' });
+  a('genie-creation/podcast requires auth (401)', createPodcast.status === 401);
+
+  const createMusic = await req('POST', '/api/genie-creation/music', { mood: 'calm' });
+  a('genie-creation/music requires auth (401)', createMusic.status === 401);
+
+  const createVoiceover = await req('POST', '/api/genie-creation/voiceover', { script: 'hi' });
+  a('genie-creation/voiceover requires auth (401)', createVoiceover.status === 401);
+
+  const createProjects = await req('GET', '/api/genie-creation/user-1/projects');
+  a('genie-creation/:userId/projects requires auth (401)', createProjects.status === 401);
+
+  // --- consultant-agent ---
+  const consult = await req('POST', '/api/genie-consult', { question: 'how do I scale my restaurant?' });
+  a('genie-consult requires auth (401)', consult.status === 401);
+
+  const consultDomains = await req('GET', '/api/genie-consult/domains');
+  a('genie-consult/domains requires auth (401)', consultDomains.status === 401);
+
+  const consultHistory = await req('GET', '/api/genie-consult/user-1/history');
+  a('genie-consult/:userId/history requires auth (401)', consultHistory.status === 401);
+
+  // --- smart-forgetting-service ---
+  const forgetGet = await req('GET', '/api/genie-forgetting/config');
+  a('genie-forgetting/config requires auth (401)', forgetGet.status === 401);
+
+  const forgetPut = await req('PUT', '/api/genie-forgetting/config', { retentionDays: 90 });
+  a('genie-forgetting/config PUT requires auth (401)', forgetPut.status === 401);
+
+  const forgetPresets = await req('GET', '/api/genie-forgetting/presets');
+  a('genie-forgetting/presets requires auth (401)', forgetPresets.status === 401);
+
+  const forgetCleanup = await req('POST', '/api/genie-forgetting/cleanup', {});
+  a('genie-forgetting/cleanup requires auth (401)', forgetCleanup.status === 401);
+
+  // === Phase 9 (cont.): Aggregator + intent-engine integration ===
+
+  // /api/genie/personal/:userId requires auth
+  const personal = await req('GET', '/api/genie/personal/user-1');
+  a('genie/personal/:userId requires auth (401)', personal.status === 401);
+
+  // /api/genie/intent requires auth
+  const intentAuth = await req('POST', '/api/genie/intent', { text: 'hi' });
+  a('genie/intent requires auth (401)', intentAuth.status === 401);
+
+  // Verify /api/ask still works (regression)
+  const askQuick = await req('POST', '/api/ask', { question: 'remember this' });
+  a('ask still works (no crash from intent-engine integration)', askQuick.status === 200 || askQuick.status === 401);
+
   // === Summary ===
   console.log(`\n${p} passed, ${f} failed`);
   server.close();

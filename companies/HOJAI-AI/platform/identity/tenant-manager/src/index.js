@@ -34,6 +34,21 @@ const app = express();
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4747;
+const SERVICE_NAME = 'tenant-manager';
+
+// ---------------------------------------------------------------------------
+// Auth bypass (tests + local dev)
+// ---------------------------------------------------------------------------
+// Set TENANT_MANAGER_REQUIRE_AUTH=false to disable JWT validation.
+// Set TENANT_MANAGER_NO_LISTEN=true (or NODE_ENV=test) to skip the listen()
+// call so vitest can import the app without binding the port.
+const TENANT_MANAGER_REQUIRE_AUTH =
+  (process.env.TENANT_MANAGER_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const TENANT_MANAGER_NO_LISTEN =
+  (process.env.TENANT_MANAGER_NO_LISTEN ?? '').toLowerCase() === 'true' ||
+  process.env.NODE_ENV === 'test';
+const authOrBypass = (req, res, next) =>
+  TENANT_MANAGER_REQUIRE_AUTH ? requireAuth(req, res, next) : next();
 
 // ---------------------------------------------------------------------------
 // Middleware
@@ -163,7 +178,7 @@ function getProjectOr404(req, res) {
  * POST /api/tenants
  * Create a new tenant. `name` and `slug` are required.
  */
-app.post('/api/tenants',requireAuth,  (req, res) => {
+app.post('/api/tenants', authOrBypass,  (req, res) => {
   const { name, slug, plan, status, metadata, settings, region } = req.body || {};
   if (!name || !slug) {
     return res.status(400).json({ error: 'name and slug are required' });
@@ -228,7 +243,7 @@ app.get('/api/tenants/by-slug/:slug', (req, res) => {
 });
 
 /** PUT /api/tenants/:id - partial update */
-app.put('/api/tenants/:id',requireAuth,  (req, res) => {
+app.put('/api/tenants/:id', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { name, plan, metadata, settings, region } = req.body || {};
@@ -249,7 +264,7 @@ app.put('/api/tenants/:id',requireAuth,  (req, res) => {
 });
 
 /** DELETE /api/tenants/:id - soft delete (status='deleted') */
-app.delete('/api/tenants/:id',requireAuth,  (req, res) => {
+app.delete('/api/tenants/:id', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   tenant.status = 'deleted';
@@ -259,7 +274,7 @@ app.delete('/api/tenants/:id',requireAuth,  (req, res) => {
 });
 
 /** POST /api/tenants/:id/suspend */
-app.post('/api/tenants/:id/suspend',requireAuth,  (req, res) => {
+app.post('/api/tenants/:id/suspend', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   tenant.status = 'suspended';
@@ -269,7 +284,7 @@ app.post('/api/tenants/:id/suspend',requireAuth,  (req, res) => {
 });
 
 /** POST /api/tenants/:id/activate */
-app.post('/api/tenants/:id/activate',requireAuth,  (req, res) => {
+app.post('/api/tenants/:id/activate', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   tenant.status = 'active';
@@ -283,7 +298,7 @@ app.post('/api/tenants/:id/activate',requireAuth,  (req, res) => {
 // ---------------------------------------------------------------------------
 
 /** POST /api/tenants/:id/projects */
-app.post('/api/tenants/:id/projects',requireAuth,  (req, res) => {
+app.post('/api/tenants/:id/projects', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { name, slug, metadata } = req.body || {};
@@ -336,7 +351,7 @@ app.get('/api/projects/:projectId', (req, res) => {
 });
 
 /** PUT /api/projects/:projectId */
-app.put('/api/projects/:projectId',requireAuth,  (req, res) => {
+app.put('/api/projects/:projectId', authOrBypass,  (req, res) => {
   const project = getProjectOr404(req, res);
   if (!project) return;
   const { name, metadata } = req.body || {};
@@ -348,7 +363,7 @@ app.put('/api/projects/:projectId',requireAuth,  (req, res) => {
 });
 
 /** DELETE /api/projects/:projectId */
-app.delete('/api/projects/:projectId',requireAuth,  (req, res) => {
+app.delete('/api/projects/:projectId', authOrBypass,  (req, res) => {
   const project = getProjectOr404(req, res);
   if (!project) return;
   projects.delete(project.id);
@@ -372,7 +387,7 @@ function ensureMembers(tenant) {
 }
 
 /** POST /api/tenants/:id/members */
-app.post('/api/tenants/:id/members',requireAuth,  (req, res) => {
+app.post('/api/tenants/:id/members', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { userId, email, role, projectIds } = req.body || {};
@@ -414,7 +429,7 @@ app.get('/api/tenants/:id/members', (req, res) => {
 });
 
 /** PUT /api/tenants/:id/members/:userId */
-app.put('/api/tenants/:id/members/:userId',requireAuth,  (req, res) => {
+app.put('/api/tenants/:id/members/:userId', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { role, projectIds } = req.body || {};
@@ -430,7 +445,7 @@ app.put('/api/tenants/:id/members/:userId',requireAuth,  (req, res) => {
 });
 
 /** DELETE /api/tenants/:id/members/:userId */
-app.delete('/api/tenants/:id/members/:userId',requireAuth,  (req, res) => {
+app.delete('/api/tenants/:id/members/:userId', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const idx = ensureMembers(tenant).findIndex(m => m.userId === req.params.userId);
@@ -445,7 +460,7 @@ app.delete('/api/tenants/:id/members/:userId',requireAuth,  (req, res) => {
 // ---------------------------------------------------------------------------
 
 /** POST /api/tenants/:id/keys */
-app.post('/api/tenants/:id/keys',requireAuth,  (req, res) => {
+app.post('/api/tenants/:id/keys', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { name, scopes, expiresAt } = req.body || {};
@@ -481,7 +496,7 @@ app.get('/api/tenants/:id/keys', (req, res) => {
 });
 
 /** DELETE /api/tenants/:id/keys/:keyId */
-app.delete('/api/tenants/:id/keys/:keyId',requireAuth,  (req, res) => {
+app.delete('/api/tenants/:id/keys/:keyId', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const entry = Array.from(apiKeysByHash.values()).find(
@@ -495,7 +510,7 @@ app.delete('/api/tenants/:id/keys/:keyId',requireAuth,  (req, res) => {
 });
 
 /** POST /api/keys/validate - returns tenant + scopes if valid */
-app.post('/api/keys/validate',requireAuth,  (req, res) => {
+app.post('/api/keys/validate', authOrBypass,  (req, res) => {
   const { key } = req.body || {};
   if (!key || typeof key !== 'string') {
     return res.status(400).json({ valid: false, error: 'key is required' });
@@ -527,7 +542,7 @@ app.post('/api/keys/validate',requireAuth,  (req, res) => {
 // ---------------------------------------------------------------------------
 
 /** POST /api/tenants/:id/usage */
-app.post('/api/tenants/:id/usage',requireAuth,  (req, res) => {
+app.post('/api/tenants/:id/usage', authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { metric, quantity, timestamp, metadata } = req.body || {};
@@ -768,14 +783,22 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log('TenantManager running on port ' + PORT);
-  // eslint-disable-next-line no-console
-  console.log('Health:    http://localhost:' + PORT + '/health');
-  // eslint-disable-next-line no-console
-  console.log('Tenants:   http://localhost:' + PORT + '/api/tenants');
-});
-installGracefulShutdown(server);
+let server = null;
+if (require.main === module && !TENANT_MANAGER_NO_LISTEN) {
+  server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log('TenantManager running on port ' + PORT);
+    // eslint-disable-next-line no-console
+    console.log('Health:    http://localhost:' + PORT + '/health');
+    // eslint-disable-next-line no-console
+    console.log('Tenants:   http://localhost:' + PORT + '/api/tenants');
+  });
+  installGracefulShutdown(server);
+}
 
 module.exports = app;
+module.exports.app = app;
+module.exports.authOrBypass = authOrBypass;
+module.exports.TENANT_MANAGER_REQUIRE_AUTH = TENANT_MANAGER_REQUIRE_AUTH;
+module.exports.TENANT_MANAGER_NO_LISTEN = TENANT_MANAGER_NO_LISTEN;
+module.exports.SERVICE_NAME = SERVICE_NAME;

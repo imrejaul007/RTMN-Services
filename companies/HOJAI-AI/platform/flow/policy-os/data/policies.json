@@ -994,5 +994,161 @@
       "createdAt": "2026-06-21T19:20:00.406Z",
       "updatedAt": "2026-06-21T19:20:00.406Z"
     }
+  ],
+  [
+    "demo-foundation-70090-1782205010",
+    {
+      "id": "demo-foundation-70090-1782205010",
+      "name": "Demo US payment allow",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {
+            "context.country": "US"
+          },
+          "then": {
+            "allow": true
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "composition": null,
+      "effectiveFrom": null,
+      "effectiveUntil": null,
+      "tags": [],
+      "owner": "u-admin",
+      "createdAt": "2026-06-23T08:56:50.220Z",
+      "updatedAt": "2026-06-23T08:56:50.264Z"
+    }
+  ],
+  [
+    "demo-foundation-70714-1782205208",
+    {
+      "id": "demo-foundation-70714-1782205208",
+      "name": "Demo US payment allow",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {
+            "context.country": "US"
+          },
+          "then": {
+            "allow": true
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "composition": null,
+      "effectiveFrom": null,
+      "effectiveUntil": null,
+      "tags": [],
+      "owner": "u-admin",
+      "createdAt": "2026-06-23T09:00:08.357Z",
+      "updatedAt": "2026-06-23T09:00:08.385Z"
+    }
+  ],
+  [
+    "demo-foundation-70966-1782205254",
+    {
+      "id": "demo-foundation-70966-1782205254",
+      "name": "Demo US payment allow",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {
+            "context.country": "US"
+          },
+          "then": {
+            "allow": true
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "composition": null,
+      "effectiveFrom": null,
+      "effectiveUntil": null,
+      "tags": [],
+      "owner": "u-admin",
+      "createdAt": "2026-06-23T09:00:54.365Z",
+      "updatedAt": "2026-06-23T09:00:54.411Z"
+    }
+  ],
+  [
+    "demo-foundation-72335-1782205708",
+    {
+      "id": "demo-foundation-72335-1782205708",
+      "name": "Demo US payment allow",
+      "description": "",
+      "category": "security",
+      "version": 1,
+      "priority": 50,
+      "status": "retired",
+      "conditions": {},
+      "rules": [
+        {
+          "if": {
+            "context.country": "US"
+          },
+          "then": {
+            "allow": true
+          }
+        }
+      ],
+      "actions": {
+        "onAllow": {},
+        "onDeny": {}
+      },
+      "exceptions": [],
+      "approvals": {
+        "strategy": "single",
+        "requiredApprovers": []
+      },
+      "composition": null,
+      "effectiveFrom": null,
+      "effectiveUntil": null,
+      "tags": [],
+      "owner": "u-admin",
+      "createdAt": "2026-06-23T09:08:28.962Z",
+      "updatedAt": "2026-06-23T09:08:28.988Z"
+    }
   ]
 ]

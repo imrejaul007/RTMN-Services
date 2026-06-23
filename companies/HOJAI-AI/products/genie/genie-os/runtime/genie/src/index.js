@@ -35,6 +35,21 @@ const GENIE_SHOPPING_URL = process.env.GENIE_SHOPPING_URL || 'http://localhost:4
 const GENIE_WAKE_WORD_URL = process.env.GENIE_WAKE_WORD_URL || 'http://localhost:4767';
 const GENIE_LISTENING_MODES_URL = process.env.GENIE_LISTENING_MODES_URL || 'http://localhost:4768';
 const GENIE_DEVICE_INTEGRATION_URL = process.env.GENIE_DEVICE_INTEGRATION_URL || 'http://localhost:4769';
+const GENIE_MEMORY_INBOX_URL = process.env.GENIE_MEMORY_INBOX_URL || 'http://localhost:4710';
+const GENIE_UNIVERSAL_SEARCH_URL = process.env.GENIE_UNIVERSAL_SEARCH_URL || 'http://localhost:4713';
+const GENIE_SERENDIPITY_URL = process.env.GENIE_SERENDIPITY_URL || 'http://localhost:4714';
+const GENIE_MEMORY_GRAPH_URL = process.env.GENIE_MEMORY_GRAPH_URL || 'http://localhost:4717';
+const GENIE_RELATIONSHIP_OS_URL = process.env.GENIE_RELATIONSHIP_OS_URL || 'http://localhost:4718';
+const GENIE_LEARNING_OS_URL = process.env.GENIE_LEARNING_OS_URL || 'http://localhost:4722';
+// Phase 9 services — final 8 specialists (completes the 23-specialist surface)
+const GENIE_COMPANION_URL = process.env.GENIE_COMPANION_URL || 'http://localhost:4716';
+const GENIE_SMART_FORGETTING_URL = process.env.GENIE_SMART_FORGETTING_URL || 'http://localhost:4715';
+const GENIE_THINKING_ENGINE_URL = process.env.GENIE_THINKING_ENGINE_URL || 'http://localhost:4719';
+const GENIE_LIFE_GPS_URL = process.env.GENIE_LIFE_GPS_URL || 'http://localhost:4721';
+const GENIE_EXECUTION_ENGINE_URL = process.env.GENIE_EXECUTION_ENGINE_URL || 'http://localhost:4726';
+const GENIE_LIFE_UNIVERSITY_URL = process.env.GENIE_LIFE_UNIVERSITY_URL || 'http://localhost:4727';
+const GENIE_CREATION_OS_URL = process.env.GENIE_CREATION_OS_URL || 'http://localhost:4298';
+const GENIE_CONSULTANT_AGENT_URL = process.env.GENIE_CONSULTANT_AGENT_URL || 'http://localhost:4739';
 // New Phase 1 services (Personal Intelligence OS)
 const INTENT_ENGINE_URL = process.env.INTENT_ENGINE_URL || 'http://localhost:4792';
 const MEMORY_SUBSTRATE_URL = process.env.MEMORY_SUBSTRATE_URL || 'http://localhost:4791';
@@ -283,6 +298,15 @@ async function tryGenieGateway(question, user, memContext, goalContext) {
     if (res && res.data && res.data.answer) {
       return res.data.answer;
     }
+    // Phase 9: fall through to intent-engine when genie-gateway has no answer
+    if (USE_INTENT_ENGINE) {
+      const intent = await tryIntentEngine(question, user);
+      if (intent && intent.intent) {
+        const conf = intent.confidence ? ` (confidence ${(intent.confidence * 100).toFixed(0)}%)` : '';
+        const reason = intent.reasoning ? ` — ${intent.reasoning}` : '';
+        return `I think you want to ${intent.intent}${conf}${reason}`;
+      }
+    }
     return null;
   } catch (e) {
     return null;
@@ -302,6 +326,21 @@ app.get('/api/genie-services/health', async (req, res) => {
     { name: 'genie-wake-word-service', url: GENIE_WAKE_WORD_URL },
     { name: 'genie-listening-modes',   url: GENIE_LISTENING_MODES_URL },
     { name: 'genie-device-integration',url: GENIE_DEVICE_INTEGRATION_URL },
+    { name: 'genie-memory-inbox',      url: GENIE_MEMORY_INBOX_URL },
+    { name: 'genie-universal-search',  url: GENIE_UNIVERSAL_SEARCH_URL },
+    { name: 'genie-serendipity',       url: GENIE_SERENDIPITY_URL },
+    { name: 'genie-memory-graph',      url: GENIE_MEMORY_GRAPH_URL },
+    { name: 'genie-relationship-os',   url: GENIE_RELATIONSHIP_OS_URL },
+    { name: 'genie-learning-os',       url: GENIE_LEARNING_OS_URL },
+    // Phase 9: final 8 specialists
+    { name: 'genie-companion-service',     url: GENIE_COMPANION_URL },
+    { name: 'genie-smart-forgetting-service', url: GENIE_SMART_FORGETTING_URL },
+    { name: 'genie-thinking-engine',       url: GENIE_THINKING_ENGINE_URL },
+    { name: 'genie-life-gps',              url: GENIE_LIFE_GPS_URL },
+    { name: 'genie-execution-engine',      url: GENIE_EXECUTION_ENGINE_URL },
+    { name: 'genie-life-university',       url: GENIE_LIFE_UNIVERSITY_URL },
+    { name: 'genie-creation-os',           url: GENIE_CREATION_OS_URL },
+    { name: 'genie-consultant-agent',      url: GENIE_CONSULTANT_AGENT_URL },
     // Voice OS enterprise platform
     { name: 'voice-os',                url: VOICE_OS_URL,           skip: !USE_VOICE_OS },
     { name: 'voice-commerce',          url: VOICE_COMMERCE_URL,     skip: !USE_VOICE_OS },
@@ -601,6 +640,726 @@ app.post('/api/pios/lrt/:userId/tasks', authMiddleware, async (req, res, next) =
   } catch (e) {
     if (e.response) res.status(e.response.status).json(e.response.data);
     else next(e);
+  }
+});
+
+// =====================================================================================
+// PHASE 8: MEMORY-INBOX + UNIVERSAL-SEARCH + SERENDIPITY wiring
+// =====================================================================================
+// These three specialists round out Genie's "personal intelligence" surface so
+// /api/ask can capture user notes, search across everything, and surface
+// random serendipitous memories.
+
+// --- memory-inbox: capture a thought/note into the user's inbox ---
+app.post('/api/genie-inbox/capture', authMiddleware, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return err(res, 404, 'NOT_FOUND', 'user not found');
+    const r = await axios.post(`${GENIE_MEMORY_INBOX_URL}/api/capture`, {
+      ...req.body,
+      userId: req.userId,
+      corpId: user.corpId,
+    }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-memory-inbox', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'memory-inbox unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- memory-inbox: list user's recent captures ---
+app.get('/api/genie-inbox/recent', authMiddleware, async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const r = await axios.get(`${GENIE_MEMORY_INBOX_URL}/api/recent`, {
+      params: { userId: req.userId, limit },
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-memory-inbox', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'memory-inbox unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- universal-search: search across memories + twins + calendar + tasks ---
+app.get('/api/genie-search', authMiddleware, async (req, res, next) => {
+  try {
+    const { q, kind = 'all', limit = 10 } = req.query;
+    if (!q) return err(res, 400, 'INVALID_INPUT', 'q (search query) required');
+    const path = kind === 'all' ? '/api/search' : `/api/search/${kind}`;
+    const r = await axios.get(`${GENIE_UNIVERSAL_SEARCH_URL}${path}`, {
+      params: { q, userId: req.userId, limit },
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 5000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-universal-search', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'universal-search unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- serendipity: surface a random resurfaced memory ---
+app.get('/api/genie-serendipity/random', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_SERENDIPITY_URL}/api/serendipity`, {
+      params: { userId: req.userId, kind: req.query.kind },
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-serendipity', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'serendipity unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// =====================================================================================
+// PHASE 8 (cont.): MEMORY-GRAPH + RELATIONSHIP-OS + LEARNING-OS wiring
+// =====================================================================================
+// Three more specialists that round out Genie's persistent, long-term surface area.
+// All routes are auth-gated and degrade gracefully when the downstream is offline.
+
+// --- memory-graph: user's unified graph overview (identity + knowledge + relationships + goals + timeline) ---
+app.get('/api/genie-graph/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_MEMORY_GRAPH_URL}/api/user/${req.params.userId}/graph`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-memory-graph', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'memory-graph unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- relationship-os: high-value endpoints ---
+
+// Dashboard: people + reminders + upcoming events + weak relationships in one shot
+app.get('/api/genie-relationships/:userId/dashboard', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_RELATIONSHIP_OS_URL}/api/${req.params.userId}/dashboard`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-relationship-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'relationship-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// AI-generated insights: who needs attention, relationship patterns
+app.get('/api/genie-relationships/:userId/insights', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_RELATIONSHIP_OS_URL}/api/intelligence/${req.params.userId}/insights`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-relationship-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'relationship-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Stale relationships — who you haven't talked to in a while
+app.get('/api/genie-relationships/:userId/stale', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_RELATIONSHIP_OS_URL}/api/health/${req.params.userId}/weak`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-relationship-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'relationship-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// List people the user tracks
+app.get('/api/genie-relationships/:userId/people', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_RELATIONSHIP_OS_URL}/api/people/${req.params.userId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-relationship-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'relationship-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Add a person to the user's relationship network
+app.post('/api/genie-relationships/:userId/people', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_RELATIONSHIP_OS_URL}/api/people`, {
+      ...req.body,
+      userId: req.params.userId,
+    }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.status(r.status === 200 ? 201 : r.status).json({ success: true, data: r.data, delegated_to: 'genie-relationship-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'relationship-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Log an interaction with a person
+app.post('/api/genie-relationships/:userId/interactions', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_RELATIONSHIP_OS_URL}/api/interactions`, {
+      ...req.body,
+      userId: req.params.userId,
+    }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.status(r.status === 200 ? 201 : r.status).json({ success: true, data: r.data, delegated_to: 'genie-relationship-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'relationship-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// List user's reminders (birthdays, follow-ups, etc.)
+app.get('/api/genie-relationships/:userId/reminders', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_RELATIONSHIP_OS_URL}/api/reminders/${req.params.userId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-relationship-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'relationship-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- learning-os: high-value endpoints ---
+
+// User's full curriculum
+app.get('/api/genie-learning/:userId/curriculum', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LEARNING_OS_URL}/${req.params.userId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-learning-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'learning-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Business track curriculum (catalog)
+app.get('/api/genie-learning/business/curriculum', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LEARNING_OS_URL}/curriculum`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-learning-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'learning-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// User's progress on the business track
+app.get('/api/genie-learning/:userId/progress', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LEARNING_OS_URL}/progress/${req.params.userId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-learning-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'learning-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Skill recommendations for the user
+app.get('/api/genie-learning/:userId/recommendations', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LEARNING_OS_URL}/recommendations/${req.params.userId}`, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-learning-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'learning-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Enroll user in a business track
+app.post('/api/genie-learning/:userId/enroll', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_LEARNING_OS_URL}/enroll/${req.params.userId}`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.status(r.status === 200 ? 201 : r.status).json({ success: true, data: r.data, delegated_to: 'genie-learning-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'learning-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// Start a course
+app.post('/api/genie-learning/:userId/course/:courseId/start', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_LEARNING_OS_URL}/course/${req.params.courseId}/start/${req.params.userId}`, req.body, {
+      headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN },
+      timeout: 3000,
+      validateStatus: () => true,
+    });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.status(r.status === 200 ? 201 : r.status).json({ success: true, data: r.data, delegated_to: 'genie-learning-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'learning-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// =====================================================================================
+// PHASE 9: FINAL 8 SPECIALISTS — companion, thinking, life-gps, execution,
+//          life-university, creation-os, consultant, smart-forgetting
+// =====================================================================================
+// Completes the 23-specialist wiring. All routes are auth-gated and degrade
+// gracefully when the downstream service is unreachable.
+
+// --- companion-service: life story, journal, milestones ---
+app.get('/api/genie-companion/:userId/story', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_COMPANION_URL}/story/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-companion-service', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'companion-service unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-companion/:userId/journal', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_COMPANION_URL}/journal/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-companion-service', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'companion-service unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-companion/:userId/journal', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_COMPANION_URL}/journal/${req.params.userId}`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.status(r.status === 200 ? 201 : r.status).json({ success: true, data: r.data, delegated_to: 'genie-companion-service', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'companion-service unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- thinking-engine: decision support, brainstorming, analysis ---
+app.post('/api/genie-thinking/decide/pros-cons', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_THINKING_ENGINE_URL}/decide/pros-cons`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-thinking-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'thinking-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-thinking/decide/go-no-go', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_THINKING_ENGINE_URL}/decide/go-no-go`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-thinking-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'thinking-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-thinking/brainstorm', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_THINKING_ENGINE_URL}/brainstorm`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-thinking-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'thinking-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-thinking/analyze/swot', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_THINKING_ENGINE_URL}/analyze/swot`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-thinking-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'thinking-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-thinking/research/summarize', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_THINKING_ENGINE_URL}/research/summarize`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-thinking-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'thinking-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- life-gps: future-self, life goals, vision ---
+app.get('/api/genie-life-gps/:userId/future-self', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LIFE_GPS_URL}/future/self/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-life-gps', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-gps unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-life-gps/:userId/next', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LIFE_GPS_URL}/gps/next/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-life-gps', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-gps unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-life-gps/:userId/goals', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LIFE_GPS_URL}/goals/life/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-life-gps', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-gps unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-life-gps/:userId/goals', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_LIFE_GPS_URL}/goals/life`, { ...req.body, userId: req.params.userId }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.status(r.status === 200 ? 201 : r.status).json({ success: true, data: r.data, delegated_to: 'genie-life-gps', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-gps unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- execution-engine: tasks, automations, routines ---
+app.get('/api/genie-execution/:userId/tasks', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_EXECUTION_ENGINE_URL}/tasks/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-execution-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'execution-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-execution/:userId/tasks', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_EXECUTION_ENGINE_URL}/tasks`, { ...req.body, userId: req.params.userId }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.status(r.status === 200 ? 201 : r.status).json({ success: true, data: r.data, delegated_to: 'genie-execution-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'execution-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-execution/:userId/automations/:automationId/run', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_EXECUTION_ENGINE_URL}/automation/${req.params.automationId}/run`, { ...req.body, userId: req.params.userId }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-execution-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'execution-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- life-university: courses, lessons, certifications ---
+app.get('/api/genie-university/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LIFE_UNIVERSITY_URL}/progress/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-life-university', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-university unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-university/courses', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LIFE_UNIVERSITY_URL}/courses/featured/all`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-life-university', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-university unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-university/courses/:courseId/lessons/:lessonId/complete', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_LIFE_UNIVERSITY_URL}/lessons/${req.params.courseId}/${req.params.lessonId}/complete`, { ...req.body, userId: req.userId }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-life-university', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-university unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-university/verify/:verificationId', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_LIFE_UNIVERSITY_URL}/certification/verify/${req.params.verificationId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-life-university', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'life-university unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- creation-os: tts, podcast, music, voiceover ---
+app.post('/api/genie-creation/tts', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_CREATION_OS_URL}/audio/tts`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-creation-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'creation-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-creation/podcast', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_CREATION_OS_URL}/audio/podcast`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 30000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-creation-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'creation-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-creation/music', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_CREATION_OS_URL}/audio/music`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 30000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-creation-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'creation-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-creation/voiceover', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_CREATION_OS_URL}/audio/voiceover`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-creation-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'creation-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-creation/:userId/projects', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_CREATION_OS_URL}/video/projects/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-creation-os', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'creation-os unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- consultant-agent: domain-specific advice ---
+app.post('/api/genie-consult', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_CONSULTANT_AGENT_URL}/consult`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 8000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-consultant-agent', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'consultant-agent unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-consult/domains', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_CONSULTANT_AGENT_URL}/consult/domains`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-consultant-agent', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'consultant-agent unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-consult/:userId/history', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_CONSULTANT_AGENT_URL}/consult/history/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-consultant-agent', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'consultant-agent unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// --- smart-forgetting-service: retention curves, archive, presets ---
+app.get('/api/genie-forgetting/config', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_SMART_FORGETTING_URL}/api/config`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-smart-forgetting-service', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'smart-forgetting-service unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.put('/api/genie-forgetting/config', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.put(`${GENIE_SMART_FORGETTING_URL}/api/config`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-smart-forgetting-service', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'smart-forgetting-service unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.get('/api/genie-forgetting/presets', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${GENIE_SMART_FORGETTING_URL}/api/config/presets`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 3000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-smart-forgetting-service', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'smart-forgetting-service unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+app.post('/api/genie-forgetting/cleanup', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${GENIE_SMART_FORGETTING_URL}/api/archive/cleanup`, req.body || {}, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000, validateStatus: () => true });
+    if (r.status >= 400) return res.status(r.status).json(r.data);
+    res.json({ success: true, data: r.data, delegated_to: 'genie-smart-forgetting-service', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'smart-forgetting-service unreachable' }, meta: { timestamp: new Date().toISOString() } });
+  }
+});
+
+// =====================================================================================
+// PHASE 9 (cont.): AGGREGATOR + INTENT ENGINE INTEGRATION
+// =====================================================================================
+//
+// /api/genie/personal/:userId — fans out to all 23 specialists in parallel and
+// returns a unified "personal snapshot". Mirrors the /api/pios/widget/:userId
+// pattern but for the Genie specialists (memory-inbox, relationship-os, etc.).
+//
+// /api/ask now ALSO consults the intent-engine when its own keyword match
+// can't decide, so the 6-intent ladder is augmented by a learned fallback.
+
+// === Helper: parallel fetch with graceful degradation (used by aggregator) ===
+async function parallelFetch(specs) {
+  const results = await Promise.allSettled(
+    specs.map(async (s) => {
+      const r = await axios.get(s.url, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: s.timeout || 3000, validateStatus: () => true });
+      return { key: s.key, status: r.status, data: r.data?.data || r.data || null };
+    })
+  );
+  const out = {};
+  for (let i = 0; i < specs.length; i++) {
+    const r = results[i];
+    out[specs[i].key] = r.status === 'fulfilled' && r.value.status < 400
+      ? { ok: true, data: r.value.data }
+      : { ok: false, error: 'downstream_unreachable' };
+  }
+  return out;
+}
+
+// === Aggregator: personal snapshot for a user ===
+app.get('/api/genie/personal/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const results = await parallelFetch([
+      { key: 'memoryGraph',      url: `${GENIE_MEMORY_GRAPH_URL}/api/user/${userId}/graph` },
+      { key: 'memoryInbox',      url: `${GENIE_MEMORY_INBOX_URL}/api/recent?userId=${userId}&limit=5` },
+      { key: 'serendipity',      url: `${GENIE_SERENDIPITY_URL}/api/serendipity?userId=${userId}` },
+      { key: 'relationships',    url: `${GENIE_RELATIONSHIP_OS_URL}/api/${userId}/dashboard` },
+      { key: 'relationshipHealth', url: `${GENIE_RELATIONSHIP_OS_URL}/api/health/${userId}/overview` },
+      { key: 'learning',         url: `${GENIE_LEARNING_OS_URL}/progress/${userId}` },
+      { key: 'lifeGps',          url: `${GENIE_LIFE_GPS_URL}/gps/next/${userId}` },
+      { key: 'lifeGoals',        url: `${GENIE_LIFE_GPS_URL}/goals/life/${userId}` },
+      { key: 'thinking',         url: `${GENIE_THINKING_ENGINE_URL}/decide/pros-cons`, timeout: 5000 },
+      { key: 'companion',        url: `${GENIE_COMPANION_URL}/story/${userId}` },
+      { key: 'execution',        url: `${GENIE_EXECUTION_ENGINE_URL}/tasks/${userId}` },
+      { key: 'consultant',       url: `${GENIE_CONSULTANT_AGENT_URL}/consult/history/${userId}` },
+      { key: 'university',       url: `${GENIE_LIFE_UNIVERSITY_URL}/progress/${userId}` },
+      { key: 'creation',         url: `${GENIE_CREATION_OS_URL}/video/projects/${userId}` },
+      { key: 'forgetting',       url: `${GENIE_SMART_FORGETTING_URL}/api/config` },
+    ]);
+    const upCount = Object.values(results).filter((r) => r.ok).length;
+    res.json({
+      success: true,
+      data: {
+        userId,
+        up: upCount,
+        total: Object.keys(results).length,
+        specialists: results,
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// === Intent engine integration: when keyword routing can't decide, ask intent-engine ===
+async function tryIntentEngine(question, user) {
+  try {
+    const r = await axios.post(`${INTENT_ENGINE_URL}/api/intent`, {
+      text: question,
+      userId: user._id?.toString() || user.userId,
+      corpId: user.corpId,
+      context: { source: 'runtime-genie', version: '1.0.0' },
+    }, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 2000, validateStatus: () => true });
+    if (r.status >= 400 || !r.data) return null;
+    return r.data?.data || r.data;
+  } catch (e) {
+    return null;
+  }
+}
+
+// === Hook into /api/ask: add intent-engine helper that the keyword flow can call ===
+// We don't wrap /api/ask (too invasive). Instead we expose a helper that the
+// existing flow (or external callers) can use. The intent-engine URL is
+// already declared at the top, and USE_INTENT_ENGINE is honored.
+app.post('/api/genie/intent', authMiddleware, async (req, res, next) => {
+  if (!USE_INTENT_ENGINE) return err(res, 503, 'DISABLED', 'intent-engine disabled (set USE_INTENT_ENGINE=true)');
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return err(res, 404, 'NOT_FOUND', 'user not found');
+    const intent = await tryIntentEngine(req.body?.text || req.body?.question, user);
+    if (!intent) {
+      return res.json({ success: false, error: { code: 'DOWNSTREAM', message: 'intent-engine unreachable' }, meta: { timestamp: new Date().toISOString() } });
+    }
+    res.json({ success: true, data: intent, delegated_to: 'intent-engine', meta: { timestamp: new Date().toISOString() } });
+  } catch (e) {
+    next(e);
   }
 });
 

@@ -101,7 +101,10 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these docu
 | 6 | **[global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)** | Spec-level details: CapabilityOS schema, ACI formula, nexha-autonomous-logistics, CLI prompts, governance, funding, risk scenarios | When implementing specific features |
 | 7 | **[phase3-startup-developer-plan.md](.claude/plans/phase3-startup-developer-plan.md)** | External Studio plan for founders + developers (30-min startup wizard) | When building the founder/developer experience |
 | 8 | **[blr-ai-marketplace-role.md](.claude/plans/blr-ai-marketplace-role.md)** | How BAM (BLR AI Marketplace) helps every component of HOJAI Platform (1,200+ catalog items) | When working on the marketplace / install flows |
-| 9 | **[blr-marketplace-agent-inventory.md](.claude/plans/blr-marketplace-agent-inventory.md)** | Complete inventory of existing BLR agents/workflows/twins/services | When integrating BAM with the platform |
+| 9 | **[bam-complete-spec.md](.claude/plans/bam-complete-spec.md)** | Complete BAM spec: 28+ categories, 13 competitor categories, "AI Employees" reframing, 11 revenue streams, certification program, AI recommender | When planning BAM features, certification, or AI recommender |
+| 10 | **[blr-marketplace-agent-inventory.md](.claude/plans/blr-marketplace-agent-inventory.md)** | Complete inventory of existing BLR agents/workflows/twins/services | When integrating BAM with the platform |
+| 11 | **[skillos-usage.md](.claude/plans/skillos-usage.md)** | How SkillOS (the capability layer) is used across the whole HOJAI project | When building skills, agents, or workflow composition |
+| 12 | **[strategic-moat-acp-positioning.md](.claude/plans/strategic-moat-acp-positioning.md)** | 5-layer moat analysis, OpenAI threat, ACP as universal AI-to-AI protocol | When positioning HOJAI vs competitors |
 
 **Plus investor + sample artifacts:**
 

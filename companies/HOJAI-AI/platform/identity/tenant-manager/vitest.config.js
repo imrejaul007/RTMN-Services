@@ -1,0 +1,13 @@
+// vitest config for tenant-manager
+const { defineConfig } = require('vitest/config');
+
+module.exports = defineConfig({
+  test: {
+    environment: 'node',
+    testTimeout: 15000,
+    include: ['__tests__/**/*.test.js'],
+    globals: true,
+    pool: 'forks',
+    poolOptions: { forks: { singleFork: true } }
+  }
+});

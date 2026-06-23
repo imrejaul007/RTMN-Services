@@ -1,5 +1,24 @@
 /**
  * Skill OS — Event Bus helper (ADR-0009 Phase 2).
+ *
+ * Singleton wrapper around @rtmn/shared/event-bus with skill-os-specific
+ * defaults and tenant-aware publish helper.
+ *
+ * Emitted event topics (consumed by TwinOS bridge, agent-orchestration,
+ * AI intelligence, billing, audit):
+ *
+ *   skill.registered              → new skill created
+ *   skill.invoked                 → successful execution
+ *   skill.failed                  → execution errored
+ *   skill.version_published       → new version of existing skill
+ *   skill.unregistered            → skill deleted
+ *   skill.recommendation_requested → discovery search
+ *   asset.installed               → asset installed into a tenant
+ *   asset.uninstalled             → asset removed from a tenant
+ *   asset.deprecated              → asset marked deprecated
+ *   asset.certified               → asset certification level changed
+ *   billing.transaction           → billing event recorded
+ *   audit.event                   → governance event recorded
  */
 
 import { EventBus } from '@rtmn/shared/event-bus';

@@ -131,5 +131,81 @@
       },
       "lastEvaluatedAt": "2026-06-21T19:42:25.703Z"
     }
+  ],
+  [
+    "demo-foundation-70090-1782205010",
+    {
+      "policyId": "demo-foundation-70090-1782205010",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'demo-foundation-70090-1782205010' is in status 'draft' and not enforced": 1
+      },
+      "byDay": {
+        "2026-06-23": 1
+      },
+      "lastEvaluatedAt": "2026-06-23T08:56:50.249Z"
+    }
+  ],
+  [
+    "demo-foundation-70714-1782205208",
+    {
+      "policyId": "demo-foundation-70714-1782205208",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'demo-foundation-70714-1782205208' is in status 'draft' and not enforced": 1
+      },
+      "byDay": {
+        "2026-06-23": 1
+      },
+      "lastEvaluatedAt": "2026-06-23T09:00:08.371Z"
+    }
+  ],
+  [
+    "demo-foundation-70966-1782205254",
+    {
+      "policyId": "demo-foundation-70966-1782205254",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'demo-foundation-70966-1782205254' is in status 'draft' and not enforced": 1
+      },
+      "byDay": {
+        "2026-06-23": 1
+      },
+      "lastEvaluatedAt": "2026-06-23T09:00:54.385Z"
+    }
+  ],
+  [
+    "demo-foundation-72335-1782205708",
+    {
+      "policyId": "demo-foundation-72335-1782205708",
+      "allows": 0,
+      "denies": 1,
+      "total": 1,
+      "byActor": {
+        "anonymous": 1
+      },
+      "byReason": {
+        "Policy 'demo-foundation-72335-1782205708' is in status 'draft' and not enforced": 1
+      },
+      "byDay": {
+        "2026-06-23": 1
+      },
+      "lastEvaluatedAt": "2026-06-23T09:08:28.975Z"
+    }
   ]
 ]

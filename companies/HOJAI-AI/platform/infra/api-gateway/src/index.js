@@ -14,6 +14,8 @@
  *   /api/agents/*        → ai-intelligence (4881)
  *   /api/intelligence/*  → ai-intelligence (4881)
  *   /api/skills/*        → skill-marketplace (4120)
+ *   /api/skill-os/*      → skill-os (4743) — the registry + runtime
+ *   /api/skillos/*       → skill-os (4743) — alternate spelling
  *   /api/marketplace/*   → blr-ai-marketplace
  *   /health              → this service's health
  *   /api/services        → registry of all known HOJAI services
@@ -48,6 +50,8 @@ const SERVICES = {
   '/api/agents':       { url: process.env.AGENTS_URL     || 'http://localhost:4881', name: 'ai-intelligence' },
   '/api/intelligence': { url: process.env.INTEL_URL      || 'http://localhost:4881', name: 'ai-intelligence' },
   '/api/skills':       { url: process.env.SKILLS_URL     || 'http://localhost:4120', name: 'skill-marketplace' },
+  '/api/skill-os':     { url: process.env.SKILLOS_URL    || 'http://localhost:4743', name: 'skill-os' },
+  '/api/skillos':      { url: process.env.SKILLOS_URL    || 'http://localhost:4743', name: 'skill-os' },
   '/api/prompts':      { url: process.env.PROMPTS_URL    || 'http://localhost:4130', name: 'prompt-marketplace' },
   '/api/genie':        { url: process.env.GENIE_URL      || 'http://localhost:4701', name: 'genie-gateway' },
   '/api/sutar':        { url: process.env.SUTAR_URL      || 'http://localhost:4140', name: 'sutar-gateway' },

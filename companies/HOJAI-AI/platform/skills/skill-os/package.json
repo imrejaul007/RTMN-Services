@@ -1,14 +1,21 @@
 {
   "name": "@rtmn/skill-os",
-  "version": "1.0.0",
-  "description": "RTMN SkillOS - The Capability Layer ('What can I do?') - one of the 3 HOJAI AI foundational pillars",
+  "version": "1.1.0",
+  "description": "RTMN SkillOS - The Universal AI Capability Marketplace ('What can I do?') - one of the 3 HOJAI AI foundational pillars",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node --test __tests__/unit/events.test.mjs",
-    "test:events": "node --test __tests__/unit/events.test.mjs"
+    "test": "node --test __tests__/unit/*.test.mjs __tests__/integration/*.test.mjs",
+    "test:unit": "node --test __tests__/unit/*.test.mjs",
+    "test:integration": "node --test __tests__/integration/*.test.mjs",
+    "test:events": "node --test __tests__/unit/events.test.mjs",
+    "test:store": "node --test __tests__/unit/store.test.mjs",
+    "test:metadata": "node --test __tests__/unit/metadata.test.mjs",
+    "test:certification": "node --test __tests__/unit/certification.test.mjs",
+    "test:billing": "node --test __tests__/unit/billing.test.mjs",
+    "test:governance": "node --test __tests__/unit/governance.test.mjs"
   },
   "dependencies": {
     "@rtmn/shared": "file:../../../shared",
@@ -20,7 +27,13 @@
     "morgan": "^1.10.0",
     "uuid": "^9.0.1"
   },
-  "keywords": ["rtmn", "skillos", "hojai-ai", "capabilities", "registry", "ai", "agents"],
+  "optionalDependencies": {
+    "mongoose": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["rtmn", "skillos", "hojai-ai", "capabilities", "registry", "ai", "agents", "marketplace", "app-store"],
   "author": "HOJAI AI",
   "license": "MIT"
 }

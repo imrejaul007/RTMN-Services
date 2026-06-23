@@ -1,0 +1,9 @@
+{
+  "name": "rtmn-reflection-engine",
+  "version": "1.0.0",
+  "description": "RTMN Reflection Engine — quality scoring across dimensions",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js", "test": "vitest run", "test:e2e": "bash tests/e2e.sh" },
+  "dependencies": { "cors": "^2.8.5", "express": "^4.18.2", "helmet": "^7.1.0", "uuid": "^9.0.0" },
+  "devDependencies": { "vitest": "^3.2.6" }
+}
