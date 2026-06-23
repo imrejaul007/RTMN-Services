@@ -1,9 +1,9 @@
 # Personal Intelligence OS (PIOS) — Runtime/Genie Wiring Roadmap
 
-> **Status:** ✅ **Phases 1–9 COMPLETE** (June 22, 2026)
+> **Status:** ✅ **Phases 1–10 COMPLETE** (June 22, 2026)
 > **Total Specialists Wired:** 23 of 23 (100%)
 > **Total Delegation Routes:** ~80
-> **Total Test Assertions:** 115 (10 base + 105 voice-razo), 0 failures
+> **Total Test Assertions:** 117 (10 base + 107 voice-razo), 0 failures
 > **Last Updated:** 2026-06-22
 
 ---
@@ -92,6 +92,36 @@ Wired the final 8 specialists that round out the 23-specialist surface:
 
 **Result:** Test count: 63 → 105 (+42 new). Total runtime/genie: **115 assertions, 0 failed**.
 
+### Phase 10: INTENT_DISPATCH table + extended intent catalog (commit `e294780f`)
+
+Built the dispatch table that maps every intent-engine intent (now 27, was 9) to a specialist with method, path, and body shape. This is the runtime/genie brain: classify once via intent-engine, then route to the right specialist without paying a round-trip on every question.
+
+**runtime/genie/src/index.js:**
+- `INTENT_DISPATCH` — table of 27 intents → `{ specialist, method, path, buildBody }`
+- `SPECIALIST_URLS` — map of 17 specialist names → their base URLs
+- `resolveDispatch(entry, user, question)` — resolves a dispatch entry to a concrete URL + body
+- `dispatchByIntent(question, user)` — classify via intent-engine, route via table, return `{ ok, delegated, intent, confidence, answer }`
+- `POST /api/genie/dispatch` — classify + route in one call (new endpoint, auth-gated)
+
+**intent-engine/src/index.js:**
+- `INTENT_CATALOG` extended 9 → 27 intents. New: remember, recall, serendipity, money, wellness, calendar, relationships, learn, skills, decide, brainstorm, analyze, research, future, life_goals, journal, story, mood, tasks, routine, create, consult, forget. Original 9 (search/buy/cancel/support/compare/recommend/track/return/greet) preserved for backward compat.
+
+**Routing examples now covered:**
+| Question | Intent | Specialist |
+|----------|--------|------------|
+| "should I move to NYC?" | `decide` | genie-thinking-engine |
+| "make me a podcast about cooking" | `create` | genie-creation-os |
+| "tell me about my relationship with Sarah" | `relationships` | genie-relationship-os |
+| "where will I be in 5 years" | `future` | genie-life-gps |
+| "I need advice on my restaurant" | `consult` | genie-consultant-agent |
+| "log a journal entry" | `journal` | genie-companion-service |
+| "create a morning routine" | `routine` | genie-execution-engine |
+| "enroll me in Python 101" | `learn` | genie-learning-os |
+| "find that article about X" | `recall` | genie-memory-inbox |
+| "archive my old memories" | `forget` | genie-smart-forgetting-service |
+
+**Result:** Test count: 105 → 107 (+2 dispatch auth-gate tests). Total runtime/genie: **117 assertions, 0 failed**. `/api/ask` still uses keyword ladder as fast-path; intent-engine is now the secondary fallback after the ladder misses (via `tryGenieGateway`), and `/api/genie/dispatch` is the explicit classify+route endpoint for callers that want both.
+
 ---
 
 ## 🔌 API Surface (the new namespace)
@@ -174,7 +204,7 @@ All delegation routes are under `authMiddleware` (user JWT). The downstream serv
 
 ### Surface tests (no downstream running)
 
-The voice-razo.test.mjs file (105 assertions) verifies:
+The voice-razo.test.mjs file (107 assertions after Phase 10) verifies:
 - Every new route exists and returns the expected HTTP status
 - Every new route is auth-gated (returns 401 without a Bearer token)
 - The `/api/genie-services/health` endpoint lists every specialist
@@ -200,28 +230,11 @@ For each specialist we could add E2E tests that:
 
 ## 🗺️ What's Left (Future Work)
 
-### 1. Intent detection in `/api/ask` (low coverage)
-
-The current `/api/ask` only handles 6 intents via keyword matching:
-- shopping, calendar, money, wellness, goals, remember
-
-The 23 specialists offer many more intents:
-- "tell me about my relationship with X" → relationship-os
-- "should I do X?" → thinking-engine
-- "where will I be in 5 years" → life-gps
-- "make me a podcast about X" → creation-os
-- "I need advice on X" → consultant-agent
-- "log a journal entry" → companion-service
-- "create a routine for me" → execution-engine
-- "enroll me in a course" → life-university
-
-**Recommendation:** Replace the keyword ladder with a call to `/api/genie/intent` (which already exists) and dispatch based on the returned intent string. This would make `/api/ask` truly route-to-the-right-specialist.
-
-### 2. Per-specialist E2E tests
+### 1. Per-specialist E2E tests
 
 Each of the 23 specialists deserves at least one E2E test that exercises a real call through runtime/genie. Pattern: see genie-wake-word-service/tests/e2e-voice-pipeline.test.mjs.
 
-### 3. Aggregator response normalization
+### 2. Aggregator response normalization
 
 `/api/genie/personal/:userId` currently returns each specialist's native response shape. For consistency, we should normalize to a common envelope:
 ```json
@@ -235,30 +248,35 @@ Each of the 23 specialists deserves at least one E2E test that exercises a real 
 }
 ```
 
-### 4. Per-user caching
+### 3. Per-user caching
 
 The aggregator calls 15 services in parallel. For a power user who hits the dashboard every 30 seconds, this is wasteful. Add a 5-second response cache keyed on `userId + specialist`.
 
-### 5. Webhook fanout for proactive notifications
+### 4. Webhook fanout for proactive notifications
 
 Today the specialists push via the event bus, but do-app / REZ-Workspace need WebSockets or webhooks to surface "your relationship-os has new insights" or "your thinking-engine finished a long analysis". Out of scope for runtime/genie — this belongs in a separate notification service.
 
-### 6. Documentation per specialist in `do-app-genieos-integration.md`
+### 5. Documentation per specialist in `do-app-genieos-integration.md`
 
 The do-app integration doc should be updated to list every new route so client developers know what they can call.
+
+### 6. Wire dispatch into `/api/ask` as primary path
+
+Currently `/api/ask` uses the 6-keyword ladder as fast-path, then `tryGenieGateway` (which calls intent-engine as its own fallback). The `INTENT_DISPATCH` table is now wired via `dispatchByIntent()` and exposed at `/api/genie/dispatch`, but `/api/ask` itself doesn't call `dispatchByIntent` yet. Next step: insert `dispatchByIntent(question, user)` as a new branch in `/api/ask` after the keyword ladder misses, so the same dispatch logic powers both the explicit endpoint and natural-language questions.
 
 ---
 
 ## 📈 Numbers
 
-| Metric | Before Phase 8 | After Phase 9 |
-|--------|---------------|---------------|
-| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** |
-| Delegation routes in runtime/genie | ~30 | **~80** |
-| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** |
-| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) |
-| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** |
-| Test assertions | 49 | **115** |
+| Metric | Before Phase 8 | After Phase 9 | After Phase 10 |
+|--------|---------------|---------------|----------------|
+| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** |
+| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) |
+| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** |
+| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) |
+| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** |
+| Intent catalog size | 9 | 9 | **27** |
+| Test assertions | 49 | **115** | **117** |
 
 ---
 
@@ -266,6 +284,6 @@ The do-app integration doc should be updated to list every new route so client d
 
 **Before:** 9 specialists reachable through runtime/genie. /api/ask had a hand-rolled 6-intent keyword ladder. No aggregator. No intent-engine integration. No way to see the health of all specialists in one place.
 
-**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId`. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 115 test assertions, all passing.
+**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId`. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 117 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls.
 
-Next milestone: **Replace the keyword ladder in `/api/ask` with an intent-engine dispatch** so every question routes to the right specialist. This is the last big piece before runtime/genie is truly "the personal intelligence gateway".
+Next milestone: **Wire `dispatchByIntent()` into `/api/ask` as a primary path** (after the keyword ladder) so the same dispatch logic powers both the explicit endpoint and natural-language questions.
