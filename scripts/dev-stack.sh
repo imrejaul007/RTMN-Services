@@ -114,6 +114,26 @@ NEXHA_WAREHOUSE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-warehouse-netw
 NEXHA_TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-trade-finance-network && PORT=4287 REDIS_URL=redis://localhost:6379 npm start"
 NEXHA_PRICING_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-pricing-network && PORT=4286 REDIS_URL=redis://localhost:6379 npm start"
 
+# Nexha Federation services — Phase D (ADR-0010) + Phase 12-13 (ADR-0011)
+# These previously had to be started manually; ADR-0012 brings them into the
+# one-command dev stack. See docs/nexha/audit-2026-06-23.md for context.
+# Auth: JWT_SECRET + INTERNAL_TOKEN shared across the federation for dev.
+# Override via env: JWT_SECRET=xxx INTERNAL_TOKEN=yyy bash scripts/dev-stack.sh start
+: "${JWT_SECRET:=nexha-dev-jwt-secret}"
+: "${INTERNAL_TOKEN:=nexha-internal-dev-token}"
+export JWT_SECRET
+export INTERNAL_TOKEN
+
+NEXHA_GATEWAY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-gateway && PORT=5002 npx tsx src/index.ts"
+NEXHA_ACP_MESSAGING_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-acp-messaging && PORT=4340 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN INTERNAL_SERVICE_TOKEN=$INTERNAL_TOKEN REDIS_URL=redis://localhost:6379 MONGODB_URI=mongodb://127.0.0.1:27017/nexha_acp_dev npm start"
+NEXHA_BUSINESS_DIRECTORY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-business-directory && PORT=4360 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_directory_dev npm start"
+NEXHA_MISSION_PLANNER_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-mission-planner && MISSION_PLANNER_PORT=4362 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_mission_dev npm start"
+NEXHA_PARTNER_GRAPH_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-partner-graph && PARTNER_GRAPH_PORT=4363 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_partner_dev npm start"
+NEXHA_COMMERCE_RUNTIME_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-commerce-runtime && COMMERCE_RUNTIME_PORT=4364 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_commerce_dev npm start"
+NEXHA_PROVISIONING_ENGINE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-provisioning-engine && PORT=4385 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_provisioning_dev npm start"
+NEXHA_HOOKS_SDK_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-hooks-sdk && PORT=4386 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_hooks_dev npm start"
+NEXHA_TENANT_SUMMARY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-tenant-summary && PORT=4387 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_summary_dev npm start"
+
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
 
@@ -198,7 +218,16 @@ status() {
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
     "nexha-trade-finance-network:4287" \
-    "nexha-pricing-network:4286"; do
+    "nexha-pricing-network:4286" \
+    "nexha-gateway:5002" \
+    "nexha-acp-messaging:4340" \
+    "nexha-business-directory:4360" \
+    "nexha-mission-planner:4362" \
+    "nexha-partner-graph:4363" \
+    "nexha-commerce-runtime:4364" \
+    "nexha-provisioning-engine:4385" \
+    "nexha-hooks-sdk:4386" \
+    "nexha-tenant-summary:4387"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
@@ -272,6 +301,16 @@ start_all() {
   start_service "nexha-warehouse-network"     "$NEXHA_WAREHOUSE_CMD"     4288
   start_service "nexha-trade-finance-network" "$NEXHA_TRADE_FINANCE_CMD" 4287
   start_service "nexha-pricing-network"       "$NEXHA_PRICING_CMD"       4286
+  # Nexha Federation services (Phase D + ADR-0011) — ADR-0012 brings these into dev-stack
+  start_service "nexha-gateway"               "$NEXHA_GATEWAY_CMD"             5002
+  start_service "nexha-acp-messaging"         "$NEXHA_ACP_MESSAGING_CMD"       4340
+  start_service "nexha-business-directory"    "$NEXHA_BUSINESS_DIRECTORY_CMD"  4360
+  start_service "nexha-mission-planner"       "$NEXHA_MISSION_PLANNER_CMD"     4362
+  start_service "nexha-partner-graph"         "$NEXHA_PARTNER_GRAPH_CMD"       4363
+  start_service "nexha-commerce-runtime"      "$NEXHA_COMMERCE_RUNTIME_CMD"    4364
+  start_service "nexha-provisioning-engine"   "$NEXHA_PROVISIONING_ENGINE_CMD" 4385
+  start_service "nexha-hooks-sdk"             "$NEXHA_HOOKS_SDK_CMD"           4386
+  start_service "nexha-tenant-summary"        "$NEXHA_TENANT_SUMMARY_CMD"      4387
   # Hub (must be last so all services are up)
   start_service "hub"                      "$HUB_CMD"                 4399
   sleep 3
@@ -308,6 +347,15 @@ stop_all() {
   stop_port 4288 "nexha-warehouse-network"
   stop_port 4287 "nexha-trade-finance-network"
   stop_port 4286 "nexha-pricing-network"
+  stop_port 5002 "nexha-gateway"
+  stop_port 4340 "nexha-acp-messaging"
+  stop_port 4360 "nexha-business-directory"
+  stop_port 4362 "nexha-mission-planner"
+  stop_port 4363 "nexha-partner-graph"
+  stop_port 4364 "nexha-commerce-runtime"
+  stop_port 4385 "nexha-provisioning-engine"
+  stop_port 4386 "nexha-hooks-sdk"
+  stop_port 4387 "nexha-tenant-summary"
 }
 
 case "${1:-start}" in
