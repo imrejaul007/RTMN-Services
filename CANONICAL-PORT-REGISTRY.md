@@ -249,6 +249,7 @@ SUTAR OS lives at `companies/HOJAI-AI/sutar-os/` (29 services, ~30k LOC). The RT
 | 3100 | sutar-monitoring | 1 | `sutar-monitoring` | `sutar-os/core/sutar-monitoring/` |
 | 4140 | sutar-gateway | 2 | `sutar-gateway` | `sutar-os/core/sutar-gateway/` |
 | 4141 | sutar-tenant-instances | 2 (Phase 9) | `sutar-tenant-instances` | `sutar-os/core/sutar-tenant-instances/` |
+| 4365 | industry-tenant-instances | 4 (Phase 10) | `industry-tenant-instances` | `industry-os/services/industry-tenant-instances/` |
 | 4142 | sutar-twin-os | 2 | `sutar-twin-os` | `sutar-os/core/sutar-twin-os/` |
 | 4143 | sutar-memory-bridge | 2 | `sutar-memory-bridge` | `sutar-os/core/sutar-memory-bridge/` |
 | 4145 | sutar-agent-id | 2 | `sutar-agent-id` | `sutar-os/core/sutar-agent-id/` |

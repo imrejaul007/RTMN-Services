@@ -825,3 +825,134 @@ REZ-ecosystem-connector (`@rez/rez-ecosystem-connector@1.8.0`):
 | REZ-Workspace node:test (mission + partner + commerce + tenant) | 72 |
 | SUTAR foundation (carried) | 425 |
 | **Ecosystem total** | **1,144** |
+
+---
+
+## Phase 10 — Per-Tenant Industry OS Instances ✅ DONE (2026-06-23)
+
+**Goal:** Give large/regulated tenants their own **Industry OS shards** (healthcare, finance, hotel, etc.) instead of forcing them onto the shared single-tenant Industry OS. Phase 10 is the vertical-layer parallel of Phase 9 (which covered the SUTAR horizontal layer).
+
+**Repos touched:** RTMN (industry-os), RABTUL-Technologies (Hub), do-app, REZ-Workspace, RTMN-root docs
+
+**Owner:** RTMN `industry-os/` (the vertical layer lives here, unlike Phase 9 which lived in HOJAI-AI's SUTAR)
+
+### What it does
+
+Most tenants share a single Industry OS instance (one Healthcare OS, one Restaurant OS, etc.). Large or regulated tenants — hospital chains, banks, hotel franchises — need:
+
+1. **Dedicated compute / database** so other tenants can't impact them.
+2. **Compliance metadata** (HIPAA, PCI-DSS, GDPR, SOC2) recorded on the instance.
+3. **Per-tenant API keys** (rotated independently) for tenant-side auth.
+4. **Independent lifecycle**: suspend one tenant's healthcare instance without freezing the rest.
+5. **Independent usage metrics & limits** for billing and capacity.
+
+`industry-tenant-instances` is the lifecycle manager for those Industry OS shards.
+
+### Tenant × Industry key
+
+Unlike Phase 9 (which keyed on `tenantId`), Phase 10 keys on **the pair `(tenantId, industry)`**: a tenant may hold instances for multiple industries simultaneously (a hospital group has healthcare + finance + hotel), but cannot hold two healthcare instances.
+
+### Isolation levels
+
+| Level | Database | Use case |
+|---|---|---|
+| **SHARED** | shared RTMN DB, tenant-id partition | small tenants, fast onboarding (default; auto-activates) |
+| **DEDICATED** | dedicated MongoDB collection / schema on shared cluster | medium tenants, compliance opt-in |
+| **ISOLATED** | dedicated MongoDB instance (separate `databaseUri`) | large / regulated tenants (HIPAA, PCI-DSS) |
+
+### State machine
+
+```
+PROVISIONING → ACTIVE → SUSPENDED → ACTIVE → DESTROYING → DESTROYED
+                  │          │                      ↑
+                  └──────────┴──────────────────────┘
+                  FAILED → DESTROYING
+```
+
+Same-state transitions **always throw** (terminal-state guard).
+`DESTROYED` is terminal. `FAILED` can only proceed to `DESTROYING`.
+
+### 24 supported industries
+
+`restaurant, hotel, healthcare, retail, legal, education, agriculture, automotive, beauty, fashion, fitness, gaming, government, homeServices, manufacturing, nonProfit, professional, sports, travel, entertainment, construction, finance, realEstate, transport`
+
+### Endpoints (16 total)
+
+```
+POST   /api/instances                                  provision (tenant+industry)
+GET    /api/instances                                  list (filter by status/tenant/industry/isolation/region/complianceFramework)
+GET    /api/instances/:id                              fetch one
+GET    /api/instances/by-tenant/:tenantId              find active for tenant (optional ?industry=)
+PATCH  /api/instances/:id                              update region / limits / compliance / routes / tags
+POST   /api/instances/:id/suspend                      pause
+POST   /api/instances/:id/resume                       unpause
+POST   /api/instances/:id/destroy                      tear down
+POST   /api/instances/:id/fail                         mark as failed
+POST   /api/instances/:id/rotate-key                   rotate API key (returns plaintext once)
+POST   /api/instances/:id/health                       record health check
+POST   /api/instances/:id/usage                        record usage event
+GET    /api/instances/:id/usage                        read usage (today + past 6 days)
+GET    /api/instances/:id/limits                       check limit violations
+GET    /api/stats                                      aggregate stats (optional ?industry=)
+```
+
+### Data model
+
+**IndustryInstance** — `instanceId` (unique, `iti_<16hex>`), `tenantId`, `industry` (enum), `status`, `isolationLevel`, `region`, `namespace`, `databaseUri`, `apiKeyHash` (SHA-256), `limits` (maxApiCallsPerMinute, maxRecordsPerTenant, storageMbLimit, maxConcurrentWorkflows), `compliance` (framework, auditLogEnabled, dataResidencyRegion, encryptionAtRest, encryptionInTransit, notes), `routes`, `tags`, `metadata`, lifecycle timestamps, last health check.
+
+**UsageMetric** — daily counter per instance: `apiCalls`, `recordsCreated/Updated`, `workflowsExecuted`, `errorCount` (increments), `recordsActive`, `storageMbUsed` (high-water mark).
+
+### Security
+
+- All routes require auth (JWT with `industry:admin` role OR internal token).
+- API keys stored as SHA-256 hashes only; plaintext returned once on creation/rotation.
+- Industry enum enforced at both Zod validation (HTTP layer) and Mongoose schema (DB layer).
+
+### Design highlights
+
+- **Compound unique** on `instanceId` + (tenantId, industry) pair — one active instance per `(tenant, industry)`.
+- **State machine** with terminal-state guards — same-state transitions throw 422.
+- **Tenant+industry conflict detection**: provisioning fails if the pair already has a live instance.
+- **Auto-activation** for SHARED instances (no infrastructure to provision); DEDICATED/ISOLATED require explicit `autoActivate: true`.
+- **Compliance metadata** stored per-instance, queryable by framework (HIPAA, PCI-DSS, etc.).
+- **SHA-256 key hashing** at rest, plaintext exposed only on create/rotate.
+- **Usage tracking** is additive (counters) + idempotent (high-water marks).
+- **Limit enforcement** checks API calls per day, records active, storage MB, plus SUSPENDED status.
+
+### Hub wiring
+
+REZ-ecosystem-connector (`@rez/rez-ecosystem-connector@1.9.0`):
+
+- `NEXHA_SERVICES['industry-tenant-instances'] = http://localhost:4365`
+- `/api/nexha/industry-tenant-instances/api/*` (any HTTP method)
+- Capabilities: `industry-tenant-instances`, `industry-shard`, `industry-isolation`, `industry-provisioning`, `industry-lifecycle`
+
+### Clients
+
+| Client | Methods | Tests |
+|---|---:|---:|
+| `industry-tenant-instances` (vitest, NEW) | service + routes | 96 |
+| `do-app/backend/src/services/hojaiClient.ts` (`sutar.industryTenantInstances.*`) | 16 | 20 (jest) |
+| `REZ-Workspace/core/unified-fabric/src/connections/nexha.js` (`provisionIndustryInstance`, `listIndustryInstances`, etc.) | 17 | 20 (node:test) |
+
+### Test counts after Phase 10
+
+| Suite | Tests |
+|---|---:|
+| industry-tenant-instances (vitest, NEW) | 96 |
+| sutar-tenant-instances (vitest, carried) | 75 |
+| nexha-commerce-runtime (vitest, carried) | 86 |
+| nexha-partner-graph (vitest, carried) | 67 |
+| nexha-mission-planner (vitest, carried) | 89 |
+| nexha-business-directory (vitest, carried) | 68 |
+| nexha-pricing-network (vitest, carried) | 31 |
+| nexha-warehouse-network (vitest, carried) | 49 |
+| nexha-trade-finance-network (vitest, carried) | 38 |
+| nexha-distribution-network (vitest, carried) | 22 |
+| nexha-supplier-network (vitest, carried) | 20 |
+| do-app nexha + sutar clients (jest) | 122 |
+| REZ-Workspace node:test (mission + partner + commerce + tenant + industry) | 92 |
+| SUTAR foundation (carried) | 425 |
+| **Ecosystem total** | **1,280** |
+
+**+136 tests added in Phase 10** (96 service + 20 do-app + 20 REZ-Workspace).

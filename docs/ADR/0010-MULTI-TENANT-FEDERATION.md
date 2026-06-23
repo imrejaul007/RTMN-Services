@@ -5,7 +5,7 @@
 > `0009-PHASE-WISE-UPGRADE-PLAN.md` which is the canonical "Phase 0-1 move"
 > ADR. ADR-0010 is the follow-on "Phase 2+ federation" ADR.
 
-**Status:** In Progress (Phase 9 / 11)
+**Status:** In Progress (Phase 10 / 11)
 **Date:** 2026-06-22
 **Authors:** Rejaul Karim (HOJAI AI / RTMN), with HOJAI AI engineering
 **Supersedes:** None
