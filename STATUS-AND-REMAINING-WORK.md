@@ -226,8 +226,8 @@ Quick summary (updated 2026-06-22):
   - **F.16-F.23 ✅ All 8 Intelligence Engine services productionized** — Reasoning (4785, 15 vitest + 13 e2e), Intent (4786, 14 + 10), Reflection (4787, 13 + 11), Behavior Intelligence (4788, 15 + 12), Proactive (4789, 15 + 12), Multi-Agent Runtime (4790, 19 + 16), Agent Builder (4791, 17 + 17), Background Agents (4792, 16 + 17). All ports 4785-4792 with auth bypass + listen gate + named exports + word-boundary regex for intent matching (avoiding "top" matches in "laptop"). 124 vitest + 108 e2e new tests, 0 failures.
   - **G.1 ✅ MissionOS (port 4295)** — First-class Mission unit with sub-tasks, owners, deadlines, progress tracking. MISSION_STATUSES: planning/active/paused/completed/cancelled/failed; TASK_STATUSES: pending/blocked/in-progress/completed/cancelled/failed. 22 vitest + 19 e2e, all passing.
   - **G.2 ✅ ExecutionOS (port 4296)** — Execute actions/steps against mission tasks with retries, sequencing, status tracking. STEP_KINDS: http/shell/noop/wait/sub-execution. 25 vitest + 17 e2e, all passing.
-- **Phase H** (planned): Collapse do-app 144-method client to ~5 method calls (Hub does the routing)
-- **Phase I** (planned): Docs, demos, observability, ship
+- **Phase H ✅ do-app hub gateway** — Added 5 generic methods to do-app hojaiClient (`hubCall`, `hubCapabilities`, `hubServiceFor`, `hubSmart`, `hubServices`) that collapse the 164-method client surface. Hub's existing `/api/foundation/<service>/<path>` proxy already does the routing. 9 jest tests verify routing, query strings, capability dispatch, and error handling. All passing.
+- **Phase I ✅ Final docs + ship** — 26 foundation services + 5 Hub gateway methods. Status doc updated, dev-stack.sh wired. All 3 repos in sync (HOJAI-AI, RABTUL Hub, RTMN-Services root).
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
