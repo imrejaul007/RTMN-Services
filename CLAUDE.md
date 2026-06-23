@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.3  
-> **Last Updated:** June 22, 2026  
-> **Status:** ✅ **GENIE-OS PRODUCTION-READY** — All 13 genie-os test suites pass (78 assertions), all 7 foundation services healthy, 23 named Genie agents registered in AgentOS. Security hardened (requireEnv + requireAuth on 176+ services). All 23 Genie specialist docs refreshed for Phase 7 (Bearer JWT auth + path correction). See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the full audit report and what's left.
+> **Version:** 5.4
+> **Last Updated:** June 23, 2026
+> **Status:** ✅ **AGENTFIN SHIPPED + GENIE-OS PRODUCTION-READY** — All 15 AgentFin services healthy (484/484 tests, e2e demo OK, 0 failures); [AgentFin v1.0](https://github.com/imrejaul007/agentfin) split out to its own repo. All 13 genie-os test suites pass (78 assertions), all 7 foundation services healthy, 23 named Genie agents registered in AgentOS. Security hardened (requireEnv + requireAuth on 176+ services). All 23 Genie specialist docs refreshed for Phase 7 (Bearer JWT auth + path correction). See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the full audit report and what's left.
 
 ---
 
@@ -385,6 +385,7 @@ bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh
 | **Restaurant OS** | Restaurant Management | 5010 | ✅ Running |
 | **Hotel OS** | Hotel Management | 5025 | ✅ Running |
 | **Healthcare OS** | Healthcare | 5020 | ✅ Running |
+| **AgentFin** | 15 services, agent-native finance | 5510-5524 | ✅ Running (Jun 23, 2026) |
 
 ---
 
@@ -1396,6 +1397,94 @@ Given a capability (e.g. "negotiate SaaS contracts") and a context (industry, ur
 - [Negotiation AI](services/negotiation-ai/) - Advanced strategies
 - [Agent Orchestration](services/agent-orchestration/) - Multi-agent workflows
 - [ACN Hub](services/acn-hub/) - Unified gateway
+
+---
+
+## 💰 AgentFin - Agent-native Financial Infrastructure (15 Services, SHIPPED 2026-06-23)
+
+> *"The bank, finance department, procurement team, expense management system, and treasury for every AI worker."*
+
+**AgentFin** is the financial infrastructure layer inside RABTUL Technologies. It wraps the existing RABTUL engines (`rez-wallet-service`, `rez-payment-service`, `REZ-treasury-os`, `REZ-procurement-os`, `sutar-economy-os`, `sutar-decision-engine`) with **agent-native primitives** — per-agent wallets, daily/monthly allowances, virtual cards, CorpID binding, vendor twins, finance memory, and cross-Nexha settlement.
+
+**Status:** ✅ **v1.0 SHIPPED — 15/15 services, 484/484 tests passing, 0 failures.**
+
+> **Repo:** [imrejaul007/agentfin](https://github.com/imrejaul007/agentfin) (split out from RTMN monorepo on 2026-06-23 so RABTUL's financial infra has its own release cadence. Lives at `companies/RABTUL-Technologies/agentfin/` in the RTMN working tree.)
+
+### The 15 services (ports 5510-5524)
+
+| # | Service | Port | Purpose |
+|---|---|---|---|
+| 1 | **AgentFin Gateway** | 5510 | `/api/agentfin/*` route table, auth, capability map |
+| 2 | **Agent Identity** | 5511 | CorpID ↔ AgentID ↔ WalletID ↔ CardID linkage |
+| 3 | **Agent Wallet** | 5512 | Per-agent wallet with parent binding |
+| 4 | **Agent Card** | 5513 | Virtual cards (Razorpay Route + Stripe Issuing) |
+| 5 | **Allowance Engine** | 5514 | Daily/weekly/monthly/total limits with auto-reset |
+| 6 | **Spending Policy** | 5515 | YAML DSL for agent spending rules |
+| 7 | **Approval Engine** | 5516 | Multi-step approval chains |
+| 8 | **Finance Memory** | 5517 | Domain-partitioned memory for finance events |
+| 9 | **Vendor Twin** | 5518 | Vendor identity + financial profile |
+| 10 | **Expense Twin** | 5519 | Per-transaction expense records |
+| 11 | **Subscription Adapter** | 5520 | Agent-aware subscriptions |
+| 12 | **Treasury Adapter** | 5521 | Agent-aware treasury views |
+| 13 | **Procurement Adapter** | 5522 | Agent-driven procurement (RFQ → PO → payment) |
+| 14 | **Negotiation Agent** | 5523 | Agent-side RFQ + counter-offer logic |
+| 15 | **Nexha Settlement** | 5524 | Multi-agent splits + cross-Nexha escrow / group / release |
+
+All ports are env-overridable via `PORT`. Source of truth: [`companies/RABTUL-Technologies/agentfin/`](companies/RABTUL-Technologies/agentfin/) and [`CANONICAL-PORT-REGISTRY.md`](CANONICAL-PORT-REGISTRY.md).
+
+### Hub wiring
+
+```bash
+# Capability map (single source of truth for routing)
+curl http://localhost:4399/api/agentfin/capabilities
+
+# Resolve agent identity via the Hub
+curl http://localhost:4399/api/agentfin/identity/identity/agent-123
+```
+
+The RTMN Hub (`REZ-ecosystem-connector@4399`) maps `/api/agentfin/<service>/<path>` to the right upstream AgentFin service. Alternatively, call directly via `http://localhost:55XX/<path>` or via the gateway at `http://localhost:5510/api/agentfin/<service>/<path>`.
+
+### Quick start
+
+```bash
+cd companies/RABTUL-Technologies/agentfin
+bash scripts/install-all.sh         # install all 15
+bash scripts/test-all.sh            # 484 tests
+bash scripts/dev-stack.sh start-bg  # start all 15 (logs → .run/logs/)
+bash scripts/health-check.sh        # 15/15 check
+bash scripts/e2e-demo.sh            # full agent-spending demo
+```
+
+### Human ↔ AI employee parity
+
+| Human employee | AI employee (via AgentFin) |
+|---|---|
+| Employee ID | CorpID + AgentID (5511) |
+| Department | Department binding in spending policy (5515) |
+| Manager | Approval chain in approval-engine (5516) |
+| Budget | Allowance in allowance-engine (5514) |
+| Expense policy | YAML DSL in spending-policy (5515) |
+| Corporate card | Agent card (5513) |
+| Bank account | Agent wallet (5512) |
+| Audit trail | Finance memory (5517) |
+| Vendor relationships | Vendor twin (5518) |
+| Tax forms / Expenses | Expense twin (5519) |
+
+### Documentation
+
+- [AgentFin README](companies/RABTUL-Technologies/agentfin/README.md)
+- [AgentFin ARCHITECTURE](companies/RABTUL-Technologies/agentfin/ARCHITECTURE.md)
+- [AgentFin API Reference](companies/RABTUL-Technologies/agentfin/API.md)
+- [AgentFin SETUP](companies/RABTUL-Technologies/agentfin/SETUP.md)
+- [AgentFin CHANGELOG](companies/RABTUL-Technologies/agentfin/CHANGELOG.md)
+- [AgentFin TROUBLESHOOTING](companies/RABTUL-Technologies/agentfin/TROUBLESHOOTING.md)
+- [AgentFin CONTRIBUTING](companies/RABTUL-Technologies/agentfin/CONTRIBUTING.md)
+- [AgentFin SECURITY](companies/RABTUL-Technologies/agentfin/SECURITY.md)
+- [Per-service CLAUDE.md](companies/RABTUL-Technologies/agentfin/) (15 files)
+
+### Strategic context
+
+AgentFin is the financial operating system for **AI employees** in HOJAI. It's referenced in the [5-year HOJAI plan](.claude/plans/hojai-platform-as-an-economy-5year-plan.md) as one of the foundation pieces for the autonomous economy. It replaces the "SUTAR Finance Agent" placeholder in earlier plans.
 
 ---
 
