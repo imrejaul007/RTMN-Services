@@ -580,3 +580,120 @@ GET    /api/nexha/nexha-partner-graph/api/stats
 | REZ-Workspace node:test (mission + partner) | 32 |
 | SUTAR foundation (carried) | 425 |
 | **Ecosystem total** | **931** |
+
+---
+
+## Phase 8 — Commerce Runtime (2026-06-22) ✅
+
+### Goal
+
+The execution plane of the Nexha Commerce Network. Owns orders + payments + returns, each with an explicit state machine. Cross-entity auto-promotions (capture-payment → order-paid, refund-return → payment-refunded + order-promoted) live inside the service so callers don't have to orchestrate them.
+
+### Deliverables
+
+| Component | Path | Tests |
+|---|---|---|
+| Service | `companies/Nexha/services/nexha-commerce-runtime/` (port 4364) | 86 vitest |
+| Hub wiring | `RABTUL-Technologies/REZ-ecosystem-connector@1.7.0` | — |
+| do-app client | `companies/do-app/backend/src/services/hojaiClient.ts` → `nexha.commerceRuntime` | 10 tests (68 total in file) |
+| REZ-Workspace client | `core/unified-fabric/src/connections/nexha.js` → 30 methods | 22 node:test |
+
+### Data model
+
+```
+Order { tenantId, orderId, buyerRef, sellerRef, status,
+        items[], currency, subtotal, tax, shipping, total,
+        paymentId, fulfillment, shippingAddress, notes, tags, metadata,
+        placedAt, paidAt, completedAt, cancelledAt }
+  status ∈ {DRAFT, PLACED, PAID, FULFILLING, SHIPPED, DELIVERED,
+            COMPLETED, CANCELLED, REFUNDED, RETURNED}
+  compound unique index on (tenantId, orderId)
+
+Payment { tenantId, paymentId, orderId, buyerRef, sellerRef, status,
+          method, amount, currency, refundedAmount, providerRef,
+          authorizedAt, capturedAt, refundedAt, failureReason, metadata }
+  status ∈ {PENDING, AUTHORIZED, CAPTURED, COMPLETED, REFUNDED, FAILED, CANCELLED}
+  method ∈ {CARD, BANK_TRANSFER, WALLET, ESCROW, BNPL, OTHER}
+  compound unique index on (tenantId, paymentId)
+
+Return { tenantId, returnId, orderId, buyerRef, sellerRef, status,
+         reason, lines[], refundAmount, currency,
+         approvedAt, receivedAt, completedAt, rejectedAt, refundedAt,
+         rejectionReason, metadata }
+  status ∈ {REQUESTED, APPROVED, IN_TRANSIT, RECEIVED, COMPLETED, REJECTED, REFUNDED}
+  reason ∈ {DEFECTIVE, WRONG_ITEM, NOT_AS_DESCRIBED, BUYER_REMORSE, OTHER}
+  compound unique index on (tenantId, returnId)
+```
+
+### State machines
+
+```
+Order:    DRAFT → PLACED → PAID → FULFILLING → SHIPPED → DELIVERED → COMPLETED
+                       ↓         ↓            ↓
+                    CANCELLED  REFUNDED    RETURNED → COMPLETED|REFUNDED
+
+Payment:  PENDING → AUTHORIZED → CAPTURED → COMPLETED → REFUNDED
+                      ↘ FAILED/CANCELLED
+
+Return:   REQUESTED → APPROVED → IN_TRANSIT → RECEIVED → COMPLETED → REFUNDED
+                      ↘ REJECTED
+```
+
+### Auto-promotions (cross-entity)
+
+| Trigger | Cascade |
+|---|---|
+| `capturePayment` | payment CAPTURED → order PAID |
+| `cancelOrder` (PLACED) | order CANCELLED → payment CANCELLED (if PENDING/AUTHORIZED) |
+| `refundOrder` | order REFUNDED → payment REFUNDED (full) |
+| `refundReturn` (full) | return REFUNDED → payment refunded → order RETURNED → REFUNDED |
+| `refundReturn` (partial) | return REFUNDED → payment partially refunded → order RETURNED → COMPLETED |
+
+### Endpoints exposed via Hub
+
+```
+GET    /api/nexha/nexha-commerce-runtime/health
+GET    /api/nexha/nexha-commerce-runtime/ready
+GET    /api/nexha/nexha-commerce-runtime/
+POST   /api/nexha/nexha-commerce-runtime/api/orders
+GET    /api/nexha/nexha-commerce-runtime/api/orders
+GET    /api/nexha/nexha-commerce-runtime/api/orders/:id
+PATCH  /api/nexha/nexha-commerce-runtime/api/orders/:id
+POST   /api/nexha/nexha-commerce-runtime/api/orders/:id/{place,cancel,fulfill,ship,deliver,complete,refund}
+POST   /api/nexha/nexha-commerce-runtime/api/payments
+GET    /api/nexha/nexha-commerce-runtime/api/payments
+GET    /api/nexha/nexha-commerce-runtime/api/payments/:id
+POST   /api/nexha/nexha-commerce-runtime/api/payments/:id/{authorize,capture,complete,fail,cancel,refund}
+POST   /api/nexha/nexha-commerce-runtime/api/returns
+GET    /api/nexha/nexha-commerce-runtime/api/returns
+GET    /api/nexha/nexha-commerce-runtime/api/returns/:id
+POST   /api/nexha/nexha-commerce-runtime/api/returns/:id/{approve,reject,in-transit,received,complete,refund}
+GET    /api/nexha/nexha-commerce-runtime/api/stats
+```
+
+### Design highlights
+
+- **Compound unique indexes** on `(tenantId, orderId/paymentId/returnId)` so the same id can be reused across tenants.
+- **Dual auth**: JWT (Bearer) + `x-internal-token` (with `X-Tenant-Id`). Both tested.
+- **Empty-patch rejection** at both route and service layer (no silent no-ops).
+- **Idempotent terminal-state calls throw** — calling `refundReturn` on an already-REFUNDED return returns 422 instead of silently no-op'ing (via the new "terminal-status guard" in `assertTransition`).
+- **Refund cascades**: `refundReturn` walks the order → payment → order promotion chain in a single call, with re-fetch to avoid stale-document bugs.
+- **Empty items guard**: `placeOrder` rejects orders with no items (422 → 400).
+
+### Test counts after Phase 8
+
+| Suite | Tests |
+|---|---:|
+| nexha-commerce-runtime (vitest) | 86 |
+| nexha-partner-graph (vitest, carried) | 67 |
+| nexha-mission-planner (vitest, carried) | 89 |
+| nexha-business-directory (vitest, carried) | 68 |
+| nexha-pricing-network (vitest, carried) | 31 |
+| nexha-warehouse-network (vitest, carried) | 49 |
+| nexha-trade-finance-network (vitest, carried) | 38 |
+| nexha-distribution-network (vitest, carried) | 22 |
+| nexha-supplier-network (vitest, carried) | 20 |
+| do-app nexha clients (jest) | 68 |
+| REZ-Workspace node:test (mission + partner + commerce) | 54 |
+| SUTAR foundation (carried) | 425 |
+| **Ecosystem total** | **1,017** |
