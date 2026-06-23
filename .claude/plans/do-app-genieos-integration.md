@@ -244,6 +244,7 @@ No changes needed — mobile already points at the local backend.
 - All 9 service URLs
 - Fallback behavior
 - Internal token requirements
+- **Cross-reference:** [runtime-genie-api-reference.md](runtime-genie-api-reference.md) — the authoritative API surface for all 23 specialists (Phases 1–13, June 22 2026). This is the document client developers should read first; INTEGRATION-WITH-HOJAI.md describes the do-app side of the integration.
 
 ### 6.3 docs/ARCHITECTURE.md
 - Add "Action layer" section
