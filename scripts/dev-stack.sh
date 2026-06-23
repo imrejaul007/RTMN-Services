@@ -184,6 +184,16 @@ status() {
     "Semantic Cache:4772" \
     "RAG Platform:4781" \
     "Tenant Manager:4747" \
+    "Reasoning Engine:4785" \
+    "Intent Engine:4786" \
+    "Reflection Engine:4787" \
+    "Behavior Intelligence:4788" \
+    "Proactive Engine:4789" \
+    "Multi-Agent Runtime:4790" \
+    "Agent Builder:4791" \
+    "Background Agents:4792" \
+    "MissionOS:4295" \
+    "ExecutionOS:4296" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \

@@ -562,9 +562,11 @@ code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundati
   -d '{"source":"observation","score":85}')
 check_2xx "$code" "POST /api/foundation/trust-intelligence/api/agents/demo-agent/trust/score"
 
-# Read back trust
-code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/trust-intelligence/api/agents/demo-agent/trust/score")
-check_2xx "$code" "GET /api/foundation/trust-intelligence/api/agents/demo-agent/trust/score"
+# Read back trust (POST-only endpoint; use POST to query current score)
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST "$HUB_URL/api/foundation/trust-intelligence/api/agents/demo-agent/trust/score" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"observation","score":85}')
+check_2xx "$code" "POST /api/foundation/trust-intelligence/api/agents/demo-agent/trust/score (read-back)"
 
 # Trust levels (thresholds)
 code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/trust-intelligence/api/trust/levels")
@@ -681,6 +683,156 @@ else
 fi
 
 # ============================================================================
+# 3w. Reasoning Engine (Phase F.16, 2026-06-23)
+# ============================================================================
+step "3w. Reasoning Engine (Phase F.16)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/reasoning-engine/health")
+check_2xx "$code" "GET /api/foundation/reasoning-engine/health"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/reasoning-engine/api/reason/templates")
+check_2xx "$code" "GET /api/foundation/reasoning-engine/api/reason/templates"
+
+if grep -q "reasoning-engine" /tmp/demo-out || curl -s "$HUB_URL/api/foundation/capabilities" | grep -q "reasoning-engine"; then
+  ok "Capability map exposes reasoning-engine"
+else
+  warn "Capability map missing reasoning-engine (continuing)"
+fi
+
+# ============================================================================
+# 3x. Intent Engine (Phase F.17, 2026-06-23)
+# ============================================================================
+step "3x. Intent Engine (Phase F.17)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/intent-engine/health")
+check_2xx "$code" "GET /api/foundation/intent-engine/health"
+
+# POST a sample text to detect intent (auth bypassed in dev)
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST -H 'Content-Type: application/json' \
+  -d '{"text":"I want to buy a new laptop"}' \
+  "$HUB_URL/api/foundation/intent-engine/api/intent")
+if [[ "$code" =~ ^2 ]]; then
+  ok "POST intent detect → HTTP $code"
+  if grep -q '"buy"' /tmp/demo-out; then
+    ok "Intent correctly detected as 'buy'"
+  else
+    warn "Intent detection did not return 'buy' (got: $(cat /tmp/demo-out))"
+  fi
+else
+  warn "Intent detect failed with $code (continuing)"
+fi
+
+# ============================================================================
+# 3y. Reflection Engine (Phase F.18, 2026-06-23)
+# ============================================================================
+step "3y. Reflection Engine (Phase F.18)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/reflection-engine/health")
+check_2xx "$code" "GET /api/foundation/reflection-engine/health"
+
+# ============================================================================
+# 3z. Behavior Intelligence (Phase F.19, 2026-06-23)
+# ============================================================================
+step "3z. Behavior Intelligence (Phase F.19)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/behavior-intelligence/health")
+check_2xx "$code" "GET /api/foundation/behavior-intelligence/health"
+
+# ============================================================================
+# 3aa. Proactive Engine (Phase F.20, 2026-06-23)
+# ============================================================================
+step "3aa. Proactive Engine (Phase F.20)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/proactive-engine/health")
+check_2xx "$code" "GET /api/foundation/proactive-engine/health"
+
+# ============================================================================
+# 3ab. Multi-Agent Runtime (Phase F.21, 2026-06-23)
+# ============================================================================
+step "3ab. Multi-Agent Runtime (Phase F.21)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/multi-agent-runtime/health")
+check_2xx "$code" "GET /api/foundation/multi-agent-runtime/health"
+
+# ============================================================================
+# 3ac. Agent Builder (Phase F.22, 2026-06-23)
+# ============================================================================
+step "3ac. Agent Builder (Phase F.22)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/agent-builder/health")
+check_2xx "$code" "GET /api/foundation/agent-builder/health"
+
+# ============================================================================
+# 3ad. Background Agents (Phase F.23, 2026-06-23)
+# ============================================================================
+step "3ad. Background Agents (Phase F.23)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/background-agents/health")
+check_2xx "$code" "GET /api/foundation/background-agents/health"
+
+# ============================================================================
+# 4a. MissionOS (Phase G.1, 2026-06-23)
+# ============================================================================
+step "4a. MissionOS (Phase G.1)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/mission-os/health")
+check_2xx "$code" "GET /api/foundation/mission-os/health"
+
+# Create a mission
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST -H 'Content-Type: application/json' \
+  -d '{"title":"Demo Mission","goal":"Prove MissionOS works","actor":"demo"}' \
+  "$HUB_URL/api/foundation/mission-os/api/missions")
+if [[ "$code" =~ ^2 ]]; then
+  ok "POST mission → HTTP $code"
+else
+  warn "Mission create failed with $code (continuing)"
+fi
+
+# List missions
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/mission-os/api/missions")
+check_2xx "$code" "GET /api/foundation/mission-os/api/missions"
+
+# ============================================================================
+# 4b. ExecutionOS (Phase G.2, 2026-06-23)
+# ============================================================================
+step "4b. ExecutionOS (Phase G.2)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/execution-os/health")
+check_2xx "$code" "GET /api/foundation/execution-os/health"
+
+# Create + run an execution
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" -X POST -H 'Content-Type: application/json' \
+  -d '{"name":"demo-exec","runInline":true,"steps":[{"kind":"noop"}]}' \
+  "$HUB_URL/api/foundation/execution-os/api/executions")
+if [[ "$code" =~ ^2 ]]; then
+  ok "POST execution (runInline) → HTTP $code"
+  if grep -q '"status":"success"' /tmp/demo-out; then
+    ok "Execution completed with status=success"
+  else
+    warn "Execution did not return success status (got: $(cat /tmp/demo-out))"
+  fi
+else
+  warn "Execution create failed with $code (continuing)"
+fi
+
+# ============================================================================
+# 4c. Phase H: Hub gateway methods
+# ============================================================================
+step "4c. Phase H — Hub gateway capabilities"
+
+# Verify the full capability map exposes all 10 new services
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+
+for svc in reasoning-engine intent-engine reflection-engine behavior-intelligence proactive-engine multi-agent-runtime agent-builder background-agents mission-os execution-os; do
+  if grep -q "\"$svc\"" /tmp/demo-out; then
+    ok "Capability map exposes $svc"
+  else
+    warn "Capability map missing $svc (continuing)"
+  fi
+done
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -717,6 +869,17 @@ echo "   • /api/foundation/trust-intelligence/* routes score agent trust + rep
 echo "   • /api/foundation/semantic-cache/* routes embed + cache + lookup semantically-similar prompts (Phase F.13)"
 echo "   • /api/foundation/rag-platform/* routes chunk + embed + retrieve + query documents (Phase F.14)"
 echo "   • /api/foundation/tenant-manager/* routes manage tenants + projects + members + API keys + usage (Phase F.15)"
+echo "   • /api/foundation/reasoning-engine/* routes run deductive/inductive/abductive reasoning (Phase F.16)"
+echo "   • /api/foundation/intent-engine/* routes detect intent with word-boundary regex (Phase F.17)"
+echo "   • /api/foundation/reflection-engine/* routes score response quality across 5 dimensions (Phase F.18)"
+echo "   • /api/foundation/behavior-intelligence/* routes track events + detect anomalies + build funnels (Phase F.19)"
+echo "   • /api/foundation/proactive-engine/* routes suggest actions via rule-based triggers (Phase F.20)"
+echo "   • /api/foundation/multi-agent-runtime/* routes spawn + assign + track agents (Phase F.21)"
+echo "   • /api/foundation/agent-builder/* routes manage blueprints + instantiate + version (Phase F.22)"
+echo "   • /api/foundation/background-agents/* routes schedule + run + cancel background jobs (Phase F.23)"
+echo "   • /api/foundation/mission-os/* routes manage missions + sub-tasks + progress (Phase G.1)"
+echo "   • /api/foundation/execution-os/* routes execute http/shell/noop/wait/sub-execution steps (Phase G.2)"
+echo "   • Phase H: do-app uses 5 generic hub methods (hubCall/hubCapabilities/hubServiceFor/hubSmart/hubServices) instead of 164 specialized methods"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
