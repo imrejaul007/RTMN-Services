@@ -21,7 +21,7 @@
 | **Nexha Networks** | **5** | `companies/Nexha/services/` |
 | **Total catalog items (per BLR CATALOG.md)** | **600+** | Services + agents + workflows |
 
-**This is the existing inventory that needs to be properly integrated into HOJAI Marketplace (formerly BLR) as part of the v2 architecture.**
+**This is the existing inventory that needs to be properly integrated with the HOJAI Platform v2 architecture. BLR AI Marketplace keeps its name (no rename).**
 
 ---
 
@@ -291,7 +291,8 @@ The BLR AI Marketplace needs to evolve from "catalog of services" to "the Market
 
 ### Required changes
 
-1. **Re-position:** BLR becomes "HOJAI Marketplace" (under HOJAI Platform)
+1. **Keep BLR name** — BLR AI Marketplace stays as is (no rename)
+2. **Enhance BLR** — Add the missing v2 categories (Payment, Themes, UI Blocks, Simulation)
 2. **New categories:** Add Payment Packs, Themes, UI Blocks, Simulation Packs, Departments (full)
 3. **Subscription model:** Move from one-time purchase to recurring subscriptions
 4. **Install directly:** Each item can be installed into a generated company via Blueprint Engine
@@ -358,7 +359,7 @@ The BLR AI Marketplace needs to evolve from "catalog of services" to "the Market
 
 **The plan needs to:**
 1. **Inventory** all of this (done — this document)
-2. **Consolidate** under HOJAI Marketplace as the unified entry point
+3. **Consolidate** under HOJAI Platform as the unified entry point (BLR is one product)
 3. **Wire** each item to be installable into a generated company via Blueprint Engine + Diff Engine
 4. **Version** everything (currently unversioned)
 5. **Score** everything (currently not all scored)
@@ -385,7 +386,9 @@ HOJAI Cloud
     ↓
 HOJAI Runtime
     ↓
-HOJAI Marketplace ← BLR AI Marketplace (renamed + extended)
+HOJAI Platform (v2)
+    │
+    └── BLR AI Marketplace (keeps its name; gets extended with new categories)
     │
     ├── 150+ existing AI Agents
     ├── 24 Genie services
@@ -412,7 +415,7 @@ Continuous Evolution
 
 To fully integrate BLR AI Marketplace into HOJAI Platform v2:
 
-1. **Rename** BLR → HOJAI Marketplace (within HOJAI Platform)
+1. **Keep BLR name** — don't rename; just enhance
 2. **Add new categories** (Payment, Compliance, Themes, UI Blocks, Simulation)
 3. **Wire each item** to be installable via Blueprint Engine
 4. **Add version tracking** to all items
