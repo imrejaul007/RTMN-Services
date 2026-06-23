@@ -2,14 +2,19 @@
 
 > **The complete plan to transform HOJAI AI from 40% ready to 100% world-class AI infrastructure.**
 >
-> **Date:** 2026-06-22
-> **Total Duration:** 117 weeks (~28 months)
-> **Total Phases:** 40
-> **Total Work Items:** 250+
+> **Date:** 2026-06-24 (REVISED based on audit)
+> **Total Duration:** 66 weeks (~16 months) — was 117 weeks
+> **Total Phases:** 40 (+ 2 new: Phase 0, Phase 41)
+> **Total Cost:** $3-4.5M — was $5-8M
+> **Total Work Items:** 200+
 >
-> **📖 For the comprehensive 40-phase plan, see [MASTER-PLAN-40-PHASES.md](./MASTER-PLAN-40-PHASES.md)**
+> **⚠️ REVISED 2026-06-24 based on [AUDIT-2026-06-24.md](../../AUDIT-2026-06-24.md)**
 >
-> **📖 For the 40-phase edition overview, see [README-40-PHASE-EDITION.md](./README-40-PHASE-EDITION.md)**
+> **📖 For the REVISED audit-grounded plan, see [MASTER-PLAN-40-PHASES-REVISED.md](./MASTER-PLAN-40-PHASES-REVISED.md) ⭐ START HERE**
+>
+> **📖 Original plans (now superseded):**
+> - [MASTER-PLAN-40-PHASES.md](./MASTER-PLAN-40-PHASES.md) — Original 117-week plan
+> - [README-40-PHASE-EDITION.md](./README-40-PHASE-EDITION.md) — Original 40-phase overview
 
 ---
 
@@ -26,6 +31,36 @@ We **USE** OpenAI, Anthropic, Google, and Mistral via their APIs, and **BUILD** 
 - **AWS uses** Linux and builds EC2, S3, RDS → **HOJAI uses** OpenAI and builds Agent Runtime, SkillOS, Marketplace
 
 **📖 Read [BUILDING-VS-USING.md](./BUILDING-VS-USING.md) for detailed explanation**
+
+---
+
+## 📊 REVISED 2026-06-24: Audit-Grounded Plan
+
+The 40-phase plan was revised on 2026-06-24 after an independent codebase audit revealed what's actually built vs. documented. **The good news: we are 51 weeks ahead of the original plan.**
+
+| Part | Phases | Original | **Revised** | Saved |
+|---|---|---|---|---|
+| **Foundation** | 1-10 | 15 weeks | **8 weeks** | -7 |
+| **Cognitive Stack** | 11-20 | 35 weeks | **7 weeks** | -28 |
+| **Advanced** | 21-30 | 34 weeks | **24 weeks** | -10 |
+| **Platform** | 31-40 | 33 weeks | **20 weeks** | -13 |
+| **Hardening (NEW)** | 41 | 0 | **4 weeks** | +4 |
+| **LLM SDK (NEW)** | 0 | 0 | **3 weeks** | +3 |
+| **TOTAL** | **40+2** | **117 weeks** | **66 weeks** | **-51 weeks** |
+
+**Cost reduction:** $5-8M → **$3-4.5M** (saved $1.5-3.5M)
+
+**⭐ [Read the full REVISED plan →](./MASTER-PLAN-40-PHASES-REVISED.md)**
+
+### Phase Status (verified by audit)
+
+| Status | Count | Examples |
+|---|---:|---|
+| ✅ DONE (100%) | 12 | Orchestration, Prompts, Memory, RAG, SkillOS, GoalOS, AI Marketplace, Learning, World Model, Simulation, TrustOS, Model/Workflow/Twin/Event Registries |
+| 🟢 BUILT (80%+) | 8 | Agent Runtime, Eval Harness, Security, Performance, Personalization (partial), Enterprise, ACP, Memory Intelligence |
+| 🟡 PARTIAL (40-79%) | 11 | LLM Providers, Observability, AI Economy, Governance, Developer Platform, Agent OS, Knowledge Registry, Memory Lifecycle, Multi-Modal (capability only) |
+| 🟠 STUB | 1 | Foundation Models (fine-tuning is stub) |
+| 🔴 NOT_STARTED (0%) | 7 | **Phase 14 Planning Engine, 25 Multi-Modal, 27 AIOps, 30 Fine-tuning, 31 Eval Platform, 38 AI Studio, 40 Agent Lifecycle** |
 
 ---
 

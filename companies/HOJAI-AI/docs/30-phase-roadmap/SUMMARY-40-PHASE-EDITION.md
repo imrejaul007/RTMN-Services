@@ -1,16 +1,35 @@
-# HOJAI AI — 40-Phase Roadmap Summary
+# HOJAI AI — 40-Phase Roadmap Summary (REVISED 2026-06-24)
 
-> **Quick reference for the complete 40-phase plan to make HOJAI AI a world-class AI infrastructure platform.**
+> **Quick reference for the audit-revised 40-phase plan to make HOJAI AI a world-class AI infrastructure platform.**
+>
+> **⚠️ REVISED based on [AUDIT-2026-06-24.md](../../AUDIT-2026-06-24.md). See [MASTER-PLAN-40-PHASES-REVISED.md](./MASTER-PLAN-40-PHASES-REVISED.md) for full details.**
 
 ---
 
-## 🎯 TL;DR
+## 🎯 TL;DR (REVISED)
 
-**40 phases. 117 weeks (28 months). 15-20 engineers. $5-8M.**
+**40+2 phases. 66 weeks (16 months). 15-20 engineers. $3-4.5M.**
 
-Transforms HOJAI AI from "240+ services that mostly work" into "the AI infrastructure platform that powers the autonomous economy."
+The 2026-06-24 audit found that ~58% of the 40-phase plan is already built. The revised plan reflects reality:
+- **51 weeks saved** (117 → 66 weeks)
+- **$1.5-3.5M saved** ($5-8M → $3-4.5M)
+- **2 NEW phases added:** Phase 0 (Real LLM SDK), Phase 41 (Auth Hardening)
+
+Transforms HOJAI AI from "240+ services, ~58% production-ready" into "the AI infrastructure platform that powers the autonomous economy."
 
 **Comparable to:** OpenAI, Anthropic, Cursor, Harvey, Glean, LangChain Cloud, Vertex AI, Azure AI — but with TwinOS and MemoryOS as unique differentiators.
+
+### What's Already Done (per audit)
+
+| Status | Count | Phases |
+|---|---:|---|
+| ✅ **DONE** | 12 | Orchestration (2), Prompts (7), Memory (8), RAG (9), SkillOS (12), GoalOS (13), AI Marketplace (16), Learning (17), World Model (18), Simulation (19), TrustOS (20), Model/Workflow/Twin/Event Registries (33, 34, 35, 37) |
+| 🟢 **BUILT (80%+)** | 8 | Agent Runtime (11), Eval Harness (4), Security (5), Performance (6), ACP (15), Enterprise (24), Memory Intelligence (28), Connectors (29) |
+| 🟡 **PARTIAL** | 11 | LLM Providers (1), Observability (3), Personalization (21), AI Economy (22), Governance (23), Developer Platform (26), Agent OS (32), Knowledge Registry (36), Memory Lifecycle (39), Multi-Modal (25), Launch Prep (10) |
+| 🟠 **STUB** | 1 | Foundation Models (30) |
+| 🔴 **NOT_STARTED** | 7 | **Planning Engine (14), AIOps (27), Eval Platform (31), AI Studio (38), Agent Lifecycle (40) + 2 more** |
+
+**See [MASTER-PLAN-40-PHASES-REVISED.md](./MASTER-PLAN-40-PHASES-REVISED.md) for the full revised plan with P0 priority queue.**
 
 ---
 
