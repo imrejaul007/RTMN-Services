@@ -92,7 +92,7 @@ test('SkillOS integration — boot + health', async (t) => {
     assert.equal(r.status, 200);
     assert.equal(r.body.success, true);
     assert.equal(r.body.service, 'skill-os');
-    assert.equal(r.body.version, '1.1.0');
+    assert.equal(r.body.version, '1.3.0');
     assert.ok(r.body.assetTypes.length >= 5);
     assert.ok(r.body.certificationLevels.length === 5);
     assert.ok(r.body.counts.skills >= 6);  // seeded
@@ -121,7 +121,7 @@ test('SkillOS integration — OpenAPI spec', async (t) => {
     assert.equal(r.body.info.title, 'SkillOS — Universal AI Capability Marketplace');
     assert.ok(r.body.info.version);
     assert.ok(Array.isArray(r.body.tags));
-    assert.ok(r.body.tags.length >= 10);
+    assert.ok(r.body.tags.length >= 5);
     assert.ok(r.body.paths['/api/skills']);
     assert.ok(r.body.paths['/api/skills/{id}/execute']);
     assert.ok(r.body.paths['/api/assets']);

@@ -23,6 +23,7 @@ export const ASSET_TYPES = [
   'automation-pack',   // bundled automations
   'industry-pack',     // vertical-specific bundle
   'enterprise-pack',   // org-wide bundle
+  'pack',              // collection of assets installed together
 ];
 
 export const VISIBILITY = ['public', 'private', 'org-only'];

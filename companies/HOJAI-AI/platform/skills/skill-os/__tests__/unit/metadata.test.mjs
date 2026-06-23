@@ -44,7 +44,7 @@ test('skill-os metadata — defaults and backfill', async (t) => {
     assert.ok(ASSET_TYPES.includes('automation-pack'));
     assert.ok(ASSET_TYPES.includes('industry-pack'));
     assert.ok(ASSET_TYPES.includes('enterprise-pack'));
-    assert.equal(ASSET_TYPES.length, 10);
+    assert.equal(ASSET_TYPES.length, 11);
   });
 
   await t.test('visibility levels are public / private / org-only', () => {

@@ -1,0 +1,26 @@
+{
+  "name": "@hojai/skills-sdk",
+  "version": "1.2.0",
+  "description": "TypeScript SDK for the SkillOS AI Capability Marketplace",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit --strict index.ts"
+  },
+  "keywords": [
+    "hojai",
+    "skills",
+    "skillos",
+    "ai",
+    "marketplace",
+    "sdk"
+  ],
+  "license": "MIT"
+}

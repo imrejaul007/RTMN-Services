@@ -1,0 +1,15 @@
+{
+  "name": "Sample Test Asset",
+  "assetType": "skill",
+  "description": "A test asset used by CLI tests",
+  "category": "ai",
+  "tags": ["test", "cli", "sample"],
+  "code": "async function run(input, ctx) { return { ok: true, input, from: 'sample-fixture' }; }",
+  "publisher": "CLI Tests",
+  "ownerType": "organization",
+  "ownerId": "hojai-ai",
+  "pricingModel": "free",
+  "visibility": "public",
+  "requiredModels": ["gpt-4o"],
+  "supportedLanguages": ["en"]
+}
