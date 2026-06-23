@@ -1,9 +1,9 @@
 # Personal Intelligence OS (PIOS) — Runtime/Genie Wiring Roadmap
 
-> **Status:** ✅ **Phases 1–10 COMPLETE** (June 22, 2026)
+> **Status:** ✅ **Phases 1–11 COMPLETE** (June 22, 2026)
 > **Total Specialists Wired:** 23 of 23 (100%)
-> **Total Delegation Routes:** ~80
-> **Total Test Assertions:** 117 (10 base + 107 voice-razo), 0 failures
+> **Total Delegation Routes:** ~82
+> **Total Test Assertions:** 121 (10 base + 111 voice-razo), 0 failures
 > **Last Updated:** 2026-06-22
 
 ---
@@ -122,6 +122,22 @@ Built the dispatch table that maps every intent-engine intent (now 27, was 9) to
 
 **Result:** Test count: 105 → 107 (+2 dispatch auth-gate tests). Total runtime/genie: **117 assertions, 0 failed**. `/api/ask` still uses keyword ladder as fast-path; intent-engine is now the secondary fallback after the ladder misses (via `tryGenieGateway`), and `/api/genie/dispatch` is the explicit classify+route endpoint for callers that want both.
 
+### Phase 11: Wire `dispatchByIntent()` into `/api/ask` as primary path (commit `d74aad85`)
+
+Phase 10 built the dispatch table; Phase 11 wires the same dispatch logic into `/api/ask` so natural-language questions route to the right specialist — not just the explicit `/api/genie/dispatch` endpoint.
+
+**runtime/genie/src/index.js — new `/api/ask` flow:**
+1. **Keyword ladder (fast-path):** Catches the 6 most common intents without a network round-trip to intent-engine.
+2. **`dispatchByIntent()` (medium-cost):** Classifies via intent-engine, then routes to the right specialist via the `INTENT_DISPATCH` table. Covers the remaining 21 intents the keyword ladder doesn't catch (decide, brainstorm, analyze, future, journal, mood, tasks, routine, create, consult, forget, relationships, learn, recall, serendipity, life_goals, skills, research, story, etc).
+3. **`tryGenieGateway()` (last-resort):** Handles intents the dispatch table doesn't route yet (greet, support, recommend, track, return) and serves as a defensive fallback when intent-engine is unreachable.
+4. **Memory-based greeting:** The original last-resort message when nothing else matched.
+
+**Bug fix:** `INTENT_ENGINE_URL` default port was 4792 but intent-engine actually runs on 4786. The wrong default would have silently failed every dispatch call unless operators set `INTENT_ENGINE_URL` explicitly. Now defaults to 4786.
+
+**Response shape extended:** `/api/ask` now returns `classified_intent` and `dispatch_failed` alongside `delegated_to` so callers can see the routing decision (which intent was classified, whether dispatch fell through to genie-gateway).
+
+**Result:** Test count: 107 → 111 (+4 Phase 11 regression coverage). Total runtime/genie: **121 assertions, 0 failed**. `/api/ask` now covers all 27 catalog intents end-to-end via the keyword ladder + dispatch path; genie-gateway handles only the 5 dispatch-table gaps.
+
 ---
 
 ## 🔌 API Surface (the new namespace)
@@ -204,7 +220,7 @@ All delegation routes are under `authMiddleware` (user JWT). The downstream serv
 
 ### Surface tests (no downstream running)
 
-The voice-razo.test.mjs file (107 assertions after Phase 10) verifies:
+The voice-razo.test.mjs file (111 assertions after Phase 11) verifies:
 - Every new route exists and returns the expected HTTP status
 - Every new route is auth-gated (returns 401 without a Bearer token)
 - The `/api/genie-services/health` endpoint lists every specialist
@@ -260,23 +276,19 @@ Today the specialists push via the event bus, but do-app / REZ-Workspace need We
 
 The do-app integration doc should be updated to list every new route so client developers know what they can call.
 
-### 6. Wire dispatch into `/api/ask` as primary path
-
-Currently `/api/ask` uses the 6-keyword ladder as fast-path, then `tryGenieGateway` (which calls intent-engine as its own fallback). The `INTENT_DISPATCH` table is now wired via `dispatchByIntent()` and exposed at `/api/genie/dispatch`, but `/api/ask` itself doesn't call `dispatchByIntent` yet. Next step: insert `dispatchByIntent(question, user)` as a new branch in `/api/ask` after the keyword ladder misses, so the same dispatch logic powers both the explicit endpoint and natural-language questions.
-
 ---
 
 ## 📈 Numbers
 
-| Metric | Before Phase 8 | After Phase 9 | After Phase 10 |
-|--------|---------------|---------------|----------------|
-| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** |
-| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) |
-| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** |
-| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) |
-| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** |
-| Intent catalog size | 9 | 9 | **27** |
-| Test assertions | 49 | **115** | **117** |
+| Metric | Before Phase 8 | After Phase 9 | After Phase 10 | After Phase 11 |
+|--------|---------------|---------------|----------------|----------------|
+| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** | **23 / 23** |
+| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) | **~82** (same) |
+| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** |
+| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) | **1** (unchanged) |
+| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** | **+ dispatchByIntent wired into /api/ask as primary path** |
+| Intent catalog size | 9 | 9 | **27** | **27** |
+| Test assertions | 49 | **115** | **117** | **121** |
 
 ---
 
@@ -284,6 +296,6 @@ Currently `/api/ask` uses the 6-keyword ladder as fast-path, then `tryGenieGatew
 
 **Before:** 9 specialists reachable through runtime/genie. /api/ask had a hand-rolled 6-intent keyword ladder. No aggregator. No intent-engine integration. No way to see the health of all specialists in one place.
 
-**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId`. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 117 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls.
+**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId`. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 121 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls. **Phase 11** wired the same dispatch logic into `/api/ask` as a primary path so natural-language questions route to the right specialist — covering all 27 catalog intents end-to-end via the keyword ladder + dispatch path.
 
-Next milestone: **Wire `dispatchByIntent()` into `/api/ask` as a primary path** (after the keyword ladder) so the same dispatch logic powers both the explicit endpoint and natural-language questions.
+Next milestone: **Per-specialist E2E tests** so each of the 23 specialists has a real-call regression test through runtime/genie (vs the current surface-only coverage).
