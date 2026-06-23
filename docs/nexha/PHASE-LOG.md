@@ -382,3 +382,201 @@ GET    /api/sutar/marketplace-listings/api/stats
 ### Deviations from plan
 
 - **None significant.** Phase 5 shipped as planned: service in HOJAI-AI (the right home for BLR Marketplace), wired into the Hub via the existing SUTAR route group, and consumed by both do-app (TypeScript client) and REZ-Workspace (Node client).
+
+---
+
+## Phase 6 — Mission Planner (nexha-mission-planner @ port 4362)
+
+**Date:** 2026-06-22
+**Status:** ✅ **Phase 6 complete — 89 vitest tests, 14 do-app tests, 17 REZ-Workspace tests, all pass.**
+
+Cross-tenant mission composition: a tenant instantiates a template (or supplies a custom DAG), the planner resolves each subtask to an agent in `nexha-business-directory`, and subtasks progress through a strict state machine. A single mission can span multiple tenants — that's the point of "federation".
+
+### What it ships
+
+| File | What it does |
+|---|---|
+| `companies/Nexha/services/nexha-mission-planner/` | **NEW** — `@nexha/mission-planner` v1.0.0 |
+| `src/index.js` | Express app on port 4362, auto-start on direct run, internal sanity endpoint |
+| `src/models/Mission.js` | Mongoose model — 7 mission states, 7 subtask states, 5 subtask types |
+| `src/models/MissionTemplate.js` | Mongoose model — system (tenantId=null) + tenant-owned templates, partial unique indexes |
+| `src/middleware/auth.js` | HS256 JWT + `x-internal-token`, env-var-at-request-time |
+| `src/services/missionService.js` | createMission, updateMission, getMission, listMissions, transitionMission, planMission (with custom resolver), startSubtask, completeSubtask, failSubtask, skipSubtask, cancelMission, getStats. State machine. |
+| `src/routes/index.js` | All HTTP routes with Zod validation; participant-aware reads |
+| `__tests__/helpers/db.js` | mongodb-memory-server + syncIndexes() |
+| `__tests__/unit/missionService.test.js` | **42 service-layer tests** — lifecycle, template instantiation, dependencies, auto-promotion |
+| `__tests__/unit/routes.test.js` | **47 HTTP tests** via supertest — auth, validation, lifecycle, templates |
+| `CLAUDE.md` + `README.md` | NEW — architecture, design rationale, file map |
+
+### Test counts
+
+- `nexha-mission-planner` service: **89 vitest** (42 service + 47 HTTP)
+- do-app `nexha.missionPlanner` client: **14 jest**
+- REZ-Workspace `NexhaConnection` mission-planner methods: **17 node:test**
+- **Phase 6 total new tests: 120** (all pass)
+- **RTMN total test count: 841 (was 721)** — +120 in Phase 6
+
+### Wiring (across 5 repos)
+
+| Repo | Change |
+|---|---|
+| `Nexha/services/nexha-mission-planner/` | NEW service |
+| `RABTUL-Technologies/REZ-ecosystem-connector/src/index.ts` | add `nexha-mission-planner` to NEXHA_SERVICES (port 4362); add 3 capabilities (mission-planner, mission-execution, capability-resolution); bump version 1.4.0 → 1.5.0 |
+| `do-app/backend/src/services/hojaiClient.ts` | add `nexhaMissionPlanner` namespace with 18 methods; expose as `nexha.missionPlanner` |
+| `do-app/backend/__tests__/unit/hojaiClient.nexha.test.ts` | append 14 mission-planner tests |
+| `REZ-Workspace/core/unified-fabric/src/connections/nexha.js` | add 17 mission-planner methods to `NexhaConnection` |
+| `REZ-Workspace/core/unified-fabric/test-mission-planner.js` | NEW — 17 node:test smoke tests |
+| `docs/nexha/PHASE-LOG.md` | add this Phase 6 section |
+| `docs/nexha/mission-planner.md` | NEW — service-level doc |
+| `CLAUDE.md` | update Phase D row + vitest test count |
+
+### State machines
+
+**Mission:**
+```
+DRAFT     → PLANNED, CANCELLED
+PLANNED   → EXECUTING, DRAFT, CANCELLED
+EXECUTING → PAUSED, COMPLETED, FAILED, CANCELLED
+PAUSED    → EXECUTING, CANCELLED
+FAILED    → EXECUTING, CANCELLED     (can retry)
+COMPLETED → (terminal)
+CANCELLED → (terminal)
+```
+
+**Subtask:**
+```
+PENDING     → ASSIGNED, SKIPPED, FAILED
+ASSIGNED    → IN_PROGRESS, BLOCKED, FAILED, SKIPPED
+IN_PROGRESS → COMPLETED, FAILED, BLOCKED
+BLOCKED     → IN_PROGRESS, FAILED
+FAILED      → PENDING, SKIPPED       (can retry)
+COMPLETED   → (terminal)
+SKIPPED     → (terminal)
+```
+
+### Endpoints exposed via Hub
+
+```
+GET    /api/nexha/nexha-mission-planner/health
+GET    /api/nexha/nexha-mission-planner/ready
+GET    /api/nexha/nexha-mission-planner/
+POST   /api/nexha/nexha-mission-planner/api/validate
+POST   /api/nexha/nexha-mission-planner/api/missions
+GET    /api/nexha/nexha-mission-planner/api/missions
+GET    /api/nexha/nexha-mission-planner/api/missions/:id
+PATCH  /api/nexha/nexha-mission-planner/api/missions/:id
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/plan
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/start
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/pause
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/cancel
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/retry
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/subtasks/:subtaskId/start
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/subtasks/:subtaskId/complete
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/subtasks/:subtaskId/fail
+POST   /api/nexha/nexha-mission-planner/api/missions/:id/subtasks/:subtaskId/skip
+GET    /api/nexha/nexha-mission-planner/api/templates
+GET    /api/nexha/nexha-mission-planner/api/templates/:id
+POST   /api/nexha/nexha-mission-planner/api/templates
+GET    /api/nexha/nexha-mission-planner/api/stats
+```
+
+### Design highlights
+
+- **Cross-tenant participants**: mission is owned by one tenant, but subtasks can be assigned to agents of OTHER tenants. `participants[]` tracks who's involved.
+- **Dependency-aware subtasks**: `dependsOn: [subtaskId1, ...]` blocks `startSubtask` until deps are COMPLETED or SKIPPED.
+- **Template instantiation with `{{placeholder}}` substitution**: same template → many missions, each with their own context.
+- **Auto-promotion**: starting a subtask auto-promotes DRAFT/PLANNED mission → EXECUTING. Last terminal subtask auto-completes the mission.
+- **Per-tenant compound unique indexes**: same `missionId`/`templateId` can be reused across tenants.
+- **StateTransitionError (422) on illegal moves**: prevents silent state corruption.
+
+---
+
+## Phase 7 — Partner Graph (2026-06-22) ✅
+
+### Goal
+
+Per-tenant partnership tracking + recommendation engine. Replaces ad-hoc relationship tracking with a structured graph: every interaction (transaction, negotiation, mission, contract, review, inquiry) updates a computed **strength score** per partner. The graph powers tenant-specific recommendations (40% existing strength + 30% trust + 30% recency).
+
+### Deliverables
+
+| Component | Path | Tests |
+|---|---|---|
+| Service | `companies/Nexha/services/nexha-partner-graph/` (port 4363) | 67 vitest |
+| Hub wiring | `RABTUL-Technologies/REZ-ecosystem-connector@1.6.0` | — |
+| do-app client | `companies/do-app/backend/src/services/hojaiClient.ts` → `nexha.partnerGraph` | 8 tests (90 total in nexha file) |
+| REZ-Workspace client | `core/unified-fabric/src/connections/nexha.js` → 7 methods | 15 node:test |
+
+### Data model
+
+```
+Partnership { tenantId, partnerRef, partnerType, partnerName, relationshipType,
+              transactionCount, totalGmv, averageRating, trustScore,
+              lastInteractionAt, tags, strength, metadata }
+  compound unique index on (tenantId, partnerRef)
+  secondary indexes: (tenantId, relationshipType, strength: -1),
+                     (tenantId, lastInteractionAt: -1)
+
+Interaction { tenantId, partnerRef, type, direction ('outgoing'|'incoming'),
+              value, currency, rating, source, sourceRef,
+              relationshipType, tags, metadata, occurredAt }
+  type ∈ {transaction, negotiation, mission, contract, review, inquiry}
+```
+
+### Strength formula
+
+```
+strength = 0.30 · score(count) + 0.30 · score(gmv) + 0.20 · score(rating) + 0.20 · score(recency)
+where:
+  score(count)  = min(log10(count+1) / 2, 1)   — caps at ~100 txns
+  score(gmv)    = min(log10(gmv+1) / 5, 1)     — caps at ~$100k
+  score(rating) = rating / 5  (or 0.5 if no rating)
+  score(recency)= 1 - daysSinceLast / 365 (or 0 if never)
+```
+
+### Recommendation formula
+
+```
+score = 0.40 · strength + 0.30 · trustScore + 0.30 · recencyScore
+```
+
+When `relationshipType` is given, only partnerships of that type are considered. Results sorted desc.
+
+### Endpoints exposed via Hub
+
+```
+GET    /api/nexha/nexha-partner-graph/health
+GET    /api/nexha/nexha-partner-graph/ready
+GET    /api/nexha/nexha-partner-graph/
+POST   /api/nexha/nexha-partner-graph/api/interactions
+GET    /api/nexha/nexha-partner-graph/api/interactions
+GET    /api/nexha/nexha-partner-graph/api/partners
+GET    /api/nexha/nexha-partner-graph/api/partners/:ref
+GET    /api/nexha/nexha-partner-graph/api/partners/by-type/:type
+POST   /api/nexha/nexha-partner-graph/api/recommend
+GET    /api/nexha/nexha-partner-graph/api/stats
+```
+
+### Design highlights
+
+- **Dual-side updates**: recording an interaction updates both the calling tenant's partnership (with the given direction) and the partner's partnership (with inverted direction). Same `partnerRef` can exist in different tenants without conflict.
+- **Type inference**: if no explicit `relationshipType`, inferred from interaction type (`transaction` → `customer`/`supplier`, `contract`/`mission` → `partner`).
+- **Trust score is decoupled**: set via metadata (e.g. from `sada-trust-engine`); not computed from interactions. Defaults to 0.5.
+- **Recommendation explainability-light**: returns raw scores; future work to expose feature contributions.
+- **JWT + internal token**: same dual pattern as mission-planner. Tests verify both paths.
+
+### Test counts after Phase 7
+
+| Suite | Tests |
+|---|---:|
+| nexha-partner-graph (vitest) | 67 |
+| nexha-mission-planner (vitest, carried) | 89 |
+| nexha-business-directory (vitest, carried) | 68 |
+| nexha-pricing-network (vitest, carried) | 31 |
+| nexha-warehouse-network (vitest, carried) | 49 |
+| nexha-trade-finance-network (vitest, carried) | 38 |
+| nexha-distribution-network (vitest, carried) | 22 |
+| nexha-supplier-network (vitest, carried) | 20 |
+| do-app nexha clients (vitest) | 90 |
+| REZ-Workspace node:test (mission + partner) | 32 |
+| SUTAR foundation (carried) | 425 |
+| **Ecosystem total** | **931** |

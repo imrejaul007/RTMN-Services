@@ -5,7 +5,7 @@
 > `0009-PHASE-WISE-UPGRADE-PLAN.md` which is the canonical "Phase 0-1 move"
 > ADR. ADR-0010 is the follow-on "Phase 2+ federation" ADR.
 
-**Status:** In Progress (Phase 5 / 11)
+**Status:** In Progress (Phase 7 / 11)
 **Date:** 2026-06-22
 **Authors:** Rejaul Karim (HOJAI AI / RTMN), with HOJAI AI engineering
 **Supersedes:** None
@@ -48,8 +48,8 @@ We will build a **federated, multi-tenant business directory** spanning all thre
 | **3** | **Business Directory** (done 2026-06-22) | Nexha + HOJAI + RTMN | `nexha-business-directory` (port 4360) — companies + agents + capabilities + trust linkage. Public trust API in SADA. Shared HTTP directory client. Hub wiring. do-app + REZ-Workspace clients. |
 | **4** | **ACP-Messaging real impl** (done 2026-06-22) | Nexha + HOJAI + RTMN | `nexha-acp-messaging` (port 4340) — per-tenant Agent Commerce Protocol with persistent negotiation state and message logs. Full state machine (8 message types, 6 statuses). do-app + REZ-Workspace clients. |
 | **5** | **Agent Marketplace** (done 2026-06-22) | HOJAI AI | `marketplace-listings` (port 4250) — per-tenant Mongo-backed listings + reviews + directory linkage. Replaces in-memory `sutar-marketplace`. Hub wired. do-app + REZ-Workspace clients. |
-| **6** | Mission Planner | HOJAI AI | Cross-tenant mission composition (capability graph → DAG → execution). |
-| **7** | Partner Graph | Nexha | "Companies I've transacted with" social graph + recommendation engine. |
+| **6** | **Mission Planner** (done 2026-06-22) | Nexha | `nexha-mission-planner` (port 4362) — cross-tenant mission composition. Templates with `{{placeholder}}` substitution. Mission state machine (DRAFT → PLANNED → EXECUTING → COMPLETED/FAILED/CANCELLED). Subtask state machine with `dependsOn` DAG. Per-tenant compound unique indexes. 89 vitest + 14 do-app + 17 REZ-Workspace tests. |
+| **7** | **Partner Graph** (done 2026-06-22) | Nexha | `nexha-partner-graph` (port 4363) — per-tenant partnership tracking. Interactions (transaction, negotiation, mission, contract, review, inquiry) update a computed strength score (30% count + 30% GMV + 20% rating + 20% recency). Recommendation engine (40% strength + 30% trust + 30% recency). 67 vitest + 8 do-app + 15 REZ-Workspace tests. |
 | **8** | Commerce Runtime | Nexha | The execution plane: orders, fulfillment, payments, escrow, returns. |
 | **9** | Per-Tenant SUTAR Instances | HOJAI AI | Optional: spin up an isolated SUTAR shard per large tenant. |
 | **10** | Industry OS Split | RTMN | Per-tenant industry OS instances for regulated industries (healthcare, finance). |
