@@ -1,0 +1,253 @@
+## 5. `nexha-gateway` (port 5002)
+
+### Package & Port
+- **Name:** `nexha-gateway` v1.0.0
+- **Type:** TypeScript (compiled to ESM; uses `tsx` for dev)
+- **Default port:** `5002` (env `PORT`; note this is the port in `.env.example` and used as default; the user prompt says "port 5002" but the env file lists `PORT=5002` and the .env shows a bunch of related service URLs as 4300/4310/4320/4330/4340/4350/4399/5140/4520/4530 that don't actually match any service we read)
+- **Description in package.json:** "Nexha Warehouse Network — Phase C.5. Warehouse discovery, slot booking, and routing for the Nexha procurement flow."
+- **Runtime deps:** `express`, `cors`, `helmet`, `zod`, `uuid`
+- **Dev deps:** `@types/express`, `@types/cors`, `@types/uuid`, `@types/node`, `typescript`, `tsx`, `vitest`
+- **No MongoDB.** Pure in-memory.
+
+### Endpoints (full list — from `src/index.ts`)
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/health` | (none unless REQUIRE_AUTH) | `{status, service, version, phase:"C.5", timestamp, uptime}` |
+| `GET` | `/ready` | (none) | `{ready:true, timestamp}` |
+| `GET` | `/api/v1/info` | (under `requireAuth` if enabled) | Service info + kinds + seeded count |
+| `GET` | `/api/v1/warehouses` | `requireAuth` if enabled | List warehouses; query: `kind`, `city` |
+| `GET` | `/api/v1/warehouses/:id` | `requireAuth` if enabled | Get one warehouse; 404 if missing |
+| `GET` | `/api/v1/routes` | `requireAuth` if enabled | List all routes |
+| `POST` | `/api/v1/slots/search` | `requireAuth` if enabled | Zod-validated search; returns `{results, count, cheapest}` |
+| `POST` | `/api/v1/slots/book` | `requireAuth` if enabled | Book a slot; 201 on success, 400 on `error` |
+| `POST` | `/api/v1/slots/bookings/:id/fulfill` | `requireAuth` if enabled | Move `reserved` → `filled` |
+| `POST` | `/api/v1/slots/bookings/:id/cancel` | `requireAuth` if enabled | Refund units; mark cancelled |
+| `GET` | `/api/v1/slots/bookings` | `requireAuth` if enabled | List bookings; filters: `status`, `warehouseId` |
+| `GET` | `/api/v1/slots/bookings/:id` | `requireAuth` if enabled | Get one; 404 if missing |
+| `POST` | `/api/v1/cost` | `requireAuth` if enabled | Compute cost for a route |
+| 404 | catch-all | — | `{success:false, error:"Not found"}` |
+
+**Auth behavior** (line 30 + 58–65): `REQUIRE_AUTH = process.env.NEXHA_GATEWAY_REQUIRE_AUTH !== "false"` (default `true`). If `true`, it tries to `import("@rtmn/shared/auth")` and apply `requireAuth` to `/api/v1`. If the import fails (e.g. `@rtmn/shared` not built), it logs a warning and **continues with auth disabled**. This is a soft-disable.
+
+There is **no body-forwarding  logic** in this service — the user prompt mentions "body-forwarding behavior" but the only body handling is `express.json({ limit: "1mb" })`. The  is a self-contained service, not an aggregator/.
+
+### TypeScript types (`src/types/warehouse.ts`)
+```ts
+type WarehouseKind = "cold_chain" | "dry" | "hazmat" | "bulk" | "general" | "pharma";
+type SlotStatus = "open" | "reserved" | "filled" | "expired" | "cancelled";
+
+interface WarehouseLocation { city, state, country, pincode, lat, lng }
+interface WarehouseSlot { id, category, item, availableUnits, unit, pricePerUnit, currency, freshnessUntil, minOrderUnits }
+interface Warehouse { id, name, kind, location, rating, reliability, capacityUnitsPerDay, operatingHours, slots, trustScore, totalOrders }
+interface WarehouseRoute { fromId, toId, transitHours, costMultiplier, sameCorridor }
+interface SlotBooking { id, warehouseId, slotId, units, status, createdAt, reservedUntil, fulfilledAt?, cancelledAt?, reference? }
+```
+
+### Service methods (`src/services/warehouse.service.ts`)
+| Method | Signature | Description |
+|---|---|---|
+| `seedDemoWarehouses()` | `() → number` | Idempotent (returns 0 if already seeded). Seeds 4 warehouses (BLR-001 dry, BLR-002 cold_chain, MUM-001 bulk, DEL-001 pharma) with 7 slots total and 8 routes (all directed pairs). Uses `Date.now()` + days for `freshnessUntil` |
+| `resetAll()` | `() → void` | Clears all in-memory state |
+| `listWarehouses({kind?, city?})` | `(filter) → Warehouse[]` | case-insensitive city match |
+| `getWarehouse(id)` | `(string) → Warehouse\|undefined` | |
+| `listRoutes()` | `() → WarehouseRoute[]` | copy of routes |
+| `findRoute(fromId, toId)` | `(string, string) → WarehouseRoute\|undefined` | |
+| `searchSlots({item?, category?, city?, maxPricePerUnit?, minTrustScore?, limit?})` | `(query) → Array<{warehouse, slot}>` | Filters by city, minTrustScore, freshness, category, item substring, maxPrice, availableUnits ≥ minOrder. Scores each result: `score = trust*0.5 + cheapness*0.3 + min(50, freshnessDays)*0.4` where `cheapness = max(0, 100 - pricePerUnit)`. Sorts by score desc, slices to limit (default 20) |
+| `bookSlot({warehouseId, slotId, units, reference?})` | `(input) → SlotBooking\|{error}` | Validates warehouse exists, slot exists, units ≥ minOrderUnits, units ≤ availableUnits. Generates `BOOK-<8hex>` id. Creates booking with `status:'reserved'`, `createdAt`, `reservedUntil = +24h`. **Decrements `slot.availableUnits`**. Returns booking |
+| `fulfillBooking(id)` | `(string) → SlotBooking\|{error}` | Throws-style error string. Rejects if missing, cancelled, expired (`Date.parse(reservedUntil) < Date.now()`). Sets `status:'filled'`, `fulfilledAt` |
+| `cancelBooking(id)` | `(string) → SlotBooking\|{error}` | Rejects if missing or already `filled`. **Refunds `slot.availableUnits += booking.units`**. Sets `status:'cancelled'`, `cancelledAt` |
+| `getBooking(id)` | `(string) → SlotBooking\|undefined` | |
+| `listBookings({status?, warehouseId?})` | `(filter) → SlotBooking[]` | |
+| `computeCostForRoute({warehouseId, destinationWarehouseId?, units, slotId})` | `(opts) → {baseCost, transitSurcharge, totalCost, currency, transitHours}\|{error}` | `baseCost = pricePerUnit * units`. If destination present, finds route, computes `transitSurcharge = 25 * units * (costMultiplier - 1)`. Rounds to 2 dp |
+
+Constants:
+- `BOOKING_TTL_MS = 1000 * 60 * 60 * 24` (24 hours)
+
+### Business rules / state machine
+
+**Booking state machine**:
+- `reserved` (initial) → `filled` (via `fulfillBooking`) or `cancelled` (via `cancelBooking`) or `expired` (auto-detected in `fulfillBooking` if past `reservedUntil`).
+- `filled` cannot be cancelled.
+- `cancelled` cannot be fulfilled.
+- `expired` is set lazily on next read, not via a background sweep.
+
+**Slot bookkeeping**:
+- `bookSlot` decrements `availableUnits` immediately.
+- `cancelBooking` refunds `availableUnits += booking.units`.
+- `fulfillBooking` does **not** change `availableUnits` (the slot is already "consumed" from the inventory perspective).
+
+**Search scoring**:
+```
+cheapness  = max(0, 100 - pricePerUnit)
+freshnessDays = max(0, (freshnessUntil - now) / 86_400_000)
+score = trustScore * 0.5 + cheapness * 0.3 + min(50, freshnessDays) * 0.4
+```
+Note: this can exceed 1.0 (e.g. trust 100 + cheapness 100 + freshness 50 = 250), but the search does not normalize. The `cheapest` returned is `hits[0]` (highest score, not strictly lowest price).
+
+**Seed data** (4 warehouses, 8 routes):
+- WH-BLR-001 (dry, trust 88) — Bangalore Central Dry Goods — basmati_rice 800kg @ ₹95, mustard_oil 300L @ ₹175, wheat_flour 500kg @ ₹42.
+- WH-BLR-002 (cold_chain, trust 84) — toned_milk 1200L @ ₹56, paneer 80kg @ ₹380.
+- WH-MUM-001 (bulk, trust 80) — sona_masuri_rice 12000kg @ ₹48, red_onion 4000kg @ ₹32, refined_sugar 6000kg @ ₹44.
+- WH-DEL-001 (pharma, trust 94) — paracetamol 50000 strips @ ₹12, amoxicillin 12000 strips @ ₹65.
+- Routes: 4 corridor pairs × 2 directions (Bangalore↔Bangalore same-corridor 1.5h/1.05×, Bangalore↔Mumbai 28h/1.20×, Bangalore↔Delhi 36h/1.25×, Mumbai↔Delhi 24h/1.15×).
+
+### Tests
+- `__tests__/unit/warehouse.service.test.ts` (~22 tests) — `seedDemoWarehouses` (4 seeded, kinds present), `listWarehouses` filters (kind, case-insensitive city), `searchSlots` (substring item, maxPrice, minTrust, ranking), `bookSlot` (decrement, below-min rejected, over-capacity rejected, unknown warehouse/slot), `fulfillBooking` (reserved→filled, unknown rejected), `cancelBooking` (refund units, refuses filled), routes (exists, unknown pair), `computeCostForRoute` (no destination, cross-warehouse, unknown slot).
+- All tests pass against the in-memory singleton.
+
+### Bugs / gaps / inconsistencies
+1. **The user prompt says "body-forwarding behavior"** — this service does NOT do any body forwarding. It's a self-contained warehouse network. The package.json description calls it "Nexha Warehouse Network — Phase C.5", and the routes are all local. The Hub integration (per the comment in `src/index.ts` line 4: "The RTMN Hub reaches us at /api/nexha/nexha-/<path>") is just naming; the  itself doesn't .
+2. **No persistence.** State is in-memory; restarting the process loses all bookings. The seed runs on every boot, so warehouses are always restored, but bookings are not.
+3. **`.env.example` is wildly out of date** — it lists `DISTRIBUTION_OS_URL=4300`, `FRANCHISE_OS_URL=4310`, `PROCUREMENT_OS_URL=4320`, `MANUFACTURING_OS_URL=4330`, `TRADE_FINANCE_URL=4340`, `INTELLIGENCE_URL=4350`, `CONNECTOR_URL=4399`, `HOJAI_BRIDGE_URL=5140`, `HOJAI_MEMORY_URL=4520`, `HOJAI_INTELLIGENCE_URL=4530` — none of which are read by any code in this service. They're stale leftovers.
+4. **`@rtmn/shared/auth` is dynamically imported** — if the package isn't built (or the path doesn't exist), the gateway silently runs without auth. The `console.warn('[nexha-gateway] @rtmn/shared/auth not available — auth disabled')` is the only signal.
+5. **TypeScript config uses `"module": "ESNext"` with `"moduleResolution": "Bundler"`** and `tsconfig.json` is set to emit (no `noEmit: true`). The dev script uses `tsx watch`; production uses `node dist/index.js`. But there's no `prebuild` script; if `dist/` doesn't exist, `npm start` will fail.
+6. **`SlotStatus` includes `'open'`** but the booking code never produces `open` (it starts at `reserved`). `'open'` is dead.
+7. **`SlotStatus` includes `'expired'`** but no background sweeper sets it; only `fulfillBooking` can set it (and only if called after expiry). A booking that just sits past `reservedUntil` will still show `reserved` until someone tries to fulfill it.
+8. **The default seed function never returns anything to the routes** — `seedDemoWarehouses` is called once at module load and idempotently. Fine, but the count of `seededWarehouses` in `/api/v1/info` reflects whatever was added on this run.
+9. **Routes are directional** — `findRoute(BLR-001, MUM-001)` exists with `transitHours:28`, and the inverse is also seeded (line 110–115). Symmetric.
+10. **`computeCostForRoute` does not consider the source warehouse's trust** in the cost — only `pricePerUnit * units + transit surcharge`.
+11. **`apiResponse<T>` generic is not used** in the return types; `res.json(apiResponse(true, ...))` is called with concrete args. Minor.
+12. **The test imports `warehouseService` as a singleton** — the `beforeEach` calls `resetAll()` then `seedDemoWarehouses()`. State leaks between tests would be possible if `resetAll()` were forgotten.
+13. **`{success:true, data:undefined, error:undefined}`** is returned in some branches (line 50 `asyncRoute` error handler) — the `apiResponse` helper doesn't omit undefined keys. Cosmetic.
+14. **`@types/supertest` is in devDeps but no supertest in deps** — implies there are no HTTP integration tests. Confirmed (only `warehouse.service.test.ts` exists).
+15. **Body limit 1 MB.**
+16. **There is no `app` exported as a default** if the file is compiled — `src/index.ts` line 250 has `export default app;`, so the compiled `dist/index.js` does export it. Good. But running `node dist/index.js` always starts the listener (the `app.listen` is at top level, not gated on `isDirectRun`).
+17. **`installGracefulShutdown` is dynamically imported** — same pattern as auth. If unavailable, log nothing, continue.
+
+---
+
+## 6. `nexha-tenant-summary` (port 4387)
+
+### Package & Port
+- **Name:** `@nexha/tenant-summary` v1.0.0
+- **Type:** ESM
+- **Default port:** `4387` (env `PORT`)
+- **Description:** "Nexha Tenant Summary — fan-out aggregator that returns a unified view of a tenant across all ADR-0010 services. Read-only, no DB of its own."
+- **ADR / phase:** ADR-0011 Phase 13 (2026-06-23)
+- **Runtime deps:** `@rtmn/shared`, `compression`, `cors`, `express`, `express-rate-limit`, `helmet`, `morgan`, `uuid`, `zod`
+- **Dev deps:** `@types/jsonwebtoken`, `@types/supertest`, `jsonwebtoken`, `supertest`, `vitest`
+- **Engine:** `node >= 20`
+- **No MongoDB.**
+
+### Endpoints (full list — from `src/index.js` and `src/routes/index.js`)
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/` | none (returns 200 only if mounted at root) | Service info |
+| `GET` | `/health` | none | `{status, service, version, timestamp, uptime}` |
+| `GET` | `/ready` | none | `{ready, service}` |
+| `GET` | `/api/sources` | `requireAuth` | List the 9 fan-out targets (key, label, service, path) |
+| `GET` | `/api/tenants/:tenantId/summary` | `requireAuth` | Fan out to all 9 upstreams, merge, return |
+| `GET` | `/api/tenants/:tenantId/summary/:section` | `requireAuth` | Single section (one upstream call); 404 if section unknown |
+| `GET` | `/api/health/upstreams` | `requireAuth` | Fan-out health check (per upstream ok/fail) |
+| 404 | catch-all | — | `{success:false, error:{code:'NOT_FOUND', message:'Endpoint not found'}}` |
+
+The router is mounted at `/api` with `router.use(requireAuth)`, so all `/api/*` routes are gated. The root `/`, `/health`, `/ready` are public.
+
+### Mongoose models / types
+**None.** No database. This is a pure aggregator.
+
+### Service methods (`src/services/summaryService.js`)
+| Export | Signature | Description |
+|---|---|---|
+| `FANOUT_TARGETS` | `Array<{key, label, service, path, method, transform}>` | 9 entries — see below |
+| `fillPath(template, tenantId)` | `(string, string) → string` | `replaceAll(':tenantId', encodeURIComponent(tenantId))` |
+| `fetchJson(url, {method, headers, timeoutMs})` | — | Uses `AbortController` + `setTimeout`; on non-2xx throws `Error('HTTP <status>')`; on abort throws |
+| `buildSummary({tenantId, hubUrl, headers, timeoutMs, fetcher})` | — | Validates tenantId; calls all 9 targets in parallel via `Promise.allSettled`; never throws (each call wrapped in try/catch and turned into `{ok:false, error}`). Returns `{tenantId, generatedAt, hubUrl, summary:{totalSources, okCount, errorCount, health}, sections, errors?}` where `health` is `healthy` (0 errors) / `partial` (some errors) / `degraded` (all errors) |
+| `checkUpstreams({hubUrl, timeoutMs, fetcher})` | — | Hits each upstream's `/api/services/<service>/health`. Returns `{generatedAt, upstreams:{key:{label,ok,error?}}, summary:{total, up, down}}` |
+
+### The 9 `FANOUT_TARGETS` (CONFIRMED — the user asked me to confirm the FANOUT_TARGETS list):
+
+| # | key | label | service | path | method |
+|---|---|---|---|---|---|
+| 1 | `directory` | Business Directory entries | `nexha-business-directory` | `/api/nexha/nexha-business-directory/api/v1/companies?tenantId=:tenantId&limit=10` | GET |
+| 2 | `messaging` | ACP message threads | `nexha-acp-messaging` | `/api/nexha/nexha-acp-messaging/api/threads?tenantId=:tenantId&limit=10` | GET |
+| 3 | `missions` | Missions | `nexha-mission-planner` | `/api/nexha/nexha-mission-planner/api/missions?tenantId=:tenantId&limit=10` | GET |
+| 4 | `partners` | Partner relationships | `nexha-partner-graph` | `/api/nexha/nexha-partner-graph/api/partners?tenantId=:tenantId&limit=10` | GET |
+| 5 | `commerce` | Commerce activity | `nexha-commerce-runtime` | `/api/nexha/nexha-commerce-runtime/api/orders?tenantId=:tenantId&limit=10` | GET |
+| 6 | `sutarInstances` | SUTAR instances | `sutar-tenant-instances` | `/api/sutar/sutar-tenant-instances/api/instances?tenantId=:tenantId&limit=10` | GET |
+| 7 | `industryInstances` | Industry OS instances | `industry-tenant-instances` | `/api/nexha/industry-tenant-instances/api/instances?tenantId=:tenantId&limit=10` | GET |
+| 8 | `provisioningPlans` | Provisioning plans | `nexha-provisioning-engine` | `/api/nexha/nexha-provisioning-engine/api/plans?tenantId=:tenantId&limit=10` | GET |
+| 9 | `webhooks` | Webhook subscriptions | `nexha-hooks-sdk` | `/api/nexha/nexha-hooks-sdk/api/subscriptions?tenantId=:tenantId&limit=10` | GET |
+
+**Total: 9 FANOUT_TARGETS.** Note that 5 use the `/api/nexha/...` prefix (served via Hub) and 1 uses `/api/sutar/...` (also via Hub); all 9 are Hub-mediated. The user's note that there are 8 ADR-0010 services plus optionally `nexha-hooks-sdk` is **slightly off** — the code lists 9 total, with `sutar-tenant-instances` and `industry-tenant-instances` as two of the 9. The webhooks one is item 9.
+
+Each `transform` reshapes the response into:
+```js
+{
+  total: data?.total ?? (data?.companies|threads|missions|partners|orders|instances|plans|subscriptions?.length ?? 0),
+  [items]: [...sliced to 10].map(...)
+}
+```
+
+### Business rules
+
+**Failure isolation**: every upstream call is wrapped in try/catch; one failing service does not block the others. `Promise.allSettled` ensures all 9 always run. Each failure produces a section like `{label, error: {message, code: 'TIMEOUT' | 'UPSTREAM_ERROR'}}`.
+
+**Timeout handling**: per-call timeout is `3000ms` by default (`UPSTREAM_TIMEOUT_MS` env). On `AbortError`, the section's `error.code` is `'TIMEOUT'`.
+
+**Health summary**:
+- `healthy` — 0 errors
+- `partial` — some errors, some OKs
+- `degraded` — all 9 failed (or `okCount === 0`)
+
+**Per-section route** (`GET /api/tenants/:tenantId/summary/:section`): looks up the target by `key`, calls the single upstream, applies the transform. Returns 502 for non-timeout errors, 504 for timeouts.
+
+**Auth** (`src/middleware/auth.js`):
+- `requireAuth` accepts `x-internal-token` (matches `process.env.INTERNAL_TOKEN`; sets `req.user.role='internal'`, `tenantId` from header/JWT) OR `Authorization: Bearer <jwt>` (HS256 with `JWT_SECRET`, default `'dev-secret-change-me'`; sets `req.user = payload`).
+- `tenantFrom`: `x-tenant-id` header → `req.user.tenantId` → `req.user.tid` → `req.query.tenantId` → `null`.
+- `REQUIRED_ROLE` env (default `'tenant:read'`) is checked but **only as a "do not reject" condition** — line 50: `if (REQUIRED_ROLE && payload.role && payload.role !== REQUIRED_ROLE && payload.role !== 'admin' && payload.role !== 'internal') { /* Allow access; specific tenant scoping happens via tenantFrom() */ }`. The comment says "Allow access" but the code falls through to `return next()`. So role check is effectively a no-op. **The middleware always lets the request through** if the JWT is valid.
+
+**Rate limiting**: 200 req/min/IP via `express-rate-limit` (configured at top of `src/index.js`).
+
+**CORS**: `origin: process.env.ALLOWED_ORIGINS?.split(',') || '*'`, `credentials: true`.
+
+### Tests
+- `__tests__/unit/summaryService.test.js` (~15 tests) — `fillPath` (encoded replacement, multiple occurrences, no-op), `fetchJson` (2xx parsed, non-2xx throws, timeout aborts), `buildSummary` happy path (all 9 sources merged, truncation at 10, URL construction), `buildSummary` failure isolation (one failure → partial, all failure → degraded, TIMEOUT code), `buildSummary` input validation (missing tenantId, empty string), `checkUpstreams` (all OK, one down), `FANOUT_TARGETS` shape (unique keys, all required fields, every service in known set of 9).
+- `__tests__/unit/routes.test.js` (~15 tests) — auth (no creds → 401, valid JWT 200, internal token 200, bad JWT → 401 INVALID_TOKEN), `/api/sources` (list with required fields), `/api/tenants/:tenantId/summary` (merged results, partial on one down, degraded on all down, forwards auth headers), `/api/tenants/:tenantId/summary/:section` (single section, unknown 404, upstream error 502/504), `/api/health/upstreams` (all ok, one down), meta (health, ready, root, unknown 404, unknown `/api/*` 401).
+- Total: ~30 tests (rough count).
+
+### Bugs / gaps / inconsistencies
+1. **`FANOUT_TARGETS` has 9 entries**, not 8. The user's CLAUDE.md and the route comment both say "8 upstream services in parallel" + "optionally nexha-hooks-sdk". The code lists 9 including webhooks. So either the count is 9, or the comment is stale.
+2. **`role` check is a no-op** — `if (REQUIRED_ROLE && payload.role && payload.role !== REQUIRED_ROLE && payload.role !== 'admin' && payload.role !== 'internal') { /* Allow access */ }` followed by `return next()`. The intent was probably to reject non-matching roles; instead it accepts everyone. This means a JWT with `role: 'whatever'` is accepted.
+3. **Two of the FANOUT_TARGETS paths use `/api/nexha/...` while one uses `/api/sutar/...`.** That's intentional (sutar-tenant-instances is mounted under `/api/sutar` in the Hub), but the path templates must remain in sync with the Hub's route registration.
+4. **Mismatched path expectations**: the messaging target expects `data.threads` (or `data.total`), but `nexha-acp-messaging` exposes `data.items` (not `data.threads`). The `transform` does `data?.threads || []` — so if the actual API returns `{items: [...]}`, the result will be `total: 0` and `threads: []`. The CLAUDE.md for acp-messaging says it returns `{items, total}`, not `{threads, total}`. **This is a real bug** — the fan-out will never return messaging data correctly.
+5. **Same potential mismatch for partner-graph**: the transform expects `data.partners` and `p.name`, `p.relationship`, `p.trustLevel`. The actual partner-graph service returns `{items, total, limit, offset}` where items are `Partnership` documents with `partnerRef`, `partnerName`, `relationshipType`, `trustScore`. So the field names differ.
+6. **For commerce-runtime**: transform expects `o.totalCents`; the actual service may use different field names.
+7. **For industry-tenant-instances and sutar-tenant-instances**: transform expects `i.industry` for industry-instances; this matches the schema.
+8. **For provisioning-engine**: transform expects `p.targetKind`; the actual model has `targetInstanceKind` (not `targetKind`).
+9. **For hooks-sdk**: transform expects `s.targetUrl`; the actual model has `s.url` (not `targetUrl`).
+10. **The user said "fan-out aggregator (I just read this — confirm FANOUT_TARGETS list)"** — confirmed: 9 entries. But the field-name mismatches (items 4–9 above) are real and would cause silent data loss in production.
+11. **The route `/api/tenants/:tenantId/summary/:section` validates the section against `FANOUT_TARGETS.find(t => t.key === section)`** but if the section name matches, it doesn't check that the upstream is healthy — it just calls and reports the error.
+12. **No caching** — every request fans out fresh.
+13. **No compression of repeated requests** — even with `compression` middleware, each fan-out hits the Hub 9 times.
+14. **`hubUrl` is a single global** (`RTMN_HUB_URL` env) — can't route to multiple Hubs.
+15. **`checkUpstreams` hits `${hubUrl}/api/services/${service}/health`** — assumes a specific Hub route format. If the Hub doesn't expose this, every upstream looks "down".
+16. **`buildSummary` always returns 200**, even on degraded state. The route doesn't surface the health in the HTTP status. Consumers have to inspect `summary.health` or `errors`.
+
+---
+
+## Cross-service observations
+
+1. **Port assignment is consistent** within the documented canonical set (4340, 4363, 4385, 4386, 4387) except `nexha-gateway` which is on `5002` (and `.env.example` is stale).
+2. **All Nexha services depend on `@rtmn/shared`** (file: `../../shared`) — but the package is a file dependency, not a workspace dependency. If the shared package is not built, dynamic imports like `await import("@rtmn/shared/auth")` will fail silently (as in `nexha-gateway`).
+3. **Auth is inconsistent across the six services:**
+   - `nexha-acp-messaging` & `nexha-partner-graph`: JWT (RS256/HS256-without-verification respectively) + internal token; both use Zod schemas.
+   - `nexha-provisioning-engine` & `nexha-hooks-sdk`: JWT (HS256, verified with `jsonwebtoken`) + internal token + role check; both use Zod schemas.
+   - `nexha-gateway`: dynamic import of `@rtmn/shared/auth`; soft-disable on failure.
+   - `nexha-tenant-summary`: JWT (HS256, verified) + internal token; role check is a no-op.
+4. **The two new services (`provisioning-engine`, `hooks-sdk`) follow a consistent "internal-only worker" pattern** — `processDeliveries`, `processPlan` are callable only by internal-token users. The other services don't have such a concept.
+5. **Test helpers** — partner-graph uses per-test mongo; provisioning-engine and hooks-sdk use `globalThis` shared mongo; acp-messaging uses per-file mongo. All four use `mongodb-memory-server`. `nexha-gateway` and `nexha-tenant-summary` have no DB.
+6. **The `package-lock.json` files exist in all six** (I didn't read them — they're huge and the user didn't ask).
+7. **The `vitest.config.js`/`vitest.config.ts` files** are all minimal — `environment:'node'`, no globals, testTimeout 30s (or 20s for tenant-summary). Hooks and provisioning include `include: ['__tests__/**/*.test.js']`; acp-messaging relies on the default include pattern; gateway uses `__tests__/**/*.test.ts`; partner-graph uses `__tests__/**/*.test.js` + `pool:'forks'`.
+8. **None of the services have a `.env.example`** except `nexha-gateway` (and that one is stale).
+9. **None of the services export an OpenAPI spec** or have `swagger-ui-express`.
+10. **The only service with explicit 6-attempt retry is `nexha-hooks-sdk`** (60s, 5min, 30min, 2h, 12h, 24h). The other services don't have a retry concept.
+11. **HMAC-SHA256 is only in `nexha-hooks-sdk`**. The other services don't sign outgoing requests.
+12. **State machines exist in `nexha-acp-messaging` (8 message types), `nexha-provisioning-engine` (8 statuses), `nexha-hooks-sdk` (3 sub statuses + 4 delivery statuses), and `nexha-gateway` (5 slot statuses).** `nexha-partner-graph` and `nexha-tenant-summary` have no state machine.
+13. **The strongest test coverage is on `nexha-acp-messaging` (59)** and `nexha-partner-graph` (67)**. The `nexha-gateway` and `nexha-tenant-summary` have lighter coverage focused on the service layer.
+
+---
+
+## Files read (all under `/Users/rejaulkarim/Documents/RTMN/companies/Nexha/services/`)
+
+```
