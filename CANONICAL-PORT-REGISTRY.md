@@ -248,6 +248,7 @@ SUTAR OS lives at `companies/HOJAI-AI/sutar-os/` (29 services, ~30k LOC). The RT
 |------|---------|------:|---------|------|
 | 3100 | sutar-monitoring | 1 | `sutar-monitoring` | `sutar-os/core/sutar-monitoring/` |
 | 4140 | sutar-gateway | 2 | `sutar-gateway` | `sutar-os/core/sutar-gateway/` |
+| 4141 | sutar-tenant-instances | 2 (Phase 9) | `sutar-tenant-instances` | `sutar-os/core/sutar-tenant-instances/` |
 | 4142 | sutar-twin-os | 2 | `sutar-twin-os` | `sutar-os/core/sutar-twin-os/` |
 | 4143 | sutar-memory-bridge | 2 | `sutar-memory-bridge` | `sutar-os/core/sutar-memory-bridge/` |
 | 4145 | sutar-agent-id | 2 | `sutar-agent-id` | `sutar-os/core/sutar-agent-id/` |
@@ -290,6 +291,34 @@ These were in the Hub as of 2026-06-21 but had no matching real service. See aud
 | `sutar-dispute` | 4847 | `disputeResolution` capability never built |
 | `sutar-marketplace` | 4250 | Moved to BLR Marketplace (`companies/HOJAI-AI/blr-ai-marketplace/services/`) on 2026-06-21 |
 | `sutar-goal-os` | 4242 | `goal-os` lives in `genie-os/`, not `sutar-os/` |
+
+---
+
+## 💳 AgentFin — Agent-native Financial Infrastructure (Layer 10 — added 2026-06-23)
+
+AgentFin lives at `companies/RABTUL-Technologies/agentfin/` (15 services, ~6,200 LOC TypeScript + ~3,000 LOC tests). The RTMN Hub (`REZ-ecosystem-connector@4399`) exposes all of these via `/api/agentfin/<service>/<path>` and `/api/agentfin/capabilities`. Source-of-truth for the table below: `companies/RABTUL-Technologies/agentfin/<service>/src/index.ts`.
+
+AgentFin replaces the "SUTAR Finance Agent" placeholder in the 5-year plan. It wraps RABTUL's existing payment/wallet/treasury/procurement engines with agent-native primitives (allowances, virtual cards, vendor twins, CorpID binding, cross-Nexha settlement).
+
+| Port | Service | Purpose |
+|------|---------|---------|
+| 5510 | agentfin-gateway | `/api/agentfin/*` route table, auth, capability map |
+| 5511 | agentfin-agent-wallet | Per-agent wallet (wraps `rez-wallet-service` :4004) |
+| 5512 | agentfin-allowance-engine | Daily/weekly/monthly/total limits with auto-reset (the core differentiator) |
+| 5513 | agentfin-agent-card | Virtual card issuance (Razorpay Route + Stripe Issuing) |
+| 5514 | agentfin-spending-policy | YAML DSL for agent spending rules + safe evaluator |
+| 5515 | agentfin-approval-engine | Multi-step approval workflows |
+| 5516 | agentfin-finance-memory | Domain-partitioned memory (MemoryOS adapter) |
+| 5517 | agentfin-vendor-twin | Vendor identity + financial profile (TwinOS) |
+| 5518 | agentfin-expense-twin | Per-transaction expense records (TwinOS) |
+| 5519 | agentfin-subscription-adapter | Agent-aware subscriptions (wraps `REZ-subscription-service` :4022) |
+| 5520 | agentfin-treasury-adapter | Agent-aware treasury views (wraps `REZ-treasury-os` :4055) |
+| 5521 | agentfin-procurement-adapter | Agent-driven procurement (wraps `REZ-procurement-os` :4342) |
+| 5522 | agentfin-negotiation-agent | Agent-side RFQ + counter-offer logic |
+| 5523 | agentfin-agent-identity | CorpID ↔ AgentID ↔ WalletID ↔ CardID linkage |
+| 5524 | agentfin-nexha-settlement | Multi-agent splits + cross-Nexha settlement |
+
+All ports are env-overridable via `PORT` env var. Defaults match the table above.
 
 ### Port-history (migrations)
 
