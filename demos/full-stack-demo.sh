@@ -623,6 +623,39 @@ else
 fi
 
 # ============================================================================
+# 3u. RAG Platform (Phase F.14, 2026-06-23)
+# ============================================================================
+step "3u. RAG Platform (Phase F.14)"
+
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/rag-platform/api/health")
+check_2xx "$code" "GET /api/foundation/rag-platform/api/health"
+
+# Config (GET + POST)
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/rag-platform/api/config")
+check_2xx "$code" "GET /api/foundation/rag-platform/api/config"
+
+# Documents list
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/rag-platform/api/documents")
+check_2xx "$code" "GET /api/foundation/rag-platform/api/documents"
+
+# Stats
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/rag-platform/api/stats")
+check_2xx "$code" "GET /api/foundation/rag-platform/api/stats"
+
+# Audit
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/rag-platform/api/audit")
+check_2xx "$code" "GET /api/foundation/rag-platform/api/audit"
+
+# Verify capability map exposes RAG Platform
+code=$(curl -s -o /tmp/demo-out -w "%{http_code}" "$HUB_URL/api/foundation/capabilities")
+check_2xx "$code" "GET /api/foundation/capabilities"
+if grep -q "rag-platform" /tmp/demo-out; then
+  ok "Capability map exposes rag-platform"
+else
+  warn "Capability map missing rag-platform (continuing)"
+fi
+
+# ============================================================================
 # 4. do-app autopilot (requires auth — we'll fail gracefully)
 # ============================================================================
 step "4. do-app backend health"
@@ -657,6 +690,7 @@ echo "   • /api/foundation/predictive-intelligence/* routes forecast + detect 
 echo "   • /api/foundation/risk-intelligence/* routes score fraud + churn + credit + composite (Phase F.11)"
 echo "   • /api/foundation/trust-intelligence/* routes score agent trust + reputation + risk + confidence (Phase F.12)"
 echo "   • /api/foundation/semantic-cache/* routes embed + cache + lookup semantically-similar prompts (Phase F.13)"
+echo "   • /api/foundation/rag-platform/* routes chunk + embed + retrieve + query documents (Phase F.14)"
 echo "   • do-app backend can talk to all three via plain fetch()"
 echo ""
 echo " Next steps:"
