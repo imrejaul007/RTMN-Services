@@ -165,7 +165,10 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these docu
 - **Detailed specs (schema, formulas, prompts, governance):** [global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)
 - **Company contributions + gaps:** [rtmn-companies-contribution-audit.md](.claude/plans/rtmn-companies-contribution-audit.md)
 - **BLR AI Marketplace (BAM) role:** [blr-ai-marketplace-role.md](.claude/plans/blr-ai-marketplace-role.md) — how BAM helps every component
+- **BAM complete spec:** [bam-complete-spec.md](.claude/plans/bam-complete-spec.md) — 28+ categories, "AI Employees" reframing, 13 competitor categories, 11 revenue streams
 - **BLR inventory:** [blr-marketplace-agent-inventory.md](.claude/plans/blr-marketplace-agent-inventory.md) — 1,200+ catalog items
+- **SkillOS usage:** [skillos-usage.md](.claude/plans/skillos-usage.md) — how SkillOS powers the whole project
+- **Strategic moat + ACP:** [strategic-moat-acp-positioning.md](.claude/plans/strategic-moat-acp-positioning.md) — 5-layer moat, OpenAI threat analysis
 - **External Studio plan (founders + developers):** [phase3-startup-developer-plan.md](.claude/plans/phase3-startup-developer-plan.md)
 - **D2C commerce model (DO + REZ + ACS):** [d2c-agentic-commerce-model.md](.claude/plans/d2c-agentic-commerce-model.md)
 - **Agentic marketing playbook:** [agentic-marketing-playbook.md](.claude/plans/agentic-marketing-playbook.md)

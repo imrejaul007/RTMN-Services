@@ -587,6 +587,14 @@ To align BAM with the v2 architecture, the work is:
 
 ---
 
-*This document is the canonical reference for BAM's role in the HOJAI Platform v2 architecture. It complements the BLR AI Marketplace inventory, the architecture v2 plan, and the 5-year strategy.*
+## 15. See also
+
+- **[bam-complete-spec.md](bam-complete-spec.md)** — Complete BAM specification: 28+ categories, 13 competitor categories, "AI Employees" reframing, 11 revenue streams, certification program, AI recommender
+- **[skillos-usage.md](skillos-usage.md)** — How SkillOS powers the whole BAM ecosystem
+- **[strategic-moat-acp-positioning.md](strategic-moat-acp-positioning.md)** — 5-layer moat analysis, why big AI can't kill HOJAI
+
+---
+
+*This document is the canonical reference for BAM's role in the HOJAI Platform v2 architecture. It complements the BLR AI Marketplace complete spec, the architecture v2 plan, the 5-year strategy, and the strategic moat positioning.*
 
 *Last updated: 2026-06-22*
