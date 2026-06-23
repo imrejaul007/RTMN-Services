@@ -110,9 +110,112 @@ More companies join HOJAI
 
 ---
 
-## 3. The 28+ Categories of Assets BAM Sells
+## 3. The 35+ Categories of Assets BAM Sells
 
 BAM is **not** just an AI Agent Marketplace. It's **the global asset marketplace for the autonomous economy**.
+
+The complete taxonomy (35+ categories):
+
+```
+BAM
+├── AI Apps
+├── AI Agents
+├── AI Employees
+├── AI Teams
+├── AI Companies
+├── AI Startups
+├── Industry OS
+├── Department OS
+├── SkillOS Skills
+├── Memory Packs
+├── Twin Packs
+├── Workflows
+├── Company Blueprints
+├── Marketplace Blueprints
+├── Starter Kits
+├── UI Kits
+├── Themes
+├── Widgets (including HOJAI Widget) ← THE BILLION-DOLLAR CATEGORY
+├── Mobile Apps
+├── APIs
+├── SDK Extensions
+├── Integrations
+├── MCP Servers
+├── Knowledge Packs
+├── Policy Packs
+├── Goal Packs
+├── Flow Packs
+├── Prompt Packs
+├── Analytics Packs
+├── AI Models
+├── Voice Packs
+├── Vision Packs
+├── Automation Packs
+├── Data Connectors
+├── Commerce Extensions
+├── Autonomous Networks (Nexha extensions)
+├── AI Personas
+├── Business Playbooks
+├── Certification Packs
+└── Business Capability Packs ← THE KILLER CATEGORY
+```
+
+### The killer category: Business Capability Packs
+
+**The most important insight in the entire BAM vision:** Developers package complete business capabilities (not just components).
+
+**Example: "Restaurant Operations Pack v3.2"**
+
+When a restaurant owner installs this pack, BAM automatically provisions:
+- 8 AI employees (Manager, Waiter, Inventory, Procurement, Accountant, Marketing, Customer Care, Kitchen)
+- 12 SkillOS skills (Order taking, Reservation, Inventory check, etc.)
+- 5 Memory packs (Menu, Recipes, Allergens, Wine pairing, Customer preferences)
+- 3 Twin schemas (Customer, Order, Menu)
+- 15 Workflows (Order, Reservation, Inventory replenishment, etc.)
+- 10 Policies (Refund, Allergy alert, Loyalty rules, etc.)
+- 3 Goals (Daily sales target, Customer satisfaction, Cost reduction)
+- 5 Prompts (Upsell, Cross-sell, etc.)
+- 2 Analytics dashboards (Daily P&L, Customer behavior)
+- 1 Website widget (AI chat + booking)
+- 1 Mobile app
+- 1 POS integration
+- 1 CRM integration
+
+**From the customer's perspective:** They install ONE thing. BAM handles the rest.
+
+**From the developer's perspective:** They build ONE pack. They earn revenue from EVERY install.
+
+**This shifts BAM from a marketplace of components to a marketplace of complete business capabilities.**
+
+### The HOJAI Widget (the billion-dollar distribution channel)
+
+A 5KB JavaScript snippet that can be embedded on any website. It becomes the front door to the company's AI workforce (SUTAR), enabling search, booking, ordering, payment, support, and negotiation through natural language.
+
+**See [hojai-widget-spec.md](hojai-widget-spec.md) for the complete spec.**
+
+### REZ Intelligence Packs (the gold mine that's unused)
+
+**REZ Intelligence is already built** (12+ services) but not integrated with BAM. Once integrated, BAM has 4 new categories:
+
+| Package | What it does | Price |
+|---|---|---|
+| **Merchant Intelligence Pack** | Real-time merchant performance, competitor benchmarks | $99/mo |
+| **Customer Intelligence Pack** | Customer behavior, preferences, churn prediction | $149/mo |
+| **Revenue Intelligence Pack** | Revenue forecasting, pricing optimization | $199/mo |
+| **Sales Intelligence Pack** | Lead scoring, opportunity identification | $149/mo |
+
+**See [rez-intelligence-local-economy.md](rez-intelligence-local-economy.md) for the complete spec.**
+
+### Local Nexha Packs (city-level networks)
+
+Once Local Nexha is built (see rez-intelligence-local-economy.md), BAM has 12+ more categories (one per city):
+- Bangalore Local Pack
+- Dubai Local Pack
+- Singapore Local Pack
+- London Local Pack
+- Mumbai Local Pack
+- New York Local Pack
+- ... (12 cities in Year 1)
 
 ### Category 1: AI Employees (the killer category)
 
