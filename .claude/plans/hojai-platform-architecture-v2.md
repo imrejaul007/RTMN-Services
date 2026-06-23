@@ -431,12 +431,12 @@ Migration complete. Zero downtime.
 
 ### 2.8 Marketplace Resolver
 
-**What:** Pulls the right agents, skills, workflows from the HOJAI Marketplace.
+**What:** Pulls the right agents, skills, workflows from the BLR AI Marketplace.
 
 ```bash
 hojai install loyalty-agent --from=marketplace
 
-✓ Searching HOJAI Marketplace...
+✓ Searching BLR AI Marketplace...
 ✓ Found: loyalty-agent v2.1 (by HOJAI Inc)
   - 1,240 installs
   - Rating: 4.8/5
@@ -796,13 +796,14 @@ After the company is live, it keeps improving.
 
 **Total effort to align BLR with v2 Marketplace: ~16 weeks of new builds + 4 weeks of integration = 20 weeks**
 
-### BLR → HOJAI Marketplace transition plan
+### BLR AI Marketplace — enhancement plan (no rename, just extend)
 
-**Phase 1: Rename and rebrand (2 weeks)**
-- BLR AI Marketplace → HOJAI Marketplace
-- Update URL (marketplace.hojai.ai)
-- Update branding, docs
-- Add new categories: Payment, Themes, UI Blocks, Simulation
+**Note:** BLR AI Marketplace **keeps its name** (no rename needed). The work is to **enhance** it with the new categories + wire it to the Blueprint Engine.
+
+**Phase 1: Add new categories (2 weeks)**
+- Add to BLR portal: Payment, Themes, UI Blocks, Simulation
+- Update BLR navigation/categories
+- Update BLR docs to reflect v2 architecture
 
 **Phase 2: Wire to Blueprint Engine (4 weeks)**
 - Each marketplace item has a Blueprint fragment
@@ -913,7 +914,7 @@ Evolution Engine (Continuous) — for the long term
 |---|---|---|
 | Continuous Evolution Engine | 16 weeks | NEW |
 | Simulation Engine | 12 weeks | NEW |
-| HOJAI Marketplace v1 | 12 weeks | NEW |
+| HOJAI Marketplace v1 | 12 weeks | NEW (enhance existing BLR) |
 | Optimizer + Migration Engine | 8 weeks | NEW |
 | **Total Phase 3** | **~16 weeks (parallel)** | **Intelligence** |
 
