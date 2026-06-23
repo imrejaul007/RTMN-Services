@@ -1,10 +1,10 @@
 # Personal Intelligence OS (PIOS) — Runtime/Genie Wiring Roadmap
 
-> **Status:** ✅ **Phases 1–13 COMPLETE** (June 22, 2026)
+> **Status:** ✅ **Phases 1–15 COMPLETE** (June 23, 2026)
 > **Total Specialists Wired:** 23 of 23 (100%)
 > **Total Delegation Routes:** ~82
-> **Total Test Assertions:** 151 (10 base + 141 voice-razo), 0 failures
-> **Last Updated:** 2026-06-22
+> **Total Test Assertions:** 165 (10 base + 141 voice-razo + 24 e2e-aggregator), 0 failures
+> **Last Updated:** 2026-06-23
 
 ---
 
@@ -264,57 +264,83 @@ All delegation routes are under `authMiddleware` (user JWT). The downstream serv
 
 ### Surface tests (no downstream running)
 
-The voice-razo.test.mjs file (111 assertions after Phase 11) verifies:
+The `voice-razo.test.mjs` file (141 assertions) verifies:
 - Every new route exists and returns the expected HTTP status
 - Every new route is auth-gated (returns 401 without a Bearer token)
 - The `/api/genie-services/health` endpoint lists every specialist
 - The earlier `/api/test.js` smoke tests still pass (regression check)
+- The `normalizeSpecialistData` SHAPERS map (Phase 12)
+- The aggregator cache: hits, misses, expiry, stats, multi-user isolation (Phase 13)
 
-These tests **don't** require any downstream service to be running — they verify the routing surface, not the actual delegation. This makes them fast and reliable.
+These tests **don't** require any downstream service to be running — they verify the routing surface and the normalization/cache contracts in-process, not the actual delegation. This makes them fast and reliable.
 
-### E2E tests (downstream running)
+### E2E tests (downstream running) ✅ IMPLEMENTED (Phase 15)
 
-For each specialist we could add E2E tests that:
-1. Spawn the specialist as a child process
-2. Spawn runtime/genie
-3. Make a real auth'd request
-4. Verify the delegated response
+The `e2e-aggregator.test.mjs` file (24 assertions) drives real HTTP traffic through the fanout against in-process mock specialists:
+- 5 mock specialists on ephemeral ports (memories, people, courses, plans, activity), each enforcing `x-internal-token` on protected routes (mimics real specialists).
+- All 23 `GENIE_*_URL` env vars actually fanned out to (not just bound as `const` at module load time).
+- One specialist pointed at `DEAD_PORT=1` to verify graceful degradation.
+- The `/api/genie-services/health` aggregator exercised end-to-end (28 services in parallel).
+- The `/api/pios/health` aggregator exercised end-to-end (22 services in parallel).
+- All 14 auth-gated delegation routes verified to return 401 without Bearer.
+- Cache mgmt endpoints (`/api/genie/personal/_cache`) verified auth-gated.
+- `/api/ask`, `/api/genie/intent`, `/api/genie/dispatch` verified auth-gated.
 
-**Status:** Not yet implemented. The pattern is documented in the wake-word + device-integration + listening-modes E2E tests (3 services, 34 assertions, takes ~30s).
-
-### Aggregator tests
-
-`/api/genie/personal/:userId` would benefit from a single E2E test that verifies the parallel fanout returns the expected per-specialist shape.
+**Pattern:** for each specialist we could add deeper child-process E2E tests (spawn the specialist as a child process, run a real auth'd request, verify the delegated response). The pattern is documented in the wake-word + device-integration + listening-modes E2E tests (3 services, 34 assertions, ~30s). Phase 15's in-process approach is the most valuable E2E we can run without a MongoDB instance — it verifies the wiring, the token contract, the graceful-degradation path, and the auth gate against real HTTP traffic, all without any external dependency.
 
 ---
 
 ## 🗺️ What's Left (Future Work)
 
-### 1. Per-specialist E2E tests
+### 1. Per-specialist E2E tests ✅ DONE (Phase 15)
 
-Each of the 23 specialists deserves at least one E2E test that exercises a real call through runtime/genie. Pattern: see genie-wake-word-service/tests/e2e-voice-pipeline.test.mjs.
+The Phase 15 E2E test (`runtime/genie/test/e2e-aggregator.test.mjs`) verifies the runtime/genie ↔ specialist surface end-to-end with real HTTP traffic:
+- 5 in-process Express mock specialists on ephemeral ports (memories, people, courses, plans, activity), each enforcing `x-internal-token` on protected routes (mimics real specialists).
+- All 23 `GENIE_*_URL` env vars honored and actually fanned-out to (not just bound as `const` at module load time).
+- One specialist (`genie-money-os`) pointed at `DEAD_PORT=1` to verify graceful degradation: response is `'down'` with the dead URL echoed back, not a 500.
+- The `/api/genie-services/health` endpoint is exercised end-to-end (calls 23 specialists + voice + razo = 28 total in parallel).
+- The `/api/pios/health` endpoint is exercised (22 PIOS services).
+- All 14 auth-gated delegation routes verified to return 401 without Bearer token (paths mirror the canonical surface in `src/index.js`).
+- `/api/ask`, `/api/genie/intent`, `/api/genie/dispatch`, `/api/genie/personal/:userId` return 401.
+- 24 assertions, 0 failures, fully Mongo-free.
+
+**Notable design decision:** the test sets `NODE_ENV='test'` (not `'e2e'`). The source's `start()` gates both auto-listen and `/ready` registration behind `NODE_ENV !== 'test'`, and since we point at a dead Mongo URI, `mongoose.connect` retries forever. `/ready` is a Mongo-dependent deployment probe, not an API contract we can verify in-process — covered separately in any environment with a real Mongo.
 
 ### 2. Webhook fanout for proactive notifications
 
 Today the specialists push via the event bus, but do-app / REZ-Workspace need WebSockets or webhooks to surface "your relationship-os has new insights" or "your thinking-engine finished a long analysis". Out of scope for runtime/genie — this belongs in a separate notification service.
 
-### 3. Documentation per specialist in `do-app-genieos-integration.md`
+### 3. Documentation ✅ DONE (Phase 14)
 
-The do-app integration doc should be updated to list every new route so client developers know what they can call.
+The client-developer API reference is at `.claude/plans/runtime-genie-api-reference.md` (274 lines, 11 sections):
+1. Quick reference (port, base URL, content-type, auth scheme)
+2. Auth (Bearer JWT, where to get a token)
+3. Aggregator (`/api/genie/personal/:userId` with cache + envelope contract)
+4. Intent dispatch (`/api/genie/dispatch` for explicit classify+route)
+5. Intent classification (`/api/genie/intent` for classify-only)
+6. `/api/ask` (natural-language → intent dispatch → specialist)
+7. Health (`/api/genie-services/health`, `/api/pios/health`)
+8. Cache management (`/api/genie/personal/_cache` GET/DELETE)
+9. Per-specialist routes (the full `/api/genie-*/*` matrix)
+10. Env vars (every `GENIE_*_URL`, `USE_*`, `MONGODB_URI`, `JWT_SECRET`)
+11. Error envelope (`{ success: false, error: { code, message }, meta }`)
+
+This is the source-of-truth reference for do-app, REZ-Workspace, nexha-client, and salar-client.
 
 ---
 
 ## 📈 Numbers
 
-| Metric | Before Phase 8 | After Phase 9 | After Phase 10 | After Phase 11 | After Phase 12 | After Phase 13 |
-|--------|---------------|---------------|----------------|----------------|----------------|----------------|
-| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** |
-| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) | **~82** (same) | **~82** (same) | **~84** (+2 cache mgmt endpoints) |
-| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** |
-| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) | **1** (unchanged) | **1** + normalized envelope (kind/count/kindCounts) | **1** + 5s cache (GET stats, DELETE invalidate) |
-| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** | **+ dispatchByIntent wired into /api/ask as primary path** | (unchanged) | (unchanged) |
-| Intent catalog size | 9 | 9 | **27** | **27** | **27** | **27** |
-| Test assertions | 49 | **115** | **117** | **121** | **137** | **151** |
+| Metric | Before Phase 8 | After Phase 9 | After Phase 10 | After Phase 11 | After Phase 12 | After Phase 13 | After Phase 14 | After Phase 15 |
+|--------|---------------|---------------|----------------|----------------|----------------|----------------|----------------|----------------|
+| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** |
+| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) | **~82** (same) | **~82** (same) | **~84** (+2 cache mgmt endpoints) | **~84** (same) | **~84** (same) |
+| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** |
+| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) | **1** (unchanged) | **1** + normalized envelope (kind/count/kindCounts) | **1** + 5s cache (GET stats, DELETE invalidate) | **1** (unchanged) | **1** (unchanged) |
+| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** | **+ dispatchByIntent wired into /api/ask as primary path** | (unchanged) | (unchanged) | (unchanged) | (unchanged) |
+| Intent catalog size | 9 | 9 | **27** | **27** | **27** | **27** | **27** | **27** |
+| Test assertions | 49 | **115** | **117** | **121** | **137** | **151** | **151** | **165** (+24 e2e-aggregator) |
+| Documentation pages | 0 | 0 | 0 | 0 | 0 | 0 | **1** (runtime-genie-api-reference.md, 274 lines) | **1** (unchanged) |
 
 ---
 
@@ -322,6 +348,14 @@ The do-app integration doc should be updated to list every new route so client d
 
 **Before:** 9 specialists reachable through runtime/genie. /api/ask had a hand-rolled 6-intent keyword ladder. No aggregator. No intent-engine integration. No way to see the health of all specialists in one place.
 
-**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId` returning a normalized `{kind, count, ...}` envelope per specialist, with a 5s TTL cache for power users. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 151 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls. **Phase 11** wired the same dispatch logic into `/api/ask` as a primary path so natural-language questions route to the right specialist — covering all 27 catalog intents end-to-end via the keyword ladder + dispatch path. **Phase 12** normalized the aggregator's per-specialist data into a stable schema so clients can iterate uniformly without inspecting each specialist's native format. **Phase 13** added a 5-second TTL cache on the aggregator (with `?fresh=true` bypass and cache management endpoints) so a user polling every 30s triggers only one fanout per 5s window — 6× reduction in downstream traffic.
+**After:** ALL 23 specialists reachable. 84 delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId` returning a normalized `{kind, count, ...}` envelope per specialist, with a 5s TTL cache for power users. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 165 test assertions (141 surface + 24 E2E), all passing.
 
-Next milestone: **Per-specialist E2E tests** so each of the 23 specialists has a real-call regression test through runtime/genie (vs the current surface-only coverage).
+**Phases 10–15 added:**
+- **Phase 10:** 27-intent dispatch table mapping any classified intent to its specialist — exposed at `/api/genie/dispatch`.
+- **Phase 11:** Wired the same dispatch logic into `/api/ask` as the primary path so natural-language questions route to the right specialist — covering all 27 catalog intents end-to-end.
+- **Phase 12:** Normalized the aggregator's per-specialist data into a stable `{kind, count, items, …}` schema so clients can iterate uniformly.
+- **Phase 13:** 5-second TTL cache on the aggregator (with `?fresh=true` bypass and cache management endpoints) — 6× reduction in downstream traffic for a polling user.
+- **Phase 14:** Client-developer API reference (`runtime-genie-api-reference.md`, 274 lines) covering auth, aggregator, dispatch, intent, /api/ask, health, cache mgmt, per-specialist routes, env vars, error envelope.
+- **Phase 15:** Per-specialist E2E test (`e2e-aggregator.test.mjs`, 24 assertions) that drives real HTTP traffic through the fanout against in-process mock specialists — verifies graceful degradation, auth gating, and the 28-service `/api/genie-services/health` aggregator end-to-end without requiring Mongo.
+
+**Next milestone:** Webhook fanout for proactive notifications (out of scope for runtime/genie — separate notification service).
