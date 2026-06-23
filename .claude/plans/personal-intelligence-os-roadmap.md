@@ -1,9 +1,9 @@
 # Personal Intelligence OS (PIOS) — Runtime/Genie Wiring Roadmap
 
-> **Status:** ✅ **Phases 1–12 COMPLETE** (June 22, 2026)
+> **Status:** ✅ **Phases 1–13 COMPLETE** (June 22, 2026)
 > **Total Specialists Wired:** 23 of 23 (100%)
 > **Total Delegation Routes:** ~82
-> **Total Test Assertions:** 137 (10 base + 127 voice-razo), 0 failures
+> **Total Test Assertions:** 151 (10 base + 141 voice-razo), 0 failures
 > **Last Updated:** 2026-06-22
 
 ---
@@ -162,6 +162,26 @@ The `/api/genie/personal/:userId` aggregator returned each specialist's native r
 
 **Result:** Test count: 111 → 127 (+16 Phase 12 coverage). Total runtime/genie: **137 assertions, 0 failed**. Clients can now iterate `data.specialists` and access `data.kind + data.count` uniformly without inspecting each specialist's native response format.
 
+### Phase 13: Aggregator cache with 5s TTL (commit `05f76d7f`)
+
+The aggregator fans out to 15 specialists in parallel on every request. Power users hitting the dashboard every 30 seconds were re-fanning 15 services 2×/minute for no behavioral benefit. Phase 13 adds a 5-second TTL cache keyed on `userId` so subsequent requests within the window serve the cached payload.
+
+**runtime/genie/src/index.js:**
+- `AGGREGATOR_CACHE_TTL_MS` — 5000ms default (env-overridable)
+- `AGGREGATOR_CACHE_ENABLED` — true default (env-overridable)
+- `aggregatorCache` — in-memory `Map<userId, {expiresAt, payload}>`
+- `pruneAggregatorCache` — lazy cleanup of expired entries (no background timer)
+- `getCachedAggregator` / `setCachedAggregator` — cache primitives
+- `invalidateAggregatorCache(userId | undefined)` — manual invalidation (one user or all)
+- `_aggregatorCacheStats` — ops view (size / live / expired / ttlMs / enabled)
+- Aggregator endpoint — cache lookup, `?fresh=true` bypasses, payload cached on fresh fetch, response includes `cached` + `cacheAgeMs`
+- New endpoints:
+  - `GET /api/genie/personal/_cache` — cache stats
+  - `DELETE /api/genie/personal/_cache` — invalidate all or one userId
+- Exports — `aggregatorCache`, `getCachedAggregator`, `setCachedAggregator`, `invalidateAggregatorCache`, `_aggregatorCacheStats`, `AGGREGATOR_CACHE_TTL_MS`, `AGGREGATOR_CACHE_ENABLED` (for tests + ops)
+
+**Result:** Test count: 127 → 141 (+14 Phase 13 coverage). Total runtime/genie: **151 assertions, 0 failed**. A user polling the aggregator every 30s now triggers only one fanout per 5s window — 6× reduction in downstream traffic for power users.
+
 ---
 
 ## 🔌 API Surface (the new namespace)
@@ -274,15 +294,11 @@ For each specialist we could add E2E tests that:
 
 Each of the 23 specialists deserves at least one E2E test that exercises a real call through runtime/genie. Pattern: see genie-wake-word-service/tests/e2e-voice-pipeline.test.mjs.
 
-### 2. Per-user caching
-
-The aggregator calls 15 services in parallel. For a power user who hits the dashboard every 30 seconds, this is wasteful. Add a 5-second response cache keyed on `userId + specialist`.
-
-### 3. Webhook fanout for proactive notifications
+### 2. Webhook fanout for proactive notifications
 
 Today the specialists push via the event bus, but do-app / REZ-Workspace need WebSockets or webhooks to surface "your relationship-os has new insights" or "your thinking-engine finished a long analysis". Out of scope for runtime/genie — this belongs in a separate notification service.
 
-### 4. Documentation per specialist in `do-app-genieos-integration.md`
+### 3. Documentation per specialist in `do-app-genieos-integration.md`
 
 The do-app integration doc should be updated to list every new route so client developers know what they can call.
 
@@ -290,15 +306,15 @@ The do-app integration doc should be updated to list every new route so client d
 
 ## 📈 Numbers
 
-| Metric | Before Phase 8 | After Phase 9 | After Phase 10 | After Phase 11 | After Phase 12 |
-|--------|---------------|---------------|----------------|----------------|----------------|
-| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** |
-| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) | **~82** (same) | **~82** (same) |
-| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** |
-| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) | **1** (unchanged) | **1** + normalized envelope (kind/count/kindCounts) |
-| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** | **+ dispatchByIntent wired into /api/ask as primary path** | (unchanged) |
-| Intent catalog size | 9 | 9 | **27** | **27** | **27** |
-| Test assertions | 49 | **115** | **117** | **121** | **137** |
+| Metric | Before Phase 8 | After Phase 9 | After Phase 10 | After Phase 11 | After Phase 12 | After Phase 13 |
+|--------|---------------|---------------|----------------|----------------|----------------|----------------|
+| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** |
+| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) | **~82** (same) | **~82** (same) | **~84** (+2 cache mgmt endpoints) |
+| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** |
+| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) | **1** (unchanged) | **1** + normalized envelope (kind/count/kindCounts) | **1** + 5s cache (GET stats, DELETE invalidate) |
+| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** | **+ dispatchByIntent wired into /api/ask as primary path** | (unchanged) | (unchanged) |
+| Intent catalog size | 9 | 9 | **27** | **27** | **27** | **27** |
+| Test assertions | 49 | **115** | **117** | **121** | **137** | **151** |
 
 ---
 
@@ -306,6 +322,6 @@ The do-app integration doc should be updated to list every new route so client d
 
 **Before:** 9 specialists reachable through runtime/genie. /api/ask had a hand-rolled 6-intent keyword ladder. No aggregator. No intent-engine integration. No way to see the health of all specialists in one place.
 
-**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId` returning a normalized `{kind, count, ...}` envelope per specialist. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 137 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls. **Phase 11** wired the same dispatch logic into `/api/ask` as a primary path so natural-language questions route to the right specialist — covering all 27 catalog intents end-to-end via the keyword ladder + dispatch path. **Phase 12** normalized the aggregator's per-specialist data into a stable schema so clients can iterate uniformly without inspecting each specialist's native format.
+**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId` returning a normalized `{kind, count, ...}` envelope per specialist, with a 5s TTL cache for power users. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 151 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls. **Phase 11** wired the same dispatch logic into `/api/ask` as a primary path so natural-language questions route to the right specialist — covering all 27 catalog intents end-to-end via the keyword ladder + dispatch path. **Phase 12** normalized the aggregator's per-specialist data into a stable schema so clients can iterate uniformly without inspecting each specialist's native format. **Phase 13** added a 5-second TTL cache on the aggregator (with `?fresh=true` bypass and cache management endpoints) so a user polling every 30s triggers only one fanout per 5s window — 6× reduction in downstream traffic.
 
-Next milestone: **Per-user caching** on the aggregator (5s TTL on `userId + specialist`) so power users don't re-fanout 15 services every 30 seconds.
+Next milestone: **Per-specialist E2E tests** so each of the 23 specialists has a real-call regression test through runtime/genie (vs the current surface-only coverage).

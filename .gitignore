@@ -50,22 +50,7 @@ companies/RTNM-Group/boa-sutar-bridge/dist/
 !companies/RTNM-Group/boa-os/render.yaml
 !companies/RTNM-Group/boa-sutar-bridge/render.yaml
 
-# Exception: RABTUL-Technologies Services
-!companies/RABTUL-Technologies/REZ-SLA-monitor/
-!companies/RABTUL-Technologies/REZ-breach-detector/
-!companies/RABTUL-Technologies/REZ-economy-os/
-!companies/RABTUL-Technologies/REZ-trust-scorer/
-!companies/RABTUL-Technologies/REZ-Revenue-AI/
-companies/RABTUL-Technologies/REZ-SLA-monitor/node_modules/
-companies/RABTUL-Technologies/REZ-SLA-monitor/dist/
-companies/RABTUL-Technologies/REZ-breach-detector/node_modules/
-companies/RABTUL-Technologies/REZ-breach-detector/dist/
-companies/RABTUL-Technologies/REZ-economy-os/node_modules/
-companies/RABTUL-Technologies/REZ-economy-os/dist/
-companies/RABTUL-Technologies/REZ-trust-scorer/node_modules/
-companies/RABTUL-Technologies/REZ-trust-scorer/dist/
-companies/RABTUL-Technologies/REZ-Revenue-AI/node_modules/
-companies/RABTUL-Technologies/REZ-Revenue-AI/dist/
+# Exception: RABTUL-Technologies Services (moved to companies/* section above)
 !companies/RABTUL-Technologies/REZ-SLA-monitor/render.yaml
 !companies/RABTUL-Technologies/REZ-breach-detector/render.yaml
 !companies/RABTUL-Technologies/REZ-economy-os/render.yaml
@@ -101,6 +86,26 @@ companies/*
 !/companies/AUDIT-LEGACY-DUPLICATES-*.md
 !/companies/SESSION-SUMMARY-*.md
 !/companies/REORGANIZATION-SUMMARY-*.md
+
+# RABTUL-Technologies: re-include specific services (the rest is gitignored)
+!/companies/RABTUL-Technologies/REZ-SLA-monitor/
+!/companies/RABTUL-Technologies/REZ-breach-detector/
+!/companies/RABTUL-Technologies/REZ-economy-os/
+!/companies/RABTUL-Technologies/REZ-trust-scorer/
+!/companies/RABTUL-Technologies/REZ-Revenue-AI/
+!/companies/RABTUL-Technologies/rez-intelligence-integration/
+/companies/RABTUL-Technologies/REZ-SLA-monitor/node_modules/
+/companies/RABTUL-Technologies/REZ-SLA-monitor/dist/
+/companies/RABTUL-Technologies/REZ-breach-detector/node_modules/
+/companies/RABTUL-Technologies/REZ-breach-detector/dist/
+/companies/RABTUL-Technologies/REZ-economy-os/node_modules/
+/companies/RABTUL-Technologies/REZ-economy-os/dist/
+/companies/RABTUL-Technologies/REZ-trust-scorer/node_modules/
+/companies/RABTUL-Technologies/REZ-trust-scorer/dist/
+/companies/RABTUL-Technologies/REZ-Revenue-AI/node_modules/
+/companies/RABTUL-Technologies/REZ-Revenue-AI/dist/
+/companies/RABTUL-Technologies/rez-intelligence-integration/node_modules/
+/companies/RABTUL-Technologies/rez-intelligence-integration/dist/
 
 # BUT: Do App (imrejaul007/do-app) gets re-included below because it lives in this folder for convenience
 !/companies/do-app
