@@ -87,17 +87,21 @@ Anyone can build on HOJAI: Consumer Apps, B2B Platforms, Industry OS, Enterprise
 | Y4 | 100,000 | 500,000 | 1M | $2.2B | $500B |
 | Y5 | 1M | 5M | 10M | $7.4B | $5T |
 
-### 📚 The 5 Strategic Planning Documents (canonical)
+### 📚 The Strategic Planning Documents (canonical)
 
-All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these 5 documents:
+All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these documents:
 
 | # | Document | What it covers | When to read |
 |---|---|---|---|
 | 1 | **[global-nexha-development-plan.md](.claude/plans/global-nexha-development-plan.md)** | 18-month Phase D-I roadmap for the foundation | When planning immediate work |
 | 2 | **[rtmn-companies-contribution-audit.md](.claude/plans/rtmn-companies-contribution-audit.md)** | Audit of all RTMN companies (RABTUL, KHAIRMOVE, AdBazaar, etc.) | When deciding what each company builds |
 | 3 | **[hojai-platform-as-an-economy-5year-plan.md](.claude/plans/hojai-platform-as-an-economy-5year-plan.md)** | 5-year vision with 14 layers, 3 parallel workstreams, revenue model | When planning beyond 18 months |
-| 4 | **[hojai-developer-platform-spec.md](.claude/plans/hojai-developer-platform-spec.md)** | Lego-block SDKs, CLI, AI-native spec for Claude Code/Cursor | When building the developer platform |
-| 5 | **[global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)** | Spec-level details: CapabilityOS schema, ACI formula, nexha-autonomous-logistics, CLI prompts, governance, funding, risk scenarios | When implementing specific features |
+| 4 | **[hojai-platform-architecture-v2.md](.claude/plans/hojai-platform-architecture-v2.md)** | v2 architecture: Blueprint Engine + Company Compiler + Diff Engine + Continuous Evolution | When understanding how companies are created and evolved |
+| 5 | **[hojai-developer-platform-spec.md](.claude/plans/hojai-developer-platform-spec.md)** | Lego-block SDKs, CLI, AI-native spec for Claude Code/Cursor | When building the developer platform |
+| 6 | **[global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)** | Spec-level details: CapabilityOS schema, ACI formula, nexha-autonomous-logistics, CLI prompts, governance, funding, risk scenarios | When implementing specific features |
+| 7 | **[phase3-startup-developer-plan.md](.claude/plans/phase3-startup-developer-plan.md)** | External Studio plan for founders + developers (30-min startup wizard) | When building the founder/developer experience |
+| 8 | **[blr-ai-marketplace-role.md](.claude/plans/blr-ai-marketplace-role.md)** | How BAM (BLR AI Marketplace) helps every component of HOJAI Platform (1,200+ catalog items) | When working on the marketplace / install flows |
+| 9 | **[blr-marketplace-agent-inventory.md](.claude/plans/blr-marketplace-agent-inventory.md)** | Complete inventory of existing BLR agents/workflows/twins/services | When integrating BAM with the platform |
 
 **Plus investor + sample artifacts:**
 
@@ -107,13 +111,31 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these 5 do
 | **[nexha-investor-pitch-deck.md](.claude/plans/nexha-investor-pitch-deck.md)** | Nexha 10-slide investor pitch deck (network company — $50M Series A) |
 | **[sample-marketplace-hojai-ai.md](.claude/plans/sample-marketplace-hojai-ai.md)** | Sample `hojai.ai.md` file for a B2B marketplace starter (the AI-native spec for Claude Code / Cursor / Codex) |
 
-### Key Strategic Decisions (baked into all 5 docs)
+**Plus commerce + marketing:**
+
+| Document | What it covers |
+|---|---|
+| **[d2c-agentic-commerce-model.md](.claude/plans/d2c-agentic-commerce-model.md)** | DO + REZ + ACS commerce model with dynamic commission |
+| **[agentic-marketing-playbook.md](.claude/plans/agentic-marketing-playbook.md)** | Agentic marketing: WhatsApp + email + push + voice + REZ-incentivized attention |
+
+**Plus audit:**
+
+| Document | What it covers |
+|---|---|
+| **[built-vs-needed-audit.md](.claude/plans/built-vs-needed-audit.md)** | What's built vs what needs building (75% built, 25% gap) |
+
+### Key Strategic Decisions (baked into all docs)
 
 | Decision | Choice | Why |
 |---|---|---|
 | Market structure | Federation (not a centralized marketplace) | Internet won over AOL; same logic |
 | Org structure | HOJAI = multi-product AI company; Nexha = network company | Two separate businesses, different economics |
 | SUTAR's role | Embedded Autonomous Business OS in every Nexha | Linux-in-Android model; maximum leverage |
+| HOJAI Studio vs Foundry | Studio (UI for founders) + Foundry (CLI for developers) — two interfaces of same engine | Different users, same output |
+| HOJAI Blueprint Engine | Source of truth (company.blueprint.yaml) → Compiler → production company | "Compile company" not "generate app" |
+| Diff Engine | Surgical updates (only changed parts) | Vs competitors who regenerate from scratch |
+| Continuous Evolution | Companies improve themselves every week | Nobody else does this |
+| BAM (BLR AI Marketplace) | "App Store" with 1,200+ items, 7 backend services, 53 tests | Strategic moat already built |
 | HOJAI Foundry | Platform for generating AI-native startups | Founder flywheel; 10x leverage |
 | Messaging | "Run your business with AI" not "SUTAR OS" | Customers buy outcomes, not technology |
 | ACP protocol | Open spec, closed impl initially; SDKs at Year 3; Foundation at Year 5 | Kubernetes / OAuth / Linux Foundation pattern |
@@ -126,16 +148,25 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these 5 do
 1. **HOJAI is the strategic AI company**, not just infrastructure. It has 8 product lines.
 2. **Nexha is the network company**, separate from HOJAI.
 3. **SUTAR OS is the Autonomous Business OS** that ships inside every Nexha (customers don't see SUTAR).
-4. **RABTUL, KHAIRMOVE, Industry Networks** are core contributors, not separate silos.
-5. **The 14 layers of HOJAI Foundry** are the long-term moat — anyone can build on HOJAI.
+4. **BAM (BLR AI Marketplace) is the App Store** — 1,200+ items, 7 backend services, 53 tests already built. NO competitor has this.
+5. **RABTUL, KHAIRMOVE, Industry Networks** are core contributors, not separate silos.
+6. **The 14 layers of HOJAI Foundry** are the long-term moat — anyone can build on HOJAI.
+7. **The v2 architecture (Blueprint + Compiler + Diff + Evolution)** is the 5-year platform play.
 
 ### Where to Find What
 
 - **Immediate roadmap (18 months):** [global-nexha-development-plan.md](.claude/plans/global-nexha-development-plan.md) — Phases D-I
 - **5-year vision:** [hojai-platform-as-an-economy-5year-plan.md](.claude/plans/hojai-platform-as-an-economy-5year-plan.md)
+- **v2 architecture (Blueprint + Compiler + Diff + Evolution):** [hojai-platform-architecture-v2.md](.claude/plans/hojai-platform-architecture-v2.md)
 - **Developer platform spec:** [hojai-developer-platform-spec.md](.claude/plans/hojai-developer-platform-spec.md)
 - **Detailed specs (schema, formulas, prompts, governance):** [global-nexha-addendum.md](.claude/plans/global-nexha-addendum.md)
 - **Company contributions + gaps:** [rtmn-companies-contribution-audit.md](.claude/plans/rtmn-companies-contribution-audit.md)
+- **BLR AI Marketplace (BAM) role:** [blr-ai-marketplace-role.md](.claude/plans/blr-ai-marketplace-role.md) — how BAM helps every component
+- **BLR inventory:** [blr-marketplace-agent-inventory.md](.claude/plans/blr-marketplace-agent-inventory.md) — 1,200+ catalog items
+- **External Studio plan (founders + developers):** [phase3-startup-developer-plan.md](.claude/plans/phase3-startup-developer-plan.md)
+- **D2C commerce model (DO + REZ + ACS):** [d2c-agentic-commerce-model.md](.claude/plans/d2c-agentic-commerce-model.md)
+- **Agentic marketing playbook:** [agentic-marketing-playbook.md](.claude/plans/agentic-marketing-playbook.md)
+- **What's built vs needed:** [built-vs-needed-audit.md](.claude/plans/built-vs-needed-audit.md)
 - **Investor pitch:** [hojai-investor-pitch-deck.md](.claude/plans/hojai-investor-pitch-deck.md) (HOJAI — platform) and [nexha-investor-pitch-deck.md](.claude/plans/nexha-investor-pitch-deck.md) (Nexha — network)
 - **Sample `hojai.ai.md`:** [sample-marketplace-hojai-ai.md](.claude/plans/sample-marketplace-hojai-ai.md)
 
