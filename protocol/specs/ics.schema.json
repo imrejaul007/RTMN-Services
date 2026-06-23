@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rtmn.io/protocol/ics/0.1.0/schema.json",
+  "title": "Industry Compliance Schema",
+  "description": "Describes the regulatory compliance posture of an Industry OS tenant instance. v0.1.0.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "subjectType",
+    "subjectId",
+    "tenantId",
+    "industry",
+    "jurisdiction",
+    "frameworks",
+    "dataResidency",
+    "isolationRequirements",
+    "auditTrail",
+    "updatedAt",
+    "updatedBy"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^0\\.1\\.[0-9]+$",
+      "description": "ICS version this document conforms to (semver)."
+    },
+    "subjectType": {
+      "type": "string",
+      "enum": ["industry_tenant_instance"],
+      "description": "What kind of subject this ICS describes."
+    },
+    "subjectId": {
+      "type": "string",
+      "description": "Unique identifier of the subject within RTMN."
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "The owning tenant."
+    },
+    "industry": {
+      "type": "string",
+      "description": "Industry vertical (healthcare, financial, education, ...)."
+    },
+    "jurisdiction": {
+      "type": "object",
+      "required": ["country"],
+      "additionalProperties": false,
+      "properties": {
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "ISO-3166-1 alpha-2 country code."
+        },
+        "region": {
+          "type": "string",
+          "description": "Sub-national region (state, emirate, etc.)."
+        },
+        "authority": {
+          "type": "string",
+          "description": "Regulatory authority (HHS-OCR, ICO, CNIL, BaFin, ...)."
+        }
+      }
+    },
+    "frameworks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/framework" }
+    },
+    "dataResidency": {
+      "type": "object",
+      "required": ["primary", "noCrossBorderTransfer"],
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "Primary region where data lives."
+        },
+        "replicas": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other regions holding replicas."
+        },
+        "noCrossBorderTransfer": {
+          "type": "boolean",
+          "description": "If true, data MUST NOT leave the primary region."
+        }
+      }
+    },
+    "isolationRequirements": {
+      "type": "object",
+      "required": ["minimumLevel", "encryptionAtRest", "encryptionInTransit", "kmsProvider", "kmsKeyRef"],
+      "additionalProperties": false,
+      "properties": {
+        "minimumLevel": {
+          "type": "string",
+          "enum": ["SHARED", "DEDICATED", "ISOLATED"],
+          "description": "Minimum isolation level the subject requires."
+        },
+        "encryptionAtRest": {
+          "type": "string",
+          "description": "Algorithm identifier (e.g. AES-256)."
+        },
+        "encryptionInTransit": {
+          "type": "string",
+          "description": "TLS version (e.g. TLS-1.3)."
+        },
+        "kmsProvider": {
+          "type": "string",
+          "enum": ["aws-kms", "gcp-kms", "azure-kv", "hashicorp-vault", "customer-managed"],
+          "description": "Key management provider."
+        },
+        "kmsKeyRef": {
+          "type": "string",
+          "description": "Provider-specific KMS key reference."
+        }
+      }
+    },
+    "auditTrail": {
+      "type": "object",
+      "required": ["enabled", "retentionDays", "immutable", "sinkUrl"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "retentionDays": { "type": "integer", "minimum": 0 },
+        "immutable": { "type": "boolean" },
+        "sinkUrl": { "type": "string", "format": "uri" }
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this document was last updated."
+    },
+    "updatedBy": {
+      "type": "string",
+      "description": "Who updated this document (email or agentId)."
+    }
+  },
+  "$defs": {
+    "framework": {
+      "type": "object",
+      "required": ["id", "version", "status", "controls", "lastAssessedAt", "nextAssessmentDue"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Canonical framework identifier (HIPAA, GDPR, PCI-DSS, SOC2, ...)."
+        },
+        "version": {
+          "type": "string",
+          "description": "Framework version."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["COMPLIANT", "PARTIAL", "NON_COMPLIANT", "NOT_ASSESSED"]
+        },
+        "controls": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/control" }
+        },
+        "lastAssessedAt": { "type": "string", "format": "date-time" },
+        "nextAssessmentDue": { "type": "string", "format": "date-time" },
+        "evidenceUrl": { "type": "string", "format": "uri" }
+      }
+    },
+    "control": {
+      "type": "object",
+      "required": ["controlId", "name", "status", "lastAssessedAt", "nextAssessmentDue"],
+      "additionalProperties": false,
+      "properties": {
+        "controlId": {
+          "type": "string",
+          "description": "Framework-specific control identifier."
+        },
+        "name": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["COMPLIANT", "PARTIAL", "NON_COMPLIANT", "NOT_APPLICABLE"]
+        },
+        "evidenceUrl": { "type": "string", "format": "uri" },
+        "lastAssessedAt": { "type": "string", "format": "date-time" },
+        "nextAssessmentDue": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

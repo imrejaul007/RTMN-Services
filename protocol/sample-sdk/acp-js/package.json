@@ -1,0 +1,20 @@
+{
+  "name": "@rtmn/acp",
+  "version": "0.1.0",
+  "description": "JavaScript / TypeScript SDK for the ACP (Agent Commerce Protocol) v0.1.0.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": "./src/index.js",
+    "./verify": "./src/verify.js",
+    "./sign": "./src/sign.js"
+  },
+  "files": ["src/", "README.md"],
+  "scripts": {
+    "test": "node --test __tests__/*.test.js"
+  },
+  "keywords": ["acp", "agent-commerce-protocol", "rtmn", "agent"],
+  "license": "Apache-2.0",
+  "engines": { "node": ">=20" }
+}

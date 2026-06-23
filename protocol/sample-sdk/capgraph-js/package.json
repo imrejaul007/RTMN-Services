@@ -1,0 +1,34 @@
+{
+  "name": "@rtmn/capgraph",
+  "version": "0.1.0",
+  "description": "Reference client for the Capability Graph spec. Pure JS, zero dependencies.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src/index.js",
+    "src/index.d.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test __tests__/index.test.js"
+  },
+  "keywords": [
+    "rtmn",
+    "nexha",
+    "capability-graph",
+    "agent-registry",
+    "trust"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imrejaul007/rtmn",
+    "directory": "protocol/sample-sdk/capgraph-js"
+  }
+}

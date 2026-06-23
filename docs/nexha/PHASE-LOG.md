@@ -1336,3 +1336,80 @@ Hub version bumped `1.10.0` → `1.11.0`.
 
 - `[to be added]` Phase 14 wiring commit — RTMN-root
 - `[to be added]` Phase 14 vitest config + migration commit — do-app
+
+---
+
+## ADR-0011 Phase 15 — Open-Source Protocol Specs (2026-06-23)
+
+> **No new RTMN services.** Three new open-source specs (Apache-2.0), three reference SDKs in JavaScript, and one machine-readable JSON Schema. Final phase of ADR-0011.
+
+### What shipped
+
+#### Specs (in `protocol/specs/`)
+
+| Spec | Purpose | Status |
+|------|---------|--------|
+| **[ACP — Agent Commerce Protocol](../protocol/specs/ACP.md)** | JSON-over-HTTPS message protocol for agent-to-agent transactions. 8 message types (QUERY/QUOTE/COUNTER/ACCEPT/REJECT/ORDER/TRACK/DISPUTE/RESOLVE/ESCALATE) with explicit state-machine transitions. HMAC-SHA256 signing. | v0.1.0 draft |
+| **[Capability Graph](../protocol/specs/CAPABILITY-GRAPH.md)** | Federated, queryable registry of agents, capabilities, and trust signals. DNS-style federation via TXT records. Trust score formula. | v0.1.0 draft |
+| **[ICS — Industry Compliance Schema](../protocol/specs/INDUSTRY-COMPLIANCE-SCHEMA.md)** | Declarative JSON Schema describing the compliance posture of an Industry OS tenant instance. 5 KMS providers, 3 isolation levels, 4 framework/control statuses. | v0.1.0 draft |
+| **[ics.schema.json](../protocol/specs/ics.schema.json)** | Machine-readable JSON Schema (Draft 2020-12) for ICS. Use with Ajv for strict validation. | — |
+
+#### Sample SDKs (in `protocol/sample-sdk/`)
+
+| SDK | Purpose | Tests |
+|-----|---------|---:|
+| **`acp-js`** | `build()`, `send()`, `validateTransition()`, `signBody()`, `verifySignature()`. Pure JS, zero deps. | 24 |
+| **`ics-js`** | `validate()` + `rollupFrameworkStatus()`. Pure JS, zero deps. | 45 |
+| **`capgraph-js`** | `fetchAgent()`, `searchCapabilities()`, `registerAgent()`, `reportTrustSignal()`. Pure JS, zero deps. | 22 |
+| **Total SDK tests shipped** | | **91** |
+
+#### Open-source posture
+
+- **LICENSE** — full Apache-2.0 text in `protocol/LICENSE`.
+- **protocol/README.md** — explains the "Kubernetes / OAuth / Linux Foundation pattern": open specs, closed implementation. Anyone can build a compatible implementation; the reference impl stays in the RTMN monorepo.
+- **Reference implementations** — linked from the README, NOT duplicated here. ACP → `nexha-acp-messaging` (78 tests). Capability Graph → `nexha-business-directory` (68 tests). ICS → `industry-tenant-instances` (136 tests).
+- **Versioning policy** — v0.x allows breaking changes; v1.0 promises 12 months of receiver support.
+- **Roadmap** — feedback window Jul 2026 → v1.0 of ACP Sep 2026 → v1.0 of CG + ICS Dec 2026 → RTMN Protocol Foundation Q1 2027.
+
+### Ecosystem totals (final, post-Phase-15)
+
+| Metric | Pre-ADR-0010 | Post-Phase-11 | Post-Phase-15 | Total Delta |
+|---|---:|---:|---:|---:|
+| Services at Hub | 477 | 480 | **480** | +3 |
+| vitest tests | 1,007 | 1,508 | **1,508** | +501 |
+| Sample SDK tests | 0 | 0 | **91** | +91 |
+| Phase-LOG entries | 10 | 11 | **15** | +5 |
+| ADR-0010 status | Active | Complete | Complete | — |
+| ADR-0011 status | n/a | In Progress (12/15) | **Complete (15/15)** | — |
+
+### Files touched
+
+| File | Action |
+|------|--------|
+| `protocol/LICENSE` | NEW (Apache-2.0 full text) |
+| `protocol/README.md` | NEW (umbrella doc, posture, versioning, roadmap) |
+| `protocol/specs/ACP.md` | NEW (8 message types + state machine + signing) |
+| `protocol/specs/CAPABILITY-GRAPH.md` | NEW (entities, query API, federation, trust formula) |
+| `protocol/specs/INDUSTRY-COMPLIANCE-SCHEMA.md` | NEW (top-level shape, 2 worked examples) |
+| `protocol/specs/ics.schema.json` | NEW (JSON Schema Draft 2020-12) |
+| `protocol/sample-sdk/acp-js/package.json` | NEW (`@rtmn/acp@0.1.0`) |
+| `protocol/sample-sdk/acp-js/src/{index,sign,verify}.js` | NEW (3 modules) |
+| `protocol/sample-sdk/acp-js/src/index.d.ts` | NEW (TypeScript declarations) |
+| `protocol/sample-sdk/acp-js/__tests__/index.test.js` | NEW (24 tests) |
+| `protocol/sample-sdk/acp-js/README.md` | NEW |
+| `protocol/sample-sdk/ics-js/package.json` | NEW (`@rtmn/ics@0.1.0`) |
+| `protocol/sample-sdk/ics-js/ics.js` | NEW (`validate()` + `rollupFrameworkStatus()`) |
+| `protocol/sample-sdk/ics-js/ics.d.ts` | NEW (TypeScript declarations) |
+| `protocol/sample-sdk/ics-js/__tests__/ics.test.js` | NEW (45 tests) |
+| `protocol/sample-sdk/ics-js/README.md` | NEW |
+| `protocol/sample-sdk/capgraph-js/package.json` | NEW (`@rtmn/capgraph@0.1.0`) |
+| `protocol/sample-sdk/capgraph-js/src/index.js` | NEW (4 verbs) |
+| `protocol/sample-sdk/capgraph-js/src/index.d.ts` | NEW |
+| `protocol/sample-sdk/capgraph-js/__tests__/index.test.js` | NEW (22 tests) |
+| `protocol/sample-sdk/capgraph-js/README.md` | NEW |
+| `docs/nexha/PHASE-LOG.md` | append Phase 15 (this entry) |
+| `docs/nexha/adr-0011-retrospective.md` | NEW (end-of-ADR retrospective) |
+
+### Commits
+
+- `[to be added]` Phase 15 protocol specs + SDKs commit — RTMN-root

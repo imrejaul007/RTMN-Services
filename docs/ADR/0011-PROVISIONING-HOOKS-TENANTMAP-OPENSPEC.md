@@ -1,9 +1,10 @@
 # ADR-0011 — Provisioning, Hooks, Tenant Map, Open Specs (Phases 12–15)
 
-> **Status:** 🔄 In Progress (Phase 12 / 15) — started 2026-06-23
+> **Status:** ✅ Complete (Phase 15 / 15) — DONE 2026-06-23
 > **Date:** 2026-06-23
 > **Authors:** Rejaul Karim (HOJAI AI / RTMN), with HOJAI AI engineering
 > **Supersedes:** None
+> **Retrospective:** [`../nexha/adr-0011-retrospective.md`](../nexha/adr-0011-retrospective.md)
 > **Related ADRs:** [0010](0010-MULTI-TENANT-FEDERATION.md) — closes the open items from
 > the ADR-0010 retrospective (Section 4: "What didn't")
 

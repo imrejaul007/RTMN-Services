@@ -1,0 +1,35 @@
+{
+  "name": "@rtmn/ics",
+  "version": "0.1.0",
+  "description": "Reference validator for the Industry Compliance Schema (ICS) v0.1.0 spec. Pure JS, zero dependencies.",
+  "type": "module",
+  "main": "./ics.js",
+  "exports": {
+    ".": "./ics.js"
+  },
+  "files": [
+    "ics.js",
+    "ics.d.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test __tests__/ics.test.js"
+  },
+  "keywords": [
+    "rtmn",
+    "nexha",
+    "ics",
+    "industry-compliance-schema",
+    "compliance",
+    "audit"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imrejaul007/rtmn",
+    "directory": "protocol/sample-sdk/ics-js"
+  }
+}

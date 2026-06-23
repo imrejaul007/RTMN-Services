@@ -254,7 +254,8 @@ For any service on this map, see the linked architecture doc:
 - **2026-06-22**: ADR-0010 closed. 8 services, 1,508 tests.
 - **2026-06-23**: ADR-0011 Phase 12 + 13 shipped. 3 services (provisioning-engine, hooks-sdk, tenant-summary), 178 service tests + 53 client tests.
 - **2026-06-23**: ADR-0011 Phase 14 (this document) shipped. Test framework consolidation started.
+- **2026-06-23**: ADR-0011 Phase 15 shipped. Open-source protocol specs (ACP, Capability Graph, ICS) under Apache-2.0, plus 3 reference JS SDKs (acp-js 24 tests, ics-js 45 tests, capgraph-js 22 tests = 91 SDK tests).
+- **2026-06-23**: ADR-0011 retrospective shipped ([docs/nexha/adr-0011-retrospective.md](nexha/adr-0011-retrospective.md)). **ADR-0011 status: ✅ Complete (Phase 15 / 15) — DONE 2026-06-23.**
 
 What's next:
-- ADR-0011 **Phase 15** — open-source protocol specs (ACP, Capability Graph, Industry Compliance Schema) + Apache-2.0 LICENSE.
-- ADR-0011 **retrospective** — end-of-ADR write-up like the ADR-0010 retrospective.
+- **ADR-0012 (proposed)** — finish do-app test migration → wire provisioning engine to industry-tenant-instances → ship reference orchestrator → v1.0 of ACP. See [docs/nexha/adr-0011-retrospective.md § 7](nexha/adr-0011-retrospective.md).
