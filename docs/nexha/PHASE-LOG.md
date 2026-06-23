@@ -1142,3 +1142,134 @@ Hub version bumped `1.9.0` → `1.10.0`.
 - `[to be added]` Phase 12 Hub wiring commit — RABTUL
 - `[to be added]` Phase 12 client wiring commit — REZ-Workspace
 - `[to be added]` Phase 12 client + tests commit — do-app
+
+---
+
+## ADR-0011 Phase 13 — Tenant Summary Aggregator (2026-06-23)
+
+> **One-call tenant view across all 9 ADR-0010 services.** Read-only fan-out aggregator. No DB of its own.
+
+### What shipped
+
+**1 new service, 38 new vitest tests, 18 new client tests (do-app + REZ-Workspace), 3 new Hub capabilities.**
+
+| Service | Port | Purpose | Service tests |
+|---------|------|---------|---------------|
+| `nexha-tenant-summary` | 4387 | Read-only fan-out aggregator. Calls 9 upstream services in parallel (Promise.allSettled), merges into a single response. Failure isolation: one upstream down ≠ summary fails. | 38 |
+
+### Architecture
+
+```
+do-app / REZ-Workspace
+        │
+        ▼ GET /api/tenants/:id/summary
+nexha-tenant-summary (4387)
+        │
+        ├─ parallel Promise.allSettled (3s timeout each)
+        │
+        ▼
+9 upstream services via Hub:
+  1. nexha-business-directory    :4360 → companies
+  2. nexha-acp-messaging         :4340 → threads
+  3. nexha-mission-planner       :4362 → missions
+  4. nexha-partner-graph         :4363 → partners
+  5. nexha-commerce-runtime      :4364 → orders
+  6. sutar-tenant-instances      :4141 → instances
+  7. industry-tenant-instances   :4365 → industry instances
+  8. nexha-provisioning-engine   :4385 → plans
+  9. nexha-hooks-sdk             :4386 → webhooks
+        │
+        ▼ merged
+{ tenantId, summary: { health, okCount, errorCount }, sections: {...}, errors? }
+```
+
+### Design highlights
+
+- **No DB** — pure aggregator, stateless, horizontally scalable.
+- **Parallel fan-out** — 9 calls in parallel via `Promise.allSettled` (max latency = slowest, not sum).
+- **Failure isolation** — one slow/down upstream does NOT block the rest. Each call has 3s timeout (configurable).
+- **Health roll-up** — `summary.health` = `healthy` (0 errors) / `partial` (some) / `degraded` (all).
+- **Per-section errors** — failed sections still appear in `sections` with an `error` object, so the UI can render partial results.
+- **Header forwarding** — `Authorization` and `x-internal-token` from incoming request are forwarded to upstream calls, so per-tenant access controls on upstream services still apply.
+
+### API
+
+- `GET /api/tenants/:tenantId/summary` — full fan-out
+- `GET /api/tenants/:tenantId/summary/:section` — single section (e.g. only `missions`)
+- `GET /api/sources` — list configured fan-out targets
+- `GET /api/health/upstreams` — per-upstream health check
+- All require JWT or internal token
+
+### Hub wiring
+
+Added 1 service to `NEXHA_SERVICES` and 3 capabilities:
+
+- `nexha-tenant-summary` → `http://localhost:4387` (env: `NEXHA_TENANT_SUMMARY_URL`)
+- Capabilities: `tenant-summary`, `tenant-fanout`, `upstream-health`
+
+Hub version bumped `1.10.0` → `1.11.0`.
+
+### Client wiring
+
+**do-app** (`backend/src/services/hojaiClient.ts`):
+- Added `nexhaTenantSummary` const with 4 methods: `build`, `getSection`, `listSources`, `checkUpstreams`.
+- Registered in the `nexha` namespace as `tenantSummary`.
+- Added `call()` 5th parameter `extraHeaders` for future header pass-through.
+- Added `hojaiClient.nexha.tenantSummary.test.ts` with **10 new tests**, all passing.
+- Total do-app: **343 tests passing**.
+
+**REZ-Workspace** (`core/unified-fabric/src/connections/nexha.js`):
+- Added 4 methods to `NexhaConnection`: `buildTenantSummary`, `getTenantSummarySection`, `listTenantSummarySources`, `checkTenantSummaryUpstreams`.
+- Added `test-tenant-summary.js` with **8 tests**, all passing.
+- Total REZ-Workspace: **132 node:test tests, all passing**.
+
+### Bug fixes caught by tests
+
+- `requireAuth` middleware in tenant-summary was caching `INTERNAL_TOKEN` at module-load time — fixed to read from `process.env` on each request.
+- Mock fetch in route tests needed to wrap plain object responses in `{ ok: true, json: async () => data }` shape.
+- `call()` helper in do-app client needed a 5th `extraHeaders` parameter for tenant-summary to forward per-tenant auth.
+
+### Test totals
+
+| Repo | Before Phase 13 | After Phase 13 | Delta |
+|---|---:|---:|---:|
+| Nexha (vitest) | 1,681 | **1,719** | +38 |
+| do-app (jest) | 333 | **343** | +10 |
+| REZ-Workspace (node:test) | 124 | **132** | +8 |
+
+### Ecosystem totals
+
+| Metric | Pre-Phase-13 | Post-Phase-13 | Delta |
+|---|---:|---:|---:|
+| Services registered at Hub | 479 | **480** | +1 |
+| Capability maps in Hub | 14 entries | **17 entries** | +3 |
+| Upstream services fanned-out from one Hub call | 0 | **9** | +9 |
+
+### Documentation
+
+| File | Purpose |
+|---|---|
+| `docs/nexha/tenant-summary.md` | NEW — full architecture, failure isolation, API reference, hub wiring, capabilities, tests |
+| `docs/nexha/PHASE-LOG.md` | append this Phase 13 entry |
+
+### Files touched
+
+| File | Action |
+|---|---|
+| `docs/nexha/tenant-summary.md` | NEW |
+| `docs/nexha/PHASE-LOG.md` | append Phase 13 |
+| `companies/Nexha/services/nexha-tenant-summary/` | NEW service (38 tests) |
+| `companies/RABTUL-Technologies/REZ-ecosystem-connector/src/index.ts` | +1 service, +3 capabilities, version bump 1.10.0→1.11.0 |
+| `companies/RABTUL-Technologies/REZ-ecosystem-connector/package.json` | version bump |
+| `companies/do-app/backend/src/services/hojaiClient.ts` | +1 client const, +call() extraHeaders param |
+| `companies/do-app/backend/__tests__/unit/hojaiClient.nexha.tenantSummary.test.ts` | NEW (10 tests) |
+| `companies/REZ-Workspace/core/unified-fabric/src/connections/nexha.js` | +4 methods |
+| `companies/REZ-Workspace/core/unified-fabric/test-tenant-summary.js` | NEW (8 tests) |
+
+### Commits
+
+- `[to be added]` Phase 13 wiring commit — RTMN-root
+- `[to be added]` Phase 13 service commit — Nexha
+- `[to be added]` Phase 13 Hub wiring commit — RABTUL
+- `[to be added]` Phase 13 client wiring commit — REZ-Workspace
+- `[to be added]` Phase 13 client + tests commit — do-app
