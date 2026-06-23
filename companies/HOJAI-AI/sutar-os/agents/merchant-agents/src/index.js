@@ -29,6 +29,9 @@ const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const { v4: uuidv4 } = require('uuid');
 
+// REZ Intelligence client (wires merchant-agents to real-time business intelligence)
+const rezIntel = require('./rez-intel-client');
+
 const app = express();
 
 app.use(cors());
@@ -488,10 +491,19 @@ app.get('/health', (req, res) => {
 /**
  * Get service info
  */
-app.get('/info', (req, res) => {
+app.get('/info', async (req, res) => {
+  // Check REZ Intelligence status (non-blocking)
+  let rezIntelStatus = 'unknown';
+  try {
+    rezIntelStatus = await rezIntel.checkRezIntelHealth() ? 'healthy' : 'unhealthy';
+  } catch (err) {
+    rezIntelStatus = 'unreachable';
+  }
+
   res.json({
     name: 'SUTAR OS - Merchant AI Agents',
-    description: 'Business AI agents for autonomous commerce',
+    description: 'Business AI agents for autonomous commerce, enriched with REZ Intelligence',
+    version: '2.0.0',
     industries: Object.values(INDUSTRIES),
     capabilities: [
       'autonomous_negotiation',
@@ -499,8 +511,18 @@ app.get('/info', (req, res) => {
       'inventory_control',
       'dynamic_pricing',
       'customer_support',
-      'returns_refunds'
-    ]
+      'returns_refunds',
+      'rez_intelligence_enrichment',
+      'personalized_recommendations',
+      'revenue_prediction',
+      'customer_lifetime_value',
+      'next_best_action'
+    ],
+    rezIntel: {
+      enabled: rezIntel.REZ_INTEL_ENABLED,
+      url: rezIntel.REZ_INTEL_URL,
+      status: rezIntelStatus
+    }
   });
 });
 
@@ -699,7 +721,7 @@ app.get('/api/merchants/:id/catalog', (req, res) => {
  * Handle incoming ACP message
  * POST /api/merchants/:id/message
  */
-app.post('/api/merchants/:id/message',requireAuth,  (req, res) => {
+app.post('/api/merchants/:id/message',requireAuth,  async (req, res) => {
   try {
     const merchant = merchants.get(req.params.id);
     if (!merchant) {
@@ -707,6 +729,20 @@ app.post('/api/merchants/:id/message',requireAuth,  (req, res) => {
     }
 
     const { message } = req.body;
+
+    // REZ Intelligence: enrich context with real-time business intelligence
+    // before processing the message. Graceful degradation if unavailable.
+    const enriched = await rezIntel.enrichAgentContext({
+      agentRole: 'merchant-agent',
+      userId: message.from || message.customerId,
+      companyId: merchant.id,
+      query: message.text || message.query,
+      context: {
+        merchantIndustry: merchant.industry,
+        merchantTier: merchant.tier,
+        messageType: message.type
+      }
+    }).catch(() => null);
 
     let response;
     switch (message.type) {
@@ -716,12 +752,24 @@ app.post('/api/merchants/:id/message',requireAuth,  (req, res) => {
         if (response.action === 'generate_quote') {
           response = generateQuote(merchant.id, message, response.match);
         }
+        // REZ Intelligence: attach personalized product recommendations
+        if (enriched && enriched.recommendations && enriched.recommendations.products) {
+          response.recommendations = enriched.recommendations.products;
+        }
+        // REZ Intelligence: surface relevant predictions (LTV, demand)
+        if (enriched && enriched.predictions) {
+          response.predictions = enriched.predictions;
+        }
         break;
 
       case 'COUNTER':
         const negotiationId = message.negotiationId;
         negotiationHandlers.set(negotiationId, { rounds: merchant.rules.negotiationRounds });
         response = handleCounterOffer(merchant.id, negotiationId, message);
+        // REZ Intelligence: pricing recommendation for counter-offers
+        if (enriched && enriched.recommendations && enriched.recommendations.pricing) {
+          response.pricing_guidance = enriched.recommendations.pricing;
+        }
         break;
 
       case 'ORDER':
@@ -730,6 +778,11 @@ app.post('/api/merchants/:id/message',requireAuth,  (req, res) => {
 
       default:
         response = { error: 'Unknown message type', received: message };
+    }
+
+    // REZ Intelligence: attach intent classification
+    if (enriched && enriched.intent) {
+      response.intent = enriched.intent;
     }
 
     // Update stats
@@ -823,6 +876,198 @@ app.get('/api/merchants/:id/stats', (req, res) => {
   res.json({
     ...merchant.stats,
     successRate: `${successRate}%`
+  });
+});
+
+/**
+ * Get enriched merchant insights from REZ Intelligence
+ * GET /api/merchants/:id/insights
+ *
+ * Combines local merchant stats with REZ Intelligence:
+ * - Merchant performance metrics
+ * - Top products + growth rate
+ * - Churn risk customers
+ */
+app.get('/api/merchants/:id/insights', async (req, res) => {
+  const merchant = merchants.get(req.params.id);
+  if (!merchant) {
+    return res.status(404).json({ error: 'Merchant not found' });
+  }
+
+  const timeRange = req.query.timeRange || '30d';
+  const rezInsights = await rezIntel.getMerchantInsights({
+    merchantId: merchant.id,
+    timeRange
+  });
+
+  const successRate = merchant.stats.totalNegotiations > 0
+    ? (merchant.stats.successfulNegotiations / merchant.stats.totalNegotiations * 100).toFixed(1)
+    : 0;
+
+  res.json({
+    merchantId: merchant.id,
+    merchantName: merchant.businessName,
+    industry: merchant.industry,
+    timeRange,
+    local: {
+      totalNegotiations: merchant.stats.totalNegotiations,
+      successfulNegotiations: merchant.stats.successfulNegotiations,
+      totalOrders: merchant.stats.totalOrders,
+      revenue: merchant.stats.revenue,
+      successRate: `${successRate}%`
+    },
+    rezIntel: rezInsights, // null if REZ Intel unavailable
+    source: rezIntel ? 'local + rez-intel' : 'local only (rez-intel unavailable)'
+  });
+});
+
+/**
+ * Get enriched customer insights from REZ Intelligence
+ * GET /api/merchants/:id/customers/:customerId/insights
+ */
+app.get('/api/merchants/:id/customers/:customerId/insights', async (req, res) => {
+  const merchant = merchants.get(req.params.id);
+  if (!merchant) {
+    return res.status(404).json({ error: 'Merchant not found' });
+  }
+
+  const timeRange = req.query.timeRange || '90d';
+  const rezInsights = await rezIntel.getCustomerInsights({
+    merchantId: merchant.id,
+    customerId: req.params.customerId,
+    timeRange
+  });
+
+  res.json({
+    merchantId: merchant.id,
+    customerId: req.params.customerId,
+    timeRange,
+    rezIntel: rezInsights,
+    source: rezInsights ? 'rez-intel' : 'unavailable'
+  });
+});
+
+/**
+ * Get revenue prediction from REZ Intelligence
+ * GET /api/merchants/:id/predictions/revenue
+ */
+app.get('/api/merchants/:id/predictions/revenue', async (req, res) => {
+  const merchant = merchants.get(req.params.id);
+  if (!merchant) {
+    return res.status(404).json({ error: 'Merchant not found' });
+  }
+
+  const timeRange = req.query.timeRange || '30d';
+  const segment = req.query.segment;
+  const prediction = await rezIntel.predictRevenue({
+    merchantId: merchant.id,
+    timeRange,
+    segment
+  });
+
+  res.json({
+    merchantId: merchant.id,
+    timeRange,
+    segment: segment || 'all',
+    prediction,
+    source: prediction ? 'rez-intel' : 'unavailable'
+  });
+});
+
+/**
+ * Get product recommendations for a customer
+ * GET /api/merchants/:id/recommendations?customerId=X
+ */
+app.get('/api/merchants/:id/recommendations', async (req, res) => {
+  const merchant = merchants.get(req.params.id);
+  if (!merchant) {
+    return res.status(404).json({ error: 'Merchant not found' });
+  }
+
+  const customerId = req.query.customerId;
+  if (!customerId) {
+    return res.status(400).json({ error: 'customerId query param required' });
+  }
+
+  const recommendations = await rezIntel.getProductRecommendations({
+    merchantId: merchant.id,
+    customerId,
+    context: req.query
+  });
+
+  res.json({
+    merchantId: merchant.id,
+    customerId,
+    recommendations,
+    source: recommendations ? 'rez-intel' : 'unavailable'
+  });
+});
+
+/**
+ * Get next-best-action recommendation
+ * GET /api/merchants/:id/next-best-action?customerId=X
+ */
+app.get('/api/merchants/:id/next-best-action', async (req, res) => {
+  const merchant = merchants.get(req.params.id);
+  if (!merchant) {
+    return res.status(404).json({ error: 'Merchant not found' });
+  }
+
+  const customerId = req.query.customerId;
+  const nba = await rezIntel.getNextBestAction({
+    merchantId: merchant.id,
+    customerId
+  });
+
+  res.json({
+    merchantId: merchant.id,
+    customerId,
+    nba,
+    source: nba ? 'rez-intel' : 'unavailable'
+  });
+});
+
+/**
+ * Get pricing recommendations for a product
+ * GET /api/merchants/:id/pricing-recommendations?productId=X
+ */
+app.get('/api/merchants/:id/pricing-recommendations', async (req, res) => {
+  const merchant = merchants.get(req.params.id);
+  if (!merchant) {
+    return res.status(404).json({ error: 'Merchant not found' });
+  }
+
+  const productId = req.query.productId;
+  const customerSegment = req.query.segment;
+  if (!productId) {
+    return res.status(400).json({ error: 'productId query param required' });
+  }
+
+  const pricing = await rezIntel.getPricingRecommendations({
+    merchantId: merchant.id,
+    productId,
+    customerSegment
+  });
+
+  res.json({
+    merchantId: merchant.id,
+    productId,
+    pricing,
+    source: pricing ? 'rez-intel' : 'unavailable'
+  });
+});
+
+/**
+ * Check REZ Intelligence service status
+ * GET /api/merchants/rez-intel-status
+ */
+app.get('/api/merchants/rez-intel-status', async (req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({
+    rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED,
+    rezIntelUrl: rezIntel.REZ_INTEL_URL,
+    rezIntelHealthy: isHealthy,
+    timestamp: new Date().toISOString()
   });
 });
 
