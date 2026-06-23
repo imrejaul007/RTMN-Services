@@ -1,9 +1,9 @@
 # Personal Intelligence OS (PIOS) — Runtime/Genie Wiring Roadmap
 
-> **Status:** ✅ **Phases 1–11 COMPLETE** (June 22, 2026)
+> **Status:** ✅ **Phases 1–12 COMPLETE** (June 22, 2026)
 > **Total Specialists Wired:** 23 of 23 (100%)
 > **Total Delegation Routes:** ~82
-> **Total Test Assertions:** 121 (10 base + 111 voice-razo), 0 failures
+> **Total Test Assertions:** 137 (10 base + 127 voice-razo), 0 failures
 > **Last Updated:** 2026-06-22
 
 ---
@@ -138,6 +138,30 @@ Phase 10 built the dispatch table; Phase 11 wires the same dispatch logic into `
 
 **Result:** Test count: 107 → 111 (+4 Phase 11 regression coverage). Total runtime/genie: **121 assertions, 0 failed**. `/api/ask` now covers all 27 catalog intents end-to-end via the keyword ladder + dispatch path; genie-gateway handles only the 5 dispatch-table gaps.
 
+### Phase 12: Aggregator response normalization (commit `d5120029`)
+
+The `/api/genie/personal/:userId` aggregator returned each specialist's native response shape, forcing clients (do-app, REZ-Workspace) to write defensive code for every specialist's format. Phase 12 normalizes every specialist's data into a stable `{kind, count, ...}` envelope.
+
+**runtime/genie/src/index.js:**
+- `SHAPERS` — per-key shaper map covering all 15 aggregator keys
+- `normalizeList()` — picks the first array field from a candidate list and wraps it in `{kind, count, items, raw}`
+- `normalizeSpecialistData()` — applies `SHAPERS[key]` to a parallelFetch result, with graceful fallback to `{kind:raw, count:0, raw}` for unknown specialists and `{ok:false, error:'shape_failed'}` on throw
+- Aggregator — applies `normalizeSpecialistData` to every result, adds `kindCounts` (memories/people/courses/plans/activity/raw/errors) so clients get an at-a-glance view of which domains are populated
+- Exports — `SHAPERS`, `normalizeSpecialistData`, `normalizeList` (for testability)
+
+**Per-domain shapes:**
+| Domain | Shape |
+|---|---|
+| memories | `{ kind, count, items, raw }` — memoryGraph, memoryInbox, serendipity |
+| people | `{ kind, count, people, raw }` (relationships), `{ kind, count, health, raw }` (relationshipHealth) |
+| courses | `{ kind, count, courses, raw }` — learning, university |
+| plans | `{ kind, count, nextSteps, raw }` (lifeGps), `{ kind, count, goals, raw }` (lifeGoals), `{ kind, count, decision, options, raw }` (thinking) |
+| activity | `{ kind, count, entries, raw }` (companion), `{ kind, count, tasks, raw }` (execution), `{ kind, count, sessions, raw }` (consultant), `{ kind, count, projects, raw }` (creation), `{ kind, count, presets, raw }` (forgetting) |
+
+**Raw payload preserved** under `.raw` so clients that need the full downstream response can still reach it — zero breakage for existing consumers.
+
+**Result:** Test count: 111 → 127 (+16 Phase 12 coverage). Total runtime/genie: **137 assertions, 0 failed**. Clients can now iterate `data.specialists` and access `data.kind + data.count` uniformly without inspecting each specialist's native response format.
+
 ---
 
 ## 🔌 API Surface (the new namespace)
@@ -250,29 +274,15 @@ For each specialist we could add E2E tests that:
 
 Each of the 23 specialists deserves at least one E2E test that exercises a real call through runtime/genie. Pattern: see genie-wake-word-service/tests/e2e-voice-pipeline.test.mjs.
 
-### 2. Aggregator response normalization
-
-`/api/genie/personal/:userId` currently returns each specialist's native response shape. For consistency, we should normalize to a common envelope:
-```json
-{
-  "up": 12, "total": 15,
-  "specialists": {
-    "memoryGraph": { "ok": true, "data": { ...normalized... } },
-    "relationships": { "ok": false, "error": "downstream_unreachable" },
-    ...
-  }
-}
-```
-
-### 3. Per-user caching
+### 2. Per-user caching
 
 The aggregator calls 15 services in parallel. For a power user who hits the dashboard every 30 seconds, this is wasteful. Add a 5-second response cache keyed on `userId + specialist`.
 
-### 4. Webhook fanout for proactive notifications
+### 3. Webhook fanout for proactive notifications
 
 Today the specialists push via the event bus, but do-app / REZ-Workspace need WebSockets or webhooks to surface "your relationship-os has new insights" or "your thinking-engine finished a long analysis". Out of scope for runtime/genie — this belongs in a separate notification service.
 
-### 5. Documentation per specialist in `do-app-genieos-integration.md`
+### 4. Documentation per specialist in `do-app-genieos-integration.md`
 
 The do-app integration doc should be updated to list every new route so client developers know what they can call.
 
@@ -280,15 +290,15 @@ The do-app integration doc should be updated to list every new route so client d
 
 ## 📈 Numbers
 
-| Metric | Before Phase 8 | After Phase 9 | After Phase 10 | After Phase 11 |
-|--------|---------------|---------------|----------------|----------------|
-| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** | **23 / 23** |
-| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) | **~82** (same) |
-| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** |
-| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) | **1** (unchanged) |
-| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** | **+ dispatchByIntent wired into /api/ask as primary path** |
-| Intent catalog size | 9 | 9 | **27** | **27** |
-| Test assertions | 49 | **115** | **117** | **121** |
+| Metric | Before Phase 8 | After Phase 9 | After Phase 10 | After Phase 11 | After Phase 12 |
+|--------|---------------|---------------|----------------|----------------|----------------|
+| Specialists wired to runtime/genie | 9 / 23 | **23 / 23** | **23 / 23** | **23 / 23** | **23 / 23** |
+| Delegation routes in runtime/genie | ~30 | **~80** | **~82** (+2 dispatch endpoints) | **~82** (same) | **~82** (same) |
+| Specialists in `/api/genie-services/health` | 9 + 3 voice | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** | **23 + 3 voice** |
+| Aggregator routes | 0 | **1** (`/api/genie/personal/:userId`) | **1** (unchanged) | **1** (unchanged) | **1** + normalized envelope (kind/count/kindCounts) |
+| Intent-engine integration | env var only | **+ tryGenieGateway fallback + /api/genie/intent endpoint** | **+ INTENT_DISPATCH table (27 intents) + /api/genie/dispatch** | **+ dispatchByIntent wired into /api/ask as primary path** | (unchanged) |
+| Intent catalog size | 9 | 9 | **27** | **27** | **27** |
+| Test assertions | 49 | **115** | **117** | **121** | **137** |
 
 ---
 
@@ -296,6 +306,6 @@ The do-app integration doc should be updated to list every new route so client d
 
 **Before:** 9 specialists reachable through runtime/genie. /api/ask had a hand-rolled 6-intent keyword ladder. No aggregator. No intent-engine integration. No way to see the health of all specialists in one place.
 
-**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId`. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 121 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls. **Phase 11** wired the same dispatch logic into `/api/ask` as a primary path so natural-language questions route to the right specialist — covering all 27 catalog intents end-to-end via the keyword ladder + dispatch path.
+**After:** ALL 23 specialists reachable. 80+ delegation routes. A 15-fanout aggregator at `/api/genie/personal/:userId` returning a normalized `{kind, count, ...}` envelope per specialist. Intent-engine falls through when the keyword ladder doesn't match. One endpoint to see the health of all 23. 137 test assertions, all passing. **Phase 10** added a 27-intent dispatch table that maps any classified intent to its specialist — exposed at `/api/genie/dispatch` for explicit classify+route calls. **Phase 11** wired the same dispatch logic into `/api/ask` as a primary path so natural-language questions route to the right specialist — covering all 27 catalog intents end-to-end via the keyword ladder + dispatch path. **Phase 12** normalized the aggregator's per-specialist data into a stable schema so clients can iterate uniformly without inspecting each specialist's native format.
 
-Next milestone: **Per-specialist E2E tests** so each of the 23 specialists has a real-call regression test through runtime/genie (vs the current surface-only coverage).
+Next milestone: **Per-user caching** on the aggregator (5s TTL on `userId + specialist`) so power users don't re-fanout 15 services every 30 seconds.
