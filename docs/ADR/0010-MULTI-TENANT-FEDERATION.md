@@ -5,8 +5,9 @@
 > `0009-PHASE-WISE-UPGRADE-PLAN.md` which is the canonical "Phase 0-1 move"
 > ADR. ADR-0010 is the follow-on "Phase 2+ federation" ADR.
 
-**Status:** In Progress (Phase 10 / 11)
-**Date:** 2026-06-22
+**Status:** ✅ Complete (Phase 11 / 11) — DONE 2026-06-23
+**Date:** 2026-06-22 (started) → 2026-06-23 (closed)
+**Retrospective:** [`docs/nexha/adr-0010-retrospective.md`](../nexha/adr-0010-retrospective.md)
 **Authors:** Rejaul Karim (HOJAI AI / RTMN), with HOJAI AI engineering
 **Supersedes:** None
 **Related ADRs:** [0008](0008-nexha-os-real-services.md), [0009](0009-PHASE-WISE-UPGRADE-PLAN.md)
@@ -52,8 +53,8 @@ We will build a **federated, multi-tenant business directory** spanning all thre
 | **7** | **Partner Graph** (done 2026-06-22) | Nexha | `nexha-partner-graph` (port 4363) — per-tenant partnership tracking. Interactions (transaction, negotiation, mission, contract, review, inquiry) update a computed strength score (30% count + 30% GMV + 20% rating + 20% recency). Recommendation engine (40% strength + 30% trust + 30% recency). 67 vitest + 8 do-app + 15 REZ-Workspace tests. |
 | **8** | **Commerce Runtime** (done 2026-06-22) | Nexha | `nexha-commerce-runtime` (port 4364) — the execution plane. Three entities (Order, Payment, Return) each with explicit state machines. Cross-entity auto-promotions: capturePayment → order PAID; refundReturn → payment refunded + order RETURNED → COMPLETED\|REFUNDED. Cumulative refunds on payment. 6 capabilities (commerce-runtime, order-management, payment-processing, escrow, fulfillment, returns). 86 vitest + 10 do-app + 22 REZ-Workspace tests. |
 | **9** | **Per-Tenant SUTAR Instances** (done 2026-06-22) | HOJAI AI | `sutar-tenant-instances` (port 4141) — lifecycle manager for per-tenant SUTAR shards. Three isolation levels (SHARED auto-activate / DEDICATED separate DB / ISOLATED separate DB + custom limits + custom routes). State machine (PROVISIONING → ACTIVE ↔ SUSPENDED → DESTROYING → DESTROYED; FAILED is recoverable). Daily usage tracking (apiCalls, missionsCreated/Completed/Failed, errorCount + agentsActive/storageMbUsed high-water). Limit enforcement (apiCalls/day, missions/day, storage, status). API keys SHA-256 hashed; plaintext returned only on create/rotate. Terminal-state guard (same-state transitions throw 422). 75 vitest + 17 do-app + 18 REZ-Workspace tests. 5 capabilities (sutar-tenant-instances, tenant-shard, tenant-isolation, sutar-provisioning, sutar-lifecycle). |
-| **10** | Industry OS Split | RTMN | Per-tenant industry OS instances for regulated industries (healthcare, finance). |
-| **11** | Final docs + audit | RTMN | The big ADR retrospective + ecosystem health audit + investor update. |
+| **10** | **Per-Tenant Industry OS Instances** (done 2026-06-23) | RTMN | `industry-tenant-instances` (port 4365) — lifecycle manager for per-tenant Industry OS shards (healthcare, finance, hotel, restaurant, legal, education, agriculture, automotive, beauty, fashion, fitness, gaming, government, homeServices, manufacturing, nonProfit, professional, sports, travel, entertainment, construction, finance, realEstate, transport). One active instance per `(tenantId, industry)` pair. Same isolation levels as Phase 9 (SHARED auto-activate / DEDICATED / ISOLATED separate DB). State machine with terminal-state guard. Per-instance compliance metadata (HIPAA / PCI-DSS / GDPR / SOC2 framework + auditLogEnabled + dataResidencyRegion + encryption flags). API keys `ik_<48hex>` SHA-256 hashed. Daily usage (apiCalls + recordsCreated/Updated + workflowsExecuted + errorCount + recordsActive + storageMbUsed). 96 vitest + 20 do-app + 20 REZ-Workspace tests. 5 capabilities (industry-tenant-instances, industry-shard, industry-isolation, industry-provisioning, industry-lifecycle). |
+| **11** | **Final docs + audit** (done 2026-06-23) | RTMN | The big ADR retrospective + ecosystem health audit + investor update. See [`docs/nexha/adr-0010-retrospective.md`](../nexha/adr-0010-retrospective.md). Closes the ADR. |
 
 ### Architectural Principles
 

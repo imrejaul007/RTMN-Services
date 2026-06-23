@@ -956,3 +956,69 @@ REZ-ecosystem-connector (`@rez/rez-ecosystem-connector@1.9.0`):
 | **Ecosystem total** | **1,280** |
 
 **+136 tests added in Phase 10** (96 service + 20 do-app + 20 REZ-Workspace).
+
+---
+
+## Phase 11 — Final docs + audit ✅ DONE (2026-06-23)
+
+**Goal:** The end-of-ADR retrospective + ecosystem health audit + investor update. This is the documentation-only phase that closes out ADR-0010.
+
+**Repos touched:** RTMN root (this file, `docs/ADR/0010-MULTI-TENANT-FEDERATION.md`, `docs/nexha/adr-0010-retrospective.md`, root `CLAUDE.md`)
+
+### What shipped
+
+- **[`docs/nexha/adr-0010-retrospective.md`](adr-0010-retrospective.md)** — comprehensive 11-phase retrospective covering:
+  - Section 1 — What shipped (8 new services, foundation work, cross-cutting additions)
+  - Section 2 — Before/after architecture diagrams (pre-ADR-0010 vs post-Phase-11)
+  - Section 3 — What worked (state machines, compound unique indexes, capability routing, SHA-256 hashed keys, daily usage counters + high-water marks, phased sequential shipping, capability-based Hub routing)
+  - Section 4 — What didn't (scope creep in Phases 4 and 8, hooks/adapters deferred, docs debt, tenant state not surfaced as a first-class primitive)
+  - Section 5 — Ecosystem health audit (477 services, 143 healthy, 1,508 tests, 5 repos, port allocation table, single point of failure inventory)
+  - Section 6 — Investor-facing summary (one-liner pitch, 3 brag metrics, what it unlocks, what's next Phases 12-15)
+
+- **ADR-0010 status flip** — `docs/ADR/0010-MULTI-TENANT-FEDERATION.md`:
+  - Status line: `In Progress (Phase 10 / 11)` → **`Complete (Phase 11 / 11) — DONE 2026-06-23`**
+  - Phase 11 row in the phase plan table: `in progress 2026-06-23` → **`done 2026-06-23`**
+  - Phase 10 row: marked done with the full Phase 10 description already (was already done at start of Phase 11)
+
+- **Root `CLAUDE.md` final update** — adds Phase 11 row to the Phase D status block: "Phase 0–11 done (Jun 22–23 2026)" + the ADR retrospective link.
+
+- **This PHASE-LOG entry** (the file you are reading) — closes the loop.
+
+### No new code, no new tests
+
+Phase 11 is documentation-only. The ADR shipped 8 services, 1,508 tests, and 5 capabilities maps in Phases 0–10; Phase 11's job is to record what shipped and why.
+
+### Ecosystem totals at ADR close (2026-06-23)
+
+| Metric | Pre-ADR-0010 | Post-Phase-11 | Delta |
+|---|---:|---:|---:|
+| Services registered | 469 | 477 | +8 |
+| Services with vitest suites | 12 | 13 | +1 |
+| Vitest tests | ~720 | ~1,128 | +408 |
+| do-app jest tests (sutar + nexha namespaces) | ~40 | 122 | +82 |
+| REZ-Workspace node:test (nexha connection) | ~12 | 92 | +80 |
+| Total automated tests (SUTAR + Nexha + do-app + REZ-Workspace) | ~1,007 | 1,508 | **+501** |
+| Capability maps in Hub | 1 | 5 | +4 |
+| Repos wired through Hub | 3 | 5 | +2 |
+
+### What's next (post-ADR-0010)
+
+The retrospective names **Phases 12–15** as the natural follow-on roadmap:
+
+- **Phase 12 — Hooks/Adapters (carry-over from Phase 9 + 10)**: webhooks, email adapters, Slack adapters, generic HTTP adapter, retry-with-backoff for outbound notifications.
+- **Phase 13 — Cross-tenant federation primitives**: tenant peering (two tenants opt to share directory entries), trust delegation, GMV aggregation across tenant boundaries.
+- **Phase 14 — Federation observability**: per-event-bus topic dashboards, per-instance Prometheus metrics, cross-service tracing via OpenTelemetry.
+- **Phase 15 — BLR AI Marketplace ↔ Nexha business directory bridge**: marketplace listings link to directory companies, search federation, listing-driven reputation updates back into the directory.
+
+### Files touched in Phase 11
+
+| File | Action |
+|---|---|
+| `docs/nexha/adr-0010-retrospective.md` | NEW (300+ lines, 6 sections) |
+| `docs/nexha/PHASE-LOG.md` | append this Phase 11 section |
+| `docs/ADR/0010-MULTI-TENANT-FEDERATION.md` | status flip + phase table update |
+| `CLAUDE.md` | Phase D row update + ADR retrospective link |
+
+### Commits
+
+- `[to be added]` Phase 11 docs commit — RTMN-root
