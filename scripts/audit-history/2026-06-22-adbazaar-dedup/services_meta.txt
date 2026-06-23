@@ -1,0 +1,240 @@
+DIR=./blr-ai-marketplace/services/twin-marketplace
+NAME=@hojai/blr-twin-marketplace
+DESC=Twin Marketplace (4146) — buy/sell pre-built digital twins. Publishers list twin templates, consumers install them into their workspace.
+---
+DIR=./platform/connectors/connector-marketplace
+NAME=@rtmn/connector-marketplace
+DESC=Connector Marketplace (4147) — buy/sell pre-built SaaS connectors (Salesforce, Stripe, Shopify, etc.). Publishers list connectors, consumers install them into connector-hub.
+---
+DIR=./platform/economy/ai-economy
+NAME=@hojai/ai-economy
+DESC=AI Economy (4175) — ledger of economic actors (agents, services, customers) and their transactions. Settlement, pricing, rewards.
+---
+DIR=./platform/flow/goal-conflict-engine
+NAME=@hojai/goal-conflict-engine
+DESC=Goal Conflict Engine (4151) — detects conflicts between active goals (resource, metric, temporal, strategic), quantifies tradeoffs, and proposes resolutions. Pairs with GoalOS (4242).
+---
+DIR=./platform/flow/planning-engine
+NAME=@hojai/planning-engine
+DESC=Planning Engine (4154) — decomposes goals into ordered steps with constraints, dependencies, and resource estimates. Feeds FlowOS at execution time.
+---
+DIR=./platform/identity/corpid-service/corpID-cloud
+NAME=@rtmn/corpid-cloud
+DESC=CorpID Cloud - Enterprise Identity Platform
+---
+DIR=./platform/infra/api-docs-generator
+NAME=@hojai/api-docs-generator
+DESC=API Docs Generator (4171) — inspects running HOJAI AI services, generates OpenAPI 3.0 spec + human-readable markdown per service.
+---
+DIR=./platform/infra/billing-apis
+NAME=@hojai/billing-apis
+DESC=Billing APIs (4111) — customer-facing usage, invoices, subscriptions with mock Stripe integration. Foundation for monetization and self-service billing.
+---
+DIR=./platform/infra/federation-gateway
+NAME=@hojai/federation-gateway
+DESC=Federation Gateway (4174) — multi-region gateway that fans out queries across federated HOJAI AI deployments and aggregates results.
+---
+DIR=./platform/infra/hojai-cli
+NAME=@hojai/cli
+DESC=HOJAI CLI (4170) — `hojai` command: init, deploy, status, logs, twins, policies. Mirrors the CLI source layout; npm publish is separate.
+---
+DIR=./platform/infra/mtls-jwt-bridge
+NAME=@hojai/mtls-jwt-bridge
+DESC=Service-to-Service Auth Bridge (4779) — JWT + signed token issuance, rotation, and verification for inter-service communication. Alternative to mTLS that works without production cert infrastructure.
+---
+DIR=./platform/intelligence/agent-builder
+NAME=@hojai/agent-builder
+DESC=Agent Builder (4188) — visual workflow builder backend. Agents are composed as graphs of nodes (input, llm, tool, condition, output). Backend stores blueprints + validates + exports.
+---
+DIR=./platform/intelligence/agent-sdk
+NAME=@hojai/agent-sdk
+DESC=Agent SDK (4187) — TypeScript + Python SDK source packages for building agents on HOJAI AI. Includes runtime + registry for serving SDK source.
+---
+DIR=./platform/intelligence/agent-security
+NAME=@hojai/agent-security
+DESC=Agent Security (4186) — capability tokens, sandboxed execution policies, and threat detection for agents. Required before customer-facing agents go live.
+---
+DIR=./platform/intelligence/agent-studio
+NAME=@hojai/agent-studio
+DESC=Agent Studio (4189) — debugger for agent executions. Trace steps, capture inputs/outputs/tokens/latency, replay, break on condition.
+---
+DIR=./platform/intelligence/behavior-intelligence
+NAME=@hojai/behavior-intelligence
+DESC=Behavior Intelligence (4158) — infers behavior profiles from signals (clicks, purchases, support). Provides segmentation, intent prediction, next-action.
+---
+DIR=./platform/intelligence/company-intelligence-airzy
+NAME=@hojai/company-intelligence-airzy
+DESC=Company Intelligence: Airzy (4162) — travel vertical templates (flights, hotels, itineraries, fare classes).
+---
+DIR=./platform/intelligence/company-intelligence-karma
+NAME=@hojai/company-intelligence-karma
+DESC=Company Intelligence: Karma (4163) — sustainability vertical templates (ESG scoring, carbon tracking, circular economy).
+---
+DIR=./platform/intelligence/company-intelligence-nexha
+NAME=@hojai/company-intelligence-nexha
+DESC=Company Intelligence: Nexha (4159) — jewelry retail vertical templates (GCC market, Arabic content, gold-pricing, occasion marketing).
+---
+DIR=./platform/intelligence/company-intelligence-rendez
+NAME=@hojai/company-intelligence-rendez
+DESC=Company Intelligence: Rendez (4161) — events vertical templates (ticketing, RSVP, capacity, sponsorship tiers).
+---
+DIR=./platform/intelligence/intent-engine
+NAME=@hojai/intent-engine
+DESC=LLM-based intent extraction + specialist routing for Genie
+---
+DIR=./platform/intelligence/morning-briefing-v2
+NAME=@hojai/morning-briefing-v2
+DESC=LLM-powered daily morning briefing — composes calendar, goals, weather, news, and a personal note into one warm daily message
+---
+DIR=./platform/intelligence/multi-agent-runtime
+NAME=@hojai/multi-agent-runtime
+DESC=Multi-Agent Runtime (4190) — formalizes multi-agent patterns: sequential, parallel, pipeline, fan-out, fan-in, conditional. Orchestrates agent collaboration with shared state.
+---
+DIR=./platform/intelligence/pi-score
+NAME=@hojai/pi-score
+DESC=Personal Intelligence Score — 7 sub-scores, 6 levels, real-time
+---
+DIR=./platform/intelligence/proactive-engine
+NAME=@hojai/proactive-engine
+DESC=Opt-in proactive notifications — surfaces time/anomaly/opportunity/milestone events
+---
+DIR=./platform/intelligence/reasoning-engine
+NAME=@hojai/reasoning-engine
+DESC=Multi-step planning + tool execution for complex Genie requests
+---
+DIR=./platform/intelligence/reflection-engine
+NAME=@hojai/reflection-engine
+DESC=Weekly reflection digest — patterns, insights, and questions for the user
+---
+DIR=./platform/memory/data-catalog
+NAME=@hojai/data-catalog
+DESC=Data Catalog (4165) — searchable registry of datasets across all 24 industries, with lineage, ownership, and freshness.
+---
+DIR=./platform/memory/experiment-tracking
+NAME=@hojai/experiment-tracking
+DESC=Experiment Tracking (4781) — ML experiment tracking with runs, metrics, artifacts, hyperparams, comparison. Unshelves the Experiment Tracking DEPRECATED in Division 07 (Training).
+---
+DIR=./platform/memory/feature-store
+NAME=@hojai/feature-store
+DESC=Feature Store (4164) — central registry of ML features (customer, order, product) with online + offline serving. Versioned, discoverable, type-safe.
+---
+DIR=./platform/memory/knowledge-distillation
+NAME=@hojai/knowledge-distillation
+DESC=Knowledge Distillation (4167) — train smaller student models from larger teacher outputs. Records distillation runs + quality metrics.
+---
+DIR=./platform/memory/knowledge-network
+NAME=@hojai/knowledge-network
+DESC=Knowledge Network (4173) — federated network of knowledge packs. Contributors publish; consumers subscribe; cross-pack inference.
+---
+DIR=./platform/memory/memory-substrate
+NAME=@hojai/memory-substrate
+DESC=Memory Substrate API — unified read/write across MemoryOS + TwinOS + Graphs
+---
+DIR=./platform/observability/centralized-observability
+NAME=@hojai/centralized-observability
+DESC=Centralized Observability (4153) — collects metrics, traces, and logs from all HOJAI AI / RTMN services into one queryable hub. Foundation for SRE, alerting, and dashboards.
+---
+DIR=./platform/observability/observability-apis
+NAME=@hojai/observability-apis
+DESC=Observability APIs (4172) — public query API for metrics/logs/traces/alerts. Sits on top of centralized-observability (4153).
+---
+DIR=./platform/onboarding/cold-start-onboarding
+NAME=@hojai/cold-start-onboarding
+DESC=Conversational onboarding that seeds MemoryOS + TwinOS for new Genie users
+---
+DIR=./platform/skills/industry-packs
+NAME=@rtmn/industry-packs
+DESC=Industry Packs (4148) — vertical bundles combining Industry OS + AI Agents + Workflows + Twins + Integrations into one purchasable bundle.
+---
+DIR=./platform/skills/plugin-framework
+NAME=@hojai/plugin-framework
+DESC=Plugin Framework (4780) — 3rd-party plugin runtime with lifecycle, sandboxed execution, hooks, and capability declarations. Unshelves the Plugin Framework DEPRECATED in Division 10.
+---
+DIR=./platform/training/federated-learning
+NAME=@hojai/federated-learning
+DESC=Federated Learning Coordinator (4871) — lightweight FL simulation: client registration, round coordination, model versioning, gradient aggregation (FedAvg). Unshelves the Learning Network BLOCKED in Division 11 (Marketplace Network).
+---
+DIR=./platform/trust/agent-reputation
+NAME=@hojai/agent-reputation
+DESC=Agent Reputation Service - Trust scores for AI agents
+---
+DIR=./platform/trust/dispute-resolution
+NAME=@hojai/dispute-resolution
+DESC=Dispute Resolution Service - Arbitration and resolution for agent transactions
+---
+DIR=./platform/trust/trust-network
+NAME=@rtmn/trust-network
+DESC=Trust Network (4149) — cross-platform reputation for humans, organizations, and content. Extends agent-reputation beyond agents to the full network.
+---
+DIR=./platform/twins/area-twin
+NAME=rtmn-twin
+DESC=
+---
+DIR=./platform/twins/buyer-twin
+NAME=@rtmn/buyer-twin
+DESC=Buyer Twin Service for RTMN
+---
+DIR=./platform/twins/deal-twin
+NAME=@rtmn/deal-twin
+DESC=Deal Twin Service for RTMN
+---
+DIR=./platform/twins/property-twin
+NAME=@rtmn/property-twin
+DESC=Property Twin Service for RTMN
+---
+DIR=./platform/twins/referral-twin
+NAME=rtmn-twin
+DESC=
+---
+DIR=./platform/twins/twin-capability-profile
+NAME=@rtmn/twin-capability-profile
+DESC=Twin Capability Profile (4150) — every Twin advertises what it can DO (acceptQuote, checkAvailability, holdRoom, requestHousekeeping, etc.). Discovery layer for the entire ecosystem; SkillOS handles implementation.
+---
+DIR=./products/brandpulse-dashboard
+NAME=@hojai/brandpulse-dashboard
+DESC=HOJAI BrandPulse Dashboard - Real-time brand analytics
+---
+DIR=./products/company-builder/company-builder-suite
+NAME=@hojai/company-builder-suite
+DESC=Company Builder Suite — entity formation, registrations, governance, compliance
+---
+DIR=./products/energy-os
+NAME=energy-os
+DESC=Energy OS - Smart Grid, Renewables, Carbon & Trading for RTMN
+---
+DIR=./products/founder-os/founder-os-product
+NAME=@hojai/founder-os-product
+DESC=Founder OS Product — OKRs + journal for founders. Port 4266.
+---
+DIR=./products/hojai-whatsapp-ai
+NAME=@hojai/whatsapp-ai
+DESC=Hojai WhatsApp AI - AI employee for businesses
+---
+DIR=./products/investor-copilot/investor-copilot
+NAME=@hojai/investor-copilot
+DESC=Investor Copilot — funding rounds, cap-table, dilution modeling, investor CRM
+---
+DIR=./products/mission-control
+NAME=rtmn-mission-control
+DESC=RTMN Mission Control - proactive CoPilot that watches KPIs and creates goals/missions autonomously
+---
+DIR=./products/startup-studio/startup-studio
+NAME=@hojai/startup-studio
+DESC=Startup Studio — cohorts, mentors, program management, founder matching
+---
+DIR=./sutar-os/core/sutar-logistics
+NAME=sutar-logistics
+DESC=Logistics & Shipping Service — Phase C.2
+---
+DIR=./sutar-os/core/sutar-pricing-intelligence
+NAME=sutar-pricing-intelligence
+DESC=Pricing Intelligence — Phase C.6 (price aggregation, competitor analysis, dynamic pricing, alerts)
+---
+DIR=./sutar-os/core/sutar-supplier-registry
+NAME=sutar-supplier-registry
+DESC=Supplier Discovery & Registry Service — Phase C.1
+---
+DIR=./sutar-os/core/sutar-trade-finance
+NAME=sutar-trade-finance
+DESC=Trade Finance & BNPL — Phase C.4 (credit lines, BNPL offers, FX, dispute escrow)
+---

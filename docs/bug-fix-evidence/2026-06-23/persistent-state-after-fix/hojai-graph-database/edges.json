@@ -1,0 +1,262 @@
+[
+  [
+    "44e4104b-620a-4fa8-85c0-d832739dc07b",
+    {
+      "id": "44e4104b-620a-4fa8-85c0-d832739dc07b",
+      "type": "KNOWS",
+      "from": "60a3d073-d95a-4b12-8ee2-63c36b08acae",
+      "to": "113a4bf4-9df5-44d3-826f-08eeae54d457",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "fc1b51c6-db2a-4b10-b2ac-589b8b4d896e",
+    {
+      "id": "fc1b51c6-db2a-4b10-b2ac-589b8b4d896e",
+      "type": "KNOWS",
+      "from": "60a3d073-d95a-4b12-8ee2-63c36b08acae",
+      "to": "e6035327-1a14-4c06-bf91-613963b7e347",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "662ab5ca-7657-43dd-8df4-7d6b158bbd4b",
+    {
+      "id": "662ab5ca-7657-43dd-8df4-7d6b158bbd4b",
+      "type": "KNOWS",
+      "from": "113a4bf4-9df5-44d3-826f-08eeae54d457",
+      "to": "caa9bd31-e452-4290-98c0-6223fe61d043",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "48a8f47a-1879-4e64-bfcc-4b8ee3be0b54",
+    {
+      "id": "48a8f47a-1879-4e64-bfcc-4b8ee3be0b54",
+      "type": "KNOWS",
+      "from": "e6035327-1a14-4c06-bf91-613963b7e347",
+      "to": "b06f2249-c1f3-45dc-a030-cd62aee0f3b9",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "be74ea9f-a712-4dd8-a734-e357fd217403",
+    {
+      "id": "be74ea9f-a712-4dd8-a734-e357fd217403",
+      "type": "KNOWS",
+      "from": "caa9bd31-e452-4290-98c0-6223fe61d043",
+      "to": "b06f2249-c1f3-45dc-a030-cd62aee0f3b9",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "6a9f6665-2953-4125-81b2-96b1313ea95d",
+    {
+      "id": "6a9f6665-2953-4125-81b2-96b1313ea95d",
+      "type": "KNOWS",
+      "from": "b06f2249-c1f3-45dc-a030-cd62aee0f3b9",
+      "to": "6a181ee7-d474-4ba9-ae11-d6ae2feef946",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "5fcfe30c-df1b-4ae4-bd99-3f5a89457103",
+    {
+      "id": "5fcfe30c-df1b-4ae4-bd99-3f5a89457103",
+      "type": "KNOWS",
+      "from": "60a3d073-d95a-4b12-8ee2-63c36b08acae",
+      "to": "6a181ee7-d474-4ba9-ae11-d6ae2feef946",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "d723c15f-be9f-4a51-b174-d3e36d3ceb4b",
+    {
+      "id": "d723c15f-be9f-4a51-b174-d3e36d3ceb4b",
+      "type": "WORKS_AT",
+      "from": "60a3d073-d95a-4b12-8ee2-63c36b08acae",
+      "to": "975a4d3d-54f9-41a4-a345-79216ff55b76",
+      "properties": {
+        "role": "Engineer"
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "9507267f-c0fe-4981-9776-cabe027a0aa4",
+    {
+      "id": "9507267f-c0fe-4981-9776-cabe027a0aa4",
+      "type": "WORKS_AT",
+      "from": "113a4bf4-9df5-44d3-826f-08eeae54d457",
+      "to": "975a4d3d-54f9-41a4-a345-79216ff55b76",
+      "properties": {
+        "role": "Manager"
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "18e18043-62b7-446f-8f38-64867cb042fd",
+    {
+      "id": "18e18043-62b7-446f-8f38-64867cb042fd",
+      "type": "WORKS_AT",
+      "from": "e6035327-1a14-4c06-bf91-613963b7e347",
+      "to": "975a4d3d-54f9-41a4-a345-79216ff55b76",
+      "properties": {
+        "role": "Designer"
+      },
+      "createdAt": "2026-06-23T11:33:35.384Z"
+    }
+  ],
+  [
+    "6ed04345-7904-453b-86c2-e991d8102479",
+    {
+      "id": "6ed04345-7904-453b-86c2-e991d8102479",
+      "type": "KNOWS",
+      "from": "b33d607c-2691-45f3-81b8-bc543eb0dab9",
+      "to": "cb19fbac-959d-4f9e-b914-50a292001cd8",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "c11a5bea-6973-444f-853c-dcaeb0685c59",
+    {
+      "id": "c11a5bea-6973-444f-853c-dcaeb0685c59",
+      "type": "KNOWS",
+      "from": "b33d607c-2691-45f3-81b8-bc543eb0dab9",
+      "to": "1a6521a1-9cba-4c67-8336-570d2b36db72",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "685734cf-35b3-4bff-8728-830a14c9a905",
+    {
+      "id": "685734cf-35b3-4bff-8728-830a14c9a905",
+      "type": "KNOWS",
+      "from": "cb19fbac-959d-4f9e-b914-50a292001cd8",
+      "to": "79cb0e2e-c260-42f6-91e8-eb785ebe44ef",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "7845fdd0-c80f-476c-aea6-dacc028e9f77",
+    {
+      "id": "7845fdd0-c80f-476c-aea6-dacc028e9f77",
+      "type": "KNOWS",
+      "from": "1a6521a1-9cba-4c67-8336-570d2b36db72",
+      "to": "1ff321a1-f782-420e-9ac4-0a7fa58b4e0b",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "77ee2aa3-4c1c-4926-bb0a-c7c2f17ba31b",
+    {
+      "id": "77ee2aa3-4c1c-4926-bb0a-c7c2f17ba31b",
+      "type": "KNOWS",
+      "from": "79cb0e2e-c260-42f6-91e8-eb785ebe44ef",
+      "to": "1ff321a1-f782-420e-9ac4-0a7fa58b4e0b",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "b04743f6-5116-4f71-8a39-8719f2699239",
+    {
+      "id": "b04743f6-5116-4f71-8a39-8719f2699239",
+      "type": "KNOWS",
+      "from": "1ff321a1-f782-420e-9ac4-0a7fa58b4e0b",
+      "to": "28ff8cbb-9699-4bf3-adc8-65a992e357d4",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "6daaec9e-20af-42cd-8568-dcd94a500454",
+    {
+      "id": "6daaec9e-20af-42cd-8568-dcd94a500454",
+      "type": "KNOWS",
+      "from": "b33d607c-2691-45f3-81b8-bc543eb0dab9",
+      "to": "28ff8cbb-9699-4bf3-adc8-65a992e357d4",
+      "properties": {
+        "since": 2020
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "455398b2-18b2-4e45-9259-2d46fd09018d",
+    {
+      "id": "455398b2-18b2-4e45-9259-2d46fd09018d",
+      "type": "WORKS_AT",
+      "from": "b33d607c-2691-45f3-81b8-bc543eb0dab9",
+      "to": "f3ed5470-e2a4-482f-94d1-a64df48c68e3",
+      "properties": {
+        "role": "Engineer"
+      },
+      "createdAt": "2026-06-23T15:00:56.550Z"
+    }
+  ],
+  [
+    "a1b911a2-a8c9-44a9-aa47-13ad450719a2",
+    {
+      "id": "a1b911a2-a8c9-44a9-aa47-13ad450719a2",
+      "type": "WORKS_AT",
+      "from": "cb19fbac-959d-4f9e-b914-50a292001cd8",
+      "to": "f3ed5470-e2a4-482f-94d1-a64df48c68e3",
+      "properties": {
+        "role": "Manager"
+      },
+      "createdAt": "2026-06-23T15:00:56.551Z"
+    }
+  ],
+  [
+    "c42736c3-6aa9-499b-a2d6-f1e77dcac93b",
+    {
+      "id": "c42736c3-6aa9-499b-a2d6-f1e77dcac93b",
+      "type": "WORKS_AT",
+      "from": "1a6521a1-9cba-4c67-8336-570d2b36db72",
+      "to": "f3ed5470-e2a4-482f-94d1-a64df48c68e3",
+      "properties": {
+        "role": "Designer"
+      },
+      "createdAt": "2026-06-23T15:00:56.551Z"
+    }
+  ]
+]

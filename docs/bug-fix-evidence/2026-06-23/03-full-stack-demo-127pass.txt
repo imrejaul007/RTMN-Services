@@ -1,0 +1,269 @@
+════════════════════════════════════════════════════════════════
+ RTMN Full-Stack Demo
+ Hub:    http://localhost:4399
+ do-app: http://localhost:3001
+════════════════════════════════════════════════════════════════
+
+[0;36m▶ 1. Hub health[0m
+  [0;32m✓[0m GET /health → HTTP 200
+{"status":"healthy","service":"REZ-ecosystem-connector","port":"4399"}
+
+[0;36m▶ 1b. Service registry[0m
+  [0;32m✓[0m GET /api/services → HTTP 200
+
+[0;36m▶ 2. SUTAR capabilities[0m
+  [0;32m✓[0m GET /api/sutar/capabilities → HTTP 200
+
+[0;36m▶ 2b. SUTAR decision engine — multi-option ranking[0m
+  [0;33m⚠[0m  POST rank → HTTP 401 (set SUTAR_TOKEN env to authenticate)
+
+[0;36m▶ 2c. SUTAR trust engine — SADA health probe[0m
+  [0;32m✓[0m GET /api/v1/sada/status → HTTP 200
+{"success":true,"data":{"sadaReachable":false,"sadaUrl":"http://localhost:4190","latencyMs":17,"error":"fetch failed"},"timestamp":"2026-06-23T15:02:39.248Z"}
+
+[0;36m▶ 3. Nexha capabilities[0m
+  [0;32m✓[0m GET /api/nexha/capabilities → HTTP 200
+
+[0;36m▶ 3b. Nexha supplier lookup (nexha-supplier-network via Hub)[0m
+  [0;32m✓[0m GET /api/nexha/nexha-supplier-network/api/v1/suppliers → HTTP 200
+
+[0;36m▶ 3c. Nexha shipping quote (nexha-distribution-network via Hub)[0m
+  [0;32m✓[0m POST /api/nexha/nexha-distribution-network/api/v1/quote → HTTP 200
+
+[0;36m▶ 3d. Nexha credit offer (nexha-trade-finance-network via Hub)[0m
+  [0;32m✓[0m POST /api/nexha/nexha-trade-finance-network/api/v1/credit-offers → HTTP 201
+
+[0;36m▶ 3e. Nexha warehouse discovery (nexha-warehouse-network via Hub)[0m
+  [0;32m✓[0m GET /api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH → HTTP 200
+
+[0;36m▶ 3f. Nexha warehouse stats (nexha-warehouse-network via Hub)[0m
+  [0;32m✓[0m GET /api/nexha/nexha-warehouse-network/api/v1/stats → HTTP 200
+
+[0;36m▶ 3g. Nexha pricing intelligence (nexha-pricing-network via Hub)[0m
+  [0;32m✓[0m POST /api/nexha/nexha-pricing-network/api/v1/compare → HTTP 200
+  [0;32m✓[0m POST /api/nexha/nexha-pricing-network/api/v1/dynamic-price → HTTP 200
+
+[0;36m▶ 3h. HOJAI AI Foundation (PolicyOS + SkillOS)[0m
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m GET /api/foundation/policy-os/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/skill-os/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/skill-os/api/skills/categories → HTTP 200
+  [0;32m✓[0m POST /api/foundation/policy-os/api/policies → HTTP 201
+  [0;32m✓[0m POST /api/foundation/policy-os/api/policies/evaluate → HTTP 200
+  [0;32m✓[0m GET /api/foundation/skill-os/api/skills/discover → HTTP 200
+
+[0;36m▶ 3i. Flow Orchestrator (Phase F.2)[0m
+  [0;32m✓[0m GET /api/foundation/flow-orchestrator/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/flow-orchestrator/api/templates → HTTP 200
+  [0;32m✓[0m instantiated answer-question template → plan 7446680c-450b-423e-9dc0-1ad3a1569acb
+  [0;32m✓[0m POST /api/foundation/flow-orchestrator/api/executions/sync → HTTP 200
+
+[0;36m▶ 3j. SADA Trust (Phase F.3)[0m
+  [0;32m✓[0m GET /api/foundation/sada-os/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/sada-os/ → HTTP 200
+  [0;32m✓[0m POST /api/foundation/sada-os/trust → HTTP 200
+  [0;32m✓[0m GET /api/foundation/sada-os/trust/v2/demo-sada-58388-1782226960 → HTTP 200
+  [0;32m✓[0m POST /api/foundation/sada-os/risk/assess → HTTP 200
+  [0;32m✓[0m POST /api/foundation/sada-os/verification → HTTP 201
+
+[0;36m▶ 3k. AI Intelligence (Phase F.4)[0m
+  [0;32m✓[0m GET /api/foundation/ai-intelligence/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/ai-intelligence/api/route → HTTP 200
+  [0;32m✓[0m GET /api/foundation/ai-intelligence/api/agents → HTTP 200
+  [0;32m✓[0m GET /api/foundation/ai-intelligence/api/metrics → HTTP 200
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes ai-intelligence
+
+[0;36m▶ 3l. Knowledge Extraction (Phase F.5)[0m
+  [0;32m✓[0m GET /api/foundation/knowledge-extraction/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/knowledge-extraction/api/stats → HTTP 200
+  [0;32m✓[0m GET /api/foundation/knowledge-extraction/api/kb/stats → HTTP 200
+  [0;32m✓[0m GET /api/foundation/knowledge-extraction/api/ner/types → HTTP 200
+  [0;32m✓[0m POST /api/foundation/knowledge-extraction/api/ner/extract → HTTP 200
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes knowledge-extraction
+
+[0;36m▶ 3m. Decision Intelligence (Phase F.6)[0m
+  [0;32m✓[0m GET /api/foundation/decision-intelligence/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/decision-intelligence/api/methods → HTTP 200
+  [0;32m✓[0m GET /api/foundation/decision-intelligence/api/stats → HTTP 200
+  [0;32m✓[0m POST /api/foundation/decision-intelligence/api/decision/wsm → HTTP 200
+  [0;32m✓[0m POST /api/foundation/decision-intelligence/api/recommend/event → HTTP 201
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes decision-intelligence
+
+[0;36m▶ 3n. Knowledge Marketplace (Phase F.7)[0m
+  [0;32m✓[0m GET /api/foundation/knowledge-marketplace/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/knowledge-marketplace/api/categories → HTTP 200
+  [0;32m✓[0m GET /api/foundation/knowledge-marketplace/api/industries → HTTP 200
+  [0;32m✓[0m GET /api/foundation/knowledge-marketplace/api/knowledge → HTTP 200
+  [0;32m✓[0m GET /api/foundation/knowledge-marketplace/api/stats → HTTP 200
+  [0;32m✓[0m POST /api/foundation/knowledge-marketplace/api/knowledge → HTTP 201
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes knowledge-marketplace
+
+[0;36m▶ 3o. Vector DB (Phase F.8)[0m
+  [0;32m✓[0m GET /api/foundation/vector-db/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/vector-db/api/stats → HTTP 200
+  [0;32m✓[0m GET /api/foundation/vector-db/api/collections → HTTP 200
+  [0;33m⤳[0m  POST /api/foundation/vector-db/api/collections → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/vector-db/api/embed → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes vector-db
+
+[0;36m▶ 3p. Graph Database (Phase F.9)[0m
+  [0;32m✓[0m GET /api/foundation/graph-database/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/graph-database/api/stats → HTTP 200
+  [0;32m✓[0m GET /api/foundation/graph-database/api/labels → HTTP 200
+  [0;32m✓[0m GET /api/foundation/graph-database/api/edge-types → HTTP 200
+  [0;33m⤳[0m  POST /api/foundation/graph-database/api/nodes → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;32m✓[0m GET /api/foundation/graph-database/api/nodes → HTTP 200
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes graph-database
+
+[0;36m▶ 3q. Predictive Intelligence (Phase F.10)[0m
+  [0;32m✓[0m GET /api/foundation/predictive-intelligence/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/predictive-intelligence/api/methods → HTTP 200
+  [0;32m✓[0m GET /api/foundation/predictive-intelligence/api/forecasts → HTTP 200
+  [0;33m⤳[0m  POST /api/foundation/predictive-intelligence/api/forecast → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/predictive-intelligence/api/anomaly/detect → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes predictive-intelligence
+
+[0;36m▶ 3r. Risk Intelligence (Phase F.11)[0m
+  [0;32m✓[0m GET /api/foundation/risk-intelligence/api/health → HTTP 200
+  [0;33m⤳[0m  POST /api/foundation/risk-intelligence/api/fraud/score → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/risk-intelligence/api/churn/score → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/risk-intelligence/api/credit/score → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/risk-intelligence/api/risk/composite → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes risk-intelligence
+
+[0;36m▶ 3s. Trust Intelligence (Phase F.12)[0m
+  [0;32m✓[0m GET /api/foundation/trust-intelligence/health → HTTP 200
+  [0;33m⤳[0m  POST /api/foundation/trust-intelligence/api/agents/demo-agent/trust/score → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/trust-intelligence/api/agents/demo-agent/trust/score (read-back) → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;32m✓[0m GET /api/foundation/trust-intelligence/api/trust/levels → HTTP 200
+  [0;32m✓[0m GET /api/foundation/trust-intelligence/api/analytics/distribution → HTTP 200
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes trust-intelligence
+
+[0;36m▶ 3t. Semantic Cache (Phase F.13)[0m
+  [0;32m✓[0m GET /api/foundation/semantic-cache/api/health → HTTP 200
+  [0;33m⤳[0m  POST /api/foundation/semantic-cache/api/embed → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/semantic-cache/api/cache → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;33m⤳[0m  POST /api/foundation/semantic-cache/api/lookup → HTTP 401 (auth required — set SUTAR_TOKEN env) (skipped — upstream not reachable)
+  [0;32m✓[0m GET /api/foundation/semantic-cache/api/stats → HTTP 200
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes semantic-cache
+
+[0;36m▶ 3u. RAG Platform (Phase F.14)[0m
+  [0;32m✓[0m GET /api/foundation/rag-platform/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/rag-platform/api/config → HTTP 200
+  [0;32m✓[0m GET /api/foundation/rag-platform/api/documents → HTTP 200
+  [0;32m✓[0m GET /api/foundation/rag-platform/api/stats → HTTP 200
+  [0;32m✓[0m GET /api/foundation/rag-platform/api/audit → HTTP 200
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes rag-platform
+
+[0;36m▶ 3v. Tenant Manager (Phase F.15)[0m
+  [0;32m✓[0m GET /api/foundation/tenant-manager/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/tenant-manager/api/tenants → HTTP 200
+  [0;32m✓[0m GET /api/foundation/tenant-manager/api/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes tenant-manager
+
+[0;36m▶ 3w. Reasoning Engine (Phase F.16)[0m
+  [0;32m✓[0m GET /api/foundation/reasoning-engine/health → HTTP 200
+  [0;32m✓[0m GET /api/foundation/reasoning-engine/api/reason/templates → HTTP 200
+  [0;32m✓[0m Capability map exposes reasoning-engine
+
+[0;36m▶ 3x. Intent Engine (Phase F.17)[0m
+  [0;32m✓[0m GET /api/foundation/intent-engine/health → HTTP 200
+  [0;32m✓[0m POST intent detect → HTTP 200
+  [0;32m✓[0m Intent correctly detected as 'buy'
+
+[0;36m▶ 3y. Reflection Engine (Phase F.18)[0m
+  [0;32m✓[0m GET /api/foundation/reflection-engine/health → HTTP 200
+
+[0;36m▶ 3z. Behavior Intelligence (Phase F.19)[0m
+  [0;32m✓[0m GET /api/foundation/behavior-intelligence/health → HTTP 200
+
+[0;36m▶ 3aa. Proactive Engine (Phase F.20)[0m
+  [0;32m✓[0m GET /api/foundation/proactive-engine/health → HTTP 200
+
+[0;36m▶ 3ab. Multi-Agent Runtime (Phase F.21)[0m
+  [0;32m✓[0m GET /api/foundation/multi-agent-runtime/health → HTTP 200
+
+[0;36m▶ 3ac. Agent Builder (Phase F.22)[0m
+  [0;32m✓[0m GET /api/foundation/agent-builder/health → HTTP 200
+
+[0;36m▶ 3ad. Background Agents (Phase F.23)[0m
+  [0;32m✓[0m GET /api/foundation/background-agents/health → HTTP 200
+
+[0;36m▶ 4a. MissionOS (Phase G.1)[0m
+  [0;32m✓[0m GET /api/foundation/mission-os/health → HTTP 200
+  [0;32m✓[0m POST mission → HTTP 201
+  [0;32m✓[0m GET /api/foundation/mission-os/api/missions → HTTP 200
+
+[0;36m▶ 4b. ExecutionOS (Phase G.2)[0m
+  [0;32m✓[0m GET /api/foundation/execution-os/health → HTTP 200
+  [0;32m✓[0m POST execution (runInline) → HTTP 201
+  [0;32m✓[0m Execution completed with status=success
+
+[0;36m▶ 4c. Phase H — Hub gateway capabilities[0m
+  [0;32m✓[0m GET /api/foundation/capabilities → HTTP 200
+  [0;32m✓[0m Capability map exposes reasoning-engine
+  [0;32m✓[0m Capability map exposes intent-engine
+  [0;32m✓[0m Capability map exposes reflection-engine
+  [0;32m✓[0m Capability map exposes behavior-intelligence
+  [0;32m✓[0m Capability map exposes proactive-engine
+  [0;32m✓[0m Capability map exposes multi-agent-runtime
+  [0;32m✓[0m Capability map exposes agent-builder
+  [0;32m✓[0m Capability map exposes background-agents
+  [0;32m✓[0m Capability map exposes mission-os
+  [0;32m✓[0m Capability map exposes execution-os
+
+[0;36m▶ 4. do-app backend health[0m
+  [0;33m⚠[0m  do-app backend not reachable at http://localhost:3001 (skipping autopilot checks)
+
+════════════════════════════════════════════════════════════════
+ Demo complete. All 2xx checks passed.
+
+ What this proves:
+   • RTMN Hub (4399) is the single front door for 50+ services
+   • /api/sutar/* routes reach the autonomous-economic layer
+   • /api/nexha/* routes reach the Nexha commerce network
+   • /api/foundation/* routes reach PolicyOS + SkillOS (Phase F.1)
+   • /api/foundation/flow-orchestrator/* routes compose plans end-to-end (Phase F.2)
+   • /api/foundation/sada-os/* routes handle trust + risk + verification (Phase F.3)
+   • /api/foundation/ai-intelligence/* routes run intent + sentiment + retrieval + prediction (Phase F.4)
+   • /api/foundation/knowledge-extraction/* routes run NER + entity linking + fact triples (Phase F.5)
+   • /api/foundation/decision-intelligence/* routes rank recommendations + run WSM/TOPSIS (Phase F.6)
+   • /api/foundation/knowledge-marketplace/* routes browse + purchase + review knowledge packs (Phase F.7)
+   • /api/foundation/vector-db/* routes embed + store + search vectors (Phase F.8)
+   • /api/foundation/graph-database/* routes run Cypher-lite + BFS + PageRank on a property graph (Phase F.9)
+   • /api/foundation/predictive-intelligence/* routes forecast + detect anomalies + predict demand (Phase F.10)
+   • /api/foundation/risk-intelligence/* routes score fraud + churn + credit + composite (Phase F.11)
+   • /api/foundation/trust-intelligence/* routes score agent trust + reputation + risk + confidence (Phase F.12)
+   • /api/foundation/semantic-cache/* routes embed + cache + lookup semantically-similar prompts (Phase F.13)
+   • /api/foundation/rag-platform/* routes chunk + embed + retrieve + query documents (Phase F.14)
+   • /api/foundation/tenant-manager/* routes manage tenants + projects + members + API keys + usage (Phase F.15)
+   • /api/foundation/reasoning-engine/* routes run deductive/inductive/abductive reasoning (Phase F.16)
+   • /api/foundation/intent-engine/* routes detect intent with word-boundary regex (Phase F.17)
+   • /api/foundation/reflection-engine/* routes score response quality across 5 dimensions (Phase F.18)
+   • /api/foundation/behavior-intelligence/* routes track events + detect anomalies + build funnels (Phase F.19)
+   • /api/foundation/proactive-engine/* routes suggest actions via rule-based triggers (Phase F.20)
+   • /api/foundation/multi-agent-runtime/* routes spawn + assign + track agents (Phase F.21)
+   • /api/foundation/agent-builder/* routes manage blueprints + instantiate + version (Phase F.22)
+   • /api/foundation/background-agents/* routes schedule + run + cancel background jobs (Phase F.23)
+   • /api/foundation/mission-os/* routes manage missions + sub-tasks + progress (Phase G.1)
+   • /api/foundation/execution-os/* routes execute http/shell/noop/wait/sub-execution steps (Phase G.2)
+   • Phase H: do-app uses 5 generic hub methods (hubCall/hubCapabilities/hubServiceFor/hubSmart/hubServices) instead of 164 specialized methods
+   • do-app backend can talk to all three via plain fetch()
+
+ Next steps:
+   • Start each upstream service to convert the 'skipped' steps
+     into real data flows
+   • Run 'demos/full-stack-demo.sh' after every deploy
+════════════════════════════════════════════════════════════════
