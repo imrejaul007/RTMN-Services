@@ -729,33 +729,117 @@ After the company is live, it keeps improving.
 
 ---
 
-## 8. Marketplace (much bigger than templates)
+## 8. Marketplace (much bigger than templates) — Built on BLR AI Marketplace
 
-The Marketplace is **everything installable** for AI-native companies.
+**Good news:** BLR AI Marketplace already exists with **1,200+ catalog items** and **7 backend services**. The Marketplace doesn't start from zero — it extends BLR.
 
-### Categories
+### What already exists in BLR (current state)
 
-| Category | Examples | Pricing |
+| Component | Count | Status |
 |---|---|---|
-| **Apps** | Mobile App template, Admin Dashboard | Free / paid |
-| **Agents** | Loyalty Agent, Master Negotiator, Customs Agent | Subscription |
-| **Departments** | Full Marketing Department, Full HR Department | Subscription |
-| **Workflows** | Onboarding Flow, Returns Flow, Renewal Flow | Free / paid |
-| **Policies** | GDPR Pack, India-DPDP Pack, HIPAA Pack | One-time |
-| **Industries** | Restaurant Industry Pack, Healthcare Industry Pack | One-time |
-| **Compliance** | SOC2 Compliance Pack, ISO 27001 Pack | One-time |
-| **Commerce** | Stripe Connector, Razorpay Connector, Square POS | Free |
-| **ERP** | SAP Connector, Oracle Connector, NetSuite Connector | Free / paid |
-| **CRM** | Salesforce Sync, HubSpot Sync | Free |
-| **Payment** | Crypto Payment Pack, BNPL Pack, Escrow Pack | One-time |
-| **Themes** | Luxury Theme, Minimal Theme, Playful Theme | One-time |
-| **UI Blocks** | Dashboard Kit, Analytics Kit, Form Kit | One-time |
-| **Analytics** | Mixpanel Pack, Amplitude Pack, Segment Pack | Free |
-| **Simulation** | Load Test Pack, Failure Mode Pack | Subscription |
+| **AI Agents (cataloged)** | **150+** | ✅ BLR CATALOG.md |
+| **Digital Twins** | 23+ | ✅ twin-marketplace |
+| **Knowledge Packs** | 100+ | ✅ |
+| **Industry OS** | 24 | ✅ |
+| **Services** | 600+ | ✅ |
+| **Analytics & Insights** | 50+ | ✅ |
+| **Workflows** | 200+ | ✅ |
+| **Marketplaces** | 15 | ✅ |
+| **Add-Ons** | 20+ | ✅ |
+| **Total catalog items** | **1,200+** | ✅ |
+| **Marketplace backend services** | 7 (discovery, exploration, ROI, founder-os, evaluator, reputation, twin-marketplace) | ✅ Live |
+| **Smoke tests passing** | 53 | ✅ |
 
-**By Year 5, 100,000+ packages in the marketplace.**
+### The v2 Marketplace vision (extends BLR)
+
+| Category | Examples | Pricing | BLR Status |
+|---|---|---|---|
+| **Apps** | Mobile App template, Admin Dashboard | Free / paid | ✅ NEW |
+| **Agents** | Loyalty Agent, Master Negotiator, Customs Agent | Subscription | ✅ **150+ EXISTS** |
+| **Departments** | Full Marketing Dept, Full HR Dept | Subscription | ✅ **Workforce OS (25) EXISTS** |
+| **Workflows** | Onboarding Flow, Returns Flow, Renewal Flow | Free / paid | ✅ **200+ EXISTS** |
+| **Policies** | GDPR Pack, India-DPDP Pack, HIPAA Pack | One-time | ✅ Compliance Agents (7+) |
+| **Industries** | Restaurant Industry Pack, Healthcare Industry Pack | One-time | ✅ **24 Industry OS EXISTS** |
+| **Compliance** | SOC2 Pack, ISO 27001 Pack | One-time | ✅ NEW |
+| **Commerce** | Stripe Connector, Razorpay Connector, Square POS | Free | ✅ **REZ Intent Graph (11) EXISTS** |
+| **ERP** | SAP Connector, Oracle Connector, NetSuite Connector | Free / paid | ✅ NEW |
+| **CRM** | Salesforce Sync, HubSpot Sync | Free | ✅ Customer Ops (9) |
+| **Payment** | Crypto Pack, BNPL Pack, Escrow Pack, REZ | One-time | ❌ **MISSING — needs build** |
+| **Themes** | Luxury Theme, Minimal Theme, Playful Theme | One-time | ❌ **MISSING — needs build** |
+| **UI Blocks** | Dashboard Kit, Analytics Kit, Form Kit | One-time | ❌ **MISSING — needs build** |
+| **Analytics** | Mixpanel Pack, Amplitude Pack, Segment Pack | Free | ✅ **50+ Analytics EXISTS** |
+| **Simulation** | Load Test Pack, Failure Mode Pack | Subscription | ❌ **MISSING — needs build** |
+
+### What's needed to align BLR with v2 Marketplace
+
+**Already aligned (70%):**
+- 150+ AI Agents
+- 200+ Workflows
+- 50+ Analytics
+- 24 Industry OS
+- 25 Workforce OS (Departments)
+- 100+ Knowledge Packs
+- 11+ Commerce (REZ Intent Graph)
+- 9+ CRM (Customer Operations)
+- 7+ Compliance (Finance AI)
+- 7 Backend services (BLR infra)
+
+**Missing (30%) — needs to be built:**
+- 🆕 Payment Packs (REZ, Stripe, Razorpay, BNPL, Escrow)
+- 🆕 Themes (Luxury, Minimal, Playful, etc.)
+- 🆕 UI Blocks (Dashboard Kit, Analytics Kit, Form Kit)
+- 🆕 Simulation Packs (Load Test, Failure Mode)
+- 🆕 Dedicated Compliance Packs (SOC2, ISO27001, HIPAA)
+- 🆕 Dedicated ERP/CRM Connectors (SAP, Oracle, Salesforce, NetSuite)
+- 🆕 Simulation Engine (for testing before launch)
+- 🆕 Install command that wires each item into Blueprint + Diff Engine
+
+**Total effort to align BLR with v2 Marketplace: ~16 weeks of new builds + 4 weeks of integration = 20 weeks**
+
+### BLR → HOJAI Marketplace transition plan
+
+**Phase 1: Rename and rebrand (2 weeks)**
+- BLR AI Marketplace → HOJAI Marketplace
+- Update URL (marketplace.hojai.ai)
+- Update branding, docs
+- Add new categories: Payment, Themes, UI Blocks, Simulation
+
+**Phase 2: Wire to Blueprint Engine (4 weeks)**
+- Each marketplace item has a Blueprint fragment
+- Install command: `hojai install loyalty-agent --from=marketplace`
+- Updates Blueprint, triggers Diff Engine
+- Affected services regenerate; rest preserved
+
+**Phase 3: Build missing categories (16 weeks)**
+- Payment Packs (4 weeks)
+- Themes (2 weeks)
+- UI Blocks (4 weeks)
+- Simulation Packs + Engine integration (6 weeks)
+
+**Phase 4: Add version + trust + revenue share (4 weeks)**
+- Version tracking for all items
+- ACI-style trust scoring
+- 70-80% revenue share for publishers
+- Analytics dashboard for publishers
+
+**Total: 26 weeks (6 months)**
+
+**By Year 5, target: 100,000+ packages (vs current 1,200+ = 83x growth)**
 
 ---
+
+### 9. Studio, Foundry, Runtime — Three Products, One Mission
+
+```
+Studio (UI Builder) — for founders
+    ↓ uses
+Foundry (CLI Engine) — for developers
+    ↓ powered by
+Runtime (24/7 Operator) — for companies
+    ↓ that runs on
+Cloud (Infrastructure) — for everyone
+    ↓ with help from
+Marketplace (Network) — for the ecosystem
 
 ## 9. Studio, Foundry, Runtime — Three Products, One Mission
 
