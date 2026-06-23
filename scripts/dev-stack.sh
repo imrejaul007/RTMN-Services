@@ -74,6 +74,36 @@ RAG_PLATFORM_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/rag-pla
 # Tenant Manager (Phase F.15, 2026-06-23) — Multi-tenant isolation, projects, members, API keys, usage metering
 TENANT_MANAGER_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/identity/tenant-manager && PORT=4747 TENANT_MANAGER_REQUIRE_AUTH=false npm start"
 
+# Reasoning Engine (Phase F.16, 2026-06-23) — 3 strategies (deductive/inductive/abductive), templates, audit
+REASONING_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/reasoning-engine && PORT=4785 REASONING_ENGINE_REQUIRE_AUTH=false npm start"
+
+# Intent Engine (Phase F.17, 2026-06-23) — Keyword-based intent detection with word-boundary regex
+INTENT_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/intent-engine && PORT=4786 INTENT_ENGINE_REQUIRE_AUTH=false npm start"
+
+# Reflection Engine (Phase F.18, 2026-06-23) — Quality scoring across 5 dimensions
+REFLECTION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/reflection-engine && PORT=4787 REFLECTION_ENGINE_REQUIRE_AUTH=false npm start"
+
+# Behavior Intelligence (Phase F.19, 2026-06-23) — Event tracking, user profiles, anomalies, funnels
+BEHAVIOR_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/behavior-intelligence && PORT=4788 BEHAVIOR_INTELLIGENCE_REQUIRE_AUTH=false npm start"
+
+# Proactive Engine (Phase F.20, 2026-06-23) — Rule-based suggestions with condition evaluation
+PROACTIVE_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/proactive-engine && PORT=4789 PROACTIVE_ENGINE_REQUIRE_AUTH=false npm start"
+
+# Multi-Agent Runtime (Phase F.21, 2026-06-23) — Agent spawning, task assignment, status tracking
+MULTI_AGENT_RUNTIME_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/multi-agent-runtime && PORT=4790 MULTI_AGENT_RUNTIME_REQUIRE_AUTH=false npm start"
+
+# Agent Builder (Phase F.22, 2026-06-23) — Blueprint CRUD, instantiation, version tracking
+AGENT_BUILDER_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/agent-builder && PORT=4791 AGENT_BUILDER_REQUIRE_AUTH=false npm start"
+
+# Background Agents (Phase F.23, 2026-06-23) — Job scheduler, run history, cancel
+BACKGROUND_AGENTS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/background-agents && PORT=4792 BACKGROUND_AGENTS_REQUIRE_AUTH=false npm start"
+
+# MissionOS (Phase G.1, 2026-06-23) — First-class Mission unit with sub-tasks, owners, deadlines, progress tracking
+MISSION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/mission-os && PORT=4295 MISSION_OS_REQUIRE_AUTH=false npm start"
+
+# ExecutionOS (Phase G.2, 2026-06-23) — Execute actions/steps with retries, sequencing, status tracking
+EXECUTION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/execution-os && PORT=4296 EXECUTION_OS_REQUIRE_AUTH=false npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -206,6 +236,26 @@ start_all() {
   start_service "rag-platform"           "$RAG_PLATFORM_CMD"           4781
   # Tenant Manager (Phase F.15)
   start_service "tenant-manager"         "$TENANT_MANAGER_CMD"         4747
+  # Reasoning Engine (Phase F.16)
+  start_service "reasoning-engine"       "$REASONING_ENGINE_CMD"       4785
+  # Intent Engine (Phase F.17)
+  start_service "intent-engine"          "$INTENT_ENGINE_CMD"          4786
+  # Reflection Engine (Phase F.18)
+  start_service "reflection-engine"      "$REFLECTION_ENGINE_CMD"      4787
+  # Behavior Intelligence (Phase F.19)
+  start_service "behavior-intelligence"  "$BEHAVIOR_INTELLIGENCE_CMD"  4788
+  # Proactive Engine (Phase F.20)
+  start_service "proactive-engine"       "$PROACTIVE_ENGINE_CMD"       4789
+  # Multi-Agent Runtime (Phase F.21)
+  start_service "multi-agent-runtime"    "$MULTI_AGENT_RUNTIME_CMD"    4790
+  # Agent Builder (Phase F.22)
+  start_service "agent-builder"          "$AGENT_BUILDER_CMD"          4791
+  # Background Agents (Phase F.23)
+  start_service "background-agents"      "$BACKGROUND_AGENTS_CMD"      4792
+  # MissionOS (Phase G.1)
+  start_service "mission-os"             "$MISSION_OS_CMD"             4295
+  # ExecutionOS (Phase G.2)
+  start_service "execution-os"           "$EXECUTION_OS_CMD"           4296
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285

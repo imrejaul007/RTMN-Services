@@ -85,7 +85,7 @@ SUTAR OS agents/contracts layers: 16 services totalling ~10k LOC. Each is essent
 | **Nexha Warehouse Network** | Geo-search, slot booking | 0 LOC |
 | **Nexha Logistics** | Multi-carrier rate shopping, tracking | 0 LOC |
 | **Nexha Banking** | UPI, BNPL, escrow, FX | 0 LOC |
-| **Nexha Orchestrator** (ExecutionOS) | Workflow + retry + rollback | 0 LOC |
+| **Nexha Orchestrator** (ExecutionOS) | Workflow + retry + rollback | ✅ DONE (port 4296, 25 vitest + 17 e2e) |
 | **Real wake-word** (on-device) | "Hey Genie" continuous listen | 0 LOC — would need Picovoice or openWakeWord |
 | **Real STT backend** (server-side) | Whisper / Deepgram integration | 0 LOC — Voice Twin returns mock |
 | **CoPilot for merchants** | Merchant-side Genie | 0 LOC |
@@ -223,15 +223,16 @@ Quick summary (updated 2026-06-22):
   - **F.15b ✅ Tenant Manager e2e** — 43/43 e2e checks (3 health, 4 tenant validation, 11 tenant CRUD, 5 projects, 5 members, 7 keys incl. validate/revoke, 4 usage, 2 audit, 3 soft-delete). **90/90 tests passing**.
   - **F.15c ✅ Hub `/api/foundation/tenant-manager/*`** — 13 new capabilities (tenant-list, tenant-get, tenant-create, tenant-update, tenant-delete, tenant-suspend, tenant-activate, tenant-projects, tenant-members, tenant-keys, tenant-usage, tenant-audit); demo step 3v proves health + list + audit + capability map exposure end-to-end.
   - **F.15d ✅ Committed + pushed** (HOJAI `fc6f643b`, Hub `0903ac1d`, root F.15 entries in this commit)
-  - **F.16+** (planned): Reasoning Engine, Intent Engine, Reflection Engine, Behavior Intelligence, Proactive Engine, Multi-Agent Runtime, Agent Builder, Background Agents
-- **Phase G** (planned): Build **MissionOS** (4295) + **ExecutionOS** (4296) — the two genuinely-missing pieces of the architecture (Mission as first-class unit of execution, Execution as universal execution layer)
+  - **F.16-F.23 ✅ All 8 Intelligence Engine services productionized** — Reasoning (4785, 15 vitest + 13 e2e), Intent (4786, 14 + 10), Reflection (4787, 13 + 11), Behavior Intelligence (4788, 15 + 12), Proactive (4789, 15 + 12), Multi-Agent Runtime (4790, 19 + 16), Agent Builder (4791, 17 + 17), Background Agents (4792, 16 + 17). All ports 4785-4792 with auth bypass + listen gate + named exports + word-boundary regex for intent matching (avoiding "top" matches in "laptop"). 124 vitest + 108 e2e new tests, 0 failures.
+  - **G.1 ✅ MissionOS (port 4295)** — First-class Mission unit with sub-tasks, owners, deadlines, progress tracking. MISSION_STATUSES: planning/active/paused/completed/cancelled/failed; TASK_STATUSES: pending/blocked/in-progress/completed/cancelled/failed. 22 vitest + 19 e2e, all passing.
+  - **G.2 ✅ ExecutionOS (port 4296)** — Execute actions/steps against mission tasks with retries, sequencing, status tracking. STEP_KINDS: http/shell/noop/wait/sub-execution. 25 vitest + 17 e2e, all passing.
 - **Phase H** (planned): Collapse do-app 144-method client to ~5 method calls (Hub does the routing)
 - **Phase I** (planned): Docs, demos, observability, ship
 
 Verified today (2026-06-22):
 - `bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh` → all 2xx checks pass
-- **779 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + AI Intelligence (14) + Knowledge Extraction (19) + Decision Intelligence (22) + Knowledge Marketplace (20) + Vector DB (21) + Graph Database (30) + Predictive Intelligence (19) + Risk Intelligence (13) + Trust Intelligence (20) + Semantic Cache (14) + RAG Platform (16) + **Tenant Manager (47)**, **0 failures**
-- **311 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + AI Intelligence (9 e2e) + Knowledge Extraction (17 e2e) + Decision Intelligence (16 e2e) + Knowledge Marketplace (11 e2e) + Vector DB (9 e2e) + Graph Database (12 e2e) + Predictive Intelligence (11 e2e) + Risk Intelligence (12 e2e) + Trust Intelligence (14 e2e) + Semantic Cache (11 e2e) + RAG Platform (11 e2e) + **Tenant Manager (43 e2e)**, **0 failures**
+- **779 vitest tests** across 7 SUTAR services (425) + 3 Nexha OS services (procurement-os 16, distribution-os 15, trade-finance 17) + PolicyOS (30) + SkillOS (11) + Flow Orchestrator (17) + SADA Trust (9) + do-app `nexha` client (7) + AI Intelligence (14) + Knowledge Extraction (19) + Decision Intelligence (22) + Knowledge Marketplace (20) + Vector DB (21) + Graph Database (30) + Predictive Intelligence (19) + Risk Intelligence (13) + Trust Intelligence (20) + Semantic Cache (14) + RAG Platform (16) + **Tenant Manager (47) + Reasoning (15) + Intent (14) + Reflection (13) + Behavior Intel (15) + Proactive (15) + Multi-Agent (19) + Agent Builder (17) + Background Agents (16) + MissionOS (22) + ExecutionOS (25)**, **0 failures**
+- **311 bash tests** across 7 SUTAR services + PolicyOS (84) + SkillOS (18 e2e) + Flow Orchestrator (13 policy-fail-mode + 16 e2e) + SADA Trust (16 e2e) + AI Intelligence (9 e2e) + Knowledge Extraction (17 e2e) + Decision Intelligence (16 e2e) + Knowledge Marketplace (11 e2e) + Vector DB (9 e2e) + Graph Database (12 e2e) + Predictive Intelligence (11 e2e) + Risk Intelligence (12 e2e) + Trust Intelligence (14 e2e) + Semantic Cache (11 e2e) + RAG Platform (11 e2e) + **Tenant Manager (43) + Reasoning (13) + Intent (10) + Reflection (11) + Behavior Intel (12) + Proactive (12) + Multi-Agent (16) + Agent Builder (17) + Background Agents (17) + MissionOS (19) + ExecutionOS (17) e2e**, **0 failures**
 - 7 new unit tests for do-app `nexha` client
 - **2 real service bugs** found and fixed via tests:
   1. `sutar-contract-os/src/services/versions.ts` — versionIndex optional-chaining no-op on first push
