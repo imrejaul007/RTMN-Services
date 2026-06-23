@@ -71,6 +71,9 @@ SEMANTIC_CACHE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/seman
 # RAG Platform (Phase F.14, 2026-06-23) — Retrieval-augmented generation: chunk + embed + retrieve + query
 RAG_PLATFORM_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/rag-platform && PORT=4781 RAG_PLATFORM_REQUIRE_AUTH=false npm start"
 
+# Tenant Manager (Phase F.15, 2026-06-23) — Multi-tenant isolation, projects, members, API keys, usage metering
+TENANT_MANAGER_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/identity/tenant-manager && PORT=4747 TENANT_MANAGER_REQUIRE_AUTH=false npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -150,6 +153,7 @@ status() {
     "Trust Intelligence:4882" \
     "Semantic Cache:4772" \
     "RAG Platform:4781" \
+    "Tenant Manager:4747" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -200,6 +204,8 @@ start_all() {
   start_service "semantic-cache"         "$SEMANTIC_CACHE_CMD"         4772
   # RAG Platform (Phase F.14)
   start_service "rag-platform"           "$RAG_PLATFORM_CMD"           4781
+  # Tenant Manager (Phase F.15)
+  start_service "tenant-manager"         "$TENANT_MANAGER_CMD"         4747
   # Nexha Commerce Network (Phase C)
   start_service "nexha-supplier-network"      "$NEXHA_SUPPLIER_CMD"      4280
   start_service "nexha-distribution-network"  "$NEXHA_DISTRIBUTION_CMD"  4285
@@ -236,6 +242,7 @@ stop_all() {
   stop_port 4882 "Trust Intelligence"
   stop_port 4772 "Semantic Cache"
   stop_port 4781 "RAG Platform"
+  stop_port 4747 "Tenant Manager"
   stop_port 4280 "nexha-supplier-network"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"
