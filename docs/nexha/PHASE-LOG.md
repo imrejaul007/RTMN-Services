@@ -1022,3 +1022,123 @@ The retrospective names **Phases 12–15** as the natural follow-on roadmap:
 ### Commits
 
 - `[to be added]` Phase 11 docs commit — RTMN-root
+
+---
+
+## ADR-0011 Phase 12 — Provisioning Engine + Hooks SDK (2026-06-23)
+
+> **The first phase of ADR-0011 (Provisioning + Hooks + TenantMap + OpenSpec).** Replaces the retrospective's "Phase 12 = hooks/adapters" placeholder with a more ambitious design: declarative provisioning plans + a webhook SDK with HMAC signing + exponential retry. The follow-on roadmap (Phases 13–15) is built on top of these primitives.
+
+### What shipped
+
+**2 new services, 140 new vitest tests, 53 new client tests (do-app + REZ-Workspace), 9 new Hub capabilities.**
+
+| Service | Port | Purpose | Service tests |
+|---------|------|---------|---------------|
+| `nexha-provisioning-engine` | 4385 | Declarative provisioning plans (YAML/JSON) consumed by external orchestrators. State machine PENDING→APPLYING→READY→DESTROYING→DESTROYED with FAILED + CANCELLED. 8 statuses, 12 resource kinds. | 67 |
+| `nexha-hooks-sdk` | 4386 | Webhook subscriptions. 28 event types, HMAC-SHA256 signing, exponential retry (1m/5m/30m/2h/12h/24h, max 6 attempts). Plaintext secret returned once on create/rotate. | 73 |
+
+### Provisioning engine — design highlights
+
+- **Cloud-agnostic** — engine emits declarative plans; orchestrator (k8s, terraform, anything) consumes them.
+- **3 isolation levels** — `SHARED` (1 resource: API key), `DEDICATED` (4 resources: Deployment/Service/Ingress/DB), `ISOLATED` (4 resources in isolated cluster).
+- **2 target kinds** — `SUTAR_INSTANCE` (per-tenant SUTAR) and `INDUSTRY_OS_INSTANCE` (per-tenant industry OS).
+- **Plan shape** — `apiVersion: rtmn.io/v1, kind: ProvisioningPlan, metadata, spec, status, resources[]`.
+- **Dual auth** — JWT (`provisioning:admin` role) for external callers, internal token for orchestrator callbacks.
+- **Plan events** — immutable audit log: CREATED, TRANSITIONED, RESOURCE_APPLIED, RESOURCE_FAILED, OUTPUTS_RECORDED, CANCELLED, DESTROYED.
+- **Emits 5 hook events** to nexha-hooks-sdk: `provisioning.plan.{created,transitioned,ready,failed,destroyed}`.
+
+### Hooks SDK — design highlights
+
+- **28 event types** — SUTAR lifecycle (6), industry tenant lifecycle (6), provisioning plan (5), mission (5), commerce (4), partner (3). Plus wildcard `*`.
+- **HMAC-SHA256 signing** — `X-Nexha-Signature: sha256=<hex>` over raw body, verified with timing-safe equal.
+- **Exponential retry** — `[60000, 300000, 1800000, 7200000, 43200000, 86400000]` ms (1m/5m/30m/2h/12h/24h). Max 6 attempts → FAILED.
+- **Secret handling** — plaintext secret returned **once** on create and rotate. Hashed (sha256) at rest. `verify` endpoint accepts signature + secret for testing.
+- **Per-delivery headers** — `X-Nexha-Event-Id`, `X-Nexha-Event-Type`, `X-Nexha-Delivery-Id`, `X-Nexha-Attempt`, `X-Nexha-Signature`.
+- **Subscription lifecycle** — create / list / get / update / disable / enable / delete / rotate-secret. PATCH for in-place edits.
+
+### Hub wiring
+
+Added 2 services to `NEXHA_SERVICES` and 9 capabilities to the Hub:
+
+- `nexha-provisioning-engine` → `http://localhost:4385` (env: `NEXHA_PROVISIONING_ENGINE_URL`)
+- `nexha-hooks-sdk` → `http://localhost:4386` (env: `NEXHA_HOOKS_SDK_URL`)
+- Capabilities: `provisioning-engine`, `provisioning-plan`, `tenant-provisioning-state`, `plan-reconciliation`, `webhook-subscriptions`, `event-delivery`, `webhook-signing`, `subscription-lifecycle`.
+
+Hub version bumped `1.9.0` → `1.10.0`.
+
+### Client wiring
+
+**do-app** (`backend/src/services/hojaiClient.ts`):
+- Added `nexhaProvisioningEngine` const (12 methods).
+- Added `nexhaHooksSdk` const (16 methods).
+- Registered both in the `nexha` namespace.
+- Added `hojaiClient.nexha.provisioningHooks.test.ts` with **21 new tests**, all passing.
+- Total do-app: **333 tests passing**.
+
+**REZ-Workspace** (`core/unified-fabric/src/connections/nexha.js`):
+- Added **14 provisioning methods** + **16 hook methods** to `NexhaConnection` (total 30 new methods).
+- Added `test-provisioning-hooks.js` with **32 tests**, all passing.
+- Found and fixed **7 real client bugs** during test development:
+  - `listProvisioningPlans` — was missing `tenantId` and `offset` params.
+  - `listProvisioningPlanEvents` — was passing the query object directly to URLSearchParams.
+  - `getProvisioningStats` — was ignoring `tenantId`.
+  - `listHookSubscriptions` — was missing `tenantId` and `offset` params.
+  - `deleteHookSubscription` — was hitting `/subscriptions/:id/` (trailing slash).
+  - `processHookDeliveries` — was using `batchSize` and passing query object raw.
+  - `listHookDeliveries` — was missing `status` filter.
+- All bugs caught by tests, fixed before merge.
+
+### Test totals
+
+| Repo | Before Phase 12 | After Phase 12 | Delta |
+|---|---:|---:|---:|
+| Nexha (vitest) | 1,508 | **1,681** | +140 (67 provisioning + 73 hooks) |
+| do-app (jest) | 312 | **333** | +21 |
+| REZ-Workspace (node:test) | ~92 | **124** | +32 |
+
+### Ecosystem totals
+
+| Metric | Pre-Phase-12 | Post-Phase-12 | Delta |
+|---|---:|---:|---:|
+| Services registered at Hub | 477 | **479** | +2 |
+| Capability maps in Hub | 5 | **5+9=14 entries** | +9 |
+| Webhook event types | 0 | **28** | +28 |
+| Resource kinds in provisioning | 0 | **12** | +12 |
+| Total automated tests | ~1,508 | **1,824** | +316 |
+
+### Documentation
+
+| File | Purpose |
+|---|---|
+| `docs/ADR/0011-PROVISIONING-HOOKS-TENANTMAP-OPENSPEC.md` | NEW — 4-phase plan (Provisioning, Hooks, TenantMap, OpenSpec) |
+| `docs/nexha/provisioning-engine.md` | NEW — full architecture, state machine diagram, API reference, resource generation rules |
+| `docs/nexha/hooks-sdk.md` | NEW — full architecture, event type catalog, signature scheme, retry schedule, API reference |
+| `docs/nexha/PHASE-LOG.md` | append this Phase 12 entry |
+| `companies/HOJAI-AI/sutar-os/core/nexha-provisioning-engine/` | NEW service (port 4385) |
+| `companies/HOJAI-AI/sutar-os/core/nexha-hooks-sdk/` | NEW service (port 4386) |
+
+### Files touched
+
+| File | Action |
+|---|---|
+| `docs/ADR/0011-PROVISIONING-HOOKS-TENANTMAP-OPENSPEC.md` | NEW |
+| `docs/nexha/PHASE-LOG.md` | append Phase 12 |
+| `docs/nexha/provisioning-engine.md` | NEW |
+| `docs/nexha/hooks-sdk.md` | NEW |
+| `companies/Nexha/services/nexha-provisioning-engine/` | NEW service (67 tests) |
+| `companies/Nexha/services/nexha-hooks-sdk/` | NEW service (73 tests) |
+| `companies/RABTUL-Technologies/REZ-ecosystem-connector/src/index.ts` | +2 services, +9 capabilities, version bump 1.9.0→1.10.0 |
+| `companies/RABTUL-Technologies/REZ-ecosystem-connector/package.json` | version bump |
+| `companies/do-app/backend/src/services/hojaiClient.ts` | +2 client consts (~30 methods) |
+| `companies/do-app/backend/__tests__/unit/hojaiClient.nexha.provisioningHooks.test.ts` | NEW (21 tests) |
+| `companies/REZ-Workspace/core/unified-fabric/src/connections/nexha.js` | +30 methods + 7 bug fixes |
+| `companies/REZ-Workspace/core/unified-fabric/test-provisioning-hooks.js` | NEW (32 tests) |
+
+### Commits
+
+- `[to be added]` Phase 12 wiring commit — RTMN-root
+- `[to be added]` Phase 12 services commit — Nexha
+- `[to be added]` Phase 12 Hub wiring commit — RABTUL
+- `[to be added]` Phase 12 client wiring commit — REZ-Workspace
+- `[to be added]` Phase 12 client + tests commit — do-app
