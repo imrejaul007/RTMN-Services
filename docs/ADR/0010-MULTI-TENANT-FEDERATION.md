@@ -5,7 +5,7 @@
 > `0009-PHASE-WISE-UPGRADE-PLAN.md` which is the canonical "Phase 0-1 move"
 > ADR. ADR-0010 is the follow-on "Phase 2+ federation" ADR.
 
-**Status:** In Progress (Phase 8 / 11)
+**Status:** In Progress (Phase 9 / 11)
 **Date:** 2026-06-22
 **Authors:** Rejaul Karim (HOJAI AI / RTMN), with HOJAI AI engineering
 **Supersedes:** None
@@ -51,7 +51,7 @@ We will build a **federated, multi-tenant business directory** spanning all thre
 | **6** | **Mission Planner** (done 2026-06-22) | Nexha | `nexha-mission-planner` (port 4362) — cross-tenant mission composition. Templates with `{{placeholder}}` substitution. Mission state machine (DRAFT → PLANNED → EXECUTING → COMPLETED/FAILED/CANCELLED). Subtask state machine with `dependsOn` DAG. Per-tenant compound unique indexes. 89 vitest + 14 do-app + 17 REZ-Workspace tests. |
 | **7** | **Partner Graph** (done 2026-06-22) | Nexha | `nexha-partner-graph` (port 4363) — per-tenant partnership tracking. Interactions (transaction, negotiation, mission, contract, review, inquiry) update a computed strength score (30% count + 30% GMV + 20% rating + 20% recency). Recommendation engine (40% strength + 30% trust + 30% recency). 67 vitest + 8 do-app + 15 REZ-Workspace tests. |
 | **8** | **Commerce Runtime** (done 2026-06-22) | Nexha | `nexha-commerce-runtime` (port 4364) — the execution plane. Three entities (Order, Payment, Return) each with explicit state machines. Cross-entity auto-promotions: capturePayment → order PAID; refundReturn → payment refunded + order RETURNED → COMPLETED\|REFUNDED. Cumulative refunds on payment. 6 capabilities (commerce-runtime, order-management, payment-processing, escrow, fulfillment, returns). 86 vitest + 10 do-app + 22 REZ-Workspace tests. |
-| **9** | Per-Tenant SUTAR Instances | HOJAI AI | Optional: spin up an isolated SUTAR shard per large tenant. |
+| **9** | **Per-Tenant SUTAR Instances** (done 2026-06-22) | HOJAI AI | `sutar-tenant-instances` (port 4141) — lifecycle manager for per-tenant SUTAR shards. Three isolation levels (SHARED auto-activate / DEDICATED separate DB / ISOLATED separate DB + custom limits + custom routes). State machine (PROVISIONING → ACTIVE ↔ SUSPENDED → DESTROYING → DESTROYED; FAILED is recoverable). Daily usage tracking (apiCalls, missionsCreated/Completed/Failed, errorCount + agentsActive/storageMbUsed high-water). Limit enforcement (apiCalls/day, missions/day, storage, status). API keys SHA-256 hashed; plaintext returned only on create/rotate. Terminal-state guard (same-state transitions throw 422). 75 vitest + 17 do-app + 18 REZ-Workspace tests. 5 capabilities (sutar-tenant-instances, tenant-shard, tenant-isolation, sutar-provisioning, sutar-lifecycle). |
 | **10** | Industry OS Split | RTMN | Per-tenant industry OS instances for regulated industries (healthcare, finance). |
 | **11** | Final docs + audit | RTMN | The big ADR retrospective + ecosystem health audit + investor update. |
 

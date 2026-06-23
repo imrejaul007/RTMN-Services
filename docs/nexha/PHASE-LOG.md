@@ -697,3 +697,131 @@ GET    /api/nexha/nexha-commerce-runtime/api/stats
 | REZ-Workspace node:test (mission + partner + commerce) | 54 |
 | SUTAR foundation (carried) | 425 |
 | **Ecosystem total** | **1,017** |
+
+---
+
+## Phase 9 — Per-Tenant SUTAR Instances (2026-06-22) ✅
+
+**Service:** `sutar-tenant-instances`
+**Location:** `companies/HOJAI-AI/sutar-os/core/sutar-tenant-instances/`
+**Port:** `4141` (configurable via `SUTAR_TENANT_INSTANCES_PORT`)
+**Owner:** HOJAI-AI (the SUTAR runtime lives there, so tenant-instance lifecycle belongs alongside)
+
+### What it does
+
+Most tenants share a single SUTAR cluster. When a tenant is **large** (e.g. 500+ restaurants), **regulated** (healthcare/finance/government), or has strict **SLA requirements**, they need their own **isolated SUTAR shard**:
+
+| Isolation Level | What it means | When to use |
+|---|---|---|
+| **SHARED** | Same database, logical isolation by `tenantId`. Auto-activated. | 95% of tenants (default) |
+| **DEDICATED** | Separate MongoDB database. Logical isolation by `tenantId`. | Medium tenants that want data separation |
+| **ISOLATED** | Separate DB + custom limits + custom routes + dedicated health checks. | Regulated industries, large chains, government |
+
+`sutar-tenant-instances` is the **registry and lifecycle manager** for those shards. It tracks who has one, in what state, with what limits, and exposes the operational controls (suspend, resume, destroy, rotate key, usage, limits check).
+
+### State machine
+
+```
+                ┌──────────────┐
+                │ PROVISIONING │ ← initial state
+                └──────┬───────┘
+                       │ auto-activate (SHARED) or manual
+                       ▼
+                ┌──────────────┐         ┌─���───────────┐
+         ┌─────►│    ACTIVE    │────────►│  SUSPENDED  │──┐
+         │      └──┬─────┬─────┘         └──────┬──────┘  │
+         │         │     │                      │         │ resume
+         │         │     │ destroy              │ destroy │
+         │         │     ▼                      ▼         │
+         │         │  ┌────────────┐     ┌────────────┐   │
+         │         │  │ DESTROYING │────►│ DESTROYED  │   │
+         │         │  └─────┬──────┘     └────────────┘   │
+         │         │        │ failed                    │
+         │         │        ▼                           │
+         │         │   ┌──────────┐                     │
+         │         └──►│  FAILED  │◄────────────────────┘
+         │             └────┬─────┘
+         │                  │ destroy
+         │                  ▼
+         └─────────────► DESTROYING → DESTROYED
+```
+
+Same-state transitions **always throw** (no silent no-ops on already-DESTROYED, REFUNDED, etc.) — terminal-state guard.
+
+### Endpoints (15 total)
+
+```
+POST   /api/instances                                  provision new instance
+GET    /api/instances                                  list (filter by status/tenantId/isolation/region)
+GET    /api/instances/:id                              fetch one
+GET    /api/instances/by-tenant/:tenantId              find active for tenant
+PATCH  /api/instances/:id                              update region / limits / routes / tags
+POST   /api/instances/:id/suspend                      pause an instance
+POST   /api/instances/:id/resume                       unpause
+POST   /api/instances/:id/destroy                      tear down
+POST   /api/instances/:id/fail                         mark as failed
+POST   /api/instances/:id/rotate-key                   rotate API key (returns plaintext once)
+POST   /api/instances/:id/health                       record health check
+POST   /api/instances/:id/usage                        record usage event
+GET    /api/instances/:id/usage                        read usage (today + past 6 days)
+GET    /api/instances/:id/limits                       check limit violations
+GET    /api/stats                                      aggregate stats
+```
+
+### Data model
+
+**TenantInstance** — `instanceId` (unique), `tenantId`, `status`, `isolationLevel`, `region`, `namespace`, `databaseUri`, `apiKeyHash` (SHA-256, plaintext returned only on create/rotate), `limits` (maxAgents, maxMissionsPerDay, maxApiCallsPerMinute, storageMbLimit), `routes` (path overrides), `tags`, `metadata`, lifecycle timestamps, last health check.
+
+**UsageMetric** — daily counter per instance: `apiCalls`, `missionsCreated/Completed/Failed`, `errorCount` (increments), `agentsActive`, `storageMbUsed` (high-water mark).
+
+Compound unique index on `(instanceId, date)`.
+
+### Security
+
+- All routes require auth (JWT with `sutar:admin` role OR internal token).
+- API keys stored as SHA-256 hashes only; plaintext returned once on creation/rotation.
+- Internal token is environment-driven (`SUTAR_TENANT_INSTANCES_INTERNAL_TOKEN`) for Hub cross-service calls.
+
+### Design highlights
+
+- **Compound unique** on `instanceId` (one record per shard).
+- **State machine** with terminal-state guards — same-state transitions throw 422.
+- **Active-tenant conflict detection**: provisioning fails if the tenant already has a live (PROVISIONING/ACTIVE/SUSPENDED) instance.
+- **Auto-activation** for SHARED instances (no infrastructure to provision); DEDICATED/ISOLATED require explicit `autoActivate: true` (or real provisioning callback).
+- **SHA-256 key hashing** at rest, plaintext exposed only on create/rotate.
+- **Usage tracking** is additive (counters) + idempotent (high-water marks).
+- **Limit enforcement** checks API calls per day, missions per day, storage MB, plus SUSPENDED status.
+
+### Hub wiring
+
+REZ-ecosystem-connector (`@rez/rez-ecosystem-connector@1.8.0`):
+
+- `SUTAR_SERVICES['sutar-tenant-instances'] = http://localhost:4141`
+- `/api/sutar/sutar-tenant-instances/api/*` (any HTTP method)
+- Capabilities: `sutar-tenant-instances`, `tenant-shard`, `tenant-isolation`, `sutar-provisioning`, `sutar-lifecycle`
+
+### Clients
+
+| Client | Methods | Tests |
+|---|---:|---:|
+| `do-app/backend/src/services/hojaiClient.ts` (`sutar.tenantInstances.*`) | 15 | 17 (jest) |
+| `REZ-Workspace/core/unified-fabric/src/connections/nexha.js` (`provisionInstance`, `listInstances`, etc.) | 17 | 18 (node:test) |
+
+### Test counts after Phase 9
+
+| Suite | Tests |
+|---|---:|
+| sutar-tenant-instances (vitest, NEW) | 75 |
+| nexha-commerce-runtime (vitest, carried) | 86 |
+| nexha-partner-graph (vitest, carried) | 67 |
+| nexha-mission-planner (vitest, carried) | 89 |
+| nexha-business-directory (vitest, carried) | 68 |
+| nexha-pricing-network (vitest, carried) | 31 |
+| nexha-warehouse-network (vitest, carried) | 49 |
+| nexha-trade-finance-network (vitest, carried) | 38 |
+| nexha-distribution-network (vitest, carried) | 22 |
+| nexha-supplier-network (vitest, carried) | 20 |
+| do-app nexha + sutar clients (jest) | 102 |
+| REZ-Workspace node:test (mission + partner + commerce + tenant) | 72 |
+| SUTAR foundation (carried) | 425 |
+| **Ecosystem total** | **1,144** |
