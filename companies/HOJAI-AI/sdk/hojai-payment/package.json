@@ -1,0 +1,90 @@
+{
+  "name": "@hojai/payment",
+  "version": "1.0.0",
+  "description": "Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./pay": {
+      "types": "./dist/pay.d.ts",
+      "import": "./dist/pay.js",
+      "require": "./dist/pay.js",
+      "default": "./dist/pay.js"
+    },
+    "./bill": {
+      "types": "./dist/bill.d.ts",
+      "import": "./dist/bill.js",
+      "require": "./dist/bill.js",
+      "default": "./dist/bill.js"
+    },
+    "./sepa": {
+      "types": "./dist/sepa.d.ts",
+      "import": "./dist/sepa.js",
+      "require": "./dist/sepa.js",
+      "default": "./dist/sepa.js"
+    },
+    "./gateway": {
+      "types": "./dist/gateway.d.ts",
+      "import": "./dist/gateway.js",
+      "require": "./dist/gateway.js",
+      "default": "./dist/gateway.js"
+    },
+    "./settlement": {
+      "types": "./dist/settlement.d.ts",
+      "import": "./dist/settlement.js",
+      "require": "./dist/settlement.js",
+      "default": "./dist/settlement.js"
+    },
+    "./webhook": {
+      "types": "./dist/webhook.d.ts",
+      "import": "./dist/webhook.js",
+      "require": "./dist/webhook.js",
+      "default": "./dist/webhook.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.js",
+      "default": "./dist/utils.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CLAUDE.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "echo 'no lint configured'"
+  },
+  "keywords": [
+    "hojai",
+    "payment",
+    "sdk",
+    "rabtul",
+    "razorpay",
+    "bills",
+    "sepa",
+    "settlement",
+    "webhook"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
