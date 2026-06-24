@@ -1,0 +1,90 @@
+{
+  "name": "@hojai/genie",
+  "version": "1.0.0",
+  "description": "Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./gateway": {
+      "import": "./dist/gateway.mjs",
+      "require": "./dist/gateway.js",
+      "default": "./dist/gateway.js"
+    },
+    "./memory": {
+      "import": "./dist/memory.mjs",
+      "require": "./dist/memory.js",
+      "default": "./dist/memory.js"
+    },
+    "./briefing": {
+      "import": "./dist/briefing.mjs",
+      "require": "./dist/briefing.js",
+      "default": "./dist/briefing.js"
+    },
+    "./calendar": {
+      "import": "./dist/calendar.mjs",
+      "require": "./dist/calendar.js",
+      "default": "./dist/calendar.js"
+    },
+    "./search": {
+      "import": "./dist/search.mjs",
+      "require": "./dist/search.js",
+      "default": "./dist/search.js"
+    },
+    "./voice": {
+      "import": "./dist/voice.mjs",
+      "require": "./dist/voice.js",
+      "default": "./dist/voice.js"
+    },
+    "./companion": {
+      "import": "./dist/companion.mjs",
+      "require": "./dist/companion.js",
+      "default": "./dist/companion.js"
+    },
+    "./assistant": {
+      "import": "./dist/assistant.mjs",
+      "require": "./dist/assistant.js",
+      "default": "./dist/assistant.js"
+    },
+    "./lifestyle": {
+      "import": "./dist/lifestyle.mjs",
+      "require": "./dist/lifestyle.js",
+      "default": "./dist/lifestyle.js"
+    },
+    "./serendipity": {
+      "import": "./dist/serendipity.mjs",
+      "require": "./dist/serendipity.js",
+      "default": "./dist/serendipity.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "genie",
+    "personal-ai",
+    "assistant",
+    "memory",
+    "briefing",
+    "voice",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
