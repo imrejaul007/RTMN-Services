@@ -1,10 +1,11 @@
 # HOJAI Developer Platform — Full Specification
 
-> **Date:** 2026-06-22
+> **Date:** 2026-06-22 (last updated 2026-06-24)
 >
 > **Vision:** HOJAI is the platform that AI coding assistants (Claude Code, Cursor, Codex, ChatGPT, GitHub Copilot) know how to build on. A founder says "Build me an import/export marketplace" and a working application materializes.
 >
 > **Status:** Detailed specification for the developer platform that powers HOJAI Foundry
+> **Shipped (2026-06-24):** HOJAI Foundry v0.5 — `npx hojai create` CLI + all 9 starter kits (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos). 40 tests pass. See `companies/HOJAI-AI/foundry/CLAUDE.md`.
 
 ---
 

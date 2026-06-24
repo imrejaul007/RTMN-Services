@@ -66,24 +66,35 @@ Phase I: Autonomous Economy (M16-18)
 
 See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mapping.
 
-## State of Work (as of last commit)
+## State of Work (as of 2026-06-24)
 
-**Last commit:** `9aa20878d` - "feat: wire REZ Intelligence into merchant-agents"
+**Last commit:** `a3002e7d` (in `companies/HOJAI-AI/`, branch `feat/killer-30min-demo`) — "fix(foundry): restaurant starter missing template/ subdir"
 
-**Done:**
+**Done (2026-06-23/24):**
 - 22 strategic planning docs in `.claude/plans/` (all committed, all pushed to origin)
 - REZ Intelligence Integration service (port 5370) - BUILT
 - merchant-agents (port 4737) - WIRES to REZ Intelligence with 6 new endpoints, 10 tests passing
+- REZ Intelligence wired into 9 foundation SUTAR services (closes loop)
+- @hojai/reputation v1.0.0 SDK shipped
+- HOJAI Widget backend wired to real SUTAR agents
+- ✅ **HOJAI Foundry v0.5 shipped** — 30-min killer demo (item #3 below) **DONE**:
+  - `npx hojai create` CLI + 9 starter templates (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos)
+  - Each starter: Express backend on :4001 + zero-build static frontend on :3000 + 4-5 SUTAR agent stubs + Nexha federation profile + `hojai.ai.md`
+  - `scripts/generate-starters.mjs` (single source of truth, idempotent)
+  - **40 tests, 0 failures** (16 CLI + 8 marketplace + 3×8 new starters)
+  - **8/8 smoke tests pass** (all starters boot, health 200, seed data loaded, agents registered)
+  - Lives at: `companies/HOJAI-AI/foundry/` on branch `feat/killer-30min-demo` in `imrejaul007/hojai-ai` repo
 - Phase 0 planned (LLM billing, observability, eval pipeline - 40-phase #1-10)
 - Master 40-phase vs 6-phase reconciliation complete
 
 **Not yet done (priority order):**
-1. Wire REZ Intelligence into OTHER SUTAR agents (sales, support, procurement, finance)
-2. Build @hojai/foundation SDK v1 (2-3 weeks) - the foundation
-3. Build the 30-minute killer demo (4-6 weeks) - the single most leveraged thing
-4. Build HOJAI Widget MVP (8-12 weeks) - billion-dollar distribution
-5. Build nexha-autonomous-logistics (8 weeks) - fills KHAIRMOVE gap
-6. Build the 16 AI Employees (6 weeks) - the killer BAM category
+1. ~~Build the 30-minute killer demo~~ ✅ **DONE 2026-06-24** (v0.5)
+2. HOJAI Foundry v1.0: `npx hojai deploy` (ship to `*.hojai.app`), `npx hojai add agent`, `npx hojai add integration`
+3. Wire REZ Intelligence into OTHER SUTAR agents (sales, support, procurement, finance)
+4. Build @hojai/foundation SDK v1 (2-3 weeks) - the foundation
+5. Build HOJAI Widget MVP (8-12 weeks) - billion-dollar distribution
+6. Build nexha-autonomous-logistics (8 weeks) - fills KHAIRMOVE gap
+7. Build the 16 AI Employees (6 weeks) - the killer BAM category
 
 ## Quick Status Check Commands
 
