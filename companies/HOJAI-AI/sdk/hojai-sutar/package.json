@@ -1,0 +1,73 @@
+{
+  "name": "@hojai/sutar",
+  "version": "1.0.0",
+  "description": "SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./agent": {
+      "import": "./dist/agent.mjs",
+      "require": "./dist/agent.js",
+      "default": "./dist/agent.js"
+    },
+    "./orchestration": {
+      "import": "./dist/orchestration.mjs",
+      "require": "./dist/orchestration.js",
+      "default": "./dist/orchestration.js"
+    },
+    "./marketplace": {
+      "import": "./dist/marketplace.mjs",
+      "require": "./dist/marketplace.js",
+      "default": "./dist/marketplace.js"
+    },
+    "./contracts": {
+      "import": "./dist/contracts.mjs",
+      "require": "./dist/contracts.js",
+      "default": "./dist/contracts.js"
+    },
+    "./learning": {
+      "import": "./dist/learning.mjs",
+      "require": "./dist/learning.js",
+      "default": "./dist/learning.js"
+    },
+    "./acp": {
+      "import": "./dist/acp.mjs",
+      "require": "./dist/acp.js",
+      "default": "./dist/acp.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "sutar",
+    "sdk",
+    "agents",
+    "ai",
+    "merchant",
+    "acp",
+    "orchestration"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "undici": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
