@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/retry-planner",
+  "version": "1.0.0",
+  "description": "Phase 14.4: Computes retry decisions for failed tasks. Exponential backoff with jitter, per-task circuit breaker, alternative plan selection (try fallback handler before giving up), human escalation.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}

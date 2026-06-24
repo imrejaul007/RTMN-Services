@@ -69,7 +69,7 @@ The original 40-phase plan (v6.0) was based on what we **wanted** to build. The 
 | 11 | Agent Runtime | 5w | **2w** | 8,000+ | 🟢 | 4 empty dirs (agent-sdk, agent-studio, agent-security, long-running-tasks) |
 | 12 | SkillOS | 4w | **0w** (DONE) | 4,400+ | ✅ | plugin-framework empty (low priority) |
 | 13 | GoalOS | 3w | **0w** (DONE) | 2,334 | ✅ | OK |
-| **14** | **Planning Engine** | 4w | **4w** (P0!) | **0** | 🔴 | **NOT_STARTED — critical gap** |
+| **14** | **Planning Engine** | 4w | **0w** (DONE) | **~2,000 LOC** | ✅ | **6 services built (5360-5365): task-decomposer (heuristic+LLM), dependency-graph (DAG/topological/critical-path), execution-engine (parallel waves), retry-planner (circuit breaker), recovery-planner (rollback/skip/branch/abort), dynamic-replanner (budget/deadline). 115 vitest tests pass, 0 failures.** |
 | 15 | ACP / Collaboration | 4w | **1w** | 1,840 | 🟢 | OK |
 | 16 | AI Marketplace | 3w | **0w** (DONE) | 3,760 | ✅ | OK; 81 vitest tests pass |
 | 17 | Learning Engine | 3w | **0w** (DONE) | 1,965 | ✅ | OK |

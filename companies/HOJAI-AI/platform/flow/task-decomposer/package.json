@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/task-decomposer",
+  "version": "1.0.0",
+  "description": "Phase 14.1: Decomposes a high-level goal into a task dependency graph (DAG). Calls inference-gateway for LLM-powered decomposition, falls back to heuristic decomposition if LLM unavailable.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/execution-engine",
+  "version": "1.0.0",
+  "description": "Phase 14.3: Executes task dependency graphs in parallel waves. Calls handlers (HTTP, local function) for each task, tracks state via dependency-graph, surfaces failures for retry-planner to handle.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}

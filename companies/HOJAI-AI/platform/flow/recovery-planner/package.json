@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/recovery-planner",
+  "version": "1.0.0",
+  "description": "Phase 14.5: Recover from execution failures. State rollback (undo last N steps), alternative path exploration (skip failing task and continue with degraded plan), partial result handling (preserve completed work), failure learning (record cause for future reference).",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}
