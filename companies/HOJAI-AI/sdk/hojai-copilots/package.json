@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/copilots",
+  "version": "1.0.0",
+  "description": "Copilots SDK - Client for the 7 HOJAI department copilots (agent, business, executive, finance, marketing, sales, support). One sub-client per copilot, ~50 methods total.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./copilots": { "import": "./dist/copilots.mjs", "require": "./dist/copilots.js", "default": "./dist/copilots.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "copilots", "agent", "sales", "marketing", "finance", "support", "executive", "business", "sdk"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
