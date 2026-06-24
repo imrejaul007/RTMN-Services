@@ -24,6 +24,7 @@ Commands:
   add agent <Name>              Add a stub SUTAR agent to the project
   add integration <name>        Add an @hojai/* SDK to the project
   info                          Show a HOJAI project's full AI context
+  doctor                        Run health checks (config, gateway, project, deps)
   help                          Show this help
   version                       Print version
 
@@ -49,6 +50,7 @@ Examples:
   hojai add agent "Sales Coach"     # add a new SUTAR agent
   hojai add integration payment      # add @hojai/payment to package.json
   hojai info                         # show project context (manifest + capability)
+  hojai doctor                       # run health checks
 `);
   printInfo('All HOJAI SDKs are available as @hojai/* packages on npm.');
 }

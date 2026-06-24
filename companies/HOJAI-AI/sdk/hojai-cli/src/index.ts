@@ -14,6 +14,7 @@ import { runAiSpec } from './commands/ai-spec.js';
 import { runDeploy } from './commands/deploy.js';
 import { runAdd } from './commands/add.js';
 import { runInfo } from './commands/info.js';
+import { runDoctor } from './commands/doctor.js';
 import { printHelp } from './commands/help.js';
 import { printError } from './output.js';
 
@@ -63,6 +64,7 @@ export async function main(argv: string[]): Promise<void> {
       case 'deploy': return await runDeploy(rest);
       case 'add': return await runAdd(rest);
       case 'info': return await runInfo(rest);
+      case 'doctor': return await runDoctor(rest);
       default:
         printError(`Unknown command: ${command}`);
         printHelp();

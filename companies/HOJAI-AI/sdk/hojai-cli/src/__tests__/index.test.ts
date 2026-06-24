@@ -270,3 +270,61 @@ test('hojai info --json outputs valid JSON', async () => {
     cap.restore();
   }
 });
+
+// ─── doctor command ───────────────────────────────────────────────
+
+test('hojai doctor --json exits 0 when config + gateway are ok', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-doctor-'));
+  try {
+    process.env.HOJAI_API_KEY = 'hojai_live_test';
+    process.env.HOJAI_BASE_URL = 'https://test.api.hojai.ai';
+    process.chdir(tmp);
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async () => ({ ok: true, status: 200, headers: { get: () => 'application/json' }, json: async () => ({ status: 'ok', version: '1.0.0' }), text: async () => '' })) as any;
+    try {
+      await main(['node', 'hojai', 'doctor', '--json']);
+    } catch (e) { /* process.exit */ }
+    const json = JSON.parse(cap.logs.join('\n'));
+    assert.equal(json.ok, true);
+    assert.ok(Array.isArray(json.checks));
+    assert.ok(json.checks.length >= 4);
+    globalThis.fetch = origFetch as any;
+    delete process.env.HOJAI_API_KEY;
+    delete process.env.HOJAI_BASE_URL;
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
+
+test('hojai doctor reports failure when gateway is down', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-doctor-'));
+  try {
+    process.env.HOJAI_API_KEY = 'hojai_live_test';
+    process.env.HOJAI_BASE_URL = 'https://broken.api.hojai.ai';
+    process.chdir(tmp);
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async () => ({ ok: false, status: 500, headers: { get: () => 'text/plain' }, text: async () => 'err' })) as any;
+    try {
+      await main(['node', 'hojai', 'doctor']);
+    } catch (e) { /* process.exit */ }
+    globalThis.fetch = origFetch as any;
+    delete process.env.HOJAI_API_KEY;
+    delete process.env.HOJAI_BASE_URL;
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
