@@ -17,6 +17,9 @@ Commands:
   memory capture <text>         Capture a memory
   memory search <query>         Search your memories
   memory compose <owner> <q>    Compose LLM context
+  ai-spec generate              Generate hojai.ai.md + .hojai/ files
+  ai-spec read                  Show current AI-native spec
+  ai-spec validate              Validate existing AI-native spec
   help                          Show this help
   version                       Print version
 
@@ -36,6 +39,7 @@ Examples:
   hojai listings search --query "negotiation" --category agent
   hojai memory capture "Met Sarah at HOJAI meetup" --tags conference
   hojai memory compose u-1 "What is Sarah interested in?"
+  hojai ai-spec generate    # in your HOJAI project, writes 3 files
 `);
   printInfo('All HOJAI SDKs are available as @hojai/* packages on npm.');
 }

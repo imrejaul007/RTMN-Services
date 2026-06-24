@@ -1,0 +1,45 @@
+{
+  "name": "@hojai/ai-spec",
+  "version": "1.0.0",
+  "description": "AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/*.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": [
+    "hojai",
+    "ai-spec",
+    "ai-native",
+    "claude-code",
+    "cursor",
+    "manifest",
+    "schema"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}

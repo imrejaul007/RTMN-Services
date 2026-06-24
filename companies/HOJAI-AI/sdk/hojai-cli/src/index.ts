@@ -10,6 +10,7 @@ import { runConfig } from './commands/config.js';
 import { runListings } from './commands/listings.js';
 import { runMemory } from './commands/memory.js';
 import { runWhoami } from './commands/whoami.js';
+import { runAiSpec } from './commands/ai-spec.js';
 import { printHelp } from './commands/help.js';
 import { printError } from './output.js';
 
@@ -55,6 +56,7 @@ export async function main(argv: string[]): Promise<void> {
       case 'whoami': return await runWhoami(rest, config);
       case 'listings': return await runListings(rest, config);
       case 'memory': return await runMemory(rest, config);
+      case 'ai-spec': return await runAiSpec(rest);
       default:
         printError(`Unknown command: ${command}`);
         printHelp();
