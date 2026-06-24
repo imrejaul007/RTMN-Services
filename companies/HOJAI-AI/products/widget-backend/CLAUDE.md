@@ -108,9 +108,103 @@ The widget sends `pk_live_...` or `pk_test_...` keys which are accepted by defau
 | `REZ_INTEL_URL` | `http://localhost:5370` | REZ Intelligence service |
 | `REZ_INTEL_ENABLED` | `true` | Toggle REZ Intel integration |
 | `REZ_INTEL_TIMEOUT_MS` | `3000` | REZ Intel HTTP timeout |
-| `SUTAR_ROUTER_ENABLED` | `false` | Call real SUTAR agents (otherwise local fallback) |
-| `SUTAR_AGENT_URL` | `http://localhost:4737` | SUTAR agent endpoint |
-| `SUTAR_TIMEOUT_MS` | `5000` | SUTAR agent HTTP timeout |
+| `SUTAR_MERCHANT_AGENTS_URL` | `http://localhost:4737` | merchant-agents endpoint |
+| `SUTAR_MERCHANT_AGENTS_ENABLED` | `true` | Enable merchant-agents routing |
+| `SUTAR_MERCHANT_AGENTS_AUTH` | (none) | Auth header for merchant-agents (e.g. `x-internal-token: secret`) |
+| `SUTAR_SUPPORT_COPILOT_URL` | `http://localhost:4453` | support-copilot endpoint |
+| `SUTAR_SUPPORT_COPILOT_ENABLED` | `true` | Enable support-copilot routing |
+| `SUTAR_SALES_COPILOT_URL` | `http://localhost:4928` | sales-copilot endpoint |
+| `SUTAR_SALES_COPILOT_ENABLED` | `true` | Enable sales-copilot routing |
+| `SUTAR_ACN_HUB_URL` | `http://localhost:4852` | acn-hub endpoint |
+| `SUTAR_ACN_HUB_ENABLED` | `true` | Enable acn-hub routing |
+| `SUTAR_TIMEOUT_MS` | `4000` | SUTAR agent HTTP timeout |
+
+### Auth header format
+
+`SUTAR_*_AUTH` accepts either:
+- `Bearer xyz123` → forwards as `Authorization: Bearer xyz123`
+- `x-internal-token: mysecret` → forwards as `x-internal-token: mysecret`
+- `xyz123` (no colon) → forwards as `Authorization: Bearer xyz123`
+
+This lets you wire either JWT-based or service-to-service tokens without code changes.
+
+---
+
+## SUTAR Agent Routing
+
+The backend dispatches each classified intent to a real SUTAR agent when one is reachable, falling back to local reply builders otherwise. Per-intent routing:
+
+| Intent | Agent | Wire format |
+|---|---|---|
+| `product_search` | merchant-agents | `POST /api/merchants/:id/message` (ACP QUERY) |
+| `place_order` | merchant-agents | `POST /api/merchants/:id/message` (ACP ORDER) |
+| `negotiate_price` | merchant-agents | `POST /api/merchants/:id/message` (ACP COUNTER) |
+| `request_quote` | merchant-agents | `POST /api/merchants/:id/message` (ACP QUOTE) |
+| `track_order` | merchant-agents | `GET /api/merchants/:id/track/:orderId` |
+| `get_support` | support-copilot | `POST /api/suggest` |
+| `ask_question` | sales-copilot | `POST /api/recommend` |
+| `greeting`, `subscribe`, `book_appointment` | (local) | n/a — generated locally |
+
+The `merchantId` is resolved automatically by:
+1. `GET /api/merchants?companyId=<X>` first
+2. Fall back to first merchant in `GET /api/merchants`
+3. Prefer matching `companyId` / `businessId` / `id`
+4. Return null if no merchants exist (fallback to local)
+
+When a real agent is called, the response goes through a **shaper** that:
+- Maps ACP types (`QUOTE`, `OFFER`, `ACCEPT`, `REJECT`, `COUNTER`) → natural language
+- Extracts products, quotes, orders, tickets → `rich` payload for the widget
+- Formats prices, currencies, delivery dates
+
+The widget response includes `routingSource`:
+- `sutar-merchantAgents` / `sutar-supportCopilot` / `sutar-salesCopilot` — real agent
+- `local-builder` — fallback (real agent unreachable or returned non-2xx)
+
+Inspect live status at `GET /api/v1/widget/agents` — returns endpoints, intent map, and health for each SUTAR agent.
+
+---
+
+## Quick Start with merchant-agents
+
+```bash
+# 1. Start merchant-agents with service-to-service token
+cd companies/HOJAI-AI/sutar-os/agents/merchant-agents
+INTERNAL_SERVICE_TOKEN=widget-internal-secret PORT=4737 node src/index.js &
+
+# 2. Start widget backend wired to merchant-agents
+cd companies/HOJAI-AI/products/widget-backend
+WIDGET_REQUIRE_AUTH=false \
+  SUTAR_MERCHANT_AGENTS_URL=http://localhost:4737 \
+  SUTAR_MERCHANT_AGENTS_AUTH="x-internal-token: widget-internal-secret" \
+  npm start &
+
+# 3. Create a merchant + product (one-time setup)
+curl -X POST http://localhost:4737/api/merchants \
+  -H "x-internal-token: widget-internal-secret" \
+  -H "Content-Type: application/json" \
+  -d '{"id":"maya","name":"Maya","businessId":"maya","businessName":"Maya","industry":"fashion","type":"retail","rules":{"negotiationRounds":3}}'
+
+curl -X POST http://localhost:4737/api/merchants/maya/products \
+  -H "x-internal-token: widget-internal-secret" \
+  -H "Content-Type: application/json" \
+  -d '{"id":"hoodie-black","name":"Black Cotton Hoodie","price":1999,"categories":["hoodies"]}'
+
+# 4. Test the widget → merchant-agents flow
+curl -X POST http://localhost:5380/api/v1/widget/message \
+  -H 'Content-Type: application/json' \
+  -d '{"companyId":"maya","visitorId":"v1","message":"show me black hoodies"}'
+
+# Response:
+# {
+#   "success": true,
+#   "data": {
+#     "reply": "Here's a quote for Black Cotton Hoodie: USD 1999 per unit. Delivery by 6/29/2026.",
+#     "rich": { "type": "quote", "offer": {...}, "terms": {...} },
+#     "intent": "product_search",
+#     "routingSource": "sutar-merchantAgents"
+#   }
+# }
+```
 
 ---
 

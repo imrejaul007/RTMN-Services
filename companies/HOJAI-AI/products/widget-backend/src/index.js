@@ -135,9 +135,11 @@ app.get('/health', (_req, res) => {
 
 app.get('/ready', async (_req, res) => {
   const rezHealthy = await rezIntel.checkRezIntelHealth().catch(() => false);
+  const agentHealth = await sutarRouter.checkAgentHealth().catch(() => ({}));
   res.json({
     ready: true,
     rezIntelHealthy: rezHealthy,
+    agents: agentHealth,
     supportedIntents: Object.keys(intentEngine.INTENTS)
   });
 });
@@ -150,8 +152,22 @@ app.get('/api/v1/widget/intents', (_req, res) => {
         name,
         description: def.description,
         agent: def.agent,
+        sutarAgent: sutarRouter.INTENT_AGENT_MAP[name] || null,
         examples: def.examples
       }))
+    }
+  });
+});
+
+// Show SUTAR agent wiring status — useful for debugging & the dashboard.
+app.get('/api/v1/widget/agents', async (_req, res) => {
+  const health = await sutarRouter.checkAgentHealth().catch(() => ({}));
+  res.json({
+    success: true,
+    data: {
+      endpoints: sutarRouter.AGENT_ENDPOINTS,
+      intentMap: sutarRouter.INTENT_AGENT_MAP,
+      health
     }
   });
 });
@@ -226,7 +242,8 @@ app.post('/api/v1/widget/message', apiKeyAuth, async (req, res) => {
       intent: intentResult.intent,
       agent: intentResult.agent,
       confidence: intentResult.confidence,
-      enriched: !!enriched
+      enriched: !!enriched,
+      routingSource: agentResult.source || 'unknown'
     };
 
     // 6. Persist both messages
@@ -258,7 +275,8 @@ app.post('/api/v1/widget/message', apiKeyAuth, async (req, res) => {
       meta: {
         latencyMs: Date.now() - start,
         intentSource: intentResult.source,
-        enrichmentSource: enriched ? 'rez-intel' : 'unavailable'
+        enrichmentSource: enriched ? 'rez-intel' : 'unavailable',
+        routingSource: agentResult.source || 'unknown'
       }
     });
   } catch (err) {
