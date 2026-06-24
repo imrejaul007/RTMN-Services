@@ -136,24 +136,38 @@ export function getRequireAuth(envName = 'REQUIRE_AUTH') {
   return process.env[envName] === 'true';
 }
 
-function createToken(payload, expiresIn = 86400000) {
-  const token = Buffer.from(JSON.stringify({
-    ...payload,
-    iat: Date.now(),
-    exp: Date.now() + expiresIn,
-  })).toString('base64');
-  return token;
+// SECURITY (Phase 5): createToken now signs an HS256 JWT instead of
+// emitting base64-encoded JSON. Backed by jsonwebtoken, signed with
+// JWT_SECRET. If JWT_SECRET is missing, throws — fail-closed.
+async function createToken(payload, expiresInSec = 86400) {
+  if (!_jwt || !_jwtSecret) {
+    throw new Error('Cannot createToken: JWT_SECRET not configured');
+  }
+  return _jwt.sign(
+    { ...payload },
+    _jwtSecret,
+    { algorithm: 'HS256', expiresIn: expiresInSec }
+  );
 }
 
+// SECURITY (Phase 5): Replaced legacy base64-encoded JSON with HS256 JWT
+// verification against JWT_SECRET. The previous code accepted ANY base64
+// JSON payload — trivially forgeable. Now we require a signed JWT and
+// pin the algorithm to HS256 to prevent alg=none / RS256 confusion attacks.
+// If JWT_SECRET is missing, we deny (fail-closed) rather than silently
+// accepting tokens.
+const _jwtSecret = process.env.JWT_SECRET;
+const _jwt = _jwtSecret ? (await import('jsonwebtoken')).default : null;
+
 function verifyToken(token) {
+  if (!_jwt || !_jwtSecret) {
+    return { valid: false, error: 'JWT verification not configured (JWT_SECRET missing)' };
+  }
   try {
-    const payload = JSON.parse(Buffer.from(token, 'base64').toString());
-    if (payload.exp < Date.now()) {
-      return { valid: false, error: 'Token expired' };
-    }
+    const payload = _jwt.verify(token, _jwtSecret, { algorithms: ['HS256'] });
     return { valid: true, payload };
-  } catch {
-    return { valid: false, error: 'Invalid token' };
+  } catch (err) {
+    return { valid: false, error: err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token' };
   }
 }
 
@@ -261,7 +275,7 @@ export function createIndustryAuth(industry, industryConfig = {}) {
       };
 
       const apiKey = generateApiKey(industry, businessId);
-      const token = createToken({
+      const token = await createToken({
         userId: ownerId,
         businessId,
         industry,
@@ -286,7 +300,7 @@ export function createIndustryAuth(industry, industryConfig = {}) {
     async login(email, _password) {
       for (const [userId, session] of sessions) {
         if (session.owner?.email === email) {
-          const token = createToken({
+          const token = await createToken({
             userId,
             businessId: session.business.id,
             industry,
@@ -304,7 +318,7 @@ export function createIndustryAuth(industry, industryConfig = {}) {
     },
 
     verifyToken,
-    createCustomerToken(customerId, businessId) {
+    async createCustomerToken(customerId, businessId) {
       return createToken({
         userId: customerId,
         businessId,

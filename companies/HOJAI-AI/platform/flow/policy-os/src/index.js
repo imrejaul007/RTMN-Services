@@ -812,19 +812,26 @@ const writeLimiter = rateLimit({
 
 // Auth middleware — accepts three auth methods:
 //   1. X-Service-Token: <SERVICE_TOKEN>  — service-to-service (always allowed)
-//   2. Authorization: Bearer <token>     — JWT-style signed token (shared auth format)
-//   3. X-API-Key: <key>                 — pre-shared API key (issued via /api/apikeys)
+//   2. Authorization: Bearer <jwt>       — HS256-signed JWT verified against JWT_SECRET
+//   3. X-API-Key: <key>                  — pre-shared API key (issued via /api/apikeys)
 //
-// Tokens are base64-encoded JSON: { sub, role, iat, exp }
+// SECURITY (Phase 5): The previous "base64-encoded JSON" token path was REMOVED.
+// Unsigned tokens are forgeable; only signed HS256 JWTs (verified against
+// process.env.JWT_SECRET) are accepted. JWT_SECRET must be set at startup;
+// if missing, the Bearer auth path is disabled (deny-by-default).
+const JWT_SECRET = process.env.JWT_SECRET;
+const jwt = JWT_SECRET ? (await import('jsonwebtoken')).default : null;
+
 function verifyTokenLocal(token) {
+  if (!jwt || !JWT_SECRET) {
+    return { valid: false, error: 'JWT verification not configured (JWT_SECRET missing)' };
+  }
   try {
-    const payload = JSON.parse(Buffer.from(token, 'base64').toString());
-    if (typeof payload.exp === 'number' && payload.exp < Date.now()) {
-      return { valid: false, error: 'Token expired' };
-    }
+    // Pin algorithm to HS256 to prevent alg=none / RS256 confusion attacks.
+    const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
     return { valid: true, payload };
-  } catch {
-    return { valid: false, error: 'Invalid token' };
+  } catch (err) {
+    return { valid: false, error: err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token' };
   }
 }
 
@@ -952,7 +959,7 @@ app.get('/ready', (req, res) => {
 // Policy Registry
 // =================================================================
 
-app.post('/api/policies',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/policies',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const body = req.body || {};
   const v = validatePolicyBody(body);
   if (!v.ok) return res.status(400).json({ error: 'validation failed', errors: v.errors });
@@ -1025,7 +1032,7 @@ app.get('/api/policies/:id', (req, res) => {
   res.json(policy);
 });
 
-app.patch('/api/policies/:id',authOrBypass, writeLimiter, (req, res) => {
+app.patch('/api/policies/:id',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const policy = policies.get(req.params.id);
   if (!policy) return res.status(404).json({ error: 'Policy not found' });
   if (policy.status === 'retired') {
@@ -1059,7 +1066,7 @@ app.patch('/api/policies/:id',authOrBypass, writeLimiter, (req, res) => {
   res.json(policy);
 });
 
-app.delete('/api/policies/:id',authOrBypass, writeLimiter, async (req, res) => {
+app.delete('/api/policies/:id',requireAuth, authOrBypass, writeLimiter, async (req, res) => {
   const policy = policies.get(req.params.id);
   if (!policy) return res.status(404).json({ error: 'Policy not found' });
   const hard = req.query.hard === 'true' || req.query.hard === '1';
@@ -1092,7 +1099,7 @@ app.delete('/api/policies/:id',authOrBypass, writeLimiter, async (req, res) => {
 // Policy Lifecycle
 // =================================================================
 
-app.post('/api/policies/:id/submit',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/policies/:id/submit',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const policy = policies.get(req.params.id);
   if (!policy) return res.status(404).json({ error: 'Policy not found' });
   if (policy.status !== 'draft') {
@@ -1109,7 +1116,7 @@ app.post('/api/policies/:id/submit',authOrBypass, writeLimiter, (req, res) => {
   res.json(policy);
 });
 
-app.post('/api/policies/:id/approve',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/policies/:id/approve',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const policy = policies.get(req.params.id);
   if (!policy) return res.status(404).json({ error: 'Policy not found' });
   if (policy.status !== 'review') {
@@ -1126,7 +1133,7 @@ app.post('/api/policies/:id/approve',authOrBypass, writeLimiter, (req, res) => {
   res.json(policy);
 });
 
-app.post('/api/policies/:id/archive',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/policies/:id/archive',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const policy = policies.get(req.params.id);
   if (!policy) return res.status(404).json({ error: 'Policy not found' });
   if (policy.status !== 'published') {
@@ -1147,7 +1154,7 @@ app.post('/api/policies/:id/archive',authOrBypass, writeLimiter, (req, res) => {
 // Policy Evaluation
 // =================================================================
 
-app.post('/api/policies/evaluate',authOrBypass, evaluateLimiter, (req, res) => {
+app.post('/api/policies/evaluate',requireAuth, authOrBypass, evaluateLimiter, (req, res) => {
   const body = req.body || {};
   const { policyId, context = {} } = body;
   const policy = findPolicy(policyId, context);
@@ -1185,7 +1192,7 @@ app.post('/api/policies/evaluate',authOrBypass, evaluateLimiter, (req, res) => {
   res.json(final);
 });
 
-app.post('/api/policies/evaluate-batch',authOrBypass, evaluateLimiter, (req, res) => {
+app.post('/api/policies/evaluate-batch',requireAuth, authOrBypass, evaluateLimiter, (req, res) => {
   const body = req.body || {};
   const evaluations = Array.isArray(body.evaluations) ? body.evaluations : [];
   const results = evaluations.map(ev => {
@@ -1196,7 +1203,7 @@ app.post('/api/policies/evaluate-batch',authOrBypass, evaluateLimiter, (req, res
   res.json({ count: results.length, results });
 });
 
-app.post('/api/policies/simulate',authOrBypass, evaluateLimiter, (req, res) => {
+app.post('/api/policies/simulate',requireAuth, authOrBypass, evaluateLimiter, (req, res) => {
   const body = req.body || {};
   const { policyId, context = {} } = body;
   const policy = findPolicy(policyId, context);
@@ -1217,7 +1224,7 @@ app.post('/api/policies/simulate',authOrBypass, evaluateLimiter, (req, res) => {
 // Policy Validation (dry-run, no create)
 // =================================================================
 
-app.post('/api/policies/validate',authOrBypass, (req, res) => {
+app.post('/api/policies/validate',requireAuth, authOrBypass, (req, res) => {
   const v = validatePolicyBody(req.body || {});
   const status = v.ok ? 200 : 400;
   res.status(status).json({ ok: v.ok, errors: v.errors, validatedAt: new Date().toISOString() });
@@ -1230,7 +1237,7 @@ app.post('/api/policies/validate',authOrBypass, (req, res) => {
 // POST /api/policies/bulk  -> {policies: [...]}  creates many in one call.
 // Used for migrations and test fixtures.
 
-app.post('/api/policies/bulk',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/policies/bulk',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const list = Array.isArray(req.body && req.body.policies) ? req.body.policies : null;
   if (!list) return res.status(400).json({ error: 'policies array is required' });
   const results = { created: [], errors: [] };
@@ -1281,7 +1288,7 @@ app.post('/api/policies/bulk',authOrBypass, writeLimiter, (req, res) => {
   });
 });
 
-app.post('/api/policies/bulk-publish',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/policies/bulk-publish',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const ids = Array.isArray(req.body && req.body.policyIds) ? req.body.policyIds : null;
   if (!ids) return res.status(400).json({ error: 'policyIds array is required' });
   const out = [];
@@ -1340,7 +1347,7 @@ function evaluateComposition(composition, context) {
 // (Intentionally not wrapping — the explicit /api/composition-evaluate endpoint
 //  is the dedicated entry point. Inline composition is invoked via POST below.)
 
-app.post('/api/composition-evaluate',authOrBypass, evaluateLimiter, (req, res) => {
+app.post('/api/composition-evaluate',requireAuth, authOrBypass, evaluateLimiter, (req, res) => {
   const { composition, context = {} } = req.body || {};
   if (!composition || !Array.isArray(composition.policyIds)) {
     return res.status(400).json({ error: 'composition.policyIds is required' });
@@ -1360,7 +1367,7 @@ function generateApiKey() {
   return `pk_${uuidv4().replace(/-/g, '')}${uuidv4().replace(/-/g, '').slice(0, 16)}`;
 }
 
-app.post('/api/apikeys',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/apikeys',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const body = req.body || {};
   if (!body.name) return res.status(400).json({ error: 'name is required' });
   if (req.auth && req.auth.role !== 'admin' && req.auth.role !== '*' && req.auth.type !== 'service') {
@@ -1387,7 +1394,7 @@ app.get('/api/apikeys', customAuth, (req, res) => {
   res.json({ count: items.length, keys: items });
 });
 
-app.delete('/api/apikeys/:key',authOrBypass, writeLimiter, (req, res) => {
+app.delete('/api/apikeys/:key',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   if (req.auth && req.auth.role !== 'admin' && req.auth.type !== 'service') {
     return res.status(403).json({ error: 'Only admin can revoke API keys' });
   }
@@ -1397,7 +1404,7 @@ app.delete('/api/apikeys/:key',authOrBypass, writeLimiter, (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/tokens',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/tokens',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const body = req.body || {};
   if (req.auth && req.auth.role !== 'admin' && req.auth.type !== 'service') {
     return res.status(403).json({ error: 'Only admin can issue tokens' });
@@ -1416,7 +1423,7 @@ app.post('/api/tokens',authOrBypass, writeLimiter, (req, res) => {
 // RBAC
 // =================================================================
 
-app.post('/api/roles',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/roles',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const body = req.body || {};
   if (!body.name) return res.status(400).json({ error: 'name is required' });
   if (roles.has(body.name)) return res.status(409).json({ error: `Role '${body.name}' already exists` });
@@ -1447,7 +1454,7 @@ app.get('/api/roles/:role', (req, res) => {
   res.json(role);
 });
 
-app.post('/api/roles/:role/assign',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/roles/:role/assign',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const body = req.body || {};
   const roleName = req.params.role;
   const userId = body.userId;
@@ -1478,7 +1485,7 @@ app.get('/api/users', (req, res) => {
   res.json({ count: users.size, users: Array.from(users.values()) });
 });
 
-app.post('/api/check/role',authOrBypass, evaluateLimiter, (req, res) => {
+app.post('/api/check/role',requireAuth, authOrBypass, evaluateLimiter, (req, res) => {
   const body = req.body || {};
   const { userId, requiredPermission } = body;
   if (!userId || !requiredPermission) {
@@ -1504,7 +1511,7 @@ app.post('/api/check/role',authOrBypass, evaluateLimiter, (req, res) => {
 // ABAC
 // =================================================================
 
-app.post('/api/check/abac',authOrBypass, evaluateLimiter, (req, res) => {
+app.post('/api/check/abac',requireAuth, authOrBypass, evaluateLimiter, (req, res) => {
   const body = req.body || {};
   const { userId, action, resource, attributes = {} } = body;
   if (!userId || !action) {
@@ -1555,7 +1562,7 @@ app.post('/api/check/abac',authOrBypass, evaluateLimiter, (req, res) => {
 // Approval Engine
 // =================================================================
 
-app.post('/api/approvals',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/approvals',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const body = req.body || {};
   const { policyId, requesterId, resource, amount, strategy, metadata = {} } = body;
   if (!policyId || !requesterId) {
@@ -1599,7 +1606,7 @@ app.post('/api/approvals',authOrBypass, writeLimiter, (req, res) => {
   res.status(201).json(approval);
 });
 
-app.post('/api/approvals/:id/decide',authOrBypass, writeLimiter, (req, res) => {
+app.post('/api/approvals/:id/decide',requireAuth, authOrBypass, writeLimiter, (req, res) => {
   const body = req.body || {};
   const { approverId, decision, comment } = body;
   if (!approverId || !decision) {
@@ -1798,7 +1805,7 @@ async function fireWebhooks(auditEntry) {
 }
 
 // Webhook CRUD
-app.post('/api/webhooks',authOrBypass, writeLimiter, async (req, res) => {
+app.post('/api/webhooks',requireAuth, authOrBypass, writeLimiter, async (req, res) => {
   const { url, events, secret, active } = req.body || {};
   if (!url || typeof url !== 'string') {
     return res.status(400).json({ error: 'url is required' });
@@ -1835,7 +1842,7 @@ app.get('/api/webhooks/:id', customAuth, async (req, res) => {
   res.json(safe);
 });
 
-app.delete('/api/webhooks/:id',authOrBypass, writeLimiter, async (req, res) => {
+app.delete('/api/webhooks/:id',requireAuth, authOrBypass, writeLimiter, async (req, res) => {
   const exists = await webhooks.get(req.params.id);
   if (!exists) return res.status(404).json({ error: 'webhook not found' });
   await webhooks.delete(req.params.id);
@@ -1843,7 +1850,7 @@ app.delete('/api/webhooks/:id',authOrBypass, writeLimiter, async (req, res) => {
   res.json({ ok: true, deleted: true, webhookId: req.params.id });
 });
 
-app.post('/api/webhooks/:id/test',authOrBypass, writeLimiter, async (req, res) => {
+app.post('/api/webhooks/:id/test',requireAuth, authOrBypass, writeLimiter, async (req, res) => {
   const wh = await webhooks.get(req.params.id);
   if (!wh) return res.status(404).json({ error: 'webhook not found' });
   const testPayload = {
