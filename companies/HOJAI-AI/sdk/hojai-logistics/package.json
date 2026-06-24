@@ -1,0 +1,25 @@
+{
+  "name": "@hojai/logistics",
+  "version": "1.0.0",
+  "description": "Logistics SDK - Client for KHAIRMOVE logistics aggregator (port 4604) — multi-carrier shipping (Delhivery, BlueDart, DTDC, FedEx, DHL) + autonomous logistics.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" }
+  },
+  "files": ["dist", "CLAUDE.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "logistics", "khairmove", "shipping", "carrier", "autonomous", "sdk"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}

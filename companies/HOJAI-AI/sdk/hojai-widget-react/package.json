@@ -12,7 +12,10 @@
       "default": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build:cjs": "tsc -p tsconfig.cjs.json && mv dist/index.js dist/index.cjs && mv dist/index.d.ts dist/index.d.cts",
     "build:esm": "tsc -p tsconfig.esm.json && mv dist/index.js dist/index.mjs",
@@ -21,7 +24,15 @@
     "build": "npm run build:lib && npm run build:test",
     "test": "npm run build:test && node --test dist-test/__tests__/*.test.js"
   },
-  "keywords": ["hojai", "widget", "react", "ai", "chat", "sutar", "agent"],
+  "keywords": [
+    "hojai",
+    "widget",
+    "react",
+    "ai",
+    "chat",
+    "sutar",
+    "agent"
+  ],
   "author": "HOJAI AI",
   "license": "MIT",
   "peerDependencies": {
@@ -29,11 +40,12 @@
     "react-dom": ">=17.0.0"
   },
   "devDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@hojai/widget-core": "file:../hojai-widget-core",
+    "@types/node": "^20.10.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "typescript": "^5.3.3",
-    "@types/node": "^20.10.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3"
   }
 }

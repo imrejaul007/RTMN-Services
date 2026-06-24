@@ -1,0 +1,25 @@
+{
+  "name": "@hojai/skillos",
+  "version": "1.0.0",
+  "description": "SkillOS SDK - Client for HOJAI SkillOS capability graph (port 4743) — skill registry + execution + composition + marketplace + training.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" }
+  },
+  "files": ["dist", "CLAUDE.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "skillos", "skills", "capability", "marketplace", "training", "sdk"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
