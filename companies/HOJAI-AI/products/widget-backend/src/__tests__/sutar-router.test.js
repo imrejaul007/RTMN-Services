@@ -415,8 +415,13 @@ test('route: track_order without order ID → falls back to local', async () => 
 
 test('route: get_support → sutar-supportCopilot', async () => {
   await withFetch(async (url) => {
-    if (url.includes('support-copilot') || url.includes(':4453')) {
-      return jsonResponse(200, { suggestion: { reply: 'I can help you with that.' } });
+    if (url.includes('support-copilot') || url.includes(':4453') || url.includes(':4925')) {
+      return jsonResponse(200, {
+        suggestions: [
+          { id: 's1', text: 'I can help you with that.', confidence: 0.9 },
+          { id: 's2', text: 'Could you tell me more?', confidence: 0.7 }
+        ]
+      });
     }
     return jsonResponse(404, {});
   }, async () => {
@@ -431,13 +436,21 @@ test('route: get_support → sutar-supportCopilot', async () => {
     });
     assert.equal(r.source, 'sutar-supportCopilot');
     assert.ok(r.reply.includes('help'));
+    assert.equal(r.rich.type, 'support_suggestions');
+    assert.equal(r.rich.confidence, 0.9);
+    assert.ok(Array.isArray(r.rich.alternatives));
   });
 });
 
 test('route: ask_question → sutar-salesCopilot', async () => {
   await withFetch(async (url) => {
-    if (url.includes('sales-copilot') || url.includes(':4928')) {
-      return jsonResponse(200, { recommendation: { text: 'We are open 9-9.' } });
+    if (url.includes('sales-copilot') || url.includes(':4928') || url.includes(':4926')) {
+      return jsonResponse(200, {
+        recommendations: [
+          { type: 'insight', title: 'Best Time to Follow Up', description: 'Tue-Thu 10AM-12PM has 35% higher response rate', priority: 'low' },
+          { type: 'insight', title: 'Top Objection', description: 'Budget is the #1 objection in Q2', priority: 'medium' }
+        ]
+      });
     }
     return jsonResponse(404, {});
   }, async () => {
@@ -451,7 +464,9 @@ test('route: ask_question → sutar-salesCopilot', async () => {
       user: null
     });
     assert.equal(r.source, 'sutar-salesCopilot');
-    assert.ok(r.reply.includes('9-9'));
+    assert.ok(r.reply.includes('Best Time'));
+    assert.equal(r.rich.type, 'sales_recommendations');
+    assert.equal(r.rich.items.length, 2);
   });
 });
 

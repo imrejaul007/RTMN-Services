@@ -1,0 +1,89 @@
+{% comment %}
+  HOJAI Widget for Shopify
+  ────────────────────────────────────────────────────────────────────
+  Drop this file into:  sections/hojai-widget.liquid
+  Then add it to your theme via:  Customize → App Embeds → HOJAI Widget
+
+  Configuration (set in theme settings or via theme.liquid):
+    - shop.metafields.hojai.api_key      (private metafield — never expose to client)
+    - shop.metafields.hojai.company_id  (public)
+    - shop.metafields.hojai.color        (hex, e.g. "#3B82F6")
+    - shop.metafields.hojai.position     ("bottom-right" | "bottom-left")
+
+  Public API key is fetched server-side and rendered as data-key on the script tag.
+{% endcomment %}
+
+{%- liquid
+  assign api_key = shop.metafields.hojai.api_key | default: 'pk_live_REPLACE_ME'
+  assign company_id = shop.metafields.hojai.company_id | default: shop.permanent_domain
+  assign color = shop.metafields.hojai.color | default: '#3B82F6'
+  assign position = shop.metafields.hojai.position | default: 'bottom-right'
+  assign name = shop.metafields.hojai.name | default: shop.name | append: ' Assistant'
+-%}
+
+<script
+  src="https://cdn.hojai.ai/widget.js"
+  data-key="{{ api_key | escape }}"
+  data-company="{{ company_id | escape }}"
+  data-color="{{ color | escape }}"
+  data-position="{{ position | escape }}"
+  data-name="{{ name | escape }}"
+  defer
+></script>
+
+{% stylesheet %}
+  /* App Embed: only loads if merchant enables the block in theme customizer */
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "HOJAI AI Widget",
+  "target": "body",
+  "settings": [
+    {
+      "type": "header",
+      "content": "HOJAI Widget configuration"
+    },
+    {
+      "type": "paragraph",
+      "content": "Get your API key from hojai.ai/widget after signing up."
+    },
+    {
+      "type": "text",
+      "id": "api_key",
+      "label": "Public API key",
+      "default": "pk_live_REPLACE_ME",
+      "info": "Found in your HOJAI dashboard at hojai.ai/widget"
+    },
+    {
+      "type": "text",
+      "id": "company_id",
+      "label": "Company ID",
+      "default": "",
+      "info": "Defaults to your .myshopify.com domain"
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Widget color",
+      "default": "#3B82F6"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        { "value": "bottom-right", "label": "Bottom right" },
+        { "value": "bottom-left", "label": "Bottom left" }
+      ],
+      "default": "bottom-right"
+    },
+    {
+      "type": "text",
+      "id": "name",
+      "label": "Assistant name",
+      "info": "Defaults to your store name + ' Assistant'"
+    }
+  ]
+}
+{% endschema %}

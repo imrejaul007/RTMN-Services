@@ -343,11 +343,20 @@ async function callSupportCopilot({ message, user, context }) {
     customer: user,
     context
   });
-  if (!response || !response.suggestion) return null;
+  // support-copilot returns { suggestions: [...] } — an array of macro suggestions,
+  // each with text + confidence. Pick the highest-confidence one.
+  if (!response || !Array.isArray(response.suggestions) || response.suggestions.length === 0) return null;
+
+  const best = [...response.suggestions].sort((a, b) => (b.confidence || 0) - (a.confidence || 0))[0];
+  const alternatives = response.suggestions.slice(1, 4).map((s) => s.text);
 
   return {
-    reply: response.suggestion.reply || response.suggestion.message || 'Here is a suggested response...',
-    rich: null
+    reply: best.text,
+    rich: {
+      type: 'support_suggestions',
+      confidence: best.confidence,
+      alternatives: alternatives.length ? alternatives : undefined
+    }
   };
 }
 
@@ -357,11 +366,34 @@ async function callSalesCopilot({ message, user, context }) {
     customer: user,
     context
   });
-  if (!response || !response.recommendation) return null;
+  // sales-copilot returns { recommendations: [...] } — an array of insights/talking-points.
+  if (!response || !Array.isArray(response.recommendations) || response.recommendations.length === 0) {
+    // Fallback: maybe it's wrapped in { data: { recommendations: [...] } }
+    if (response?.data?.recommendations?.length) {
+      return shapeSalesRecommendations(response.data.recommendations);
+    }
+    return null;
+  }
+  return shapeSalesRecommendations(response.recommendations);
+}
 
+function shapeSalesRecommendations(recommendations) {
+  const items = recommendations.slice(0, 4).map((r) => ({
+    type: r.type,
+    title: r.title,
+    description: r.description,
+    priority: r.priority
+  }));
+  const top = recommendations[0];
+  const reply = top.description
+    ? `${top.title}. ${top.description}`
+    : top.title || 'Here is a recommendation based on your query.';
   return {
-    reply: response.recommendation.text || response.recommendation.message || 'Here is what I recommend...',
-    rich: null
+    reply,
+    rich: {
+      type: 'sales_recommendations',
+      items
+    }
   };
 }
 
