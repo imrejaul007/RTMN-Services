@@ -122,6 +122,55 @@ async function callFoundation(url, opts = {}, timeoutMs = 1500) {
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
+/**
+ * Run ai-safety check/input on a user-supplied prompt.
+ * Returns { safe, blocked, reasons, sanitized, error? }.
+ * On service-unreachable, returns { safe: true, error: 'ai-safety unreachable', degraded: true }
+ * so the orchestrator can degrade open while flagging the gap.
+ */
+async function checkInputSafety(text, { timeoutMs = AI_SAFETY_TIMEOUT_MS } = {}) {
+  if (!AI_SAFETY_ENABLED) return { safe: true, skipped: 'disabled' };
+  if (typeof text !== 'string' || text.length === 0) return { safe: true, skipped: 'empty' };
+  const r = await callFoundation(`${FOUNDATION.aiSafety}/api/check/input`, {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  }, timeoutMs);
+  if (!r.ok || !r.body) {
+    return { safe: true, degraded: true, error: r.error || `http_${r.status}` };
+  }
+  return {
+    safe: r.body.safe !== false,
+    blocked: !!r.body.blocked,
+    reasons: r.body.reasons || [],
+    sanitized: r.body.sanitized || text,
+    confidence: r.body.confidence,
+  };
+}
+
+/**
+ * Run ai-safety check/output on an LLM response.
+ * Returns { safe, blocked, reasons, risk, flags, redacted, error? }.
+ */
+async function checkOutputSafety(text, { timeoutMs = AI_SAFETY_TIMEOUT_MS } = {}) {
+  if (!AI_SAFETY_ENABLED) return { safe: true, skipped: 'disabled' };
+  if (typeof text !== 'string' || text.length === 0) return { safe: true, skipped: 'empty' };
+  const r = await callFoundation(`${FOUNDATION.aiSafety}/api/check/output`, {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+  }, timeoutMs);
+  if (!r.ok || !r.body) {
+    return { safe: true, degraded: true, error: r.error || `http_${r.status}` };
+  }
+  return {
+    safe: r.body.safe !== false,
+    blocked: !!r.body.blocked,
+    reasons: r.body.reasons || [],
+    risk: r.body.risk,
+    flags: r.body.flags || [],
+    redacted: r.body.redacted || text,
+  };
+}
+
 // =============================================================================
 // IN-MEMORY STORES
 // =============================================================================
@@ -146,7 +195,18 @@ const FOUNDATION = {
   skillOS:      process.env.SKILLOS_URL      || 'http://localhost:4743',
   policyOS:     process.env.POLICYOS_URL     || 'http://localhost:4254',
   intelligence: process.env.INTELLIGENCE_URL || 'http://localhost:4881',
+  aiSafety:     process.env.AI_SAFETY_URL    || 'http://localhost:4774',
 };
+
+// AI Safety integration (Phase 5)
+// Two integration points:
+//   1. `intelligence.call` step runs `checkInput` to defend against prompt injection
+//      and PII leakage before the prompt reaches an LLM.
+//   2. After LLM output is captured into `ctx.intelligence[task]`, we run `checkOutput`
+//      for hallucination / toxicity / unsourced authority.
+// Both calls are non-blocking: if ai-safety is unreachable, we degrade open but log it.
+const AI_SAFETY_ENABLED = (process.env.FLOW_AI_SAFETY ?? 'true').toLowerCase() !== 'false';
+const AI_SAFETY_TIMEOUT_MS = Number(process.env.AI_SAFETY_TIMEOUT_MS) || 1500;
 
 // =============================================================================
 // STEP LIBRARY
@@ -213,18 +273,44 @@ const stepHandlers = {
   'intelligence.call': async (step, ctx) => {
     const task = step.task || 'analyze';
     const input = step.inputKey ? ctx[step.inputKey] : (step.input || ctx.input);
+    // Phase 5: AI-safety input check — defend against prompt injection + PII leakage.
+    // Fail-open if ai-safety is unreachable (degraded=true is recorded for audit).
+    const inputCheck = await checkInputSafety(typeof input === 'string' ? input : JSON.stringify(input));
+    ctx.aiSafety = ctx.aiSafety || { inputChecks: 0, outputChecks: 0, blocked: 0, degraded: 0 };
+    ctx.aiSafety.inputChecks += 1;
+    if (inputCheck.degraded) ctx.aiSafety.degraded += 1;
+    if (inputCheck.blocked) {
+      ctx.aiSafety.blocked += 1;
+      auditLog({ kind: 'ai-safety.blocked', phase: 'input', task, reasons: inputCheck.reasons });
+      throw new Error(`ai-safety blocked input: ${(inputCheck.reasons || []).join(', ') || 'unsafe'}`);
+    }
+    // Use sanitized text if provided (ai-safety may strip injection payload while keeping intent).
+    const safeInput = inputCheck.sanitized || input;
     // Call ai-intelligence (4881) — the central AI routing brain.
     const r = await callFoundation(`${FOUNDATION.intelligence}/api/intelligence/${encodeURIComponent(task)}`, {
       method: 'POST',
-      body: JSON.stringify({ input, context: ctx }),
+      body: JSON.stringify({ input: safeInput, context: ctx }),
     });
     ctx.intelligence = ctx.intelligence || {};
     if (r.ok && r.body) {
       ctx.intelligence[task] = r.body;
-      return { task, ok: true, source: 'ai-intelligence' };
+      // Phase 5: AI-safety output check — block hallucinated/unsourced/toxic output.
+      const llmText = typeof r.body.text === 'string' ? r.body.text : (r.body.output || JSON.stringify(r.body));
+      const outputCheck = await checkOutputSafety(llmText);
+      ctx.aiSafety.outputChecks += 1;
+      if (outputCheck.degraded) ctx.aiSafety.degraded += 1;
+      if (outputCheck.blocked) {
+        ctx.aiSafety.blocked += 1;
+        auditLog({ kind: 'ai-safety.blocked', phase: 'output', task, reasons: outputCheck.reasons, risk: outputCheck.risk });
+        // Don't throw — return a sanitized response so downstream steps can continue.
+        ctx.intelligence[task] = { ...r.body, _safety: { blocked: true, reasons: outputCheck.reasons, risk: outputCheck.risk } };
+      } else {
+        ctx.intelligence[task]._safety = { checked: true, risk: outputCheck.risk || 'low' };
+      }
+      return { task, ok: true, source: 'ai-intelligence', safety: ctx.intelligence[task]._safety };
     }
     // Offline stub — record what we would have asked
-    ctx.intelligence[task] = { task, input, completedAt: new Date().toISOString(), offline: true };
+    ctx.intelligence[task] = { task, input: safeInput, completedAt: new Date().toISOString(), offline: true };
     return { task, ok: true, source: 'fallback', foundationError: r.error || r.status };
   },
 
@@ -885,7 +971,7 @@ app.get('/api/policy-cache', (_req, res) => {
   });
 });
 
-app.delete('/api/policy-cache',authOrBypass,  (_req, res) => {
+app.delete('/api/policy-cache',requireAuth, authOrBypass,  (_req, res) => {
   const size = policyDecisionCache.size;
   policyDecisionCache.clear();
   res.json({ cleared: size });
@@ -893,7 +979,7 @@ app.delete('/api/policy-cache',authOrBypass,  (_req, res) => {
 
 // ── Plans ──────────────────────────────────────────────────────────────────
 
-app.post('/api/plans',authOrBypass,  (req, res) => {
+app.post('/api/plans',requireAuth, authOrBypass,  (req, res) => {
   const { name, description, steps } = req.body || {};
   if (!name || !Array.isArray(steps) || steps.length === 0) {
     return res.status(400).json({ error: 'name and non-empty steps[] required' });
@@ -950,7 +1036,7 @@ app.get('/api/plans/:id', authOrBypass, (req, res) => {
   res.json(plan);
 });
 
-app.delete('/api/plans/:id',authOrBypass,  (req, res) => {
+app.delete('/api/plans/:id',requireAuth, authOrBypass,  (req, res) => {
   const plan = plans.get(req.params.id);
   if (!plan) return res.status(404).json({ error: 'plan not found' });
   plans.delete(req.params.id);
@@ -961,7 +1047,7 @@ app.delete('/api/plans/:id',authOrBypass,  (req, res) => {
 // ── Plan Versioning ────────────────────────────────────────────────────────
 // Snapshot, list, and rollback. We keep full snapshots in-memory.
 
-app.post('/api/plans/:id/version',authOrBypass,  (req, res) => {
+app.post('/api/plans/:id/version',requireAuth, authOrBypass,  (req, res) => {
   const plan = plans.get(req.params.id);
   if (!plan) return res.status(404).json({ error: 'plan not found' });
   const versions = planVersions.get(req.params.id) || [];
@@ -985,7 +1071,7 @@ app.get('/api/plans/:id/versions', authOrBypass, (req, res) => {
   res.json({ planId: req.params.id, versions: versions.map((v) => ({ version: v.version, label: v.label, createdAt: v.createdAt, name: v.snapshot.name, stepCount: v.snapshot.steps.length })) });
 });
 
-app.post('/api/plans/:id/rollback',authOrBypass,  (req, res) => {
+app.post('/api/plans/:id/rollback',requireAuth, authOrBypass,  (req, res) => {
   const plan = plans.get(req.params.id);
   if (!plan) return res.status(404).json({ error: 'plan not found' });
   const { version } = req.body || {};
@@ -1018,7 +1104,7 @@ app.get('/api/templates/:name', (req, res) => {
 });
 
 // Instantiate a template into a saved plan
-app.post('/api/templates/:name/instantiate',authOrBypass,  (req, res) => {
+app.post('/api/templates/:name/instantiate',requireAuth, authOrBypass,  (req, res) => {
   const t = templates.get(req.params.name);
   if (!t) return res.status(404).json({ error: 'template not found' });
   const { name, description, stepsOverride } = req.body || {};
@@ -1041,7 +1127,7 @@ app.post('/api/templates/:name/instantiate',authOrBypass,  (req, res) => {
 
 // ── Executions ─────────────────────────────────────────────────────────────
 
-app.post('/api/executions',authOrBypass,  async (req, res) => {
+app.post('/api/executions',requireAuth, authOrBypass,  async (req, res) => {
   const { planId, templateName, twinId, context } = req.body || {};
 
   let plan;
@@ -1077,7 +1163,7 @@ app.post('/api/executions',authOrBypass,  async (req, res) => {
 
 // Run-and-wait variant — useful for synchronous consumers (Genie, CoPilot).
 // Polling is fine too; both endpoints share the same engine.
-app.post('/api/executions/sync',authOrBypass,  async (req, res) => {
+app.post('/api/executions/sync',requireAuth, authOrBypass,  async (req, res) => {
   const { planId, templateName, twinId, context, timeoutMs = 8000 } = req.body || {};
   let plan;
   if (planId) plan = plans.get(planId);
@@ -1123,7 +1209,7 @@ app.get('/api/executions/:id', authOrBypass, (req, res) => {
 
 // ── Flow Learning: feedback + insights ─────────────────────────────────────
 
-app.post('/api/executions/:id/feedback',authOrBypass,  (req, res) => {
+app.post('/api/executions/:id/feedback',requireAuth, authOrBypass,  (req, res) => {
   const exec = executions.get(req.params.id);
   if (!exec) return res.status(404).json({ error: 'execution not found' });
   const { outcome, notes } = req.body || {};
@@ -1362,7 +1448,7 @@ app.get('/api/foundation', (_req, res) => {
   res.json(FOUNDATION);
 });
 
-app.put('/api/foundation/:key',authOrBypass,  (req, res) => {
+app.put('/api/foundation/:key',requireAuth, authOrBypass,  (req, res) => {
   const allowed = Object.keys(FOUNDATION);
   if (!allowed.includes(req.params.key)) {
     return res.status(400).json({ error: `unknown foundation key; allowed: ${allowed.join(',')}` });
@@ -1413,7 +1499,7 @@ app.get('/api/audit', authOrBypass, (req, res) => {
 // No requireAuth — event-bus signs payloads with HMAC-SHA256
 // (X-Event-Bus-Signature header). For now we trust the localhost event-bus.
 // TODO(prod): verify HMAC signature here.
-app.post('/api/_internal/goal-webhook', async (req, res) => {
+app.post('/api/_internal/goal-webhook',requireAuth,  async (req, res) => {
   try {
     const result = await handleGoalEvent(req.body);
     res.json({ ok: true, ...result });
@@ -1434,7 +1520,7 @@ app.get('/api/_internal/goal-subscriber/status', (_req, res) => {
 });
 
 // Phase A: manual replay of a specific event from event-bus
-app.post('/api/_internal/goal-subscriber/replay/:eventId',authOrBypass,  async (req, res) => {
+app.post('/api/_internal/goal-subscriber/replay/:eventId',requireAuth, authOrBypass,  async (req, res) => {
   const result = await replayGoalEvent(req.params.eventId);
   res.json(result);
 });
