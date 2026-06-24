@@ -33,6 +33,8 @@ import { checkRequirements } from './customs/agent.js';
 import { bindInsurance } from './insurance/binder.js';
 import { calculateCarbon } from './carbon/calculator.js';
 import { CARRIERS } from './carriers/registry.js';
+import { getShipment } from './tracking/registry.js';
+import { generateShippingDocument, renderDocumentHTML } from './documents/generator.js';
 import type { ShipmentRequest } from './types.js';
 
 const app = express();
@@ -216,6 +218,133 @@ app.get('/api/v1/shipments/:id/track', requireAuth, (req, res) => {
     return res.status(404).json(apiResponse(false, undefined, 'Shipment not found'));
   }
   res.json(apiResponse(true, status));
+});
+
+// ─── NEW: Quick cost/time estimate (no full plan, no booking) ──────────
+// Useful for "how much would it cost to ship X from Y to Z?" widgets.
+app.post('/api/v1/shipments/estimate', requireAuth, async (req: any, res: any) => {
+  try {
+    const schema = z.object({
+      origin: AddressSchema,
+      destination: AddressSchema,
+      cargo: z.object({
+        weightKg: z.number().positive(),
+        // Optional — defaults to general
+        type: z.string().optional(),
+        // Optional — improves accuracy
+        hsCode: z.string().optional(),
+        declaredValue: z.number().nonnegative().optional(),
+        currency: z.string().length(3).optional()
+      }),
+      // Optional — speed vs cost preference
+      optimizeFor: z.enum(['cost', 'speed']).optional()
+    });
+    const params = schema.parse(req.body);
+
+    // Generate ONE candidate route (cheapest or fastest), no full plan
+    const request: ShipmentRequest = {
+      origin: params.origin,
+      destination: params.destination,
+      cargo: {
+        type: (params.cargo.type as any) || 'general',
+        weightKg: params.cargo.weightKg,
+        declaredValue: params.cargo.declaredValue || 0,
+        currency: params.cargo.currency || 'USD',
+        hsCode: params.cargo.hsCode
+      },
+      optimizeFor: params.optimizeFor || 'cost'
+    };
+    const candidates = generateCandidateRoutes(request);
+    if (candidates.length === 0) {
+      return res.status(400).json(apiResponse(false, undefined, 'No routes available'));
+    }
+    const scored = scoreRoutes(candidates, request.optimizeFor);
+    const cheapest = scored[0];
+
+    // Quick duty estimate if HS + value provided
+    let duties = null;
+    if (params.cargo.hsCode && params.cargo.declaredValue) {
+      const customs = await checkRequirements({
+        origin: params.origin.country,
+        destination: params.destination.country,
+        hsCode: params.cargo.hsCode,
+        value: params.cargo.declaredValue,
+        currency: params.cargo.currency || 'USD'
+      });
+      duties = {
+        totalDutiesUsd: customs.totalDutiesUsd,
+        estimatedClearanceHours: customs.estimatedClearanceHours
+      };
+    }
+
+    res.json(apiResponse(true, {
+      origin: params.origin.country,
+      destination: params.destination.country,
+      weightKg: params.cargo.weightKg,
+      recommendedRoute: {
+        carrier: cheapest.legs[0].carrierName,
+        mode: cheapest.legs[0].mode,
+        totalCostUsd: cheapest.totalCostUsd,
+        transitHours: cheapest.totalTransitHours,
+        distanceKm: cheapest.totalDistanceKm,
+        carbonKg: cheapest.totalCarbonKg,
+        legs: cheapest.legs.length
+      },
+      alternativeCount: scored.length - 1,
+      duties,
+      validUntil: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      notes: 'Estimate is non-binding and may change at booking time.'
+    }));
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      return res.status(400).json(apiResponse(false, undefined, `Validation: ${err.issues[0]?.message}`));
+    }
+    res.status(500).json(apiResponse(false, undefined, err.message));
+  }
+});
+
+// ─── NEW: Generate shipping documents (invoice, packing list, BoL) ─────
+// Returns ready-to-print HTML + structured data for the booked shipment.
+app.post('/api/v1/shipments/:id/document', requireAuth, (req: any, res: any) => {
+  try {
+    const schema = z.object({
+      type: z.enum(['commercial-invoice', 'packing-list', 'bill-of-lading', 'customs-declaration']),
+      format: z.enum(['json', 'html']).optional(),
+      // For commercial invoice: who is seller/buyer
+      seller: z.object({
+        name: z.string(),
+        address: z.string().optional(),
+        taxId: z.string().optional()
+      }).optional(),
+      buyer: z.object({
+        name: z.string(),
+        address: z.string().optional(),
+        taxId: z.string().optional()
+      }).optional()
+    });
+    const { type, format = 'json', seller, buyer } = schema.parse(req.body);
+    const shipment = getShipment(req.params.id);
+    if (!shipment) {
+      return res.status(404).json(apiResponse(false, undefined, 'Shipment not found'));
+    }
+    const document = generateShippingDocument(type, {
+      shipment,
+      seller,
+      buyer,
+      generatedAt: new Date().toISOString()
+    });
+
+    if (format === 'html') {
+      res.setHeader('Content-Type', 'text/html');
+      return res.send(renderDocumentHTML(type, document));
+    }
+    res.json(apiResponse(true, document));
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      return res.status(400).json(apiResponse(false, undefined, `Validation: ${err.issues[0]?.message}`));
+    }
+    res.status(500).json(apiResponse(false, undefined, err.message));
+  }
 });
 
 app.post('/api/v1/shipments/:id/reroute', requireAuth, async (req: any, res: any) => {
