@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/ai-studio-api",
+  "version": "1.0.0",
+  "description": "AI Studio Gateway (4900) - proxies to 9 sub-services + marketplace",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.22.0"
+  }
+}

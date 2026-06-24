@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/studio-playground",
+  "version": "1.0.0",
+  "description": "AI Studio - Playground (multi-model prompt execution + history)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

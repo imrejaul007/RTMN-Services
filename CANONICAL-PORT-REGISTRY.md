@@ -458,6 +458,49 @@ Returns: { steps: [...], testing_ok: bool }
 
 ---
 
+## 🟢 Phase 38: AI Studio (Visual Builder) — 10 new ports (added 2026-06-24)
+
+10 new services in `companies/HOJAI-AI/platform/ai-studio/`, all built and tested (83 tests passing, 0 failures). This is the **backend platform** that the React frontend will consume.
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **4900** | `ai-studio-api` | Gateway + marketplace (templates/install/publish/stats); proxies to all 9 sub-services | 7 |
+| **4901** | `studio-projects` | Project CRUD; members; RBAC (owner/editor/viewer); audit log | 10 |
+| **4902** | `studio-playground` | Multi-model prompt execution (12 models); history; compare; favorites; prompt library with versioning | 11 |
+| **4903** | `studio-workflow` | DAG workflows (8 node types); cycle detection; topological sort; templates; deploy | 7 |
+| **4904** | `studio-agent` | Agent composition (8 tool types, 5 memory types, 7 guardrails); clone; deploy | 8 |
+| **4905** | `studio-twin` | Twin schema designer (13 field types, 3 relation types); instance validation; publish | 8 |
+| **4906** | `studio-rag` | RAG configurator (5 chunking strategies, 3 retrieval modes); test retrieval; deploy | 9 |
+| **4907** | `studio-eval` | Eval suite (8 metric types, 5 alert ops); datasets; review queue; aggregate | 8 |
+| **4908** | `studio-deployment` | One-click deploy (3 strategies: immediate/canary/blue_green); semver releases; rollback | 9 |
+| **4909** | `studio-collab` | Comments (threaded); edit locks; activity feed; share links | 8 |
+
+**Pattern:** Same file-backed JSON storage as Phases 32/40, `X-Internal-Token` inter-service auth, `node --test --test-force-exit --test-concurrency=1 tests/*.test.js` runner. ~3,500 LOC across 10 services.
+
+**Marketplace:** Seeded with 5 starter templates (Customer Support Chatbot, Content Generation Workflow, Standard Eval Suite, Customer Twin Schema, Knowledge Base RAG). Communities can publish their own templates.
+
+**Gateway routes:**
+```
+GET  /                  → service catalog (10 sub-services)
+GET  /health            → liveness
+GET  /ready             → probes all 9 sub-services
+ANY  /projects/*        → studio-projects (4901)
+ANY  /playground/*      → studio-playground (4902)
+ANY  /workflow/*        → studio-workflow (4903)
+ANY  /agent/*           → studio-agent (4904)
+ANY  /twin/*            → studio-twin (4905)
+ANY  /rag/*             → studio-rag (4906)
+ANY  /eval/*            → studio-eval (4907)
+ANY  /deployment/*      → studio-deployment (4908)
+ANY  /collab/*          → studio-collab (4909)
+GET  /marketplace/templates[?category=&tag=&q=]
+POST /marketplace/install
+POST /marketplace/publish
+GET  /marketplace/stats
+```
+
+---
+
 ## 🟢 HOJAI Foundry v1.1 — Real Remote Deploy (1 new port, added 2026-06-24)
 
 The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` is set, the foundry CLI POSTs the project to this service; it provisions a per-tenant runtime and returns the public URL (`https://<name>.hojai.app`).

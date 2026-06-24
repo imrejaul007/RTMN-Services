@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/studio-collab",
+  "version": "1.0.0",
+  "description": "AI Studio - Collaboration (comments, edit locks, activity feed, share links)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.22.0"
+  }
+}
