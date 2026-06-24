@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/memory — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="active" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/memory</h1>
+<p class="lead">Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/memory">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/memory` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** ✅ **PRODUCTION-READY** — Wraps the 4-service HOJAI Memory Layer + the underlying MemoryOS dumb store. ---</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/memory — Memory Layer SDK</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/memory</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — Wraps the 4-service HOJAI Memory Layer + the underlying MemoryOS dumb store.</p>
+<p>---</p>
+<h2>What this SDK is</h2>
+<p><strong>The official client for the HOJAI Memory Layer.</strong> The Memory Layer provides persistent agent memory with 15 memory types, per-fact confidence scoring, tiered federation, twin binding, and an LLM context composer.</p>
+<p>Any developer building memory-aware AI agents on HOJAI should use this SDK.</p>
+<p>It handles:</p>
+<ul>
+<li>HTTP transport (retries, timeouts, exponential backoff)</li>
+<li>Authentication</li>
+<li>Error handling</li>
+<li>TypeScript types for every entity (MemoryEntry, Fact, Binding, ComposedContext)</li>
+<li>Subpath exports for tree-shaking</li>
+</ul>
+<p>---</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Memory } from '@hojai/memory';
+
+const mem = new Memory({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Write a memory
+await mem.os.create({
+  ownerId: 'u-1',
+  type: 'episodic',
+  content: 'Met Sarah at HOJAI meetup'
+});
+
+// 2. Search across all tiers
+const hits = await mem.os.search({ ownerId: 'u-1', q: 'meetup' });
+
+// 3. Compose LLM context for an AI app
+const ctx = await mem.context.compose({
+  ownerId: 'u-1',
+  query: 'What is Sarah interested in?',
+  maxTokens: 2000
+});
+
+// 4. Bind a TwinOS twin to its memory partition
+await mem.bridge.bind('customer-twin-1', {
+  kind: 'episodic',
+  partitionId: 'p-1'
+});
+
+// 5. Get confidence report for a twin
+const report = await mem.confidence.getReport('customer-twin-1');</code></pre>
+<p>---</p>
+<h2>Sub-Clients (5 total)</h2>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Service</th>
+<th>Port</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>mem.os</code></td>
+<td>MemoryOS</td>
+<td>4703</td>
+<td>The dumb store — 15 memory types (long-term, working, episodic, semantic, procedural, …), knowledge graph, learning</td>
+</tr>
+<tr>
+<td><code>mem.network</code></td>
+<td>memory-network</td>
+<td>4794</td>
+<td>Tiered memory + cross-tier aggregation — 5 tiers (personal / business / industry / ecosystem / agent) with federation</td>
+</tr>
+<tr>
+<td><code>mem.confidence</code></td>
+<td>Memory Confidence</td>
+<td>4152</td>
+<td>Per-fact reliability scoring — <code>(base × decay × contradiction)</code> model, reinforce/contradict/recall, staleness reports</td>
+</tr>
+<tr>
+<td><code>mem.bridge</code></td>
+<td>Twin Memory Bridge</td>
+<td>4704</td>
+<td>Twin ↔ memory partition links — each TwinOS twin owns its memory partition</td>
+</tr>
+<tr>
+<td><code>mem.context</code></td>
+<td>Memory Context Engine</td>
+<td>4790</td>
+<td>Smart LLM context composer — <code>(relevance × confidence × recency)</code> retrieval + token budgeting</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Subpath Imports</h2>
+<pre class="md-code"><code class="lang-ts">import { MemoryOsClient } from '@hojai/memory/os';
+import { MemoryNetworkClient } from '@hojai/memory/network';
+import { MemoryConfidenceClient } from '@hojai/memory/confidence';
+import { TwinMemoryBridgeClient } from '@hojai/memory/bridge';
+import { MemoryContextEngineClient } from '@hojai/memory/context';
+import type { MemoryEntry, Fact, ComposedContext } from '@hojai/memory/types';</code></pre>
+<p>---</p>
+<h2>Memory Types (15)</h2>
+<p>The MemoryOS supports 15 memory types:</p>
+<table class="md-table"><thead><tr>
+<th>Type</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr></thead><tbody>
+<tr>
+<td><code>episodic</code></td>
+<td>Event memories</td>
+<td>&quot;Met Sarah at HOJAI meetup&quot;</td>
+</tr>
+<tr>
+<td><code>semantic</code></td>
+<td>Facts &amp; concepts</td>
+<td>&quot;Sarah is a designer&quot;</td>
+</tr>
+<tr>
+<td><code>procedural</code></td>
+<td>How-to knowledge</td>
+<td>&quot;Sarah prefers Figma over Sketch&quot;</td>
+</tr>
+<tr>
+<td><code>working</code></td>
+<td>Short-term scratchpad</td>
+<td>Current conversation context</td>
+</tr>
+<tr>
+<td><code>long_term</code></td>
+<td>Important persistent facts</td>
+<td>User preferences</td>
+</tr>
+<tr>
+<td><code>emotional</code></td>
+<td>Sentiment + affect</td>
+<td>&quot;User expressed frustration about checkout&quot;</td>
+</tr>
+<tr>
+<td><code>preference</code></td>
+<td>User likes/dislikes</td>
+<td>&quot;Prefers dark mode&quot;</td>
+</tr>
+<tr>
+<td><code>factual</code></td>
+<td>Verifiable claims</td>
+<td>&quot;Sarah's company is Maya Collective&quot;</td>
+</tr>
+<tr>
+<td><code>relational</code></td>
+<td>Entity relationships</td>
+<td>&quot;Sarah is friend of Ravi&quot;</td>
+</tr>
+<tr>
+<td><code>temporal</code></td>
+<td>Time-bound facts</td>
+<td>&quot;Subscription expires 2026-12-31&quot;</td>
+</tr>
+<tr>
+<td><code>spatial</code></td>
+<td>Location memories</td>
+<td>&quot;Met Sarah at XYZ cafe&quot;</td>
+</tr>
+<tr>
+<td><code>contextual</code></td>
+<td>Environment-specific</td>
+<td>&quot;In B2B context, Sarah is decision maker&quot;</td>
+</tr>
+<tr>
+<td><code>meta</code></td>
+<td>Memory about memories</td>
+<td>&quot;Recalled this fact 5 times&quot;</td>
+</tr>
+<tr>
+<td><code>intentional</code></td>
+<td>Goals + plans</td>
+<td>&quot;Sarah wants to launch by Q3&quot;</td>
+</tr>
+<tr>
+<td><code>reflective</code></td>
+<td>Self-reflection</td>
+<td>&quot;Notice I keep forgetting Sarah's company name&quot;</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/memory
+├── Memory                          # Main client (facade)
+│   ├── os                          # MemoryOsClient          — dumb store (15 types)
+│   ├── network                     # MemoryNetworkClient     — tiers + aggregation
+│   ├── confidence                  # MemoryConfidenceClient  — fact reliability
+│   ├── bridge                      # TwinMemoryBridgeClient  — twin↔memory partition links
+│   └── context                     # MemoryContextEngineClient — LLM context composer
+├── HojaiConfig                      # Shared config interface
+├── resolveConfig()                  # Apply defaults
+└── request()                        # HTTP with retries + backoff</code></pre>
+<p>Built on <code>@hojai/foundation</code>'s <code>HojaiConfig</code> pattern (same as all other <code>@hojai/*</code> SDKs).</p>
+<p>---</p>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const mem = new Memory({
+  apiKey: 'hojai_live_...',         // required
+  baseUrl: 'https://api.hojai.ai',  // required
+  timeout: 15_000,                  // optional, default 10s
+  maxRetries: 3,                    // optional, default 3
+  fetchImpl: customFetch,           // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {}  // optional
+});</code></pre>
+<p>---</p>
+<h2>Constants</h2>
+<table class="md-table"><thead><tr>
+<th>Constant</th>
+<th>Value</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>MEMORY_PORTS.os</code></td>
+<td>4703</td>
+<td>MemoryOS port</td>
+</tr>
+<tr>
+<td><code>MEMORY_PORTS.network</code></td>
+<td>4794</td>
+<td>memory-network port</td>
+</tr>
+<tr>
+<td><code>MEMORY_PORTS.confidence</code></td>
+<td>4152</td>
+<td>Memory Confidence port</td>
+</tr>
+<tr>
+<td><code>MEMORY_PORTS.bridge</code></td>
+<td>4704</td>
+<td>Twin Memory Bridge port</td>
+</tr>
+<tr>
+<td><code>MEMORY_PORTS.context</code></td>
+<td>4790</td>
+<td>Memory Context Engine port</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Use Cases</h2>
+<p><strong>Build a memory-aware chatbot:</strong></p>
+<pre class="md-code"><code class="lang-ts">const ctx = await mem.context.compose({ ownerId: 'u-1', query: userMessage, maxTokens: 2000 });
+const response = await llm.complete({ system: ctx.context, user: userMessage });
+await mem.os.create({ ownerId: 'u-1', type: 'episodic', content: userMessage });</code></pre>
+<p><strong>Build a per-customer AI assistant:</strong></p>
+<pre class="md-code"><code class="lang-ts">await mem.bridge.bind('customer-twin-c-1', { kind: 'episodic', partitionId: 'p-c-1' });
+const ctx = await mem.context.compose({ ownerId: 'c-1', twinId: 'customer-twin-c-1', query: '...' });</code></pre>
+<p><strong>Build a fact-tracking system:</strong></p>
+<pre class="md-code"><code class="lang-ts">await mem.confidence.create({ ownerId: 'u-1', fact: 'Sarah works at Maya Collective', source: 'meeting-2026-06' });
+await mem.confidence.reinforce({ factId: 'f-1', signal: 0.9 });
+const report = await mem.confidence.getReport('u-1');</code></pre>
+<p>---</p>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test</code></pre>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-memory/
+├── CLAUDE.md                    # This file
+├── README.md                    # Quick start
+├── package.json                 # npm config with subpath exports
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts     # HojaiConfig + resolveConfig
+│   ├── utils.ts                 # request, buildQueryString
+│   ├── types.ts                 # MEMORY_PORTS, MemoryUnit, TierStats
+│   ├── os.ts                    # MemoryOsClient (port 4703)
+│   ├── network.ts               # MemoryNetworkClient (port 4794)
+│   ├── confidence.ts            # MemoryConfidenceClient (port 4152)
+│   ├── bridge.ts                # TwinMemoryBridgeClient (port 4704)
+│   ├── context.ts               # MemoryContextEngineClient (port 4790)
+│   ├── index.ts                 # Main Memory facade
+│   └── __tests__/
+│       └── index.test.ts        # Tests
+└── dist/                        # Compiled output
+    ├── index.{js,mjs,d.ts}
+    ├── os.{js,mjs,d.ts}
+    ├── network.{js,mjs,d.ts}
+    ├── confidence.{js,mjs,d.ts}
+    ├── bridge.{js,mjs,d.ts}
+    ├── context.{js,mjs,d.ts}
+    ├── types.{js,mjs,d.ts}
+    └── __tests__/index.test.js</code></pre>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Base SDK with simplified <code>mem</code> sub-client for basic usage</li>
+<li><a href="../hojai-twin/CLAUDE.md">@hojai/twin</a> — TwinOS SDK for managing the digital twins that own memory partitions</li>
+<li><a href="../../../companies/HOJAI-AI/docs/MEMORY-LAYER.md">Memory Layer docs</a> — Full Memory Layer architecture</li>
+<li><a href="../hojai-sutar/CLAUDE.md">@hojai/sutar</a> — SUTAR agents (which consume memory for context)</li>
+</ul></div>
+
+
+
+</main>
+</body>
+</html>

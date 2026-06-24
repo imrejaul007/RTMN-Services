@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-native spec — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="active">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>The AI-native spec</h1>
+<p>Every HOJAI project carries three files at the project root:</p>
+<pre class="md-code"><code>my-project/
+├── hojai.ai.md             # Markdown — AI tools (Claude Code, Cursor,
+│                          #   Codex, GitHub Copilot) read this FIRST
+└── .hojai/
+    ├── manifest.json       # Machine-readable project schema
+    └── capability.json     # Nexha federation profile</code></pre>
+
+<h2>Why this matters</h2>
+<p>Without <code>hojai.ai.md</code>, AI tools are blind to the HOJAI architecture of your project. With it, they understand the project structure, SDKs, agents, conventions, and how to extend it — and can scaffold new code that fits the patterns.</p>
+<p>It's the bridge between "code that exists" and "code that AI can build on."</p>
+
+<h2>hojai.ai.md</h2>
+<p>Auto-generated markdown. Covers:</p>
+<ul>
+  <li>Project name + description + region + languages + template + HOJAI version</li>
+  <li>Architecture (backend / frontend / mobile / database / AI stack)</li>
+  <li>SUTAR agents (table of role + purpose + file path)</li>
+  <li>HOJAI SDKs used (with one-line descriptions)</li>
+  <li>Nexha federation capabilities</li>
+  <li>Entry points, scripts, conventions</li>
+  <li>"How to extend" (add agent, add endpoint, connect to Nexha)</li>
+</ul>
+
+<h2>.hojai/manifest.json</h2>
+<p>Machine-readable project schema. Versioned (1.0.0). Zod-validated. Includes:</p>
+<pre class="md-code"><code>{
+  "schemaVersion": "1.0.0",
+  "projectId": "...",
+  "name": "my-project",
+  "type": "marketplace",
+  "region": "us-east",
+  "languages": ["en"],
+  "stack": { "backend": "node-express-typescript", ... },
+  "agents": [{ "role": "CEO", "purpose": "Orchestrator" }],
+  "integrations": ["foundation", "sutar", "nexha", ...]
+}</code></pre>
+
+<h2>.hojai/capability.json</h2>
+<p>Nexha federation profile. Includes the layer (1-9), capabilities, regions, languages, SLA targets.</p>
+
+<h2>Generating the spec</h2>
+<p>Use <code>hojai ai-spec generate</code> in a HOJAI project root:</p>
+<pre class="md-code"><code>cd my-project
+hojai ai-spec generate     # writes 3 files
+hojai ai-spec read         # shows the current spec
+hojai ai-spec validate     # validates all 3 files</code></pre>
+
+<h2>Schema reference</h2>
+<p>The Zod schemas for both files are defined in <a href="/sdks/ai-spec.html">@hojai/ai-spec</a>:</p>
+<ul>
+  <li><a href="/sdks/ai-spec.html#schemas"><code>ManifestSchema</code></a> — project schema</li>
+  <li><a href="/sdks/ai-spec.html#schemas"><code>CapabilitySchema</code></a> — federation profile</li>
+  <li><a href="/sdks/ai-spec.html#rendering">renderFor()</a> — pick the right template per project type</li>
+</ul>
+
+<h2>Why this matters for the platform</h2>
+<p>The AI-native spec is the "fingerprint" of a HOJAI project. Every starter template generates one automatically. Every new project should run <code>hojai ai-spec generate</code> in CI to keep the spec in sync with the code.</p>
+
+<p>It's also the <strong>single most important artifact</strong> in the developer platform, per the official plan:</p>
+<blockquote>"This is the most important part. The spec that tells AI coding tools how to build on HOJAI."
+<br><small>— <code>hojai-developer-platform-spec.md</code>, § 3</small></blockquote>
+
+
+</main>
+</body>
+</html>

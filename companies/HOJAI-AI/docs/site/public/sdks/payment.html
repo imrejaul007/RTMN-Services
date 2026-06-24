@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/payment — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="active" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/payment</h1>
+<p class="lead">Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/payment">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~46</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/payment` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 (uses `node:test`, `node:crypto`) &gt; **Status:** ✅ **PRODUCTION-READY** — 37/37 tests pass. Wraps 6 RABTUL payment surfaces (rez-payment, rez-bill-payments,…</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/payment — Unified Payment SDK</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/payment</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18 (uses <code>node:test</code>, <code>node:crypto</code>)</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — 37/37 tests pass. Wraps 6 RABTUL payment surfaces (rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, webhook management) into a single ergonomic client.</p>
+<p>---</p>
+<h2>What this SDK is</h2>
+<p><strong>The official client for the RABTUL payment ecosystem.</strong> Wraps the entire payment surface of HOJAI / RABTUL into a single, type-safe TypeScript SDK. Any developer building on HOJAI who needs to accept payments, pay bills, send SEPA transfers, route through the gateway, manage settlements, or configure webhooks should use this SDK.</p>
+<p>It handles:</p>
+<ul>
+<li>HTTP transport (with retries, timeouts, exponential backoff)</li>
+<li>Authentication (Bearer token from <code>apiKey</code>)</li>
+<li>Error handling (<code>HttpError</code> with status + body)</li>
+<li>TypeScript types for every request and response</li>
+<li>Cross-rail routing (Razorpay, UPI, SEPA, wallet, BNPL, cards)</li>
+<li>Idempotency keys for safe retries</li>
+<li>Webhook signature verification (Razorpay-style HMAC-SHA256)</li>
+</ul>
+<p>---</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Payment } from '@hojai/payment';
+
+const payment = new Payment({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Initiate a UPI payment
+const p = await payment.pay.initiate({
+  orderId: 'o-2026-001',
+  amount: 49900,  // paise (₹499)
+  paymentMethod: 'upi',
+  orchestratorIdempotencyKey: 'idem-xyz-1'  // safe to retry
+});
+
+// 2. Capture after Razorpay callback
+const captured = await payment.pay.capture({
+  paymentId: p.id,
+  razorpayPaymentId: 'pay_abc',
+  razorpayOrderId: 'order_abc',
+  razorpaySignature: 'sig-xyz'
+});
+
+// 3. Refund (full or partial)
+const refunded = await payment.pay.refund({
+  paymentId: captured.id,
+  amount: 49900,
+  reason: 'customer request'
+});
+
+// 4. Pay an electricity bill (BBPS)
+const bill = await payment.bill.fetchBill({
+  providerId: 'bijli-bescom',
+  consumerNumber: '12345'
+});
+
+const paid = await payment.bill.payBill({
+  billId: bill.billId,
+  paymentMethod: 'upi'
+});
+
+// 5. Send a SEPA Instant EUR transfer
+const transfer = await payment.sepa.createTransfer({
+  scheme: 'sepa_instant_credit_transfer',
+  beneficiaryId: 'ben-acme-de',
+  amount: 500,
+  reference: 'INV-2026-001'
+});
+
+// 6. Route through the smart gateway (auto-pick cheapest rail)
+const routed = await payment.gateway.create({
+  amount: 49900,
+  currency: 'INR',
+  preferredRails: ['upi_intent', 'upi_collect', 'card']
+});
+
+// 7. Check settlements
+const settlements = await payment.settlement.list({
+  merchantId: 'm-1',
+  status: 'settled',
+  from: '2026-06-01',
+  to: '2026-06-30'
+});
+
+// 8. Configure webhook endpoint
+const endpoint = await payment.webhook.createEndpoint({
+  url: 'https://yourapp.com/webhooks/payment',
+  events: ['payment.captured', 'payment.failed', 'settlement.settled']
+});
+
+// 9. Verify an incoming webhook signature (in YOUR handler)
+const body = req.rawBody;  // string, not parsed
+const sig = req.headers['x-razorpay-signature'];
+const result = WebhookClient.verifyRazorpaySignature(body, sig, process.env.WEBHOOK_SECRET!);
+if (!result.valid) return res.status(401).end();</code></pre>
+<p>---</p>
+<h2>Sub-Clients (6 total, 46 methods)</h2>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Endpoint prefix</th>
+<th>Service</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>payment.pay</code></td>
+<td><code>/api/payment/*</code></td>
+<td>rez-payment-service (port 4001)</td>
+<td><code>initiate</code>, <code>capture</code>, <code>refund</code>, <code>status</code>, <code>getRazorpayConfig</code>, <code>createRazorpayOrder</code>, <code>getMerchantSettlements</code></td>
+</tr>
+<tr>
+<td><code>payment.bill</code></td>
+<td><code>/api/bill/*</code></td>
+<td>rez-bill-payments-service (port 4030)</td>
+<td><code>listProviders</code>, <code>getProvider</code>, <code>fetchBill</code>, <code>payBill</code>, <code>getHistory</code>, <code>getPayment</code>, <code>refundBill</code></td>
+</tr>
+<tr>
+<td><code>payment.sepa</code></td>
+<td><code>/api/sepa/*</code></td>
+<td>REZ-sepa-payment-service</td>
+<td><code>listBeneficiaries</code>, <code>getBeneficiary</code>, <code>saveBeneficiary</code>, <code>deleteBeneficiary</code>, <code>createTransfer</code>, <code>getTransfer</code>, <code>listTransfers</code>, <code>createMandate</code>, <code>getMandate</code>, <code>listMandates</code>, <code>revokeMandate</code></td>
+</tr>
+<tr>
+<td><code>payment.gateway</code></td>
+<td><code>/api/gateway/*</code></td>
+<td>REZ-payment-gateway</td>
+<td><code>create</code>, <code>get</code>, <code>list</code>, <code>capture</code>, <code>void</code>, <code>refund</code>, <code>listRefunds</code></td>
+</tr>
+<tr>
+<td><code>payment.settlement</code></td>
+<td><code>/api/settlement/*</code></td>
+<td>Cross-rail settlement aggregator</td>
+<td><code>list</code>, <code>get</code>, <code>reconcile</code>, <code>getDiscrepancies</code>, <code>requestPayout</code>, <code>getPayoutStatus</code></td>
+</tr>
+<tr>
+<td><code>payment.webhook</code></td>
+<td><code>/api/webhook/*</code></td>
+<td>Webhook configuration + delivery</td>
+<td><code>listEndpoints</code>, <code>getEndpoint</code>, <code>createEndpoint</code>, <code>updateEndpoint</code>, <code>deleteEndpoint</code>, <code>listDeliveries</code>, <code>getDelivery</code>, <code>retryDelivery</code>, <code>verifyRazorpaySignature</code> (static helper)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Subpath Imports</h2>
+<p>For tree-shaking and smaller bundles, import individual clients:</p>
+<pre class="md-code"><code class="lang-ts">import { PayClient } from '@hojai/payment/pay';
+import { BillClient } from '@hojai/payment/bill';
+import { SepaClient } from '@hojai/payment/sepa';
+import { GatewayClient } from '@hojai/payment/gateway';
+import { SettlementClient } from '@hojai/payment/settlement';
+import { WebhookClient, verifyRazorpaySignature } from '@hojai/payment/webhook';</code></pre>
+<p>Each subpath export contains only that client — useful for browser-bundled apps where bundle size matters.</p>
+<p>---</p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/payment
+├── PaymentClient             # Main facade
+│   ├── pay                   # PayClient          — 7 methods (rez-payment-service)
+│   ├── bill                  # BillClient         — 7 methods (rez-bill-payments-service)
+│   ├── sepa                  # SepaClient         — 11 methods (REZ-sepa-payment-service)
+│   ├── gateway               # GatewayClient      — 7 methods (REZ-payment-gateway)
+│   ├── settlement            # SettlementClient   — 6 methods (cross-rail aggregator)
+│   └── webhook               # WebhookClient      — 8 HTTP + 1 static helper
+├── HojaiConfig               # Shared config interface
+├── resolveConfig()           # Apply defaults (timeout, maxRetries, baseUrl)
+├── request()                 # HTTP helper with retries + exponential backoff
+├── HttpError                 # Tagged HTTP error (status + body)
+└── verifyRazorpaySignature() # Static webhook signature helper</code></pre>
+<p>Built on the <strong>same <code>HojaiConfig</code> + <code>request()</code> pattern</strong> used across all <code>@hojai/*</code> SDKs (foundation, sutar, nexha, marketplace, commerce, etc.):</p>
+<ul>
+<li>Same <code>HojaiConfig</code> shape (apiKey, baseUrl, timeout, maxRetries, fetchImpl, logger)</li>
+<li>Same <code>request()</code> helper (retries on 5xx, throws <code>HttpError</code> on 4xx, JSON/text response handling)</li>
+<li>Same exponential backoff strategy (capped at 30s)</li>
+<li>Same idempotency-key story (caller's responsibility to provide)</li>
+</ul>
+<p>---</p>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const payment = new Payment({
+  apiKey: 'sk_live_...',         // required — Bearer token for Authorization header
+  baseUrl: 'https://api.hojai.ai', // required — payment hub URL
+  timeout: 15_000,                // optional, default 10s
+  maxRetries: 5,                  // optional, default 3
+  fetchImpl: customFetch,         // optional — for testing/proxies
+  logger: (level, msg, meta) =&gt; {} // optional
+});</code></pre>
+<p>---</p>
+<h2>Error handling</h2>
+<pre class="md-code"><code class="lang-ts">import { HttpError } from '@hojai/payment';
+
+try {
+  await payment.pay.initiate({ orderId: 'o-1', amount: 100, paymentMethod: 'upi' });
+} catch (err) {
+  if (err instanceof HttpError) {
+    console.log(err.status);   // 400, 404, 500, etc.
+    console.log(err.body);     // raw error message from upstream
+  } else {
+    console.error('Network / unknown error:', err);
+  }
+}
+
+// SDK retries 5xx automatically (up to maxRetries)
+// SDK throws HttpError immediately on 4xx</code></pre>
+<p>---</p>
+<h2>Tests</h2>
+<p>37/37 tests passing:</p>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-payment
+npm install
+npm run build
+npm test</code></pre>
+<p>Tests cover:</p>
+<ul>
+<li>Facade wiring (6 sub-clients instantiated, config passed through)</li>
+<li>Pay client (7 methods — initiate/capture/refund/status/Razorpay config/Razorpay order/settlements)</li>
+<li>Bill client (7 methods — providers/fetch/pay/history/refund)</li>
+<li>SEPA client (10 methods — beneficiaries, transfers, mandates)</li>
+<li>Gateway client (7 methods — create/get/list/capture/void/refund/listRefunds)</li>
+<li>Settlement client (6 methods — list/get/reconcile/discrepancies/payouts)</li>
+<li>Webhook client (9 methods including static <code>verifyRazorpaySignature</code> helper)</li>
+<li>Retry behavior (5xx retries with backoff; 4xx throws HttpError)</li>
+<li>Auth header (<code>Authorization: Bearer ${apiKey}</code> when apiKey present)</li>
+<li>Custom <code>fetchImpl</code> (testing/proxy support)</li>
+<li>Default config resolution (timeout=10000, maxRetries=3)</li>
+<li>Method count smoke (≥44 public methods)</li>
+</ul>
+<p>---</p>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test</code></pre>
+<p>Build outputs <code>dist/</code> with <code>.js</code> + <code>.d.ts</code> + sourcemaps for every module.</p>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-payment/
+├── CLAUDE.md                  # This file
+├── README.md                  # Quick start
+├── package.json               # npm config with subpath exports
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts   # HojaiConfig + resolveConfig
+│   ├── utils.ts               # request(), sleep, backoff, HttpError, buildUrl
+│   ├── pay.ts                 # PayClient (7 methods)
+│   ├── bill.ts                # BillClient (7 methods)
+│   ├── sepa.ts                # SepaClient (11 methods)
+│   ├── gateway.ts             # GatewayClient (7 methods)
+│   ├── settlement.ts          # SettlementClient (6 methods)
+│   ├── webhook.ts             # WebhookClient (9 methods)
+│   ├── index.ts               # Main PaymentClient facade + re-exports
+│   └── __tests__/
+│       └── index.test.ts      # 37 tests
+└── dist/                      # Compiled output
+    ├── index.js, index.d.ts, index.js.map
+    ├── pay.js, pay.d.ts, ...
+    ├── bill.js, bill.d.ts, ...
+    ├── sepa.js, sepa.d.ts, ...
+    ├── gateway.js, gateway.d.ts, ...
+    ├── settlement.js, settlement.d.ts, ...
+    ├── webhook.js, webhook.d.ts, ...
+    ├── utils.js, utils.d.ts, ...
+    ├── foundation-config.js, foundation-config.d.ts, ...
+    └── __tests__/index.test.js</code></pre>
+<p>---</p>
+<h2>Environment Variables</h2>
+<table class="md-table"><thead><tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>HOJAI_API_KEY</code></td>
+<td>(none)</td>
+<td>API key for HOJAI Cloud / RABTUL (required for production)</td>
+</tr>
+<tr>
+<td><code>HOJAI_BASE_URL</code></td>
+<td><code>https://api.hojai.ai</code></td>
+<td>Override base URL</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Cross-rail Routing</h2>
+<p>The <code>GatewayClient.create()</code> method is the <strong>smart routing</strong> layer — it picks the cheapest/most-appropriate rail for a payment:</p>
+<ul>
+<li><strong>India:</strong> <code>razorpay</code>, <code>upi_collect</code>, <code>upi_intent</code>, <code>card</code>, <code>netbanking</code>, <code>wallet</code>, <code>bnpl</code></li>
+<li><strong>Europe:</strong> <code>sepa_sct</code> (SEPA Credit Transfer), <code>sepa_inst</code> (SEPA Instant), <code>sdd</code> (SEPA Direct Debit)</li>
+<li><strong>Cross-rail:</strong> gateway picks based on <code>preferredRails</code>, amount, currency, and historical success rates</li>
+</ul>
+<p>For most use cases, <strong>start with <code>payment.gateway.create()</code></strong> instead of <code>payment.pay.initiate()</code>. The gateway normalizes status events across all rails into a single shape.</p>
+<p>---</p>
+<h2>Idempotency</h2>
+<p>All mutating methods accept an idempotency key:</p>
+<ul>
+<li><code>pay.initiate({ orchestratorIdempotencyKey: 'idem-1' })</code></li>
+<li><code>pay.refund({ idempotencyKey: 'rf-1' })</code></li>
+</ul>
+<p>If you retry the same call with the same key, the service returns the cached response instead of charging twice. <strong>Always provide an idempotency key in production.</strong></p>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — CorpID, Memory, Twin, Trust, Flow, Policy clients</li>
+<li><a href="../hojai-sutar/CLAUDE.md">@hojai/sutar</a> — SUTAR agent runtime (use these together: SUTAR agents → payment actions)</li>
+<li><a href="../hojai-commerce/CLAUDE.md">@hojai/commerce</a> — RABTUL commerce SDK (orders, checkout, fulfillment)</li>
+<li><a href="../../../RABTUL-Technologies/CLAUDE.md">RABTUL Payments Architecture</a> — How the payment services fit together</li>
+</ul></div>
+
+
+
+</main>
+</body>
+</html>

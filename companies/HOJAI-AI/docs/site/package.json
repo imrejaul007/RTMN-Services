@@ -1,0 +1,24 @@
+{
+  "name": "@hojai/docs",
+  "version": "1.0.0",
+  "description": "HOJAI developer documentation site (docs.hojai.ai). Static site generator that auto-discovers all @hojai/* SDK CLAUDE.md files and emits a complete docs site.",
+  "private": true,
+  "type": "module",
+  "main": "src/build.mjs",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "dev": "node src/build.mjs --serve",
+    "test": "node --test src/__tests__/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "hojai",
+    "docs",
+    "static-site",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

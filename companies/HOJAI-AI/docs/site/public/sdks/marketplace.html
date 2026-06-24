@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/marketplace — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="active" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/marketplace</h1>
+<p class="lead">BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/marketplace">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~10</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/marketplace` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (12/12 tests passing, 0 failures)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI Marketplace SDK (@hojai/marketplace)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/marketplace</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (12/12 tests passing, 0 failures)</p>
+<h2>What this SDK is</h2>
+<p><strong>The official client for BAM (BLR AI Marketplace).</strong> Wraps the 8 BAM backend services into a single ergonomic TypeScript client. Use this SDK to publish listings, discover assets, write reviews, run founder journeys, compute ROI, evaluate candidates, and trade digital twins.</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Wraps</th>
+<th>Port</th>
+</tr></thead><tbody>
+<tr>
+<td><code>listings</code></td>
+<td>CRUD over per-tenant listings (8 categories, 5 statuses, 5 pricing models)</td>
+<td>marketplace-listings</td>
+<td>4250</td>
+</tr>
+<tr>
+<td><code>reviews</code></td>
+<td>1-per-tenant reviews with 4 dimensions + denormalized listing averages</td>
+<td>marketplace-listings</td>
+<td>4250</td>
+</tr>
+<tr>
+<td><code>discover</code></td>
+<td>Universal search + index management across 9+ kinds</td>
+<td>discovery-engine</td>
+<td>4256</td>
+</tr>
+<tr>
+<td><code>explore</code></td>
+<td>Curated founder journeys (multi-step sessions)</td>
+<td>blr-exploration</td>
+<td>4255</td>
+</tr>
+<tr>
+<td><code>evaluate</code></td>
+<td>Head-to-head candidate comparison with weighted criteria</td>
+<td>blr-multi-agent-evaluator</td>
+<td>4257</td>
+</tr>
+<tr>
+<td><code>reputation</code></td>
+<td>Cross-tenant reputation scores + public leaderboard</td>
+<td>blr-reputation-aggregator</td>
+<td>4258</td>
+</tr>
+<tr>
+<td><code>roi</code></td>
+<td>ROI/payback/NPV/IRR calculations + templates</td>
+<td>roi-calculator</td>
+<td>4259</td>
+</tr>
+<tr>
+<td><code>founder</code></td>
+<td>Founder profiles + KPIs + playbook runs</td>
+<td>blr-founder-os</td>
+<td>4260</td>
+</tr>
+<tr>
+<td><code>twins</code></td>
+<td>Digital twin marketplace (categories, listings, purchase, install)</td>
+<td>twin-marketplace</td>
+<td>4146</td>
+</tr>
+</tbody></table>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/marketplace
+├── Marketplace                  # Main client (facade)
+│   ├── listings                 # ListingsClient      — 10 methods
+│   ├── reviews                  # ReviewsClient       — 4 methods
+│   ├── discover                 # DiscoverClient      — 7 methods
+│   ├── explore                  # ExploreClient       — 5 methods
+│   ├── evaluate                 # EvaluateClient      — 4 methods
+│   ├── reputation               # ReputationClient    — 6 methods
+│   ├── roi                      # RoiClient           — 7 methods
+│   ├── founder                  # FounderClient       — 9 methods
+│   └── twins                    # TwinsClient         — 10 methods
+├── HojaiConfig                  # Shared config (apiKey, baseUrl, timeout, maxRetries, fetchImpl, logger)
+└── resolveConfig()              # Apply defaults</code></pre>
+<p>Self-contained — does NOT import from <code>@hojai/foundation</code> or <code>@hojai/sutar</code>. Each SDK carries its own copy of <code>HojaiConfig</code> and the <code>request()</code> helper (~50 LOC), so it can be installed and used independently. This mirrors the pattern in <code>@hojai/sutar</code>.</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Marketplace } from '@hojai/marketplace';
+
+const bam = new Marketplace({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// Browse public listings
+const { items } = await bam.listings.search({ category: 'agent', sort: 'rating' });
+
+// Universal search across BAM
+const hits = await bam.discover.search({ q: 'negotiation agent', kind: 'listings' });
+
+// Head-to-head evaluation
+const winner = await bam.evaluate.compare({
+  criteria: [{ id: 'price', direction: 'lower' }, { id: 'rating', direction: 'higher' }],
+  candidates: [{ id: 'a', values: { price: 99, rating: 4.8 } }]
+});
+
+// ROI before subscribing
+const roi = await bam.roi.quick({ upfrontCost: 50000, monthlyGain: 8000, months: 12 });
+
+// Buy + install a twin
+const featured = await bam.twins.featured();
+await bam.twins.purchase({ listingId: featured[0].id, orgCorpId: 'corp-1' });
+await bam.twins.install({ listingId: featured[0].id, orgCorpId: 'corp-1', namespace: 'default' });</code></pre>
+<h2>Build &amp; test</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-marketplace
+npm install
+npm run build
+npm test</code></pre>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-marketplace/
+├── CLAUDE.md                    # This file
+├── README.md                    # Quick start
+├── package.json                 # npm config with subpath exports for 9 clients
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts     # HojaiConfig + resolveConfig (copied from hojai-sutar)
+│   ├── utils.ts                 # request() with retries, timeout, backoff (copied)
+│   ├── listings.ts              # ListingsClient (10 methods)
+│   ├── reviews.ts               # ReviewsClient (4 methods)
+│   ├── discover.ts              # DiscoverClient (7 methods)
+│   ├── explore.ts               # ExploreClient (5 methods)
+│   ├── evaluate.ts              # EvaluateClient (4 methods)
+│   ├── reputation.ts            # ReputationClient (6 methods)
+│   ├── roi.ts                   # RoiClient (7 methods)
+│   ├── founder.ts               # FounderClient (9 methods)
+│   ├── twins.ts                 # TwinsClient (10 methods)
+│   ├── index.ts                 # Main Marketplace class + re-exports
+│   └── __tests__/index.test.ts  # 12 tests
+└── dist/                        # Compiled output</code></pre>
+<h2>Tests (12/12 passing)</h2>
+<ul>
+<li>Marketplace client instantiates with all 9 sub-clients</li>
+<li>ListingsClient.create</li>
+<li>ReviewsClient.addOrUpdate</li>
+<li>DiscoverClient.search</li>
+<li>ExploreClient.startJourney</li>
+<li>EvaluateClient.compare</li>
+<li>ReputationClient.leaderboard</li>
+<li>RoiClient.quick</li>
+<li>FounderClient.recordKpi</li>
+<li>TwinsClient.featured</li>
+<li>Retries on 5xx (calls mock 3 times before success)</li>
+<li>Throws on 4xx</li>
+</ul>
+<h2>Related</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Core platform client</li>
+<li><a href="../hojai-sutar/CLAUDE.md">@hojai/sutar</a> — SUTAR agent runtime SDK (sister SDK)</li>
+<li><a href="../../../../.claude/plans/bam-complete-spec.md">BAM Complete Spec</a> — 35+ marketplace categories</li>
+<li><a href="../../blr-ai-marketplace/services/">BAM Backend Services</a> — the 8 services wrapped here</li>
+</ul></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/marketplace</h1>
+<p>&gt; The official TypeScript SDK for the <strong>BLR AI Marketplace (BAM)</strong> — the global marketplace for AI-native business assets.</p>
+<p><a href="https://img.shields.io/npm/v/@hojai/marketplace.svg">![npm version</a>](https://www.npmjs.com/package/@hojai/marketplace)</p>
+<p><a href="https://img.shields.io/badge/TypeScript-5.3-blue.svg">![TypeScript</a>](https://www.typescriptlang.org/)</p>
+<p><a href="https://img.shields.io/badge/License-MIT-yellow.svg">![License: MIT</a>](https://opensource.org/licenses/MIT)</p>
+<p>BAM is the world's largest marketplace for AI-native business assets — agents, skills, workflows, blueprints, twins, themes, integrations, AI Employees, and more. 1,200+ catalog items today, targeting 100,000+ by Year 5. This SDK wraps BAM's 8 backend services into a single ergonomic TypeScript client.</p>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/marketplace</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Marketplace } from '@hojai/marketplace';
+
+const bam = new Marketplace({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Browse public listings
+const { items } = await bam.listings.search({ category: 'agent', sort: 'rating', limit: 10 });
+
+// 2. Read reviews + write your own
+await bam.reviews.addOrUpdate(items[0].listingId, {
+  rating: 5,
+  title: 'Saved us 20 hours/week',
+  dimensions: { easeOfUse: 5, valueForMoney: 5 }
+});
+
+// 3. Universal search across all of BAM
+const hits = await bam.discover.search({ q: 'negotiation agent', kind: 'listings' });
+
+// 4. Compare candidates head-to-head
+const winner = await bam.evaluate.compare({
+  criteria: [
+    { id: 'price', direction: 'lower' },
+    { id: 'rating', direction: 'higher' }
+  ],
+  candidates: [
+    { id: 'a', values: { price: 99, rating: 4.8 } },
+    { id: 'b', values: { price: 149, rating: 4.9 } }
+  ]
+});
+console.log(`Winner: ${winner.winnerId}`);
+
+// 5. Compute ROI before subscribing
+const roi = await bam.roi.quick({ upfrontCost: 50000, monthlyGain: 8000, months: 12 });
+console.log(`Payback in ${roi.paybackMonths} months, NPV ${roi.npv}`);
+
+// 6. Check publisher reputation
+const board = await bam.reputation.leaderboard({ kind: 'publisher', limit: 10 });
+
+// 7. Walk a founder onboarding journey
+const journey = await bam.explore.startJourney('onboard-restaurant');
+await bam.explore.step(journey.id, { choiceId: 'restaurant-fine-dining' });
+
+// 8. Buy + install a digital twin
+const twin = await bam.twins.featured();
+const purchase = await bam.twins.purchase({ listingId: twin[0].id, orgCorpId: 'corp-1' });
+await bam.twins.install({ listingId: twin[0].id, orgCorpId: 'corp-1', namespace: 'default' });</code></pre>
+<h2>What's inside</h2>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Wraps service</th>
+<th>Port</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>listings</code></td>
+<td>marketplace-listings</td>
+<td>4250</td>
+<td>create, search, get, update, publish, unpublish, recordView, recordInstall, validate, stats</td>
+</tr>
+<tr>
+<td><code>reviews</code></td>
+<td>marketplace-listings</td>
+<td>4250</td>
+<td>addOrUpdate, list, hide, getMine</td>
+</tr>
+<tr>
+<td><code>discover</code></td>
+<td>discovery-engine</td>
+<td>4256</td>
+<td>search, searchKind, index, indexBulk, remove, listIndexes, getIndex</td>
+</tr>
+<tr>
+<td><code>explore</code></td>
+<td>blr-exploration</td>
+<td>4255</td>
+<td>listJourneys, getJourney, startJourney, step, getSession</td>
+</tr>
+<tr>
+<td><code>evaluate</code></td>
+<td>blr-multi-agent-evaluator</td>
+<td>4257</td>
+<td>create, list, get, compare</td>
+</tr>
+<tr>
+<td><code>reputation</code></td>
+<td>blr-reputation-aggregator</td>
+<td>4258</td>
+<td>create, list, get, addScore, sync, leaderboard</td>
+</tr>
+<tr>
+<td><code>roi</code></td>
+<td>roi-calculator</td>
+<td>4259</td>
+<td>calculate, list, get, remove, compare, quick, templates</td>
+</tr>
+<tr>
+<td><code>founder</code></td>
+<td>blr-founder-os</td>
+<td>4260</td>
+<td>list, get, create, recordKpi, getLatestKpis, getKpiTrend, listPlaybooks, getPlaybook, runPlaybook</td>
+</tr>
+<tr>
+<td><code>twins</code></td>
+<td>twin-marketplace</td>
+<td>4146</td>
+<td>categories, listings, featured, trending, get, publish, purchase, install, listPurchases, listInstalls</td>
+</tr>
+</tbody></table>
+<h2>Subpath imports</h2>
+<p>For tree-shaking and smaller bundles, import individual clients:</p>
+<pre class="md-code"><code class="lang-ts">import { ListingsClient } from '@hojai/marketplace/listings';
+import { TwinsClient } from '@hojai/marketplace/twins';</code></pre>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const bam = new Marketplace({
+  apiKey: 'hojai_live_...',         // required
+  baseUrl: 'https://api.hojai.ai',  // required
+  timeout: 10_000,                  // optional, default 10s
+  maxRetries: 3,                    // optional, default 3
+  fetchImpl: customFetch,           // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {}  // optional
+});</code></pre>
+<h2>Error handling</h2>
+<pre class="md-code"><code class="lang-ts">try {
+  await bam.listings.get('missing');
+} catch (err) {
+  // err.message = &quot;HTTP 404: ...&quot;
+  // SDK retries 5xx automatically (up to maxRetries)
+  // SDK throws on 4xx immediately
+}</code></pre>
+<h2>Tests</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-marketplace
+npm install
+npm run build
+npm test</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/">@hojai/foundation</a> — CorpID, Memory, Twin, Trust, Flow, Policy</li>
+<li><a href="../hojai-sutar/">@hojai/sutar</a> — SUTAR agent runtime SDK</li>
+<li><a href="../../../../.claude/plans/bam-complete-spec.md">BAM Complete Spec</a> — 35+ marketplace categories</li>
+<li><a href="../../blr-ai-marketplace/services/">BAM Backend Services</a> — the 8 services wrapped here</li>
+</ul></div>
+
+</main>
+</body>
+</html>

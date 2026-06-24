@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/media — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="active" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/media</h1>
+<p class="lead">Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/media">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/media` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** ✅ **PRODUCTION-READY** — Wraps Media OS (port 5600): content, streaming, creators, channels, playlists, live, comments + 13 AI Media Brain agen…</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/media — Media OS SDK</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/media</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — Wraps Media OS (port 5600): content, streaming, creators, channels, playlists, live, comments + 13 AI Media Brain agents.</p>
+<p>---</p>
+<h2>What this SDK is</h2>
+<p><strong>The official client for HOJAI Media OS.</strong> Media OS is a full content + streaming platform: videos, shows, movies, live streams, channels, playlists, creator profiles, comments, recommendations, analytics. It supports HLS/DASH streaming, DRM, GCC (6 countries, 20 languages), and includes 13 AI Media Brain agents.</p>
+<p>Any developer building a video / streaming / creator platform on HOJAI should use this SDK.</p>
+<p>It handles:</p>
+<ul>
+<li>HTTP transport (retries, timeouts, exponential backoff)</li>
+<li>Authentication</li>
+<li>Error handling</li>
+<li>TypeScript types for every entity (Video, Creator, Channel, Playlist, LiveStream, Comment)</li>
+<li>Subpath exports for tree-shaking</li>
+</ul>
+<p>---</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Media } from '@hojai/media';
+
+const media = new Media({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Upload a video
+const video = await media.content.upload({
+  title: 'My Show',
+  videoUrl: 'https://cdn.example.com/video.m3u8',
+  creatorId: 'c-1',
+  durationSec: 600
+});
+
+// 2. Get personalized recommendations
+const recs = await media.content.getRecommendations({ userId: 'u-1' });
+
+// 3. Create a creator profile + get analytics
+const creator = await media.creators.create({ handle: 'maya', name: 'Maya Collective' });
+const stats = await media.creators.getAnalytics(creator.id);
+
+// 4. Start a live stream
+const stream = await media.live.start({
+  title: 'Live Q&amp;A',
+  creatorId: 'c-1',
+  ingestUrl: 'rtmp://ingest.example.com/live',
+  playbackUrl: 'https://cdn.example.com/live/playlist.m3u8'
+});
+
+// 5. Add comments to a video
+const comment = await media.comments.create({
+  videoId: video.id,
+  userId: 'u-1',
+  text: 'Loved it!'
+});</code></pre>
+<p>---</p>
+<h2>Sub-Clients (6 total)</h2>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Key methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>media.content</code></td>
+<td>Video / show / movie CRUD, viewing events, recommendations, trending, platform analytics</td>
+<td><code>upload</code>, <code>get</code>, <code>list</code>, <code>update</code>, <code>delete</code>, <code>recordView</code>, <code>getRecommendations</code>, <code>getTrending</code>, <code>getPlatformAnalytics</code></td>
+</tr>
+<tr>
+<td><code>media.creators</code></td>
+<td>Creator profiles, handle lookup, per-creator analytics</td>
+<td><code>create</code>, <code>get</code>, <code>getByHandle</code>, <code>update</code>, <code>delete</code>, <code>listVideos</code>, <code>getAnalytics</code></td>
+</tr>
+<tr>
+<td><code>media.channels</code></td>
+<td>Subscription-based channels (like YouTube channels)</td>
+<td><code>create</code>, <code>get</code>, <code>subscribe</code>, <code>unsubscribe</code>, <code>listVideos</code>, <code>getAnalytics</code></td>
+</tr>
+<tr>
+<td><code>media.playlists</code></td>
+<td>Curated video collections</td>
+<td><code>create</code>, <code>addVideo</code>, <code>removeVideo</code>, <code>reorder</code>, <code>getVideos</code></td>
+</tr>
+<tr>
+<td><code>media.live</code></td>
+<td>Live stream lifecycle (start / end / status)</td>
+<td><code>start</code>, <code>end</code>, <code>get</code>, <code>getStatus</code>, <code>listViewers</code>, <code>getChat</code></td>
+</tr>
+<tr>
+<td><code>media.comments</code></td>
+<td>Threaded comments on videos / streams</td>
+<td><code>create</code>, <code>reply</code>, <code>list</code>, <code>like</code>, <code>unlike</code>, <code>delete</code>, <code>report</code></td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Subpath Imports</h2>
+<pre class="md-code"><code class="lang-ts">import { MediaContentClient } from '@hojai/media/content';
+import { MediaCreatorsClient } from '@hojai/media/creators';
+import { MediaChannelsClient } from '@hojai/media/channels';
+import { MediaPlaylistsClient } from '@hojai/media/playlists';
+import { MediaLiveClient } from '@hojai/media/live';
+import { MediaCommentsClient } from '@hojai/media/comments';
+import type { Video, Creator } from '@hojai/media/types';</code></pre>
+<p>---</p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/media
+├── Media                         # Main client (facade)
+│   ├── content                   # MediaContentClient — content CRUD + recs
+│   ├── creators                  # MediaCreatorsClient — creator profiles
+│   ├── channels                  # MediaChannelsClient — subscription channels
+│   ├── playlists                 # MediaPlaylistsClient — curated collections
+│   ├── live                      # MediaLiveClient — live stream lifecycle
+│   └── comments                  # MediaCommentsClient — threaded comments
+├── HojaiConfig                   # Shared config interface
+├── resolveConfig()               # Apply defaults
+└── request()                     # HTTP with retries + backoff</code></pre>
+<p>Built on <code>@hojai/foundation</code>'s <code>HojaiConfig</code> pattern (same as all other <code>@hojai/*</code> SDKs).</p>
+<p>---</p>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const media = new Media({
+  apiKey: 'hojai_live_...',         // required
+  baseUrl: 'https://api.hojai.ai',  // required
+  timeout: 15_000,                  // optional, default 10s
+  maxRetries: 3,                    // optional, default 3
+  fetchImpl: customFetch,           // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {}  // optional
+});</code></pre>
+<p>---</p>
+<h2>Constants</h2>
+<table class="md-table"><thead><tr>
+<th>Constant</th>
+<th>Value</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>MEDIA_PORT</code></td>
+<td>5600</td>
+<td>Default port for Media OS</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Use Cases</h2>
+<p><strong>Build a Netflix-style streaming app:</strong></p>
+<pre class="md-code"><code class="lang-ts">const homeFeed = await media.content.getTrending({ category: 'movies', limit: 20 });
+const watchList = await media.playlists.create({ title: 'My Watchlist', userId: 'u-1' });</code></pre>
+<p><strong>Build a Twitch-style live platform:</strong></p>
+<pre class="md-code"><code class="lang-ts">const stream = await media.live.start({ title: 'Live Coding', creatorId: 'c-1', ingestUrl, playbackUrl });
+const chat = await media.live.getChat(stream.id);</code></pre>
+<p><strong>Build a YouTube-style creator economy:</strong></p>
+<pre class="md-code"><code class="lang-ts">const creator = await media.creators.create({ handle: 'maya', name: 'Maya' });
+const subs = await media.channels.subscribe({ channelId: 'ch-1', userId: 'u-1' });
+const earnings = await media.creators.getAnalytics(creator.id);</code></pre>
+<p>---</p>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test</code></pre>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-media/
+├── CLAUDE.md                    # This file
+├── README.md                    # Quick start
+├── package.json                 # npm config with subpath exports
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts     # HojaiConfig + resolveConfig
+│   ├── utils.ts                 # request, buildQueryString
+│   ├── types.ts                 # Video, Creator, Channel, Playlist, LiveStream, Comment, MEDIA_PORT
+│   ├── content.ts               # MediaContentClient
+│   ├── creators.ts              # MediaCreatorsClient
+│   ├── channels.ts              # MediaChannelsClient
+│   ├── playlists.ts             # MediaPlaylistsClient
+│   ├── live.ts                  # MediaLiveClient
+│   ├── comments.ts              # MediaCommentsClient
+│   ├── index.ts                 # Main Media facade
+│   └── __tests__/
+│       └── index.test.ts        # Tests
+└── dist/                        # Compiled output
+    ├── index.{js,mjs,d.ts}
+    ├── content.{js,mjs,d.ts}
+    ├── creators.{js,mjs,d.ts}
+    ├── channels.{js,mjs,d.ts}
+    ├── playlists.{js,mjs,d.ts}
+    ├── live.{js,mjs,d.ts}
+    ├── comments.{js,mjs,d.ts}
+    ├── types.{js,mjs,d.ts}
+    └── __tests__/index.test.js</code></pre>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — CorpID, Memory, Twin, Trust, Flow, Policy clients</li>
+<li><a href="../../../industry-os/services/media-os/CLAUDE.md">Media OS Documentation</a> — Full Media OS architecture</li>
+<li><a href="../hojai-payment/CLAUDE.md">@hojai/payment</a> — Payment SDK (pay for subscriptions, tips, creator payouts)</li>
+</ul></div>
+
+
+
+</main>
+</body>
+</html>

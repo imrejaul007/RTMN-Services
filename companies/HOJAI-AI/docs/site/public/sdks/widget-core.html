@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/widget-core — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="active" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/widget-core</h1>
+<p class="lead">HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/widget-core">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.cjs</code></p>
+
+
+
+
+
+
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/widget-core</h1>
+<p>&gt; <strong>The 5KB vanilla JS snippet that turns any website into an AI front office.</strong></p>
+<p>Drop the HOJAI Widget on any page to expose the company's SUTAR agents to visitors. The widget sends every visitor message through <strong>intent classification → SUTAR agent delegation → natural-language reply</strong> powered by the same runtime that runs inside every Nexha.</p>
+<p>---</p>
+<h2>Installation</h2>
+<h3>Method 1: HTML snippet (5 seconds)</h3>
+<pre class="md-code"><code class="lang-html">&lt;script src=&quot;https://cdn.hojai.ai/widget.js&quot;
+        data-key=&quot;pk_live_abc123&quot;
+        data-company=&quot;maya-collective&quot;
+        data-color=&quot;#3B82F6&quot;
+        defer&gt;&lt;/script&gt;</code></pre>
+<p>No build step. No npm. That's it.</p>
+<h3>Method 2: npm (1 minute)</h3>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/widget-core</code></pre>
+<pre class="md-code"><code class="lang-ts">import { HojaiWidget } from '@hojai/widget-core';
+
+const widget = new HojaiWidget({
+  apiKey: 'pk_live_abc123',
+  companyId: 'maya-collective',
+  config: {
+    name: 'Maya Assistant',
+    color: '#3B82F6',
+    position: 'bottom-right',
+    language: 'en'
+  }
+});
+
+widget.render();</code></pre>
+<p>---</p>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">interface HojaiWidgetConfig {
+  apiKey: string;             // Public key (pk_live_...)
+  companyId: string;          // Your company identifier
+  baseUrl?: string;           // Default: https://api.hojai.ai
+  containerId?: string;       // CSS selector or HTMLElement. Default: floating bubble.
+  config?: WidgetTheme;
+  user?: { id?: string; name?: string; email?: string };
+  visitorId?: string;         // Defaults to localStorage-backed id
+  debug?: boolean;
+}
+
+interface WidgetTheme {
+  name?: string;              // Default: &quot;HOJAI Assistant&quot;
+  avatar?: string;            // URL
+  color?: string;             // Default: &quot;#3B82F6&quot;
+  position?: 'bottom-right' | 'bottom-left' | 'inline';
+  language?: string;          // ISO code, default &quot;en&quot;
+  greeting?: string;
+  voice?: { enabled?: boolean };
+}</code></pre>
+<p>---</p>
+<h2>API</h2>
+<table class="md-table"><thead><tr>
+<th>Method</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>widget.render()</code></td>
+<td>Mount the chat bubble in the DOM</td>
+</tr>
+<tr>
+<td><code>widget.destroy()</code></td>
+<td>Tear it down</td>
+</tr>
+<tr>
+<td><code>widget.open()</code></td>
+<td>Open the chat panel</td>
+</tr>
+<tr>
+<td><code>widget.close()</code></td>
+<td>Close the chat panel</td>
+</tr>
+<tr>
+<td><code>widget.send(text)</code></td>
+<td>Send a message programmatically</td>
+</tr>
+<tr>
+<td><code>widget.on('message', fn)</code></td>
+<td>Subscribe to events (<code>message</code>, <code>response</code>, <code>open</code>, <code>close</code>, <code>error</code>)</td>
+</tr>
+<tr>
+<td><code>widget.getHistory()</code></td>
+<td>Get conversation history</td>
+</tr>
+<tr>
+<td><code>widget.identify(user)</code></td>
+<td>Identify a logged-in user (for memory)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>What happens when a visitor types</h2>
+<pre class="md-code"><code class="lang-">Visitor types &quot;Show me black hoodies under ₹2500&quot;
+  ↓
+Widget → POST {baseUrl}/api/v1/widget/message
+  ↓
+Widget backend classifies intent (intent: &quot;product_search&quot;)
+  ↓
+Enriches with REZ Intelligence (customer insights, recommendations)
+  ↓
+Routes to SUTAR Sales Agent (or Booking/Support/Commerce)
+  ↓
+Agent executes the task against company systems
+  ↓
+Response streams back to the widget</code></pre>
+<p>---</p>
+<h2>Size budget</h2>
+<p>Target: <strong>≤ 5 KB minified + gzipped</strong></p>
+<p>The core has zero runtime dependencies and uses only native browser APIs. Production builds land around <strong>4.5 KB gzipped</strong>.</p>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-widget-core/
+├── package.json
+├── README.md
+├── tsconfig.json (CommonJS build)
+├── tsconfig.esm.json (ESM build)
+├── tsconfig.test.json (test build)
+├── src/
+│   ├── index.ts            # Public API
+│   └── snippet.js          # Auto-init from &lt;script data-key=...&gt;
+└── snippet.html            # Copy-paste snippet for users</code></pre>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../../../../../../.claude/plans/hojai-widget-spec.md">HOJAI Widget Spec</a> — Full product spec</li>
+<li><a href="../hojai-widget-react/">@hojai/widget-react</a> — React wrapper</li>
+<li><a href="../hojai-foundation/">@hojai/foundation</a> — Foundation SDK</li>
+<li><a href="../hojai-sutar/">@hojai/sutar</a> — SUTAR agent runtime</li>
+</ul></div>
+
+</main>
+</body>
+</html>

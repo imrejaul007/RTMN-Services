@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/foundation — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="active" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/foundation</h1>
+<p class="lead">HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/foundation">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/foundation` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (8/9 tests passing, 1 test isolation issue only)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI Foundation SDK (@hojai/foundation)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/foundation</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (8/9 tests passing, 1 test isolation issue only)</p>
+<h2>What this SDK is</h2>
+<p><strong>The official client for building HOJAI-native applications.</strong> Wraps the six HOJAI Foundation services (CorpID, MemoryOS, TwinOS, SADA/TrustOS, FlowOS, PolicyOS) into a single ergonomic client.</p>
+<p>Any developer building on HOJAI should use this SDK. It handles:</p>
+<ul>
+<li>HTTP transport (with retries, timeouts)</li>
+<li>Authentication</li>
+<li>Error handling</li>
+<li>TypeScript types</li>
+<li>REST endpoint routing</li>
+</ul>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Hojai } from '@hojai/foundation';
+
+const hojai = new Hojai({
+  apiKey: process.env.HOJAI_KEY,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// CorpID: create a company identity
+const company = await hojai.corpId.create({
+  type: 'company',
+  metadata: { name: 'Maya Collective', country: 'IN', taxId: '...' }
+});
+
+// MemoryOS: write persistent context
+await hojai.memory.write({
+  type: 'preferences',
+  scope: { ownerId: company.id, ownerType: 'company' },
+  content: { categories: ['restaurant', 'fashion'] },
+  ttlSeconds: 86400
+});
+
+// TwinOS: create a digital twin
+const customer = await hojai.twin.create({
+  type: 'customer',
+  ownerCorpId: company.id,
+  attributes: { name: 'Alice' }
+});
+
+// SADA/TrustOS: verify trust
+const trust = await hojai.trust.getScore(company.id);
+if (trust.overall &gt; 0.8) { /* proceed */ }
+
+// FlowOS: run a workflow
+const run = await hojai.flow.run('onboard-customer', { inputs: { customerId: customer.id } });
+
+// PolicyOS: check compliance
+const decision = await hojai.policy.evaluate({
+  action: 'send_data_to_third_party',
+  context: { recipient: 'analytics-co' },
+  corpId: company.id
+});
+if (decision.decision === 'allow') { /* proceed */ }</code></pre>
+<h2>Sub-Clients</h2>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Key Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>corpId</code></td>
+<td>Universal identity</td>
+<td>create, get, verify, link, search</td>
+</tr>
+<tr>
+<td><code>memory</code></td>
+<td>Persistent agent memory</td>
+<td>write, read, readMany, search, update, delete</td>
+</tr>
+<tr>
+<td><code>twin</code></td>
+<td>Digital twins</td>
+<td>create, get, update, link, history</td>
+</tr>
+<tr>
+<td><code>trust</code></td>
+<td>Trust verification</td>
+<td>getScore, verify, compute</td>
+</tr>
+<tr>
+<td><code>flow</code></td>
+<td>Workflow orchestration</td>
+<td>create, get, list, run, getRun</td>
+</tr>
+<tr>
+<td><code>policy</code></td>
+<td>Compliance + governance</td>
+<td>create, get, list, evaluate</td>
+</tr>
+</tbody></table>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">interface HojaiConfig {
+  apiKey?: string;              // Bearer token
+  baseUrl: string;              // Default: https://api.hojai.ai
+  timeout?: number;              // Default: 10000ms
+  maxRetries?: number;           // Default: 3
+  fetchImpl?: typeof fetch;      // For testing
+  logger?: (level, message, meta) =&gt; void;
+}</code></pre>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npx tsc
+node --test dist/__tests__/__tests__/index.test.js</code></pre>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-foundation/
+├── CLAUDE.md                    # This file
+├── README.md                    # Quick start
+├── package.json                 # npm config with subpath exports
+├── tsconfig.json
+├── src/
+│   ├── config.ts                # HojaiConfig + resolveConfig
+│   ├── utils.ts                 # request() with retries, timeout, backoff
+│   ├── corp-id.ts               # CorpIDClient
+│   ├── memory.ts                # MemoryClient
+│   ├── twin.ts                  # TwinClient
+│   ├── trust.ts                 # TrustClient (SADA)
+│   ├── flow.ts                  # FlowClient
+│   ├── policy.ts                # PolicyClient
+│   ├── index.ts                 # Main Hojai class + re-exports
+│   └── __tests__/
+│       └── index.test.ts        # 9 tests (8 passing, 1 test isolation)
+└── dist/                        # Compiled output
+    ├── index.js, index.mjs, index.d.ts
+    ├── corp-id.js, corp-id.mjs, corp-id.d.ts
+    ├── memory.js, memory.mjs, memory.d.ts
+    ├── ... (all modules)
+    └── __tests__/index.test.js</code></pre>
+<h2>Environment Variables</h2>
+<table class="md-table"><thead><tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>HOJAI_KEY</code></td>
+<td>(none)</td>
+<td>API key for HOJAI Cloud (required for production)</td>
+</tr>
+<tr>
+<td><code>HOJAI_BASE_URL</code></td>
+<td><code>https://api.hojai.ai</code></td>
+<td>Override base URL</td>
+</tr>
+</tbody></table>
+<h2>Related</h2>
+<ul>
+<li><a href="../../../.claude/plans/40-phase-vs-6-phase-reconciliation.md">Phase D of 7-Phase Master Plan</a></li>
+<li><a href="../../../companies/HOJAI-AI/platform/">HOJAI Foundation Platform Services</a></li>
+<li><a href="../../../companies/RABTUL-Technologies/rez-intelligence-integration/">HOJAI Foundation Integration Service</a></li>
+</ul></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/foundation</h1>
+<p>Official HOJAI Foundation SDK for building AI-native applications.</p>
+<h2>What it does</h2>
+<p>Wraps the six HOJAI Foundation services into a single unified client:</p>
+<ul>
+<li><strong>CorpID</strong> — Universal identity for companies, users, agents, devices</li>
+<li><strong>MemoryOS</strong> — Persistent agent memory (15 memory types)</li>
+<li><strong>TwinOS</strong> — Digital twins for every entity</li>
+<li><strong>SADA/TrustOS</strong> — Trust verification + confidence scoring</li>
+<li><strong>FlowOS</strong> — Workflow orchestration</li>
+<li><strong>PolicyOS</strong> — Compliance + governance</li>
+</ul>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/foundation</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Hojai } from '@hojai/foundation';
+
+const hojai = new Hojai({
+  apiKey: process.env.HOJAI_KEY,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// CorpID: create a company
+const company = await hojai.corpId.create({
+  type: 'company',
+  metadata: { name: 'Maya Collective', country: 'IN' }
+});
+
+// MemoryOS: write persistent memory
+await hojai.memory.write({
+  type: 'preferences',
+  scope: { ownerId: company.id, ownerType: 'company' },
+  content: { categories: ['restaurant', 'fashion'] }
+});
+
+// TwinOS: create a customer twin
+const customer = await hojai.twin.create({
+  type: 'customer',
+  ownerCorpId: company.id,
+  attributes: { name: 'Alice' }
+});
+
+// TrustOS: verify trust
+const trust = await hojai.trust.getScore(company.id);
+if (trust.overall &gt; 0.8) {
+  // proceed with high-trust operation
+}
+
+// FlowOS: run a workflow
+const run = await hojai.flow.run('onboard-customer', {
+  inputs: { customerId: customer.id }
+});
+
+// PolicyOS: check compliance
+const decision = await hojai.policy.evaluate({
+  action: 'send_data_to_third_party',
+  context: { recipient: 'analytics-co' },
+  corpId: company.id
+});</code></pre>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">interface HojaiConfig {
+  apiKey?: string;        // Bearer token
+  baseUrl: string;        // Default: https://api.hojai.ai
+  timeout?: number;        // Default: 10000ms
+  maxRetries?: number;     // Default: 3
+  fetchImpl?: typeof fetch; // For testing
+  logger?: Function;       // Custom logger
+}</code></pre>
+<h2>Environment variables</h2>
+<table class="md-table"><thead><tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>HOJAI_KEY</code></td>
+<td>(none)</td>
+<td>API key for HOJAI Cloud</td>
+</tr>
+<tr>
+<td><code>HOJAI_BASE_URL</code></td>
+<td><code>https://api.hojai.ai</code></td>
+<td>Override base URL</td>
+</tr>
+</tbody></table>
+<h2>Sub-path exports</h2>
+<pre class="md-code"><code class="lang-ts">import { Hojai } from '@hojai/foundation';
+import { CorpIDClient } from '@hojai/foundation/corp-id';
+import { MemoryClient } from '@hojai/foundation/memory';
+import { TwinClient } from '@hojai/foundation/twin';
+import { TrustClient } from '@hojai/foundation/trust';
+import { FlowClient } from '@hojai/foundation/flow';
+import { PolicyClient } from '@hojai/foundation/policy';</code></pre>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npx tsc</code></pre>
+<h2>Test</h2>
+<pre class="md-code"><code class="lang-bash">node --test dist/__tests__/__tests__/index.test.js</code></pre>
+<h2>License</h2>
+<p>MIT</p></div>
+
+</main>
+</body>
+</html>

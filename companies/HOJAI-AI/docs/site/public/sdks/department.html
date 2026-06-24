@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/department — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="active" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/department</h1>
+<p class="lead">Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/department">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~15</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/department` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (12/12 tests passing, 0 failures)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI Department SDK (@hojai/department)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/department</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (12/12 tests passing, 0 failures)</p>
+<h2>What this SDK is</h2>
+<p><strong>The official TypeScript client for the 9 horizontal Department OS services of RTMN.</strong> Pairs with <code>@hojai/industry</code> to cover the <strong>8 horizontal × 26 vertical matrix</strong> that is the core RTMN value prop. Each Department OS runs as its own service on a dedicated port and exposes a domain-specific API (CRM, marketing, HR, finance, etc.). This SDK wraps all 9 into a single ergonomic client.</p>
+<p>Every Department OS has a fundamentally different domain model (leads vs campaigns vs employees vs ledgers), so each sub-client is a <strong>standalone class</strong> with its own typed methods — no shared template surface like <code>IndustryBaseClient</code>.</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Port</th>
+</tr></thead><tbody>
+<tr>
+<td><code>sales</code></td>
+<td>CRM (leads, deals, accounts, contacts, activities)</td>
+<td>5055</td>
+</tr>
+<tr>
+<td><code>marketing</code></td>
+<td>Brand, campaigns, audiences, content, journeys</td>
+<td>5500</td>
+</tr>
+<tr>
+<td><code>customerSuccess</code></td>
+<td>Lifecycle, NPS, health, churn, check-ins, expansion</td>
+<td>4050</td>
+</tr>
+<tr>
+<td><code>procurement</code></td>
+<td>Suppliers, requisitions, POs, RFQs, spend analytics</td>
+<td>5096</td>
+</tr>
+<tr>
+<td><code>workforce</code></td>
+<td>Employees, departments, attendance, leave, payroll</td>
+<td>5077</td>
+</tr>
+<tr>
+<td><code>finance</code></td>
+<td>Chart of accounts, ledger, trial balance, financial reports</td>
+<td>4801</td>
+</tr>
+<tr>
+<td><code>operations</code></td>
+<td>Projects, processes, incidents, risks, SOPs</td>
+<td>5250</td>
+</tr>
+<tr>
+<td><code>cxo</code></td>
+<td>Executive KPIs, strategic pillars, board reports, competitors</td>
+<td>5100</td>
+</tr>
+<tr>
+<td><code>revenueIntelligence</code></td>
+<td>Revenue hub, demand, forecast, pricing, cohorts, scenarios</td>
+<td>5400</td>
+</tr>
+</tbody></table>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/department
+├── Department                      # Main client (facade)
+│   ├── sales                       # SalesClient          — 15 methods
+│   ├── marketing                   # MarketingClient      — 16 methods
+│   ├── customerSuccess             # CustomerSuccessClient — 12 methods
+│   ├── procurement                 # ProcurementClient    — 14 methods
+│   ├── workforce                   # WorkforceClient      — 16 methods
+│   ├── finance                     # FinanceClient        — 11 methods
+│   ├── operations                  # OperationsClient     — 14 methods
+│   ├── cxo                         # CxoClient            — 10 methods
+│   └── revenueIntelligence         # RevenueIntelligenceClient — 12 methods
+├── DepartmentBaseClient            # Tiny base (config + port override)
+├── DEPARTMENT_PORTS                # Map of department key → port
+├── HojaiConfig                     # Shared config (apiKey, baseUrl, timeout, maxRetries, fetchImpl, logger)
+└── resolveConfig()                 # Apply defaults</code></pre>
+<p>Self-contained — does NOT import from other <code>@hojai/*</code> packages. Each SDK carries its own copy of <code>HojaiConfig</code> and the <code>request()</code> + <code>buildQueryString</code> helpers (~80 LOC), so it can be installed and used independently.</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Department } from '@hojai/department';
+
+const dept = new Department({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// Sales
+const lead = await dept.sales.createLead({ name: 'Maya', source: 'web' });
+const deal = await dept.sales.createDeal({ name: 'Maya × 1000', leadId: lead.id, value: { amount: 50000, currency: 'USD' } });
+
+// Workforce
+const emp = await dept.workforce.createEmployee({ name: 'Alice', email: '...', role: 'Engineer', hireDate: '2026-07-01' });
+
+// CXO
+const kpis = await dept.cxo.getKpis();
+
+// Revenue Intelligence
+const hub = await dept.revenueIntelligence.getRevenueHub();
+const forecast = await dept.revenueIntelligence.forecast({ months: 12 });
+
+// Cross-OS
+const summary = {
+  employees: (await dept.workforce.listEmployees()).length,
+  openDeals: (await dept.sales.listDeals({ stage: 'negotiation' })).length,
+  mrr: hub.totalMrr,
+};</code></pre>
+<h2>Build &amp; test</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-department
+npm install
+npm run build
+npm test</code></pre>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-department/
+├── CLAUDE.md                       # This file
+├── README.md                       # Quick start
+├── package.json                    # npm config with subpath exports for 9 sub-clients
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts        # HojaiConfig + resolveConfig (copied)
+│   ├── utils.ts                    # request() + buildQueryString (copied)
+│   ├── types.ts                    # Common types (Money, DateRange, Contact)
+│   ├── base.ts                     # DepartmentBaseClient + DEPARTMENT_PORTS map
+│   ├── sales.ts                    # SalesClient (15 methods)
+│   ├── marketing.ts                # MarketingClient (16 methods)
+│   ├── customer-success.ts         # CustomerSuccessClient (12 methods)
+│   ├── procurement.ts              # ProcurementClient (14 methods)
+│   ├── workforce.ts                # WorkforceClient (16 methods)
+│   ├── finance.ts                  # FinanceClient (11 methods)
+│   ├── operations.ts               # OperationsClient (14 methods)
+│   ├── cxo.ts                      # CxoClient (10 methods)
+│   ├── revenue-intelligence.ts     # RevenueIntelligenceClient (12 methods)
+│   ├── index.ts                    # Main Department class + re-exports
+│   └── __tests__/index.test.ts     # 12 tests
+└── dist/                           # Compiled output</code></pre>
+<h2>Tests (12/12 passing)</h2>
+<ul>
+<li>Department client instantiates with all 9 sub-clients</li>
+<li>SalesClient.createLead (port 5055)</li>
+<li>MarketingClient.createCampaign (port 5500)</li>
+<li>CustomerSuccessClient.getAtRisk (port 4050)</li>
+<li>ProcurementClient.createSupplier (port 5096)</li>
+<li>WorkforceClient.createEmployee (port 5077)</li>
+<li>FinanceClient.getTrialBalance (port 4801)</li>
+<li>OperationsClient.reportIncident (port 5250)</li>
+<li>CxoClient.getKpis (port 5100)</li>
+<li>RevenueIntelligenceClient.getRevenueHub (port 5400)</li>
+<li>Retries on 5xx (calls mock 3 times before success)</li>
+<li>Throws on 4xx</li>
+</ul>
+<h2>Related</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Core platform client</li>
+<li><a href="../hojai-sutar/CLAUDE.md">@hojai/sutar</a> — SUTAR agent runtime SDK</li>
+<li><a href="../hojai-nexha/CLAUDE.md">@hojai/nexha</a> — Nexha federation network SDK</li>
+<li><a href="../hojai-marketplace/CLAUDE.md">@hojai/marketplace</a> — BAM marketplace SDK</li>
+<li><a href="../hojai-genie/CLAUDE.md">@hojai/genie</a> — Personal AI assistant SDK</li>
+<li><a href="../hojai-commerce/CLAUDE.md">@hojai/commerce</a> — RABTUL commerce SDK</li>
+<li><a href="../hojai-industry/CLAUDE.md">@hojai/industry</a> — 26 vertical Industry OSes (pairs with this)</li>
+<li><a href="../hojai-payment/CLAUDE.md">@hojai/payment</a> — Payments SDK</li>
+<li><a href="../hojai-logistics/CLAUDE.md">@hojai/logistics</a> — KHAIRMOVE logistics SDK</li>
+<li><a href="../../../../industry-os/services/">Department OS services</a> — the 9 underlying services wrapped here</li>
+</ul></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/department</h1>
+<p>&gt; The official TypeScript SDK for the 9 horizontal <strong>Department OS</strong> services of the RTMN ecosystem.</p>
+<p><a href="https://img.shields.io/npm/v/@hojai/department.svg">![npm version</a>](https://www.npmjs.com/package/@hojai/department)</p>
+<p><a href="https://img.shields.io/badge/TypeScript-5.3-blue.svg">![TypeScript</a>](https://www.typescriptlang.org/)</p>
+<p><a href="https://img.shields.io/badge/License-MIT-yellow.svg">![License: MIT</a>](https://opensource.org/licenses/MIT)</p>
+<p>RTMN has <strong>8 horizontal Department OSes + 1 Revenue Intelligence OS</strong> that run across <strong>all 26 Industry OSes</strong>, providing unified business functions (Sales, Marketing, HR, Finance, etc.). This SDK wraps all 9 of them into a single ergonomic client. <strong>Pairs with <a href="../hojai-industry/"><code>@hojai/industry</code></a> to cover the 8 × 26 matrix that is the core RTMN value prop.</strong></p>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/department</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Department } from '@hojai/department';
+
+const dept = new Department({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Sales: create a lead, qualify, convert to deal
+const lead = await dept.sales.createLead({ name: 'Maya Collective', source: 'web' });
+await dept.sales.qualifyLead(lead.id, { score: 87 });
+const deal = await dept.sales.createDeal({
+  name: 'Maya × 1000 units',
+  leadId: lead.id,
+  value: { amount: 50000, currency: 'USD' }
+});
+
+// 2. Workforce: onboard a new employee
+const employee = await dept.workforce.createEmployee({
+  name: 'Alice',
+  email: 'alice@example.com',
+  role: 'Engineer',
+  hireDate: '2026-07-01'
+});
+
+// 3. Customer Success: get at-risk customers
+const atRisk = await dept.customerSuccess.getAtRisk(60);
+
+// 4. Operations: report an incident
+const incident = await dept.operations.reportIncident({
+  title: 'API down',
+  description: 'Payments API returning 500',
+  severity: 'high'
+});
+
+// 5. CXO: executive KPI dashboard
+const kpis = await dept.cxo.getKpis();
+
+// 6. Revenue Intelligence: forecast + ROI
+const hub = await dept.revenueIntelligence.getRevenueHub();
+const forecast = await dept.revenueIntelligence.forecast({ months: 12 });
+
+// 7. Cross-OS company view
+const summary = {
+  employees: (await dept.workforce.listEmployees()).length,
+  openDeals: (await dept.sales.listDeals({ stage: 'negotiation' })).length,
+  mrr: hub.totalMrr,
+  monthlyRevenue: hub.streams.reduce((s, x) =&gt; s + x.mrr.amount, 0),
+};</code></pre>
+<h2>What's inside</h2>
+<p>9 sub-clients, ~120 methods total:</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Service</th>
+<th>Port</th>
+<th>Domain</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>sales</code></td>
+<td>Sales OS</td>
+<td>5055</td>
+<td>CRM, leads, deals, accounts, contacts, activities</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>marketing</code></td>
+<td>Marketing OS</td>
+<td>5500</td>
+<td>Brand, campaigns, audiences, content, journeys</td>
+<td>16</td>
+</tr>
+<tr>
+<td><code>customerSuccess</code></td>
+<td>Customer Success OS</td>
+<td>4050</td>
+<td>Lifecycle, NPS, health, churn, check-ins</td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>procurement</code></td>
+<td>Procurement OS</td>
+<td>5096</td>
+<td>Suppliers, requisitions, POs, RFQs, spend</td>
+<td>14</td>
+</tr>
+<tr>
+<td><code>workforce</code></td>
+<td>Workforce OS</td>
+<td>5077</td>
+<td>Employees, departments, attendance, leave, payroll</td>
+<td>16</td>
+</tr>
+<tr>
+<td><code>finance</code></td>
+<td>Finance OS</td>
+<td>4801</td>
+<td>Chart of accounts, ledger, trial balance, reports</td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>operations</code></td>
+<td>Operations OS</td>
+<td>5250</td>
+<td>Projects, processes, incidents, risks, SOPs</td>
+<td>14</td>
+</tr>
+<tr>
+<td><code>cxo</code></td>
+<td>CXO OS</td>
+<td>5100</td>
+<td>KPIs, strategic pillars, board reports, competitors</td>
+<td>10</td>
+</tr>
+<tr>
+<td><code>revenueIntelligence</code></td>
+<td>Revenue Intelligence OS</td>
+<td>5400</td>
+<td>Revenue hub, demand, forecast, pricing, cohorts, scenarios</td>
+<td>12</td>
+</tr>
+</tbody></table>
+<h2>Subpath imports</h2>
+<p>For tree-shaking:</p>
+<pre class="md-code"><code class="lang-ts">import { SalesClient } from '@hojai/department/sales';
+import { WorkforceClient } from '@hojai/department/workforce';
+import { DepartmentBaseClient, DEPARTMENT_PORTS } from '@hojai/department/base';</code></pre>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const dept = new Department({
+  apiKey: 'hojai_live_...',         // required
+  baseUrl: 'https://api.hojai.ai',  // required
+  timeout: 10_000,                  // optional, default 10s
+  maxRetries: 3,                    // optional, default 3
+  fetchImpl: customFetch,           // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {}  // optional
+});</code></pre>
+<p>Each sub-client auto-routes to its dedicated port. To override (e.g. for staging), construct a sub-client with a custom <code>HojaiConfig.baseUrl</code>.</p>
+<h2>Error handling</h2>
+<pre class="md-code"><code class="lang-ts">try {
+  await dept.sales.getLead('missing');
+} catch (err) {
+  // err.message = &quot;HTTP 404: ...&quot;
+  // SDK retries 5xx automatically (up to maxRetries)
+  // SDK throws on 4xx immediately
+}</code></pre>
+<h2>Tests</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-department
+npm install
+npm run build
+npm test</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/">@hojai/foundation</a> — CorpID, Memory, Twin, Trust, Flow, Policy</li>
+<li><a href="../hojai-sutar/">@hojai/sutar</a> — SUTAR agent runtime</li>
+<li><a href="../hojai-nexha/">@hojai/nexha</a> — Nexha federation network</li>
+<li><a href="../hojai-marketplace/">@hojai/marketplace</a> — BAM marketplace</li>
+<li><a href="../hojai-genie/">@hojai/genie</a> — Personal AI assistant</li>
+<li><a href="../hojai-commerce/">@hojai/commerce</a> — RABTUL commerce</li>
+<li><a href="../hojai-industry/">@hojai/industry</a> — 26 vertical Industry OSes (pairs with this SDK)</li>
+<li><a href="../../../../industry-os/services/">Department OS services</a> — the 9 underlying services wrapped here</li>
+</ul></div>
+
+</main>
+</body>
+</html>

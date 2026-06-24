@@ -1,0 +1,146 @@
+{
+  "generatedAt": "2026-06-24T17:31:10.512Z",
+  "sdkCount": 20,
+  "sdks": [
+    {
+      "name": "@hojai/foundation",
+      "description": "HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/foundation.html"
+    },
+    {
+      "name": "@hojai/cli",
+      "description": "The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.",
+      "version": "1.1.0",
+      "methods": null,
+      "docsUrl": "/sdks/cli.html"
+    },
+    {
+      "name": "@hojai/ai-spec",
+      "description": "AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/ai-spec.html"
+    },
+    {
+      "name": "@hojai/bizora",
+      "description": "Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.",
+      "version": "1.0.0",
+      "methods": 5,
+      "docsUrl": "/sdks/bizora.html"
+    },
+    {
+      "name": "@hojai/commerce",
+      "description": "Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.",
+      "version": "1.0.0",
+      "methods": 101,
+      "docsUrl": "/sdks/commerce.html"
+    },
+    {
+      "name": "@hojai/department",
+      "description": "Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta",
+      "version": "1.0.0",
+      "methods": 15,
+      "docsUrl": "/sdks/department.html"
+    },
+    {
+      "name": "@hojai/genie",
+      "description": "Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client",
+      "version": "1.0.0",
+      "methods": 7,
+      "docsUrl": "/sdks/genie.html"
+    },
+    {
+      "name": "@hojai/industry",
+      "description": "Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac",
+      "version": "1.0.0",
+      "methods": 9,
+      "docsUrl": "/sdks/industry.html"
+    },
+    {
+      "name": "@hojai/marketplace",
+      "description": "BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.",
+      "version": "1.0.0",
+      "methods": 10,
+      "docsUrl": "/sdks/marketplace.html"
+    },
+    {
+      "name": "@hojai/media",
+      "description": "Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/media.html"
+    },
+    {
+      "name": "@hojai/memory",
+      "description": "Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/memory.html"
+    },
+    {
+      "name": "@hojai/nexha",
+      "description": "Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s",
+      "version": "1.0.0",
+      "methods": 156,
+      "docsUrl": "/sdks/nexha.html"
+    },
+    {
+      "name": "@hojai/payment",
+      "description": "Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.",
+      "version": "1.0.0",
+      "methods": 46,
+      "docsUrl": "/sdks/payment.html"
+    },
+    {
+      "name": "@hojai/razor",
+      "description": "Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.",
+      "version": "1.0.0",
+      "methods": 5,
+      "docsUrl": "/sdks/razor.html"
+    },
+    {
+      "name": "@hojai/reputation",
+      "description": "Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).",
+      "version": "1.0.0",
+      "methods": 58,
+      "docsUrl": "/sdks/reputation.html"
+    },
+    {
+      "name": "@hojai/skills",
+      "description": "Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/skills.html"
+    },
+    {
+      "name": "@hojai/sutar",
+      "description": "SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.",
+      "version": "1.0.0",
+      "methods": 8,
+      "docsUrl": "/sdks/sutar.html"
+    },
+    {
+      "name": "@hojai/twin",
+      "description": "Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/twin.html"
+    },
+    {
+      "name": "@hojai/whatsapp",
+      "description": "WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/whatsapp.html"
+    },
+    {
+      "name": "@hojai/widget-core",
+      "description": "HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/widget-core.html"
+    }
+  ]
+}

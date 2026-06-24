@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/reputation — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="active" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/reputation</h1>
+<p class="lead">Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/reputation">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~58</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/reputation` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** ✅ **PRODUCTION-READY** — 30/30 tests pass. Wraps 6 trust surfaces into a single ergonomic client: agent reputation, dispute resolution, ri…</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/reputation — Trust &amp; Reputation SDK</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/reputation</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — 30/30 tests pass. Wraps 6 trust surfaces into a single ergonomic client: agent reputation, dispute resolution, risk detection, SADA trust, trust network graph, leaderboards.</p>
+<p>---</p>
+<h2>What this SDK is</h2>
+<p><strong>The unified client for the HOJAI trust &amp; reputation layer.</strong> Every cross-network transaction, agent-to-agent negotiation, merchant interaction, and federation hand-off flows through reputation. This SDK is what you use to check trust scores, raise disputes, assess risk, manage verifications, query the trust graph, and pull leaderboards.</p>
+<p>It handles:</p>
+<ul>
+<li>HTTP transport (retries, timeouts, exponential backoff)</li>
+<li>Authentication (Bearer token)</li>
+<li>Error handling (<code>HttpError</code> with status + body)</li>
+<li>TypeScript types for every entity</li>
+<li>Subpath exports for tree-shaking</li>
+<li>58 public methods across 6 sub-clients</li>
+</ul>
+<p>---</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Reputation } from '@hojai/reputation';
+
+const rep = new Reputation({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Check an agent's trust before transacting
+const trust = await rep.agent.getTrust('agent-maya-1');
+if (trust.trustScore &lt; 70) {
+  throw new Error('Trust too low — find another supplier');
+}
+
+// 2. Record the transaction
+await rep.agent.recordTransaction({
+  agentId: 'agent-maya-1',
+  counterpartyAgentId: 'agent-us-1',
+  type: 'purchase',
+  amount: 50000,
+  currency: 'INR',
+  outcome: 'success'
+});
+
+// 3. If something goes wrong, raise a dispute
+const dispute = await rep.dispute.create({
+  raisedBy: 'agent-us-1',
+  raisedAgainst: 'agent-maya-1',
+  reason: 'non_delivery',
+  description: 'Order placed 2026-06-01 — not delivered as of 2026-06-15',
+  amount: 50000,
+  currency: 'INR'
+});
+
+// 4. Submit evidence
+await rep.dispute.addEvidence({
+  disputeId: dispute.id,
+  type: 'communication',
+  url: 'https://example.com/slack-thread-export',
+  description: '3 emails + 1 chat thread showing non-response'
+});
+
+// 5. Get AI-assisted dispute analysis
+const analysis = await rep.dispute.analyze(dispute.id);
+console.log(`AI recommends: ${analysis.recommendation} (confidence: ${analysis.confidence})`);
+
+// 6. Pre-flight risk assessment before high-value transactions
+const risk = await rep.risk.assess({
+  subjectType: 'agent',
+  subjectId: 'agent-maya-1',
+  context: { amount: 100000, currency: 'INR', type: 'transfer' }
+});
+if (risk.recommendation === 'block') { /* refuse */ }
+
+// 7. Get SADA trust score (the canonical backbone)
+const sada = await rep.sada.getTrust('agent-maya-1');
+console.log(`SADA: ${sada.score} (${sada.band}, trend: ${sada.trend})`);
+
+// 8. Endorse a trusted partner in the trust graph
+await rep.network.endorse({
+  fromEntityId: 'agent-us-1',
+  toEntityId: 'agent-maya-1',
+  weight: 0.9,
+  context: '10 successful transactions over 6 months'
+});
+
+// 9. Show a leaderboard of top-trusted agents
+const topAgents = await rep.leaderboard.agentTopTrusted(20);</code></pre>
+<p>---</p>
+<h2>Sub-Clients (6 total, 58 methods)</h2>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Endpoint prefix</th>
+<th>Service(s)</th>
+<th>Key methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>rep.agent</code></td>
+<td><code>/api/reputation/*</code></td>
+<td>agent-reputation</td>
+<td><code>create</code>, <code>get</code>, <code>getTrust</code>, <code>recordTransaction</code>, <code>listTransactions</code>, <code>raiseDispute</code>, <code>verify</code>, <code>block</code>, <code>unblock</code>, <code>getLeaderboard</code>, <code>getStats</code> (11)</td>
+</tr>
+<tr>
+<td><code>rep.dispute</code></td>
+<td><code>/api/disputes/<em></code>, <code>/api/mediations/</em></code>, <code>/api/arbitrations/*</code></td>
+<td>dispute-resolution</td>
+<td><code>create</code>, <code>get</code>, <code>update</code>, <code>resolve</code>, <code>escalate</code>, <code>listByAgent</code>, <code>listByStatus</code>, <code>addEvidence</code>, <code>listEvidence</code>, <code>analyze</code>, <code>mediate</code>, <code>getMediation</code>, <code>proposeMediation</code>, <code>decideArbitration</code> (14)</td>
+</tr>
+<tr>
+<td><code>rep.risk</code></td>
+<td><code>/api/risk/*</code></td>
+<td>risk-detection-service</td>
+<td><code>assess</code>, <code>getHistory</code>, <code>flag</code>, <code>dismissFlag</code>, <code>listFlags</code>, <code>assessBatch</code>, <code>getThresholds</code>, <code>setThresholds</code> (8)</td>
+</tr>
+<tr>
+<td><code>rep.sada</code></td>
+<td><code>/api/trust/<em></code>, <code>/api/governance/</em></code>, <code>/api/verifications/*</code>, <code>/api/audit</code></td>
+<td>sada-os (Trust/Governance/Risk/Verification)</td>
+<td><code>getTrust</code>, <code>recordTrust</code>, <code>recordActivity</code>, <code>getHistory</code>, <code>getLeaderboard</code>, <code>listPolicies</code>, <code>createPolicy</code>, <code>validatePolicy</code>, <code>submitVerification</code>, <code>getVerification</code>, <code>listVerifications</code>, <code>approveVerification</code>, <code>getAudit</code> (13)</td>
+</tr>
+<tr>
+<td><code>rep.network</code></td>
+<td><code>/api/entities/<em></code>, <code>/api/endorsements/</em></code>, <code>/api/verifications/<em></code>, <code>/api/risk-flags/</em></code>, <code>/api/audit</code></td>
+<td>trust-network</td>
+<td><code>listEntities</code>, <code>getEntity</code>, <code>createEntity</code>, <code>listByType</code>, <code>getTopTrusted</code>, <code>endorse</code>, <code>listEndorsements</code>, <code>submitVerification</code>, <code>listVerifications</code>, <code>raiseRiskFlag</code>, <code>listRiskFlags</code>, <code>getAudit</code> (12)</td>
+</tr>
+<tr>
+<td><code>rep.leaderboard</code></td>
+<td><code>/api/leaderboard/*</code></td>
+<td>reputation-leaderboard</td>
+<td><code>get</code>, <code>agentTopTrusted</code>, <code>merchantTopTrusted</code>, <code>mostEndorsed</code>, <code>lowestRisk</code>, <code>highestVolume</code> (6)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Subpath Imports</h2>
+<pre class="md-code"><code class="lang-ts">import { AgentReputationClient } from '@hojai/reputation/agent';
+import { DisputeClient } from '@hojai/reputation/dispute';
+import { RiskClient } from '@hojai/reputation/risk';
+import { SadaClient } from '@hojai/reputation/sada';
+import { TrustNetworkClient } from '@hojai/reputation/network';
+import { LeaderboardClient } from '@hojai/reputation/leaderboard';
+import { request, sleep, backoff, HttpError, buildUrl } from '@hojai/reputation/utils';</code></pre>
+<p>---</p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/reputation
+├── Reputation                # Main client (facade)
+│   ├── agent                 # AgentReputationClient    — 11 methods
+│   ├── dispute               # DisputeClient            — 14 methods
+│   ├── risk                  # RiskClient               — 8 methods
+│   ├── sada                  # SadaClient               — 13 methods
+│   ├── network               # TrustNetworkClient       — 12 methods
+│   └── leaderboard           # LeaderboardClient        — 6 methods
+├── HojaiConfig               # Shared config interface
+├── resolveConfig()           # Apply defaults
+└── request()                 # HTTP with retries + backoff</code></pre>
+<p>Built on <code>@hojai/foundation</code>'s <code>HojaiConfig</code> pattern (same as all other <code>@hojai/*</code> SDKs).</p>
+<p>---</p>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const rep = new Reputation({
+  apiKey: 'hojai_live_...',     // required — Bearer token
+  baseUrl: 'https://api.hojai.ai', // optional, default https://api.hojai.ai
+  timeout: 15_000,              // optional, default 10s
+  maxRetries: 3,                // optional, default 3
+  fetchImpl: customFetch,       // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {} // optional
+});</code></pre>
+<p>---</p>
+<h2>Trust Bands</h2>
+<p>All trust scores map to bands:</p>
+<table class="md-table"><thead><tr>
+<th>Band</th>
+<th>Score range</th>
+<th>Badge</th>
+</tr></thead><tbody>
+<tr>
+<td><code>platinum</code></td>
+<td>90-100</td>
+<td>🏆</td>
+</tr>
+<tr>
+<td><code>gold</code></td>
+<td>80-89</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td><code>silver</code></td>
+<td>70-79</td>
+<td>🥈</td>
+</tr>
+<tr>
+<td><code>bronze</code></td>
+<td>50-69</td>
+<td>🥉</td>
+</tr>
+<tr>
+<td><code>iron</code></td>
+<td>30-49</td>
+<td>⚙️</td>
+</tr>
+<tr>
+<td><code>restricted</code></td>
+<td>0-29</td>
+<td>⚠️</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Use Cases</h2>
+<p><strong>Pre-flight agent trust check (before commerce):</strong></p>
+<pre class="md-code"><code class="lang-ts">const trust = await rep.agent.getTrust(merchantAgentId);
+if (trust.trustScore &lt; 70) throw new Error('Trust too low');</code></pre>
+<p><strong>Build a marketplace with trust signals:</strong></p>
+<pre class="md-code"><code class="lang-ts">const listings = await marketplace.search({ category: 'product' });
+const enriched = await Promise.all(listings.map(async (l) =&gt; {
+  const trust = await rep.sada.getTrust(l.sellerId);
+  return { ...l, trustScore: trust.score, trustBand: trust.band };
+}));</code></pre>
+<p><strong>Automated dispute resolution:</strong></p>
+<pre class="md-code"><code class="lang-ts">const disputes = await rep.dispute.listByAgent('agent-x');
+for (const d of disputes) {
+  const analysis = await rep.dispute.analyze(d.id);
+  if (analysis.confidence &gt; 0.9) await rep.dispute.resolve(d.id, { outcome: analysis.recommendation });
+}</code></pre>
+<p><strong>Risk-based pre-flight for high-value transactions:</strong></p>
+<pre class="md-code"><code class="lang-ts">const risk = await rep.risk.assess({ subjectType: 'agent', subjectId, context: { amount } });
+if (risk.recommendation === 'block') throw new Error('Risk blocked');</code></pre>
+<p>---</p>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test</code></pre>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-reputation/
+├── CLAUDE.md                    # This file
+├── README.md                    # Quick start
+├── package.json                 # npm config with subpath exports
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts     # HojaiConfig + resolveConfig
+│   ├── utils.ts                 # request, sleep, backoff, HttpError, buildUrl
+│   ├── agent.ts                 # AgentReputationClient (11 methods)
+│   ├── dispute.ts               # DisputeClient (14 methods)
+│   ├── risk.ts                  # RiskClient (8 methods)
+│   ├── sada.ts                  # SadaClient (13 methods)
+│   ├── network.ts               # TrustNetworkClient (12 methods)
+│   ├── leaderboard.ts           # LeaderboardClient (6 methods)
+│   ├── index.ts                 # Main Reputation facade
+│   └── __tests__/
+│       └── index.test.ts        # 30 tests
+└── dist/                        # Compiled output
+    ├── index.{js,d.ts,js.map,d.ts.map}
+    ├── agent.{js,d.ts,...}
+    ├── dispute.{js,d.ts,...}
+    ├── risk.{js,d.ts,...}
+    ├── sada.{js,d.ts,...}
+    ├── network.{js,d.ts,...}
+    ├── leaderboard.{js,d.ts,...}
+    ├── foundation-config.{js,d.ts,...}
+    ├── utils.{js,d.ts,...}
+    └── __tests__/index.test.{js,d.ts,...}</code></pre>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Base SDK with simplified <code>trust</code> sub-client</li>
+<li><a href="../hojai-sutar/CLAUDE.md">@hojai/sutar</a> — SUTAR agents (consume reputation for trust decisions)</li>
+<li><a href="../hojai-payment/CLAUDE.md">@hojai/payment</a> — Payment SDK (pre-flight checks before payments)</li>
+<li><a href="../../../companies/HOJAI-AI/platform/trust/sada-os/CLAUDE.md">SADA OS docs</a> — Full SADA backbone architecture</li>
+<li><a href="../../../companies/HOJAI-AI/platform/trust/agent-reputation/CLAUDE.md">Agent Reputation docs</a> — Agent reputation service</li>
+</ul></div>
+
+
+
+</main>
+</body>
+</html>

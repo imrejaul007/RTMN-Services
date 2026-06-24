@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/ai-spec — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="active" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/ai-spec</h1>
+<p class="lead">AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/ai-spec">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/ai-spec` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (14/14 tests passing, 0 failures)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI AI-native Spec (@hojai/ai-spec)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/ai-spec</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (14/14 tests passing, 0 failures)</p>
+<h2>What this package is</h2>
+<p><strong>The AI-native spec for HOJAI projects.</strong> Defines the canonical schema for the 3 files every HOJAI project carries, and provides the tooling to generate, read, validate, and render them.</p>
+<p>From the spec:</p>
+<p>&gt; <em>&quot;This is the most important part. The spec that tells AI coding tools how to build on HOJAI.&quot;</em></p>
+<h2>The 3 files in every HOJAI project</h2>
+<pre class="md-code"><code class="lang-">my-project/
+├── hojai.ai.md             # AI tools (Claude Code, Cursor, Codex) read FIRST
+└── .hojai/
+    ├── manifest.json       # Machine-readable project schema (Manifest)
+    └── capability.json     # Nexha federation profile (Capability)</code></pre>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/ai-spec
+├── types.ts          # Manifest, Capability, AgentSpec, etc. + Zod schemas
+├── manifest.ts       # readManifest, writeManifest, parseManifest, validateManifest
+├── capability.ts     # readCapability, writeCapability, parseCapability, validateCapability
+├── templates.ts      # render(), renderFor() — hojai.ai.md generators
+├── writer.ts         # writeProjectContext, readProjectContext, isHojaiProject
+├── introspect.ts     # generateManifestFromPackageJson, generateAndWrite
+├── validators.ts     # Friendly error formatters
+└── index.ts          # Public API</code></pre>
+<h2>Public API</h2>
+<h3>Core</h3>
+<table class="md-table"><thead><tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>writeProjectContext(dir, manifest, capability)</code></td>
+<td>Writes all 3 files</td>
+</tr>
+<tr>
+<td><code>readProjectContext(dir)</code></td>
+<td>Reads all 3 files into a <code>ProjectContext</code></td>
+</tr>
+<tr>
+<td><code>isHojaiProject(dir)</code></td>
+<td>True if <code>.hojai/manifest.json</code> exists</td>
+</tr>
+</tbody></table>
+<h3>Schemas + types</h3>
+<table class="md-table"><thead><tr>
+<th>Export</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>Manifest</code></td>
+<td>TypeScript type for <code>.hojai/manifest.json</code></td>
+</tr>
+<tr>
+<td><code>Capability</code></td>
+<td>TypeScript type for <code>.hojai/capability.json</code></td>
+</tr>
+<tr>
+<td><code>ManifestSchema</code> / <code>CapabilitySchema</code></td>
+<td>Zod validators</td>
+</tr>
+<tr>
+<td><code>parseManifest(jsonString)</code></td>
+<td>Parse + validate raw JSON</td>
+</tr>
+<tr>
+<td><code>parseCapability(jsonString)</code></td>
+<td>Parse + validate raw JSON</td>
+</tr>
+<tr>
+<td><code>validateManifestData(data)</code></td>
+<td>Returns <code>{ valid, errors[] }</code></td>
+</tr>
+<tr>
+<td><code>validateCapabilityData(data)</code></td>
+<td>Returns <code>{ valid, errors[] }</code></td>
+</tr>
+</tbody></table>
+<h3>Introspection</h3>
+<table class="md-table"><thead><tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>generateManifestFromPackageJson(dir, options?)</code></td>
+<td>Auto-fill manifest from package.json</td>
+</tr>
+<tr>
+<td><code>generateCapabilityFromManifest(manifest, options?)</code></td>
+<td>Derive capability from manifest</td>
+</tr>
+<tr>
+<td><code>generateAndWrite(dir, options?)</code></td>
+<td>One-call: introspect + write all 3 files</td>
+</tr>
+</tbody></table>
+<h3>Templates</h3>
+<table class="md-table"><thead><tr>
+<th>Export</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>render({ manifest, capability })</code></td>
+<td>Render hojai.ai.md from inputs</td>
+</tr>
+<tr>
+<td><code>renderFor({ manifest, capability })</code></td>
+<td>Same, picks the right template by manifest.type</td>
+</tr>
+<tr>
+<td><code>TEMPLATES</code></td>
+<td>Map of starter type → render function</td>
+</tr>
+</tbody></table>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { generateAndWrite, readProjectContext } from '@hojai/ai-spec';
+
+// Auto-generate from package.json
+await generateAndWrite('/path/to/project');
+
+// Or write explicitly
+await writeProjectContext('/path/to/project', manifest, capability);
+
+// Read back
+const ctx = await readProjectContext('/path/to/project');
+console.log(ctx.aiMdPath, ctx.manifest.name);</code></pre>
+<h2>CLI integration</h2>
+<p><code>@hojai/cli</code> has an <code>ai-spec</code> subcommand:</p>
+<pre class="md-code"><code class="lang-bash">hojai ai-spec generate     # auto-detect from package.json
+hojai ai-spec read         # show current spec
+hojai ai-spec validate     # validate existing files</code></pre>
+<h2>Build &amp; test</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-ai-spec
+npm install
+npm run build
+npm test</code></pre>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-ai-spec/
+├── CLAUDE.md
+├── README.md
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── types.ts
+│   ├── manifest.ts
+│   ├── capability.ts
+│   ├── templates.ts
+│   ├── writer.ts
+│   ├── introspect.ts
+│   ├── validators.ts
+│   ├── index.ts
+│   └── __tests__/index.test.ts
+└── dist/</code></pre>
+<h2>Tests (14/14 passing)</h2>
+<ul>
+<li>ManifestSchema accepts valid / rejects invalid</li>
+<li>ManifestSchema rejects empty languages</li>
+<li>CapabilitySchema accepts valid</li>
+<li>validateManifestData returns friendly errors</li>
+<li>renderFor produces valid hojai.ai.md for marketplace</li>
+<li>renderFor handles SDK type with no preamble</li>
+<li>writeProjectContext writes 3 files, readProjectContext roundtrips</li>
+<li>isHojaiProject detects existing project</li>
+<li>generateManifestFromPackageJson detects @hojai/* integrations</li>
+<li>generateCapabilityFromManifest maps agents to capabilities</li>
+<li>generateAndWrite end-to-end: package.json → 3 files</li>
+<li>parseManifest parses + validates a raw JSON string</li>
+<li>validateCapabilityData returns ok for valid input</li>
+</ul>
+<h2>Related</h2>
+<ul>
+<li><a href="../../../../.claude/plans/hojai-developer-platform-spec.md">HOJAI Developer Platform Spec</a> — section 3 is the canonical reference</li>
+<li><a href="../../foundry/packages/create-hojai/">HOJAI Foundry <code>create-hojai</code></a> — uses the same schema when scaffolding</li>
+<li><a href="../hojai-cli/">@hojai/cli</a> — <code>hojai ai-spec generate</code> wraps this package</li>
+<li>All <code>@hojai/*</code> SDKs — these are the SDKs the AI tools will use to extend your project</li>
+</ul>
+<h2>Why this matters</h2>
+<p>The <code>hojai.ai.md</code> is the single file that makes the difference between:</p>
+<ul>
+<li>A HOJAI project that's a static codebase</li>
+<li>A HOJAI project that AI tools can understand and extend</li>
+</ul>
+<p>It's the bridge between &quot;code that exists&quot; and &quot;code that AI can build on.&quot; That's why the spec calls it <em>&quot;the most important part&quot;</em>.</p></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/ai-spec</h1>
+<p>&gt; The <strong>AI-native spec</strong> for HOJAI projects. Defines the schema and tooling for the three files that AI coding tools (Claude Code, Cursor, Codex, GitHub Copilot) read to understand a HOJAI project.</p>
+<p><a href="https://img.shields.io/npm/v/@hojai/ai-spec.svg">![npm version</a>](https://www.npmjs.com/package/@hojai/ai-spec)</p>
+<p><a href="https://img.shields.io/badge/TypeScript-5.3-blue.svg">![TypeScript</a>](https://www.typescriptlang.org/)</p>
+<p><a href="https://img.shields.io/badge/License-MIT-yellow.svg">![License: MIT</a>](https://opensource.org/licenses/MIT)</p>
+<h2>What it does</h2>
+<p>Every HOJAI project carries three files at the project root:</p>
+<pre class="md-code"><code class="lang-">my-project/
+├── hojai.ai.md             # Markdown AI tools read FIRST
+└── .hojai/
+    ├── manifest.json       # Machine-readable project schema
+    └── capability.json     # Nexha federation profile</code></pre>
+<p><code>@hojai/ai-spec</code> is the package that <strong>generates, reads, and validates</strong> these three files.</p>
+<h2>Why this matters</h2>
+<p>From the HOJAI developer platform spec:</p>
+<p>&gt; <em>&quot;This is the most important part. The spec that tells AI coding tools how to build on HOJAI.&quot;</em></p>
+<p>&gt;</p>
+<p>&gt; — <code>hojai-developer-platform-spec.md</code>, section 3</p>
+<p>Without <code>hojai.ai.md</code>, AI tools are blind to the HOJAI architecture of your project. <strong>With it, they understand the project structure, SDKs, agents, conventions, and how to extend it</strong> — and can scaffold new code that fits the patterns.</p>
+<p>This is the file that turns HOJAI from &quot;code you can read&quot; into &quot;a project AI tools can extend.&quot;</p>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/ai-spec</code></pre>
+<h2>Quick start</h2>
+<h3>Auto-generate from your project's <code>package.json</code></h3>
+<pre class="md-code"><code class="lang-ts">import { generateAndWrite } from '@hojai/ai-spec';
+
+// Reads package.json, infers the project type + integrations + agents,
+// then writes hojai.ai.md + .hojai/manifest.json + .hojai/capability.json
+const { manifest, capability } = await generateAndWrite('/path/to/project');
+console.log(`AI-spec written for ${manifest.name}`);</code></pre>
+<h3>Or write explicitly</h3>
+<pre class="md-code"><code class="lang-ts">import { writeProjectContext, readProjectContext } from '@hojai/ai-spec';
+
+await writeProjectContext('/path/to/project', {
+  schemaVersion: '1.0.0',
+  projectId: 'p-1',
+  name: 'TradeFlow',
+  type: 'b2b',
+  region: 'me',
+  languages: ['en', 'ar'],
+  hojaiVersion: '1.0.0',
+  createdAt: new Date().toISOString(),
+  agents: [
+    { role: 'CEO', purpose: 'Orchestrator' },
+    { role: 'Sales', purpose: 'Quotation' },
+    { role: 'Procurement', purpose: 'Sourcing' },
+    { role: 'Finance', purpose: 'Money' },
+    { role: 'Logistics', purpose: 'Shipping' }
+  ],
+  integrations: ['foundation', 'sutar', 'nexha', 'commerce', 'payment', 'logistics']
+}, {
+  schemaVersion: '1.0.0',
+  projectId: 'p-1',
+  name: 'TradeFlow',
+  capabilities: [
+    { id: 'hojai.orchestration', name: 'Agent Orchestration', tier: 'core', type: 'offer' },
+    { id: 'hojai.sales', name: 'Sales &amp; Quotation', tier: 'business', type: 'offer' }
+  ],
+  languages: ['en', 'ar']
+});
+
+// Read it back
+const ctx = await readProjectContext('/path/to/project');
+console.log(ctx.aiMdPath, ctx.manifest.name);</code></pre>
+<h3>From the CLI</h3>
+<pre class="md-code"><code class="lang-bash"># In your HOJAI project directory:
+hojai ai-spec generate     # auto-detect from package.json
+hojai ai-spec read         # show current spec
+hojai ai-spec validate     # validate existing files</code></pre>
+<h2>API</h2>
+<h3>Core</h3>
+<table class="md-table"><thead><tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>writeProjectContext(dir, manifest, capability)</code></td>
+<td>Writes all 3 files</td>
+</tr>
+<tr>
+<td><code>readProjectContext(dir)</code></td>
+<td>Reads all 3 files into a <code>ProjectContext</code></td>
+</tr>
+<tr>
+<td><code>isHojaiProject(dir)</code></td>
+<td>True if <code>.hojai/manifest.json</code> exists</td>
+</tr>
+</tbody></table>
+<h3>Schemas + types</h3>
+<table class="md-table"><thead><tr>
+<th>Export</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>Manifest</code></td>
+<td>TypeScript type for <code>.hojai/manifest.json</code></td>
+</tr>
+<tr>
+<td><code>Capability</code></td>
+<td>TypeScript type for <code>.hojai/capability.json</code></td>
+</tr>
+<tr>
+<td><code>ManifestSchema</code> / <code>CapabilitySchema</code></td>
+<td>Zod validators</td>
+</tr>
+<tr>
+<td><code>parseManifest(jsonString)</code></td>
+<td>Parse + validate a raw JSON string</td>
+</tr>
+<tr>
+<td><code>parseCapability(jsonString)</code></td>
+<td>Parse + validate a raw JSON string</td>
+</tr>
+<tr>
+<td><code>validateManifestData(data)</code></td>
+<td>Returns <code>{ valid, errors[] }</code></td>
+</tr>
+<tr>
+<td><code>validateCapabilityData(data)</code></td>
+<td>Returns <code>{ valid, errors[] }</code></td>
+</tr>
+</tbody></table>
+<h3>Introspection</h3>
+<table class="md-table"><thead><tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>generateManifestFromPackageJson(dir, options?)</code></td>
+<td>Auto-fill a manifest from <code>package.json</code></td>
+</tr>
+<tr>
+<td><code>generateCapabilityFromManifest(manifest, options?)</code></td>
+<td>Derive a capability from a manifest</td>
+</tr>
+<tr>
+<td><code>generateAndWrite(dir, options?)</code></td>
+<td>One-call: introspect + write all 3 files</td>
+</tr>
+</tbody></table>
+<h3>Templates</h3>
+<table class="md-table"><thead><tr>
+<th>Export</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>render({ manifest, capability })</code></td>
+<td>Render <code>hojai.ai.md</code> from inputs</td>
+</tr>
+<tr>
+<td><code>renderFor({ manifest, capability })</code></td>
+<td>Same, picks the right template by <code>manifest.type</code></td>
+</tr>
+<tr>
+<td><code>TEMPLATES</code></td>
+<td>Map of starter type → render function</td>
+</tr>
+</tbody></table>
+<h2>The 3 files</h2>
+<h3><code>hojai.ai.md</code></h3>
+<p>Markdown that AI tools read first. Renders structured sections for:</p>
+<ul>
+<li>Project name + description + region + languages + template</li>
+<li>Architecture (backend / frontend / mobile / database / AI stack)</li>
+<li>SUTAR agents (table of role + purpose + file path)</li>
+<li>HOJAI SDKs used (with one-line descriptions)</li>
+<li>Nexha federation capabilities</li>
+<li>Entry points, scripts, conventions</li>
+<li>&quot;How to extend&quot; (add agent, add endpoint, connect to Nexha)</li>
+</ul>
+<h3><code>.hojai/manifest.json</code></h3>
+<p>Machine-readable project schema. Versioned (1.0.0). Zod-validated. Includes:</p>
+<ul>
+<li><code>projectId</code>, <code>name</code>, <code>description</code>, <code>type</code>, <code>industry</code>, <code>region</code>, <code>languages</code></li>
+<li><code>stack</code> (backend, frontend, mobile, database, ai)</li>
+<li><code>agents</code> (role, purpose, file, capabilities)</li>
+<li><code>integrations</code> (list of <code>@hojai/*</code> packages used)</li>
+<li><code>conventions</code> (validation, auth, events, tests, linter, formatter)</li>
+<li><code>entrypoints</code>, <code>scripts</code>, <code>files</code></li>
+</ul>
+<h3><code>.hojai/capability.json</code></h3>
+<p>Nexha federation profile. Includes:</p>
+<ul>
+<li><code>projectId</code>, <code>layer</code> (1-9), <code>name</code>, <code>description</code></li>
+<li><code>capabilities</code> (id, name, tier, type)</li>
+<li><code>regions</code>, <code>languages</code>, <code>slaTargets</code></li>
+</ul>
+<p>This is what your project declares to the <strong>Global Nexha network</strong> when it joins.</p>
+<h2>Schema versioning</h2>
+<p>All three files carry a <code>schemaVersion</code> field. The current version is <code>1.0.0</code>. Future versions will be backward-compatible. If you upgrade <code>@hojai/ai-spec</code> and your existing files use an older version, the validators will tell you.</p>
+<h2>Tests</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-ai-spec
+npm install
+npm run build
+npm test</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="../../../../.claude/plans/hojai-developer-platform-spec.md">HOJAI Developer Platform Spec</a> — section 3 is the canonical reference for this format</li>
+<li><a href="../../foundry/packages/create-hojai/">HOJAI Foundry <code>create-hojai</code></a> — uses the same schema when scaffolding new projects</li>
+<li><a href="../hojai-cli/">@hojai/cli</a> — <code>hojai ai-spec generate</code> wraps this package</li>
+<li>All <code>@hojai/*</code> SDKs — these are the SDKs the AI tools will use to extend your project</li>
+</ul></div>
+
+</main>
+</body>
+</html>

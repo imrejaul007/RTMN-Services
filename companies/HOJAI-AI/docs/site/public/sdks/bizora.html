@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/bizora — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="active" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/bizora</h1>
+<p class="lead">Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/bizora">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~5</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/bizora` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (8/8 tests passing, 0 failures)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI Bizora SDK (@hojai/bizora)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/bizora</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (8/8 tests passing, 0 failures)</p>
+<h2>What this SDK is</h2>
+<p><strong>The official TypeScript client for the Bizora Reports Dashboard (port 4874).</strong> Wraps the dashboard + widget + report generation services into a single ergonomic client.</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>dashboards</code></td>
+<td>CRUD for dashboards (collections of widgets)</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>widgets</code></td>
+<td>CRUD for widgets + data fetcher</td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>reports</code></td>
+<td>Async report generation in PDF/CSV/XLSX/JSON + download</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/bizora
+├── Bizora                      # Main client (facade)
+│   ├── dashboards              # DashboardsClient  — 5 methods
+│   ├── widgets                 # WidgetsClient     — 6 methods
+│   └── reports                 # ReportsClient     — 4 methods
+├── HojaiConfig                 # Shared config
+└── resolveConfig()             # Apply defaults</code></pre>
+<p>Self-contained — does NOT import from other <code>@hojai/*</code> packages. Carries its own copy of <code>HojaiConfig</code> + <code>request()</code> + <code>buildQueryString</code> (~80 LOC).</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Bizora } from '@hojai/bizora';
+
+const b = new Bizora({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// 1. Create dashboard
+const dash = await b.dashboards.create({ name: 'Q3' });
+
+// 2. Add a KPI widget
+const w = await b.widgets.create({
+  dashboardId: dash.id, kind: 'kpi', title: 'MRR',
+  position: { x: 0, y: 0, w: 3, h: 2 }, source: 'sales.mrr'
+});
+
+// 3. Get widget data
+const data = await b.widgets.getData(w.id, { granularity: 'month' });
+
+// 4. Generate + auto-wait for a PDF report
+const report = await b.reports.generateAndWait(
+  { name: 'Q3 Report', format: 'pdf', dashboardId: dash.id },
+  { timeoutMs: 30000 }
+);</code></pre>
+<h2>Build &amp; test</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-bizora
+npm install
+npm run build
+npm test</code></pre>
+<h2>Tests (8/8 passing)</h2>
+<ul>
+<li>Bizora client instantiates with all 3 sub-clients</li>
+<li>DashboardsClient.create</li>
+<li>WidgetsClient.create</li>
+<li>WidgetsClient.getData</li>
+<li>ReportsClient.generate</li>
+<li>ReportsClient.generateAndWait polls until ready</li>
+<li>Retries on 5xx</li>
+<li>Throws on 4xx</li>
+</ul>
+<h2>Related</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Core platform</li>
+<li><a href="../hojai-department/CLAUDE.md">@hojai/department</a> — Department OSes (BI source)</li>
+<li><a href="https://github.com/hojai/bizora">Bizora Reports Dashboard service</a> — the underlying Express service</li>
+</ul>
+<p>The SDK family is now <strong>24 deep</strong> with this addition.</p></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/bizora</h1>
+<p>&gt; The official TypeScript SDK for the <strong>Bizora Reports Dashboard</strong> (port 4874). Embedded dashboards, widgets, and async report generation in PDF/CSV/XLSX/JSON.</p>
+<p><a href="https://img.shields.io/npm/v/@hojai/bizora.svg">![npm version</a>](https://www.npmjs.com/package/@hojai/bizora)</p>
+<p><a href="https://img.shields.io/badge/TypeScript-5.3-blue.svg">![TypeScript</a>](https://www.typescriptlang.org/)</p>
+<p><a href="https://img.shields.io/badge/License-MIT-yellow.svg">![License: MIT</a>](https://opensource.org/licenses/MIT)</p>
+<h2>What it does</h2>
+<p>Bizora is the <strong>reports + dashboards platform</strong> for HOJAI. It lets you:</p>
+<ul>
+<li>Create <strong>dashboards</strong> (collections of widgets)</li>
+<li>Add <strong>widgets</strong> (KPIs, charts, tables, heatmaps) with drag-and-drop positions</li>
+<li>Fetch <strong>computed widget data</strong> (time series, aggregates)</li>
+<li>Trigger <strong>report generation</strong> in PDF, CSV, XLSX, or JSON — async with pollable status</li>
+</ul>
+<p>Every HOJAI app that needs an embedded dashboard or scheduled report uses this SDK.</p>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/bizora</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Bizora } from '@hojai/bizora';
+
+const b = new Bizora({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// 1. Create a dashboard
+const dash = await b.dashboards.create({ name: 'Q3 Overview' });
+
+// 2. Add a KPI widget
+const w = await b.widgets.create({
+  dashboardId: dash.id,
+  kind: 'kpi',
+  title: 'MRR',
+  position: { x: 0, y: 0, w: 3, h: 2 },
+  source: 'sales.mrr'
+});
+
+// 3. Get widget data
+const data = await b.widgets.getData(w.id, { granularity: 'month' });
+console.log(data.totals.mrr);
+
+// 4. Generate a PDF report (with auto-wait)
+const report = await b.reports.generateAndWait(
+  { name: 'Q3 Report', format: 'pdf', dashboardId: dash.id },
+  { timeoutMs: 30000 }
+);
+console.log('Download:', report.downloadUrl);</code></pre>
+<h2>What's inside</h2>
+<p>3 sub-clients, ~14 methods:</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>dashboards</code></td>
+<td>CRUD for dashboards</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>widgets</code></td>
+<td>CRUD for widgets + data fetcher</td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>reports</code></td>
+<td>Async report generation + download</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<h2>Subpath imports</h2>
+<pre class="md-code"><code class="lang-ts">import { DashboardsClient } from '@hojai/bizora/dashboards';
+import { WidgetsClient } from '@hojai/bizora/widgets';
+import { ReportsClient } from '@hojai/bizora/reports';</code></pre>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const b = new Bizora({
+  apiKey: 'hojai_live_...',         // required
+  baseUrl: 'https://api.hojai.ai',  // required
+  timeout: 10_000,                  // optional, default 10s
+  maxRetries: 3,                    // optional, default 3
+  fetchImpl: customFetch,           // optional
+  logger: (level, msg, meta) =&gt; {}  // optional
+});</code></pre>
+<p>When <code>baseUrl</code> includes <code>localhost</code>, sub-clients automatically target port <strong>4874</strong> (the Bizora Reports Dashboard port).</p>
+<h2>Tests</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-bizora
+npm install
+npm run build
+npm test</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/">@hojai/foundation</a> — CorpID, Memory, Twin, Trust, Flow, Policy</li>
+<li><a href="../hojai-department/">@hojai/department</a> — Department OSes (dashboards often show department KPIs)</li>
+<li><a href="../hojai/department">@hojai/revenue-intelligence-os</a> — Source of revenue KPIs that Bizora dashboards typically surface</li>
+</ul>
+<p>The SDK family is now <strong>24 deep</strong>.</p></div>
+
+</main>
+</body>
+</html>

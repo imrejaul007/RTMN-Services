@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/twin — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="active" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/twin</h1>
+<p class="lead">Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/twin">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/twin` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** ✅ **PRODUCTION-READY** — Wraps TwinOS Hub (port 4705) + 4 specialized twin services (customer, order, employee, voice). ---</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/twin — TwinOS SDK</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/twin</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — Wraps TwinOS Hub (port 4705) + 4 specialized twin services (customer, order, employee, voice).</p>
+<p>---</p>
+<h2>What this SDK is</h2>
+<p><strong>The official client for HOJAI TwinOS.</strong> TwinOS provides domain-centric digital twins — domain-aware representations of customers, orders, employees, products, voice profiles, and more. TwinOS is the digital-twin fabric that powers commerce, customer experience, supply chain, and HR across the HOJAI ecosystem.</p>
+<p>Any developer building digital-twin-aware applications on HOJAI should use this SDK.</p>
+<p>It handles:</p>
+<ul>
+<li>HTTP transport (retries, timeouts, exponential backoff)</li>
+<li>Authentication</li>
+<li>Error handling</li>
+<li>TypeScript types for every entity (CustomerTwin, OrderTwin, EmployeeTwin, VoiceProfile)</li>
+<li>Subpath exports for tree-shaking</li>
+</ul>
+<p>---</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Twin } from '@hojai/twin';
+
+const t = new Twin({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Generic twin CRUD via the Hub
+const twins = await t.hub.list({ type: 'customer' });
+const newTwin = await t.hub.create({ type: 'product', name: 'Cotton t-shirt' });
+await t.hub.setState(newTwin.id, { inStock: true });
+
+// 2. Specialized: customer twin (LTV, churn, events)
+const cust = await t.customer.createCustomer({ corpId: 'c-1', name: 'Alice' });
+await t.customer.recordEvent(cust.id, {
+  type: 'purchase',
+  properties: { sku: 'tee-1', amount: 2000 },
+  occurredAt: new Date().toISOString()
+});
+const ltv = await t.customer.getLtv(cust.id);
+
+// 3. Specialized: order twin (lifecycle, status transitions)
+const order = await t.order.createOrder({
+  customerId: 'c-1',
+  lines: [{ productId: 'p-1', name: 'Tee', quantity: 2, unitPrice: { amount: 2000, currency: 'USD' } }]
+});
+await t.order.transitionStatus(order.id, 'shipped');
+
+// 4. Voice twin (TTS, STT)
+const recording = await t.voice.synthesize({ voiceProfileId: 'v-1', text: 'Welcome to HOJAI' });
+const transcript = await t.voice.transcribe({ audioUrl: recording.audioUrl, language: 'en' });</code></pre>
+<p>---</p>
+<h2>Sub-Clients (5 total)</h2>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Service</th>
+<th>Port</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>t.hub</code></td>
+<td>TwinOS Hub</td>
+<td>4705</td>
+<td>Generic twin CRUD, state, identity, lifecycle, relationships, sync, stats, categories</td>
+</tr>
+<tr>
+<td><code>t.customer</code></td>
+<td>Customer Twin</td>
+<td>4895</td>
+<td>Customer profile + LTV + churn prediction + segments + event recording</td>
+</tr>
+<tr>
+<td><code>t.order</code></td>
+<td>Order Twin</td>
+<td>5310</td>
+<td>Order lifecycle + cart + shipment + return + status transitions</td>
+</tr>
+<tr>
+<td><code>t.employee</code></td>
+<td>Employee Twin</td>
+<td>4730</td>
+<td>Employee profile + performance reviews + skill tracking + manager + time-off</td>
+</tr>
+<tr>
+<td><code>t.voice</code></td>
+<td>Voice Twin</td>
+<td>4876</td>
+<td>TTS + STT + voice profiles + recording history</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Subpath Imports</h2>
+<pre class="md-code"><code class="lang-ts">import { TwinHubClient } from '@hojai/twin/hub';
+import { CustomerTwinClient } from '@hojai/twin/customer';
+import { OrderTwinClient } from '@hojai/twin/order';
+import { EmployeeTwinClient } from '@hojai/twin/employee';
+import { VoiceTwinClient } from '@hojai/twin/voice';
+import type { CustomerTwin, OrderTwin, EmployeeTwin, VoiceProfile } from '@hojai/twin/types';</code></pre>
+<p>---</p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/twin
+├── Twin                            # Main client (facade)
+│   ├── hub                         # TwinHubClient       — generic CRUD
+│   ├── customer                    # CustomerTwinClient   — customer-specific
+│   ├── order                       # OrderTwinClient      — order-specific
+│   ├── employee                    # EmployeeTwinClient   — employee-specific
+│   └── voice                       # VoiceTwinClient      — voice-specific
+├── HojaiConfig                      # Shared config interface
+├── resolveConfig()                  # Apply defaults
+└── request()                        # HTTP with retries + backoff</code></pre>
+<p>Built on <code>@hojai/foundation</code>'s <code>HojaiConfig</code> pattern (same as all other <code>@hojai/*</code> SDKs).</p>
+<p>---</p>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const t = new Twin({
+  apiKey: 'hojai_live_...',         // required
+  baseUrl: 'https://api.hojai.ai',  // required
+  timeout: 15_000,                  // optional, default 10s
+  maxRetries: 3,                    // optional, default 3
+  fetchImpl: customFetch,           // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {}  // optional
+});</code></pre>
+<p>---</p>
+<h2>Constants</h2>
+<table class="md-table"><thead><tr>
+<th>Constant</th>
+<th>Value</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>TWIN_PORTS.hub</code></td>
+<td>4705</td>
+<td>TwinOS Hub port</td>
+</tr>
+<tr>
+<td><code>TWIN_PORTS.customer</code></td>
+<td>4895</td>
+<td>Customer Twin port</td>
+</tr>
+<tr>
+<td><code>TWIN_PORTS.order</code></td>
+<td>5310</td>
+<td>Order Twin port</td>
+</tr>
+<tr>
+<td><code>TWIN_PORTS.employee</code></td>
+<td>4730</td>
+<td>Employee Twin port</td>
+</tr>
+<tr>
+<td><code>TWIN_PORTS.voice</code></td>
+<td>4876</td>
+<td>Voice Twin port</td>
+</tr>
+<tr>
+<td><code>TWIN_PORTS.capabilityProfile</code></td>
+<td>4150</td>
+<td>Capability Profile port</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Twin Categories</h2>
+<p>TwinOS organizes twins into categories:</p>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Examples</th>
+</tr></thead><tbody>
+<tr>
+<td><code>foundation</code></td>
+<td><code>corpid.identity</code>, <code>memory.knowledge</code>, <code>goal.objective</code>, <code>decision.policy</code>, <code>agent.ai</code></td>
+</tr>
+<tr>
+<td><code>commerce</code></td>
+<td><code>commerce.customer</code>, <code>commerce.order</code>, <code>commerce.wallet</code>, <code>commerce.product</code>, <code>commerce.cart</code>, <code>commerce.coupon</code></td>
+</tr>
+<tr>
+<td><code>people</code></td>
+<td><code>people.employee</code>, <code>people.user</code>, <code>people.founder</code>, <code>people.candidate</code></td>
+</tr>
+<tr>
+<td><code>ai</code></td>
+<td><code>ai.memory</code>, <code>ai.conversation</code>, <code>ai.intent</code>, <code>ai.goal</code>, <code>ai.agent</code>, <code>ai.knowledge</code></td>
+</tr>
+<tr>
+<td><code>hospitality</code></td>
+<td><code>hospitality.hotel</code>, <code>hospitality.room</code>, <code>hospitality.guest</code>, <code>hospitality.restaurant</code></td>
+</tr>
+<tr>
+<td><code>healthcare</code></td>
+<td><code>healthcare.patient</code>, <code>healthcare.doctor</code>, <code>healthcare.hospital</code>, <code>healthcare.prescription</code></td>
+</tr>
+<tr>
+<td><code>finance</code></td>
+<td><code>finance.asset</code>, <code>finance.budget</code>, <code>finance.expense</code>, <code>finance.invoice</code>, <code>finance.ledger</code></td>
+</tr>
+<tr>
+<td><code>marketing</code></td>
+<td><code>marketing.campaign</code>, <code>marketing.audience</code>, <code>marketing.ad</code>, <code>marketing.creative</code></td>
+</tr>
+<tr>
+<td><code>operations</code></td>
+<td><code>ops.project</code>, <code>ops.task</code>, <code>ops.process</code>, <code>ops.incident</code>, <code>ops.resource</code></td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Use Cases</h2>
+<p><strong>Build a 360° customer view:</strong></p>
+<pre class="md-code"><code class="lang-ts">const customer = await t.customer.createCustomer({ corpId: 'c-1', name: 'Alice' });
+await t.customer.recordEvent(customer.id, { type: 'page_view', properties: { url: '/products' } });
+const ltv = await t.customer.getLtv(customer.id);
+const orders = await t.order.list({ customerId: customer.id });</code></pre>
+<p><strong>Build an order-tracking dashboard:</strong></p>
+<pre class="md-code"><code class="lang-ts">const order = await t.order.createOrder({ customerId: 'c-1', lines: [...] });
+await t.order.transitionStatus(order.id, 'paid');
+await t.order.transitionStatus(order.id, 'shipped');
+await t.order.transitionStatus(order.id, 'delivered');</code></pre>
+<p><strong>Build a voice-enabled AI assistant:</strong></p>
+<pre class="md-code"><code class="lang-ts">const transcript = await t.voice.transcribe({ audioUrl: '...', language: 'en' });
+const response = await ai.complete({ prompt: transcript.text });
+const audio = await t.voice.synthesize({ voiceProfileId: 'v-1', text: response });</code></pre>
+<p>---</p>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test</code></pre>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-twin/
+├── CLAUDE.md                    # This file
+├── README.md                    # Quick start
+├── package.json                 # npm config with subpath exports
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts     # HojaiConfig + resolveConfig
+│   ├── utils.ts                 # request, buildQueryString
+│   ├── types.ts                 # TWIN_PORTS, TwinRecord, Money, …
+│   ├── hub.ts                   # TwinHubClient (port 4705)
+│   ├── customer.ts              # CustomerTwinClient (port 4895)
+│   ├── order.ts                 # OrderTwinClient (port 5310)
+│   ├── employee.ts              # EmployeeTwinClient (port 4730)
+│   ├── voice.ts                 # VoiceTwinClient (port 4876)
+│   ├── index.ts                 # Main Twin facade
+│   └── __tests__/
+│       └── index.test.ts        # Tests
+└── dist/                        # Compiled output
+    ├── index.{js,mjs,d.ts}
+    ├── hub.{js,mjs,d.ts}
+    ├── customer.{js,mjs,d.ts}
+    ├── order.{js,mjs,d.ts}
+    ├── employee.{js,mjs,d.ts}
+    ├── voice.{js,mjs,d.ts}
+    ├── types.{js,mjs,d.ts}
+    └── __tests__/index.test.js</code></pre>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Base SDK with simplified <code>twin</code> sub-client for basic usage</li>
+<li><a href="../hojai-memory/CLAUDE.md">@hojai/memory</a> — Memory SDK (twins own memory partitions via the Twin Memory Bridge)</li>
+<li><a href="../hojai-payment/CLAUDE.md">@hojai/payment</a> — Payment SDK (orders, wallets, refunds)</li>
+<li><a href="../../../companies/HOJAI-AI/platform/twinos/CLAUDE.md">TwinOS Documentation</a> — Full TwinOS architecture</li>
+</ul></div>
+
+
+
+</main>
+</body>
+</html>

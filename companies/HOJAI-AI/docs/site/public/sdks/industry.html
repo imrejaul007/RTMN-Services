@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/industry — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="active" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/industry</h1>
+<p class="lead">Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/industry">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~9</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/industry` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (8/8 tests passing, 0 failures)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI Industry SDK (@hojai/industry)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/industry</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (8/8 tests passing, 0 failures)</p>
+<h2>What this SDK is</h2>
+<p><strong>The official TypeScript client for the 26 Industry OS services of RTMN.</strong> Each industry is a vertical operating system (restaurant, hotel, healthcare, etc.) running on its own port. This SDK wraps all 26 of them into a single ergonomic client, organized as one sub-client per industry.</p>
+<p>22 of the 26 industries share a common template surface (<code>menu + orders + tables + customers</code>) and inherit from <code>IndustryBaseClient</code>. Hotel, Beauty, Event-Banquet, and Exhibition have richer industry-specific surfaces.</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Industry</th>
+<th>Port</th>
+<th>Surface</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>restaurant</code></td>
+<td>Restaurant</td>
+<td>5010</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>hotel</code></td>
+<td>Hotel</td>
+<td>5025</td>
+<td>rooms + bookings + guests</td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>healthcare</code></td>
+<td>Healthcare</td>
+<td>5020</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>retail</code></td>
+<td>Retail</td>
+<td>5030</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>legal</code></td>
+<td>Legal</td>
+<td>5035</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>education</code></td>
+<td>Education</td>
+<td>5060</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>agriculture</code></td>
+<td>Agriculture</td>
+<td>5070</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>automotive</code></td>
+<td>Automotive</td>
+<td>5080</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>beauty</code></td>
+<td>Beauty</td>
+<td>5090</td>
+<td>services + stylists + appointments</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>fashion</code></td>
+<td>Fashion</td>
+<td>5095</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>fitness</code></td>
+<td>Fitness</td>
+<td>5110</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>gaming</code></td>
+<td>Gaming</td>
+<td>5120</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>government</code></td>
+<td>Government</td>
+<td>5130</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>homeServices</code></td>
+<td>Home Services</td>
+<td>5140</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>manufacturing</code></td>
+<td>Manufacturing</td>
+<td>5150</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>nonProfit</code></td>
+<td>Non-Profit</td>
+<td>5160</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>professional</code></td>
+<td>Professional</td>
+<td>5170</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>sports</code></td>
+<td>Sports</td>
+<td>5180</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>travel</code></td>
+<td>Travel</td>
+<td>5190</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>entertainment</code></td>
+<td>Entertainment</td>
+<td>5200</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>construction</code></td>
+<td>Construction</td>
+<td>5210</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>financial</code></td>
+<td>Financial</td>
+<td>5220</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>realEstate</code></td>
+<td>Real Estate</td>
+<td>5230</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>transport</code></td>
+<td>Transport</td>
+<td>5240</td>
+<td>template</td>
+<td>9</td>
+</tr>
+<tr>
+<td><code>eventBanquet</code></td>
+<td>Event &amp; Banquet</td>
+<td>4751</td>
+<td>events (lifecycle)</td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>exhibition</code></td>
+<td>Exhibition</td>
+<td>5040</td>
+<td>exhibitions (lifecycle)</td>
+<td>11</td>
+</tr>
+</tbody></table>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/industry
+├── Industry                       # Main client (facade)
+│   ├── restaurant                 # 9 methods (template)
+│   ├── hotel                      # 11 methods (rooms + bookings)
+│   ├── healthcare                 # 9 methods (template)
+│   ├── ...                        # 19 more template-style
+│   ├── beauty                     # 9 methods (services + stylists)
+│   ├── eventBanquet               # 11 methods (events + lifecycle)
+│   └── exhibition                 # 11 methods (exhibitions + lifecycle)
+├── IndustryBaseClient             # Shared 9-method template surface
+├── HojaiConfig                    # Shared config (apiKey, baseUrl, timeout, maxRetries, fetchImpl, logger)
+├── resolveConfig()                # Apply defaults
+└── INDUSTRY_PORTS                 # Map of industry key → port number</code></pre>
+<p>Self-contained — does NOT import from other <code>@hojai/*</code> packages. Each SDK carries its own copy of <code>HojaiConfig</code> and the <code>request()</code> + <code>buildQueryString</code> helpers (~80 LOC), so it can be installed and used independently. This mirrors the pattern in <code>@hojai/sutar</code>, <code>@hojai/marketplace</code>, <code>@hojai/genie</code>, and <code>@hojai/commerce</code>.</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Industry } from '@hojai/industry';
+
+const ind = new Industry({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// Restaurant
+const order = await ind.restaurant.createOrder({ tableId: 't-1', items: [{ menuItemId: 'm-1', quantity: 2 }] });
+
+// Hotel: full booking lifecycle
+const booking = await ind.hotel.createBooking({ roomId: 'r-101', guestId: 'g-1', checkIn: '2026-07-01', checkOut: '2026-07-05' });
+await ind.hotel.checkIn(booking.id);
+await ind.hotel.checkOut(booking.id);
+
+// Beauty: book an appointment
+const appt = await ind.beauty.createAppointment({ serviceId: 's-1', stylistId: 'st-1', customerId: 'c-1', startAt: '2026-07-01T10:00:00Z' });
+
+// Event: full lifecycle
+const event = await ind.eventBanquet.createEvent({ name: 'Wedding', eventDate: '2026-08-15', startTime: '18:00', endTime: '23:00', venue: 'Ballroom', guestCount: 200, customerId: 'c-1' });
+await ind.eventBanquet.confirm(event.id);
+await ind.eventBanquet.start(event.id);
+await ind.eventBanquet.complete(event.id);
+
+// Cross-industry aggregation
+const openOrders = await Promise.all([
+  ind.restaurant.listOrders({ status: 'pending' }),
+  ind.retail.listOrders({ status: 'pending' }),
+]);</code></pre>
+<h2>Build &amp; test</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-industry
+npm install
+npm run build
+npm test</code></pre>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-industry/
+├── CLAUDE.md                       # This file
+├── README.md                       # Quick start
+├── package.json                    # npm config with subpath exports for 26 sub-clients
+├── tsconfig.json
+├── src/
+│   ├── foundation-config.ts        # HojaiConfig + resolveConfig (copied)
+│   ├── utils.ts                    # request() + buildQueryString (copied)
+│   ├── types.ts                    # Common types + INDUSTRY_PORTS map
+│   ├── base.ts                     # IndustryBaseClient — 9 shared template methods
+│   ├── restaurant.ts               # template: extends base (port 5010)
+│   ├── hotel.ts                    # rooms + bookings + guests (port 5025)
+│   ├── healthcare.ts               # template: extends base (port 5020)
+│   ├── retail.ts                   # template: extends base (port 5030)
+│   ├── legal.ts                    # template: extends base (port 5035)
+│   ├── education.ts                # template: extends base (port 5060)
+│   ├── agriculture.ts              # template: extends base (port 5070)
+│   ├── automotive.ts               # template: extends base (port 5080)
+│   ├── beauty.ts                   # services + stylists + appointments (port 5090)
+│   ├── fashion.ts                  # template: extends base (port 5095)
+│   ├── fitness.ts                  # template: extends base (port 5110)
+│   ├── gaming.ts                   # template: extends base (port 5120)
+│   ├── government.ts               # template: extends base (port 5130)
+│   ├── home-services.ts            # template: extends base (port 5140)
+│   ├── manufacturing.ts            # template: extends base (port 5150)
+│   ├── non-profit.ts               # template: extends base (port 5160)
+│   ├── professional.ts             # template: extends base (port 5170)
+│   ├── sports.ts                   # template: extends base (port 5180)
+│   ├── travel.ts                   # template: extends base (port 5190)
+│   ├── entertainment.ts            # template: extends base (port 5200)
+│   ├── construction.ts             # template: extends base (port 5210)
+│   ├── financial.ts                # template: extends base (port 5220)
+│   ├── real-estate.ts              # template: extends base (port 5230)
+│   ├── transport.ts                # template: extends base (port 5240)
+│   ├── event-banquet.ts            # events lifecycle (port 4751)
+│   ├── exhibition.ts               # exhibitions lifecycle (port 5040)
+│   ├── index.ts                    # Main Industry class + re-exports
+│   └── __tests__/index.test.ts     # 8 tests
+└── dist/                           # Compiled output</code></pre>
+<h2>Tests (8/8 passing)</h2>
+<ul>
+<li>Industry client instantiates with all 26 sub-clients</li>
+<li>RestaurantClient.createOrder (template surface, port 5010)</li>
+<li>HotelClient.createBooking + checkIn (hotel surface, port 5025)</li>
+<li>BeautyClient.createAppointment (beauty surface, port 5090)</li>
+<li>EventBanquetClient full lifecycle (create → confirm → start → complete, port 4751)</li>
+<li>ExhibitionClient full lifecycle (create → publish → start → complete, port 5040)</li>
+<li>Retries on 5xx (calls mock 3 times before success)</li>
+<li>Throws on 4xx</li>
+</ul>
+<h2>Related</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Core platform client</li>
+<li><a href="../hojai-sutar/CLAUDE.md">@hojai/sutar</a> — SUTAR agent runtime SDK</li>
+<li><a href="../hojai-nexha/CLAUDE.md">@hojai/nexha</a> — Nexha federation network SDK</li>
+<li><a href="../hojai-marketplace/CLAUDE.md">@hojai/marketplace</a> — BAM marketplace SDK</li>
+<li><a href="../hojai-genie/CLAUDE.md">@hojai/genie</a> — Personal AI assistant SDK</li>
+<li><a href="../hojai-commerce/CLAUDE.md">@hojai/commerce</a> — RABTUL commerce SDK</li>
+<li><a href="../../../../industry-os/services/">Industry OS services</a> — the 26 underlying services wrapped here</li>
+</ul></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/industry</h1>
+<p>&gt; The official TypeScript SDK for the 24 (now 26) vertical <strong>Industry OS</strong> services of the RTMN ecosystem.</p>
+<p><a href="https://img.shields.io/npm/v/@hojai/industry.svg">![npm version</a>](https://www.npmjs.com/package/@hojai/industry)</p>
+<p><a href="https://img.shields.io/badge/TypeScript-5.3-blue.svg">![TypeScript</a>](https://www.typescriptlang.org/)</p>
+<p><a href="https://img.shields.io/badge/License-MIT-yellow.svg">![License: MIT</a>](https://opensource.org/licenses/MIT)</p>
+<p>RTMN has one <strong>Industry OS</strong> per vertical: restaurant, hotel, healthcare, retail, education, real estate, and 20+ more. Each one runs as its own service on a dedicated port and exposes a domain-specific API. This SDK wraps all 26 of them into a single ergonomic TypeScript client.</p>
+<p>22 of the 26 sub-clients share a common 9-method template (menu / orders / tables / customers) via <code>IndustryBaseClient</code>. Hotel, Beauty, Event-Banquet, and Exhibition have richer industry-specific surfaces.</p>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/industry</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Industry } from '@hojai/industry';
+
+const ind = new Industry({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Restaurant: create an order
+const order = await ind.restaurant.createOrder({
+  tableId: 't-1',
+  customerId: 'c-1',
+  items: [{ menuItemId: 'm-1', quantity: 2 }]
+});
+
+// 2. Hotel: book + check in
+const booking = await ind.hotel.createBooking({
+  roomId: 'r-101',
+  guestId: 'g-1',
+  checkIn: '2026-07-01',
+  checkOut: '2026-07-05'
+});
+await ind.hotel.checkIn(booking.id);
+
+// 3. Beauty: book an appointment with a stylist
+const appt = await ind.beauty.createAppointment({
+  serviceId: 's-1',
+  stylistId: 'st-1',
+  customerId: 'c-1',
+  startAt: '2026-07-01T10:00:00Z'
+});
+
+// 4. Event &amp; Banquet: full lifecycle (create → confirm → start → complete)
+const event = await ind.eventBanquet.createEvent({
+  name: 'Wedding Reception',
+  eventDate: '2026-08-15',
+  startTime: '18:00',
+  endTime: '23:00',
+  venue: 'Grand Ballroom',
+  guestCount: 200,
+  customerId: 'c-1'
+});
+await ind.eventBanquet.confirm(event.id);
+await ind.eventBanquet.start(event.id);
+await ind.eventBanquet.complete(event.id, 'Perfect evening');
+
+// 5. Cross-industry: get all pending orders across industries
+const openOrders = await Promise.all([
+  ind.restaurant.listOrders({ status: 'pending' }),
+  ind.retail.listOrders({ status: 'pending' }),
+  ind.healthcare.listOrders({ status: 'pending' })
+]);
+console.log(`Open orders: ${openOrders.flat().length}`);</code></pre>
+<h2>What's inside</h2>
+<p>26 sub-clients, ~120 methods total:</p>
+<table class="md-table"><thead><tr>
+<th>Group</th>
+<th>Industries</th>
+<th>Surface</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Template (22)</strong></td>
+<td>restaurant, healthcare, retail, legal, education, agriculture, automotive, fashion, fitness, gaming, government, homeServices, manufacturing, nonProfit, professional, sports, travel, entertainment, construction, financial, realEstate, transport</td>
+<td>Menu + orders + tables + customers</td>
+<td>9 each</td>
+</tr>
+<tr>
+<td><strong>Hotel</strong></td>
+<td>hotel</td>
+<td>Rooms + bookings (check-in/out/cancel) + guests</td>
+<td>11</td>
+</tr>
+<tr>
+<td><strong>Beauty</strong></td>
+<td>beauty</td>
+<td>Services + stylists + appointments</td>
+<td>9</td>
+</tr>
+<tr>
+<td><strong>Event-Banquet</strong></td>
+<td>eventBanquet</td>
+<td>Modules + agents + events (lifecycle)</td>
+<td>11</td>
+</tr>
+<tr>
+<td><strong>Exhibition</strong></td>
+<td>exhibition</td>
+<td>Modules + agents + exhibitions (lifecycle)</td>
+<td>11</td>
+</tr>
+</tbody></table>
+<p>The 22 template-style industries share <code>IndustryBaseClient</code> — they all expose:</p>
+<ul>
+<li><code>listMenu</code>, <code>addMenuItem</code></li>
+<li><code>listOrders</code>, <code>createOrder</code>, <code>updateOrderStatus</code></li>
+<li><code>listTables</code>, <code>reserveTable</code></li>
+<li><code>listCustomers</code>, <code>addCustomer</code>, <code>addPoints</code></li>
+</ul>
+<p>Hotel adds rooms/bookings on top of the base. Beauty, Event-Banquet, and Exhibition have their own surfaces (no shared base).</p>
+<h2>Subpath imports</h2>
+<p>For tree-shaking and smaller bundles:</p>
+<pre class="md-code"><code class="lang-ts">import { RestaurantClient } from '@hojai/industry/restaurant';
+import { HotelClient } from '@hojai/industry/hotel';
+import { IndustryBaseClient } from '@hojai/industry/base';</code></pre>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const ind = new Industry({
+  apiKey: 'hojai_live_...',         // required
+  baseUrl: 'https://api.hojai.ai',  // required
+  timeout: 10_000,                  // optional, default 10s
+  maxRetries: 3,                    // optional, default 3
+  fetchImpl: customFetch,           // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {}  // optional
+});</code></pre>
+<p>Each sub-client automatically targets its dedicated port. To override (e.g. for staging), construct a sub-client with a custom HojaiConfig whose <code>baseUrl</code> points at the desired host.</p>
+<h2>Error handling</h2>
+<pre class="md-code"><code class="lang-ts">try {
+  await ind.restaurant.createOrder({ ... });
+} catch (err) {
+  // err.message = &quot;HTTP 404: ...&quot; or &quot;HTTP 500: ...&quot;
+  // SDK retries 5xx automatically (up to maxRetries)
+  // SDK throws on 4xx immediately
+}</code></pre>
+<h2>Tests</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-industry
+npm install
+npm run build
+npm test</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/">@hojai/foundation</a> — CorpID, Memory, Twin, Trust, Flow, Policy</li>
+<li><a href="../hojai-sutar/">@hojai/sutar</a> — SUTAR agent runtime</li>
+<li><a href="../hojai-nexha/">@hojai/nexha</a> — Nexha federation network</li>
+<li><a href="../hojai-marketplace/">@hojai/marketplace</a> — BAM marketplace</li>
+<li><a href="../hojai-genie/">@hojai/genie</a> — Personal AI assistant</li>
+<li><a href="../hojai-commerce/">@hojai/commerce</a> — RABTUL commerce</li>
+<li><a href="../../../../industry-os/services/">Industry OS services</a> — the 26 underlying services wrapped here</li>
+</ul></div>
+
+</main>
+</body>
+</html>

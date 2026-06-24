@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quickstart — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="active">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>Quickstart</h1>
+<p>Get a HOJAI project running in under 5 minutes.</p>
+
+<h2>1. Install the CLI</h2>
+<pre class="md-code"><code>npm install -g @hojai/cli
+# or use npx without installing
+npx hojai --help</code></pre>
+
+<h2>2. Configure your API key</h2>
+<pre class="md-code"><code>hojai config set --api-key hojai_live_xxxx
+hojai whoami  # verify the connection</code></pre>
+<p>Or set environment variables instead:</p>
+<pre class="md-code"><code>export HOJAI_API_KEY=hojai_live_xxxx
+export HOJAI_BASE_URL=https://api.hojai.ai</code></pre>
+
+<h2>3. Scaffold a project</h2>
+<pre class="md-code"><code>npx hojai create
+# Or non-interactive:
+npx hojai create --template marketplace --region us-east --name my-app</code></pre>
+<p>The scaffolder prompts you for a template (marketplace, b2b, company, hotel, …), agents, region, and languages. Output is a working Node + Express project.</p>
+
+<h2>4. Install + run</h2>
+<pre class="md-code"><code>cd my-app
+npm install
+npm run dev
+# → backend on http://localhost:4001
+# → frontend on http://localhost:3000</code></pre>
+
+<h2>5. Generate the AI-native spec</h2>
+<pre class="md-code"><code>hojai ai-spec generate</code></pre>
+<p>Creates <code>hojai.ai.md</code> + <code>.hojai/manifest.json</code> + <code>.hojai/capability.json</code>. Now Claude Code / Cursor / Codex can read your project.</p>
+
+<h2>6. Verify with <code>hojai doctor</code></h2>
+<pre class="md-code"><code>hojai doctor</code></pre>
+<p>Runs 5 health checks: config, gateway, auth, project files, deps. Exits non-zero on failure — CI-friendly.</p>
+
+<h2>7. Deploy</h2>
+<pre class="md-code"><code>hojai deploy                # local: spawns the project on a free port
+hojai deploy --mode=preview  # generates dist/preview.html
+hojai deploy --mode=remote  # POSTs to HOJAI Cloud</code></pre>
+
+<h2>8. Extend with the SDKs</h2>
+<p>Every HOJAI service has a matching SDK. Some you might use right away:</p>
+<pre class="md-code"><code>npm install @hojai/foundation @hojai/sutar @hojai/memory</code></pre>
+<pre class="md-code"><code>import { Hojai } from '@hojai/foundation';
+import { Memory } from '@hojai/memory';
+
+const hojai = new Hojai({ apiKey, baseUrl: 'https://api.hojai.ai' });
+await hojai.corpId.create({ type: 'company', metadata: { name: 'My Co' } });
+const mem = new Memory({ apiKey, baseUrl: 'https://api.hojai.ai' });
+await mem.write('my-key', { value: 'hello' });</code></pre>
+<p>Browse the <a href="#all-sdks">20 SDKs in the sidebar</a> for the full list.</p>
+
+<h2>Next steps</h2>
+<ul>
+  <li>Read the <a href="/ai-native.html">AI-native spec</a> to understand how AI tools read your project.</li>
+  <li>Browse the <a href="/cli.html">CLI reference</a> for the full command surface.</li>
+  <li>Use <code>hojai add agent "Sales Coach"</code> to scaffold a new SUTAR agent.</li>
+  <li>Use <code>hojai add industry restaurant</code> to wire a vertical into an existing project.</li>
+</ul>
+
+</main>
+</body>
+</html>

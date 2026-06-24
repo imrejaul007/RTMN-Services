@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/cli — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="active" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/cli</h1>
+<p class="lead">The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.</p>
+<p><strong>Version:</strong> 1.1.0 · <a href="https://www.npmjs.com/package/@hojai/cli">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/cli` v1.0.0 &gt; **TypeScript:** ESM, Node.js &gt;= 18 &gt; **Bin:** `hojai` (via `npx hojai`) &gt; **Status:** ✅ **PRODUCTION-READY** — runs against the HOJAI Cloud / RTMN Hub. ---</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/cli — HOJAI Command-Line Tool</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/cli</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> ESM, Node.js &gt;= 18</p>
+<p>&gt; <strong>Bin:</strong> <code>hojai</code> (via <code>npx hojai</code>)</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — runs against the HOJAI Cloud / RTMN Hub.</p>
+<p>---</p>
+<h2>What it is</h2>
+<p>The HOJAI command-line tool. Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native project specs — all from your terminal.</p>
+<p>It's the fastest way for humans (and AI coding assistants) to interact with the HOJAI ecosystem without writing a full SDK integration.</p>
+<p>---</p>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash"># One-off use
+npx hojai --help
+
+# Global install
+npm install -g @hojai/cli
+hojai --help</code></pre>
+<p>---</p>
+<h2>Commands</h2>
+<table class="md-table"><thead><tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>hojai help</code> / <code>hojai --help</code></td>
+<td>Show full usage</td>
+</tr>
+<tr>
+<td><code>hojai version</code></td>
+<td>Print version</td>
+</tr>
+<tr>
+<td>`hojai config [show\</td>
+<td>set\</td>
+<td>clear]`</td>
+<td>Manage CLI configuration (apiKey, baseUrl)</td>
+</tr>
+<tr>
+<td><code>hojai whoami</code></td>
+<td>Show current API key + gateway health</td>
+</tr>
+<tr>
+<td><code>hojai listings search</code></td>
+<td>Search the BAM marketplace</td>
+</tr>
+<tr>
+<td><code>hojai listings get &lt;id&gt;</code></td>
+<td>Show a marketplace listing</td>
+</tr>
+<tr>
+<td><code>hojai memory capture &lt;text&gt;</code></td>
+<td>Capture a memory</td>
+</tr>
+<tr>
+<td><code>hojai memory search &lt;query&gt;</code></td>
+<td>Search your memories</td>
+</tr>
+<tr>
+<td><code>hojai memory compose &lt;owner&gt; &lt;q&gt;</code></td>
+<td>Compose LLM context for an owner</td>
+</tr>
+<tr>
+<td><code>hojai ai-spec generate</code></td>
+<td>Generate <code>hojai.ai.md</code> + <code>.hojai/</code> files</td>
+</tr>
+<tr>
+<td><code>hojai ai-spec read</code></td>
+<td>Show current AI-native spec</td>
+</tr>
+<tr>
+<td><code>hojai ai-spec validate</code></td>
+<td>Validate existing AI-native spec</td>
+</tr>
+<tr>
+<td>`hojai deploy [--mode=local\</td>
+<td>preview\</td>
+<td>remote]`</td>
+<td>Ship the current project to a runnable URL</td>
+</tr>
+<tr>
+<td><code>hojai add agent &lt;Name&gt;</code></td>
+<td>Add a stub SUTAR agent to the current project's <code>agents/index.js</code></td>
+</tr>
+<tr>
+<td><code>hojai add integration &lt;hojai-name&gt;</code></td>
+<td>Add an <code>@hojai/*</code> SDK to the current project's <code>package.json</code></td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-bash"># 1. Configure with your API key (or use HOJAI_API_KEY env)
+hojai config set --api-key hojai_live_xxxx
+
+# 2. Verify connection
+hojai whoami
+
+# 3. Search the marketplace
+hojai listings search --query &quot;negotiation&quot; --category agent
+
+# 4. Capture a memory
+hojai memory capture &quot;Met Sarah at HOJAI meetup&quot; --tags conference
+
+# 5. Compose LLM context (for any AI app)
+hojai memory compose u-1 &quot;What is Sarah interested in?&quot;
+
+# 6. Generate an AI-native spec for your project
+cd my-hojai-project
+hojai ai-spec generate</code></pre>
+<p>---</p>
+<h2>Flags (Global)</h2>
+<table class="md-table"><thead><tr>
+<th>Flag</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>--json</code></td>
+<td>Machine-readable JSON output (skip colors/tables)</td>
+</tr>
+<tr>
+<td><code>--api-key &lt;key&gt;</code></td>
+<td>Override API key for one invocation</td>
+</tr>
+<tr>
+<td><code>--base-url &lt;url&gt;</code></td>
+<td>Override HOJAI base URL for one invocation</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Environment</h2>
+<table class="md-table"><thead><tr>
+<th>Variable</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>HOJAI_API_KEY</code></td>
+<td>API key (overrides config file)</td>
+</tr>
+<tr>
+<td><code>HOJAI_BASE_URL</code></td>
+<td>Base URL (overrides config file)</td>
+</tr>
+<tr>
+<td><code>NO_COLOR</code></td>
+<td>Disable colored output</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Configuration File</h2>
+<p>Stored at <code>~/.hojai/config.json</code>:</p>
+<pre class="md-code"><code class="lang-json">{
+  &quot;apiKey&quot;: &quot;hojai_live_xxxx&quot;,
+  &quot;baseUrl&quot;: &quot;https://api.hojai.ai&quot;
+}</code></pre>
+<p>Priority order: <code>--api-key</code> flag → <code>HOJAI_API_KEY</code> env → config file → error.</p>
+<p>Manage via:</p>
+<pre class="md-code"><code class="lang-bash">hojai config show            # Show current config
+hojai config set --api-key X  # Set apiKey
+hojai config set --base-url X # Set baseUrl
+hojai config clear           # Delete the config file</code></pre>
+<p>---</p>
+<h2>AI-Native Spec (hojai.ai.md)</h2>
+<p>The <code>ai-spec</code> commands power the <strong>AI-native spec story</strong> — the file that Claude Code / Cursor / GitHub Copilot / Codex read to understand a HOJAI project.</p>
+<pre class="md-code"><code class="lang-bash">cd my-project
+hojai ai-spec generate
+# Creates:
+#   ./hojai.ai.md
+#   ./.hojai/context.json
+#   ./.hojai/blueprint.yaml</code></pre>
+<ul>
+<li><code>hojai.ai.md</code> — Human-readable project description for AI assistants</li>
+<li><code>.hojai/context.json</code> — Machine-readable project context</li>
+<li><code>.hojai/blueprint.yaml</code> — The Blueprint Engine source of truth</li>
+</ul>
+<p>Run <code>hojai ai-spec validate</code> in CI to ensure the spec stays in sync with the code.</p>
+<p>---</p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/cli
+├── bin/hojai.js                 # Bin entry (shebang + main())
+├── src/
+│   ├── index.ts                 # main(argv) — command dispatcher
+│   ├── config.ts                # loadConfig() — file/env/flag resolution
+│   ├── foundation-config.ts     # HojaiConfig + DEFAULT_CONFIG
+│   ├── output.ts                # printJson, printTable, colors
+│   ├── commands/
+│   │   ├── help.ts              # printHelp()
+│   │   ├── config.ts            # runConfig — show/set/clear
+│   │   ├── whoami.ts            # runWhoami — auth + health
+│   │   ├── listings.ts          # runListings — search/get
+│   │   ├── memory.ts            # runMemory — capture/search/compose
+│   │   └── ai-spec.ts           # runAiSpec — generate/read/validate
+│   └── __tests__/
+│       └── index.test.ts        # Tests</code></pre>
+<p>Built on <code>@hojai/foundation</code>'s <code>HojaiConfig</code> shape. Uses Node's built-in modules only (<code>fs</code>, <code>os</code>, <code>path</code>, <code>crypto</code>, <code>test</code>).</p>
+<p>---</p>
+<h2>Output Modes</h2>
+<p><strong>Human mode (default):</strong></p>
+<ul>
+<li>Colored output (disable with <code>NO_COLOR=1</code>)</li>
+<li>Pretty tables for list commands</li>
+<li>Success/error/info/warn icons</li>
+</ul>
+<p><strong>JSON mode:</strong></p>
+<pre class="md-code"><code class="lang-bash">hojai --json listings search --query &quot;negotiation&quot;
+# Outputs JSON, one object per line, no colors</code></pre>
+<p>Useful for piping to <code>jq</code>, <code>grep</code>, or another tool.</p>
+<p>---</p>
+<h2>Programmatic Use</h2>
+<p>The CLI exports its <code>main()</code> function:</p>
+<pre class="md-code"><code class="lang-ts">import { main, VERSION } from '@hojai/cli';
+
+await main(['node', 'hojai', 'whoami']);</code></pre>
+<p>Use this for embedding the CLI in a script or testing.</p>
+<p>---</p>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test
+node bin/hojai.js --help</code></pre>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-cli/
+├── CLAUDE.md                    # This file
+├── README.md                    # Quick start
+├── package.json                 # Bin + scripts
+├── bin/hojai.js                 # Bin entry
+├── tsconfig.json
+├── src/
+│   ├── config.ts                # Config loader
+│   ├── foundation-config.ts     # Config shape
+│   ├── index.ts                 # Main entry
+│   ├── output.ts                # Output helpers
+│   ├── commands/                # Subcommands
+│   └── __tests__/                # Tests
+└── dist/                        # Compiled output</code></pre>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — Base SDK that this CLI uses internally</li>
+<li><a href="../hojai-foundation/CLAUDE.md#hojai-ai-md-spec">@hojai/ai-spec docs</a> — What <code>hojai ai-spec generate</code> produces</li>
+<li><a href="../../../.claude/plans/hojai-platform-architecture-v2.md">HOJAI Platform Architecture</a> — How the AI-native spec fits the broader platform</li>
+</ul></div>
+
+
+
+</main>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/commerce — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="active" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/commerce</h1>
+<p class="lead">Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/commerce">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~101</p>
+
+<h2>Overview</h2>
+<p>&gt; **Version:** 1.0.0 &gt; **Last Updated:** 2026-06-24 &gt; **Status:** ✅ **PRODUCTION-READY** — 14/14 tests pass. Wraps 9 rez-* commerce services into a single ergonomic TypeScript client. ---</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/commerce — RABTUL Commerce SDK</h1>
+<p>&gt; <strong>Version:</strong> 1.0.0</p>
+<p>&gt; <strong>Last Updated:</strong> 2026-06-24</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — 14/14 tests pass. Wraps 9 rez-* commerce services into a single ergonomic TypeScript client.</p>
+<p>---</p>
+<h2>What it is</h2>
+<p><code>@hojai/commerce</code> is the official TypeScript SDK for the <strong>RABTUL commerce ecosystem</strong> — the closed-loop commerce stack that powers REZ. It wraps every commerce-related rez-* service into a single, ergonomic client.</p>
+<p>This is the SDK for: <strong>wallets, payments, catalog, bookings, cashback, gift cards, invoices, bill payments, and loyalty points</strong> — the full commerce loop.</p>
+<p>---</p>
+<h2>What it covers</h2>
+<table class="md-table"><thead><tr>
+<th>Module</th>
+<th>Service</th>
+<th>Purpose</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>wallet</code></td>
+<td>rez-wallet-service</td>
+<td>Consumer + merchant wallets, BNPL, savings</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>payment</code></td>
+<td>rez-payment-service</td>
+<td>Razorpay integration, refunds</td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>catalog</code></td>
+<td>rez-catalog-service</td>
+<td>Products, inventory, categories, search</td>
+<td>13</td>
+</tr>
+<tr>
+<td><code>booking</code></td>
+<td>rez-booking-service</td>
+<td>Availability, bookings, calendar sync</td>
+<td>10</td>
+</tr>
+<tr>
+<td><code>cashback</code></td>
+<td>rez-cashback-service</td>
+<td>Accrual, redemption, rates</td>
+<td>8</td>
+</tr>
+<tr>
+<td><code>giftCard</code></td>
+<td>rez-gift-card-service</td>
+<td>Issue, redeem, balance, transactions</td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>invoice</code></td>
+<td>rez-invoice-service</td>
+<td>CRUD, payments, GST, reminders, PDF</td>
+<td>17</td>
+</tr>
+<tr>
+<td><code>billPayments</code></td>
+<td>rez-bill-payments-service</td>
+<td>BBPS bill pay, providers, refunds</td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>loyalty</code></td>
+<td>rez-loyalty-gateway</td>
+<td>Tiers, balance, earn, events, health</td>
+<td>18</td>
+</tr>
+</tbody></table>
+<p><strong>101+ methods total</strong> across 9 sub-clients.</p>
+<p>---</p>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/commerce</code></pre>
+<pre class="md-code"><code class="lang-ts">import { Commerce } from '@hojai/commerce';
+
+const commerce = new Commerce({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// 1. Get user wallet
+const wallet = await commerce.wallet.get('user-123');
+
+// 2. Create Razorpay payment order
+const order = await commerce.payment.create({
+  orderId: 'ord-1',
+  userId: 'user-123',
+  amount: 50000,
+  method: 'upi'
+});
+
+// 3. Verify payment signature (after user pays)
+const verified = await commerce.payment.verify({
+  razorpayOrderId: order.id,
+  razorpayPaymentId: 'pay-xyz',
+  razorpaySignature: 'sig'
+});
+
+// 4. Credit cashback to user
+await commerce.cashback.accrue({
+  userId: 'user-123',
+  amount: 500,
+  source: 'order:ord-1'
+});
+
+// 5. Issue gift card
+const giftCard = await commerce.giftCard.create({
+  initialBalance: 1000,
+  currency: 'INR',
+  issuedTo: 'user-123'
+});
+
+// 6. Generate + send invoice
+const invoice = await commerce.invoice.create({
+  customerId: 'cust-1',
+  customerName: 'Maya Collective',
+  issueDate: '2026-06-24',
+  dueDate: '2026-07-24',
+  currency: 'INR',
+  lineItems: [{ description: 'Consulting', quantity: 1, unitPrice: 50000 }]
+});
+await commerce.invoice.send(invoice.id);
+
+// 7. Pay utility bill (BBPS)
+const bill = await commerce.billPayments.fetchBill({
+  billerId: 'electricity-board',
+  parameters: { consumerNumber: '123456' }
+});
+await commerce.billPayments.payBill({
+  billerId: 'electricity-board',
+  parameters: { consumerNumber: '123456' },
+  amount: bill.amount,
+  customerId: 'user-123',
+  paymentMethod: 'upi'
+});
+
+// 8. Earn loyalty points
+await commerce.loyalty.earn({
+  userId: 'user-123',
+  coinType: 'rez-coin',
+  amount: 100,
+  reason: 'order'
+});</code></pre>
+<p>---</p>
+<h2>Subpath imports</h2>
+<p>For tree-shaking:</p>
+<pre class="md-code"><code class="lang-ts">import { WalletClient } from '@hojai/commerce/wallet';
+import { PaymentClient } from '@hojai/commerce/payment';
+import { InvoiceClient } from '@hojai/commerce/invoice';</code></pre>
+<p>---</p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/commerce
+├── Commerce                   # Main client (facade)
+│   ├── wallet                 # WalletClient — 15 methods (consumer + merchant + BNPL + savings)
+│   ├── payment                # PaymentClient — 8 methods (Razorpay + refunds)
+│   ├── catalog                # CatalogClient — 13 methods (products + inventory + search)
+│   ├── booking                # BookingClient — 10 methods (availability + lifecycle)
+│   ├── cashback               # CashbackClient — 8 methods (accrual + redemption)
+│   ├── giftCard               # GiftCardClient — 6 methods (issue + redeem + balance)
+│   ├── invoice                # InvoiceClient — 17 methods (CRUD + GST + reminders + PDF)
+│   ├── billPayments           # BillPaymentsClient — 6 methods (BBPS bill pay)
+│   └── loyalty                # LoyaltyClient — 18 methods (tiers + earn + events)
+├── HojaiConfig                # Shared config interface
+└── resolveConfig()            # Apply defaults</code></pre>
+<p>Built on <code>@hojai/foundation</code>:</p>
+<ul>
+<li>Same <code>HojaiConfig</code> (apiKey, baseUrl, timeout, maxRetries, fetchImpl, logger)</li>
+<li>Same <code>request()</code> helper (retries, exponential backoff, JSON/text response handling)</li>
+<li>Same graceful error pattern</li>
+<li>Same 5xx-retry/4xx-throw behavior</li>
+</ul>
+<p>---</p>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const commerce = new Commerce({
+  apiKey: 'hojai_live_...',    // required
+  baseUrl: 'https://api.hojai.ai', // required
+  timeout: 10_000,              // optional, default 10s
+  maxRetries: 3,                // optional, default 3
+  fetchImpl: customFetch,       // optional, for testing/proxies
+  logger: (level, msg, meta) =&gt; {} // optional
+});</code></pre>
+<p>---</p>
+<h2>Error handling</h2>
+<pre class="md-code"><code class="lang-ts">try {
+  await commerce.wallet.credit('user-1', { amount: 100, reason: 'topup' });
+} catch (err) {
+  // err.message = &quot;HTTP 404: ...&quot; or &quot;HTTP 500: ...&quot;
+  // SDK retries 5xx automatically (up to maxRetries)
+  // SDK throws on 4xx immediately
+}</code></pre>
+<p>---</p>
+<h2>Tests</h2>
+<p>14/14 tests passing:</p>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-commerce
+npm install
+npm run build
+npm test</code></pre>
+<p>Tests cover:</p>
+<ul>
+<li>Commerce client instantiation (all 9 sub-clients)</li>
+<li>Wallet get + credit</li>
+<li>Payment create + verify (Razorpay)</li>
+<li>Catalog createProduct</li>
+<li>Booking createBooking</li>
+<li>Cashback accrue</li>
+<li>Gift card create</li>
+<li>Invoice create</li>
+<li>Bill payBill</li>
+<li>Loyalty earn</li>
+<li>Retry on 5xx (3 calls before success)</li>
+<li>Throw on 4xx</li>
+</ul>
+<p>---</p>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-foundation/CLAUDE.md">@hojai/foundation</a> — CorpID, Memory, Twin, Trust, Flow, Policy</li>
+<li><a href="../hojai-sutar/CLAUDE.md">@hojai/sutar</a> — SUTAR agent runtime</li>
+<li><a href="../hojai-nexha/CLAUDE.md">@hojai/nexha</a> — Nexha federation network</li>
+<li><a href="../hojai-marketplace/CLAUDE.md">@hojai/marketplace</a> — BLR AI Marketplace (parallel dev)</li>
+<li><a href="../../../../../.claude/plans/agentic-marketing-playbook.md">REZ Economy Specs</a></li>
+</ul></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/commerce</h1>
+<p>&gt; TypeScript SDK for the RABTUL commerce ecosystem. One client for every commerce service.</p>
+<p><a href="https://img.shields.io/badge/status-production--ready-brightgreen">![Status</a>]()</p>
+<p><a href="https://img.shields.io/badge/tests-14%2F14%20passing-brightgreen">![Tests</a>]()</p>
+<p><a href="https://img.shields.io/badge/version-1.0.0-blue">![Version</a>]()</p>
+<h2>What is the RABTUL Commerce Ecosystem?</h2>
+<p>The <strong>closed-loop commerce stack</strong> that powers REZ — including wallets, payments, BNPL, catalogs, bookings, cashback, gift cards, invoices, bill payments, and loyalty points.</p>
+<p>This SDK wraps all of it into a single ergonomic client.</p>
+<h2>What's inside</h2>
+<ul>
+<li>💰 <strong>Wallet</strong> — consumer + merchant wallets, BNPL credit, savings</li>
+<li>💳 <strong>Payment</strong> — Razorpay integration, refunds, webhook handling</li>
+<li>📦 <strong>Catalog</strong> — products, inventory, categories, search</li>
+<li>📅 <strong>Booking</strong> — availability, bookings, calendar sync</li>
+<li>💵 <strong>Cashback</strong> — accrual, redemption, rates management</li>
+<li>🎁 <strong>Gift Card</strong> — issue, redeem, balance, transactions</li>
+<li>📄 <strong>Invoice</strong> — CRUD, payments, GST reports, reminders, PDF</li>
+<li>⚡ <strong>Bill Payments</strong> — BBPS utility bill pay (electricity, gas, water, etc.)</li>
+<li>🏆 <strong>Loyalty</strong> — tier management, points earning, events, health</li>
+</ul>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/commerce</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Commerce } from '@hojai/commerce';
+
+const commerce = new Commerce({
+  apiKey: process.env.HOJAI_API_KEY!,
+  baseUrl: 'https://api.hojai.ai'
+});
+
+// Get user wallet
+const wallet = await commerce.wallet.get('user-123');
+
+// Create Razorpay payment
+const order = await commerce.payment.create({
+  orderId: 'ord-1',
+  userId: 'user-123',
+  amount: 50000,
+  method: 'upi'
+});
+
+// Verify payment
+await commerce.payment.verify({
+  razorpayOrderId: order.id,
+  razorpayPaymentId: 'pay-xyz',
+  razorpaySignature: 'sig'
+});
+
+// Credit cashback
+await commerce.cashback.accrue({
+  userId: 'user-123',
+  amount: 500,
+  source: 'order:ord-1'
+});
+
+// Issue gift card
+const giftCard = await commerce.giftCard.create({
+  initialBalance: 1000,
+  currency: 'INR',
+  issuedTo: 'user-123'
+});
+
+// Generate + send invoice
+const invoice = await commerce.invoice.create({
+  customerId: 'cust-1',
+  customerName: 'Maya Collective',
+  issueDate: '2026-06-24',
+  dueDate: '2026-07-24',
+  currency: 'INR',
+  lineItems: [{ description: 'Consulting', quantity: 1, unitPrice: 50000 }]
+});
+await commerce.invoice.send(invoice.id);</code></pre>
+<h2>Subpath imports</h2>
+<p>For tree-shaking:</p>
+<pre class="md-code"><code class="lang-ts">import { WalletClient } from '@hojai/commerce/wallet';
+import { PaymentClient } from '@hojai/commerce/payment';
+import { InvoiceClient } from '@hojai/commerce/invoice';</code></pre>
+<h2>Modules</h2>
+<table class="md-table"><thead><tr>
+<th>Module</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>commerce.wallet</code></td>
+<td>Wallets, BNPL, savings</td>
+</tr>
+<tr>
+<td><code>commerce.payment</code></td>
+<td>Razorpay integration</td>
+</tr>
+<tr>
+<td><code>commerce.catalog</code></td>
+<td>Product catalog + search</td>
+</tr>
+<tr>
+<td><code>commerce.booking</code></td>
+<td>Bookings + availability</td>
+</tr>
+<tr>
+<td><code>commerce.cashback</code></td>
+<td>Cashback accrual + redemption</td>
+</tr>
+<tr>
+<td><code>commerce.giftCard</code></td>
+<td>Gift cards</td>
+</tr>
+<tr>
+<td><code>commerce.invoice</code></td>
+<td>Invoices + GST + reminders</td>
+</tr>
+<tr>
+<td><code>commerce.billPayments</code></td>
+<td>BBPS utility bill pay</td>
+</tr>
+<tr>
+<td><code>commerce.loyalty</code></td>
+<td>Loyalty tiers + points</td>
+</tr>
+</tbody></table>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const commerce = new Commerce({
+  apiKey: '...',         // required
+  baseUrl: '...',        // required
+  timeout: 10_000,       // default 10s
+  maxRetries: 3,         // default 3 (only on 5xx)
+  fetchImpl: customFetch,// optional, for testing
+  logger: console.log    // optional
+});</code></pre>
+<h2>Development</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test</code></pre>
+<p>14/14 tests pass.</p>
+<h2>License</h2>
+<p>MIT © HOJAI AI</p></div>
+
+</main>
+</body>
+</html>

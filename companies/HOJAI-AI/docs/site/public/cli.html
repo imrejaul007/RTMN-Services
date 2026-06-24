@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLI reference — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="active">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (20)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+  </nav>
+  <footer>Built 2026-06-24 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>CLI reference — <code>hojai</code></h1>
+<p>The <code>@hojai/cli</code> package ships a <code>hojai</code> binary. Install globally with <code>npm install -g @hojai/cli</code> or use via <code>npx hojai</code>.</p>
+
+<h2>Global flags</h2>
+<ul>
+  <li><code>--json</code> — machine-readable JSON output</li>
+  <li><code>--api-key &lt;key&gt;</code> — override API key for one invocation</li>
+  <li><code>--base-url &lt;url&gt;</code> — override HOJAI base URL</li>
+</ul>
+
+<h2>Environment</h2>
+<ul>
+  <li><code>HOJAI_API_KEY</code> — API key (overrides config file)</li>
+  <li><code>HOJAI_BASE_URL</code> — base URL</li>
+  <li><code>NO_COLOR</code> — disable colored output</li>
+</ul>
+
+<pre class="md-code"><code>
+[1m[34mhojai — the HOJAI command-line tool[0m[0m
+[2m───────────────────────────────────[0m
+
+Usage: hojai &lt;command&gt; [args] [flags]
+
+Commands:
+  config [show|set|clear]        Manage CLI configuration
+  whoami                        Show current API key + gateway health
+  listings search               Search the marketplace
+  listings get &lt;id&gt;             Show a marketplace listing
+  memory capture &lt;text&gt;         Capture a memory
+  memory search &lt;query&gt;         Search your memories
+  memory compose &lt;owner&gt; &lt;q&gt;    Compose LLM context
+  ai-spec generate              Generate hojai.ai.md + .hojai/ files
+  ai-spec read                  Show current AI-native spec
+  ai-spec validate              Validate existing AI-native spec
+  deploy [--mode=local|preview|remote]   Ship the current project
+  add agent &lt;Name&gt;              Add a stub SUTAR agent to the project
+  add integration &lt;name&gt;        Add an @hojai/* SDK to the project
+  info                          Show a HOJAI project's full AI context
+  doctor                        Run health checks (config, gateway, project, deps)
+  help                          Show this help
+  version                       Print version
+
+Flags (global):
+  --json                        Machine-readable JSON output
+  --api-key &lt;key&gt;               Override API key
+  --base-url &lt;url&gt;              Override base URL
+
+Environment:
+  HOJAI_API_KEY                 API key (overrides config file)
+  HOJAI_BASE_URL                Base URL (overrides config file)
+  NO_COLOR                      Disable colored output
+
+Examples:
+  hojai config set --api-key hojai_live_xxxx
+  hojai whoami
+  hojai listings search --query &quot;negotiation&quot; --category agent
+  hojai memory capture &quot;Met Sarah at HOJAI meetup&quot; --tags conference
+  hojai memory compose u-1 &quot;What is Sarah interested in?&quot;
+  hojai ai-spec generate
+  hojai deploy                       # start the project on a free port
+  hojai deploy --mode=preview        # generate dist/preview.html
+  hojai add agent &quot;Sales Coach&quot;     # add a new SUTAR agent
+  hojai add integration payment      # add @hojai/payment to package.json
+  hojai info                         # show project context (manifest + capability)
+  hojai doctor                       # run health checks
+
+[36mℹ[0m All HOJAI SDKs are available as @hojai/* packages on npm.
+</code></pre>
+
+<h2>Quick examples</h2>
+<pre class="md-code"><code># Authentication
+hojai config set --api-key hojai_live_xxxx
+hojai whoami
+
+# Scaffold
+npx hojai create --template marketplace
+
+# Day-to-day
+hojai ai-spec generate
+hojai info
+hojai doctor
+hojai deploy
+
+# Extend
+hojai add agent "Sales Coach"
+hojai add integration payment
+hojai add industry restaurant</code></pre>
+
+</main>
+</body>
+</html>
