@@ -124,6 +124,72 @@ Continuous learning loop
 
 ---
 
+## 1.5 Dual-Client Architecture (HOJAI + REZ) — Routing Update (2026-06-25)
+
+> **Update:** Per user correction — "HOJAI Intelligence is for non-REZ/RTMN ecosystem clients; REZ Intelligence is for REZ ecosystem clients." All SUTAR agents and copilots now go through a **dual-client router** at `@rtmn/shared/intel/dual-client`, not directly to REZ Intelligence.
+
+### The routing layer
+
+```
+SUTAR Agent / Copilot
+    ↓ (calls dual-client helper, e.g. classifyIntent, getForecast, getCustomerChurnRisk)
+@rtmn/shared/intel/dual-client
+    ↓ (INTEL_MODE=hojai|rez|dual, default 'dual')
+    ├── HOJAI Intelligence (port 4881) — first choice
+    │   • /api/analyze (intent + sentiment + retrieval)
+    │   • /api/customer/:id/insights
+    │   • /api/policy/evaluate
+    │
+    └── REZ Intelligence Integration (port 5370) — fallback / business predictions
+        • /api/v1/intent/classify
+        • /api/v1/predict/{churn,ltv,revenue,demand}
+        • /api/v1/pricing/recommend
+        • /api/v1/insights/{merchant,customer,revenue,sales}
+```
+
+### Why dual-client, not REZ-only
+
+| Concern | HOJAI Intelligence (4881) | REZ-Intel (5370) |
+|---|---|---|
+| **Scope** | Core AI (intent, sentiment, retrieval, policy) | Business predictions (churn, LTV, revenue, demand, pricing) |
+| **Audience** | All HOJAI agents (incl. non-REZ clients) | REZ ecosystem clients (Merchant, AdBazaar, RABTUL) |
+| **Coverage overlap** | None on business predictions | None on core AI |
+| **Best fit for** | "What is this customer saying?" | "What's this customer's churn risk?" |
+
+**Conclusion:** Both are needed. HOJAI for core AI, REZ for business predictions. The dual-client dispatches based on the call type and falls back gracefully if one backend is down.
+
+### Configuration
+
+```bash
+# Default — try HOJAI first, fall back to REZ
+INTEL_MODE=dual
+
+# HOJAI-only mode (no REZ, business-prediction helpers return null)
+INTEL_MODE=hojai
+
+# REZ-only mode (skip HOJAI entirely, faster path)
+INTEL_MODE=rez
+
+# Disable individual backends (still respects INTEL_MODE)
+HOJAI_INTEL_ENABLED=false
+REZ_INTEL_ENABLED=false
+HOJAI_INTEL_URL=http://localhost:4881
+REZ_INTEL_URL=http://localhost:5370
+```
+
+### What was wired (31 services, 391 new tests)
+
+- **7 copilots** — sales, support, finance, marketing, agent, business, executive (3-4 deep endpoints each, 112 tests)
+- **18 CJS SUTAR shallow services** — acn-hub, acn-integration, acn-network, acp-protocol, agent-analytics, agent-contracts, agent-learning, agent-marketplace, agent-orchestration, agent-teaming, negotiation-ai, sutar-contracts, sutar-agent-id, sutar-agent-network, sutar-gateway, sutar-identity, sutar-memory-bridge, sutar-monitoring (2 endpoints each: classify-intent, next-best-action, 270 tests)
+- **1 ESM SUTAR** — agent-twin (9 tests)
+- **5 TypeScript SUTAR** — sutar-decision-engine, sutar-trust-engine, sutar-contract-os, sutar-negotiation-engine, sutar-economy-os (TS `.d.ts` declarations added)
+
+### Test helper
+
+`@rtmn/shared/test/rez-intel-helpers.cjs` provides 16 standard dual-client tests (exports, mode dispatch, fallback chain, network errors, both-disabled, health per-backend, timeout enforcement). Used by every service.
+
+---
+
 ## 2. The Local Autonomous Economy
 
 ### The 3-Economy Model

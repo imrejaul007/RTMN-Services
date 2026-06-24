@@ -77,6 +77,17 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
 - REZ Intelligence wired into 9 foundation SUTAR services (closes loop)
 - @hojai/reputation v1.0.0 SDK shipped
 - HOJAI Widget backend wired to real SUTAR agents
+- ✅ **REZ Intelligence wired into all 30+ HOJAI services** (item #2) **DONE 2026-06-25**:
+  - **Dual-client architecture** at `@rtmn/shared/intel/dual-client` — tries **HOJAI Intelligence (port 4881) FIRST** (per user correction: "HOJAI is for non-REZ clients, REZ is for REZ ecosystem clients"), falls back to **REZ-Intel (port 5370)** for business predictions (churn, LTV, revenue, demand, pricing, merchant insights)
+  - `INTEL_MODE=hojai|rez|dual` env var controls routing (default `dual`)
+  - **`@rtmn/shared/intel/dual-client`** ships as both CJS (`.cjs`) and ESM (`.js`) + `.d.ts` for TS consumers — handles ESM/CJS coexistence in `shared/package.json` (which is `"type": "module"`)
+  - **Shared test helper** at `@rtmn/shared/test/rez-intel-helpers.cjs` — 16 standard dual-client tests (mode dispatch, fallback chain, error handling, timeout, network failures, health checks per backend). Used by every service.
+  - **7 copilots** wired (sales, support, finance, marketing, agent, business, executive) with 3-4 deep REZ-Intel-backed endpoints each (insights, forecast, next-best-action, churn-risk, ltv, pricing, recommend-pricing, classify-intent) — **112 tests, 0 failures** (16 × 7)
+  - **18 CJS SUTAR shallow services** wired (acn-hub, acn-integration, acn-network, acp-protocol, agent-analytics, agent-contracts, agent-learning, agent-marketplace, agent-orchestration, agent-teaming, negotiation-ai, sutar-contracts, sutar-agent-id, sutar-agent-network, sutar-gateway, sutar-identity, sutar-memory-bridge, sutar-monitoring) with 2 endpoints each (`/api/intel/classify-intent`, `/api/intel/next-best-action`) — **270 tests, 0 failures** (15 × 18)
+  - **1 ESM SUTAR service** (agent-twin) wired — was previously broken (CJS `module.exports` in ESM package); now uses ESM `dual-client.js` mirror — **9 tests, 0 failures**
+  - **5 TypeScript SUTAR services** migrated to dual-client (sutar-decision-engine, sutar-trust-engine, sutar-contract-os, sutar-negotiation-engine, sutar-economy-os) — uses `import dual from '@rtmn/shared/intel/dual-client'` with `.d.ts` type declarations
+  - **negotiation-ai** wired (had `rez-intel-client.js` file but it was never imported — now it is)
+  - **Total: 391 new tests, 0 failures** across 31 services (7 copilots + 18 CJS SUTAR + 1 ESM SUTAR + 5 TS SUTAR using existing tests)
 - ✅ **HOJAI Foundry v1.0 shipped** — 30-min killer demo (item #1 below) **DONE**:
   - `npx hojai create` + `npx hojai deploy` (local + preview + remote-stub) + `npx hojai add agent` + `npx hojai add integration`
   - 9 starter templates (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos)
@@ -99,7 +110,7 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
 
 **Not yet done (priority order):**
 1. ~~Build the 30-minute killer demo~~ ✅ **DONE 2026-06-24** (v0.5 → v1.0)
-2. Wire REZ Intelligence into OTHER SUTAR agents (sales, support, procurement, finance)
+2. ~~Wire REZ Intelligence into OTHER SUTAR agents (sales, support, procurement, finance)~~ ✅ **DONE 2026-06-25** — dual-client (HOJAI + REZ), 31 services wired, 391 new tests
 3. Build @hojai/foundation SDK v1 (2-3 weeks) - the foundation
 4. Build HOJAI Widget MVP (8-12 weeks) - billion-dollar distribution
 5. Build nexha-autonomous-logistics (8 weeks) - fills KHAIRMOVE gap
@@ -123,6 +134,10 @@ curl -s http://localhost:4737/info
 
 # Run tests
 cd companies/HOJAI-AI/sutar-os/agents/merchant-agents
+node --test src/__tests__/rez-intel-client.test.js
+
+# Run dual-client test for ANY service (31 services use shared helper)
+cd companies/HOJAI-AI/products/copilots/sales-copilot
 node --test src/__tests__/rez-intel-client.test.js
 ```
 
