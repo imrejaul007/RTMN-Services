@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/incident-detector",
+  "version": "1.0.0",
+  "description": "Incident Detector (5332) - anomaly detection, noise dedup, grouping",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

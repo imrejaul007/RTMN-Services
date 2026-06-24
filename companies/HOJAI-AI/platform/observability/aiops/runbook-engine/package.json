@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/runbook-engine",
+  "version": "1.0.0",
+  "description": "Runbook Engine (5333) - runbook CRUD + execution + parameter binding",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
