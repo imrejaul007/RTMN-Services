@@ -1,0 +1,110 @@
+{
+  "name": "@hojai/nexha",
+  "version": "1.0.0",
+  "description": "Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a single ergonomic client.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./directory": {
+      "import": "./dist/directory.mjs",
+      "require": "./dist/directory.js",
+      "default": "./dist/directory.js"
+    },
+    "./supplier": {
+      "import": "./dist/supplier.mjs",
+      "require": "./dist/supplier.js",
+      "default": "./dist/supplier.js"
+    },
+    "./distribution": {
+      "import": "./dist/distribution.mjs",
+      "require": "./dist/distribution.js",
+      "default": "./dist/distribution.js"
+    },
+    "./warehouse": {
+      "import": "./dist/warehouse.mjs",
+      "require": "./dist/warehouse.js",
+      "default": "./dist/warehouse.js"
+    },
+    "./pricing": {
+      "import": "./dist/pricing.mjs",
+      "require": "./dist/pricing.js",
+      "default": "./dist/pricing.js"
+    },
+    "./trade-finance": {
+      "import": "./dist/trade-finance.mjs",
+      "require": "./dist/trade-finance.js",
+      "default": "./dist/trade-finance.js"
+    },
+    "./commerce": {
+      "import": "./dist/commerce.mjs",
+      "require": "./dist/commerce.js",
+      "default": "./dist/commerce.js"
+    },
+    "./mission": {
+      "import": "./dist/mission.mjs",
+      "require": "./dist/mission.js",
+      "default": "./dist/mission.js"
+    },
+    "./partner": {
+      "import": "./dist/partner.mjs",
+      "require": "./dist/partner.js",
+      "default": "./dist/partner.js"
+    },
+    "./acp": {
+      "import": "./dist/acp.mjs",
+      "require": "./dist/acp.js",
+      "default": "./dist/acp.js"
+    },
+    "./hooks": {
+      "import": "./dist/hooks.mjs",
+      "require": "./dist/hooks.js",
+      "default": "./dist/hooks.js"
+    },
+    "./provisioning": {
+      "import": "./dist/provisioning.mjs",
+      "require": "./dist/provisioning.js",
+      "default": "./dist/provisioning.js"
+    },
+    "./tenant": {
+      "import": "./dist/tenant.mjs",
+      "require": "./dist/tenant.js",
+      "default": "./dist/tenant.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "nexha",
+    "sdk",
+    "federation",
+    "autonomous-business",
+    "b2b",
+    "supplier",
+    "warehouse",
+    "trade-finance",
+    "commerce"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "undici": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
