@@ -1,0 +1,26 @@
+{
+  "name": "@hojai/twin",
+  "version": "1.0.0",
+  "description": "Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./hub": { "import": "./dist/hub.mjs", "require": "./dist/hub.js", "default": "./dist/hub.js" },
+    "./customer": { "import": "./dist/customer.mjs", "require": "./dist/customer.js", "default": "./dist/customer.js" },
+    "./order": { "import": "./dist/order.mjs", "require": "./dist/order.js", "default": "./dist/order.js" },
+    "./employee": { "import": "./dist/employee.mjs", "require": "./dist/employee.js", "default": "./dist/employee.js" },
+    "./voice": { "import": "./dist/voice.mjs", "require": "./dist/voice.js", "default": "./dist/voice.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "twin", "twinos", "digital-twin", "sdk"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
