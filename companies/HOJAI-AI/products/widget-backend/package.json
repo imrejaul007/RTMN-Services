@@ -1,0 +1,20 @@
+{
+  "name": "widget-backend",
+  "version": "1.0.0",
+  "description": "HOJAI Widget Backend — receives visitor messages from the HOJAI Widget, classifies intent, enriches with REZ Intelligence, and routes to SUTAR agents.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit src/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "widget", "sutar", "rez-intel", "ai"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  }
+}

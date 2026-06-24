@@ -1,0 +1,45 @@
+{
+  "name": "@hojai/widget-core",
+  "version": "1.0.0",
+  "description": "HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.cts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.cts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
+    },
+    "./snippet": "./snippet.html"
+  },
+  "files": ["dist", "snippet.html", "README.md", "src/snippet.js"],
+  "scripts": {
+    "build:lib": "tsc -p tsconfig.json && mv dist/index.js dist/index.cjs && mv dist/index.d.ts dist/index.d.cts && tsc -p tsconfig.esm.json && mv dist/index.js dist/index.mjs",
+    "build:test": "tsc -p tsconfig.test.json",
+    "build": "npm run build:lib && npm run build:test",
+    "test": "npm run build:test && node --test dist-test/__tests__/*.test.js",
+    "size": "wc -c dist/index.mjs && gzip -c dist/index.mjs | wc -c"
+  },
+  "keywords": [
+    "hojai",
+    "widget",
+    "ai",
+    "chat",
+    "sutar",
+    "agent",
+    "conversational",
+    "embedded"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "browser": "any",
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}

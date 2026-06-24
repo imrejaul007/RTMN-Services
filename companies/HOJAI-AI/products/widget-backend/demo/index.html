@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maya Collective — HOJAI Widget Demo</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      min-height: 100vh;
+    }
+    header {
+      background: #1f2937;
+      color: white;
+      padding: 24px 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    header h1 { margin: 0; font-size: 24px; font-weight: 700; }
+    header p { margin: 4px 0 0; color: #9ca3af; font-size: 14px; }
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+    .hero {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 32px;
+    }
+    .hero h2 { margin: 0 0 12px; color: #111827; font-size: 28px; }
+    .hero p { color: #4b5563; font-size: 16px; line-height: 1.6; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .card h3 { margin: 0 0 12px; color: #111827; font-size: 18px; }
+    .card code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Menlo', monospace;
+      font-size: 13px;
+      color: #1f2937;
+    }
+    .snippet {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Menlo', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .product {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .product .emoji { font-size: 48px; margin-bottom: 8px; }
+    .product .name { font-weight: 600; color: #111827; }
+    .product .price { color: #059669; font-weight: 700; margin-top: 4px; }
+    .test-prompts {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+    .test-prompts h4 { margin: 0 0 8px; color: #92400e; font-size: 14px; }
+    .test-prompts ul { margin: 0; padding-left: 20px; color: #78350f; font-size: 14px; line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛍️ Maya Collective</h1>
+    <p>Handmade fashion from India — powered by HOJAI AI Widget</p>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h2>Welcome to Maya Collective</h2>
+      <p>Browse our collection of handcrafted fashion below — or chat with our AI assistant in the bottom-right corner. She can help you find products, place orders, track shipments, and answer questions.</p>
+
+      <div class="products">
+        <div class="product">
+          <div class="emoji">👕</div>
+          <div class="name">Cotton T-Shirt</div>
+          <div class="price">₹1,299</div>
+        </div>
+        <div class="product">
+          <div class="emoji">🧥</div>
+          <div class="name">Hooded Jacket</div>
+          <div class="price">₹3,499</div>
+        </div>
+        <div class="product">
+          <div class="emoji">👗</div>
+          <div class="name">Summer Dress</div>
+          <div class="price">₹2,499</div>
+        </div>
+        <div class="product">
+          <div class="emoji">👜</div>
+          <div class="name">Leather Bag</div>
+          <div class="price">₹4,999</div>
+        </div>
+      </div>
+
+      <div class="test-prompts">
+        <h4>💡 Try asking the assistant:</h4>
+        <ul>
+          <li><em>"show me hoodies under 2500"</em></li>
+          <li><em>"order 2 cotton t-shirts"</em></li>
+          <li><em>"where is my order?"</em></li>
+          <li><em>"what are your hours?"</em></li>
+          <li><em>"can you do 10% off?"</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>📦 The HOJAI Widget</h3>
+        <p style="color:#4b5563;font-size:14px;line-height:1.6;">
+          The chat bubble in the bottom-right corner is a single <code>&lt;script&gt;</code> tag that turns any website into an AI front office. It routes every visitor message to the right SUTAR agent — sales, support, booking, commerce — based on intent classification, enriched with real-time business intelligence.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>⚡ Installation (5 seconds)</h3>
+        <p style="color:#4b5563;font-size:14px;margin-bottom:8px;">Add this snippet anywhere on your site:</p>
+        <div class="snippet">&lt;script src="https://cdn.hojai.ai/widget.js"
+        data-key="pk_live_maya_..."
+        data-company="maya-collective"
+        data-color="#3B82F6"
+        defer&gt;&lt;/script&gt;</div>
+      </div>
+
+      <div class="card">
+        <h3>🧠 What's behind it</h3>
+        <ul style="color:#4b5563;font-size:14px;line-height:1.8;">
+          <li><strong>Intent Engine</strong> — classifies visitor messages (10+ intents)</li>
+          <li><strong>REZ Intelligence</strong> — enriches with customer + merchant insights</li>
+          <li><strong>SUTAR Agents</strong> — sales, support, booking, commerce agents</li>
+          <li><strong>Memory Layer</strong> — remembers per-visitor context</li>
+          <li><strong>TwinOS</strong> — updates customer twins with each interaction</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>📊 This Demo</h3>
+        <p style="color:#4b5563;font-size:14px;line-height:1.6;">
+          Backend: <code>widget-backend</code> on <code>:5380</code><br>
+          Widget: <code>@hojai/widget-core</code> (4.5KB gzipped)<br>
+          API: <code>POST /api/v1/widget/message</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOJAI Widget — replace data-key with real API key in production -->
+  <script src="http://localhost:5380/widget.js"
+          data-key="pk_live_demo_maya"
+          data-company="maya-collective"
+          data-color="#3B82F6"
+          data-name="Maya Assistant"
+          data-greeting="Hi! I'm Maya Assistant. Looking for something specific, or just browsing?"
+          defer></script>
+</body>
+</html>
