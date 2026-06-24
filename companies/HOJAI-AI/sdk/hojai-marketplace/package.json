@@ -1,0 +1,85 @@
+{
+  "name": "@hojai/marketplace",
+  "version": "1.0.0",
+  "description": "BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./listings": {
+      "import": "./dist/listings.mjs",
+      "require": "./dist/listings.js",
+      "default": "./dist/listings.js"
+    },
+    "./reviews": {
+      "import": "./dist/reviews.mjs",
+      "require": "./dist/reviews.js",
+      "default": "./dist/reviews.js"
+    },
+    "./discover": {
+      "import": "./dist/discover.mjs",
+      "require": "./dist/discover.js",
+      "default": "./dist/discover.js"
+    },
+    "./explore": {
+      "import": "./dist/explore.mjs",
+      "require": "./dist/explore.js",
+      "default": "./dist/explore.js"
+    },
+    "./evaluate": {
+      "import": "./dist/evaluate.mjs",
+      "require": "./dist/evaluate.js",
+      "default": "./dist/evaluate.js"
+    },
+    "./reputation": {
+      "import": "./dist/reputation.mjs",
+      "require": "./dist/reputation.js",
+      "default": "./dist/reputation.js"
+    },
+    "./roi": {
+      "import": "./dist/roi.mjs",
+      "require": "./dist/roi.js",
+      "default": "./dist/roi.js"
+    },
+    "./founder": {
+      "import": "./dist/founder.mjs",
+      "require": "./dist/founder.js",
+      "default": "./dist/founder.js"
+    },
+    "./twins": {
+      "import": "./dist/twins.mjs",
+      "require": "./dist/twins.js",
+      "default": "./dist/twins.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "marketplace",
+    "bam",
+    "blr-ai-marketplace",
+    "listings",
+    "agents",
+    "ai",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
