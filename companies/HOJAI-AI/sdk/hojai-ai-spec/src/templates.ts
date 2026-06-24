@@ -175,8 +175,9 @@ export function render(input: RenderInput): string {
   const m = input.manifest;
   const c = input.capability;
   const languageList = m.languages.join(', ');
+  // Substitute {{NAME}} globally in the header template (it appears twice).
   const header = TEMPLATE_HEADER
-    .replace('{{NAME}}', m.name)
+    .replace(/\{\{NAME\}\}/g, m.name)
     .replace('{{SCHEMA_VERSION}}', m.schemaVersion)
     .replace('{{DESCRIPTION_SUFFIX}}', descClause(m))
     .replace('{{REGION}}', m.region ?? 'global')

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "61758c70-1201-4570-8b3d-48f3ab2399a5",
+  "layer": 8,
+  "name": "company-starter",
+  "description": "company-starter — full autonomous company with 6 Department OS agents built with HOJAI Foundry.",
+  "capabilities": [
+    {
+      "id": "hojai.orchestration",
+      "name": "Agent Orchestration",
+      "tier": "core",
+      "type": "offer"
+    },
+    {
+      "id": "hojai.sales",
+      "name": "Sales & Quotation",
+      "tier": "business",
+      "type": "offer"
+    },
+    {
+      "id": "hojai.marketing",
+      "name": "Marketing",
+      "tier": "business",
+      "type": "offer"
+    },
+    {
+      "id": "hojai.hr",
+      "name": "Workforce & HR",
+      "tier": "business",
+      "type": "offer"
+    },
+    {
+      "id": "hojai.finance",
+      "name": "Finance & Payments",
+      "tier": "core",
+      "type": "offer"
+    },
+    {
+      "id": "hojai.operations",
+      "name": "Operations",
+      "tier": "business",
+      "type": "offer"
+    },
+    {
+      "id": "hojai.cxo",
+      "name": "CXO",
+      "tier": "business",
+      "type": "offer"
+    }
+  ],
+  "regions": [
+    "global"
+  ],
+  "languages": [
+    "en"
+  ],
+  "slaTargets": {
+    "uptimePercent": 99.5,
+    "responseMs": 500
+  }
+}

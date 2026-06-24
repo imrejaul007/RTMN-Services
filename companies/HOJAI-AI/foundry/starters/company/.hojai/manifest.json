@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "61758c70-1201-4570-8b3d-48f3ab2399a5",
+  "name": "company-starter",
+  "description": "company-starter — full autonomous company with 6 Department OS agents built with HOJAI Foundry.",
+  "type": "company",
+  "industry": "autonomous-company",
+  "region": "global",
+  "languages": [
+    "en"
+  ],
+  "primaryLanguage": "en",
+  "hojaiVersion": "1.0.0",
+  "createdAt": "2026-06-24T11:16:08.726Z",
+  "stack": {
+    "backend": "node-express-typescript"
+  },
+  "agents": [
+    {
+      "role": "CEO",
+      "purpose": "Orchestrator. Routes work across departments and tracks KPIs."
+    },
+    {
+      "role": "Sales",
+      "purpose": "CRM. Lead capture, qualification, pipeline, forecasting."
+    },
+    {
+      "role": "Marketing",
+      "purpose": "Brand, campaigns, audiences, content, SEO."
+    },
+    {
+      "role": "HR",
+      "purpose": "Recruiting, onboarding, performance, payroll."
+    },
+    {
+      "role": "Finance",
+      "purpose": "Chart of accounts, ledger, invoicing, AP/AR."
+    },
+    {
+      "role": "Operations",
+      "purpose": "Projects, processes, incidents, risks, SOPs."
+    },
+    {
+      "role": "CXO",
+      "purpose": "Executive KPIs, strategic pillars, board reports."
+    }
+  ],
+  "integrations": [],
+  "scripts": {
+    "dev": "node apps/backend/src/index.js",
+    "test": "node --test apps/backend/src/__tests__/*.test.js"
+  }
+}
