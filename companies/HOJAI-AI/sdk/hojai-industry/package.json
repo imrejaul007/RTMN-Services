@@ -1,0 +1,183 @@
+{
+  "name": "@hojai/industry",
+  "version": "1.0.0",
+  "description": "Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufacturing, Non-Profit, Professional, Sports, Travel, Entertainment, Construction, Financial, Real Estate, Transport, Event-Banquet, and Exhibition into a single ergonomic TypeScript client.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./base": {
+      "import": "./dist/base.mjs",
+      "require": "./dist/base.js",
+      "default": "./dist/base.js"
+    },
+    "./types": {
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
+    "./restaurant": {
+      "import": "./dist/restaurant.mjs",
+      "require": "./dist/restaurant.js",
+      "default": "./dist/restaurant.js"
+    },
+    "./hotel": {
+      "import": "./dist/hotel.mjs",
+      "require": "./dist/hotel.js",
+      "default": "./dist/hotel.js"
+    },
+    "./healthcare": {
+      "import": "./dist/healthcare.mjs",
+      "require": "./dist/healthcare.js",
+      "default": "./dist/healthcare.js"
+    },
+    "./retail": {
+      "import": "./dist/retail.mjs",
+      "require": "./dist/retail.js",
+      "default": "./dist/retail.js"
+    },
+    "./legal": {
+      "import": "./dist/legal.mjs",
+      "require": "./dist/legal.js",
+      "default": "./dist/legal.js"
+    },
+    "./education": {
+      "import": "./dist/education.mjs",
+      "require": "./dist/education.js",
+      "default": "./dist/education.js"
+    },
+    "./agriculture": {
+      "import": "./dist/agriculture.mjs",
+      "require": "./dist/agriculture.js",
+      "default": "./dist/agriculture.js"
+    },
+    "./automotive": {
+      "import": "./dist/automotive.mjs",
+      "require": "./dist/automotive.js",
+      "default": "./dist/automotive.js"
+    },
+    "./beauty": {
+      "import": "./dist/beauty.mjs",
+      "require": "./dist/beauty.js",
+      "default": "./dist/beauty.js"
+    },
+    "./fashion": {
+      "import": "./dist/fashion.mjs",
+      "require": "./dist/fashion.js",
+      "default": "./dist/fashion.js"
+    },
+    "./fitness": {
+      "import": "./dist/fitness.mjs",
+      "require": "./dist/fitness.js",
+      "default": "./dist/fitness.js"
+    },
+    "./gaming": {
+      "import": "./dist/gaming.mjs",
+      "require": "./dist/gaming.js",
+      "default": "./dist/gaming.js"
+    },
+    "./government": {
+      "import": "./dist/government.mjs",
+      "require": "./dist/government.js",
+      "default": "./dist/government.js"
+    },
+    "./home-services": {
+      "import": "./dist/home-services.mjs",
+      "require": "./dist/home-services.js",
+      "default": "./dist/home-services.js"
+    },
+    "./manufacturing": {
+      "import": "./dist/manufacturing.mjs",
+      "require": "./dist/manufacturing.js",
+      "default": "./dist/manufacturing.js"
+    },
+    "./non-profit": {
+      "import": "./dist/non-profit.mjs",
+      "require": "./dist/non-profit.js",
+      "default": "./dist/non-profit.js"
+    },
+    "./professional": {
+      "import": "./dist/professional.mjs",
+      "require": "./dist/professional.js",
+      "default": "./dist/professional.js"
+    },
+    "./sports": {
+      "import": "./dist/sports.mjs",
+      "require": "./dist/sports.js",
+      "default": "./dist/sports.js"
+    },
+    "./travel": {
+      "import": "./dist/travel.mjs",
+      "require": "./dist/travel.js",
+      "default": "./dist/travel.js"
+    },
+    "./entertainment": {
+      "import": "./dist/entertainment.mjs",
+      "require": "./dist/entertainment.js",
+      "default": "./dist/entertainment.js"
+    },
+    "./construction": {
+      "import": "./dist/construction.mjs",
+      "require": "./dist/construction.js",
+      "default": "./dist/construction.js"
+    },
+    "./financial": {
+      "import": "./dist/financial.mjs",
+      "require": "./dist/financial.js",
+      "default": "./dist/financial.js"
+    },
+    "./real-estate": {
+      "import": "./dist/real-estate.mjs",
+      "require": "./dist/real-estate.js",
+      "default": "./dist/real-estate.js"
+    },
+    "./transport": {
+      "import": "./dist/transport.mjs",
+      "require": "./dist/transport.js",
+      "default": "./dist/transport.js"
+    },
+    "./event-banquet": {
+      "import": "./dist/event-banquet.mjs",
+      "require": "./dist/event-banquet.js",
+      "default": "./dist/event-banquet.js"
+    },
+    "./exhibition": {
+      "import": "./dist/exhibition.mjs",
+      "require": "./dist/exhibition.js",
+      "default": "./dist/exhibition.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "industry",
+    "rtmn",
+    "vertical",
+    "restaurant",
+    "hotel",
+    "healthcare",
+    "retail",
+    "beauty",
+    "exhibition",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
