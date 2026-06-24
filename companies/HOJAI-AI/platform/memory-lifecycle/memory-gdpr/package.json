@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/memory-gdpr",
+  "version": "1.0.0",
+  "description": "Memory GDPR Tooling (5328) - data export, right to be forgotten, consent withdrawal",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

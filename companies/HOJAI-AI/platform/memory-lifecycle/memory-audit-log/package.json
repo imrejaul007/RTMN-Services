@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/memory-audit-log",
+  "version": "1.0.0",
+  "description": "Memory Audit Log (5330) - immutable audit trail of all memory operations",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

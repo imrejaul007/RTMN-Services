@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/memory-lifecycle-api",
+  "version": "1.0.0",
+  "description": "Memory Lifecycle Gateway (5325) - proxies to 5 lifecycle services + lifecycle policy CRUD",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.22.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
