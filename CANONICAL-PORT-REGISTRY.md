@@ -206,6 +206,14 @@ HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HO
 |------|---------|------|-------|
 | 4785 | connector-hub | `companies/HOJAI-AI/platform/connectors/connector-hub/` | (original — keep) |
 | 4786 | reasoning-engine | `companies/HOJAI-AI/platform/intelligence/reasoning-engine/` | (was 4785, fixed 2026-06-24) |
+| **4780** | **eval-platform-api** | `companies/HOJAI-AI/platform/training/eval-platform/eval-platform-api/` | **(Phase 31, 2026-06-24)** — gateway for 7 eval sub-services |
+| **4781** | **eval-datasets** | `companies/HOJAI-AI/platform/training/eval-platform/eval-datasets/` | **(Phase 31, 2026-06-24)** — golden dataset CRUD, versioning, splits |
+| **4782** | **eval-judges** | `companies/HOJAI-AI/platform/training/eval-platform/eval-judges/` | **(Phase 31, 2026-06-24)** — LLM-as-judge rubrics, scoring, calibration |
+| **4783** | **eval-live** | `companies/HOJAI-AI/platform/training/eval-platform/eval-live/` | **(Phase 31, 2026-06-24)** — live production sampling, dashboards, alerts |
+| **4784** | **eval-shadow** | `companies/HOJAI-AI/platform/training/eval-platform/eval-shadow/` | **(Phase 31, 2026-06-24)** — A/B shadow runs, paired t-test, ship decision |
+| **4787** | **eval-canary** | `companies/HOJAI-AI/platform/training/eval-platform/eval-canary/` | **(Phase 31, 2026-06-24)** — canary deployment, auto-rollback |
+| **4788** | **eval-review** | `companies/HOJAI-AI/platform/training/eval-platform/eval-review/` | **(Phase 31, 2026-06-24)** — human review queue, Fleiss' kappa |
+| **4789** | **eval-benchmarks** | `companies/HOJAI-AI/platform/training/eval-platform/eval-benchmarks/` | **(Phase 31, 2026-06-24)** — standard + custom benchmarks, leaderboard |
 | 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | (canonical) |
 | 4792 | multi-agent-runtime | `companies/HOJAI-AI/platform/intelligence/multi-agent-runtime/` | (was 4790, fixed 2026-06-24) |
 | 4793 | mission-os | `companies/HOJAI-AI/platform/mission-os/` | (was 4295, fixed 2026-06-24) |

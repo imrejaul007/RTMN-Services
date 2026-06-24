@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/eval-judges",
+  "version": "1.0.0",
+  "description": "Phase 31.2: LLM-as-judge with built-in rubrics (accuracy, relevance, helpfulness, safety, factual, coherence), custom rubrics, pairwise comparison, and calibration (Cohen's kappa + agreement rate) against gold labels.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}

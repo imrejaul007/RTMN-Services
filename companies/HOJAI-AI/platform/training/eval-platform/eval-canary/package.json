@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/eval-canary",
+  "version": "1.0.0",
+  "description": "Phase 31.5: Canary deployment with gradual traffic ramp, auto-rollback on quality drop, per-tenant filtering, kill switch. Tracks traffic history + quality deltas over time.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}

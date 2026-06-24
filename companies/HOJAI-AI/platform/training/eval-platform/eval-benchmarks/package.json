@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/eval-benchmarks",
+  "version": "1.0.0",
+  "description": "Standard + custom benchmarks, leaderboard, public export",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/eval-platform-api",
+  "version": "1.0.0",
+  "description": "Main API gateway for the HOJAI evaluation platform — routes to all 7 sub-services",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

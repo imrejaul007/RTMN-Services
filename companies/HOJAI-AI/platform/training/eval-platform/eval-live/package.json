@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/eval-live",
+  "version": "1.0.0",
+  "description": "Phase 31.3: Live evaluation of production LLM calls. Sampled scoring, time-bucketed metrics, alert evaluation, dashboard-ready JSON. Storage: append-only JSONL files keyed by date.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}

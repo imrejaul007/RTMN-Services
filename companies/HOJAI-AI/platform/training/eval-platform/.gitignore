@@ -1,0 +1,8 @@
+node_modules/
+**/data/live/*.jsonl
+**/data/datasets/
+**/data/canaries.json
+**/data/shadows.json
+**/data/review-queue.json
+**/data/leaderboard.json
+**/data/benchmarks/sample_*.json

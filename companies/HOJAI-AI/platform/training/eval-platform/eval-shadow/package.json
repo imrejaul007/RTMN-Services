@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/eval-shadow",
+  "version": "1.0.0",
+  "description": "Phase 31.4: A/B shadow testing. Run modelA and modelB on the same inputs, compare per-case scores via eval-judges, decide via paired t-test (p-value) or simple score comparison. Returns ship recommendation.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}
