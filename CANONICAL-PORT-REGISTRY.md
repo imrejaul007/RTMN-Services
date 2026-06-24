@@ -396,6 +396,35 @@ Per CLAUDE.md, ports 4761-4765 (and the `/leverge-*/` directories) belong to **L
 
 ---
 
+## 🟢 Phase 32: Agent OS (12 new ports, added 2026-06-24)
+
+12 new services in `companies/HOJAI-AI/platform/agent-os/`, all built and tested (737 tests passing, 0 failures).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **4802** | `agent-platform-api` | Main gateway; proxies to all 11 sub-services; `/api/agent/full-deploy` pipeline | 36 |
+| **4803** | `agent-registry` | Agent identity, versioning, capability-based search, heartbeat | 54 |
+| **4804** | `capability-store` | Capability graph; DAG prerequisites; cycle detection; resolve chain | 69 |
+| **4805** | `tool-registry` | Tool catalog (local + remote); rate limiting; invocation history | 59 |
+| **4806** | `skill-library` | Reusable skill compositions; nested skills; plan + resolve | 73 |
+| **4807** | `message-bus` | Pub/sub topics with glob patterns; subscription pull with offset | 59 |
+| **4808** | `scheduler` | Cron, one-shot, interval, event-driven job triggers | 89 |
+| **4809** | `context-store` | Per-agent context windows; token-budget enforcement; pin-exempt trim | 64 |
+| **4811** | `agent-memory-bridge` | Bridge to MemoryOS (4703); per-agent partitions; confidence scoring | 64 |
+| **4812** | `agent-orchestrator` | Multi-step DAG workflows; step state machine; retry logic | 63 |
+| **4813** | `agent-execution-engine` | ReAct, plan-and-execute, reflection loops (stub LLM) | 61 |
+| **4814** | `agent-observability` | Traces (span trees), 5-min metric buckets, structured logs | 46 |
+
+**Reserved:**
+- `4810` — `merchant-agents` (existing, not part of Phase 32)
+- `4815-4817` — reserved for future Agent OS extensions
+
+**Pattern:** All services use file-backed JSON storage, helmet/cors/morgan, `crypto.randomBytes(8).toString('hex')` IDs with service-specific prefixes (`agt_`, `cap_`, `tool_`, `skl_`, `sub_`, `msg_`, `job_`, `run_`, `ctx_`, `mem_`, `wf_`, `exec_`, `step_`, `trc_`, `spn_`, `log_`).
+
+**Test pattern:** `node --test tests/unit/*.test.js` (built-in test runner, no jest/vitest). 5,000+ LOC across 12 services.
+
+---
+
 ## 📋 How to Use This File
 
 ```bash

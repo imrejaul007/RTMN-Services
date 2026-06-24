@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/agent-memory-bridge",
+  "version": "1.0.0",
+  "description": "Phase 32.6: Per-agent memory abstraction over MemoryOS (port 4703). Each agent gets a personal memory partition with confidence scoring, search, recall, and a sync queue with local fallback. Port 4811.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/*.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  }
+}

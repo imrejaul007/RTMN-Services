@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/agent-orchestrator",
+  "version": "1.0.0",
+  "description": "Phase 32.9: Multi-step workflow composition for the HOJAI AI Agent OS. Manages DAG-based workflows with step execution state, validation, and run history. Storage: file-backed JSON in data/workflows.json + data/runs.json.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/*.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/agent-observability",
+  "version": "1.0.0",
+  "description": "Phase 32.11: Traces, metrics, and structured logs for the HOJAI AI Agent OS. Storage: file-backed JSON in data/.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/*.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  }
+}

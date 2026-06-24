@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/context-store",
+  "version": "1.0.0",
+  "description": "Phase 32.5: Per-agent context window management with token-budget enforcement for HOJAI AI Agent OS. Port 4809.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/*.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  }
+}
