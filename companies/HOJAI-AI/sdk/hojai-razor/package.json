@@ -1,0 +1,25 @@
+{
+  "name": "@hojai/razor",
+  "version": "1.0.0",
+  "description": "Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./intents": { "import": "./dist/intents.mjs", "require": "./dist/intents.js", "default": "./dist/intents.js" },
+    "./messages": { "import": "./dist/messages.mjs", "require": "./dist/messages.js", "default": "./dist/messages.js" },
+    "./channels": { "import": "./dist/channels.mjs", "require": "./dist/channels.js", "default": "./dist/channels.js" },
+    "./sessions": { "import": "./dist/sessions.mjs", "require": "./dist/sessions.js", "default": "./dist/sessions.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "razor", "razo", "keyboard", "intent", "messaging", "communication", "sdk"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
