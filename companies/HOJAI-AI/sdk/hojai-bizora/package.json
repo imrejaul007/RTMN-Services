@@ -1,0 +1,24 @@
+{
+  "name": "@hojai/bizora",
+  "version": "1.0.0",
+  "description": "Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./dashboards": { "import": "./dist/dashboards.mjs", "require": "./dist/dashboards.js", "default": "./dist/dashboards.js" },
+    "./widgets": { "import": "./dist/widgets.mjs", "require": "./dist/widgets.js", "default": "./dist/widgets.js" },
+    "./reports": { "import": "./dist/reports.mjs", "require": "./dist/reports.js", "default": "./dist/reports.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "bizora", "dashboard", "widgets", "reports", "bi", "sdk"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
