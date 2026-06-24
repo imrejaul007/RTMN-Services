@@ -1,0 +1,28 @@
+{
+  "name": "@hojai/ai-tool-submission",
+  "version": "1.0.0",
+  "description": "HOJAI AI tool marketplace submission helper. Takes the @hojai/ai-spec schema + hojai.ai.md content and packages it as a Cursor skill (SKILL.md) + VSCode extension (package.json + SKILL.md). Implements the AI tool marketplace submission step (item 7) of the HOJAI developer platform launch sequence.",
+  "private": true,
+  "type": "module",
+  "main": "src/publish.mjs",
+  "bin": {
+    "hojai-ai-publish": "./src/publish.mjs"
+  },
+  "scripts": {
+    "build": "echo 'No build step — Node ESM'",
+    "test": "node --test __tests__/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "hojai",
+    "cursor",
+    "vscode",
+    "claude",
+    "ai-spec",
+    "skill"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

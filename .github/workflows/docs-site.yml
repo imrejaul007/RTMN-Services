@@ -1,0 +1,84 @@
+name: Build & Deploy HOJAI Docs Site (docs.hojai.ai)
+
+# Builds the zero-dep static site at `docs/site/` and deploys
+# the `./public` output to GitHub Pages on the `gh-pages` branch.
+#
+# The site auto-discovers all @hojai/* SDK directories and emits
+# a per-SDK page from each CLAUDE.md. See docs/site/CLAUDE.md
+# for how the build works.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'companies/HOJAI-AI/docs/site/**'
+      - 'companies/HOJAI-AI/sdk/**'
+      # Re-deploy if the CLI or any SDK changes — the site reflects
+      # the current SDK family
+  workflow_dispatch:
+
+# Avoid two builds racing on the same push
+concurrency:
+  group: docs-site
+  cancel-in-progress: true
+
+# Default perms: read, write to gh-pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          # The site has no package-lock deps but the CLI it shells
+          # out to needs node_modules in the SDK dirs
+          cache-dependency-path: companies/HOJAI-AI/docs/site/package.json
+
+      - name: Build the docs site
+        working-directory: companies/HOJAI-AI/docs/site
+        run: node src/build.mjs
+
+      - name: Smoke-test the output
+        working-directory: companies/HOJAI-AI/docs/site
+        # Verify homepage + at least one SDK page + manifest exist
+        # before deploying. Catches build-script regressions fast.
+        run: |
+          test -f public/index.html
+          test -f public/manifest.json
+          test -d public/sdks
+          echo "✓ docs site built OK ($(ls public/sdks | wc -l | tr -d ' ') SDK pages)"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: companies/HOJAI-AI/docs/site/public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### 📚 HOJAI Docs Site" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pages:** $(ls companies/HOJAI-AI/docs/site/public/sdks | wc -l | tr -d ' ') SDK pages" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build time:** ${{ steps.build.outputs.duration }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
