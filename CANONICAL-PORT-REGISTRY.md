@@ -187,10 +187,45 @@ All 23 Genie services have unique, non-overlapping port assignments. The histori
 | 4920 | agent-copilot | `services/agent-copilot/` |
 | 4954 | journey-intelligence | `services/journey-intelligence/` |
 | 5175 | lead-os-gateway | `services/lead-os-gateway/` |
+| 5321 | buyer-twin | `companies/HOJAI-AI/platform/twins/buyer-twin/` (was 3000, fixed 2026-06-24) |
+| 5322 | deal-twin | `companies/HOJAI-AI/platform/twins/deal-twin/` (was 3000, fixed 2026-06-24) |
+| 5323 | property-twin | `companies/HOJAI-AI/platform/twins/property-twin/` (was 3000, fixed 2026-06-24) |
+| 5324 | agent-twin | `companies/HOJAI-AI/sutar-os/agents/agent-twin/` (was 3000, fixed 2026-06-24) |
 
 ### ⚠️ TwinOS Port Collisions
 - **order-twin (4885)** vs **customer-intelligence (4885)** — move order-twin → 4900
 - **support-copilot (4895)** vs **customer-twin (4895)** — move support-copilot → 4925
+
+---
+
+## 🧠 HOJAI Platform Services (Intelligence + Foundation) — canonical ports from source
+
+HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HOJAI-AI/products/`. Source of truth: actual `const PORT = process.env.PORT || NNNN` declarations. Last audited 2026-06-24.
+
+| Port | Service | Path | Notes |
+|------|---------|------|-------|
+| 4785 | connector-hub | `companies/HOJAI-AI/platform/connectors/connector-hub/` | (original — keep) |
+| 4786 | reasoning-engine | `companies/HOJAI-AI/platform/intelligence/reasoning-engine/` | (was 4785, fixed 2026-06-24) |
+| 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | (canonical) |
+| 4792 | multi-agent-runtime | `companies/HOJAI-AI/platform/intelligence/multi-agent-runtime/` | (was 4790, fixed 2026-06-24) |
+| 4793 | mission-os | `companies/HOJAI-AI/platform/mission-os/` | (was 4295, fixed 2026-06-24) |
+| 4794 | memory-network | `companies/HOJAI-AI/platform/memory/memory-network/` | (was 4295, fixed 2026-06-24) |
+| 4795 | execution-os | `companies/HOJAI-AI/platform/execution-os/` | (was 4296, fixed 2026-06-24) |
+| 4796 | energy-os | `companies/HOJAI-AI/products/energy-os/` | (was 4296, fixed 2026-06-24) |
+| 5260 | energy-os (alt) | `industry-os/services/energy-os/` | (alt location — duplicate path; see warning below) |
+
+### ⚠️ energy-os has 2 copies
+- `companies/HOJAI-AI/products/energy-os/` (port 4796) — internal HOJAI energy service
+- `industry-os/services/energy-os/` (port 5260) — RTMN canonical industry-OS energy service
+- These are TWO DIFFERENT services (one is HOJAI infrastructure, one is RTMN industry vertical)
+- Same `SERVICE_NAME` but different code paths; the 5260 version is the canonical industry one
+
+### ✅ Phase 41 Port Conflicts Resolved (2026-06-24)
+- **3000 (×3)** → moved buyer-twin→5321, deal-twin→5322, property-twin→5323, agent-twin→5324
+- **4295 (×2)** → moved mission-os→4793, memory-network→4794
+- **4296 (×2)** → moved execution-os→4795, energy-os→4796
+- **4785 (×1)** → moved reasoning-engine→4786
+- **4790 (×1)** → moved multi-agent-runtime→4792
 
 ---
 
