@@ -180,7 +180,7 @@ app.get('/api/v1/carriers', (_req, res) => {
 
 // ─── Shipment endpoints ──────────────────────────────────────────────
 
-app.post('/api/v1/shipments/plan', requireAuth, async (req, res) => {
+app.post('/api/v1/shipments/plan', requireAuth, async (req: any, res: any) => {
   try {
     const request: ShipmentRequest = ShipmentRequestSchema.parse(req.body);
     const plan = await planShipment(request);
@@ -193,7 +193,7 @@ app.post('/api/v1/shipments/plan', requireAuth, async (req, res) => {
   }
 });
 
-app.post('/api/v1/shipments/book', requireAuth, async (req, res) => {
+app.post('/api/v1/shipments/book', requireAuth, async (req: any, res: any) => {
   try {
     const schema = z.object({
       plan: z.any(),
@@ -218,7 +218,7 @@ app.get('/api/v1/shipments/:id/track', requireAuth, (req, res) => {
   res.json(apiResponse(true, status));
 });
 
-app.post('/api/v1/shipments/:id/reroute', requireAuth, async (req, res) => {
+app.post('/api/v1/shipments/:id/reroute', requireAuth, async (req: any, res: any) => {
   try {
     const { reason } = z.object({ reason: z.string() }).parse(req.body);
     const result = await reroute(req.params.id, reason);
@@ -241,7 +241,7 @@ app.post('/api/v1/shipments/:id/cancel', requireAuth, (req, res) => {
 
 // ─── Customs ─────────────────────────────────────────────────────────
 
-app.post('/api/v1/customs/check', requireAuth, async (req, res) => {
+app.post('/api/v1/customs/check', requireAuth, async (req: any, res: any) => {
   try {
     const schema = z.object({
       origin: z.string().length(2),
@@ -263,7 +263,7 @@ app.post('/api/v1/customs/check', requireAuth, async (req, res) => {
 
 // ─── Insurance ───────────────────────────────────────────────────────
 
-app.post('/api/v1/insurance/bind', requireAuth, async (req, res) => {
+app.post('/api/v1/insurance/bind', requireAuth, async (req: any, res: any) => {
   try {
     const schema = z.object({
       cargoValueUsd: z.number().positive(),

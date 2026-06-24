@@ -38,7 +38,7 @@ export function haversineKm(a, b) {
 export function suggestMode(distanceKm, cargoType, isPerishable) {
     if (isPerishable && distanceKm > 500)
         return 'air';
-    if (distanceKm < 300)
+    if (distanceKm <= 300)
         return 'courier';
     if (distanceKm < 1500)
         return 'road';
