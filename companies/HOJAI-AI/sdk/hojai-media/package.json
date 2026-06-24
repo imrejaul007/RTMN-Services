@@ -1,0 +1,27 @@
+{
+  "name": "@hojai/media",
+  "version": "1.0.0",
+  "description": "Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./content": { "import": "./dist/content.mjs", "require": "./dist/content.js", "default": "./dist/content.js" },
+    "./creators": { "import": "./dist/creators.mjs", "require": "./dist/creators.js", "default": "./dist/creators.js" },
+    "./channels": { "import": "./dist/channels.mjs", "require": "./dist/channels.js", "default": "./dist/channels.js" },
+    "./playlists": { "import": "./dist/playlists.mjs", "require": "./dist/playlists.js", "default": "./dist/playlists.js" },
+    "./live": { "import": "./dist/live.mjs", "require": "./dist/live.js", "default": "./dist/live.js" },
+    "./comments": { "import": "./dist/comments.mjs", "require": "./dist/comments.js", "default": "./dist/comments.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "media", "video", "streaming", "creator", "live", "sdk"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
