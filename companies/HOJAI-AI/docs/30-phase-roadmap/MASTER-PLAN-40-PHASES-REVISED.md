@@ -132,7 +132,7 @@ The original 40-phase plan (v6.0) was based on what we **wanted** to build. The 
 | **Part 3: Advanced** | 34 weeks | 24 weeks | -10 | 24 weeks |
 | **Part 4: Platform** | 33 weeks | 20 weeks | -13 | 20 weeks |
 | **Part 5: Hardening (NEW)** | 0 | 4 weeks | +4 | 4 weeks |
-| **NEW Phase 0: Real LLM SDK** | 0 | 3 weeks | +3 | 3 weeks |
+| **NEW Phase 0: Real LLM SDK** | 0 | 3 weeks (~2.5 done) | +3 | 0.5 weeks remaining |
 | **Phase 0 (originally)** | — | 0 | 0 | (counted in Part 1) |
 | **TOTAL** | **117 weeks** | **66 weeks** | **-51** | **+37** = **66 weeks** |
 

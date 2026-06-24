@@ -1,0 +1,17 @@
+{
+  "name": "rtmn-agent-security",
+  "version": "1.0.0",
+  "description": "HOJAI Agent Security — agent registration, API-key auth, RBAC permission checks, per-agent rate limiting, audit log. Single chokepoint for any agent that wants to call HOJAI services.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/unit/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^9.0.0"
+  }
+}
