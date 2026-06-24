@@ -152,7 +152,7 @@ Based on audit findings, here are the phases that are **NOT_STARTED or criticall
 |---|---|---:|---|
 | **1** | **Phase 41: Auth/Production Hardening** | 4w | 182 unprotected routes; security regression |
 | **2** | **Phase 0: Real LLM SDK Integration** | 3w | Without this, HOJAI is just a routing layer |
-| **3** | **Phase 5: Security** (re-do) | 2w | Auth coverage, secret fallbacks, legacy JWT path |
+| **3** | **Phase 5: Security** (re-do) | 2w | Auth coverage, secret fallbacks, legacy JWT path — **DONE: agent-security (16/16), flow-orchestrator safety (4/4), inference-gateway safety (5/5), legacy base64 JWT removed (7/7)** |
 | **4** | **Phase 14: Planning Engine** | 4w | Core cognitive capability missing |
 | **5** | **Phase 31: Evaluation Platform** | 4w | Need to know if changes improve things |
 | **6** | **Phase 32: Agent OS** | 4w | Production-grade agent runtime |
