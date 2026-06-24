@@ -29,7 +29,7 @@ const app = express();
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5324;
 const JWT_SECRET = process.env.JWT_SECRET;
 const SERVICE_NAME = 'agent-twin';
 
@@ -500,7 +500,20 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const server = app.listen(PORT, () => {
+const server = 
+// REZ Intelligence endpoints
+app.get('/rez-intel-status', async (req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body;
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+app.listen(PORT, () => {
   console.log(`[${SERVICE_NAME}] Agent Twin Service running on port ${PORT}`);
   console.log(`[${SERVICE_NAME}] Environment: ${process.env.NODE_ENV || 'development'}`);
   connectDB();

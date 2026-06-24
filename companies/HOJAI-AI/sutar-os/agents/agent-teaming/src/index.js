@@ -24,6 +24,7 @@ const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const { v4: uuidv4 } = require('uuid');
+const rezIntel = require('./rez-intel-client');
 const axios = require('axios');
 // Phase A: goal subscriber (event-bus → agent-teaming wiring)
 const { registerGoalSubscriber, handleGoalEvent, subscriberState } = require('./subscribers/goal-subscriber.js');
@@ -824,7 +825,7 @@ app.get('/metrics/prom', (_req, res) => {
 // Phase A: webhook endpoint for goal.created events from event-bus.
 // No requireAuth — event-bus signs payloads with HMAC-SHA256. Trust
 // localhost event-bus in dev; TODO(prod): verify HMAC signature.
-app.post('/api/_internal/goal-webhook', async (req, res) => {
+app.post('/api/_internal/goal-webhook',requireAuth,  async (req, res) => {
   try {
     const result = await handleGoalEvent(req.body);
     res.json({ ok: true, ...result });
@@ -853,7 +854,20 @@ app.use((err, req, res, _next) => {
 
 // Start
 if (require.main === module) {
-  const server = app.listen(PORT, () => {
+  const server = 
+// REZ Intelligence endpoints
+app.get('/rez-intel-status', async (req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body;
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+app.listen(PORT, () => {
     console.log(`[${SERVICE_NAME}] listening on port ${PORT}`);
     console.log(`[${SERVICE_NAME}] templates: ${Object.keys(MISSION_TEMPLATES).join(', ')}`);
     // Phase A: register goal.created subscriber (non-blocking)
