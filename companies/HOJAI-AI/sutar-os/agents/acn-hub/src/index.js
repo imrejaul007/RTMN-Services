@@ -16,6 +16,7 @@ const { requireEnv } = require('@rtmn/shared/lib/env');
 const { setupSecurity, strictLimiter } = require('@rtmn/shared/security');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const rezIntel = require('./rez-intel-client');
 const app = express();
 
 app.use(cors());
@@ -376,6 +377,18 @@ app.get('/docs', (req, res) => {
   });
 });
 
+// REZ Intelligence endpoints — must be before 404 catch-all
+app.get('/rez-intel-status', async (req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body || {};
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
 /**
  * Catch-all for unknown routes
  */
@@ -387,6 +400,7 @@ app.use((req, res) => {
     hint: 'Try GET / for API documentation'
   });
 });
+
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
