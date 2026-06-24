@@ -13,6 +13,7 @@ import { runWhoami } from './commands/whoami.js';
 import { runAiSpec } from './commands/ai-spec.js';
 import { runDeploy } from './commands/deploy.js';
 import { runAdd } from './commands/add.js';
+import { runInfo } from './commands/info.js';
 import { printHelp } from './commands/help.js';
 import { printError } from './output.js';
 
@@ -61,6 +62,7 @@ export async function main(argv: string[]): Promise<void> {
       case 'ai-spec': return await runAiSpec(rest);
       case 'deploy': return await runDeploy(rest);
       case 'add': return await runAdd(rest);
+      case 'info': return await runInfo(rest);
       default:
         printError(`Unknown command: ${command}`);
         printHelp();

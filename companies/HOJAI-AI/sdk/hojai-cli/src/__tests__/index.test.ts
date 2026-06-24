@@ -188,3 +188,85 @@ test('hojai add help prints add help', async () => {
     assert.ok(cap.logs.some(l => l.includes('hojai add')));
   } finally { cap.restore(); }
 });
+
+// ─── info command ────────────────────────────────────────────────
+
+test('hojai info without .hojai/manifest.json errors', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-info-'));
+  try {
+    process.chdir(tmp);
+    await main(['node', 'hojai', 'info']);
+    assert.ok(cap.errs.some(e => e.includes('Not a HOJAI project')), 'should error');
+  } catch (e) {
+    assert.ok((e as Error).message.includes('process.exit'));
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
+
+test('hojai info prints project context (manifest + capability + ai-md)', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-info-'));
+  try {
+    await fs.mkdir(path.join(tmp, '.hojai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.hojai', 'manifest.json'), JSON.stringify({
+      schemaVersion: '1.0.0', projectId: 'p-1', name: 'test-proj', type: 'restaurant',
+      region: 'me', languages: ['en', 'ar'], hojaiVersion: '1.0.0',
+      createdAt: '2026-06-24', agents: [{ role: 'CEO', purpose: 'Orchestrator' }], integrations: ['sutar', 'commerce']
+    }));
+    await fs.writeFile(path.join(tmp, '.hojai', 'capability.json'), JSON.stringify({
+      schemaVersion: '1.0.0', projectId: 'p-1', name: 'test-proj', layer: 3,
+      capabilities: [{ id: 'hojai.orchestration', name: 'Orchestration', tier: 'core', type: 'offer' }],
+      slaTargets: { uptimePercent: 99.5, responseMs: 500 }
+    }));
+    await fs.writeFile(path.join(tmp, 'hojai.ai.md'), '# HOJAI Project: test-proj\n');
+    process.chdir(tmp);
+    await main(['node', 'hojai', 'info']);
+    const out = cap.logs.join('\n');
+    assert.ok(out.includes('test-proj'), 'should print project name');
+    assert.ok(out.includes('restaurant'), 'should print type');
+    assert.ok(out.includes('CEO'), 'should print agent name');
+    assert.ok(out.includes('sutar, commerce'), 'should print integrations');
+    assert.ok(out.includes('hojai.ai.md present'), 'should confirm ai-md');
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
+
+test('hojai info --json outputs valid JSON', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-info-'));
+  try {
+    await fs.mkdir(path.join(tmp, '.hojai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.hojai', 'manifest.json'), JSON.stringify({
+      schemaVersion: '1.0.0', projectId: 'p-1', name: 'json-test', type: 'other',
+      languages: ['en'], hojaiVersion: '1.0.0', createdAt: 't', agents: [], integrations: []
+    }));
+    process.chdir(tmp);
+    await main(['node', 'hojai', 'info', '--json']);
+    const json = JSON.parse(cap.logs.join('\n'));
+    assert.equal(json.manifest.name, 'json-test');
+    assert.equal(json.aiMdPresent, false);
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
