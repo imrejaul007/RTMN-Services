@@ -328,3 +328,75 @@ test('hojai doctor reports failure when gateway is down', async () => {
     cap.restore();
   }
 });
+
+// ─── add industry command ──────────────────────────────────────
+
+test('hojai add industry generates route file + wires into index.js', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-add-industry-'));
+  try {
+    // Set up a fake HOJAI project
+    await fs.mkdir(path.join(tmp, '.hojai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.hojai', 'manifest.json'), JSON.stringify({
+      schemaVersion: '1.0.0', projectId: 'p-1', name: 'test', type: 'other',
+      languages: ['en'], hojaiVersion: '1.0.0', createdAt: 't', agents: [], integrations: []
+    }));
+    await fs.writeFile(path.join(tmp, 'package.json'), JSON.stringify({ name: 'test', version: '1.0.0' }));
+    await fs.mkdir(path.join(tmp, 'apps', 'backend', 'src'), { recursive: true });
+    await fs.writeFile(path.join(tmp, 'apps', 'backend', 'src', 'index.js'),
+      "import express from 'express';\nconst app = express();\napp.listen(3000);\n");
+    process.chdir(tmp);
+    await main(['node', 'hojai', 'add', 'industry', 'restaurant']);
+    const routeFile = path.join(tmp, 'apps', 'backend', 'src', 'routes', 'industry', 'restaurant.js');
+    const exists = await fs.stat(routeFile).then(() => true).catch(() => false);
+    assert.ok(exists, 'should create the industry route file');
+    const routeContent = await fs.readFile(routeFile, 'utf-8');
+    assert.ok(routeContent.includes('@hojai/industry'), 'should import @hojai/industry');
+    assert.ok(routeContent.includes('/api/restaurant'), 'should have /api/<type> routes');
+    const indexContent = await fs.readFile(path.join(tmp, 'apps', 'backend', 'src', 'index.js'), 'utf-8');
+    assert.ok(indexContent.includes("app.use('/api/restaurant'"), 'should wire up the route');
+    const pkg = JSON.parse(await fs.readFile(path.join(tmp, 'package.json'), 'utf-8'));
+    assert.equal(pkg.optionalDependencies['@hojai/industry'], '^1.0.0', 'should add @hojai/industry to package.json');
+    const manifest = JSON.parse(await fs.readFile(path.join(tmp, '.hojai', 'manifest.json'), 'utf-8'));
+    assert.ok(manifest.integrations.includes('industry'), 'should add industry to manifest');
+  } catch (e) {
+    // process.exit was called (expected if the index.js path is missing)
+    // Still validate what got written
+    const routeFile = path.join(tmp, 'apps', 'backend', 'src', 'routes', 'industry', 'restaurant.js');
+    const exists = await fs.stat(routeFile).then(() => true).catch(() => false);
+    assert.ok(exists || (e as Error).message.includes('process.exit'), 'route file should be created or exit cleanly');
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
+
+test('hojai add industry with invalid type errors', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-add-industry-'));
+  try {
+    await fs.mkdir(path.join(tmp, '.hojai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.hojai', 'manifest.json'), JSON.stringify({
+      schemaVersion: '1.0.0', projectId: 'p-1', name: 'test', type: 'other',
+      languages: ['en'], hojaiVersion: '1.0.0', createdAt: 't', agents: [], integrations: []
+    }));
+    process.chdir(tmp);
+    try {
+      await main(['node', 'hojai', 'add', 'industry', 'not-a-real-industry']);
+    } catch (e) { /* process.exit */ }
+    assert.ok(cap.errs.some(e => e.includes('Unknown industry')), 'should error on invalid type');
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});

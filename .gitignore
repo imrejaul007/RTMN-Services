@@ -118,12 +118,32 @@ companies/HOJAI-AI/**/node_modules/
 companies/HOJAI-AI/dist/
 companies/HOJAI-AI/**/dist/
 
-# NeXha services built in-tree (procurement-os, distribution-os, trade-finance).
+# NeXha services built in-tree (procurement-os, distribution-os, trade-finance,
+# autonomous-logistics, capability-os, discovery-os, reputation-os, etc.).
 # These are full TypeScript services with their own tests + Dockerfile.
 # See ADR-0008. The blanket companies/* rule above needs explicit negations here.
 !/companies/Nexha/services/procurement-os/
 !/companies/Nexha/services/distribution-os/
 !/companies/Nexha/services/trade-finance/
+!/companies/Nexha/services/nexha-autonomous-logistics/
+!/companies/Nexha/services/nexha-capability-os/
+!/companies/Nexha/services/nexha-discovery-os/
+!/companies/Nexha/services/nexha-reputation-os/
+!/companies/Nexha/services/nexha-acp-messaging/
+!/companies/Nexha/services/nexha-business-directory/
+!/companies/Nexha/services/nexha-commerce-runtime/
+!/companies/Nexha/services/nexha-gateway/
+!/companies/Nexha/services/nexha-mission-planner/
+!/companies/Nexha/services/nexha-partner-graph/
+!/companies/Nexha/services/nexha-pricing-network/
+!/companies/Nexha/services/nexha-provisioning-engine/
+!/companies/Nexha/services/nexha-tenant-summary/
+!/companies/Nexha/services/nexha-trade-finance-network/
+!/companies/Nexha/services/nexha-warehouse-network/
+!/companies/Nexha/services/nexha-distribution-network/
+!/companies/Nexha/services/nexha-supplier-network/
+!/companies/Nexha/services/nexha-hooks-sdk/
+!/companies/Nexha/services/ecosystem-connector/
 /companies/Nexha/services/*/node_modules/
 /companies/Nexha/services/*/dist/
 
