@@ -14,6 +14,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import routes from './routes/index.js';
+import rezIntel from './rez-intel-client.js';
 
 const PORT = parseInt(process.env.SUTAR_TENANT_INSTANCES_PORT || '4141', 10);
 const MONGO_URI =
@@ -48,6 +49,19 @@ async function start() {
       // eslint-disable-next-line no-console
       console.log(`[sutar-tenant-instances] connected to MongoDB at ${MONGO_URI}`);
     }
+
+    // REZ Intelligence endpoints
+    app.get('/rez-intel-status', async (_req, res) => {
+      const isHealthy = await rezIntel.checkRezIntelHealth();
+      res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+    });
+
+    app.post('/api/enrich', async (req, res) => {
+      const { agentRole, userId, companyId, query, context } = req.body || {};
+      const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+      res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+    });
+
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console
       console.log(`[sutar-tenant-instances] listening on :${PORT}`);
