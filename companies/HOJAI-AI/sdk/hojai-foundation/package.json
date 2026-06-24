@@ -1,0 +1,79 @@
+{
+  "name": "@hojai/foundation",
+  "version": "1.0.0",
+  "description": "HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.js",
+      "default": "./dist/client.js"
+    },
+    "./corp-id": {
+      "import": "./dist/corp-id.mjs",
+      "require": "./dist/corp-id.js",
+      "default": "./dist/corp-id.js"
+    },
+    "./memory": {
+      "import": "./dist/memory.mjs",
+      "require": "./dist/memory.js",
+      "default": "./dist/memory.js"
+    },
+    "./twin": {
+      "import": "./dist/twin.mjs",
+      "require": "./dist/twin.js",
+      "default": "./dist/twin.js"
+    },
+    "./trust": {
+      "import": "./dist/trust.mjs",
+      "require": "./dist/trust.js",
+      "default": "./dist/trust.js"
+    },
+    "./flow": {
+      "import": "./dist/flow.mjs",
+      "require": "./dist/flow.js",
+      "default": "./dist/flow.js"
+    },
+    "./policy": {
+      "import": "./dist/policy.mjs",
+      "require": "./dist/policy.js",
+      "default": "./dist/policy.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "sdk",
+    "corp-id",
+    "memory",
+    "twin",
+    "trust",
+    "ai",
+    "sutar",
+    "nexha"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "undici": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
