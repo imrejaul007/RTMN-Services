@@ -67,7 +67,7 @@ export class SessionsClient {
 
 function ensureLocalhostPort(config: HojaiConfig): string {
   if (config.baseUrl?.includes('localhost')) {
-    return `http://localhost:4725`;
+    return `http://localhost:4299`;
   }
   return config.baseUrl;
 }

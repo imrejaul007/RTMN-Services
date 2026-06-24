@@ -1,6 +1,6 @@
 # @hojai/razor
 
-> The official TypeScript SDK for the **HOJAI RAZO Keyboard Communication OS** (port 4725). The "keyboard that thinks" — transforms text input into actionable intents, routes them across 24 industry operating systems, and manages multi-channel messaging.
+> The official TypeScript SDK for the **HOJAI RAZO Keyboard Communication OS** (port 4299). The "keyboard that thinks" — transforms text input into actionable intents, routes them across 24 industry operating systems, and manages multi-channel messaging.
 
 [![npm version](https://img.shields.io/npm/v/@hojai/razor.svg)](https://www.npmjs.com/package/@hojai/razor)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
@@ -83,7 +83,7 @@ const razor = new Razor({
 });
 ```
 
-When `baseUrl` includes `localhost`, sub-clients automatically target port **4725** (the RAZO Keyboard port). For production, point `baseUrl` at your HOJAI Cloud gateway.
+When `baseUrl` includes `localhost`, sub-clients automatically target port **4299** (the RAZO Keyboard port). For production, point `baseUrl` at your HOJAI Cloud gateway.
 
 ## Error handling
 

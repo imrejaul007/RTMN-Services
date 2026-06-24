@@ -7,7 +7,7 @@
 
 ## What this SDK is
 
-**The official TypeScript client for the HOJAI RAZO Keyboard Communication OS (port 4725).** RAZO Keyboard is the "keyboard that thinks" — transforms text input into actionable intents, routes them across 24 industry operating systems, and manages multi-channel messaging.
+**The official TypeScript client for the HOJAI RAZO Keyboard Communication OS (port 4299).** RAZO Keyboard is the "keyboard that thinks" — transforms text input into actionable intents, routes them across 24 industry operating systems, and manages multi-channel messaging.
 
 | Sub-client | Purpose | Wraps | Methods |
 |---|---|---|---|

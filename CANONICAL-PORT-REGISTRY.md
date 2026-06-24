@@ -425,6 +425,39 @@ Per CLAUDE.md, ports 4761-4765 (and the `/leverge-*/` directories) belong to **L
 
 ---
 
+## 🟢 Phase 40: Agent Lifecycle (7 new ports, added 2026-06-24)
+
+7 new services in `companies/HOJAI-AI/platform/agent-lifecycle/`, all built and tested (124 tests passing, 0 failures).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **4910** | `agent-lifecycle-api` | Unified gateway; proxies to all 6 sub-services; `/agents/:id/release` pipeline (versioning → testing → deployment) | 12 |
+| **4911** | `agent-versioning` | Semver + immutable snapshots; content hashing; tags; diff; bump | 17 |
+| **4912** | `agent-testing` | Unit/integration/smoke test suites; case-level results; summary stats | 16 |
+| **4913** | `agent-deployment` | Canary [1%, 10%, 50%, 100%], blue-green, immediate; pause/resume/advance/fail | 20 |
+| **4914** | `agent-monitoring` | Quality/performance/cost metrics; p50/p95/p99 aggregates; threshold alerts | 18 |
+| **4915** | `agent-rollback` | Instant + scheduled rollbacks; deployment-service notification; cancel/execute | 19 |
+| **4916** | `agent-deprecation` | Sunset policies; subscriber tracking; notice issuance; migrate + retire | 22 |
+
+**Pattern:** Same file-backed JSON storage as Phase 32, `X-Internal-Token` inter-service auth, `node --test tests/*.test.js` runner. ~3,000 LOC across 7 services.
+
+**Default deployment policy:** canary stages `[1, 10, 50, 100]`, `auto_rollback: true`, `rollback_threshold: 0.05`, `stage_interval_seconds: 60`.
+
+**Default deprecation policy:** `notice_days: 90`, `auto_migrate: true`, `grace_period_days: 30`, `backup_before_retire: true`.
+
+**End-to-end release pipeline (via gateway):**
+```
+POST /agents/:agentId/release
+  → 1. Register version in versioning (4911)
+  → 2. Register + run test suite in testing (4912)
+  → 3. Create canary deployment in deployment (4913)
+Returns: { steps: [...], testing_ok: bool }
+```
+
+**Reserved:** `4917-4919` — reserved for future Agent Lifecycle extensions.
+
+---
+
 ## 📋 How to Use This File
 
 ```bash

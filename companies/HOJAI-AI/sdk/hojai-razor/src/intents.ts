@@ -30,7 +30,7 @@ export interface ExecuteIntentRequest {
 
 export class IntentRouterClient {
   public readonly config: HojaiConfig;
-  constructor(config: HojaiConfig) { this.config = { ...config, baseUrl: `http://localhost:${config.baseUrl?.includes('localhost') ? '4725' : extractPort(config)}` }; }
+  constructor(config: HojaiConfig) { this.config = { ...config, baseUrl: `http://localhost:${config.baseUrl?.includes('localhost') ? '4299' : extractPort(config)}` }; }
 
   /** Detect the intent(s) in a piece of natural-language text. */
   async detect(input: DetectIntentRequest): Promise<DetectedIntent | null> {
@@ -71,10 +71,10 @@ export class IntentRouterClient {
 }
 
 function extractPort(config: HojaiConfig): number {
-  if (!config.baseUrl) return 4725;
+  if (!config.baseUrl) return 4299;
   try {
     const u = new URL(config.baseUrl);
     if (u.port) return Number(u.port);
   } catch { /* */ }
-  return 4725;
+  return 4299;
 }

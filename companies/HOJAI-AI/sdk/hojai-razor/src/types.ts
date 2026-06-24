@@ -6,7 +6,7 @@
  * operating systems, DO App, SUTAR OS, and Genie AI.
  */
 
-export const RAZOR_PORT = 4725; // master plan; service may run on 4299 in dev
+export const RAZOR_PORT = 4299; // RAZO Keyboard default port (master plan says 4725 but service runs on 4299)
 
 /** 22 industry categories the intent router classifies against. */
 export type IntentDomain =
