@@ -13,7 +13,8 @@ const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
+const rezIntel = require("./rez-intel-client");
 
 const app = express();
 
@@ -617,7 +618,20 @@ app.use((err, req, res, next) => {
 
 // ==================== START ====================
 
-const server = app.listen(PORT, () => {
+const server = 
+// REZ Intelligence endpoints
+app.get('/rez-intel-status', async (req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body;
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+app.listen(PORT, () => {
   logger.info(`Business Copilot started on port ${PORT}`);
   logger.info(`Industries: ${Object.keys(INDUSTRY_SKILLS).length}, Skills: ${TOTAL_SKILLS}`);
 });
