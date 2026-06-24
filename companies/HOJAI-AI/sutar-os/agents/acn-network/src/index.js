@@ -1,5 +1,5 @@
-import cors from 'cors';
-import helmet from 'helmet';
+const cors = require('cors');
+const helmet = require('helmet');
 /**
  * ACN Network - Agent Commerce Network
  *
