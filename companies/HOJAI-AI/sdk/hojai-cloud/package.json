@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/cloud",
+  "version": "1.0.0",
+  "description": "Cloud SDK - Client for the HOJAI Cloud deploy service (port 4380). The deploy target for `npx hojai deploy --mode=remote`. Push projects, list deployments, tear down — the wildcard *.hojai.app routing layer.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./cloud": { "import": "./dist/cloud.mjs", "require": "./dist/cloud.js", "default": "./dist/cloud.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "cloud", "deploy", "foundry", "hojai.app", "sdk"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
