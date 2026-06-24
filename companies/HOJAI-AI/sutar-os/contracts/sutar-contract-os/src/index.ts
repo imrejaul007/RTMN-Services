@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { v4 as uuidv4 } from 'uuid';
 import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
+import * as rezIntel from './rez-intel-client.js';
 
 // Types
 export type ContractStatus = 'draft' | 'pending' | 'active' | 'expired' | 'terminated' | 'disputed';
@@ -228,6 +229,20 @@ app.get('/api/v1/templates', (req: Request, res: Response) => {
   let result = Array.from(templates.values());
   if (type) result = result.filter((t: any) => t.type === type);
   res.json(apiResponse(true, { templates: result }));
+});
+
+// ============================================================================
+// REZ Intelligence Integration (port 5370) — MUST be before 404 handler
+// ============================================================================
+app.get('/rez-intel-status', async (_req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body || {};
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
 });
 
 // 404 & Error

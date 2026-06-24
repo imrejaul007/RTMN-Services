@@ -32,6 +32,7 @@ import type {
   SimulationResult,
 } from './types/index.js';
 import { DecisionType } from './types/index.js';
+import * as rezIntel from './rez-intel-client.js';
 
 // ============================================================================
 // Configuration
@@ -550,6 +551,78 @@ app.post('/api/v1/event',requireAuth,  async (req: Request, res: Response) => {
 // ============================================================================
 // Error Handling
 // ============================================================================
+
+// ============================================================================
+// REZ Intelligence Integration (port 5370)
+// Pattern: same as merchant-agents + 7 agents + 7 copilots
+// Decision Engine uses these to enrich decision context before deciding.
+// MUST be registered BEFORE the 404 catch-all below.
+// ============================================================================
+app.get('/rez-intel-status', async (_req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({
+    rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED,
+    rezIntelUrl: rezIntel.REZ_INTEL_URL,
+    rezIntelHealthy: isHealthy
+  });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body;
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+app.post('/api/v1/decide/enriched', async (req, res) => {
+  // Decide with REZ Intel context enrichment
+  const requestId = req.headers['x-request-id'] as string;
+  try {
+    const validationResult = DecisionRequestSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      res.status(400).json(apiResponse(false, undefined, `Validation error: ${handleZodError(validationResult.error)}`, requestId));
+      return;
+    }
+    const { context } = validationResult.data;
+
+    // Enrich with REZ Intel (intent + next-best-action) — fire-and-forget graceful degradation
+    const [enriched, intent, nextAction] = await Promise.all([
+      rezIntel.enrichAgentContext({
+        agentRole: `decision-engine:${context.decisionType}`,
+        userId: context.userId,
+        companyId: context.userId,
+        query: JSON.stringify({ decisionType: context.decisionType, amount: context.amount }),
+        context: { decisionType: context.decisionType }
+      }).catch(() => null),
+      rezIntel.classifyIntent({
+        userId: context.userId,
+        query: context.decisionType
+      }).catch(() => null),
+      rezIntel.getNextBestAction({
+        agentRole: 'decision-engine',
+        userId: context.userId,
+        currentAction: context.decisionType
+      }).catch(() => null)
+    ]);
+
+    const decision = await decisionEngine.makeDecision({
+      context,
+      skipRiskAssessment: req.body.skipRiskAssessment,
+      overridePolicyId: req.body.overridePolicyId
+    });
+
+    res.json(apiResponse(true, {
+      decision,
+      rezIntelContext: {
+        enriched: enriched || null,
+        intent: intent || null,
+        nextBestAction: nextAction || null,
+        source: enriched || intent || nextAction ? 'rez-intel' : 'unavailable'
+      }
+    }, undefined, requestId));
+  } catch (error) {
+    res.status(500).json(apiResponse(false, undefined, `Internal error: ${error instanceof Error ? error.message : String(error)}`, requestId));
+  }
+});
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

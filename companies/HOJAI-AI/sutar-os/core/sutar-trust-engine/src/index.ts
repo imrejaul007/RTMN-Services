@@ -12,6 +12,7 @@ import verificationService from "./services/verificationService";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { emit: emitEvent, shutdown: shutdownEvents } = require("./services/events");
 import logger from "./utils/logger";
+import * as rezIntel from "./rez-intel-client.js";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4291;
@@ -348,7 +349,65 @@ app.post(
 );
 
 // ---------------------------------------------------------------------------
-// 404 + boot
+// REZ Intelligence Integration (port 5370) — MUST be before 404 handler
+// Pattern: same as merchant-agents + 7 agents + 7 copilots
+// Trust Engine uses these to enrich trust-score lookups with intent + context.
+// ---------------------------------------------------------------------------
+app.get("/rez-intel-status", async (_req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json(apiResponse(true, {
+    rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED,
+    rezIntelUrl: rezIntel.REZ_INTEL_URL,
+    rezIntelHealthy: isHealthy
+  }));
+});
+
+app.post("/api/enrich", async (req, res) => {
+  try {
+    const { agentRole, userId, companyId, query, context } = req.body || {};
+    const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+    res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+  } catch (err) {
+    res.status(500).json({ error: 'enrichment-failed', source: 'unavailable' });
+  }
+});
+
+app.post("/api/v1/trust/enriched", async (req, res) => {
+  // Trust lookup with REZ Intel context enrichment
+  try {
+    const { entityId, entityType } = req.body || {};
+    if (!entityId) {
+      res.status(400).json(apiResponse(false, undefined, "entityId required"));
+      return;
+    }
+    const [enriched, intent, nextAction] = await Promise.all([
+      rezIntel.enrichAgentContext({
+        agentRole: 'trust-engine',
+        userId: entityId,
+        companyId: entityId,
+        query: `trust:${entityType || 'unknown'}`,
+        context: { entityType }
+      }).catch(() => null),
+      rezIntel.classifyIntent({ userId: entityId, query: `assess-trust:${entityType}` }).catch(() => null),
+      rezIntel.getNextBestAction({ agentRole: 'trust-engine', userId: entityId, currentAction: 'assess-trust' }).catch(() => null)
+    ]);
+    res.json(apiResponse(true, {
+      entityId,
+      entityType,
+      rezIntelContext: {
+        enriched: enriched || null,
+        intent: intent || null,
+        nextBestAction: nextAction || null,
+        source: enriched || intent || nextAction ? 'rez-intel' : 'unavailable'
+      }
+    }));
+  } catch (err) {
+    res.status(500).json(apiResponse(false, undefined, err instanceof Error ? err.message : String(err)));
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 404 catch-all (must be LAST)
 // ---------------------------------------------------------------------------
 app.use((_req, res) => {
   res.status(404).json(apiResponse(false, undefined, "Not found"));

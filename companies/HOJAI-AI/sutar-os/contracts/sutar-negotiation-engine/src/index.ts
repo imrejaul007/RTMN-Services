@@ -35,6 +35,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { negotiationService } from './services/negotiation.service.js';
 import { computeZOPA, diagnostics } from './services/zopa.service.js';
+import * as rezIntel from './rez-intel-client.js';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { emit: emitEvent, shutdown: shutdownEvents } = require('./services/events');
 import {
@@ -440,6 +441,20 @@ app.post('/api/v1/event', requireAuth, (req, res) => {
 
 // ============================================================================
 // 404 + Errors
+// ============================================================================
+// REZ Intelligence Integration (port 5370) — MUST be before the 404 handler
+// ============================================================================
+app.get('/rez-intel-status', async (_req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body || {};
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
 // ============================================================================
 
 app.use((_req, res) => {
