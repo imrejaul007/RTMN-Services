@@ -44,6 +44,9 @@ hojai --help
 | `hojai ai-spec generate` | Generate `hojai.ai.md` + `.hojai/` files |
 | `hojai ai-spec read` | Show current AI-native spec |
 | `hojai ai-spec validate` | Validate existing AI-native spec |
+| `hojai deploy [--mode=local\|preview\|remote]` | Ship the current project to a runnable URL |
+| `hojai add agent <Name>` | Add a stub SUTAR agent to the current project's `agents/index.js` |
+| `hojai add integration <hojai-name>` | Add an `@hojai/*` SDK to the current project's `package.json` |
 
 ---
 

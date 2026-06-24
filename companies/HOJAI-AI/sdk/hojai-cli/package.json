@@ -1,7 +1,7 @@
 {
   "name": "@hojai/cli",
-  "version": "1.0.0",
-  "description": "The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context — all from your terminal.",
+  "version": "1.1.0",
+  "description": "The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

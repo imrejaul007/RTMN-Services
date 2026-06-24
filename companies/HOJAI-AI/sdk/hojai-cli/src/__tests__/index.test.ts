@@ -49,6 +49,8 @@ test('hojai help prints full help', async () => {
     await main(['node', 'hojai', 'help']);
     assert.ok(cap.logs.some(l => l.includes('Manage CLI configuration')));
     assert.ok(cap.logs.some(l => l.includes('hojai memory capture')));
+    assert.ok(cap.logs.some(l => l.includes('hojai deploy')));
+    assert.ok(cap.logs.some(l => l.includes('hojai add')));
   } finally { cap.restore(); }
 });
 
@@ -84,5 +86,105 @@ test('hojai whoami without API key errors', async () => {
     assert.ok(cap.errs.some(e => e.includes('No API key')), 'should error');
   } catch (e) {
     assert.ok((e as Error).message.includes('process.exit'));
+  } finally { cap.restore(); }
+});
+
+// ─── deploy command ────────────────────────────────────────────────
+
+test('hojai deploy with no .hojai/manifest.json errors', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  // Use a fresh temp dir to ensure no manifest
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-deploy-'));
+  try {
+    process.chdir(tmp);
+    await main(['node', 'hojai', 'deploy', '--mode=local']);
+    assert.ok(cap.errs.some(e => e.includes('Not a HOJAI project')), 'should error');
+  } catch (e) {
+    assert.ok((e as Error).message.includes('process.exit'));
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
+
+test('hojai deploy --mode=preview generates dist/preview.html', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-deploy-'));
+  try {
+    // Set up a fake HOJAI project
+    await fs.mkdir(path.join(tmp, '.hojai'), { recursive: true });
+    await fs.mkdir(path.join(tmp, 'apps', 'frontend', 'public'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.hojai', 'manifest.json'), JSON.stringify({
+      schemaVersion: '1.0.0', projectId: 'p-1', name: 'test-proj', type: 'other',
+      languages: ['en'], hojaiVersion: '1.0.0', createdAt: 't', agents: [], integrations: []
+    }));
+    await fs.writeFile(path.join(tmp, 'apps', 'frontend', 'public', 'index.html'), '<html><body>Hi</body></html>');
+    process.chdir(tmp);
+    await main(['node', 'hojai', 'deploy', '--mode=preview']);
+    const out = cap.logs.join('\n');
+    assert.ok(out.includes('Preview generated'), 'should print success message');
+    const previewPath = path.join(tmp, 'dist', 'preview.html');
+    const exists = await fs.stat(previewPath).then(() => true).catch(() => false);
+    assert.ok(exists, 'should write dist/preview.html');
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    cap.restore();
+  }
+});
+
+test('hojai deploy --mode=remote without API key errors', async () => {
+  const cap = captureConsole();
+  const origCwd = process.cwd();
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-deploy-'));
+  try {
+    await fs.mkdir(path.join(tmp, '.hojai'), { recursive: true });
+    await fs.writeFile(path.join(tmp, '.hojai', 'manifest.json'), JSON.stringify({
+      schemaVersion: '1.0.0', projectId: 'p-1', name: 'test', type: 'other',
+      languages: ['en'], hojaiVersion: '1.0.0', createdAt: 't', agents: [], integrations: []
+    }));
+    delete process.env.HOJAI_API_KEY;
+    process.chdir(tmp);
+    await main(['node', 'hojai', 'deploy', '--mode=remote']);
+    assert.ok(cap.errs.some(e => e.includes('No API key')), 'should error');
+  } catch (e) {
+    assert.ok((e as Error).message.includes('process.exit'));
+  } finally {
+    process.chdir(origCwd);
+    await fs.rm(tmp, { recursive: true, force: true });
+    delete process.env.HOJAI_API_KEY;
+    cap.restore();
+  }
+});
+
+// ─── add command ──────────────────────────────────────────────────
+
+test('hojai add without subcommand errors', async () => {
+  const cap = captureConsole();
+  try {
+    await main(['node', 'hojai', 'add', 'bogus-sub']);
+    assert.ok(cap.errs.some(e => e.includes('Unknown subcommand')), 'should error');
+  } catch (e) {
+    assert.ok((e as Error).message.includes('process.exit'));
+  } finally { cap.restore(); }
+});
+
+test('hojai add help prints add help', async () => {
+  const cap = captureConsole();
+  try {
+    await main(['node', 'hojai', 'add', 'help']);
+    assert.ok(cap.logs.some(l => l.includes('hojai add')));
   } finally { cap.restore(); }
 });

@@ -11,10 +11,12 @@ import { runListings } from './commands/listings.js';
 import { runMemory } from './commands/memory.js';
 import { runWhoami } from './commands/whoami.js';
 import { runAiSpec } from './commands/ai-spec.js';
+import { runDeploy } from './commands/deploy.js';
+import { runAdd } from './commands/add.js';
 import { printHelp } from './commands/help.js';
 import { printError } from './output.js';
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 function readGlobalFlag(args: string[], flag: string): string | undefined {
   const i = args.indexOf(flag);
@@ -57,6 +59,8 @@ export async function main(argv: string[]): Promise<void> {
       case 'listings': return await runListings(rest, config);
       case 'memory': return await runMemory(rest, config);
       case 'ai-spec': return await runAiSpec(rest);
+      case 'deploy': return await runDeploy(rest);
+      case 'add': return await runAdd(rest);
       default:
         printError(`Unknown command: ${command}`);
         printHelp();

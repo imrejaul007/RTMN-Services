@@ -20,6 +20,9 @@ Commands:
   ai-spec generate              Generate hojai.ai.md + .hojai/ files
   ai-spec read                  Show current AI-native spec
   ai-spec validate              Validate existing AI-native spec
+  deploy [--mode=local|preview|remote]   Ship the current project
+  add agent <Name>              Add a stub SUTAR agent to the project
+  add integration <name>        Add an @hojai/* SDK to the project
   help                          Show this help
   version                       Print version
 
@@ -39,7 +42,11 @@ Examples:
   hojai listings search --query "negotiation" --category agent
   hojai memory capture "Met Sarah at HOJAI meetup" --tags conference
   hojai memory compose u-1 "What is Sarah interested in?"
-  hojai ai-spec generate    # in your HOJAI project, writes 3 files
+  hojai ai-spec generate
+  hojai deploy                       # start the project on a free port
+  hojai deploy --mode=preview        # generate dist/preview.html
+  hojai add agent "Sales Coach"     # add a new SUTAR agent
+  hojai add integration payment      # add @hojai/payment to package.json
 `);
   printInfo('All HOJAI SDKs are available as @hojai/* packages on npm.');
 }
