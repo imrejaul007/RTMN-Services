@@ -1,0 +1,96 @@
+{
+  "name": "@hojai/department",
+  "version": "1.0.0",
+  "description": "Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizontal × 26 vertical matrix.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./base": {
+      "import": "./dist/base.mjs",
+      "require": "./dist/base.js",
+      "default": "./dist/base.js"
+    },
+    "./types": {
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js",
+      "default": "./dist/types.js"
+    },
+    "./sales": {
+      "import": "./dist/sales.mjs",
+      "require": "./dist/sales.js",
+      "default": "./dist/sales.js"
+    },
+    "./marketing": {
+      "import": "./dist/marketing.mjs",
+      "require": "./dist/marketing.js",
+      "default": "./dist/marketing.js"
+    },
+    "./customer-success": {
+      "import": "./dist/customer-success.mjs",
+      "require": "./dist/customer-success.js",
+      "default": "./dist/customer-success.js"
+    },
+    "./procurement": {
+      "import": "./dist/procurement.mjs",
+      "require": "./dist/procurement.js",
+      "default": "./dist/procurement.js"
+    },
+    "./workforce": {
+      "import": "./dist/workforce.mjs",
+      "require": "./dist/workforce.js",
+      "default": "./dist/workforce.js"
+    },
+    "./finance": {
+      "import": "./dist/finance.mjs",
+      "require": "./dist/finance.js",
+      "default": "./dist/finance.js"
+    },
+    "./operations": {
+      "import": "./dist/operations.mjs",
+      "require": "./dist/operations.js",
+      "default": "./dist/operations.js"
+    },
+    "./cxo": {
+      "import": "./dist/cxo.mjs",
+      "require": "./dist/cxo.js",
+      "default": "./dist/cxo.js"
+    },
+    "./revenue-intelligence": {
+      "import": "./dist/revenue-intelligence.mjs",
+      "require": "./dist/revenue-intelligence.js",
+      "default": "./dist/revenue-intelligence.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "department",
+    "rtmn",
+    "horizontal",
+    "sales",
+    "marketing",
+    "crm",
+    "cxo",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
