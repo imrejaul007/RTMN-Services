@@ -1,0 +1,89 @@
+{
+  "name": "@hojai/commerce",
+  "version": "1.0.0",
+  "description": "Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./wallet": {
+      "import": "./dist/wallet.mjs",
+      "require": "./dist/wallet.js",
+      "default": "./dist/wallet.js"
+    },
+    "./payment": {
+      "import": "./dist/payment.mjs",
+      "require": "./dist/payment.js",
+      "default": "./dist/payment.js"
+    },
+    "./catalog": {
+      "import": "./dist/catalog.mjs",
+      "require": "./dist/catalog.js",
+      "default": "./dist/catalog.js"
+    },
+    "./booking": {
+      "import": "./dist/booking.mjs",
+      "require": "./dist/booking.js",
+      "default": "./dist/booking.js"
+    },
+    "./cashback": {
+      "import": "./dist/cashback.mjs",
+      "require": "./dist/cashback.js",
+      "default": "./dist/cashback.js"
+    },
+    "./gift-card": {
+      "import": "./dist/gift-card.mjs",
+      "require": "./dist/gift-card.js",
+      "default": "./dist/gift-card.js"
+    },
+    "./invoice": {
+      "import": "./dist/invoice.mjs",
+      "require": "./dist/invoice.js",
+      "default": "./dist/invoice.js"
+    },
+    "./bill-payments": {
+      "import": "./dist/bill-payments.mjs",
+      "require": "./dist/bill-payments.js",
+      "default": "./dist/bill-payments.js"
+    },
+    "./loyalty": {
+      "import": "./dist/loyalty.mjs",
+      "require": "./dist/loyalty.js",
+      "default": "./dist/loyalty.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "commerce",
+    "sdk",
+    "wallet",
+    "payment",
+    "razorpay",
+    "loyalty",
+    "bnpl",
+    "rabtul"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "undici": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
