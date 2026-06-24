@@ -94,6 +94,88 @@ b9796a28 feat(genie-creation-os): readiness routes + seed data + tests
 
 ---
 
+## Phase B Results (June 24, 2026)
+
+**Shipped:** Vite + React + TypeScript PWA at `products/genie/genie-os/frontend/web/` with all 5 vision tabs, 5 hidden detail screens, onboarding flow, and notification center.
+
+### Architecture
+
+- **Build tool:** Vite 5.4 + React 18.3 + TypeScript 5.6 + vite-plugin-pwa
+- **Bundle:** 250 KB JS (80 KB gzipped), 7.7 KB CSS, 101 modules transformed
+- **PWA:** Manifest + service worker with NetworkFirst cache for `/api/*` (24-hour TTL)
+- **Auth:** Bearer JWT via `@rtmn/shared/auth.createToken`; in-memory user store at server level
+- **Routing:** react-router-dom with 5 main tabs + 5 hidden screens + onboarding flow
+
+### 5 main vision tabs (B3-B7)
+
+| Tab | What it does | Specialist integrations |
+|---|---|---|
+| **Home** (`/home`) | Today's date + greeting + Focus card + 4 widgets + Today's Schedule + Genie's Insights + floating capture FAB | briefing, calendar, wellness, relationship, memoryinbox |
+| **Genie** (`/genie`) | Chat with streaming-ready UI + Voice (Web Speech API) + Camera (getUserMedia) + Mode switcher (chat/voice/camera) | gateway, listening-modes |
+| **Search** (`/search`) | Universal search with type filters (memories/people/events/knowledge) + recent searches + score badges | universal-search |
+| **Memory** (`/memory`) | Timeline grouped by day + 7 type filters (all/notes/photos/voice/events/people/places/ideas) + capture modal | memoryinbox |
+| **Me** (`/me`) | Profile + Twin summary (knowledge/relationships/goals) + Scores (mood/money/memory) + Connected Accounts + Preferences + Sign out | memorygraph, wellness, money |
+
+### 5 hidden detail screens (B8)
+
+- `/calendar` — full event list with timestamps and locations
+- `/finance` — budgets with progress + recent transactions
+- `/health` — mood history (14-day bar chart) + sleep log + quick mood logger
+- `/learning` — Life University courses with progress bars
+- `/relationships` — contact cards with avatars, intimacy scores, last contact
+
+### Onboarding flow (B10)
+
+5-step flow at `/onboarding`:
+1. **Welcome** — intro + "Get started" CTA
+2. **Name** — captures user's name for personalized greetings
+3. **Auth** — signup/login or "Continue as guest"
+4. **Goals** — 8-option pill picker (Remember/Healthier/Save money/Learn faster/etc.)
+5. **Done** — celebration + "Open Genie" button
+
+Completion persisted in `localStorage` (`genie_onboarding_completed`). Gate component redirects to `/onboarding` if not done.
+
+### Notification center (B9)
+
+Modal overlay triggered from header bell icon. Loads from `briefing/api/notifications` with graceful fallback to mock data. Shows type badge, read/unread state, timestamp.
+
+### Server changes
+
+- `/api/auth/signup`, `/api/auth/login`, `/api/auth/me` — JWT-based auth
+- Vite `dist/` served in production; falls back to legacy `public/` in dev
+- SPA fallback: any non-`/api/*` route returns `index.html`
+
+### Tests
+
+`test/web-smoke.test.mjs` — 17 assertions:
+- Server boots and serves `/ready`
+- `/` returns the Vite-built `index.html`
+- `/api/auth/signup` creates user + returns token
+- `/api/auth/login` authenticates
+- Wrong password returns 401
+- `/api/auth/me` with valid Bearer token returns user
+- `/api/auth/me` without token returns 401
+- `/api/specialists/briefing/health` proxies correctly
+
+**Total: 17 passed, 0 failed.**
+
+### Bug fixes shipped
+
+- `server.js` was CJS but `package.json` had `"type": "module"` — converted to ESM imports
+- `createToken` is `async` in ESM (sync in CJS) — awaited both signup and login handlers
+
+### Commit
+
+```
+4021ab69 feat(genie-web): Phase B foundation — Vite + React + TS, 5 tabs, 5 screens, onboarding, PWA
+```
+
+Pushed to `feat/killer-30min-demo` on `companies/HOJAI-AI`.
+
+---
+
+---
+
 ## Current State Audit (Honest)
 
 ### Specialists (23 services)
