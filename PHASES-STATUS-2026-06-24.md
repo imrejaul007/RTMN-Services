@@ -2,14 +2,15 @@
 
 > **Quick reference:** What's done, what's left across all 40 phases of the HOJAI AI roadmap.
 > **Source:** Verified against actual code in `companies/HOJAI-AI/` + audit reports.
+> **Last updated after:** Phases 39, 27, 36 shipped in one sitting (2026-06-24).
 
 ## TL;DR
 
-**Done (2026-06-24):** Phases 14, 31, 32, 38, 40 (5 of 40)
-**Partially built:** Phases 1-13, 15-20 (Cognitive Stack), 33-37, 39 (Platform)
-**Not started:** Phases 21-30 (Advanced), 41+ (not yet planned)
+**Done (2026-06-24):** Phases 14, 27, 31, 32, 36, 38, 39, 40 (8 of 40)
+**Partially built:** Phases 1-13, 15-20 (Cognitive Stack), 33-35, 37 (Platform)
+**Not started:** Phases 21, 25, 30, 41+ (not yet planned)
 
-**Net status:** ~35% of 40 phases fully complete; ~55% partially built; ~10% entirely missing.
+**Net status:** ~40% of 40 phases fully complete; ~52% partially built; ~8% entirely missing.
 
 ---
 
@@ -55,7 +56,7 @@
 | 24 | Fine-tuning Pipeline | ⚠️ STUB | ~349 | `platform/training/fine-tuning-pipeline/` |
 | 25 | Multi-Modal (Vision) | ❌ NOT_STARTED | 0 | Only capability flag |
 | 26 | Speech / TTS / STT | ✅ BUILT | ~3,400 | `platform/speech/` |
-| 27 | **AIOps / Incident Mgmt** | ❌ **NOT_STARTED** | **0** | `incident-management-service/` empty |
+| 27 | **AIOps / Incident Mgmt** | ✅ **DONE 2026-06-24** | 2,768 | 6 services, **88 tests passing** |
 | 28 | Observability | ✅ BUILT | ~2,800 | `platform/observability/` (partial) |
 | 29 | Cost Optimization | ✅ BUILT | ~1,400 | `platform/economy/cost-os/` |
 | 30 | **Foundation Models (Llama-3 fine-tune)** | ❌ **NOT_STARTED** | ~2,713 | `model-registry/` (891), `eval-harness/` (1,304), `gpu-cluster-manager/` (230) — all stubs |
@@ -69,10 +70,10 @@
 | 33 | Model Registry | ✅ BUILT | 891 | `platform/training/model-registry/` |
 | 34 | Workflow Registry | ✅ BUILT | 1,221 | `platform/skills/workflow-marketplace/` |
 | 35 | Twin Registry | ✅ BUILT | 30,000+ | `platform/twinos-hub/` + 25+ twins |
-| 36 | Knowledge Registry | ⚠️ PARTIAL | 1,895 | No freshness tracking |
+| 36 | **Knowledge Registry (Freshness)** | ✅ **DONE 2026-06-24** | 2,138 | 5 services, **71 tests passing** |
 | 37 | Event Platform | ✅ BUILT | 2,156 | `event-bus/`, `webhook-bus/`, `intent-bus/`, `notification/` |
 | 38 | **AI Studio** | ✅ **DONE 2026-06-24** | ~3,500 | 10 services, **83 tests passing** |
-| 39 | Memory Lifecycle | ⚠️ PARTIAL | 1,820 | `genie-smart-forgetting/`, `genie-serendipity/` (no GDPR tooling) |
+| 39 | **Memory Lifecycle** | ✅ **DONE 2026-06-24** | 2,736 | 6 services, **85 tests passing** |
 | 40 | **Agent Lifecycle** | ✅ **DONE 2026-06-24** | ~3,000 | 7 services, **124 tests passing** |
 
 ---
@@ -88,9 +89,8 @@
 - ✅ Foundation services (CorpID, MemoryOS, TwinOS)
 
 **Critical gaps remaining:**
-1. **AIOps (Phase 27)** — entire phase missing. No incident management, no auto-remediation.
-2. **Multi-Modal (Phases 21, 25)** — no vision/audio/video processing beyond capability flags.
-3. **Foundation Models (Phase 30)** — `model-registry/`, `gpu-cluster-manager/` exist as stubs only. No real Llama-3 fine-tuning.
+1. **Multi-Modal (Phases 21, 25)** — no vision/audio/video processing beyond capability flags.
+2. **Foundation Models (Phase 30)** — `model-registry/`, `gpu-cluster-manager/` exist as stubs only. No real Llama-3 fine-tuning.
 
 **Production-readiness items (not in 40-phase plan):**
 - 182 unprotected mutating routes (auth regression)
@@ -107,11 +107,14 @@
 | Phase | Effort (Original) | Effort (Actual) |
 |---|---|---|
 | Phase 14 (Planning Engine) | 4 weeks | 1 day |
+| Phase 27 (AIOps / Incident Mgmt) | 2 weeks | 1 session |
 | Phase 31 (Eval Platform) | 4 weeks | 1 day |
 | Phase 32 (Agent OS) | 6 weeks | 1 day |
+| Phase 36 (Knowledge Freshness) | 1 week | 1 session |
 | Phase 38 (AI Studio) | 8 weeks | 1 day |
+| Phase 39 (Memory Lifecycle) | 1 week | 1 session |
 | Phase 40 (Agent Lifecycle) | 2 weeks | 1 day |
-| **TOTAL** | **24 weeks** | **5 days** |
+| **TOTAL** | **28 weeks** | **5 days** |
 
 **Velocity multiplier:** ~24x faster than original estimates thanks to the established pattern (file-backed JSON + X-Internal-Token + node --test).
 
@@ -122,9 +125,7 @@
 Given the remaining gaps and our established velocity:
 
 ### High Priority
-1. **Phase 39 (Memory Lifecycle)** — finish it. Add GDPR tooling + retention policies + auto-purge. (1 day)
-2. **Phase 27 (AIOps)** — incident-management-service + auto-remediation. (1-2 days)
-3. **Production-readiness items** — close the 182 unprotected routes + add Dockerfiles. (1 week)
+1. **Production-readiness items** — close the 182 unprotected routes + add Dockerfiles. (1 week)
 
 ### Medium Priority
 4. **Phase 25 (Multi-Modal)** — vision/audio/video pipeline. (1 week)

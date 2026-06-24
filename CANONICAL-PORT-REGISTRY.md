@@ -540,6 +540,56 @@ done
 
 ---
 
+## 🟢 Phase 39: Memory Lifecycle — 6 new ports (added 2026-06-24)
+
+6 new services in `companies/HOJAI-AI/platform/memory-lifecycle/`. All built and tested (85 tests passing, 0 failures, stable across 2 runs).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **5325** | `memory-lifecycle-api` | Gateway + lifecycle policy CRUD + bindings + service catalog + health aggregation | 17 |
+| **5326** | `memory-governance` | Consent records (6 lawful bases), withdraw, check API returning allow/deny/flag | 15 |
+| **5327** | `memory-retention` | Per-memory-type rules + default; evaluate/is_expired API; bulk evaluate | 13 |
+| **5328** | `memory-gdpr` | Subject record storage, request types (forget/export/access/rectify/withdraw_consent), process endpoint | 15 |
+| **5329** | `memory-purge` | Records CRUD, soft-delete (tombstone), hard-delete, sweep jobs | 13 |
+| **5330** | `memory-audit-log` | SHA-256 hash-chain entries, verify endpoint, stats | 12 |
+
+**Pattern:** Same file-backed JSON storage + X-Internal-Token + `node --test --test-force-exit --test-concurrency=1 tests/*.test.js` runner. ~2,736 LOC across 6 services.
+
+---
+
+## 🟢 Phase 27: AIOps / Incident Management — 6 new ports (added 2026-06-24)
+
+6 new services in `companies/HOJAI-AI/platform/observability/aiops/`. All built and tested (88 tests passing, 0 failures, stable across 2 runs). This **closes the largest gap** in the 40-phase plan (was 0 LOC).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **5331** | `aiops-api` | Gateway + incident dashboard shape + pinned items | 13 |
+| **5332** | `incident-detector` | Thresholds (latency_ms/error_rate/cpu_pct/memory_pct), event ingestion, fingerprint dedup using `Math.floor(value*10)/10` bucketing | 16 |
+| **5333** | `runbook-engine` | Runbook CRUD with steps (command/http/wait/note/approval), parameter binding with `{{var}}` substitution, executions | 15 |
+| **5334** | `oncall-rotation` | Rotations (hourly/daily/weekly), `currentOncall()` function with overrides taking precedence | 14 |
+| **5335** | `escalation-engine` | Policies with levels/targets/timeouts, escalation state machine (active→acknowledged/resolved/cancelled), manual escalate jumps levels | 16 |
+| **5336** | `postmortem-service` | Default template with 7 sections, postmortems with action_items | 14 |
+
+**Pattern:** Same file-backed JSON storage + X-Internal-Token + `node --test` runner. ~2,768 LOC across 6 services.
+
+---
+
+## 🟢 Phase 36: Knowledge Freshness — 5 new ports (added 2026-06-24)
+
+5 new services in `companies/HOJAI-AI/platform/knowledge-freshness/`. All built and tested (71 tests passing, 0 failures, stable across 2 runs).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **5337** | `knowledge-freshness-api` | Gateway + service catalog + health aggregation + proxies to /freshness, /staleness, /refresh, /versions | 10 |
+| **5338** | `freshness-tracker` | Track documents with TTL, linear decay `1 - age/ttl` (sub-second rounding to avoid float drift), stats with fresh/good/stale/expired buckets | 15 |
+| **5339** | `staleness-detector` | Rules (max_age_days/min_freshness_score/no_recent_access), facts registry, scan endpoint with dedup, alerts with ack/resolve | 14 |
+| **5340** | `refresh-scheduler` | Schedules (periodic/on_demand/on_stale), trigger endpoint, runs history | 11 |
+| **5341** | `knowledge-version-graph` | DAG of versions: artifacts + versions + supersedes edges; ancestors/descendants/lineage traversal; cycle detection; topological order; graph stats | 21 |
+
+**Pattern:** Same file-backed JSON storage + X-Internal-Token + `node --test` runner. ~2,138 LOC across 5 services.
+
+---
+
 ## 🟢 AdBazaar Cross-Ecosystem Collision Resolution (2026-06-20)
 
 AdBazaar previously claimed 71 ports owned by RTMN canonical services. On **2026-06-20**, 53 AdBazaar services were relocated into the **`5114-5172` reserved range** (sub-ranges between canonical Industry OS ports at 5120, 5130, 5140, 5150, 5160).
