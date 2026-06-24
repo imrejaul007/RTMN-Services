@@ -1,0 +1,39 @@
+{
+  "name": "@hojai/cli",
+  "version": "1.0.0",
+  "description": "The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context — all from your terminal.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "hojai": "./bin/hojai.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js",
+    "start": "node bin/hojai.js"
+  },
+  "keywords": [
+    "hojai",
+    "cli",
+    "tooling",
+    "marketplace",
+    "memory"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
