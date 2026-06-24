@@ -68,7 +68,7 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
 
 ## State of Work (as of 2026-06-24)
 
-**Last commit:** `7faf0493` (in `companies/HOJAI-AI/`, branch `feat/killer-30min-demo`) — "feat(foundry): wire starters to BaseAgent runtime (Step 5)"
+**Last commit:** see `git log --oneline -1` (in `companies/HOJAI-AI/`, branch `feat/killer-30min-demo`) — v1.1 real remote deploy
 
 **Done (2026-06-23/24):**
 - 22 strategic planning docs in `.claude/plans/` (all committed, all pushed to origin)
@@ -84,6 +84,16 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
   - 7-agent company starter has real strategies (CEO keyword routing, CXO KPIs, Finance double-entry, etc.)
   - **48 tests, 0 failures** (36 CLI + 12 company starter)
   - Lives at: `companies/HOJAI-AI/foundry/` on branch `feat/killer-30min-demo` in `imrejaul007/hojai-ai` repo
+- ✅ **HOJAI Foundry v1.1 shipped** — real remote deploy (item #7 below) **DONE**:
+  - **`hojai-cloud` service** at `companies/HOJAI-AI/products/hojai-cloud/` (port 4380)
+  - Receives `npx hojai deploy --mode=remote`, provisions a per-tenant runtime on a free port, returns the public URL
+  - Persistent storage at `STORAGE_DIR/<projectId>/` (re-deploys reuse port + projectId)
+  - Bearer auth via `HOJAI_API_KEY` (disable with `HOJAI_CLOUD_REQUIRE_AUTH=false` for dev)
+  - Wildcard route `/api/v1/route/:subdomain/*` for nginx/Caddy → hojai-cloud
+  - **16 tests, 0 failures** (health, deploy happy + re-deploy, list/get/delete, auth, helpers)
+  - **`npx hojai deploy --mode=remote`** wired to POST to `HOJAI_CLOUD_URL` when set, falls back to v1.0 stub otherwise
+  - **5 new deploy tests** (mocked fetch: happy path, trailing-slash, 503 error, network error, no-key)
+  - **Total: 69 tests, 0 failures** (41 foundry + 12 company + 16 hojai-cloud)
 - Phase 0 planned (LLM billing, observability, eval pipeline - 40-phase #1-10)
 - Master 40-phase vs 6-phase reconciliation complete
 
@@ -94,7 +104,7 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
 4. Build HOJAI Widget MVP (8-12 weeks) - billion-dollar distribution
 5. Build nexha-autonomous-logistics (8 weeks) - fills KHAIRMOVE gap
 6. Build the 16 AI Employees (6 weeks) - the killer BAM category
-7. v1.1: real remote deploy (push to `*.hojai.app` hosting)
+7. ~~v1.1: real remote deploy (push to `*.hojai.app` hosting)~~ ✅ **DONE 2026-06-24**
 
 ## Quick Status Check Commands
 

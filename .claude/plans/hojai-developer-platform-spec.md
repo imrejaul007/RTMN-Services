@@ -5,7 +5,7 @@
 > **Vision:** HOJAI is the platform that AI coding assistants (Claude Code, Cursor, Codex, ChatGPT, GitHub Copilot) know how to build on. A founder says "Build me an import/export marketplace" and a working application materializes.
 >
 > **Status:** Detailed specification for the developer platform that powers HOJAI Foundry
-> **Shipped (2026-06-24):** HOJAI Foundry v1.0 — `npx hojai create` + `npx hojai deploy` (local + preview + remote-stub) + `npx hojai add agent` + `npx hojai add integration`. All 9 starter kits (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos) wired to a real **BaseAgent runtime** (local mode by default, remote mode via `HOJAI_SUTAR_URL`). 48 tests pass (36 CLI + 12 company starter). See `companies/HOJAI-AI/foundry/CLAUDE.md`.
+> **Shipped (2026-06-24):** HOJAI Foundry v1.1 — `npx hojai create` + `npx hojai deploy` (local + preview + **real remote**) + `npx hojai add agent` + `npx hojai add integration`. All 9 starter kits (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos) wired to a real **BaseAgent runtime** (local mode by default, remote mode via `HOJAI_SUTAR_URL`). The **real remote deploy** ships via the new `hojai-cloud` service (:4380) — when `HOJAI_CLOUD_URL` is set, `npx hojai deploy --mode=remote` POSTs the project, hojai-cloud provisions a per-tenant runtime, and the caller gets back `https://<name>.hojai.app`. **69 tests pass** (41 CLI + 12 company + 16 hojai-cloud). See `companies/HOJAI-AI/foundry/CLAUDE.md` and `products/hojai-cloud/CLAUDE.md`.
 
 ---
 

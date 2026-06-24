@@ -117,6 +117,7 @@
 | nexha-autonomous-logistics (port 4293) | Our plan | 8 weeks |
 | Trust Bootstrap journey | Our plan | 2 weeks |
 | 30-minute killer demo (HOJAI Foundry v1.0) | **SHIPPED 2026-06-24** | — |
+| HOJAI Foundry v1.1 — real remote deploy (hojai-cloud :4380) | **SHIPPED 2026-06-24** | — |
 
 ### Phase E (Months 4-6): Reputation Flywheel
 

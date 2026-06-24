@@ -458,6 +458,26 @@ Returns: { steps: [...], testing_ok: bool }
 
 ---
 
+## 🟢 HOJAI Foundry v1.1 — Real Remote Deploy (1 new port, added 2026-06-24)
+
+The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` is set, the foundry CLI POSTs the project to this service; it provisions a per-tenant runtime and returns the public URL (`https://<name>.hojai.app`).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **4380** | `hojai-cloud` | Receives deploy requests; spawns tenant backend on a free port (8800-8899); persistent storage; bearer auth; wildcard subdomain routing | 16 |
+
+**Source:** `companies/HOJAI-AI/products/hojai-cloud/` (branch: `feat/killer-30min-demo`)
+
+**Per-tenant port range:** `8800-8899` (configurable via `HOJAI_CLOUD_PORT_RANGE_START/END`)
+
+**Reverse-proxy route:** `GET/POST/PUT/PATCH/DELETE /api/v1/route/:subdomain/*` — for nginx/Caddy/Cloudflare forwarding `*.hojai.app` traffic to hojai-cloud. See `products/hojai-cloud/CLAUDE.md` for full details.
+
+**Test pattern:** `node --test --test-force-exit src/__tests__/*.test.js` (built-in test runner, no jest/vitest).
+
+**Integration with foundry CLI:** `npx hojai deploy --mode=remote` reads `HOJAI_CLOUD_URL` (and optional `HOJAI_API_KEY`) and POSTs `{ name, type, manifest, runtime, files }` to `<HOJAI_CLOUD_URL>/api/v1/deploy`. Falls back to v1.0 stub (print target URL) when `HOJAI_CLOUD_URL` is not set. See `foundry/packages/create-hojai/src/deploy.js` + `tests/deploy.test.js`.
+
+---
+
 ## 📋 How to Use This File
 
 ```bash
