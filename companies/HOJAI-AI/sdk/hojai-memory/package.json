@@ -1,0 +1,26 @@
+{
+  "name": "@hojai/memory",
+  "version": "1.0.0",
+  "description": "Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./os": { "import": "./dist/os.mjs", "require": "./dist/os.js", "default": "./dist/os.js" },
+    "./network": { "import": "./dist/network.mjs", "require": "./dist/network.js", "default": "./dist/network.js" },
+    "./confidence": { "import": "./dist/confidence.mjs", "require": "./dist/confidence.js", "default": "./dist/confidence.js" },
+    "./bridge": { "import": "./dist/bridge.mjs", "require": "./dist/bridge.js", "default": "./dist/bridge.js" },
+    "./context": { "import": "./dist/context.mjs", "require": "./dist/context.js", "default": "./dist/context.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "memory", "memoryos", "twin", "llm", "context", "sdk"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
