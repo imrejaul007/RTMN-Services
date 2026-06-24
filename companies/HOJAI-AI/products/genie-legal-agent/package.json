@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/genie-legal-agent",
+  "version": "1.0.0",
+  "description": "Genie Legal — contract review, clause extraction, risk flagging, regulatory tracking.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0"
+  },
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

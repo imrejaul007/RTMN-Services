@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/genie-budgeting-agent",
+  "version": "1.0.0",
+  "description": "Genie Budgeting — business budgeting, runway forecasting, variance analysis, board reports.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0"
+  },
+  "author": "HOJAI AI",
+  "license": "MIT"
+}
