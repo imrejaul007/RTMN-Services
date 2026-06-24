@@ -1,0 +1,78 @@
+{
+  "name": "@hojai/reputation",
+  "version": "1.0.0",
+  "description": "Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./sada": {
+      "types": "./dist/sada.d.ts",
+      "import": "./dist/sada.js",
+      "require": "./dist/sada.js",
+      "default": "./dist/sada.js"
+    },
+    "./agent": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.js",
+      "require": "./dist/agent.js",
+      "default": "./dist/agent.js"
+    },
+    "./dispute": {
+      "types": "./dist/dispute.d.ts",
+      "import": "./dist/dispute.js",
+      "require": "./dist/dispute.js",
+      "default": "./dist/dispute.js"
+    },
+    "./leaderboard": {
+      "types": "./dist/leaderboard.d.ts",
+      "import": "./dist/leaderboard.js",
+      "require": "./dist/leaderboard.js",
+      "default": "./dist/leaderboard.js"
+    },
+    "./network": {
+      "types": "./dist/network.d.ts",
+      "import": "./dist/network.js",
+      "require": "./dist/network.js",
+      "default": "./dist/network.js"
+    },
+    "./risk": {
+      "types": "./dist/risk.d.ts",
+      "import": "./dist/risk.js",
+      "require": "./dist/risk.js",
+      "default": "./dist/risk.js"
+    }
+  },
+  "files": ["dist", "CLAUDE.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": [
+    "hojai",
+    "reputation",
+    "trust",
+    "sada",
+    "agent",
+    "dispute",
+    "leaderboard",
+    "risk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  }
+}
