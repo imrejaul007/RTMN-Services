@@ -68,7 +68,7 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
 
 ## State of Work (as of 2026-06-24)
 
-**Last commit:** `a3002e7d` (in `companies/HOJAI-AI/`, branch `feat/killer-30min-demo`) — "fix(foundry): restaurant starter missing template/ subdir"
+**Last commit:** `7faf0493` (in `companies/HOJAI-AI/`, branch `feat/killer-30min-demo`) — "feat(foundry): wire starters to BaseAgent runtime (Step 5)"
 
 **Done (2026-06-23/24):**
 - 22 strategic planning docs in `.claude/plans/` (all committed, all pushed to origin)
@@ -77,24 +77,24 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
 - REZ Intelligence wired into 9 foundation SUTAR services (closes loop)
 - @hojai/reputation v1.0.0 SDK shipped
 - HOJAI Widget backend wired to real SUTAR agents
-- ✅ **HOJAI Foundry v0.5 shipped** — 30-min killer demo (item #3 below) **DONE**:
-  - `npx hojai create` CLI + 9 starter templates (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos)
-  - Each starter: Express backend on :4001 + zero-build static frontend on :3000 + 4-5 SUTAR agent stubs + Nexha federation profile + `hojai.ai.md`
-  - `scripts/generate-starters.mjs` (single source of truth, idempotent)
-  - **40 tests, 0 failures** (16 CLI + 8 marketplace + 3×8 new starters)
-  - **8/8 smoke tests pass** (all starters boot, health 200, seed data loaded, agents registered)
+- ✅ **HOJAI Foundry v1.0 shipped** — 30-min killer demo (item #1 below) **DONE**:
+  - `npx hojai create` + `npx hojai deploy` (local + preview + remote-stub) + `npx hojai add agent` + `npx hojai add integration`
+  - 9 starter templates (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos)
+  - **BaseAgent runtime** baked into every starter — local mode by default, remote mode via `HOJAI_SUTAR_URL` (forwards to SUTAR merchant-agents service)
+  - 7-agent company starter has real strategies (CEO keyword routing, CXO KPIs, Finance double-entry, etc.)
+  - **48 tests, 0 failures** (36 CLI + 12 company starter)
   - Lives at: `companies/HOJAI-AI/foundry/` on branch `feat/killer-30min-demo` in `imrejaul007/hojai-ai` repo
 - Phase 0 planned (LLM billing, observability, eval pipeline - 40-phase #1-10)
 - Master 40-phase vs 6-phase reconciliation complete
 
 **Not yet done (priority order):**
-1. ~~Build the 30-minute killer demo~~ ✅ **DONE 2026-06-24** (v0.5)
-2. HOJAI Foundry v1.0: `npx hojai deploy` (ship to `*.hojai.app`), `npx hojai add agent`, `npx hojai add integration`
-3. Wire REZ Intelligence into OTHER SUTAR agents (sales, support, procurement, finance)
-4. Build @hojai/foundation SDK v1 (2-3 weeks) - the foundation
-5. Build HOJAI Widget MVP (8-12 weeks) - billion-dollar distribution
-6. Build nexha-autonomous-logistics (8 weeks) - fills KHAIRMOVE gap
-7. Build the 16 AI Employees (6 weeks) - the killer BAM category
+1. ~~Build the 30-minute killer demo~~ ✅ **DONE 2026-06-24** (v0.5 → v1.0)
+2. Wire REZ Intelligence into OTHER SUTAR agents (sales, support, procurement, finance)
+3. Build @hojai/foundation SDK v1 (2-3 weeks) - the foundation
+4. Build HOJAI Widget MVP (8-12 weeks) - billion-dollar distribution
+5. Build nexha-autonomous-logistics (8 weeks) - fills KHAIRMOVE gap
+6. Build the 16 AI Employees (6 weeks) - the killer BAM category
+7. v1.1: real remote deploy (push to `*.hojai.app` hosting)
 
 ## Quick Status Check Commands
 

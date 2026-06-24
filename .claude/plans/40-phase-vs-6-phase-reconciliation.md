@@ -116,7 +116,7 @@
 | DiscoveryOS v0.1 (port 4272) | Our plan | 3 weeks |
 | nexha-autonomous-logistics (port 4293) | Our plan | 8 weeks |
 | Trust Bootstrap journey | Our plan | 2 weeks |
-| 30-minute killer demo | Our plan | 4-6 weeks |
+| 30-minute killer demo (HOJAI Foundry v1.0) | **SHIPPED 2026-06-24** | — |
 
 ### Phase E (Months 4-6): Reputation Flywheel
 
