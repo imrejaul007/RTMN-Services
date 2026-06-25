@@ -1,0 +1,19 @@
+{
+  "name": "@hojai/cloud-sdk",
+  "version": "1.0.0",
+  "description": "HOJAI Cloud SDK - Unified SDK for all HOJAI Cloud services",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": ["hojai", "cloud", "sdk", "ai", "studio"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "peerDependencies": {
+    "node-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}

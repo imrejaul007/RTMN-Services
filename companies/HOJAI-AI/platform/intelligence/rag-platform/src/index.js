@@ -22,19 +22,20 @@
  * @version 1.0.0
  */
 
+'use strict';
+
 const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http');
 const { v4: uuidv4 } = require('uuid');
 
-const PORT = process.env.PORT || 4781;
+const PORT = parseInt(process.env.PORT, 10) || 4781;
 const SERVICE_NAME = 'rag-platform';
 const VERSION = '1.0.0';
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'rag-platform-internal-token';
+const REQUIRE_AUTH = (process.env.RAG_PLATFORM_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const NO_LISTEN = (process.env.RAG_PLATFORM_NO_LISTEN ?? '').toLowerCase() === 'true' || process.env.NODE_ENV === 'test';
 
 const VECTOR_DB_URL = process.env.VECTOR_DB_URL || 'http://localhost:4780';
 const INFERENCE_URL = process.env.INFERENCE_URL || 'http://localhost:4770';
@@ -49,7 +50,7 @@ const DEFAULT_TOP_K = parseInt(process.env.DEFAULT_TOP_K, 10) || 5;
 // ============================================================
 
 /** @type {Map<string, Document>} documentId → document */
-const documents = new PersistentMap('documents', { serviceName: 'rag-platform' });
+const documents = new Map();
 
 /** append-only audit log, cap 10000 (FIFO) */
 const auditLog = [];
@@ -378,13 +379,24 @@ function buildUserPrompt(query, context) {
 }
 
 // ============================================================
+// Auth
+// ============================================================
+
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  next();
+}
+
+const authOrBypass = (req, res, next) => REQUIRE_AUTH ? requireInternal(req, res, next) : next();
+
+// ============================================================
 // Express app
 // ============================================================
 
 const app = express();
 
-// Validate required env at startup
-requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] }));
 app.use(express.json({ limit: '20mb' }));
@@ -416,7 +428,7 @@ app.get('/api/health', async (req, res) => {
  * POST /api/documents
  * Body: { collection, documentId?, content, metadata?, chunkSize?, chunkOverlap? }
  */
-app.post('/api/documents',requireAuth,  async (req, res) => {
+app.post('/api/documents',authOrBypass,  async (req, res) => {
   const start = Date.now();
   const { collection, documentId, content, metadata, chunkSize, chunkOverlap } = req.body || {};
   if (typeof collection !== 'string' || !collection.trim()) {
@@ -531,7 +543,7 @@ app.get('/api/documents/:documentId', (req, res) => {
 /**
  * DELETE /api/documents/:documentId
  */
-app.delete('/api/documents/:documentId',requireAuth,  async (req, res) => {
+app.delete('/api/documents/:documentId',authOrBypass,  async (req, res) => {
   const doc = documents.get(req.params.documentId);
   if (!doc) return res.status(404).json({ error: `document '${req.params.documentId}' not found`, code: 'DOCUMENT_NOT_FOUND' });
 
@@ -573,7 +585,7 @@ app.get('/api/documents', (req, res) => {
  * POST /api/retrieve
  * Body: { collection, query, topK?, filter? }
  */
-app.post('/api/retrieve',requireAuth,  async (req, res) => {
+app.post('/api/retrieve',authOrBypass,  async (req, res) => {
   const start = Date.now();
   const { collection, query, topK, filter } = req.body || {};
   if (typeof collection !== 'string' || !collection.trim()) {
@@ -623,7 +635,7 @@ app.post('/api/retrieve',requireAuth,  async (req, res) => {
  * POST /api/rag/query
  * Body: { collection, query, topK?, filter?, systemPrompt?, model?, temperature?, maxTokens?, includeSources? }
  */
-app.post('/api/rag/query',requireAuth,  async (req, res) => {
+app.post('/api/rag/query',authOrBypass,  async (req, res) => {
   const start = Date.now();
   const {
     collection, query, topK, filter,
@@ -730,7 +742,7 @@ app.post('/api/rag/query',requireAuth,  async (req, res) => {
 /**
  * POST /api/rag/stream  (not yet implemented)
  */
-app.post('/api/rag/stream',requireAuth,  (req, res) => {
+app.post('/api/rag/stream',authOrBypass,  (req, res) => {
   res.status(501).json({
     error: 'NOT_IMPLEMENTED',
     message: 'Streaming responses are planned for v1.1. Use /api/rag/query for non-streaming.',
@@ -742,7 +754,7 @@ app.post('/api/rag/stream',requireAuth,  (req, res) => {
 
 app.get('/api/config', (req, res) => res.json({ ...config }));
 
-app.post('/api/config',requireAuth,  (req, res) => {
+app.post('/api/config',authOrBypass,  (req, res) => {
   const { vectorDbUrl, inferenceUrl, defaultChunkSize, defaultChunkOverlap, defaultModel, defaultTemperature, defaultTopK } = req.body || {};
   if (vectorDbUrl !== undefined) {
     if (typeof vectorDbUrl !== 'string' || !vectorDbUrl.startsWith('http')) {
@@ -807,7 +819,7 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-app.post('/api/stats/reset',requireAuth,  (req, res) => {
+app.post('/api/stats/reset',authOrBypass,  (req, res) => {
   const old = { ...stats };
   stats.queriesAnswered = 0;
   stats.retrievalsOnly = 0;

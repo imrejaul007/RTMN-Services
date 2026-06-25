@@ -3,14 +3,22 @@
  *
  * Provides:
  *   emit(httpreq, eventType, payload) — logs + publishes to Redis stream
- *   getBus()                        — raw Redis pub/sub client (read-only)
+ *   getBus()                        — raw EventBus instance (read-only)
  *   shutdown()                      — disconnect gracefully
  *
  * Falls back to a no-op when Redis is unreachable.
  */
-import { publishAsync, subscribe, unsubscribe, getClient } from '@rtmn/shared/event-bus/index.js';
+import EventBus from '@rtmn/shared/event-bus/index.js';
 
 const SERVICE_NAME = 'skill-os';
+let _bus = null;
+
+function getBusInstance() {
+  if (!_bus) {
+    _bus = new EventBus({ serviceName: SERVICE_NAME });
+  }
+  return _bus;
+}
 
 /**
  * Emit an event.  Incoming `req` is used only for tenantId extraction.
@@ -20,7 +28,7 @@ const SERVICE_NAME = 'skill-os';
  */
 export function emit(req, eventType, payload = {}) {
   const tenantId = req?.tenantId ?? req?.params?.tenantId ?? null;
-  publishAsync(`${SERVICE_NAME}.${eventType}`, payload, {
+  getBusInstance().publishAsync(`${SERVICE_NAME}.${eventType}`, payload, {
     source: SERVICE_NAME,
     tenantId,
   }).catch((err) => {
@@ -28,16 +36,15 @@ export function emit(req, eventType, payload = {}) {
   });
 }
 
-/** Returns the underlying Redis client for advanced use. */
+/** Returns the underlying EventBus instance for advanced use. */
 export function getBus() {
-  return getClient();
+  return getBusInstance();
 }
 
 /** Gracefully shut down Redis connections. */
 export async function shutdown() {
-  try {
-    await unsubscribe();
-  } catch (_) {
-    // ignore
+  if (_bus) {
+    try { await _bus.quit(); } catch (_e) { /* ignore */ }
+    _bus = null;
   }
 }
