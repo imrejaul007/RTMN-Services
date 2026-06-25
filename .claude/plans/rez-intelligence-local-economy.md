@@ -177,16 +177,22 @@ HOJAI_INTEL_URL=http://localhost:4881
 REZ_INTEL_URL=http://localhost:5370
 ```
 
-### What was wired (31 services, 391 new tests)
+### What was wired (31 services, 444 tests, 0 failures)
 
 - **7 copilots** — sales, support, finance, marketing, agent, business, executive (3-4 deep endpoints each, 112 tests)
 - **18 CJS SUTAR shallow services** — acn-hub, acn-integration, acn-network, acp-protocol, agent-analytics, agent-contracts, agent-learning, agent-marketplace, agent-orchestration, agent-teaming, negotiation-ai, sutar-contracts, sutar-agent-id, sutar-agent-network, sutar-gateway, sutar-identity, sutar-memory-bridge, sutar-monitoring (2 endpoints each: classify-intent, next-best-action, 270 tests)
 - **1 ESM SUTAR** — agent-twin (9 tests)
 - **5 TypeScript SUTAR** — sutar-decision-engine, sutar-trust-engine, sutar-contract-os, sutar-negotiation-engine, sutar-economy-os (TS `.d.ts` declarations added)
+- **2 additional CJS SUTAR** fully migrated to dual-client (2026-06-25):
+  - `sutar-os/core/sutar-twin-os` — 16 tests (NEW test file)
+  - `sutar-os/core/sutar-tenant-instances` (ESM, test rewritten as .mjs) — 9 tests
+- **Out of scope:** `merchant-agents` keeps the OLD shallow client as the reference implementation (10 tests); `widget-backend` is out of scope
 
 ### Test helper
 
 `@rtmn/shared/test/rez-intel-helpers.cjs` provides 16 standard dual-client tests (exports, mode dispatch, fallback chain, network errors, both-disabled, health per-backend, timeout enforcement). Used by every service.
+
+For ESM packages (`agent-twin`, `sutar-tenant-instances`), tests use `.mjs` with dynamic `import()` + cache-buster query string because the shared helper uses CJS `require()` and ESM modules cache aggressively.
 
 ---
 

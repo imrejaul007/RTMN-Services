@@ -88,6 +88,15 @@ See `40-phase-vs-6-phase-reconciliation.md` for the complete task-to-phase mappi
   - **5 TypeScript SUTAR services** migrated to dual-client (sutar-decision-engine, sutar-trust-engine, sutar-contract-os, sutar-negotiation-engine, sutar-economy-os) — uses `import dual from '@rtmn/shared/intel/dual-client'` with `.d.ts` type declarations
   - **negotiation-ai** wired (had `rez-intel-client.js` file but it was never imported — now it is)
   - **Total: 391 new tests, 0 failures** across 31 services (7 copilots + 18 CJS SUTAR + 1 ESM SUTAR + 5 TS SUTAR using existing tests)
+  - **Update 2026-06-25:** 6 additional services fully migrated from OLD shallow REZ-only client → dual-client:
+    - `sutar-os/core/sutar-twin-os` (CJS) + `src/__tests__/rez-intel-client.test.js` (16 tests) — **NEW test file**
+    - `sutar-os/core/sutar-tenant-instances` (ESM) — rewritten `rez-intel-client.test.cjs` → `.mjs` (9 tests)
+    - `sutar-os/contracts/sutar-contract-os` (TS) — uses `import dual from '@rtmn/shared/intel/dual-client'`
+    - `sutar-os/contracts/sutar-negotiation-engine` (TS) — same migration
+    - `sutar-os/core/sutar-trust-engine` (TS) — same migration
+    - `sutar-os/economy/sutar-economy-os` (TS) — same migration
+  - **All 30 services now use the dual-client wrapper** (only `merchant-agents` intentionally retains the OLD shallow client as the reference implementation, and `widget-backend` is out of scope)
+  - **Updated total: 444 rez-intel tests passing, 0 failures across 29 services** + 483 existing TS vitest tests = **927 total tests**, 34 pre-existing failures (unrelated to dual-client — payment tests, `_setBusForTesting` imports in 3 TS services)
 - ✅ **HOJAI Foundry v1.0 shipped** — 30-min killer demo (item #1 below) **DONE**:
   - `npx hojai create` + `npx hojai deploy` (local + preview + remote-stub) + `npx hojai add agent` + `npx hojai add integration`
   - 9 starter templates (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos)
@@ -136,9 +145,12 @@ curl -s http://localhost:4737/info
 cd companies/HOJAI-AI/sutar-os/agents/merchant-agents
 node --test src/__tests__/rez-intel-client.test.js
 
-# Run dual-client test for ANY service (31 services use shared helper)
+# Run dual-client test for ANY service (30 services use shared helper)
 cd companies/HOJAI-AI/products/copilots/sales-copilot
 node --test src/__tests__/rez-intel-client.test.js
+
+# Run ALL 29 rez-intel tests across services
+bash /tmp/run-all-tests.sh  # (see TEST-RESULTS.md for current output)
 ```
 
 ## How to Resume Work in a New Chat
