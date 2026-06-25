@@ -7,9 +7,9 @@
 | # | Vertical | Source | Status |
 |---|---|---|---|
 | 1 | Healthcare OS | RisaCare | ✅ DONE |
-| 2 | Retail OS | REZ Merchant | ⏳ Pending |
-| 3 | Real Estate OS | RisnaEstate | ⏳ Pending |
-| 4 | Logistics OS | KHAIRMOVE | ⏳ Pending |
+| 2 | Retail OS | REZ Merchant | ✅ DONE |
+| 3 | Real Estate OS | RisnaEstate | ✅ DONE |
+| 4 | Logistics OS | KHAIRMOVE | ✅ DONE |
 
 ### Phase 2: Wire Extended Ecosystem (Week 5-8)
 | # | Vertical | Source | Status |
@@ -31,5 +31,6 @@ Construction, Education, Travel, Home Services, Manufacturing, Government, Sport
 ## CHANGELOG
 | Date | Change |
 |---|---|
+| 2026-06-25 | Phase 1: Healthcare + Retail + Real Estate + Logistics wired |
 | 2026-06-25 | Phase 1.1: Healthcare OS wired to RisaCare |
 | 2026-06-25 | Initial plan — Wire 20 + Build 9 = 29 verticals |

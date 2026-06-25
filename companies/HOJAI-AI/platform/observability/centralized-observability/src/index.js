@@ -46,7 +46,10 @@ function dataFile(name) {
 
 function load(name, defaults) {
   const f = dataFile(name);
-  if (!fs.existsSync(f)) return defaults;
+  if (!fs.existsSync(f)) {
+    save(name, defaults);  // write defaults so subsequent tests find data
+    return defaults;
+  }
   try { return JSON.parse(fs.readFileSync(f, 'utf8')); }
   catch (_) { return defaults; }
 }

@@ -266,7 +266,7 @@ test('aggregateHealth returns ok:true with 11 services even when all are down', 
 test('aggregateHealth marks reachable service as healthy', async () => {
   // Spin up a tiny HTTP server on a random port that responds to /health
   const server = http.createServer((req, res) => {
-    if (req.url === '/api/health') {
+    if (req.url === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, service: 'mock' }));
     } else {

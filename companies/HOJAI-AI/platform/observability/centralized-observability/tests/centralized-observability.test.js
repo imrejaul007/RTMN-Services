@@ -43,7 +43,9 @@ async function start(port, dataDir, token = 'tok') {
     delete require.cache[require.resolve('../src/index.js')];
     try {
       const { createApp } = require('../src/index.js');
+      console.log('FILES DURING REQUIRE:', fs.readdirSync(dataDir));
       const app = createApp();
+      console.log('FILES AFTER createApp():', fs.readdirSync(dataDir));
       const server = app.listen(port, () => resolve({ server, prev }));
       server.once('error', e => { restoreEnv(prev); reject(e); });
     } catch (err) {

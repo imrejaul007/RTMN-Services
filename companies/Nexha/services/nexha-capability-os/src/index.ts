@@ -165,7 +165,7 @@ app.get('/health', (_req: Request, res: Response) => {
   const response: HealthResponse = {
     status: 'healthy',
     service: 'nexha-capability-os',
-    version: '0.1.0',
+    version: '1.1.0',
     port: PORT,
     uptime: Math.floor((Date.now() - START_TIME) / 1000),
     capabilities: capabilityService.total(),
@@ -181,7 +181,7 @@ app.get('/ready', (_req, res) => {
 app.get('/api/v1/info', (_req, res) => {
   res.json(apiResponse(true, {
     name: 'nexha-capability-os',
-    version: '0.1.0',
+    version: '1.1.0',
     description: 'The canonical capability schema + registry for the Nexha federation',
     port: PORT,
     nexhaLayer: 4,
@@ -288,6 +288,61 @@ app.get('/api/v1/stats', asyncRoute(async (_req, res) => {
 }));
 
 // ────────────────────────────────────────────────────────────────────
+// Verifiable Credentials — Attest (v1.1)
+// ────────────────────────────────────────────────────────────────────
+app.post('/api/v1/capabilities/:id/attest', asyncRoute(async (req, res) => {
+  const validation = AttestationInputSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(400).json(apiResponse(false, undefined, `Validation error: ${handleZodError(validation.error)}`));
+    return;
+  }
+  const input: AttestationInput = {
+    ...validation.data,
+    capabilityId: req.params.id,
+    secret: process.env.ATTESTATION_SECRET
+  };
+  try {
+    const result = capabilityService.attest(input);
+    res.status(201).json(apiResponse(true, result));
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes('not found')) {
+      res.status(404).json(apiResponse(false, undefined, msg));
+    } else {
+      res.status(500).json(apiResponse(false, undefined, msg));
+    }
+  }
+}));
+
+app.get('/api/v1/capabilities/:id/attestations', asyncRoute(async (req, res) => {
+  const atts = capabilityService.listAttestations(req.params.id);
+  res.json(apiResponse(true, { attestations: atts, total: atts.length }));
+}));
+
+app.get('/api/v1/capabilities/:id/verify', asyncRoute(async (req, res) => {
+  const summary = capabilityService.verifyAll(req.params.id, process.env.ATTESTATION_SECRET);
+  res.json(apiResponse(true, summary));
+}));
+
+app.get('/api/v1/capabilities/:id/verify/:attestationId', asyncRoute(async (req, res) => {
+  const result = capabilityService.verifyAttestation(
+    req.params.id,
+    req.params.attestationId,
+    process.env.ATTESTATION_SECRET
+  );
+  res.json(apiResponse(true, result));
+}));
+
+app.delete('/api/v1/capabilities/:id/attestations/:attestationId', asyncRoute(async (req, res) => {
+  const revoked = capabilityService.revokeAttestation(req.params.id, req.params.attestationId);
+  if (!revoked) {
+    res.status(404).json(apiResponse(false, undefined, 'Attestation not found'));
+    return;
+  }
+  res.json(apiResponse(true, { revoked: true, attestationId: req.params.attestationId }));
+}));
+
+// ────────────────────────────────────────────────────────────────────
 // Helper: normalize parsed query for the service
 // ────────────────────────────────────────────────────────────────────
 function normalizeQuery(parsed: Record<string, unknown>): CapabilityQuery {
@@ -360,6 +415,7 @@ const server = app.listen(PORT, () => {
 ║  Status:     RUNNING                                              ║
 ║  Port:        ${String(PORT).padEnd(48)}║
 ║  Capabilities: ${String(capabilityService.total()).padEnd(45)}║
+║  v1.1:        Verifiable Credentials                            ║
 ║  Auth:        ${(REQUIRE_AUTH ? 'enabled' : 'disabled').padEnd(48)}║
 ╠═══════════════════════════════════════════════════════════════╣
 ║  Endpoints:                                                     ║

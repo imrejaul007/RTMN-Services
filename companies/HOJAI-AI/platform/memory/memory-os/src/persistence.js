@@ -20,7 +20,7 @@
  *   contradictions — contradiction log per memory
  */
 
-const { MongoClient } = require('mongodb');
+
 
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017';
 const DB_NAME = process.env.MONGODB_DB || 'hojai_memory';
