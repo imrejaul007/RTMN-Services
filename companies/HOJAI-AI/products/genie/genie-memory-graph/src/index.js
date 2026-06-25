@@ -19,6 +19,7 @@ import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
 import { requireEnv } from '@rtmn/shared/lib/env';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { requireAuth } from '@rtmn/shared/auth';
+import { installReadinessRoutes, normalizeSeedData } from '@rtmn/shared/lib/genie-readiness';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -184,6 +185,10 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Install readiness routes (LLM + DB + combined readiness) BEFORE the catch-all 404
+// so /api/llm-health, /api/db-health, /api/readiness are not intercepted as 404s.
+installReadinessRoutes(app, { serviceName: 'genie-memory-graph' });
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -193,6 +198,57 @@ app.use((req, res) => {
     suggestion: 'Try /api/user/:userId/graph for user overview'
   });
 });
+
+// Seed the graph stores on first boot
+// Note: graphStorage stores keyed by userId, with values being ARRAYS of items.
+// The shared autoSeed helper wraps each item in an object, which doesn't match the
+// expected shape, so we seed the array stores directly here.
+if (graphStorage.identities.size === 0) {
+  const seedIdentities = normalizeSeedData([
+    { id: 'demo-user', name: 'Demo User', createdAt: '2026-01-15T00:00:00Z', preferences: { theme: 'dark', language: 'en' } },
+    { id: 'demo-user-2', name: 'Second User', createdAt: '2026-02-20T00:00:00Z', preferences: { theme: 'light', language: 'hi' } },
+  ]);
+  for (const i of seedIdentities) graphStorage.identities.set(i.id, i);
+}
+if (graphStorage.knowledgeTriples.size === 0) {
+  graphStorage.knowledgeTriples.set('demo-user', [
+    { subject: 'demo-user', predicate: 'works_at', object: 'HOJAI AI' },
+    { subject: 'demo-user', predicate: 'role', object: 'founder' },
+    { subject: 'demo-user', predicate: 'lives_in', object: 'Mumbai' },
+  ]);
+  graphStorage.knowledgeTriples.set('demo-user-2', [
+    { subject: 'demo-user-2', predicate: 'works_at', object: 'Acme Corp' },
+    { subject: 'demo-user-2', predicate: 'role', object: 'engineer' },
+  ]);
+}
+if (graphStorage.relationships.size === 0) {
+  graphStorage.relationships.set('demo-user', [
+    { person: 'Ali Khan', relationship: 'partner', strength: 0.9 },
+    { person: 'Priya Sharma', relationship: 'colleague', strength: 0.7 },
+  ]);
+}
+if (graphStorage.goals.size === 0) {
+  graphStorage.goals.set('demo-user', [
+    { id: 'goal-1', title: 'Launch CorpPerks v2', status: 'active', progress: 0.6, targetDate: '2026-09-30' },
+    { id: 'goal-2', title: 'Hire 5 engineers', status: 'active', progress: 0.4, targetDate: '2026-12-31' },
+    { id: 'goal-3', title: 'Close Series A', status: 'active', progress: 0.3, targetDate: '2026-12-31' },
+  ]);
+}
+if (graphStorage.events.size === 0) {
+  graphStorage.events.set('demo-user', [
+    { id: 'evt-1', title: 'Team standup', timestamp: '2026-06-22T09:00:00Z', type: 'meeting' },
+    { id: 'evt-2', title: 'Customer call - Acme', timestamp: '2026-06-22T14:00:00Z', type: 'meeting' },
+    { id: 'evt-3', title: 'Investor pitch prep', timestamp: '2026-06-23T10:00:00Z', type: 'task' },
+  ]);
+}
+if (graphStorage.preferences.size === 0) {
+  graphStorage.preferences.set('demo-user', {
+    likes: ['coffee', 'reading', 'travelling'],
+    dislikes: ['meetings', 'spicy food'],
+    communicationStyle: 'direct',
+  });
+}
+console.log('[genie-memory-graph] demo data seeded');
 
 const server = app.listen(PORT, () => {
   console.log(`

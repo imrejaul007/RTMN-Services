@@ -420,5 +420,65 @@ app.post('/api/enrich', async (req, res) => {
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
 });
 
+// ============================================================
+// REZ INTELLIGENCE — DEEP INTEGRATION (3 endpoints)
+// ============================================================
+//
+// 1) GET  /api/exec/revenue-forecast     — revenue predictions (horizon-aware)
+// 2) GET  /api/exec/market-insights      — merchant + customer combined
+// 3) GET  /api/exec/next-best-action     — AI-recommended next strategic action
+//
+// Each endpoint gracefully degrades to null on failure.
+
+// 1) Revenue forecast — horizon-aware prediction
+app.get('/api/exec/revenue-forecast', requireAuth, async (req, res) => {
+  const { merchantId, horizon = '90d', historicalRevenue } = req.query;
+  const prediction = await rezIntel.predictRevenue({
+    merchantId,
+    horizon,
+    historicalRevenue: historicalRevenue ? Number(historicalRevenue) : undefined
+  });
+  res.json({
+    success: true,
+    forecast: prediction,
+    horizon,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 2) Combined merchant + customer market insights
+app.get('/api/exec/market-insights', requireAuth, async (req, res) => {
+  const { merchantId, customerId, industry } = req.query;
+  const [merchant, customer] = await Promise.all([
+    rezIntel.getMerchantInsights({ merchantId, industry }),
+    rezIntel.getCustomerInsights({ customerId, merchantId })
+  ]);
+  res.json({
+    success: true,
+    insights: { merchant, customer },
+    source: (merchant || customer) ? 'rez-intel' : 'unavailable',
+    fallback: !(merchant || customer)
+  });
+});
+
+// 3) Next-best-action for the executive
+app.get('/api/exec/next-best-action', requireAuth, async (req, res) => {
+  const { merchantId, customerId, stage, context } = req.query;
+  const action = await rezIntel.getNextBestAction({
+    merchantId,
+    customerId,
+    stage,
+    context,
+    copilot: 'executive'
+  });
+  res.json({
+    success: true,
+    action,
+    source: action ? 'rez-intel' : 'unavailable',
+    fallback: !action
+  });
+});
+
 app.listen(PORT, () => console.log(`👔 Executive Copilot running on port ${PORT}`));
 installGracefulShutdown(server);

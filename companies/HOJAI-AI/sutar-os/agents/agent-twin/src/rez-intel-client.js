@@ -1,25 +1,35 @@
-const REZ_INTEL_URL = process.env.REZ_INTEL_URL || 'http://localhost:5370';
-const REZ_INTEL_TIMEOUT = parseInt(process.env.REZ_INTEL_TIMEOUT_MS || '3000');
-const REZ_INTEL_ENABLED = process.env.REZ_INTEL_ENABLED !== 'false';
+/**
+ * Dual-client intelligence client for agent-twin.
+ *
+ * Thin re-export wrapper that delegates to `@rtmn/shared/intel/dual-client`.
+ * agent-twin is an ESM service (`"type": "module"`), so we use ESM `export`
+ * syntax to re-export the dual-client helper as named exports.
+ *
+ * The dual-client supports HOJAI Intelligence (4881) + REZ Intelligence (5370)
+ * with INTEL_MODE=hojai|rez|dual. See @rtmn/shared/intel/dual-client.cjs for
+ * the full mapping of helpers to backends.
+ */
 
-async function callREZIntel(endpoint, body) {
-  if (!REZ_INTEL_ENABLED) return null;
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REZ_INTEL_TIMEOUT);
-    const res = await fetch(`${REZ_INTEL_URL}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: controller.signal });
-    clearTimeout(timeout);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.success ? json.data : null;
-  } catch (err) { return null; }
-}
+import dual from '@rtmn/shared/intel/dual-client';
 
-const enrichAgentContext = (params) => callREZIntel('/api/v1/agent/enrich', params);
-const classifyIntent = (params) => callREZIntel('/api/v1/intent/classify', params);
-const getNextBestAction = (params) => callREZIntel('/api/v1/recommendations/next-best-action', params);
-const checkRezIntelHealth = async () => {
-  try { const res = await fetch(`${REZ_INTEL_URL}/api/v1/health`, { signal: AbortSignal.timeout(2000) }); return res.ok; } catch { return false; }
-};
+export const REZ_INTEL_URL = dual.REZ_INTEL_URL;
+export const HOJAI_INTEL_URL = dual.HOJAI_INTEL_URL;
+export const INTEL_MODE = dual.INTEL_MODE;
+export const REZ_INTEL_ENABLED = dual.REZ_INTEL_ENABLED;
+export const HOJAI_INTEL_ENABLED = dual.HOJAI_INTEL_ENABLED;
 
-module.exports = { REZ_INTEL_URL, REZ_INTEL_ENABLED, enrichAgentContext, classifyIntent, getNextBestAction, checkRezIntelHealth };
+export const enrichAgentContext = dual.enrichAgentContext;
+export const classifyIntent = dual.classifyIntent;
+export const getCustomerInsights = dual.getCustomerInsights;
+export const getMerchantInsights = dual.getMerchantInsights;
+export const predictRevenue = dual.predictRevenue;
+export const predictChurn = dual.predictChurn;
+export const predictLtv = dual.predictLtv;
+export const predictDemand = dual.predictDemand;
+export const getProductRecommendations = dual.getProductRecommendations;
+export const getNextBestAction = dual.getNextBestAction;
+export const getPricingRecommendations = dual.getPricingRecommendations;
+export const checkHealth = dual.checkHealth;
+export const checkRezIntelHealth = dual.checkRezIntelHealth;
+
+export default dual;

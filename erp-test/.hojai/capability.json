@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "22eaf252-d5af-4ea6-a0fb-85c187f71b89",
+  "layer": 2,
+  "name": "erp-test",
+  "description": "erp-test — erp built with HOJAI Foundry.",
+  "capabilities": [
+    {
+      "id": "hojai.sales",
+      "name": "sales",
+      "tier": "business"
+    }
+  ],
+  "offers": [],
+  "seeks": [],
+  "regions": [
+    "us-east"
+  ],
+  "languages": [
+    "en"
+  ],
+  "slaTargets": {
+    "uptimePercent": 99.5,
+    "responseMs": 500
+  }
+}

@@ -108,7 +108,7 @@ The original 40-phase plan (v6.0) was based on what we **wanted** to build. The 
 | 36 | Knowledge Registry | 2w | **1w** | 1,895 | 🟡 | No freshness tracking |
 | 37 | Event Platform | 3w | **0w** (DONE) | 2,156 | ✅ | OK; uses Redis Streams |
 | **38** | **AI Studio (Visual Builder)** | 8w | **8w** (P0!) | **0** | 🔴 | **NOT_STARTED — biggest gap** |
-| 39 | Memory Lifecycle | 2w | **1w** | 1,820 | 🟡 | Partial via genie-smart-forgetting |
+| 39 | Memory Lifecycle | 2w | **done** ✅ | **85** | 🟢 | **DONE — 6 services: memory-lifecycle-api, memory-audit-log, memory-gdpr, memory-governance, memory-purge, memory-retention** |
 | **40** | **Agent Lifecycle** | 2w | **2w** (P0!) | **0** | 🔴 | **NOT_STARTED — entire phase missing** |
 
 **Part 4 Revised Total: 20 weeks** (was 33 — saved 13 weeks)

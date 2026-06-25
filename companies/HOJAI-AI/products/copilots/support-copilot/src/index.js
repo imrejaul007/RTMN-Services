@@ -438,16 +438,84 @@ app.get('/ready', (_req, res) => {
 
 
 const server = 
-// REZ Intelligence endpoints
+// ============================================================
+// REZ INTELLIGENCE — DEEP INTEGRATION (4 endpoints)
+// ============================================================
+//
+// 1) POST /api/support/insights         — customer insights (LTV, churn risk)
+// 2) POST /api/support/churn-risk       — explicit churn prediction
+// 3) GET  /api/support/next-best-action — AI-recommended response action
+// 4) POST /api/support/classify-intent  — intent classification for a message
+//
+// Each endpoint gracefully degrades to null on failure.
+
 app.get('/rez-intel-status', async (req, res) => {
   const isHealthy = await rezIntel.checkRezIntelHealth();
-  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+  res.json({
+    rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED,
+    rezIntelUrl: rezIntel.REZ_INTEL_URL,
+    rezIntelHealthy: isHealthy
+  });
 });
 
 app.post('/api/enrich', async (req, res) => {
   const { agentRole, userId, companyId, query, context } = req.body;
-  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context });
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+// 1) Customer insights for a support ticket
+app.post('/api/support/insights', requireAuth, async (req, res) => {
+  const { customerId, ticketId } = req.body;
+  const insights = await rezIntel.getCustomerInsights({ customerId, ticketId });
+  res.json({
+    success: true,
+    insights,
+    source: insights ? 'rez-intel' : 'unavailable',
+    fallback: !insights
+  });
+});
+
+// 2) Churn risk prediction
+app.post('/api/support/churn-risk', requireAuth, async (req, res) => {
+  const { customerId, recentTickets, sentiment } = req.body;
+  const prediction = await rezIntel.predictChurn({ customerId, recentTickets, sentiment });
+  res.json({
+    success: true,
+    prediction,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 3) Next-best-action for a ticket (response strategy)
+app.get('/api/support/next-best-action', requireAuth, async (req, res) => {
+  const { ticketId, customerId, category, sentiment } = req.query;
+  const action = await rezIntel.getNextBestAction({
+    ticketId,
+    customerId,
+    category,
+    sentiment,
+    copilot: 'support'
+  });
+  res.json({
+    success: true,
+    action,
+    source: action ? 'rez-intel' : 'unavailable',
+    fallback: !action
+  });
+});
+
+// 4) Intent classification for an inbound message
+app.post('/api/support/classify-intent', requireAuth, async (req, res) => {
+  const { message, customerId, ticketId } = req.body;
+  const intent = await rezIntel.classifyIntent({ message, customerId, ticketId });
+  res.json({
+    success: true,
+    intent,
+    source: intent ? 'rez-intel' : 'unavailable',
+    fallback: !intent
+  });
 });
 
 app.listen(PORT, () => console.log(`🎧 Support Copilot running on port ${PORT}`));

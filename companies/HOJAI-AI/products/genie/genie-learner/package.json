@@ -1,0 +1,18 @@
+{
+  "name": "@rtmn/genie-learner",
+  "version": "1.0.0",
+  "description": "Genie Learner Agent (D4) — spaced repetition + learning paths",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/learner-readiness.test.mjs",
+    "smoke": "bash tests/smoke.sh"
+  },
+  "dependencies": {
+    "@rtmn/shared": "file:../../shared",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "helmet": "^7.1.0",
+    "uuid": "^10.0.0"
+  }
+}

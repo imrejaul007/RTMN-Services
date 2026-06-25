@@ -18,6 +18,7 @@ import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
 import { requireEnv } from '@rtmn/shared/lib/env';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { requireAuth } from '@rtmn/shared/auth';
+import { installReadinessRoutes, autoSeed, normalizeSeedData } from '@rtmn/shared/lib/genie-readiness';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -49,6 +50,42 @@ const storage = {
 };
 
 app.locals.storage = storage;
+
+// Seed demo data (idempotent — only fills empty stores)
+const seedPlans = [
+  {
+    store: storage.sessions,
+    items: normalizeSeedData([
+      { id: 'session-th-1', userId: 'user-001', topic: 'Q3 product launch strategy', mode: 'deep-thinking', startedAt: '2026-06-20T09:00:00Z' },
+      { id: 'session-th-2', userId: 'user-002', topic: 'Should we expand to Bangalore?', mode: 'decision-analysis', startedAt: '2026-06-20T11:30:00Z' },
+      { id: 'session-th-3', userId: 'user-001', topic: 'Refactor billing module', mode: 'first-principles', startedAt: '2026-06-21T08:15:00Z' },
+      { id: 'session-th-4', userId: 'user-003', topic: 'Hiring vs contracting decision', mode: 'swot-analysis', startedAt: '2026-06-21T14:00:00Z' },
+      { id: 'session-th-5', userId: 'user-002', topic: 'Reduce churn in month 2', mode: 'root-cause', startedAt: '2026-06-22T10:45:00Z' },
+    ]),
+  },
+  {
+    store: storage.analyses,
+    items: normalizeSeedData([
+      { id: 'analysis-th-1', sessionId: 'session-th-1', type: 'swot', topic: 'Q3 product launch', result: { strengths: ['Strong brand', 'Tech talent'], weaknesses: ['Limited budget'], opportunities: ['New market segment'], threats: ['Competitor X launch'] } },
+      { id: 'analysis-th-2', sessionId: 'session-th-3', type: 'first-principles', topic: 'Refactor billing', result: { conclusion: 'Decouple invoice generation from payment processing' } },
+      { id: 'analysis-th-3', sessionId: 'session-th-5', type: 'root-cause', topic: 'Month 2 churn', result: { rootCause: 'Onboarding email cadence drops after day 7' } },
+      { id: 'analysis-th-4', sessionId: 'session-th-4', type: 'swot', topic: 'Hiring decision', result: { strengths: ['Team bandwidth'], weaknesses: ['Onboarding cost'], opportunities: ['Long-term IP'], threats: ['Slow time-to-market'] } },
+      { id: 'analysis-th-5', sessionId: 'session-th-2', type: 'cost-benefit', topic: 'Bangalore expansion', result: { npv: 2500000, paybackMonths: 18 } },
+    ]),
+  },
+  {
+    store: storage.decisions,
+    items: normalizeSeedData([
+      { id: 'decision-th-1', sessionId: 'session-th-2', decision: 'expand-to-bangalore', outcome: 'proceed-with-pilot', confidence: 0.78, decidedAt: '2026-06-20T12:00:00Z' },
+      { id: 'decision-th-2', sessionId: 'session-th-4', decision: 'hire-vs-contract', outcome: 'hire-2-engineers', confidence: 0.82, decidedAt: '2026-06-21T15:00:00Z' },
+      { id: 'decision-th-3', sessionId: 'session-th-3', decision: 'refactor-billing', outcome: 'deferred-q4', confidence: 0.55, decidedAt: '2026-06-21T10:00:00Z' },
+      { id: 'decision-th-4', sessionId: 'session-th-1', decision: 'launch-q3', outcome: 'go', confidence: 0.91, decidedAt: '2026-06-20T17:00:00Z' },
+      { id: 'decision-th-5', sessionId: 'session-th-5', decision: 'onboarding-fix', outcome: 'redesign-email-cadence', confidence: 0.88, decidedAt: '2026-06-22T11:30:00Z' },
+    ]),
+  },
+];
+const seeded = autoSeed(seedPlans, { serviceName: 'genie-thinking-engine' });
+if (seeded) console.log('[genie-thinking-engine] demo data seeded');
 
 // Routes
 app.use('/', analysisRoutes);
@@ -86,6 +123,9 @@ app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({ success: false, error: err.message });
 });
+
+// Readiness routes — /api/llm-health, /api/db-health, /api/readiness
+installReadinessRoutes(app, { serviceName: 'genie-thinking-engine' });
 
 const server = app.listen(PORT, () => {
   console.log(`

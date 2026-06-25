@@ -1,44 +1,31 @@
-// REZ Intelligence Client for SUTAR Tenant Instances (ESM)
-const REZ_INTEL_URL = process.env.REZ_INTEL_URL || 'http://localhost:5370';
-const REZ_INTEL_TIMEOUT = parseInt(process.env.REZ_INTEL_TIMEOUT_MS || '3000');
-const REZ_INTEL_ENABLED = process.env.REZ_INTEL_ENABLED !== 'false';
+/**
+ * Dual-client intelligence client for sutar-tenant-instances (ESM)
+ *
+ * Re-exports the shared HOJAI + REZ dual-client helper. Supports
+ * INTEL_MODE=hojai|rez|dual for routing between HOJAI Intelligence
+ * (port 4881, core AI) and REZ Intelligence (port 5370, business intelligence).
+ *
+ * See @rtmn/shared/intel/dual-client for the full backend mapping.
+ */
 
-async function callREZIntel(endpoint, body) {
-  if (!REZ_INTEL_ENABLED) return null;
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REZ_INTEL_TIMEOUT);
-    const res = await fetch(`${REZ_INTEL_URL}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: controller.signal
-    });
-    clearTimeout(timeout);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.success ? json.data : null;
-  } catch (err) { return null; }
-}
+import dual from '@rtmn/shared/intel/dual-client';
 
-export const REZ_INTEL_URL_ = REZ_INTEL_URL;
-export const REZ_INTEL_ENABLED_ = REZ_INTEL_ENABLED;
+export const REZ_INTEL_URL = dual.REZ_INTEL_URL;
+export const HOJAI_INTEL_URL = dual.HOJAI_INTEL_URL;
+export const REZ_INTEL_ENABLED = dual.REZ_INTEL_ENABLED;
+export const HOJAI_INTEL_ENABLED = dual.HOJAI_INTEL_ENABLED;
+export const enrichAgentContext = dual.enrichAgentContext;
+export const classifyIntent = dual.classifyIntent;
+export const getCustomerInsights = dual.getCustomerInsights;
+export const getMerchantInsights = dual.getMerchantInsights;
+export const predictRevenue = dual.predictRevenue;
+export const predictChurn = dual.predictChurn;
+export const predictLtv = dual.predictLtv;
+export const predictDemand = dual.predictDemand;
+export const getProductRecommendations = dual.getProductRecommendations;
+export const getNextBestAction = dual.getNextBestAction;
+export const getPricingRecommendations = dual.getPricingRecommendations;
+export const checkHealth = dual.checkHealth;
+export const checkRezIntelHealth = dual.checkRezIntelHealth;
 
-export const enrichAgentContext = (params) => callREZIntel('/api/v1/agent/enrich', params);
-export const classifyIntent = (params) => callREZIntel('/api/v1/intent/classify', params);
-export const getNextBestAction = (params) => callREZIntel('/api/v1/recommendations/next-best-action', params);
-export const checkRezIntelHealth = async () => {
-  try {
-    const res = await fetch(`${REZ_INTEL_URL}/api/v1/health`, { signal: AbortSignal.timeout(2000) });
-    return res.ok;
-  } catch { return false; }
-};
-
-export default {
-  REZ_INTEL_URL,
-  REZ_INTEL_ENABLED,
-  enrichAgentContext,
-  classifyIntent,
-  getNextBestAction,
-  checkRezIntelHealth
-};
+export default dual;

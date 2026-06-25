@@ -97,27 +97,27 @@ test('SUTAR: each agent is mapped to its department', () => {
 
 test('SUTAR: CEO routes goal by keywords', async () => {
   const hire = await runAgent('CEO', { goal: 'hire a senior engineer' });
-  assert.equal(hire.decision, 'route:hr');
+  assert.equal(hire.output.decision, 'route:hr');
   const invoice = await runAgent('CEO', { goal: 'create an invoice for $5000' });
-  assert.equal(invoice.decision, 'route:finance');
+  assert.equal(invoice.output.decision, 'route:finance');
   const launch = await runAgent('CEO', { goal: 'launch a marketing campaign' });
-  assert.equal(launch.decision, 'route:marketing');
+  assert.equal(launch.output.decision, 'route:marketing');
 });
 
 test('SUTAR: department agents return deterministic stubs', async () => {
   const salesReply = await runAgent('Sales', { intent: 'qualify-lead', leadId: 'l-1' });
-  assert.equal(salesReply.agent, 'Sales');
-  assert.equal(salesReply.status, 'qualified');
+  assert.equal(salesReply.output.agent, 'Sales');
+  assert.equal(salesReply.output.status, 'qualified');
 
   const financeReply = await runAgent('Finance', { intent: 'transfer', amount: 500, fromAccount: 'cash', toAccount: 'revenue' });
-  assert.equal(financeReply.agent, 'Finance');
-  assert.equal(financeReply.status, 'completed');
-  assert.equal(financeReply.amount, 500);
+  assert.equal(financeReply.output.agent, 'Finance');
+  assert.equal(financeReply.output.status, 'completed');
+  assert.equal(financeReply.output.amount, 500);
 
   const cxoReply = await runAgent('CXO', { intent: 'kpi-dashboard' });
-  assert.equal(cxoReply.agent, 'CXO');
-  assert.ok(Array.isArray(cxoReply.kpis));
-  assert.ok(cxoReply.kpis.length >= 4);
+  assert.equal(cxoReply.output.agent, 'CXO');
+  assert.ok(Array.isArray(cxoReply.output.kpis));
+  assert.ok(cxoReply.output.kpis.length >= 4);
 });
 
 test('SUTAR: runAgent throws for unknown agents', async () => {

@@ -32,6 +32,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -101,6 +102,7 @@ const MODES = {
 const currentModes = new PersistentMap('current-modes', { serviceName: 'genie-listening-modes' });
 const history = [];
 const modeConfig = new PersistentMap('mode-config', { serviceName: 'genie-listening-modes' });
+const webhookLog = new PersistentMap('webhook-log', { serviceName: 'genie-listening-modes' });
 
 function seed() {
   ['user-001', 'user-002', 'user-003', 'user-004', 'user-005'].forEach(uid => {
@@ -315,11 +317,37 @@ app.delete('/api/integration/device-integration', (req, res) => {
   res.json({ cleared: before });
 });
 
-app.use((req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
+// Phase A: persistent store endpoint for readiness demo data
+app.get('/api/webhook-log', (req, res) => {
+  const items = Array.from(webhookLog.entries()).map(([k, v]) => ({ id: k, ...v }));
+  res.json({ total: items.length, webhookLog: items });
+});
+
+// Phase A: production-readiness routes (LLM + DB health + combined) — BEFORE 404 catch-all
+installReadinessRoutes(app, { serviceName: 'genie-listening-modes' });
+
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
+
+// Phase A: idempotent demo-data seeding (webhook-log; existing seed fn left intact)
+const seedPlans = [
+  {
+    store: webhookLog,
+    items: normalizeSeedData([
+      { id: 'wh1', deviceId: 'dev-101', mode: 'smart', action: 'start', deliveredAt: '2026-06-22T08:00:00Z' },
+      { id: 'wh2', deviceId: 'dev-102', mode: 'continuous', action: 'start', deliveredAt: '2026-06-22T09:15:00Z' },
+      { id: 'wh3', deviceId: 'dev-103', mode: 'passive', action: 'stop', deliveredAt: '2026-06-22T10:30:00Z' },
+      { id: 'wh4', deviceId: 'dev-104', mode: 'manual', action: 'stop', deliveredAt: '2026-06-22T11:45:00Z' },
+      { id: 'wh5', deviceId: 'dev-105', mode: 'continuous', action: 'start', deliveredAt: '2026-06-22T12:00:00Z' },
+    ]),
+  },
+];
+const seeded = autoSeed(seedPlans, { serviceName: 'genie-listening-modes' });
+if (seeded) console.log('[genie-listening-modes] demo data seeded');
+
+app.use((req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
 
 
 

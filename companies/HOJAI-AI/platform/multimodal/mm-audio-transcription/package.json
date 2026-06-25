@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/mm-audio-transcription",
+  "version": "1.0.0",
+  "description": "Multi-Modal Audio Transcription (5352) - speech-to-text/language detection/speaker count (stub)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

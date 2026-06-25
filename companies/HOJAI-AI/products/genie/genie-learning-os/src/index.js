@@ -13,6 +13,7 @@ import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
 import { requireEnv } from '@rtmn/shared/lib/env';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { requireAuth } from '@rtmn/shared/auth';
+import { installReadinessRoutes, autoSeed, normalizeSeedData } from '@rtmn/shared/lib/genie-readiness';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -39,6 +40,31 @@ app.use(express.json());
 app.use(requireAuth);const storage = { enrollments: new PersistentMap('collection-1', { serviceName: 'genie-learning-os' }), progress: new PersistentMap('collection-2', { serviceName: 'genie-learning-os' }) };
 app.locals.storage = storage;
 
+// Seed demo data (idempotent — only fills empty stores)
+const seedPlans = [
+  {
+    store: storage.enrollments,
+    items: normalizeSeedData([
+      { id: 'enroll-ln-1', userId: 'user-001', courseId: 'spanish-101', trackId: 'spanish', enrolledAt: '2026-06-01T10:00:00Z' },
+      { id: 'enroll-ln-2', userId: 'user-001', courseId: 'mba-finance', trackId: 'business-school', enrolledAt: '2026-06-05T14:00:00Z' },
+      { id: 'enroll-ln-3', userId: 'user-002', courseId: 'react-advanced', trackId: 'skills', enrolledAt: '2026-06-10T09:00:00Z' },
+      { id: 'enroll-ln-4', userId: 'user-003', courseId: 'french-101', trackId: 'french', enrolledAt: '2026-06-12T11:30:00Z' },
+      { id: 'enroll-ln-5', userId: 'user-002', courseId: 'system-design', trackId: 'skills', enrolledAt: '2026-06-15T15:00:00Z' },
+    ]),
+  },
+  {
+    store: storage.progress,
+    items: normalizeSeedData([
+      { id: 'prog-ln-1', userId: 'user-001', courseId: 'spanish-101', lessonsCompleted: 8, lessonsTotal: 20, lastLessonAt: '2026-06-22T19:00:00Z' },
+      { id: 'prog-ln-2', userId: 'user-001', courseId: 'mba-finance', lessonsCompleted: 3, lessonsTotal: 12, lastLessonAt: '2026-06-21T20:00:00Z' },
+      { id: 'prog-ln-3', userId: 'user-002', courseId: 'react-advanced', lessonsCompleted: 14, lessonsTotal: 15, lastLessonAt: '2026-06-23T18:00:00Z' },
+      { id: 'prog-ln-4', userId: 'user-003', courseId: 'french-101', lessonsCompleted: 1, lessonsTotal: 20, lastLessonAt: '2026-06-18T19:30:00Z' },
+    ]),
+  },
+];
+const seeded = autoSeed(seedPlans, { serviceName: 'genie-learning-os' });
+if (seeded) console.log('[genie-learning-os] demo data seeded');
+
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -55,6 +81,9 @@ app.use('/', languageRoutes);
 app.use('/', businessRoutes);
 app.use('/', skillsRoutes);
 app.use('/', curriculumRoutes);
+
+// Readiness routes — /api/llm-health, /api/db-health, /api/readiness
+installReadinessRoutes(app, { serviceName: 'genie-learning-os' });
 
 const server = app.listen(PORT, () => {
   console.log(`

@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/mm-video-analysis",
+  "version": "1.0.0",
+  "description": "Multi-Modal Video Analysis (5353) - scene detection / action classification / shot boundaries (stub)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

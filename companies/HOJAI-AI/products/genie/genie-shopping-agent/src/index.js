@@ -1,5 +1,3 @@
-import cors from 'cors';
-import helmet from 'helmet';
 /**
  * Genie Shopping Agent
  *
@@ -15,11 +13,14 @@ import helmet from 'helmet';
  * - Purchase history & preferences
  */
 
+const cors = require('cors');
+const helmet = require('helmet');
 const express = require('express');
 const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, normalizeSeedData, autoSeed } = require('@rtmn/shared/lib/genie-readiness');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
@@ -98,6 +99,9 @@ function createShoppingSession(userId, request) {
       type: request.type || 'general',  // general, specific, budget, urgent
       intent: request.intent,
       description: request.description,
+      keywords: request.keywords || [],
+      urgency: request.urgency || 'normal',
+      rawMessage: request.rawMessage || null,
       constraints: {
         maxPrice: request.maxPrice,
         minPrice: request.minPrice,
@@ -857,6 +861,86 @@ function generateRecommendation(products, merchants, profile) {
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
+
+// Phase 7 readiness routes (/api/llm-health, /api/db-health, /api/readiness).
+installReadinessRoutes(app, { serviceName: 'genie-shopping-agent' });
+
+// Seed demo data so the service has something to show even before the first
+// request hits /api/shop.  Idempotent — only writes if each store is empty.
+const sampleSessions = [
+  { id: 'shop-demo-001', userId: 'user-demo-1', request: { type: 'search', intent: 'find wireless earbuds' }, state: 'completed', products: [{ id: 'prod-demo-001', name: 'Wireless Earbuds Pro', price: 79.99 }], merchants: [], negotiations: [], createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
+  { id: 'shop-demo-002', userId: 'user-demo-1', request: { type: 'purchase', intent: 'order running shoes' }, state: 'completed', products: [{ id: 'prod-demo-002', name: 'Running Shoes Air', price: 119.99 }], merchants: [], negotiations: [], createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'shop-demo-003', userId: 'user-demo-2', request: { type: 'compare', intent: 'compare laptops' }, state: 'completed', products: [{ id: 'prod-demo-003', name: 'Ultrabook 14', price: 899.00 }], merchants: [], negotiations: [], createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+];
+
+const samplePurchaseHistory = {
+  'user-demo-1': [
+    { id: 'ORD-DEMO-001', sessionId: 'shop-demo-001', product: { id: 'prod-demo-001', name: 'Wireless Earbuds Pro', price: 79.99 }, merchant: { name: 'Tech Store' }, total: 79.99, status: 'delivered', tracking: { steps: [{ name: 'Delivered', status: 'completed', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() }] }, createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
+    { id: 'ORD-DEMO-002', sessionId: 'shop-demo-002', product: { id: 'prod-demo-002', name: 'Running Shoes Air', price: 119.99 }, merchant: { name: 'SportHub' }, total: 124.98, status: 'shipped', tracking: { steps: [{ name: 'Shipped', status: 'completed', timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString() }] }, createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
+  ],
+  'user-demo-2': [
+    { id: 'ORD-DEMO-003', sessionId: 'shop-demo-003', product: { id: 'prod-demo-003', name: 'Ultrabook 14', price: 899.00 }, merchant: { name: 'Tech Store' }, total: 899.00, status: 'confirmed', tracking: { steps: [{ name: 'Order Placed', status: 'completed', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() }] }, createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+  ],
+};
+
+const sampleWishlists = {
+  'user-demo-1': [
+    { id: 'wish-demo-001', product: { id: 'prod-w-001', name: 'Mechanical Keyboard', price: 149.0 }, addedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), priceAtAdd: 149.0, notifyPriceDrop: true },
+    { id: 'wish-demo-002', product: { id: 'prod-w-002', name: 'Standing Desk Mat', price: 59.99 }, addedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), priceAtAdd: 59.99, notifyPriceDrop: true },
+  ],
+};
+
+const samplePriceAlerts = {
+  'user-demo-1': [
+    { id: 'alert-demo-001', productId: 'prod-w-001', targetPrice: 129.0, currentPrice: 149.0, createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), triggered: false },
+  ],
+};
+
+const sampleUserPreferences = {
+  'user-demo-1': createUserProfile('user-demo-1', {
+    style: 'smart',
+    negotiationLevel: 'moderate',
+    preferredCategories: ['electronics', 'fitness'],
+    preferredBrands: ['Sony', 'Nike'],
+    budget: { daily: 150, monthly: 2000 },
+  }),
+  'user-demo-2': createUserProfile('user-demo-2', {
+    style: 'budget',
+    negotiationLevel: 'aggressive',
+    preferredCategories: ['electronics'],
+    preferredBrands: ['Lenovo', 'Dell'],
+    budget: { daily: 80, monthly: 1200 },
+  }),
+};
+
+// Helper to seed a Map<key, array> store with a per-user-keyed history map
+function seedKeyedMap(store, keyed) {
+  if (!store || store.size > 0) return 0;
+  let n = 0;
+  for (const [k, v] of Object.entries(keyed)) {
+    store.set(k, v);
+    n += 1;
+  }
+  return n;
+}
+
+const seedPlans = [
+  { store: shoppingSessions, items: normalizeSeedData(sampleSessions) },
+];
+const seededCount = (function seedShoppingAgent() {
+  let total = 0;
+  // Use autoSeed for the session list (keyed by item.id)
+  total += autoSeed(seedPlans, { serviceName: 'genie-shopping-agent' }) ? sampleSessions.length : 0;
+  // Use the keyed seeder for per-user maps
+  total += seedKeyedMap(purchaseHistory, samplePurchaseHistory);
+  total += seedKeyedMap(wishlists, sampleWishlists);
+  total += seedKeyedMap(priceAlerts, samplePriceAlerts);
+  total += seedKeyedMap(userPreferences, sampleUserPreferences);
+  return total;
+})();
+if (seededCount > 0) {
+  console.log(`[genie-shopping-agent] demo data seeded (${seededCount} items)`);
+}
 
 
 const server = app.listen(PORT, () => {

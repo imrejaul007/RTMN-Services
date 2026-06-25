@@ -1,0 +1,27 @@
+{
+  "name": "hojai-cloud",
+  "version": "1.0.0",
+  "description": "HOJAI Cloud — receives `npx hojai deploy` calls from any HOJAI Foundry project, provisions a per-tenant runtime, and returns the public URL. Backs the *.hojai.app wildcard.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit src/__tests__/*.test.js"
+  },
+  "keywords": [
+    "hojai",
+    "cloud",
+    "deploy",
+    "foundry",
+    "nexha",
+    "tenant-runtime"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  }
+}

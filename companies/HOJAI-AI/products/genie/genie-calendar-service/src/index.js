@@ -12,6 +12,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
@@ -949,6 +950,10 @@ app.get('/api/statistics', (req, res) => {
 
 // ==================== ERROR HANDLING ====================
 
+// Install readiness routes (LLM + DB + combined readiness) BEFORE the catch-all 404
+// so /api/llm-health, /api/db-health, /api/readiness are not intercepted as 404s.
+installReadinessRoutes(app, { serviceName: 'genie-calendar-service' });
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -965,6 +970,27 @@ app.use((err, req, res, next) => {
 });
 
 // ==================== SERVER STARTUP ====================
+
+// Seed additional stores (events are already seeded by the inline sampleEvents block)
+const calendarSeedPlans = [
+  {
+    store: calendars,
+    items: normalizeSeedData([
+      { id: 'demo-user', name: 'Demo User Calendar', defaultView: 'week', workStart: '09:00', workEnd: '18:00', timezone: 'Asia/Kolkata', color: '#4F46E5' },
+      { id: 'demo-user-2', name: 'Second User Calendar', defaultView: 'day', workStart: '10:00', workEnd: '19:00', timezone: 'Asia/Kolkata', color: '#10B981' },
+    ]),
+  },
+  {
+    store: recurringEvents,
+    items: normalizeSeedData([
+      { id: 'rec-daily-standup', baseEventId: 'evt-001', pattern: 'daily', count: 30, createdBy: 'demo-user' },
+      { id: 'rec-weekly-review', baseEventId: 'evt-002', pattern: 'weekly', count: 12, createdBy: 'demo-user' },
+      { id: 'rec-focus-block', baseEventId: 'evt-003', pattern: 'weekdays', count: 20, createdBy: 'demo-user' },
+    ]),
+  },
+];
+const calSeeded = autoSeed(calendarSeedPlans, { serviceName: 'genie-calendar-service' });
+if (calSeeded) console.log('[genie-calendar-service] demo data seeded');
 
 const server = app.listen(PORT, () => {
   console.log(`

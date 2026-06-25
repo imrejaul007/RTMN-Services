@@ -1,33 +1,13 @@
-const REZ_INTEL_URL = process.env.REZ_INTEL_URL || "http://localhost:5370";
-const REZ_INTEL_TIMEOUT = parseInt(process.env.REZ_INTEL_TIMEOUT_MS || "3000");
-const REZ_INTEL_ENABLED = process.env.REZ_INTEL_ENABLED !== "false";
+/**
+ * Dual-client intelligence client for executive-copilot.
+ *
+ * Thin re-export wrapper that delegates to `@rtmn/shared/intel/dual-client`
+ * (the shared HOJAI + REZ dual-client helper). All copilots use this same
+ * wrapper so endpoint shapes stay consistent across products.
+ */
 
-async function callREZIntel(endpoint, body) {
-  if (!REZ_INTEL_ENABLED) return null;
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REZ_INTEL_TIMEOUT);
-    const res = await fetch(`${REZ_INTEL_URL}${endpoint}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal
-    });
-    clearTimeout(timeout);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.success ? json.data : null;
-  } catch (err) { return null; }
-}
+'use strict';
 
-const enrichAgentContext = (params) => callREZIntel("/api/v1/agent/enrich", params);
-const classifyIntent = (params) => callREZIntel("/api/v1/intent/classify", params);
-const getNextBestAction = (params) => callREZIntel("/api/v1/recommendations/next-best-action", params);
-const checkRezIntelHealth = async () => {
-  try {
-    const res = await fetch(`${REZ_INTEL_URL}/api/v1/health`, { signal: AbortSignal.timeout(2000) });
-    return res.ok;
-  } catch { return false; }
-};
+const dual = require('@rtmn/shared/intel/dual-client');
 
-module.exports = { REZ_INTEL_URL, REZ_INTEL_ENABLED, enrichAgentContext, classifyIntent, getNextBestAction, checkRezIntelHealth };
+module.exports = dual;

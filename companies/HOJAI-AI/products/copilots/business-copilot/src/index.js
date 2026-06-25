@@ -631,6 +631,66 @@ app.post('/api/enrich', async (req, res) => {
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
 });
 
+// ============================================================
+// REZ INTELLIGENCE — DEEP INTEGRATION (3 endpoints)
+// ============================================================
+//
+// 1) GET  /api/business/insights          — merchant + customer combined
+// 2) GET  /api/business/forecast          — revenue predictions (horizon-aware)
+// 3) GET  /api/business/next-best-action  — AI-recommended next strategic action
+//
+// Each endpoint gracefully degrades to null on failure.
+
+// 1) Combined merchant + customer insights for a business context
+app.get('/api/business/insights', requireAuth, async (req, res) => {
+  const { merchantId, customerId, industry } = req.query;
+  const [merchant, customer] = await Promise.all([
+    rezIntel.getMerchantInsights({ merchantId, industry }),
+    rezIntel.getCustomerInsights({ customerId, merchantId })
+  ]);
+  res.json({
+    success: true,
+    insights: { merchant, customer },
+    source: (merchant || customer) ? 'rez-intel' : 'unavailable',
+    fallback: !(merchant || customer)
+  });
+});
+
+// 2) Revenue forecast — horizon-aware prediction
+app.get('/api/business/forecast', requireAuth, async (req, res) => {
+  const { merchantId, horizon = '90d', historicalRevenue } = req.query;
+  const prediction = await rezIntel.predictRevenue({
+    merchantId,
+    horizon,
+    historicalRevenue: historicalRevenue ? Number(historicalRevenue) : undefined
+  });
+  res.json({
+    success: true,
+    forecast: prediction,
+    horizon,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 3) Next-best-action for the business
+app.get('/api/business/next-best-action', requireAuth, async (req, res) => {
+  const { merchantId, customerId, stage, context } = req.query;
+  const action = await rezIntel.getNextBestAction({
+    merchantId,
+    customerId,
+    stage,
+    context,
+    copilot: 'business'
+  });
+  res.json({
+    success: true,
+    action,
+    source: action ? 'rez-intel' : 'unavailable',
+    fallback: !action
+  });
+});
+
 app.listen(PORT, () => {
   logger.info(`Business Copilot started on port ${PORT}`);
   logger.info(`Industries: ${Object.keys(INDUSTRY_SKILLS).length}, Skills: ${TOTAL_SKILLS}`);

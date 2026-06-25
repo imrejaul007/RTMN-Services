@@ -4,6 +4,9 @@ const router = express.Router();
 // In-memory certificate storage
 const certificates = new Map();
 
+// Expose stores on the router so seedData can find them without altering routes.
+router._stores = { certificates };
+
 // Get certificate for completed course
 router.post('/course/:courseId', (req, res) => {
   const { userId } = req.body;

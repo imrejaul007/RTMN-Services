@@ -11,6 +11,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
@@ -98,16 +99,8 @@ app.get('/api/briefing/today', async (req, res) => {
 });
 
 /**
- * GET /api/briefing/:id
- */
-app.get('/api/briefing/:id', (req, res) => {
-  const briefing = briefings.get(req.params.id);
-  if (!briefing) return res.status(404).json({ success: false, error: 'Briefing not found' });
-  res.json({ success: true, briefing });
-});
-
-/**
  * GET /api/briefing/history
+ * (registered before /:id so Express doesn't treat "history" as an id)
  */
 app.get('/api/briefing/history', (req, res) => {
   const { userId, type, limit = 10 } = req.query;
@@ -117,6 +110,15 @@ app.get('/api/briefing/history', (req, res) => {
   result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   result = result.slice(0, Number(limit));
   res.json({ success: true, briefings: result });
+});
+
+/**
+ * GET /api/briefing/:id
+ */
+app.get('/api/briefing/:id', (req, res) => {
+  const briefing = briefings.get(req.params.id);
+  if (!briefing) return res.status(404).json({ success: false, error: 'Briefing not found' });
+  res.json({ success: true, briefing });
 });
 
 /**
@@ -382,6 +384,25 @@ app.get('/ready', (_req, res) => {
 });
 
 
+
+// Install readiness routes (LLM + DB + combined readiness)
+installReadinessRoutes(app, { serviceName: 'genie-briefing-service' });
+
+// Seed subscriptions with demo data on first boot
+const seedPlans = [
+  {
+    store: subscriptions,
+    items: normalizeSeedData([
+      { id: 'sub-morning-1', userId: 'demo-user', type: 'morning', time: '08:00', channels: ['whatsapp', 'email'], active: true },
+      { id: 'sub-evening-1', userId: 'demo-user', type: 'evening', time: '20:00', channels: ['email'], active: true },
+      { id: 'sub-weekly-1', userId: 'demo-user', type: 'weekly', time: '09:00', channels: ['whatsapp'], active: true },
+      { id: 'sub-both-1', userId: 'demo-user', type: 'both', time: '08:00', channels: ['whatsapp'], active: true },
+      { id: 'sub-morning-2', userId: 'demo-user-2', type: 'morning', time: '07:30', channels: ['push'], active: true },
+    ]),
+  },
+];
+const seeded = autoSeed(seedPlans, { serviceName: 'genie-briefing-service' });
+if (seeded) console.log('[genie-briefing-service] demo data seeded');
 
 const server = app.listen(PORT, () => {
   console.log('📋 Genie Briefing Service started on port ' + PORT);

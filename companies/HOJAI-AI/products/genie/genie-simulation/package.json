@@ -1,0 +1,25 @@
+{
+  "name": "@rtmn/genie-simulation",
+  "version": "1.0.0",
+  "description": "Genie Personal Simulation Engine — What-if scenarios: 'What if I move to Dubai?' 'What if I quit my job?'",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "keywords": [
+    "genie",
+    "simulation",
+    "what-if",
+    "scenarios",
+    "decision-support"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

@@ -1,9 +1,10 @@
 import express from 'express';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { requireEnv } from '@rtmn/shared/lib/env';
-import { createAuthMiddleware } from '@rtmn/shared/auth';
+import { createAuthMiddleware, createToken } from '@rtmn/shared/auth';
 import axios from 'axios';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -20,7 +21,7 @@ const DO_CLIENT_URL = process.env.DO_CLIENT_URL || 'http://localhost:8090';
 const NEXHA_CLIENT_URL = process.env.NEXHA_CLIENT_URL || 'http://localhost:8190';
 const SALAR_CLIENT_URL = process.env.SALAR_CLIENT_URL || 'http://localhost:8290';
 
-// 23 specialized Genie services (siblings in the parent folder).
+// 25 specialized Genie services (siblings in the parent folder).
 // When running, these power the Genie runtime's intent delegation.
 // Web exposes them under /api/specialists/<name>/* so the UI can talk to them
 // directly. If they're not running, the request returns 502 from the proxy.
@@ -44,10 +45,25 @@ const SPECIALISTS = {
   serendipity:          process.env.GENIE_SERENDIPITY_URL    || 'http://localhost:4714',
   shopping:             process.env.GENIE_SHOPPING_URL       || 'http://localhost:4728',
   forgetting:           process.env.GENIE_FORGETTING_URL     || 'http://localhost:4715',
+  spiritual:            process.env.GENIE_SPIRITUAL_URL      || 'http://localhost:4729',
+  lifereplay:           process.env.GENIE_LIFEREPLAY_URL     || 'http://localhost:4730',
+  futureself:           process.env.GENIE_FUTURESELF_URL     || 'http://localhost:4731',
+  simulation:           process.env.GENIE_SIMULATION_URL     || 'http://localhost:4732',
+  personaltwin:         process.env.GENIE_PERSONALTWIN_URL   || 'http://localhost:4733',
+  widgets:              process.env.GENIE_WIDGETS_URL        || 'http://localhost:4734',
+  aiteam:               process.env.GENIE_AITEAM_URL         || 'http://localhost:4735',
+  accounts:             process.env.GENIE_ACCOUNTS_URL       || 'http://localhost:4736',
+  household:            process.env.GENIE_HOUSEHOLD_URL      || 'http://localhost:4737',
+  founder:              process.env.GENIE_FOUNDER_URL        || 'http://localhost:4738',
+  teacher:              process.env.GENIE_TEACHER_URL        || 'http://localhost:4739',
+  research:             process.env.GENIE_RESEARCH_URL       || 'http://localhost:4740',
+  wellness:             process.env.GENIE_WELLNESS_URL       || 'http://localhost:4741',
+  learner:              process.env.GENIE_LEARNER_URL        || 'http://localhost:4742',
+  creator:              process.env.GENIE_CREATOR_URL        || 'http://localhost:4743',
+  planner:              process.env.GENIE_PLANNER_URL        || 'http://localhost:4744',
   thinking:             process.env.GENIE_THINKING_URL       || 'http://localhost:4719',
   search:               process.env.GENIE_SEARCH_URL         || 'http://localhost:4713',
   wakeword:             process.env.GENIE_WAKEWORD_URL       || 'http://localhost:4767',
-  wellness:             process.env.GENIE_WELLNESS_URL       || 'http://localhost:4723',
 };
 
 const app = express();
@@ -60,7 +76,57 @@ app.use(express.json());
 // token/header is present, but never blocks.
 const optionalAuth = createAuthMiddleware({ required: false });
 app.use(optionalAuth);
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Auth endpoints (in-memory store; replace with CorpID in production)
+const users = new Map(); // email -> { id, email, name, password }
+let userIdCounter = 1;
+
+function genId() { return `u-${Date.now()}-${userIdCounter++}`; }
+
+app.post('/api/auth/signup', async (req, res) => {
+  const { email, password, name } = req.body || {};
+  if (!email || !password || !name) {
+    return res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: 'email, password, name required' } });
+  }
+  if (users.has(email)) {
+    return res.status(409).json({ success: false, error: { code: 'EMAIL_TAKEN', message: 'Email already registered' } });
+  }
+  const user = { id: genId(), email, name, password };
+  users.set(email, user);
+  const token = await createToken({ userId: user.id, email, name, role: 'user' });
+  res.json({ success: true, data: { token, user: { id: user.id, email: user.email, name: user.name } } });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body || {};
+  const user = users.get(email);
+  if (!user || user.password !== password) {
+    return res.status(401).json({ success: false, error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' } });
+  }
+  const token = await createToken({ userId: user.id, email, name: user.name, role: 'user' });
+  res.json({ success: true, data: { token, user: { id: user.id, email: user.email, name: user.name } } });
+});
+
+app.get('/api/auth/me', (req, res) => {
+  // req.auth is set by optionalAuth middleware if a valid token was provided
+  if (!req.auth) {
+    return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No valid token' } });
+  }
+  res.json({ success: true, data: req.auth });
+});
+
+// Serve Vite build in production; fall back to legacy public/ in dev
+const distDir = path.join(__dirname, 'dist');
+const publicDir = path.join(__dirname, 'public');
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+  // SPA fallback: serve index.html for any non-/api route
+  app.get(/^(?!\/api\/|\/ready).*/, (_req, res) => {
+    res.sendFile(path.join(distDir, 'index.html'));
+  });
+} else {
+  app.use(express.static(publicDir));
+}
 
 /**
  * Single proxy handler. Routes based on the path prefix:

@@ -20,6 +20,7 @@ const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const { v4: uuidv4 } = require('uuid');
+const rezIntel = require('./rez-intel-client');
 
 const app = express();
 
@@ -451,6 +452,37 @@ function getStrategyDescription(strategy) {
   };
   return descriptions[strategy] || 'Standard negotiation approach';
 }
+// REZ Intelligence endpoints
+app.get('/rez-intel-status', async (_req, res) => {
+  const isHealthy = await rezIntel.checkRezIntelHealth();
+  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+});
+
+app.post('/api/enrich', async (req, res) => {
+  const { agentRole, userId, companyId, query, context } = req.body || {};
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+// Additional REZ Intelligence endpoints (shallow pattern)
+app.post('/api/intel/classify-intent', requireAuth, async (req, res) => {
+  try {
+    const intent = await rezIntel.classifyIntent({ ...req.body }).catch(() => null);
+    res.json({ success: !!intent, intent, source: intent ? 'rez-intel' : 'unavailable', fallback: !intent });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/intel/next-best-action', requireAuth, async (req, res) => {
+  try {
+    const action = await rezIntel.getNextBestAction({ ...req.query }).catch(() => null);
+    res.json({ success: !!action, action, source: action ? 'rez-intel' : 'unavailable', fallback: !action });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });

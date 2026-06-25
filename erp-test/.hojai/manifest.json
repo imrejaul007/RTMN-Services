@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "22eaf252-d5af-4ea6-a0fb-85c187f71b89",
+  "projectHash": "4a462114d652f3e4",
+  "name": "erp-test",
+  "template": "erp",
+  "agents": [
+    "sales"
+  ],
+  "region": "us-east",
+  "languages": [
+    "en"
+  ],
+  "primaryLanguage": "en",
+  "hojaiVersion": "1.0.0",
+  "createdAt": "2026-06-24T11:44:15.991Z",
+  "sdkDependencies": [
+    "@hojai/foundation",
+    "@hojai/sutar",
+    "@hojai/nexha",
+    "@hojai/commerce",
+    "@hojai/payment",
+    "@hojai/logistics",
+    "@hojai/reputation",
+    "@hojai/discovery"
+  ],
+  "entrypoints": {
+    "backend": "apps/backend/src/index.ts",
+    "frontend": "apps/frontend/app/page.tsx",
+    "mobile": "apps/mobile/lib/main.dart"
+  },
+  "scripts": {
+    "dev": "npm run dev",
+    "build": "npm run build",
+    "test": "npm test",
+    "deploy": "npx hojai deploy"
+  },
+  "nexha": {
+    "enabled": true,
+    "federationEndpoint": "https://nexha.hojai.ai/federation",
+    "capabilityDeclaration": ".hojai/capability.json"
+  }
+}

@@ -12,6 +12,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
@@ -486,6 +487,31 @@ app.get('/ready', (_req, res) => {
 });
 
 
+
+// Install readiness routes (LLM + DB + combined readiness)
+installReadinessRoutes(app, { serviceName: 'genie-serendipity-service' });
+
+// Seed resurfaced-items and subscriptions on first boot
+// (memories is already seeded by the inline sampleMemories block)
+const serendipitySeedPlans = [
+  {
+    store: resurfacedItems,
+    items: normalizeSeedData([
+      { id: 'res-1', userId: 'demo-user', type: 'anniversary', trigger: 'same-day-last-year', title: 'One year ago: Business idea CorpPerks', description: 'You were thinking about CorpPerks exactly one year ago.', relatedMemoryId: 'mem-1', resurfacedAt: '2026-06-22T08:00:00Z', resurfacedCount: 1, successScore: 1, icon: '📅' },
+      { id: 'res-2', userId: 'demo-user', type: 'follow-up', trigger: 'pending-promise', title: 'Follow up: Promise to Ali', description: 'You promised to call Ali a week ago.', relatedMemoryId: 'mem-2', resurfacedAt: '2026-06-22T08:05:00Z', resurfacedCount: 1, successScore: 0.5, icon: '🔔' },
+      { id: 'res-3', userId: 'demo-user', type: 'people', trigger: 'person-follow-up', title: 'You mentioned Ali', description: 'Reach out to Ali about partnership', relatedMemoryId: 'mem-2', resurfacedAt: '2026-06-22T08:10:00Z', resurfacedCount: 0, successScore: 0, icon: '👤' },
+    ]),
+  },
+  {
+    store: subscriptions,
+    items: normalizeSeedData([
+      { id: 'sub-1', userId: 'demo-user', frequency: 'daily', channels: ['whatsapp'], active: true, preferences: { maxItems: 3, topics: ['all'] } },
+      { id: 'sub-2', userId: 'demo-user-2', frequency: 'weekly', channels: ['email'], active: true, preferences: { maxItems: 5, topics: ['work', 'learning'] } },
+    ]),
+  },
+];
+const serSeeded = autoSeed(serendipitySeedPlans, { serviceName: 'genie-serendipity-service' });
+if (serSeeded) console.log('[genie-serendipity-service] demo data seeded');
 
 const server = app.listen(PORT, () => {
   console.log(`✨ Genie Serendipity Service started on port ${PORT}`);

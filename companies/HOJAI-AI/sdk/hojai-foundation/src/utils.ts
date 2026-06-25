@@ -4,86 +4,148 @@
 
 import type { HojaiConfig } from './config.js';
 
-/**
- * Sleep utility
- */
-export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// ---------------------------------------------------------------------------
+// Error types
+// ---------------------------------------------------------------------------
 
-/**
- * Build a URL with query parameters
- */
-export function buildUrl(base: string, path: string, params?: Record<string, unknown>): string {
-  const url = new URL(path, base);
-  if (params) {
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          for (const v of value) url.searchParams.append(key, String(v));
-        } else {
-          url.searchParams.set(key, String(value));
-        }
-      }
-    }
+export class HojaiApiError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+    public readonly statusCode: number
+  ) {
+    super(message);
+    this.name = 'HojaiApiError';
   }
-  return url.toString();
 }
 
-/**
- * Sleep with exponential backoff
- */
-export function backoff(attempt: number, base: number = 300): number {
-  return Math.min(base * Math.pow(2, attempt), 30000);
+export class HojaiAuthError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'HojaiAuthError';
+  }
 }
 
-/**
- * Make an HTTP request with retries and timeout
- */
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Build a full URL from a base and path */
+export function buildUrl(base: string, path: string): string {
+  return new URL(path, base).toString();
+}
+
+/** Exponential backoff with 30s cap */
+export function backoff(attempt: number, base = 300): number {
+  return Math.min(base * Math.pow(2, attempt), 30_000);
+}
+
+/** Sleep utility */
+export function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ---------------------------------------------------------------------------
+// Core HTTP client
+//
+// All module clients call this. It:
+//   - Appends the Bearer token from authState if set
+//   - Handles { success: true/false } envelopes from RTMN backends
+//   - Retries on 5xx
+//   - Throws HojaiApiError or HojaiAuthError
+// ---------------------------------------------------------------------------
+
+export interface AuthState {
+  accessToken: string | null;
+  refreshToken: string | null;
+}
+
+/** Merged config type — what all clients pass to request() */
+export type HojaiClientConfig = HojaiConfig & { authState: AuthState };
+
+export interface RequestOptions {
+  headers?: Record<string, string>;
+  /** Override the global timeout for this call */
+  timeout?: number;
+}
+
 export async function request<T = unknown>(
-  config: HojaiConfig,
+  config: HojaiConfig & { authState: AuthState },
   method: string,
   path: string,
   body?: unknown,
-  options: { timeout?: number; maxRetries?: number; headers?: Record<string, string> } = {}
+  options: RequestOptions = {}
 ): Promise<T> {
-  const fetchImpl = config.fetchImpl || globalThis.fetch;
-  const timeout = options.timeout ?? config.timeout ?? 10000;
-  const maxRetries = options.maxRetries ?? config.maxRetries ?? 3;
-  const url = new URL(path, config.baseUrl).toString();
+  const fetchImpl = config.fetchImpl ?? globalThis.fetch;
+  const timeout = options.timeout ?? config.timeout ?? 10_000;
+  const maxRetries = config.maxRetries ?? 3;
+  const url = buildUrl(config.baseUrl ?? 'http://localhost:4399', path);
+  const log = config.logger ?? (() => {});
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+  if (config.authState.accessToken) {
+    headers['Authorization'] = `Bearer ${config.authState.accessToken}`;
+  }
 
   let lastError: Error | undefined;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
+
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
-        ...options.headers
-      };
+      log('debug', `${method} ${url}`, { attempt, body });
       const res = await fetchImpl(url, {
         method,
         headers,
         body: body !== undefined ? JSON.stringify(body) : undefined,
         signal: controller.signal
       });
+
       clearTimeout(timer);
-      if (!res.ok) {
-        if (res.status >= 500 && attempt < maxRetries) {
-          await sleep(backoff(attempt));
-          continue;
-        }
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
+
+      // 401 → auth error (caller should call login() / refresh)
+      if (res.status === 401) {
+        throw new HojaiAuthError(`Authentication required (401). Call hojai.login() first.`);
       }
+
+      // 5xx → retry
+      if (res.status >= 500 && attempt < maxRetries) {
+        await sleep(backoff(attempt));
+        continue;
+      }
+
       const contentType = res.headers.get('content-type') || '';
       if (contentType.includes('application/json')) {
-        return (await res.json()) as T;
+        const json = await res.json();
+
+        // RTMN error envelope: { success: false, error: { code, message } }
+        if (json && typeof json === 'object' && !json.success && (json as any).error) {
+          const err = (json as any).error;
+          throw new HojaiApiError(
+            err.code ?? 'UNKNOWN_ERROR',
+            err.message ?? `HTTP ${res.status}`,
+            res.status
+          );
+        }
+
+        // Unwrap data/twin/policy wrappers when present
+        if (json && typeof json === 'object') {
+          if ('data' in json) return json.data as T;
+          if ('twin' in json) return json.twin as T;
+          if ('user' in json) return json.user as T;
+        }
+
+        return json as T;
       }
+
       return (await res.text()) as unknown as T;
+
     } catch (err) {
       clearTimeout(timer);
+      if (err instanceof HojaiApiError || err instanceof HojaiAuthError) throw err;
       lastError = err instanceof Error ? err : new Error(String(err));
       if (attempt < maxRetries) {
         await sleep(backoff(attempt));
@@ -91,5 +153,6 @@ export async function request<T = unknown>(
       }
     }
   }
-  throw lastError || new Error('Request failed');
+
+  throw lastError ?? new Error('Request failed after retries');
 }

@@ -624,16 +624,98 @@ app.get('/ready', (_req, res) => {
 
 
 const server = 
-// REZ Intelligence endpoints
+// ============================================================
+// REZ INTELLIGENCE — DEEP INTEGRATION (4 endpoints)
+// ============================================================
+//
+// 1) GET  /api/sales/insights            — merchant + customer insights
+// 2) GET  /api/sales/forecast            — revenue predictions (horizon-aware)
+// 3) GET  /api/sales/next-best-action    — AI-recommended next action
+// 4) GET  /api/sales/recommend-pricing   — dynamic pricing recommendations
+//
+// Each endpoint calls REZ Intel and gracefully degrades to null on failure.
+// The route handler must decide how to combine REZ signal with local logic.
+
 app.get('/rez-intel-status', async (req, res) => {
   const isHealthy = await rezIntel.checkRezIntelHealth();
-  res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
+  res.json({
+    rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED,
+    rezIntelUrl: rezIntel.REZ_INTEL_URL,
+    rezIntelHealthy: isHealthy
+  });
 });
 
 app.post('/api/enrich', async (req, res) => {
   const { agentRole, userId, companyId, query, context } = req.body;
-  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
+  const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context });
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+// 1) Sales insights — merchant + customer combined for a deal/account
+app.get('/api/sales/insights', requireAuth, async (req, res) => {
+  const { merchantId, customerId, industry } = req.query;
+  const [merchant, customer] = await Promise.all([
+    rezIntel.getMerchantInsights({ merchantId, industry }),
+    rezIntel.getCustomerInsights({ customerId, merchantId })
+  ]);
+  res.json({
+    success: true,
+    insights: { merchant, customer },
+    source: (merchant || customer) ? 'rez-intel' : 'unavailable',
+    fallback: !(merchant || customer)
+  });
+});
+
+// 2) Revenue forecast — horizon-aware prediction
+app.get('/api/sales/forecast', requireAuth, async (req, res) => {
+  const { merchantId, horizon = '90d', historicalRevenue } = req.query;
+  const prediction = await rezIntel.predictRevenue({
+    merchantId,
+    horizon,
+    historicalRevenue: historicalRevenue ? Number(historicalRevenue) : undefined
+  });
+  res.json({
+    success: true,
+    forecast: prediction,
+    horizon,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 3) Next-best-action for a deal
+app.get('/api/sales/next-best-action', requireAuth, async (req, res) => {
+  const { dealId, customerId, stage, dealValue } = req.query;
+  const action = await rezIntel.getNextBestAction({
+    dealId,
+    customerId,
+    stage,
+    dealValue: dealValue ? Number(dealValue) : undefined,
+    copilot: 'sales'
+  });
+  res.json({
+    success: true,
+    action,
+    source: action ? 'rez-intel' : 'unavailable',
+    fallback: !action
+  });
+});
+
+// 4) Pricing recommendations for an opportunity
+app.get('/api/sales/recommend-pricing', requireAuth, async (req, res) => {
+  const { productId, customerId, currentPrice, competitorPrice } = req.query;
+  const recs = await rezIntel.getPricingRecommendations({
+    productId,
+    customerId,
+    currentPrice: currentPrice ? Number(currentPrice) : undefined,
+    competitorPrice: competitorPrice ? Number(competitorPrice) : undefined
+  });
+  res.json({
+    success: true,
+    recommendations: recs,
+    source: recs ? 'rez-intel' : 'unavailable',
+    fallback: !recs
+  });
 });
 
 app.listen(PORT, () => {

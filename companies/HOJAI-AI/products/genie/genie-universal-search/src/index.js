@@ -16,6 +16,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
@@ -442,6 +443,43 @@ app.get('/ready', (_req, res) => {
 });
 
 
+
+// Install readiness routes (LLM + DB + combined readiness)
+installReadinessRoutes(app, { serviceName: 'genie-universal-search' });
+
+// Seed search index and saved/recent searches on first boot
+const searchSeedPlans = [
+  {
+    store: searchIndex,
+    items: normalizeSeedData([
+      { id: 'idx-1', type: 'memory', title: 'Q2 Strategy Notes', content: 'Roadmap, hiring, and product launch plans for Q2 2026', metadata: { source: 'memory', tags: ['strategy', 'q2'] } },
+      { id: 'idx-2', type: 'memory', title: 'Customer Interview - Acme Corp', content: 'Acme wants invoice automation and payroll integration', metadata: { source: 'memory', tags: ['customer', 'sales'] } },
+      { id: 'idx-3', type: 'event', title: 'Team Standup', content: 'Daily 9:00 AM standup on Zoom', metadata: { source: 'calendar', tags: ['meeting'] } },
+      { id: 'idx-4', type: 'task', title: 'Review Q2 report', content: 'Pending report review before Friday board meeting', metadata: { source: 'tasks', tags: ['high-priority'] } },
+      { id: 'idx-5', type: 'article', title: 'API Documentation', content: 'Complete API docs for v2 endpoints and webhooks', metadata: { source: 'knowledge', tags: ['docs'] } },
+      { id: 'idx-6', type: 'contact', title: 'Ali Khan', content: 'Partnership contact at CorpPerks', metadata: { source: 'people', tags: ['contact'] } },
+      { id: 'idx-7', type: 'event', title: 'Client Call - Acme', content: 'Demo call scheduled for 2 PM Thursday', metadata: { source: 'calendar', tags: ['meeting', 'sales'] } },
+    ]),
+  },
+  {
+    store: savedSearches,
+    items: normalizeSeedData([
+      { id: 'sv-1', userId: 'demo-user', name: 'Q2 strategy', query: 'Q2 strategy', filters: { type: 'memory' } },
+      { id: 'sv-2', userId: 'demo-user', name: 'Acme meetings', query: 'Acme', filters: { type: 'event' } },
+      { id: 'sv-3', userId: 'demo-user', name: 'High priority tasks', query: 'review', filters: { type: 'task', priority: 'high' } },
+    ]),
+  },
+  {
+    store: recentSearches,
+    items: normalizeSeedData([
+      { id: 'rs-1', query: 'Q2 strategy', userId: 'demo-user', timestamp: '2026-06-22T08:00:00Z' },
+      { id: 'rs-2', query: 'Acme', userId: 'demo-user', timestamp: '2026-06-22T08:15:00Z' },
+      { id: 'rs-3', query: 'review', userId: 'demo-user', timestamp: '2026-06-22T08:30:00Z' },
+    ]),
+  },
+];
+const searchSeeded = autoSeed(searchSeedPlans, { serviceName: 'genie-universal-search' });
+if (searchSeeded) console.log('[genie-universal-search] demo data seeded');
 
 const server = app.listen(PORT, () => {
   console.log('Genie Universal Search started on port ' + PORT);

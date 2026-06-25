@@ -1,87 +1,147 @@
 /**
  * CorpID Module
  *
- * Universal identity for companies, users, agents, and devices.
- * Every entity in HOJAI has a CorpID. CorpIDs can be verified, linked,
- * and resolved to entities.
+ * Wraps the CorpID service (port 4702) via Hub /api/identity/* routes.
+ * Maps developer-friendly schemas to the backend's register/login/user APIs.
  */
 
 import type { HojaiConfig } from './config.js';
-import { request } from './utils.js';
+import { request, type AuthState, type HojaiClientConfig } from './utils.js';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 export type CorpIDType = 'company' | 'user' | 'agent' | 'device' | 'service';
-export type CorpIDStatus = 'pending' | 'verified' | 'suspended' | 'revoked';
 
 export interface CorpIDMetadata {
   name?: string;
   email?: string;
   country?: string;
   taxId?: string;
-  kybStatus?: CorpIDStatus;
   industry?: string;
+  phone?: string;
   [key: string]: unknown;
 }
 
 export interface CorpID {
   id: string;
-  type: CorpIDType;
-  status: CorpIDStatus;
-  metadata: CorpIDMetadata;
+  email: string;
+  name: string;
+  role: string;
+  status: string;
+  businessId?: string;
   createdAt: string;
   updatedAt: string;
-  verifiedAt?: string;
-  linkedIds?: string[];
 }
 
 export interface CreateCorpIDRequest {
   type: CorpIDType;
   metadata: CorpIDMetadata;
-  parentId?: string;
+  password?: string;
 }
 
-export interface VerifyCorpIDRequest {
-  verificationType: 'kyb' | 'kyc' | 'email' | 'phone' | 'gov_id';
-  evidence: Record<string, unknown>;
+interface RegisterRequest {
+  email: string;
+  password: string;
+  name: string;
+  role: string;
+  businessId?: string;
 }
 
-/**
- * CorpID client
- */
+interface UpdateUserRequest {
+  name?: string;
+  phone?: string;
+  country?: string;
+  industry?: string;
+  taxId?: string;
+}
+
+// ---------------------------------------------------------------------------
+// CorpID client
+// ---------------------------------------------------------------------------
+
 export class CorpIDClient {
-  constructor(private config: HojaiConfig) {}
+  constructor(
+    private config: HojaiConfig,
+    private authState: AuthState
+  ) {}
 
-  /**
-   * Create a new CorpID
-   */
+  private get cfg(): HojaiClientConfig {
+    return { ...this.config, authState: this.authState };
+  }
+
   async create(input: CreateCorpIDRequest): Promise<CorpID> {
-    return request<CorpID>(this.config, 'POST', '/api/v1/corp-id', input);
+    const body: RegisterRequest = {
+      email: input.metadata.email ?? `temp-${Date.now()}@placeholder.local`,
+      password: input.password ?? `temp-${Math.random().toString(36).slice(2)}`,
+      name: input.metadata.name ?? input.type,
+      role: mapTypeToRole(input.type)
+    };
+    return request<CorpID>(this.cfg, 'POST', '/api/identity/auth/register', body);
   }
 
-  /**
-   * Get a CorpID by id
-   */
+  /** @internal */
+  async _login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {
+    return request(this.cfg, 'POST', '/api/identity/auth/login', { email, password });
+  }
+
+  /** @internal */
+  async _refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+    return request(this.cfg, 'POST', '/api/identity/auth/refresh', { refreshToken });
+  }
+
   async get(id: string): Promise<CorpID> {
-    return request<CorpID>(this.config, 'GET', `/api/v1/corp-id/${encodeURIComponent(id)}`);
+    return request<CorpID>(this.cfg, 'GET', `/api/identity/users/${encodeURIComponent(id)}`);
   }
 
-  /**
-   * Verify a CorpID
-   */
-  async verify(id: string, input: VerifyCorpIDRequest): Promise<CorpID> {
-    return request<CorpID>(this.config, 'POST', `/api/v1/corp-id/${encodeURIComponent(id)}/verify`, input);
+  async list(params?: { page?: number; limit?: number; role?: string }): Promise<CorpID[]> {
+    const query = new URLSearchParams();
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.role) query.set('role', params.role);
+    const qs = query.toString();
+    return request<CorpID[]>(this.cfg, 'GET', `/api/identity/users${qs ? `?${qs}` : ''}`);
   }
 
-  /**
-   * Link two CorpIDs together
-   */
-  async link(id: string, otherId: string, relationship: string): Promise<CorpID> {
-    return request<CorpID>(this.config, 'POST', `/api/v1/corp-id/${encodeURIComponent(id)}/link`, { otherId, relationship });
+  async update(id: string, data: Partial<CorpIDMetadata>): Promise<CorpID> {
+    const body: UpdateUserRequest = {
+      name: data.name,
+      phone: data.phone,
+      country: data.country,
+      industry: data.industry,
+      taxId: data.taxId
+    };
+    return request<CorpID>(this.cfg, 'PUT', `/api/identity/users/${encodeURIComponent(id)}`, body);
   }
 
-  /**
-   * Search CorpIDs by type + filters
-   */
-  async search(type: CorpIDType, filters: CorpIDMetadata = {}): Promise<CorpID[]> {
-    return request<CorpID[]>(this.config, 'POST', '/api/v1/corp-id/search', { type, filters });
+  async me(): Promise<CorpID> {
+    return request<CorpID>(this.cfg, 'GET', '/api/identity/profile');
+  }
+
+  async updateProfile(data: Partial<CorpIDMetadata>): Promise<CorpID> {
+    const body: UpdateUserRequest = {
+      name: data.name,
+      phone: data.phone,
+      country: data.country,
+      industry: data.industry,
+      taxId: data.taxId
+    };
+    return request<CorpID>(this.cfg, 'PUT', '/api/identity/profile', body);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function mapTypeToRole(type: CorpIDType): string {
+  switch (type) {
+    case 'company': return 'admin';
+    case 'user':    return 'user';
+    case 'agent':   return 'user';
+    case 'device':  return 'operator';
+    case 'service': return 'service';
+    default:        return 'user';
   }
 }

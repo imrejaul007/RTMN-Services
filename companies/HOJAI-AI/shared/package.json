@@ -6,6 +6,12 @@
   "type": "module",
   "exports": {
     "./lib/database": "./lib/database.js",
+    "./lib/llm": "./lib/llm.js",
+    "./lib/genie-readiness": {
+      "import": "./lib/genie-readiness.js",
+      "require": "./lib/genie-readiness.cjs",
+      "default": "./lib/genie-readiness.cjs"
+    },
     "./lib/crm": "./lib/crm.js",
     "./lib/logger": "./lib/logger.js",
     "./lib/errors": "./lib/errors.js",
@@ -39,6 +45,14 @@
     "./event-bus/test-helpers": {
       "import": "./event-bus/test-helpers.js",
       "require": "./event-bus/test-helpers.js"
+    },
+    "./intel/dual-client": {
+      "import": "./intel/dual-client.js",
+      "require": "./intel/dual-client.cjs",
+      "default": "./intel/dual-client.cjs"
+    },
+    "./test/rez-intel-helpers": {
+      "require": "./test/rez-intel-helpers.cjs"
     }
   },
   "engines": {

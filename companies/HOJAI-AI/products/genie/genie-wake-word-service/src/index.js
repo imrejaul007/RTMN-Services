@@ -28,6 +28,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -416,12 +417,42 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message });
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found', path: req.path });
-});
+// Phase A: production-readiness routes (LLM + DB health + combined) — BEFORE 404 catch-all
+installReadinessRoutes(app, { serviceName: 'genie-wake-word-service' });
+
+// Phase A: idempotent demo-data seeding for clients + sessions (existing models/sensitivity/detections left intact)
+const seedPlans = [
+  {
+    store: clients,
+    items: normalizeSeedData([
+      { id: 'mic-001', detections: 23, connectedAt: '2026-06-22T08:00:00Z' },
+      { id: 'mic-002', detections: 17, connectedAt: '2026-06-22T09:30:00Z' },
+      { id: 'mic-003', detections: 8, connectedAt: '2026-06-22T10:15:00Z' },
+      { id: 'mic-004', detections: 41, connectedAt: '2026-06-22T11:00:00Z' },
+      { id: 'mic-005', detections: 5, connectedAt: '2026-06-22T12:00:00Z' },
+    ]),
+  },
+  {
+    store: sessions,
+    items: normalizeSeedData([
+      { id: 'sess-001', language: 'english', status: 'active', startedAt: '2026-06-23T09:00:00Z', detections: 4, userId: 'user-001' },
+      { id: 'sess-002', language: 'hindi', status: 'active', startedAt: '2026-06-23T09:15:00Z', detections: 2, userId: 'user-002' },
+      { id: 'sess-003', language: 'english', status: 'paused', startedAt: '2026-06-23T08:30:00Z', detections: 1, userId: 'user-001' },
+      { id: 'sess-004', language: 'spanish', status: 'stopped', startedAt: '2026-06-22T14:00:00Z', detections: 0, userId: 'user-003' },
+      { id: 'sess-005', language: 'english', status: 'active', startedAt: '2026-06-23T10:00:00Z', detections: 0, userId: 'user-002' },
+    ]),
+  },
+];
+const seeded = autoSeed(seedPlans, { serviceName: 'genie-wake-word-service' });
+if (seeded) console.log('[genie-wake-word-service] demo data seeded');
+
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found', path: req.path });
 });
 
 

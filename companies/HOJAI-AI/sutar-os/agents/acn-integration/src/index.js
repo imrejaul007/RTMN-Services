@@ -470,6 +470,25 @@ app.post('/api/enrich', async (req, res) => {
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
 });
 
+// Additional REZ Intelligence endpoints (shallow pattern)
+app.post('/api/intel/classify-intent', requireAuth, async (req, res) => {
+  try {
+    const intent = await rezIntel.classifyIntent({ ...req.body }).catch(() => null);
+    res.json({ success: !!intent, intent, source: intent ? 'rez-intel' : 'unavailable', fallback: !intent });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/intel/next-best-action', requireAuth, async (req, res) => {
+  try {
+    const action = await rezIntel.getNextBestAction({ ...req.query }).catch(() => null);
+    res.json({ success: !!action, action, source: action ? 'rez-intel' : 'unavailable', fallback: !action });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });

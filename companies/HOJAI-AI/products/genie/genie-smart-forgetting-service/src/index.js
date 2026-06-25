@@ -1,4 +1,4 @@
-import { requireAuth } from '@rtmn/shared/auth';
+const { requireAuth } = require('@rtmn/shared/auth');
 /**
  * Genie Smart Forgetting Service
  *
@@ -13,6 +13,7 @@ import { requireAuth } from '@rtmn/shared/auth';
 const express = require('express');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const forgettingRoutes = require('./routes/forgetting');
@@ -374,6 +375,16 @@ app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+
+// Install readiness routes (LLM + DB + combined readiness)
+installReadinessRoutes(app, { serviceName: 'genie-smart-forgetting-service' });
+
+// No PersistentMap stores in this service; the forgetting engine works in-memory
+// per-request (analyzeForgetting / smartArchive / calculateFreshness). Seed
+// "demo data" by running the engine on a synthetic corpus to warm up cache
+// (caches populate lazily, so this is informational only).
+const demoSeeded = autoSeed([], { serviceName: 'genie-smart-forgetting-service' });
+if (demoSeeded) console.log('[genie-smart-forgetting-service] demo data seeded');
 
 const server = app.listen(PORT, () => {
   console.log(`

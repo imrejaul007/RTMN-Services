@@ -588,6 +588,58 @@ app.post('/api/enrich', async (req, res) => {
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
 });
 
+// ============================================================
+// REZ INTELLIGENCE — DEEP INTEGRATION (3 endpoints)
+// ============================================================
+//
+// 1) POST /api/agent/classify-intent    — intent classification for a prompt
+// 2) GET  /api/agent/next-best-action   — AI-recommended next step
+// 3) GET  /api/agent/merchant-insights  — merchant intel (for merchant agents)
+//
+// Each endpoint gracefully degrades to null on failure.
+
+// 1) Intent classification for an inbound prompt/message
+app.post('/api/agent/classify-intent', requireAuth, async (req, res) => {
+  const { message, agentId, context } = req.body;
+  const intent = await rezIntel.classifyIntent({ message, agentId, context });
+  res.json({
+    success: true,
+    intent,
+    source: intent ? 'rez-intel' : 'unavailable',
+    fallback: !intent
+  });
+});
+
+// 2) Next-best-action for an agent orchestration
+app.get('/api/agent/next-best-action', requireAuth, async (req, res) => {
+  const { agentId, task, stage, context } = req.query;
+  const action = await rezIntel.getNextBestAction({
+    agentId,
+    task,
+    stage,
+    context,
+    copilot: 'agent'
+  });
+  res.json({
+    success: true,
+    action,
+    source: action ? 'rez-intel' : 'unavailable',
+    fallback: !action
+  });
+});
+
+// 3) Merchant insights for merchant-oriented agents
+app.get('/api/agent/merchant-insights', requireAuth, async (req, res) => {
+  const { merchantId, industry, category } = req.query;
+  const insights = await rezIntel.getMerchantInsights({ merchantId, industry, category });
+  res.json({
+    success: true,
+    insights,
+    source: insights ? 'rez-intel' : 'unavailable',
+    fallback: !insights
+  });
+});
+
 app.listen(PORT, () => {
   console.log('🤖 Agent Copilot Service running on port ' + PORT);
   console.log('   AI Agents: ' + agents.size);

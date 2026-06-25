@@ -780,6 +780,71 @@ app.post('/api/enrich', async (req, res) => {
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
 });
 
+// 1) Finance cashflow forecast — REZ Intel predictRevenue
+app.get('/api/finance/forecast', requireAuth, async (req, res) => {
+  const { companyId, horizon = '90d', historicalRevenue } = req.query;
+  const prediction = await rezIntel.predictRevenue({
+    companyId,
+    horizon,
+    historicalRevenue: historicalRevenue ? Number(historicalRevenue) : undefined
+  });
+  res.json({
+    success: true,
+    data: prediction,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 2) Churn-risk assessment for a customer — REZ Intel predictChurn
+app.post('/api/finance/churn-risk', requireAuth, async (req, res) => {
+  const { customerId, sentiment, accountValue } = req.body || {};
+  const prediction = await rezIntel.predictChurn({
+    customerId,
+    sentiment,
+    accountValue: accountValue ? Number(accountValue) : undefined
+  });
+  res.json({
+    success: true,
+    data: prediction,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 3) Customer LTV — REZ Intel predictLtv
+app.post('/api/finance/ltv', requireAuth, async (req, res) => {
+  const { customerId, accountValue, tenureMonths } = req.body || {};
+  const prediction = await rezIntel.predictLtv({
+    customerId,
+    accountValue: accountValue ? Number(accountValue) : undefined,
+    tenureMonths: tenureMonths ? Number(tenureMonths) : undefined
+  });
+  res.json({
+    success: true,
+    data: prediction,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 4) Dynamic pricing recommendations — REZ Intel getPricingRecommendations
+app.get('/api/finance/pricing', requireAuth, async (req, res) => {
+  const { productId, customerId, currentPrice, competitorPrice } = req.query;
+  const recs = await rezIntel.getPricingRecommendations({
+    productId,
+    customerId,
+    currentPrice: currentPrice ? Number(currentPrice) : undefined,
+    competitorPrice: competitorPrice ? Number(competitorPrice) : undefined
+  });
+  res.json({
+    success: true,
+    data: recs,
+    source: recs ? 'rez-intel' : 'unavailable',
+    fallback: !recs
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`[Finance Copilot] Service started on port ${PORT}`);
   console.log(`[Finance Copilot] ${kpis.size} KPIs tracked`);

@@ -4,6 +4,11 @@
  * Vanilla TypeScript, zero dependencies, browser-only.
  * Bundles to ~5KB minified.
  */
+import { getStrings, applyI18n } from './i18n.js';
+import { createVoiceInput, isVoiceSupported, mapLanguageToSpeech } from './voice.js';
+// Re-export for consumers
+export { getStrings, applyI18n, LANGUAGES } from './i18n.js';
+export { createVoiceInput, isVoiceSupported, mapLanguageToSpeech } from './voice.js';
 export class HojaiWidget {
     apiKey;
     companyId;
@@ -17,6 +22,9 @@ export class HojaiWidget {
     history = [];
     isOpen = false;
     rootEl;
+    strings;
+    voiceInput;
+    voiceListening = false;
     constructor(cfg) {
         if (!cfg.apiKey)
             throw new Error('HojaiWidget: apiKey is required');
@@ -39,6 +47,7 @@ export class HojaiWidget {
                 `Hi! I'm ${cfg.config?.name || 'HOJAI Assistant'}. How can I help you today?`,
             voice: { enabled: !!cfg.config?.voice?.enabled }
         };
+        this.strings = getStrings(this.config.language);
     }
     render() {
         if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -79,8 +88,108 @@ export class HojaiWidget {
             document.body.appendChild(root);
         }
         this.rootEl = root;
+        this._applyI18n();
+        this._wireVoice();
         this._wireEvents();
         this._log('rendered');
+    }
+    /**
+     * Apply i18n strings to all UI elements.
+     * Called on render and whenever the language changes.
+     */
+    _applyI18n() {
+        if (!this.rootEl)
+            return;
+        applyI18n(this.rootEl, this.strings);
+        // Set initial placeholder too (overrides default English)
+        const input = this.rootEl.querySelector('.hojai-input');
+        if (input)
+            input.placeholder = this.strings.inputPlaceholder;
+    }
+    /**
+     * Set the language at runtime. Re-applies all UI strings.
+     */
+    setLanguage(lang) {
+        this.config.language = lang;
+        this.strings = getStrings(lang);
+        this._applyI18n();
+        // Restart voice with new language if currently listening
+        if (this.voiceListening && this.voiceInput) {
+            this.voiceInput.stop();
+            this._wireVoice();
+            this._startVoice();
+        }
+    }
+    /**
+     * Wire the voice input button (if voice enabled in config).
+     */
+    _wireVoice() {
+        if (!this.rootEl)
+            return;
+        if (!this.config.voice.enabled)
+            return;
+        const voiceBtn = this.rootEl.querySelector('.hojai-voice');
+        if (!voiceBtn)
+            return;
+        // Check support — show helpful message if not available
+        if (!isVoiceSupported()) {
+            voiceBtn.disabled = true;
+            voiceBtn.title = this.strings.voiceNotSupported;
+            voiceBtn.style.opacity = '0.5';
+            return;
+        }
+        voiceBtn.addEventListener('click', () => {
+            if (this.voiceListening) {
+                this.voiceInput?.stop();
+            }
+            else {
+                this._startVoice();
+            }
+        });
+    }
+    _startVoice() {
+        if (!isVoiceSupported())
+            return;
+        const lang = mapLanguageToSpeech(this.config.language);
+        this.voiceInput = createVoiceInput({
+            lang,
+            interimResults: true,
+            continuous: false,
+            onResult: (text, isFinal) => {
+                // Inject transcript into the input field as user speaks
+                const input = this.rootEl?.querySelector('.hojai-input');
+                if (input)
+                    input.value = text;
+                // Send on final transcript
+                if (isFinal && text.trim() && input) {
+                    input.value = '';
+                    this._renderMessage({
+                        id: this._genId(),
+                        role: 'user',
+                        content: text,
+                        timestamp: Date.now()
+                    });
+                    this._sendUserMessage(text, {}).catch(() => { });
+                }
+            },
+            onStateChange: (listening) => {
+                this.voiceListening = listening;
+                const voiceBtn = this.rootEl?.querySelector('.hojai-voice');
+                if (voiceBtn) {
+                    voiceBtn.textContent = listening ? '⏹' : '🎤';
+                    voiceBtn.title = listening ? this.strings.voiceStop : '';
+                    voiceBtn.style.background = listening ? '#ef4444' : 'transparent';
+                    voiceBtn.style.color = listening ? '#fff' : this.config.color;
+                }
+            },
+            onError: (err) => {
+                this._emit('error', new Error(`voice: ${err}`));
+                const voiceBtn = this.rootEl?.querySelector('.hojai-voice');
+                if (voiceBtn)
+                    voiceBtn.title = this.strings.voiceError;
+            }
+        });
+        this.voiceInput.start();
     }
     destroy() {
         if (this.rootEl) {
@@ -178,7 +287,7 @@ export class HojaiWidget {
             const fallback = {
                 id: this._genId(),
                 role: 'assistant',
-                content: "Sorry, I'm having trouble reaching the AI right now. Please try again in a moment.",
+                content: this.strings.errorGeneric,
                 timestamp: Date.now()
             };
             this._appendMessage(fallback);
@@ -279,6 +388,8 @@ function buildBubbleHTML(cfg) {
     return `<span class="hojai-bubble-icon" aria-hidden="true">💬</span>`;
 }
 function buildPanelHTML(cfg) {
+    // Use English placeholder strings as defaults — applyI18n() replaces them on render()
+    const showVoice = cfg.voice.enabled;
     return `
     <header class="hojai-header" style="background:${escapeAttr(cfg.color)}">
       <div class="hojai-title">
@@ -294,6 +405,7 @@ function buildPanelHTML(cfg) {
       </div>
     </div>
     <form class="hojai-form">
+      ${showVoice ? '<button type="button" class="hojai-voice" aria-label="Voice input" style="color:' + escapeAttr(cfg.color) + '">🎤</button>' : ''}
       <input class="hojai-input" type="text" placeholder="Type your message..." aria-label="Message" autocomplete="off" />
       <button class="hojai-send" type="submit" aria-label="Send" style="background:${escapeAttr(cfg.color)}">→</button>
     </form>
@@ -349,6 +461,10 @@ function widgetStyles(color) {
     .hojai-input { flex: 1; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none; font-family: inherit; }
     .hojai-input:focus { border-color: ${color}; }
     .hojai-send { width: 36px; height: 36px; border: none; border-radius: 8px; color: #fff; font-size: 18px; cursor: pointer; }
+    .hojai-voice { width: 36px; height: 36px; border: 2px solid currentColor; border-radius: 50%; background: transparent; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .hojai-voice:hover:not(:disabled) { background: rgba(0,0,0,0.05); transform: scale(1.05); }
+    .hojai-voice:disabled { cursor: not-allowed; }
+    .hojai-voice[title]::before { content: attr(title); }
     @media (max-width: 480px) {
       .hojai-panel { width: calc(100vw - 32px); height: calc(100vh - 100px); }
     }

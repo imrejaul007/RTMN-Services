@@ -1,95 +1,118 @@
 /**
  * FlowOS Module
  *
- * Workflow orchestration for AI agents. Workflows chain skills, agents,
- * and external API calls into multi-step processes.
+ * Wraps the flow-orchestrator (port 4244) via Hub /api/foundation/flow-orchestrator/* routes.
+ * Plans = workflows. Executions = runs. Templates = reusable plan blueprints.
  */
 
 import type { HojaiConfig } from './config.js';
-import { request, buildUrl } from './utils.js';
+import { request, type AuthState, type HojaiClientConfig } from './utils.js';
 
-export type FlowStepType = 'skill' | 'agent' | 'api' | 'condition' | 'parallel' | 'loop' | 'wait' | 'human';
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type FlowStepType =
+  | 'skill' | 'agent' | 'http' | 'delay' | 'condition'
+  | 'parallel' | 'fan-out' | 'fan-in' | 'loop' | 'merge'
+  | 'transform' | 'log' | 'notification' | 'approval';
 
 export interface FlowStep {
-  id: string;
-  type: FlowStepType;
+  id?: string;
   name: string;
-  config: Record<string, unknown>;
-  next?: string | string[];
-  onError?: 'continue' | 'fail' | 'retry' | 'goto';
-  retryCount?: number;
-  timeout?: number;
+  type: FlowStepType;
+  config?: Record<string, unknown>;
+  then?: FlowStep[];
+  else?: FlowStep[];
+  branches?: { name?: string; steps: FlowStep[] }[];
+  to?: FlowStep[];
+  until?: FlowStep[];
+  maxIterations?: number;
 }
 
-export interface Flow {
+export interface FlowPlan {
   id: string;
   name: string;
   description?: string;
-  trigger: 'manual' | 'event' | 'schedule' | 'webhook';
   steps: FlowStep[];
-  variables?: Record<string, unknown>;
-  ownerCorpId: string;
+  version: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+}
+
+export interface FlowExecution {
+  executionId?: string;
+  id?: string;
+  planId: string | null;
+  planName: string;
+  twinId?: string | null;
+  status: 'running' | 'completed' | 'failed' | 'cancelled';
+  startedAt: string;
+  completedAt?: string;
+  durationMs?: number;
+  steps?: Record<string, unknown>;
 }
 
 export interface CreateFlowRequest {
   name: string;
   description?: string;
-  trigger: Flow['trigger'];
   steps: FlowStep[];
-  variables?: Record<string, unknown>;
 }
 
 export interface RunFlowRequest {
   inputs?: Record<string, unknown>;
-  async?: boolean;
+  twinId?: string;
 }
 
-export interface RunFlowResult {
-  runId: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-  outputs?: Record<string, unknown>;
-  error?: { stepId: string; message: string };
-  startedAt: string;
-  completedAt?: string;
-}
+// ---------------------------------------------------------------------------
+// Flow client
+// ---------------------------------------------------------------------------
 
 export class FlowClient {
-  constructor(private config: HojaiConfig) {}
-
-  /**
-   * Create a flow
-   */
-  async create(input: CreateFlowRequest): Promise<Flow> {
-    return request<Flow>(this.config, 'POST', '/api/v1/flows', input);
+  private readonly cfg: HojaiClientConfig;
+  constructor(config: HojaiConfig, authState: AuthState) {
+    this.cfg = { ...config, authState };
   }
 
-  /**
-   * Get a flow by id
-   */
-  async get(id: string): Promise<Flow> {
-    return request<Flow>(this.config, 'GET', `/api/v1/flows/${encodeURIComponent(id)}`);
+  async create(input: CreateFlowRequest): Promise<FlowPlan> {
+    return request<FlowPlan>(this.cfg, 'POST', '/api/foundation/flow-orchestrator/plans', {
+      name: input.name,
+      description: input.description,
+      steps: input.steps.map((s, i) => ({ id: s.id ?? `step-${i}`, ...s }))
+    });
   }
 
-  /**
-   * List flows (by owner)
-   */
-  async list(ownerCorpId: string, options: { limit?: number; offset?: number } = {}): Promise<Flow[]> {
-    return request<Flow[]>(this.config, 'GET', buildUrl(this.config.baseUrl, '/api/v1/flows', { ownerCorpId, ...options }));
+  async get(id: string): Promise<FlowPlan> {
+    return request<FlowPlan>(this.cfg, 'GET', `/api/foundation/flow-orchestrator/plans/${encodeURIComponent(id)}`);
   }
 
-  /**
-   * Run a flow
-   */
-  async run(id: string, input: RunFlowRequest = {}): Promise<RunFlowResult> {
-    return request<RunFlowResult>(this.config, 'POST', `/api/v1/flows/${encodeURIComponent(id)}/run`, input);
+  async list(): Promise<FlowPlan[]> {
+    const res = await request<{ plans: FlowPlan[] }>(this.cfg, 'GET', '/api/foundation/flow-orchestrator/plans');
+    return res.plans ?? [];
   }
 
-  /**
-   * Get flow run status
-   */
-  async getRun(runId: string): Promise<RunFlowResult> {
-    return request<RunFlowResult>(this.config, 'GET', `/api/v1/flows/runs/${encodeURIComponent(runId)}`);
+  async run(id: string, input?: RunFlowRequest): Promise<{ executionId: string; status: string }> {
+    return request(this.cfg, 'POST', '/api/foundation/flow-orchestrator/executions', {
+      planId: id, context: input?.inputs, twinId: input?.twinId
+    });
+  }
+
+  async runSync(id: string, input?: RunFlowRequest): Promise<FlowExecution> {
+    return request<FlowExecution>(this.cfg, 'POST', '/api/foundation/flow-orchestrator/executions/sync', {
+      planId: id, context: input?.inputs, twinId: input?.twinId
+    });
+  }
+
+  async getRun(executionId: string): Promise<FlowExecution> {
+    return request<FlowExecution>(this.cfg, 'GET', `/api/foundation/flow-orchestrator/executions/${encodeURIComponent(executionId)}`);
+  }
+
+  async listRuns(): Promise<FlowExecution[]> {
+    const res = await request<{ executions: FlowExecution[] }>(this.cfg, 'GET', '/api/foundation/flow-orchestrator/executions');
+    return res.executions ?? [];
+  }
+
+  async feedback(executionId: string, outcome: 'success' | 'partial' | 'failure', notes?: string): Promise<void> {
+    return request<void>(this.cfg, 'POST', `/api/foundation/flow-orchestrator/executions/${encodeURIComponent(executionId)}/feedback`, { outcome, notes });
   }
 }

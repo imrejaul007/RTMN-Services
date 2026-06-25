@@ -1,0 +1,25 @@
+{
+  "name": "@rtmn/genie-household",
+  "version": "1.0.0",
+  "description": "Genie Household OS — multi-user shared family/group space with lists, events, chores, meals",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "keywords": [
+    "genie",
+    "household",
+    "family",
+    "shared",
+    "multi-user"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

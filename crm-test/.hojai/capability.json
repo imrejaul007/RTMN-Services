@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "ec5ff8f5-0b10-441c-a512-c8d216cb82b3",
+  "layer": 2,
+  "name": "crm-test",
+  "description": "crm-test — crm built with HOJAI Foundry.",
+  "capabilities": [
+    {
+      "id": "hojai.sales",
+      "name": "sales",
+      "tier": "business"
+    }
+  ],
+  "offers": [],
+  "seeks": [],
+  "regions": [
+    "us-east"
+  ],
+  "languages": [
+    "en"
+  ],
+  "slaTargets": {
+    "uptimePercent": 99.5,
+    "responseMs": 500
+  }
+}

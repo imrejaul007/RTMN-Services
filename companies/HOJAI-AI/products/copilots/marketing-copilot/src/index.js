@@ -404,7 +404,20 @@ app.get('/ready', (_req, res) => {
 
 
 const server = 
+// ============================================================
 // REZ Intelligence endpoints
+//
+// Exposes:
+//   • GET  /rez-intel-status                — health/status (no auth)
+//   • POST /api/enrich                      — agent context enrichment (no auth)
+//   • POST /api/marketing/insights          — audience segmentation insights
+//   • GET  /api/marketing/forecast          — campaign demand forecast
+//   • GET  /api/marketing/next-best-action  — AI-recommended marketing action
+//   • POST /api/marketing/recommend-content — product/content recommendations
+//
+// Each endpoint calls REZ Intel and gracefully degrades to null on failure.
+// The route handler must decide how to combine REZ signal with local logic.
+
 app.get('/rez-intel-status', async (req, res) => {
   const isHealthy = await rezIntel.checkRezIntelHealth();
   res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
@@ -414,6 +427,59 @@ app.post('/api/enrich', async (req, res) => {
   const { agentRole, userId, companyId, query, context } = req.body;
   const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+});
+
+// 1) Audience segmentation insights for a marketing campaign
+app.post('/api/marketing/insights', requireAuth, async (req, res) => {
+  const { audienceId, campaignId } = req.body;
+  const insights = await rezIntel.getCustomerInsights({ audienceId, campaignId });
+  res.json({
+    success: true,
+    data: insights,
+    source: insights ? 'rez-intel' : 'unavailable',
+    fallback: !insights
+  });
+});
+
+// 2) Campaign demand forecast over a horizon
+app.get('/api/marketing/forecast', requireAuth, async (req, res) => {
+  const { campaignId, horizon = '30d' } = req.query;
+  const prediction = await rezIntel.predictDemand({ campaignId, horizon });
+  res.json({
+    success: true,
+    data: prediction,
+    horizon,
+    source: prediction ? 'rez-intel' : 'unavailable',
+    fallback: !prediction
+  });
+});
+
+// 3) AI-recommended next-best marketing action for a campaign + channel
+app.get('/api/marketing/next-best-action', requireAuth, async (req, res) => {
+  const { campaignId, channel } = req.query;
+  const action = await rezIntel.getNextBestAction({
+    campaignId,
+    channel,
+    copilot: 'marketing'
+  });
+  res.json({
+    success: true,
+    data: action,
+    source: action ? 'rez-intel' : 'unavailable',
+    fallback: !action
+  });
+});
+
+// 4) Product/content recommendations for an audience + content type
+app.post('/api/marketing/recommend-content', requireAuth, async (req, res) => {
+  const { audienceId, contentType } = req.body;
+  const recs = await rezIntel.getProductRecommendations({ audienceId, contentType });
+  res.json({
+    success: true,
+    data: recs,
+    source: recs ? 'rez-intel' : 'unavailable',
+    fallback: !recs
+  });
 });
 
 app.listen(PORT, () => console.log(`📣 Marketing Copilot running on port ${PORT}`));

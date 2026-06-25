@@ -1,0 +1,26 @@
+{
+  "name": "@rtmn/genie-life-replay",
+  "version": "1.0.0",
+  "description": "Genie Life Replay — Monthly, yearly, and life-to-date AI-generated reviews",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "axios": "^1.6.0",
+    "uuid": "^9.0.0"
+  },
+  "keywords": [
+    "genie",
+    "life-replay",
+    "review",
+    "year-in-review",
+    "ai-summary"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

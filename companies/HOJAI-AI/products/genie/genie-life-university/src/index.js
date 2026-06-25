@@ -1,7 +1,8 @@
-import { requireAuth } from '@rtmn/shared/auth';
+const { requireAuth } = require('@rtmn/shared/auth');
 const express = require('express');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -11,6 +12,7 @@ const lessonsRoutes = require('./routes/lessons');
 const progressRoutes = require('./routes/progress');
 const instructorsRoutes = require('./routes/instructors');
 const certificationRoutes = require('./routes/certification');
+const { applySeeds } = require('./seedData');
 
 const app = express();
 
@@ -71,7 +73,19 @@ app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+// Phase 7 readiness routes (/api/llm-health, /api/db-health, /api/readiness)
+installReadinessRoutes(app, { serviceName: 'genie-life-university' });
 
+// Collect in-memory stores from each route module for seed injection.
+const stores = {
+  ...(coursesRoutes._stores || {}),
+  ...(curriculumRoutes._stores || {}),
+  ...(certificationRoutes._stores || {}),
+};
+
+// Seed demo data into the in-memory maps (idempotent).
+const seeded = applySeeds(stores, { serviceName: 'genie-life-university' });
+if (seeded) console.log('[genie-life-university] demo data seeded');
 
 const server = app.listen(PORT, () => {
   console.log(`🎓 Genie Life University Engine running on port ${PORT}`);

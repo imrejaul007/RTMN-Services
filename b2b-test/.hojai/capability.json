@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "0f554028-b32c-4cd4-a9f6-c3441d2b1fbd",
+  "layer": 2,
+  "name": "b2b-test",
+  "description": "b2b-test — b2b built with HOJAI Foundry.",
+  "capabilities": [
+    {
+      "id": "hojai.sales",
+      "name": "sales",
+      "tier": "business"
+    }
+  ],
+  "offers": [],
+  "seeks": [],
+  "regions": [
+    "us-east"
+  ],
+  "languages": [
+    "en"
+  ],
+  "slaTargets": {
+    "uptimePercent": 99.5,
+    "responseMs": 500
+  }
+}

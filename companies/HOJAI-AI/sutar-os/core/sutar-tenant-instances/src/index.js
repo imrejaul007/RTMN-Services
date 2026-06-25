@@ -15,6 +15,7 @@ import morgan from 'morgan';
 import mongoose from 'mongoose';
 import routes from './routes/index.js';
 import rezIntel from './rez-intel-client.js';
+import { requireAuth } from './middleware/auth.js';
 
 const PORT = parseInt(process.env.SUTAR_TENANT_INSTANCES_PORT || '4141', 10);
 const MONGO_URI =
@@ -60,6 +61,25 @@ async function start() {
       const { agentRole, userId, companyId, query, context } = req.body || {};
       const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
       res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
+    });
+
+    // Additional REZ Intelligence endpoints (shallow pattern)
+    app.post('/api/intel/classify-intent', requireAuth, async (req, res) => {
+      try {
+        const intent = await rezIntel.classifyIntent({ ...req.body }).catch(() => null);
+        res.json({ success: !!intent, intent, source: intent ? 'rez-intel' : 'unavailable', fallback: !intent });
+      } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+      }
+    });
+
+    app.get('/api/intel/next-best-action', requireAuth, async (req, res) => {
+      try {
+        const action = await rezIntel.getNextBestAction({ ...req.query }).catch(() => null);
+        res.json({ success: !!action, action, source: action ? 'rez-intel' : 'unavailable', fallback: !action });
+      } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+      }
     });
 
     app.listen(PORT, () => {

@@ -25,6 +25,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, autoSeed, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
@@ -283,6 +284,35 @@ app.use((err, req, res, next) => {
     }
   });
 });
+
+// Phase A: production-readiness routes (LLM + DB health + combined)
+installReadinessRoutes(app, { serviceName: 'genie-memory-inbox' });
+
+// Phase A: idempotent demo-data seeding (memories + reminders)
+const seedPlans = [
+  {
+    store: memories,
+    items: normalizeSeedData([
+      { id: 'mem1', userId: 'user-001', type: 'text', content: 'Pick up groceries on the way home', category: 'to-do', tags: ['urgent'] },
+      { id: 'mem2', userId: 'user-001', type: 'voice', content: 'Idea for the new dashboard layout', category: 'ideas', tags: ['project'] },
+      { id: 'mem3', userId: 'user-002', type: 'image', content: 'Screenshot of receipt from Blue Tokai', category: 'finance', tags: ['expense'] },
+      { id: 'mem4', userId: 'user-002', type: 'link', content: 'Article: Future of AI Agents', category: 'ideas', tags: ['reference'] },
+      { id: 'mem5', userId: 'user-003', type: 'meeting', content: 'Sprint planning notes — Q3 OKRs aligned', category: 'work', tags: ['meeting'] },
+    ]),
+  },
+  {
+    store: reminders,
+    items: normalizeSeedData([
+      { id: 'r1', userId: 'user-001', text: 'Call mom', dueDate: '2026-06-25T18:00:00Z', status: 'active' },
+      { id: 'r2', userId: 'user-001', text: 'Submit expense report', dueDate: '2026-06-30T17:00:00Z', status: 'active' },
+      { id: 'r3', userId: 'user-002', text: 'Renew passport', dueDate: '2026-08-15T10:00:00Z', status: 'active' },
+      { id: 'r4', userId: 'user-002', text: 'Gym session', dueDate: '2026-06-24T19:00:00Z', status: 'active' },
+      { id: 'r5', userId: 'user-003', text: 'Anniversary dinner reservation', dueDate: '2026-06-28T20:00:00Z', status: 'active' },
+    ]),
+  },
+];
+const seeded = autoSeed(seedPlans, { serviceName: 'genie-memory-inbox' });
+if (seeded) console.log('[genie-memory-inbox] demo data seeded');
 
 // Start server
 const server = app.listen(PORT, () => {

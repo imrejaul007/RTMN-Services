@@ -29,6 +29,7 @@ const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -444,13 +445,41 @@ app.post('/api/devices/:id/mode', async (req, res) => {
   return res.status(400).json({ ...result, error: 'action must be start or stop' });
 });
 
-app.use((req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
+// Phase 7 readiness routes (/api/llm-health, /api/db-health, /api/readiness) —
+// must be registered BEFORE the 404 catch-all.
+installReadinessRoutes(app, { serviceName: 'genie-device-integration' });
+
+// Augment the in-memory stores with a few sample pairing codes (idempotent —
+// the existing `seed()` already populates devices; we only fill the
+// pairing-codes store if it's empty).
+const samplePairingCodes = [
+  { code: 'GENIE1', userId: 'user-demo-1', deviceType: 'smartphone', expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), used: false },
+  { code: 'GENIE2', userId: 'user-demo-1', deviceType: 'smartwatch', expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), used: false },
+  { code: 'GENIE3', userId: 'user-demo-2', deviceType: 'earbuds', expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), used: false },
+];
+const seedPlans = [
+  { store: pairingCodes, items: normalizeSeedData(samplePairingCodes) },
+];
+const seeded = (function seedAugment() {
+  let inserted = 0;
+  for (const plan of seedPlans) {
+    if (!plan.store || plan.store.size > 0) continue;
+    for (const item of plan.items) {
+      if (item.code != null) plan.store.set(item.code, item);
+    }
+    inserted += plan.items.length;
+  }
+  return inserted > 0;
+})();
+if (seeded) console.log('[genie-device-integration] demo pairing codes seeded');
+
 // Readiness probe — returns 200 once the server is accepting requests
+// (must come BEFORE the 404 catch-all)
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
-
+app.use((req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
 
 const server = app.listen(PORT, () => {
   console.log(`\n${'='.repeat(60)}`);

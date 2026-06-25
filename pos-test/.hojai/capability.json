@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "d50c2501-c0a1-4500-ae48-7d3415b51c54",
+  "layer": 2,
+  "name": "pos-test",
+  "description": "pos-test — pos built with HOJAI Foundry.",
+  "capabilities": [
+    {
+      "id": "hojai.sales",
+      "name": "sales",
+      "tier": "business"
+    }
+  ],
+  "offers": [],
+  "seeks": [],
+  "regions": [
+    "us-east"
+  ],
+  "languages": [
+    "en"
+  ],
+  "slaTargets": {
+    "uptimePercent": 99.5,
+    "responseMs": 500
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "093c8ddd-d544-40d0-b298-0610e2691978",
+  "layer": 2,
+  "name": "hotel-test",
+  "description": "hotel-test — hotel built with HOJAI Foundry.",
+  "capabilities": [
+    {
+      "id": "hojai.sales",
+      "name": "sales",
+      "tier": "business"
+    }
+  ],
+  "offers": [],
+  "seeks": [],
+  "regions": [
+    "us-east"
+  ],
+  "languages": [
+    "en"
+  ],
+  "slaTargets": {
+    "uptimePercent": 99.5,
+    "responseMs": 500
+  }
+}

@@ -48,6 +48,7 @@ Connects Genie AI to various listening devices for the "Genie Everywhere" experi
 | POST | `/api/devices/:id/listen/start` | Start a wake-word listening session for this device. Body: `{language?, userId?, genieForward?}`. Forwards to wake-word service and stores the wake-session id. |
 | POST | `/api/devices/:id/listen/stop` | Stop the listening session |
 | POST | `/api/devices/:id/audio` | Send audio transcript (already STT'd on-device or via Voice OS). Body: `{text, source?}`. The wake-word service detects the wake phrase and (if enabled) forwards to runtime/genie. |
+| POST | `/api/devices/:id/mode` | Receive a mode-change webhook from the listening-modes service. Body: `{deviceId, fromMode, toMode, reason, action}`. action=start → create wake session; action=stop → tear it down. Auth: `x-internal-token` only (service-to-service). |
 | GET | `/api/integration/wake-word` | Returns `{enabled, url, activeSessions, sessions, healthy}` |
 
 ## How the wake-word integration works

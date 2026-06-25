@@ -10,6 +10,8 @@ const express = require('express');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
+const { installReadinessRoutes, normalizeSeedData } = require('@rtmn/shared/lib/genie-readiness');
+const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -38,9 +40,31 @@ const SERVICE_URLS = {
   financialTwin: process.env.FINANCIAL_TWIN_URL || 'http://localhost:4715',
   healthTwin: process.env.HEALTH_TWIN_URL || 'http://localhost:4717',
   founderTwin: process.env.FOUNDER_TWIN_URL || 'http://localhost:4716',
-  relationshipTwin: process.env.RELATIONSHIP_TWIN_URL || 'http://localhost:4705',
+  relationshipTwin: process.env.RELATIONSHIP_TWIN_URL || 'http://localhost:4718',
+  spiritual: process.env.SPIRITUAL_URL || 'http://localhost:4729',
+  lifereplay: process.env.LIFEREPLAY_URL || 'http://localhost:4730',
+  futureself: process.env.FUTURESELF_URL || 'http://localhost:4731',
+  simulation: process.env.SIMULATION_URL || 'http://localhost:4732',
+  personaltwin: process.env.PERSONALTWIN_URL || 'http://localhost:4733',
+  widgets: process.env.WIDGETS_URL || 'http://localhost:4734',
+  aiteam: process.env.AITEAM_URL || 'http://localhost:4735',
+  accounts: process.env.ACCOUNTS_URL || 'http://localhost:4736',
+  household: process.env.HOUSEHOLD_URL || 'http://localhost:4737',
+  founder: process.env.FOUNDER_URL || 'http://localhost:4738',
+  teacher: process.env.TEACHER_URL || 'http://localhost:4739',
+  research: process.env.RESEARCH_URL || 'http://localhost:4740',
+  wellness: process.env.WELLNESS_URL || 'http://localhost:4741',
+  learner: process.env.LEARNER_URL || 'http://localhost:4742',
+  creator: process.env.CREATOR_URL || 'http://localhost:4743',
+  planner: process.env.PLANNER_URL || 'http://localhost:4744',
   corpid: process.env.CORPID_URL || 'http://localhost:4702'
 };
+
+// Persistent stores for gateway metadata: per-session routing history and
+// cached service health snapshots.  These back the new /api/sessions and
+// /api/health-cache endpoints and seed with demo data on first boot.
+const sessions = new PersistentMap('gateway-sessions', { serviceName: 'genie-gateway' });
+const healthCache = new PersistentMap('gateway-health-cache', { serviceName: 'genie-gateway' });
 
 // Middleware
 app.use(helmet());
@@ -433,6 +457,25 @@ app.get('/api/services', (req, res) => {
   });
 });
 
+// ==================== SESSIONS + HEALTH CACHE ====================
+
+/**
+ * List recent gateway sessions (per-user routing history).
+ */
+app.get('/api/sessions/:userId', (req, res) => {
+  const list = Array.from(sessions.values()).filter(s => s.userId === req.params.userId);
+  res.json({ success: true, userId: req.params.userId, sessions: list, total: list.length });
+});
+
+/**
+ * Cache health snapshots of downstream services so /ready can answer even
+ * if downstream services are momentarily unreachable.
+ */
+app.get('/api/health-cache', (req, res) => {
+  const cache = Array.from(healthCache.entries()).map(([name, entry]) => ({ name, ...entry }));
+  res.json({ success: true, cache, total: cache.length });
+});
+
 // ==================== ERROR HANDLER ====================
 
 app.use((err, req, res, next) => {
@@ -442,6 +485,46 @@ app.use((err, req, res, next) => {
     error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' }
   });
 });
+
+// ==================== PHASE 7 READINESS ====================
+
+installReadinessRoutes(app, { serviceName: 'genie-gateway' });
+
+// Seed demo data into the persistent stores (idempotent — only writes if empty).
+const sampleSessions = [
+  { id: 'sess-demo-001', userId: 'user-demo-1', service: 'memory', queryType: 'memory.store', startedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(), durationMs: 124 },
+  { id: 'sess-demo-002', userId: 'user-demo-1', service: 'briefing', queryType: 'briefing.morning', startedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(), durationMs: 88 },
+  { id: 'sess-demo-003', userId: 'user-demo-2', service: 'twins', queryType: 'twin.personal', startedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), durationMs: 156 },
+  { id: 'sess-demo-004', userId: 'user-demo-1', service: 'calendar', queryType: 'calendar.list', startedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), durationMs: 65 },
+  { id: 'sess-demo-005', userId: 'user-demo-2', service: 'memory', queryType: 'memory.search', startedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), durationMs: 92 },
+];
+
+const sampleHealthCache = Object.entries(SERVICE_URLS).map(([name, url]) => ({
+  name,
+  url: url.replace(/^https?:\/\//, ''),
+  status: 'unknown',
+  lastCheckedAt: new Date().toISOString(),
+}));
+
+const sampleHealthCacheByName = {};
+for (const entry of sampleHealthCache) sampleHealthCacheByName[entry.name] = entry;
+
+const seedPlans = [
+  { store: sessions, items: normalizeSeedData(sampleSessions) },
+  { store: healthCache, items: sampleHealthCache },
+];
+let seededCount = 0;
+for (const plan of seedPlans) {
+  if (!plan.store || plan.store.size > 0) continue;
+  for (const item of plan.items) {
+    const k = item.id || item.name;
+    if (k != null) plan.store.set(k, item);
+  }
+  seededCount += plan.items.length;
+}
+if (seededCount > 0) {
+  console.log(`[genie-gateway] demo data seeded (${seededCount} items)`);
+}
 
 // ==================== START ====================
 

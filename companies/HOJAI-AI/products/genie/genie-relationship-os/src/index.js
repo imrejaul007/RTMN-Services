@@ -18,12 +18,14 @@ import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
 import { requireEnv } from '@rtmn/shared/lib/env';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { requireAuth } from '@rtmn/shared/auth';
+import { installReadinessRoutes } from '@rtmn/shared/lib/genie-readiness';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 
 import peopleRoutes from './routes/people.js';
+import { applySeeds } from './seedData.js';
 import interactionsRoutes from './routes/interactions.js';
 import healthRoutes from './routes/health.js';
 import remindersRoutes from './routes/reminders.js';
@@ -155,7 +157,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
+// Phase 7 readiness routes (/api/llm-health, /api/db-health, /api/readiness) —
+// must be registered BEFORE the 404 catch-all.
+installReadinessRoutes(app, { serviceName: 'genie-relationship-os' });
+
+// Seed demo data into the PersistentMap stores (idempotent).
+const seeded = applySeeds(storage, { serviceName: 'genie-relationship-os' });
+if (seeded) console.log('[genie-relationship-os] demo data seeded');
+
+// 404 handler (must come after readiness routes)
 app.use((req, res) => {
   res.status(404).json({
     success: false,

@@ -5,6 +5,9 @@ const router = express.Router();
 const userCurricula = new Map();
 const curriculumTemplates = new Map();
 
+// Expose stores on the router so seedData can find them without altering routes.
+router._stores = { userCurricula, curriculumTemplates };
+
 // Learning paths
 const learningPaths = [
   {
