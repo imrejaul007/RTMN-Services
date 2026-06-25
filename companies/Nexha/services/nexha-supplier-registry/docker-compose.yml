@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  supplier-registry:
+    build: .
+    image: nexha/supplier-registry:1.0.0
+    container_name: nexha-supplier-registry
+    ports:
+      - "4281:4281"
+    environment:
+      - NODE_ENV=production
+      - PORT=4281
+    volumes:
+      - supplier-registry-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4281/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    mem_limit: 512m
+    networks:
+      - nexha-internal
+
+volumes:
+  supplier-registry-data:
+    driver: local
+
+networks:
+  nexha-internal:
+    driver: bridge
