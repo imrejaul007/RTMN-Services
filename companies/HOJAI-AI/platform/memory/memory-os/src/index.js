@@ -5,7 +5,7 @@ import { requireEnv } from '@rtmn/shared/lib/env';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { v4 as uuidv4 } from 'uuid';
 import persistence from './persistence.js';
-import embedClient from './embed-client.js';
+import * as embedClient from './embed-client.js';
 import { requireAuthMw, requireAuth, getRequireAuth, setRequireAuth } from './auth.js';
 
 /**

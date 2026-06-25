@@ -344,7 +344,7 @@ class PackageRegistryService {
 
   /** Seed demo packages for the registry. Returns count of seeded packages. */
   seedDemoPackages(): number {
-    if (this.packages.size > 0) return;
+    if (this.packages.size > 0) return 0;
 
     const publishers = [
       { nexhaId: 'nexha-hospo-collective', corpId: 'corp-hospo', name: 'Hospo Collective' },
@@ -449,6 +449,7 @@ class PackageRegistryService {
     allPkgs[2].downloads = 856; allPkgs[2].stars = 18;
     allPkgs[3].downloads = 1421; allPkgs[3].stars = 27;
     allPkgs[4].downloads = 634; allPkgs[4].stars = 11;
+    return seeds.length;
   }
 }
 
