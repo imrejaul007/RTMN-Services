@@ -45,7 +45,7 @@ function makeProduct(overrides = {}) {
   return createProduct(TENANT, {
     name: 'Basmati Rice',
     sku: 'RICE-001',
-    description: 'Premium aged basmati rice',
+    description: 'Generic product description',  // NOT searchable — prevents cross-test pollution
     category: 'food',
     basePrice: 48,
     moq: 500,

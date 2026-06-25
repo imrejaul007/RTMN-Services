@@ -171,19 +171,26 @@ export class Return {
   }
 }
 
-// ── In-memory store ────────────────────────────────────────────────────────
+// ── In-memory store (singleton — shared across all ESM import instances) ────────
 
-const store = new Map();
-const returnStore = new Map();
+const ORDER_KEY = Symbol.for('nexha-order.order-store');
+const RETURN_KEY = Symbol.for('nexha-order.return-store');
 
-export function getStore() { return store; }
-export function getReturnStore() { return returnStore; }
+export function getStore() {
+  if (!globalThis[ORDER_KEY]) globalThis[ORDER_KEY] = new Map();
+  return globalThis[ORDER_KEY];
+}
+export function getReturnStore() {
+  if (!globalThis[RETURN_KEY]) globalThis[RETURN_KEY] = new Map();
+  return globalThis[RETURN_KEY];
+}
+export function clearStore() { getStore().clear(); getReturnStore().clear(); }
 
-export function saveOrder(po) { store.set(po.orderId, po); return po; }
-export function getOrder(id) { return store.get(id) || null; }
+export function saveOrder(po) { getStore().set(po.orderId, po); return po; }
+export function getOrder(id) { return getStore().get(id) || null; }
 
 export function listOrders(tenantId, filters = {}) {
-  let orders = Array.from(store.values()).filter(o => o.tenantId === tenantId);
+  let orders = Array.from(getStore().values()).filter(o => o.tenantId === tenantId);
   if (filters.status) orders = orders.filter(o => o.status === filters.status);
   if (filters.supplierRef) orders = orders.filter(o => o.supplierRef === filters.supplierRef);
   if (filters.since) orders = orders.filter(o => new Date(o.createdAt) >= new Date(filters.since));
@@ -191,9 +198,9 @@ export function listOrders(tenantId, filters = {}) {
 }
 
 export function deleteOrder(id, tenantId) {
-  const order = store.get(id);
+  const order = getStore().get(id);
   if (!order) return false;
   if (order.tenantId !== tenantId) return false;
-  store.delete(id);
+  getStore().delete(id);
   return true;
 }

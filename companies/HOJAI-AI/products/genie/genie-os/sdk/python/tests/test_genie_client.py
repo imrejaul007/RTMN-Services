@@ -1,16 +1,15 @@
 """
-Unit tests for genie_client using unittest.mock (no extra deps).
+Unit tests for genie_client using unittest.TestCase (stdlib only).
 """
 
 from __future__ import annotations
 
 import json
 import sys
+import unittest
 from http import HTTPStatus
 from typing import Any, Dict, Generator, Optional
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 sys.path.insert(0, "src")
 
