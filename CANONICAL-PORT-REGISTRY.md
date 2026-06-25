@@ -695,12 +695,12 @@ Selection rules used to decide which service to relocate:
 | 5197 | sdk-gateway-service | 4850 | website-ssp-sdk |
 | 5198 | yield-optimization-engine | 4860 | ai-marketing-manager |
 | 5199 | rez-media-integration-service | 4900 | health-campaigns-service |
-| 5350 | data-clean-room-service | 4950 | REZ-ads-api |
-| 5351 | privacy-preserving-compute | 4951 | airzy-travel-integration |
-| 5352 | stayown-hotel-integration | 4952 | identity-matching-engine |
-| 5353 | openrtb-exchange-service | 4960 | adbazaar-marketing-os |
-| 5354 | auction-engine-service | 4961 | adbazaar-cdp |
-| 5355 | REZ-pixel | 4962 | adbazaar-pixel |
+| 5350 | mm-ocr | HOJAI-AI/multimodal | Phase 21: Stub OCR, 10 languages, batch |
+| 5351 | mm-image-understanding | HOJAI-AI/multimodal | Phase 25: detect_objects/classify_scene/caption |
+| 5352 | mm-audio-transcription | HOJAI-AI/multimodal | Phase 25: transcribe/speaker_count/language_detect |
+| 5353 | mm-video-analysis | HOJAI-AI/multimodal | Phase 25: scenes/actions/shots/summarize |
+| 5354 | mm-visual-generator | HOJAI-AI/multimodal | Phase 25: prompt/build/layout/palette/render-svg |
+| 5355 | mm-cross-modal-reasoner | HOJAI-AI/multimodal | Phase 25: caption+retrieve/audio-to-image/fuse/query |
 | 5356 | seat-management-service | 4962 | adbazaar-pixel |
 | 5357 | deal-id-service | 4963 | adbazaar-verification |
 | 5358 | adbazaar-creator-wallet | 4970 | axomi-bpo/axomi-bpo-voice-bpo |
