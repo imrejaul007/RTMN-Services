@@ -1052,15 +1052,6 @@ app.get('/api/audit', (req, res) => {
   res.json({ count: list.length, returned: tail.length, entries: tail });
 });
 
-// ============ ERROR HANDLERS ============
-
-app.use((req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found`, code: 'ROUTE_NOT_FOUND' }));
-
-app.use((err, req, res, next) => {
-  console.error(`[${SERVICE_NAME}] error:`, err);
-  res.status(500).json({ error: 'Internal server error', code: 'INTERNAL_ERROR' });
-});
-
 // ============ READINESS ============
 
 app.get('/ready', (_req, res) => {
