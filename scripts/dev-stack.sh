@@ -449,8 +449,15 @@ start_all() {
   start_service "agent-observability"     "$AGENT_OBSERVABILITY_CMD"      4814
   # HOJAI Voice Gateway (port 4880)
   start_service "voice-gateway"           "$VOICE_GATEWAY_CMD"           4880
-  # BLR AI Marketplace — port 4255 (after BAM seed is added below)
+  # BLR AI Marketplace — all services
   start_service "bam-marketplace-listings" "$MARKETPLACE_LISTINGS_CMD"   4255
+  start_service "blr-exploration"         "$BLR_EXPLORATION_CMD"        4255
+  start_service "blr-discovery-engine"    "$BLR_DISCOVERY_ENGINE_CMD"   4256
+  start_service "blr-multi-agent-eval"   "$BLR_MULTI_AGENT_EVAL_CMD"  4257
+  start_service "blr-reputation-agg"     "$BLR_REPUTATION_AGG_CMD"     4258
+  start_service "blr-roi-calculator"     "$BLR_ROI_CALCULATOR_CMD"     4259
+  start_service "blr-founder-os"         "$BLR_FOUNDER_OS_CMD"         4260
+  start_service "twin-marketplace"       "$TWIN_MARKETPLACE_CMD"       4146
   # Seed BAM catalog (245 entries) after service is up
   sleep 3
   BAM_SEED_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings && node src/seed-data.js"
