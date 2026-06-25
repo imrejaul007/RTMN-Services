@@ -6,11 +6,11 @@
 
 ## TL;DR
 
-**Done (2026-06-24):** Phases 14, 27, 30, 31, 32, 36, 38, 39, 40 (9 of 40)
-**Partially built:** Phases 1-13, 15-20 (Cognitive Stack), 21, 25, 33-35, 37 (Platform)
+**Done (2026-06-24):** Phases 4, 14, 25, 27, 30, 31, 32, 36, 38, 39, 40 (11 of 40)
+**Partially built:** Phases 1-3, 5-13, 15-19, 20, 21, 22-24, 26, 28-29, 33-35, 37 (Platform)
 **Not started:** Phase 41+ (not yet planned)
 
-**Net status:** ~40% of 40 phases fully complete; ~52% partially built; ~8% entirely missing.
+**Net status:** ~28% of 40 phases fully complete; ~65% partially built; ~8% entirely missing.
 
 ---
 
@@ -31,7 +31,7 @@
 | 9 | Trust Engine | ✅ BUILT | ~1,900 | `platform/trust/` |
 | 10 | HOJAI SDK | ✅ BUILT | ~1,500 | `platform/sdk-*` |
 
-### Part 2: Cognitive Stack (Phases 11-20) — 85% Built
+### Part 2: Cognitive Stack (Phases 11-20) — 50% Built (1 of 10 DONE)
 
 | Phase | Name | Status | Real LOC | Evidence |
 |---|---|---|---:|---|
@@ -44,28 +44,29 @@
 | 17 | Goal OS | ✅ BUILT | ~1,700 | `platform/flow/goal-os-canonical/` |
 | 18 | Flow OS | ✅ BUILT | ~2,400 | `platform/flow/flow-orchestrator/` |
 | 19 | Behavior Intelligence | ✅ BUILT | ~1,600 | `platform/intelligence/behavior-intelligence/` |
-| 20 | RLHF Pipeline | ⚠️ STUB | ~349 | `platform/training/rlhf-pipeline/` (no real fine-tuning) |
+| 20 | RLHF Pipeline | ⚠️ STUB | ~349 | `platform/training/rlhf-pipeline/` — no such service exists; `evaluation-harness/` (Phase 4, self-contained rewrite, 30 tests) is the nearest equivalent |
+| 31 | **Eval Platform (Continuous)** | ✅ **DONE 2026-06-24** | ~3,800 | 8 self-contained services: `eval-platform-api/` (155 LOC, 14 tests), `eval-benchmarks/`, `eval-canary/`, `eval-datasets/`, `eval-judges/`, `eval-live/`, `eval-review/`, `eval-shadow/` — **163 tests, all passing** |
 
-### Part 3: Advanced Capabilities (Phases 21-30) — 45% Built
+### Part 3: Advanced Capabilities (Phases 21-30) — 60% Built (3 of 10 DONE)
 
 | Phase | Name | Status | Real LOC | Evidence |
 |---|---|---|---:|---|
-| 21 | Multi-Modal Foundation | ❌ NOT_STARTED | 0 | No vision/audio/video code |
+| 21 | Observability / Multi-Modal Foundation | ⚠️ PARTIAL | ~3,500 | 6 aiops services self-contained (6 tests, all passing), 4 observability services (`event-bus/`, `intent-bus/`, `notification-service/`, `webhook-bus/`) use `@rtmn/shared` + graceful fallback; 1 `centralized-observability/` empty |
 | 22 | Embedding Service | ✅ BUILT | ~1,200 | `platform/embeddings/` |
 | 23 | Vector Database | ✅ BUILT | ~2,000 | `platform/vector-db/` |
 | 24 | Fine-tuning Pipeline | ⚠️ STUB | ~349 | `platform/training/fine-tuning-pipeline/` |
-| 25 | Multi-Modal (Vision) | ❌ NOT_STARTED | 0 | Only capability flag |
+| 25 | **Multi-Modal (Vision)** | ✅ **DONE 2026-06-24** | 11 services | `platform/multimodal/mm-audio/` (12), `mm-image/` (11), `mm-ocr/` (10), `mm-embedder/` (14), `mm-vector-index/` (15), `mm-chunker/` (14), `mm-asset-store/` (15), `multimodal-api/` (11), `image-pipeline/` (15), `audio-pipeline/` (15), `video-pipeline/` (15) = **143 tests, all passing** |
 | 26 | Speech / TTS / STT | ✅ BUILT | ~3,400 | `platform/speech/` |
 | 27 | **AIOps / Incident Mgmt** | ✅ **DONE 2026-06-24** | 2,768 | 6 services, **88 tests passing** |
 | 28 | Observability | ✅ BUILT | ~2,800 | `platform/observability/` (partial) |
 | 29 | Cost Optimization | ✅ BUILT | ~1,400 | `platform/economy/cost-os/` |
 | 30 | **Foundation Models (Llama-3 fine-tune)** | ✅ **DONE 2026-06-24** | 74 tests | `model-registry/` (22 tests), `fine-tuning-pipeline/` (14), `synthetic-data-generation/` (12), `gpu-cluster-manager/` (13), `federated-learning/` (13) |
 
-### Part 4: Platform Capabilities (Phases 31-40) — 55% Built (4 of 10 DONE)
+### Part 4: Platform Capabilities (Phases 31-40) — 60% Built (6 of 10 DONE)
 
 | Phase | Name | Status | Real LOC | Evidence |
 |---|---|---|---:|---|
-| 31 | **Eval Platform (Continuous)** | ✅ **DONE 2026-06-24** | ~3,800 | 8 services, **163 tests passing** |
+| 31 | **Eval Platform (Continuous)** | ✅ **DONE 2026-06-24** | ~3,800 | 8 self-contained services: `eval-platform-api/` (155 LOC, 14 tests), `eval-benchmarks/`, `eval-canary/`, `eval-datasets/`, `eval-judges/`, `eval-live/`, `eval-review/`, `eval-shadow/` — **163 tests, all passing** |
 | 32 | **Agent OS** | ✅ **DONE 2026-06-24** | ~15,000 | 12 services, **737 tests passing** |
 | 33 | Model Registry | ✅ BUILT | 891 | `platform/training/model-registry/` |
 | 34 | Workflow Registry | ✅ BUILT | 1,221 | `platform/skills/workflow-marketplace/` |
@@ -84,12 +85,15 @@
 - ✅ Agent OS (the cognitive substrate)
 - ✅ Agent Lifecycle (CI/CD for agents)
 - ✅ Eval Platform (continuous evaluation)
+- ✅ Eval Harness (benchmarks, scoring, model comparison — Phase 4, self-contained rewrite, 30 tests)
 - ✅ AI Studio (visual builder backend)
 - ✅ Planning Engine (reasoning + planning)
 - ✅ Foundation services (CorpID, MemoryOS, TwinOS)
 
 **Critical gaps remaining:**
-1. **Multi-Modal (Phases 21, 25)** — no vision/audio/video processing beyond capability flags.
+1. **Phase 21 (Observability/Multi-Modal)** — 6 aiops services self-contained ✅; 4 observability services need `@rtmn/shared` refactor (event-bus, intent-bus, notification-service, webhook-bus).
+2. **Phase 20 (RLHF Pipeline)** — `rlhf-pipeline/` service does not exist; evaluation-harness (Phase 4) covers scoring/benchmarks but no real fine-tuning loop.
+3. **Real LLM SDK integration** — 1/195 services have real LLM calls; rest are stubs.
 
 **Production-readiness items (not in 40-phase plan):**
 - 182 unprotected mutating routes (auth regression)
@@ -125,9 +129,10 @@ Given the remaining gaps and our established velocity:
 
 ### High Priority
 1. **Production-readiness items** — close the 182 unprotected routes + add Dockerfiles. (1 week)
+2. **Phase 21 Observability refactor** — make event-bus, intent-bus, notification-service, webhook-bus self-contained (remove `@rtmn/shared`). (1 session)
+3. **Phase 20 RLHF Pipeline** — build `rlhf-pipeline/` service (preference data, reward model, PPO training loop). (1 week)
 
 ### Medium Priority
-4. **Phase 25 (Multi-Modal)** — vision/audio/video pipeline. (1 week)
 5. **Real LLM SDK integration** — replace stub in 9 inference-gateway routes. (1 week)
 
 ### Low Priority
@@ -135,4 +140,4 @@ Given the remaining gaps and our established velocity:
 
 ---
 
-*Last updated: 2026-06-24*
+*Last updated: 2026-06-25*

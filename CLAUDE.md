@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.3  
-> **Last Updated:** June 22, 2026  
-> **Status:** ✅ **GENIE-OS PRODUCTION-READY** — All 13 genie-os test suites pass (78 assertions), all 7 foundation services healthy, 23 named Genie agents registered in AgentOS. Security hardened (requireEnv + requireAuth on 176+ services). All 23 Genie specialist docs refreshed for Phase 7 (Bearer JWT auth + path correction). See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the full audit report and what's left.
+> **Version:** 5.4  
+> **Last Updated:** June 24, 2026  
+> **Status:** ✅ **GENIE-OS PRODUCTION-READY** — All 13 genie-os test suites pass (78 assertions), all 7 foundation services healthy, 23 named Genie agents registered in AgentOS. Security hardened (requireEnv + requireAuth on 176+ services). All 23 Genie specialist docs refreshed for Phase 7 (Bearer JWT auth + path correction). **Phase F shipped:** HOJAI Voice Gateway (4880, training-aware STT/TTS) + Nexha Supplier Registry (4281, full trade lifecycle) + FederationOS v1.1 (auto-match, onboarding checklist, 104 Nexhas seeded). See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the full audit report and what's left.
 
 ---
 
@@ -359,6 +359,8 @@ The 10-week roadmap is complete. **Every phase from A through E is done.**
 
 > **✅ ADR-0010 Phase 11 update (2026-06-23):** Documentation-only — the end-of-ADR retrospective + ecosystem health audit + investor update. 6-section retrospective at [`docs/nexha/adr-0010-retrospective.md`](docs/nexha/adr-0010-retrospective.md) covers: (1) what shipped, (2) before/after architecture, (3) what worked, (4) what didn't, (5) ecosystem health audit (477 services, 143 healthy, 1,508 tests, 5 repos), (6) investor-facing summary. ADR-0010 status flipped to **Complete (Phase 11 / 11) — DONE 2026-06-23**. **+501 tests added across the 11 phases** (1,007 → 1,508); 8 new services. Follow-on roadmap (Phases 12-15) captured in the retrospective.
 
+> **📈 Phase F update (2026-06-24):** FederationOS v1.1 deployment + Nexha OS Docker Runtime + Nexha Portal v2.0 + **HOJAI Voice Gateway** (port 4880, training-aware STT/TTS routing) + **Nexha Supplier Registry** (port 4281, complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment). Federation seed fixed (104 Nexhas seeded). See [`companies/Nexha/services/nexha-federation-os/`](companies/Nexha/services/nexha-federation-os/), [`companies/HOJAI-AI/products/voice-os/core/voice-gateway/`](companies/HOJAI-AI/products/voice-os/core/voice-gateway/), [`companies/Nexha/services/nexha-supplier-registry/`](companies/Nexha/services/nexha-supplier-registry/).
+
 ### Try it in 30 seconds
 
 ```bash
@@ -485,6 +487,25 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **REZ Wallet** | 4004 | ✅ | Payments & Rewards |
 | **REZ CRM Hub** | 4056 | ✅ | Customer Relations |
 | **REZ Care Service** | 4055 | ✅ | Customer Support |
+
+### Nexha Platform Services (7)
+
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **nexha-federation-os** | 4273 | ✅ | Federation management, handshakes, auto-match, onboarding checklist |
+| **nexha-supplier-registry** | 4281 | ✅ NEW | Complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment |
+| **nexha-supplier-network** | 4280 | ✅ | Supplier discovery + scoring (discovery layer, sits below registry) |
+| **nexha-pricing-network** | 4286 | ✅ | Market price aggregation + dynamic pricing recommendations |
+| **nexha-distribution-network** | 4285 | ✅ | Distribution channel management |
+| **nexha-trade-finance-network** | 4287 | ✅ | Trade finance, escrow, payment settlement |
+| **nexha-warehouse-network** | 4288 | ✅ | Warehouse slot booking + WMS |
+
+### HOJAI Voice Platform (2)
+
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **voice-gateway** | 4880 | ✅ NEW | Training-aware STT/TTS router — Whisper, Deepgram, Google, Sarvam, ElevenLabs, Cartesia → trains HOJAI model |
+| **HOJAI-VOICE-PLATFORM** | 4850 | ✅ | Production voice infrastructure (adapters, agents, telecom) |
 
 ### AdBazaar (4)
 
