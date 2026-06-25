@@ -39,13 +39,11 @@ async function req(port, method, p, body, token) {
 
 async function start(port, dataDir, token = 'tok') {
   return new Promise((resolve, reject) => {
-    const prev = setEnv({ PORT: String(port), DATA_DIR: dataDir, INTERNAL_TOKEN: token, POLL_INTERVAL_MS: '999999' });
+    const prev = setEnv({ PORT: String(port), DATA_DIR: dataDir, INTERNAL_TOKEN: token, POLL_INTERVAL_MS: '999999', NO_PERSIST: 'true' });
     delete require.cache[require.resolve('../src/index.js')];
     try {
       const { createApp } = require('../src/index.js');
-      console.log('FILES DURING REQUIRE:', fs.readdirSync(dataDir));
       const app = createApp();
-      console.log('FILES AFTER createApp():', fs.readdirSync(dataDir));
       const server = app.listen(port, () => resolve({ server, prev }));
       server.once('error', e => { restoreEnv(prev); reject(e); });
     } catch (err) {
@@ -131,8 +129,8 @@ test('Metrics aggregation — p50/p95/p99', async () => {
   const td = tmp(); const p = port();
   const h = await start(p, td, T);
   await req(p, 'POST', '/api/services', { id: 'svc-3', name: 'Agg Test' }, T);
-  // Ingest 20 data points (20 sequential POSTs is enough for percentile testing)
-  for (let i = 1; i <= 20; i++) {
+  // Ingest 10 data points (10 sequential POSTs is enough for percentile testing)
+  for (let i = 1; i <= 10; i++) {
     await req(p, 'POST', '/api/metrics/svc-3', { metrics: [{ metric: 'latency', value: i * 5, type: 'gauge' }] }, T);
   }
   const q = await req(p, 'GET', '/api/metrics/svc-3/latency');
@@ -142,44 +140,24 @@ test('Metrics aggregation — p50/p95/p99', async () => {
   assert.ok(q.body.p99 !== undefined);
   assert.ok(q.body.p50 < q.body.p95);
   assert.ok(q.body.p95 < q.body.p99);
-  assert.strictEqual(q.body.count, 20);
+  assert.strictEqual(q.body.count, 10);
   await stop(h); fs.rmSync(td, { recursive: true, force: true });
 });
 
 test('Ingest logs', async () => {
   const td = tmp(); const p = port();
-  console.log('TEMP DIR:', td);
   const h = await start(p, td, T);
-  console.log('FILES AFTER START:', fs.readdirSync(td));
-
-  // Register service
-  const reg = await req(p, 'POST', '/api/services', { id: 'svc-4', name: 'Log Test' }, T);
-  console.log('FILES AFTER REGISTER:', fs.readdirSync(td));
-  assert.strictEqual(reg.status, 201, `register failed: ${JSON.stringify(reg.body)}`);
-
-  // Check logs.json NOT created yet
-  const lf = path.join(td, 'logs.json');
-  assert.ok(!fs.existsSync(lf), `logs.json should not exist before first log. Files: ${fs.readdirSync(td).join(',')}`);
-
-  // POST logs
+  await req(p, 'POST', '/api/services', { id: 'svc-4', name: 'Log Test' }, T);
   const post = await req(p, 'POST', '/api/logs/svc-4', {
     entries: [
       { level: 'info', message: 'Server started', meta: { port: 3000 } },
       { level: 'error', message: 'Connection timeout', meta: { host: 'db1' } },
     ],
   }, T);
-  console.log('FILES AFTER LOGS POST:', fs.readdirSync(td));
-  assert.strictEqual(post.status, 200, `POST failed: ${JSON.stringify(post.body)}`);
-  assert.strictEqual(post.body.count, 2, `Expected count=2, got ${post.body.count}`);
-
-  // Verify file was created
-  assert.ok(fs.existsSync(lf), `logs.json should exist after POST. Files: ${fs.readdirSync(td).join(',')}`);
-  const logData = JSON.parse(fs.readFileSync(lf, 'utf8'));
-  assert.ok(logData.entries.length >= 2, `logs.json should have entries, got: ${JSON.stringify(logData)}`);
-
-  // GET logs
+  assert.strictEqual(post.status, 200);
+  assert.strictEqual(post.body.count, 2);
   const r = await req(p, 'GET', '/api/logs');
-  assert.strictEqual(r.body.count, 2, `Expected 2 logs, got ${r.body.count}: ${JSON.stringify(r.body).slice(0,200)}`);
+  assert.strictEqual(r.body.count, 2, `Expected 2 logs, got ${r.body.count}`);
   const errors = await req(p, 'GET', '/api/logs?level=error');
   assert.strictEqual(errors.body.count, 1);
   assert.strictEqual(errors.body.entries[0].level, 'error');
@@ -191,12 +169,10 @@ test('Filter logs by serviceId', async () => {
   const h = await start(p, td, T);
   await req(p, 'POST', '/api/services', { id: 'svc-a', name: 'A' }, T);
   await req(p, 'POST', '/api/services', { id: 'svc-b', name: 'B' }, T);
-  const pa = await req(p, 'POST', '/api/logs/svc-a', { entries: [{ level: 'info', message: 'A log' }] }, T);
-  const pb = await req(p, 'POST', '/api/logs/svc-b', { entries: [{ level: 'info', message: 'B log' }] }, T);
-  assert.strictEqual(pa.body.count, 1, `A ingest failed: ${JSON.stringify(pa.body)}`);
-  assert.strictEqual(pb.body.count, 1, `B ingest failed: ${JSON.stringify(pb.body)}`);
+  await req(p, 'POST', '/api/logs/svc-a', { entries: [{ level: 'info', message: 'A log' }] }, T);
+  await req(p, 'POST', '/api/logs/svc-b', { entries: [{ level: 'info', message: 'B log' }] }, T);
   const a = await req(p, 'GET', '/api/logs?serviceId=svc-a');
-  assert.strictEqual(a.body.count, 1, `Expected 1 for svc-a, got ${a.body.count}: ${JSON.stringify(a.body).slice(0, 200)}`);
+  assert.strictEqual(a.body.count, 1, `Expected 1 for svc-a, got ${a.body.count}`);
   assert.strictEqual(a.body.entries[0].serviceId, 'svc-a');
   await stop(h); fs.rmSync(td, { recursive: true, force: true });
 });

@@ -30,7 +30,6 @@ import { requireAuthMw, requireAuth, getRequireAuth, setRequireAuth } from './au
 const app = express();
 
 const PORT = process.env.PORT || 4703;
-const app = express();
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });

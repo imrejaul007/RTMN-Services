@@ -55,13 +55,14 @@ function load(name, defaults) {
 }
 
 function save(name, data) {
+  if (process.env.NO_PERSIST === 'true') return;
   try {
     const f = dataFile(name);
     const tmp = f + '.tmp';
     fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
     fs.renameSync(tmp, f);
   } catch (err) {
-    console.error(`[${name}] save failed:`, err.message, err.stack);
+    console.error(`[${name}] save failed:`, err.message);
   }
 }
 

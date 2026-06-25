@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.5
+> **Version:** 5.6
 > **Last Updated:** June 25, 2026
-> **Status:** ✅ **GLOBAL NEXHA COMPLETE** — All 6 Nexha OS services running (CapabilityOS, ReputationOS, DiscoveryOS, FederationOS, OpportunityOS, MarketOS) + 158 tests passing. 24,287 tests across ecosystem. HOJAI Voice Gateway (4880) + Nexha Supplier Registry (4281) healthy. **Phase G shipped:** All Nexha OS layer services (ports 4270-4275) integrated into dev-stack and running.
+> **Status:** ✅ **GLOBAL NEXHA + AGENTOS COMPLETE** — All 6 Nexha OS services running (ports 4270-4275) + 158 tests passing. All 12 AgentOS services running (ports 4802-4814) + 637 tests passing. 25,124 tests across ecosystem. HOJAI Voice Gateway (4880) + Nexha Supplier Registry (4281) healthy. **Phase H shipped:** AgentOS started + demo created + health check fix.
 
 ---
 
@@ -364,7 +364,14 @@ The 10-week roadmap is complete. **Every phase from A through E is done.**
 ### Try it in 30 seconds
 
 ```bash
-bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh
+# Start the full stack (Nexha OS + AgentOS)
+bash scripts/dev-stack.sh start
+
+# Run the Global Nexha flow demo
+bash demos/global-nexha-demo.sh
+
+# Or run the full-stack demo
+bash demos/full-stack-demo.sh
 ```
 
 ---
@@ -505,6 +512,27 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **nexha-trade-finance-network** | 4287 | ✅ | Trade finance, escrow, payment settlement |
 | **nexha-warehouse-network** | 4288 | ✅ | Warehouse slot booking + WMS |
 | **nexha-acp-messaging** | 4340 | ✅ | ACP protocol messaging for agent-to-agent communication |
+
+### AgentOS (12 services) - ✅ RUNNING
+
+**AgentOS** is HOJAI's autonomous agent lifecycle management platform. All 12 services run with 637 tests passing.
+
+| Service | Port | Tests | Purpose |
+|---------|------|-------|---------|
+| **agent-platform-api** | 4802 | 36 | Gateway + health aggregation for all 11 sub-services |
+| **agent-registry** | 4803 | 54 | Central agent identity, versioning, heartbeat |
+| **capability-store** | 4804 | 69 | Machine-readable agent capability registry |
+| **tool-registry** | 4805 | 59 | Available tools/functions agents can call |
+| **skill-library** | 4806 | 73 | Reusable agent skills and behaviors |
+| **message-bus** | 4807 | 59 | Inter-agent messaging and pub/sub |
+| **scheduler** | 4808 | 89 | Cron-like job scheduling for agents |
+| **context-store** | 4809 | 64 | Agent conversation context persistence |
+| **agent-memory-bridge** | 4811 | 64 | Bridge to MemoryOS for agent memory |
+| **agent-orchestrator** | 4812 | 63 | Multi-agent workflow orchestration |
+| **agent-execution-engine** | 4813 | 61 | Execute agent tasks and plans |
+| **agent-observability** | 4814 | 46 | Agent metrics, logs, traces |
+
+**Gateway health check:** `curl http://localhost:4802/api/agent/platform/status`
 
 ### HOJAI Voice Platform (2)
 
