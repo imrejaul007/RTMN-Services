@@ -1,0 +1,42 @@
+{
+  "name": "b2b-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "b2b-starter — B2B platform for RFQ workflows, bulk procurement, and supplier management built with HOJAI Foundry.",
+  "type": "module",
+  "main": "apps/backend/src/index.js",
+  "scripts": {
+    "dev": "node apps/backend/src/index.js",
+    "test": "node --test apps/backend/src/__tests__/*.test.js",
+    "start": "node apps/backend/src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  },
+  "optionalDependencies": {
+    "@hojai/foundation": "^1.0.0",
+    "@hojai/sutar": "^1.0.0",
+    "@hojai/nexha": "^1.0.0",
+    "@hojai/department": "^1.0.0",
+    "@hojai/commerce": "^1.0.0",
+    "@hojai/payment": "^1.0.0",
+    "@hojai/marketplace": "^1.0.0",
+    "@hojai/ai-spec": "^1.0.0"
+  },
+  "keywords": [
+    "hojai",
+    "starter",
+    "company",
+    "foundry",
+    "sutar",
+    "agents"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

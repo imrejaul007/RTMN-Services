@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{PROJECT_TITLE}} — Marketplace</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">⬢</span>
+      <div>
+        <div class="name">{{PROJECT_TITLE}}</div>
+        <div class="tag">marketplace · {{REGION}} · {{LANGUAGES_COMMA}}</div>
+      </div>
+    </div>
+    <div class="hojai-badge">
+      <span>powered by</span> <strong>HOJAI</strong>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="catalog">Catalog</button>
+    <button class="tab" data-tab="rfq">Request Quote</button>
+    <button class="tab" data-tab="agents">AI Agents</button>
+    <button class="tab" data-tab="nexha">Nexha</button>
+  </nav>
+
+  <main>
+    <section id="catalog" class="panel active">
+      <h2>Products</h2>
+      <div class="filters">
+        <input id="q" type="search" placeholder="Search products…" />
+        <select id="category">
+          <option value="">All categories</option>
+          <option value="materials">Materials</option>
+          <option value="apparel">Apparel</option>
+          <option value="food">Food</option>
+          <option value="misc">Misc</option>
+        </select>
+      </div>
+      <div id="products" class="grid"></div>
+    </section>
+
+    <section id="rfq" class="panel">
+      <h2>Request a Quote (RFQ)</h2>
+      <p class="muted">Post a quote request and the SUTAR agents will route it to suppliers.</p>
+      <form id="rfqForm">
+        <label>Product
+          <select id="rfqProduct" required></select>
+        </label>
+        <label>Quantity
+          <input id="rfQty" type="number" min="1" value="100" required />
+        </label>
+        <label>Message
+          <textarea id="rfMsg" rows="3" placeholder="Need delivery by 30 June, payment via escrow"></textarea>
+        </label>
+        <button type="submit">Submit RFQ</button>
+      </form>
+      <div id="rfqResult" class="result"></div>
+    </section>
+
+    <section id="agents" class="panel">
+      <h2>AI Workforce</h2>
+      <p class="muted">Click an agent to invoke it. v0 returns deterministic stubs — wire to real LLMs in production.</p>
+      <div id="agentList" class="grid"></div>
+      <div id="agentResult" class="result"></div>
+    </section>
+
+    <section id="nexha" class="panel">
+      <h2>Nexha Federation</h2>
+      <p class="muted">This marketplace is registered as a federated Nexha on Global Nexha.</p>
+      <div id="nexhaProfile"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© {{CREATED_AT}} {{PROJECT_TITLE}}</span>
+    <span>·</span>
+    <span>region: {{REGION}}</span>
+    <span>·</span>
+    <span>template: marketplace</span>
+    <span>·</span>
+    <span>hojai v{{HOJAI_VERSION}}</span>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
