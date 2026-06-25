@@ -28,23 +28,22 @@ app.use(express.json());
 // ============================================================
 
 const BAM_SERVICES = {
-  'marketplace-listings': 'http://localhost:4255',
-  'discovery-engine': 'http://localhost:4256',
-  'roi-calculator': 'http://localhost:4259',
-  'founder-os': 'http://localhost:4260',
-  'multi-agent-evaluator': 'http://localhost:4257',
-  'reputation-aggregator': 'http://localhost:4258',
-  'twin-marketplace': 'http://localhost:4146',
-  'exploration': 'http://localhost:4255',
+  'marketplace-listings': 4255,
+  'discovery-engine': 4256,
+  'roi-calculator': 4259,
+  'founder-os': 4260,
+  'multi-agent-evaluator': 4257,
+  'reputation-aggregator': 4258,
+  'twin-marketplace': 4146,
+  'exploration': 4255,
 };
 
 // Helper to proxy requests to BAM services
-function proxyToBAM(targetPath, targetPort) {
+function proxyToBAM(port) {
   return (req, res) => {
-    const target = `http://localhost:${targetPort}${req.url}`;
     const options = {
       hostname: 'localhost',
-      port: targetPort,
+      port: port,
       path: req.url,
       method: req.method,
       headers: {
@@ -60,8 +59,8 @@ function proxyToBAM(targetPath, targetPort) {
     });
 
     proxyReq.on('error', (err) => {
-      console.error(`[BAM Proxy] Error connecting to ${target}:`, err.message);
-      res.status(502).json({ error: 'BAM service unavailable', target, message: err.message });
+      console.error(`[BAM Proxy] Error connecting to port ${port}:`, err.message);
+      res.status(502).json({ error: 'BAM service unavailable', port, message: err.message });
     });
 
     if (req.body && Object.keys(req.body).length > 0) {
@@ -71,11 +70,10 @@ function proxyToBAM(targetPath, targetPort) {
   };
 }
 
-// Register BAM services
-for (const [name, url] of Object.entries(BAM_SERVICES)) {
-  const port = parseInt(url.split(':')[2]);
-  app.use(`/api/bam/${name}`, proxyToBAM(name, port));
-  app.use(`/api/marketplace/${name}`, proxyToBAM(name, port));
+// Register BAM service proxy routes
+for (const [name, port] of Object.entries(BAM_SERVICES)) {
+  app.use(`/api/bam/${name}`, proxyToBAM(port));
+  app.use(`/api/marketplace/${name}`, proxyToBAM(port));
 }
 
 // BAM health check endpoint
@@ -298,6 +296,119 @@ function initRegistry() {
     category: 'legal',
     version: '1.0.0',
     features: ['contract-management', 'legal-document-ai', 'invoice-ocr'],
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  // BLR AI Marketplace services
+  registerService({
+    id: 'bam-marketplace-listings',
+    name: 'BAM Marketplace Listings',
+    port: 4255,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['listings', 'reviews', 'stats'],
+    features: ['multi-tenant', 'zod-validation', 'mongodb'],
+    description: 'BLR AI Marketplace - listings, reviews, and stats',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'bam-discovery-engine',
+    name: 'BAM Discovery Engine',
+    port: 4256,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['search', 'indexing'],
+    features: ['universal-search', 'keyword-matching'],
+    description: 'Universal search across services, agents, twins, intents',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'bam-roi-calculator',
+    name: 'BAM ROI Calculator',
+    port: 4259,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['roi', 'npv', 'irr', 'payback'],
+    features: ['financial-analysis', 'scenario-comparison'],
+    description: 'ROI, payback period, NPV, IRR for AI investments',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'bam-founder-os',
+    name: 'BAM Founder OS',
+    port: 4260,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['founders', 'kpis', 'playbooks'],
+    features: ['founder-twin', 'kpi-tracking', 'workflow-templates'],
+    description: 'Founder-specific AI twin and workflows',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'bam-multi-agent-evaluator',
+    name: 'BAM Multi-Agent Evaluator',
+    port: 4257,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['evaluations', 'scoring'],
+    features: ['multi-dimension-scoring', 'plan-comparison'],
+    description: 'Score multi-agent plans across dimensions',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'bam-reputation-aggregator',
+    name: 'BAM Reputation Aggregator',
+    port: 4258,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['entities', 'scores', 'leaderboard'],
+    features: ['multi-source-aggregation', 'top-n-ranking'],
+    description: 'Aggregate reputation signals across sources',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'bam-twin-marketplace',
+    name: 'BAM Twin Marketplace',
+    port: 4146,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['listings', 'categories', 'reviews', 'purchase', 'install'],
+    features: ['twin-templates', 'rating-reviews', 'one-click-install'],
+    description: 'Buy/sell pre-built digital twins',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'bam-exploration',
+    name: 'BAM Exploration',
+    port: 4255,
+    type: 'marketplace',
+    category: 'bam',
+    version: '1.0.0',
+    modules: ['journeys', 'sessions'],
+    features: ['curated-exploration', 'guided-search'],
+    description: 'Curated exploration flows on discovery engine',
     health: 'healthy',
     lastSync: new Date().toISOString(),
   });

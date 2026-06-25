@@ -238,7 +238,7 @@ export default function FinanceScreen() {
               <div className="card-title">🎯 Goals</div>
               <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
                 {goals.slice(0, 3).map((g, i) => {
-                  const pct = Math.min(100, Math.round((g.saved / g.target) * 100));
+                  const pct = g.target > 0 ? Math.min(100, Math.round((g.saved / g.target) * 100)) : 0;
                   return (
                     <div key={g.id} style={{ padding: 8, background: 'rgba(255,255,255,0.03)', borderRadius: 8 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
@@ -334,7 +334,7 @@ export default function FinanceScreen() {
             <div className="card-title">🎯 Financial Goals</div>
             {goals.length === 0 && <div className="muted small" style={{ marginTop: 8 }}>No goals yet. Add one below.</div>}
             {goals.map((g, i) => {
-              const pct = Math.min(100, Math.round((g.saved / g.target) * 100));
+              const pct = g.target > 0 ? Math.min(100, Math.round((g.saved / g.target) * 100)) : 0;
               const remaining = g.target - g.saved;
               const daysLeft = Math.max(0, Math.ceil((new Date(g.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
               return (

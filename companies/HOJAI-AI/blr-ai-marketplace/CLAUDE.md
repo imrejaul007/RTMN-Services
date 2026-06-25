@@ -1,17 +1,48 @@
 # BLR AI Marketplace — Unified AI Marketplace
 
 > **Location:** `/Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/blr-ai-marketplace/`
-> **Updated:** 2026-06-21 (marketplace services merged in from `sutar-os/marketplace/`)
-> **Status:** ✅ 7 backend services live (53 smoke tests passing)
+> **Updated:** 2026-06-26 (audit + critical fixes applied)
+> **Status:** ⚠️ **Foundation complete, gaps remain** (see audit report: `.claude/audits/BAM-AUDIT-2026-06-26.md`)
+
+---
+
+## ⚠️ Audit Findings (2026-06-26)
+
+| Metric | Spec Claims | Actual | Gap |
+|--------|-------------|--------|-----|
+| Categories | 35+ | 8 | -27 |
+| Catalog Items | 1,200+ | ~20 seeded | -1,180 |
+| Frontend | Built | Scaffold only | Not built |
+| Payments | Stripe | None | Missing |
+| Hub Integration | Wired | ✅ Fixed | Done |
+| **Overall** | "70% built" | **~12%** | **Critical gaps** |
+
+### Critical Fixes Applied (2026-06-26)
+
+| Fix | Status | Notes |
+|-----|--------|-------|
+| HTTP method mismatch in blr-exploration | ✅ Fixed | GET → POST |
+| Hub routes for BAM services | ✅ Added | 8 routes to rtmn-sync-hub |
+| BAM registered in Hub registry | ✅ Added | 8 services registered |
+
+### Remaining Gaps
+
+| Gap | Priority | Effort |
+|-----|----------|--------|
+| Next.js frontend | 🔴 HIGH | 4-8 weeks |
+| Missing 27+ categories | 🔴 HIGH | 2 weeks |
+| Stripe payment integration | 🔴 HIGH | 2 weeks |
+| AI recommender engine | 🟡 MED | 4 weeks |
+| Business Capability Packs | 🟡 MED | 6 weeks |
 
 ---
 
 ## Overview
 
-**BLR AI Marketplace** is the unified marketplace for the entire RTMN ecosystem — a single destination for AI agents, digital twins, services, and knowledge. It combines:
+**BLR AI Marketplace (BAM)** is the unified marketplace for the entire RTMN ecosystem — a single destination for AI agents, digital twins, services, and knowledge. It combines:
 
-- **A Next.js storefront** (the user-facing web app at the BLR root)
-- **7 backend service APIs** (in `services/`) that power discovery, evaluation, transactions, and reputation
+- **A Next.js storefront** (TODO: scaffold only, needs full build)
+- **8 backend service APIs** (in `services/`) that power discovery, evaluation, transactions, and reputation
 
 Formerly known as `sutar-marketplace`, the marketplace was re-homed to BLR on 2026-06-21 so that **SUTAR OS** can focus on its core mission (autonomous economic infrastructure) without marketplace concerns mixed in.
 
@@ -56,18 +87,19 @@ Formerly known as `sutar-marketplace`, the marketplace was re-homed to BLR on 20
 
 ---
 
-## 🚀 7 Backend Services
+## 🚀 8 Backend Services
 
-| # | Service | Port | Package | LOC | What it does |
-|---|---------|------|---------|-----|--------------|
-| 1 | `discovery-engine` | 4256 | `@hojai/blr-discovery-engine` | 241 | Universal search across services, agents, twins, intents |
-| 2 | `blr-exploration` | 4255 | `@hojai/blr-exploration` | 169 | Curated exploration flows on top of discovery |
-| 3 | `roi-calculator` | 4259 | `@hojai/blr-roi-calculator` | 243 | ROI, payback, NPV, IRR for AI investments |
-| 4 | `blr-founder-os` | 4260 | `@hojai/blr-founder-os` | 191 | Founder-specific AI twin + workflows |
-| 5 | `blr-multi-agent-evaluator` | 4257 | `@hojai/blr-multi-agent-evaluator` | 118 | Score multi-agent plans across dimensions |
-| 6 | `blr-reputation-aggregator` | 4258 | `@hojai/blr-reputation-aggregator` | 126 | Aggregate reputation signals across sources |
-| 7 | `twin-marketplace` | 4146 | `@hojai/blr-twin-marketplace` | 349 | Buy/sell pre-built digital twins |
-| | **TOTAL** | | | **1,437 LOC** | |
+| # | Service | Port | Package | LOC | What it does | Status |
+|---|---------|------|---------|-----|--------------|--------|
+| 1 | `discovery-engine` | 4256 | `@hojai/blr-discovery-engine` | 241 | Universal search across services, agents, twins, intents | ✅ |
+| 2 | `blr-exploration` | 4255 | `@hojai/blr-exploration` | 169 | Curated exploration flows on top of discovery | ✅ Fixed |
+| 3 | `roi-calculator` | 4259 | `@hojai/blr-roi-calculator` | 243 | ROI, payback, NPV, IRR for AI investments | ✅ |
+| 4 | `blr-founder-os` | 4260 | `@hojai/blr-founder-os` | 191 | Founder-specific AI twin + workflows | ✅ |
+| 5 | `blr-multi-agent-evaluator` | 4257 | `@hojai/blr-multi-agent-evaluator` | 118 | Score multi-agent plans across dimensions | ✅ |
+| 6 | `blr-reputation-aggregator` | 4258 | `@hojai/blr-reputation-aggregator` | 126 | Aggregate reputation signals across sources | ✅ |
+| 7 | `twin-marketplace` | 4146 | `@hojai/blr-twin-marketplace` | 349 | Buy/sell pre-built digital twins | ✅ |
+| 8 | `marketplace-listings` | 4255 | `@hojai/blr-marketplace-listings` | 500+ | Full CRUD with MongoDB, Zod, reviews | ✅ Best |
+| | **TOTAL** | | | **2,037 LOC** | | |
 
 ---
 
@@ -169,26 +201,42 @@ npm run dev   # http://localhost:3000
 
 | Caller | What it calls | Why |
 |--------|---------------|-----|
-| `unified-os-hub` (4399) | `/api/marketplace/*` | Central API gateway |
-| `platform/infra/api-gateway` | `/api/marketplace` → port 4256 | HOJAI gateway |
-| Next.js storefront | direct REST calls to ports 4255-4260, 4146 | UI |
+| `rtmn-sync-hub` (4399) | `/api/bam/*` or `/api/marketplace/*` | Central API gateway ✅ Added 2026-06-26 |
+| Next.js storefront | direct REST calls to ports 4255-4260, 4146 | UI (TODO) |
 | RTMN industry OS | `/api/discovery` via Hub | Find relevant services |
 
 ### Outbound (what the marketplace calls)
 
 | Marketplace service | Calls | Purpose |
 |---------------------|-------|---------|
-| `discovery-engine` | SUTAR Intent Bus (4154), SUTAR Usage Tracker (4252), SUTAR Simulation (4241) | Cross-reference SUTAR signals |
+| `discovery-engine` | SUTAR Intent Bus (4154), SUTAR Usage Tracker (4252), SUTAR Simulation (4241) | Cross-reference SUTAR signals (TODO) |
 | All services | `corpid-service` (4702), `memory-os` (4703) | Identity + memory |
+
+### Hub Routes (Added 2026-06-26)
+
+```
+RTMN Sync Hub (4399) → BAM Services
+├── /api/bam/marketplace-listings → :4255
+├── /api/bam/discovery-engine → :4256
+├── /api/bam/roi-calculator → :4259
+├── /api/bam/founder-os → :4260
+├── /api/bam/multi-agent-evaluator → :4257
+├── /api/bam/reputation-aggregator → :4258
+├── /api/bam/twin-marketplace → :4146
+└── /api/bam/exploration → :4255
+```
 
 ---
 
 ## ⚠️ Known Limitations (Honest)
 
 - **Storefront has package.json but no `app/` or `components/` yet** — Next.js UI is scaffold-only
-- **Backend services are ~150-350 LOC each** — basic CRUD, no real ML recommendation yet
+- **Backend services are ~150-500 LOC each** — basic CRUD, no real ML recommendation yet
 - **No payment integration** — Stripe is in storefront `package.json` but no checkout endpoint exists yet
 - **No persistence layer** — most services are in-memory; would need MongoDB to survive restart
+- **Only 8 of 35+ categories** — missing AI Employees, Department OS, Industry Packs, Business Capability Packs
+- **No AI recommender** — basic keyword search only
+- **No revenue tracking** — 70-80% developer revenue share not implemented
 
 ---
 

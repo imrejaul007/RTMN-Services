@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@rtmn/shared": "file:../../../shared",
-    "@rtmn/security-shared": "file:../../../../shared/security-shared",
+    "@rtmn/security-shared": "file:../../../../../shared/security-shared",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
     "cors": "^2.8.5",

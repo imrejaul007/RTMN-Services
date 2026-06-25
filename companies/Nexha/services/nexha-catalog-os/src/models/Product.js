@@ -217,25 +217,39 @@ export class Product {
   }
 }
 
-// ── In-memory store ────────────────────────────────────────────────────────
+// ── In-memory store (singleton — shared across all ESM import instances) ────────
+//
+// In Node.js ESM, every `import` of a module creates a new module instance.
+// A plain `const store = new Map()` declared at module scope therefore gets
+// a *different* Map per import graph.
+//
+// We work around this by storing the singleton on `globalThis`, which is
+// shared across all module instances in the same process.  This ensures that
+// the test file, service file, and HTTP route file all share ONE Map.
+//
 
-const store = new Map();
+const GLOBAL_KEY = Symbol.for('nexha-catalog.product-store');
 
-export function getStore() { return store; }
+export function getStore() {
+  if (!globalThis[GLOBAL_KEY]) {
+    globalThis[GLOBAL_KEY] = new Map();
+  }
+  return globalThis[GLOBAL_KEY];
+}
 
-export function clearStore() { store.clear(); }
+export function clearStore() { getStore().clear(); }
 
 export function saveProduct(product) {
-  store.set(product.productId, product);
+  getStore().set(product.productId, product);
   return product;
 }
 
 export function getProduct(id) {
-  return store.get(id) || null;
+  return getStore().get(id) || null;
 }
 
 export function listProducts(tenantId, filters = {}) {
-  let products = Array.from(store.values()).filter(p => p.tenantId === tenantId);
+  let products = Array.from(getStore().values()).filter(p => p.tenantId === tenantId);
   if (filters.category) products = products.filter(p => p.category === filters.category);
   if (filters.status) products = products.filter(p => p.status === filters.status);
   if (filters.channel) {
@@ -253,9 +267,9 @@ export function listProducts(tenantId, filters = {}) {
 }
 
 export function deleteProduct(id, tenantId) {
-  const product = store.get(id);
+  const product = getStore().get(id);
   if (!product) return false;
   if (product.tenantId !== tenantId) return false;
-  store.delete(id);
+  getStore().delete(id);
   return true;
 }
