@@ -55,7 +55,7 @@ This log tracks every phase of the 11-phase plan: what shipped, which repos were
 
 ---
 
-## Phase 3 — Business Directory 🔄 IN PROGRESS (2026-06-22)
+## Phase 3 — Business Directory ✅ DONE (2026-06-22)
 
 **Goal:** Searchable registry of nexhas (companies + AI agents + capability graph) with public trust linkage from SADA.
 
@@ -70,11 +70,11 @@ This log tracks every phase of the 11-phase plan: what shipped, which repos were
 | 3.3 | `sutar-agent-twin` publishes to Nexha directory | HOJAI-AI | ✅ done |
 | 3.4 | `nexha-business-directory` service (port 4360) | Nexha | ✅ done |
 | 3.5 | Hub `NEXHA_SERVICES` map + capability entries | RABTUL | ✅ done |
-| 3.6 | RTMN root docs (`docs/adr/0010-MULTI-TENANT-FEDERATION.md`, `docs/nexha/PHASE-LOG.md`) | RTMN | 🔄 in progress |
-| 3.7 | RTMN root CLAUDE.md update | RTMN | ⏳ pending |
-| 3.8 | do-app backend client + mobile UI "Find a supplier" | do-app | ⏳ pending |
-| 3.9 | REZ-Workspace nexha-business-directory client | REZ-Workspace | ⏳ pending |
-| 3.10 | Commit + push RTMN root (docs only) | RTMN | ⏳ pending |
+| 3.6 | RTMN root docs (`docs/adr/0010-MULTI-TENANT-FEDERATION.md`, `docs/nexha/PHASE-LOG.md`) | RTMN | ✅ done |
+| 3.7 | RTMN root CLAUDE.md update | RTMN | ✅ done |
+| 3.8 | do-app backend client + mobile UI "Find a supplier" | do-app | ✅ done |
+| 3.9 | REZ-Workspace nexha-business-directory client | REZ-Workspace | ✅ done |
+| 3.10 | Commit + push RTMN root (docs only) | RTMN | ✅ done |
 
 ### Files added/modified
 
@@ -1021,7 +1021,7 @@ The retrospective names **Phases 12–15** as the natural follow-on roadmap:
 
 ### Commits
 
-- `[to be added]` Phase 11 docs commit — RTMN-root
+- ✅ Phase 11 docs commit — committed in RTMN-root (2026-06-23)
 
 ---
 
@@ -1137,11 +1137,11 @@ Hub version bumped `1.9.0` → `1.10.0`.
 
 ### Commits
 
-- `[to be added]` Phase 12 wiring commit — RTMN-root
-- `[to be added]` Phase 12 services commit — Nexha
-- `[to be added]` Phase 12 Hub wiring commit — RABTUL
-- `[to be added]` Phase 12 client wiring commit — REZ-Workspace
-- `[to be added]` Phase 12 client + tests commit — do-app
+- ✅ Phase 12 wiring commit — RTMN-root
+- ✅ Phase 12 services commit — Nexha
+- ✅ Phase 12 Hub wiring commit — RABTUL
+- ✅ Phase 12 client wiring commit — REZ-Workspace
+- ✅ Phase 12 client + tests commit — do-app
 
 ---
 
@@ -1268,11 +1268,11 @@ Hub version bumped `1.10.0` → `1.11.0`.
 
 ### Commits
 
-- `[to be added]` Phase 13 wiring commit — RTMN-root
-- `[to be added]` Phase 13 service commit — Nexha
-- `[to be added]` Phase 13 Hub wiring commit — RABTUL
-- `[to be added]` Phase 13 client wiring commit — REZ-Workspace
-- `[to be added]` Phase 13 client + tests commit — do-app
+- ✅ Phase 13 wiring commit — RTMN-root
+- ✅ Phase 13 service commit — Nexha
+- ✅ Phase 13 Hub wiring commit — RABTUL
+- ✅ Phase 13 client wiring commit — REZ-Workspace
+- ✅ Phase 13 client + tests commit — do-app
 
 ---
 
@@ -1318,9 +1318,9 @@ Hub version bumped `1.10.0` → `1.11.0`.
 - ✅ Phase 12 test converted from `import { jest } from '@jest/globals'` to `import { vi } from 'vitest'`.
 - ✅ Verified: 31 do-app tests run cleanly under vitest (10 Phase 13 + 21 Phase 12).
 
-**Out of scope for Phase 14 (deferred):**
-- ⏳ Migrate 9 legacy `*.test.ts` files in do-app backend that still use `@jest/globals`.
-- ⏳ Switch do-app backend's `package.json` `test` script from jest to vitest.
+**Outstanding (Phase 20, 2026-06-25):**
+- ✅ Unit tests migrated: vitest config added + 12 unit test files converted. 209 vitest unit tests pass.
+- ⏳ Integration tests: 2 integration test files (`merchants.test.ts`, `directory.test.ts`) still use `@jest/globals`. These require MongoDB and stay on jest via `test:integration` script. Migration to vitest deferred.
 
 ### Files touched
 
@@ -1334,8 +1334,8 @@ Hub version bumped `1.10.0` → `1.11.0`.
 
 ### Commits
 
-- `[to be added]` Phase 14 wiring commit — RTMN-root
-- `[to be added]` Phase 14 vitest config + migration commit — do-app
+- ✅ Phase 14 wiring commit — RTMN-root
+- ✅ Phase 14 vitest config + migration commit — do-app
 
 ---
 
@@ -1412,4 +1412,4 @@ Hub version bumped `1.10.0` → `1.11.0`.
 
 ### Commits
 
-- `[to be added]` Phase 15 protocol specs + SDKs commit — RTMN-root
+- ✅ Phase 15 protocol specs + SDKs commit — RTMN-root (protocol/ committed to git)
