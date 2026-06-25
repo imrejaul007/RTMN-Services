@@ -1,0 +1,18 @@
+{
+  "name": "@rtmn/community-os",
+  "version": "1.0.0",
+  "description": "Community OS - Forums, Groups, Events, and Developer Ecosystem",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}
