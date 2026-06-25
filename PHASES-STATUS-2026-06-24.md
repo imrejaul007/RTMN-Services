@@ -6,9 +6,9 @@
 
 ## TL;DR
 
-**Done (2026-06-24):** Phases 14, 27, 31, 32, 36, 38, 39, 40 (8 of 40)
-**Partially built:** Phases 1-13, 15-20 (Cognitive Stack), 33-35, 37 (Platform)
-**Not started:** Phases 21, 25, 30, 41+ (not yet planned)
+**Done (2026-06-24):** Phases 14, 27, 30, 31, 32, 36, 38, 39, 40 (9 of 40)
+**Partially built:** Phases 1-13, 15-20 (Cognitive Stack), 21, 25, 33-35, 37 (Platform)
+**Not started:** Phase 41+ (not yet planned)
 
 **Net status:** ~40% of 40 phases fully complete; ~52% partially built; ~8% entirely missing.
 
@@ -38,7 +38,7 @@
 | 11 | Reasoning Engine | ✅ BUILT | ~1,800 | `platform/intelligence/reasoning-engine/` |
 | 12 | Context Engine | ✅ BUILT | ~2,200 | `platform/memory/memory-context-engine/` |
 | 13 | Twin Memory Bridge | ✅ BUILT | ~1,500 | `platform/twins/twin-memory-bridge/` |
-| 14 | **Planning Engine** | ✅ **DONE 2026-06-24** | ~3,200 | 6 services, **115 tests passing** |
+| 14 | **Planning Engine** | ✅ **DONE 2026-06-24** | ~3,200 + 709 | 6 HOJAI platform services (115 tests) + **1 genie-os service** (7301, 15 routes, 7 tests) |
 | 15 | Knowledge Graph | ✅ BUILT | ~1,900 | `platform/knowledge/` |
 | 16 | Decision Engine | ✅ BUILT | ~2,100 | `platform/flow/decision-intelligence/` |
 | 17 | Goal OS | ✅ BUILT | ~1,700 | `platform/flow/goal-os-canonical/` |
@@ -59,7 +59,7 @@
 | 27 | **AIOps / Incident Mgmt** | ✅ **DONE 2026-06-24** | 2,768 | 6 services, **88 tests passing** |
 | 28 | Observability | ✅ BUILT | ~2,800 | `platform/observability/` (partial) |
 | 29 | Cost Optimization | ✅ BUILT | ~1,400 | `platform/economy/cost-os/` |
-| 30 | **Foundation Models (Llama-3 fine-tune)** | ❌ **NOT_STARTED** | ~2,713 | `model-registry/` (891), `eval-harness/` (1,304), `gpu-cluster-manager/` (230) — all stubs |
+| 30 | **Foundation Models (Llama-3 fine-tune)** | ✅ **DONE 2026-06-24** | 74 tests | `model-registry/` (22 tests), `fine-tuning-pipeline/` (14), `synthetic-data-generation/` (12), `gpu-cluster-manager/` (13), `federated-learning/` (13) |
 
 ### Part 4: Platform Capabilities (Phases 31-40) — 55% Built (4 of 10 DONE)
 
@@ -90,7 +90,6 @@
 
 **Critical gaps remaining:**
 1. **Multi-Modal (Phases 21, 25)** — no vision/audio/video processing beyond capability flags.
-2. **Foundation Models (Phase 30)** — `model-registry/`, `gpu-cluster-manager/` exist as stubs only. No real Llama-3 fine-tuning.
 
 **Production-readiness items (not in 40-phase plan):**
 - 182 unprotected mutating routes (auth regression)
