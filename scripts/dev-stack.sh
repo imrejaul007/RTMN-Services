@@ -258,6 +258,15 @@ status() {
     "Background Agents:4792" \
     "MissionOS:4295" \
     "ExecutionOS:4296" \
+    "CorpID:4702" \
+    "MemoryOS:4703" \
+    "Memory Confidence:4152" \
+    "Memory Context Engine:4793" \
+    "Twin Memory Bridge:4704" \
+    "TwinOS Hub:4705" \
+    "Sutar Trust Engine:4291" \
+    "Contract OS:4292" \
+    "Negotiation Engine:4293" \
     "nexha-supplier-network:4280" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
@@ -277,6 +286,9 @@ status() {
     "nexha-discovery-os:4272" \
     "nexha-opportunity-os:4274" \
     "nexha-market-os:4275" \
+    "nexha-federation-os:4273" \
+    "nexha-global-directory:4276" \
+    "nexha-partner-network:4297" \
     "agent-platform-api:4802" \
     "agent-registry:4803" \
     "agent-capability-store:4804" \
@@ -304,11 +316,20 @@ status() {
 start_all() {
   echo "Starting RTMN dev stack..."
   check_redis
-  # SUTAR OS (HOJAI AI)
+  # SUTAR OS (HOJAI AI) — core economic layer
   start_service "sada-os"                  "$SADA_OS_CMD"             4190
   start_service "trust-engine"             "$TRUST_ENGINE_CMD"        4291
+  start_service "contract-os"             "$CONTRACT_OS_CMD"          4292
+  start_service "negotiation-engine"     "$NEGOTIATION_ENGINE_CMD"   4293
   start_service "decision-engine"          "$DECISION_ENGINE_CMD"     4290
   start_service "economy-os"               "$ECONOMY_OS_CMD"          4294
+  # HOJAI AI — Core Foundation (CorpID, MemoryOS, TwinOS)
+  start_service "corp-id"                 "$CORP_ID_CMD"             4702
+  start_service "memory-os"               "$MEMORY_OS_CMD"           4703
+  start_service "memory-confidence"       "$MEMORY_CONFIDENCE_CMD"   4152
+  start_service "memory-context-engine"   "$MEMORY_CONTEXT_ENGINE_CMD" 4793
+  start_service "twin-memory-bridge"      "$TWIN_MEMORY_BRIDGE_CMD"  4704
+  start_service "twinos-hub"              "$TWINOS_HUB_CMD"          4705
   # HOJAI AI — Foundation (Phase F.1)
   start_service "policy-os"                "$POLICY_OS_CMD"           4254
   start_service "skill-os"                 "$SKILL_OS_CMD"            4743
@@ -380,6 +401,10 @@ start_all() {
   start_service "nexha-discovery-os"        "$NEXHA_DISCOVERY_OS_CMD"        4272
   start_service "nexha-opportunity-os"      "$NEXHA_OPPORTUNITY_OS_CMD"      4274
   start_service "nexha-market-os"           "$NEXHA_MARKET_OS_CMD"           4275
+  start_service "nexha-federation-os"       "$NEXHA_FEDERATION_OS_CMD"       4273
+  start_service "nexha-global-directory"    "$NEXHA_GLOBAL_DIRECTORY_CMD"    4276
+  # Nexha Phase F.3 audit (2026-06-25) — partner network + autonomous logistics
+  start_service "nexha-partner-network"     "$NEXHA_PARTNER_NETWORK_CMD"     4297
   # AgentOS — 12 services (Phase F audit, 2026-06-25)
   start_service "agent-platform-api"       "$AGENT_PLATFORM_CMD"           4802
   start_service "agent-registry"          "$AGENT_REGISTRY_CMD"           4803
@@ -416,8 +441,16 @@ stop_all() {
   stop_port 4399 "Hub"
   stop_port 4190 "SADA Trust"
   stop_port 4291 "Trust Engine"
+  stop_port 4292 "Contract OS"
+  stop_port 4293 "Negotiation Engine"
   stop_port 4290 "Decision Engine"
   stop_port 4294 "Economy OS"
+  stop_port 4702 "CorpID"
+  stop_port 4703 "MemoryOS"
+  stop_port 4152 "Memory Confidence"
+  stop_port 4793 "Memory Context Engine"
+  stop_port 4704 "Twin Memory Bridge"
+  stop_port 4705 "TwinOS Hub"
   stop_port 4254 "PolicyOS"
   stop_port 4743 "SkillOS"
   stop_port 4244 "Flow Orchestrator"
@@ -451,6 +484,9 @@ stop_all() {
   stop_port 4271 "nexha-reputation-os"
   stop_port 4272 "nexha-discovery-os"
   stop_port 4274 "nexha-opportunity-os"
+  stop_port 4273 "nexha-federation-os"
+  stop_port 4276 "nexha-global-directory"
+  stop_port 4297 "nexha-partner-network"
   stop_port 4275 "nexha-market-os"
   # AgentOS — 12 services
   stop_port 4802 "agent-platform-api"

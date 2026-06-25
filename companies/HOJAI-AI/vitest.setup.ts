@@ -4,6 +4,7 @@
 // Set auth env vars to disable authentication in tests
 // Pattern: const NAME_REQUIRE_AUTH = (process.env.NAME_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
 const authEnvVars = [
+  'AGENTOS_REQUIRE_AUTH',
   'AGENT_BUILDER_REQUIRE_AUTH',
   'AI_REGISTRY_REQUIRE_AUTH',
   'BACKGROUND_AGENTS_REQUIRE_AUTH',
