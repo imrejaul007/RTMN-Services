@@ -192,15 +192,18 @@ class AIInspectorAPI {
     avgCost: number;
     tokenUsage: { prompt: number; completion: number };
   }> {
+    const requests = Math.floor(Math.random() * 500) + 100;
+    const errors = Math.floor(Math.random() * Math.min(20, requests * 0.1));
+    const success = requests - errors;
     return {
-      requests: Math.floor(Math.random() * 1000),
-      success: Math.floor(Math.random() * 900),
-      errors: Math.floor(Math.random() * 50),
-      avgLatency: Math.floor(Math.random() * 2000),
-      avgCost: Math.random() * 2,
+      requests,
+      success,
+      errors,
+      avgLatency: Math.floor(Math.random() * 2000) + 100,
+      avgCost: Math.random() * 0.5,
       tokenUsage: {
-        prompt: Math.floor(Math.random() * 100000),
-        completion: Math.floor(Math.random() * 50000)
+        prompt: Math.floor(Math.random() * 50000) + 10000,
+        completion: Math.floor(Math.random() * 25000) + 5000
       }
     };
   }
