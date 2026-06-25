@@ -41,10 +41,15 @@ async function start(port, dataDir, token = 'tok') {
   return new Promise((resolve, reject) => {
     const prev = setEnv({ PORT: String(port), DATA_DIR: dataDir, INTERNAL_TOKEN: token, POLL_INTERVAL_MS: '999999' });
     delete require.cache[require.resolve('../src/index.js')];
-    const { createApp } = require('../src/index.js');
-    const app = createApp();
-    const server = app.listen(port, () => resolve({ server, prev }));
-    server.once('error', e => { restoreEnv(prev); reject(e); });
+    try {
+      const { createApp } = require('../src/index.js');
+      const app = createApp();
+      const server = app.listen(port, () => resolve({ server, prev }));
+      server.once('error', e => { restoreEnv(prev); reject(e); });
+    } catch (err) {
+      restoreEnv(prev);
+      reject(err);
+    }
   });
 }
 
