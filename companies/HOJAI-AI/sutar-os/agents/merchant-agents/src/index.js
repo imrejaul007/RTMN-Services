@@ -1,5 +1,5 @@
-import cors from 'cors';
-import helmet from 'helmet';
+const cors = require('cors');
+const helmet = require('helmet');
 /**
  * SUTAR OS - Merchant AI Agents
  *
@@ -31,6 +31,8 @@ const { v4: uuidv4 } = require('uuid');
 
 // REZ Intelligence client (wires merchant-agents to real-time business intelligence)
 const rezIntel = require('./rez-intel-client');
+const whatsapp = require('./whatsapp-client');
+const voice = require('./voice-client');
 
 const app = express();
 
@@ -516,12 +518,24 @@ app.get('/info', async (req, res) => {
       'personalized_recommendations',
       'revenue_prediction',
       'customer_lifetime_value',
-      'next_best_action'
+      'next_best_action',
+      'whatsapp_channel',
+      'voice_channel'
     ],
     rezIntel: {
       enabled: rezIntel.REZ_INTEL_ENABLED,
       url: rezIntel.REZ_INTEL_URL,
       status: rezIntelStatus
+    },
+    whatsapp: {
+      enabled: whatsapp.WHATSAPP_ENABLED,
+      url: whatsapp.WHATSAPP_OS_URL,
+      status: 'wired'
+    },
+    voice: {
+      enabled: voice.VOICE_ENABLED,
+      url: voice.VOICE_OS_URL,
+      status: 'wired'
     }
   });
 });
@@ -1137,6 +1151,19 @@ app.get('/api/merchants', (req, res) => {
   });
 });
 
+// ── WhatsApp + Voice channel integration ──────────────────────────────────────
+// GET  /api/channels/whatsapp        — WhatsApp channel status
+// POST /api/channels/whatsapp/send   — send template message
+// GET  /api/channels/whatsapp/templates — list WhatsApp templates
+app.get('/api/channels/whatsapp', async (_req, res) => { res.json({ enabled: whatsapp.WHATSAPP_ENABLED, url: whatsapp.WHATSAPP_OS_URL, timeout: whatsapp.WHATSAPP_TIMEOUT, provider: process.env.WHATSAPP_PROVIDER || 'mock' }); });
+app.post('/api/channels/whatsapp/send', requireAuth, async (req, res) => { const { to, template, variables, agentId, businessId } = req.body || {}; if (!to || !template) return res.status(400).json({ error: 'to and template are required' }); const result = await whatsapp.sendTemplateMessage({ to, template, variables, agentId, businessId }); if (!result.success) return res.status(502).json(result); res.json(result); });
+app.get('/api/channels/whatsapp/templates', async (_req, res) => { try { const r = await fetch(`${whatsapp.WHATSAPP_OS_URL}/api/templates`); if (!r.ok) return res.status(502).json({ error: 'whatsapp-os unavailable' }); res.json(await r.json()); } catch (e) { res.status(502).json({ error: e.message }); } });
+// GET  /api/channels/voice          — Voice channel status
+// POST /api/channels/voice/tts     — synthesize speech
+// POST /api/channels/voice/call    — send voice alert
+app.get('/api/channels/voice', async (_req, res) => { res.json({ enabled: voice.VOICE_ENABLED, url: voice.VOICE_OS_URL, timeout: voice.VOICE_TIMEOUT }); });
+app.post('/api/channels/voice/tts', requireAuth, async (req, res) => { const { text, lang, voice: v, agentId } = req.body || {}; if (!text) return res.status(400).json({ error: 'text is required' }); const result = await voice.synthesize({ text, lang, voice: v, agentId }); if (!result.success) return res.status(502).json(result); res.json(result); });
+app.post('/api/channels/voice/call', requireAuth, async (req, res) => { const { to, message, agentId, businessId } = req.body || {}; if (!to || !message) return res.status(400).json({ error: 'to and message are required' }); const result = await voice.sendVoiceAlert({ to, message, agentId, businessId }); if (!result.success) return res.status(502).json(result); res.json(result); });
 // Start server
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
