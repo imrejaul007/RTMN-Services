@@ -27,8 +27,8 @@ test('computeDiff returns valid diff result for identical blueprints', () => {
 });
 
 test('computeDiff detects added fields', () => {
-  const oldBp = { config: { name: 'test' } };
-  const newBp = { config: { name: 'test', type: 'b2b' } };
+  const oldBp = { config: { name: 'test', type: 'b2b' } };
+  const newBp = { config: { name: 'test', type: 'b2b' }, extra: { field: 'value' } };
 
   const diff = computeDiff(oldBp, newBp);
 

@@ -7,26 +7,31 @@
  */
 
 const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-const app = express();
-requireEnv(['PORT'], { allowDev: true });
-const PORT = process.env.PORT || 4786;
+const PORT = parseInt(process.env.PORT || '4786', 10);
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'intent-engine-internal-token';
 const SERVICE_NAME = 'intent-engine';
+const VERSION = '1.0.0';
 
 const INTENT_ENGINE_REQUIRE_AUTH =
   (process.env.INTENT_ENGINE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
 const INTENT_ENGINE_NO_LISTEN =
   (process.env.INTENT_ENGINE_NO_LISTEN ?? '').toLowerCase() === 'true' ||
   process.env.NODE_ENV === 'test';
+
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN)
+    return res.status(401).json({ error: 'unauthorized' });
+  next();
+}
+
 const authOrBypass = (req, res, next) =>
-  INTENT_ENGINE_REQUIRE_AUTH ? requireAuth(req, res, next) : next();
+  INTENT_ENGINE_REQUIRE_AUTH ? requireInternal(req, res, next) : next();
+
+const app = express();
 
 app.use(helmet());
 app.use(cors());
@@ -53,7 +58,6 @@ const INTENT_CATALOG = Object.freeze({
 
 function detectIntent(text) {
   const lower = text.toLowerCase();
-  // Build word-boundary regex for each keyword
   const matches = [];
   for (const [name, def] of Object.entries(INTENT_CATALOG)) {
     for (const kw of def.keywords) {
@@ -86,7 +90,7 @@ app.post('/api/intent', authOrBypass, (req, res) => {
   const { text, actor } = req.body || {};
   if (!text || typeof text !== 'string') return res.status(400).json({ error: 'text (string) is required' });
   const result = detectIntent(text);
-  audit('intent.detect', actor || req.body?.actor || 'system', { text: text.slice(0, 80), intent: result.intent });
+  audit('intent.detect', actor || 'system', { text: text.slice(0, 80), intent: result.intent });
   res.json({ text, ...result });
 });
 
@@ -119,17 +123,19 @@ app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 app.use((err, req, res, next) => { console.error('[intent-engine] error:', err); res.status(500).json({ error: 'Internal server error', message: err.message }); });
 
-let server = null;
 if (require.main === module && !INTENT_ENGINE_NO_LISTEN) {
-  server = app.listen(PORT, () => console.log(`intent-engine running on port ${PORT}`));
-  installGracefulShutdown(server);
+  const server = app.listen(PORT, () => console.log(`intent-engine running on port ${PORT}`));
+  process.on('SIGTERM', () => { console.log('[intent-engine] SIGTERM'); server.close(() => process.exit(0)); });
+  process.on('SIGINT',  () => { console.log('[intent-engine] SIGINT');  server.close(() => process.exit(0)); });
 }
 
 module.exports = app;
 module.exports.app = app;
+module.exports.PORT = PORT;
+module.exports.SERVICE_NAME = SERVICE_NAME;
+module.exports.VERSION = VERSION;
 module.exports.authOrBypass = authOrBypass;
 module.exports.INTENT_ENGINE_REQUIRE_AUTH = INTENT_ENGINE_REQUIRE_AUTH;
 module.exports.INTENT_ENGINE_NO_LISTEN = INTENT_ENGINE_NO_LISTEN;
-module.exports.SERVICE_NAME = SERVICE_NAME;
 module.exports.INTENT_CATALOG = INTENT_CATALOG;
 module.exports.detectIntent = detectIntent;

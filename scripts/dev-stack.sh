@@ -154,9 +154,6 @@ BLR_ROI_CALCULATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/serv
 BLR_FOUNDER_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-founder-os && PORT=4260 REDIS_URL=redis://localhost:6379 npm start"
 TWIN_MARKETPLACE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/twin-marketplace && PORT=4146 npm start"
 
-# Nexha Supplier Registry (Phase F, 2026-06-24) — complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment
-NEXHA_SUPPLIER_REGISTRY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-supplier-registry && PORT=4281 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_supplier_registry_dev npm start"
-
 # SUTAR Platform/Flow — Simulation, Goal, Flow Orchestrator (Layer 13)
 SIMULATION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/simulation-os && PORT=4241 REDIS_URL=redis://localhost:6379 npm start"
 GOAL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/goal-os && PORT=4242 REDIS_URL=redis://localhost:6379 npm start"
@@ -178,6 +175,9 @@ NEXHA_PRICING_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-pricing-network 
 : "${INTERNAL_TOKEN:=nexha-internal-dev-token}"
 export JWT_SECRET
 export INTERNAL_TOKEN
+
+# Nexha Supplier Registry (Phase F, 2026-06-24) — complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment
+NEXHA_SUPPLIER_REGISTRY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-supplier-registry && PORT=4281 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_supplier_registry_dev npm start"
 
 NEXHA_GATEWAY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-gateway && PORT=5002 npx tsx src/index.ts"
 NEXHA_ACP_MESSAGING_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-acp-messaging && PORT=4340 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN INTERNAL_SERVICE_TOKEN=$INTERNAL_TOKEN REDIS_URL=redis://localhost:6379 MONGODB_URI=mongodb://127.0.0.1:27017/nexha_acp_dev npm start"

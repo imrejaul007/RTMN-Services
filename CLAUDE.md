@@ -513,6 +513,25 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **nexha-warehouse-network** | 4288 | ✅ | Warehouse slot booking + WMS |
 | **nexha-acp-messaging** | 4340 | ✅ | ACP protocol messaging for agent-to-agent communication |
 
+### HOJAI Cloud Phase 1 (2026-06-25) — 6 New Services
+
+HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platform.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **hojai-cloud** | 4380 | Deploy target with auto-respawn, SSL, custom domains, previews, rollbacks |
+| **app-store-api** | 4400 | App Store — Skills, agents, workflows, templates catalog |
+| **cost-tracker** | 4410 | AI usage metering and billing |
+| **secrets-manager** | 4420 | Encrypted credential storage (AES-256-GCM) |
+| **voice-studio-api** | 4430 | Voice agent management (STT/TTS) |
+| **workflow-builder-api** | 4440 | DAG workflow management (10 node types) |
+
+**Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
+
+**RTMN Hub:** All services wired at `/api/app-store/*`, `/api/cost/*`, `/api/secrets/*`, `/api/voice/*`, `/api/workflows/*`
+
+**Source:** `companies/HOJAI-AI/services/` and `companies/HOJAI-AI/products/`
+
 ### AgentOS (12 services) - ✅ RUNNING
 
 **AgentOS** is HOJAI's autonomous agent lifecycle management platform. All 12 services run with 637 tests passing.
@@ -851,7 +870,7 @@ RTMN/
 
 | Metric | Count |
 |--------|-------|
-| Total Services Connected | 70+ |
+| Total Services Connected | 80+ |
 | Core Business OS | 3 |
 | Industry OS | 26 |
 | Foundation | 3 |
