@@ -1,0 +1,24 @@
+{
+  "name": "@hojai/hojai-goalos",
+  "version": "1.0.0",
+  "description": "GoalOS SDK - Persistent objectives and goal tracking for AI agents",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test src/**/*.test.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "tsx": "^4.22.4"
+  }
+}
