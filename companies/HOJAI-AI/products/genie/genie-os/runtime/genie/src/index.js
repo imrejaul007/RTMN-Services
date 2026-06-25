@@ -88,6 +88,7 @@ const USE_SKILLS_MARKETPLACE = process.env.USE_SKILLS_MARKETPLACE !== 'false';
 // Voice OS — Enterprise TTS/STT/NLU/telecom platform
 const VOICE_OS_URL = process.env.VOICE_OS_URL || 'http://localhost:4850';
 const VOICE_COMMERCE_URL = process.env.VOICE_COMMERCE_URL || 'http://localhost:4880';
+const VOICE_GATEWAY_URL = process.env.VOICE_GATEWAY_URL || 'http://localhost:4880';
 const VOICE_AI_SERVICE_URL = process.env.VOICE_AI_SERVICE_URL || 'http://localhost:4590';
 // Voice Twin (TwinOS sibling) — voice profiles
 const VOICE_TWIN_URL = process.env.VOICE_TWIN_URL || 'http://localhost:4876';
@@ -120,12 +121,22 @@ const SessionSchema = new mongoose.Schema({
   token: { type: String, index: true },
   expiresAt: Date,
 }, { timestamps: true });
+// TTL index: automatically delete expired sessions
+SessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 const Session = mongoose.model('Session', SessionSchema);
 
 const ConversationSchema = new mongoose.Schema({
   userId: mongoose.Types.ObjectId,
   messages: [{ role: String, content: String, timestamp: Date, metadata: mongoose.Schema.Types.Mixed }],
 }, { timestamps: true });
+// Index for fast lookup by user
+ConversationSchema.index({ userId: 1 });
+// Enforce 50-message cap at write time — prevents 16MB document limit
+ConversationSchema.pre('save', function () {
+  if (this.messages.length > 50) {
+    this.messages = this.messages.slice(-50);
+  }
+});
 const Conversation = mongoose.model('Conversation', ConversationSchema);
 
 const signupSchema = z.object({ email: z.string().email(), password: z.string().min(8), name: z.string().min(1).max(100) });

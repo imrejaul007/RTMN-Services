@@ -121,10 +121,14 @@ async function main() {
     const err = fs.openSync(logFile, 'a');
     const env = {
       ...process.env,
-      INTERNAL_SERVICE_TOKEN: process.env.INTERNAL_SERVICE_TOKEN || 'hojai-internal-service-token-change-me',
-      JWT_SECRET: process.env.JWT_SECRET || 'hojai-development-secret-min-32-chars-please-change-in-production-xyz',
+      INTERNAL_SERVICE_TOKEN: process.env.INTERNAL_SERVICE_TOKEN,
+      JWT_SECRET: process.env.JWT_SECRET,
       MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/hojai',
     };
+    if (!env.INTERNAL_SERVICE_TOKEN || !env.JWT_SECRET) {
+      console.error(`  ❌ ${name}: INTERNAL_SERVICE_TOKEN and JWT_SECRET must be set in .env`);
+      process.exit(1);
+    }
     const c = spawn('node', ['src/index.js'], {
       cwd: svcPath, env, stdio: ['ignore', out, err], detached: true,
     });

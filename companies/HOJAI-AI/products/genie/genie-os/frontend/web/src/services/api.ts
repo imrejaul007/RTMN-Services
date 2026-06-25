@@ -78,7 +78,14 @@ export function clearToken(): void {
 
 export function getUser(): any | null {
   const s = localStorage.getItem(USER_KEY);
-  return s ? JSON.parse(s) : null;
+  if (!s) return null;
+  try {
+    return JSON.parse(s);
+  } catch {
+    // Corrupted storage — clear it and return null
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
 }
 
 // Public auth endpoints (no token required)
