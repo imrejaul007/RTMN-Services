@@ -139,7 +139,8 @@ export function renewContract(supplierId: string): SupplierContract | null {
   // Version up
   r.contract.version++;
   r.contract.status = 'active';
-  r.contract.signedAt = new Date().toISOString();
+  // Preserve original signing date — only set signedAt on first signature
+  if (!r.contract.signedAt) r.contract.signedAt = new Date().toISOString();
   r.contract.expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
   r.contract.updatedAt = new Date().toISOString();
   r.updatedAt = new Date().toISOString();

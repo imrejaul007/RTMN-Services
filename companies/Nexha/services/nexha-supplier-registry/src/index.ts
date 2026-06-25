@@ -29,10 +29,15 @@ const apiResponse = <T>(success: boolean, data?: T, error?: string) =>
 const asyncRoute = (h: (req: express.Request, res: express.Response) => Promise<unknown>) =>
   async (req: express.Request, res: express.Response) => {
     try { await h(req, res); }
-    catch (e) {
+    catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error('[supplier-registry]', msg);
-      if (!res.headersSent) res.status(400).json(apiResponse(false, undefined, msg));
+      if (res.headersSent) return;
+      if (e instanceof SyntaxError)      { res.status(400).json(apiResponse(false, undefined, `Invalid JSON: ${msg}`)); return; }
+      if (msg.includes('not found') || msg.includes('Not found')) { res.status(404).json(apiResponse(false, undefined, msg)); return; }
+      if (msg.includes('timeout') || msg.includes('Timeout'))    { res.status(504).json(apiResponse(false, undefined, msg)); return; }
+      if (msg.includes('ECONNREFUSED') || msg.includes('fetch failed')) { res.status(502).json(apiResponse(false, undefined, `Upstream error: ${msg}`)); return; }
+      res.status(500).json(apiResponse(false, undefined, msg));
     }
   };
 
@@ -80,8 +85,23 @@ app.get('/api/v1/suppliers/:id', asyncRoute(async (req, res) => {
   res.json(apiResponse(true, s));
 }));
 
+const UpdateSupplierSchema = z.object({
+  name: z.string().min(1).optional(),
+  contactName: z.string().optional(),
+  contactEmail: z.string().email().optional(),
+  contactPhone: z.string().optional(),
+  address: z.string().optional(),
+  description: z.string().optional(),
+  categories: z.array(z.string()).optional(),
+  paymentTerms: z.enum(['immediate', 'net_15', 'net_30', 'net_60', 'net_90']).optional(),
+  minOrderValue: z.number().nonnegative().optional(),
+  certifications: z.array(z.string()).optional(),
+  tradeHistory: z.boolean().optional(),
+});
 app.patch('/api/v1/suppliers/:id', asyncRoute(async (req, res) => {
-  const s = onboardingService.updateSupplier(req.params.id, req.body);
+  const validation = UpdateSupplierSchema.safeParse(req.body);
+  if (!validation.success) { res.status(422).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`)); return; }
+  const s = onboardingService.updateSupplier(req.params.id, validation.data);
   if (!s) { res.status(404).json(apiResponse(false, undefined, 'Supplier not found')); return; }
   res.json(apiResponse(true, s));
 }));
@@ -141,6 +161,16 @@ app.post('/api/v1/suppliers/:id/kyb/reject', asyncRoute(async (req, res) => {
   const s = verificationService.rejectKYB(req.params.id, reason);
   if (!s) { res.status(404).json(apiResponse(false, undefined, 'Supplier not found')); return; }
   res.json(apiResponse(true, s));
+}));
+
+const VerifyDocSchema = z.object({ docIndex: z.number().int().min(0), verified: z.boolean(), verifiedBy: z.string().optional() });
+app.post('/api/v1/suppliers/:id/kyb/document/verify', asyncRoute(async (req, res) => {
+  const validation = VerifyDocSchema.safeParse(req.body);
+  if (!validation.success) { res.status(422).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`)); return; }
+  const { docIndex, verified, verifiedBy } = validation.data;
+  const ok = verificationService.verifyDocument(req.params.id, docIndex, verified, verifiedBy);
+  if (!ok) { res.status(404).json(apiResponse(false, undefined, 'Supplier or document not found')); return; }
+  res.json(apiResponse(true, { docIndex, verified, verifiedBy: verifiedBy ?? 'system' }));
 }));
 
 app.get('/api/v1/suppliers/:id/trust-score', asyncRoute(async (req, res) => {
@@ -248,8 +278,11 @@ app.get('/api/v1/trade/po', asyncRoute(async (req, res) => {
   const list = tradeService.listPOs({ buyerNexhaId: req.query.buyerNexhaId as string, supplierId: req.query.supplierId as string });
   res.json(apiResponse(true, list));
 }));
+const UpdatePOStatusSchema = z.object({ status: z.enum(['processing', 'shipped', 'delivered', 'cancelled', 'completed']) });
 app.patch('/api/v1/trade/po/:id/status', asyncRoute(async (req, res) => {
-  const po = tradeService.updatePOStatus(req.params.id, req.body.status);
+  const validation = UpdatePOStatusSchema.safeParse(req.body);
+  if (!validation.success) { res.status(422).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`)); return; }
+  const po = tradeService.updatePOStatus(req.params.id, validation.data.status);
   if (!po) { res.status(404).json(apiResponse(false, undefined, 'PO not found')); return; }
   res.json(apiResponse(true, po));
 }));
@@ -260,8 +293,14 @@ app.get('/api/v1/trade/shipment/po/:poId', asyncRoute(async (req, res) => {
   if (!s) { res.status(404).json(apiResponse(false, undefined, 'Shipment not found')); return; }
   res.json(apiResponse(true, s));
 }));
+const TrackShipmentSchema = z.object({
+  carrier: z.string().min(1),
+  trackingNumber: z.string().min(1),
+});
 app.patch('/api/v1/trade/shipment/:id/track', asyncRoute(async (req, res) => {
-  const { carrier, trackingNumber } = req.body;
+  const validation = TrackShipmentSchema.safeParse(req.body);
+  if (!validation.success) { res.status(422).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`)); return; }
+  const { carrier, trackingNumber } = validation.data;
   const s = tradeService.updateTracking(req.params.id, carrier, trackingNumber);
   if (!s) { res.status(404).json(apiResponse(false, undefined, 'Shipment not found')); return; }
   res.json(apiResponse(true, s));
@@ -301,9 +340,15 @@ app.get('/api/v1/trade/disputes/:id', asyncRoute(async (req, res) => {
   if (!d) { res.status(404).json(apiResponse(false, undefined, 'Dispute not found')); return; }
   res.json(apiResponse(true, d));
 }));
+const ResolveDisputeSchema = z.object({
+  resolution: z.string().min(1),
+  resolvedBy: z.string().min(1),
+  outcome: z.enum(['resolved_buyer', 'resolved_supplier', 'escalated']),
+});
 app.patch('/api/v1/trade/disputes/:id/resolve', asyncRoute(async (req, res) => {
-  const { resolution, resolvedBy, outcome } = req.body;
-  const d = tradeService.resolveDispute(req.params.id, resolution, resolvedBy, outcome);
+  const validation = ResolveDisputeSchema.safeParse(req.body);
+  if (!validation.success) { res.status(422).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`)); return; }
+  const d = tradeService.resolveDispute(req.params.id, validation.data.resolution, validation.data.resolvedBy, validation.data.outcome);
   if (!d) { res.status(404).json(apiResponse(false, undefined, 'Dispute not found')); return; }
   res.json(apiResponse(true, d));
 }));
