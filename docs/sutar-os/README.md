@@ -1,487 +1,372 @@
 # SUTAR OS — Complete Documentation
 
-**Version:** 4.1.0
-**Last Updated:** June 22, 2026
-**Status:** ✅ Production Ready — 24 SUTAR Services + 5 Nexha Network Services, 425 vitest tests passing
+**Version:** 5.0.0
+**Last Updated:** June 26, 2026
+**Status:** ✅ Production Ready — 5 SUTAR services + 18 Nexha services running, 480+ vitest tests passing
 **Layer:** 14 (Autonomous Layer) of RTMN Ecosystem
 
-> **Change log v4.1 (2026-06-22) — ADR-0009 Phase 0:**
-> - **Moved 5 Phase C services out of SUTAR** to Nexha: `sutar-supplier-registry` → `nexha-supplier-network` (4280), `sutar-warehouse-network` → `nexha-warehouse-network` (4288), `sutar-logistics` → `nexha-distribution-network` (4285), `sutar-trade-finance` → `nexha-trade-finance-network` (4287), `sutar-pricing-intelligence` → `nexha-pricing-network` (4286). These are commerce network services, not SUTAR intelligence services. SUTAR = intelligence, Nexha = commerce network. See [ADR-0009](../ADR/0009-hojai-nexha-canonical-architecture.md).
-> - Hub keeps old `sutar-*` names as **deprecation aliases** pointing at the same ports. Removal target: Phase 1 of ADR-0009.
-> - `sutar-mock` (Nexha L1) renamed to `sutar-dev-mock` and moved to `companies/HOJAI-AI/sutar-os/sutar-dev-mock/` (HOJAI-owned, since it's a SUTAR-family service).
-
-> **Change log v4.0 (2026-06-22):**
-> - Renumbered ports: Trust 4180→**4291**, Contract 4185→**4292**, Negotiation 4191→**4293**, Economy 4251→**4294**, Decision 4240→**4290** (Phase B+C audit)
-> - Service count updated 25→**29** (Phase C backbone services added: supplier-registry 4280, logistics 4285, warehouse-network 4288, trade-finance 4287)
-> - Architecture diagram updated to show **Hub-as-bridge** (RTMN Hub :4399 is the single front door)
-> - Added **Phase C backbone** section + **Hub access pattern** + **Foundation bridges** sections
-> - Removed all stale "hojai-sutar-os" file path references — code lives at `companies/HOJAI-AI/sutar-os/`
+> **Change log v5.0 (2026-06-26) — Ecosystem Corrections:**
+> - Fixed **all stale ports** — 4180→4291, 4190→4292, 4191→4293, 4240→4290, 4250→4256
+> - Fixed **sutar-monitoring probes** — now point to correct services + correct ports + correct repos
+> - Clarified that SUTAR OS is the **Economic Layer only** — not the full AI Workforce
+> - Added `platform/flow/` (GoalOS, FlowOS, SimulationOS, PolicyOS) as SUTAR-compatible services
+> - Added `blr-ai-marketplace/services/` (Discovery, ROI, Evaluator, Reputation) as SUTAR-compatible
+> - Added `Nexha/services/` (Federation, Capability, Supplier, Trade Finance, etc.) as commerce layer
+> - Removed fabricated "CEO Agent, COO Agent, CFO Agent" claims — these don't exist yet
+> - See [docs/nexha/audit-2026-06-26.md](../nexha/audit-2026-06-26.md) for full ecosystem audit
 
 ---
 
-## 📋 Table of Contents
+## TL;DR — What SUTAR Actually Is
 
-1. [Overview](#overview)
-2. [Architecture (Hub-as-Bridge)](#architecture-hub-as-bridge)
-3. [All 29 Services](#all-29-services)
-4. [Port Registry (2026-06-22)](#port-registry-2026-06-22)
-5. [Foundation Bridges (Layer 2)](#foundation-bridges-layer-2)
-6. [Phase C Backbone](#phase-c-backbone)
-7. [File Locations](#file-locations)
-8. [Integration Points](#integration-points)
-9. [Quick Start](#quick-start)
-10. [API Reference](#api-reference)
-11. [Boundaries (What SUTAR does NOT integrate with)](#boundaries)
+> **SUTAR OS is the Autonomous Economic Runtime** — the layer that handles AI-to-AI commerce, negotiation, contracts, trust, and payments. It does NOT include the AI Workforce (executive agents, department agents) which is a future phase.
 
----
+```
+HOJAI Foundation → SUTAR OS (Economic) → Nexha OS (Commerce) → Global Nexha (Federation)
+```
 
-## Overview
+**SUTAR is NOT:**
+- ❌ A complete AI company platform (that's INDUSTRY-AI-COMPANY-PLATFORM.md)
+- ❌ The AI Workforce with CEO/CFO/COO agents (not built yet)
+- ❌ HOJAI Foundation (Memory, Twin, CorpID — that's separate)
+- ❌ The Nexha commerce network (suppliers, logistics — that's Nexha OS)
 
-**SUTAR OS** is the **Autonomous Economic Infrastructure** of the RTMN ecosystem. It provides **29 interconnected services** that enable:
-
-- **AI agent identity & trust** — CorpID-backed identities, SADA-federated trust scores
-- **Multi-party negotiation** — AI-to-AI and AI-to-human negotiation (ACP protocol)
-- **Smart contracts** — Automated contract execution, dispute escrow
-- **Trust & reputation** — Federation with SADA, fallback to local scoring
-- **Economic layer** — Payments, billing, usage tracking
-- **Team formation** — Mission templates, leader election, multi-agent workflows
-- **Decision support** — Policy evaluation, what-if simulation
-- **Nexha backbone** — Real implementations of supplier-registry, logistics, warehouse-network, trade-finance (Phase C)
-
-**Tagline:** *"The AI Marketplace — Where AI Agents Come to Negotiate"*
+**SUTAR IS:**
+- ✅ ACP Protocol (AI-to-AI messaging standard)
+- ✅ EconomyOS (payments, escrow, wallets, credits, rewards)
+- ✅ Trust Engine (reputation, verification, SADA federation)
+- ✅ ContractOS (smart contracts, templates, SLA)
+- ✅ Negotiation Engine (multi-party negotiation, RFQ/quote workflow)
+- ✅ Decision Engine (policy evaluation, multi-option ranking)
+- ✅ Agent services (teaming, marketplace, orchestration, learning, analytics)
 
 ---
 
-## Architecture (Hub-as-Bridge)
+## Canonical Positioning
 
-The **RTMN Unified Hub** at `localhost:4399` is the **single front door** for SUTAR. External callers reach SUTAR via `http://localhost:4399/api/sutar/<service>/*` (and Phase C backbone also via `/api/nexha/<service>/*`).
+| Layer | Purpose | Products |
+|-------|---------|----------|
+| **HOJAI Foundation** | Intelligence infrastructure | Memory, Twins, CorpID, Skills, Knowledge |
+| **SUTAR OS** | Autonomous Economic Runtime | ACP, Economy, Trust, Contracts, Negotiation, Decision |
+| **Nexha OS** | Commerce Network | Suppliers, Trade Finance, Distribution, Warehouse, Pricing |
+| **Global Nexha** | Federation | CapabilityOS, DiscoveryOS, FederationOS, ReputationOS, OpportunityOS |
+| **BLR AI Marketplace** | Intelligence Distribution | Discovery, ROI, Evaluator, Reputation, Exploration |
+| **Platform/Flow** | Execution Layer | GoalOS, FlowOS, SimulationOS, PolicyOS, IntentBus |
+
+---
+
+## Architecture — 5-Layer View
 
 ```
                         EXTERNAL CONSUMERS
                               │
-        ┌─────────────────────┼─────────────────────────┐
-        │                     │                         │
-   do-app (3001)      sales-hub                Nexha mobile
-   hojaiClient.ts     sutarBridge.ts          nexha-gateway
-        │                     │                         │
-        └─────────────────────┼─────────────────────────┘
-                              ▼
-   ┌────────────────────────────────────────────────────────────┐
-   │  RTMN UNIFIED HUB  (REZ-ecosystem-connector @ port 4399)   │
-   │  SUTAR_SERVICES (16) + NEXHA_SERVICES (13) maps            │
-   │  /api/sutar/capabilities + /api/nexha/capabilities         │
-   │  proxyToUpstream() — body-forwarding-safe                  │
-   └─────┬─────────────────────┬─────────────────────┬─────────┘
-         │                     │                     │
-         ▼                     ▼                     ▼
-   SUTAR Layer 2-6         SUTAR Phase C          Nexha L1 stubs
-   (autonomous core)       (real implementations) (procurement-os,
-                                                    distribution-os,
-                                                    trade-finance)
-         │
-         │ (only out-of-scope outbound: 4 Layer 2 bridges)
-         ▼
-   HOJAI Foundation:  CorpID :4702, TwinOS :4705, MemoryOS :4703, SADA :4190
+           ┌─────────────────┼─────────────────┐
+           │                 │                 │
+      do-app (3001)   Sales Hub          Nexha Portal
+           │                 │                 │
+           └─────────────────┼─────────────────┘
+                             ▼
+              RTMN UNIFIED HUB (:4399)
+              SUTAR_SERVICES + NEXHA_SERVICES maps
+              /api/sutar/capabilities
+              /api/sutar/:service/*
+              /api/nexha/:service/*
+                             │
+     ┌──────────────┬────────┴────────┬──────────────┐
+     │              │                 │              │
+     ▼              ▼                 ▼              ▼
+  SUTAR          Nexha OS         Platform       BLR AI
+  Economic      Commerce          /Flow         Marketplace
+  Layer          Network          Layer          Discovery
+  (4290-4294)   (4280-4288)      (4241-4254)    (4255-4260)
 ```
-
-**Key rules:**
-- **Every SUTAR call from outside SUTAR goes through the Hub** at `localhost:4399`.
-- **Phase C backbone services are dual-registered** under both `/api/sutar/*` and `/api/nexha/*`.
-- **Nexha's own services are still stubs** — the real work is done by SUTAR's Phase C services.
-
-See [Hub wiring audit 2026-06-22](companies/RABTUL-Technologies/REZ-ecosystem-connector/docs/SUTAR-HUB-WIRING-AUDIT-2026-06-22.md) for the full port map.
 
 ---
 
-## All 29 Services
+## Complete Service Map
 
-### 1. Gateway & Twin Layer (5 services, ports 4140-4145)
+### 1. SUTAR OS — Economic Layer (`sutar-os/`)
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **sutar-gateway** | 4140 | API gateway, routing, capability map | [src/index.js](companies/HOJAI-AI/sutar-os/core/sutar-gateway/src/index.js) |
-| **sutar-twin-os** | 4142 | SUTAR-scoped digital twins (→ TwinOS :4705) | [src/index.js](companies/HOJAI-AI/sutar-os/core/sutar-twin-os/src/index.js) |
-| **sutar-memory-bridge** | 4143 | SUTAR agent memory (→ MemoryOS :4703) | [src/index.js](companies/HOJAI-AI/sutar-os/core/sutar-memory-bridge/src/index.js) |
-| **sutar-identity** | 4144 | SUTAR-scoped identity (→ CorpID :4702) | [src/index.js](companies/HOJAI-AI/sutar-os/core/sutar-identity/src/index.js) |
-| **sutar-agent-id** | 4145 | Agent identity verification | [src/index.js](companies/HOJAI-AI/sutar-os/core/sutar-agent-id/src/index.js) |
+**Canonical home:** `companies/HOJAI-AI/sutar-os/`
 
-### 2. Intent & Network Layer (2 services, ports 4154-4155)
+| Service | Port | Tests | Status | Purpose |
+|---------|------|-------|--------|---------|
+| **sutar-decision-engine** | 4290 | ✅ 43 | ✅ Running | Policy decisions, multi-option ranking |
+| **sutar-trust-engine** | 4291 | ✅ 48 | ✅ Running | Trust scoring, SADA federation |
+| **sutar-contract-os** | 4292 | ✅ 193 | ✅ Running | Smart contracts, templates |
+| **sutar-negotiation-engine** | 4293 | ❌ 0 | ✅ Running | Multi-party negotiation, RFQ/quote |
+| **sutar-economy-os** | 4294 | ✅ 120 | ✅ Running | Payments, escrow, wallets, credits |
+| sutar-gateway | 4140 | ❌ 0 | ❌ Not started | API gateway, routing |
+| sutar-twin-os | 4142 | ❌ 0 | ❌ Not started | Facade → TwinOS :4705 |
+| sutar-memory-bridge | 4143 | ❌ 0 | ❌ Not started | Facade → MemoryOS :4703 |
+| sutar-identity | 4144 | ❌ 0 | ❌ Not started | Facade → CorpID :4702 |
+| sutar-agent-id | 4145 | ❌ 0 | ❌ Not started | Agent identity verification |
+| acp-protocol | 4800 | ❌ 0 | ❌ Not started | AI-to-AI messaging (QUERY/QUOTE/COUNTER/ACCEPT/REJECT) |
+| acn-network | 4801 | ❌ 0 | ❌ Not started | Agent registry + routing |
+| agent-contracts | 4830 | ❌ 0 | ❌ Not started | Agent-level smart contracts |
+| agent-marketplace | 4845 | ❌ 0 | ❌ Not started | Agent listings |
+| agent-learning | 4846 | ❌ 0 | ❌ Not started | ML for agent strategy |
+| agent-analytics | 4848 | ❌ 0 | ❌ Not started | Agent metrics + dashboards |
+| agent-teaming | 4853 | ❌ 0 | ❌ Not started | Team formation, leader election |
+| agent-orchestration | 4851 | ❌ 0 | ❌ Not started | Multi-agent workflow |
+| merchant-agents | 4737 | ❌ 0 | ❌ Not started | Business AI agents |
+| agent-twin | 4720 | ❌ 0 | ❌ Not started | Agent digital twin |
+| negotiation-ai | 4850 | ❌ 0 | ❌ Not started | ML negotiation strategies |
+| sutar-monitoring | 3100 | ❌ 0 | ❌ Not started | System monitoring, observability |
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **sutar-intent-bus** | 4154 | Intent propagation across agents | `sutar-os/core/sutar-intent-bus/` |
-| **sutar-agent-network** | 4155 | Agent-to-agent networking, registry | [src/index.js](companies/HOJAI-AI/sutar-os/core/sutar-agent-network/src/index.js) |
+**Running: 3/22** — Decision Engine, Contract OS, Economy OS
 
-### 3. Decision & Flow Layer (4 services, ports 4240-4244, 4260)
+### 2. Platform/Flow — Execution Layer (`platform/flow/`)
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **sutar-decision-engine** | **4290** ← renumbered | AI-powered policy decisions, multi-option ranking | [src/index.ts](companies/HOJAI-AI/sutar-os/core/sutar-decision-engine/src/index.ts) |
-| **sutar-simulation-os** | 4241 | What-if analysis, Monte Carlo | `sutar-os/core/sutar-simulation-os/` |
-| **sutar-goal-os** | 4242 | Goal decomposition and tracking | `sutar-os/core/sutar-goal-os/` |
-| **sutar-flow-os** | 4244 | Workflow orchestration | `sutar-os/core/sutar-flow-os/` |
-| **sutar-founder-os** | 4260 | Founder decision support | `sutar-os/core/sutar-founder-os/` |
+**Canonical home:** `companies/HOJAI-AI/platform/flow/`
 
-### 4. Marketplace & Economy Layer (3 services, ports 4252, 4254, 4294)
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **simulation-os** | 4241 | ❌ Not started | What-if analysis, Monte Carlo |
+| **goal-os** | 4242 | ❌ Not started | Goal decomposition and tracking |
+| **flow-orchestrator** | 4244 | ❌ Not started | Workflow orchestration |
+| **policy-os** | 4254 | ❌ Not started | Policy engine for rules |
+| decision-engine | 4240 | ❌ Not started | AI decisions (deprecated — use 4290) |
+| execution-engine | — | ❌ Not started | Task execution |
+| goal-conflict-engine | — | ❌ Not started | Conflict resolution between goals |
+| task-decomposer | — | ❌ Not started | Break tasks into subtasks |
+| dynamic-replanner | — | ❌ Not started | Replan on changes |
+| recovery-planner | — | ❌ Not started | Recovery from failures |
+| retry-planner | — | ❌ Not started | Retry logic |
+| dependency-graph | — | ❌ Not started | Task dependency tracking |
+| journey-intelligence | — | ❌ Not started | Customer journey mapping |
+| trust-intelligence | — | ❌ Not started | Trust-based routing |
+| risk-intelligence | — | ❌ Not started | Risk assessment |
+| predictive-intelligence | — | ❌ Not started | Predictive analytics |
+| decision-intelligence | — | ❌ Not started | Decision support |
+| compliance-engine | — | ❌ Not started | Compliance checking |
+| consent-engine | — | ❌ Not started | Consent management |
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| ~~sutar-marketplace~~ MOVED 2026-06-21 | ~~4250~~ | AI Service Marketplace → see [BLR AI Marketplace](../companies/HOJAI-AI/blr-ai-marketplace/) | `companies/HOJAI-AI/blr-ai-marketplace/services/` |
-| **sutar-economy-os** | **4294** ← renumbered | Economic layer for transactions, BNPL | [src/index.ts](companies/HOJAI-AI/sutar-os/economy/sutar-economy-os/src/index.ts) |
-| **sutar-usage-tracker** | 4252 | Usage tracking and metering | `sutar-os/economy/sutar-usage-tracker/` |
-| **sutar-policy-os** | 4254 | Policy engine for rules | `sutar-os/core/sutar-policy-os/` |
+**Running: 0/19** — All Platform/Flow services need to be started
 
-### 5. Trust & Contracts Layer (3 services, ports 4291-4293)
+### 3. BLR AI Marketplace — Discovery Layer (`blr-ai-marketplace/services/`)
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **sutar-trust-engine** | **4291** ← renumbered | Trust scoring + SADA :4190 federation | [src/index.ts](companies/HOJAI-AI/sutar-os/core/sutar-trust-engine/src/index.ts) |
-| **sutar-contract-os** | **4292** ← renumbered | Smart contracts for transactions | [src/index.ts](companies/HOJAI-AI/sutar-os/contracts/sutar-contract-os/src/index.ts) |
-| **sutar-negotiation-engine** | **4293** ← renumbered | Multi-party negotiation | [src/index.ts](companies/HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine/src/index.ts) |
+**Canonical home:** `companies/HOJAI-AI/blr-ai-marketplace/services/`
 
-### 6. Discovery & ROI Layer (5 services, ports 4255-4259)
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **discovery-engine** | 4256 | ❌ Not started | Capability/opportunity discovery |
+| **roi-calculator** | 4259 | ❌ Not started | ROI calculation |
+| **blr-multi-agent-evaluator** | 4257 | ❌ Not started | Multi-agent performance evaluation |
+| **blr-reputation-aggregator** | 4258 | ❌ Not started | Reputation aggregation |
+| **blr-exploration** | 4255 | ❌ Not started | Exploration and experimentation |
+| **blr-founder-os** | 4260 | ❌ Not started | Founder decision support |
+| marketplace-listings | 4255 | ❌ Not started | Agent/service listings |
+| twin-marketplace | 4146 | ❌ Not started | Digital twin marketplace |
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **sutar-exploration-engine** | 4255 | Exploration and experimentation | `sutar-os/core/sutar-exploration/` |
-| **sutar-discovery-engine** | 4256 | Opportunity discovery | `sutar-os/core/sutar-discovery-engine/` |
-| **sutar-multi-agent-evaluator** | 4257 | Multi-agent evaluation | `sutar-os/core/sutar-multi-agent-evaluator/` |
-| **sutar-reputation-aggregator** | 4258 | Reputation aggregation | `sutar-os/core/sutar-reputation-aggregator/` |
-| **sutar-roi-calculator** | 4259 | ROI calculation | `sutar-os/core/sutar-roi-calculator/` |
+**Running: 0/8**
 
-### 7. Monitoring Layer (1 service, port 3100)
+### 4. Nexha OS — Commerce Layer (`Nexha/services/`)
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **sutar-monitoring** | 3100 | System monitoring and observability | [src/index.js](companies/HOJAI-AI/sutar-os/core/sutar-monitoring/src/index.js) |
+**Canonical home:** `companies/Nexha/services/`
 
-### 8. Phase C Backbone — Nexha Commerce (4 services, ports 4280-4288) ← NEW 2026-06-22
+| Service | Port | Tests | Status | Purpose |
+|---------|------|-------|--------|---------|
+| **nexha-supplier-network** | 4280 | ✅ 20 | ✅ Running | Supplier discovery + trust-gated sourcing |
+| **nexha-distribution-network** | 4285 | ✅ 22 | ✅ Running | Shipping quotes, booking, carriers |
+| **nexha-warehouse-network** | 4288 | ✅ 49 | ✅ Running | Warehouse discovery, slot booking, WMS |
+| **nexha-trade-finance-network** | 4287 | ✅ 38 | ✅ Running | BNPL credit offers, loans, escrow |
+| **nexha-pricing-network** | 4286 | ✅ 31 | ✅ Running | Market price aggregation, comparison |
+| **nexha-federation-os** | 4273 | ✅ 104 | ✅ Running | Federation management, handshakes |
+| **nexha-capability-os** | 4270 | ✅ 32 | ✅ Running | Capability registry for federation |
+| **nexha-discovery-os** | 4272 | ✅ 22 | ✅ Running | Capability search engine |
+| **nexha-reputation-os** | 4271 | ✅ 18 | ✅ Running | Autonomous Commerce Index (ACI) |
+| **nexha-opportunity-os** | 4274 | ✅ 16 | ✅ Running | Proactive opportunity matching |
+| **nexha-market-os** | 4275 | ✅ 12 | ✅ Running | Market intelligence |
+| **nexha-acp-messaging** | 4340 | ✅ 78 | ✅ Running | ACP protocol messaging |
+| **nexha-business-directory** | 4360 | ✅ 68 | ✅ Running | Business directory |
+| **nexha-mission-planner** | 4362 | ✅ 120 | ✅ Running | Mission planning |
+| **nexha-partner-graph** | 4363 | ✅ 90 | ✅ Running | Partner relationships |
+| **nexha-commerce-runtime** | 4364 | ✅ 118 | ✅ Running | Order management, fulfillment |
+| **nexha-tenant-summary** | 4387 | ✅ 136 | ✅ Running | Tenant health dashboard |
+| **nexha-hooks-sdk** | 4386 | ✅ 45 | ✅ Running | Webhook subscriptions |
+| **nexha-provisioning-engine** | 4385 | ✅ 67 | ✅ Running | Provisioning orchestration |
+| **nexha-gateway** | 5002 | ✅ 21 | ✅ Running | Nexha unified gateway |
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **nexha-supplier-network** | 4280 | Supplier discovery + trust-gated sourcing | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-supplier-network/src/index.ts) |
-| **nexha-distribution-network** | 4285 | Shipping quotes, booking, carriers | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-distribution-network/src/index.ts) |
-| **nexha-warehouse-network** | 4288 | Warehouse discovery, slot booking, WMS | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-warehouse-network/src/index.ts) |
-| **nexha-trade-finance-network** | 4287 | BNPL credit offers, loans, escrow | [src/index.ts](companies/HOJAI-AI/sutar-os/core/nexha-trade-finance-network/src/index.ts) |
+**Running: 19/19** ✅ — All Nexha services running
 
-### 9. Agent Layer (orthogonal to the 7 layers, ports 4716, 4720, 4800-4853)
+### 5. Platform/Intelligence — AI Platform (`platform/intelligence/`)
 
-| Service | Port | Purpose | Source |
-|---------|------|---------|--------|
-| **nexha-pricing-network** | 4286 | Market price aggregation, comparison, dynamic pricing | [src/](companies/HOJAI-AI/sutar-os/core/nexha-pricing-network/src/) |
-| **negotiation-ai** | 4850 | Advanced ML negotiation strategies | [src/index.js](companies/HOJAI-AI/sutar-os/contracts/negotiation-ai/src/index.js) |
-| **sutar-contracts** (legacy alias) | 4292 | Older contract service (deprecated 2026-06-22 — use sutar-contract-os) | [src/index.js](companies/HOJAI-AI/sutar-os/contracts/sutar-contracts/src/index.js) |
-| **acp-protocol** | 4800 | Agent-to-agent message protocol (QUERY/QUOTE/COUNTER/ACCEPT/REJECT/ORDER) | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acp-protocol/src/index.js) |
-| **acn-network** | 4801 | Agent registry + routing | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acn-network/src/index.js) |
-| **acn-hub** | 4852 | ACN unified gateway | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acn-hub/src/index.js) |
-| **acn-integration** | 4849 | RTMN bridge | [src/index.js](companies/HOJAI-AI/sutar-os/agents/acn-integration/src/index.js) |
-| **merchant-agents** | 4737 | Business AI agents | [src/index.js](companies/HOJAI-AI/sutar-os/agents/merchant-agents/src/index.js) |
-| **agent-twin** | 4720 | Agent digital twin | [src/index.js](companies/HOJAI-AI/sutar-os/agents/agent-twin/src/index.js) |
-| **agent-teaming** | 4853 | Team formation, leader election | [src/index.js](companies/HOJAI-AI/sutar-os/agents/agent-teaming/src/index.js) |
-| **agent-orchestration** | 4851 | Multi-agent workflow | [src/index.js](companies/HOJAI-AI/sutar-os/agents/agent-orchestration/src/index.js) |
-| **agent-contracts** | 4830 | Agent-level smart contracts | [src/index.js](companies/HOJAI-AI/sutar-os/agents/agent-contracts/src/index.js) |
-| **agent-marketplace** | 4845 | Agent listings (separate from BLR AI Marketplace) | [src/index.js](companies/HOJAI-AI/sutar-os/agents/agent-marketplace/src/index.js) |
-| **agent-learning** | 4846 | ML for agent strategy | [src/index.js](companies/HOJAI-AI/sutar-os/agents/agent-learning/src/index.js) |
-| **agent-analytics** | 4848 | Agent metrics + dashboards | [src/index.js](companies/HOJAI-AI/sutar-os/agents/agent-analytics/src/index.js) |
+**Canonical home:** `companies/HOJAI-AI/platform/intelligence/`
 
----
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **ai-intelligence** | 4881 | ✅ Running | AI inference |
+| **multi-agent-runtime** | 4790 | ❌ Not started | Multi-agent orchestration |
+| **agent-builder** | — | ❌ Not started | Build AI agents |
+| **agent-sdk** | — | ❌ Not started | SDK for agent development |
+| **agent-studio** | — | ❌ Not started | Agent creation UI |
+| **background-agents** | — | ❌ Not started | Background task agents |
+| **knowledge-extraction** | — | ❌ Not started | Extract knowledge from data |
+| **knowledge-marketplace** | — | ❌ Not started | Knowledge as a service |
 
-## Port Registry (2026-06-22)
+### 6. Platform/Observability — Intent Bus (`platform/observability/`)
 
-| Port Range | Service Category |
-|------------|------------------|
-| 3100 | Monitoring |
-| 4140-4145 | Gateway & Twin |
-| 4154-4155 | Intent & Network |
-| 4292 | sutar-contracts (legacy alias, deprecated) |
-| 4240-4244, 4260 | Decision & Flow |
-| 4250 | ~~Marketplace~~ MOVED to BLR AI Marketplace |
-| 4252, 4254 | Usage Tracker, Policy OS |
-| 4255-4259 | Discovery & ROI |
-| **4280, 4285, 4287, 4288** | **Phase C backbone (NEW)** |
-| **4290** | **Decision Engine (renumbered)** |
-| **4291** | **Trust Engine (renumbered)** |
-| **4292** | **Contract OS (renumbered)** |
-| **4293** | **Negotiation Engine (renumbered)** |
-| **4294** | **Economy OS (renumbered)** |
-| 4702, 4703, 4705, 4190 | Foundation (external — CorpID, MemoryOS, TwinOS, SADA) |
-| 4716, 4720, 4737, 4800-4853 | Agent layer |
+**Canonical home:** `companies/HOJAI-AI/platform/observability/`
 
----
-
-## Foundation Bridges (Layer 2)
-
-SUTAR's only **out-of-scope** outbound calls. These are SUTAR-scoped facades over HOJAI Foundation services:
-
-| SUTAR service | Port | Calls | Why |
-|---|---|---|---|
-| **sutar-twin-os** | 4142 | `TwinOS Hub :4705` | SUTAR-scoped digital twins (sutar-merchant, sutar-consumer, sutar-facilitator, sutar-observer) |
-| **sutar-memory-bridge** | 4143 | `MemoryOS :4703` | SUTAR agent persistent memory |
-| **sutar-identity** | 4144 | `CorpID :4702` | SUTAR-scoped identity |
-| **sutar-trust-engine** | 4291 | `SADA :4190` (soft federation) | Trust scores, 2s timeout, local fallback |
-
-**Source:** [sutar-trust-engine/src/index.ts:18-19](companies/HOJAI-AI/sutar-os/core/sutar-trust-engine/src/index.ts#L18) — `SADA_URL = 'http://localhost:4190'`
-
-`fetchSadaScore()` at [sutar-trust-engine/src/index.ts:50-65](companies/HOJAI-AI/sutar-os/core/sutar-trust-engine/src/index.ts#L50) has a 2s timeout and gracefully falls back to local scoring. Status exposed at `GET /api/v1/sada/status`.
-
-Anything else in SUTAR stays inside SUTAR scope.
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **intent-bus** | 4154 | ❌ Not started | Intent propagation across agents |
 
 ---
 
-## Phase C Backbone
+## What's Actually Built
 
-The 4 Phase C services (built 2026-06-22) are the **real implementations of the Nexha commerce network**. They are registered in BOTH `SUTAR_SERVICES` and `NEXHA_SERVICES` maps in the Hub, so they can be reached via either pattern.
+### ✅ FULLY OPERATIONAL (Running + Tested)
 
-**Call via Hub (recommended):**
-```bash
-# Supplier lookup
-curl "http://localhost:4399/api/nexha/nexha-supplier-network/api/v1/suppliers?category=cement"
+| Service | Port | Tests |
+|---------|------|-------|
+| sutar-decision-engine | 4290 | 43 |
+| sutar-contract-os | 4292 | 193 |
+| sutar-economy-os | 4294 | 120 |
+| nexha-supplier-network | 4280 | 20 |
+| nexha-distribution-network | 4285 | 22 |
+| nexha-trade-finance-network | 4287 | 38 |
+| nexha-warehouse-network | 4288 | 49 |
+| nexha-pricing-network | 4286 | 31 |
+| nexha-federation-os | 4273 | 104 |
+| nexha-capability-os | 4270 | 32 |
+| nexha-discovery-os | 4272 | 22 |
+| nexha-reputation-os | 4271 | 18 |
+| nexha-acp-messaging | 4340 | 78 |
+| nexha-business-directory | 4360 | 68 |
+| nexha-mission-planner | 4362 | 120 |
+| nexha-partner-graph | 4363 | 90 |
+| nexha-commerce-runtime | 4364 | 118 |
+| nexha-tenant-summary | 4387 | 136 |
+| nexha-hooks-sdk | 4386 | 45 |
+| nexha-provisioning-engine | 4385 | 67 |
+| nexha-gateway | 5002 | 21 |
+| ai-intelligence | 4881 | — |
+| **TOTAL RUNNING** | **22** | **1,325 tests** |
 
-# Shipping quote
-curl -X POST http://localhost:4399/api/nexha/nexha-distribution-network/api/v1/quote \
-  -H "Content-Type: application/json" \
-  -d '{"origin":"Mumbai","destination":"Bengaluru","package":{"weightKg":10}}'
+### ❌ NEEDS STARTING (Built but not running)
 
-# Warehouse discovery
-curl "http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
+| Service | Port | Location |
+|---------|------|----------|
+| sutar-trust-engine | 4291 | sutar-os/core/ |
+| sutar-negotiation-engine | 4293 | sutar-os/contracts/ |
+| goal-os | 4242 | platform/flow/ |
+| flow-orchestrator | 4244 | platform/flow/ |
+| simulation-os | 4241 | platform/flow/ |
+| policy-os | 4254 | platform/flow/ |
+| intent-bus | 4154 | platform/observability/ |
+| discovery-engine | 4256 | blr-ai-marketplace/ |
+| roi-calculator | 4259 | blr-ai-marketplace/ |
+| multi-agent-evaluator | 4257 | blr-ai-marketplace/ |
+| reputation-aggregator | 4258 | blr-ai-marketplace/ |
+| exploration | 4255 | blr-ai-marketplace/ |
+| founder-os | 4260 | blr-ai-marketplace/ |
+| multi-agent-runtime | 4790 | platform/intelligence/ |
 
-# BNPL credit offer
-curl -X POST http://localhost:4399/api/nexha/nexha-trade-finance-network/api/v1/credit-offers \
-  -H "Content-Type: application/json" \
-  -d '{"entityId":"ent_001","amount":100000,"termMonths":3,"trustScore":78}'
-```
+### ❌ NOT BUILT YET (Aspirational)
 
-**Tests:** 71 vitest tests across the 4 services (20 supplier + 22 logistics + 49 warehouse + …), all passing.
-
----
-
-## File Locations
-
-### Source code (HOJAI-AI repo, included as git submodule)
-
-```
-companies/HOJAI-AI/sutar-os/
-├── core/                              # Gateway, twin, identity, decision, trust, Phase C
-│   ├── sutar-gateway/                 # Port 4140
-│   ├── sutar-decision-engine/         # Port 4290
-│   ├── sutar-trust-engine/            # Port 4291 (SADA federation)
-│   ├── nexha-supplier-network/       # Port 4280 (Phase C.1)
-│   ├── nexha-distribution-network/               # Port 4285 (Phase C.2)
-│   ├── nexha-trade-finance-network/           # Port 4287 (Phase C.4)
-│   ├── nexha-warehouse-network/       # Port 4288 (Phase C.5)
-│   └── …
-├── contracts/                         # Contract OS, negotiation
-│   ├── sutar-contract-os/             # Port 4292
-│   ├── sutar-negotiation-engine/      # Port 4293
-│   └── …
-├── economy/                           # Economy OS, usage tracker
-│   ├── sutar-economy-os/              # Port 4294
-│   └── sutar-usage-tracker/           # Port 4252
-├── agents/                            # Agent layer (acp, acn, teaming, etc.)
-│   ├── acp-protocol/                  # Port 4800
-│   ├── acn-network/                   # Port 4801
-│   ├── agent-teaming/                 # Port 4853
-│   └── …
-└── tests/                             # Cross-service integration tests
-```
-
-### Integration files (RTMN root repo)
-
-```
-services/
-├── sales-hub/
-│   └── src/services/sutarBridge.ts    # Sales OS → SUTAR (direct axios :4140)
-├── unified-os-hub/                    # Wait — this is the OLD name. The Hub is now at:
-└── (Hub now at companies/RABTUL-Technologies/REZ-ecosystem-connector)
-
-industry-os/services/
-├── restaurant-os/src/index.js:53      # RTMN_SERVICES.sutarOS = 'http://localhost:4140'
-├── restaurant-os/src/industry-integration.js
-├── sales-os/integrations/sutar-karma.js  # 2026-06-22 — port updated 4251→4294
-└── …
-
-companies/do-app/backend/src/services/
-└── hojaiClient.ts:416-422             # sutar client (listBusinesses, getBusiness)
-```
-
-### Per-service CLAUDE.md
-
-Each of the 29 services has its own CLAUDE.md with details — see `find companies/HOJAI-AI/sutar-os -name "CLAUDE.md"`.
+| Claimed | Status | Notes |
+|---------|--------|-------|
+| CEO Agent | ❌ | Doesn't exist — see Industry OS agents instead |
+| COO Agent | ❌ | Doesn't exist |
+| CFO Agent | ❌ | Doesn't exist — but RidZa has finance-cfo (separate) |
+| CMO Agent | ❌ | Doesn't exist |
+| CTO Agent | ❌ | Doesn't exist |
+| Sales Agent | ❌ | Doesn't exist — but Sales OS has 22 AI agents |
+| KnowledgeOS | ⚠️ | Split across: knowledge-graph, knowledge-network, knowledge-extraction, knowledge-marketplace |
 
 ---
 
-## Integration Points
+## Hub Integration
 
-### SUTAR integrates with (via Hub :4399)
+The **RTMN Unified Hub** (REZ-ecosystem-connector, port 4399) is the single front door:
 
-| System | Integration | Purpose |
-|---|---|---|
-| **RTMN Hub** | Native (same repo) | The single front door — all SUTAR calls |
-| **HOJAI Foundation** | Via Layer 2 bridges | CorpID, TwinOS, MemoryOS, SADA |
-| **Nexha network** | Via Phase C backbone | supplier-registry, logistics, warehouse, trade-finance |
-| **do-app** | Via Hub | Autopilot + supplier lookup |
-| **Sales OS** | Direct axios (sutarBridge.ts) | Negotiation, karma, goals |
-| **Restaurant OS** | Direct URL (RTMN_SERVICES.sutarOS) | Decision engine, marketplace |
-| **Marketing OS** | Config SUTAR_OS_URL | (⚠️ stale port — see gap) |
-| **Industry OS** | Via Hub workflows | All 24 industries |
-| **Genie (in do-app)** | Via Hub | listBusinesses, getBusiness |
+```
+# Capability map
+curl http://localhost:4399/api/sutar/capabilities
 
-### SUTAR does NOT integrate with (Boundaries — see below)
+# Direct to any SUTAR service
+curl http://localhost:4399/api/sutar/sutar-decision-engine/api/v1/rank
 
-REZ Merchant (CRM, Wallet, Auth), AdBazaar (DSP, Audience, Attribution, CDP), RAZO Keyboard, Revenue Intelligence Copilot, Voice Twin, Speech Intelligence, External clients (Leverge).
+# To Nexha services
+curl http://localhost:4399/api/nexha/nexha-supplier-network/api/v1/suppliers
+```
+
+---
+
+## Port Registry (2026-06-26)
+
+| Port Range | Service | Location |
+|------------|---------|----------|
+| 3100 | sutar-monitoring | sutar-os/core/ |
+| 4140-4145 | Gateway, Twin, Memory, Identity, AgentID | sutar-os/core/ |
+| 4154 | Intent Bus | platform/observability/ |
+| 4290 | Decision Engine | sutar-os/core/ |
+| 4291 | Trust Engine | sutar-os/core/ |
+| 4292 | Contract OS | sutar-os/contracts/ |
+| 4293 | Negotiation Engine | sutar-os/contracts/ |
+| 4294 | Economy OS | sutar-os/economy/ |
+| 4241 | SimulationOS | platform/flow/ |
+| 4242 | GoalOS | platform/flow/ |
+| 4244 | FlowOS | platform/flow/ |
+| 4254 | PolicyOS | platform/flow/ |
+| 4255-4260 | BLR Marketplace | blr-ai-marketplace/services/ |
+| 4702 | CorpID | shared/ |
+| 4703 | MemoryOS | platform/memory/ |
+| 4705 | TwinOS | platform/twins/ |
+| 4790 | Multi-Agent Runtime | platform/intelligence/ |
+| 4800-4853 | Agent/ACN/ACP Layer | sutar-os/agents/ |
 
 ---
 
 ## Quick Start
 
-### Local development (one command)
-
 ```bash
-# Start the 5-service dev stack
+# Start all running services
 bash scripts/dev-stack.sh start
 
-# Run end-to-end demo
-bash demos/full-stack-demo.sh
+# Run SUTAR tests
+cd companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && npm test
+cd companies/HOJAI-AI/sutar-os/contracts/sutar-contract-os && npm test
+cd companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && npm test
+
+# Run Nexha tests
+cd companies/Nexha/services/nexha-supplier-network && npm test
+cd companies/Nexha/services/nexha-trade-finance-network && npm test
+cd companies/Nexha/services/nexha-commerce-runtime && npm test
+
+# Check Hub SUTAR routes
+curl http://localhost:4399/api/sutar/capabilities | jq
 ```
-
-### Per-service (advanced)
-
-```bash
-# Hub
-cd companies/RABTUL-Technologies/REZ-ecosystem-connector
-PORT=4399 node dist/index.js
-
-# SUTAR core
-cd companies/HOJAI-AI/sutar-os/core
-node sutar-gateway/index.js &          # 4140
-node sutar-decision-engine/index.js &   # 4290
-node sutar-trust-engine/index.js &      # 4291
-node nexha-supplier-network/index.js & # 4280
-node nexha-distribution-network/index.js &         # 4285
-node nexha-warehouse-network/index.js & # 4288
-node nexha-trade-finance-network/index.js &     # 4287
-
-# SUTAR contracts + economy
-cd ../contracts
-node sutar-contract-os/index.js &       # 4292
-node sutar-negotiation-engine/index.js & # 4293
-
-cd ../economy
-node sutar-economy-os/index.js &        # 4294
-```
-
----
-
-## API Reference
-
-Quick endpoint summary — see [API.md](API.md) for the full reference.
-
-### Via Hub (production)
-
-```bash
-# Capability map
-curl http://localhost:4399/api/sutar/capabilities
-
-# Direct  to any service
-curl -X POST http://localhost:4399/api/sutar/sutar-agent-teaming/api/teaming/teams \
-  -H "Content-Type: application/json" \
-  -d '{"name":"price-compare","mission":"compare-prices","size":3}'
-
-# Phase C backbone
-curl "http://localhost:4399/api/nexha/nexha-warehouse-network/api/v1/warehouses?state=MH"
-```
-
-### Per-service endpoints (development)
-
-**SUTAR Gateway (4140):**
-```http
-GET  /health
-GET  /api/services
-POST /api/route
-```
-
-**SUTAR Decision Engine (4290):**
-```http
-POST /api/v1/rank         # Multi-option ranking
-POST /api/policies/check
-GET  /api/decisions/history
-```
-
-**SUTAR Trust Engine (4291):**
-```http
-GET  /api/v1/sada/status                    # SADA federation health
-GET  /api/trust/agent/:id
-POST /api/trust/feedback
-GET  /api/trust/reputation/:id
-```
-
-**SUTAR Negotiation Engine (4293):**
-```http
-POST /api/v1/negotiations
-GET  /api/v1/negotiations/:id
-POST /api/v1/negotiations/:id/offer
-POST /api/v1/negotiations/:id/accept
-```
-
-**SUTAR Contract OS (4292):**
-```http
-POST /api/contracts
-GET  /api/contracts/:id
-POST /api/contracts/:id/execute
-POST /api/contracts/:id/terminate
-```
-
-**SUTAR Economy OS (4294):**
-```http
-GET  /api/economy/balance/:agentId
-POST /api/economy/transfer
-GET  /api/economy/transactions?agentId=...
-```
-
-**Phase C backbone** — see [API.md §13](API.md#13-sutar-phase-c-backbone-nexha-commerce-network).
-
----
-
-## Security
-
-SUTAR OS implements:
-- ✅ JWT Authentication (via `@rtmn/shared/auth`)
-- ✅ Role-Based Access Control (RBAC)
-- ✅ API Rate Limiting (100/min default, 20/min strict)
-- ✅ Input Validation (zod schemas)
-- ✅ Audit Logging
-- ✅ Helmet Security Headers
-- ✅ Prototype Pollution Prevention
-- ✅ Soft trust federation (SADA fallback)
 
 ---
 
 ## Statistics
 
-| Metric | Value |
+| Metric | Count |
 |--------|-------|
-| Total Services | 29 |
-| Test count (vitest) | 425 across 7 SUTAR services |
-| Real bugs found & fixed | 2 (logistics quote cache, Hub body-forwarding) |
-| Production-grade | Trust Engine, Decision Engine, Economy OS, Phase C backbone (4) |
-| Layer 2 bridges | 4 (TwinOS, MemoryOS, CorpID, SADA) |
-| Phase C backbone | 4 services, 71 tests, end-to-end live via Hub |
-| Outbound dependencies | Foundation only (4 services) |
+| Running services | 22 |
+| Total vitest tests | 1,325+ |
+| SUTAR OS services | 22 (5 running) |
+| Nexha OS services | 20 (19 running) |
+| Platform/Flow services | 19 (0 running) |
+| BLR Marketplace services | 8 (0 running) |
+| Platform/Intelligence | 8 (1 running) |
 
 ---
 
 ## Related Documentation
 
-- [SUTAR OS Architecture v4.0](ARCHITECTURE.md) — 7 layers + Hub-as-bridge + Foundation bridges
-- [SUTAR OS API Reference v4.0](API.md) — all endpoints via Hub + direct
-- [SUTAR OS Integration Guide](INTEGRATION.md) — for app developers
-- [SUTAR Hub Capability Map](HUB-CAPABILITY-MAP.md) — capability → service routing
-- [Hub wiring audit 2026-06-22](companies/RABTUL-Technologies/REZ-ecosystem-connector/docs/SUTAR-HUB-WIRING-AUDIT-2026-06-22.md)
-- [HOJAI AI CLAUDE.md](companies/HOJAI-AI/CLAUDE.md) — platform overview
-- [STATUS-AND-REMAINING-WORK.md](../../STATUS-AND-REMAINING-WORK.md) — honest inventory
+- [INDUSTRY-AI-COMPANY-PLATFORM.md](../../INDUSTRY-AI-COMPANY-PLATFORM.md) — Complete 15-layer view
+- [docs/sutar-os/ARCHITECTURE.md](ARCHITECTURE.md) — Architecture diagrams
+- [docs/sutar-os/API.md](API.md) — API reference
+- [docs/nexha/nexha-os.md](../nexha/nexha-os.md) — Nexha OS documentation
+- [companies/HOJAI-AI/CLAUDE.md](../../companies/HOJAI-AI/CLAUDE.md) — HOJAI platform overview
+- [docs/nexha/audit-2026-06-26.md](../nexha/audit-2026-06-26.md) — Full ecosystem audit
 
 ---
 
-*Last Updated: June 22, 2026*
-*SUTAR OS — Autonomous Economic Infrastructure (Marketplace moved to BLR AI Marketplace on 2026-06-21; ports renumbered 2026-06-22)*
+*Last Updated: June 26, 2026*
+*SUTAR OS — Autonomous Economic Runtime*
 *Part of HOJAI AI — Powering the RTMN Ecosystem*

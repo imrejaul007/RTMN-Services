@@ -53,18 +53,37 @@ const logs = [];              // { service, level, message, timestamp, meta }
 
 // ---------- Seed ----------
 function seed() {
-  // Known SUTAR services (target URLs the monitor will check)
+  // Known SUTAR + Ecosystem services (target URLs the monitor will check)
+  // Updated 2026-06-26: Fixed stale ports, added missing services
+  // NOTE: Some services live in different repos — see location column
   const known = [
-    { id: 'svc-intent-bus', name: 'SUTAR Intent Bus', url: 'http://localhost:4154', port: 4154 },
-    { id: 'svc-usage-tracker', name: 'SUTAR Usage Tracker', url: 'http://localhost:4252', port: 4252 },
-    { id: 'svc-simulation-os', name: 'SUTAR Simulation OS', url: 'http://localhost:4241', port: 4241 },
-    { id: 'svc-discovery-engine', name: 'SUTAR Discovery Engine', url: 'http://localhost:4256', port: 4256 },
-    { id: 'svc-roi-calculator', name: 'SUTAR ROI Calculator', url: 'http://localhost:4259', port: 4259 },
-    { id: 'svc-decision-engine', name: 'SUTAR Decision Engine', url: 'http://localhost:4240', port: 4240 },
-    { id: 'svc-goal-os', name: 'SUTAR Goal OS', url: 'http://localhost:4242', port: 4242 },
-    { id: 'svc-trust-engine', name: 'SUTAR Trust Engine', url: 'http://localhost:4180', port: 4180 },
-    { id: 'svc-negotiation-ai', name: 'SUTAR Negotiation AI', url: 'http://localhost:4850', port: 4850 },
-    { id: 'svc-ai-intelligence', name: 'HOJAI Intelligence', url: 'http://localhost:4881', port: 4881 }
+    // SUTAR Economic Layer (sutar-os/)
+    { id: 'svc-decision-engine',  name: 'SUTAR Decision Engine',       url: 'http://localhost:4290', port: 4290, location: 'sutar-os/core/' },
+    { id: 'svc-trust-engine',     name: 'SUTAR Trust Engine',          url: 'http://localhost:4291', port: 4291, location: 'sutar-os/core/' },
+    { id: 'svc-contract-os',      name: 'SUTAR Contract OS',            url: 'http://localhost:4292', port: 4292, location: 'sutar-os/contracts/' },
+    { id: 'svc-negotiation-eng', name: 'SUTAR Negotiation Engine',    url: 'http://localhost:4293', port: 4293, location: 'sutar-os/contracts/' },
+    { id: 'svc-economy-os',      name: 'SUTAR Economy OS',            url: 'http://localhost:4294', port: 4294, location: 'sutar-os/economy/' },
+    // Platform/Flow (platform/flow/)
+    { id: 'svc-simulation-os',   name: 'Simulation OS',               url: 'http://localhost:4241', port: 4241, location: 'platform/flow/' },
+    { id: 'svc-goal-os',        name: 'Goal OS',                     url: 'http://localhost:4242', port: 4242, location: 'platform/flow/' },
+    { id: 'svc-flow-os',        name: 'Flow OS',                     url: 'http://localhost:4244', port: 4244, location: 'platform/flow/' },
+    { id: 'svc-policy-os',      name: 'Policy OS',                    url: 'http://localhost:4254', port: 4254, location: 'platform/flow/' },
+    // Observability
+    { id: 'svc-intent-bus',     name: 'Intent Bus',                  url: 'http://localhost:4154', port: 4154, location: 'platform/observability/' },
+    // BLR AI Marketplace (blr-ai-marketplace/services/)
+    { id: 'svc-exploration',     name: 'BLR Exploration',            url: 'http://localhost:4255', port: 4255, location: 'blr-ai-marketplace/' },
+    { id: 'svc-discovery-eng',   name: 'BLR Discovery Engine',       url: 'http://localhost:4256', port: 4256, location: 'blr-ai-marketplace/' },
+    { id: 'svc-multiagent-eval',name: 'BLR Multi-Agent Evaluator',  url: 'http://localhost:4257', port: 4257, location: 'blr-ai-marketplace/' },
+    { id: 'svc-rep-aggregator', name: 'BLR Reputation Aggregator',   url: 'http://localhost:4258', port: 4258, location: 'blr-ai-marketplace/' },
+    { id: 'svc-roi-calculator', name: 'BLR ROI Calculator',         url: 'http://localhost:4259', port: 4259, location: 'blr-ai-marketplace/' },
+    { id: 'svc-founder-os',    name: 'BLR Founder OS',             url: 'http://localhost:4260', port: 4260, location: 'blr-ai-marketplace/' },
+    // Agent / ACN
+    { id: 'svc-acp-protocol',   name: 'ACP Protocol',               url: 'http://localhost:4800', port: 4800, location: 'sutar-os/agents/' },
+    { id: 'svc-acn-network',    name: 'ACN Network',                url: 'http://localhost:4801', port: 4801, location: 'sutar-os/agents/' },
+    { id: 'svc-agent-teaming',  name: 'Agent Teaming',              url: 'http://localhost:4853', port: 4853, location: 'sutar-os/agents/' },
+    { id: 'svc-negotiation-ai',name: 'Negotiation AI',            url: 'http://localhost:4850', port: 4850, location: 'sutar-os/agents/' },
+    // HOJAI AI Intelligence
+    { id: 'svc-ai-intelligence',name: 'HOJAI Intelligence',         url: 'http://localhost:4881', port: 4881, location: 'platform/intelligence/' },
   ];
   for (const s of known) {
     services.set(s.id, { ...s, lastStatus: 'unknown', lastProbedAt: null, lastLatencyMs: null });

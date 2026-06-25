@@ -266,35 +266,45 @@ Every Industry OS is not just a management system — it's a complete **AI Compa
 
 ### Layer 13 — Automation (FlowOS)
 
-**Ports:** 4156 (template registry) + 7007 (executor)  
-**Services:** `flow-os-canonical` + `flowos` (genie-os) — see [services/flow-os-canonical/CLAUDE.md](services/flow-os-canonical/CLAUDE.md) and [companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/](companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/)
+**Ports:** 4156 (template registry) + 7007 (executor) + 4244 (Flow Orchestrator)  
+**Canonical Home:** `companies/HOJAI-AI/platform/flow/`
 
-| Component | Port | Purpose |
-|-----------|------|---------|
-| flow-os-canonical | 4156 | Canonical flow-template registry (4 seeded templates: checkout, onboarding, escalation, lead_routing) |
-| flowos (executor) | 7007 | Execution engine: dependency graph, per-step error policies (stop/continue/retry), idempotency, heartbeat-recovery, calls SkillOS@7006 for step execution |
+> **Updated 2026-06-26:** FlowOS (4244) and related services ARE built at `platform/flow/`. The old `flowos@7007` executor still exists in genie-os. Both can coexist.
 
-**Features:**
-- Business Processes, Agent Coordination, Approval Workflows
-- 4 canonical templates synced from 4156 to 7007 on startup
-- Tenant isolation (corpId) enforced at executor reads
-- 30 executions/min/IP rate limit on `POST /api/flows/:id/execute`
-- Idempotency-Key header support on execute (same key → same runId)
+| Component | Port | Location | Purpose |
+|-----------|------|---------|---------|
+| flow-orchestrator | 4244 | `platform/flow/` | Workflow orchestration (2026-06-26) |
+| goal-os | 4242 | `platform/flow/` | Goal decomposition |
+| simulation-os | 4241 | `platform/flow/` | What-if analysis, Monte Carlo |
+| policy-os | 4254 | `platform/flow/` | Policy engine for rules |
+| intent-bus | 4154 | `platform/observability/` | Intent propagation across agents |
+| flow-os-canonical | 4156 | `services/` | Flow-template registry |
+| flowos (executor) | 7007 | `genie-os/` | Execution engine |
 
-> **Note:** A `Flow Orchestrator (4244)` is referenced in [companies/HOJAI-AI/CLAUDE.md](companies/HOJAI-AI/CLAUDE.md) and [companies/HOJAI-AI/divisions/02-infrastructure-cloud/CLAUDE.md](companies/HOJAI-AI/divisions/02-infrastructure-cloud/CLAUDE.md) but **is not yet built** (Architecture v2 target). Until it ships, consumers (Genie, CoPilot, SUTAR, Industry OS) call `flowos@7007` directly.
+**Status:** Flow Orchestrator (4244) exists at `platform/flow/flow-orchestrator/` — needs to be started.
 
 ### Layer 14 — Autonomous (SUTAR OS)
 
-**Port Range:** 4140-4260  
-**Services:** SUTAR Gateway, Decision Engine, GoalOS, Negotiation Engine
+**Port Range:** 4290-4294  
+**Canonical Home:** `companies/HOJAI-AI/sutar-os/`
 
-| Component | Port | Purpose |
-|-----------|------|---------|
-| SUTAR Gateway | 4140 | Autonomous entry point |
-| GoalOS | 4242 | Goal decomposition |
-| Decision Engine | 4240 | AI decisions |
-| Negotiation Engine | 4191 | Multi-party negotiation |
-| Contract OS | 4190 | Smart contracts |
+> **Updated 2026-06-26:** SUTAR OS is the **Economic Layer only** — not the full AI Workforce. GoalOS (4242) lives in `platform/flow/`, not here. See [docs/sutar-os/README.md](docs/sutar-os/README.md) for the full picture.
+
+| Component | Port | Location | Purpose |
+|-----------|------|---------|---------|
+| **Decision Engine** | **4290** | `sutar-os/core/` | AI-powered policy decisions |
+| **Trust Engine** | **4291** | `sutar-os/core/` | Trust scoring, SADA federation |
+| **Contract OS** | **4292** | `sutar-os/contracts/` | Smart contracts |
+| **Negotiation Engine** | **4293** | `sutar-os/contracts/` | Multi-party negotiation |
+| **Economy OS** | **4294** | `sutar-os/economy/` | Payments, escrow, wallets |
+| ACP Protocol | 4800 | `sutar-os/agents/` | AI-to-AI messaging |
+| Agent Teaming | 4853 | `sutar-os/agents/` | Team formation, missions |
+| Agent Marketplace | 4845 | `sutar-os/agents/` | Agent listings |
+| Agent Orchestration | 4851 | `sutar-os/agents/` | Multi-agent workflow |
+
+**Status:** Decision Engine (4290), Contract OS (4292), Economy OS (4294) are running. Trust Engine (4291) and Negotiation Engine (4293) need starting.
+
+> **What's NOT part of SUTAR:** CEO/CFO/COO Agents (not built), "KnowledgeOS" (split across multiple services), "FlowOS" (moved to `platform/flow/`), GoalOS (moved to `platform/flow/`).
 
 ### Layer 15 — Consumer Network (REZ Consumer + Axom)
 

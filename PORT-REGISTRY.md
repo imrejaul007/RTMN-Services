@@ -873,23 +873,36 @@ This document consolidates all port allocations across the 24 industry verticals
 
 ### Layer 13: Automation (FlowOS)
 
-FlowOS has two complementary services (see [services/flow-os-canonical/CLAUDE.md](services/flow-os-canonical/CLAUDE.md) and [companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/CLAUDE.md](companies/HOJAI-AI/products/genie/genie-os/foundation/flowos/)):
+FlowOS has multiple services (updated 2026-06-26):
 
-| Port | Service | Role |
-|------|---------|------|
-| 4156 | flow-os-canonical | Canonical flow-template registry (single source of truth for `checkout`, `onboarding`, `escalation`, `lead_routing`) |
-| 7007 | flowos (genie-os) | Execution engine: instantiates templates, runs steps against SkillOS with dependency resolution, per-step error policies, idempotency, recovery |
+| Port | Service | Location | Role |
+|------|---------|---------|------|
+| 4241 | simulation-os | `platform/flow/` | What-if analysis, Monte Carlo |
+| 4242 | goal-os | `platform/flow/` | Goal decomposition |
+| 4244 | flow-orchestrator | `platform/flow/` | Workflow orchestration (built 2026-06-26) |
+| 4254 | policy-os | `platform/flow/` | Policy engine |
+| 4154 | intent-bus | `platform/observability/` | Intent propagation |
+| 4156 | flow-os-canonical | `services/` | Canonical flow-template registry |
+| 7007 | flowos (genie-os) | `genie-os/` | Execution engine |
 
-Note: the **Flow Orchestrator (4244)** mentioned in [companies/HOJAI-AI/CLAUDE.md](companies/HOJAI-AI/CLAUDE.md) and [divisions/02-infrastructure-cloud/CLAUDE.md](companies/HOJAI-AI/divisions/02-infrastructure-cloud/CLAUDE.md) is **planned but not yet built** (Architecture v2 target). Until that service ships, consumers (Genie, CoPilot, SUTAR, Industry OS) should call `flowos@7007` directly.
+Note: **Flow Orchestrator (4244)** exists at `platform/flow/flow-orchestrator/` (built 2026-06-26) — needs to be started.
 
-### Layer 14: Autonomous (SUTAR OS + Karma Foundation)
+### Layer 14: Autonomous (SUTAR OS — Economic Layer)
 
-| Port | Service | Purpose |
-|------|---------|---------|
-| 4140 | SUTAR OS | Autonomous Operations |
-| 4242 | Goal OS | Goal Management |
-| 4240 | Decision Engine | Policy Decisions |
-| **4250** | **Karma Foundation** | **Agent Economy** |
+> **Updated 2026-06-26:** SUTAR OS is the Economic Layer only. Ports renumbered 2026-06-22.
+
+| Port | Service | Location | Purpose |
+|------|---------|---------|---------|
+| 4140 | sutar-gateway | `sutar-os/core/` | API gateway |
+| 4290 | sutar-decision-engine | `sutar-os/core/` | Policy decisions ✅ Running |
+| 4291 | sutar-trust-engine | `sutar-os/core/` | Trust scoring |
+| 4292 | sutar-contract-os | `sutar-os/contracts/` | Smart contracts ✅ Running |
+| 4293 | sutar-negotiation-engine | `sutar-os/contracts/` | Multi-party negotiation |
+| 4294 | sutar-economy-os | `sutar-os/economy/` | Payments, escrow ✅ Running |
+| 4800 | acp-protocol | `sutar-os/agents/` | AI-to-AI messaging |
+| 4853 | agent-teaming | `sutar-os/agents/` | Team formation |
+
+**Running:** Decision Engine (4290), Contract OS (4292), Economy OS (4294)
 
 ### Layer 15: Consumer Network (REZ Consumer + Axom + BuzzLocal)
 
