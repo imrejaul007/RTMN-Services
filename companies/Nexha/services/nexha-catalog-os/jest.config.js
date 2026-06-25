@@ -1,9 +1,7 @@
 export default {
   testEnvironment: 'node',
   transform: {},
-  extensionsToTreatAsEsm: [],
   moduleFileExtensions: ['js', 'mjs'],
-  testMatch: ['**/tests/**/*.test.js'],
+  testMatch: ['**/tests/**/*.test.mjs'],
   verbose: true,
-  useESM: true,
 };

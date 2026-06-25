@@ -1,6 +1,6 @@
 #!/bin/bash
 # Start all services that were missing from dev-stack.sh (added 2026-06-25)
-set -e
+set +e
 RTMN="/Users/rejaulkarim/Documents/RTMN"
 LOG="/tmp/rtmn-dev"
 

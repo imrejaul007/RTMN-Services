@@ -142,17 +142,33 @@ test('Metrics aggregation — p50/p95/p99', async () => {
 test('Ingest logs', async () => {
   const td = tmp(); const p = port();
   const h = await start(p, td, T);
-  await req(p, 'POST', '/api/services', { id: 'svc-4', name: 'Log Test' }, T);
+
+  // Register service
+  const reg = await req(p, 'POST', '/api/services', { id: 'svc-4', name: 'Log Test' }, T);
+  assert.strictEqual(reg.status, 201, `register failed: ${JSON.stringify(reg.body)}`);
+
+  // Check logs.json NOT created yet
+  const lf = path.join(td, 'logs.json');
+  assert.ok(!fs.existsSync(lf), 'logs.json should not exist before first log');
+
+  // POST logs
   const post = await req(p, 'POST', '/api/logs/svc-4', {
     entries: [
       { level: 'info', message: 'Server started', meta: { port: 3000 } },
       { level: 'error', message: 'Connection timeout', meta: { host: 'db1' } },
     ],
   }, T);
-  assert.strictEqual(post.status, 200);
-  assert.strictEqual(post.body.count, 2);
+  assert.strictEqual(post.status, 200, `POST failed: ${JSON.stringify(post.body)}`);
+  assert.strictEqual(post.body.count, 2, `Expected count=2, got ${post.body.count}`);
+
+  // Verify file was created
+  assert.ok(fs.existsSync(lf), `logs.json should exist after POST. Files: ${fs.readdirSync(td).join(',')}`);
+  const logData = JSON.parse(fs.readFileSync(lf, 'utf8'));
+  assert.ok(logData.entries.length >= 2, `logs.json should have entries, got: ${JSON.stringify(logData)}`);
+
+  // GET logs
   const r = await req(p, 'GET', '/api/logs');
-  assert.strictEqual(r.body.count, 2, `Expected 2 logs total, got ${r.body.count}`);
+  assert.strictEqual(r.body.count, 2, `Expected 2 logs, got ${r.body.count}: ${JSON.stringify(r.body).slice(0,200)}`);
   const errors = await req(p, 'GET', '/api/logs?level=error');
   assert.strictEqual(errors.body.count, 1);
   assert.strictEqual(errors.body.entries[0].level, 'error');
