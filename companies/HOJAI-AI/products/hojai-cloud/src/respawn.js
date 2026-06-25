@@ -16,7 +16,7 @@ const net = require('net');
  * @param {Map} portAssignments - Port to deploymentId mapping
  * @param {string} storageDir - Path to storage directory
  */
-function respawnAll(deployments, portAssignments, storageDir) {
+async function respawnAll(deployments, portAssignments, storageDir) {
   const spawned = [];
   const failed = [];
 

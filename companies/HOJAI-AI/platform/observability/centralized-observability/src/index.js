@@ -52,10 +52,14 @@ function load(name, defaults) {
 }
 
 function save(name, data) {
-  const f = dataFile(name);
-  const tmp = f + '.tmp';
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
-  fs.renameSync(tmp, f);
+  try {
+    const f = dataFile(name);
+    const tmp = f + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+    fs.renameSync(tmp, f);
+  } catch (err) {
+    console.error(`[${name}] save failed:`, err.message);
+  }
 }
 
 // ---------------------------------------------------------------------------

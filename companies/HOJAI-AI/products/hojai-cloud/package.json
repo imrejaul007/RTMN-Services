@@ -1,10 +1,11 @@
 {
   "name": "hojai-cloud",
-  "version": "1.0.0",
-  "description": "HOJAI Cloud — receives `npx hojai deploy` calls from any HOJAI Foundry project, provisions a per-tenant runtime, and returns the public URL. Backs the *.hojai.app wildcard.",
+  "version": "1.2.0",
+  "description": "HOJAI Cloud v1.2 — deploy target for npx hojai deploy. Supports auto-respawn, SSL, custom domains, preview environments, and rollbacks.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
     "test": "node --test --test-force-exit src/__tests__/*.test.js"
   },
   "keywords": [
@@ -13,7 +14,11 @@
     "deploy",
     "foundry",
     "nexha",
-    "tenant-runtime"
+    "tenant-runtime",
+    "ssl",
+    "custom-domains",
+    "previews",
+    "rollbacks"
   ],
   "author": "HOJAI AI",
   "license": "MIT",

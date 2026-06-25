@@ -25,7 +25,11 @@ RTMN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HUB_CMD="cd $RTMN_ROOT/companies/RABTUL-Technologies/REZ-ecosystem-connector && PORT=4399 node dist/index.js"
 
 # SUTAR OS (HOJAI AI — intelligence layer)
-TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-engine && PORT=4291 SADA_URL=http://localhost:4190 REDIS_URL=redis://localhost:6379 npm start"
+# Note: TypeScript services (sutar-trust-engine, sutar-contract-os) need a build first.
+# Plain-JS services use node src/index.js directly.
+TRUST_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-trust-engine && npm run build && PORT=4291 SADA_URL=http://localhost:4190 REDIS_URL=redis://localhost:6379 npm start"
+CONTRACT_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/contracts/sutar-contract-os && npm run build && PORT=4292 npm start"
+NEGOTIATION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine && npm run build && PORT=4293 npm start"
 DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 REDIS_URL=redis://localhost:6379 npm start"
 ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4294 REDIS_URL=redis://localhost:6379 npm start"
 
@@ -37,6 +41,14 @@ SADA_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/trust/sada-os && PORT=419
 # HOJAI AI — Foundation (Phase F.1: PolicyOS + SkillOS productionized 2026-06-22)
 POLICY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/policy-os && PORT=4254 POLICYOS_REQUIRE_AUTH=false POLICYOS_EVAL_LIMIT=10000 POLICYOS_WRITE_LIMIT=10000 REDIS_URL=redis://localhost:6379 npm start"
 SKILL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/skills/skill-os && PORT=4743 SKILLOS_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
+
+# HOJAI AI — Core Foundation (CorpID, MemoryOS, TwinOS, TwinMemoryBridge)
+CORP_ID_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/identity/corpid-service && PORT=4702 npm start"
+MEMORY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/memory/memory-os && PORT=4703 npm start"
+MEMORY_CONFIDENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/memory/memory-confidence && PORT=4152 npm start"
+MEMORY_CONTEXT_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/memory/memory-context-engine && PORT=4793 npm start"
+TWIN_MEMORY_BRIDGE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/twins/twin-memory-bridge && PORT=4704 npm start"
+TWINOS_HUB_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/twins/twinos-hub && PORT=4705 npm start"
 
 # HOJAI AI Intelligence (Phase F.4, 2026-06-22) — Multi-agent orchestration (intent, sentiment, retrieval, prediction, recommendation)
 AI_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/ai-intelligence && PORT=4881 INTELLIGENCE_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
@@ -155,6 +167,9 @@ NEXHA_COMMERCE_RUNTIME_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-commerc
 NEXHA_PROVISIONING_ENGINE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-provisioning-engine && PORT=4385 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_provisioning_dev npm start"
 NEXHA_HOOKS_SDK_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-hooks-sdk && PORT=4386 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_hooks_dev npm start"
 NEXHA_TENANT_SUMMARY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-tenant-summary && PORT=4387 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_summary_dev npm start"
+NEXHA_PARTNER_NETWORK_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-partner-network && PORT=4297 npm start"
+NEXHA_FEDERATION_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-federation-os && npm run build && PORT=4273 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_federation_dev npm start"
+NEXHA_GLOBAL_DIRECTORY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-global-directory && npm run build && PORT=4276 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_global_dev npm start"
 
 # Nexha OS Layer (Phase D) — CapabilityOS, DiscoveryOS, FederationOS, MarketOS, OpportunityOS, ReputationOS
 NEXHA_CAPABILITY_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-capability-os && PORT=4270 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_capability_dev npm start"

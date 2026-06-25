@@ -152,7 +152,7 @@ test('Ingest logs', async () => {
   assert.strictEqual(post.status, 200, `POST logs failed: ${JSON.stringify(post.body)}`);
   assert.strictEqual(post.body.count, 2, `Expected 2 ingested, got ${post.body.count}`);
   const r = await req(p, 'GET', '/api/logs');
-  assert.strictEqual(r.body.count, 2, `Expected 2 logs total, got ${r.body.count}: ${JSON.stringify(r.body).slice(0, 200)}`);
+  assert.strictEqual(r.body.count, 2, `Expected 2 logs total, got ${r.body.count}`);
   const errors = await req(p, 'GET', '/api/logs?level=error');
   assert.strictEqual(errors.body.count, 1);
   assert.strictEqual(errors.body.entries[0].level, 'error');
