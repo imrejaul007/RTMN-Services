@@ -112,6 +112,8 @@ const UserSchema = new mongoose.Schema({
   corpId: { type: String, index: true, sparse: true },
   twinId: { type: String, index: true, sparse: true },
   preferences: { type: mongoose.Schema.Types.Mixed, default: {} },
+  goals: { type: [String], default: [] },
+  onboardingComplete: { type: Boolean, default: false },
 }, { timestamps: true });
 const User = mongoose.model('User', UserSchema);
 
@@ -182,7 +184,7 @@ app.post('/api/auth/signup', async (req, res, next) => {
     if (twinRes) { user.twinId = twinRes.data.twinId; await user.save(); }
     const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET, { expiresIn: '7d' });
     await Session.create({ sessionId: `SES-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`, userId: user._id, token, expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000) });
-    res.status(201).json({ success: true, data: { token, user: { id: user._id, email: user.email, name: user.name, corpId: user.corpId, twinId: user.twinId } }, meta: { timestamp: new Date().toISOString() } });
+    res.status(201).json({ success: true, data: { token, user: { id: user._id, email: user.email, name: user.name, corpId: user.corpId, twinId: user.twinId, goals: user.goals, onboardingComplete: user.onboardingComplete } }, meta: { timestamp: new Date().toISOString() } });
   } catch (e) { next(e); }
 });
 
@@ -195,7 +197,20 @@ app.post('/api/auth/login', async (req, res, next) => {
     if (!ok) return err(res, 401, 'UNAUTHORIZED', 'Invalid credentials');
     const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET, { expiresIn: '7d' });
     await Session.create({ sessionId: `SES-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`, userId: user._id, token, expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000) });
-    res.json({ success: true, data: { token, user: { id: user._id, email: user.email, name: user.name, corpId: user.corpId, twinId: user.twinId } }, meta: { timestamp: new Date().toISOString() } });
+    res.json({ success: true, data: { token, user: { id: user._id, email: user.email, name: user.name, corpId: user.corpId, twinId: user.twinId, goals: user.goals, onboardingComplete: user.onboardingComplete } }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/onboarding/goals', authMiddleware, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return err(res, 404, 'NOT_FOUND', 'User not found');
+    const { goals = [], onboardingComplete = false } = req.body;
+    if (!Array.isArray(goals)) return err(res, 400, 'INVALID_INPUT', 'goals must be an array');
+    user.goals = goals;
+    user.onboardingComplete = onboardingComplete;
+    await user.save();
+    res.json({ success: true, data: { goals: user.goals, onboardingComplete: user.onboardingComplete }, meta: { timestamp: new Date().toISOString() } });
   } catch (e) { next(e); }
 });
 
@@ -203,7 +218,7 @@ app.get('/api/auth/me', authMiddleware, async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
     if (!user) return err(res, 404, 'NOT_FOUND', 'User not found');
-    res.json({ success: true, data: { id: user._id, email: user.email, name: user.name, corpId: user.corpId, twinId: user.twinId, preferences: user.preferences }, meta: { timestamp: new Date().toISOString() } });
+    res.json({ success: true, data: { id: user._id, email: user.email, name: user.name, corpId: user.corpId, twinId: user.twinId, preferences: user.preferences, goals: user.goals, onboardingComplete: user.onboardingComplete }, meta: { timestamp: new Date().toISOString() } });
   } catch (e) { next(e); }
 });
 

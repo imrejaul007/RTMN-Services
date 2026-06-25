@@ -104,6 +104,24 @@ MISSION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/mission-os && PORT=429
 # ExecutionOS (Phase G.2, 2026-06-23) — Execute actions/steps with retries, sequencing, status tracking
 EXECUTION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/execution-os && PORT=4296 EXECUTION_OS_REQUIRE_AUTH=false npm start"
 
+# AgentOS — 12 services at ports 4802–4814 (Phase F audit, 2026-06-25)
+# All services use MongoDB + Redis for local dev; auth disabled.
+AGENT_PLATFORM_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agent-platform-api && PORT=4802 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_platform npm start"
+AGENT_REGISTRY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agent-registry && PORT=4803 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_registry npm start"
+AGENT_CAPABILITY_STORE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/capability-store && PORT=4804 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_capability npm start"
+AGENT_TOOL_REGISTRY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/tool-registry && PORT=4805 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_tool npm start"
+AGENT_SKILL_LIBRARY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/skill-library && PORT=4806 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_skill npm start"
+AGENT_MESSAGE_BUS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/message-bus && PORT=4807 AGENTOS_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 MONGODB_URI=mongodb://127.0.0.1:27017/agent_message npm start"
+AGENT_SCHEDULER_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/scheduler && PORT=4808 AGENTOS_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 MONGODB_URI=mongodb://127.0.0.1:27017/agent_scheduler npm start"
+AGENT_CONTEXT_STORE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/context-store && PORT=4809 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_context npm start"
+AGENT_MEMORY_BRIDGE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agent-memory-bridge && PORT=4811 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_memory npm start"
+AGENT_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agent-orchestrator && PORT=4812 AGENTOS_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 MONGODB_URI=mongodb://127.0.0.1:27017/agent_orchestrator npm start"
+AGENT_EXECUTION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agent-execution-engine && PORT=4813 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_execution npm start"
+AGENT_OBSERVABILITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agent-observability && PORT=4814 AGENTOS_REQUIRE_AUTH=false MONGODB_URI=mongodb://127.0.0.1:27017/agent_observability npm start"
+
+# HOJAI Voice Gateway (Phase F, 2026-06-24) — Training-aware STT/TTS router on port 4880
+VOICE_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-gateway && PORT=4880 REDIS_URL=redis://localhost:6379 npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -227,7 +245,20 @@ status() {
     "nexha-commerce-runtime:4364" \
     "nexha-provisioning-engine:4385" \
     "nexha-hooks-sdk:4386" \
-    "nexha-tenant-summary:4387"; do
+    "nexha-tenant-summary:4387" \
+    "agent-platform-api:4802" \
+    "agent-registry:4803" \
+    "agent-capability-store:4804" \
+    "agent-tool-registry:4805" \
+    "agent-skill-library:4806" \
+    "agent-message-bus:4807" \
+    "agent-scheduler:4808" \
+    "agent-context-store:4809" \
+    "agent-memory-bridge:4811" \
+    "agent-orchestrator:4812" \
+    "agent-execution-engine:4813" \
+    "agent-observability:4814" \
+    "voice-gateway:4880"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
@@ -311,6 +342,21 @@ start_all() {
   start_service "nexha-provisioning-engine"   "$NEXHA_PROVISIONING_ENGINE_CMD" 4385
   start_service "nexha-hooks-sdk"             "$NEXHA_HOOKS_SDK_CMD"           4386
   start_service "nexha-tenant-summary"        "$NEXHA_TENANT_SUMMARY_CMD"      4387
+  # AgentOS — 12 services (Phase F audit, 2026-06-25)
+  start_service "agent-platform-api"       "$AGENT_PLATFORM_CMD"           4802
+  start_service "agent-registry"          "$AGENT_REGISTRY_CMD"           4803
+  start_service "agent-capability-store"  "$AGENT_CAPABILITY_STORE_CMD"  4804
+  start_service "agent-tool-registry"     "$AGENT_TOOL_REGISTRY_CMD"     4805
+  start_service "agent-skill-library"     "$AGENT_SKILL_LIBRARY_CMD"      4806
+  start_service "agent-message-bus"       "$AGENT_MESSAGE_BUS_CMD"        4807
+  start_service "agent-scheduler"         "$AGENT_SCHEDULER_CMD"          4808
+  start_service "agent-context-store"     "$AGENT_CONTEXT_STORE_CMD"      4809
+  start_service "agent-memory-bridge"     "$AGENT_MEMORY_BRIDGE_CMD"     4811
+  start_service "agent-orchestrator"      "$AGENT_ORCHESTRATOR_CMD"       4812
+  start_service "agent-execution-engine"  "$AGENT_EXECUTION_ENGINE_CMD"   4813
+  start_service "agent-observability"     "$AGENT_OBSERVABILITY_CMD"      4814
+  # HOJAI Voice Gateway (port 4880)
+  start_service "voice-gateway"           "$VOICE_GATEWAY_CMD"           4880
   # Hub (must be last so all services are up)
   start_service "hub"                      "$HUB_CMD"                 4399
   sleep 3
@@ -356,6 +402,21 @@ stop_all() {
   stop_port 4385 "nexha-provisioning-engine"
   stop_port 4386 "nexha-hooks-sdk"
   stop_port 4387 "nexha-tenant-summary"
+  # AgentOS — 12 services
+  stop_port 4802 "agent-platform-api"
+  stop_port 4803 "agent-registry"
+  stop_port 4804 "agent-capability-store"
+  stop_port 4805 "agent-tool-registry"
+  stop_port 4806 "agent-skill-library"
+  stop_port 4807 "agent-message-bus"
+  stop_port 4808 "agent-scheduler"
+  stop_port 4809 "agent-context-store"
+  stop_port 4811 "agent-memory-bridge"
+  stop_port 4812 "agent-orchestrator"
+  stop_port 4813 "agent-execution-engine"
+  stop_port 4814 "agent-observability"
+  # HOJAI Voice Gateway
+  stop_port 4880 "voice-gateway"
 }
 
 case "${1:-start}" in

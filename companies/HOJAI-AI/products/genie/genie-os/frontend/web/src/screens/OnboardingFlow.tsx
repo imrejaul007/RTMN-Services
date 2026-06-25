@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, signup, setToken } from '../services/api';
+import { login, signup, setToken, apiPost } from '../services/api';
 import { markOnboardingComplete } from '../components/OnboardingGate';
 
 type Step = 'welcome' | 'name' | 'auth' | 'goals' | 'done';
 
+const STEPS: Step[] = ['welcome', 'name', 'auth', 'goals', 'done'];
 const GOAL_OPTIONS = [
   'Remember everything',
   'Get healthier',
@@ -27,16 +28,16 @@ export default function OnboardingFlow() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
+  const stepIndex = STEPS.indexOf(step);
+
   function next() {
-    const order: Step[] = ['welcome', 'name', 'auth', 'goals', 'done'];
-    const idx = order.indexOf(step);
-    if (idx < order.length - 1) setStep(order[idx + 1]);
+    const idx = stepIndex;
+    if (idx < STEPS.length - 1) setStep(STEPS[idx + 1]);
   }
 
   function back() {
-    const order: Step[] = ['welcome', 'name', 'auth', 'goals', 'done'];
-    const idx = order.indexOf(step);
-    if (idx > 0) setStep(order[idx - 1]);
+    const idx = stepIndex;
+    if (idx > 0) setStep(STEPS[idx - 1]);
   }
 
   async function doAuth() {
@@ -55,7 +56,6 @@ export default function OnboardingFlow() {
         ? await signup(name, email, password)
         : await login(email, password);
       if (authMode === 'signup' && data.user) {
-        // Save the name from signup
         setToken(data.token, { ...data.user, name });
       }
       next();
@@ -67,14 +67,26 @@ export default function OnboardingFlow() {
   }
 
   function skipAuth() {
-    // Use a guest identity so storage works locally
+    // Guest mode: set local token and skip to goals
     setToken('guest-token', { id: 'guest', email: 'guest@local', name: 'Guest' });
     next();
   }
 
-  function finish() {
-    markOnboardingComplete();
-    navigate('/home');
+  async function finish() {
+    setBusy(true);
+    setErr('');
+    try {
+      // Save goals and mark onboarding complete in the backend
+      await apiPost('/onboarding/goals', { goals, onboardingComplete: true });
+      markOnboardingComplete();
+      navigate('/home');
+    } catch (e: any) {
+      // If the user is guest or the endpoint fails, still mark locally
+      markOnboardingComplete();
+      navigate('/home');
+    } finally {
+      setBusy(false);
+    }
   }
 
   function toggleGoal(g: string) {
@@ -83,6 +95,14 @@ export default function OnboardingFlow() {
 
   return (
     <div className="onboarding-overlay">
+      {/* Progress indicator */}
+      <div className="onboarding-progress">
+        <span>Step {stepIndex + 1} of {STEPS.length}</span>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${((stepIndex + 1) / STEPS.length) * 100}%` }} />
+        </div>
+      </div>
+
       <div className="onboarding-step fade-in" key={step}>
         {step === 'welcome' && (
           <>
@@ -194,8 +214,9 @@ export default function OnboardingFlow() {
               Genie is ready. Tap the + button on the Home or Memory tabs to
               capture your first memory, or just start chatting.
             </p>
-            <button className="btn btn-block" onClick={finish}>
-              Open Genie
+            {err && <div className="small" style={{ color: 'var(--warning)', marginBottom: 12 }}>{err}</div>}
+            <button className="btn btn-block" onClick={finish} disabled={busy}>
+              {busy ? 'Saving...' : 'Open Genie'}
             </button>
           </>
         )}

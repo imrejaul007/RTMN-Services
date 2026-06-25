@@ -337,8 +337,10 @@ export interface CalendarEvent {
   description?: string;
   type: string;
   status: string;
-  startTime: string;
-  endTime: string;
+  start: string;        // canonical (used by HomeTab)
+  end?: string;         // canonical (used by HomeTab)
+  startTime?: string;   // alternative naming used by CalendarScreen
+  endTime?: string;     // alternative naming used by CalendarScreen
   location?: string;
   attendees?: string[];
   color?: string;

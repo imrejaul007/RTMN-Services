@@ -237,14 +237,14 @@ export function addShipmentEvent(shipmentId: string, event: Omit<ShipmentEvent, 
   return s;
 }
 
-export function updateTracking(poId: string, carrier: string, trackingNumber: string): Shipment | null {
-  const s = getShipmentForPO(poId);
+export function updateTracking(shipmentId: string, carrier: string, trackingNumber: string): Shipment | null {
+  const s = getShipment(shipmentId);
   if (!s) return null;
   s.carrier = carrier;
   s.trackingNumber = trackingNumber;
   s.status = 'picked_up';
   s.events.push({ timestamp: new Date().toISOString(), status: 'picked_up', description: `Shipment picked up. Tracking: ${trackingNumber}` });
-  const po = POs.get(poId);
+  const po = POs.get(s.poId);
   if (po) po.trackingNumber = trackingNumber;
   return s;
 }
