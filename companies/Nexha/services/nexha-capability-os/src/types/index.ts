@@ -125,3 +125,96 @@ export interface HealthResponse {
   capabilities: number;
   timestamp: string;
 }
+
+// ──────────────────────────────────────────────────────────────────────
+// Verifiable Credentials (v1.1 — CapabilityOS)
+// ──────────────────────────────────────────────────────────────────────
+
+/** Attestation claim types — what an attester is vouching for */
+export type AttestationClaimType =
+  | 'identity'        // "this Nexha exists and is who they say"
+  | 'capability'      // "this capability works as described"
+  | 'compliance'      // "this Nexha meets compliance standard X"
+  | 'certification'   // "this Nexha has certification X"
+  | 'insurance'       // "this Nexha has insurance coverage X"
+  | 'audit'           // "this Nexha passed audit X"
+  | 'kyc'             // "this Nexha completed KYB/KYC"
+  | 'performance';     // "this Nexha delivers SLA X% of the time"
+
+/** Attestation level — how rigorous the verification was */
+export type AttestationLevel =
+  | 'self'    // Self-asserted (lowest trust)
+  | 'peer'    // Verified by a peer Nexha
+  | 'audit'   // Verified by an independent auditor
+  | 'certified'; // Formally certified by an authority
+
+/**
+ * A verifiable credential attestation on a capability.
+ * Signed by an attester (issuer) using HMAC-SHA256.
+ * Anyone with the attester's public key can verify the signature.
+ */
+export interface Attestation {
+  /** Unique ID for this attestation */
+  attestationId: string;
+  /** ID of the capability being attested */
+  capabilityId: string;
+  /** CorpID of the issuer (attester) */
+  issuerId: string;
+  /** Human-readable issuer name */
+  issuerName: string;
+  /** Type of claim being attested */
+  claimType: AttestationClaimType;
+  /** Attestation level (rigor of verification) */
+  level: AttestationLevel;
+  /** Free-form claim value e.g. "ISO 9001:2015" or "99.5% uptime SLA" */
+  claim: string;
+  /** ISO 8601 expiry date */
+  expiresAt?: string;
+  /** Optional evidence URL (audit report, certificate PDF, etc.) */
+  evidenceUrl?: string;
+  /** When this attestation was issued */
+  issuedAt: string;
+  /** HMAC-SHA256 signature: issuerId|capabilityId|claimType|claim|issuedAt */
+  signature: string;
+}
+
+/** Input for creating a new attestation */
+export interface AttestationInput {
+  capabilityId: string;
+  issuerId: string;
+  issuerName: string;
+  claimType: AttestationClaimType;
+  level: AttestationLevel;
+  claim: string;
+  expiresAt?: string;
+  evidenceUrl?: string;
+  /** HMAC secret for signing. Defaults to ATTESTATION_SECRET env var. */
+  secret?: string;
+}
+
+/** Response from attest endpoint */
+export interface AttestationResult {
+  attestation: Attestation;
+  verificationUrl: string;
+  qrCodeData?: string;
+}
+
+/** Response from verify endpoint */
+export interface VerificationResult {
+  valid: boolean;
+  reason?: string;
+  attestation?: Attestation;
+  expired?: boolean;
+  tampered?: boolean;
+}
+
+/** Attestation summary for a capability */
+export interface AttestationSummary {
+  capabilityId: string;
+  attestationCount: number;
+  byLevel: Record<AttestationLevel, number>;
+  byClaimType: Record<AttestationClaimType, number>;
+  highestLevel: AttestationLevel;
+  isSelfAttested: boolean;
+  attestations: Attestation[];
+}

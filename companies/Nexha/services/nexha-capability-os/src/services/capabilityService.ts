@@ -5,6 +5,7 @@
  * Stores capabilities indexed by id + secondary indexes for fast lookup.
  */
 
+import { createHmac } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   Capability,
@@ -12,12 +13,32 @@ import type {
   CapabilityMatch,
   CapabilityQuery,
   CapabilitySearchResult,
-  NexhaCapabilityStats
+  NexhaCapabilityStats,
+  Attestation,
+  AttestationInput,
+  AttestationResult,
+  VerificationResult,
+  AttestationSummary,
+  AttestationLevel,
+  AttestationClaimType
 } from '../types/index.js';
 
 class CapabilityService {
   /** Primary store: capabilityId -> Capability */
   private store = new Map<string, Capability>();
+
+  /** Attestation store: capabilityId -> Attestation[] */
+  private attestations = new Map<string, Attestation[]>();
+
+  /** HMAC signing secret (per-instance, from env or default) */
+  private get signingSecret(): string {
+    // Dynamic import avoids hard dependency when not needed
+    try {
+      return process.env.ATTESTATION_SECRET ?? 'nexha-capability-os-v1-default-secret';
+    } catch {
+      return 'nexha-capability-os-v1-default-secret';
+    }
+  }
 
   /** Seed catalog on boot — gives the demo something to query */
   seedDemoCapabilities(): number {
@@ -356,6 +377,229 @@ class CapabilityService {
   /** Clear store (testing only). */
   clear(): void {
     this.store.clear();
+  }
+
+  // ────────────────────────────────────────────────────────────────
+  // Verifiable Credentials (v1.1)
+  // ────────────────────────────────────────────────────────────────
+
+  /** HMAC-SHA256 sign a payload string. */
+  private sign(payload: string, secret: string): string {
+    return createHmac('sha256', secret).update(payload).digest('hex');
+  }
+
+  /** Build the canonical signing string for an attestation. */
+  private signingString(input: AttestationInput, issuedAt: string): string {
+    return [
+      input.issuerId,
+      input.capabilityId,
+      input.claimType,
+      input.claim,
+      issuedAt
+    ].join('|');
+  }
+
+  /**
+   * Issue a verifiable credential attestation on a capability.
+   * Signs with HMAC-SHA256. Verification requires the same secret.
+   */
+  attest(input: AttestationInput): AttestationResult {
+    if (!this.store.has(input.capabilityId)) {
+      throw new Error(`Capability not found: ${input.capabilityId}`);
+    }
+
+    const secret = input.secret ?? this.signingSecret;
+    const issuedAt = new Date().toISOString();
+    const sigString = this.signingString(input, issuedAt);
+    const signature = this.sign(sigString, secret);
+
+    const attestation: Attestation = {
+      attestationId: `att-${uuidv4()}`,
+      capabilityId: input.capabilityId,
+      issuerId: input.issuerId,
+      issuerName: input.issuerName,
+      claimType: input.claimType,
+      level: input.level,
+      claim: input.claim,
+      expiresAt: input.expiresAt,
+      evidenceUrl: input.evidenceUrl,
+      issuedAt,
+      signature
+    };
+
+    // Store
+    const existing = this.attestations.get(input.capabilityId) ?? [];
+    existing.push(attestation);
+    this.attestations.set(input.capabilityId, existing);
+
+    // Mark the capability as verified if issuer is trusted (level >= audit)
+    if (attestation.level === 'audit' || attestation.level === 'certified') {
+      const cap = this.store.get(input.capabilityId);
+      if (cap && !cap.trust.verified) {
+        this.update(input.capabilityId, {
+          trust: { ...cap.trust, verified: true }
+        });
+      }
+    }
+
+    const verificationUrl = `/api/v1/capabilities/${input.capabilityId}/verify?attestationId=${attestation.attestationId}`;
+
+    return { attestation, verificationUrl };
+  }
+
+  /**
+   * Verify a single attestation by ID.
+   * Checks: signature integrity, expiry, capability existence.
+   */
+  verifyAttestation(capabilityId: string, attestationId: string, secret?: string): VerificationResult {
+    const atts = this.attestations.get(capabilityId) ?? [];
+    const att = atts.find((a) => a.attestationId === attestationId);
+    if (!att) {
+      return { valid: false, reason: `Attestation not found: ${attestationId}` };
+    }
+
+    // Check expiry
+    if (att.expiresAt && new Date(att.expiresAt) < new Date()) {
+      return { valid: false, reason: 'Attestation has expired', attestation: att, expired: true };
+    }
+
+    // Check capability still exists
+    if (!this.store.has(capabilityId)) {
+      return { valid: false, reason: 'Capability was deleted', attestation: att };
+    }
+
+    // Re-sign and compare
+    const secret_ = secret ?? this.signingSecret;
+    const sigString = [
+      att.issuerId,
+      att.capabilityId,
+      att.claimType,
+      att.claim,
+      att.issuedAt
+    ].join('|');
+    const expectedSig = this.sign(sigString, secret_);
+    if (expectedSig !== att.signature) {
+      return { valid: false, reason: 'Signature mismatch — possible tampering', attestation: att, tampered: true };
+    }
+
+    return { valid: true, attestation: att };
+  }
+
+  /**
+   * Verify ALL attestations for a capability.
+   * Returns a summary with per-attestation results.
+   */
+  verifyAll(capabilityId: string, secret?: string): AttestationSummary {
+    const atts = this.attestations.get(capabilityId) ?? [];
+    const cap = this.store.get(capabilityId);
+
+    const byLevel: Record<AttestationLevel, number> = { self: 0, peer: 0, audit: 0, certified: 0 };
+    const byClaimType: Record<AttestationClaimType, number> = {
+      identity: 0, capability: 0, compliance: 0, certification: 0,
+      insurance: 0, audit: 0, kyc: 0, performance: 0
+    };
+
+    const LEVEL_RANK: Record<AttestationLevel, number> = { self: 0, peer: 1, audit: 2, certified: 3 };
+
+    for (const att of atts) {
+      byLevel[att.level]++;
+      byClaimType[att.claimType]++;
+    }
+
+    const verifiedAtts = atts.map((att) => {
+      const result = this.verifyAttestation(capabilityId, att.attestationId, secret);
+      return { ...att, _verified: result.valid, _expired: result.expired };
+    });
+
+    const highestLevel = atts.reduce<AttestationLevel>((best, att) => {
+      return LEVEL_RANK[att.level] > LEVEL_RANK[best] ? att.level : best;
+    }, 'self');
+
+    const isSelfAttested = atts.length > 0 && atts.every((a) => a.level === 'self');
+
+    return {
+      capabilityId,
+      attestationCount: atts.length,
+      byLevel,
+      byClaimType,
+      highestLevel,
+      isSelfAttested,
+      attestations: verifiedAtts
+    };
+  }
+
+  /** List attestations for a capability. */
+  listAttestations(capabilityId: string): Attestation[] {
+    return this.attestations.get(capabilityId) ?? [];
+  }
+
+  /** Revoke an attestation. */
+  revokeAttestation(capabilityId: string, attestationId: string): boolean {
+    const atts = this.attestations.get(capabilityId);
+    if (!atts) return false;
+    const before = atts.length;
+    const filtered = atts.filter((a) => a.attestationId !== attestationId);
+    if (filtered.length < before) {
+      this.attestations.set(capabilityId, filtered);
+      return true;
+    }
+    return false;
+  }
+
+  /** Seed demo attestations for the seeded capabilities. */
+  seedDemoAttestations(): number {
+    const caps = Array.from(this.store.values());
+    if (caps.length === 0) return 0;
+
+    const issuers = [
+      { id: 'nexha-governance', name: 'Nexha Federation Governance' },
+      { id: 'nexha-auditor', name: 'Nexha Audit Authority' },
+      { id: 'nexha-certification-body', name: 'Nexha Certification Body' }
+    ];
+
+    const demoAttestations: AttestationInput[] = [
+      // AI Fashion Negotiation — certified by governance
+      {
+        capabilityId: '', issuerId: 'nexha-governance', issuerName: 'Nexha Federation Governance',
+        claimType: 'capability', level: 'certified',
+        claim: 'AI agent trained on 100K+ fashion procurement negotiations',
+        expiresAt: new Date(Date.now() + 365 * 86400000).toISOString(),
+        evidenceUrl: 'https://nexha.io/cert/ai-fashion-negotiation'
+      },
+      // Mumbai Delivery — peer-verified by logistics network
+      {
+        capabilityId: '', issuerId: 'nexha-auditor', issuerName: 'Nexha Audit Authority',
+        claimType: 'performance', level: 'audit',
+        claim: '98.2% on-time delivery, Mumbai Metropolitan Region, Q1 2026',
+        expiresAt: new Date(Date.now() + 90 * 86400000).toISOString(),
+        evidenceUrl: 'https://nexha.io/audit/mumbai-delivery-q1'
+      },
+      // Tax Advisor — certified
+      {
+        capabilityId: '', issuerId: 'nexha-certification-body', issuerName: 'Nexha Certification Body',
+        claimType: 'certification', level: 'certified',
+        claim: 'Certified Cross-Border Tax Advisor (SG/IN) — Credential ID: NXH-TAX-2026-001',
+        expiresAt: new Date(Date.now() + 365 * 86400000).toISOString(),
+        evidenceUrl: 'https://nexha.io/cert/tax-advisor-sg-in'
+      },
+      // Contract Review — compliance attestation
+      {
+        capabilityId: '', issuerId: 'nexha-auditor', issuerName: 'Nexha Audit Authority',
+        claimType: 'compliance', level: 'audit',
+        claim: 'Compliant with UK Common Law Contract Standards — Audit Ref: NXH-LEGAL-2026-Q2'
+      }
+    ];
+
+    let count = 0;
+    for (const cap of caps) {
+      for (const demo of demoAttestations) {
+        try {
+          this.attest({ ...demo, capabilityId: cap.id });
+          count++;
+        } catch { /* capability may not match; skip */ }
+      }
+    }
+    return count;
   }
 }
 

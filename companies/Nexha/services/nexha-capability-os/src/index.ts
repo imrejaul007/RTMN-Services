@@ -14,6 +14,11 @@
  *   GET    /api/v1/match                     Match query (query params)
  *   GET    /api/v1/nexhas/:nexhaId/stats     Per-Nexha stats
  *   GET    /api/v1/stats                     Federation-wide stats
+ *   POST   /api/v1/capabilities/:id/attest   Issue a verifiable credential
+ *   GET    /api/v1/capabilities/:id/attestations    List attestations
+ *   GET    /api/v1/capabilities/:id/verify         Verify attestations
+ *   GET    /api/v1/capabilities/:id/verify/:attestationId  Verify one attestation
+ *   DELETE /api/v1/capabilities/:id/attestations/:attestationId  Revoke
  *   GET    /health
  */
 
@@ -28,7 +33,10 @@ import type {
   Capability,
   CapabilityCategory,
   CapabilityQuery,
-  HealthResponse
+  HealthResponse,
+  AttestationInput,
+  AttestationClaimType,
+  AttestationLevel
 } from './types/index.js';
 
 const app = express();
@@ -79,6 +87,8 @@ if (REQUIRE_AUTH) {
 // ────────────────────────────────────────────────────────────────────
 const seeded = capabilityService.seedDemoCapabilities();
 console.log(`[nexha-capability-os] seeded ${seeded} demo capabilities`);
+const attestSeedCount = capabilityService.seedDemoAttestations();
+console.log(`[nexha-capability-os] seeded ${attestSeedCount} demo attestations`);
 
 // ────────────────────────────────────────────────────────────────────
 // Zod validators
@@ -114,6 +124,22 @@ const CapabilityInputSchema = z.object({
 });
 
 const CapabilityPatchSchema = CapabilityInputSchema.partial();
+
+const AttestationClaimTypeSchema = z.enum([
+  'identity', 'capability', 'compliance', 'certification',
+  'insurance', 'audit', 'kyc', 'performance'
+]);
+const AttestationLevelSchema = z.enum(['self', 'peer', 'audit', 'certified']);
+
+const AttestationInputSchema = z.object({
+  issuerId: z.string().min(1),
+  issuerName: z.string().min(1),
+  claimType: AttestationClaimTypeSchema,
+  level: AttestationLevelSchema,
+  claim: z.string().min(1).max(500),
+  expiresAt: z.string().datetime().optional(),
+  evidenceUrl: z.string().url().optional()
+});
 
 const MatchQuerySchema = z.object({
   q: z.string().optional(),

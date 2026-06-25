@@ -3,7 +3,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.js'],
-    globals: false,
+    globals: true,
     testTimeout: 10000,
   },
 });

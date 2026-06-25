@@ -1,4 +1,13 @@
 import helmet from 'helmet';
+import express from 'express';
+import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
+import { requireEnv } from '@rtmn/shared/lib/env';
+import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
+import { v4 as uuidv4 } from 'uuid';
+import persistence from './persistence.js';
+import embedClient from './embed-client.js';
+import { requireAuthMw, requireAuth, getRequireAuth, setRequireAuth } from './auth.js';
+
 /**
  * MemoryOS - The Universal Memory Layer
  *
@@ -18,14 +27,7 @@ import helmet from 'helmet';
  *   - Hybrid search: keyword + semantic
  */
 
-const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
-const { v4: uuidv4 } = require('uuid');
-const persistence = require('./persistence');
-const embedClient = require('./embed-client');
-const { requireAuthMw, requireAuth, getRequireAuth, setRequireAuth } = require('./auth');
+const app = express();
 
 const PORT = process.env.PORT || 4703;
 const app = express();
