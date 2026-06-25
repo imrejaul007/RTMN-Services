@@ -19,6 +19,7 @@ const SERVICES = [
   { name: 'business-directory', port: 4360, path: '/health' },
   { name: 'partner-graph', port: 4363, path: '/health' },
   { name: 'commerce-runtime', port: 4364, path: '/health' },
+  { name: 'nexha-partner-network', port: 4297, path: '/health' },
   { name: 'capability-os', port: 4270, path: '/health' },
   { name: 'acp-messaging', port: 4340, path: '/health' },
   { name: 'agent-marketplace', port: 4250, path: '/' },

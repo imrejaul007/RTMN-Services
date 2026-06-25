@@ -170,7 +170,7 @@ The data volume persists across tier changes.
 | 4363 | Partner Graph | — | ✅ | ✅ |
 | 4364 | Commerce Runtime | — | ✅ | ✅ |
 | 9090 | Prometheus | — | — | ✅ |
-| 3001 | Grafana | — | — | ✅ |
+| 3030 | Grafana | — | — | ✅ |
 
 ---
 

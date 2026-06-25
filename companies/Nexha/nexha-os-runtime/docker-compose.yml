@@ -24,7 +24,7 @@
 #   4289  Contract Network  4296  Payment Network  (4290 reserved)
 #   4290  Compliance Net    4292  Partner Network
 #   4340  ACP Messaging    9090  Prometheus
-#                                       3001  Grafana
+#                                       3001  do-app          3030  Grafana
 # ================================================================
 
 version: "3.9"
@@ -367,10 +367,10 @@ services:
     restart: unless-stopped
     environment:
       <<: *common-env
-      PORT: 4292
+      PORT: 4297
       CORPID_URL: http://corp-id:4702
     ports:
-      - "4292:4292"
+      - "4297:4297"
     volumes:
       <<: *common-volumes
     networks:
@@ -527,7 +527,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: \${GRAFANA_PASSWORD:-nexha}
     ports:
-      - "3001:3000"
+      - "3030:3000"
     volumes:
       - nexha-grafana-data:/var/lib/grafana
     networks:

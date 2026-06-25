@@ -45,7 +45,7 @@ You get:
 - Docker 24.0+
 - Docker Compose v2 (or `docker-compose` plugin)
 - 1–8 GB RAM depending on tier
-- Ports 4270, 4280, 4285–4288, 4291, 4292, 4294, 4295, 4340, 4250, 4360, 4362–4364, 4702, 4703, 4705, 5000, 4140, 9090, 3001 available
+- Ports 4270, 4280, 4285–4288, 4291, 4292, 4294, 4295, 4297, 4340, 4250, 4360, 4362–4364, 4702, 4703, 4705, 5000, 4140, 9090, 3030 available
 
 ## Quick Start
 
@@ -132,6 +132,7 @@ See [`.env.example`](.env.example) for all configurable variables. Key ones:
 | 4294 | Economy OS | Standard+ |
 | 4270 | CapabilityOS | Enterprise |
 | 4280 | Supplier Network | Standard+ |
+| 4297 | Partner Network | Standard+ |
 | 4285 | Distribution Network | Standard+ |
 | 4286 | Pricing Network | Standard+ |
 | 4287 | Trade Finance | Standard+ |
@@ -143,7 +144,7 @@ See [`.env.example`](.env.example) for all configurable variables. Key ones:
 | 4363 | Partner Graph | Standard+ |
 | 4364 | Commerce Runtime | Standard+ |
 | 9090 | Prometheus | Enterprise |
-| 3001 | Grafana | Enterprise |
+| 3030 | Grafana | Enterprise |
 
 ## Federation API
 

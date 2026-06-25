@@ -85,6 +85,7 @@ nexha-os-runtime/
 | 4270 | CapabilityOS | Enterprise | Capability registry |
 | 4273 | FederationOS | All | Federation management |
 | 4280 | Supplier Network | Standard+ | Supplier discovery |
+| 4297 | Partner Network | Standard+ | Partner relationship management |
 | 4281 | Supplier Registry | Standard+ | Trade lifecycle (KYB→contract→PO→payment) |
 | 4285 | Distribution Network | Standard+ | Channel management |
 | 4286 | Pricing Network | Standard+ | Market price aggregation |
@@ -96,7 +97,7 @@ nexha-os-runtime/
 | 4363 | Partner Graph | Standard+ | Partner relationships |
 | 4364 | Commerce Runtime | Standard+ | Trade operations |
 | 9090 | Prometheus | Enterprise | Metrics collection |
-| 3001 | Grafana | Enterprise | Dashboards |
+| 3030 | Grafana | Enterprise | Dashboards |
 
 ### Build contexts
 
@@ -204,7 +205,7 @@ These services exist in the spec but are stubbed/pending:
 | **nexha-contract-network** | 4289 | Missing — implement with SUTAR Contract OS integration |
 | **nexha-compliance-network** | 4290 | Missing — compliance + KYB service |
 | **nexha-payment-network** | 4291 | Missing — payment orchestration (use RABTUL) |
-| **nexha-partner-network** | 4292 | Missing — dedicated partner network service |
+| **nexha-partner-network** | 4297 | ✅ Implemented (moved from 4292 to avoid conflict with Contract OS)
 
 ---
 

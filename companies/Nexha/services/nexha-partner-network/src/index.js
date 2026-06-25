@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
 
-const PORT = process.env.PORT || 4292;
+const PORT = process.env.PORT || 4297;
 const CORPID_URL = process.env.CORPID_URL || 'http://corp-id:4702';
 
 const app = express();

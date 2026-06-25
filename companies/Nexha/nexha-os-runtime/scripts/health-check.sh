@@ -36,7 +36,7 @@ SERVICES=(
   "nexha-contract-network:4289:/health"
   "nexha-compliance-network:4290:/health"
   "nexha-payment-network:4296:/health"
-  "nexha-partner-network:4292:/health"
+  "nexha-partner-network:4297:/health"
   # Enterprise
   "nexha-capability-os:4270:/health"
   "nexha-acp-messaging:4340:/health"
