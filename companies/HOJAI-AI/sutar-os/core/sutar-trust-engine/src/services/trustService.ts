@@ -1,5 +1,5 @@
-import { config } from '../config.js';
-import logger from '../utils/logger.js';
+import { config } from '../config.ts';
+import logger from '../utils/logger.ts';
 import {
   TrustLevel,
   EntityType,
@@ -14,7 +14,7 @@ import {
   RiskLevel,
   CalculateTrustScoreRequest,
   TrustScoreResponse,
-} from '../types.js';
+} from '../types.ts';
 
 // In-memory store for trust scores (in production, use a database)
 const trustScoreStore = new Map<string, ITrustScore>();

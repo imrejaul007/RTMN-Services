@@ -144,14 +144,18 @@ blr-ai-marketplace/
 
 ## ▶️ Quick Start
 
-### Start all 7 backend services
+### Start all 8 backend services
 
 ```bash
 cd companies/HOJAI-AI/blr-ai-marketplace/services
 
-for svc in discovery-engine roi-calculator blr-exploration blr-founder-os \
+# Start marketplace-listings first (requires MongoDB)
+(cd marketplace-listings && npm start > /tmp/bam-listings.log 2>&1 &)
+
+# Start other services
+for svc in discovery-engine roi-calculator blr-founder-os \
            blr-multi-agent-evaluator blr-reputation-aggregator twin-marketplace; do
-  (cd "$svc" && node src/index.js > /tmp/$svc.log 2>&1 &)
+  (cd "$svc" && node src/index.js > /tmp/bam-$svc.log 2>&1 &)
 done
 
 sleep 4
@@ -160,38 +164,57 @@ for p in 4255 4256 4257 4258 4259 4260 4146; do
 done
 ```
 
-### Run smoke tests
+### Access via RTMN Hub (4399)
 
 ```bash
-cd companies/HOJAI-AI/blr-ai-marketplace/services
-for svc in */; do
-  echo "=== $svc ==="
-  (cd "$svc" && bash tests/smoke.sh 2>&1 | tail -3)
-done
+# Direct to Hub
+curl http://localhost:4399/api/bam/marketplace-listings/health
+curl http://localhost:4399/api/bam/discovery-engine/health
+
+# Or via marketplace alias
+curl http://localhost:4399/api/marketplace/marketplace-listings/health
 ```
 
-### Start the Next.js storefront
+### Run vitest tests (marketplace-listings)
+
+```bash
+cd companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings
+npm test
+```
+
+### Start the Next.js storefront (TODO)
 
 ```bash
 cd companies/HOJAI-AI/blr-ai-marketplace
 npm install
 npm run dev   # http://localhost:3000
+# ⚠️ Storefront is scaffold-only, needs full build
 ```
 
 ---
 
-## 🧪 Smoke Test Results (2026-06-21)
+## 🧪 Test Results
 
-| Service | Port | Tests Passed |
-|---------|------|--------------|
-| discovery-engine | 4256 | 7/7 ✅ |
-| roi-calculator | 4259 | 7/7 ✅ |
-| blr-exploration | 4255 | 7/7 ✅ |
-| blr-founder-os | 4260 | 9/9 ✅ |
-| blr-multi-agent-evaluator | 4257 | 5/5 ✅ |
-| blr-reputation-aggregator | 4258 | 7/7 ✅ |
-| twin-marketplace | 4146 | 11/11 ✅ |
-| **TOTAL** | | **53/53** ✅ |
+### Vitest (marketplace-listings) — ✅ 81 passing
+
+| Test File | Tests |
+|-----------|-------|
+| listingsService.test.js | 27 |
+| reviewsService.test.js | 19 |
+| routes.test.js | 35 |
+| **TOTAL** | **81 passing** |
+
+### Smoke Tests (other services) — ⚠️ Not verified
+
+| Service | Port | Tests |
+|---------|------|-------|
+| discovery-engine | 4256 | 7 |
+| roi-calculator | 4259 | 7 |
+| blr-exploration | 4255 | 7 |
+| blr-founder-os | 4260 | 9 |
+| blr-multi-agent-evaluator | 4257 | 5 |
+| blr-reputation-aggregator | 4258 | 7 |
+| twin-marketplace | 4146 | 11 |
 
 ---
 
@@ -228,15 +251,29 @@ RTMN Sync Hub (4399) → BAM Services
 
 ---
 
-## ⚠️ Known Limitations (Honest)
+## 📋 Category Coverage (vs Spec)
 
-- **Storefront has package.json but no `app/` or `components/` yet** — Next.js UI is scaffold-only
-- **Backend services are ~150-500 LOC each** — basic CRUD, no real ML recommendation yet
-- **No payment integration** — Stripe is in storefront `package.json` but no checkout endpoint exists yet
-- **No persistence layer** — most services are in-memory; would need MongoDB to survive restart
-- **Only 8 of 35+ categories** — missing AI Employees, Department OS, Industry Packs, Business Capability Packs
-- **No AI recommender** — basic keyword search only
-- **No revenue tracking** — 70-80% developer revenue share not implemented
+| Spec Category | Implemented | Priority |
+|--------------|-------------|----------|
+| ✅ Twin Packs | 6 seeded | Done |
+| ✅ Workflows | Schema only | Basic |
+| ✅ Integrations | Schema only | Basic |
+| ⚠️ AI Agents | Schema only | Add listings |
+| ❌ AI Employees | Missing | HIGH |
+| ❌ AI Teams | Missing | HIGH |
+| ❌ Department OS | Missing | HIGH |
+| ❌ Industry OS | Missing | HIGH |
+| ❌ SkillOS Skills | Missing | HIGH |
+| ❌ Business Capability Packs | Missing | **KILLER** |
+| ❌ Company Blueprints | Missing | HIGH |
+| ❌ Widgets | Missing | HIGH |
+| ❌ Memory Packs | Missing | MED |
+| ❌ Policy Packs | Missing | MED |
+| ❌ APIs | Missing | MED |
+| ❌ Themes | Missing | LOW |
+| ❌ UI Kits | Missing | LOW |
+
+**27+ categories missing. See [BAM-AUDIT-2026-06-26.md](../../../.claude/audits/BAM-AUDIT-2026-06-26.md) for details.**
 
 ---
 
@@ -244,15 +281,17 @@ RTMN Sync Hub (4399) → BAM Services
 
 - [BLR Storefront README](README.md)
 - [BLR Product Catalog](CATALOG.md)
+- [BAM Audit Report](../../../.claude/audits/BAM-AUDIT-2026-06-26.md) — complete audit findings
 - [SUTAR OS CLAUDE.md](../CLAUDE.md) — sibling product
 - [Salar OS CLAUDE.md](../platform/twins/salar-os/CLAUDE.md) — workforce intelligence (not marketplace)
 
 ---
 
-## 📝 Migration History
+## 📝 Migration & Audit History
 
 | Date | Event |
 |------|-------|
 | Pre-2026 | Marketplace docs claimed to be at `sutar-os/marketplace/` |
 | 2026-06-20 | Audit found 7 services + Next.js storefront split across two locations |
 | **2026-06-21** | **All 7 marketplace services merged into `blr-ai-marketplace/services/`. Folders renamed `sutar-*` → `blr-*`. Package names → `@hojai/blr-*`. SUTAR OS is now clean (4 subsystems). All 53 smoke tests passing.** |
+| **2026-06-26** | **BAM Audit completed. Found ~12% functional vs spec claims of 70%. Fixed HTTP method mismatch in blr-exploration. Added Hub routes for all BAM services. Registered BAM in Hub registry. Documented remaining gaps.** |

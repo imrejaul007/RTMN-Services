@@ -36,8 +36,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { negotiationService } from './services/negotiation.service.js';
 import { computeZOPA, diagnostics } from './services/zopa.service.js';
 import * as rezIntel from './rez-intel-client.js';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { emit: emitEvent, shutdown: shutdownEvents } = require('./services/events');
+import { emit as emitEvent, shutdown as shutdownEvents } from './services/events.js';
 import {
   CreateNegotiationSchema,
   NegotiationQuerySchema,

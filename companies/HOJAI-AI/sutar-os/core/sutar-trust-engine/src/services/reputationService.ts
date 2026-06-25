@@ -1,11 +1,11 @@
-import logger from '../utils/logger.js';
+import logger from '../utils/logger.ts';
 import trustService from './trustService.js';
-import { config } from '../config.js';
+import { config } from '../config.ts';
 import {
   IReputation,
   IActivityEntry,
   ReputationResponse,
-} from '../types.js';
+} from '../types.ts';
 
 // In-memory store for reputation data
 const reputationStore = new Map<string, IReputation>();

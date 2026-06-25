@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import logger from '../utils/logger.js';
+import logger from '../utils/logger.ts';
 import trustService from './trustService.js';
 import {
   IVerificationRequest,
@@ -12,7 +12,7 @@ import {
   VerificationResponse,
   KYCResponse,
   KYCMergeRequest,
-} from '../types.js';
+} from '../types.ts';
 
 // In-memory stores
 const verificationStore = new Map<string, IVerificationRequest>();
