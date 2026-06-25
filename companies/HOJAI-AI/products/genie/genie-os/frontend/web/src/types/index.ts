@@ -52,18 +52,7 @@ export interface Briefing {
   calendarToday?: Array<{ id: string; title: string; time: string }>;
 }
 
-// === Calendar ===
-
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  start: string;
-  end?: string;
-  description?: string;
-  location?: string;
-  attendees?: string[];
-  category?: string;
-}
+// === Calendar (see CalendarScreen.tsx for inline CalendarEvent interface) ===
 
 // === Money ===
 

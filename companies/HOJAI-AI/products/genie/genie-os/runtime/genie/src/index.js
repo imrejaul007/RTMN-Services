@@ -361,6 +361,7 @@ app.get('/api/genie-services/health', async (req, res) => {
     { name: 'genie-consultant-agent',      url: GENIE_CONSULTANT_AGENT_URL },
     // Voice OS enterprise platform
     { name: 'voice-os',                url: VOICE_OS_URL,           skip: !USE_VOICE_OS },
+    { name: 'voice-gateway',           url: VOICE_GATEWAY_URL,      skip: !USE_VOICE_OS },
     { name: 'voice-commerce',          url: VOICE_COMMERCE_URL,     skip: !USE_VOICE_OS },
     { name: 'voice-ai-service',        url: VOICE_AI_SERVICE_URL,   skip: !USE_VOICE_OS },
     { name: 'voice-twin',              url: VOICE_TWIN_URL },
@@ -1508,6 +1509,123 @@ app.get('/api/voice/commerce/orders/:userId', authMiddleware, async (req, res, n
     const r = await axios.get(`${VOICE_COMMERCE_URL}/api/voice/commerce/orders/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
     res.json({ success: true, data: r.data?.data || r.data, meta: { timestamp: new Date().toISOString() } });
   } catch (e) { next(e); }
+});
+
+// === HOJAI Voice Gateway — Training-aware STT/TTS (port 4880) ===
+// Routes: POST /api/v1/stt, /api/v1/tts, /api/v1/detect-language, /api/v1/analyze-audio
+// Training: POST /api/v1/training/benchmark, /upload, /export, GET /stats, DELETE /samples
+app.post('/api/v1/stt', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/stt`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 30000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.post('/api/v1/stt/batch', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/stt/batch`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 60000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.get('/api/v1/stt/engines', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_GATEWAY_URL}/api/v1/stt/engines`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.post('/api/v1/tts', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/tts`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 30000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.get('/api/v1/tts/engines', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_GATEWAY_URL}/api/v1/tts/engines`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.post('/api/v1/detect-language', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/detect-language`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.post('/api/v1/analyze-audio', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/analyze-audio`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+// === Voice Gateway Training Pipeline ===
+app.post('/api/v1/training/benchmark', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/training/benchmark`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 120000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.post('/api/v1/training/samples/upload', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/training/samples/upload`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 60000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.get('/api/v1/training/stats', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_GATEWAY_URL}/api/v1/training/stats`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.post('/api/v1/training/export', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.post(`${VOICE_GATEWAY_URL}/api/v1/training/export`, req.body, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 60000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.delete('/api/v1/training/samples', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.delete(`${VOICE_GATEWAY_URL}/api/v1/training/samples`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 10000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+// === Cost Tracking ===
+app.get('/api/v1/cost/daily', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_GATEWAY_URL}/api/v1/cost/daily`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.get('/api/v1/cost/monthly', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_GATEWAY_URL}/api/v1/cost/monthly`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.get('/api/v1/cost/users/:userId', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_GATEWAY_URL}/api/v1/cost/users/${req.params.userId}`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
+});
+
+app.get('/api/v1/cost/top-users', authMiddleware, async (req, res, next) => {
+  try {
+    const r = await axios.get(`${VOICE_GATEWAY_URL}/api/v1/cost/top-users`, { headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN }, timeout: 5000 });
+    res.status(r.status).json(r.data);
+  } catch (e) { if (e.response) res.status(e.response.status).json(e.response.data); else next(e); }
 });
 
 // === RAZO Keyboard — Communication OS (consumer-side input) ===
