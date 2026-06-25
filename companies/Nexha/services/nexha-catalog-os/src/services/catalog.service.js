@@ -321,12 +321,15 @@ export function getCatalogStats(tenantId) {
     }
   }
 
+  // Count non-archived products by category (active + draft)
+  const nonArchived = products.filter(p => p.status !== 'archived');
+
   return {
     total: products.length,
     active: active.length,
     draft: draft.length,
     archived: archived.length,
-    byCategory: active.reduce((acc, p) => {
+    byCategory: nonArchived.reduce((acc, p) => {
       acc[p.category] = (acc[p.category] || 0) + 1;
       return acc;
     }, {}),

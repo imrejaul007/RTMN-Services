@@ -57,11 +57,11 @@ start_with_install() {
 # sada-os: TypeScript, runs via tsx
 start_tsx "sada-os"          4190 "companies/HOJAI-AI/platform/trust/sada-os"
 # trust-engine: TypeScript, runs via tsx
-start_ts_run "trust-engine" 4291 "companies/HOJAI-AI/sutar-os/core/sutar-trust-engine"
+start_tsx "trust-engine"    4291 "companies/HOJAI-AI/sutar-os/core/sutar-trust-engine"
 # contract-os: TypeScript, runs via tsx
-start_ts_run "contract-os"   4292 "companies/HOJAI-AI/sutar-os/contracts/sutar-contract-os"
+start_tsx "contract-os"     4292 "companies/HOJAI-AI/sutar-os/contracts/sutar-contract-os"
 # negotiation-engine: TypeScript, runs via tsx
-start_ts_run "negotiation"   4293 "companies/HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine"
+start_tsx "negotiation"     4293 "companies/HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine"
 
 # ── Core Foundation ──────────────────────────────────────────────────────────
 # corp-id: index.persistent.js (uses CommonJS)
@@ -78,10 +78,10 @@ start_node "twin-mem-bridge"  4704 "companies/HOJAI-AI/platform/twins/twin-memor
 start_node "twinos-hub"       4705 "companies/HOJAI-AI/platform/twins/twinos-hub" "src/index.js"
 
 # ── Nexha Phase D federation ───────────────────────────────────────────────
-# nexha-federation-os: TypeScript, needs build
-start_ts_run "nexha-fed-os" 4273 "companies/Nexha/services/nexha-federation-os"
-# nexha-global-directory: TypeScript, needs build
-start_ts_run "nexha-global" 4276 "companies/Nexha/services/nexha-global-directory"
+# nexha-federation-os: TypeScript, runs via tsx
+start_tsx "nexha-fed-os"    4273 "companies/Nexha/services/nexha-federation-os"
+# nexha-global-directory: TypeScript, runs via tsx
+start_tsx "nexha-global"    4276 "companies/Nexha/services/nexha-global-directory"
 
 # ── Nexha partner network ──────────────────────────────────────────────────
 # nexha-partner-network: needs npm install (express-rate-limit missing)

@@ -232,6 +232,11 @@ describe('Product CRUD', () => {
 // ── List Products ───────────────────────────────────────────────────────────
 
 describe('listAllProducts', () => {
+  // Clear store BEFORE each test to prevent cross-test data leakage
+  beforeEach(() => {
+    clearStore();
+  });
+
   test('returns tenant-scoped products', () => {
     makeProduct({ name: 'Rice', category: 'food' });
     makeProduct({ name: 'Wheat', category: 'food' });

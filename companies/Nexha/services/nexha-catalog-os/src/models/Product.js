@@ -135,7 +135,7 @@ export class Product {
   canTransitionTo(newStatus) {
     const transitions = {
       draft: ['active', 'archived'],
-      active: ['draft', 'archived'],
+      active: ['archived'],  // cannot go back to draft
       archived: ['active'],
     };
     return transitions[this.status]?.includes(newStatus) || false;

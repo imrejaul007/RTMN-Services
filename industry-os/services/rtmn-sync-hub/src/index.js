@@ -17,10 +17,81 @@
 const express = require('express');
 const cors = require('cors');
 const { EventEmitter } = require('events');
+const http = require('http');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ============================================================
+// BAM PROXY - Route to BLR AI Marketplace services
+// ============================================================
+
+const BAM_SERVICES = {
+  'marketplace-listings': 'http://localhost:4255',
+  'discovery-engine': 'http://localhost:4256',
+  'roi-calculator': 'http://localhost:4259',
+  'founder-os': 'http://localhost:4260',
+  'multi-agent-evaluator': 'http://localhost:4257',
+  'reputation-aggregator': 'http://localhost:4258',
+  'twin-marketplace': 'http://localhost:4146',
+  'exploration': 'http://localhost:4255',
+};
+
+// Helper to proxy requests to BAM services
+function proxyToBAM(targetPath, targetPort) {
+  return (req, res) => {
+    const target = `http://localhost:${targetPort}${req.url}`;
+    const options = {
+      hostname: 'localhost',
+      port: targetPort,
+      path: req.url,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        'x-forwarded-for': req.ip,
+        'x-forwarded-proto': 'http',
+      },
+    };
+
+    const proxyReq = http.request(options, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error(`[BAM Proxy] Error connecting to ${target}:`, err.message);
+      res.status(502).json({ error: 'BAM service unavailable', target, message: err.message });
+    });
+
+    if (req.body && Object.keys(req.body).length > 0) {
+      proxyReq.write(JSON.stringify(req.body));
+    }
+    proxyReq.end();
+  };
+}
+
+// Register BAM services
+for (const [name, url] of Object.entries(BAM_SERVICES)) {
+  const port = parseInt(url.split(':')[2]);
+  app.use(`/api/bam/${name}`, proxyToBAM(name, port));
+  app.use(`/api/marketplace/${name}`, proxyToBAM(name, port));
+}
+
+// BAM health check endpoint
+app.get('/api/bam/health', (req, res) => {
+  const bamServices = Object.entries(BAM_SERVICES).map(([name, url]) => ({
+    name,
+    port: parseInt(url.split(':')[2]),
+    status: 'unknown',
+  }));
+  res.json({
+    service: 'BAM Integration',
+    tagline: 'BLR AI Marketplace proxy',
+    services: bamServices,
+    note: 'BAM services run at ports 4146, 4255-4260',
+  });
+});
 
 const PORT = process.env.PORT || 4399;
 
@@ -741,8 +812,19 @@ app.listen(PORT, () => {
   console.log(`║  ✅ Version Tracker (Know what's running)                     ║`);
   console.log(`║  ✅ Sync Engine (Auto-sync data)                             ║`);
   console.log(`║  ✅ SSE Stream (Real-time updates)                            ║`);
+  console.log(`║  ✅ BAM Proxy (BLR AI Marketplace integration)                  ║`);
+  console.log(`╠════════════════════════════════════════════════════════════════════╣`);
+  console.log(`║  BAM ROUTES:                                                  ║`);
+  console.log(`║  /api/bam/marketplace-listings → 4255                        ║`);
+  console.log(`║  /api/bam/discovery-engine → 4256                            ║`);
+  console.log(`║  /api/bam/roi-calculator → 4259                            ║`);
+  console.log(`║  /api/bam/founder-os → 4260                                 ║`);
+  console.log(`║  /api/bam/multi-agent-evaluator → 4257                      ║`);
+  console.log(`║  /api/bam/reputation-aggregator → 4258                      ║`);
+  console.log(`║  /api/bam/twin-marketplace → 4146                           ║`);
+  console.log(`║  /api/bam/exploration → 4255                                 ║`);
   console.log(`╚════════════════════════════════════════════════════════════════════╝`);
   console.log(`\n  Try: curl http://localhost:${PORT}/api/registry`);
   console.log(`       curl http://localhost:${PORT}/api/health`);
-  console.log(`       curl http://localhost:${PORT}/api/features`);
+  console.log(`       curl http://localhost:${PORT}/api/bam/health`);
 });
