@@ -20,18 +20,24 @@
  */
 
 const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
 
-const PORT = process.env.PORT || 4772;
+const PORT = parseInt(process.env.PORT || '4772', 10);
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'semantic-cache-internal-token';
 const SERVICE_NAME = 'semantic-cache';
 const DEFAULT_DIM = 128;
 const DEFAULT_THRESHOLD = 0.85;
+const NO_LISTEN =
+  (process.env.SEMANTIC_CACHE_NO_LISTEN ?? '').toLowerCase() === 'true' ||
+  process.env.NODE_ENV === 'test';
+
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN)
+    return res.status(401).json({ error: 'unauthorized' });
+  next();
+}
 
 // ============ IN-MEMORY STORAGE ============
 
@@ -51,7 +57,7 @@ const DEFAULT_THRESHOLD = 0.85;
  */
 
 /** @type {Map<string, CacheEntry>} id -> entry */
-const entries = new PersistentMap('entries', { serviceName: 'semantic-cache' });
+const entries = new Map();
 
 /** @type {Array<Object>} append-only audit log */
 const auditLog = [];
@@ -135,7 +141,7 @@ function embed(text, dim = DEFAULT_DIM) {
   if (tokens.length === 0) return vec;
 
   // Term-frequency weight (count per token). Could be substituted for TF-IDF later.
-  const tf = new PersistentMap('tf', { serviceName: 'semantic-cache' });
+  const tf = new Map();
   for (const tok of tokens) {
     tf.set(tok, (tf.get(tok) || 0) + 1);
   }
@@ -281,7 +287,6 @@ function sweepExpired() {
 const app = express();
 
 // Validate required env at startup
-requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] }));
 app.use(express.json({ limit: '2mb' }));
@@ -317,7 +322,7 @@ app.get('/api/health', (req, res) => {
  * Compute an embedding for a single text.
  * Body: { text, dim? }
  */
-app.post('/api/embed',requireAuth,  (req, res) => {
+app.post('/api/embed',requireInternal,(req, res) => {
   const { text, dim } = req.body || {};
   if (typeof text !== 'string') {
     return res.status(400).json({ error: 'text (string) is required' });
@@ -340,7 +345,7 @@ app.post('/api/embed',requireAuth,  (req, res) => {
  * Compute embeddings for multiple texts in one call.
  * Body: { texts: string[], dim? }
  */
-app.post('/api/embed/batch',requireAuth,  (req, res) => {
+app.post('/api/embed/batch',requireInternal,(req, res) => {
   const { texts, dim } = req.body || {};
   if (!Array.isArray(texts)) {
     return res.status(400).json({ error: 'texts (array of strings) is required' });
@@ -368,7 +373,7 @@ app.post('/api/embed/batch',requireAuth,  (req, res) => {
  * Compute cosine similarity between two texts (or two vectors).
  * Body: { a: text|string[], b: text|string[], dim? }
  */
-app.post('/api/similarity',requireAuth,  (req, res) => {
+app.post('/api/similarity',requireInternal,(req, res) => {
   const { a, b, dim } = req.body || {};
   if (a == null || b == null) {
     return res.status(400).json({ error: 'a and b are required' });
@@ -392,7 +397,7 @@ app.post('/api/similarity',requireAuth,  (req, res) => {
  * If an entry with the same key already exists, we upsert (bump hitCount to 0,
  * replace response, preserve original id and createdAt).
  */
-app.post('/api/cache',requireAuth,  (req, res) => {
+app.post('/api/cache',requireInternal,(req, res) => {
   const { prompt, response, model, metadata, ttlSeconds, key } = req.body || {};
   if (typeof prompt !== 'string' || !prompt.trim()) {
     return res.status(400).json({ error: 'prompt (non-empty string) is required' });
@@ -512,7 +517,7 @@ app.get('/api/cache/:id', (req, res) => {
  * DELETE /api/cache/:id
  * Delete a cache entry.
  */
-app.delete('/api/cache/:id',requireAuth,  (req, res) => {
+app.delete('/api/cache/:id',requireInternal,(req, res) => {
   const e = entries.get(req.params.id);
   if (!e) return res.status(404).json({ error: 'Cache entry not found' });
   entries.delete(req.params.id);
@@ -533,7 +538,7 @@ app.delete('/api/cache/:id',requireAuth,  (req, res) => {
  * Clear entries, optionally filtered.
  * Body (optional): { model?, olderThan? (ISO timestamp) }
  */
-app.post('/api/cache/clear',requireAuth,  (req, res) => {
+app.post('/api/cache/clear',requireInternal,(req, res) => {
   const body = req.body || {};
   const { model, olderThan } = body;
   let removed = 0;
@@ -602,7 +607,7 @@ app.get('/api/cache/similar/:id', (req, res) => {
  * If `model` is supplied, we only consider entries for that model. This is how
  * the inference gateway keeps GPT-4 hits from serving GPT-3.5 cached responses.
  */
-app.post('/api/lookup',requireAuth,  (req, res) => {
+app.post('/api/lookup',requireInternal,(req, res) => {
   const { prompt, model, threshold, topK } = req.body || {};
   if (typeof prompt !== 'string' || !prompt.trim()) {
     return res.status(400).json({ error: 'prompt (non-empty string) is required' });
@@ -683,7 +688,7 @@ app.post('/api/lookup',requireAuth,  (req, res) => {
  * Batch lookup. Body: { prompts: [{prompt, model?, threshold?}, ...] }
  * Returns array of results in the same order.
  */
-app.post('/api/lookup/batch',requireAuth,  (req, res) => {
+app.post('/api/lookup/batch',requireInternal,(req, res) => {
   const { prompts } = req.body || {};
   if (!Array.isArray(prompts)) {
     return res.status(400).json({ error: 'prompts (array) is required' });
@@ -781,7 +786,7 @@ app.get('/api/stats', (req, res) => {
  * POST /api/stats/reset
  * Reset cumulative stats counters (does NOT touch cache entries).
  */
-app.post('/api/stats/reset',requireAuth,  (req, res) => {
+app.post('/api/stats/reset',requireInternal,(req, res) => {
   stats.totalStores = 0;
   stats.totalLookups = 0;
   stats.totalHits = 0;
@@ -896,6 +901,12 @@ const startedAt = new Date().toISOString();
   console.log(`[${SERVICE_NAME}] seeded ${seeded} example cache entries across ${seedGroups.length} groups`);
 })();
 
+// ============ READINESS ============
+
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
 // ============ ERROR HANDLERS ============
 
 app.use((req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found` }));
@@ -905,21 +916,21 @@ app.use((err, req, res, next) => {
 });
 
 // ============ START ============
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
 
+if (!NO_LISTEN) {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
+    console.log(`[${SERVICE_NAME}] vector dim=${DEFAULT_DIM}, default threshold=${DEFAULT_THRESHOLD}`);
+  });
+  process.on('SIGTERM', () => { console.log(`[${SERVICE_NAME}] SIGTERM`); server.close(() => process.exit(0)); });
+  process.on('SIGINT',  () => { console.log(`[${SERVICE_NAME}] SIGINT`);  server.close(() => process.exit(0)); });
+}
 
-
-const server = app.listen(PORT, () => {
-  // TODO: In production, swap the in-memory Map for Redis or Postgres with pgvector
-  // (and use an HNSW index for sub-millisecond nearest-neighbor lookup at scale).
-  // TODO: In production, swap the bag-of-words vectorizer for a real embedding model
-  // (text-embedding-3-small, voyage-2, or a local sentence-transformers service).
-  // TODO: In production, add a per-tenant namespace on every key so caches don't leak
-  // across customers in a multi-tenant inference gateway.
-  console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
-  console.log(`[${SERVICE_NAME}] vector dim=${DEFAULT_DIM}, default threshold=${DEFAULT_THRESHOLD}`);
-});
-installGracefulShutdown(server);
+module.exports = app;
+module.exports.app = app;
+module.exports.PORT = PORT;
+module.exports.SERVICE_NAME = SERVICE_NAME;
+module.exports.entries = entries;
+module.exports.stats = stats;
+module.exports.embed = embed;
+module.exports.cosineSimilarity = cosineSimilarity;

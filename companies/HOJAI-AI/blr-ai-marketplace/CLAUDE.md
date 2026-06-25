@@ -1,8 +1,8 @@
 # BLR AI Marketplace — Unified AI Marketplace
 
 > **Location:** `/Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/blr-ai-marketplace/`
-> **Updated:** 2026-06-26 (payment integration + category expansion)
-> **Status:** ✅ **Major progress** — see audit report: `.claude/audits/BAM-AUDIT-2026-06-26.md`
+> **Updated:** 2026-06-26 (frontend complete + success/cancel pages)
+> **Status:** ✅ **~70% complete** — see audit report: `.claude/audits/BAM-AUDIT-2026-06-26.md`
 
 ---
 
@@ -14,9 +14,11 @@
 | Catalog Items | ~20 seeded | **~300 seeded** |
 | Payments | None | **Stripe integrated** |
 | Hub Integration | Missing | **8 routes added** |
+| Frontend | Scaffold | **Working UI** |
+| Success/Cancel Pages | Missing | **Done** |
 | Tests | 81 passing | **81 passing** ✅ |
 
-### Fixes Applied (2026-06-26)
+### All Fixes Applied (2026-06-26)
 
 | Fix | Status |
 |-----|--------|
@@ -26,14 +28,18 @@
 | Categories expanded (8 → 35+) | ✅ Done |
 | Killer categories seeded (AI Employees, BCPs, Blueprints) | ✅ Done |
 | Stripe payment integration | ✅ Done |
+| Next.js frontend (home, listings, categories, detail) | ✅ Done |
+| Success/Cancel pages | ✅ Done |
 
 ### Remaining Work
 
 | Task | Priority | Effort |
 |------|----------|--------|
-| Next.js frontend | 🔴 HIGH | 4-8 weeks |
 | AI recommender engine | 🟡 MED | 4 weeks |
 | MongoDB for all services | 🟡 MED | 2 weeks |
+| Business Capability Pack provisioning | 🟡 MED | 3 weeks |
+| One-click install flow | 🟡 MED | 2 weeks |
+| Publisher dashboard | 🟢 LOW | 2 weeks |
 
 ---
 
@@ -41,9 +47,9 @@
 
 **BLR AI Marketplace (BAM)** is the unified marketplace for the entire RTMN ecosystem — a single destination for AI agents, digital twins, services, and knowledge. It combines:
 
-- **A Next.js storefront** (TODO: scaffold only, needs full build)
+- **A Next.js storefront** (fully built with home, listings, categories, detail pages)
 - **8 backend service APIs** (in `services/`) that power discovery, evaluation, transactions, and reputation
-- **Stripe payment integration** (checkout, subscriptions, webhooks)
+- **Stripe payment integration** (checkout, subscriptions, webhooks, success/cancel pages)
 - **35+ categories** including killer features (AI Employees, Business Capability Packs)
 
 ---
@@ -128,6 +134,23 @@ blr-ai-marketplace/
 ├── CATALOG.md                             # Product catalog (~300 items)
 ├── package.json                           # Storefront deps (Next.js)
 │
+├── app/                                   # Next.js Frontend (NEW)
+│   ├── layout.tsx                         # Header, nav, footer
+│   ├── page.tsx                           # Homepage with hero + categories
+│   ├── globals.css                        # Tailwind + custom styles
+│   ├── success/page.tsx                   # Stripe success page
+│   ├── cancel/page.tsx                    # Stripe cancel page
+│   ├── listings/
+│   │   ├── page.tsx                      # Browse with search/filter/sort
+│   │   └── [id]/page.tsx                 # Listing detail + reviews
+│   ├── categories/page.tsx                 # All 35+ categories
+│   └── category/[id]/page.tsx            # Category detail
+│
+├── lib/api.ts                             # API client
+├── types/index.ts                          # TypeScript types
+├── tailwind.config.ts                     # Tailwind config
+├── tsconfig.json                          # TypeScript config
+│
 └── services/                              # Backend marketplace APIs
     ├── marketplace-listings/              # Port 4255 — Main listing service
     │   ├── src/
@@ -136,7 +159,7 @@ blr-ai-marketplace/
     │   │   ├── services/
     │   │   │   ├── listingsService.js     # Listing CRUD
     │   │   │   ├── reviewsService.js     # Reviews
-    │   │   │   └── paymentService.js     # Stripe payments (NEW)
+    │   │   │   └── paymentService.js     # Stripe payments
     │   │   ├── models/                    # Mongoose models
     │   │   ├── middleware/auth.js         # JWT + tenant isolation
     │   │   └── seed-data.js              # ~300 seed items
@@ -156,24 +179,32 @@ blr-ai-marketplace/
 
 ## ▶️ Quick Start
 
-### Start all 8 backend services
+### Start Backend Services
 
 ```bash
-cd companies/HOJAI-AI/blr-ai-marketplace/services
+# Terminal 1: Start MongoDB (required for marketplace-listings)
+# Or use: MONGO_URI=mongodb://localhost:27017/marketplace_listings
 
 # Start marketplace-listings first (requires MongoDB)
-(cd marketplace-listings && npm start > /tmp/bam-listings.log 2>&1 &)
+cd companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings
+npm start
 
-# Start other services
+# Terminal 2: Start other services
+cd companies/HOJAI-AI/blr-ai-marketplace/services
 for svc in discovery-engine roi-calculator blr-founder-os \
            blr-multi-agent-evaluator blr-reputation-aggregator twin-marketplace; do
-  (cd "$svc" && node src/index.js > /tmp/bam-$svc.log 2>&1 &)
+  node "$svc/src/index.js" &
 done
+```
 
-sleep 4
-for p in 4255 4256 4257 4258 4259 4260 4146; do
-  curl -s -o /dev/null -w "port $p → %{http_code}\n" http://localhost:$p/health
-done
+### Start Frontend
+
+```bash
+# Terminal 3: Start Next.js
+cd companies/HOJAI-AI/blr-ai-marketplace
+npm install
+npm run dev
+# → http://localhost:3000
 ```
 
 ### Access via RTMN Hub (4399)
