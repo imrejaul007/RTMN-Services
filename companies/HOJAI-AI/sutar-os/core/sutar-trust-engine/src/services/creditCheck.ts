@@ -1,5 +1,5 @@
-import logger from '../utils/logger.ts';
-import { config } from '../config.ts';
+import logger from '../utils/logger';
+import { config } from '../config';
 import {
   ICreditScore,
   IPaymentHistoryEntry,
@@ -7,7 +7,7 @@ import {
   CreditCheckRequest,
   CreditCheckResponse,
   PaymentStatus,
-} from '../types.ts';
+} from '../types';
 
 // In-memory store for credit scores
 const creditScoreStore = new Map<string, ICreditScore>();
