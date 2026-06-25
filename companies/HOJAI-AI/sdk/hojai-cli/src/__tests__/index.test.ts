@@ -57,7 +57,7 @@ test('hojai help prints full help', async () => {
 test('hojai config show prints current config', async () => {
   const cap = captureConsole();
   try {
-    process.env.HOJAI_API_KEY = 'hojai_live_test';
+    process.env.HOJAI_API_KEY = process.env.HOJAI_TEST_KEY || 'test-placeholder-key';
     process.env.HOJAI_BASE_URL = 'https://test.api.hojai.ai';
     await main(['node', 'hojai', 'config']);
     const out = cap.logs.join('\n');
@@ -281,7 +281,7 @@ test('hojai doctor --json exits 0 when config + gateway are ok', async () => {
   const path = await import('node:path');
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-doctor-'));
   try {
-    process.env.HOJAI_API_KEY = 'hojai_live_test';
+    process.env.HOJAI_API_KEY = process.env.HOJAI_TEST_KEY || 'test-placeholder-key';
     process.env.HOJAI_BASE_URL = 'https://test.api.hojai.ai';
     process.chdir(tmp);
     const origFetch = globalThis.fetch;
@@ -311,7 +311,7 @@ test('hojai doctor reports failure when gateway is down', async () => {
   const path = await import('node:path');
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hojai-doctor-'));
   try {
-    process.env.HOJAI_API_KEY = 'hojai_live_test';
+    process.env.HOJAI_API_KEY = process.env.HOJAI_TEST_KEY || 'test-placeholder-key';
     process.env.HOJAI_BASE_URL = 'https://broken.api.hojai.ai';
     process.chdir(tmp);
     const origFetch = globalThis.fetch;
