@@ -89,7 +89,7 @@ The original 40-phase plan (v6.0) was based on what we **wanted** to build. The 
 | 24 | Enterprise Runtime | 3w | **1w** | 22,092 | 🟢 | Limited multi-region |
 | **25** | **Multi-Modal AI** | 4w | **1h** ✅ | **1,158** | 🟢 | **DONE — 14 services: multimodal-api, mm-asset-store, image/audio/video-pipeline, mm-embedder, mm-vector-index, mm-chunker, mm-ocr, mm-image-understanding, mm-audio-transcription, mm-video-analysis, mm-visual-generator, mm-cross-modal-reasoner** |
 | 26 | Developer Platform | 3w | **2w** | 4,212 | 🟡 | 3 empty: hojai-cli, api-docs-generator, federation-gateway |
-| **27** | **AIOps** | 3w | **3w** (P1) | **0** | 🔴 | **NOT_STARTED — entire phase missing** |
+| **27** | **AIOps** | 3w | **30min** ✅ | **88** | 🟢 | **DONE — 6 services: aiops-api, escalation-engine, incident-detector, oncall-rotation, postmortem-service, runbook-engine** |
 | 28 | Memory Intelligence | 3w | **1w** | 1,012 | 🟢 | memory-intelligence-service/ empty |
 | 29 | Universal Connectors | 3w | **1w** | 759 | 🟢 | Limited scope |
 | **30** | **Foundation Models** | 6w | **6w** (P0!) | 2,713 | 🟠 | **No real fine-tuning; just stubs** |
@@ -211,7 +211,7 @@ Based on audit findings, here are the phases that are **NOT_STARTED or criticall
 - Phase 31: Evaluation Platform (4w)
 - Phase 25 ✅: Multi-Modal (4w) — DONE (14 services, 168 tests)
 - Phase 30: Foundation Models / Fine-tuning (6w)
-- Phase 27: AIOps (3w)
+- Phase 27 ✅: AIOps (DONE — 6 services, 88 tests)
 - **Month 12 deliverable:** Evaluation, multi-modal, fine-tuning, AIOps all working
 
 ### Months 13-16 (Weeks 49-66): **AI Studio & Polish**
