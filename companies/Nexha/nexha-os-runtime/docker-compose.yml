@@ -21,10 +21,12 @@
 #   4286  Pricing Network   4362  Mission Planner
 #   4287  Trade Finance     4363  Partner Graph
 #   4288  Warehouse Network  4364  Commerce Runtime
-#   4289  Contract Network  4296  Payment Network  (4290 reserved)
+#   4289  Contract Network  4296  Payment Network
 #   4290  Compliance Net    4297  Partner Network
 #   4340  ACP Messaging    9090  Prometheus
-#                                       3001  do-app          3030  Grafana
+#   4370  CatalogOS         4371  OrderOS
+#   4372  AgentOS           4373  SupplierOS
+#                                       3030  Grafana
 # ================================================================
 
 version: "3.9"
@@ -371,6 +373,91 @@ services:
       CORPID_URL: http://corp-id:4702
     ports:
       - "4297:4297"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  # ── Per-Company Commerce (Standard+) ─────────────────────────────────────
+  catalog-os:
+    build:
+      context: ../services/nexha-catalog-os
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-catalog-os
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4370
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4370:4370"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  order-os:
+    build:
+      context: ../services/nexha-order-os
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-order-os
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4371
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4371:4371"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  agent-os:
+    build:
+      context: ../services/nexha-agent-os
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-agent-os
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4372
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4372:4372"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  supplier-os:
+    build:
+      context: ../services/nexha-supplier-os
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-supplier-os
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4373
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4373:4373"
     volumes:
       <<: *common-volumes
     networks:

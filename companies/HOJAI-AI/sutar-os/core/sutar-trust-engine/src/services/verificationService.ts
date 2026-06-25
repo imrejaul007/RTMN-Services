@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import logger from '../utils/logger';
-import trustService from './trustService';
+import logger from '../utils/logger.js';
+import trustService from './trustService.js';
 import {
   IVerificationRequest,
   IVerificationResult,

@@ -3,7 +3,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('http');
 
-const srcPath = require.resolve('../../src/index.js');
+const srcPath = require.resolve('../src/index.js');
 delete require.cache[srcPath];
 Object.keys(require.cache).forEach(k => { if (k.includes('vector-db')) delete require.cache[k]; });
 const app = require('../../src/index.js');

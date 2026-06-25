@@ -33,10 +33,12 @@ describe('Package Registry — seeding', () => {
     expect(packageRegistryService.total()).toBe(count);
   });
 
-  it('seeds do not duplicate on re-construction', () => {
+  it('seeds do not duplicate on multiple calls', () => {
+    // After clear(), first call seeds (5), second call is no-op (0)
     const first = packageRegistryService.seedDemoPackages();
+    expect(first).toBe(5);
     const second = packageRegistryService.seedDemoPackages();
-    expect(first).toBe(second);
+    expect(second).toBe(0); // already seeded
   });
 });
 
