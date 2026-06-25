@@ -103,6 +103,12 @@ function ensureNodeEdges(id) {
   return nodeEdges.get(id);
 }
 
+/** Safe label-index getter — initializes missing labels with a fresh Set. */
+function getLabelSet(lbl) {
+  if (!labelIndex.has(lbl)) labelIndex.set(lbl, new Set());
+  return labelIndex.get(lbl);
+}
+
 function matchesLabel(node, labelFilter) {
   if (!labelFilter) return true;
   if (Array.isArray(labelFilter)) {
@@ -517,7 +523,7 @@ app.post('/api/nodes',requireAuth,  (req, res) => {
   ensureNodeEdges(id);
   for (const lbl of labels) {
     if (!labelIndex.has(lbl)) labelIndex.set(lbl, new Set());
-    labelIndex.get(lbl).add(id);
+    getLabelSet(lbl).add(id);
   }
   stats.totalNodesCreated++;
 
@@ -555,8 +561,7 @@ app.post('/api/nodes/batch',requireAuth,  (req, res) => {
     nodes.set(id, node);
     ensureNodeEdges(id);
     for (const lbl of labels) {
-      if (!labelIndex.has(lbl)) labelIndex.set(lbl, new Set());
-      labelIndex.get(lbl).add(id);
+      getLabelSet(lbl).add(id);
     }
     stats.totalNodesCreated++;
     created.push(toPublicNode(node));
@@ -590,8 +595,7 @@ app.patch('/api/nodes/:id',requireAuth,  (req, res) => {
   for (const lbl of addLabels) {
     if (typeof lbl !== 'string') continue;
     n.labels.add(lbl);
-    if (!labelIndex.has(lbl)) labelIndex.set(lbl, new Set());
-    labelIndex.get(lbl).add(n.id);
+    getLabelSet(lbl).add(n.id);
   }
   for (const lbl of removeLabels) {
     if (typeof lbl !== 'string') continue;
@@ -1143,7 +1147,7 @@ app.get('/api/audit', (req, res) => {
     nodes.set(id, node);
     ensureNodeEdges(id);
     if (!labelIndex.has('Person')) labelIndex.set('Person', new Set());
-    labelIndex.get('Person').add(id);
+    getLabelSet('Person').add(id);
     stats.totalNodesCreated++;
   }
 

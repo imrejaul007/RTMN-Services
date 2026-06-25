@@ -121,3 +121,55 @@ export const cloudApi = {
   // Health check
   health: () => apiRequest<any>(HOJAI_CLOUD_URL, '/api/v1/health'),
 };
+
+// Blueprint Diff Engine API
+const DIFF_ENGINE_URL = process.env.NEXT_PUBLIC_DIFF_ENGINE_URL || 'http://localhost:4147';
+
+export const diffApi = {
+  // Compute diff between blueprints
+  computeDiff: (oldBlueprint: any, newBlueprint: any) =>
+    apiRequest<any>(DIFF_ENGINE_URL, '/api/v1/diff', {
+      method: 'POST',
+      body: JSON.stringify({ oldBlueprint, newBlueprint }),
+    }),
+
+  // Apply diff
+  applyDiff: (blueprint: any, diff: any) =>
+    apiRequest<any>(DIFF_ENGINE_URL, '/api/v1/apply', {
+      method: 'POST',
+      body: JSON.stringify({ blueprint, diff }),
+    }),
+
+  // Check equality
+  areEqual: (blueprintA: any, blueprintB: any) =>
+    apiRequest<any>(DIFF_ENGINE_URL, '/api/v1/equal', {
+      method: 'POST',
+      body: JSON.stringify({ blueprintA, blueprintB }),
+    }),
+
+  // Health check
+  health: () => apiRequest<any>(DIFF_ENGINE_URL, '/health'),
+};
+
+// Blueprint Evolution API
+const EVOLUTION_URL = process.env.NEXT_PUBLIC_EVOLUTION_URL || 'http://localhost:4148';
+
+export const evolutionApi = {
+  // Run evolution analysis
+  evolve: (blueprint: any, metrics?: any, config?: any) =>
+    apiRequest<any>(EVOLUTION_URL, '/api/v1/evolve', {
+      method: 'POST',
+      body: JSON.stringify({ blueprint, metrics: metrics || {}, config: config || {} }),
+    }),
+
+  // Get evolution job
+  getJob: (jobId: string) =>
+    apiRequest<any>(EVOLUTION_URL, `/api/v1/jobs/${jobId}`),
+
+  // List evolution jobs
+  listJobs: () =>
+    apiRequest<any>(EVOLUTION_URL, '/api/v1/jobs'),
+
+  // Health check
+  health: () => apiRequest<any>(EVOLUTION_URL, '/health'),
+};

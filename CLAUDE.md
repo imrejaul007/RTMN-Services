@@ -361,6 +361,8 @@ The 10-week roadmap is complete. **Every phase from A through E is done.**
 
 > **📈 Phase F update (2026-06-24):** FederationOS v1.1 deployment + Nexha OS Docker Runtime + Nexha Portal v2.0 + **HOJAI Voice Gateway** (port 4880, training-aware STT/TTS routing) + **Nexha Supplier Registry** (port 4281, complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment). Federation seed fixed (104 Nexhas seeded). See [`companies/Nexha/services/nexha-federation-os/`](companies/Nexha/services/nexha-federation-os/), [`companies/HOJAI-AI/products/voice-os/core/voice-gateway/`](companies/HOJAI-AI/products/voice-os/core/voice-gateway/), [`companies/Nexha/services/nexha-supplier-registry/`](companies/Nexha/services/nexha-supplier-registry/).
 
+> **📈 Phase F update (2026-06-25):** **RAZO Keyboard** (port 4299, Communication OS) integrated with Do App. RAZO transforms natural language into actionable intents that connect Genie AI, DO App, SUTAR OS, Copilots, and all 24 Industry OS. Added: `services/razoClient.ts` (intent detection, execute, sessions, messaging), `routes/razo.ts` (15 endpoints), Hub wired at `/api/foundation/razo-keyboard/*` with 25 capabilities (intent-detect, order-food, make-payment, ask-genie, etc.). See [`companies/do-app/backend/src/services/razoClient.ts`](companies/do-app/backend/src/services/razoClient.ts), [`companies/do-app/backend/src/routes/razo.ts`](companies/do-app/backend/src/routes/razo.ts), [`companies/HOJAI-AI/products/razo/razo-keyboard/`](companies/HOJAI-AI/products/razo/razo-keyboard/).
+
 ### Try it in 30 seconds
 
 ```bash
@@ -437,6 +439,8 @@ bash demos/full-stack-demo.sh
 | **Memory Layer** (4 services) | 4703, 4152, 4704, 4793 | ✅ | Knowledge & Experience — see "Memory Layer" below |
 | **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
 | **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
+| **HOJAI Voice Gateway** | 4880 | ✅ | Training-aware STT/TTS routing |
+| **RAZO Keyboard** | 4299 | ✅ | Communication OS — intent detection + multi-channel messaging |
 
 ### Memory Layer (4 services)
 
@@ -480,11 +484,11 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **Genie Smart Forgetting** | 4715 | ✅ | Auto-archive expired/duplicate items |
 | **Voice Twin** | 4876 | ✅ | TTS/STT services, voice profiles |
 
-### RAZO Keyboard (1) - ✅ NEW
+### RAZO Keyboard (1) - ✅ INTEGRATED
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
-| **RAZO Keyboard** | 4725 | ✅ | Communication OS - Intent detection, multi-channel messaging |
+| **RAZO Keyboard** | 4299 | ✅ | Communication OS — "The keyboard that thinks" — transforms natural language into actionable intents (order-food, book-hotel, make-payment, ask-genie, etc.) connecting Genie AI, DO App, SUTAR OS, Copilots, and all 24 Industry OS. Integrated with Do App backend (`razoClient.ts` + `routes/razo.ts`) and RTMN Hub at `/api/foundation/razo-keyboard/*` |
 
 ### REZ Services (4)
 

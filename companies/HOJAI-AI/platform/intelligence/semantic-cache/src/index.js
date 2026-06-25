@@ -32,9 +32,11 @@ const DEFAULT_THRESHOLD = 0.85;
 const NO_LISTEN =
   (process.env.SEMANTIC_CACHE_NO_LISTEN ?? '').toLowerCase() === 'true' ||
   process.env.NODE_ENV === 'test';
+const REQUIRE_AUTH =
+  (process.env.SEMANTIC_CACHE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
 
 function requireInternal(req, res, next) {
-  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN)
+  if (REQUIRE_AUTH && req.headers['x-internal-token'] !== INTERNAL_TOKEN)
     return res.status(401).json({ error: 'unauthorized' });
   next();
 }
@@ -930,6 +932,7 @@ module.exports = app;
 module.exports.app = app;
 module.exports.PORT = PORT;
 module.exports.SERVICE_NAME = SERVICE_NAME;
+module.exports.REQUIRE_AUTH = REQUIRE_AUTH;
 module.exports.entries = entries;
 module.exports.stats = stats;
 module.exports.embed = embed;

@@ -84,6 +84,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | 4726 | genie-execution-engine | `companies/HOJAI-AI/products/genie/genie-execution-engine/` |
 | 4727 | genie-life-university | `companies/HOJAI-AI/products/genie/genie-life-university/` |
 | 4728 | genie-shopping-agent | `companies/HOJAI-AI/products/genie/genie-shopping-agent/` |
+| 4299 | razo-keyboard | `companies/HOJAI-AI/products/razo/razo-keyboard/` | ✅ | Communication OS — intent detection + multi-channel messaging |
 | 4767 | genie-wake-word-service | `companies/HOJAI-AI/products/genie/genie-wake-word-service/` |
 | 4768 | genie-listening-modes | `companies/HOJAI-AI/products/genie/genie-listening-modes/` |
 | 4769 | genie-device-integration | `companies/HOJAI-AI/products/genie/genie-device-integration/` |
