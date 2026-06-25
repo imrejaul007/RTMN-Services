@@ -1,0 +1,22 @@
+{
+  "name": "@nexha/acs-engine",
+  "version": "0.1.0",
+  "description": "ACS (Agent Capability Index) scoring engine for the Nexha federation. Real-time agent capability scoring for the federation marketplace. Port 4260.",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test __tests__/*.test.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0"
+  },
+  "keywords": ["nexha", "acs", "agent", "capability", "scoring", "federation"],
+  "author": "HOJAI AI", "license": "MIT"
+}

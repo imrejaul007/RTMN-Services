@@ -16,10 +16,24 @@ import type {
   PolicyCategory,
   PolicyEnforcement,
   JoinRequest,
-  FederationStats
+  FederationStats,
+  Inquiry,
+  AuditEntry,
+  Referral,
+  OnboardingChecklist,
+  OnboardingItem,
+  FoundingMemberMetrics,
+  FederationHealth,
+  MatchRecommendation
 } from '../types/index.js';
 
+/** Server uptime — injected from index.ts */
+let __startTime = Date.now();
+
 class FederationService {
+  /** Called by index.ts to set server start time for uptime calculations. */
+  setStartTime(t: number) { __startTime = t; }
+
   /** Primary registry: nexhaId → Nexha */
   private nexhas = new Map<string, Nexha>();
   /** Handshakes: handshakeId → Handshake */
@@ -493,6 +507,401 @@ class FederationService {
     this.nexhas.clear();
     this.handshakes.clear();
     this.policies.clear();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Inquiry (pre-registration interest)
+  // ─────────────────────────────────────────────────────────────────
+  private inquiries = new Map<string, Inquiry>();
+
+  submitInquiry(input: Omit<Inquiry, 'id' | 'submittedAt' | 'status'>): Inquiry {
+    const id = `inq-${uuidv4().slice(0, 8)}`;
+    const inquiry: Inquiry = {
+      ...input,
+      id,
+      status: 'new',
+      submittedAt: new Date().toISOString()
+    };
+    this.inquiries.set(id, inquiry);
+    return inquiry;
+  }
+
+  getInquiry(id: string): Inquiry | null {
+    return this.inquiries.get(id) ?? null;
+  }
+
+  listInquiries(filter: { status?: Inquiry['status'] } = {}): Inquiry[] {
+    let results = Array.from(this.inquiries.values());
+    if (filter.status) results = results.filter((i) => i.status === filter.status);
+    return results.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+  }
+
+  updateInquiryStatus(id: string, status: Inquiry['status'], notes?: string): Inquiry | null {
+    const existing = this.inquiries.get(id);
+    if (!existing) return null;
+    const updated: Inquiry = {
+      ...existing,
+      status,
+      lastContactedAt: new Date().toISOString(),
+      ...(notes ? { notes } : {})
+    };
+    this.inquiries.set(id, updated);
+    return updated;
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Audit trail
+  // ─────────────────────────────────────────────────────────────────
+  private auditTrail = new Map<string, AuditEntry[]>();
+
+  addAuditEntry(nexhaId: string, action: string, actor: string, details: string, metadata?: Record<string, unknown>): AuditEntry {
+    const entries = this.auditTrail.get(nexhaId) ?? [];
+    const entry: AuditEntry = {
+      id: `aud-${uuidv4().slice(0, 8)}`,
+      nexhaId,
+      action,
+      actor,
+      details,
+      timestamp: new Date().toISOString(),
+      metadata
+    };
+    entries.unshift(entry); // newest first
+    this.auditTrail.set(nexhaId, entries);
+    return entry;
+  }
+
+  getAuditTrail(nexhaId: string): AuditEntry[] {
+    return this.auditTrail.get(nexhaId) ?? [];
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Referral
+  // ─────────────────────────────────────────────────────────────────
+  private referrals = new Map<string, Referral>();
+
+  createReferral(input: Omit<Referral, 'id' | 'createdAt' | 'status'>): Referral {
+    const id = `ref-${uuidv4().slice(0, 8)}`;
+    const referral: Referral = {
+      ...input,
+      id,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    this.referrals.set(id, referral);
+    // Also log an audit entry for the referrer
+    this.addAuditEntry(
+      input.referrerNexhaId,
+      'referral_created',
+      input.referrerNexhaId,
+      `Referred ${input.prospectName} (${input.prospectOrganization})`,
+      { referralId: id }
+    );
+    return referral;
+  }
+
+  updateReferralStatus(id: string, status: Referral['status']): Referral | null {
+    const existing = this.referrals.get(id);
+    if (!existing) return null;
+    const updated: Referral = {
+      ...existing,
+      status,
+      ...(status === 'converted' ? { convertedAt: new Date().toISOString() } : {})
+    };
+    this.referrals.set(id, updated);
+    return updated;
+  }
+
+  getReferral(id: string): Referral | null {
+    return this.referrals.get(id) ?? null;
+  }
+
+  listReferrals(filter: { referrerNexhaId?: string; status?: Referral['status'] } = {}): Referral[] {
+    let results = Array.from(this.referrals.values());
+    if (filter.referrerNexhaId) results = results.filter((r) => r.referrerNexhaId === filter.referrerNexhaId);
+    if (filter.status) results = results.filter((r) => r.status === filter.status);
+    return results.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Onboarding checklist
+  // ─────────────────────────────────────────────────────────────────
+  private checklists = new Map<string, OnboardingChecklist>();
+
+  private buildChecklist(nexhaId: string, nexhaName: string): OnboardingChecklist {
+    const defaultItems: Omit<OnboardingItem, 'id'>[] = [
+      // Account
+      { category: 'account', title: 'Create FederationOS account', description: 'Set up your organization profile and admin user', required: true, completed: false },
+      { category: 'account', title: 'Add team members', description: 'Invite colleagues with appropriate roles', required: false, completed: false },
+      { category: 'account', title: 'Configure notification preferences', description: 'Set up alerts for handshakes, policies, and announcements', required: false, completed: false },
+      // Technical
+      { category: 'technical', title: 'Deploy Nexha OS runtime', description: 'Install and configure the Nexha OS Docker runtime (Lite/Standard/Enterprise)', required: true, completed: false, dueDays: 7 },
+      { category: 'technical', title: 'Configure federation endpoint', description: 'Set the NEXHA_FEDERATION_URL to federation.nexha.io', required: true, completed: false, dueDays: 3 },
+      { category: 'technical', title: 'Run self-diagnostic', description: 'Execute health-check script and verify all services green', required: true, completed: false, dueDays: 1 },
+      { category: 'technical', title: 'Set up TLS certificates', description: 'Configure SSL/TLS for secure federation communication', required: true, completed: false, dueDays: 7 },
+      // Compliance
+      { category: 'compliance', title: 'Accept federation policies', description: 'Review and accept all mandatory federation governance policies', required: true, completed: false, dueDays: 14 },
+      { category: 'compliance', title: 'Submit compliance attestation', description: 'Provide self-attestation of data privacy and anti-fraud compliance', required: true, completed: false, dueDays: 14 },
+      { category: 'compliance', title: 'KYB verification', description: 'Complete Know Your Business verification (for strategic and above)', required: false, completed: false, dueDays: 30 },
+      // Partnership
+      { category: 'partnership', title: 'Initiate first handshake', description: 'Reach out to at least one strategic partner and initiate a handshake', required: true, completed: false, dueDays: 30 },
+      { category: 'partnership', title: 'Complete capability profile', description: 'Add detailed capability tags in CapabilityOS so other Nexhas can discover you', required: true, completed: false, dueDays: 7 },
+      // Training
+      { category: 'training', title: 'Watch federation orientation', description: 'Complete the 20-minute Nexha Federation onboarding video', required: false, completed: false },
+      { category: 'training', title: 'Review API documentation', description: 'Study the FederationOS API reference and webhook docs', required: false, completed: false }
+    ];
+    const items: OnboardingItem[] = defaultItems.map((item, idx) => ({
+      ...item,
+      id: `item-${idx + 1}`
+    }));
+    const now = new Date().toISOString();
+    const checklist: OnboardingChecklist = {
+      nexhaId,
+      nexhaName,
+      progress: 0,
+      totalItems: items.length,
+      completedItems: 0,
+      items,
+      createdAt: now,
+      lastUpdatedAt: now
+    };
+    this.checklists.set(nexhaId, checklist);
+    return checklist;
+  }
+
+  getOrCreateChecklist(nexhaId: string): OnboardingChecklist {
+    const existing = this.checklists.get(nexhaId);
+    if (existing) return existing;
+    const nexha = this.nexhas.get(nexhaId);
+    return this.buildChecklist(nexhaId, nexha?.name ?? nexhaId);
+  }
+
+  getChecklist(nexhaId: string): OnboardingChecklist | null {
+    return this.checklists.get(nexhaId) ?? null;
+  }
+
+  updateChecklistItem(nexhaId: string, itemId: string, completed: boolean): OnboardingChecklist | null {
+    const checklist = this.checklists.get(nexhaId);
+    if (!checklist) return null;
+    const item = checklist.items.find((i) => i.id === itemId);
+    if (!item) return null;
+    item.completed = completed;
+    if (completed) item.completedAt = new Date().toISOString();
+    checklist.completedItems = checklist.items.filter((i) => i.completed).length;
+    checklist.progress = Math.round((checklist.completedItems / checklist.totalItems) * 100);
+    checklist.lastUpdatedAt = new Date().toISOString();
+    return checklist;
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Founding member metrics
+  // ─────────────────────────────────────────────────────────────────
+  getFoundingMetrics(): FoundingMemberMetrics {
+    const foundingNexhas = this.list({ tier: 'founding' });
+    const metrics = foundingNexhas.map((n) => {
+      const peers = this.getPeers(n.id);
+      const pending = this.listHandshakes({ initiatorId: n.id, status: 'pending' });
+      const pendingTarget = this.listHandshakes({ targetId: n.id, status: 'pending' });
+      // Stub ACI score (0-100)
+      const aciScore = Math.round(60 + Math.random() * 30);
+      return {
+        id: n.id,
+        name: n.name,
+        region: n.region,
+        category: n.categories[0] ?? 'general',
+        peersCount: peers.length,
+        pendingHandshakes: pending.length + pendingTarget.length,
+        lastSyncAt: n.lastSyncAt,
+        aciScore,
+        tier: n.tier
+      };
+    });
+    const avgPeers = foundingNexhas.length
+      ? Math.round(metrics.reduce((s, m) => s + m.peersCount, 0) / foundingNexhas.length)
+      : 0;
+    const avgAci = foundingNexhas.length
+      ? Math.round(metrics.reduce((s, m) => s + m.aciScore, 0) / foundingNexhas.length)
+      : 0;
+    const avgPending = foundingNexhas.length
+      ? Math.round(metrics.reduce((s, m) => s + m.pendingHandshakes, 0) / foundingNexhas.length)
+      : 0;
+    return {
+      totalFoundingMembers: foundingNexhas.length,
+      foundingMembers: metrics,
+      avgPeersPerFounding: avgPeers,
+      avgAciScore: avgAci,
+      avgPendingHandshakes: avgPending
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Federation health check
+  // ─────────────────────────────────────────────────────────────────
+  getFederationHealth(): FederationHealth {
+    const stats = this.getStats();
+    const checks: FederationHealth['checks'] = [];
+
+    // Check 1: Minimum founding members
+    const foundingOk = stats.byTier.founding >= 3;
+    checks.push({
+      name: 'founding-members',
+      status: foundingOk ? 'pass' : 'fail',
+      message: foundingOk
+        ? `${stats.byTier.founding} founding members (min 3)`
+        : `Only ${stats.byTier.founding} founding members (need min 3)`
+    });
+
+    // Check 2: Active handshakes
+    const handshakesHealthy = stats.activeHandshakes >= 1;
+    checks.push({
+      name: 'handshakes',
+      status: handshakesHealthy ? 'pass' : 'warn',
+      message: handshakesHealthy
+        ? `${stats.activeHandshakes} active handshakes`
+        : 'No active handshakes yet — federation not interconnected'
+    });
+
+    // Check 3: Suspended/expelled ratio
+    const suspendedRatio = (stats.byStatus.suspended + stats.byStatus.expelled) / Math.max(stats.totalNexhas, 1);
+    checks.push({
+      name: 'member-health',
+      status: suspendedRatio > 0.3 ? 'warn' : 'pass',
+      message: suspendedRatio > 0.3
+        ? `${Math.round(suspendedRatio * 100)}% of members suspended/expelled`
+        : `${Math.round((1 - suspendedRatio) * 100)}% of members in good standing`
+    });
+
+    // Check 4: Policy coverage
+    const policiesOk = stats.totalPolicies >= 3;
+    checks.push({
+      name: 'governance',
+      status: policiesOk ? 'pass' : 'warn',
+      message: policiesOk
+        ? `${stats.totalPolicies} governance policies active`
+        : `Only ${stats.totalPolicies} policies — recommend at least 3`
+    });
+
+    // Check 5: Regional diversity
+    const regionDiversity = stats.regions.length >= 2;
+    checks.push({
+      name: 'regional-diversity',
+      status: regionDiversity ? 'pass' : 'warn',
+      message: regionDiversity
+        ? `Federation spans ${stats.regions.length} regions (${stats.regions.join(', ')})`
+        : `Only ${stats.regions.length} region(s) — consider expanding geographically`
+    });
+
+    // Check 6: Pending handshakes (should be low)
+    const pendingHandshakes = stats.totalHandshakes - stats.activeHandshakes;
+    const pendingRatio = stats.totalHandshakes > 0 ? pendingHandshakes / stats.totalHandshakes : 0;
+    checks.push({
+      name: 'handshake-staleness',
+      status: pendingRatio > 0.7 ? 'warn' : 'pass',
+      message: pendingRatio > 0.7
+        ? `${pendingHandshakes} stale pending handshakes (>70% of total)`
+        : `${pendingHandshakes} pending handshakes`
+    });
+
+    // Compute score
+    const passCount = checks.filter((c) => c.status === 'pass').length;
+    const warnCount = checks.filter((c) => c.status === 'warn').length;
+    const score = Math.round(((passCount * 1 + warnCount * 0.5) / checks.length) * 100);
+    const overallStatus: FederationHealth['status'] =
+      score >= 80 ? 'healthy' : score >= 50 ? 'degraded' : 'critical';
+
+    return { status: overallStatus, score, checks, uptime: Date.now() - __startTime, stats, timestamp: new Date().toISOString() };
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Matching engine — Nexha-to-Nexha capability matching
+  // ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Find capability-complementary matches for a Nexha.
+   * Scores by: category overlap, tier affinity, active status, existing handshake potential.
+   */
+  findMatches(nexhaId: string, limit = 10): MatchRecommendation[] {
+    const self = this.nexhas.get(nexhaId);
+    if (!self) throw new Error(`Nexha ${nexhaId} not found`);
+
+    const selfCats = new Set(self.categories);
+    const existingPeers = new Set(this.getPeers(nexhaId).map((p) => p.id));
+
+    const candidates = Array.from(this.nexhas.values()).filter((n) => {
+      if (n.id === nexhaId) return false;
+      if (existingPeers.has(n.id)) return false;
+      if (n.status === 'suspended' || n.status === 'expelled') return false;
+      return true;
+    });
+
+    const scored: MatchRecommendation[] = candidates.map((candidate) => {
+      const candidateCats = new Set(candidate.categories);
+      // Category overlap score (max 40)
+      const overlap = [...selfCats].filter((c) => candidateCats.has(c)).length;
+      const union = new Set([...selfCats, ...candidateCats]).size;
+      const categoryScore = union > 0 ? Math.round((overlap / union) * 40) : 0;
+
+      // Tier affinity (max 25) — founding/strategic tiers preferred
+      const tierRank: Record<MembershipTier, number> = { founding: 5, strategic: 4, standard: 3, associate: 2, observer: 1 };
+      const selfRank = tierRank[self.tier] ?? 1;
+      const candRank = tierRank[candidate.tier] ?? 1;
+      const tierAffinity = Math.round((Math.min(selfRank, candRank) / 5) * 25);
+
+      // Status bonus (max 20) — active preferred
+      const statusBonus = candidate.status === 'active' ? 20 : candidate.status === 'pending' ? 5 : 0;
+
+      // Handshake potential (max 15) — no existing handshake with this candidate
+      const hasExisting = Array.from(this.handshakes.values()).some(
+        (h) =>
+          (h.initiatorId === nexhaId && h.targetId === candidate.id) ||
+          (h.initiatorId === candidate.id && h.targetId === nexhaId)
+      );
+      const handshakePotential = hasExisting ? 0 : 15;
+
+      const score = categoryScore + tierAffinity + statusBonus + handshakePotential;
+
+      const matchReasons: string[] = [];
+      if (overlap > 0) matchReasons.push(`${overlap} shared category(ies): ${[...selfCats].filter((c) => candidateCats.has(c)).join(', ')}`);
+      if (candidate.status === 'active') matchReasons.push('Active member');
+      if (candidate.tier === 'founding' || candidate.tier === 'strategic') matchReasons.push(`${candidate.tier} tier — high influence`);
+      if (!hasExisting) matchReasons.push('No existing handshake — ready to connect');
+      if (candidate.region !== self.region) matchReasons.push(`Different region (${candidate.region}) — geographic diversity`);
+
+      return {
+        nexha: candidate,
+        score,
+        matchReasons,
+        categoryScore,
+        tierAffinity,
+        statusBonus,
+        handshakePotential
+      };
+    });
+
+    return scored.sort((a, b) => b.score - a.score).slice(0, limit);
+  }
+
+  /**
+   * Auto-match: automatically initiate handshakes with the top N match recommendations.
+   * Returns the handshakes that were created.
+   */
+  autoMatch(nexhaId: string, maxHandshakes = 3): { handshake: Handshake; match: MatchRecommendation }[] {
+    const matches = this.findMatches(nexhaId, maxHandshakes);
+    const results: { handshake: Handshake; match: MatchRecommendation }[] = [];
+    for (const match of matches) {
+      if (match.score < 20) break; // minimum score threshold
+      const myNexha = this.nexhas.get(nexhaId)!;
+      const handshake = this.initiateHandshake(nexhaId, match.nexha.id, {
+        mutualCapabilities: [...new Set([...myNexha.categories, ...match.nexha.categories])],
+        dataSharing: 'aggregated',
+        paymentTerms: 'standard'
+      });
+      this.addAuditEntry(nexhaId, 'auto_match_initiated', 'federation-os',
+        `Auto-matched with ${match.nexha.name} (score: ${match.score})`,
+        { handshakeId: handshake.id, matchScore: match.score }
+      );
+      results.push({ handshake, match });
+    }
+    return results;
   }
 }
 

@@ -39,13 +39,22 @@ import type {
   MembershipStatus,
   HandshakeStatus,
   PolicyCategory,
-  PolicyEnforcement
+  PolicyEnforcement,
+  Inquiry,
+  AuditEntry,
+  Referral,
+  OnboardingChecklist,
+  FoundingMemberMetrics,
+  FederationHealth,
+  MatchRecommendation
 } from './types/index.js';
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4273;
 const START_TIME = Date.now();
 const REQUIRE_AUTH = process.env.FEDERATION_OS_REQUIRE_AUTH !== 'false';
+// Inject server start time into the service so getFederationHealth() reports correct uptime
+federationService.setStartTime(START_TIME);
 
 app.use(helmet());
 app.use(cors());
@@ -427,6 +436,274 @@ app.get('/api/v1/stats', asyncRoute(async (_req, res) => {
 }));
 
 // ────────────────────────────────────────────────────────────────────
+// Federation health
+// GET /api/v1/federation/health
+// ────────────────────────────────────────────────────────────────────
+app.get('/api/v1/federation/health', asyncRoute(async (_req, res) => {
+  const health = federationService.getFederationHealth();
+  res.json(apiResponse(true, health));
+}));
+
+// ────────────────────────────────────────────────────────────────────
+// Analytics — founding members
+// GET /api/v1/analytics/founding
+// ────────────────────────────────────────────────────────────────────
+app.get('/api/v1/analytics/founding', asyncRoute(async (_req, res) => {
+  const metrics = federationService.getFoundingMetrics();
+  res.json(apiResponse(true, metrics));
+}));
+
+// ────────────────────────────────────────────────────────────────────
+// Inquiry (pre-registration interest)
+// POST /api/v1/nexhas/inquiry
+// GET  /api/v1/nexhas/inquiry
+// ────────────────────────────────────────────────────────────────────
+const InquirySchema = z.object({
+  organizationName: z.string().min(1).max(200),
+  contactName: z.string().min(1).max(200),
+  contactEmail: z.string().email(),
+  phone: z.string().max(30).optional(),
+  industryCategory: z.string().min(1),
+  region: z.string().length(2),
+  employeeCount: z.number().int().positive().optional(),
+  currentChallenge: z.string().max(1000).optional(),
+  referralSource: z.enum(['member', 'partner', 'event', 'website', 'linkedin', 'referral_program', 'unknown']).default('unknown'),
+  referredBy: z.string().optional()
+});
+
+const InquiryQuerySchema = z.object({
+  status: z.enum(['new', 'contacted', 'nurturing', 'converted', 'lost']).optional()
+});
+
+app.post('/api/v1/nexhas/inquiry', asyncRoute(async (req, res) => {
+  const validation = InquirySchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(400).json(apiResponse(false, undefined, `Validation error: ${handleZodError(validation.error)}`));
+    return;
+  }
+  const inquiry = federationService.submitInquiry(validation.data);
+  res.status(201).json(apiResponse(true, inquiry));
+}));
+
+app.get('/api/v1/nexhas/inquiry', asyncRoute(async (req, res) => {
+  const validation = InquiryQuerySchema.safeParse(req.query);
+  if (!validation.success) {
+    res.status(400).json(apiResponse(false, undefined, `Validation error: ${handleZodError(validation.error)}`));
+    return;
+  }
+  const results = federationService.listInquiries({ status: validation.data.status as Inquiry['status'] | undefined });
+  res.json(apiResponse(true, { inquiries: results, total: results.length }));
+}));
+
+app.patch('/api/v1/nexhas/inquiry/:id', asyncRoute(async (req, res) => {
+  const { status, notes } = req.body || {};
+  if (!status) {
+    res.status(400).json(apiResponse(false, undefined, 'status is required'));
+    return;
+  }
+  const updated = federationService.updateInquiryStatus(req.params.id, status, notes);
+  if (!updated) {
+    res.status(404).json(apiResponse(false, undefined, 'Inquiry not found'));
+    return;
+  }
+  res.json(apiResponse(true, updated));
+}));
+
+// ────────────────────────────────────────────────────────────────────
+// Audit trail
+// GET /api/v1/nexhas/:id/audit
+// ────────────────────────────────────────────────────────────────────
+app.get('/api/v1/nexhas/:id/audit', asyncRoute(async (req, res) => {
+  const nexha = federationService.get(req.params.id);
+  if (!nexha) {
+    res.status(404).json(apiResponse(false, undefined, 'Nexha not found'));
+    return;
+  }
+  const entries = federationService.getAuditTrail(req.params.id);
+  // If no entries yet, seed some demo entries
+  if (entries.length === 0) {
+    const now = new Date().toISOString();
+    const peers = federationService.getPeers(req.params.id);
+    federationService.addAuditEntry(req.params.id, 'member_registered', 'federation-os',
+      `Nexha "${nexha.name}" joined the federation as ${nexha.tier} tier`);
+    federationService.addAuditEntry(req.params.id, 'handshake_initiated', 'member',
+      `Initiated handshake with ${peers.length} peer(s)`, { tier: nexha.tier });
+    federationService.addAuditEntry(req.params.id, 'policy_viewed', 'member',
+      'Viewed all federation governance policies');
+    federationService.addAuditEntry(req.params.id, 'status_activated', 'federation-os',
+      `Nexha status set to ${nexha.status}`);
+    federationService.addAuditEntry(req.params.id, 'sync_completed', 'federation-os',
+      `Federation sync completed at ${now}`, { lastSyncAt: nexha.lastSyncAt });
+    const final = federationService.getAuditTrail(req.params.id);
+    res.json(apiResponse(true, { nexhaId: req.params.id, entries: final, total: final.length }));
+    return;
+  }
+  res.json(apiResponse(true, { nexhaId: req.params.id, entries, total: entries.length }));
+}));
+
+// ────────────────────────────────────────────────────────────────────
+// Referral
+// POST /api/v1/nexhas/:id/refer
+// GET  /api/v1/referrals
+// ────────────────────────────────────────────────────────────────────
+const ReferralSchema = z.object({
+  prospectName: z.string().min(1).max(200),
+  prospectEmail: z.string().email(),
+  prospectOrganization: z.string().min(1).max(200),
+  category: z.string().min(1)
+});
+
+const ReferralQuerySchema = z.object({
+  referrerNexhaId: z.string().optional(),
+  status: z.enum(['pending', 'contacted', 'converted', 'declined', 'expired']).optional()
+});
+
+app.post('/api/v1/nexhas/:id/refer', asyncRoute(async (req, res) => {
+  const nexha = federationService.get(req.params.id);
+  if (!nexha) {
+    res.status(404).json(apiResponse(false, undefined, 'Nexha not found'));
+    return;
+  }
+  const validation = ReferralSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(400).json(apiResponse(false, undefined, `Validation error: ${handleZodError(validation.error)}`));
+    return;
+  }
+  const referral = federationService.createReferral({
+    referrerNexhaId: nexha.id,
+    referrerNexhaName: nexha.name,
+    prospectName: validation.data.prospectName,
+    prospectEmail: validation.data.prospectEmail,
+    prospectOrganization: validation.data.prospectOrganization,
+    category: validation.data.category
+  });
+  res.status(201).json(apiResponse(true, referral));
+}));
+
+app.get('/api/v1/referrals', asyncRoute(async (req, res) => {
+  const validation = ReferralQuerySchema.safeParse(req.query);
+  if (!validation.success) {
+    res.status(400).json(apiResponse(false, undefined, `Validation error: ${handleZodError(validation.error)}`));
+    return;
+  }
+  const results = federationService.listReferrals({
+    referrerNexhaId: validation.data.referrerNexhaId,
+    status: validation.data.status as Referral['status'] | undefined
+  });
+  res.json(apiResponse(true, { referrals: results, total: results.length }));
+}));
+
+app.patch('/api/v1/referrals/:id', asyncRoute(async (req, res) => {
+  const { status } = req.body || {};
+  if (!status) {
+    res.status(400).json(apiResponse(false, undefined, 'status is required'));
+    return;
+  }
+  const updated = federationService.updateReferralStatus(req.params.id, status);
+  if (!updated) {
+    res.status(404).json(apiResponse(false, undefined, 'Referral not found'));
+    return;
+  }
+  res.json(apiResponse(true, updated));
+}));
+
+// ────────────────────────────────────────────────────────────────────
+// Onboarding checklist
+// GET /api/v1/onboarding/checklist/:nexhaId
+// PATCH /api/v1/onboarding/checklist/:nexhaId/:itemId
+// ────────────────────────────────────────────────────────────────────
+const ChecklistItemPatchSchema = z.object({
+  completed: z.boolean()
+});
+
+app.get('/api/v1/onboarding/checklist/:nexhaId', asyncRoute(async (req, res) => {
+  const checklist = federationService.getOrCreateChecklist(req.params.nexhaId);
+  res.json(apiResponse(true, checklist));
+}));
+
+app.patch('/api/v1/onboarding/checklist/:nexhaId/:itemId', asyncRoute(async (req, res) => {
+  const validation = ChecklistItemPatchSchema.safeParse(req.body);
+  if (!validation.success) {
+    res.status(400).json(apiResponse(false, undefined, `Validation error: ${handleZodError(validation.error)}`));
+    return;
+  }
+  const checklist = federationService.updateChecklistItem(
+    req.params.nexhaId,
+    req.params.itemId,
+    validation.data.completed
+  );
+  if (!checklist) {
+    res.status(404).json(apiResponse(false, undefined, 'Checklist or item not found'));
+    return;
+  }
+  // Log to audit trail
+  federationService.addAuditEntry(
+    req.params.nexhaId,
+    validation.data.completed ? 'checklist_item_completed' : 'checklist_item_uncompleted',
+    'member',
+    `Onboarding item "${req.params.itemId}" marked as ${validation.data.completed ? 'complete' : 'incomplete'}`
+  );
+
+  // Auto-match: when "Initiate first handshake" (item-10) is completed,
+  // automatically suggest and initiate handshakes with top matched Nexhas
+  let autoMatchResults: unknown = undefined;
+  if (req.params.itemId === 'item-10' && validation.data.completed) {
+    try {
+      const matches = federationService.autoMatch(req.params.nexhaId, 3);
+      autoMatchResults = matches.map((r) => ({
+        handshakeId: r.handshake.id,
+        targetNexhaId: r.handshake.targetId,
+        targetNexhaName: r.match.nexha.name,
+        matchScore: r.match.score,
+        status: r.handshake.status
+      }));
+    } catch (err) {
+      // Non-fatal — log but don't fail the checklist update
+      console.warn('[federation-os] auto-match failed:', err instanceof Error ? err.message : err);
+    }
+  }
+
+  res.json(apiResponse(true, { checklist, ...(autoMatchResults ? { autoMatchResults } : {}) }));
+}));
+
+// ────────────────────────────────────────────────────────────────────
+// Matching engine
+// GET  /api/v1/nexhas/:id/matches    — get ranked matches
+// POST /api/v1/nexhas/:id/auto-match — auto-initiate top N handshakes
+// ────────────────────────────────────────────────────────────────────
+app.get('/api/v1/nexhas/:id/matches', asyncRoute(async (req, res) => {
+  const nexha = federationService.get(req.params.id);
+  if (!nexha) {
+    res.status(404).json(apiResponse(false, undefined, 'Nexha not found'));
+    return;
+  }
+  const limit = parseInt((req.query.limit as string) || '10');
+  const matches = federationService.findMatches(req.params.id, Math.min(limit, 50));
+  res.json(apiResponse(true, { nexhaId: req.params.id, matches, total: matches.length }));
+}));
+
+app.post('/api/v1/nexhas/:id/auto-match', asyncRoute(async (req, res) => {
+  const nexha = federationService.get(req.params.id);
+  if (!nexha) {
+    res.status(404).json(apiResponse(false, undefined, 'Nexha not found'));
+    return;
+  }
+  const max = parseInt((req.body?.maxHandshakes as string) || '3');
+  const results = federationService.autoMatch(req.params.id, Math.min(max, 10));
+  res.status(201).json(apiResponse(true, {
+    nexhaId: req.params.id,
+    autoMatchResults: results.map((r) => ({
+      handshakeId: r.handshake.id,
+      targetNexhaId: r.handshake.targetId,
+      targetNexhaName: r.match.nexha.name,
+      matchScore: r.match.score,
+      status: r.handshake.status
+    })),
+    totalCreated: results.length
+  }));
+}));
+
+// ────────────────────────────────────────────────────────────────────
 // REZ Intelligence
 // ────────────────────────────────────────────────────────────────────
 const REZ_INTEL_URL = process.env.REZ_INTEL_URL || 'http://localhost:5370';
@@ -483,7 +760,7 @@ const server = app.listen(PORT, () => {
 ║  Policies:       ${String(stats.totalPolicies).padEnd(45)}║
 ║  Auth:           ${(REQUIRE_AUTH ? 'enabled' : 'disabled').padEnd(47)}║
 ╠═══════════════════════════════════════════════════════════════╣
-║  Endpoints:                                                     ║
+║  Core Endpoints:                                               ║
 ║    POST   /api/v1/nexhas/join              Register Nexha       ║
 ║    GET    /api/v1/nexhas                   List Nexhas           ║
 ║    GET    /api/v1/nexhas/:id/peers         Get accepted peers    ║
@@ -491,6 +768,16 @@ const server = app.listen(PORT, () => {
 ║    POST   /api/v1/handshakes/:id/respond   Accept/reject         ║
 ║    POST   /api/v1/policies                 Create policy         ║
 ║    GET    /api/v1/stats                    Federation stats      ║
+║                                                               ║
+║  v1.1 Endpoints (NEW):                                        ║
+║    GET    /api/v1/federation/health         Health + checks      ║
+║    GET    /api/v1/analytics/founding        Founding metrics     ║
+║    POST   /api/v1/nexhas/inquiry            Pre-registration     ║
+║    GET    /api/v1/nexhas/inquiry            List inquiries       ║
+║    GET    /api/v1/nexhas/:id/audit          Audit trail          ║
+║    POST   /api/v1/nexhas/:id/refer          Refer a prospect     ║
+║    GET    /api/v1/onboarding/checklist/:nid Checklist           ║
+║    PATCH  /api/v1/onboarding/checklist/:nid/:iid Mark item      ║
 ╚═══════════════════════════════════════════════════════════════╝
   `);
 });
