@@ -1,7 +1,7 @@
 {
   "name": "@hojai/blr-marketplace-listings",
-  "version": "1.0.0",
-  "description": "BLR AI Marketplace — per-tenant listings + reviews + directory linkage. ADR-0010 Phase 5 (2026-06-22).",
+  "version": "2.0.0",
+  "description": "BLR AI Marketplace — per-tenant listings + reviews + payments + directory linkage. ADR-0010 Phase 5 (2026-06-22), Payments added 2026-06-26.",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -19,6 +19,7 @@
     "helmet": "^7.1.0",
     "mongoose": "^8.4.0",
     "morgan": "^1.10.0",
+    "stripe": "^16.12.0",
     "uuid": "^10.0.0",
     "zod": "^3.23.8"
   },
@@ -36,6 +37,8 @@
     "marketplace",
     "listings",
     "reviews",
+    "payments",
+    "stripe",
     "rtmn",
     "adr-0010",
     "phase-5"

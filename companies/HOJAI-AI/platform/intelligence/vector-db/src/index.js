@@ -1061,13 +1061,22 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error', code: 'INTERNAL_ERROR' });
 });
 
-// ============ START ============
-// Readiness probe — returns 200 once the server is accepting requests
+// ============ READINESS ============
+
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+// ============ ERROR HANDLERS ============
 
+app.use((req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found`, code: 'ROUTE_NOT_FOUND' }));
+
+app.use((err, req, res, next) => {
+  console.error(`[${SERVICE_NAME}] error:`, err);
+  res.status(500).json({ error: 'Internal server error', code: 'INTERNAL_ERROR' });
+});
+
+// ============ START ============
 
 function start() {
   const server = app.listen(PORT, () => {
