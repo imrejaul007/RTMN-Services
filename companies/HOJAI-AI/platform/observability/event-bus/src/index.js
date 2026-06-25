@@ -503,9 +503,16 @@ function start() {
 
 if (require.main === module) start();
 
-module.exports = { app: createApp, start, startServer: (port) => {
-  const a = createApp();
-  return new Promise(resolve => {
-    const s = a.listen(port || PORT, '127.0.0.1', () => resolve({ server: s, port: s.address().port }));
-  });
-}};
+const _createApp = createApp;
+
+module.exports = {
+  createApp: _createApp,
+  app: _createApp,
+  start,
+  startServer: (port) => {
+    const a = _createApp();
+    return new Promise(resolve => {
+      const s = a.listen(port || PORT, '127.0.0.1', () => resolve({ server: s, port: s.address().port }));
+    });
+  },
+};
