@@ -1155,8 +1155,7 @@ app.get('/api/audit', (req, res) => {
   const acmeId = uuidv4();
   nodes.set(acmeId, { id: acmeId, labels: new Set(['Company']), properties: { name: 'Acme Corp', industry: 'Tech' }, createdAt: new Date().toISOString() });
   ensureNodeEdges(acmeId);
-  if (!labelIndex.has('Company')) labelIndex.set('Company', new Set());
-  labelIndex.get('Company').add(acmeId);
+  getLabelSet('Company').add(acmeId);
   stats.totalNodesCreated++;
 
   // KNOWS edges
