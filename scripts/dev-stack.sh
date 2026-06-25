@@ -24,6 +24,12 @@ RTMN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # nexha-distribution-network, nexha-trade-finance-network.
 HUB_CMD="cd $RTMN_ROOT/companies/RABTUL-Technologies/REZ-ecosystem-connector && PORT=4399 node dist/index.js"
 
+# SUTAR Gateway (port 4140) — HTTP entry point exposing /api/sutar/* routes to all SUTAR services
+SUTAR_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-gateway && PORT=4140 npm start"
+
+# Intent Bus (port 4154) — pub/sub broadcast of agent intents across SUTAR
+INTENT_BUS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/observability/intent-bus && PORT=4154 REDIS_URL=redis://localhost:6379 npm start"
+
 # SUTAR OS (HOJAI AI — intelligence layer)
 # Note: TypeScript services (sutar-trust-engine, sutar-contract-os) need a build first.
 # Plain-JS services use node src/index.js directly.
@@ -49,6 +55,9 @@ MEMORY_CONFIDENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/memory/memory-c
 MEMORY_CONTEXT_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/memory/memory-context-engine && PORT=4793 npm start"
 TWIN_MEMORY_BRIDGE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/twins/twin-memory-bridge && PORT=4704 npm start"
 TWINOS_HUB_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/twins/twinos-hub && PORT=4705 npm start"
+
+# CXO OS — AI Executive Suite (10 agents: aiCEO, aiCFO, aiCOO, aiCMO, aiCHRO, aiCTO, aiCPO, aiCRO, aiCISO, aiCLO, aiCSO)
+CXO_OS_CMD="cd $RTMN_ROOT/industry-os/services/cxo-os && PORT=5100 npm start"
 
 # HOJAI AI Intelligence (Phase F.4, 2026-06-22) — Multi-agent orchestration (intent, sentiment, retrieval, prediction, recommendation)
 AI_INTELLIGENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/intelligence/ai-intelligence && PORT=4881 INTELLIGENCE_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
@@ -134,11 +143,23 @@ AGENT_OBSERVABILITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agen
 # HOJAI Voice Gateway (Phase F, 2026-06-24) — Training-aware STT/TTS router on port 4880
 VOICE_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-gateway && PORT=4880 REDIS_URL=redis://localhost:6379 npm start"
 
-# BLR AI Marketplace (BAM) — 245 catalog entries seeded at port 4255
+# BLR AI Marketplace (BAM) — 245 catalog entries
 # Moved from 4250 (conflicted with Nexha stub agent-marketplace)
 MARKETPLACE_LISTINGS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings && PORT=4255 MONGODB_URI=mongodb://127.0.0.1:27017/marketplace_listings npm start"
+BLR_EXPLORATION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-exploration && PORT=4255 REDIS_URL=redis://localhost:6379 npm start"
+BLR_DISCOVERY_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/discovery-engine && PORT=4256 REDIS_URL=redis://localhost:6379 npm start"
+BLR_MULTI_AGENT_EVAL_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-multi-agent-evaluator && PORT=4257 REDIS_URL=redis://localhost:6379 npm start"
+BLR_REPUTATION_AGG_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-reputation-aggregator && PORT=4258 REDIS_URL=redis://localhost:6379 npm start"
+BLR_ROI_CALCULATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/roi-calculator && PORT=4259 REDIS_URL=redis://localhost:6379 npm start"
+BLR_FOUNDER_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-founder-os && PORT=4260 REDIS_URL=redis://localhost:6379 npm start"
+TWIN_MARKETPLACE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/twin-marketplace && PORT=4146 npm start"
 
-# Flow Orchestrator (Phase F.2, 2026-06-22)
+# Nexha Supplier Registry (Phase F, 2026-06-24) — complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment
+NEXHA_SUPPLIER_REGISTRY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-supplier-registry && PORT=4281 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_supplier_registry_dev npm start"
+
+# SUTAR Platform/Flow — Simulation, Goal, Flow Orchestrator (Layer 13)
+SIMULATION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/simulation-os && PORT=4241 REDIS_URL=redis://localhost:6379 npm start"
+GOAL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/goal-os && PORT=4242 REDIS_URL=redis://localhost:6379 npm start"
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
 # Nexha Commerce Network — Phase C services (replaces the 3 L1 stubs)
@@ -316,6 +337,9 @@ status() {
 start_all() {
   echo "Starting RTMN dev stack..."
   check_redis
+  # SUTAR Gateway + Intent Bus
+  start_service "sutar-gateway"           "$SUTAR_GATEWAY_CMD"          4140
+  start_service "intent-bus"              "$INTENT_BUS_CMD"             4154
   # SUTAR OS (HOJAI AI) — core economic layer
   start_service "sada-os"                  "$SADA_OS_CMD"             4190
   start_service "trust-engine"             "$TRUST_ENGINE_CMD"        4291
@@ -330,10 +354,14 @@ start_all() {
   start_service "memory-context-engine"   "$MEMORY_CONTEXT_ENGINE_CMD" 4793
   start_service "twin-memory-bridge"      "$TWIN_MEMORY_BRIDGE_CMD"  4704
   start_service "twinos-hub"              "$TWINOS_HUB_CMD"          4705
+  # CXO OS — AI Executive Suite
+  start_service "cxo-os"                  "$CXO_OS_CMD"              5100
   # HOJAI AI — Foundation (Phase F.1)
   start_service "policy-os"                "$POLICY_OS_CMD"           4254
   start_service "skill-os"                 "$SKILL_OS_CMD"            4743
-  # HOJAI AI — Orchestration (Phase F.2)
+  # SUTAR Platform/Flow — Simulation, Goal, Orchestration
+  start_service "simulation-os"           "$SIMULATION_OS_CMD"       4241
+  start_service "goal-os"                 "$GOAL_OS_CMD"             4242
   start_service "flow-orchestrator"       "$FLOW_ORCHESTRATOR_CMD"   4244
   # HOJAI AI Intelligence (Phase F.4)
   start_service "ai-intelligence"         "$AI_INTELLIGENCE_CMD"     4881
@@ -385,6 +413,7 @@ start_all() {
   start_service "nexha-warehouse-network"     "$NEXHA_WAREHOUSE_CMD"     4288
   start_service "nexha-trade-finance-network" "$NEXHA_TRADE_FINANCE_CMD" 4287
   start_service "nexha-pricing-network"       "$NEXHA_PRICING_CMD"       4286
+  start_service "nexha-supplier-registry"    "$NEXHA_SUPPLIER_REGISTRY_CMD" 4281
   # Nexha Federation services (Phase D + ADR-0011) — ADR-0012 brings these into dev-stack
   start_service "nexha-gateway"               "$NEXHA_GATEWAY_CMD"             5002
   start_service "nexha-acp-messaging"         "$NEXHA_ACP_MESSAGING_CMD"       4340

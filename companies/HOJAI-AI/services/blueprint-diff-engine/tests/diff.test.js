@@ -88,7 +88,8 @@ test('deepDiff detects changed fields', () => {
 test('deepDiff handles array changes', () => {
   const changes = deepDiff({ arr: [1, 2] }, { arr: [1, 2, 3] });
   assert.ok(changes.length >= 1);
-  assert.ok(changes.some(c => c.path.includes('[2]') || c.type === 'added'));
+  // Arrays are compared as atomic values
+  assert.ok(changes.some(c => c.path === 'arr' && c.type === 'changed'));
 });
 
 test('deepDiff handles nested objects', () => {
