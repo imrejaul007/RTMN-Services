@@ -83,7 +83,7 @@ function newId(prefix) { return `${prefix}_${crypto.randomBytes(4).toString('hex
 
 function trimOld(arr, maxAge = RETENTION_MS) {
   const cutoff = now() - maxAge;
-  return arr.filter(e => (e.timestamp || 0) >= cutoff);
+  return arr.filter(e => (e.ts || 0) >= cutoff);
 }
 
 function percentiles(arr, pcts = [50, 95, 99]) {
