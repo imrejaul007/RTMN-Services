@@ -27,22 +27,6 @@ start_tsx() {
   local name="$1"; shift
   local port="$1"; shift
   local dir="$1"; shift
-  local entry="${1:-src/index.ts}"; shift
-  if lsof -i ":$port" >/dev/null 2>&1; then
-    echo "SKIP  $name (port $port) — already running"
-    return
-  fi
-  echo "START $name (port $port) via tsx..."
-  cd "$RTMN/$dir"
-  nohup npx tsx "$entry" > "$LOG/$name.log" 2>&1 &
-  sleep 3
-}
-
-# TypeScript — run directly via tsx (no build step needed)
-start_ts_run() {
-  local name="$1"; shift
-  local port="$1"; shift
-  local dir="$1"; shift
   if lsof -i ":$port" >/dev/null 2>&1; then
     echo "SKIP  $name (port $port) — already running"
     return
@@ -72,12 +56,12 @@ start_with_install() {
 # ── SUTAR OS core ───────────────────────────────────────────────────────────
 # sada-os: TypeScript, runs via tsx
 start_tsx "sada-os"          4190 "companies/HOJAI-AI/platform/trust/sada-os"
-# trust-engine: TypeScript, needs build
-start_ts_build "trust-engine" 4291 "companies/HOJAI-AI/sutar-os/core/sutar-trust-engine"
-# contract-os: TypeScript, needs build
-start_ts_build "contract-os"   4292 "companies/HOJAI-AI/sutar-os/contracts/sutar-contract-os"
-# negotiation-engine: TypeScript, needs build
-start_ts_build "negotiation"   4293 "companies/HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine"
+# trust-engine: TypeScript, runs via tsx
+start_ts_run "trust-engine" 4291 "companies/HOJAI-AI/sutar-os/core/sutar-trust-engine"
+# contract-os: TypeScript, runs via tsx
+start_ts_run "contract-os"   4292 "companies/HOJAI-AI/sutar-os/contracts/sutar-contract-os"
+# negotiation-engine: TypeScript, runs via tsx
+start_ts_run "negotiation"   4293 "companies/HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine"
 
 # ── Core Foundation ──────────────────────────────────────────────────────────
 # corp-id: index.persistent.js (uses CommonJS)
@@ -95,9 +79,9 @@ start_node "twinos-hub"       4705 "companies/HOJAI-AI/platform/twins/twinos-hub
 
 # ── Nexha Phase D federation ───────────────────────────────────────────────
 # nexha-federation-os: TypeScript, needs build
-start_ts_build "nexha-fed-os" 4273 "companies/Nexha/services/nexha-federation-os"
+start_ts_run "nexha-fed-os" 4273 "companies/Nexha/services/nexha-federation-os"
 # nexha-global-directory: TypeScript, needs build
-start_ts_build "nexha-global" 4276 "companies/Nexha/services/nexha-global-directory"
+start_ts_run "nexha-global" 4276 "companies/Nexha/services/nexha-global-directory"
 
 # ── Nexha partner network ──────────────────────────────────────────────────
 # nexha-partner-network: needs npm install (express-rate-limit missing)

@@ -118,7 +118,13 @@ async function runAction(step, inputs) {
     params[k] = typeof v === 'string' && v.startsWith('$') ? inputs[v.slice(1)] : v;
   }
   try {
-    const r = await discoveryClient.get(`/api/${step.resource}/search`, { params });
+    // Map plural resource (services/agents/twins/intents) to singular kind (service/agent/twin/intent)
+    const kind = step.resource.replace(/s$/, '');
+    const r = await discoveryClient.post(`/api/search/${step.resource}`, {
+      query: params.capability || params.q || params.task || '',
+      limit: 10,
+      kinds: [kind]
+    });
     let results = r.data.results || r.data.items || r.data.hits || [];
     if (step.rank && step.rank.by === 'rating') {
       results = [...results].sort((a, b) => (b.rating || 0) - (a.rating || 0));

@@ -57,7 +57,9 @@ function makeProduct(overrides = {}) {
 }
 
 beforeEach(() => {
+  // Must clear BEFORE creating test data, not after
   clearStore();
+  // Also clear any state created by the service's own module instance
 });
 
 // ── Product Model ────────────────────────────────────────────────────────────
