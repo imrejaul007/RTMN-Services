@@ -11,9 +11,10 @@
  * - Preserve user customizations where possible
  */
 
-import { deepEqual, deepDiff, changedKeys, applyPatch } from './diff.js';
+import { deepEqual, deepDiff, changedKeys } from './diff.js';
 import { generatePatch, generateFullRegeneration } from './patcher.js';
 import { validateBlueprint } from './validator.js';
+import { applyPatch } from './apply.js';
 
 // ---------------------------------------------------------------------------
 // Types
