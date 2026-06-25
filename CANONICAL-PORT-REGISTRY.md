@@ -553,6 +553,27 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 
 **Integration with foundry CLI:** `npx hojai deploy --mode=remote` reads `HOJAI_CLOUD_URL` (and optional `HOJAI_API_KEY`) and POSTs `{ name, type, manifest, runtime, files }` to `<HOJAI_CLOUD_URL>/api/v1/deploy`. Falls back to v1.0 stub (print target URL) when `HOJAI_CLOUD_URL` is not set. See `foundry/packages/create-hojai/src/deploy.js` + `tests/deploy.test.js`.
 
+**Phase G (2026-06-25) — HOJAI Cloud Phase 1:** v1.2 released with auto-respawn, SSL certificates, custom domains, preview environments, and rollback support. New modules: `src/respawn.js`, `src/ssl-manager.js`, `src/domain-manager.js`, `src/preview-environments.js`, `src/rollback-manager.js`.
+
+---
+
+## HOJAI Cloud Phase 1 Services (2026-06-25)
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **4380** | `hojai-cloud` | Deploy target (v1.2: auto-respawn, SSL, domains, previews, rollbacks) | - |
+| **4400** | `app-store-api` | App Store — Skills, agents, workflows, templates catalog | - |
+| **4410** | `cost-tracker` | AI usage metering and billing | - |
+| **4420** | `secrets-manager` | Encrypted credential storage (AES-256-GCM) | - |
+| **4430** | `voice-studio-api` | Voice agent management (STT/TTS) | - |
+| **4440** | `workflow-builder-api` | DAG workflow management (10 node types) | - |
+
+**Source:** `companies/HOJAI-AI/services/` and `companies/HOJAI-AI/products/hojai-cloud/`
+
+**Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
+
+**RTMN Hub:** All services wired at `/api/app-store/*`, `/api/cost/*`, `/api/secrets/*`, `/api/voice/*`, `/api/workflows/*`
+
 ---
 
 ## 📋 How to Use This File
