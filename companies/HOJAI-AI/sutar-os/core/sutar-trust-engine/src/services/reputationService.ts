@@ -5,7 +5,7 @@ import {
   IReputation,
   IActivityEntry,
   ReputationResponse,
-} from '../types';
+} from '../types.js';
 
 // In-memory store for reputation data
 const reputationStore = new Map<string, IReputation>();

@@ -325,6 +325,18 @@ SUTAR OS lives at `companies/HOJAI-AI/sutar-os/` (29 services, ~30k LOC). The RT
 | 4287 | nexha-trade-finance-network | 4 (Phase C.4) | `nexha-trade-finance-network` | `companies/Nexha/services/nexha-trade-finance-network/` |
 | 4288 | nexha-warehouse-network | 4 (Phase C.5) | `nexha-warehouse-network` | `companies/Nexha/services/nexha-warehouse-network/` |
 | 4290 | sutar-decision-engine | 4 | `sutar-decision-engine` | `sutar-os/core/sutar-decision-engine/` |
+| 4370 | nexha-catalog-os | 5 (Phase H) | `nexha-catalog-os` | `companies/Nexha/services/nexha-catalog-os/` |
+| 4371 | nexha-order-os | 5 (Phase H) | `nexha-order-os` | `companies/Nexha/services/nexha-order-os/` |
+| 4372 | nexha-agent-os | 5 (Phase H) | `nexha-agent-os` | `companies/Nexha/services/nexha-agent-os/` |
+| 4373 | nexha-supplier-os | 5 (Phase H) | `nexha-supplier-os` | `companies/Nexha/services/nexha-supplier-os/` |
+| 4270 | nexha-capability-os | 5 (ADR-0012) | `nexha-capability-os` | `companies/Nexha/services/nexha-capability-os/` |
+| 4271 | nexha-reputation-os | 5 (ADR-0012) | `nexha-reputation-os` | `companies/Nexha/services/nexha-reputation-os/` |
+| 4272 | nexha-discovery-os | 5 (ADR-0012) | `nexha-discovery-os` | `companies/Nexha/services/nexha-discovery-os/` |
+| 4273 | nexha-federation-os | 5 (ADR-0012) | `nexha-federation-os` | `companies/Nexha/services/nexha-federation-os/` |
+| 4274 | nexha-opportunity-os | 5 (ADR-0012) | `nexha-opportunity-os` | `companies/Nexha/services/nexha-opportunity-os/` |
+| 4275 | nexha-market-os | 5 (ADR-0012) | `nexha-market-os` | `companies/Nexha/services/nexha-market-os/` |
+| 4276 | nexha-global-directory | 5 (ADR-0012) | `nexha-global-directory` | `companies/Nexha/services/nexha-global-directory/` |
+| 4293 | nexha-autonomous-logistics | 5 (ADR-0012) | `nexha-autonomous-logistics` | `companies/Nexha/services/nexha-autonomous-logistics/` |
 | 4291 | sutar-trust-engine | 6 | `sutar-trust-engine` | `sutar-os/core/sutar-trust-engine/` |
 | 4292 | sutar-contract-os | 6 | `sutar-contract-os` | `sutar-os/contracts/sutar-contract-os/` |
 | 4293 | sutar-negotiation-engine | 6 | `sutar-negotiation` | `sutar-os/contracts/sutar-negotiation-engine/` |

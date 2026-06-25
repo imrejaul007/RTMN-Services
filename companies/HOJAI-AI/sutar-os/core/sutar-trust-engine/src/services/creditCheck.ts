@@ -7,7 +7,7 @@ import {
   CreditCheckRequest,
   CreditCheckResponse,
   PaymentStatus,
-} from '../types';
+} from '../types.js';
 
 // In-memory store for credit scores
 const creditScoreStore = new Map<string, ICreditScore>();

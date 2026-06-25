@@ -60,6 +60,9 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-gray-900">{me?.corpId}</p>
               <p className="text-xs text-gray-500 capitalize">{me?.role}</p>
             </div>
+            <Link href="/aci" className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700">
+              🏆 ACI
+            </Link>
             <button className="text-sm text-gray-500 hover:text-red-600"
               onClick={() => { localStorage.removeItem('nexha_token'); localStorage.removeItem('nexha_corpid'); router.push('/'); }}>
               Sign Out
@@ -168,7 +171,7 @@ export default function DashboardPage() {
                 { label: 'Update Profile', icon: '👤', href: '/profile' },
                 { label: 'View RFQs', icon: '📋', href: '/rfqs' },
                 { label: 'My Products', icon: '📦', href: '/products' },
-                { label: 'Ratings', icon: '⭐', href: '/ratings' },
+                { label: 'ACI Score', icon: '🏆', href: '/aci' },
               ].map((a) => (
                 <Link key={a.label} href={a.href}
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition">

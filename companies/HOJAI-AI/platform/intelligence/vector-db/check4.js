@@ -1,14 +1,15 @@
 // Minimal test to check if authReq with template literal path works
+'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('http');
+const path = require('path');
 
-const srcPath = require.resolve('../src/index.js');
-delete require.cache[srcPath];
+// Bust module cache
 Object.keys(require.cache).forEach(k => { if (k.includes('vector-db')) delete require.cache[k]; });
-const app = require('../../src/index.js');
+const app = require('./src/index.js');
 
-const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'vector-db-internal-token';
+const INTERNAL_TOKEN = 'vector-db-internal-token';
 const TEST_COLLECTION = 'test-node-coll';
 
 let server;
@@ -24,19 +25,14 @@ test('setup', async () => {
   });
 });
 
-function authReq(method, path, body) {
+function authReq(method, pathStr, body) {
   const { _token, ...realBody } = body || {};
   const headers = { 'Content-Type': 'application/json' };
   if (_token) headers['x-internal-token'] = _token;
   return new Promise((resolve, reject) => {
-    const url = new URL(baseUrl + path);
-    const opts = {
-      method,
-      hostname: url.hostname,
-      port: url.port,
-      path: url.pathname + url.search,
-      headers
-    };
+    const url = new URL(baseUrl + pathStr);
+    const opts = { method, hostname: url.hostname, port: url.port,
+      path: url.pathname + url.search, headers };
     const req2 = http.request(opts, (res) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
@@ -52,7 +48,7 @@ function authReq(method, path, body) {
 }
 
 test('POST /api/collections/:name/search with template literal path', async () => {
-  const res = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/search', {
+  const res = await authReq('POST', `/api/collections/${TEST_COLLECTION}/search`, {
     query: [0.1, 0.2, 0.3, 0.4],
     topK: 2,
     _token: INTERNAL_TOKEN

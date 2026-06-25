@@ -17,13 +17,14 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  const [nexhaId] = useState(() => localStorage.getItem('nexha_id') ?? '');
+  const [nexhaId, setNexhaId] = useState('');
   const [health, setHealth] = useState<FederationHealth | null>(null);
   const [stats, setStats] = useState<FederationStats | null>(null);
   const [checklist, setChecklist] = useState<OnboardingChecklist | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setNexhaId(localStorage.getItem('nexha_id') ?? '');
     Promise.all([
       federation.health().catch(() => null),
       federation.stats().catch(() => null),

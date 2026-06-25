@@ -38,8 +38,8 @@ start_tsx() {
   sleep 3
 }
 
-# TypeScript — build first, then run dist/
-start_ts_build() {
+# TypeScript — run directly via tsx (no build step needed)
+start_ts_run() {
   local name="$1"; shift
   local port="$1"; shift
   local dir="$1"; shift
@@ -47,12 +47,10 @@ start_ts_build() {
     echo "SKIP  $name (port $port) — already running"
     return
   fi
-  echo "BUILD $name..."
+  echo "START $name (port $port) via tsx..."
   cd "$RTMN/$dir"
-  npm run build > "$LOG/${name}_build.log" 2>&1 || true
-  echo "START $name (port $port)..."
-  nohup node dist/index.js > "$LOG/$name.log" 2>&1 &
-  sleep 2
+  nohup npx tsx src/index.ts > "$LOG/$name.log" 2>&1 &
+  sleep 3
 }
 
 # Install deps then start

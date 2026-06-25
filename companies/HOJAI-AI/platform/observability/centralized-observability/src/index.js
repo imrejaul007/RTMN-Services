@@ -46,10 +46,7 @@ function dataFile(name) {
 
 function load(name, defaults) {
   const f = dataFile(name);
-  if (!fs.existsSync(f)) {
-    save(name, defaults);  // write defaults so subsequent tests find data
-    return defaults;
-  }
+  if (!fs.existsSync(f)) return defaults;
   try { return JSON.parse(fs.readFileSync(f, 'utf8')); }
   catch (_) { return defaults; }
 }
@@ -95,8 +92,8 @@ function percentiles(arr, pcts = [50, 95, 99]) {
   const sorted = [...arr].sort((a, b) => a - b);
   const result = {};
   for (const p of pcts) {
-    const idx = Math.ceil((p / 100) * sorted.length) - 1;
-    result[`p${p}`] = sorted[Math.max(0, idx)];
+    const idx = Math.max(0, Math.min(sorted.length - 1, Math.round((p / 100) * (sorted.length - 1))));
+    result[`p${p}`] = sorted[idx];
   }
   return result;
 }

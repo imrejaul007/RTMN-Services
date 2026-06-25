@@ -14,7 +14,7 @@ import {
   RiskLevel,
   CalculateTrustScoreRequest,
   TrustScoreResponse,
-} from '../types';
+} from '../types.js';
 
 // In-memory store for trust scores (in production, use a database)
 const trustScoreStore = new Map<string, ITrustScore>();

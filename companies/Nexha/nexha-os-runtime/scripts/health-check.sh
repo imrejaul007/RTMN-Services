@@ -37,6 +37,11 @@ SERVICES=(
   "nexha-compliance-network:4290:/health"
   "nexha-payment-network:4296:/health"
   "nexha-partner-network:4297:/health"
+  # Per-Company Commerce (Phase H)
+  "nexha-catalog-os:4370:/health"
+  "nexha-order-os:4371:/health"
+  "nexha-agent-os:4372:/health"
+  "nexha-supplier-os:4373:/health"
   # Enterprise
   "nexha-capability-os:4270:/health"
   "nexha-acp-messaging:4340:/health"

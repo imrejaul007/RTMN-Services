@@ -12,7 +12,7 @@ import {
   VerificationResponse,
   KYCResponse,
   KYCMergeRequest,
-} from '../types';
+} from '../types.js';
 
 // In-memory stores
 const verificationStore = new Map<string, IVerificationRequest>();
