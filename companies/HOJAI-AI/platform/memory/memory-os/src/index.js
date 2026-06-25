@@ -4,8 +4,8 @@ import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
 import { requireEnv } from '@rtmn/shared/lib/env';
 import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
 import { v4 as uuidv4 } from 'uuid';
-import persistence from './persistence.js';
-import * as embedClient from './embed-client.js';
+import persistence from './persistence.cjs';
+import embedClient from './embed-client.js';
 import { requireAuthMw, requireAuth, getRequireAuth, setRequireAuth } from './auth.js';
 
 /**

@@ -94,7 +94,7 @@ async function searchByText({ text, topK = 10, filter = null }) {
   return fetchJson(`/api/collections/${COLLECTION}/search-by-text`, body);
 }
 
-export {
+export default {
   VECTOR_DB_URL,
   COLLECTION,
   DIM,
