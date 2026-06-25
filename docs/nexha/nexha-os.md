@@ -1,7 +1,7 @@
 # Nexha OS — Top-Level Architecture
 
-> **Status:** ✅ Production-Ready (ADR-0012, 2026-06-23)
-> **Scope:** 14 services + 1 Hub route layer + 1 consumer gateway
+> **Status:** ✅ Production-Ready (ADR-0012, updated 2026-06-25)
+> **Scope:** 22 services + Hub route layer + 1 consumer gateway
 > **See also:** [audit-2026-06-23.md](./audit-2026-06-23.md) · [adr-0012-retrospective.md](./adr-0012-retrospective.md) · [e2e-flows.md](./e2e-flows.md)
 
 ## What is Nexha OS?
@@ -58,6 +58,19 @@ These provide the **multi-tenant isolation** + **business logic** for cross-Nexh
 | **nexha-mission-planner** | 4362 | Cross-tenant mission composition (capability graph → DAG → execution) |
 | **nexha-partner-graph** | 4363 | "Companies I've transacted with" social graph + recommendation engine |
 | **nexha-commerce-runtime** | 4364 | Order + payment + return execution plane (state machines for each) |
+
+### Phase D Federation OS Extensions (8 services — ADR-0012 Phase 17, 2026-06-25)
+
+| Service | Port | What it does |
+|---|--:|---|
+| **nexha-capability-os** | 4270 | Canonical capability schema + registry — every Nexha publishes capabilities here |
+| **nexha-reputation-os** | 4271 | ACI (Autonomous Commerce Index) scoring engine — signals → 0-1000 trust score |
+| **nexha-discovery-os** | 4272 | Federation discovery + ranking — CapabilityOS + ReputationOS combined |
+| **nexha-federation-os** | 4273 | Federation registry + governance — Nexha join/leave, bilateral handshakes |
+| **nexha-opportunity-os** | 4274 | Demand-side broker — matches buyer demand to best-fit capabilities |
+| **nexha-market-os** | 4275 | Market intelligence — prices, trends, supply/demand gaps, federation reports |
+| **nexha-global-directory** | 4276 | Central search index — unified trust-aware search across all 6 services |
+| **nexha-autonomous-logistics** | 4293 | Multi-carrier shipping (DHL/FedEx/Maersk), customs, insurance, documents |
 
 ### Phase 12-13 — Provisioning + Aggregation (3 services)
 
@@ -129,13 +142,17 @@ See [e2e-flows.md](./e2e-flows.md) for the catalog.
 ## How to run it
 
 ```bash
-# 1. Start all 14 Nexha services + Hub
+# 1. Start all 22 Nexha services + Hub
 bash scripts/dev-stack.sh start
 
 # 2. Verify health
-curl http://localhost:4399/health
-curl http://localhost:4280/health  # supplier
-curl http://localhost:5002/health  # gateway
+bash scripts/dev-stack.sh health
+
+# 3. Or curl individually
+curl http://localhost:4399/health        # Hub
+curl http://localhost:4280/health      # supplier
+curl http://localhost:4270/health     # capability-os
+curl http://localhost:4293/health     # autonomous-logistics
 
 # 3. Run the E2E suite (20 tests)
 cd companies/Nexha/__tests__/e2e
@@ -148,23 +165,63 @@ npx vitest run
 
 ## Test coverage
 
+**Updated 2026-06-25:** 23 Nexha services (22 OS + autonomous-logistics), all with unit tests.
+
+| Service | Tests |
+|---|---:|
+| nexha-supplier-network | 20 ✅ |
+| nexha-distribution-network | 22 ✅ |
+| nexha-pricing-network | 31 ✅ |
+| nexha-trade-finance-network | 38 ✅ |
+| nexha-warehouse-network | 49 ✅ |
+| nexha-business-directory | 68 ✅ |
+| nexha-acp-messaging | 59 ✅ |
+| nexha-mission-planner | 89 ✅ |
+| nexha-partner-graph | 67 ✅ |
+| nexha-commerce-runtime | 86 ✅ |
+| nexha-provisioning-engine | 67 ✅ |
+| nexha-hooks-sdk | 73 ✅ |
+| nexha-tenant-summary | 38 ✅ |
+| nexha-gateway | 21 ✅ |
+| nexha-capability-os | 22 ✅ |
+| nexha-discovery-os | 24 ✅ |
+| nexha-reputation-os | 23 ✅ |
+| nexha-federation-os | 30 ✅ |
+| nexha-opportunity-os | 27 ✅ |
+| nexha-market-os | 32 ✅ |
+| nexha-global-directory | 28 ✅ |
+| nexha-autonomous-logistics | 97 ✅ |
+| **Total** | **991 ✅** |
+
+## Test coverage
+
 | Layer | Count |
 |---|---:|
-| Per-service unit tests (Nexha) | 728 |
+| Per-service unit tests (Nexha) | **991** |
 | E2E flows (Nexha) | 20 |
 | RABTUL Hub | 42 |
 | do-app (vitest unit) | 209 |
-| **Total in ADR-0012 scope** | **999** |
+| **Total in scope** | **1,262** |
 
 ## What's NOT in Nexha OS
+
+> **Updated 2026-06-25:** All 8 "partially built" federation services are now complete.
+
+| Thing | Status |
+|---|---|
+| The actual storage layer (Mongo, Postgres) | Most services are in-memory for now — Phase C/D chose speed of iteration over persistence |
+| Real carrier API | Distribution-network simulates carriers via deterministic formulas |
+| Real bank APIs | Trade-finance simulates loan disbursement |
+| The customer-facing apps | That's do-app (mobile + backend) — a separate repo + consumer of the Hub |
+| The SUTAR economy layer | That's `sutar-os/core/` — different ADRs (0005-0008) |
+| Nexha OS Docker runtime | Use `scripts/dev-stack.sh` for local dev; production Docker = separate workstream |
+| E2E tests for Phase D federation services | Currently unit tests only; E2E coverage is TODO |
 
 | Thing | Why not |
 |---|---|
 | The actual storage layer (Mongo, Postgres) | Most services are in-memory for now — Phase C/D chose speed of iteration over persistence |
-| Real carrier APIs (BlueDart, DHL) | Distribution-network simulates carriers via deterministic formulas |
+| Real carrier APIs (BlueDart, DHL) | nexha-autonomous-logistics simulates; carrier webhooks added 2026-06-25 |
 | Real bank APIs | Trade-finance simulates loan disbursement |
-| The customer-facing apps | That's do-app (mobile + backend) — a separate repo + consumer of the Hub |
-| The SUTAR economy layer | That's `sutar-os/core/` — different ADRs (0005-0008) |
 
 ## Related Docs
 
