@@ -6,3 +6,5 @@ dist/
 .env
 .env.local
 services/corpid-service/data/
+products/ai-studio-ui/.next/
+products/ai-studio-ui/node_modules/

@@ -1,15 +1,19 @@
 'use strict';
-var node_test_1 = require('node:test');
+var test = require('node:test');
 var assert = require('node:assert/strict');
 var http = require('http');
+
 Object.keys(require.cache).forEach(function (k) { if (k.includes('vector-db')) delete require.cache[k]; });
 var app = require('../src/index.js');
+
 var INTERNAL_TOKEN = 'vector-db-internal-token';
 var TEST_COLLECTION = 'test-node-coll';
 var TEST_DIM = 4;
+
 var server;
 var baseUrl;
-(0, node_test_1.test)('setup', function () {
+
+test('setup', function () {
     var _this = this;
     return new Promise(function (resolve) {
         server = app.listen(0, function () {
@@ -19,16 +23,18 @@ var baseUrl;
         });
     });
 });
-(0, node_test_1.test)('cleanup', function () {
+
+test('cleanup', function () {
     if (server) server.close();
 });
+
 function req(method, path, body, extraHeaders) {
-    var _this = this;
     return new Promise(function (resolve, reject) {
         var url = new URL(baseUrl + path);
         var headers = { 'Content-Type': 'application/json' };
         if (extraHeaders) Object.assign(headers, extraHeaders);
-        var opts = { method: method, hostname: url.hostname, port: url.port, path: url.pathname + url.search, headers: headers };
+        var opts = { method: method, hostname: url.hostname, port: url.port,
+            path: url.pathname + url.search, headers: headers };
         var req2 = http.request(opts, function (res) {
             var data = '';
             res.on('data', function (chunk) { data += chunk; });
@@ -42,307 +48,367 @@ function req(method, path, body, extraHeaders) {
         req2.end();
     });
 }
+
 function authReq(method, path, body) {
     var h = {};
     var token = (body || {})._token;
     if (token) h['x-internal-token'] = token;
-    var rest = Object.assign({}, body);
+    var rest = Object.assign({}, body || {});
     delete rest._token;
     var keys = Object.keys(rest);
-    return req(method, path, keys.length ? rest : undefined, h);
+    return req(method, path, keys.length > 0 ? rest : undefined, h);
 }
+
 // exports
-(0, node_test_1.test)('app is function', function () {
-    (0, assert.ok)(typeof app === 'function');
+test('app is function', function () {
+    assert.equal(typeof app, 'function');
 });
-(0, node_test_1.test)('PORT exported as 4780', function () {
-    (0, assert.equals)(app.PORT, 4780);
+
+test('PORT exported as 4780', function () {
+    assert.equal(app.PORT, 4780);
 });
-(0, node_test_1.test)('SERVICE_NAME exported', function () {
-    (0, assert.equals)(app.SERVICE_NAME, 'vector-db');
+
+test('SERVICE_NAME exported', function () {
+    assert.equal(app.SERVICE_NAME, 'vector-db');
 });
-(0, node_test_1.test)('collections Map exported', function () {
-    (0, assert.ok)(app.collections instanceof Map);
+
+test('collections Map exported', function () {
+    assert.ok(app.collections instanceof Map);
 });
-(0, node_test_1.test)('stats object exported', function () {
-    (0, assert.ok)(typeof app.stats === 'object');
+
+test('stats object exported', function () {
+    assert.ok(typeof app.stats === 'object');
 });
-(0, node_test_1.test)('embed function exported', function () {
-    (0, assert.equals)(typeof app.embed, 'function');
+
+test('embed function exported', function () {
+    assert.equal(typeof app.embed, 'function');
 });
-(0, node_test_1.test)('similarity functions exported', function () {
-    (0, assert.equals)(typeof app.cosineSimilarity, 'function');
-    (0, assert.equals)(typeof app.dotSimilarity, 'function');
-    (0, assert.equals)(typeof app.euclideanSimilarity, 'function');
+
+test('similarity functions exported', function () {
+    assert.equal(typeof app.cosineSimilarity, 'function');
+    assert.equal(typeof app.dotSimilarity, 'function');
+    assert.equal(typeof app.euclideanSimilarity, 'function');
 });
+
 // embedding helpers
-(0, node_test_1.test)('embed() returns 128 dims by default', function () {
+test('embed() returns 128 dims by default', function () {
     var v = app.embed('hello world');
-    (0, assert.equals)(v.length, 128);
+    assert.equal(v.length, 128);
 });
-(0, node_test_1.test)('embed() returns requested dim', function () {
+
+test('embed() returns requested dim', function () {
     var v = app.embed('hello world', 4);
-    (0, assert.equals)(v.length, 4);
+    assert.equal(v.length, 4);
 });
-(0, node_test_1.test)('cosineSimilarity identical = 1', function () {
+
+test('cosineSimilarity identical = 1', function () {
     var v = [0.5, 0.5, 0.5, 0.5];
-    (0, assert.ok)(Math.abs(app.cosineSimilarity(v, v) - 1) < 0.0001);
+    assert.ok(Math.abs(app.cosineSimilarity(v, v) - 1) < 0.0001);
 });
-(0, node_test_1.test)('cosineSimilarity orthogonal ≈ 0', function () {
-    (0, assert.ok)(Math.abs(app.cosineSimilarity([1,0,0,0], [0,1,0,0])) < 0.0001);
+
+test('cosineSimilarity orthogonal ~ 0', function () {
+    assert.ok(Math.abs(app.cosineSimilarity([1,0,0,0], [0,1,0,0])) < 0.0001);
 });
+
 // health
-(0, node_test_1.test)('GET /api/health returns 200 + healthy', function () {
-    var res = req('GET', '/api/health');
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.status, 'healthy');
+test('GET /api/health returns 200 + healthy', async function () {
+    var res = await req('GET', '/api/health');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.status, 'healthy');
 });
-(0, node_test_1.test)('GET /ready returns 200 + ready:true', function () {
-    var res = req('GET', '/ready');
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.ready, true);
+
+test('GET /ready returns 200 + ready:true', async function () {
+    var res = await req('GET', '/ready');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.ready, true);
 });
+
 // stats
-(0, node_test_1.test)('GET /api/stats returns stats', function () {
-    var res = req('GET', '/api/stats');
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)('collections' in res.body);
-    (0, assert.ok)('vectors' in res.body);
+test('GET /api/stats returns stats', async function () {
+    var res = await req('GET', '/api/stats');
+    assert.equal(res.status, 200);
+    assert.ok('collections' in res.body);
+    assert.ok('vectors' in res.body);
 });
+
 // collection CRUD
-(0, node_test_1.test)('POST /api/collections creates collection', function () {
-    var res = authReq('POST', '/api/collections', {
-        name: TEST_COLLECTION,
-        dimension: TEST_DIM,
-        metric: 'cosine',
-        _token: INTERNAL_TOKEN
+test('POST /api/collections creates collection', async function () {
+    var res = await authReq('POST', '/api/collections', {
+        name: TEST_COLLECTION, dimension: TEST_DIM, metric: 'cosine', _token: INTERNAL_TOKEN
     });
-    (0, assert.ok)([200, 201, 409].indexOf(res.status) >= 0, 'got ' + res.status);
+    assert.ok([200, 201, 409].indexOf(res.status) >= 0, 'got ' + res.status);
 });
-(0, node_test_1.test)('POST /api/collections rejects duplicate', function () {
-    var res = authReq('POST', '/api/collections', {
+
+test('POST /api/collections rejects duplicate', async function () {
+    var res = await authReq('POST', '/api/collections', {
         name: TEST_COLLECTION, dimension: TEST_DIM, _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 409);
+    assert.equal(res.status, 409);
 });
-(0, node_test_1.test)('GET /api/collections lists collections', function () {
-    var res = req('GET', '/api/collections');
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)(Array.isArray(res.body.collections));
+
+test('GET /api/collections lists collections', async function () {
+    var res = await req('GET', '/api/collections');
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body.collections));
 });
-(0, node_test_1.test)('GET /api/collections/:name returns collection', function () {
-    var res = req('GET', '/api/collections/' + TEST_COLLECTION);
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.name, TEST_COLLECTION);
+
+test('GET /api/collections/:name returns collection', async function () {
+    var res = await req('GET', '/api/collections/' + TEST_COLLECTION);
+    assert.equal(res.status, 200);
+    assert.equal(res.body.name, TEST_COLLECTION);
 });
-(0, node_test_1.test)('GET /api/collections/:name 404 for unknown', function () {
-    var res = req('GET', '/api/collections/does-not-exist-xyz');
-    (0, assert.equals)(res.status, 404);
+
+test('GET /api/collections/:name 404 for unknown', async function () {
+    var res = await req('GET', '/api/collections/does-not-exist-xyz');
+    assert.equal(res.status, 404);
 });
-(0, node_test_1.test)('PATCH /api/collections/:name updates metric', function () {
-    var res = authReq('PATCH', '/api/collections/' + TEST_COLLECTION, {
+
+test('PATCH /api/collections/:name updates metric', async function () {
+    var res = await authReq('PATCH', '/api/collections/' + TEST_COLLECTION, {
         metric: 'dot', _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.metric, 'dot');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.metric, 'dot');
 });
-(0, node_test_1.test)('DELETE /api/collections/:name deletes collection', function () {
-    authReq('POST', '/api/collections', { name: 'coll-delete-test', dimension: 4, _token: INTERNAL_TOKEN });
-    var res = authReq('DELETE', '/api/collections/coll-delete-test', { _token: INTERNAL_TOKEN });
-    (0, assert.equals)(res.status, 200);
+
+test('DELETE /api/collections/:name deletes collection', async function () {
+    await authReq('POST', '/api/collections', {
+        name: 'coll-delete-test', dimension: 4, _token: INTERNAL_TOKEN
+    });
+    var res = await authReq('DELETE', '/api/collections/coll-delete-test', {
+        _token: INTERNAL_TOKEN
+    });
+    assert.equal(res.status, 200);
 });
-(0, node_test_1.test)('DELETE /api/collections/:name 404 for unknown', function () {
-    var res = authReq('DELETE', '/api/collections/does-not-exist', { _token: INTERNAL_TOKEN });
-    (0, assert.equals)(res.status, 404);
+
+test('DELETE /api/collections/:name 404 for unknown', async function () {
+    var res = await authReq('DELETE', '/api/collections/does-not-exist', {
+        _token: INTERNAL_TOKEN
+    });
+    assert.equal(res.status, 404);
 });
+
 // vectors
-(0, node_test_1.test)('POST /api/embed returns embedding', function () {
-    var res = authReq('POST', '/api/embed', {
+test('POST /api/embed returns embedding', async function () {
+    var res = await authReq('POST', '/api/embed', {
         text: 'hello world', dimension: 4, _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)(Array.isArray(res.body.vector));
-    (0, assert.equals)(res.body.vector.length, 4);
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body.vector));
+    assert.equal(res.body.vector.length, 4);
 });
-(0, node_test_1.test)('POST /api/embed requires text', function () {
-    var res = authReq('POST', '/api/embed', { _token: INTERNAL_TOKEN });
-    (0, assert.equals)(res.status, 400);
+
+test('POST /api/embed requires text', async function () {
+    var res = await authReq('POST', '/api/embed', { _token: INTERNAL_TOKEN });
+    assert.equal(res.status, 400);
 });
-(0, node_test_1.test)('POST /api/collections/:name/vectors inserts vector', function () {
-    var res = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
+
+test('POST /api/collections/:name/vectors inserts vector', async function () {
+    var res = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
         values: [0.1, 0.2, 0.3, 0.4],
         metadata: { tag: 'a' },
         _token: INTERNAL_TOKEN
     });
-    (0, assert.ok)([200, 201].indexOf(res.status) >= 0, 'got ' + res.status);
-    (0, assert.ok)(res.body.id);
+    assert.ok([200, 201].indexOf(res.status) >= 0, 'got ' + res.status);
+    assert.ok(res.body.id);
 });
-(0, node_test_1.test)('POST /api/collections/:name/vectors rejects wrong dimension', function () {
-    var res = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
+
+test('POST /api/collections/:name/vectors rejects wrong dimension', async function () {
+    var res = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
         values: [0.1, 0.2, 0.3],
         _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 409);
+    assert.equal(res.status, 409);
 });
-(0, node_test_1.test)('POST /api/collections/:name/vectors/batch inserts batch', function () {
-    var res = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors/batch', {
+
+test('POST /api/collections/:name/vectors/batch inserts batch', async function () {
+    var res = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors/batch', {
         vectors: [
             { values: [0.5, 0.5, 0.5, 0.5], metadata: { tag: 'b' } },
             { values: [0.9, 0.1, 0.1, 0.1], metadata: { tag: 'c' } }
         ],
         _token: INTERNAL_TOKEN
     });
-    (0, assert.ok)([200, 201].indexOf(res.status) >= 0, 'got ' + res.status);
-    (0, assert.ok)(Array.isArray(res.body.ids));
-    (0, assert.equals)(res.body.ids.length, 2);
+    assert.ok([200, 201].indexOf(res.status) >= 0, 'got ' + res.status);
+    assert.ok(Array.isArray(res.body.ids));
+    assert.equal(res.body.ids.length, 2);
 });
-(0, node_test_1.test)('GET /api/collections/:name/vectors lists vectors', function () {
-    var res = req('GET', '/api/collections/' + TEST_COLLECTION + '/vectors');
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)(Array.isArray(res.body.vectors));
+
+test('GET /api/collections/:name/vectors lists vectors', async function () {
+    var res = await req('GET', '/api/collections/' + TEST_COLLECTION + '/vectors');
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body.vectors));
 });
-(0, node_test_1.test)('GET /api/collections/:name/vectors/:id gets vector', function () {
-    var upsert = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
+
+test('GET /api/collections/:name/vectors/:id gets vector', async function () {
+    var upsert = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
         values: [0.1, 0.2, 0.3, 0.4],
         metadata: { tag: 'single' },
         _token: INTERNAL_TOKEN
     });
-    var res = req('GET', '/api/collections/' + TEST_COLLECTION + '/vectors/' + upsert.body.id);
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.id, upsert.body.id);
+    assert.ok(upsert.body.id);
+    var res = await req('GET', '/api/collections/' + TEST_COLLECTION + '/vectors/' + upsert.body.id);
+    assert.equal(res.status, 200);
+    assert.equal(res.body.id, upsert.body.id);
 });
-(0, node_test_1.test)('DELETE /api/collections/:name/vectors/:id deletes', function () {
-    var upsert = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
-        values: [0.1, 0.2, 0.3, 0.4], _token: INTERNAL_TOKEN
-    });
-    var res = authReq('DELETE', '/api/collections/' + TEST_COLLECTION + '/vectors/' + upsert.body.id, {
+
+test('DELETE /api/collections/:name/vectors/:id deletes', async function () {
+    var upsert = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
+        values: [0.1, 0.2, 0.3, 0.4],
         _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 200);
+    assert.ok(upsert.body.id);
+    var res = await authReq('DELETE', '/api/collections/' + TEST_COLLECTION + '/vectors/' + upsert.body.id, {
+        _token: INTERNAL_TOKEN
+    });
+    assert.equal(res.status, 200);
 });
-(0, node_test_1.test)('POST /api/collections/:name/vectors/delete-batch deletes multiple', function () {
-    var r1 = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
-        values: [0.1, 0.2, 0.3, 0.4], _token: INTERNAL_TOKEN
+
+test('POST /api/collections/:name/vectors/delete-batch deletes multiple', async function () {
+    var r1 = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
+        values: [0.1, 0.2, 0.3, 0.4],
+        _token: INTERNAL_TOKEN
     });
-    var r2 = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
-        values: [0.5, 0.5, 0.5, 0.5], _token: INTERNAL_TOKEN
+    assert.ok(r1.body.id);
+    var r2 = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors', {
+        values: [0.5, 0.5, 0.5, 0.5],
+        _token: INTERNAL_TOKEN
     });
-    var res = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors/delete-batch', {
+    assert.ok(r2.body.id);
+    var res = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors/delete-batch', {
         ids: [r1.body.id, r2.body.id],
         _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.deleted, 2);
+    assert.equal(res.status, 200);
+    assert.equal(res.body.deleted, 2);
 });
-(0, node_test_1.test)('POST /api/collections/:name/vectors/delete-batch rejects empty', function () {
-    var res = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors/delete-batch', {
+
+test('POST /api/collections/:name/vectors/delete-batch rejects empty', async function () {
+    var res = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/vectors/delete-batch', {
         ids: [], _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 400);
+    assert.equal(res.status, 400);
 });
+
 // search
-(0, node_test_1.test)('POST /api/collections/:name/search returns matches', function () {
-    var res = authReq('POST', '/api/collections/' + TEST_COLLECTION + '/search', {
+test('POST /api/collections/:name/search returns matches', async function () {
+    var res = await authReq('POST', '/api/collections/' + TEST_COLLECTION + '/search', {
         query: [0.1, 0.2, 0.3, 0.4],
         topK: 2,
         _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)('matches' in res.body);
-    (0, assert.ok)(Array.isArray(res.body.matches));
+    assert.equal(res.status, 200);
+    assert.ok('matches' in res.body);
+    assert.ok(Array.isArray(res.body.matches));
 });
-(0, node_test_1.test)('POST /api/query searches across collection', function () {
-    var res = authReq('POST', '/api/query', {
+
+test('POST /api/query searches across collection', async function () {
+    var res = await authReq('POST', '/api/query', {
         collection: TEST_COLLECTION,
         query: [0.1, 0.2, 0.3, 0.4],
         topK: 1,
         _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.collection, TEST_COLLECTION);
+    assert.equal(res.status, 200);
+    assert.equal(res.body.collection, TEST_COLLECTION);
 });
-(0, node_test_1.test)('POST /api/query requires collection', function () {
-    var res = authReq('POST', '/api/query', {
+
+test('POST /api/query requires collection', async function () {
+    var res = await authReq('POST', '/api/query', {
         query: [0.1, 0.2, 0.3, 0.4],
         _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 400);
+    assert.equal(res.status, 400);
 });
-(0, node_test_1.test)('POST /api/collections/:name/search-by-text works', function () {
+
+test('POST /api/collections/:name/search-by-text works', async function () {
     var coll128 = 'test-text-search';
-    authReq('POST', '/api/collections', { name: coll128, dimension: 128, _token: INTERNAL_TOKEN });
-    authReq('POST', '/api/collections/' + coll128 + '/vectors', {
+    await authReq('POST', '/api/collections', {
+        name: coll128, dimension: 128, _token: INTERNAL_TOKEN
+    });
+    await authReq('POST', '/api/collections/' + coll128 + '/vectors', {
         values: app.embed('machine learning algorithms', 128),
         metadata: { domain: 'ml' },
         _token: INTERNAL_TOKEN
     });
-    authReq('POST', '/api/collections/' + coll128 + '/vectors', {
+    await authReq('POST', '/api/collections/' + coll128 + '/vectors', {
         values: app.embed('cooking recipes food', 128),
         metadata: { domain: 'food' },
         _token: INTERNAL_TOKEN
     });
-    var res = authReq('POST', '/api/collections/' + coll128 + '/search-by-text', {
+    var res = await authReq('POST', '/api/collections/' + coll128 + '/search-by-text', {
         text: 'neural networks and deep learning',
         topK: 1,
         _token: INTERNAL_TOKEN
     });
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)(res.body.queryText);
-    (0, assert.ok)(Array.isArray(res.body.matches));
+    assert.equal(res.status, 200);
+    assert.ok(res.body.queryText);
+    assert.ok(Array.isArray(res.body.matches));
     if (res.body.matches.length > 0) {
-        (0, assert.equals)(res.body.matches[0].metadata.domain, 'ml');
+        assert.equal(res.body.matches[0].metadata.domain, 'ml');
     }
 });
+
 // audit
-(0, node_test_1.test)('GET /api/audit returns audit log', function () {
-    var res = req('GET', '/api/audit');
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)('count' in res.body);
+test('GET /api/audit returns audit log', async function () {
+    var res = await req('GET', '/api/audit');
+    assert.equal(res.status, 200);
+    assert.ok('count' in res.body);
 });
-(0, node_test_1.test)('GET /api/audit?limit=5 respects limit', function () {
-    var res = req('GET', '/api/audit?limit=5');
-    (0, assert.equals)(res.status, 200);
-    (0, assert.ok)(res.body.returned <= 5);
+
+test('GET /api/audit?limit=5 respects limit', async function () {
+    var res = await req('GET', '/api/audit?limit=5');
+    assert.equal(res.status, 200);
+    assert.ok(res.body.returned <= 5);
 });
-(0, node_test_1.test)('POST /api/stats/reset resets counters', function () {
-    var res = authReq('POST', '/api/stats/reset', { _token: INTERNAL_TOKEN });
-    (0, assert.equals)(res.status, 200);
-    (0, assert.equals)(res.body.stats.totalCollectionsCreated, 0);
+
+test('POST /api/stats/reset resets counters', async function () {
+    var res = await authReq('POST', '/api/stats/reset', { _token: INTERNAL_TOKEN });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.stats.totalCollectionsCreated, 0);
 });
+
 // auth
-(0, node_test_1.test)('POST /api/collections no token returns 401', function () {
-    var res = req('POST', '/api/collections', { name: 'auth-test', dimension: 4 });
-    (0, assert.equals)(res.status, 401);
+test('POST /api/collections no token returns 401', async function () {
+    var res = await req('POST', '/api/collections', { name: 'auth-test', dimension: 4 });
+    assert.equal(res.status, 401);
 });
-(0, node_test_1.test)('POST /api/embed no token returns 401', function () {
-    var res = req('POST', '/api/embed', { text: 'hello' });
-    (0, assert.equals)(res.status, 401);
+
+test('POST /api/embed no token returns 401', async function () {
+    var res = await req('POST', '/api/embed', { text: 'hello' });
+    assert.equal(res.status, 401);
 });
-(0, node_test_1.test)('POST /api/collections wrong token returns 401', function () {
-    var res = req('POST', '/api/collections', { name: 'auth-test2', dimension: 4 }, {
+
+test('POST /api/collections wrong token returns 401', async function () {
+    var res = await req('POST', '/api/collections', { name: 'auth-test2', dimension: 4 }, {
         'x-internal-token': 'wrong-token'
     });
-    (0, assert.equals)(res.status, 401);
+    assert.equal(res.status, 401);
 });
-(0, node_test_1.test)('GET /api/collections no token = 200 (public read)', function () {
-    var res = req('GET', '/api/collections');
-    (0, assert.equals)(res.status, 200);
+
+test('GET /api/collections no token = 200 (public read)', async function () {
+    var res = await req('GET', '/api/collections');
+    assert.equal(res.status, 200);
 });
-(0, node_test_1.test)('GET /api/audit no token = 200 (public read)', function () {
-    var res = req('GET', '/api/audit');
-    (0, assert.equals)(res.status, 200);
+
+test('GET /api/audit no token = 200 (public read)', async function () {
+    var res = await req('GET', '/api/audit');
+    assert.equal(res.status, 200);
 });
+
 // validation
-(0, node_test_1.test)('POST /api/collections empty body returns 400', function () {
-    var res = req('POST', '/api/collections', {}, { 'x-internal-token': INTERNAL_TOKEN });
-    (0, assert.equals)(res.status, 400);
+test('POST /api/collections empty body returns 400', async function () {
+    var res = await req('POST', '/api/collections', {}, { 'x-internal-token': INTERNAL_TOKEN });
+    assert.equal(res.status, 400);
 });
-(0, node_test_1.test)('POST /api/embed empty body returns 400', function () {
-    var res = req('POST', '/api/embed', {}, { 'x-internal-token': INTERNAL_TOKEN });
-    (0, assert.equals)(res.status, 400);
+
+test('POST /api/embed empty body returns 400', async function () {
+    var res = await req('POST', '/api/embed', {}, { 'x-internal-token': INTERNAL_TOKEN });
+    assert.equal(res.status, 400);
 });
+
 // 404
-(0, node_test_1.test)('unknown route returns 404', function () {
-    var res = req('GET', '/api/does-not-exist');
-    (0, assert.equals)(res.status, 404);
+test('unknown route returns 404', async function () {
+    var res = await req('GET', '/api/does-not-exist');
+    assert.equal(res.status, 404);
 });

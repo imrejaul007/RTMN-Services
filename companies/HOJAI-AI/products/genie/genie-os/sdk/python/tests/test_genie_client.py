@@ -33,6 +33,9 @@ from genie_client.client import (
 )
 
 
+class TestGenieClient(unittest.TestCase):
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -105,7 +108,7 @@ def _make_client_with_responses(responses: list[Dict[str, Any]]) -> GenieClient:
 # Auth tests
 # ---------------------------------------------------------------------------
 
-def test_signup():
+def test_signup(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -114,13 +117,13 @@ def test_signup():
         }},
     ])
     auth = client.auth.signup(name="Alice Sharma", email="alice@example.com", password="secret123")
-    assert auth.token == "tok-u001-alice"
-    assert auth.user.email == "alice@example.com"
-    assert auth.user.name == "Alice Sharma"
-    assert auth.user.id == "u001"
+    self.assertEqual(auth.token, "tok-u001-alice")
+    self.assertEqual(auth.user.email, "alice@example.com")
+    self.assertEqual(auth.user.name, "Alice Sharma")
+    self.assertEqual(auth.user.id, "u001")
 
 
-def test_signup_with_goals():
+def test_signup_with_goals(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -129,10 +132,10 @@ def test_signup_with_goals():
         }},
     ])
     auth = client.auth.signup(name="Bob Kumar", email="bob@example.com", password="pass123", goals=["health", "finance"])
-    assert auth.user.id == "u002"
+    self.assertEqual(auth.user.id, "u002")
 
 
-def test_login_success():
+def test_login_success(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -141,20 +144,20 @@ def test_login_success():
         }},
     ])
     auth = client.auth.login(email="charlie@example.com", password="secret123")
-    assert auth.token == "tok-u003-charlie"
-    assert auth.user.role.value == "admin"
+    self.assertEqual(auth.token, "tok-u003-charlie")
+    self.assertEqual(auth.user.role.value, "admin")
 
 
-def test_login_wrong_password():
+def test_login_wrong_password(self):
     client = _make_client_with_responses([
         {"status_code": 401, "json_data": {"error": "Invalid credentials"}},
     ])
-    with pytest.raises(AuthenticationError) as exc:
+    with self.assertRaises(AuthenticationError) as exc:
         client.auth.login(email="alice@example.com", password="wrong")
-    assert exc.value.status_code == 401
+    self.assertEqual(exc.value.status_code, 401)
 
 
-def test_me():
+def test_me(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -162,23 +165,23 @@ def test_me():
         }},
     ])
     me = client.auth.me()
-    assert me.email == "alice@example.com"
-    assert me.id == "u001"
+    self.assertEqual(me.email, "alice@example.com")
+    self.assertEqual(me.id, "u001")
 
 
-def test_onboarding_set_goals():
+def test_onboarding_set_goals(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {"success": True}},
     ])
     result = client.onboarding.set_goals(["health", "learning", "finance"])
-    assert result.success
+    self.assertTrue(result.success)
 
 
 # ---------------------------------------------------------------------------
 # Core ask tests
 # ---------------------------------------------------------------------------
 
-def test_ask():
+def test_ask(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -188,12 +191,12 @@ def test_ask():
         }},
     ])
     resp = client.ask("What's my top priority today?")
-    assert "priority" in resp.answer
-    assert "calendar" in resp.sources
-    assert len(resp.suggested_actions) == 1
+    self.assertIn("priority", resp.answer)
+    self.assertIn("calendar", resp.sources)
+    self.assertEqual(len(resp.suggested_actions), 1)
 
 
-def test_ask_with_context():
+def test_ask_with_context(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -203,14 +206,14 @@ def test_ask_with_context():
         }},
     ])
     resp = client.ask("Summarize my week", context={"focus": "work"})
-    assert "summary" in resp.answer.lower()
+    self.assertIn("summary", resp.answer.lower())
 
 
 # ---------------------------------------------------------------------------
 # Memory tests
 # ---------------------------------------------------------------------------
 
-def test_memory_capture():
+def test_memory_capture(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "id": "mem-0001",
@@ -232,13 +235,13 @@ def test_memory_capture():
         source="voice",
         importance=8,
     )
-    assert mem.id == "mem-0001"
-    assert mem.type == "event"
-    assert "Raj" in mem.content
-    assert mem.tags == ["work", "meeting"]
+    self.assertEqual(mem.id, "mem-0001")
+    self.assertEqual(mem.type, "event")
+    self.assertIn("Raj", mem.content)
+    self.assertEqual(mem.tags, ["work", "meeting"])
 
 
-def test_memory_recent():
+def test_memory_recent(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "data": [
@@ -248,11 +251,11 @@ def test_memory_recent():
         }},
     ])
     recent = client.memory.recent("u001", limit=10)
-    assert len(recent) == 2
-    assert recent[0].id == "mem-0001"
+    self.assertEqual(len(recent), 2)
+    self.assertEqual(recent[0].id, "mem-0001")
 
 
-def test_memory_search():
+def test_memory_search(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "data": [
@@ -261,11 +264,11 @@ def test_memory_search():
         }},
     ])
     results = client.memory.search("financial", user_id="u001")
-    assert len(results) == 1
-    assert results[0].id == "mem-0003"
+    self.assertEqual(len(results), 1)
+    self.assertEqual(results[0].id, "mem-0003")
 
 
-def test_memory_graph():
+def test_memory_graph(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -276,17 +279,17 @@ def test_memory_graph():
         }},
     ])
     graph = client.memory.graph("u001")
-    assert graph.knowledge_count == 142
-    assert graph.relationships_count == 38
-    assert graph.active_goals == 5
-    assert graph.identity.name == "Alice"
+    self.assertEqual(graph.knowledge_count, 142)
+    self.assertEqual(graph.relationships_count, 38)
+    self.assertEqual(graph.active_goals, 5)
+    self.assertEqual(graph.identity.name, "Alice")
 
 
 # ---------------------------------------------------------------------------
 # Briefing tests
 # ---------------------------------------------------------------------------
 
-def test_briefing_get():
+def test_briefing_get(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -302,17 +305,17 @@ def test_briefing_get():
         }},
     ])
     b = client.briefing.get("u001")
-    assert b.greeting == "Good morning"
-    assert b.active_goals == 3
-    assert b.todos_today == 5
-    assert b.habits_done_today == 2
+    self.assertEqual(b.greeting, "Good morning")
+    self.assertEqual(b.active_goals, 3)
+    self.assertEqual(b.todos_today, 5)
+    self.assertEqual(b.habits_done_today, 2)
 
 
 # ---------------------------------------------------------------------------
 # PIOS Health tests
 # ---------------------------------------------------------------------------
 
-def test_pios_health():
+def test_pios_health(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -332,21 +335,21 @@ def test_pios_health():
         }},
     ])
     health = client.pios_health()
-    assert health.total == 3
-    assert health.up == 2
-    assert health.down == 1
-    assert health.voice_os_enabled
-    assert not health.razo_enabled
-    assert len(health.services) == 3
+    self.assertEqual(health.total, 3)
+    self.assertEqual(health.up, 2)
+    self.assertEqual(health.down, 1)
+    self.assertTrue(health.voice_os_enabled)
+    self.assertFalse(health.razo_enabled)
+    self.assertEqual(len(health.services), 3)
     down = [s for s in health.services if s.status.value == "down"][0]
-    assert down.name == "pi-score"
+    self.assertEqual(down.name, "pi-score")
 
 
 # ---------------------------------------------------------------------------
 # Skills tests
 # ---------------------------------------------------------------------------
 
-def test_skills_catalog():
+def test_skills_catalog(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "data": [
@@ -356,11 +359,11 @@ def test_skills_catalog():
         }},
     ])
     catalog = client.pios_skills_catalog()
-    assert "data" in catalog
-    assert len(catalog["data"]) == 2
+    self.assertIn("data", catalog)
+    self.assertEqual(len(catalog["data"]), 2)
 
 
-def test_skills_installed():
+def test_skills_installed(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "data": [
@@ -369,15 +372,15 @@ def test_skills_installed():
         }},
     ])
     installed = client.pios_skills_installed("u001")
-    assert "data" in installed
-    assert len(installed["data"]) == 1
+    self.assertIn("data", installed)
+    self.assertEqual(len(installed["data"]), 1)
 
 
 # ---------------------------------------------------------------------------
 # Admin tests
 # ---------------------------------------------------------------------------
 
-def test_admin_list_users():
+def test_admin_list_users(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -391,12 +394,12 @@ def test_admin_list_users():
         }},
     ])
     result = client.admin.list_users()
-    assert len(result.users) == 2
-    assert result.total == 2
-    assert result.users[0].role.value == "admin"
+    self.assertEqual(len(result.users), 2)
+    self.assertEqual(result.total, 2)
+    self.assertEqual(result.users[0].role.value, "admin")
 
 
-def test_admin_update_role():
+def test_admin_update_role(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -409,10 +412,10 @@ def test_admin_update_role():
         }},
     ])
     user = client.admin.update_role("u002", "admin")
-    assert user.role.value == "admin"
+    self.assertEqual(user.role.value, "admin")
 
 
-def test_admin_deactivate():
+def test_admin_deactivate(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -421,11 +424,11 @@ def test_admin_deactivate():
         }},
     ])
     result = client.admin.deactivate("u002")
-    assert result.user_id == "u002"
-    assert not result.active
+    self.assertEqual(result.user_id, "u002")
+    self.assertFalse(result.active)
 
 
-def test_admin_reactivate():
+def test_admin_reactivate(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -434,10 +437,10 @@ def test_admin_reactivate():
         }},
     ])
     result = client.admin.reactivate("u002")
-    assert result.active
+    self.assertTrue(result.active)
 
 
-def test_admin_usage():
+def test_admin_usage(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -450,13 +453,13 @@ def test_admin_usage():
         }},
     ])
     usage = client.admin.usage(period="week")
-    assert usage.total_requests == 1523
-    assert usage.active_users == 47
-    assert usage.by_action["ask"] == 800
-    assert usage.by_role["admin"] == 323
+    self.assertEqual(usage.total_requests, 1523)
+    self.assertEqual(usage.active_users, 47)
+    self.assertEqual(usage.by_action["ask"], 800)
+    self.assertEqual(usage.by_role["admin"], 323)
 
 
-def test_admin_audit_log():
+def test_admin_audit_log(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -476,12 +479,12 @@ def test_admin_audit_log():
         }},
     ])
     log = client.admin.audit_log(action="role_changed")
-    assert len(log.entries) == 1
-    assert log.entries[0].action == "role_changed"
-    assert log.entries[0].user_email == "alice@example.com"
+    self.assertEqual(len(log.entries), 1)
+    self.assertEqual(log.entries[0].action, "role_changed")
+    self.assertEqual(log.entries[0].user_email, "alice@example.com")
 
 
-def test_admin_metrics():
+def test_admin_metrics(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -495,13 +498,13 @@ def test_admin_metrics():
         }},
     ])
     metrics = client.admin.metrics()
-    assert metrics.pid == 12345
-    assert metrics.uptime_seconds == 86400.5
-    assert metrics.memory_heap_used_mb == 128.4
-    assert metrics.mongo_connected
+    self.assertEqual(metrics.pid, 12345)
+    self.assertEqual(metrics.uptime_seconds, 86400.5)
+    self.assertEqual(metrics.memory_heap_used_mb, 128.4)
+    self.assertTrue(metrics.mongo_connected)
 
 
-def test_admin_service_health():
+def test_admin_service_health(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -518,18 +521,18 @@ def test_admin_service_health():
         }},
     ])
     svcs = client.admin.service_health()
-    assert len(svcs) == 3
+    self.assertEqual(len(svcs), 3)
     up = [s for s in svcs if s.status.value == "up"][0]
-    assert up.name == "intent-engine"
+    self.assertEqual(up.name, "intent-engine")
     degraded = [s for s in svcs if s.status.value == "degraded"][0]
-    assert degraded.name == "pi-score"
+    self.assertEqual(degraded.name, "pi-score")
 
 
-def test_admin_forbidden():
+def test_admin_forbidden(self):
     client = _make_client_with_responses([
         {"status_code": 403, "json_data": {"error": "Forbidden"}},
     ])
-    with pytest.raises(AuthorizationError):
+    with self.assertRaises(AuthorizationError):
         client.admin.list_users()
 
 
@@ -537,69 +540,69 @@ def test_admin_forbidden():
 # Error handling tests
 # ---------------------------------------------------------------------------
 
-def test_404_raises_not_found():
+def test_404_raises_not_found(self):
     client = _make_client_with_responses([
         {"status_code": 404, "json_data": {"error": "not_found"}},
     ])
-    with pytest.raises(NotFoundError):
+    with self.assertRaises(NotFoundError):
         client.briefing.get("nonexistent")
 
 
-def test_400_raises_validation():
+def test_400_raises_validation(self):
     client = _make_client_with_responses([
         {"status_code": 400, "json_data": {"error": {"code": "VALIDATION_ERROR", "message": "Invalid input"}}},
     ])
-    with pytest.raises(ValidationError):
+    with self.assertRaises(ValidationError):
         client.auth.signup(name="", email="bad", password="short")
 
 
-def test_generic_error():
+def test_generic_error(self):
     client = _make_client_with_responses([
         {"status_code": 500, "json_data": {"error": "Internal server error"}},
     ])
-    with pytest.raises(GenieError) as exc:
+    with self.assertRaises(GenieError) as exc:
         client.ask("test")
-    assert exc.value.status_code == 500
+    self.assertEqual(exc.value.status_code, 500)
 
 
 # ---------------------------------------------------------------------------
 # Token management
 # ---------------------------------------------------------------------------
 
-def test_is_authenticated():
+def test_is_authenticated(self):
     client = GenieClient(base_url="http://localhost:7100")
-    assert not client.is_authenticated
+    self.assertFalse(client.is_authenticated)
     client.set_token("tok-test-123")
-    assert client.is_authenticated
+    self.assertTrue(client.is_authenticated)
     # Setting None clears it
     client.set_token(None)
-    assert not client.is_authenticated
+    self.assertFalse(client.is_authenticated)
 
 
-def test_set_token_updates_header():
+def test_set_token_updates_header(self):
     client = GenieClient(base_url="http://localhost:7100", token="tok-old")
-    assert client._token == "tok-old"
+    self.assertEqual(client._token, "tok-old")
     client.set_token("tok-new")
-    assert client._token == "tok-new"
+    self.assertEqual(client._token, "tok-new")
 
 
 # ---------------------------------------------------------------------------
 # Model tests
 # ---------------------------------------------------------------------------
 
-def test_user_is_admin():
+def test_user_is_admin(self):
     from genie_client.models import User
     admin = User.model_validate({"id": "u1", "email": "a@b.com", "name": "A", "role": "admin"})
     org_admin = User.model_validate({"id": "u2", "email": "b@c.com", "name": "B", "role": "org_admin"})
     super_admin = User.model_validate({"id": "u3", "email": "c@d.com", "name": "C", "role": "super_admin"})
     regular = User.model_validate({"id": "u4", "email": "d@e.com", "name": "D", "role": "user"})
-    assert admin.is_admin
-    assert org_admin.is_admin
-    assert super_admin.is_admin
-    assert not regular.is_admin
+    self.assertTrue(admin.is_admin)
+    self.assertTrue(org_admin.is_admin)
+    self.assertTrue(super_admin.is_admin)
+    self.assertFalse(regular.is_admin)
 
 
-def test_pi_score_model():
+def test_pi_score_model(self):
     ps = PiScore.model_validate({
         "score": 85.5,
         "productivity": 80,
@@ -609,12 +612,12 @@ def test_pi_score_model():
         "trend": "improving",
         "breakdown": {"focus": 0.8, "consistency": 0.9},
     })
-    assert ps.score == 85.5
-    assert ps.trend == "improving"
-    assert ps.breakdown["focus"] == 0.8
+    self.assertEqual(ps.score, 85.5)
+    self.assertEqual(ps.trend, "improving")
+    self.assertEqual(ps.breakdown["focus"], 0.8)
 
 
-def test_runtime_metrics_model():
+def test_runtime_metrics_model(self):
     m = RuntimeMetrics.model_validate({
         "pid": 12345,
         "uptimeSeconds": 86400.5,
@@ -624,24 +627,24 @@ def test_runtime_metrics_model():
         "mongoConnected": True,
         "timestamp": "2026-06-25T10:00:00Z",
     })
-    assert m.pid == 12345
-    assert m.uptime_seconds == 86400.5
-    assert m.memory_heap_used_mb == 128.4
-    assert m.mongo_connected is True
+    self.assertEqual(m.pid, 12345)
+    self.assertEqual(m.uptime_seconds, 86400.5)
+    self.assertEqual(m.memory_heap_used_mb, 128.4)
+    self.assertIs(m.mongo_connected, True)
 
 
-def test_memory_model_alias():
+def test_memory_model_alias(self):
     mem = Memory.model_validate({
         "id": "mem-1",
         "type": "note",
         "content": "Test memory",
         "createdAt": "2026-06-25T10:00:00Z",
     })
-    assert mem.created_at == "2026-06-25T10:00:00Z"
-    assert mem.type == "note"
+    self.assertEqual(mem.created_at, "2026-06-25T10:00:00Z")
+    self.assertEqual(mem.type, "note")
 
 
-def test_health_data_alias():
+def test_health_data_alias(self):
     hd = HealthData.model_validate({
         "total": 10,
         "up": 8,
@@ -650,16 +653,16 @@ def test_health_data_alias():
         "razoEnabled": False,
         "services": [],
     })
-    assert hd.voice_os_enabled
-    assert not hd.razo_enabled
-    assert hd.total == 10
+    self.assertTrue(hd.voice_os_enabled)
+    self.assertFalse(hd.razo_enabled)
+    self.assertEqual(hd.total, 10)
 
 
 # ---------------------------------------------------------------------------
 # PIOS endpoint tests
 # ---------------------------------------------------------------------------
 
-def test_pios_widget():
+def test_pios_widget(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -672,11 +675,11 @@ def test_pios_widget():
         }},
     ])
     widget = client.pios_widget("u001")
-    assert widget.pi_score.score == 72
-    assert len(widget.calendar.get("events", [])) == 1
+    self.assertEqual(widget.pi_score.score, 72)
+    self.assertEqual(len(widget.calendar.get("events", [])), 1)
 
 
-def test_pios_schedule():
+def test_pios_schedule(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "data": {
@@ -686,10 +689,10 @@ def test_pios_schedule():
         }},
     ])
     schedule = client.pios_schedule("u001", tz="Asia/Kolkata")
-    assert "data" in schedule
+    self.assertIn("data", schedule)
 
 
-def test_pios_health_today():
+def test_pios_health_today(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -701,10 +704,10 @@ def test_pios_health_today():
         }},
     ])
     health = client.pios_health_today("u001")
-    assert health["steps"] == 8500
+    self.assertEqual(health["steps"], 8500)
 
 
-def test_serendipity():
+def test_serendipity(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "success": True,
@@ -714,10 +717,10 @@ def test_serendipity():
         }},
     ])
     items = client.serendipity()
-    assert len(items) == 1
+    self.assertEqual(len(items), 1)
 
 
-def test_relationships_dashboard():
+def test_relationships_dashboard(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "data": {
@@ -727,18 +730,18 @@ def test_relationships_dashboard():
         }},
     ])
     dash = client.relationships_dashboard("u001")
-    assert "data" in dash
+    self.assertIn("data", dash)
 
 
-def test_install_skill():
+def test_install_skill(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {"success": True, "installed": True}},
     ])
     result = client.pios_install_skill("u001", "email-summary-v2", {"frequency": "daily"})
-    assert result.get("installed") is True or result.get("success") is True
+    self.assertIs(result.get("installed"), True or result.get("success") is True)
 
 
-def test_long_running_tasks():
+def test_long_running_tasks(self):
     client = _make_client_with_responses([
         {"status_code": 200, "json_data": {
             "data": [
@@ -747,4 +750,4 @@ def test_long_running_tasks():
         }},
     ])
     tasks = client.pios_long_running_tasks("u001")
-    assert "data" in tasks
+    self.assertIn("data", tasks)
