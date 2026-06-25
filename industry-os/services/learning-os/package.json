@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Learning OS - Training, Certifications, and Skill Development for Organizations",
   "main": "src/index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
