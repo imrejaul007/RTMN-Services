@@ -58,7 +58,7 @@ for m in results:
 briefing = client.briefing.get("user-001")
 print(f"Good {briefing.greeting}")
 print(f"  Active goals: {briefing.active_goals}")
-print(f"  Habits done: {briefing.habits_done_today}/{briefing.habits_done_today}")
+print(f"  Habits done: {briefing.habits_done_today}/10")
 
 # PIOS Health — are all services up?
 health = client.pios_health()
