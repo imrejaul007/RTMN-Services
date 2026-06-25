@@ -19,10 +19,6 @@
  */
 
 const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');

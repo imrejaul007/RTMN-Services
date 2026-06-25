@@ -142,30 +142,20 @@ test('Metrics aggregation — p50/p95/p99', async () => {
 test('Ingest logs', async () => {
   const td = tmp(); const p = port();
   const h = await start(p, td, T);
-  // Intercept console.error to catch save() failures
-  const origErr = process.stderr.write;
-  const errLines = [];
-  process.stderr.write = (chunk) => { errLines.push(String(chunk)); return true; };
-  try {
-    await req(p, 'POST', '/api/services', { id: 'svc-4', name: 'Log Test' }, T);
-    const post = await req(p, 'POST', '/api/logs/svc-4', {
-      entries: [
-        { level: 'info', message: 'Server started', meta: { port: 3000 } },
-        { level: 'error', message: 'Connection timeout', meta: { host: 'db1' } },
-      ],
-    }, T);
-    process.stderr.write = origErr;
-    assert.strictEqual(post.status, 200, `POST logs failed: ${JSON.stringify(post.body)}`);
-    assert.strictEqual(post.body.count, 2, `Expected 2 ingested, got ${post.body.count}`);
-    if (errLines.length > 0) console.error('SAVE ERRORS:', errLines.join(''));
-    const r = await req(p, 'GET', '/api/logs');
-    assert.strictEqual(r.body.count, 2, `Expected 2 logs total, got ${r.body.count}`);
-    const errors = await req(p, 'GET', '/api/logs?level=error');
-    assert.strictEqual(errors.body.count, 1);
-    assert.strictEqual(errors.body.entries[0].level, 'error');
-  } finally {
-    process.stderr.write = origErr;
-  }
+  await req(p, 'POST', '/api/services', { id: 'svc-4', name: 'Log Test' }, T);
+  const post = await req(p, 'POST', '/api/logs/svc-4', {
+    entries: [
+      { level: 'info', message: 'Server started', meta: { port: 3000 } },
+      { level: 'error', message: 'Connection timeout', meta: { host: 'db1' } },
+    ],
+  }, T);
+  assert.strictEqual(post.status, 200);
+  assert.strictEqual(post.body.count, 2);
+  const r = await req(p, 'GET', '/api/logs');
+  assert.strictEqual(r.body.count, 2, `Expected 2 logs total, got ${r.body.count}`);
+  const errors = await req(p, 'GET', '/api/logs?level=error');
+  assert.strictEqual(errors.body.count, 1);
+  assert.strictEqual(errors.body.entries[0].level, 'error');
   await stop(h); fs.rmSync(td, { recursive: true, force: true });
 });
 
