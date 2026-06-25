@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/goalos",
+  "version": "0.1.0",
+  "description": "GoalOS — Persistent Objectives service (Phase 13 of the 40-phase plan). Tracks OKRs / goals with key results. v0.1: CRUD + decompose + progress tracking. In-memory store.",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test __tests__/*.test.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": { "express": "^4.19.2", "cors": "^2.8.5", "helmet": "^7.1.0" },
+  "author": "HOJAI AI", "license": "MIT"
+}
