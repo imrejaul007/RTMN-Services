@@ -600,7 +600,7 @@ app.patch('/api/nodes/:id',requireAuth,  (req, res) => {
   for (const lbl of removeLabels) {
     if (typeof lbl !== 'string') continue;
     n.labels.delete(lbl);
-    if (labelIndex.has(lbl)) labelIndex.get(lbl).delete(n.id);
+    if (labelIndex.has(lbl)) getLabelSet(lbl).delete(n.id);
   }
   if (setProperties && typeof setProperties === 'object' && !Array.isArray(setProperties)) {
     Object.assign(n.properties, setProperties);
@@ -641,7 +641,7 @@ app.delete('/api/nodes/:id',requireAuth,  (req, res) => {
   }
 
   for (const lbl of n.labels) {
-    if (labelIndex.has(lbl)) labelIndex.get(lbl).delete(n.id);
+    if (labelIndex.has(lbl)) getLabelSet(lbl).delete(n.id);
   }
   nodeEdges.delete(n.id);
   nodes.delete(n.id);
@@ -665,7 +665,7 @@ app.get('/api/nodes', (req, res) => {
   let list = Array.from(nodes.values());
 
   if (label) {
-    const ids = labelIndex.get(label);
+    const ids = labelIndex.get(label) || new Set();
     if (ids) {
       list = list.filter(n => ids.has(n.id));
     } else {
