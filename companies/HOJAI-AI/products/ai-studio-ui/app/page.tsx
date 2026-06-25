@@ -97,6 +97,12 @@ export default function HomePage() {
               <Link href="/dashboard" className="text-slate-300 hover:text-white transition-colors">
                 Dashboard
               </Link>
+              <Link href="/app-store" className="text-slate-300 hover:text-white transition-colors">
+                App Store
+              </Link>
+              <Link href="/voice" className="text-slate-300 hover:text-white transition-colors">
+                Voice
+              </Link>
               <button
                 onClick={handleGetStarted}
                 className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
