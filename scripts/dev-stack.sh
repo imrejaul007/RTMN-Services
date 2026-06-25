@@ -156,6 +156,13 @@ NEXHA_PROVISIONING_ENGINE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-prov
 NEXHA_HOOKS_SDK_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-hooks-sdk && PORT=4386 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_hooks_dev npm start"
 NEXHA_TENANT_SUMMARY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-tenant-summary && PORT=4387 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_summary_dev npm start"
 
+# Nexha OS Layer (Phase D) — CapabilityOS, DiscoveryOS, FederationOS, MarketOS, OpportunityOS, ReputationOS
+NEXHA_CAPABILITY_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-capability-os && PORT=4270 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_capability_dev npm start"
+NEXHA_REPUTATION_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-reputation-os && PORT=4271 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_reputation_dev npm start"
+NEXHA_DISCOVERY_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-discovery-os && PORT=4272 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_discovery_dev npm start"
+NEXHA_OPPORTUNITY_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-opportunity-os && PORT=4274 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_opportunity_dev npm start"
+NEXHA_MARKET_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-market-os && PORT=4275 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_market_dev npm start"
+
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
 
@@ -250,6 +257,11 @@ status() {
     "nexha-provisioning-engine:4385" \
     "nexha-hooks-sdk:4386" \
     "nexha-tenant-summary:4387" \
+    "nexha-capability-os:4270" \
+    "nexha-reputation-os:4271" \
+    "nexha-discovery-os:4272" \
+    "nexha-opportunity-os:4274" \
+    "nexha-market-os:4275" \
     "agent-platform-api:4802" \
     "agent-registry:4803" \
     "agent-capability-store:4804" \
@@ -347,6 +359,12 @@ start_all() {
   start_service "nexha-provisioning-engine"   "$NEXHA_PROVISIONING_ENGINE_CMD" 4385
   start_service "nexha-hooks-sdk"             "$NEXHA_HOOKS_SDK_CMD"           4386
   start_service "nexha-tenant-summary"        "$NEXHA_TENANT_SUMMARY_CMD"      4387
+  # Nexha OS Layer (Phase D) — Global Nexha services
+  start_service "nexha-capability-os"       "$NEXHA_CAPABILITY_OS_CMD"       4270
+  start_service "nexha-reputation-os"       "$NEXHA_REPUTATION_OS_CMD"       4271
+  start_service "nexha-discovery-os"        "$NEXHA_DISCOVERY_OS_CMD"        4272
+  start_service "nexha-opportunity-os"      "$NEXHA_OPPORTUNITY_OS_CMD"      4274
+  start_service "nexha-market-os"           "$NEXHA_MARKET_OS_CMD"           4275
   # AgentOS — 12 services (Phase F audit, 2026-06-25)
   start_service "agent-platform-api"       "$AGENT_PLATFORM_CMD"           4802
   start_service "agent-registry"          "$AGENT_REGISTRY_CMD"           4803
@@ -414,6 +432,11 @@ stop_all() {
   stop_port 4385 "nexha-provisioning-engine"
   stop_port 4386 "nexha-hooks-sdk"
   stop_port 4387 "nexha-tenant-summary"
+  stop_port 4270 "nexha-capability-os"
+  stop_port 4271 "nexha-reputation-os"
+  stop_port 4272 "nexha-discovery-os"
+  stop_port 4274 "nexha-opportunity-os"
+  stop_port 4275 "nexha-market-os"
   # AgentOS — 12 services
   stop_port 4802 "agent-platform-api"
   stop_port 4803 "agent-registry"

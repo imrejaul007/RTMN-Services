@@ -204,36 +204,57 @@ HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HO
 
 | Port | Service | Path | Notes |
 |------|---------|------|-------|
-| 4785 | connector-hub | `companies/HOJAI-AI/platform/connectors/connector-hub/` | (original — keep) |
-| 4786 | reasoning-engine | `companies/HOJAI-AI/platform/intelligence/reasoning-engine/` | (was 4785, fixed 2026-06-24) |
-| **4780** | **eval-platform-api** | `companies/HOJAI-AI/platform/training/eval-platform/eval-platform-api/` | **(Phase 31, 2026-06-24)** — gateway for 7 eval sub-services |
-| **4781** | **eval-datasets** | `companies/HOJAI-AI/platform/training/eval-platform/eval-datasets/` | **(Phase 31, 2026-06-24)** — golden dataset CRUD, versioning, splits |
-| **4782** | **eval-judges** | `companies/HOJAI-AI/platform/training/eval-platform/eval-judges/` | **(Phase 31, 2026-06-24)** — LLM-as-judge rubrics, scoring, calibration |
-| **4783** | **eval-live** | `companies/HOJAI-AI/platform/training/eval-platform/eval-live/` | **(Phase 31, 2026-06-24)** — live production sampling, dashboards, alerts |
-| **4784** | **eval-shadow** | `companies/HOJAI-AI/platform/training/eval-platform/eval-shadow/` | **(Phase 31, 2026-06-24)** — A/B shadow runs, paired t-test, ship decision |
-| **4787** | **eval-canary** | `companies/HOJAI-AI/platform/training/eval-platform/eval-canary/` | **(Phase 31, 2026-06-24)** — canary deployment, auto-rollback |
-| **4788** | **eval-review** | `companies/HOJAI-AI/platform/training/eval-platform/eval-review/` | **(Phase 31, 2026-06-24)** — human review queue, Fleiss' kappa |
-| **4789** | **eval-benchmarks** | `companies/HOJAI-AI/platform/training/eval-platform/eval-benchmarks/` | **(Phase 31, 2026-06-24)** — standard + custom benchmarks, leaderboard |
-| 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | (canonical) |
-| 4792 | multi-agent-runtime | `companies/HOJAI-AI/platform/intelligence/multi-agent-runtime/` | (was 4790, fixed 2026-06-24) |
-| 4793 | mission-os | `companies/HOJAI-AI/platform/mission-os/` | (was 4295, fixed 2026-06-24) |
-| 4794 | memory-network | `companies/HOJAI-AI/platform/memory/memory-network/` | (was 4295, fixed 2026-06-24) |
-| 4795 | execution-os | `companies/HOJAI-AI/platform/execution-os/` | (was 4296, fixed 2026-06-24) |
-| 4796 | energy-os | `companies/HOJAI-AI/products/energy-os/` | (was 4296, fixed 2026-06-24) |
-| 5260 | energy-os (alt) | `industry-os/services/energy-os/` | (alt location — duplicate path; see warning below) |
+| 4772 | semantic-cache | `companies/HOJAI-AI/platform/intelligence/semantic-cache/` | Phase F.13 — embedding-based semantic caching |
+| 4780 | vector-db | `companies/HOJAI-AI/platform/intelligence/vector-db/` | Phase F.8 — in-memory vector store |
+| 4781 | rag-platform | `companies/HOJAI-AI/platform/intelligence/rag-platform/` | Phase F.14 — retrieval-augmented generation |
+| 4783 | graph-database | `companies/HOJAI-AI/platform/intelligence/graph-database/` | Phase F.9 — in-memory property graph |
+| 4784 | knowledge-extraction | `companies/HOJAI-AI/platform/intelligence/knowledge-extraction/` | Phase F.5 — NER, entity linking, fact triples |
+| 4785 | reasoning-engine | `companies/HOJAI-AI/platform/intelligence/reasoning-engine/` | Phase F.16 — deductive/inductive/abductive reasoning |
+| 4786 | intent-engine | `companies/HOJAI-AI/platform/intelligence/intent-engine/` | Phase F.17 — keyword-based intent detection |
+| 4787 | reflection-engine | `companies/HOJAI-AI/platform/intelligence/reflection-engine/` | Phase F.18 — quality scoring |
+| 4788 | behavior-intelligence | `companies/HOJAI-AI/platform/intelligence/behavior-intelligence/` | Phase F.19 — event tracking, funnels, anomalies |
+| 4789 | proactive-engine | `companies/HOJAI-AI/platform/intelligence/proactive-engine/` | Phase F.20 — rule-based suggestions |
+| 4790 | multi-agent-runtime | `companies/HOJAI-AI/platform/intelligence/multi-agent-runtime/` | Phase F.21 — agent spawning, task assignment |
+| 4791 | agent-builder | `companies/HOJAI-AI/platform/intelligence/agent-builder/` | Phase F.22 — blueprint CRUD, instantiation |
+| 4792 | background-agents | `companies/HOJAI-AI/platform/intelligence/background-agents/` | Phase F.23 — job scheduler, run history |
+| 4793 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | Memory layer — smart retriever for LLM context windows |
+| 4880 | voice-gateway | `companies/HOJAI-AI/products/voice-os/core/voice-gateway/` | Phase F — training-aware STT/TTS router |
+| 4881 | ai-intelligence | `companies/HOJAI-AI/platform/intelligence/ai-intelligence/` | Phase F.4 — multi-agent orchestration |
+| 4882 | trust-intelligence | `companies/HOJAI-AI/platform/flow/trust-intelligence/` | Phase F.12 — AI agent trust scoring |
+| 4939 | knowledge-marketplace | `companies/HOJAI-AI/platform/intelligence/knowledge-marketplace/` | Phase F.7 — SOPs, templates marketplace |
+| 4255 | bam-marketplace-listings | `companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings/` | BLR AI Marketplace catalog (moved from 4250, 2026-06-25) |
+| 4254 | policy-os | `companies/HOJAI-AI/platform/flow/policy-os/` | Phase F.1 — policy evaluation engine |
+| 4743 | skill-os | `companies/HOJAI-AI/platform/skills/skill-os/` | Phase F.1 — capability registry |
+| 4747 | tenant-manager | `companies/HOJAI-AI/platform/identity/tenant-manager/` | Phase F.15 — multi-tenant isolation |
+| 4754 | predictive-intelligence | `companies/HOJAI-AI/platform/flow/predictive-intelligence/` | Phase F.10 — time-series forecasting, anomaly detection |
+| 4755 | risk-intelligence | `companies/HOJAI-AI/platform/flow/risk-intelligence/` | Phase F.11 — fraud, churn, credit, composite risk |
+| 4756 | decision-intelligence | `companies/HOJAI-AI/platform/flow/decision-intelligence/` | Phase F.6 — recommendations, NBA, multi-criteria decisions |
 
-### ⚠️ energy-os has 2 copies
+### ⚠️ Reserved Phase 31 ports (eval-platform — not yet implemented)
+The following were reserved for Phase 31 eval-platform but are currently used by Phase F services. eval-platform will need renumbering when implemented:
+- 4780 → eval-platform-api (currently vector-db)
+- 4781 → eval-datasets (currently rag-platform)
+- 4783 → eval-live (currently graph-database)
+- 4784 → eval-shadow (currently knowledge-extraction)
+- 4787 → eval-canary (currently reflection-engine)
+- 4788 → eval-review (currently behavior-intelligence)
+- 4789 → eval-benchmarks (currently proactive-engine)
+- 4793 → memory-context-engine (Phase F.21 fix: freed 4790 for multi-agent-runtime)
+
+### ✅ Port Conflicts Resolved
+
+| Date | Port | Issue | Resolution |
+|------|------|-------|-----------|
+| 2026-06-20 | 3000 | Twin collision (×4) | buyer/deal/property/agent-twin → 5321-5324 |
+| 2026-06-22 | 4292 | nexha-partner-network vs sutar-contract-os | nexha-partner-network → 4297 |
+| 2026-06-22 | 4250 | BAM marketplace vs Nexha stub | bam-marketplace-listings → 4255 |
+| 2026-06-25 | 3001 | Grafana vs do-app | grafana → 3030 |
+| 2026-06-25 | 4790 | memory-context-engine vs multi-agent-runtime | memory-context-engine → 4793 |
+
+### ⚠️ energy-os: two different services at two different ports
 - `companies/HOJAI-AI/products/energy-os/` (port 4796) — internal HOJAI energy service
 - `industry-os/services/energy-os/` (port 5260) — RTMN canonical industry-OS energy service
-- These are TWO DIFFERENT services (one is HOJAI infrastructure, one is RTMN industry vertical)
-- Same `SERVICE_NAME` but different code paths; the 5260 version is the canonical industry one
-
-### ✅ Phase 41 Port Conflicts Resolved (2026-06-24)
-- **3000 (×3)** → moved buyer-twin→5321, deal-twin→5322, property-twin→5323, agent-twin→5324
-- **4295 (×2)** → moved mission-os→4793, memory-network→4794
-- **4296 (×2)** → moved execution-os→4795, energy-os→4796
-- **4785 (×1)** → moved reasoning-engine→4786
-- **4790 (×1)** → moved multi-agent-runtime→4792
+- These are different code paths; 5260 is the canonical industry one
 
 ---
 
