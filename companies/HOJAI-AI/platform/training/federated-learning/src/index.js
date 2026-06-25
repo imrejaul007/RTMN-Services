@@ -207,64 +207,36 @@ function createApp() {
 
   // NOTE: /submit MUST be before /:id to avoid Express capturing "submit" as an :id
   // ── Client participation (weight submission) ─────────────────────
-  app.post('/api/rounds/:roundId/submit', requireInternal, (req, res) => {
-    const { federationId, clientId, weights, numSamples, metrics } = req.body || {};
-    if (!federationId || !clientId || !weights) {
-      return res.status(400).json({ error: 'validation', message: `federationId=${federationId} clientId=${clientId} weights=${!!weights}`, detail: req.body });
+  // Using POST /api/submit/:federationId directly to avoid any route conflict
+  app.post('/api/submit/:federationId', requireInternal, (req, res) => {
+    const { clientId, weights, numSamples, metrics } = req.body || {};
+    if (!clientId || !weights) {
+      return res.status(400).json({ error: 'validation', message: 'clientId and weights required' });
     }
-
     const feds = loadFeds();
-    const fed = feds.data[federationId];
-    if (!fed) return res.status(404).json({ error: 'not_found', message: `federation ${federationId} not found, have: ${Object.keys(feds.data).slice(0,3).join(',')}` });
+    const fed = feds.data[req.params.federationId];
+    if (!fed) return res.status(404).json({ error: 'not_found', message: 'federation not found' });
 
-    // Find current active round
     const roundsData = loadRounds();
-    const currentRound = Object.values(roundsData.data)
-      .filter((r) => r.federationId === federationId && r.status === 'active')
+    let currentRound = Object.values(roundsData.data)
+      .filter((r) => r.federationId === req.params.federationId && r.status === 'active')
       .sort((a, b) => b.roundNumber - a.roundNumber)[0];
 
     if (!currentRound) {
-      // No active round — create one if federation is training
-      if (fed.status !== 'training') return res.status(409).json({ error: 'no_active_round', message: 'federation is not training' });
-      if (fed.currentRound > fed.totalRounds) {
-        fed.status = 'completed';
-        saveFeds(feds);
-        return res.status(409).json({ error: 'training_complete', message: 'all rounds completed' });
-      }
+      if (fed.status !== 'training') return res.status(409).json({ error: 'no_active_round' });
+      if (fed.currentRound > fed.totalRounds) { fed.status = 'completed'; saveFeds(feds); return res.status(409).json({ error: 'complete' }); }
       const roundId = newId('round');
-      roundsData.data[roundId] = {
-        id: roundId,
-        federationId,
-        roundNumber: fed.currentRound,
-        status: 'active',
-        contributions: [],
-        aggregatedWeights: null,
-        createdAt: nowIso(),
-        completedAt: null,
-      };
+      roundsData.data[roundId] = { id: roundId, federationId: req.params.federationId, roundNumber: fed.currentRound, status: 'active', contributions: [], aggregatedWeights: null, createdAt: nowIso(), completedAt: null };
       currentRound = roundsData.data[roundId];
-      saveRounds(roundsData); // persist before processing contributions
+      saveRounds(roundsData);
     }
 
-    // Record contribution
-    currentRound.contributions.push({
-      clientId,
-      weights,
-      numSamples: numSamples || 1,
-      metrics: metrics || {},
-      submittedAt: nowIso(),
-    });
-
-    // Update client
+    currentRound.contributions.push({ clientId, weights, numSamples: numSamples || 1, metrics: metrics || {}, submittedAt: nowIso() });
     const clientsData = loadClients();
     const client = clientsData.data[clientId];
-    if (client) {
-      client.lastSeen = nowIso();
-      client.roundsParticipated++;
-    }
+    if (client) { client.lastSeen = nowIso(); client.roundsParticipated++; }
     saveClients(clientsData);
 
-    // Check if we have enough contributions to complete the round
     const minNeeded = fed.minClientsPerRound || 2;
     if (currentRound.contributions.length >= minNeeded) {
       currentRound.aggregatedWeights = aggregateWeightsStub(currentRound.contributions, fed.aggregationStrategy);
@@ -274,14 +246,10 @@ function createApp() {
       fed.completedRounds++;
       if (fed.currentRound > fed.totalRounds) fed.status = 'completed';
     }
-    saveRounds(roundsData); // persist with contributions
+    saveRounds(roundsData);
     saveFeds(feds);
 
-    res.status(201).json({
-      contributionId: `${clientId}-r${currentRound.roundNumber}`,
-      round: { id: currentRound.id, roundNumber: currentRound.roundNumber, status: currentRound.status },
-      contributionsNeeded: Math.max(0, minNeeded - currentRound.contributions.length),
-    });
+    res.status(201).json({ ok: true, round: { id: currentRound.id, status: currentRound.status, roundNumber: currentRound.roundNumber } });
   });
 
   app.get('/api/rounds/:id', (req, res) => {

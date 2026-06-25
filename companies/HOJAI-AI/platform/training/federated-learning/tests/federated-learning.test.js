@@ -127,13 +127,12 @@ test('Submit weight contributions', async () => {
   await request(port, 'POST', `/api/federations/${fed.body.id}/start`, null, 'tok');
   const c1 = await request(port, 'POST', '/api/clients', { federationId: fed.body.id, name: 'c1' }, 'tok');
   const c2 = await request(port, 'POST', '/api/clients', { federationId: fed.body.id, name: 'c2' }, 'tok');
-  const r1 = await request(port, 'POST', '/api/rounds/submit', {
-    federationId: fed.body.id, clientId: c1.body.id, weights: 'w1', numSamples: 100, metrics: { loss: 0.5 },
+  const r1 = await request(port, 'POST', `/api/submit/${fed.body.id}`, {
+    clientId: c1.body.id, weights: 'w1', numSamples: 100, metrics: { loss: 0.5 },
   }, 'tok');
-  console.log('DEBUG fedId:', fed.body.id, 'c1Id:', c1.body.id, 'status:', r1.status, JSON.stringify(r1.body));
   assert.strictEqual(r1.status, 201);
-  const r2 = await request(port, 'POST', '/api/rounds/submit', {
-    federationId: fed.body.id, clientId: c2.body.id, weights: 'w2', numSamples: 200, metrics: { loss: 0.4 },
+  const r2 = await request(port, 'POST', `/api/submit/${fed.body.id}`, {
+    clientId: c2.body.id, weights: 'w2', numSamples: 200, metrics: { loss: 0.4 },
   }, 'tok');
   assert.strictEqual(r2.status, 201);
   // After 2 contributions, round should be completed
@@ -148,7 +147,7 @@ test('Get aggregated weights after round', async () => {
   const fed = await request(port, 'POST', '/api/federations', { name: 'weights-test', totalRounds: 3, minClientsPerRound: 1 }, 'tok');
   await request(port, 'POST', `/api/federations/${fed.body.id}/start`, null, 'tok');
   const c = await request(port, 'POST', '/api/clients', { federationId: fed.body.id, name: 'c' }, 'tok');
-  await request(port, 'POST', '/api/rounds/submit', { federationId: fed.body.id, clientId: c.body.id, weights: 'final_weights' }, 'tok');
+  await request(port, 'POST', `/api/submit/${fed.body.id}`, { clientId: c.body.id, weights: 'final_weights' }, 'tok');
   const r = await request(port, 'GET', `/api/federations/${fed.body.id}/weights`);
   assert.strictEqual(r.status, 200);
   assert.ok(r.body.weights);
