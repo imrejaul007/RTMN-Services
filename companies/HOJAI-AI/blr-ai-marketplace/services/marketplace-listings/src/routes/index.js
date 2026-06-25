@@ -95,6 +95,44 @@ const CATEGORY = [
 
 const REVIEW_STATUS = ['published', 'hidden', 'flagged', 'removed'];
 
+// Category metadata for UI display
+const CATEGORY_META = {
+  'agent': { icon: '🤖', name: 'AI Agents', description: 'Individual AI specialists', featured: true },
+  'ai-employee': { icon: '👔', name: 'AI Employees', description: 'Virtual workers - hire 24/7', featured: true, killer: true },
+  'ai-team': { icon: '👥', name: 'AI Teams', description: 'Multi-agent teams', featured: true },
+  'skill': { icon: '⚡', name: 'Skills', description: 'Reusable capabilities', featured: true },
+  'memory-pack': { icon: '🧠', name: 'Memory Packs', description: 'Domain knowledge', featured: false },
+  'twin': { icon: '🔄', name: 'Twin Packs', description: 'Digital twins', featured: true },
+  'department-os': { icon: '🏢', name: 'Department OS', description: 'Complete departments', featured: true },
+  'industry-os': { icon: '🏭', name: 'Industry OS', description: 'Vertical solutions', featured: true },
+  'business-capability-pack': { icon: '📦', name: 'Business Capability Packs', description: 'One-click complete solutions', featured: true, killer: true },
+  'company-blueprint': { icon: '🏗️', name: 'Company Blueprints', description: 'Pre-built companies', featured: true },
+  'workflow': { icon: '🔧', name: 'Workflows', description: 'Multi-step processes', featured: true },
+  'automation': { icon: '⚙️', name: 'Automation', description: 'Automated workflows', featured: false },
+  'policy-pack': { icon: '📋', name: 'Policy Packs', description: 'Compliance & governance', featured: false },
+  'ui-kit': { icon: '🎨', name: 'UI Kits', description: 'UI components', featured: false },
+  'theme': { icon: '🌈', name: 'Themes', description: 'Visual design', featured: false },
+  'widget': { icon: '🧩', name: 'Widgets', description: 'Embeddable components', featured: true },
+  'mobile-app': { icon: '📱', name: 'Mobile Apps', description: 'Mobile applications', featured: false },
+  'prompt-pack': { icon: '💬', name: 'Prompt Packs', description: 'Tested prompts', featured: false },
+  'knowledge-pack': { icon: '📚', name: 'Knowledge Packs', description: 'Knowledge bases', featured: false },
+  'integration': { icon: '🔌', name: 'Integrations', description: 'Connectors', featured: true },
+  'api': { icon: '🔗', name: 'APIs', description: 'Exposed services', featured: false },
+  'mcp-server': { icon: '🖥️', name: 'MCP Servers', description: 'Model Context Protocol', featured: false },
+  'sdk-extension': { icon: '🛠️', name: 'SDK Extensions', description: 'Developer tools', featured: false },
+  'data': { icon: '📊', name: 'Data Connectors', description: 'Data integrations', featured: false },
+  'simulation': { icon: '🎮', name: 'Simulation', description: 'What-if scenarios', featured: false },
+  'analytics': { icon: '📈', name: 'Analytics', description: 'Analytics packs', featured: true },
+  'ai-model': { icon: '🧬', name: 'AI Models', description: 'Vertical-specific models', featured: false },
+  'service': { icon: '⚙️', name: 'Services', description: 'General services', featured: false },
+  'consulting': { icon: '💼', name: 'Consulting', description: 'Expert consulting', featured: false },
+  'training': { icon: '🎓', name: 'Training', description: 'Training services', featured: false },
+  'starter-kit': { icon: '🚀', name: 'Starter Kits', description: 'Jump-start projects', featured: true },
+  'autonomous-network': { icon: '🌐', name: 'Autonomous Networks', description: 'Nexha extensions', featured: false },
+  'marketplace-blueprint': { icon: '🏪', name: 'Marketplace Blueprints', description: 'Marketplace templates', featured: false },
+  'business-playbook': { icon: '📖', name: 'Business Playbooks', description: 'Strategy templates', featured: false },
+};
+
 const createListingSchema = z.object({
   title: z.string().min(3).max(200),
   description: z.string().min(0).max(5000).default(''),
@@ -215,7 +253,8 @@ router.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     service: 'marketplace-listings',
-    version: '1.0.0',
+    version: '2.0.0',
+    categories: CATEGORY.length,
     capabilities: [
       'listings-create',
       'listings-update',
@@ -227,6 +266,7 @@ router.get('/health', (_req, res) => {
       'reviews-add',
       'reviews-list',
       'reviews-hide',
+      'categories-list',
       'stats',
     ],
   });
@@ -237,6 +277,32 @@ router.get('/ready', (_req, res) => {
 });
 
 router.get('/', (_req, res) => res.redirect('/health'));
+
+// -----------------------------------------------------------------------------
+// Categories
+// -----------------------------------------------------------------------------
+
+router.get('/api/categories', (_req, res) => {
+  const featured = _req.query.featured === 'true';
+  const categories = CATEGORY.map(cat => ({
+    id: cat,
+    ...CATEGORY_META[cat],
+  }));
+
+  if (featured) {
+    return res.json({ count: categories.filter(c => c.featured).length, categories: categories.filter(c => c.featured) });
+  }
+
+  res.json({ count: categories.length, categories });
+});
+
+router.get('/api/categories/:id', (_req, res) => {
+  const cat = CATEGORY_META[_req.params.id];
+  if (!cat) {
+    return res.status(404).json({ error: 'category not found' });
+  }
+  res.json({ id: _req.params.id, ...cat });
+});
 
 // -----------------------------------------------------------------------------
 // Validation (no persist)

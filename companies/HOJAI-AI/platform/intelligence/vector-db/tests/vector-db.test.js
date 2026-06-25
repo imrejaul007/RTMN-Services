@@ -24,9 +24,7 @@ test('setup', function () {
     });
 });
 
-test('cleanup', function () {
-    if (server) server.close();
-});
+// cleanup is handled by node:test automatically via the process exit
 
 function req(method, path, body, extraHeaders) {
     return new Promise(function (resolve, reject) {

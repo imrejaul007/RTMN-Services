@@ -13,34 +13,32 @@ import { v4 as uuidv4 } from 'uuid';
 export const SUPPLIER_STATUSES = ['prospect', 'onboarded', 'suspended', 'rejected'];
 export const SUPPLIER_TIERS = ['bronze', 'silver', 'gold', 'platinum'];
 
-const ORDER_KEY = Symbol.for('nexha-order.order-store');
-const RETURN_KEY = Symbol.for('nexha-order.return-store');
+const SUPPLIER_KEY = Symbol.for('nexha-supplier.store');
 
 export function getStore() {
-  if (!globalThis[ORDER_KEY]) globalThis[ORDER_KEY] = new Map();
-  return globalThis[ORDER_KEY];
-}
-export function getReturnStore() {
-  if (!globalThis[RETURN_KEY]) globalThis[RETURN_KEY] = new Map();
-  return globalThis[RETURN_KEY];
-}
-export function clearStore() { getStore().clear(); getReturnStore().clear(); }
-
-export function saveOrder(po) { getStore().set(po.orderId, po); return po; }
-export function getOrder(id) { return getStore().get(id) || null; }
-
-export function listOrders(tenantId, filters = {}) {
-  let orders = Array.from(getStore().values()).filter(o => o.tenantId === tenantId);
-  if (filters.status) orders = orders.filter(o => o.status === filters.status);
-  if (filters.supplierRef) orders = orders.filter(o => o.supplierRef === filters.supplierRef);
-  if (filters.since) orders = orders.filter(o => new Date(o.createdAt) >= new Date(filters.since));
-  return orders;
+  if (!globalThis[SUPPLIER_KEY]) globalThis[SUPPLIER_KEY] = new Map();
+  return globalThis[SUPPLIER_KEY];
 }
 
-export function deleteOrder(id, tenantId) {
-  const order = getStore().get(id);
-  if (!order) return false;
-  if (order.tenantId !== tenantId) return false;
+export function clearStore() { getStore().clear(); }
+
+export function saveSupplier(s) {
+  getStore().set(s.supplierId, s);
+  return s;
+}
+export function getSupplier(id) {
+  return getStore().get(id) || null;
+}
+export function listSuppliers(tenantId, filters = {}) {
+  let list = Array.from(getStore().values()).filter(s => s.tenantId === tenantId);
+  if (filters.status) list = list.filter(s => s.status === filters.status);
+  if (filters.tier) list = list.filter(s => s.tier === filters.tier);
+  if (filters.category) list = list.filter(s => s.categories.includes(filters.category));
+  return list;
+}
+export function deleteSupplier(id, tenantId) {
+  const s = getStore().get(id);
+  if (!s || s.tenantId !== tenantId) return false;
   getStore().delete(id);
   return true;
 }

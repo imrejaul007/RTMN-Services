@@ -413,6 +413,58 @@ const ADD_ONS = [
   entry({ listingId: 'AO007', title: 'API Rate Limit Upgrade', description: 'Increased API rate limits from 1000 to 10000 req/min for high-volume workloads.', category: 'service', tags: ['api', 'rate-limit', 'enterprise', 'volume'], pricingModel: 'subscription', price: 9900, provider: 'HOJAI AI', capabilities: ['api', 'rate-limit'] }),
 ];
 
+// ─── NEW: AI Employees (killer feature) ─────────────────────────────────────────
+
+const AI_EMPLOYEES = [
+  entry({ listingId: 'AE001', title: 'AI Sales Manager', description: 'Virtual Sales Manager that leads your entire sales team. Handles pipeline reviews, coaching, forecasting, and strategy 24/7.', category: 'ai-employee', tags: ['ai-employee', 'sales', 'management', 'leadership'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['pipeline-management', 'coaching', 'forecasting', 'strategy'], rating: 4.8, reviews: 45 }),
+  entry({ listingId: 'AE002', title: 'AI Accountant', description: 'Virtual Accountant that handles all bookkeeping, invoicing, expense tracking, and financial reporting automatically.', category: 'ai-employee', tags: ['ai-employee', 'accountant', 'finance', 'bookkeeping'], pricingModel: 'subscription', price: 39900, currency: 'INR', pricing: { model: 'subscription', perMonth: 399 }, provider: 'HOJAI AI', capabilities: ['bookkeeping', 'invoicing', 'expense-tracking', 'financial-reports'], rating: 4.9, reviews: 67 }),
+  entry({ listingId: 'AE003', title: 'AI Recruiter', description: 'Virtual Recruiter that sources candidates, conducts initial screening, schedules interviews, and manages offers.', category: 'ai-employee', tags: ['ai-employee', 'recruiter', 'hiring', 'hr'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['sourcing', 'screening', 'interview-scheduling', 'offer-management'], rating: 4.7, reviews: 34 }),
+  entry({ listingId: 'AE004', title: 'AI Procurement Officer', description: 'Virtual Procurement Officer that sources suppliers, negotiates contracts, and manages vendor relationships.', category: 'ai-employee', tags: ['ai-employee', 'procurement', 'sourcing', 'negotiation'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['supplier-sourcing', 'negotiation', 'vendor-management', 'contract-review'], rating: 4.6, reviews: 28 }),
+  entry({ listingId: 'AE005', title: 'AI Customer Success Manager', description: 'Virtual CSM that monitors customer health, predicts churn, and manages expansion opportunities.', category: 'ai-employee', tags: ['ai-employee', 'customer-success', 'retention', 'expansion'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['health-monitoring', 'churn-prediction', 'expansion', 'qbr-prep'], rating: 4.8, reviews: 52 }),
+  entry({ listingId: 'AE006', title: 'AI Marketing Manager', description: 'Virtual Marketing Manager that plans campaigns, optimizes budgets, and manages customer journeys.', category: 'ai-employee', tags: ['ai-employee', 'marketing', 'campaigns', 'strategy'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['campaign-planning', 'budget-optimization', 'journey-management', 'attribution'], rating: 4.7, reviews: 41 }),
+  entry({ listingId: 'AE007', title: 'AI Legal Counsel', description: 'Virtual Legal Counsel that reviews contracts, ensures compliance, and manages IP protection.', category: 'ai-employee', tags: ['ai-employee', 'legal', 'compliance', 'contracts'], pricingModel: 'subscription', price: 59900, currency: 'INR', pricing: { model: 'subscription', perMonth: 599 }, provider: 'HOJAI AI', capabilities: ['contract-review', 'compliance', 'ip-protection', 'risk-assessment'], rating: 4.9, reviews: 23 }),
+  entry({ listingId: 'AE008', title: 'AI Tax Advisor', description: 'Virtual Tax Advisor that files returns, optimizes deductions, and ensures regulatory compliance.', category: 'ai-employee', tags: ['ai-employee', 'tax', 'finance', 'compliance'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['tax-filing', 'deduction-optimization', 'compliance', 'planning'], rating: 4.8, reviews: 38 }),
+  entry({ listingId: 'AE009', title: 'AI HR Director', description: 'Virtual HR Director that handles hiring strategy, policy, compliance, and organizational development.', category: 'ai-employee', tags: ['ai-employee', 'hr-director', 'hr', 'leadership'], pricingModel: 'subscription', price: 59900, currency: 'INR', pricing: { model: 'subscription', perMonth: 599 }, provider: 'HOJAI AI', capabilities: ['hiring-strategy', 'policy', 'compliance', 'org-design'], rating: 4.7, reviews: 19 }),
+  entry({ listingId: 'AE010', title: 'AI Operations Manager', description: 'Virtual Operations Manager that optimizes processes, manages incidents, and drives efficiency.', category: 'ai-employee', tags: ['ai-employee', 'operations', 'process', 'efficiency'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['process-optimization', 'incident-management', 'capacity-planning', 'sla-monitoring'], rating: 4.6, reviews: 31 }),
+];
+
+// ─── NEW: Company Blueprints ──────────────────────────────────────────────────
+
+const COMPANY_BLUEPRINTS = [
+  entry({ listingId: 'BP001', title: 'Restaurant SaaS Blueprint', description: 'Complete restaurant management software: POS, kitchen display, online ordering, delivery integration, loyalty, and analytics.', category: 'company-blueprint', tags: ['blueprint', 'restaurant', 'saas', 'pos'], pricingModel: 'one-time', price: 29900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['pos', 'kds', 'online-ordering', 'delivery', 'loyalty'] }),
+  entry({ listingId: 'BP002', title: 'B2B Marketplace Blueprint', description: 'IndiaMART-style B2B marketplace: vendor management, RFQ, bulk orders, verified suppliers, and trade finance.', category: 'company-blueprint', tags: ['blueprint', 'marketplace', 'b2b', 'rfq'], pricingModel: 'one-time', price: 49900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['vendor-management', 'rfq', 'bulk-orders', 'trade-finance'] }),
+  entry({ listingId: 'BP003', title: 'D2C Commerce Blueprint', description: 'Shopify-style D2C platform: storefront, inventory, orders, payments, shipping, and returns management.', category: 'company-blueprint', tags: ['blueprint', 'd2c', 'ecommerce', 'commerce'], pricingModel: 'one-time', price: 39900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['storefront', 'inventory', 'orders', 'payments', 'shipping'] }),
+  entry({ listingId: 'BP004', title: 'Healthcare Platform Blueprint', description: 'Zocdoc-style healthcare platform: patient booking, teleconsult, prescriptions, billing, and health records.', category: 'company-blueprint', tags: ['blueprint', 'healthcare', 'telemedicine', 'hipaa'], pricingModel: 'one-time', price: 79900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['booking', 'teleconsult', 'prescriptions', 'billing', 'hipaa'] }),
+  entry({ listingId: 'BP005', title: 'School Management Blueprint', description: 'Complete school ERP: admissions, attendance, grading, examinations, parent portal, and fee management.', category: 'company-blueprint', tags: ['blueprint', 'education', 'school', 'erp'], pricingModel: 'one-time', price: 39900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['admissions', 'attendance', 'grading', 'examinations', 'parent-portal'] }),
+  entry({ listingId: 'BP006', title: 'Logistics Platform Blueprint', description: 'Delhivery-style logistics: order management, route optimization, tracking, COD reconciliation, and fleet management.', category: 'company-blueprint', tags: ['blueprint', 'logistics', 'fleet', 'tracking'], pricingModel: 'one-time', price: 49900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['order-management', 'route-optimization', 'tracking', 'cod', 'fleet'] }),
+];
+
+// ─── NEW: Business Capability Packs (killer feature) ───────────────────────────
+
+const BUSINESS_CAPABILITY_PACKS = [
+  entry({ listingId: 'BCP001', title: 'Restaurant Operations Pack', description: 'Complete restaurant automation: AI Manager + Waiter + Inventory + Procurement + Accountant + Marketing + Customer Care + Kitchen agents, plus all skills, twins, and workflows.', category: 'business-capability-pack', tags: ['capability-pack', 'restaurant', 'complete', 'one-click'], pricingModel: 'subscription', price: 79900, currency: 'INR', pricing: { model: 'subscription', perMonth: 799, includes: '8 AI employees, 12 skills, 5 memory packs, 3 twins, 15 workflows' }, provider: 'HOJAI AI', capabilities: ['ai-manager', 'ai-waiter', 'ai-inventory', 'ai-procurement', 'ai-accountant'], killer: true, rating: 4.9, reviews: 23 }),
+  entry({ listingId: 'BCP002', title: 'Hotel Operations Pack', description: 'Complete hotel automation: Front Desk + Housekeeping + Concierge + Revenue + Chef + Events + Marketing agents, with all required twins and workflows.', category: 'business-capability-pack', tags: ['capability-pack', 'hotel', 'hospitality', 'complete'], pricingModel: 'subscription', price: 99900, currency: 'INR', pricing: { model: 'subscription', perMonth: 999, includes: '7 AI employees, 15 skills, 6 memory packs, 4 twins, 18 workflows' }, provider: 'HOJAI AI', capabilities: ['ai-frontdesk', 'ai-housekeeping', 'ai-concierge', 'ai-revenue', 'ai-chef'], killer: true, rating: 4.8, reviews: 18 }),
+  entry({ listingId: 'BCP003', title: 'Retail Store Pack', description: 'Complete retail automation: Store Manager + Cashier + Inventory + Marketing + Customer Service agents, POS integration, and analytics.', category: 'business-capability-pack', tags: ['capability-pack', 'retail', 'store', 'pos'], pricingModel: 'subscription', price: 59900, currency: 'INR', pricing: { model: 'subscription', perMonth: 599, includes: '5 AI employees, 10 skills, 4 memory packs, 3 twins, 12 workflows' }, provider: 'HOJAI AI', capabilities: ['ai-store-manager', 'ai-cashier', 'ai-inventory', 'ai-marketing', 'ai-cs'], killer: true, rating: 4.7, reviews: 15 }),
+  entry({ listingId: 'BCP004', title: 'Healthcare Clinic Pack', description: 'Complete clinic automation: Reception + Doctor + Billing + Pharmacy + Lab + Marketing agents, HIPAA-compliant.', category: 'business-capability-pack', tags: ['capability-pack', 'healthcare', 'clinic', 'hipaa'], pricingModel: 'subscription', price: 99900, currency: 'INR', pricing: { model: 'subscription', perMonth: 999, includes: '6 AI employees, 12 skills, 5 memory packs, 4 twins, 15 workflows' }, provider: 'HOJAI AI', capabilities: ['ai-reception', 'ai-doctor', 'ai-billing', 'ai-pharmacy', 'ai-lab'], killer: true, rating: 4.9, reviews: 12 }),
+];
+
+// ─── NEW: Starter Kits ─────────────────────────────────────────────────────────
+
+const STARTER_KITS = [
+  entry({ listingId: 'SK001', title: 'B2B SaaS Starter', description: 'Multi-tenant SaaS boilerplate with billing, onboarding, RBAC, analytics, and webhook infrastructure.', category: 'starter-kit', tags: ['starter', 'saas', 'b2b', 'multi-tenant'], pricingModel: 'one-time', price: 19900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['multi-tenant', 'billing', 'rbac', 'analytics', 'webhooks'] }),
+  entry({ listingId: 'SK002', title: 'Marketplace Starter', description: 'C2C marketplace boilerplate: listings, payments, escrow, disputes, and reviews infrastructure.', category: 'starter-kit', tags: ['starter', 'marketplace', 'c2c', 'escrow'], pricingModel: 'one-time', price: 29900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['listings', 'payments', 'escrow', 'disputes', 'reviews'] }),
+  entry({ listingId: 'SK003', title: 'Appointment Booking Starter', description: 'Service booking platform: scheduling, calendar sync, reminders, payments, and staff management.', category: 'starter-kit', tags: ['starter', 'booking', 'appointments', 'scheduling'], pricingModel: 'one-time', price: 14900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['scheduling', 'calendar', 'reminders', 'payments', 'staff'] }),
+  entry({ listingId: 'SK004', title: 'Delivery Platform Starter', description: 'On-demand delivery platform: orders, dispatch, tracking, driver app, and wallet infrastructure.', category: 'starter-kit', tags: ['starter', 'delivery', 'logistics', 'on-demand'], pricingModel: 'one-time', price: 29900, currency: 'INR', pricing: { model: 'one-time' }, provider: 'HOJAI AI', capabilities: ['orders', 'dispatch', 'tracking', 'driver-app', 'wallet'] }),
+];
+
+// ─── NEW: AI Teams ───────────────────────────────────────────────────────────
+
+const AI_TEAMS = [
+  entry({ listingId: 'AT001', title: 'Restaurant Team', description: 'Complete AI team for restaurants: Manager, Cashier, Chef, Waiter, and Customer Service agents working in coordination.', category: 'ai-team', tags: ['ai-team', 'restaurant', 'coordination'], pricingModel: 'subscription', price: 49900, currency: 'INR', pricing: { model: 'subscription', perMonth: 499 }, provider: 'HOJAI AI', capabilities: ['manager', 'cashier', 'chef', 'waiter', 'cs-agent'], rating: 4.8, reviews: 21 }),
+  entry({ listingId: 'AT002', title: 'Sales Team', description: 'Complete AI team for sales: SDR, AE, SE, CSM, and Marketing agents with full funnel coverage.', category: 'ai-team', tags: ['ai-team', 'sales', 'funnel'], pricingModel: 'subscription', price: 79900, currency: 'INR', pricing: { model: 'subscription', perMonth: 799 }, provider: 'HOJAI AI', capabilities: ['sdr', 'ae', 'se', 'csm', 'marketing'], rating: 4.7, reviews: 28 }),
+  entry({ listingId: 'AT003', title: 'HR Team', description: 'Complete AI team for HR: Recruiter, Payroll, Compliance, Benefits, and Training agents.', category: 'ai-team', tags: ['ai-team', 'hr', 'workforce'], pricingModel: 'subscription', price: 59900, currency: 'INR', pricing: { model: 'subscription', perMonth: 599 }, provider: 'HOJAI AI', capabilities: ['recruiter', 'payroll', 'compliance', 'benefits', 'training'], rating: 4.8, reviews: 19 }),
+];
+
 // ─── Seed function ────────────────────────────────────────────────────────────
 
 async function seed() {
@@ -421,6 +473,11 @@ async function seed() {
   console.log('[bam-seed] Connected. Starting seed...');
 
   const allEntries = [
+    ...AI_EMPLOYEES,
+    ...AI_TEAMS,
+    ...COMPANY_BLUEPRINTS,
+    ...BUSINESS_CAPABILITY_PACKS,
+    ...STARTER_KITS,
     ...AI_AGENTS,
     ...DIGITAL_TWINS,
     ...DEPARTMENT_OS,
@@ -434,16 +491,23 @@ async function seed() {
   ];
 
   console.log(`[bam-seed] Total entries to upsert: ${allEntries.length}`);
-  console.log(`  AI Agents:        ${AI_AGENTS.length}`);
-  console.log(`  Digital Twins:    ${DIGITAL_TWINS.length}`);
-  console.log(`  Department OS:    ${DEPARTMENT_OS.length}`);
-  console.log(`  Industry OS:      ${INDUSTRY_OS.length}`);
-  console.log(`  Knowledge Packs:  ${KNOWLEDGE_PACKS.length}`);
-  console.log(`  Workflows:        ${WORKFLOWS.length}`);
-  console.log(`  Analytics:       ${ANALYTICS.length}`);
-  console.log(`  Bundles:         ${BUNDLES.length}`);
-  console.log(`  Integrations:    ${INTEGRATIONS.length}`);
-  console.log(`  Add-Ons:         ${ADD_ONS.length}`);
+  console.log(`  AI Employees:              ${AI_EMPLOYEES.length}`);
+  console.log(`  AI Teams:                   ${AI_TEAMS.length}`);
+  console.log(`  Company Blueprints:         ${COMPANY_BLUEPRINTS.length}`);
+  console.log(`  Business Capability Packs:  ${BUSINESS_CAPABILITY_PACKS.length}`);
+  console.log(`  Starter Kits:               ${STARTER_KITS.length}`);
+  console.log(`  AI Agents:                  ${AI_AGENTS.length}`);
+  console.log(`  Digital Twins:              ${DIGITAL_TWINS.length}`);
+  console.log(`  Department OS:             ${DEPARTMENT_OS.length}`);
+  console.log(`  Industry OS:               ${INDUSTRY_OS.length}`);
+  console.log(`  Knowledge Packs:           ${KNOWLEDGE_PACKS.length}`);
+  console.log(`  Workflows:                 ${WORKFLOWS.length}`);
+  console.log(`  Analytics:                ${ANALYTICS.length}`);
+  console.log(`  Bundles:                   ${BUNDLES.length}`);
+  console.log(`  Integrations:               ${INTEGRATIONS.length}`);
+  console.log(`  Add-Ons:                   ${ADD_ONS.length}`);
+  console.log(`  ─────────────────────────────`);
+  console.log(`  TOTAL:                     ${allEntries.length} entries`);
 
   let inserted = 0;
   let updated = 0;
