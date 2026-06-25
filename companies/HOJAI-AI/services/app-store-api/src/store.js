@@ -73,7 +73,7 @@ function seedData() {
         'Custom glossary'
       ],
       requirements: ['memory-os'],
-      status: AppStatus.FEATURED,
+      status: AppStatus.PUBLISHED,
       featured: true,
       verified: true,
       createdAt: '2026-01-15T10:00:00Z',
@@ -135,7 +135,7 @@ function seedData() {
         'CRM sync'
       ],
       requirements: [],
-      status: AppStatus.FEATURED,
+      status: AppStatus.PUBLISHED,
       featured: true,
       verified: true,
       createdAt: '2026-01-10T08:00:00Z',
@@ -198,7 +198,7 @@ function seedData() {
         'Reservation System'
       ],
       requirements: ['hojai-cloud', 'corp-id'],
-      status: AppStatus.FEATURED,
+      status: AppStatus.PUBLISHED,
       featured: true,
       verified: true,
       createdAt: '2025-12-01T10:00:00Z',

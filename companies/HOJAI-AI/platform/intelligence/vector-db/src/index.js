@@ -23,7 +23,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
 
-const PORT = parseInt(process.env.PORT, 10) || 4780;
+const PORT = parseInt(process.env.PORT || '4780', 10);
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'vector-db-internal-token';
 const SERVICE_NAME = 'vector-db';
 const VERSION = '1.0.0';
 const DEFAULT_DIM = 128;
@@ -54,7 +55,7 @@ const AUDIT_CAP = 10000;
  */
 
 /** @type {Map<string, Collection>} name -> collection */
-const collections = new PersistentMap('collections', { serviceName: 'vector-db' });
+const collections = new Map();
 
 /** @type {Array<Object>} append-only audit log, capped at AUDIT_CAP */
 const auditLog = [];
@@ -140,7 +141,7 @@ function embed(text, dim = DEFAULT_DIM) {
   if (tokens.length === 0) return vec;
 
   // Term-frequency weight (count per token). Could be substituted for TF-IDF later.
-  const tf = new PersistentMap('tf', { serviceName: 'vector-db' });
+  const tf = new Map();
   for (const tok of tokens) {
     tf.set(tok, (tf.get(tok) || 0) + 1);
   }
@@ -389,7 +390,7 @@ function indexUpsert(c, v) {
   if (!v.metadata) return;
   for (const [k, val] of Object.entries(v.metadata)) {
     if (val === undefined || val === null) continue;
-    if (!c.index[k]) c.index[k] = new PersistentMap('collection-3', { serviceName: 'vector-db' });
+    if (!c.index[k]) c.index[k] = new Map();
     const key = String(val);
     if (!c.index[k].has(key)) c.index[k].set(key, new Set());
     c.index[k].get(key).add(v.id);
@@ -422,7 +423,12 @@ function indexRemove(c, v) {
 const app = express();
 
 // Validate required env at startup
-requireEnv(['PORT'], { allowDev: true });
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN)
+    return res.status(401).json({ error: 'unauthorized' });
+  next();
+}
+
 app.use(helmet());
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] }));
 app.use(express.json({ limit: '10mb' }));
@@ -456,7 +462,7 @@ app.get('/api/health', (req, res) => {
  * Body: { text, dimension? }
  * Response: { vector, dim, norm }
  */
-app.post('/api/embed',requireAuth,  (req, res) => {
+app.post('/api/embed',requireInternal,  (req, res) => {
   const { text, dimension } = req.body || {};
   if (typeof text !== 'string') {
     return res.status(400).json({ error: 'text (string) is required', code: 'TEXT_REQUIRED' });
@@ -481,7 +487,7 @@ app.post('/api/embed',requireAuth,  (req, res) => {
  * Create a new collection.
  * Body: { name, dimension, metric? }
  */
-app.post('/api/collections',requireAuth,  (req, res) => {
+app.post('/api/collections',requireInternal,  (req, res) => {
   const { name, dimension, metric } = req.body || {};
   if (typeof name !== 'string' || !name.trim()) {
     return res.status(400).json({ error: 'name (non-empty string) is required', code: 'NAME_REQUIRED' });
@@ -504,7 +510,7 @@ app.post('/api/collections',requireAuth,  (req, res) => {
     name,
     dimension,
     metric: m,
-    vectors: new PersistentMap('collection-4', { serviceName: 'vector-db' }),
+    vectors: new Map(),
     index: {},
     createdAt: new Date().toISOString()
   };
@@ -544,7 +550,7 @@ app.get('/api/collections/:name', (req, res) => {
  * DELETE /api/collections/:name
  * Delete collection and all its vectors.
  */
-app.delete('/api/collections/:name',requireAuth,  (req, res) => {
+app.delete('/api/collections/:name',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   const droppedCount = c.vectors.size;
@@ -564,7 +570,7 @@ app.delete('/api/collections/:name',requireAuth,  (req, res) => {
  * PATCH /api/collections/:name
  * Update dimension or metric. Only allowed when collection is empty.
  */
-app.patch('/api/collections/:name',requireAuth,  (req, res) => {
+app.patch('/api/collections/:name',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   if (c.vectors.size > 0) {
@@ -650,7 +656,7 @@ function upsertOne(collection, payload) {
  * Upsert a single vector.
  * Body: { id?, values, metadata?, document? }
  */
-app.post('/api/collections/:name/vectors',requireAuth,  (req, res) => {
+app.post('/api/collections/:name/vectors',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   const result = upsertOne(c, req.body);
@@ -675,7 +681,7 @@ app.post('/api/collections/:name/vectors',requireAuth,  (req, res) => {
  * POST /api/collections/:name/vectors/batch
  * Batch upsert. Body: { vectors: [{ id?, values, metadata?, document? }, ...] }
  */
-app.post('/api/collections/:name/vectors/batch',requireAuth,  (req, res) => {
+app.post('/api/collections/:name/vectors/batch',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   const { vectors } = req.body || {};
@@ -733,7 +739,7 @@ app.get('/api/collections/:name/vectors/:vectorId', (req, res) => {
  * DELETE /api/collections/:name/vectors/:vectorId
  * Delete a single vector.
  */
-app.delete('/api/collections/:name/vectors/:vectorId',requireAuth,  (req, res) => {
+app.delete('/api/collections/:name/vectors/:vectorId',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   const v = c.vectors.get(req.params.vectorId);
@@ -755,7 +761,7 @@ app.delete('/api/collections/:name/vectors/:vectorId',requireAuth,  (req, res) =
  * POST /api/collections/:name/vectors/delete-batch
  * Batch delete. Body: { ids: [...] }
  */
-app.post('/api/collections/:name/vectors/delete-batch',requireAuth,  (req, res) => {
+app.post('/api/collections/:name/vectors/delete-batch',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   const { ids } = req.body || {};
@@ -869,7 +875,7 @@ function performSearch(c, queryVec, opts) {
  * POST /api/collections/:name/search
  * Body: { query: number[], topK?, filter?, includeValues?, includeDocuments? }
  */
-app.post('/api/collections/:name/search',requireAuth,  (req, res) => {
+app.post('/api/collections/:name/search',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   const { query, topK, filter, includeValues, includeDocuments } = req.body || {};
@@ -915,7 +921,7 @@ app.post('/api/collections/:name/search',requireAuth,  (req, res) => {
  * and run a search. Caveat: the target collection MUST have dimension=128.
  * Body: { text, topK?, filter?, includeDocuments? }
  */
-app.post('/api/collections/:name/search-by-text',requireAuth,  (req, res) => {
+app.post('/api/collections/:name/search-by-text',requireInternal,  (req, res) => {
   const c = collections.get(req.params.name);
   if (!c) return res.status(404).json({ error: `collection '${req.params.name}' not found`, code: 'COLLECTION_NOT_FOUND' });
   const { text, topK, filter, includeDocuments } = req.body || {};
@@ -954,7 +960,7 @@ app.post('/api/collections/:name/search-by-text',requireAuth,  (req, res) => {
  * Top-level alternative: collection name is in the body.
  * Body: { collection, query, topK?, filter?, includeValues?, includeDocuments? }
  */
-app.post('/api/query',requireAuth,  (req, res) => {
+app.post('/api/query',requireInternal,  (req, res) => {
   const { collection: collName, query, topK, filter, includeValues, includeDocuments } = req.body || {};
   if (typeof collName !== 'string' || !collName.trim()) {
     return res.status(400).json({ error: 'collection (string) is required', code: 'COLLECTION_REQUIRED' });
@@ -1019,7 +1025,7 @@ app.get('/api/stats', (req, res) => {
  * POST /api/stats/reset
  * Reset all cumulative counters (does NOT delete collections or vectors).
  */
-app.post('/api/stats/reset',requireAuth,  (req, res) => {
+app.post('/api/stats/reset',requireInternal,  (req, res) => {
   stats.totalCollectionsCreated = 0;
   stats.totalCollectionsDeleted = 0;
   stats.totalVectorUpserts = 0;
@@ -1063,13 +1069,23 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  // TODO: In production, swap the in-memory Map for Redis or Postgres with pgvector
-  //       and use an HNSW index for sub-millisecond nearest-neighbor lookup at scale.
-  // TODO: Swap the bag-of-words vectorizer for a real embedding model
-  //       (text-embedding-3-small, voyage-2, or a local sentence-transformers service).
-  // TODO: Add per-tenant namespacing on every key.
-  console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
-  console.log(`[${SERVICE_NAME}] default dim=${DEFAULT_DIM}, metrics=${Array.from(VALID_METRICS).join('|')}`);
-});
-installGracefulShutdown(server);
+function start() {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
+    console.log(`[${SERVICE_NAME}] default dim=${DEFAULT_DIM}, metrics=${Array.from(VALID_METRICS).join('|')}`);
+  });
+  process.on('SIGTERM', () => { console.log(`[${SERVICE_NAME}] SIGTERM`); server.close(() => process.exit(0)); });
+  process.on('SIGINT',  () => { console.log(`[${SERVICE_NAME}] SIGINT`);  server.close(() => process.exit(0)); });
+  return server;
+}
+
+if (require.main === module) start();
+
+module.exports = app;
+module.exports.app = app;
+module.exports.collections = collections;
+module.exports.stats = stats;
+module.exports.embed = embed;
+module.exports.cosineSimilarity = cosineSimilarity;
+module.exports.dotSimilarity = dotSimilarity;
+module.exports.euclideanSimilarity = euclideanSimilarity;

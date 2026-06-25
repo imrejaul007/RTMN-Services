@@ -264,9 +264,9 @@ test('aggregateHealth returns ok:true with 11 services even when all are down', 
 });
 
 test('aggregateHealth marks reachable service as healthy', async () => {
-  // Spin up a tiny HTTP server on a random port that responds to /api/health
+  // Spin up a tiny HTTP server on a random port that responds to /health
   const server = http.createServer((req, res) => {
-    if (req.url === '/api/health') {
+    if (req.url === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, service: 'mock' }));
     } else {
@@ -322,8 +322,8 @@ function makeRequest(theApp, method, urlPath, body) {
   });
 }
 
-test('GET /api/health returns ok with sub-service count', async () => {
-  const res = await makeRequest(app(), 'GET', '/api/health');
+test('GET /health returns ok with sub-service count', async () => {
+  const res = await makeRequest(app(), 'GET', '/health');
   assert.equal(res.status, 200);
   assert.equal(res.body.service, 'agent-platform-api');
   assert.equal(res.body.ok, true);
