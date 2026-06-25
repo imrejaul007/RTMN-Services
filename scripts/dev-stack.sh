@@ -251,11 +251,16 @@ status() {
   for entry in \
     "Hub:4399" \
     "SADA Trust:4190" \
+    "SUTAR Gateway:4140" \
+    "Intent Bus:4154" \
+    "Twin Marketplace:4146" \
     "Trust Engine:4291" \
     "Decision Engine:4290" \
     "Economy OS:4294" \
     "PolicyOS:4254" \
     "SkillOS:4743" \
+    "SimulationOS:4241" \
+    "GoalOS:4242" \
     "Flow Orchestrator:4244" \
     "AI Intelligence:4881" \
     "Knowledge Extraction:4784" \
@@ -285,10 +290,11 @@ status() {
     "Memory Context Engine:4793" \
     "Twin Memory Bridge:4704" \
     "TwinOS Hub:4705" \
-    "Sutar Trust Engine:4291" \
+    "CXO OS:5100" \
     "Contract OS:4292" \
     "Negotiation Engine:4293" \
     "nexha-supplier-network:4280" \
+    "nexha-supplier-registry:4281" \
     "nexha-distribution-network:4285" \
     "nexha-warehouse-network:4288" \
     "nexha-trade-finance-network:4287" \
@@ -323,7 +329,12 @@ status() {
     "agent-execution-engine:4813" \
     "agent-observability:4814" \
     "voice-gateway:4880" \
-    "bam-marketplace-listings:4255"; do
+    "bam-marketplace-listings:4255" \
+    "blr-discovery-engine:4256" \
+    "blr-multi-agent-eval:4257" \
+    "blr-reputation-agg:4258" \
+    "blr-roi-calculator:4259" \
+    "blr-founder-os:4260"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
@@ -476,6 +487,9 @@ stop_all() {
   echo "Stopping RTMN dev stack..."
   stop_port 4399 "Hub"
   stop_port 4190 "SADA Trust"
+  stop_port 4140 "SUTAR Gateway"
+  stop_port 4154 "Intent Bus"
+  stop_port 4146 "Twin Marketplace"
   stop_port 4291 "Trust Engine"
   stop_port 4292 "Contract OS"
   stop_port 4293 "Negotiation Engine"
@@ -487,8 +501,11 @@ stop_all() {
   stop_port 4793 "Memory Context Engine"
   stop_port 4704 "Twin Memory Bridge"
   stop_port 4705 "TwinOS Hub"
+  stop_port 5100 "CXO OS"
   stop_port 4254 "PolicyOS"
   stop_port 4743 "SkillOS"
+  stop_port 4241 "SimulationOS"
+  stop_port 4242 "GoalOS"
   stop_port 4244 "Flow Orchestrator"
   stop_port 4881 "AI Intelligence"
   stop_port 4784 "Knowledge Extraction"
@@ -503,6 +520,7 @@ stop_all() {
   stop_port 4781 "RAG Platform"
   stop_port 4747 "Tenant Manager"
   stop_port 4280 "nexha-supplier-network"
+  stop_port 4281 "nexha-supplier-registry"
   stop_port 4285 "nexha-distribution-network"
   stop_port 4288 "nexha-warehouse-network"
   stop_port 4287 "nexha-trade-finance-network"
@@ -541,6 +559,11 @@ stop_all() {
   stop_port 4880 "voice-gateway"
   # BLR AI Marketplace
   stop_port 4255 "bam-marketplace-listings"
+  stop_port 4256 "blr-discovery-engine"
+  stop_port 4257 "blr-multi-agent-eval"
+  stop_port 4258 "blr-reputation-agg"
+  stop_port 4259 "blr-roi-calculator"
+  stop_port 4260 "blr-founder-os"
 }
 
 case "${1:-start}" in
