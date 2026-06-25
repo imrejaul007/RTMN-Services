@@ -1,0 +1,192 @@
+name: Deploy Nexha Services
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Nexha/services/**'
+      - 'deployment/**'
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy'
+        required: false
+        type: choice
+        options:
+          - all
+          - nexha-supplier-network
+          - nexha-supplier-registry
+          - nexha-pricing-network
+          - nexha-distribution-network
+          - nexha-trade-finance-network
+          - nexha-warehouse-network
+          - nexha-federation-os
+          - nexha-business-directory
+          - nexha-acp-messaging
+          - nexha-commerce-runtime
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+  NODE_VERSION: '20'
+
+jobs:
+  deploy-supplier-network:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-supplier-network'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-supplier-network
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-supplier-network:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-supplier-network:latest
+
+  deploy-supplier-registry:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-supplier-registry'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-supplier-registry
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-supplier-registry:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-supplier-registry:latest
+
+  deploy-pricing-network:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-pricing-network'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-pricing-network
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-pricing-network:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-pricing-network:latest
+
+  deploy-distribution-network:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-distribution-network'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-distribution-network
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-distribution-network:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-distribution-network:latest
+
+  deploy-trade-finance-network:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-trade-finance-network'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-trade-finance-network
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-trade-finance-network:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-trade-finance-network:latest
+
+  deploy-warehouse-network:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-warehouse-network'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-warehouse-network
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-warehouse-network:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-warehouse-network:latest
+
+  deploy-federation-os:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-federation-os'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-federation-os
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-federation-os:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-federation-os:latest
+
+  deploy-commerce-runtime:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == 'nexha-commerce-runtime'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./Nexha/services/nexha-commerce-runtime
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/nexha-commerce-runtime:${{ github.sha }}
+            ${{ env.REGISTRY }}/nexha-commerce-runtime:latest

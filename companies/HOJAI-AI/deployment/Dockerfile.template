@@ -1,0 +1,53 @@
+# ===================================================================
+# HOJAI Service Dockerfile Template
+# Usage: Copy to your service directory and customize
+# ===================================================================
+
+# Multi-stage build for smaller production image
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev for building)
+RUN npm ci
+
+# Copy source
+COPY . .
+
+# Build TypeScript (if applicable)
+RUN npm run build 2>/dev/null || true
+
+# Production stage
+FROM node:20-alpine AS production
+
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy only what's needed from builder
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist 2>/dev/null || true
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+
+# Set environment
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Switch to non-root user
+USER nodejs
+
+# Expose port (override with --build-arg PORT=xxx)
+ARG PORT=8080
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:$PORT/health || exit 1
+
+# Start command (override with --build-arg START_CMD="node server.js")
+CMD ["node", "dist/index.js"]

@@ -1,0 +1,139 @@
+name: Deploy Foundation Services
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+        - 'platform/identity/**'
+        - 'platform/memory/**'
+        - 'platform/twins/**'
+        - 'sutar-os/core/sutar-gateway/**'
+        - 'deployment/**'
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy'
+        required: false
+        type: choice
+        options:
+          - all
+          - corpid
+          - memory-os
+          - twinos-hub
+          - sutar-gateway
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+  NODE_VERSION: '20'
+
+jobs:
+  deploy-foundation:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == '' || github.event.inputs.service == 'corpid'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push CorpID
+        uses: docker/build-push-action@v5
+        with:
+          context: ./platform/identity/corp-id
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/corpid:${{ github.sha }}
+            ${{ env.REGISTRY }}/corpid:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-memory-os:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == '' || github.event.inputs.service == 'memory-os'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push MemoryOS
+        uses: docker/build-push-action@v5
+        with:
+          context: ./platform/memory/memory-os
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/memory-os:${{ github.sha }}
+            ${{ env.REGISTRY }}/memory-os:latest
+
+  deploy-twinos:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == '' || github.event.inputs.service == 'twinos-hub'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push TwinOS Hub
+        uses: docker/build-push-action@v5
+        with:
+          context: ./platform/twins/twinos-hub
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/twinos-hub:${{ github.sha }}
+            ${{ env.REGISTRY }}/twinos-hub:latest
+
+  deploy-sutar-gateway:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == 'all' || github.event.inputs.service == '' || github.event.inputs.service == 'sutar-gateway'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push SUTAR Gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: ./sutar-os/core/sutar-gateway
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/sutar-gateway:${{ github.sha }}
+            ${{ env.REGISTRY }}/sutar-gateway:latest
