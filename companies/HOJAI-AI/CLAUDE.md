@@ -384,6 +384,22 @@ Genie assistants, SUTAR OS marketplace, industry OS, marketplaces.
 
 **Services:** genie-* (15 services), sutar-* (12 services), industry-twin, flow-orchestrator, connector-hub, connector-marketplace, skill-marketplace, prompt-marketplace, blr-ai-marketplace, acn-*, customer-support-service, billing, ai-safety, sandbox, webhook-bus
 
+### HOJAI Cloud Phase 1 (2026-06-25) — New Services
+New cloud platform services (ports 4380-4440):
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| [./products/hojai-cloud/](./products/hojai-cloud/) | 4380 | **HOJAI Cloud v1.2** — Deploy target with auto-respawn, SSL, custom domains, previews, rollbacks |
+| [./services/app-store-api/](./services/app-store-api/) | 4400 | App Store — Skills, agents, workflows, templates catalog |
+| [./services/cost-tracker/](./services/cost-tracker/) | 4410 | Cost Tracker — AI usage metering and billing |
+| [./services/secrets-manager/](./services/secrets-manager/) | 4420 | Secrets Manager — Encrypted credential storage |
+| [./services/voice-studio-api/](./services/voice-studio-api/) | 4430 | Voice Studio — Voice agent management |
+| [./services/workflow-builder-api/](./services/workflow-builder-api/) | 4440 | Workflow Builder — DAG workflow management |
+
+**Startup:** `bash scripts/start-hojai-cloud-phase1.sh start`
+
+**RTMN Hub:** All services wired at `/api/app-store/*`, `/api/cost/*`, `/api/secrets/*`, `/api/voice/*`, `/api/workflows/*`
+
 ### Why not reorganize now?
 
 Reorganization is a **physical move** (git mv) that breaks imports in 161 places. Until the shared library adoption is complete, services depend on relative paths like `../../../shared/lib/...`. Reorganization will be a Phase 5 task in the production-readiness roadmap — see [plans/toasty-singing-sunrise.md](../.claude/plans/toasty-singing-sunrise.md).

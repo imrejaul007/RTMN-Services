@@ -31,6 +31,7 @@ import { z } from 'zod';
 import { requireAuth, optionalAuth, tenantFrom } from '../middleware/auth.js';
 import * as listings from '../services/listingsService.js';
 import * as reviews from '../services/reviewsService.js';
+import * as payments from '../services/paymentService.js';
 
 const router = express.Router();
 
@@ -268,6 +269,13 @@ router.get('/health', (_req, res) => {
       'reviews-hide',
       'categories-list',
       'stats',
+      // Payment capabilities
+      'payments-checkout',
+      'payments-intent',
+      'payments-webhook',
+      'payments-portal',
+      'payments-revenue',
+      'payments-platform-stats',
     ],
   });
 });
@@ -492,6 +500,117 @@ router.get('/api/stats', requireAuth, async (req, res) => {
     return res.json(stats);
   } catch (err) {
     return handleServiceError(res, err);
+  }
+});
+
+// -----------------------------------------------------------------------------
+// Payments
+// -----------------------------------------------------------------------------
+
+// Create Stripe checkout session
+router.post('/api/payments/checkout', optionalAuth, async (req, res) => {
+  const tenantId = tenantFrom(req);
+  const { listingId, customerId, customerEmail, successUrl, cancelUrl } = req.body || {};
+
+  if (!listingId) {
+    return badRequest(res, { message: 'listingId required', code: 'MARKETPLACE_VALIDATION_ERROR' });
+  }
+
+  try {
+    const result = await payments.createCheckoutSession(
+      tenantId,
+      listingId,
+      customerId,
+      customerEmail,
+      successUrl,
+      cancelUrl
+    );
+    return res.status(201).json(result);
+  } catch (err) {
+    if (err.message === 'LISTING_NOT_FOUND') {
+      return res.status(404).json({ error: 'listing not found' });
+    }
+    if (err.message === 'FREE_LISTING') {
+      return res.status(400).json({ error: 'listing is free, no payment needed' });
+    }
+    console.error('[payments] checkout error:', err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Get checkout session status
+router.get('/api/payments/session/:sessionId', optionalAuth, async (req, res) => {
+  try {
+    const session = await payments.getCheckoutSession(req.params.sessionId);
+    return res.json(session);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Create payment intent (alternative to checkout)
+router.post('/api/payments/intent', optionalAuth, async (req, res) => {
+  const tenantId = tenantFrom(req);
+  const { listingId, customerId, paymentMethodId } = req.body || {};
+
+  if (!listingId) {
+    return badRequest(res, { message: 'listingId required', code: 'MARKETPLACE_VALIDATION_ERROR' });
+  }
+
+  try {
+    const result = await payments.createPaymentIntent(tenantId, listingId, customerId, paymentMethodId);
+    return res.status(201).json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Stripe webhook handler
+router.post('/api/payments/webhook', async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  try {
+    const result = await payments.handleWebhook(req.body, sig);
+    return res.json(result);
+  } catch (err) {
+    console.error('[payments] webhook error:', err.message);
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// Publisher revenue dashboard
+router.get('/api/payments/revenue', requireAuth, async (req, res) => {
+  const tenantId = tenantFrom(req);
+  const publisherId = req.user?.sub || 'hojai';
+  try {
+    const stats = await payments.getPublisherRevenue(tenantId, publisherId);
+    return res.json(stats);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Platform revenue stats (admin only)
+router.get('/api/payments/platform-stats', requireAuth, async (req, res) => {
+  // In production, check for admin role
+  try {
+    const stats = payments.getPlatformStats();
+    return res.json(stats);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Create customer portal session
+router.post('/api/payments/portal', requireAuth, async (req, res) => {
+  const { customerId, returnUrl } = req.body || {};
+  if (!customerId) {
+    return badRequest(res, { message: 'customerId required', code: 'MARKETPLACE_VALIDATION_ERROR' });
+  }
+  try {
+    const result = await payments.createCustomerPortal(customerId, returnUrl);
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 });
 
