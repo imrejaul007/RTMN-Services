@@ -27,7 +27,7 @@ const STT_PROFILES: Record<STTEngine, { costPerMin: number; latencyMs: number; a
 const TTS_PROFILES: Record<TTSEngine, { costPer1k: number; latencyMs: number; quality: number; languages: string[] }> = {
   elevenlabs: { costPer1k: 0.30, latencyMs: 400,  quality: 95, languages: ['en', 'hi', 'es', 'fr', 'de', 'pt', 'it', 'pl', 'tr', 'ru', 'ja', 'ko', 'zh', 'ar'] },
   cartesia:   { costPer1k: 0.25, latencyMs: 300,  quality: 92, languages: ['en', 'hi', 'es', 'fr', 'de', 'pt', 'zh', 'ja', 'ko', 'ar'] },
-  hojai:     { costPer1k: 0.000, latencyMs: 60,  quality: 0,   languages: ['en', 'hi', 'ta', 'te', 'bn', 'mr'] },
+  hojai:     { costPer1k: 0.000, latencyMs: 60,  quality: 88,  languages: ['en', 'hi', 'ta', 'te', 'bn', 'mr'] },
 };
 
 // ── Routing modes ────────────────────────────────────────────────────────────────
@@ -50,6 +50,7 @@ const LANGUAGE_ENGINE_MAP: Record<string, STTEngine> = {
   // Indian languages — Sarvam has proprietary Indic models
   hi: 'sarvam', bn: 'sarvam', ta: 'sarvam', te: 'sarvam',
   mr: 'sarvam', kn: 'sarvam', ml: 'sarvam',
+  gu: 'sarvam', pa: 'sarvam', or: 'sarvam', as: 'sarvam',
   // Others — Whisper covers most well
   en: 'whisper', es: 'whisper', fr: 'whisper', de: 'whisper',
   pt: 'whisper', ru: 'whisper', zh: 'google', ja: 'whisper',
@@ -123,7 +124,7 @@ export function routeSTT(ctx: RouteContext): { engine: STTEngine; reason: string
   const mode = ctx.budgetMode ?? 'balanced';
 
   if (mode === 'indic_first') {
-    const indic = ['hi', 'bn', 'ta', 'te', 'mr', 'kn', 'ml'].includes(lang) ? 'sarvam' : 'whisper';
+    const indic = ['hi', 'bn', 'ta', 'te', 'mr', 'kn', 'ml', 'gu', 'pa', 'or', 'as'].includes(lang) ? 'sarvam' : 'whisper';
     return { engine: indic, reason: `indic_first mode, language="${lang}"`, confidence: 0.85 };
   }
 

@@ -189,10 +189,13 @@ function createApp() {
     const data = loadAll();
     const a = data.assets[req.params.id];
     if (!a) return res.status(404).json({ error: 'not_found' });
-    delete data.assets[req.params.id];
-    delete data.hashIndex[a.content_hash];
+    a.ref_count = Math.max(0, (a.ref_count || 1) - 1);
+    if (a.ref_count === 0) {
+      delete data.assets[req.params.id];
+      delete data.hashIndex[a.content_hash];
+    }
     saveAll(data);
-    res.json({ deleted: true, id: req.params.id });
+    res.json({ deleted: a.ref_count === 0, id: req.params.id, ref_count: a.ref_count });
   });
 
   app.get('/hash/:contentHash', requireInternal, (req, res) => {

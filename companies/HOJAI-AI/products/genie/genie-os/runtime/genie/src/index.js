@@ -1875,5 +1875,367 @@ app.get('/ready', (_req, res) => {
     installGracefulShutdown(server);
   }
 }
+
+// =====================================================================================
+// ADMIN MIDDLEWARE + ADMIN SCHEMAS
+// =====================================================================================
+
+// Admin role hierarchy: super_admin > org_admin > admin > user
+const ROLE_HIERARCHY = { super_admin: 4, org_admin: 3, admin: 2, user: 1 };
+
+function requireRole(minRole = 'user') {
+  const minLevel = ROLE_HIERARCHY[minRole] || 1;
+  return async (req, res, next) => {
+    try {
+      const h = req.headers.authorization;
+      if (!h?.startsWith('Bearer ')) return err(res, 401, 'UNAUTHORIZED', 'No bearer token');
+      let decoded;
+      try { decoded = jwt.verify(h.slice(7), JWT_SECRET); } catch { return err(res, 401, 'UNAUTHORIZED', 'Invalid token'); }
+      const user = await User.findById(decoded.userId);
+      if (!user) return err(res, 404, 'NOT_FOUND', 'User not found');
+      const userRole = user.role || 'user';
+      if ((ROLE_HIERARCHY[userRole] || 0) < minLevel) return err(res, 403, 'FORBIDDEN', `Requires ${minRole} or higher`);
+      req.adminUser = user;
+      next();
+    } catch (e) { next(e); }
+  };
+}
+
+// Ensure role field exists on all users (migration-safe)
+UserSchema.add({ role: { type: String, enum: ['super_admin', 'org_admin', 'admin', 'user'], default: 'user', index: true } });
+
+// Audit log schema
+const AuditLogSchema = new mongoose.Schema({
+  action: { type: String, required: true, index: true },
+  userId: mongoose.Types.ObjectId,
+  userEmail: String,
+  targetType: String,  // 'user', 'org', 'service', 'config'
+  targetId: String,
+  details: mongoose.Schema.Types.Mixed,
+  ip: String,
+  userAgent: String,
+  role: String,
+}, { timestamps: true });
+AuditLogSchema.index({ userId: 1, createdAt: -1 });
+AuditLogSchema.index({ action: 1, createdAt: -1 });
+AuditLogSchema.index({ targetType: 1, targetId: 1 });
+const AuditLog = mongoose.model('AuditLog', AuditLogSchema);
+
+async function auditLog(req, action, targetType, targetId, details = {}) {
+  try {
+    await AuditLog.create({
+      action,
+      userId: req.adminUser?._id,
+      userEmail: req.adminUser?.email,
+      targetType,
+      targetId,
+      details,
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+      role: req.adminUser?.role,
+    });
+  } catch (e) {
+    console.error('[audit] failed to write audit log:', e.message);
+  }
+}
+
+// =====================================================================================
+// ADMIN: SERVICE HEALTH MONITORING
+// =====================================================================================
+
+app.get('/api/admin/services/health', requireRole('admin'), async (req, res, next) => {
+  try {
+    const now = Date.now();
+    const services = [
+      // Foundation
+      { name: 'corpid',         url: `${CORPID_URL}/health` },
+      { name: 'memoryos',       url: `${MEMORYOS_URL}/health` },
+      { name: 'twinos',        url: `${TWINOS_URL}/health` },
+      { name: 'goalos',        url: `${GOALOS_URL}/health` },
+      // Genie specialists
+      { name: 'genie-gateway',  url: `${GENIE_GATEWAY_URL}/health` },
+      { name: 'genie-briefing', url: `${GENIE_BRIEFING_URL}/health` },
+      { name: 'genie-calendar', url: `${GENIE_CALENDAR_URL}/health` },
+      { name: 'genie-money',    url: `${GENIE_MONEY_URL}/health` },
+      { name: 'genie-wellness', url: `${GENIE_WELLNESS_URL}/health` },
+      { name: 'genie-shopping', url: `${GENIE_SHOPPING_URL}/health` },
+      { name: 'genie-wake-word', url: `${GENIE_WAKE_WORD_URL}/health` },
+      { name: 'genie-listening', url: `${GENIE_LISTENING_MODES_URL}/health` },
+      { name: 'genie-device',   url: `${GENIE_DEVICE_INTEGRATION_URL}/health` },
+      { name: 'genie-memory-inbox',    url: `${GENIE_MEMORY_INBOX_URL}/health` },
+      { name: 'genie-universal-search', url: `${GENIE_UNIVERSAL_SEARCH_URL}/health` },
+      { name: 'genie-serendipity',     url: `${GENIE_SERENDIPITY_URL}/health` },
+      { name: 'genie-memory-graph',    url: `${GENIE_MEMORY_GRAPH_URL}/health` },
+      { name: 'genie-relationship-os', url: `${GENIE_RELATIONSHIP_OS_URL}/health` },
+      { name: 'genie-learning-os',     url: `${GENIE_LEARNING_OS_URL}/health` },
+      { name: 'genie-companion',       url: `${GENIE_COMPANION_URL}/health` },
+      { name: 'genie-smart-forgetting', url: `${GENIE_SMART_FORGETTING_URL}/health` },
+      { name: 'genie-thinking-engine',  url: `${GENIE_THINKING_ENGINE_URL}/health` },
+      { name: 'genie-life-gps',        url: `${GENIE_LIFE_GPS_URL}/health` },
+      { name: 'genie-execution-engine', url: `${GENIE_EXECUTION_ENGINE_URL}/health` },
+      { name: 'genie-life-university', url: `${GENIE_LIFE_UNIVERSITY_URL}/health` },
+      { name: 'genie-creation-os',     url: `${GENIE_CREATION_OS_URL}/health` },
+      { name: 'genie-consultant-agent', url: `${GENIE_CONSULTANT_AGENT_URL}/health` },
+      // PIOS
+      { name: 'intent-engine',    url: `${INTENT_ENGINE_URL}/health` },
+      { name: 'memory-substrate', url: `${MEMORY_SUBSTRATE_URL}/health` },
+      { name: 'morning-briefing', url: `${MORNING_BRIEFING_V2_URL}/health` },
+      { name: 'cold-start',       url: `${COLD_START_ONBOARDING_URL}/health` },
+      { name: 'reasoning-engine',  url: `${REASONING_ENGINE_URL}/health` },
+      { name: 'reflection-engine',  url: `${REFLECTION_ENGINE_URL}/health` },
+      { name: 'proactive-engine',  url: `${PROACTIVE_ENGINE_URL}/health` },
+      { name: 'pi-score',          url: `${PI_SCORE_URL}/health` },
+      { name: 'relationship-graph', url: `${RELATIONSHIP_GRAPH_URL}/health` },
+      { name: 'learning-os-v2',    url: `${LEARNING_OS_V2_URL}/health` },
+      { name: 'ambient-briefings', url: `${AMBIENT_BRIEFINGS_URL}/health` },
+      { name: 'device-sync',       url: `${DEVICE_SYNC_URL}/health` },
+      { name: 'health-connector',   url: `${HEALTH_CONNECTOR_URL}/health` },
+      { name: 'calendar-connector', url: `${CALENDAR_CONNECTOR_URL}/health` },
+      { name: 'email-connector',   url: `${EMAIL_CONNECTOR_URL}/health` },
+      { name: 'contacts-connector', url: `${CONTACTS_CONNECTOR_URL}/health` },
+      { name: 'photos-connector',  url: `${PHOTOS_CONNECTOR_URL}/health` },
+      { name: 'tasks-connector',   url: `${TASKS_CONNECTOR_URL}/health` },
+      { name: 'background-agents', url: `${BACKGROUND_AGENTS_URL}/health` },
+      { name: 'one-shot-actions',  url: `${ONE_SHOT_ACTIONS_URL}/health` },
+      { name: 'genie-skills',      url: `${GENIE_SKILLS_URL}/health` },
+      { name: 'long-running-tasks', url: `${LONG_RUNNING_TASKS_URL}/health` },
+      // Voice
+      { name: 'voice-os',          url: `${VOICE_OS_URL}/health` },
+      { name: 'voice-commerce',      url: `${VOICE_COMMERCE_URL}/health` },
+      { name: 'voice-twin',         url: `${VOICE_TWIN_URL}/health` },
+      { name: 'razo-keyboard',      url: `${RAZO_KEYBOARD_URL}/health` },
+      // Multimodal
+      { name: 'mm-image-understanding', url: 'http://localhost:5371/health' },
+      { name: 'mm-audio-transcription', url: 'http://localhost:5370/health' },
+      { name: 'mm-ocr',                url: 'http://localhost:5372/health' },
+      { name: 'mm-visual-generator',    url: 'http://localhost:5373/health' },
+      { name: 'mm-video-analysis',      url: 'http://localhost:5353/health' },
+      { name: 'mm-embedder',            url: 'http://localhost:5347/health' },
+    ];
+
+    const results = await Promise.allSettled(
+      services.map(async (s) => {
+        const t0 = Date.now();
+        try {
+          const r = await axios.get(s.url, { timeout: 3000, validateStatus: () => true });
+          const latency = Date.now() - t0;
+          return {
+            name: s.name,
+            status: r.status === 200 ? 'up' : 'degraded',
+            latency,
+            httpStatus: r.status,
+            response: r.data,
+          };
+        } catch (e) {
+          return { name: s.name, status: 'down', latency: Date.now() - t0, error: e?.message };
+        }
+      })
+    );
+
+    const health = {};
+    let up = 0, down = 0, degraded = 0;
+    for (let i = 0; i < services.length; i++) {
+      const r = results[i];
+      const entry = r.status === 'fulfilled' ? r.value : { name: services[i].name, status: 'down', error: 'promise rejected' };
+      health[services[i].name] = entry;
+      if (entry.status === 'up') up++;
+      else if (entry.status === 'down') down++;
+      else degraded++;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        total: services.length,
+        up,
+        down,
+        degraded,
+        healthyPercent: Math.round((up / services.length) * 100),
+        scannedAt: new Date().toISOString(),
+        scanDurationMs: Date.now() - now,
+        services: health,
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+// =====================================================================================
+// ADMIN: USER MANAGEMENT
+// =====================================================================================
+
+app.get('/api/admin/users', requireRole('admin'), async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const skip = (page - 1) * limit;
+    const filter = {};
+    if (req.query.role) filter.role = req.query.role;
+    if (req.query.search) {
+      filter.$or = [
+        { email: { $regex: req.query.search, $options: 'i' } },
+        { name: { $regex: req.query.search, $options: 'i' } },
+      ];
+    }
+    const [users, total] = await Promise.all([
+      User.find(filter, { password: 0 }).skip(skip).limit(limit).sort({ createdAt: -1 }),
+      User.countDocuments(filter),
+    ]);
+    await auditLog(req, 'admin.users.list', 'user', 'list', { filter, page, limit, count: users.length });
+    res.json({
+      success: true,
+      data: { users, total, page, limit, pages: Math.ceil(total / limit) },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+app.put('/api/admin/users/:userId/role', requireRole('org_admin'), async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    const validRoles = ['super_admin', 'org_admin', 'admin', 'user'];
+    if (!validRoles.includes(role)) return err(res, 400, 'INVALID_INPUT', `role must be one of: ${validRoles.join(', ')}`);
+    // Prevent demotion of super_admin by non-super_admin
+    const target = await User.findById(req.params.userId);
+    if (!target) return err(res, 404, 'NOT_FOUND', 'User not found');
+    if (target.role === 'super_admin' && req.adminUser.role !== 'super_admin') {
+      return err(res, 403, 'FORBIDDEN', 'Only super_admin can modify super_admin roles');
+    }
+    const prevRole = target.role;
+    target.role = role;
+    await target.save();
+    await auditLog(req, 'admin.users.role', 'user', req.params.userId, { prevRole, newRole: role });
+    res.json({ success: true, data: { id: target._id, email: target.email, name: target.name, role: target.role }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/admin/users/:userId/deactivate', requireRole('org_admin'), async (req, res, next) => {
+  try {
+    const target = await User.findById(req.params.userId);
+    if (!target) return err(res, 404, 'NOT_FOUND', 'User not found');
+    target.preferences = { ...target.preferences || {}, deactivated: true, deactivatedAt: new Date(), deactivatedBy: req.adminUser._id };
+    await target.save();
+    await auditLog(req, 'admin.users.deactivate', 'user', req.params.userId, {});
+    res.json({ success: true, data: { id: target._id, email: target.email, deactivated: true }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+app.post('/api/admin/users/:userId/reactivate', requireRole('org_admin'), async (req, res, next) => {
+  try {
+    const target = await User.findById(req.params.userId);
+    if (!target) return err(res, 404, 'NOT_FOUND', 'User not found');
+    if (target.preferences?.deactivated) {
+      target.preferences = { ...target.preferences, deactivated: false, reactivatedAt: new Date(), reactivatedBy: req.adminUser._id };
+    }
+    await target.save();
+    await auditLog(req, 'admin.users.reactivate', 'user', req.params.userId, {});
+    res.json({ success: true, data: { id: target._id, email: target.email, deactivated: false }, meta: { timestamp: new Date().toISOString() } });
+  } catch (e) { next(e); }
+});
+
+// =====================================================================================
+// ADMIN: USAGE ANALYTICS
+// =====================================================================================
+
+app.get('/api/admin/usage', requireRole('admin'), async (req, res, next) => {
+  try {
+    const days = Math.min(90, Math.max(1, parseInt(req.query.days, 10) || 7));
+    const since = new Date(Date.now() - days * 86400000);
+    const [totalUsers, totalSessions, recentUsers, recentSessions] = await Promise.all([
+      User.countDocuments(),
+      Session.countDocuments(),
+      User.countDocuments({ createdAt: { $gte: since } }),
+      Session.countDocuments({ createdAt: { $gte: since } }),
+    ]);
+    const roleBreakdown = await User.aggregate([
+      { $group: { _id: '$role', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]);
+    const dailyActive = await User.aggregate([
+      { $match: { updatedAt: { $gte: since } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$updatedAt' } }, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]);
+    const auditStats = await AuditLog.aggregate([
+      { $match: { createdAt: { $gte: since } } },
+      { $group: { _id: '$action', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 20 },
+    ]);
+    await auditLog(req, 'admin.usage.view', 'config', 'usage', { days });
+    res.json({
+      success: true,
+      data: {
+        period: { days, since: since.toISOString(), to: new Date().toISOString() },
+        users: { total: totalUsers, activeInPeriod: recentUsers },
+        sessions: { total: totalSessions, activeInPeriod: recentSessions },
+        roleBreakdown: roleBreakdown.map(r => ({ role: r._id || 'user', count: r.count })),
+        dailyActive,
+        topActions: auditStats.map(a => ({ action: a._id, count: a.count })),
+      },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+// =====================================================================================
+// ADMIN: AUDIT LOG
+// =====================================================================================
+
+app.get('/api/admin/audit', requireRole('org_admin'), async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
+    const skip = (page - 1) * limit;
+    const filter = {};
+    if (req.query.action) filter.action = req.query.action;
+    if (req.query.userId) filter.userId = req.query.userId;
+    if (req.query.targetType) filter.targetType = req.query.targetType;
+    if (req.query.from || req.query.to) {
+      filter.createdAt = {};
+      if (req.query.from) filter.createdAt.$gte = new Date(req.query.from);
+      if (req.query.to) filter.createdAt.$lte = new Date(req.query.to);
+    }
+    const [logs, total] = await Promise.all([
+      AuditLog.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }),
+      AuditLog.countDocuments(filter),
+    ]);
+    res.json({
+      success: true,
+      data: { logs, total, page, limit, pages: Math.ceil(total / limit) },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  } catch (e) { next(e); }
+});
+
+// =====================================================================================
+// ADMIN: RUNTIME METRICS (self-health, uptime, memory)
+// =====================================================================================
+
+app.get('/api/admin/metrics', requireRole('admin'), async (req, res) => {
+  const mem = process.memoryUsage();
+  const uptime = process.uptime();
+  res.json({
+    success: true,
+    data: {
+      pid: process.pid,
+      uptimeSeconds: Math.floor(uptime),
+      uptimeHuman: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m`,
+      memory: {
+        heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+        heapTotal: Math.round(mem.heapTotal / 1024 / 1024),
+        rss: Math.round(mem.rss / 1024 / 1024),
+        external: Math.round(mem.external / 1024 / 1024),
+      },
+      versions: { node: process.version },
+      env: {
+        nodeEnv: process.env.NODE_ENV,
+        mongoConnected: mongoose.connection.readyState === 1,
+      },
+    },
+    meta: { timestamp: new Date().toISOString() },
+  });
+});
+
 start();
 export { app };

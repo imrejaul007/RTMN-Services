@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import OnboardingGate from './components/OnboardingGate';
+import AdminGate from './components/AdminGate';
 import HomeTab from './tabs/HomeTab';
 import GenieTab from './tabs/GenieTab';
 import SearchTab from './tabs/SearchTab';
@@ -28,6 +29,8 @@ import LearnerScreen from './screens/LearnerScreen';
 import CreatorScreen from './screens/CreatorScreen';
 import PlannerScreen from './screens/PlannerScreen';
 import OnboardingFlow from './screens/OnboardingFlow';
+import AdminScreen from './screens/AdminScreen';
+import ServiceHealthScreen from './screens/ServiceHealthScreen';
 
 export default function App() {
   return (
@@ -35,6 +38,18 @@ export default function App() {
       <Routes>
         {/* Onboarding (first launch only) */}
         <Route path="/onboarding" element={<OnboardingFlow />} />
+
+        {/* Admin routes — gated by role */}
+        <Route path="/admin" element={
+          <AdminGate>
+            <AdminScreen />
+          </AdminGate>
+        } />
+        <Route path="/admin/services" element={
+          <AdminGate>
+            <ServiceHealthScreen />
+          </AdminGate>
+        } />
 
         {/* Main 5-tab experience */}
         <Route element={<Layout />}>
@@ -59,14 +74,14 @@ export default function App() {
           <Route path="/widgets" element={<WidgetsScreen />} />
           <Route path="/aiteam" element={<AITeamScreen />} />
           <Route path="/accounts" element={<AccountsScreen />} />
-        <Route path="/household" element={<HouseholdScreen />} />
-        <Route path="/founder" element={<FounderScreen />} />
-        <Route path="/teacher" element={<TeacherScreen />} />
-        <Route path="/research" element={<ResearchScreen />} />
-        <Route path="/wellness" element={<WellnessScreen />} />
-        <Route path="/learner" element={<LearnerScreen />} />
-        <Route path="/creator" element={<CreatorScreen />} />
-        <Route path="/planner" element={<PlannerScreen />} />
+          <Route path="/household" element={<HouseholdScreen />} />
+          <Route path="/founder" element={<FounderScreen />} />
+          <Route path="/teacher" element={<TeacherScreen />} />
+          <Route path="/research" element={<ResearchScreen />} />
+          <Route path="/wellness" element={<WellnessScreen />} />
+          <Route path="/learner" element={<LearnerScreen />} />
+          <Route path="/creator" element={<CreatorScreen />} />
+          <Route path="/planner" element={<PlannerScreen />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/home" replace />} />

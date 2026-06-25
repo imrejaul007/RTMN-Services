@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiGet, apiPost, apiPatch, apiDelete, specialists } from '../services/api';
+import { apiGet, apiPost, apiDelete, specialists } from '../services/api';
 
 const USER_ID = 'user-001';
 
@@ -57,8 +57,8 @@ export default function PlannerScreen() {
       <div className="header"><button onClick={() => navigate('/')} className="back-btn">←</button><h1>📋 Planner</h1></div>
       {stats && (
         <div style={{ padding: '0 16px 12px', display: 'flex', gap: 6, overflowX: 'auto' }}>
-          <Kpi label="📋 Todos" value={`${stats.todosByStatus.pending || 0}`} />
-          <Kpi label="✅ Done" value={`${stats.todosByStatus.completed || 0}`} />
+          <Kpi label="📋 Todos" value={`${stats.todosByStatus['pending'] || 0}`} />
+          <Kpi label="✅ Done" value={`${stats.todosByStatus['completed'] || 0}`} />
           <Kpi label="🧘 Habits" value={`${habits.filter(h => h.todayDone).length}/${habits.length}`} />
           <Kpi label="🔥 Streak" value={`${habits[0]?.currentStreak || 0}d`} />
         </div>

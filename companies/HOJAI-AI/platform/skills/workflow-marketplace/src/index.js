@@ -15,20 +15,79 @@
  */
 
 const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
+
+const PORT = parseInt(process.env.WORKFLOW_MARKETPLACE_PORT || process.env.PORT || '4938', 10);
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'workflow-marketplace-internal-token';
+const DATA_DIR = () => process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+
+function ensureDir() {
+  const dd = DATA_DIR();
+  if (!fs.existsSync(dd)) fs.mkdirSync(dd, { recursive: true });
+}
+
+function storeFile(name) { return path.join(DATA_DIR(), `${name}.json`); }
+
+function loadStore(name) {
+  ensureDir();
+  const f = storeFile(name);
+  try { return JSON.parse(fs.readFileSync(f, 'utf8')); }
+  catch (_) { return {}; }
+}
+
+function saveStore(name, data) {
+  ensureDir();
+  const dd = DATA_DIR();
+  const f = storeFile(name);
+  const tmp = path.join(dd, '.tmp_' + crypto.randomBytes(4).toString('hex'));
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, f);
+}
+
+// ---------------------------------------------------------------------------
+// In-memory Map stores backed by JSON
+// ---------------------------------------------------------------------------
+
+function createMap(name) {
+  let map = new Map(Object.entries(loadStore(name)));
+  return {
+    get(k) { return map.get(k); },
+    set(k, v) { map.set(k, v); saveStore(name, Object.fromEntries(map)); return this; },
+    has(k) { return map.has(k); },
+    delete(k) { map.delete(k); saveStore(name, Object.fromEntries(map)); return this; },
+    get size() { return map.size; },
+    values() { return map.values(); },
+    forEach(fn) { map.forEach(fn); },
+    clear() { map.clear(); saveStore(name, {}); },
+    *[Symbol.iterator]() { yield* map; },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN)
+    return res.status(401).json({ error: 'unauthorized' });
+  next();
+}
+
+// ---------------------------------------------------------------------------
+// App factory (for testability)
+// ---------------------------------------------------------------------------
 
 const app = express();
-
-// Validate required env at startup
-requireEnv(['PORT'], { allowDev: true });
-const PORT = process.env.WORKFLOW_MARKETPLACE_PORT || 4938;
 
 // Middleware
 app.use(helmet());
@@ -40,10 +99,10 @@ app.use(express.json());
 // WORKFLOW TEMPLATES DATA STORE
 // ============================================================
 
-const workflows = new PersistentMap('workflows', { serviceName: 'workflow-marketplace' });
-const reviews = new PersistentMap('reviews', { serviceName: 'workflow-marketplace' });
-const deployments = new PersistentMap('deployments', { serviceName: 'workflow-marketplace' });
-const categories = new PersistentMap('categories', { serviceName: 'workflow-marketplace' });
+const workflows = createMap('workflows');
+const reviews = createMap('reviews');
+const deployments = createMap('deployments');
+const categories = createMap('categories');
 
 // Initialize categories
 const initialCategories = [
@@ -954,7 +1013,7 @@ app.get('/api/industries', (req, res) => {
 // ============================================================
 
 // Deploy workflow
-app.post('/api/workflows/:id/deploy',requireAuth,  (req, res) => {
+app.post('/api/workflows/:id/deploy', requireInternal, (req, res) => {
   const workflow = workflows.get(req.params.id);
   if (!workflow) {
     return res.status(404).json({ success: false, error: 'Workflow not found' });
@@ -1013,7 +1072,7 @@ app.get('/api/deployments/:id', (req, res) => {
 });
 
 // Update deployment
-app.patch('/api/deployments/:id',requireAuth,  (req, res) => {
+app.patch('/api/deployments/:id',requireInternal,  (req, res) => {
   const deployment = deployments.get(req.params.id);
   if (!deployment) {
     return res.status(404).json({ success: false, error: 'Deployment not found' });
@@ -1026,7 +1085,7 @@ app.patch('/api/deployments/:id',requireAuth,  (req, res) => {
 });
 
 // Delete deployment
-app.delete('/api/deployments/:id',requireAuth,  (req, res) => {
+app.delete('/api/deployments/:id',requireInternal,  (req, res) => {
   const deployment = deployments.get(req.params.id);
   if (!deployment) {
     return res.status(404).json({ success: false, error: 'Deployment not found' });
@@ -1043,7 +1102,7 @@ app.delete('/api/deployments/:id',requireAuth,  (req, res) => {
 // ============================================================
 
 // Add review
-app.post('/api/workflows/:id/reviews',requireAuth,  (req, res) => {
+app.post('/api/workflows/:id/reviews',requireInternal,  (req, res) => {
   const workflow = workflows.get(req.params.id);
   if (!workflow) {
     return res.status(404).json({ success: false, error: 'Workflow not found' });
@@ -1093,7 +1152,7 @@ app.get('/api/seller/workflows', (req, res) => {
 });
 
 // Create workflow (for sellers)
-app.post('/api/workflows',requireAuth,  (req, res) => {
+app.post('/api/workflows',requireInternal,  (req, res) => {
   const { name, description, category, price, priceType, steps, integrations, industries, tags, seller } = req.body;
 
   if (!name || !category || !seller) {
@@ -1136,7 +1195,7 @@ app.post('/api/workflows',requireAuth,  (req, res) => {
 });
 
 // Update workflow
-app.patch('/api/workflows/:id',requireAuth,  (req, res) => {
+app.patch('/api/workflows/:id',requireInternal,  (req, res) => {
   const workflow = workflows.get(req.params.id);
   if (!workflow) {
     return res.status(404).json({ success: false, error: 'Workflow not found' });
@@ -1193,29 +1252,30 @@ app.get('/api/workflows/:id/execute', (req, res) => {
 });
 
 // ============================================================
-// ERROR HANDLING
-// ============================================================
-
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ success: false, error: 'Internal server error' });
-});
-
-// ============================================================
 // START SERVER
 // ============================================================
+
+function start() {
+  const server = app.listen(PORT, () => {
+    console.log(`[Workflow Marketplace] Service started on port ${PORT}`);
+    console.log(`[Workflow Marketplace] ${workflows.size} workflows loaded`);
+    console.log(`[Workflow Marketplace] ${categories.size} categories available`);
+  });
+  process.on('SIGTERM', () => { console.log('[Workflow Marketplace] SIGTERM'); server.close(() => process.exit(0)); });
+  process.on('SIGINT',  () => { console.log('[Workflow Marketplace] SIGINT');  server.close(() => process.exit(0)); });
+  return server;
+}
+
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+if (require.main === module) start();
 
-
-const server = app.listen(PORT, () => {
-  console.log(`[Workflow Marketplace] Service started on port ${PORT}`);
-  console.log(`[Workflow Marketplace] ${workflows.size} workflows loaded`);
-  console.log(`[Workflow Marketplace] ${categories.size} categories available`);
-});
-installGracefulShutdown(server);
-
-module.exports = app;
+module.exports = { app, start, startServer: (port) => {
+  const a = app;
+  return new Promise(resolve => {
+    const s = a.listen(port || PORT, '127.0.0.1', () => resolve({ server: s, port: s.address().port }));
+  });
+} };

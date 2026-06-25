@@ -231,13 +231,13 @@ test('GET /ready returns ready', async () => {
   delete process.env.DATA_DIR;
 });
 
-test('GET /health redirects to /api/health', async () => {
+test('GET /health returns redirect (302) — http.request does not follow', async () => {
   const DATA_DIR = makeTmpDir();
   process.env.DATA_DIR = DATA_DIR;
   const theApp = app();
   const { server, port } = await startServer(theApp, 0);
   const res = await httpReq(port, 'GET', '/health');
-  assert.equal(res.status, 200);
+  assert.equal(res.status, 302); // redirect to /api/health
   server.close();
   delete process.env.DATA_DIR;
 });

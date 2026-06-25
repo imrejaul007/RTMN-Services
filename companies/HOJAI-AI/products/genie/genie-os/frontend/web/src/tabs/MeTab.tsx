@@ -292,6 +292,17 @@ export default function MeTab() {
       </div>
 
       {/* Preferences */}
+      {/* Admin panel — shown only for admin roles */}
+      {(user?.role === 'super_admin' || user?.role === 'org_admin' || user?.role === 'admin') && (
+        <div className="card" onClick={() => navigate('/admin')} style={{ cursor: 'pointer', border: '1px solid var(--primary)', marginBottom: 16 }}>
+          <div className="card-title">🛡️ Admin Panel</div>
+          <div className="muted small" style={{ marginBottom: 8 }}>
+            Users · Service Health · Usage · Audit Logs
+          </div>
+          <button className="btn btn-block">Open Admin</button>
+        </div>
+      )}
+
       <div className="card">
         <div className="card-title">⚙️ Preferences</div>
         <button className="list-item" style={{ width: '100%', textAlign: 'left' }} onClick={() => alert('Coming soon')}>

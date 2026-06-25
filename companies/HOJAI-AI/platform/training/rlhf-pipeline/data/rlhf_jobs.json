@@ -1,0 +1,1604 @@
+{
+  "data": [
+    {
+      "id": "37381eda1ec450d0879878b50d8f3c7a",
+      "type": "ppo",
+      "status": "completed",
+      "baseModel": "llama-3-8b",
+      "rewardModelId": "rm-001",
+      "config": {
+        "totalSteps": 100,
+        "batchSize": 8,
+        "learningRate": 0.00001,
+        "targetReward": 0.95,
+        "baselineReward": 0.5,
+        "gamma": 0.99,
+        "lambda": 0.95,
+        "clipEps": 0.2
+      },
+      "progress": 100,
+      "currentStep": 100,
+      "steps": [
+        {
+          "step": 1,
+          "reward": 0.5083,
+          "klDivergence": 0.0802,
+          "entropy": 0.0031,
+          "policyLoss": 0.5087,
+          "valueLoss": 0.3248
+        },
+        {
+          "step": 2,
+          "reward": 0.518,
+          "klDivergence": 0.0812,
+          "entropy": 0.0066,
+          "policyLoss": 0.5134,
+          "valueLoss": 0.3182
+        },
+        {
+          "step": 3,
+          "reward": 0.5203,
+          "klDivergence": 0.0794,
+          "entropy": 0.0091,
+          "policyLoss": 0.516,
+          "valueLoss": 0.2947
+        },
+        {
+          "step": 4,
+          "reward": 0.5265,
+          "klDivergence": 0.0857,
+          "entropy": 0.013,
+          "policyLoss": 0.491,
+          "valueLoss": 0.3175
+        },
+        {
+          "step": 5,
+          "reward": 0.5352,
+          "klDivergence": 0.0765,
+          "entropy": 0.015,
+          "policyLoss": 0.5198,
+          "valueLoss": 0.2939
+        },
+        {
+          "step": 6,
+          "reward": 0.5429,
+          "klDivergence": 0.0841,
+          "entropy": 0.0195,
+          "policyLoss": 0.4793,
+          "valueLoss": 0.2977
+        },
+        {
+          "step": 7,
+          "reward": 0.549,
+          "klDivergence": 0.0766,
+          "entropy": 0.0214,
+          "policyLoss": 0.508,
+          "valueLoss": 0.2859
+        },
+        {
+          "step": 8,
+          "reward": 0.5519,
+          "klDivergence": 0.0777,
+          "entropy": 0.0259,
+          "policyLoss": 0.4611,
+          "valueLoss": 0.2925
+        },
+        {
+          "step": 9,
+          "reward": 0.5542,
+          "klDivergence": 0.0771,
+          "entropy": 0.0292,
+          "policyLoss": 0.4914,
+          "valueLoss": 0.2897
+        },
+        {
+          "step": 10,
+          "reward": 0.5551,
+          "klDivergence": 0.0728,
+          "entropy": 0.0309,
+          "policyLoss": 0.4512,
+          "valueLoss": 0.282
+        },
+        {
+          "step": 11,
+          "reward": 0.5573,
+          "klDivergence": 0.0722,
+          "entropy": 0.0342,
+          "policyLoss": 0.4755,
+          "valueLoss": 0.2743
+        },
+        {
+          "step": 12,
+          "reward": 0.5631,
+          "klDivergence": 0.0798,
+          "entropy": 0.0394,
+          "policyLoss": 0.4716,
+          "valueLoss": 0.2923
+        },
+        {
+          "step": 13,
+          "reward": 0.5642,
+          "klDivergence": 0.073,
+          "entropy": 0.0407,
+          "policyLoss": 0.4407,
+          "valueLoss": 0.2848
+        },
+        {
+          "step": 14,
+          "reward": 0.5677,
+          "klDivergence": 0.0698,
+          "entropy": 0.0443,
+          "policyLoss": 0.4733,
+          "valueLoss": 0.2725
+        },
+        {
+          "step": 15,
+          "reward": 0.575,
+          "klDivergence": 0.0762,
+          "entropy": 0.0454,
+          "policyLoss": 0.4633,
+          "valueLoss": 0.2596
+        },
+        {
+          "step": 16,
+          "reward": 0.5847,
+          "klDivergence": 0.0713,
+          "entropy": 0.0526,
+          "policyLoss": 0.4278,
+          "valueLoss": 0.2558
+        },
+        {
+          "step": 17,
+          "reward": 0.588,
+          "klDivergence": 0.0693,
+          "entropy": 0.0516,
+          "policyLoss": 0.4323,
+          "valueLoss": 0.2662
+        },
+        {
+          "step": 18,
+          "reward": 0.5895,
+          "klDivergence": 0.0749,
+          "entropy": 0.0546,
+          "policyLoss": 0.4135,
+          "valueLoss": 0.2495
+        },
+        {
+          "step": 19,
+          "reward": 0.5927,
+          "klDivergence": 0.0682,
+          "entropy": 0.0615,
+          "policyLoss": 0.4123,
+          "valueLoss": 0.2581
+        },
+        {
+          "step": 20,
+          "reward": 0.597,
+          "klDivergence": 0.0665,
+          "entropy": 0.066,
+          "policyLoss": 0.4437,
+          "valueLoss": 0.2593
+        },
+        {
+          "step": 21,
+          "reward": 0.6001,
+          "klDivergence": 0.0705,
+          "entropy": 0.0665,
+          "policyLoss": 0.4364,
+          "valueLoss": 0.241
+        },
+        {
+          "step": 22,
+          "reward": 0.6058,
+          "klDivergence": 0.0651,
+          "entropy": 0.072,
+          "policyLoss": 0.4317,
+          "valueLoss": 0.2571
+        },
+        {
+          "step": 23,
+          "reward": 0.6128,
+          "klDivergence": 0.0702,
+          "entropy": 0.0727,
+          "policyLoss": 0.4049,
+          "valueLoss": 0.2476
+        },
+        {
+          "step": 24,
+          "reward": 0.6142,
+          "klDivergence": 0.0652,
+          "entropy": 0.0779,
+          "policyLoss": 0.4243,
+          "valueLoss": 0.2439
+        },
+        {
+          "step": 25,
+          "reward": 0.6159,
+          "klDivergence": 0.069,
+          "entropy": 0.0811,
+          "policyLoss": 0.4104,
+          "valueLoss": 0.2455
+        },
+        {
+          "step": 26,
+          "reward": 0.6242,
+          "klDivergence": 0.0667,
+          "entropy": 0.0855,
+          "policyLoss": 0.4054,
+          "valueLoss": 0.2234
+        },
+        {
+          "step": 27,
+          "reward": 0.6292,
+          "klDivergence": 0.0597,
+          "entropy": 0.0857,
+          "policyLoss": 0.3896,
+          "valueLoss": 0.2476
+        },
+        {
+          "step": 28,
+          "reward": 0.6302,
+          "klDivergence": 0.0638,
+          "entropy": 0.0875,
+          "policyLoss": 0.3969,
+          "valueLoss": 0.2263
+        },
+        {
+          "step": 29,
+          "reward": 0.6321,
+          "klDivergence": 0.0589,
+          "entropy": 0.0939,
+          "policyLoss": 0.4022,
+          "valueLoss": 0.2389
+        },
+        {
+          "step": 30,
+          "reward": 0.6324,
+          "klDivergence": 0.0588,
+          "entropy": 0.0953,
+          "policyLoss": 0.3738,
+          "valueLoss": 0.2346
+        },
+        {
+          "step": 31,
+          "reward": 0.6395,
+          "klDivergence": 0.0602,
+          "entropy": 0.094,
+          "policyLoss": 0.3896,
+          "valueLoss": 0.216
+        },
+        {
+          "step": 32,
+          "reward": 0.6446,
+          "klDivergence": 0.0619,
+          "entropy": 0.098,
+          "policyLoss": 0.3771,
+          "valueLoss": 0.2117
+        },
+        {
+          "step": 33,
+          "reward": 0.6476,
+          "klDivergence": 0.0633,
+          "entropy": 0.1075,
+          "policyLoss": 0.3829,
+          "valueLoss": 0.22
+        },
+        {
+          "step": 34,
+          "reward": 0.6554,
+          "klDivergence": 0.061,
+          "entropy": 0.1065,
+          "policyLoss": 0.3358,
+          "valueLoss": 0.2156
+        },
+        {
+          "step": 35,
+          "reward": 0.663,
+          "klDivergence": 0.0521,
+          "entropy": 0.1061,
+          "policyLoss": 0.3281,
+          "valueLoss": 0.2076
+        },
+        {
+          "step": 36,
+          "reward": 0.667,
+          "klDivergence": 0.0576,
+          "entropy": 0.1118,
+          "policyLoss": 0.3656,
+          "valueLoss": 0.2184
+        },
+        {
+          "step": 37,
+          "reward": 0.6751,
+          "klDivergence": 0.0574,
+          "entropy": 0.1146,
+          "policyLoss": 0.3326,
+          "valueLoss": 0.1991
+        },
+        {
+          "step": 38,
+          "reward": 0.6772,
+          "klDivergence": 0.0595,
+          "entropy": 0.1244,
+          "policyLoss": 0.3368,
+          "valueLoss": 0.1935
+        },
+        {
+          "step": 39,
+          "reward": 0.6831,
+          "klDivergence": 0.0503,
+          "entropy": 0.1251,
+          "policyLoss": 0.3481,
+          "valueLoss": 0.1859
+        },
+        {
+          "step": 40,
+          "reward": 0.6924,
+          "klDivergence": 0.0547,
+          "entropy": 0.1272,
+          "policyLoss": 0.3277,
+          "valueLoss": 0.1948
+        },
+        {
+          "step": 41,
+          "reward": 0.6987,
+          "klDivergence": 0.0499,
+          "entropy": 0.1264,
+          "policyLoss": 0.3256,
+          "valueLoss": 0.1859
+        },
+        {
+          "step": 42,
+          "reward": 0.7067,
+          "klDivergence": 0.0494,
+          "entropy": 0.1367,
+          "policyLoss": 0.3392,
+          "valueLoss": 0.2034
+        },
+        {
+          "step": 43,
+          "reward": 0.7154,
+          "klDivergence": 0.0489,
+          "entropy": 0.1319,
+          "policyLoss": 0.2902,
+          "valueLoss": 0.1887
+        },
+        {
+          "step": 44,
+          "reward": 0.7202,
+          "klDivergence": 0.0463,
+          "entropy": 0.1444,
+          "policyLoss": 0.3209,
+          "valueLoss": 0.1938
+        },
+        {
+          "step": 45,
+          "reward": 0.7296,
+          "klDivergence": 0.0539,
+          "entropy": 0.1409,
+          "policyLoss": 0.2818,
+          "valueLoss": 0.1677
+        },
+        {
+          "step": 46,
+          "reward": 0.7373,
+          "klDivergence": 0.0507,
+          "entropy": 0.1478,
+          "policyLoss": 0.2759,
+          "valueLoss": 0.1754
+        },
+        {
+          "step": 47,
+          "reward": 0.7408,
+          "klDivergence": 0.0512,
+          "entropy": 0.1442,
+          "policyLoss": 0.3052,
+          "valueLoss": 0.1718
+        },
+        {
+          "step": 48,
+          "reward": 0.7484,
+          "klDivergence": 0.0506,
+          "entropy": 0.1481,
+          "policyLoss": 0.2912,
+          "valueLoss": 0.1601
+        },
+        {
+          "step": 49,
+          "reward": 0.7568,
+          "klDivergence": 0.0422,
+          "entropy": 0.1613,
+          "policyLoss": 0.2921,
+          "valueLoss": 0.1761
+        },
+        {
+          "step": 50,
+          "reward": 0.7572,
+          "klDivergence": 0.0401,
+          "entropy": 0.1599,
+          "policyLoss": 0.2863,
+          "valueLoss": 0.1697
+        },
+        {
+          "step": 51,
+          "reward": 0.7623,
+          "klDivergence": 0.0471,
+          "entropy": 0.1649,
+          "policyLoss": 0.2852,
+          "valueLoss": 0.1707
+        },
+        {
+          "step": 52,
+          "reward": 0.7722,
+          "klDivergence": 0.0387,
+          "entropy": 0.1619,
+          "policyLoss": 0.2419,
+          "valueLoss": 0.1686
+        },
+        {
+          "step": 53,
+          "reward": 0.7782,
+          "klDivergence": 0.0436,
+          "entropy": 0.1635,
+          "policyLoss": 0.2752,
+          "valueLoss": 0.1633
+        },
+        {
+          "step": 54,
+          "reward": 0.7879,
+          "klDivergence": 0.0451,
+          "entropy": 0.1689,
+          "policyLoss": 0.2683,
+          "valueLoss": 0.1518
+        },
+        {
+          "step": 55,
+          "reward": 0.7952,
+          "klDivergence": 0.0378,
+          "entropy": 0.1739,
+          "policyLoss": 0.2584,
+          "valueLoss": 0.153
+        },
+        {
+          "step": 56,
+          "reward": 0.8043,
+          "klDivergence": 0.0432,
+          "entropy": 0.182,
+          "policyLoss": 0.2259,
+          "valueLoss": 0.1552
+        },
+        {
+          "step": 57,
+          "reward": 0.8063,
+          "klDivergence": 0.0423,
+          "entropy": 0.1787,
+          "policyLoss": 0.2293,
+          "valueLoss": 0.1503
+        },
+        {
+          "step": 58,
+          "reward": 0.8149,
+          "klDivergence": 0.0399,
+          "entropy": 0.1788,
+          "policyLoss": 0.2255,
+          "valueLoss": 0.1555
+        },
+        {
+          "step": 59,
+          "reward": 0.8168,
+          "klDivergence": 0.0375,
+          "entropy": 0.1918,
+          "policyLoss": 0.2354,
+          "valueLoss": 0.1447
+        },
+        {
+          "step": 60,
+          "reward": 0.8265,
+          "klDivergence": 0.0346,
+          "entropy": 0.1808,
+          "policyLoss": 0.241,
+          "valueLoss": 0.121
+        },
+        {
+          "step": 61,
+          "reward": 0.8302,
+          "klDivergence": 0.0369,
+          "entropy": 0.1843,
+          "policyLoss": 0.1992,
+          "valueLoss": 0.1384
+        },
+        {
+          "step": 62,
+          "reward": 0.8325,
+          "klDivergence": 0.0318,
+          "entropy": 0.2013,
+          "policyLoss": 0.2016,
+          "valueLoss": 0.1334
+        },
+        {
+          "step": 63,
+          "reward": 0.842,
+          "klDivergence": 0.0317,
+          "entropy": 0.2074,
+          "policyLoss": 0.203,
+          "valueLoss": 0.1164
+        },
+        {
+          "step": 64,
+          "reward": 0.8443,
+          "klDivergence": 0.0345,
+          "entropy": 0.2085,
+          "policyLoss": 0.2284,
+          "valueLoss": 0.1329
+        },
+        {
+          "step": 65,
+          "reward": 0.8493,
+          "klDivergence": 0.0361,
+          "entropy": 0.2014,
+          "policyLoss": 0.1754,
+          "valueLoss": 0.105
+        },
+        {
+          "step": 66,
+          "reward": 0.8576,
+          "klDivergence": 0.0322,
+          "entropy": 0.2161,
+          "policyLoss": 0.2161,
+          "valueLoss": 0.1308
+        },
+        {
+          "step": 67,
+          "reward": 0.8594,
+          "klDivergence": 0.035,
+          "entropy": 0.2085,
+          "policyLoss": 0.1767,
+          "valueLoss": 0.1204
+        },
+        {
+          "step": 68,
+          "reward": 0.865,
+          "klDivergence": 0.0267,
+          "entropy": 0.2182,
+          "policyLoss": 0.1653,
+          "valueLoss": 0.1048
+        },
+        {
+          "step": 69,
+          "reward": 0.8745,
+          "klDivergence": 0.0317,
+          "entropy": 0.2171,
+          "policyLoss": 0.1953,
+          "valueLoss": 0.1049
+        },
+        {
+          "step": 70,
+          "reward": 0.8777,
+          "klDivergence": 0.0277,
+          "entropy": 0.2211,
+          "policyLoss": 0.1658,
+          "valueLoss": 0.096
+        },
+        {
+          "step": 71,
+          "reward": 0.8798,
+          "klDivergence": 0.0234,
+          "entropy": 0.2138,
+          "policyLoss": 0.1893,
+          "valueLoss": 0.0985
+        },
+        {
+          "step": 72,
+          "reward": 0.8845,
+          "klDivergence": 0.0249,
+          "entropy": 0.219,
+          "policyLoss": 0.1452,
+          "valueLoss": 0.1037
+        },
+        {
+          "step": 73,
+          "reward": 0.8854,
+          "klDivergence": 0.0264,
+          "entropy": 0.2288,
+          "policyLoss": 0.1524,
+          "valueLoss": 0.1
+        },
+        {
+          "step": 74,
+          "reward": 0.8875,
+          "klDivergence": 0.0223,
+          "entropy": 0.2262,
+          "policyLoss": 0.1448,
+          "valueLoss": 0.0905
+        },
+        {
+          "step": 75,
+          "reward": 0.8932,
+          "klDivergence": 0.03,
+          "entropy": 0.2473,
+          "policyLoss": 0.1459,
+          "valueLoss": 0.0821
+        },
+        {
+          "step": 76,
+          "reward": 0.8943,
+          "klDivergence": 0.0213,
+          "entropy": 0.2391,
+          "policyLoss": 0.154,
+          "valueLoss": 0.0824
+        },
+        {
+          "step": 77,
+          "reward": 0.9041,
+          "klDivergence": 0.0234,
+          "entropy": 0.2422,
+          "policyLoss": 0.1309,
+          "valueLoss": 0.0799
+        },
+        {
+          "step": 78,
+          "reward": 0.9095,
+          "klDivergence": 0.0231,
+          "entropy": 0.2541,
+          "policyLoss": 0.1283,
+          "valueLoss": 0.075
+        },
+        {
+          "step": 79,
+          "reward": 0.9179,
+          "klDivergence": 0.0212,
+          "entropy": 0.2528,
+          "policyLoss": 0.1139,
+          "valueLoss": 0.0926
+        },
+        {
+          "step": 80,
+          "reward": 0.9236,
+          "klDivergence": 0.0244,
+          "entropy": 0.242,
+          "policyLoss": 0.1061,
+          "valueLoss": 0.0677
+        },
+        {
+          "step": 81,
+          "reward": 0.932,
+          "klDivergence": 0.0175,
+          "entropy": 0.2608,
+          "policyLoss": 0.1137,
+          "valueLoss": 0.0652
+        },
+        {
+          "step": 82,
+          "reward": 0.9351,
+          "klDivergence": 0.0232,
+          "entropy": 0.2523,
+          "policyLoss": 0.132,
+          "valueLoss": 0.0688
+        },
+        {
+          "step": 83,
+          "reward": 0.9387,
+          "klDivergence": 0.0138,
+          "entropy": 0.2555,
+          "policyLoss": 0.0878,
+          "valueLoss": 0.0654
+        },
+        {
+          "step": 84,
+          "reward": 0.9422,
+          "klDivergence": 0.0153,
+          "entropy": 0.2583,
+          "policyLoss": 0.1183,
+          "valueLoss": 0.0754
+        },
+        {
+          "step": 85,
+          "reward": 0.9457,
+          "klDivergence": 0.0158,
+          "entropy": 0.2785,
+          "policyLoss": 0.0885,
+          "valueLoss": 0.0604
+        },
+        {
+          "step": 86,
+          "reward": 0.95,
+          "klDivergence": 0.0113,
+          "entropy": 0.277,
+          "policyLoss": 0.1062,
+          "valueLoss": 0.0642
+        },
+        {
+          "step": 87,
+          "reward": 0.95,
+          "klDivergence": 0.0175,
+          "entropy": 0.2647,
+          "policyLoss": 0.0774,
+          "valueLoss": 0.0511
+        },
+        {
+          "step": 88,
+          "reward": 0.95,
+          "klDivergence": 0.0165,
+          "entropy": 0.2901,
+          "policyLoss": 0.1003,
+          "valueLoss": 0.0594
+        },
+        {
+          "step": 89,
+          "reward": 0.95,
+          "klDivergence": 0.0174,
+          "entropy": 0.2765,
+          "policyLoss": 0.0933,
+          "valueLoss": 0.041
+        },
+        {
+          "step": 90,
+          "reward": 0.95,
+          "klDivergence": 0.0138,
+          "entropy": 0.2761,
+          "policyLoss": 0.0562,
+          "valueLoss": 0.0579
+        },
+        {
+          "step": 91,
+          "reward": 0.95,
+          "klDivergence": 0.0154,
+          "entropy": 0.2983,
+          "policyLoss": 0.0457,
+          "valueLoss": 0.0376
+        },
+        {
+          "step": 92,
+          "reward": 0.95,
+          "klDivergence": 0.0159,
+          "entropy": 0.282,
+          "policyLoss": 0.0567,
+          "valueLoss": 0.0457
+        },
+        {
+          "step": 93,
+          "reward": 0.95,
+          "klDivergence": 0.0118,
+          "entropy": 0.2852,
+          "policyLoss": 0.0599,
+          "valueLoss": 0.0497
+        },
+        {
+          "step": 94,
+          "reward": 0.95,
+          "klDivergence": 0.0099,
+          "entropy": 0.29,
+          "policyLoss": 0.0575,
+          "valueLoss": 0.0425
+        },
+        {
+          "step": 95,
+          "reward": 0.95,
+          "klDivergence": 0.0056,
+          "entropy": 0.306,
+          "policyLoss": 0.0708,
+          "valueLoss": 0.0182
+        },
+        {
+          "step": 96,
+          "reward": 0.95,
+          "klDivergence": 0.0062,
+          "entropy": 0.3,
+          "policyLoss": 0.0287,
+          "valueLoss": 0.0364
+        },
+        {
+          "step": 97,
+          "reward": 0.95,
+          "klDivergence": 0.0081,
+          "entropy": 0.3109,
+          "policyLoss": 0.0176,
+          "valueLoss": 0.0313
+        },
+        {
+          "step": 98,
+          "reward": 0.95,
+          "klDivergence": 0.0032,
+          "entropy": 0.3128,
+          "policyLoss": 0.0583,
+          "valueLoss": 0.0179
+        },
+        {
+          "step": 99,
+          "reward": 0.95,
+          "klDivergence": 0.0053,
+          "entropy": 0.317,
+          "policyLoss": 0.053,
+          "valueLoss": 0.0112
+        },
+        {
+          "step": 100,
+          "reward": 0.95,
+          "klDivergence": 0.0029,
+          "entropy": 0.3038,
+          "policyLoss": 0.0275,
+          "valueLoss": 0.0151
+        }
+      ],
+      "metrics": {
+        "finalReward": 0.94,
+        "finalKL": 0.02,
+        "finalEntropy": 0.28,
+        "peakReward": 0.95,
+        "avgReward": 0.72,
+        "totalTokensProcessed": 125000
+      },
+      "checkpoints": [
+        {
+          "step": 50,
+          "reward": 0.82,
+          "createdAt": "2026-06-25T16:19:13.845Z"
+        },
+        {
+          "step": 100,
+          "reward": 0.94,
+          "createdAt": "2026-06-25T16:19:13.845Z"
+        }
+      ],
+      "createdAt": "2026-06-25T16:19:13.845Z",
+      "startedAt": "2026-06-25T16:19:13.845Z",
+      "completedAt": "2026-06-25T16:19:13.845Z"
+    },
+    {
+      "id": "e1e8675985ffd320893eea2bfcc49c80",
+      "type": "ppo",
+      "status": "running",
+      "baseModel": "mistral-7b",
+      "rewardModelId": "rm-002",
+      "config": {
+        "totalSteps": 200,
+        "batchSize": 16,
+        "learningRate": 0.00001,
+        "targetReward": 0.9,
+        "baselineReward": 0.5,
+        "gamma": 0.99,
+        "lambda": 0.95,
+        "clipEps": 0.2
+      },
+      "progress": 45,
+      "currentStep": 90,
+      "steps": [
+        {
+          "step": 1,
+          "reward": 0.5083,
+          "klDivergence": 0.0802,
+          "entropy": 0.0031,
+          "policyLoss": 0.5087,
+          "valueLoss": 0.3248
+        },
+        {
+          "step": 2,
+          "reward": 0.518,
+          "klDivergence": 0.0812,
+          "entropy": 0.0066,
+          "policyLoss": 0.5134,
+          "valueLoss": 0.3182
+        },
+        {
+          "step": 3,
+          "reward": 0.5203,
+          "klDivergence": 0.0794,
+          "entropy": 0.0091,
+          "policyLoss": 0.516,
+          "valueLoss": 0.2947
+        },
+        {
+          "step": 4,
+          "reward": 0.5265,
+          "klDivergence": 0.0857,
+          "entropy": 0.013,
+          "policyLoss": 0.491,
+          "valueLoss": 0.3175
+        },
+        {
+          "step": 5,
+          "reward": 0.5352,
+          "klDivergence": 0.0765,
+          "entropy": 0.015,
+          "policyLoss": 0.5198,
+          "valueLoss": 0.2939
+        },
+        {
+          "step": 6,
+          "reward": 0.5429,
+          "klDivergence": 0.0841,
+          "entropy": 0.0195,
+          "policyLoss": 0.4793,
+          "valueLoss": 0.2977
+        },
+        {
+          "step": 7,
+          "reward": 0.549,
+          "klDivergence": 0.0766,
+          "entropy": 0.0214,
+          "policyLoss": 0.508,
+          "valueLoss": 0.2859
+        },
+        {
+          "step": 8,
+          "reward": 0.5519,
+          "klDivergence": 0.0777,
+          "entropy": 0.0259,
+          "policyLoss": 0.4611,
+          "valueLoss": 0.2925
+        },
+        {
+          "step": 9,
+          "reward": 0.5542,
+          "klDivergence": 0.0771,
+          "entropy": 0.0292,
+          "policyLoss": 0.4914,
+          "valueLoss": 0.2897
+        },
+        {
+          "step": 10,
+          "reward": 0.5551,
+          "klDivergence": 0.0728,
+          "entropy": 0.0309,
+          "policyLoss": 0.4512,
+          "valueLoss": 0.282
+        },
+        {
+          "step": 11,
+          "reward": 0.5573,
+          "klDivergence": 0.0722,
+          "entropy": 0.0342,
+          "policyLoss": 0.4755,
+          "valueLoss": 0.2743
+        },
+        {
+          "step": 12,
+          "reward": 0.5631,
+          "klDivergence": 0.0798,
+          "entropy": 0.0394,
+          "policyLoss": 0.4716,
+          "valueLoss": 0.2923
+        },
+        {
+          "step": 13,
+          "reward": 0.5642,
+          "klDivergence": 0.073,
+          "entropy": 0.0407,
+          "policyLoss": 0.4407,
+          "valueLoss": 0.2848
+        },
+        {
+          "step": 14,
+          "reward": 0.5677,
+          "klDivergence": 0.0698,
+          "entropy": 0.0443,
+          "policyLoss": 0.4733,
+          "valueLoss": 0.2725
+        },
+        {
+          "step": 15,
+          "reward": 0.575,
+          "klDivergence": 0.0762,
+          "entropy": 0.0454,
+          "policyLoss": 0.4633,
+          "valueLoss": 0.2596
+        },
+        {
+          "step": 16,
+          "reward": 0.5847,
+          "klDivergence": 0.0713,
+          "entropy": 0.0526,
+          "policyLoss": 0.4278,
+          "valueLoss": 0.2558
+        },
+        {
+          "step": 17,
+          "reward": 0.588,
+          "klDivergence": 0.0693,
+          "entropy": 0.0516,
+          "policyLoss": 0.4323,
+          "valueLoss": 0.2662
+        },
+        {
+          "step": 18,
+          "reward": 0.5895,
+          "klDivergence": 0.0749,
+          "entropy": 0.0546,
+          "policyLoss": 0.4135,
+          "valueLoss": 0.2495
+        },
+        {
+          "step": 19,
+          "reward": 0.5927,
+          "klDivergence": 0.0682,
+          "entropy": 0.0615,
+          "policyLoss": 0.4123,
+          "valueLoss": 0.2581
+        },
+        {
+          "step": 20,
+          "reward": 0.597,
+          "klDivergence": 0.0665,
+          "entropy": 0.066,
+          "policyLoss": 0.4437,
+          "valueLoss": 0.2593
+        },
+        {
+          "step": 21,
+          "reward": 0.6001,
+          "klDivergence": 0.0705,
+          "entropy": 0.0665,
+          "policyLoss": 0.4364,
+          "valueLoss": 0.241
+        },
+        {
+          "step": 22,
+          "reward": 0.6058,
+          "klDivergence": 0.0651,
+          "entropy": 0.072,
+          "policyLoss": 0.4317,
+          "valueLoss": 0.2571
+        },
+        {
+          "step": 23,
+          "reward": 0.6128,
+          "klDivergence": 0.0702,
+          "entropy": 0.0727,
+          "policyLoss": 0.4049,
+          "valueLoss": 0.2476
+        },
+        {
+          "step": 24,
+          "reward": 0.6142,
+          "klDivergence": 0.0652,
+          "entropy": 0.0779,
+          "policyLoss": 0.4243,
+          "valueLoss": 0.2439
+        },
+        {
+          "step": 25,
+          "reward": 0.6159,
+          "klDivergence": 0.069,
+          "entropy": 0.0811,
+          "policyLoss": 0.4104,
+          "valueLoss": 0.2455
+        },
+        {
+          "step": 26,
+          "reward": 0.6242,
+          "klDivergence": 0.0667,
+          "entropy": 0.0855,
+          "policyLoss": 0.4054,
+          "valueLoss": 0.2234
+        },
+        {
+          "step": 27,
+          "reward": 0.6292,
+          "klDivergence": 0.0597,
+          "entropy": 0.0857,
+          "policyLoss": 0.3896,
+          "valueLoss": 0.2476
+        },
+        {
+          "step": 28,
+          "reward": 0.6302,
+          "klDivergence": 0.0638,
+          "entropy": 0.0875,
+          "policyLoss": 0.3969,
+          "valueLoss": 0.2263
+        },
+        {
+          "step": 29,
+          "reward": 0.6321,
+          "klDivergence": 0.0589,
+          "entropy": 0.0939,
+          "policyLoss": 0.4022,
+          "valueLoss": 0.2389
+        },
+        {
+          "step": 30,
+          "reward": 0.6324,
+          "klDivergence": 0.0588,
+          "entropy": 0.0953,
+          "policyLoss": 0.3738,
+          "valueLoss": 0.2346
+        },
+        {
+          "step": 31,
+          "reward": 0.6395,
+          "klDivergence": 0.0602,
+          "entropy": 0.094,
+          "policyLoss": 0.3896,
+          "valueLoss": 0.216
+        },
+        {
+          "step": 32,
+          "reward": 0.6446,
+          "klDivergence": 0.0619,
+          "entropy": 0.098,
+          "policyLoss": 0.3771,
+          "valueLoss": 0.2117
+        },
+        {
+          "step": 33,
+          "reward": 0.6476,
+          "klDivergence": 0.0633,
+          "entropy": 0.1075,
+          "policyLoss": 0.3829,
+          "valueLoss": 0.22
+        },
+        {
+          "step": 34,
+          "reward": 0.6554,
+          "klDivergence": 0.061,
+          "entropy": 0.1065,
+          "policyLoss": 0.3358,
+          "valueLoss": 0.2156
+        },
+        {
+          "step": 35,
+          "reward": 0.663,
+          "klDivergence": 0.0521,
+          "entropy": 0.1061,
+          "policyLoss": 0.3281,
+          "valueLoss": 0.2076
+        },
+        {
+          "step": 36,
+          "reward": 0.667,
+          "klDivergence": 0.0576,
+          "entropy": 0.1118,
+          "policyLoss": 0.3656,
+          "valueLoss": 0.2184
+        },
+        {
+          "step": 37,
+          "reward": 0.6751,
+          "klDivergence": 0.0574,
+          "entropy": 0.1146,
+          "policyLoss": 0.3326,
+          "valueLoss": 0.1991
+        },
+        {
+          "step": 38,
+          "reward": 0.6772,
+          "klDivergence": 0.0595,
+          "entropy": 0.1244,
+          "policyLoss": 0.3368,
+          "valueLoss": 0.1935
+        },
+        {
+          "step": 39,
+          "reward": 0.6831,
+          "klDivergence": 0.0503,
+          "entropy": 0.1251,
+          "policyLoss": 0.3481,
+          "valueLoss": 0.1859
+        },
+        {
+          "step": 40,
+          "reward": 0.6924,
+          "klDivergence": 0.0547,
+          "entropy": 0.1272,
+          "policyLoss": 0.3277,
+          "valueLoss": 0.1948
+        },
+        {
+          "step": 41,
+          "reward": 0.6987,
+          "klDivergence": 0.0499,
+          "entropy": 0.1264,
+          "policyLoss": 0.3256,
+          "valueLoss": 0.1859
+        },
+        {
+          "step": 42,
+          "reward": 0.7067,
+          "klDivergence": 0.0494,
+          "entropy": 0.1367,
+          "policyLoss": 0.3392,
+          "valueLoss": 0.2034
+        },
+        {
+          "step": 43,
+          "reward": 0.7154,
+          "klDivergence": 0.0489,
+          "entropy": 0.1319,
+          "policyLoss": 0.2902,
+          "valueLoss": 0.1887
+        },
+        {
+          "step": 44,
+          "reward": 0.7202,
+          "klDivergence": 0.0463,
+          "entropy": 0.1444,
+          "policyLoss": 0.3209,
+          "valueLoss": 0.1938
+        },
+        {
+          "step": 45,
+          "reward": 0.7296,
+          "klDivergence": 0.0539,
+          "entropy": 0.1409,
+          "policyLoss": 0.2818,
+          "valueLoss": 0.1677
+        },
+        {
+          "step": 46,
+          "reward": 0.7373,
+          "klDivergence": 0.0507,
+          "entropy": 0.1478,
+          "policyLoss": 0.2759,
+          "valueLoss": 0.1754
+        },
+        {
+          "step": 47,
+          "reward": 0.7408,
+          "klDivergence": 0.0512,
+          "entropy": 0.1442,
+          "policyLoss": 0.3052,
+          "valueLoss": 0.1718
+        },
+        {
+          "step": 48,
+          "reward": 0.7484,
+          "klDivergence": 0.0506,
+          "entropy": 0.1481,
+          "policyLoss": 0.2912,
+          "valueLoss": 0.1601
+        },
+        {
+          "step": 49,
+          "reward": 0.7568,
+          "klDivergence": 0.0422,
+          "entropy": 0.1613,
+          "policyLoss": 0.2921,
+          "valueLoss": 0.1761
+        },
+        {
+          "step": 50,
+          "reward": 0.7572,
+          "klDivergence": 0.0401,
+          "entropy": 0.1599,
+          "policyLoss": 0.2863,
+          "valueLoss": 0.1697
+        },
+        {
+          "step": 51,
+          "reward": 0.7623,
+          "klDivergence": 0.0471,
+          "entropy": 0.1649,
+          "policyLoss": 0.2852,
+          "valueLoss": 0.1707
+        },
+        {
+          "step": 52,
+          "reward": 0.7722,
+          "klDivergence": 0.0387,
+          "entropy": 0.1619,
+          "policyLoss": 0.2419,
+          "valueLoss": 0.1686
+        },
+        {
+          "step": 53,
+          "reward": 0.7782,
+          "klDivergence": 0.0436,
+          "entropy": 0.1635,
+          "policyLoss": 0.2752,
+          "valueLoss": 0.1633
+        },
+        {
+          "step": 54,
+          "reward": 0.7879,
+          "klDivergence": 0.0451,
+          "entropy": 0.1689,
+          "policyLoss": 0.2683,
+          "valueLoss": 0.1518
+        },
+        {
+          "step": 55,
+          "reward": 0.7952,
+          "klDivergence": 0.0378,
+          "entropy": 0.1739,
+          "policyLoss": 0.2584,
+          "valueLoss": 0.153
+        },
+        {
+          "step": 56,
+          "reward": 0.8043,
+          "klDivergence": 0.0432,
+          "entropy": 0.182,
+          "policyLoss": 0.2259,
+          "valueLoss": 0.1552
+        },
+        {
+          "step": 57,
+          "reward": 0.8063,
+          "klDivergence": 0.0423,
+          "entropy": 0.1787,
+          "policyLoss": 0.2293,
+          "valueLoss": 0.1503
+        },
+        {
+          "step": 58,
+          "reward": 0.8149,
+          "klDivergence": 0.0399,
+          "entropy": 0.1788,
+          "policyLoss": 0.2255,
+          "valueLoss": 0.1555
+        },
+        {
+          "step": 59,
+          "reward": 0.8168,
+          "klDivergence": 0.0375,
+          "entropy": 0.1918,
+          "policyLoss": 0.2354,
+          "valueLoss": 0.1447
+        },
+        {
+          "step": 60,
+          "reward": 0.8265,
+          "klDivergence": 0.0346,
+          "entropy": 0.1808,
+          "policyLoss": 0.241,
+          "valueLoss": 0.121
+        },
+        {
+          "step": 61,
+          "reward": 0.8302,
+          "klDivergence": 0.0369,
+          "entropy": 0.1843,
+          "policyLoss": 0.1992,
+          "valueLoss": 0.1384
+        },
+        {
+          "step": 62,
+          "reward": 0.8325,
+          "klDivergence": 0.0318,
+          "entropy": 0.2013,
+          "policyLoss": 0.2016,
+          "valueLoss": 0.1334
+        },
+        {
+          "step": 63,
+          "reward": 0.842,
+          "klDivergence": 0.0317,
+          "entropy": 0.2074,
+          "policyLoss": 0.203,
+          "valueLoss": 0.1164
+        },
+        {
+          "step": 64,
+          "reward": 0.8443,
+          "klDivergence": 0.0345,
+          "entropy": 0.2085,
+          "policyLoss": 0.2284,
+          "valueLoss": 0.1329
+        },
+        {
+          "step": 65,
+          "reward": 0.8493,
+          "klDivergence": 0.0361,
+          "entropy": 0.2014,
+          "policyLoss": 0.1754,
+          "valueLoss": 0.105
+        },
+        {
+          "step": 66,
+          "reward": 0.8576,
+          "klDivergence": 0.0322,
+          "entropy": 0.2161,
+          "policyLoss": 0.2161,
+          "valueLoss": 0.1308
+        },
+        {
+          "step": 67,
+          "reward": 0.8594,
+          "klDivergence": 0.035,
+          "entropy": 0.2085,
+          "policyLoss": 0.1767,
+          "valueLoss": 0.1204
+        },
+        {
+          "step": 68,
+          "reward": 0.865,
+          "klDivergence": 0.0267,
+          "entropy": 0.2182,
+          "policyLoss": 0.1653,
+          "valueLoss": 0.1048
+        },
+        {
+          "step": 69,
+          "reward": 0.8745,
+          "klDivergence": 0.0317,
+          "entropy": 0.2171,
+          "policyLoss": 0.1953,
+          "valueLoss": 0.1049
+        },
+        {
+          "step": 70,
+          "reward": 0.8777,
+          "klDivergence": 0.0277,
+          "entropy": 0.2211,
+          "policyLoss": 0.1658,
+          "valueLoss": 0.096
+        },
+        {
+          "step": 71,
+          "reward": 0.8798,
+          "klDivergence": 0.0234,
+          "entropy": 0.2138,
+          "policyLoss": 0.1893,
+          "valueLoss": 0.0985
+        },
+        {
+          "step": 72,
+          "reward": 0.8845,
+          "klDivergence": 0.0249,
+          "entropy": 0.219,
+          "policyLoss": 0.1452,
+          "valueLoss": 0.1037
+        },
+        {
+          "step": 73,
+          "reward": 0.8854,
+          "klDivergence": 0.0264,
+          "entropy": 0.2288,
+          "policyLoss": 0.1524,
+          "valueLoss": 0.1
+        },
+        {
+          "step": 74,
+          "reward": 0.8875,
+          "klDivergence": 0.0223,
+          "entropy": 0.2262,
+          "policyLoss": 0.1448,
+          "valueLoss": 0.0905
+        },
+        {
+          "step": 75,
+          "reward": 0.8932,
+          "klDivergence": 0.03,
+          "entropy": 0.2473,
+          "policyLoss": 0.1459,
+          "valueLoss": 0.0821
+        },
+        {
+          "step": 76,
+          "reward": 0.8943,
+          "klDivergence": 0.0213,
+          "entropy": 0.2391,
+          "policyLoss": 0.154,
+          "valueLoss": 0.0824
+        },
+        {
+          "step": 77,
+          "reward": 0.9041,
+          "klDivergence": 0.0234,
+          "entropy": 0.2422,
+          "policyLoss": 0.1309,
+          "valueLoss": 0.0799
+        },
+        {
+          "step": 78,
+          "reward": 0.9095,
+          "klDivergence": 0.0231,
+          "entropy": 0.2541,
+          "policyLoss": 0.1283,
+          "valueLoss": 0.075
+        },
+        {
+          "step": 79,
+          "reward": 0.9179,
+          "klDivergence": 0.0212,
+          "entropy": 0.2528,
+          "policyLoss": 0.1139,
+          "valueLoss": 0.0926
+        },
+        {
+          "step": 80,
+          "reward": 0.9236,
+          "klDivergence": 0.0244,
+          "entropy": 0.242,
+          "policyLoss": 0.1061,
+          "valueLoss": 0.0677
+        },
+        {
+          "step": 81,
+          "reward": 0.932,
+          "klDivergence": 0.0175,
+          "entropy": 0.2608,
+          "policyLoss": 0.1137,
+          "valueLoss": 0.0652
+        },
+        {
+          "step": 82,
+          "reward": 0.9351,
+          "klDivergence": 0.0232,
+          "entropy": 0.2523,
+          "policyLoss": 0.132,
+          "valueLoss": 0.0688
+        },
+        {
+          "step": 83,
+          "reward": 0.9387,
+          "klDivergence": 0.0138,
+          "entropy": 0.2555,
+          "policyLoss": 0.0878,
+          "valueLoss": 0.0654
+        },
+        {
+          "step": 84,
+          "reward": 0.9422,
+          "klDivergence": 0.0153,
+          "entropy": 0.2583,
+          "policyLoss": 0.1183,
+          "valueLoss": 0.0754
+        },
+        {
+          "step": 85,
+          "reward": 0.9457,
+          "klDivergence": 0.0158,
+          "entropy": 0.2785,
+          "policyLoss": 0.0885,
+          "valueLoss": 0.0604
+        },
+        {
+          "step": 86,
+          "reward": 0.95,
+          "klDivergence": 0.0113,
+          "entropy": 0.277,
+          "policyLoss": 0.1062,
+          "valueLoss": 0.0642
+        },
+        {
+          "step": 87,
+          "reward": 0.95,
+          "klDivergence": 0.0175,
+          "entropy": 0.2647,
+          "policyLoss": 0.0774,
+          "valueLoss": 0.0511
+        },
+        {
+          "step": 88,
+          "reward": 0.95,
+          "klDivergence": 0.0165,
+          "entropy": 0.2901,
+          "policyLoss": 0.1003,
+          "valueLoss": 0.0594
+        },
+        {
+          "step": 89,
+          "reward": 0.95,
+          "klDivergence": 0.0174,
+          "entropy": 0.2765,
+          "policyLoss": 0.0933,
+          "valueLoss": 0.041
+        },
+        {
+          "step": 90,
+          "reward": 0.95,
+          "klDivergence": 0.0138,
+          "entropy": 0.2761,
+          "policyLoss": 0.0562,
+          "valueLoss": 0.0579
+        }
+      ],
+      "metrics": {
+        "currentReward": 0.78,
+        "avgReward": 0.65,
+        "totalTokensProcessed": 56250
+      },
+      "checkpoints": [
+        {
+          "step": 50,
+          "reward": 0.72,
+          "createdAt": "2026-06-25T16:19:13.845Z"
+        }
+      ],
+      "createdAt": "2026-06-25T16:19:13.845Z",
+      "startedAt": "2026-06-25T16:19:13.845Z",
+      "completedAt": null
+    }
+  ]
+}

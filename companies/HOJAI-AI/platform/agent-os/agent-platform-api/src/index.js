@@ -273,7 +273,7 @@ async function aggregateHealth(services = SERVICES, timeoutMs = HEALTH_TIMEOUT_M
     Object.entries(services).map(async ([key, s]) => {
       const t0 = Date.now();
       try {
-        const res = await fetchWithTimeout(`${urlOf(key)}/api/health`, {}, timeoutMs);
+        const res = await fetchWithTimeout(`${urlOf(key)}/health`, {}, timeoutMs);
         const data = await res.json().catch(() => ({}));
         return {
           key,

@@ -173,8 +173,8 @@ function TrendsTab({ metrics }: { metrics: Metric[] }) {
         const recent = metrics.filter(m => m.type === type).slice(0, 7).reverse();
         const todayValue = recent.find(m => m.date === today)?.value;
         const avg = recent.length > 0 ? recent.reduce((a, m) => a + m.value, 0) / recent.length : 0;
-        const max = Math.max(...recent.map(m => m.value), 1);
-        const min = Math.min(...recent.map(m => m.value));
+        const max = recent.length > 0 ? Math.max(...recent.map(m => m.value), 1) : 1;
+        const min = recent.length > 0 ? Math.min(...recent.map(m => m.value)) : 0;
 
         return (
           <div key={type} className="card">

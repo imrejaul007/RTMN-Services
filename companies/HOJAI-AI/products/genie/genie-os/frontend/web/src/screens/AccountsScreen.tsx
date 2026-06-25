@@ -62,10 +62,9 @@ export default function AccountsScreen() {
     try {
       await apiPost(`${specialists.accounts}/accounts/connect/user-001/${providerId}`, {});
       await load();
-    } catch (e: any) {
-      if (e.message?.includes('409')) {
-        alert('Already connected');
-      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('409')) alert('Already connected');
     }
   }
 
@@ -75,15 +74,20 @@ export default function AccountsScreen() {
       await apiPost(`${specialists.accounts}/accounts/disconnect/user-001/${providerId}`, {});
       setPreviewData(null);
       await load();
-    } catch {}
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      console.error('Disconnect failed:', msg);
+      alert('Failed to disconnect. Please try again.');
+    }
   }
 
   async function preview(providerId: string) {
     try {
       const res = await apiGet<{ data: any }>(`${specialists.accounts}/accounts/data/user-001/${providerId}`);
       setPreviewData({ provider: providerId, data: res.data });
-    } catch (e: any) {
-      alert(e.message || 'Cannot fetch data — make sure you are connected');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Cannot fetch data — make sure you are connected';
+      alert(msg);
     }
   }
 

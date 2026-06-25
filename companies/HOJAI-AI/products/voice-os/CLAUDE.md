@@ -1,6 +1,6 @@
 # Voice OS Product
 
-> **Status:** 🟡 **Inherited from REZ-Workspace** (2026-06-22) — 5 services brought over. Awaiting production-readiness audit.
+> **Status:** 🟢 **Phase G (2026-06-24) — Production Ready.** Voice Gateway (canonical) + 4 legacy services from REZ-Workspace import.
 > **Source:** `companies/REZ-Workspace/companies/hojai-ai/{HOJAI-VOICE-PLATFORM,hojai-voice-os,hojai-voice-commerce,voice-training,voice-ai-service}`
 > **Parent division:** [05 Communication Cloud](../../divisions/05-communication-cloud/CLAUDE.md)
 
@@ -12,11 +12,26 @@ Enterprise-grade voice AI platform: TTS adapters (Sarvam, ElevenLabs, Cartesia),
 
 | Sub-product | Path | Port | Status | Source |
 |-------------|------|------|--------|--------|
+| **Voice Gateway** ⭐ (STT/TTS routing + training pipeline) | [./core/voice-gateway/](./core/voice-gateway/) | 4880 | ✅ **Canonical** (Phase F flagship) | Built 2026-06-24 |
 | **Core Platform** (HOJAI-VOICE-PLATFORM) | [./core/HOJAI-VOICE-PLATFORM/](./core/HOJAI-VOICE-PLATFORM/) | 4850 | 🟡 Real (TTS/STT/NLU/telecom/agents) | REZ-Workspace |
 | **Voice AI Service** (recording/transcription/synthesis) | [./ai/voice-ai-service/](./ai/voice-ai-service/) | 4590 | 🟡 Real | REZ-Workspace |
 | **Frontend (Next.js Studio)** | [./frontend/hojai-voice-os/](./frontend/hojai-voice-os/) | 3000 | 🟡 Real (Next.js) | REZ-Workspace |
-| **Backend (Voice Commerce API)** | [./backend/voice-commerce/](./backend/voice-commerce/) | 4880 | 🟡 Real (Express) | REZ-Workspace |
+| **Backend (Voice Commerce API)** | [./backend/voice-commerce/](./backend/voice-commerce/) | 4880 | ⚠️ Deprecated (replaced by Voice Gateway) | REZ-Workspace |
 | **Training Pipeline** (Python) | [./training/voice-training/](./training/voice-training/) | n/a | 🟡 Real (Colab scripts, datasets) | REZ-Workspace |
+
+### Voice Gateway (canonical, port 4880)
+
+The **Voice Gateway** is the canonical STT/TTS routing service (Phase F flagship, 2026-06-24):
+- Routes speech-to-text via Whisper / Deepgram / Google / Sarvam / HOJAI
+- Routes text-to-speech via ElevenLabs / Cartesia / HOJAI
+- Adaptive routing based on language, domain, budget mode, and quality threshold
+- Training pipeline: collects audio→transcript pairs, benchmarks engines, promotes HOJAI when accuracy ≥ 92%
+- Redis-backed event bus for async training job processing
+- WebSocket streaming support for real-time voice UX
+- 12 Indic languages (hi, bn, ta, te, mr, kn, ml, gu, pa, or, as) + 10 global languages
+- Wired into RTMN Hub at `/api/foundation/voice-gateway/*`
+
+See [./core/voice-gateway/CLAUDE.md](./core/voice-gateway/CLAUDE.md) for full documentation. |
 
 ## Architecture
 
@@ -49,9 +64,17 @@ Voice OS **complements** Voice Twin:
 
 ## Production Readiness
 
-To be brought up to the standard set in [../../PRODUCTION-READINESS-SUMMARY.md](../../PRODUCTION-READINESS-SUMMARY.md):
-- [ ] Switch to `@rtmn/shared` auth middleware (`requireAuth`)
-- [ ] Switch to `@rtmn/twinos-shared` for rate limiting + helmet + error handler
+**Voice Gateway (canonical, `./core/voice-gateway/`) is ✅ production-ready** (Phase F, 2026-06-24):
+- [x] JWT auth middleware
+- [x] Helmet security headers
+- [x] Rate limiting
+- [x] `/health` + `/ready` endpoints
+- [x] Graceful shutdown
+- [x] Redis-backed event bus
+- [x] TypeScript with 0 compile errors
+- [x] Unit tests
+
+Legacy services (HOJAI-VOICE-PLATFORM, voice-commerce, voice-ai-service) still need production-readiness audit per [../../PRODUCTION-READINESS-SUMMARY.md](../../PRODUCTION-READINESS-SUMMARY.md).
 - [ ] Add `requireEnv` for env validation
 - [ ] Add `/ready` endpoint
 - [ ] Add `installGracefulShutdown`

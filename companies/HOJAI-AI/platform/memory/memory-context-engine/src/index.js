@@ -1,5 +1,5 @@
 /**
- * Memory Context Engine (port 4790)
+ * Memory Context Engine (port 4793)
  *
  * Purpose
  * -------
@@ -40,7 +40,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { requireAuthMw, requireAuth, getRequireAuth, setRequireAuth } from './auth.js';
 
-const PORT = process.env.MEMORY_CONTEXT_ENGINE_PORT || 4790;
+const PORT = process.env.MEMORY_CONTEXT_ENGINE_PORT || 4793;
 
 // Upstream services. Allow override for tests.
 const MEMORYOS_URL    = process.env.MEMORYOS_URL    || 'http://localhost:4703';

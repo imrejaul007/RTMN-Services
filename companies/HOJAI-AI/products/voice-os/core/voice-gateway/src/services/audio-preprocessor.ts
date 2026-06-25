@@ -161,7 +161,7 @@ export function detectVoiceActivity(audioBuffer: Buffer, format: string): VADRes
       if (inSpeech) {
         segments.push({
           startMs: segmentStart * FRAME_SIZE_MS,
-          endMs: i * FRAME_SIZE_MS,
+          endMs: (i - 1) * FRAME_SIZE_MS,
           energy: peakEnergy,
         });
         speechMs += (i - segmentStart) * FRAME_SIZE_MS;

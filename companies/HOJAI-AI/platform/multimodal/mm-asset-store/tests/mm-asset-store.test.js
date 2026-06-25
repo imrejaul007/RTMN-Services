@@ -164,6 +164,27 @@ test('Tags add and remove', async () => {
   await stopService(h); fs.rmSync(tmp, { recursive: true, force: true });
 });
 
+test('Delete decrements ref_count (ref_count > 1 keeps asset)', async () => {
+  const tmp = makeTmpDir(); const port = uniquePort();
+  const h = await startService({ PORT: String(port), DATA_DIR: tmp, INTERNAL_TOKEN: 'tok' });
+  const tok = 'tok';
+  const a = await request(port, 'POST', '/assets', { data: TINY_PNG_B64, modality: 'image' }, tok);
+  const b = await request(port, 'POST', '/assets', { data: TINY_PNG_B64, modality: 'image' }, tok);
+  assert.strictEqual(a.body.id, b.body.id);
+  assert.strictEqual(b.body.ref_count, 2);
+  const d1 = await request(port, 'DELETE', `/assets/${b.body.id}`, null, tok);
+  assert.strictEqual(d1.body.deleted, false);
+  assert.strictEqual(d1.body.ref_count, 1);
+  const still = await request(port, 'GET', `/assets/${b.body.id}`, null, tok);
+  assert.strictEqual(still.status, 200);
+  const d2 = await request(port, 'DELETE', `/assets/${b.body.id}`, null, tok);
+  assert.strictEqual(d2.body.deleted, true);
+  assert.strictEqual(d2.body.ref_count, 0);
+  const gone = await request(port, 'GET', `/assets/${b.body.id}`, null, tok);
+  assert.strictEqual(gone.status, 404);
+  await stopService(h); fs.rmSync(tmp, { recursive: true, force: true });
+});
+
 test('Delete asset', async () => {
   const tmp = makeTmpDir(); const port = uniquePort();
   const h = await startService({ PORT: String(port), DATA_DIR: tmp, INTERNAL_TOKEN: 'tok' });

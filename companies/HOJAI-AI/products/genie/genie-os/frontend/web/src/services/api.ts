@@ -147,4 +147,13 @@ export const specialists = {
   planning: '/specialists/planning',
 } as const;
 
+// Admin helpers
+export const admin = {
+  users: '/admin/users',
+  servicesHealth: '/admin/services/health',
+  usage: '/admin/usage',
+  audit: '/admin/audit',
+  metrics: '/admin/metrics',
+} as const;
+
 export default client;

@@ -1,0 +1,58 @@
+{
+  "sales": {
+    "id": "sales",
+    "name": "Sales",
+    "icon": "trending-up",
+    "color": "#10b981",
+    "count": 5
+  },
+  "hr": {
+    "id": "hr",
+    "name": "Human Resources",
+    "icon": "users",
+    "color": "#3b82f6",
+    "count": 5
+  },
+  "marketing": {
+    "id": "marketing",
+    "name": "Marketing",
+    "icon": "megaphone",
+    "color": "#f59e0b",
+    "count": 4
+  },
+  "operations": {
+    "id": "operations",
+    "name": "Operations",
+    "icon": "settings",
+    "color": "#6366f1",
+    "count": 4
+  },
+  "finance": {
+    "id": "finance",
+    "name": "Finance",
+    "icon": "dollar-sign",
+    "color": "#ec4899",
+    "count": 4
+  },
+  "customer-success": {
+    "id": "customer-success",
+    "name": "Customer Success",
+    "icon": "heart",
+    "color": "#ef4444",
+    "count": 0
+  },
+  "it": {
+    "id": "it",
+    "name": "IT & Security",
+    "icon": "shield",
+    "color": "#8b5cf6",
+    "count": 0
+  },
+  "legal": {
+    "id": "legal",
+    "name": "Legal",
+    "icon": "scale",
+    "color": "#14b8a6",
+    "count": 0
+  }
+}

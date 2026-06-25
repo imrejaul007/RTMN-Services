@@ -1,0 +1,14 @@
+{
+  "data": {
+    "totalPreferencePairs": 6,
+    "humanComparisons": 4,
+    "aiComparisons": 2,
+    "avgAgreementRate": 0.87,
+    "ppoJobsCompleted": 1,
+    "ppoJobsRunning": 1,
+    "rewardModelsTrained": 1,
+    "totalTokensProcessed": 125000,
+    "avgRewardGain": 0.44,
+    "lastUpdated": "2026-06-25T16:19:13.847Z"
+  }
+}

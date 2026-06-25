@@ -13,6 +13,7 @@ export interface TranscriptionResult {
   words?: WordTiming[];
   engine: string;
   processingTimeMs: number;
+  groundTruth?: string; // for accuracy benchmarking
 }
 
 export interface SynthesisResult {

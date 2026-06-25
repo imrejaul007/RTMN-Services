@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": "4a6ea26e66e256e8981efe35468e14f3",
+      "prompt": "How do I lose weight effectively?",
+      "responseA": "Eat less and exercise more.",
+      "responseB": "Effective weight loss combines: (1) Caloric deficit — aim for 300-500 cal/day deficit through sustainable changes, not crash diets. (2) Protein intake — 1.6-2.2g/kg body weight to preserve muscle. (3) Resistance training — maintain muscle mass during deficit. (4) Sleep — 7-9 hours, as sleep deprivation raises cortisol and hunger hormones. Aim for 0.5-1% body weight loss per week.",
+      "status": "pending",
+      "priority": "high",
+      "source": "auto_generated",
+      "metadata": {
+        "topic": "health",
+        "difficulty": "easy"
+      },
+      "createdAt": "2026-06-25T16:19:13.847Z"
+    },
+    {
+      "id": "5e2bde3c50cc1cb55a488b6ec59e8e4a",
+      "prompt": "What is the best way to learn programming?",
+      "responseA": "Read documentation.",
+      "responseB": "The best way to learn programming: (1) Pick one language (Python is great for beginners) and build projects, not just tutorials. (2) Learn by doing — solve real problems, build apps, automate tasks. (3) Understand fundamentals — data structures, algorithms, how computers work. (4) Get feedback — code reviews, pair programming, coding communities. (5) Teach others — explaining forces you to understand deeply. Consistency beats intensity: 1 hour daily beats 8 hours once a week.",
+      "status": "pending",
+      "priority": "medium",
+      "source": "auto_generated",
+      "metadata": {
+        "topic": "education",
+        "difficulty": "easy"
+      },
+      "createdAt": "2026-06-25T16:19:13.847Z"
+    }
+  ]
+}

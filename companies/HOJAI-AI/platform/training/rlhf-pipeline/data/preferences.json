@@ -1,0 +1,88 @@
+{
+  "data": [
+    {
+      "id": "e8a126fbf91e485ff38a32bb5f78f788",
+      "prompt": "Explain quantum entanglement in simple terms.",
+      "chosen": "Quantum entanglement is when two particles become linked so that whatever happens to one instantly affects the other, no matter how far apart they are. Think of it like two magical coins that always land the same way — flip one in New York and the other in Tokyo, and they match instantly.",
+      "rejected": "Quantum entanglement is a phenomenon in quantum mechanics where particles become correlated.",
+      "chosenScore": 0.92,
+      "rejectedScore": 0.31,
+      "source": "human_comparison",
+      "metadata": {
+        "topic": "physics",
+        "difficulty": "medium"
+      },
+      "createdAt": "2026-06-25T16:19:13.843Z"
+    },
+    {
+      "id": "ba8323994ef7d5df677147438b22eaf1",
+      "prompt": "Write a Python function to find the longest palindrome in a string.",
+      "chosen": "def longest_palindrome(s):\n    def expand(l, r):\n        while l >= 0 and r < len(s) and s[l] == s[r]:\n            l -= 1; r += 1\n        return s[l+1:r]\n    result = \"\"\n    for i in range(len(s)):\n        a = expand(i, i)\n        b = expand(i, i+1)\n        result = max(result, a, b, key=len)\n    return result",
+      "rejected": "def longest_palindrome(s): return s[::-1]",
+      "chosenScore": 0.95,
+      "rejectedScore": 0.12,
+      "source": "human_comparison",
+      "metadata": {
+        "topic": "coding",
+        "difficulty": "medium"
+      },
+      "createdAt": "2026-06-25T16:19:13.844Z"
+    },
+    {
+      "id": "33c5a8071460a4f449347e1957e3e030",
+      "prompt": "What are the key differences between SQL and NoSQL databases?",
+      "chosen": "SQL databases use structured tables with rows and columns, are highly consistent, and use SQL for queries — great for financial data. NoSQL databases (document, key-value, graph) are flexible, scale horizontally easily, and handle unstructured data well — better for social feeds or caching. The key trade-off is consistency vs scalability.",
+      "rejected": "SQL is for structured data, NoSQL is for unstructured data.",
+      "chosenScore": 0.88,
+      "rejectedScore": 0.35,
+      "source": "ai_comparison",
+      "metadata": {
+        "topic": "databases",
+        "difficulty": "easy"
+      },
+      "createdAt": "2026-06-25T16:19:13.844Z"
+    },
+    {
+      "id": "4688787acfb65d05e14c1fff0d1a6fe6",
+      "prompt": "Help me write a cold email to a potential investor.",
+      "chosen": "Subject: [Company] — [X]% growth, seeking [round] to scale\n\nHi [Name],\n\nI noticed your focus on [industry]. Our startup [Company] helps [target users] achieve [outcome], growing [metric] [X]% MoM.\n\nWe've [achievement] with [evidence], and are raising [round] to [next milestone].\n\nWould you have 20 minutes this week?\n\nBest,\n[Your name]",
+      "rejected": "Subject: Investment opportunity\n\nHello, we have a great company. Please invest in us. Thanks.",
+      "chosenScore": 0.97,
+      "rejectedScore": 0.08,
+      "source": "human_comparison",
+      "metadata": {
+        "topic": "business",
+        "difficulty": "medium"
+      },
+      "createdAt": "2026-06-25T16:19:13.844Z"
+    },
+    {
+      "id": "c6691cd8dd6a47924c7b4e6c7ac36960",
+      "prompt": "What should I eat for a healthy breakfast?",
+      "chosen": "A balanced breakfast includes: protein (eggs, Greek yogurt, or tofu) for fullness; fiber (oats, berries, or whole grain toast) for sustained energy; and healthy fats (nuts, avocado, or seeds) for brain function. A good example: scrambled eggs with spinach on whole grain toast, topped with avocado and a handful of berries.",
+      "rejected": "Eat whatever you want.",
+      "chosenScore": 0.9,
+      "rejectedScore": 0.15,
+      "source": "ai_comparison",
+      "metadata": {
+        "topic": "nutrition",
+        "difficulty": "easy"
+      },
+      "createdAt": "2026-06-25T16:19:13.844Z"
+    },
+    {
+      "id": "4c042aff82bfecd8264aec18e9a08f1d",
+      "prompt": "Debug: my React useEffect runs infinitely.",
+      "chosen": "The infinite loop is likely caused by: 1) Missing dependency array — add `[]` for mount-only or include all used variables; 2) Returning a non-stable reference from useMemo/useCallback inside useEffect; 3) Setting state with an object/array that creates a new reference on every render. Fix: ensure your deps array matches exactly what you use, and use `useMemo`/`useCallback` for stable references.",
+      "rejected": "Just remove the useEffect.",
+      "chosenScore": 0.94,
+      "rejectedScore": 0.05,
+      "source": "human_comparison",
+      "metadata": {
+        "topic": "react",
+        "difficulty": "hard"
+      },
+      "createdAt": "2026-06-25T16:19:13.844Z"
+    }
+  ]
+}

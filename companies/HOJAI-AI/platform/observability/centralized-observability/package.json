@@ -1,0 +1,23 @@
+{
+  "name": "@hojai/centralized-observability",
+  "version": "1.0.0",
+  "description": "HOJAI Centralized Observability Platform — aggregates metrics, logs, traces, and alerts across all HOJAI AI services. Phase 21.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/"
+  },
+  "keywords": ["hojai", "observability", "monitoring", "metrics", "alerts", "dashboard"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "helmet": "^8.0.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.5",
+    "morgan": "^1.10.0",
+    "axios": "^1.7.0"
+  }
+}

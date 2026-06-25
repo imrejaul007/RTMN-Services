@@ -43,13 +43,16 @@ function metricsFile(){ return path.join(DATA_DIR(), 'metrics.json'); }
 
 function load(file) {
   ensureDir();
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+  // Always call file() at call-time so DATA_DIR env var set after import works
+  const f = typeof file === 'function' ? file() : file;
+  try { return JSON.parse(fs.readFileSync(f, 'utf8')); }
   catch (_) { return { data: [] }; }
 }
 function save(file, d) {
   ensureDir();
+  // Always call file() at call-time so DATA_DIR env var set after import works
+  const f = typeof file === 'function' ? file() : file;
   const dd = DATA_DIR();
-  const f = file();
   const tmp = path.join(dd, '.tmp_' + crypto.randomBytes(4).toString('hex'));
   fs.writeFileSync(tmp, JSON.stringify(d, null, 2));
   fs.renameSync(tmp, f);

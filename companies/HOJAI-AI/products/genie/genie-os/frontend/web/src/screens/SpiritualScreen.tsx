@@ -433,7 +433,7 @@ export default function SpiritualScreen() {
                 </div>
                 <div>
                   <div style={{ fontSize: 11, opacity: 0.7 }}>Avg/Session</div>
-                  <div style={{ fontSize: 20, fontWeight: 700 }}>{Math.round(totalMeditationMin / meditations.length)}m</div>
+                  <div style={{ fontSize: 20, fontWeight: 700 }}>{meditations.length > 0 ? `${Math.round(totalMeditationMin / meditations.length)}m` : '0m'}</div>
                 </div>
               </div>
 

@@ -44,7 +44,23 @@ import { attachWebSocketServer, getStreamStats } from './routes/stream.js';
 // ── Stores ─────────────────────────────────────────────────────────────────────
 const START_TIME = Date.now();
 let sampleCounter = 0;
-const audioHashSet = new Set<string>();
+// TTL-bounded audio hash set: auto-evict entries older than 7 days
+const audioHashSet = new Map<string, number>(); // hash → timestamp
+const AUDIO_HASH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+function addAudioHash(hash: string): void {
+  audioHashSet.set(hash, Date.now());
+  // Evict stale entries lazily (every 100th add)
+  if (audioHashSet.size % 100 === 0) {
+    const cutoff = Date.now() - AUDIO_HASH_TTL_MS;
+    for (const [k, ts] of audioHashSet) { if (ts < cutoff) audioHashSet.delete(k); }
+  }
+}
+function hasAudioHash(hash: string): boolean {
+  const ts = audioHashSet.get(hash);
+  if (!ts) return false;
+  if (Date.now() - ts > AUDIO_HASH_TTL_MS) { audioHashSet.delete(hash); return false; }
+  return true;
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────
 
@@ -53,7 +69,7 @@ function audioHash(buffer: Buffer): string {
 }
 
 function shouldUseHojaiSTT(): boolean {
-  const bench = benchmarkResults.get('hojai');
+  const bench = getBenchmarkResult('hojai');
   if (!bench || bench.accuracy === 0) return false;
   return bench.accuracy >= config.stt.hojaiAccuracyThreshold;
 }
@@ -65,7 +81,7 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors());
 app.use(compression());
 app.use(express.json({ limit: '50mb' }));
-app.use(express.raw({ type: 'audio/*', limit: '50mb' }));
+// Note: audio arrives as base64 in JSON bodies — no raw body parser needed
 
 // Attach WebSocket server
 attachWebSocketServer(httpServer);
@@ -76,15 +92,29 @@ const apiResponse = <T>(success: boolean, data?: T, error?: string) =>
 const asyncRoute = (h: (req: express.Request, res: express.Response) => Promise<void>) =>
   async (req: express.Request, res: express.Response) => {
     try { await h(req, res); }
-    catch (e) {
+    catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error('[voice-gateway]', msg);
-      if (!res.headersSent) res.status(400).json(apiResponse(false, undefined, msg));
+      if (res.headersSent) return;
+      // Distinguish error types for proper HTTP status codes
+      if (e instanceof SyntaxError)      { res.status(400).json(apiResponse(false, undefined, `Invalid JSON: ${msg}`)); return; }
+      if (msg.includes('not found') || msg.includes('Not found')) { res.status(404).json(apiResponse(false, undefined, msg)); return; }
+      if (msg.includes('timeout') || msg.includes('Timeout'))    { res.status(504).json(apiResponse(false, undefined, msg)); return; }
+      if (msg.includes('ECONNREFUSED') || msg.includes('fetch failed')) { res.status(502).json(apiResponse(false, undefined, `Upstream error: ${msg}`)); return; }
+      res.status(500).json(apiResponse(false, undefined, msg));
     }
   };
 
 // ── Benchmark store (wired from benchmark service) ────────────────────────────────
+// TTL-bounded benchmark results: stale entries auto-evicted after 24h
 const benchmarkResults = new Map<string, { accuracy: number; wordErrorRate: number; samplesTested: number; testedAt: number }>();
+const BENCHMARK_TTL_MS = 24 * 60 * 60 * 1000;
+function getBenchmarkResult(engine: string) {
+  const r = benchmarkResults.get(engine);
+  if (!r) return null;
+  if (Date.now() - r.testedAt > BENCHMARK_TTL_MS) { benchmarkResults.delete(engine); return null; }
+  return r;
+}
 
 // ── Schemas ─────────────────────────────────────────────────────────────────────
 
@@ -213,7 +243,7 @@ app.post('/api/v1/stt', asyncRoute(async (req, res) => {
       preflight: formatMeta ? { format: formatMeta.format, qualityScore: formatMeta.qualityScore } : null,
       latencyMs: 0,
       hojaiReady: shouldUseHojaiSTT(),
-      hojaiAccuracy: benchmarkResults.get('hojai')?.accuracy ?? 0,
+      hojaiAccuracy: getBenchmarkResult('hojai')?.accuracy ?? 0,
     }));
     return;
   }
@@ -242,7 +272,8 @@ app.post('/api/v1/stt', asyncRoute(async (req, res) => {
       }
     }
     // Record accuracy against ground truth if we have domain history
-    recordAccuracy(effectiveEngine, result.text, '', domain, finalLang);
+    // Accuracy tracking requires ground truth — only record when provided
+  if (result.groundTruth) recordAccuracy(effectiveEngine, result.text, result.groundTruth, domain, finalLang);
   }
 
   // 7. Cost tracking
@@ -262,8 +293,8 @@ app.post('/api/v1/stt', asyncRoute(async (req, res) => {
 
   // 8. Training sample (deduped by audio hash)
   const hash = audioHash(audioBuffer);
-  if (!audioHashSet.has(hash) && effectiveEngine !== 'hojai' && config.stt.trainingEnabled) {
-    audioHashSet.add(hash);
+  if (!hasAudioHash(hash) && effectiveEngine !== 'hojai' && config.stt.trainingEnabled) {
+    addAudioHash(hash);
     await emitEvent({
       type: 'stt_sample',
       engine: effectiveEngine,
@@ -290,7 +321,7 @@ app.post('/api/v1/stt', asyncRoute(async (req, res) => {
     latencyMs: result.processingTimeMs,
     costUsd: Math.round(cost * 1000000) / 1000000,
     hojaiReady: shouldUseHojaiSTT(),
-    hojaiAccuracy: benchmarkResults.get('hojai')?.accuracy ?? 0,
+    hojaiAccuracy: getBenchmarkResult('hojai')?.accuracy ?? 0,
   }));
 }));
 
@@ -312,13 +343,12 @@ app.post('/api/v1/stt/batch', asyncRoute(async (req, res) => {
 
   const results = await Promise.allSettled(requests.map(async (r, i) => {
     const audioBuffer = Buffer.from(r.audio, 'base64');
-    const adapter = sttAdapters[engines[i]];
-    return adapter.transcribe(audioBuffer, r.filename, r.language);
+    return transcribeWithFallback(audioBuffer, r.filename ?? 'batch.webm', engines[i], r.language ?? 'en', r.skipFallback ?? false);
   }));
 
   res.json(apiResponse(true, {
     results: results.map((r, i) => r.status === 'fulfilled'
-      ? { success: true, text: r.value.text, language: r.value.language, confidence: r.value.confidence, engine: engines[i] }
+      ? { success: true, text: r.value.text, language: r.value.language, confidence: r.value.confidence, engine: engines[i], fallbackUsed: r.value.fallbackUsed }
       : { success: false, error: r.reason instanceof Error ? r.reason.message : String(r.reason) }
     ),
   }));
@@ -331,12 +361,12 @@ app.get('/api/v1/stt/engines', (_req, res) => {
       { engine: 'whisper',   name: 'OpenAI Whisper',      provider: 'OpenAI',   accuracy: benchmarkResults.get('whisper')?.accuracy ?? 0.85, wpmCost: 0.006, latencyMs: 250, bestFor: ['en', 'es', 'fr', 'de', 'general'] },
       { engine: 'deepgram',  name: 'Deepgram Nova-2',     provider: 'Deepgram', accuracy: benchmarkResults.get('deepgram')?.accuracy ?? 0.88, wpmCost: 0.0044, latencyMs: 180, bestFor: ['en', 'high-speed'] },
       { engine: 'google',    name: 'Google Speech-to-Text', provider: 'Google', accuracy: benchmarkResults.get('google')?.accuracy ?? 0.87, wpmCost: 0.009, latencyMs: 300, bestFor: ['zh', 'ja', 'ko', 'en'] },
-      { engine: 'sarvam',   name: 'Sarvam AI',          provider: 'Sarvam',   accuracy: benchmarkResults.get('sarvam')?.accuracy ?? 0.82, wpmCost: 0.008, latencyMs: 400, bestFor: ['hi', 'bn', 'ta', 'te', 'mr', 'kn', 'ml', 'Indic'] },
-      { engine: 'hojai',     name: 'HOJAI Voice Model',  provider: 'HOJAI',   accuracy: benchmarkResults.get('hojai')?.accuracy ?? 0,   wpmCost: 0, latencyMs: 80,  bestFor: ['en', 'hi', 'Indic'], promoted: hojaiReady },
+      { engine: 'sarvam',   name: 'Sarvam AI',          provider: 'Sarvam',   accuracy: benchmarkResults.get('sarvam')?.accuracy ?? 0.82, wpmCost: 0.008, latencyMs: 400, bestFor: ['hi', 'bn', 'ta', 'te', 'mr', 'kn', 'ml', 'gu', 'pa', 'or', 'as', 'Indic'] },
+      { engine: 'hojai',    name: 'HOJAI Voice Model',   provider: 'HOJAI',   accuracy: getBenchmarkResult('hojai')?.accuracy ?? 0,   wpmCost: 0, latencyMs: 80,  bestFor: ['en', 'hi', 'Indic'], promoted: hojaiReady },
     ],
     defaultEngine: config.stt.defaultEngine,
     hojaiReady,
-    hojaiAccuracy: benchmarkResults.get('hojai')?.accuracy ?? 0,
+    hojaiAccuracy: getBenchmarkResult('hojai')?.accuracy ?? 0,
   }));
 });
 
@@ -458,8 +488,8 @@ app.post('/api/v1/training/benchmark', asyncRoute(async (req, res) => {
   const { corpus, engines: requestedEngines, force } = validation;
 
   // Don't run if already recently benchmarked (unless forced)
-  const hojaiBench = benchmarkResults.get('hojai');
-  if (!force && hojaiBench && (Date.now() - hojaiBench.testedAt) < 24 * 60 * 60 * 1000) {
+  const hojaiBench = getBenchmarkResult('hojai');
+  if (!force && hojaiBench && (Date.now() - hojaiBench.testedAt) < BENCHMARK_TTL_MS) {
     res.json(apiResponse(true, {
       results: Object.fromEntries(benchmarkResults),
       skipped: true,
@@ -565,14 +595,27 @@ app.get('/api/v1/training/stats', (_req, res) => {
 
 app.post('/api/v1/training/export', asyncRoute(async (req, res) => {
   const { format: exportFormat } = req.query;
-  // Export all collected samples as training dataset
-  // In production this would stream from Redis
-  res.json(apiResponse(true, {
-    samples: audioHashSet.size,
-    format: exportFormat ?? 'intent_train.json',
-    path: `${config.training.outputPath}/stt_training_${Date.now()}.json`,
-    message: 'Export implemented by draining event bus — wire to S3 or file write',
-  }));
+  const fs = await import('fs');
+  // Drain in-memory event queue for stt_sample events
+  const { drainQueue } = await import('./services/event-bus.js');
+  const drained = await drainQueue();
+  // Read benchmark corpus manifest
+  const manifestPath = `${config.training.datasetPath}/benchmark/manifest.json`;
+  let corpus: Array<{ id: string; groundTruth: string; language: string; domain?: string }> = [];
+  try {
+    if (fs.existsSync(manifestPath)) corpus = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')).samples ?? [];
+  } catch { /* no corpus yet */ }
+  const output: Record<string, unknown> = {
+    exportedAt: new Date().toISOString(),
+    corpusSamples: corpus.length,
+    inMemoryEventsDrained: drained,
+    audioHashCount: audioHashSet.size,
+  };
+  const ext = (exportFormat as string) ?? 'json';
+  const outPath = `${config.training.outputPath}/stt_training_${Date.now()}.${ext}`;
+  fs.mkdirSync(config.training.outputPath, { recursive: true });
+  fs.writeFileSync(outPath, JSON.stringify(output, null, 2));
+  res.json(apiResponse(true, { ...output, path: outPath }));
 }));
 
 app.delete('/api/v1/training/samples', asyncRoute(async (_req, res) => {
@@ -615,7 +658,7 @@ app.get('/health', (_req, res) => {
       enabled: config.stt.trainingEnabled,
       samples: audioHashSet.size,
       hojaiReady: shouldUseHojaiSTT(),
-      hojaiAccuracy: benchmarkResults.get('hojai')?.accuracy ?? 0,
+      hojaiAccuracy: getBenchmarkResult('hojai')?.accuracy ?? 0,
     },
     routing: { defaultStt: config.stt.defaultEngine, defaultTts: config.tts.defaultEngine },
     eventBus: { connected: isConnected(), queueSize: getQueueSize() },
