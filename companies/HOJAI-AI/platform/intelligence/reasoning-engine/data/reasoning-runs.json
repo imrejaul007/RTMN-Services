@@ -1,0 +1,88 @@
+{
+  "8a09a0b2-d7ef-49cb-99bd-b0d0039d6b0d": {
+    "id": "8a09a0b2-d7ef-49cb-99bd-b0d0039d6b0d",
+    "query": "All men are mortal. Socrates is a man. Therefore?",
+    "context": null,
+    "strategy": "deductive",
+    "steps": [
+      {
+        "id": "step-1",
+        "index": 1,
+        "statement": "All men are mortal",
+        "rationale": "deductive step",
+        "confidence": 0.7564107401284426
+      },
+      {
+        "id": "step-2",
+        "index": 2,
+        "statement": "Socrates is a man",
+        "rationale": "deductive step",
+        "confidence": 0.9254570535615828
+      },
+      {
+        "id": "step-3",
+        "index": 3,
+        "statement": "Therefore",
+        "rationale": "deductive step",
+        "confidence": 0.7155905004198556
+      }
+    ],
+    "conclusion": "Therefore",
+    "confidence": 0.799,
+    "createdAt": "2026-06-25T18:40:27.431Z"
+  },
+  "e9d66c31-97b5-4a47-bbd9-df470a483702": {
+    "id": "e9d66c31-97b5-4a47-bbd9-df470a483702",
+    "query": "Test query.",
+    "context": null,
+    "strategy": "deductive",
+    "steps": [
+      {
+        "id": "step-1",
+        "index": 1,
+        "statement": "Test query",
+        "rationale": "deductive step",
+        "confidence": 0.7598392245700243
+      }
+    ],
+    "conclusion": "Test query",
+    "confidence": 0.76,
+    "createdAt": "2026-06-25T18:40:27.440Z"
+  },
+  "521c8bf0-e6be-4604-8174-7ad4b5daf2f1": {
+    "id": "521c8bf0-e6be-4604-8174-7ad4b5daf2f1",
+    "query": "Test query.",
+    "context": null,
+    "strategy": "inductive",
+    "steps": [
+      {
+        "id": "step-1",
+        "index": 1,
+        "statement": "Test query",
+        "rationale": "inductive step",
+        "confidence": 0.7668603192055012
+      }
+    ],
+    "conclusion": "Test query",
+    "confidence": 0.767,
+    "createdAt": "2026-06-25T18:40:27.441Z"
+  },
+  "d1b5da3f-a726-4903-9a50-ad84aef05104": {
+    "id": "d1b5da3f-a726-4903-9a50-ad84aef05104",
+    "query": "Test query.",
+    "context": null,
+    "strategy": "abductive",
+    "steps": [
+      {
+        "id": "step-1",
+        "index": 1,
+        "statement": "Test query",
+        "rationale": "abductive step",
+        "confidence": 0.7049355526694744
+      }
+    ],
+    "conclusion": "Test query",
+    "confidence": 0.705,
+    "createdAt": "2026-06-25T18:40:27.443Z"
+  }
+}

@@ -58,7 +58,7 @@ function save(name, data) {
     fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
     fs.renameSync(tmp, f);
   } catch (err) {
-    console.error(`[${name}] save failed:`, err.message);
+    console.error(`[${name}] save failed:`, err.message, err.stack);
   }
 }
 
@@ -404,11 +404,13 @@ function createApp() {
       }
     }
     for (const e of entries) ingestLog(serviceId, e.level, e.message, e.meta);
+    console.log(`[DEBUG] POST /api/logs/${serviceId}: ingested ${entries.length}, total=${logs.entries.length}`);
     res.json({ success: true, count: entries.length });
   });
 
   app.get('/api/logs', maybeAuth, (req, res) => {
     const { serviceId, level, q, limit } = req.query;
+    console.log(`[DEBUG] GET /api/logs: serviceId=${serviceId}, total=${logs.entries.length}`);
     let filtered = logs.entries;
     if (serviceId) filtered = filtered.filter(e => e.serviceId === serviceId);
     if (level) filtered = filtered.filter(e => e.level === level);
