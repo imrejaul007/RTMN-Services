@@ -245,3 +245,166 @@ describe('Capability Service — stats', () => {
     expect(stats.totalCapabilities).toBe(0);
   });
 });
+
+describe('Capability Service — Verifiable Credentials (v1.1)', () => {
+  beforeEach(() => {
+    capabilityService.clear();
+    capabilityService.seedDemoCapabilities();
+  });
+
+  it('issues an attestation and stores it', () => {
+    const caps = capabilityService.listAll();
+    const capId = caps[0].id;
+    const result = capabilityService.attest({
+      capabilityId: capId,
+      issuerId: 'test-issuer',
+      issuerName: 'Test Issuer',
+      claimType: 'capability',
+      level: 'audit',
+      claim: 'This capability works as described',
+      secret: 'test-secret'
+    });
+    expect(result.attestation.attestationId).toMatch(/^att-/);
+    expect(result.attestation.capabilityId).toBe(capId);
+    expect(result.attestation.issuerId).toBe('test-issuer');
+    expect(result.attestation.signature).toHaveLength(64); // SHA256 hex
+    expect(result.verificationUrl).toContain(capId);
+    expect(result.verificationUrl).toContain(result.attestation.attestationId);
+  });
+
+  it('throws when attesting a non-existent capability', () => {
+    expect(() => capabilityService.attest({
+      capabilityId: 'cap-does-not-exist',
+      issuerId: 'test-issuer',
+      issuerName: 'Test Issuer',
+      claimType: 'capability',
+      level: 'self',
+      claim: 'test'
+    })).toThrow(/not found/);
+  });
+
+  it('lists attestations for a capability', () => {
+    const caps = capabilityService.listAll();
+    const capId = caps[0].id;
+    // Issue two attestations
+    capabilityService.attest({ capabilityId: capId, issuerId: 'a', issuerName: 'A', claimType: 'identity', level: 'peer', claim: 'identity check', secret: 's' });
+    capabilityService.attest({ capabilityId: capId, issuerId: 'b', issuerName: 'B', claimType: 'capability', level: 'audit', claim: 'capability check', secret: 's' });
+    const atts = capabilityService.listAttestations(capId);
+    expect(atts.length).toBe(2);
+  });
+
+  it('returns empty attestations for unattested capability', () => {
+    const caps = capabilityService.listAll();
+    const uniqIds = [...new Set(caps.map((c) => c.id))];
+    const atts = capabilityService.listAttestations(uniqIds[uniqIds.length - 1] + '-fake');
+    expect(atts).toEqual([]);
+  });
+
+  it('verifies a valid attestation with correct secret', () => {
+    const caps = capabilityService.listAll();
+    const capId = caps[0].id;
+    const result = capabilityService.attest({
+      capabilityId: capId,
+      issuerId: 'verifier',
+      issuerName: 'Verifier',
+      claimType: 'certification',
+      level: 'certified',
+      claim: 'ISO 9001 certified',
+      secret: 'my-secret'
+    });
+    const verified = capabilityService.verifyAttestation(capId, result.attestation.attestationId, 'my-secret');
+    expect(verified.valid).toBe(true);
+    expect(verified.attestation?.issuerId).toBe('verifier');
+    expect(verified.expired).toBeUndefined();
+    expect(verified.tampered).toBeUndefined();
+  });
+
+  it('fails verification with wrong secret', () => {
+    const caps = capabilityService.listAll();
+    const capId = caps[0].id;
+    const result = capabilityService.attest({
+      capabilityId: capId,
+      issuerId: 'x',
+      issuerName: 'X',
+      claimType: 'identity',
+      level: 'self',
+      claim: 'test',
+      secret: 'correct'
+    });
+    const verified = capabilityService.verifyAttestation(capId, result.attestation.attestationId, 'wrong-secret');
+    expect(verified.valid).toBe(false);
+    expect(verified.tampered).toBe(true);
+  });
+
+  it('fails verification for unknown attestation ID', () => {
+    const caps = capabilityService.listAll();
+    const verified = capabilityService.verifyAttestation(caps[0].id, 'att-nonexistent', 's');
+    expect(verified.valid).toBe(false);
+    expect(verified.reason).toContain('not found');
+  });
+
+  it('fails verification for expired attestation', () => {
+    const caps = capabilityService.listAll();
+    const result = capabilityService.attest({
+      capabilityId: caps[0].id,
+      issuerId: 'x',
+      issuerName: 'X',
+      claimType: 'performance',
+      level: 'audit',
+      claim: '99.9% uptime',
+      expiresAt: '2020-01-01T00:00:00.000Z',
+      secret: 's'
+    });
+    const verified = capabilityService.verifyAttestation(caps[0].id, result.attestation.attestationId, 's');
+    expect(verified.valid).toBe(false);
+    expect(verified.expired).toBe(true);
+  });
+
+  it('verifyAll returns a summary with highest level', () => {
+    const caps = capabilityService.listAll();
+    const capId = caps[0].id;
+    capabilityService.attest({ capabilityId: capId, issuerId: 'a', issuerName: 'A', claimType: 'identity', level: 'self', claim: 'a', secret: 's' });
+    capabilityService.attest({ capabilityId: capId, issuerId: 'b', issuerName: 'B', claimType: 'capability', level: 'peer', claim: 'b', secret: 's' });
+    capabilityService.attest({ capabilityId: capId, issuerId: 'c', issuerName: 'C', claimType: 'certification', level: 'certified', claim: 'c', secret: 's' });
+    const summary = capabilityService.verifyAll(capId, 's');
+    expect(summary.capabilityId).toBe(capId);
+    expect(summary.attestationCount).toBe(3);
+    expect(summary.highestLevel).toBe('certified');
+    expect(summary.isSelfAttested).toBe(false);
+    expect(summary.byLevel.self).toBe(1);
+    expect(summary.byLevel.peer).toBe(1);
+    expect(summary.byLevel.certified).toBe(1);
+    expect(summary.byClaimType.identity).toBe(1);
+    expect(summary.byClaimType.certification).toBe(1);
+    expect(summary.attestations.length).toBe(3);
+    expect(summary.attestations.every((a) => a._verified)).toBe(true);
+  });
+
+  it('revokes an attestation', () => {
+    const caps = capabilityService.listAll();
+    const capId = caps[0].id;
+    const result = capabilityService.attest({ capabilityId: capId, issuerId: 'x', issuerName: 'X', claimType: 'identity', level: 'peer', claim: 'to-revoke', secret: 's' });
+    expect(capabilityService.listAttestations(capId).length).toBe(1);
+    expect(capabilityService.revokeAttestation(capId, result.attestation.attestationId)).toBe(true);
+    expect(capabilityService.listAttestations(capId).length).toBe(0);
+    expect(capabilityService.revokeAttestation(capId, 'att-does-not-exist')).toBe(false);
+  });
+
+  it('auto-marks capability verified when attestation level >= audit', () => {
+    const caps = capabilityService.listAll();
+    const capId = caps[0].id;
+    // Find a capability that is not verified
+    const cap = capabilityService.get(capId)!;
+    const wasVerified = cap.trust.verified;
+    capabilityService.attest({ capabilityId: capId, issuerId: 'x', issuerName: 'X', claimType: 'capability', level: 'audit', claim: 'audit-level', secret: 's' });
+    const updated = capabilityService.get(capId);
+    if (!wasVerified) {
+      expect(updated?.trust.verified).toBe(true);
+    }
+  });
+
+  it('seedDemoAttestations seeds without throwing', () => {
+    const count = capabilityService.seedDemoAttestations();
+    expect(count).toBeGreaterThan(0);
+  });
+});
