@@ -26,6 +26,7 @@ const { v4: uuidv4 } = require('uuid');
 const rezIntel = require('./rez-intel-client');
 const intentEngine = require('./intent-engine');
 const sutarRouter = require('./sutar-router');
+const whatsappChannel = require('./channels/whatsapp');
 
 const PORT = parseInt(process.env.WIDGET_BACKEND_PORT || '5380');
 const HOJAI_API_KEY = process.env.HOJAI_API_KEY || 'dev-key';
@@ -315,6 +316,11 @@ app.get('/api/v1/widget/conversation/:visitorId', apiKeyAuth, (req, res) => {
     }
   });
 });
+
+// ─── WhatsApp channel ──────────────────────────────────────────────────
+// Routes widget visitor messages to a WhatsApp number via the HOJAI WhatsApp OS.
+// See ./channels/whatsapp for full API.
+app.use('/api/v1/widget/channels/whatsapp', whatsappChannel.router);
 
 // ─── 404 ────────────────────────────────────────────────────────────────
 app.use((req, res) => {

@@ -34,6 +34,14 @@ import { bindInsurance } from './insurance/binder.js';
 import { calculateCarbon } from './carbon/calculator.js';
 import { CARRIERS } from './carriers/registry.js';
 import { getShipment } from './tracking/registry.js';
+import {
+  createDhlHandler,
+  createFedexHandler,
+  createMaerskHandler,
+  createUniversalHandler,
+  getRecentEvents,
+  getShipmentByTrackingNumber
+} from './tracking/webhooks.js';
 import { generateShippingDocument, renderDocumentHTML } from './documents/generator.js';
 import type { ShipmentRequest } from './types.js';
 
@@ -366,6 +374,28 @@ app.post('/api/v1/shipments/:id/cancel', requireAuth, (req, res) => {
     return res.status(400).json(apiResponse(false, undefined, result.reason));
   }
   res.json(apiResponse(true, { shipmentId: req.params.id, cancelled: true }));
+});
+
+// ─── Carrier webhook receivers (DHL, FedEx, Maersk, universal) ──────
+// These endpoints accept status updates from real carrier APIs.
+// Production: configure CARRIER_WEBHOOK_SECRET for HMAC verification.
+app.post('/api/v1/webhooks/dhl', createDhlHandler());
+app.post('/api/v1/webhooks/fedex', createFedexHandler());
+app.post('/api/v1/webhooks/maersk', createMaerskHandler());
+app.post('/api/v1/webhooks/universal', createUniversalHandler());
+
+// Query recent webhook events (useful for testing + ops dashboards)
+app.get('/api/v1/webhooks/events', (_req, res) => {
+  res.json(apiResponse(true, { total: getRecentEvents(1000).length, events: getRecentEvents(50) }));
+});
+
+// Look up the latest status for a tracking number
+app.get('/api/v1/webhooks/track/:trackingNumber', (req, res) => {
+  const result = getShipmentByTrackingNumber(req.params.trackingNumber);
+  if (!result.found) {
+    return res.status(404).json(apiResponse(false, undefined, 'No events for that tracking number'));
+  }
+  res.json(apiResponse(true, result));
 });
 
 // ─── Customs ─────────────────────────────────────────────────────────
