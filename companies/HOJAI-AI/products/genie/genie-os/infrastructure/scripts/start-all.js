@@ -34,9 +34,10 @@ if (fs.existsSync(envPath)) {
 // companies/HOJAI-AI/platform/* and are managed by companies/HOJAI-AI/start-all.sh.
 const SERVICES = [
   // AI Runtime
-  { name: 'genie',      path: 'runtime/genie',         port: process.env.GENIE_PORT || 7100 },
-  { name: 'sutar',      path: 'runtime/sutar',         port: process.env.SUTAR_PORT || 7200 },
-  { name: 'agentos',    path: 'runtime/agentos',       port: process.env.AGENTOS_PORT || 7300 },
+  { name: 'genie',            path: 'runtime/genie',           port: process.env.GENIE_PORT || 7100 },
+  { name: 'sutar',            path: 'runtime/sutar',           port: process.env.SUTAR_PORT || 7200 },
+  { name: 'agentos',          path: 'runtime/agentos',         port: process.env.AGENTOS_PORT || 7300 },
+  { name: 'planning-engine',  path: 'runtime/planning-engine', port: process.env.PLANNING_ENGINE_PORT || 7301 },
   // Thin clients (proxy to external repos)
   { name: 'do-client',     path: 'products/do-client',     port: process.env.DO_CLIENT_PORT || 8000 },
   { name: 'nexha-client',  path: 'products/nexha-client',  port: process.env.NEXHA_CLIENT_PORT || 8100 },
@@ -66,7 +67,7 @@ async function waitFor(port, max = 10000) {
 
 async function start() {
   console.log('\n🚀 Starting HOJAI AI brain (genie-os)...\n');
-  console.log('Owns: AI Runtime (3) + Clients (3) + Web (1) = 7 services');
+  console.log('Owns: AI Runtime (4) + Clients (3) + Web (1) = 8 services');
   console.log('Foundation services are started separately via companies/HOJAI-AI/start-all.sh\n');
 
   for (const svc of SERVICES) {

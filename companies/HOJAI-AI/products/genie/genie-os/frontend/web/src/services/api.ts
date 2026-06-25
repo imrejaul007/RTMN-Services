@@ -135,7 +135,9 @@ export const specialists = {
   thinking: '/specialists/thinking',
   search: '/specialists/search',
   wakeword: '/specialists/wakeword',
-  wellness: '/specialists/wellness'
+  wellness: '/specialists/wellness',
+  // Phase 14: Goal decomposition + DAG execution
+  planning: '/specialists/planning',
 } as const;
 
 export default client;

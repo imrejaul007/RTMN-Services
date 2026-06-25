@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/cloud — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (24)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK — unified client for CorpID, MemoryOS, TwinOS, SADA Trust, Flow Orchestrator, and PolicyOS. Routes through the RTMN Hub (http://localhost:4399).">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/agentos.html" class="" title="AgentOS SDK — TypeScript client for HOJAI Agent Operating System. Manage AI employee lifecycle: create, deploy, pause, resume, heartbeat, version snapshots, and capability-based search across the AgentOS platform (agent-registry + agent-orc">agentos</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/cloud.html" class="active" title="Cloud SDK - Client for the HOJAI Cloud deploy service (port 4380). The deploy target for `npx hojai deploy --mode=remote`. Push projects, list deployments, tear down — the wildcard *.hojai.app routing layer.">cloud</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/copilots.html" class="" title="Copilots SDK - Client for the 7 HOJAI department copilots (agent, business, executive, finance, marketing, sales, support). One sub-client per copilot, ~50 methods total.">copilots</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+    <a href="/sdks/widget-react.html" class="" title="React wrapper for the HOJAI Widget.">widget-react</a>
+  </nav>
+  <footer>Built 2026-06-25 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/cloud</h1>
+<p class="lead">Cloud SDK - Client for the HOJAI Cloud deploy service (port 4380). The deploy target for `npx hojai deploy --mode=remote`. Push projects, list deployments, tear down — the wildcard *.hojai.app routing layer.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/cloud">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~5</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/cloud` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (10/10 tests passing, 0 failures)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI Cloud SDK (@hojai/cloud)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/cloud</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (10/10 tests passing, 0 failures)</p>
+<h2>What this SDK is</h2>
+<p><strong>The official TypeScript client for the HOJAI Cloud deploy service (port 4380).</strong> The deploy target for <code>npx hojai deploy --mode=remote</code>. Provides programmatic access to deployment lifecycle + wildcard <code>*.hojai.app</code> routing.</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>deployments</code></td>
+<td>Push, list, get, teardown, deployAndWait (with polling)</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>route</code></td>
+<td>Wildcard subdomain proxy (<code>.hojai.app</code> → tenant port)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>health</code></td>
+<td>Service health + readiness</td>
+<td>2</td>
+</tr>
+</tbody></table>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/cloud
+├── Cloud                     # Main client (facade)
+│   ├── deployments           # DeploymentsClient  — 5 methods
+│   ├── route                 # RouteClient        — 1 method
+│   └── health                # HealthClient       — 2 methods
+├── HojaiConfig                # Shared config
+└── resolveConfig()            # Apply defaults</code></pre>
+<p>Self-contained — does NOT import from other <code>@hojai/*</code> packages. Carries its own copy of <code>HojaiConfig</code> + <code>request()</code> + <code>buildQueryString</code> (~80 LOC).</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Cloud } from '@hojai/cloud';
+
+const c = new Cloud({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// 1. Deploy with auto-wait
+const dep = await c.deployments.deployAndWait({
+  name: 'maya-store', type: 'marketplace',
+  runtime: 'node-express', manifest: {}
+});
+
+// 2. Health
+const h = await c.health.get();
+console.log(`${h.live} live / ${h.deployments} total`);
+
+// 3. List + tear down
+const all = await c.deployments.list();
+for (const d of all) await c.deployments.teardown(d.id);</code></pre>
+<h2>Build &amp; test</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-cloud
+npm install
+npm run build
+npm test</code></pre>
+<h2>Tests (10/10 passing)</h2>
+<ul>
+<li>Cloud client instantiates with 3 sub-clients</li>
+<li>DeploymentsClient.deploy</li>
+<li>DeploymentsClient.list with status filter</li>
+<li>DeploymentsClient.get by id</li>
+<li>DeploymentsClient.teardown (DELETE)</li>
+<li>DeploymentsClient.deployAndWait polls until live</li>
+<li>RouteClient.proxy builds wildcard URL</li>
+<li>HealthClient.get hits /api/v1/health</li>
+<li>Retries on 5xx (3 calls before success)</li>
+<li>Throws on 4xx</li>
+</ul>
+<h2>Related</h2>
+<ul>
+<li><a href="../hojai-cli/CLAUDE.md"><code>@hojai/cli</code></a> — <code>hojai deploy</code> calls this SDK under the hood</li>
+<li><a href="../hojai-foundation/CLAUDE.md"><code>@hojai/foundation</code></a> — CorpID for deployment auth</li>
+<li><a href="https://github.com/hojai/hojai-cloud">HOJAI Cloud service</a> — the underlying Express service (port 4380)</li>
+</ul>
+<h2>Why this matters</h2>
+<p><code>@hojai/cloud</code> is the missing SDK for HOJAI Cloud — the production deploy target shipped in Foundry v1.1 (2026-06-24). The service exists, the CLI uses it, but there was no programmatic client. This SDK fills that gap — now any developer can build deployment dashboards, automated rollback flows, or multi-tenant management tools.</p>
+<p>The SDK family is now <strong>26 deep</strong> with this addition.</p></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/cloud</h1>
+<p>&gt; The official TypeScript SDK for the <strong>HOJAI Cloud</strong> deploy service (port 4380). The deploy target for <code>npx hojai deploy --mode=remote</code>. Push projects, list deployments, tear down — the wildcard <code>*.hojai.app</code> routing layer.</p>
+<p><a href="https://img.shields.io/npm/v/@hojai/cloud.svg">![npm version</a>](https://www.npmjs.com/package/@hojai/cloud)</p>
+<p><a href="https://img.shields.io/badge/TypeScript-5.3-blue.svg">![TypeScript</a>](https://www.typescriptlang.org/)</p>
+<p><a href="https://img.shields.io/badge/License-MIT-yellow.svg">![License: MIT</a>](https://opensource.org/licenses/MIT)</p>
+<h2>What it does</h2>
+<p>HOJAI Cloud is the <strong>production deploy target</strong> for HOJAI Foundry. When you run <code>npx hojai deploy --mode=remote</code> with <code>HOJAI_CLOUD_URL</code> set, your project gets:</p>
+<ul>
+<li>Pushed to HOJAI Cloud</li>
+<li>Provisioned on a per-tenant port (8800-8899)</li>
+<li>Exposed at <code>&lt;name&gt;.hojai.app</code> via a wildcard reverse-proxy route</li>
+<li>Persisted to disk so restarts don't lose projects</li>
+</ul>
+<p>The <code>@hojai/cloud</code> SDK is the <strong>programmatic client</strong> for that service — build your own deployment dashboard, automated rollback, multi-tenant management, etc.</p>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/cloud</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Cloud } from '@hojai/cloud';
+
+const c = new Cloud({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// 1. Deploy a project (with auto-wait until 'live')
+const dep = await c.deployments.deployAndWait({
+  name: 'maya-store',
+  type: 'marketplace',
+  runtime: 'node-express',
+  manifest: { /* full .hojai/manifest.json */ }
+});
+console.log(dep.url); // https://maya-store.hojai.app
+
+// 2. List active deployments
+const all = await c.deployments.list({ status: 'live' });
+
+// 3. Health check
+const h = await c.health.get();
+console.log(`${h.live}/${h.deployments} live`);
+
+// 4. Tear down
+await c.deployments.teardown(dep.id);</code></pre>
+<h2>What's inside</h2>
+<p>3 sub-clients, ~9 methods:</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Purpose</th>
+<th>Methods</th>
+</tr></thead><tbody>
+<tr>
+<td><code>deployments</code></td>
+<td>Push, list, get, teardown, deployAndWait (with polling)</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>route</code></td>
+<td>Wildcard subdomain proxy (<code>&lt;sub&gt;.hojai.app</code> → tenant port)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>health</code></td>
+<td>Service health + readiness</td>
+<td>2</td>
+</tr>
+</tbody></table>
+<h2>Subpath imports</h2>
+<pre class="md-code"><code class="lang-ts">import { Cloud } from '@hojai/cloud';
+import { DeploymentsClient } from '@hojai/cloud/cloud';
+import type { Deployment, DeployRequest } from '@hojai/cloud/types';</code></pre>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const c = new Cloud({
+  apiKey: 'hojai_live_...',
+  baseUrl: 'https://api.hojai.ai',
+  timeout: 30_000,    // default 10s; remote deploys need more
+  maxRetries: 5        // default 3
+});</code></pre>
+<p>When <code>baseUrl</code> includes <code>localhost</code>, sub-clients automatically target port <strong>4380</strong> (the HOJAI Cloud port).</p>
+<h2>The deployAndWait helper</h2>
+<p>Real deploys take seconds. The <code>deployAndWait()</code> helper polls every <code>pollMs</code> (default 2s) until status is <code>live</code>, <code>failed</code>, or <code>torn-down</code>, or until <code>timeoutMs</code> (default 2 min) elapses:</p>
+<pre class="md-code"><code class="lang-ts">const dep = await c.deployments.deployAndWait(input, { pollMs: 3000, timeoutMs: 300_000 });
+if (dep.status === 'failed') {
+  console.error('Deploy failed:', dep.error);
+}</code></pre>
+<h2>Tests</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-cloud
+npm install
+npm run build
+npm test</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-cli/"><code>@hojai/cli</code></a> — the <code>npx hojai deploy</code> command that calls this SDK</li>
+<li><a href="../hojai-foundation/"><code>@hojai/foundation</code></a> — CorpID for deployment auth</li>
+<li><a href="../hojai-ai-spec/"><code>@hojai/ai-spec</code></a> — generates the <code>manifest</code> you POST to deploy</li>
+</ul>
+<p>The SDK family is now <strong>26 deep</strong>.</p></div>
+
+</main>
+</body>
+</html>

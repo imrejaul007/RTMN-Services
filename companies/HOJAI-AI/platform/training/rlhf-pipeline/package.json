@@ -1,0 +1,13 @@
+{
+  "name": "@hojai/rlhf-pipeline",
+  "version": "1.0.0",
+  "description": "HOJAI RLHF Pipeline (Phase 20) - Full RLHF pipeline: preference datasets, reward model training, PPO fine-tuning, comparison queue, and training metrics",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test tests/rlhf-pipeline.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

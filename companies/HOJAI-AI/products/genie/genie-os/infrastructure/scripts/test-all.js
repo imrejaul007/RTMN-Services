@@ -12,9 +12,10 @@ const ROOT = path.join(__dirname, '..', '..');
 // locations. This test runner now only covers genie-os's own AI Runtime + clients.
 const TESTS = [
   // AI Runtime
-  { name: 'Genie',    path: 'runtime/genie' },
-  { name: 'Sutar',    path: 'runtime/sutar' },
-  { name: 'AgentOS',  path: 'runtime/agentos' },
+  { name: 'Genie',           path: 'runtime/genie' },
+  { name: 'Sutar',           path: 'runtime/sutar' },
+  { name: 'AgentOS',         path: 'runtime/agentos' },
+  { name: 'Planning Engine', path: 'runtime/planning-engine' },
   // Thin clients
   { name: 'do-client',     path: 'products/do-client' },
   { name: 'nexha-client',  path: 'products/nexha-client' },
@@ -40,7 +41,7 @@ function run(cmd, args, opts) {
 }
 
 async function main() {
-  console.log('\n🧪 Running all genie-os tests (6 suites)...\n');
+  console.log('\n🧪 Running all genie-os tests (7 suites)...\n');
   console.log('ℹ️  Note: Tests run with NODE_ENV=test. Stop running services first for clean output.');
   console.log('ℹ️  Foundation tests moved — see docs/FOUNDATION-AUDIT-2026-06-21.md.\n');
   let passed = 0, failed = 0;

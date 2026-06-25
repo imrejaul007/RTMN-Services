@@ -15,10 +15,11 @@ const PORT = parseInt(process.env.GENIE_PORT || '7100', 10);
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hojai';
 const JWT_SECRET = process.env.JWT_SECRET;
 const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN;
+// JWT_SECRET is used for signing user auth tokens. INTERNAL_TOKEN is for inter-service calls.
 
-const CORPID_URL = process.env.CORPID_URL || 'http://localhost:7001';
-const MEMORYOS_URL = process.env.MEMORYOS_URL || 'http://localhost:7003';
-const TWINOS_URL = process.env.TWINOS_URL || 'http://localhost:7002';
+const CORPID_URL = process.env.CORPID_URL || 'http://localhost:4702';
+const MEMORYOS_URL = process.env.MEMORYOS_URL || 'http://localhost:4703';
+const TWINOS_URL = process.env.TWINOS_URL || 'http://localhost:4705';
 const GOALOS_URL = process.env.GOALOS_URL || 'http://localhost:7004';
 
 // ============================================================================
@@ -98,7 +99,7 @@ const USE_RAZO = process.env.USE_RAZO !== 'false';
 const app = express();
 
 // Validate required env at startup
-requireEnv(['PORT'], { allowDev: true });
+requireEnv(['GENIE_PORT'], { allowDev: true });
 app.use(helmet()); app.use(cors()); app.use(compression()); app.use(express.json({ limit: '2mb' }));
 const send = (res, s, d) => res.status(s).json({ success: true, data: d, meta: { timestamp: new Date().toISOString() } });
 const err = (res, s, c, m) => res.status(s).json({ success: false, error: { code: c, message: m }, meta: { timestamp: new Date().toISOString() } });
@@ -147,12 +148,18 @@ async function callInternal(url, method, body) {
     // Return the response data even on 4xx/5xx so callers can inspect error codes
     // (e.g. NOT_FOUND) and decide whether to fall back gracefully.
     return res.data;
-  } catch (e) { return null; }
+  } catch (e) {
+    // Log the error so downstream failures are traceable in production.
+    // Return an error sentinel so callers can distinguish network failures from null.
+    const msg = e?.message || String(e);
+    console.error(`[callInternal] ${method} ${url} failed: ${msg}`);
+    return { __callInternalError: msg, url, method };
+  }
 }
 
 app.get('/health', (req, res) => send(res, 200, { service: 'genie', status: 'healthy', version: '1.0.0' }));
 
-app.post('/api/auth/signup',requireAuth,  async (req, res, next) => {
+app.post('/api/auth/signup', async (req, res, next) => {
   try {
     const data = signupSchema.parse(req.body);
     const existing = await User.findOne({ email: data.email });
@@ -168,7 +175,7 @@ app.post('/api/auth/signup',requireAuth,  async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.post('/api/auth/login',requireAuth,  async (req, res, next) => {
+app.post('/api/auth/login', async (req, res, next) => {
   try {
     const data = loginSchema.parse(req.body);
     const user = await User.findOne({ email: data.email });

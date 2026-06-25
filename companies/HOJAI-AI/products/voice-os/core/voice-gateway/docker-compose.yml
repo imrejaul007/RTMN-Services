@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  voice-gateway:
+    build: .
+    image: hoci/voice-gateway:1.0.0
+    container_name: hojai-voice-gateway
+    ports:
+      - "4880:4880"
+    environment:
+      - NODE_ENV=production
+      - PORT=4880
+      - STT_ENGINE=${STT_ENGINE:-auto}
+      - TTS_ENGINE=${TTS_ENGINE:-auto}
+      - STT_HOJAI_ACCURACY_THRESHOLD=${STT_HOJAI_ACCURACY_THRESHOLD:-0.92}
+      - TTS_HOJAI_ACCURACY_THRESHOLD=${TTS_HOJAI_ACCURACY_THRESHOLD:-0.88}
+      - TRAINING_ENABLED=${TRAINING_ENABLED:-true}
+      - TRAIN_MIN_SAMPLES=${TRAIN_MIN_SAMPLES:-500}
+      - WHISPER_API_URL=${WHISPER_API_URL:-https://api.openai.com/v1}
+      - WHISPER_API_KEY=${WHISPER_API_KEY}
+      - WHISPER_MODEL=${WHISPER_MODEL:-whisper-1}
+      - DEEPGRAM_API_URL=${DEEPGRAM_API_URL:-https://api.deepgram.com/v1}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-}
+      - GOOGLE_STT_MODEL=${GOOGLE_STT_MODEL:-latest_long}
+      - SARVAM_API_URL=${SARVAM_API_URL:-https://api.sarvam.ai}
+      - SARVAM_API_KEY=${SARVAM_API_KEY}
+      - ELEVENLABS_API_URL=${ELEVENLABS_API_URL:-https://api.elevenlabs.io/v1}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID:-EXAVITQu4vr4xnSDxMaL}
+      - CARTESIA_API_URL=${CARTESIA_API_URL:-https://api.cartesia.ai}
+      - CARTESIA_API_KEY=${CARTESIA_API_KEY}
+      - CARTESIA_VOICE_ID=${CARTESIA_VOICE_ID:-a8b11c3e-5057-4d25-8f0e-8d8c7b3a2f1e}
+      - HODAI_STT_MODEL_URL=${HOJAI_STT_MODEL_URL:-http://host.docker.internal:4881}
+      - HODAI_TTS_MODEL_URL=${HOJAI_TTS_MODEL_URL:-http://host.docker.internal:4882}
+      - HODAI_API_KEY=${HOJAI_API_KEY:-hojai-internal-key}
+      - TRAINING_DATASET_PATH=${TRAINING_DATASET_PATH:-/data/training}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - voice-training-data:/data/training
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4880/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    mem_limit: 512m
+    mem_reservation: 128m
+    networks:
+      - hojai-voice
+
+volumes:
+  voice-training-data:
+    driver: local
+
+networks:
+  hojai-voice:
+    driver: bridge

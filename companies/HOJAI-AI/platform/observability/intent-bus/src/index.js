@@ -1,5 +1,9 @@
 /**
- * SUTAR OS — Intent Bus (port 4154)
+ * SUTAR OS — Intent Bus v2.0 — Self-Contained
+ * -----------------------------------------------------------------
+ * Layer: 14 (Autonomous Layer) / SUTAR OS Layer 3 — Agent Network
+ * Port:  4154
+ * Auth:  X-Internal-Token header
  *
  * Lightweight pub/sub for SUTAR agent intents. Agents publish structured
  * intents ("I want to book a hotel", "I want to negotiate a price"), other
@@ -20,48 +24,59 @@
  *   GET  /api/topics                   List active intent topics
  *   GET  /api/stats                    Bus statistics
  *   GET  /health
+ *   GET  /ready
  */
 
+'use strict';
+
 const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
-const cors = require('cors');
-const helmet = require('helmet');
-const compression = require('compression');
-const morgan = require('morgan');
-const { v4: uuid } = require('uuid');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
-const app = express();
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
+const PORT           = parseInt(process.env.PORT || '4154', 10);
+const SERVICE_NAME   = 'sutar-intent-bus';
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'intent-bus-internal-token';
+const INTENT_TTL_MS  = 10 * 60 * 1000; // 10 minutes
+const DATA_DIR       = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 
-// Validate required env at startup
-requireEnv(['PORT'], { allowDev: true });
-const PORT = process.env.PORT || 4154;
-const SERVICE_NAME = 'sutar-intent-bus';
+function ensureDir()  { try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch (_) {} }
+function dataFile(n)   { return path.join(DATA_DIR, n + '.json'); }
+function loadJson(f)   { ensureDir(); try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (_) { return null; } }
+function saveJson(f, d){ ensureDir(); const tmp = f + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(d, null, 2)); fs.renameSync(tmp, f); }
+function uuid()       { return crypto.randomUUID(); }
 
-app.use(helmet());
-app.use(cors());
-app.use(compression());
-app.use(express.json({ limit: '1mb' }));
-app.use(morgan('tiny'));
+// ---------------------------------------------------------------------------
+// Storage (Map + file persistence)
+// ---------------------------------------------------------------------------
+const intents       = new Map();  // id → intent
+const subscriptions = new Map();  // id → subscription
 
-// ---------- Stores ----------
-const intents = new PersistentMap('intents', { serviceName: 'intent-bus' });       // intentId -> intent
-const subscriptions = new PersistentMap('subscriptions', { serviceName: 'intent-bus' }); // subId -> subscription
+function loadAll() {
+  const i = loadJson(dataFile('intents'));
+  if (i) { for (const e of i) intents.set(e.id, e); }
+  const s = loadJson(dataFile('subscriptions'));
+  if (s) { for (const e of s) subscriptions.set(e.id, e); }
+}
+function persist() { saveJson(dataFile('intents'), Array.from(intents.values())); saveJson(dataFile('subscriptions'), Array.from(subscriptions.values())); }
+loadAll();
 
-const INTENT_TTL_MS = 10 * 60 * 1000; // 10 minutes
-const VALID_STATUSES = ['open', 'claimed', 'resolved', 'cancelled', 'expired'];
+// ---------------------------------------------------------------------------
+// Valid types
+// ---------------------------------------------------------------------------
 const VALID_TYPES = [
   'book_hotel', 'book_table', 'order_product', 'negotiate_price',
   'request_payment', 'request_quote', 'request_recommendation',
-  'request_negotiation', 'escalate', 'broadcast'
+  'request_negotiation', 'escalate', 'broadcast',
 ];
 
-// ---------- Helpers ----------
-function isExpired(intent) {
-  return Date.now() - intent.publishedAt > INTENT_TTL_MS;
-}
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+function isExpired(intent) { return Date.now() - intent.publishedAt > INTENT_TTL_MS; }
 
 function reaper() {
   for (const [id, intent] of intents) {
@@ -70,36 +85,43 @@ function reaper() {
       intent.expiredAt = Date.now();
     }
   }
+  persist();
 }
 setInterval(reaper, 30 * 1000).unref();
 
 function matchesSubscription(intent, sub) {
   if (sub.capability && sub.capability !== intent.capability) return false;
-  if (sub.type && sub.type !== intent.type) return false;
-  if (sub.priority && intent.priority && sub.priority > intent.priority) return false;
+  if (sub.type      && sub.type      !== intent.type)          return false;
+  if (sub.priority  && intent.priority && sub.priority > intent.priority) return false;
   return true;
 }
+
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  next();
+}
+
+// ---------------------------------------------------------------------------
+// App
+// ---------------------------------------------------------------------------
+const app = express();
+app.use(express.json({ limit: '1mb' }));
 
 // ---------- Health ----------
 app.get('/health', (_req, res) => {
   const open = Array.from(intents.values()).filter(i => i.status === 'open').length;
   res.json({
-    status: 'ok',
-    service: SERVICE_NAME,
-    sutarLayer: 3,
-    layer: 'Agent Network / Intent Broadcast',
-    port: PORT,
-    counts: {
-      intents: intents.size,
-      openIntents: open,
-      subscriptions: subscriptions.size
-    },
-    timestamp: new Date().toISOString()
+    status: 'ok', service: SERVICE_NAME, sutarLayer: 3,
+    layer: 'Agent Network / Intent Broadcast', port: PORT,
+    counts: { intents: intents.size, openIntents: open, subscriptions: subscriptions.size },
+    timestamp: new Date().toISOString(),
   });
 });
 
 // ---------- Intents ----------
-app.post('/api/intents/publish',requireAuth,  (req, res) => {
+app.post('/api/intents/publish', requireInternal, (req, res) => {
   const { type, capability, payload, priority = 5, ttlSeconds, publisher } = req.body || {};
   if (!type || !VALID_TYPES.includes(type)) {
     return res.status(400).json({ error: `type must be one of ${VALID_TYPES.join(', ')}` });
@@ -109,29 +131,25 @@ app.post('/api/intents/publish',requireAuth,  (req, res) => {
   }
   const id = uuid();
   const intent = {
-    id,
-    type,
-    capability,
+    id, type, capability,
     payload: payload || {},
     priority,
     ttlSeconds: ttlSeconds || 600,
     publisher,
     status: 'open',
     publishedAt: Date.now(),
-    claimedBy: null,
-    claimedAt: null,
-    resolvedAt: null,
-    result: null,
-    metadata: { matchCount: 0 }
+    claimedBy: null, claimedAt: null,
+    resolvedAt: null, result: null,
+    metadata: { matchCount: 0 },
   };
   intents.set(id, intent);
 
-  // Compute match count for visibility
   let matchCount = 0;
   for (const sub of subscriptions.values()) {
     if (matchesSubscription(intent, sub)) matchCount++;
   }
   intent.metadata.matchCount = matchCount;
+  persist();
 
   res.status(201).json({ intent });
 });
@@ -140,9 +158,9 @@ app.get('/api/intents', (req, res) => {
   const { capability, type, status = 'open', publisher } = req.query;
   let rows = Array.from(intents.values());
   if (capability) rows = rows.filter(i => i.capability === capability);
-  if (type) rows = rows.filter(i => i.type === type);
-  if (status) rows = rows.filter(i => i.status === status);
-  if (publisher) rows = rows.filter(i => i.publisher === publisher);
+  if (type)       rows = rows.filter(i => i.type === type);
+  if (status)     rows = rows.filter(i => i.status === status);
+  if (publisher)  rows = rows.filter(i => i.publisher === publisher);
   rows = rows
     .filter(i => !(status === 'open' && isExpired(i)))
     .sort((a, b) => b.priority - a.priority || b.publishedAt - a.publishedAt)
@@ -156,93 +174,86 @@ app.get('/api/intents/:id', (req, res) => {
   res.json({ intent });
 });
 
-app.post('/api/intents/:id/claim',requireAuth,  (req, res) => {
+app.post('/api/intents/:id/claim', requireInternal, (req, res) => {
   const intent = intents.get(req.params.id);
-  if (!intent) return res.status(404).json({ error: 'Intent not found' });
-  if (intent.status !== 'open') {
-    return res.status(409).json({ error: `Cannot claim intent in status ${intent.status}` });
-  }
+  if (!intent)                          return res.status(404).json({ error: 'Intent not found' });
+  if (intent.status !== 'open')        return res.status(409).json({ error: `Cannot claim intent in status ${intent.status}` });
   if (isExpired(intent)) {
     intent.status = 'expired';
     return res.status(410).json({ error: 'Intent expired' });
   }
   const { claimer } = req.body || {};
   if (!claimer) return res.status(400).json({ error: 'claimer required' });
-
   intent.status = 'claimed';
   intent.claimedBy = claimer;
   intent.claimedAt = Date.now();
+  persist();
   res.json({ intent });
 });
 
-app.post('/api/intents/:id/resolve',requireAuth,  (req, res) => {
+app.post('/api/intents/:id/resolve', requireInternal, (req, res) => {
   const intent = intents.get(req.params.id);
-  if (!intent) return res.status(404).json({ error: 'Intent not found' });
-  if (!['open', 'claimed'].includes(intent.status)) {
-    return res.status(409).json({ error: `Cannot resolve intent in status ${intent.status}` });
-  }
+  if (!intent)                            return res.status(404).json({ error: 'Intent not found' });
+  if (!['open', 'claimed'].includes(intent.status)) return res.status(409).json({ error: `Cannot resolve intent in status ${intent.status}` });
   const { result, resolver } = req.body || {};
   intent.status = 'resolved';
   intent.result = result || null;
   intent.resolvedBy = resolver || null;
   intent.resolvedAt = Date.now();
+  persist();
   res.json({ intent });
 });
 
-app.post('/api/intents/:id/cancel',requireAuth,  (req, res) => {
+app.post('/api/intents/:id/cancel', requireInternal, (req, res) => {
   const intent = intents.get(req.params.id);
-  if (!intent) return res.status(404).json({ error: 'Intent not found' });
-  if (!['open', 'claimed'].includes(intent.status)) {
-    return res.status(409).json({ error: `Cannot cancel intent in status ${intent.status}` });
-  }
+  if (!intent)                            return res.status(404).json({ error: 'Intent not found' });
+  if (!['open', 'claimed'].includes(intent.status)) return res.status(409).json({ error: `Cannot cancel intent in status ${intent.status}` });
   const { reason } = req.body || {};
   intent.status = 'cancelled';
   intent.cancelReason = reason || null;
   intent.cancelledAt = Date.now();
+  persist();
   res.json({ intent });
 });
 
 // ---------- Subscriptions ----------
-app.post('/api/subscriptions',requireAuth,  (req, res) => {
+app.post('/api/subscriptions', requireInternal, (req, res) => {
   const { subscriber, capability, type, priority, callbackUrl } = req.body || {};
   if (!subscriber) return res.status(400).json({ error: 'subscriber required' });
   if (!capability && !type) return res.status(400).json({ error: 'capability or type required' });
   const id = uuid();
   const sub = {
-    id,
-    subscriber,
+    id, subscriber,
     capability: capability || null,
     type: type || null,
     priority: priority || null,
     callbackUrl: callbackUrl || null,
     createdAt: Date.now(),
     matchedCount: 0,
-    lastMatchAt: null
+    lastMatchAt: null,
   };
   subscriptions.set(id, sub);
 
-  // Compute initial matches
   let matched = 0;
   for (const intent of intents.values()) {
     if (intent.status === 'open' && matchesSubscription(intent, sub)) matched++;
   }
   sub.matchedCount = matched;
   sub.lastMatchAt = matched > 0 ? Date.now() : null;
+  persist();
 
   res.status(201).json({ subscription: sub });
 });
 
 app.get('/api/subscriptions', (_req, res) => {
-  res.json({
-    count: subscriptions.size,
-    subscriptions: Array.from(subscriptions.values())
-  });
+  res.json({ count: subscriptions.size, subscriptions: Array.from(subscriptions.values()) });
 });
 
-app.delete('/api/subscriptions/:id',requireAuth,  (req, res) => {
+app.delete('/api/subscriptions/:id', requireInternal, (req, res) => {
   const sub = subscriptions.get(req.params.id);
   if (!sub) return res.status(404).json({ error: 'Subscription not found' });
   subscriptions.delete(req.params.id);
+  persist();
   res.json({ deleted: true, subscription: sub });
 });
 
@@ -267,25 +278,26 @@ app.get('/api/topics', (_req, res) => {
   }
   res.json({
     count: Object.keys(topics).length,
-    topics: Object.values(topics).sort((a, b) => b.open - a.open)
+    topics: Object.values(topics).sort((a, b) => b.open - a.open),
   });
 });
 
 // ---------- Stats ----------
 app.get('/api/stats', (_req, res) => {
   const byStatus = {};
-  for (const i of intents.values()) byStatus[i.status] = (byStatus[i.status] || 0) + 1;
-  const byType = {};
-  for (const i of intents.values()) byType[i.type] = (byType[i.type] || 0) + 1;
+  const byType   = {};
+  for (const i of intents.values()) {
+    byStatus[i.status] = (byStatus[i.status] || 0) + 1;
+    byType[i.type]     = (byType[i.type]     || 0) + 1;
+  }
   res.json({
     totals: {
-      intents: intents.size,
-      openIntents: Array.from(intents.values()).filter(i => i.status === 'open' && !isExpired(i)).length,
-      subscriptions: subscriptions.size
+      intents:      intents.size,
+      openIntents:  Array.from(intents.values()).filter(i => i.status === 'open' && !isExpired(i)).length,
+      subscriptions: subscriptions.size,
     },
-    byStatus,
-    byType,
-    timestamp: new Date().toISOString()
+    byStatus, byType,
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -309,20 +321,36 @@ app.get('/', (_req, res) => {
       'GET  /api/subscriptions/:id/poll',
       'GET  /api/topics',
       'GET  /api/stats',
-      'GET  /health'
-    ]
+      'GET  /health',
+      'GET  /ready',
+    ],
   });
 });
 
-// ---------- Boot ----------
-// Readiness probe — returns 200 once the server is accepting requests
+// ---------- Ready ----------
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
-
+// ---------------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------------
 const server = app.listen(PORT, () => {
   console.log(`[${SERVICE_NAME}] listening on http://localhost:${PORT}`);
   console.log(`[${SERVICE_NAME}] valid intent types: ${VALID_TYPES.join(', ')}`);
   console.log(`[${SERVICE_NAME}] intent TTL: ${INTENT_TTL_MS / 1000}s`);
-});installGracefulShutdown(server);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  persist();
+  server.close(() => process.exit(0));
+});
+process.on('SIGINT', () => {
+  persist();
+  server.close(() => process.exit(0));
+});
+
+module.exports = { app, startServer: (port) => new Promise(resolve => {
+  const s = app.listen(port || PORT, '127.0.0.1', () => resolve({ server: s, port: s.address().port }));
+})};

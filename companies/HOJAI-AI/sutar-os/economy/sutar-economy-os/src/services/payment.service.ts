@@ -290,12 +290,15 @@ export class PaymentService {
 
   /**
    * Simulate payment provider (placeholder)
+   * Uses deterministic behavior for testing: payments always succeed unless
+   * PAYMENT_FAIL_RATE env var is set to a value > 0
    */
   private async simulatePaymentProvider(_payment: PaymentRecord): Promise<boolean> {
     // Simulate processing delay
     await new Promise(resolve => setTimeout(resolve, 100));
-    // 95% success rate for simulation
-    return Math.random() > 0.05;
+    // Deterministic: use a predictable check for tests
+    const failRate = parseFloat(process.env['PAYMENT_FAIL_RATE'] || '0');
+    return Math.random() > failRate;
   }
 
   /**
@@ -415,10 +418,14 @@ export class PaymentService {
 
   /**
    * Simulate refund provider (placeholder)
+   * Uses deterministic behavior for testing: refunds always succeed unless
+   * REFUND_FAIL_RATE env var is set to a value > 0
    */
   private async simulateRefundProvider(_refund: RefundRecord): Promise<boolean> {
     await new Promise(resolve => setTimeout(resolve, 50));
-    return Math.random() > 0.1;
+    // Deterministic: use a predictable check for tests
+    const failRate = parseFloat(process.env['REFUND_FAIL_RATE'] || '0');
+    return Math.random() > failRate;
   }
 
   /**

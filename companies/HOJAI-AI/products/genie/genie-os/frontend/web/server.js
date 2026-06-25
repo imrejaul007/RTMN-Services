@@ -64,6 +64,8 @@ const SPECIALISTS = {
   thinking:             process.env.GENIE_THINKING_URL       || 'http://localhost:4719',
   search:               process.env.GENIE_SEARCH_URL         || 'http://localhost:4713',
   wakeword:             process.env.GENIE_WAKEWORD_URL       || 'http://localhost:4767',
+  // Phase 14: Goal decomposition + DAG execution
+  planning:             process.env.PLANNING_ENGINE_URL      || 'http://localhost:7301',
 };
 
 const app = express();

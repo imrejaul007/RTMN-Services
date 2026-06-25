@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-06-24T17:31:10.512Z",
-  "sdkCount": 20,
+  "generatedAt": "2026-06-25T15:59:22.129Z",
+  "sdkCount": 24,
   "sdks": [
     {
       "name": "@hojai/foundation",
-      "description": "HOJAI Foundation SDK - Core building blocks for building HOJAI-native applications. Wraps CorpID, MemoryOS, TwinOS, SADA, SkillOS, and more into a single unified client.",
+      "description": "HOJAI Foundation SDK — unified client for CorpID, MemoryOS, TwinOS, SADA Trust, Flow Orchestrator, and PolicyOS. Routes through the RTMN Hub (http://localhost:4399).",
       "version": "1.0.0",
       "methods": null,
       "docsUrl": "/sdks/foundation.html"
@@ -24,6 +24,13 @@
       "docsUrl": "/sdks/ai-spec.html"
     },
     {
+      "name": "@hojai/agentos",
+      "description": "AgentOS SDK — TypeScript client for HOJAI Agent Operating System. Manage AI employee lifecycle: create, deploy, pause, resume, heartbeat, version snapshots, and capability-based search across the AgentOS platform (agent-registry + agent-orc",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/agentos.html"
+    },
+    {
       "name": "@hojai/bizora",
       "description": "Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.",
       "version": "1.0.0",
@@ -31,11 +38,25 @@
       "docsUrl": "/sdks/bizora.html"
     },
     {
+      "name": "@hojai/cloud",
+      "description": "Cloud SDK - Client for the HOJAI Cloud deploy service (port 4380). The deploy target for `npx hojai deploy --mode=remote`. Push projects, list deployments, tear down — the wildcard *.hojai.app routing layer.",
+      "version": "1.0.0",
+      "methods": 5,
+      "docsUrl": "/sdks/cloud.html"
+    },
+    {
       "name": "@hojai/commerce",
       "description": "Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.",
       "version": "1.0.0",
       "methods": 101,
       "docsUrl": "/sdks/commerce.html"
+    },
+    {
+      "name": "@hojai/copilots",
+      "description": "Copilots SDK - Client for the 7 HOJAI department copilots (agent, business, executive, finance, marketing, sales, support). One sub-client per copilot, ~50 methods total.",
+      "version": "1.0.0",
+      "methods": 56,
+      "docsUrl": "/sdks/copilots.html"
     },
     {
       "name": "@hojai/department",
@@ -141,6 +162,13 @@
       "version": "1.0.0",
       "methods": null,
       "docsUrl": "/sdks/widget-core.html"
+    },
+    {
+      "name": "@hojai/widget-react",
+      "description": "React wrapper for the HOJAI Widget.",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/widget-react.html"
     }
   ]
 }

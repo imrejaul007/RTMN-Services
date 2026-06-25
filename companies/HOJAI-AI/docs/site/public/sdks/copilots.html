@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/copilots — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (24)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK — unified client for CorpID, MemoryOS, TwinOS, SADA Trust, Flow Orchestrator, and PolicyOS. Routes through the RTMN Hub (http://localhost:4399).">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/agentos.html" class="" title="AgentOS SDK — TypeScript client for HOJAI Agent Operating System. Manage AI employee lifecycle: create, deploy, pause, resume, heartbeat, version snapshots, and capability-based search across the AgentOS platform (agent-registry + agent-orc">agentos</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/cloud.html" class="" title="Cloud SDK - Client for the HOJAI Cloud deploy service (port 4380). The deploy target for `npx hojai deploy --mode=remote`. Push projects, list deployments, tear down — the wildcard *.hojai.app routing layer.">cloud</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/copilots.html" class="active" title="Copilots SDK - Client for the 7 HOJAI department copilots (agent, business, executive, finance, marketing, sales, support). One sub-client per copilot, ~50 methods total.">copilots</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+    <a href="/sdks/widget-react.html" class="" title="React wrapper for the HOJAI Widget.">widget-react</a>
+  </nav>
+  <footer>Built 2026-06-25 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/copilots</h1>
+<p class="lead">Copilots SDK - Client for the 7 HOJAI department copilots (agent, business, executive, finance, marketing, sales, support). One sub-client per copilot, ~50 methods total.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/copilots">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.js</code></p>
+
+<p><strong>Methods:</strong> ~56</p>
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/copilots` v1.0.0 &gt; **TypeScript:** First-class with full type definitions &gt; **Runtime:** Node.js &gt;= 18 &gt; **Status:** Built and tested (10/10 tests passing, 0 failures)</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>CLAUDE.md - HOJAI Copilots SDK (@hojai/copilots)</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/copilots</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with full type definitions</p>
+<p>&gt; <strong>Runtime:</strong> Node.js &gt;= 18</p>
+<p>&gt; <strong>Status:</strong> Built and tested (10/10 tests passing, 0 failures)</p>
+<h2>What this SDK is</h2>
+<p><strong>The official TypeScript client for the 7 HOJAI department copilots.</strong> Each copilot is a self-contained AI service on its own port, with its own domain-specific surface. This SDK wraps all 7 into a single ergonomic client.</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Port</th>
+<th>Methods</th>
+<th>Domain</th>
+</tr></thead><tbody>
+<tr>
+<td><code>agent</code></td>
+<td>4920</td>
+<td>11</td>
+<td>Agent runtime, executions, workflows</td>
+</tr>
+<tr>
+<td><code>sales</code></td>
+<td>4928</td>
+<td>8</td>
+<td>Lead priority, talking points, email/meeting prep, forecast</td>
+</tr>
+<tr>
+<td><code>marketing</code></td>
+<td>4929</td>
+<td>7</td>
+<td>Campaign drafts, audiences, competitor analysis, SEO</td>
+</tr>
+<tr>
+<td><code>finance</code></td>
+<td>4930</td>
+<td>8</td>
+<td>Invoicing, cashflow forecast, expense categorize, tax</td>
+</tr>
+<tr>
+<td><code>support</code></td>
+<td>4925</td>
+<td>9</td>
+<td>Tickets, AI reply suggestions, KB search, escalation</td>
+</tr>
+<tr>
+<td><code>executive</code></td>
+<td>4933</td>
+<td>7</td>
+<td>KPIs, board reports, strategic plans, competitor monitor</td>
+</tr>
+<tr>
+<td><code>business</code></td>
+<td>4600</td>
+<td>6</td>
+<td>Strategic insights, growth ops, risk assessment</td>
+</tr>
+</tbody></table>
+<p><strong>Total: 56 methods across 7 sub-clients.</strong></p>
+<h2>Architecture</h2>
+<pre class="md-code"><code class="lang-">@hojai/copilots
+├── Copilots                  # Main client (facade)
+│   ├── agent                # AgentCopilotClient      — 11 methods
+│   ├── sales                # SalesCopilotClient      — 8
+│   ├── marketing            # MarketingCopilotClient  — 7
+│   ├── finance              # FinanceCopilotClient    — 8
+│   ├── support              # SupportCopilotClient    — 9
+│   ├── executive            # ExecutiveCopilotClient  — 7
+│   └── business             # BusinessCopilotClient   — 6
+├── HojaiConfig                # Shared config
+└── resolveConfig()            # Apply defaults</code></pre>
+<p>Self-contained — does NOT import from other <code>@hojai/*</code> packages. Carries its own copy of <code>HojaiConfig</code> + <code>request()</code> + <code>buildQueryString</code> (~80 LOC).</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-ts">import { Copilots } from '@hojai/copilots';
+
+const c = new Copilots({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// 1. Sales: prioritize a lead
+const score = await c.sales.prioritize({ leadId: 'l-1' });
+
+// 2. Marketing: draft a campaign
+const campaign = await c.marketing.draftCampaign({ name: 'Q3 Launch', channel: 'email', audience: 'enterprise' });
+
+// 3. Finance: forecast cashflow
+const cf = await c.finance.forecastCashflow({ months: 6 });
+
+// 4. Support: suggest a reply
+const reply = await c.support.suggestReply({ ticketId: 't-1' });
+
+// 5. Executive: get board report
+const report = await c.executive.getBoardReport('Q2-2026');
+
+// 6. Business: strategic analysis
+const insight = await c.business.strategicAnalysis({ topic: 'market expansion' });
+
+// 7. Agent: execute a workflow
+const result = await c.agent.execute({ agentId: 'a-1', input: { x: 1 } });</code></pre>
+<h2>Build &amp; test</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-copilots
+npm install
+npm run build
+npm test</code></pre>
+<h2>Tests (10/10 passing)</h2>
+<ul>
+<li>Copilots client instantiates with 7 sub-clients</li>
+<li>AgentCopilot.createAgent (port 4920)</li>
+<li>SalesCopilot.prioritize (port 4928)</li>
+<li>MarketingCopilot.draftCampaign (port 4929)</li>
+<li>FinanceCopilot.forecastCashflow (port 4930)</li>
+<li>SupportCopilot.suggestReply (port 4925)</li>
+<li>ExecutiveCopilot.getBoardReport (port 4933)</li>
+<li>BusinessCopilot.strategicAnalysis (port 4600)</li>
+<li>Retries on 5xx</li>
+<li>Throws on 4xx</li>
+</ul>
+<h2>Related</h2>
+<ul>
+<li><a href="../hojai-industry/CLAUDE.md"><code>@hojai/industry</code></a> — 26 vertical Industry OSes</li>
+<li><a href="../hojai-department/CLAUDE.md"><code>@hojai/department</code></a> — 9 horizontal Department OSes</li>
+<li><a href="../hojai-sutar/CLAUDE.md"><code>@hojai/sutar</code></a> — Agent runtime (the agent copilot wraps this)</li>
+<li><a href="https://github.com/hojai/copilots">Copilot services</a> — the underlying Express services</li>
+</ul>
+<h2>Why this matters</h2>
+<p>Each copilot was a standalone service. The 7 were built by different teams at different times with different API shapes. This SDK unifies them — one consistent client surface, one consistent error model, one consistent retry policy.</p>
+<p>The SDK family is now <strong>27 deep</strong> with this addition.</p></div>
+
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/copilots</h1>
+<p>&gt; The official TypeScript SDK for the <strong>7 HOJAI department copilots</strong>. One sub-client per copilot: agent, business, executive, finance, marketing, sales, support. ~50 methods total across all 7.</p>
+<p><a href="https://img.shields.io/npm/v/@hojai/copilots.svg">![npm version</a>](https://www.npmjs.com/package/@hojai/copilots)</p>
+<p><a href="https://img.shields.io/badge/TypeScript-5.3-blue.svg">![TypeScript</a>](https://www.typescriptlang.org/)</p>
+<p><a href="https://img.shields.io/badge/License-MIT-yellow.svg">![License: MIT</a>](https://opensource.org/licenses/MIT)</p>
+<h2>What it is</h2>
+<p>The 7 copilots are the <strong>per-department AI assistants</strong> in HOJAI. Each one runs on its own port and has its own domain-specific surface. This SDK wraps all 7 into a single ergonomic client.</p>
+<table class="md-table"><thead><tr>
+<th>Sub-client</th>
+<th>Port</th>
+<th>What it does</th>
+</tr></thead><tbody>
+<tr>
+<td><code>agent</code></td>
+<td>4920</td>
+<td>Agent registry + workflow execution + lifecycle</td>
+</tr>
+<tr>
+<td><code>sales</code></td>
+<td>4928</td>
+<td>Lead prioritization, talking points, email drafts, meeting prep, forecasting</td>
+</tr>
+<tr>
+<td><code>marketing</code></td>
+<td>4929</td>
+<td>Campaign drafts, audience segments, competitor analysis, SEO</td>
+</tr>
+<tr>
+<td><code>finance</code></td>
+<td>4930</td>
+<td>Invoicing, cashflow forecasting, expense categorization, tax estimates</td>
+</tr>
+<tr>
+<td><code>support</code></td>
+<td>4925</td>
+<td>Ticket lifecycle, AI reply suggestions, knowledge base search, escalation</td>
+</tr>
+<tr>
+<td><code>executive</code></td>
+<td>4933</td>
+<td>KPI dashboards, board reports, strategic planning, competitor monitoring</td>
+</tr>
+<tr>
+<td><code>business</code></td>
+<td>4600</td>
+<td>Strategic insights, growth opportunities, risk assessment, ops reviews</td>
+</tr>
+</tbody></table>
+<h2>Install</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/copilots</code></pre>
+<h2>Quick start</h2>
+<pre class="md-code"><code class="lang-ts">import { Copilots } from '@hojai/copilots';
+
+const c = new Copilots({ apiKey, baseUrl: 'https://api.hojai.ai' });
+
+// 1. Sales: prioritize a lead
+const score = await c.sales.prioritize({ leadId: 'l-1' });
+console.log(`${score.score}/100 → ${score.recommendedAction}`);
+
+// 2. Marketing: draft a campaign
+const campaign = await c.marketing.draftCampaign({
+  name: 'Q3 Launch', channel: 'email', audience: 'enterprise'
+});
+
+// 3. Finance: forecast cashflow
+const cf = await c.finance.forecastCashflow({ months: 6 });
+console.log(`Net: $${cf.net}, Runway: ${cf.runway}mo`);
+
+// 4. Support: suggest a reply
+const reply = await c.support.suggestReply({ ticketId: 't-1' });
+console.log(reply.reply);
+
+// 5. Executive: get board report
+const report = await c.executive.getBoardReport('Q2-2026');
+
+// 6. Agent: execute a workflow
+const result = await c.agent.execute({
+  agentId: 'a-1',
+  input: { customerId: 'c-1', action: 'process-refund' }
+});</code></pre>
+<h2>Subpath imports</h2>
+<pre class="md-code"><code class="lang-ts">import { Copilots } from '@hojai/copilots';
+import { SalesCopilotClient, FinanceCopilotClient } from '@hojai/copilots/copilots';
+import type { LeadScore, Invoice, ForecastResult } from '@hojai/copilots/types';</code></pre>
+<h2>Configuration</h2>
+<pre class="md-code"><code class="lang-ts">const c = new Copilots({
+  apiKey: 'hojai_live_...',
+  baseUrl: 'https://api.hojai.ai',
+  timeout: 10_000,        // default 10s
+  maxRetries: 3            // default 3
+});</code></pre>
+<p>When <code>baseUrl</code> includes <code>localhost</code>, each sub-client automatically targets its dedicated port.</p>
+<h2>Tests</h2>
+<pre class="md-code"><code class="lang-bash">cd companies/HOJAI-AI/sdk/hojai-copilots
+npm install
+npm run build
+npm test</code></pre>
+<h2>See also</h2>
+<ul>
+<li><a href="../hojai-industry/"><code>@hojai/industry</code></a> — 26 vertical Industry OSes</li>
+<li><a href="../hojai-department/"><code>@hojai/department</code></a> — 9 horizontal Department OSes</li>
+<li><a href="../hojai-sutar/"><code>@hojai/sutar</code></a> — Agent runtime (the agent copilot wraps this)</li>
+</ul>
+<p>The SDK family is now <strong>27 deep</strong>.</p></div>
+
+</main>
+</body>
+</html>

@@ -29,44 +29,80 @@ const PORT = parseInt(process.env.PORT || '5342', 10);
 const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'multimodal-api-internal-token';
 
 const SERVICES = {
-  'mm-asset-store':   { port: 5343, purpose: 'Raw bytes + metadata store with content-hash dedup', modalities: ['image', 'audio', 'video', 'document', 'other'] },
-  'image-pipeline':   { port: 5344, purpose: 'Image decode/resize/thumbnail/normalize/EXIF-strip', modalities: ['image'] },
-  'audio-pipeline':   { port: 5345, purpose: 'Audio decode/resample/VAD/chunk', modalities: ['audio'] },
-  'video-pipeline':   { port: 5346, purpose: 'Video probe/frame/keyframe/audio-split/thumbnail', modalities: ['video'] },
-  'mm-embedder':      { port: 5347, purpose: 'Hash-based pseudo-embeddings per modality', modalities: ['image', 'audio', 'video', 'text', 'document'] },
-  'mm-vector-index':  { port: 5348, purpose: 'Per-modality buckets + cosine similarity search', modalities: ['image', 'audio', 'video', 'text', 'document'] },
-  'mm-chunker':       { port: 5349, purpose: 'Text/audio/video/OCR chunking strategies', modalities: ['text', 'audio', 'video', 'ocr'] },
-  'mm-ocr':           { port: 5350, purpose: 'Text-from-image with confidence (stub)', modalities: ['image'] },
+  'mm-asset-store':         { port: 5339, purpose: 'Raw bytes + metadata store with content-hash dedup', modalities: ['image', 'audio', 'video', 'document', 'other'] },
+  'image-pipeline':         { port: 5343, purpose: 'Image decode/resize/thumbnail/normalize/EXIF-strip', modalities: ['image'] },
+  'audio-pipeline':         { port: 5344, purpose: 'Audio decode/resample/VAD/chunk', modalities: ['audio'] },
+  'video-pipeline':         { port: 5345, purpose: 'Video probe/frame/keyframe/audio-split/thumbnail', modalities: ['video'] },
+  'mm-embedder':            { port: 5347, purpose: 'OpenAI text-embedding-3-small + cosine similarity search', modalities: ['image', 'audio', 'video', 'text', 'document'] },
+  'mm-vector-index':        { port: 5348, purpose: 'Per-modality buckets + cosine similarity search', modalities: ['image', 'audio', 'video', 'text', 'document'] },
+  'mm-chunker':             { port: 5340, purpose: 'Text/audio/video/OCR chunking strategies', modalities: ['text', 'audio', 'video', 'ocr'] },
+  'mm-image-understanding': { port: 5371, purpose: 'GPT-4o Vision: detect_objects, classify_scene, caption, extract_text', modalities: ['image'] },
+  'mm-audio-transcription': { port: 5370, purpose: 'OpenAI Whisper: transcribe, detect_language, VAD, speaker diarization', modalities: ['audio'] },
+  'mm-ocr':                 { port: 5372, purpose: 'GPT-4o Vision OCR: extract text from documents with layout blocks', modalities: ['image'] },
+  'mm-visual-generator':    { port: 5373, purpose: 'DALL-E image generation + SVG fallback + layout suggestions', modalities: ['text', 'image'] },
+  'mm-video-analysis':      { port: 5353, purpose: 'FFmpeg: scene detection, shot boundaries, keyframe extraction', modalities: ['video'] },
 };
 
 const CAPABILITY_MAP = {
-  store_asset:        ['mm-asset-store'],
-  get_asset_bytes:    ['mm-asset-store'],
-  dedup_asset:        ['mm-asset-store'],
-  decode_image:       ['image-pipeline'],
-  resize_image:       ['image-pipeline'],
-  thumbnail_image:    ['image-pipeline'],
-  normalize_image:    ['image-pipeline'],
-  strip_exif:         ['image-pipeline'],
-  decode_audio:       ['audio-pipeline'],
-  resample_audio:     ['audio-pipeline'],
-  vad_audio:          ['audio-pipeline'],
-  chunk_audio:        ['audio-pipeline'],
-  probe_video:        ['video-pipeline'],
-  extract_frames:     ['video-pipeline'],
-  extract_keyframes:  ['video-pipeline'],
-  split_audio_track:  ['video-pipeline'],
-  video_thumbnail:    ['video-pipeline'],
-  embed:              ['mm-embedder'],
-  embed_batch:        ['mm-embedder'],
-  search_similar:     ['mm-vector-index'],
-  cosine_search:      ['mm-vector-index'],
-  chunk_text:         ['mm-chunker'],
-  chunk_audio_segment:['mm-chunker'],
-  chunk_video_scene:  ['mm-chunker'],
-  chunk_ocr:          ['mm-chunker'],
-  ocr:                ['mm-ocr'],
-  ocr_batch:          ['mm-ocr'],
+  // Asset management
+  store_asset:         ['mm-asset-store'],
+  get_asset_bytes:     ['mm-asset-store'],
+  dedup_asset:         ['mm-asset-store'],
+  // Image pipeline
+  decode_image:        ['image-pipeline'],
+  resize_image:        ['image-pipeline'],
+  thumbnail_image:     ['image-pipeline'],
+  normalize_image:     ['image-pipeline'],
+  strip_exif:          ['image-pipeline'],
+  // Audio pipeline
+  decode_audio:        ['audio-pipeline'],
+  resample_audio:      ['audio-pipeline'],
+  vad_audio:           ['audio-pipeline'],
+  chunk_audio:         ['audio-pipeline'],
+  // Video pipeline
+  probe_video:         ['video-pipeline'],
+  extract_frames:      ['video-pipeline'],
+  extract_keyframes:   ['video-pipeline'],
+  split_audio_track:   ['video-pipeline'],
+  video_thumbnail:     ['video-pipeline'],
+  // Vision understanding
+  detect_objects:      ['mm-image-understanding'],
+  classify_scene:      ['mm-image-understanding'],
+  caption_image:       ['mm-image-understanding'],
+  extract_image_text:  ['mm-image-understanding'],
+  extract_dominant_colors: ['mm-image-understanding'],
+  // Audio transcription
+  transcribe_audio:    ['mm-audio-transcription'],
+  detect_language:     ['mm-audio-transcription'],
+  voice_activity_detection: ['mm-audio-transcription'],
+  speaker_diarization:  ['mm-audio-transcription'],
+  summarize_audio:      ['mm-audio-transcription'],
+  // OCR
+  ocr_document:         ['mm-ocr'],
+  extract_layout:       ['mm-ocr'],
+  // Visual generation
+  generate_image:       ['mm-visual-generator'],
+  suggest_layout:       ['mm-visual-generator'],
+  // Video analysis
+  detect_scenes:         ['mm-video-analysis'],
+  detect_shots:          ['mm-video-analysis'],
+  classify_action:       ['mm-video-analysis'],
+  extract_video_keyframes: ['mm-video-analysis'],
+  summarize_video:       ['mm-video-analysis'],
+  // Embeddings
+  embed:                ['mm-embedder'],
+  embed_batch:          ['mm-embedder'],
+  // Similarity search
+  search_similar:        ['mm-vector-index'],
+  cosine_search:         ['mm-vector-index'],
+  // Chunking
+  chunk_text:            ['mm-chunker'],
+  chunk_audio_segment:   ['mm-chunker'],
+  chunk_video_scene:     ['mm-chunker'],
+  chunk_ocr:             ['mm-chunker'],
+  // Legacy OCR alias
+  ocr:                  ['mm-ocr'],
+  ocr_batch:             ['mm-ocr'],
 };
 
 function nowIso() { return new Date().toISOString(); }

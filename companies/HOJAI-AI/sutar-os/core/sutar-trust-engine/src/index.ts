@@ -5,13 +5,12 @@ import cors from "cors";
 import helmet from "helmet";
 import { z } from "zod";
 
-import trustService from "./services/trustService";
-import reputationService from "./services/reputationService";
-import creditCheckService from "./services/creditCheck";
-import verificationService from "./services/verificationService";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { emit: emitEvent, shutdown: shutdownEvents } = require("./services/events");
-import logger from "./utils/logger";
+import trustService from "./services/trustService.js";
+import reputationService from "./services/reputationService.js";
+import creditCheckService from "./services/creditCheck.js";
+import verificationService from "./services/verificationService.js";
+import { emit as emitEvent, shutdown as shutdownEvents } from "./services/events.js";
+import logger from "./utils/logger.js";
 import * as rezIntel from "./rez-intel-client.js";
 
 const app = express();

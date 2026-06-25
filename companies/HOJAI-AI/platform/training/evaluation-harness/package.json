@@ -1,15 +1,13 @@
 {
-  "name": "rtmn-evaluation-harness",
+  "name": "@hojai/eval-harness",
   "version": "1.0.0",
-  "description": "RTMN Evaluation Harness - LLM evaluation framework: benchmarks, runs, scoring, and head-to-head model comparison",
+  "description": "HOJAI Evaluation Harness - LLM evaluation framework: benchmarks, runs, scoring, and head-to-head model comparison",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --test tests/evaluation-harness.test.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "helmet": "^7.1.0",
-    "uuid": "^9.0.0"
+    "express": "^4.18.2"
   }
 }

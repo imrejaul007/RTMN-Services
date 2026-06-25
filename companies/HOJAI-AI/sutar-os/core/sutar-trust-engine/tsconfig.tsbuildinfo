@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/rez-intel-client.ts","./src/config/index.ts","./src/services/creditcheck.ts","./src/services/events.ts","./src/services/reputationservice.ts","./src/services/trustservice.ts","./src/services/verificationservice.ts","./src/types/index.ts","./src/types/shared.d.ts","./src/utils/logger.ts"],"errors":true,"version":"5.9.3"}

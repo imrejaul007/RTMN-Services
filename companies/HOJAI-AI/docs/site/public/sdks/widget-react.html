@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@hojai/widget-react — HOJAI docs</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="">
+<aside class="sidebar">
+  <div class="brand">
+    <a href="/">HOJAI</a>
+    <small>docs.hojai.ai</small>
+  </div>
+  <nav>
+    <a href="/" class="">Home</a>
+    <a href="/quickstart.html" class="">Quickstart</a>
+    <a href="/cli.html" class="">CLI reference</a>
+    <a href="/ai-native.html" class="">AI-native spec</a>
+    <h3>SDKs (24)</h3>
+    <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK — unified client for CorpID, MemoryOS, TwinOS, SADA Trust, Flow Orchestrator, and PolicyOS. Routes through the RTMN Hub (http://localhost:4399).">foundation</a>
+    <a href="/sdks/cli.html" class="" title="The HOJAI command-line tool (npx hojai). Manage config, search the marketplace, capture memories, compose LLM context, generate AI-native specs, deploy projects, add agents + integrations — all from your terminal.">cli</a>
+    <a href="/sdks/ai-spec.html" class="" title="AI-native spec for HOJAI projects — defines the schema for hojai.ai.md + .hojai/manifest.json + .hojai/capability.json so AI coding tools (Claude Code, Cursor, Codex) can understand HOJAI projects.">ai-spec</a>
+    <a href="/sdks/agentos.html" class="" title="AgentOS SDK — TypeScript client for HOJAI Agent Operating System. Manage AI employee lifecycle: create, deploy, pause, resume, heartbeat, version snapshots, and capability-based search across the AgentOS platform (agent-registry + agent-orc">agentos</a>
+    <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
+    <a href="/sdks/cloud.html" class="" title="Cloud SDK - Client for the HOJAI Cloud deploy service (port 4380). The deploy target for `npx hojai deploy --mode=remote`. Push projects, list deployments, tear down — the wildcard *.hojai.app routing layer.">cloud</a>
+    <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
+    <a href="/sdks/copilots.html" class="" title="Copilots SDK - Client for the 7 HOJAI department copilots (agent, business, executive, finance, marketing, sales, support). One sub-client per copilot, ~50 methods total.">copilots</a>
+    <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
+    <a href="/sdks/genie.html" class="" title="Genie SDK - Client for HOJAI Genie personal AI assistant platform. Wraps 23 Genie services (gateway + memory + briefing + calendar + search + voice + companion + assistant + lifestyle + serendipity) into a single ergonomic TypeScript client">genie</a>
+    <a href="/sdks/industry.html" class="" title="Industry OS SDK - Client for the 24 (now 26) vertical Industry OS services of RTMN. Wraps Restaurant, Hotel, Healthcare, Retail, Legal, Education, Agriculture, Automotive, Beauty, Fashion, Fitness, Gaming, Government, Home Services, Manufac">industry</a>
+    <a href="/sdks/marketplace.html" class="" title="BAM Marketplace SDK - Client for the BLR AI Marketplace (BAM). Wraps 8 backend services (listings, reviews, discovery, exploration, evaluation, reputation, ROI, founder, twins) into a single ergonomic client.">marketplace</a>
+    <a href="/sdks/media.html" class="" title="Media SDK - Client for HOJAI Media OS (content + streaming + creator + channels + playlists + live + comments).">media</a>
+    <a href="/sdks/memory.html" class="" title="Memory SDK - Client for the HOJAI Memory Layer (MemoryOS, memory-network, memory-confidence, twin-memory-bridge, memory-context-engine).">memory</a>
+    <a href="/sdks/nexha.html" class="" title="Nexha SDK - Client for the Nexha federation network. Wraps 12+ nexha-* services (business-directory, supplier, distribution, warehouse, pricing, trade-finance, commerce, mission, partner, acp-messaging, hooks, provisioning, tenant) into a s">nexha</a>
+    <a href="/sdks/payment.html" class="" title="Unified Payment SDK for the HOJAI AI / RABTUL ecosystem. Wraps rez-payment, rez-bill-payments, REZ-sepa, REZ-payment-gateway, settlement aggregation, and webhook management into a single ergonomic client.">payment</a>
+    <a href="/sdks/razor.html" class="" title="Razor SDK - Client for the HOJAI RAZO Keyboard Communication OS (port 4725). Wraps the intent router, multi-channel messaging (WhatsApp/Telegram/SMS/email), and conversation sessions.">razor</a>
+    <a href="/sdks/reputation.html" class="" title="Reputation SDK - Client for HOJAI trust + reputation (SADA, agent-reputation, dispute resolution, leaderboard, network graph, risk scoring).">reputation</a>
+    <a href="/sdks/skills.html" class="" title="Skills SDK - Client for HOJAI SkillOS + Skill Marketplace + Prompt Manager + Workflow Marketplace + Translation OS.">skills</a>
+    <a href="/sdks/sutar.html" class="" title="SUTAR SDK - Client for the SUTAR agent runtime. Wraps 15+ SUTAR services (merchant-agents, agent-orchestration, agent-contracts, agent-learning, ACP, etc.) into a single ergonomic client.">sutar</a>
+    <a href="/sdks/twin.html" class="" title="Twin SDK - Client for HOJAI TwinOS: the central Hub + 4 specialized twins (customer, order, employee, voice).">twin</a>
+    <a href="/sdks/whatsapp.html" class="" title="WhatsApp SDK - Client for the HOJAI WhatsApp OS (port 4860). 360dialog / Twilio / Meta Cloud API provider switching, template management, contact CRM, and messaging.">whatsapp</a>
+    <a href="/sdks/widget-core.html" class="" title="HOJAI Widget Core — 5KB vanilla JS that turns any website into an AI front office powered by SUTAR agents.">widget-core</a>
+    <a href="/sdks/widget-react.html" class="active" title="React wrapper for the HOJAI Widget.">widget-react</a>
+  </nav>
+  <footer>Built 2026-06-25 · <a href="https://github.com/hojai-ai/hojai">github</a></footer>
+</aside>
+<main>
+
+<h1>@hojai/widget-react</h1>
+<p class="lead">React wrapper for the HOJAI Widget.</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/widget-react">npm</a></p>
+<p><strong>Entry:</strong> <code>dist/index.cjs</code></p>
+
+
+
+<h2>Overview</h2>
+<p>&gt; **Package:** `@hojai/widget-react` v1.0.0 &gt; **TypeScript:** First-class with React 17/18 types &gt; **Runtime:** Browser only (uses React + DOM) &gt; **Status:** ✅ **PRODUCTION-READY** — Built on top of `@hojai/widget-core`. ---</p>
+
+<h2 id="full-claude">Full CLAUDE.md</h2>
+<div class="md"><h1>@hojai/widget-react — React Wrapper for the HOJAI Widget</h1>
+<p>&gt; <strong>Package:</strong> <code>@hojai/widget-react</code> v1.0.0</p>
+<p>&gt; <strong>TypeScript:</strong> First-class with React 17/18 types</p>
+<p>&gt; <strong>Runtime:</strong> Browser only (uses React + DOM)</p>
+<p>&gt; <strong>Status:</strong> ✅ <strong>PRODUCTION-READY</strong> — Built on top of <code>@hojai/widget-core</code>.</p>
+<p>---</p>
+<h2>What this SDK is</h2>
+<p><strong>React wrapper for the 5KB HOJAI widget.</strong> Drop <code>&lt;HojaiChat /&gt;</code> in any React app to add an AI front-office chat powered by SUTAR agents.</p>
+<ul>
+<li>Browser-only (depends on <code>window</code>, <code>document</code>, DOM)</li>
+<li>Thin React layer over <code>@hojai/widget-core</code> (which does the heavy lifting)</li>
+<li>Two surface areas: <code>&lt;HojaiChat&gt;</code> component + <code>useHojaiWidget()</code> hook</li>
+<li>Imperative handle via <code>ref</code> for programmatic control (<code>send</code>, <code>open</code>, <code>close</code>, <code>getHistory</code>, <code>identify</code>)</li>
+</ul>
+<p>---</p>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/widget-react @hojai/widget-core</code></pre>
+<pre class="md-code"><code class="lang-tsx">import { HojaiChat } from '@hojai/widget-react';
+
+function App() {
+  return (
+    &lt;&gt;
+      &lt;h1&gt;My Store&lt;/h1&gt;
+      &lt;HojaiChat
+        apiKey=&quot;pk_live_xxxx&quot;
+        companyId=&quot;my-store&quot;
+        config={{ name: 'My Assistant', color: '#FF6B6B' }}
+      /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<p>---</p>
+<h2>Components &amp; Hooks</h2>
+<h3><code>&lt;HojaiChat&gt;</code> — declarative component</h3>
+<pre class="md-code"><code class="lang-tsx">import { HojaiChat, HojaiChatHandle } from '@hojai/widget-react';
+import { useRef } from 'react';
+
+function App() {
+  const chatRef = useRef&lt;HojaiChatHandle&gt;(null);
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={() =&gt; chatRef.current?.send('Hello!')}&gt;
+        Send hello
+      &lt;/button&gt;
+      &lt;HojaiChat
+        ref={chatRef}
+        apiKey=&quot;pk_live_xxxx&quot;
+        companyId=&quot;my-store&quot;
+        config={{ name: 'My Assistant', color: '#FF6B6B', position: 'bottom-right' }}
+        onMessage={(m) =&gt; console.log('user said:', m.text)}
+        onResponse={(m) =&gt; console.log('agent replied:', m.text)}
+        onError={(err) =&gt; console.error('widget error:', err)}
+        onOpen={() =&gt; console.log('chat opened')}
+        onClose={() =&gt; console.log('chat closed')}
+        className=&quot;my-chat&quot;
+        style={{ minHeight: 0 }}
+      /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<h3><code>useHojaiWidget()</code> — hook for programmatic control</h3>
+<pre class="md-code"><code class="lang-tsx">import { useHojaiWidget } from '@hojai/widget-react';
+
+function ChatPanel() {
+  const { widget, send, open, close, getHistory } = useHojaiWidget({
+    apiKey: 'pk_live_xxxx',
+    companyId: 'my-store'
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; open()}&gt;Open&lt;/button&gt;
+      &lt;button onClick={() =&gt; send('Hello!')}&gt;Send hello&lt;/button&gt;
+      &lt;button onClick={() =&gt; close()}&gt;Close&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p>---</p>
+<h2>Props</h2>
+<h3><code>HojaiChatProps</code> (extends <code>HojaiWidgetConfig</code>)</h3>
+<table class="md-table"><thead><tr>
+<th>Prop</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>apiKey</code></td>
+<td>string</td>
+<td>yes</td>
+<td>HOJAI API key</td>
+</tr>
+<tr>
+<td><code>companyId</code></td>
+<td>string</td>
+<td>yes</td>
+<td>Your company/tenant identifier</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td><code>HojaiWidgetConfig</code></td>
+<td>no</td>
+<td>Widget configuration (theme, position, etc.)</td>
+</tr>
+<tr>
+<td><code>className</code></td>
+<td>string</td>
+<td>no</td>
+<td>CSS class for the container</td>
+</tr>
+<tr>
+<td><code>style</code></td>
+<td><code>React.CSSProperties</code></td>
+<td>no</td>
+<td>Inline style for the container</td>
+</tr>
+<tr>
+<td><code>onMessage</code></td>
+<td><code>(message) =&gt; void</code></td>
+<td>no</td>
+<td>User-sent message callback</td>
+</tr>
+<tr>
+<td><code>onResponse</code></td>
+<td><code>(message) =&gt; void</code></td>
+<td>no</td>
+<td>Agent response callback</td>
+</tr>
+<tr>
+<td><code>onError</code></td>
+<td><code>(error: Error) =&gt; void</code></td>
+<td>no</td>
+<td>Widget error callback</td>
+</tr>
+<tr>
+<td><code>onOpen</code></td>
+<td><code>() =&gt; void</code></td>
+<td>no</td>
+<td>Chat opened callback</td>
+</tr>
+<tr>
+<td><code>onClose</code></td>
+<td><code>() =&gt; void</code></td>
+<td>no</td>
+<td>Chat closed callback</td>
+</tr>
+</tbody></table>
+<h3><code>HojaiChatHandle</code> (imperative ref)</h3>
+<table class="md-table"><thead><tr>
+<th>Method</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td><code>send(text)</code></td>
+<td>Send a message, returns a Promise with the response</td>
+</tr>
+<tr>
+<td><code>open()</code></td>
+<td>Open the chat panel</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Close the chat panel</td>
+</tr>
+<tr>
+<td><code>getHistory()</code></td>
+<td>Get the message history</td>
+</tr>
+<tr>
+<td><code>identify(user)</code></td>
+<td>Identify the end-user</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Build</h2>
+<pre class="md-code"><code class="lang-bash">npm install
+npm run build
+npm test</code></pre>
+<p>Outputs dual builds (CJS + ESM) for maximum compatibility.</p>
+<p>---</p>
+<h2>Files</h2>
+<pre class="md-code"><code class="lang-">hojai-widget-react/
+├── CLAUDE.md               # This file
+├── package.json            # @hojai/widget-react v1.0.0
+├── tsconfig.json
+├── tsconfig.cjs.json
+├── tsconfig.esm.json
+├── tsconfig.test.json
+├── src/
+│   ├── index.tsx            # HojaiChat component + useHojaiWidget hook
+│   └── __tests__/
+│       └── index.test.tsx   # Module exports + HojaiWidget re-export + SSR
+└── dist/                   # Compiled output (CJS + ESM)</code></pre>
+<p>---</p>
+<h2>Related</h2>
+<ul>
+<li><strong><a href="../hojai-widget-core/CLAUDE.md">@hojai/widget-core</a></strong> — the underlying 5KB vanilla JS widget</li>
+<li><strong><a href="../../../docs/widget/">HOJAI Widget docs</a></strong> — full widget guide</li>
+<li><strong><a href="snippet.html">Widget Snippet</a></strong> — 5-second HTML install (no build needed)</li>
+</ul>
+<p>---</p>
+<p><em>Built as the React surface for the HOJAI Widget.</em></p></div>
+
+
+
+</main>
+</body>
+</html>

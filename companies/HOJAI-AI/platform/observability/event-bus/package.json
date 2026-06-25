@@ -2,11 +2,11 @@
   "name": "@rtmn/event-bus",
   "version": "2.0.0",
   "description": "RTMN Event Bus - Cross-service pub/sub with webhooks, replay, DLQ, filtering, and schema versioning",
-  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/"
   },
   "dependencies": {
     "express": "^5.1.0",

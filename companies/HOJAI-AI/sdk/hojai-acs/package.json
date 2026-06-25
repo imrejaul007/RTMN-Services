@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/acs",
+  "version": "1.0.0",
+  "description": "ACS (Agent Capability Index) SDK — real-time agent capability scoring for the Nexha federation marketplace. Wraps nexha-acs-engine (port 4260).",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.mjs", "require": "./dist/index.js", "default": "./dist/index.js" },
+    "./acs": { "import": "./dist/acs.mjs", "require": "./dist/acs.js", "default": "./dist/acs.js" },
+    "./types": { "import": "./dist/types.mjs", "require": "./dist/types.js", "default": "./dist/types.js" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "keywords": ["hojai", "acs", "agent", "capability", "scoring", "nexus", "federation"],
+  "author": "HOJAI AI", "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": { "typescript": "^5.3.3", "@types/node": "^20.10.0" }
+}
