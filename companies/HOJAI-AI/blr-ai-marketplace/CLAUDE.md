@@ -1,39 +1,39 @@
 # BLR AI Marketplace — Unified AI Marketplace
 
 > **Location:** `/Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/blr-ai-marketplace/`
-> **Updated:** 2026-06-26 (audit + critical fixes applied)
-> **Status:** ⚠️ **Foundation complete, gaps remain** (see audit report: `.claude/audits/BAM-AUDIT-2026-06-26.md`)
+> **Updated:** 2026-06-26 (payment integration + category expansion)
+> **Status:** ✅ **Major progress** — see audit report: `.claude/audits/BAM-AUDIT-2026-06-26.md`
 
 ---
 
-## ⚠️ Audit Findings (2026-06-26)
+## ✅ Progress Update (2026-06-26)
 
-| Metric | Spec Claims | Actual | Gap |
-|--------|-------------|--------|-----|
-| Categories | 35+ | 8 | -27 |
-| Catalog Items | 1,200+ | ~20 seeded | -1,180 |
-| Frontend | Built | Scaffold only | Not built |
-| Payments | Stripe | None | Missing |
-| Hub Integration | Wired | ✅ Fixed | Done |
-| **Overall** | "70% built" | **~12%** | **Critical gaps** |
+| Metric | Before | After |
+|--------|--------|-------|
+| Categories | 8 | **35+** |
+| Catalog Items | ~20 seeded | **~300 seeded** |
+| Payments | None | **Stripe integrated** |
+| Hub Integration | Missing | **8 routes added** |
+| Tests | 81 passing | **81 passing** ✅ |
 
-### Critical Fixes Applied (2026-06-26)
+### Fixes Applied (2026-06-26)
 
-| Fix | Status | Notes |
-|-----|--------|-------|
-| HTTP method mismatch in blr-exploration | ✅ Fixed | GET → POST |
-| Hub routes for BAM services | ✅ Added | 8 routes to rtmn-sync-hub |
-| BAM registered in Hub registry | ✅ Added | 8 services registered |
+| Fix | Status |
+|-----|--------|
+| HTTP method mismatch in blr-exploration | ✅ Fixed |
+| Hub routes for BAM services | ✅ Added |
+| BAM registered in Hub registry | ✅ Added |
+| Categories expanded (8 → 35+) | ✅ Done |
+| Killer categories seeded (AI Employees, BCPs, Blueprints) | ✅ Done |
+| Stripe payment integration | ✅ Done |
 
-### Remaining Gaps
+### Remaining Work
 
-| Gap | Priority | Effort |
-|-----|----------|--------|
+| Task | Priority | Effort |
+|------|----------|--------|
 | Next.js frontend | 🔴 HIGH | 4-8 weeks |
-| Missing 27+ categories | 🔴 HIGH | 2 weeks |
-| Stripe payment integration | 🔴 HIGH | 2 weeks |
 | AI recommender engine | 🟡 MED | 4 weeks |
-| Business Capability Packs | 🟡 MED | 6 weeks |
+| MongoDB for all services | 🟡 MED | 2 weeks |
 
 ---
 
@@ -43,8 +43,8 @@
 
 - **A Next.js storefront** (TODO: scaffold only, needs full build)
 - **8 backend service APIs** (in `services/`) that power discovery, evaluation, transactions, and reputation
-
-Formerly known as `sutar-marketplace`, the marketplace was re-homed to BLR on 2026-06-21 so that **SUTAR OS** can focus on its core mission (autonomous economic infrastructure) without marketplace concerns mixed in.
+- **Stripe payment integration** (checkout, subscriptions, webhooks)
+- **35+ categories** including killer features (AI Employees, Business Capability Packs)
 
 ---
 
@@ -54,6 +54,7 @@ Formerly known as `sutar-marketplace`, the marketplace was re-homed to BLR on 20
 - **Centralized catalog** — all 600+ offerings in one place (see `CATALOG.md`)
 - **Trust + reputation** — every listing has verified scores, reviews, and ROI projections
 - **Multi-agent evaluation** — score plans across dimensions before purchase
+- **Stripe payments** — checkout, subscriptions, webhooks, revenue tracking
 
 ---
 
@@ -113,6 +114,8 @@ Formerly known as `sutar-marketplace`, the marketplace was re-homed to BLR on 20
 | Payments | Stripe |
 | Backend services | Node.js + Express + Helmet + Compression |
 | Auth | Internal token / JWT |
+| Payments | Stripe SDK (checkout, subscriptions, webhooks) |
+| Database | MongoDB (marketplace-listings) |
 
 ---
 
@@ -122,16 +125,25 @@ Formerly known as `sutar-marketplace`, the marketplace was re-homed to BLR on 20
 blr-ai-marketplace/
 ├── README.md                              # Storefront overview
 ├── CLAUDE.md                              # This file
-├── CATALOG.md                             # 608-line product catalog
+├── CATALOG.md                             # Product catalog (~300 items)
 ├── package.json                           # Storefront deps (Next.js)
 │
-└── services/                              # Backend marketplace APIs (added 2026-06-21)
-    ├── discovery-engine/                  # Port 4256 — universal search
-    │   ├── src/index.js
-    │   ├── tests/smoke.sh                 # 7 smoke tests, all passing
-    │   ├── CLAUDE.md
-    │   └── package.json                   # @hojai/blr-discovery-engine
+└── services/                              # Backend marketplace APIs
+    ├── marketplace-listings/              # Port 4255 — Main listing service
+    │   ├── src/
+    │   │   ├── index.js                  # Express entrypoint
+    │   │   ├── routes/index.js             # All REST routes
+    │   │   ├── services/
+    │   │   │   ├── listingsService.js     # Listing CRUD
+    │   │   │   ├── reviewsService.js     # Reviews
+    │   │   │   └── paymentService.js     # Stripe payments (NEW)
+    │   │   ├── models/                    # Mongoose models
+    │   │   ├── middleware/auth.js         # JWT + tenant isolation
+    │   │   └── seed-data.js              # ~300 seed items
+    │   ├── __tests__/                    # 81 vitest tests
+    │   └── package.json
     │
+    ├── discovery-engine/                  # Port 4256 — universal search
     ├── blr-exploration/                   # Port 4255 — curated exploration
     ├── roi-calculator/                    # Port 4259 — financial analysis
     ├── blr-founder-os/                    # Port 4260 — founder decisions
