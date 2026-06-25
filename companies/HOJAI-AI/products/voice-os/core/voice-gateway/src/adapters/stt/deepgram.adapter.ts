@@ -28,7 +28,7 @@ export class DeepgramAdapter {
 
       const response = await this.client.post('/transcribe', audioBuffer, {
         headers: {
-          'Authorization': `Token ${config.stt.engines.deepgram.apiKey}`,
+          'DG-API-Key': config.stt.engines.deepgram.apiKey,
           'Content-Type': this.getMimeType(filename),
         },
         params,
