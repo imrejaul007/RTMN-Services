@@ -1,0 +1,48 @@
+# Prometheus config for Nexha OS Runtime (Enterprise tier)
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'nexha-gateway'
+    static_configs:
+      - targets: ['nexha-gateway:5000']
+        labels:
+          service: nexha-gateway
+          tier: all
+
+  - job_name: 'nexha-foundation'
+    static_configs:
+      - targets:
+          - 'corp-id:4702'
+          - 'memory-os:4703'
+          - 'twinos-hub:4705'
+        labels:
+          service: foundation
+          tier: lite
+
+  - job_name: 'nexha-sutar'
+    static_configs:
+      - targets:
+          - 'sutar-gateway:4140'
+          - 'sutar-trust-engine:4291'
+          - 'sutar-contract-os:4292'
+          - 'sutar-negotiation-engine:4295'
+          - 'sutar-economy-os:4294'
+        labels:
+          service: sutar-os
+          tier: standard
+
+  - job_name: 'nexha-network'
+    static_configs:
+      - targets:
+          - 'business-directory:4360'
+          - 'partner-graph:4363'
+          - 'commerce-runtime:4364'
+          - 'capability-os:4270'
+          - 'acp-messaging:4340'
+          - 'agent-marketplace:4250'
+          - 'mission-planner:4362'
+        labels:
+          service: nexha-network
+          tier: enterprise

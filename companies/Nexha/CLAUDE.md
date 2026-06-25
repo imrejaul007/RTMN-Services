@@ -2,82 +2,117 @@
 
 ## What is NeXha?
 
-**NeXha** is the Unified Commerce Network Infrastructure for RTNM Group.
-- Positioned as "The Operating System for Commerce Networks"
-- Connects manufacturers, distributors, franchises, retailers, suppliers, and merchants
-- **Products:** NeXha OS + NextaBizz (B2B Procurement)
+**NeXha** is the autonomous business network — a federation of AI-powered business nodes (Nexhas) that negotiate, trade, and cooperate without human intermediaries. It is the network layer of the HOJAI Platform-as-an-Economy.
 
-## Products
+**Products:**
+- **Nexha OS Runtime** — self-hostable Docker bundle (port 5002 gateway)
+- **Nexha Federation OS** — federation management service (port 4273)
+- **Nexha Network Services** — 25 services covering trade lifecycle, commerce, logistics, and payments
 
-| Product | Description | Location |
-|---------|-------------|----------|
-| **NeXha OS** | Core microservices (10 services) | `./` |
-| **NextaBizz** | B2B Procurement Platform (Supabase-backed) | `./nextabizz/` |
+## Nexha OS Runtime
 
-## Quick Start
+The canonical self-hostable bundle lives at `nexha-os-runtime/`. This is the production-ready Docker distribution of Nexha OS.
 
 ```bash
-cd RTNM-Group/nexha
-pnpm install
-pnpm dev:portal    # Start portal (port 4388)
-pnpm dev:distribution  # Start DistributionOS
-pnpm dev:nextabizz  # Start NextaBizz
+cd nexha-os-runtime
+
+# Initialize (all tiers)
+nexha init --tier standard
+# Or via scripts
+bash scripts/init.sh --tier standard
+bash scripts/provision.sh   # auto-provisions CorpID + 8 agents
+bash scripts/join-federation.sh
+bash scripts/health-check.sh
 ```
 
-## Services
+**CLI** (`cli/`): `nexha init | register | federate | status | update | backup | destroy | logs`
 
+## Services (25 services)
+
+### Foundation (4 — all tiers)
 | Service | Port | Description |
 |---------|------|-------------|
-| **Nexha Gateway** | 5002 | Unified API gateway (HOJAI Bridge entry) |
-| **DistributionOS** | 4300 | Distributor management, van sales, route optimization, delivery tracking, returns |
-| **FranchiseOS** | 4310 | Franchise operations, royalty calculation, compliance monitoring |
-| **ProcurementOS** | 4320 | Supplier & RFQ, Buyer/Seller Agents, Deal State Machine, Commerce Memory, Feed, Reputation |
-| **ManufacturingOS** | 4330 | Production & BOM |
-| **TradeFinance** | 4340 | BNPL, credit lines, FX conversion, dispute resolution |
-| **Intelligence** | 4350 | AI predictions (Exponential Smoothing), fraud detection, churn prediction |
-| **Ecosystem Connector** | 4399 | Event bus, cross-OS orchestration with real API calls |
-| **Portal** | 4388 | B2B Marketplace (Next.js) |
-| **NextaBizz** | 3000 | B2B Procurement Platform (Supabase-backed) |
+| **nexha-gateway** | 5002 | Public API entry point |
+| **corp-id** (via HOJAI-AI) | 4702 | Universal identity |
+| **memory-os** (via HOJAI-AI) | 4703 | Multi-tier AI memory |
+| **twinos-hub** (via HOJAI-AI) | 4705 | Digital twins platform |
 
-## Security (Hardened June 13, 2026)
+### SUTAR OS (5 — Standard+)
+| Service | Port | Notes |
+|---------|------|-------|
+| **sutar-gateway** | 4140 | Commerce gateway |
+| **sutar-trust-engine** | 4291 | Trust scoring |
+| **sutar-contract-os** | 4292 | Smart contracts |
+| **sutar-negotiation-engine** | 4295 | Port 4293 reserved |
+| **sutar-economy-os** | 4294 | Economic layer |
 
-- ✅ Authentication on all 10 services
-- ✅ RBAC with 12 roles
-- ✅ Webhook signature verification (HMAC-SHA256) — mandatory, no bypass
-- ✅ Rate limiting (express-rate-limit)
-- ✅ Input validation (Zod schemas)
-- ✅ CORS configured
-- ✅ Timing-safe token comparison (crypto.timingSafeEqual)
-- ✅ Math.random() → crypto.randomInt()
-- ✅ MongoDB connected to all 6 core services
-- ✅ Authorization header forwarding in gateway (all routes)
-- ✅ Default webhook secrets removed — services fail-fast if not configured
-- ✅ Graceful shutdown handlers (SIGTERM/SIGINT)
-- ✅ Distributed tracing with x-trace-id propagation
+### Nexha Network (14 — Standard+)
+| Service | Port | Description |
+|---------|------|-------------|
+| **nexha-federation-os** | 4273 | Federation management, auto-match, onboarding checklist |
+| **nexha-supplier-network** | 4280 | Supplier discovery + scoring |
+| **nexha-supplier-registry** | 4281 | Trade lifecycle: KYB→contract→RFQ→PO→shipment→payment |
+| **nexha-pricing-network** | 4286 | Market price aggregation + dynamic pricing |
+| **nexha-distribution-network** | 4285 | Distribution channel management |
+| **nexha-trade-finance-network** | 4287 | Escrow + payment settlement |
+| **nexha-warehouse-network** | 4288 | Slot booking + WMS |
+| **nexha-business-directory** | 4360 | Business listings |
+| **nexha-partner-graph** | 4363 | Partner relationships |
+| **nexha-commerce-runtime** | 4364 | Trade operations |
+| **nexha-contract-network** | 4289 | Contract lifecycle (create→sign→execute→terminate) |
+| **nexha-compliance-network** | 4290 | KYB/KYC, regulatory checks, compliance alerts |
+| **nexha-payment-network** | 4296 | Payment orchestration, escrow, settlement |
+| **nexha-partner-network** | 4292 | Partner discovery, onboarding, relationship mgmt |
+| **nexha-acp-messaging** | 4340 | AI-to-AI messaging |
 
-## Running Services
+### Enterprise-only (3)
+| Service | Port | Description |
+|---------|------|-------------|
+| **nexha-capability-os** | 4270 | Capability registry + matching |
+| **nexha-agent-marketplace** | 4250 | AI agent discovery + reviews (10 seeded agents) |
+| **nexha-mission-planner** | 4362 | Multi-agent mission coordination |
+
+### Monitoring (Enterprise)
+| Service | Port |
+|---------|------|
+| **prometheus** | 9090 |
+| **grafana** | 3001 |
+
+## Docker Build
 
 ```bash
-# Install dependencies
-pnpm install
+# From nexha-os-runtime/
+docker compose --profile standard up -d
 
-# Start all services
-pnpm dev
+# Or build all images first
+docker compose build
+docker compose --profile standard up -d
+```
 
-# Or start individual services
-pnpm dev:distribution   # Port 4300
-pnpm dev:franchise    # Port 4310
-pnpm dev:procurement # Port 4320
-pnpm dev:manufacturing # Port 4330
-pnpm dev:trade-finance # Port 4340
-pnpm dev:intelligence  # Port 4350
-pnpm dev:connector    # Port 4399
-pnpm dev:portal      # Port 4388
+## Nexha Federation
 
-# Run tests
-pnpm test
+104 Nexhas seeded. Federation OS at `services/nexha-federation-os/` provides:
+- Auto-match based on capabilities
+- Onboarding checklist (5-step workflow)
+- Handshake protocol (initiate → accept → trust-build)
+- Tier system: founding, primary, secondary, observer
 
-# Build
+## Key Differentiators
+
+| Feature | How |
+|---------|-----|
+| Self-hostable | `docker compose up` — no cloud dependency |
+| Auto-provision | CorpID identity + 8 foundational agents seeded on first boot |
+| Port conflict-free | 4293 reserved; negotiation engine uses 4295; payment uses 4296 |
+| HOJAI-AI integration | 8 foundation services expected from HOJAI-AI submodule |
+| 3-tier scaling | Lite (~1GB) → Standard (~4GB) → Enterprise (~8GB) |
+
+## Developer Reference
+
+- [nexha-os-runtime/CLAUDE.md](nexha-os-runtime/CLAUDE.md) — full runtime docs
+- [nexha-os-runtime/README.md](nexha-os-runtime/README.md) — quick start + architecture
+- [services/nexha-supplier-registry/](services/nexha-supplier-registry/) — complete trade lifecycle (Phase F flagship)
+- [services/nexha-federation-os/](services/nexha-federation-os/) — federation management
 pnpm build
 ```
 

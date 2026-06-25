@@ -1,0 +1,540 @@
+# Nexha OS Runtime — Docker Compose (Local Build Mode)
+# ================================================================
+# All services build from local source. No GHCR dependency.
+#
+# Build all images:
+#   docker compose build
+#
+# Run tiers:
+#   docker compose --profile lite up -d
+#   docker compose --profile standard up -d
+#   docker compose --profile enterprise up -d
+#
+# Port map:
+#   4702  CorpID           5002  Nexha Gateway
+#   4703  MemoryOS          4140  SUTAR Gateway
+#   4705  TwinOS Hub        4291  Trust Engine
+#   4250  Agent Marketplace 4292  Contract OS
+#   4270  CapabilityOS       4295  Negotiation Engine  (4293 reserved)
+#   4280  Supplier Network  4294  Economy OS
+#   4285  Distribution Net   4360  Business Directory
+#   4286  Pricing Network   4362  Mission Planner
+#   4287  Trade Finance     4363  Partner Graph
+#   4288  Warehouse Network  4364  Commerce Runtime
+#   4289  Contract Network  4296  Payment Network  (4290 reserved)
+#   4290  Compliance Net    4292  Partner Network
+#   4340  ACP Messaging    9090  Prometheus
+#                                       3001  Grafana
+# ================================================================
+
+version: "3.9"
+
+x-common-env: &common-env
+  NODE_ENV: ${NODE_ENV:-development}
+  TZ: Asia/Kolkata
+
+x-common-volumes: &common-volumes
+  nexha-data:/data
+  nexha-logs:/logs
+  nexha-certs:/certs
+
+x-common-networks: &common-networks
+  - nexha-internal
+
+volumes:
+  nexha-data:
+  nexha-logs:
+  nexha-certs:
+
+networks:
+  nexha-internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+services:
+
+  # ── Foundation (all tiers) ───────────────────────────────────────
+
+  corp-id:
+    build:
+      context: ../../../HOJAI-AI/platform/identity/corpid-service
+      dockerfile: services/corp-id/Dockerfile
+    profiles: [lite, standard, enterprise]
+    container_name: nexha-corpid
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4702
+    ports:
+      - "4702:4702"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4702/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  memory-os:
+    build:
+      context: ../../../HOJAI-AI/platform/memory/memory-os
+      dockerfile: services/memory-os/Dockerfile
+    profiles: [lite, standard, enterprise]
+    container_name: nexha-memory
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4703
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4703:4703"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4703/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  twinos-hub:
+    build:
+      context: ../../../HOJAI-AI/platform/twins/twinos-hub
+      dockerfile: services/twinos-hub/Dockerfile
+    profiles: [lite, standard, enterprise]
+    container_name: nexha-twinos
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4705
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4705:4705"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4705/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nexha-gateway:
+    build:
+      context: ../services/nexha-gateway
+      dockerfile: Dockerfile
+    profiles: [lite, standard, enterprise]
+    container_name: nexha-gateway
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 5002
+      CORPID_URL: http://corp-id:4702
+      FEDERATION_URL: \${FEDERATION_URL:-http://federation-os:4273}
+    ports:
+      - "5000:5002"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Standard tier ───────────────────────────────────────────────
+
+  sutar-gateway:
+    build:
+      context: ../../../HOJAI-AI/sutar-os/core/sutar-gateway
+      dockerfile: services/sutar-gateway/Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-sutar-gateway
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4140
+      CORPID_URL: http://corp-id:4702
+      TWIN_OS_URL: http://twinos-hub:4705
+      FEDERATION_URL: \${FEDERATION_URL:-http://federation-os:4273}
+    ports:
+      - "4140:4140"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+      twinos-hub:
+        condition: service_healthy
+
+  sutar-trust-engine:
+    build:
+      context: ../../../HOJAI-AI/sutar-os/core/sutar-trust-engine
+      dockerfile: services/sutar-trust-engine/Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-trust-engine
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4291
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4291:4291"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  sutar-contract-os:
+    build:
+      context: ../../../HOJAI-AI/sutar-os/contracts/sutar-contract-os
+      dockerfile: services/sutar-contract-os/Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-contract-os
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4292
+      CORPID_URL: http://corp-id:4702
+      TRUST_ENGINE_URL: http://sutar-trust-engine:4291
+    ports:
+      - "4292:4292"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  # NOTE: Port 4293 is reserved for nexha-autonomous-logistics (in Nexha monorepo).
+  # SUTAR Negotiation Engine uses 4295 to avoid the port conflict.
+  sutar-negotiation-engine:
+    build:
+      context: ../../../HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine
+      dockerfile: services/sutar-negotiation-engine/Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-negotiation-engine
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4295
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4295:4295"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  sutar-economy-os:
+    build:
+      context: ../../../HOJAI-AI/sutar-os/economy/sutar-economy-os
+      dockerfile: services/sutar-economy-os/Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-economy-os
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4294
+      CORPID_URL: http://corp-id:4702
+      TWIN_OS_URL: http://twinos-hub:4705
+    ports:
+      - "4294:4294"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  business-directory:
+    build:
+      context: ../services/nexha-business-directory
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-business-directory
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4360
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4360:4360"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  # Phase D — New Network Services (Standard+)
+  nexha-contract-network:
+    build:
+      context: ../services/nexha-contract-network
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-contract-network
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4289
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4289:4289"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  nexha-compliance-network:
+    build:
+      context: ../services/nexha-compliance-network
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-compliance-network
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4290
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4290:4290"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  nexha-payment-network:
+    build:
+      context: ../services/nexha-payment-network
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-payment-network
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4296
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4296:4296"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  nexha-partner-network:
+    build:
+      context: ../services/nexha-partner-network
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-partner-network
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4292
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4292:4292"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  partner-graph:
+    build:
+      context: ../services/nexha-partner-graph
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-partner-graph
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4363
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4363:4363"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  commerce-runtime:
+    build:
+      context: ../services/nexha-commerce-runtime
+      dockerfile: Dockerfile
+    profiles: [standard, enterprise]
+    container_name: nexha-commerce-runtime
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4364
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4364:4364"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  # ── Enterprise tier ──────────────────────────────────────────────
+
+  capability-os:
+    build:
+      context: ../services/nexha-capability-os
+      dockerfile: Dockerfile
+    profiles: [enterprise]
+    container_name: nexha-capability-os
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4270
+      CORPID_URL: http://corp-id:4702
+      TWIN_OS_URL: http://twinos-hub:4705
+    ports:
+      - "4270:4270"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      - twinos-hub
+
+  acp-messaging:
+    build:
+      context: ../services/nexha-acp-messaging
+      dockerfile: Dockerfile
+    profiles: [enterprise]
+    container_name: nexha-acp-messaging
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4340
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4340:4340"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+
+  agent-marketplace:
+    build:
+      context: ../services/nexha-agent-marketplace
+      dockerfile: Dockerfile
+    profiles: [enterprise]
+    container_name: nexha-agent-marketplace
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4250
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4250:4250"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+    depends_on:
+      corp-id:
+        condition: service_healthy
+
+  mission-planner:
+    build:
+      context: ../services/nexha-mission-planner
+      dockerfile: Dockerfile
+    profiles: [enterprise]
+    container_name: nexha-mission-planner
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      PORT: 4362
+      CORPID_URL: http://corp-id:4702
+    ports:
+      - "4362:4362"
+    volumes:
+      <<: *common-volumes
+    networks:
+      - nexha-internal
+
+  # ── Monitoring (enterprise) ────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: [enterprise]
+    container_name: nexha-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - nexha-prometheus-data:/prometheus
+    networks:
+      - nexha-internal
+
+  grafana:
+    image: grafana/grafana:latest
+    profiles: [enterprise]
+    container_name: nexha-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: \${GRAFANA_PASSWORD:-nexha}
+    ports:
+      - "3001:3000"
+    volumes:
+      - nexha-grafana-data:/var/lib/grafana
+    networks:
+      - nexha-internal
+    depends_on:
+      - prometheus
+
+volumes:
+  nexha-prometheus-data:
+  nexha-grafana-data:
