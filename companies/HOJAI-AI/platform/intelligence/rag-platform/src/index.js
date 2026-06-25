@@ -838,6 +838,12 @@ app.get('/api/audit', (req, res) => {
   res.json({ count: entries.length, entries: entries.slice(0, limit) });
 });
 
+// ============ READINESS ============
+
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
 // ============ 404 & ERRORS ============
 
 app.use((req, res) => res.status(404).json({ error: 'NOT_FOUND', message: `Route ${req.method} ${req.path} not found` }));
@@ -847,25 +853,33 @@ app.use((err, _req, res, _next) => {
 });
 
 // ============ START ============
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
 
+if (require.main === module && !NO_LISTEN) {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
+    console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
+    console.log(`[${SERVICE_NAME}] vector-db: ${VECTOR_DB_URL}`);
+    console.log(`[${SERVICE_NAME}] inference: ${INFERENCE_URL}`);
+    console.log(`[${SERVICE_NAME}] defaults: chunk=${DEFAULT_CHUNK_SIZE}/${DEFAULT_CHUNK_OVERLAP} model=${DEFAULT_MODEL} temp=${DEFAULT_TEMPERATURE} topK=${DEFAULT_TOP_K}`);
+  });
 
+  process.on('SIGTERM', () => { server.close(() => process.exit(0)); });
+  process.on('SIGINT',  () => { server.close(() => process.exit(0)); });
+}
 
-const server = app.listen(PORT, () => {
-  console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
-  console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
-  console.log(`[${SERVICE_NAME}] vector-db: ${VECTOR_DB_URL}`);
-  console.log(`[${SERVICE_NAME}] inference: ${INFERENCE_URL}`);
-  console.log(`[${SERVICE_NAME}] defaults: chunk=${DEFAULT_CHUNK_SIZE}/${DEFAULT_CHUNK_OVERLAP} model=${DEFAULT_MODEL} temp=${DEFAULT_TEMPERATURE} topK=${DEFAULT_TOP_K}`);
-
-  // Best-effort startup health check
-  checkUpstreamHealth().then((deps) => {
-    console.log(`[${SERVICE_NAME}] dependencies: vector-db=${deps.vectorDb} inference=${deps.inferenceGateway}`);
-  }).catch(() => {});
-});
-installGracefulShutdown(server);
-
-module.exports = { app, chunkText, splitSentences, buildContext, buildUserPrompt };
+module.exports = app;
+module.exports.app = app;
+module.exports.PORT = PORT;
+module.exports.SERVICE_NAME = SERVICE_NAME;
+module.exports.VERSION = VERSION;
+module.exports.REQUIRE_AUTH = REQUIRE_AUTH;
+module.exports.documents = documents;
+module.exports.stats = stats;
+module.exports.auditLog = auditLog;
+module.exports.config = config;
+module.exports.chunkText = chunkText;
+module.exports.splitSentences = splitSentences;
+module.exports.buildContext = buildContext;
+module.exports.buildUserPrompt = buildUserPrompt;
+module.exports.authOrBypass = authOrBypass;
+module.exports.requireInternal = requireInternal;

@@ -1,0 +1,99 @@
+{
+  "id": "mobility",
+  "name": "Mobility OS",
+  "version": "1.0.0",
+  "tagline": "Build an Uber-like autonomous mobility network",
+  "description": "Complete mobility platform with ride-hailing, fleet management, dynamic pricing, and driver success. Deploy in 30 minutes with AI workers already hired.",
+  "category": "transportation",
+  "icon": "🚗",
+  "color": "#FF6B35",
+
+  "estimated_build_time": "30 minutes",
+
+  "crew": {
+    "founder": {
+      "role": "Founder",
+      "responsibilities": ["Vision", "Strategy", "Culture", "Fundraising"]
+    },
+    "ai_workers": [
+      { "role": "CEO Strategist", "salary": 500, "model": "claude-3-sonnet" },
+      { "role": "COO Operations", "salary": 400, "model": "claude-3-sonnet" },
+      { "role": "Fleet Manager", "salary": 400, "model": "claude-3-sonnet" },
+      { "role": "Driver Success Agent", "salary": 200, "model": "claude-3-haiku" },
+      { "role": "Pricing Agent", "salary": 350, "model": "claude-3-sonnet" },
+      { "role": "Safety Agent", "salary": 250, "model": "claude-3-haiku" },
+      { "role": "Dispatch Agent", "salary": 200, "model": "claude-3-haiku" },
+      { "role": "Insurance Agent", "salary": 200, "model": "claude-3-haiku" },
+      { "role": "Maintenance Agent", "salary": 150, "model": "claude-3-haiku" },
+      { "role": "Growth Agent", "salary": 400, "model": "claude-3-sonnet" },
+      { "role": "Support Agent", "salary": 150, "model": "claude-3-haiku" },
+      { "role": "Finance Agent", "salary": 300, "model": "claude-3-haiku" },
+      { "role": "Legal Agent", "salary": 300, "model": "claude-3-haiku" }
+    ]
+  },
+
+  "total_ai_salary": 3800,
+
+  "twins": [
+    { "type": "organization", "name": "{{company}} Organization" },
+    { "type": "customer", "name": "{{company}} Customer" },
+    { "type": "driver", "name": "{{company}} Driver" },
+    { "type": "vehicle", "name": "{{company}} Vehicle" },
+    { "type": "trip", "name": "{{company}} Trip" },
+    { "type": "route", "name": "{{company}} Route" },
+    { "type": "fare", "name": "{{company}} Fare" },
+    { "type": "insurance", "name": "{{company}} Insurance" },
+    { "type": "rating", "name": "{{company}} Rating" },
+    { "type": "dispute", "name": "{{company}} Dispute" }
+  ],
+
+  "flows": [
+    { "id": "ride_booking", "name": "Ride Booking Flow", "trigger": "passenger_request" },
+    { "id": "driver_onboarding", "name": "Driver Onboarding Flow", "trigger": "driver_application" },
+    { "id": "safety_incident", "name": "Safety Incident Flow", "trigger": "incident_detected" },
+    { "id": "payment_settlement", "name": "Payment Settlement Flow", "trigger": "trip_completed" },
+    { "id": "surge_pricing", "name": "Dynamic Pricing Flow", "trigger": "demand_spike" }
+  ],
+
+  "apps": [
+    { "id": "passenger-app", "name": "Passenger App", "type": "consumer", "platform": "react-native" },
+    { "id": "driver-app", "name": "Driver App", "type": "gig-worker", "platform": "react-native" },
+    { "id": "admin-dashboard", "name": "Admin Dashboard", "type": "internal", "platform": "web" }
+  ],
+
+  "nexha_connections": [
+    { "network": "insurance", "purpose": "Verify driver coverage" },
+    { "network": "fuel", "purpose": "Fleet fuel management" },
+    { "network": "service_centers", "purpose": "Vehicle maintenance" },
+    { "network": "oem", "purpose": "Vehicle sourcing" }
+  ],
+
+  "integrations": [
+    { "name": "google-maps", "required": true },
+    { "name": "razorpay", "required": true },
+    { "name": "twilio", "required": true },
+    { "name": "firebase", "required": true }
+  ],
+
+  "policies": [
+    { "name": "min_driver_rating", "value": 4.5, "action": "suspend" },
+    { "name": "max_surge_multiplier", "value": 3.0, "action": "cap" },
+    { "name": "auto_cancel_threshold", "value": 3, "action": "warn_driver" },
+    { "name": "insurance_required", "value": true, "action": "block_ride" }
+  ],
+
+  "pricing": {
+    "commission_rate": 0.20,
+    "driver_subscription": 499,
+    "passenger_booking_fee": 0,
+    "surge_pricing": true
+  },
+
+  "regions": [
+    { "code": "BLR", "name": "Bangalore", "country": "IN" },
+    { "code": "MUM", "name": "Mumbai", "country": "IN" },
+    { "code": "DEL", "name": "Delhi NCR", "country": "IN" },
+    { "code": "HYD", "name": "Hyderabad", "country": "IN" },
+    { "code": "CHE", "name": "Chennai", "country": "IN" }
+  ]
+}
