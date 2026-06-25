@@ -571,9 +571,20 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 
 **Source:** `companies/HOJAI-AI/services/` and `companies/HOJAI-AI/products/hojai-cloud/`
 
-**Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
+**Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase2.sh start`
 
-**RTMN Hub:** All services wired at `/api/app-store/*`, `/api/cost/*`, `/api/secrets/*`, `/api/voice/*`, `/api/workflows/*`
+**RTMN Hub:** All services wired at `/api/app-store/*`, `/api/cost/*`, `/api/secrets/*`, `/api/voice/*`, `/api/workflows/*`, `/api/developer/*`, `/api/billing/*`, `/api/pipeline/*`, `/api/collaboration/*`, `/api/analytics/*`, `/api/notifications/*`
+
+## HOJAI Cloud Phase 2 Services (2026-06-25)
+
+| Port | Service | Purpose |
+|---|---|---|
+| **4450** | `developer-portal` | Docs + API Explorer |
+| **4460** | `billing-service` | Payments, subscriptions, invoicing |
+| **4470** | `deployment-pipeline` | CI/CD for deployments |
+| **4480** | `collaboration-service` | Teams + RBAC |
+| **4490** | `analytics-service` | Real-time metrics |
+| **4495** | `notification-service` | Email/webhook notifications |
 
 ---
 
