@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/mm-vector-index",
+  "version": "1.0.0",
+  "description": "Multi-Modal Vector Index (5348) - per-modality buckets + cosine similarity search (stub)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-force-exit --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
