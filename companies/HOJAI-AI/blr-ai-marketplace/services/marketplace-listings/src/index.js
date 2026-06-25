@@ -1,5 +1,5 @@
 /**
- * marketplace-listings service — Express entrypoint (port 4250).
+ * marketplace-listings service — Express entrypoint (port 4255).
  *
  * ADR-0010 Phase 5: Agent Marketplace (HOJAI AI).
  *
@@ -21,7 +21,7 @@ import morgan from 'morgan';
 import routes from './routes/index.js';
 import { getInternalToken } from './middleware/auth.js';
 
-const PORT = parseInt(process.env.MARKETPLACE_LISTINGS_PORT || '4250', 10);
+const PORT = parseInt(process.env.MARKETPLACE_LISTINGS_PORT || '4255', 10);
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/marketplace_listings';
 
 export const app = express();

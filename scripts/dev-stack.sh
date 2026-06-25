@@ -122,6 +122,10 @@ AGENT_OBSERVABILITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agen
 # HOJAI Voice Gateway (Phase F, 2026-06-24) — Training-aware STT/TTS router on port 4880
 VOICE_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-gateway && PORT=4880 REDIS_URL=redis://localhost:6379 npm start"
 
+# BLR AI Marketplace (BAM) — 245 catalog entries seeded at port 4255
+# Moved from 4250 (conflicted with Nexha stub agent-marketplace)
+MARKETPLACE_LISTINGS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings && PORT=4255 MONGODB_URI=mongodb://127.0.0.1:27017/marketplace_listings npm start"
+
 # Flow Orchestrator (Phase F.2, 2026-06-22)
 FLOW_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/flow/flow-orchestrator && PORT=4244 FLOW_REQUIRE_AUTH=false REDIS_URL=redis://localhost:6379 npm start"
 
@@ -258,7 +262,8 @@ status() {
     "agent-orchestrator:4812" \
     "agent-execution-engine:4813" \
     "agent-observability:4814" \
-    "voice-gateway:4880"; do
+    "voice-gateway:4880" \
+    "bam-marketplace-listings:4255"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
@@ -357,6 +362,13 @@ start_all() {
   start_service "agent-observability"     "$AGENT_OBSERVABILITY_CMD"      4814
   # HOJAI Voice Gateway (port 4880)
   start_service "voice-gateway"           "$VOICE_GATEWAY_CMD"           4880
+  # BLR AI Marketplace — port 4255 (after BAM seed is added below)
+  start_service "bam-marketplace-listings" "$MARKETPLACE_LISTINGS_CMD"   4255
+  # Seed BAM catalog (245 entries) after service is up
+  sleep 3
+  BAM_SEED_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings && node src/seed-data.js"
+  echo "  bam-seed: seeding 245 catalog entries..."
+  bash -c "$BAM_SEED_CMD" && echo "  bam-seed: done" || echo "  bam-seed: skipped (mongo unavailable or seed failed)"
   # Hub (must be last so all services are up)
   start_service "hub"                      "$HUB_CMD"                 4399
   sleep 3
@@ -417,6 +429,8 @@ stop_all() {
   stop_port 4814 "agent-observability"
   # HOJAI Voice Gateway
   stop_port 4880 "voice-gateway"
+  # BLR AI Marketplace
+  stop_port 4255 "bam-marketplace-listings"
 }
 
 case "${1:-start}" in
