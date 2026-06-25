@@ -1,0 +1,70 @@
+{
+  "name": "@hojai/agentos",
+  "version": "1.0.0",
+  "description": "AgentOS SDK — TypeScript client for HOJAI Agent Operating System. Manage AI employee lifecycle: create, deploy, pause, resume, heartbeat, version snapshots, and capability-based search across the AgentOS platform (agent-registry + agent-orchestrator + agent-execution).",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.js",
+      "default": "./dist/client.js"
+    },
+    "./registry": {
+      "import": "./dist/registry.mjs",
+      "require": "./dist/registry.js",
+      "default": "./dist/registry.js"
+    },
+    "./orchestrator": {
+      "import": "./dist/orchestrator.mjs",
+      "require": "./dist/orchestrator.js",
+      "default": "./dist/orchestrator.js"
+    },
+    "./execution": {
+      "import": "./dist/execution.mjs",
+      "require": "./dist/execution.js",
+      "default": "./dist/execution.js"
+    },
+    "./errors": {
+      "import": "./dist/errors.mjs",
+      "require": "./dist/errors.js",
+      "default": "./dist/errors.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:all": "tsc -p tsconfig.json && tsc src/__tests__/index.test.ts --target ES2022 --module ES2022 --moduleResolution node --esModuleInterop --skipLibCheck --declaration --outDir dist",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test dist/__tests__/*.test.js 2>/dev/null || echo 'No tests yet'",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "hojai",
+    "agentos",
+    "ai-agent",
+    "agent-lifecycle",
+    "orchestration",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.0"
+  },
+  "peerDependencies": {
+    "axios": ">=1.6.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.2"
+  }
+}

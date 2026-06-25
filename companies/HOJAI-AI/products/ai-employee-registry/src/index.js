@@ -108,6 +108,49 @@ function filterEmployees({ category, capability, status, visionOnly, search } = 
   return list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 }
 
+// ─── AgentOS Registration helper ─────────────────────────────────────────
+async function registerWithAgentOS(emp) {
+  const agentosBase = process.env.AGENTOS_URL || 'http://localhost:7300';
+  const headers = { 'Content-Type': 'application/json' };
+  if (HOJAI_API_KEY) headers['Authorization'] = `Bearer ${HOJAI_API_KEY}`;
+
+  const payload = {
+    name: emp.name,
+    type: emp.visionAgent ? 'genie' : 'custom',
+    owner: emp.slug,
+    capabilities: [
+      ...(emp.capabilities || []),
+      ...(emp.tags || []),
+      emp.visionRole ? `vision:${emp.visionRole}` : null,
+    ].filter(Boolean),
+    metadata: {
+      registryId: emp.id,
+      registrySlug: emp.slug,
+      category: emp.category,
+      serviceUrl: emp.serviceUrl,
+      port: emp.port,
+      pricing: emp.pricing,
+      visionAgent: emp.visionAgent,
+      visionRole: emp.visionRole,
+      notes: emp.notes,
+    },
+    version: emp.version,
+  };
+
+  const res = await fetch(`${agentosBase}:4803/api/agents`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(`AgentOS returned ${res.status}: ${JSON.stringify(body)}`);
+  }
+  const result = await res.json();
+  console.log(`[ai-registry] registered ${emp.slug} → AgentOS (agent ${result.id})`);
+  return result;
+}
+
 // ─── Routes ───────────────────────────────────────────────────────────
 
 app.get('/health', (_req, res) => {
@@ -234,27 +277,86 @@ app.get('/api/v1/employees/:id/install', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/employees/:id/install', apiKeyAuth, (req, res) => {
+app.post('/api/v1/employees/:id/install', apiKeyAuth, async (req, res) => {
   const emp = findEmployee(req.params.id);
   if (!emp) return res.status(404).json(apiResponse(false, undefined, 'Employee not found'));
+
+  // ─── Auto-register with AgentOS ─────────────────────────────────────
+  let agentosResult = null;
+  if (emp.serviceUrl && emp.status === 'available') {
+    try {
+      agentosResult = await registerWithAgentOS(emp);
+    } catch (err) {
+      console.warn(`[ai-registry] AgentOS unreachable during install of ${emp.slug}:`, err?.message || err);
+      // Non-fatal — don't fail the install just because AgentOS is down
+    }
+  }
+
   const record = {
     id: `inst_${uuidv4().slice(0, 12)}`,
     employeeId: emp.id,
     installedBy: req.body?.installedBy || 'anonymous',
     companyId: req.body?.companyId || null,
     installedAt: new Date().toISOString(),
-    status: 'completed'
+    status: 'completed',
+    agentosAgentId: agentosResult?.id || null,
   };
   installLog.push(record);
   emp.installs = (emp.installs || 0) + 1;
   res.status(201).json(apiResponse(true, record));
 });
 
+// ─── Dedicated AgentOS registration endpoint ─────────────────────────────
+// POST /api/v1/employees/:id/register-with-agentos
+// Manually trigger AgentOS registration for an employee (bypasses install)
+
+app.post('/api/v1/employees/:id/register-with-agentos', apiKeyAuth, async (req, res) => {
+  const emp = findEmployee(req.params.id);
+  if (!emp) return res.status(404).json(apiResponse(false, undefined, 'Employee not found'));
+  if (!emp.serviceUrl) {
+    return res.status(422).json(apiResponse(false, undefined, `Employee ${emp.name} has no serviceUrl — cannot register with AgentOS`));
+  }
+  try {
+    const result = await registerWithAgentOS(emp);
+    res.json(apiResponse(true, {
+      employeeId: emp.id,
+      agentosAgentId: result.id,
+      agentosAgentName: result.name,
+      status: 'registered',
+    }));
+  } catch (err) {
+    res.status(502).json(apiResponse(false, undefined, `AgentOS registration failed: ${err?.message || err}`));
+  }
+});
+
+// ─── Bulk sync: register ALL available employees with AgentOS ────────────
+// POST /api/v1/employees/sync-to-agentos
+
+app.post('/api/v1/employees/sync-to-agentos', apiKeyAuth, async (req, res) => {
+  const available = filterEmployees({ status: 'available' }).filter((e) => e.serviceUrl);
+  const results = [];
+  for (const emp of available) {
+    try {
+      const result = await registerWithAgentOS(emp);
+      results.push({ employeeId: emp.id, slug: emp.slug, agentosAgentId: result.id, ok: true });
+    } catch (err) {
+      results.push({ employeeId: emp.id, slug: emp.slug, ok: false, error: err?.message || String(err) });
+    }
+  }
+  const ok = results.filter((r) => r.ok);
+  res.json(apiResponse(true, {
+    total: available.length,
+    synced: ok.length,
+    failed: available.length - ok.length,
+    results,
+  }));
+});
+
 function buildInstallSteps(emp) {
   const steps = [
     { step: 1, action: 'verify_health', description: `Confirm ${emp.name} is reachable at ${emp.serviceUrl || `http://localhost:${emp.port || 'unknown'}`}` },
     { step: 2, action: 'register_capability', description: `Register ${emp.slug} in CapabilityOS (companies/Nexha/services/nexha-capability-os)` },
-    { step: 3, action: 'wire_agentos', description: `Create agent record in AgentOS (companies/HOJAI-AI/platform/agent-os/agent-registry)` },
+    { step: 3, action: 'wire_agentos', description: `POST /api/v1/employees/${emp.id}/register-with-agentos — auto-creates agent in AgentOS` },
     { step: 4, action: 'install_for_company', description: 'POST /api/v1/employees/:id/install with companyId to record install' },
     { step: 5, action: 'test_invocation', description: `curl ${emp.serviceUrl}/health — confirm running` }
   ];
