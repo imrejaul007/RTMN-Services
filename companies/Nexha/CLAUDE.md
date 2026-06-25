@@ -62,7 +62,7 @@ bash scripts/health-check.sh
 | **nexha-contract-network** | 4289 | Contract lifecycle (create→sign→execute→terminate) |
 | **nexha-compliance-network** | 4290 | KYB/KYC, regulatory checks, compliance alerts |
 | **nexha-payment-network** | 4296 | Payment orchestration, escrow, settlement |
-| **nexha-partner-network** | 4292 | Partner discovery, onboarding, relationship mgmt |
+| **nexha-partner-network** | 4297 | Partner discovery, onboarding, relationship mgmt |
 | **nexha-acp-messaging** | 4340 | AI-to-AI messaging |
 
 ### Enterprise-only (3)

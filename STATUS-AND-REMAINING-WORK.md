@@ -13,7 +13,7 @@
 |---|---|---|
 | **RTMN Unified Hub** (port 4399) | ✅ Running | 1 (REZ-ecosystem-connector v1.1.0) |
 | **HOJAI Foundation** | ✅ Running | 4 of 6 (CorpID 4702, MemoryOS 4703, Twin Memory Bridge 4704, TwinOS Hub 4705) |
-| **HOJAI Foundation** | 🟡 Scaffold | 2 (Memory Confidence 4152, Memory Context Engine 4790) |
+| **HOJAI Foundation** | 🟡 Scaffold | 2 (Memory Confidence 4152, Memory Context Engine 4793) |
 | **HOJAI SUTAR OS** | 🟡 Scaffold | 23 services, ~12k LOC, mostly text-matchers and CRUD — gateway 4140 is real |
 | **HOJAI BLR Marketplace** | 🟡 Scaffold | 7 services, ~1.5k LOC |
 | **HOJAI SADA / TrustOS** (4190) | 🟡 Real code, not wired | 2.5k LOC, real models, not in do-app |

@@ -1,22 +1,32 @@
-# TwinOS Hub — Docker build stub
+# TwinOS Hub — Docker build
 # ===============================================================
-# SOURCE: ../../../HOJAI-AI/platform/twins/twinos-hub/
-# ENTRY:  src/index.js (pure JS)
+# HOJAI-AI/platform/twins/twinos-hub/
+# Entry:  src/index.js (ESM)
 #
-# To build this image locally:
-#   docker build -t ghcr.io/rtmn/twinos-hub:latest \
+# Workspace deps resolved: @rtmn/twinos-shared (via ../twinos-shared/)
+# Build context: ../../../HOJAI-AI/platform/twins/twinos-hub/
+#
+# Build from nexha-os-runtime/:
+#   docker build -t nexha-twinos:latest \
 #     -f services/twinos-hub/Dockerfile \
-#     ../../../HOJAI-AI/platform/twins/twinos-hub/
+#     ../services/nexha-gateway/../../../HOJAI-AI/platform/twins/twinos-hub/
 # ===============================================================
 
 FROM node:20-alpine
 WORKDIR /app
 RUN addgroup -g 1001 -S nexha && adduser -S nexha -u 1001
 COPY package*.json ./
-RUN npm ci --only=production
-COPY src/ ./src
+RUN npm ci --omit=dev
+
+# Resolve workspace symlinks: twinos-shared/
+# Package uses: "@rtmn/twinos-shared": "file:../twinos-shared"
+COPY ../twinos-shared/ ./twinos-shared/
+
+# Copy source
+COPY src/ ./src/
+
 USER nexha
+EXPOSE 4705
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
   CMD wget -q --spider http://localhost:4705/health || exit 1
-EXPOSE 4705
 CMD ["node", "src/index.js"]

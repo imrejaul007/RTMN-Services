@@ -22,7 +22,7 @@
 #   4287  Trade Finance     4363  Partner Graph
 #   4288  Warehouse Network  4364  Commerce Runtime
 #   4289  Contract Network  4296  Payment Network  (4290 reserved)
-#   4290  Compliance Net    4292  Partner Network
+#   4290  Compliance Net    4297  Partner Network
 #   4340  ACP Messaging    9090  Prometheus
 #                                       3001  do-app          3030  Grafana
 # ================================================================
@@ -59,8 +59,8 @@ services:
 
   corp-id:
     build:
-      context: ../../../HOJAI-AI/platform/identity/corpid-service
-      dockerfile: services/corp-id/Dockerfile
+      context: ../../../../HOJAI-AI/platform/identity/corpid-service
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/corp-id/Dockerfile
     profiles: [lite, standard, enterprise]
     container_name: nexha-corpid
     restart: unless-stopped
@@ -81,8 +81,8 @@ services:
 
   memory-os:
     build:
-      context: ../../../HOJAI-AI/platform/memory/memory-os
-      dockerfile: services/memory-os/Dockerfile
+      context: ../../../../HOJAI-AI/platform/memory/memory-os
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/memory-os/Dockerfile
     profiles: [lite, standard, enterprise]
     container_name: nexha-memory
     restart: unless-stopped
@@ -107,8 +107,8 @@ services:
 
   twinos-hub:
     build:
-      context: ../../../HOJAI-AI/platform/twins/twinos-hub
-      dockerfile: services/twinos-hub/Dockerfile
+      context: ../../../../HOJAI-AI/platform/twins/twinos-hub
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/twinos-hub/Dockerfile
     profiles: [lite, standard, enterprise]
     container_name: nexha-twinos
     restart: unless-stopped
@@ -162,8 +162,8 @@ services:
 
   sutar-gateway:
     build:
-      context: ../../../HOJAI-AI/sutar-os/core/sutar-gateway
-      dockerfile: services/sutar-gateway/Dockerfile
+      context: ../../../../HOJAI-AI/sutar-os/core/sutar-gateway
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/sutar-gateway/Dockerfile
     profiles: [standard, enterprise]
     container_name: nexha-sutar-gateway
     restart: unless-stopped
@@ -187,8 +187,8 @@ services:
 
   sutar-trust-engine:
     build:
-      context: ../../../HOJAI-AI/sutar-os/core/sutar-trust-engine
-      dockerfile: services/sutar-trust-engine/Dockerfile
+      context: ../../../../HOJAI-AI/sutar-os/core/sutar-trust-engine
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/sutar-trust-engine/Dockerfile
     profiles: [standard, enterprise]
     container_name: nexha-trust-engine
     restart: unless-stopped
@@ -208,8 +208,8 @@ services:
 
   sutar-contract-os:
     build:
-      context: ../../../HOJAI-AI/sutar-os/contracts/sutar-contract-os
-      dockerfile: services/sutar-contract-os/Dockerfile
+      context: ../../../../HOJAI-AI/sutar-os/contracts/sutar-contract-os
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/sutar-contract-os/Dockerfile
     profiles: [standard, enterprise]
     container_name: nexha-contract-os
     restart: unless-stopped
@@ -232,8 +232,8 @@ services:
   # SUTAR Negotiation Engine uses 4295 to avoid the port conflict.
   sutar-negotiation-engine:
     build:
-      context: ../../../HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine
-      dockerfile: services/sutar-negotiation-engine/Dockerfile
+      context: ../../../../HOJAI-AI/sutar-os/contracts/sutar-negotiation-engine
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/sutar-negotiation-engine/Dockerfile
     profiles: [standard, enterprise]
     container_name: nexha-negotiation-engine
     restart: unless-stopped
@@ -253,8 +253,8 @@ services:
 
   sutar-economy-os:
     build:
-      context: ../../../HOJAI-AI/sutar-os/economy/sutar-economy-os
-      dockerfile: services/sutar-economy-os/Dockerfile
+      context: ../../../../HOJAI-AI/sutar-os/economy/sutar-economy-os
+      dockerfile: ../../../../companies/Nexha/nexha-os-runtime/services/sutar-economy-os/Dockerfile
     profiles: [standard, enterprise]
     container_name: nexha-economy-os
     restart: unless-stopped

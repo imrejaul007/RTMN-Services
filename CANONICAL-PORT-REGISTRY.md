@@ -17,7 +17,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | 4703 | memory-os | `companies/HOJAI-AI/platform/memory/memory-os/` | ✅ 200 |
 | 4152 | memory-confidence | `companies/HOJAI-AI/platform/memory/memory-confidence/` | ✅ 200 |
 | 4704 | twin-memory-bridge | `companies/HOJAI-AI/platform/twins/twin-memory-bridge/` | ✅ 200 |
-| 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | ✅ 200 |
+| 4793 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | ✅ 200 |
 | 4705 | twinos-hub | `services/twinos-hub/` | ✅ 200 |
 | 5010 | restaurant-os | `industry-os/services/restaurant-os/` | ✅ 200 |
 | 5020 | healthcare-os | `industry-os/services/healthcare-os/` | ✅ 200 |
@@ -35,7 +35,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | 4703 | memory-os | `companies/HOJAI-AI/platform/memory/memory-os/` |
 | 4152 | memory-confidence | `companies/HOJAI-AI/platform/memory/memory-confidence/` |
 | 4704 | twin-memory-bridge | `companies/HOJAI-AI/platform/twins/twin-memory-bridge/` |
-| 4790 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` |
+| 4793 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` |
 | 4705 | twinos-hub | `services/twinos-hub/` |
 | 4000 | graphql-federation | `services/graphql-federation/` |
 | 4750 | analytics-os | `industry-os/services/analytics-os/` |
@@ -207,6 +207,7 @@ HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HO
 | 4772 | semantic-cache | `companies/HOJAI-AI/platform/intelligence/semantic-cache/` | Phase F.13 — embedding-based semantic caching |
 | 4780 | vector-db | `companies/HOJAI-AI/platform/intelligence/vector-db/` | Phase F.8 — in-memory vector store |
 | 4781 | rag-platform | `companies/HOJAI-AI/platform/intelligence/rag-platform/` | Phase F.14 — retrieval-augmented generation |
+| 4782 | eval-judges | `companies/HOJAI-AI/platform/training/eval-platform/eval-judges/` | Phase 31 reserved; currently unused (pending implementation) |
 | 4783 | graph-database | `companies/HOJAI-AI/platform/intelligence/graph-database/` | Phase F.9 — in-memory property graph |
 | 4784 | knowledge-extraction | `companies/HOJAI-AI/platform/intelligence/knowledge-extraction/` | Phase F.5 — NER, entity linking, fact triples |
 | 4785 | reasoning-engine | `companies/HOJAI-AI/platform/intelligence/reasoning-engine/` | Phase F.16 — deductive/inductive/abductive reasoning |
@@ -233,7 +234,7 @@ HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HO
 ### ⚠️ Reserved Phase 31 ports (eval-platform — not yet implemented)
 The following were reserved for Phase 31 eval-platform but are currently used by Phase F services. eval-platform will need renumbering when implemented:
 - 4780 → eval-platform-api (currently vector-db)
-- 4781 → eval-datasets (currently rag-platform)
+- 4782 → eval-datasets (currently unused, pending)
 - 4783 → eval-live (currently graph-database)
 - 4784 → eval-shadow (currently knowledge-extraction)
 - 4787 → eval-canary (currently reflection-engine)

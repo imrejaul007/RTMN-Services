@@ -1,29 +1,32 @@
-# SUTAR Gateway — Docker build stub
+# SUTAR Gateway — Docker build
 # ===============================================================
-# This service lives at HOJAI-AI/sutar-os/core/sutar-gateway/
-# SOURCE: ../../../HOJAI-AI/sutar-os/core/sutar-gateway/
-# ENTRY:  src/index.js (pure JS — no build step needed)
+# HOJAI-AI/sutar-os/core/sutar-gateway/
+# Entry:  src/index.js (CommonJS, uses @rtmn/shared)
 #
-# To build this image locally:
-#   docker build -t ghcr.io/rtmn/sutar-gateway:latest \
+# Workspace deps resolved: @rtmn/shared (via ../../shared/)
+# Build context: ../../../HOJAI-AI/sutar-os/core/sutar-gateway/
+#
+# Build from nexha-os-runtime/:
+#   docker build -t nexha-sutar-gateway:latest \
 #     -f services/sutar-gateway/Dockerfile \
-#     ../../../HOJAI-AI/sutar-os/core/sutar-gateway/
-#
-# Or add to your CI/CD:
-#   docker buildx build --push \
-#     --platform linux/amd64,linux/arm64 \
-#     -t ghcr.io/YOUR_ORG/sutar-gateway:latest \
-#     ../../../HOJAI-AI/sutar-os/core/sutar-gateway/
+#     ../services/nexha-gateway/../../../HOJAI-AI/sutar-os/core/sutar-gateway/
 # ===============================================================
 
 FROM node:20-alpine
 WORKDIR /app
 RUN addgroup -g 1001 -S nexha && adduser -S nexha -u 1001
 COPY package*.json ./
-RUN npm ci --only=production
-COPY src/ ./src
+RUN npm ci --omit=dev
+
+# Resolve workspace symlink: shared/
+# Package uses: "@rtmn/shared": "file:../../shared"
+COPY ../../shared/ ./shared/
+
+# Copy source
+COPY src/ ./src/
+
 USER nexha
+EXPOSE 4140
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
   CMD wget -q --spider http://localhost:4140/health || exit 1
-EXPOSE 4140
 CMD ["node", "src/index.js"]

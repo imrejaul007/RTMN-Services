@@ -119,7 +119,7 @@ curl http://localhost:4399/api/status
 | Service | Port | Purpose |
 |---------|------|---------|
 | **CorpID** | 4702 | Universal Identity |
-| **Memory Layer** (4 services) | 4703, 4152, 4704, 4790 | AI Memory + Confidence + Bridge + Context — see [HOJAI-AI/docs/MEMORY-LAYER.md](companies/HOJAI-AI/docs/MEMORY-LAYER.md) |
+| **Memory Layer** (4 services) | 4703, 4152, 4704, 4793 | AI Memory + Confidence + Bridge + Context — see [HOJAI-AI/docs/MEMORY-LAYER.md](companies/HOJAI-AI/docs/MEMORY-LAYER.md) |
 | **TwinOS Hub** | 4705 | Digital Twins |
 | **RTMN Hub** | 4399 | Service Registry |
 
@@ -238,7 +238,7 @@ Port 4702 - CorpID          - Universal Identity
 Port 4703 - Memory OS       - AI Memory (the dumb store)
 Port 4152 - Memory Confidence - Tracks per-fact reliability (base × decay × contradiction)
 Port 4704 - Twin Memory Bridge - Twin ↔ memory partition links
-Port 4790 - Memory Context Engine - Composes LLM context windows (relevance × confidence × recency)
+Port 4793 - Memory Context Engine - Composes LLM context windows (relevance × confidence × recency)
 Port 4705 - TwinOS Hub      - Digital Twins
 ```
 

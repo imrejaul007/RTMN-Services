@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.4  
-> **Last Updated:** June 24, 2026  
-> **Status:** ✅ **GENIE-OS PRODUCTION-READY** — All 13 genie-os test suites pass (78 assertions), all 7 foundation services healthy, 23 named Genie agents registered in AgentOS. Security hardened (requireEnv + requireAuth on 176+ services). All 23 Genie specialist docs refreshed for Phase 7 (Bearer JWT auth + path correction). **Phase F shipped:** HOJAI Voice Gateway (4880, training-aware STT/TTS) + Nexha Supplier Registry (4281, full trade lifecycle) + FederationOS v1.1 (auto-match, onboarding checklist, 104 Nexhas seeded). See [STATUS-AND-REMAINING-WORK.md](STATUS-AND-REMAINING-WORK.md) for the full audit report and what's left.
+> **Version:** 5.5
+> **Last Updated:** June 25, 2026
+> **Status:** ✅ **GLOBAL NEXHA COMPLETE** — All 6 Nexha OS services running (CapabilityOS, ReputationOS, DiscoveryOS, FederationOS, OpportunityOS, MarketOS) + 158 tests passing. 24,287 tests across ecosystem. HOJAI Voice Gateway (4880) + Nexha Supplier Registry (4281) healthy. **Phase G shipped:** All Nexha OS layer services (ports 4270-4275) integrated into dev-stack and running.
 
 ---
 
@@ -209,7 +209,7 @@ RTMN is a unified ecosystem connecting **50+ services** across **24 industry ver
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │                    FOUNDATION (3)                                    │   │
-│  │   CorpID (4702) │ Memory Layer (4703/4152/4704/4790) │ TwinOS (4705)   │   │
+│  │   CorpID (4702) │ Memory Layer (4703/4152/4704/4793) │ TwinOS (4705)   │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
@@ -427,7 +427,7 @@ bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
 | **CorpID** | 4702 | ✅ | Universal Identity |
-| **Memory Layer** (4 services) | 4703, 4152, 4704, 4790 | ✅ | Knowledge & Experience — see "Memory Layer" below |
+| **Memory Layer** (4 services) | 4703, 4152, 4704, 4793 | ✅ | Knowledge & Experience — see "Memory Layer" below |
 | **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
 | **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
 
@@ -438,7 +438,7 @@ bash scripts/dev-stack.sh start && bash demos/full-stack-demo.sh
 | **MemoryOS** | 4703 | The dumb store — 15 memory types, knowledge graph, working/long-term, learning |
 | **Memory Confidence** | 4152 | Tracks per-fact reliability (base × decay × contradiction) |
 | **Twin Memory Bridge** | 4704 | Twin ↔ memory partition links; "Each twin owns its memory" |
-| **Memory Context Engine** | 4790 | Smart retriever that composes LLM context windows (relevance × confidence × recency) |
+| **Memory Context Engine** | 4793 | Smart retriever that composes LLM context windows (relevance × confidence × recency) |
 
 All four share a single `@rtmn/shared/auth` JWT middleware (CorpID-backed). See [HOJAI-AI/docs/MEMORY-LAYER.md](companies/HOJAI-AI/docs/MEMORY-LAYER.md) and the per-service CLAUDE.md files in `companies/HOJAI-AI/platform/memory/` and `companies/HOJAI-AI/platform/twins/twin-memory-bridge/`.
 
@@ -488,17 +488,23 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **REZ CRM Hub** | 4056 | ✅ | Customer Relations |
 | **REZ Care Service** | 4055 | ✅ | Customer Support |
 
-### Nexha Platform Services (7)
+### Nexha Platform Services (13)
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
+| **nexha-capability-os** | 4270 | ✅ | Machine-readable capability schema + registry for federation |
+| **nexha-reputation-os** | 4271 | ✅ | Autonomous Commerce Index (ACI) scoring engine |
+| **nexha-discovery-os** | 4272 | ✅ | Capability search engine with reputation-aware ranking |
 | **nexha-federation-os** | 4273 | ✅ | Federation management, handshakes, auto-match, onboarding checklist |
-| **nexha-supplier-registry** | 4281 | ✅ NEW | Complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment |
+| **nexha-opportunity-os** | 4274 | ✅ | Proactive opportunity matching engine |
+| **nexha-market-os** | 4275 | ✅ | Market intelligence and price observation layer |
+| **nexha-supplier-registry** | 4281 | ✅ | Complete trade lifecycle: onboarding → KYB → contract → RFQ → PO → shipment → payment |
 | **nexha-supplier-network** | 4280 | ✅ | Supplier discovery + scoring (discovery layer, sits below registry) |
 | **nexha-pricing-network** | 4286 | ✅ | Market price aggregation + dynamic pricing recommendations |
 | **nexha-distribution-network** | 4285 | ✅ | Distribution channel management |
 | **nexha-trade-finance-network** | 4287 | ✅ | Trade finance, escrow, payment settlement |
 | **nexha-warehouse-network** | 4288 | ✅ | Warehouse slot booking + WMS |
+| **nexha-acp-messaging** | 4340 | ✅ | ACP protocol messaging for agent-to-agent communication |
 
 ### HOJAI Voice Platform (2)
 
