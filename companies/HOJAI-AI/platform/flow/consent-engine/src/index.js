@@ -183,7 +183,7 @@ app.post('/api/consents',requireAuth,  customAuth, async (req, res) => {
   consents.set(id, rec);
   await indexAdd(subjectId, purpose, id);
   auditLog({ type: 'consent.granted', actor: req.auth.role, details: { consentId: id, subjectId, purpose, source } });
-  res.json(rec);
+  res.status(201).json(rec);
 });
 
 // --- Withdraw consent (revoke) ---

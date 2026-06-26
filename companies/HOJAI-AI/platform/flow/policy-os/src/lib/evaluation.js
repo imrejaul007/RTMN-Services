@@ -5,7 +5,7 @@
  * policy composition, exception handling, and auto-resolution.
  */
 
-import { safeEval } from './expression-evaluator.js';
+import { safeEval } from '../expression-evaluator.js';
 
 // =================================================================
 // Path Utilities

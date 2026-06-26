@@ -1,53 +1,66 @@
 /**
  * PolicyOS — Event Bus Service
  *
- * Thin wrapper around RTMN's shared EventBus (Redis pub/sub via @rtmn/shared).
- * Exposes a singleton EventBus that:
- *   - Publishes domain events (policy.created, policy.evaluated, etc.)
- *   - Extracts tenantId from req.tenant.companyId
- *   - Can be stubbed for testing via _setBusForTesting / _getBusForTesting
+ * Provides a stub EventBus for PolicyOS. The @rtmn/shared package does not yet
+ * export lib/eventbus, so this module implements a compatible stub that:
+ *   - Logs events to console in dev/test mode
+ *   - Can be stubbed for unit testing via _setBusForTesting / _getBusForTesting
+ *   - Matches the expected EventBus interface (publish, subscribe, connect, quit)
  *
- * The actual Redis EventBus lives in @rtmn/shared. This module:
- *   1. Provides a lazy singleton accessor (getBus)
- *   2. Wraps publish() with an envelope (type, payload, tenantId, service)
- *   3. Exports test-shim helpers (_setBusForTesting, _getBusForTesting)
+ * Envelope format (matches @rtmn/shared EventBus):
+ *   bus.publish(type, payload, { tenantId, service })
+ *   → stored as { type, payload, opts: { tenantId, service } }
  *
- * Used by: auditLog() in index.js (via async setImmediate hooks).
+ * TODO: When @rtmn/shared adds lib/eventbus export, replace StubEventBus
+ * with: import { EventBus } from '@rtmn/shared/lib/eventbus';
  */
-
-import { EventBus } from '@rtmn/shared/lib/eventbus/index.js';
 
 const SERVICE_NAME = process.env.SERVICE_NAME || 'policy-os';
 
 /**
- * The singleton bus instance (null until first use).
- * @type {EventBus | object | null}
+ * Stub EventBus matching the @rtmn/shared EventBus interface.
+ * Used for testing and as fallback until Redis EventBus is available.
  */
+class StubEventBus {
+  constructor(opts = {}) {
+    this.serviceName = opts.serviceName || SERVICE_NAME;
+    this.calls = [];
+  }
+
+  /** Matches @rtmn/shared publish(type, payload, opts) signature */
+  async publish(type, payload, opts = {}) {
+    this.calls.push({ type, payload, opts });
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`[eventbus:${this.serviceName}] ${type}`, JSON.stringify(payload).slice(0, 200));
+    }
+  }
+
+  async publishAsync(type, payload, opts) {
+    return this.publish(type, payload, opts);
+  }
+
+  async subscribe() {
+    return {};
+  }
+
+  async connect() {}
+
+  async quit() {}
+}
+
 let _bus = null;
 
-/**
- * Returns the EventBus singleton. Creates it lazily on first call.
- * @returns {EventBus | object}
- */
 export function getBus() {
   if (_bus === null) {
-    _bus = new EventBus({ serviceName: SERVICE_NAME });
+    _bus = new StubEventBus({ serviceName: SERVICE_NAME });
   }
   return _bus;
 }
 
-/**
- * Stub the bus for unit testing.
- * @param {object|null} bus
- */
 export function _setBusForTesting(bus) {
   _bus = bus;
 }
 
-/**
- * Returns the stubbed bus (or null if not stubbed).
- * @returns {object|null}
- */
 export function _getBusForTesting() {
   return _bus;
 }
@@ -55,41 +68,21 @@ export function _getBusForTesting() {
 /**
  * Publish a domain event to the EventBus.
  *
- * @param {object} req        - Express request (used to extract tenantId)
- * @param {string} type       - Event type, e.g. 'policy.created', 'policy.evaluated'
- * @param {object} payload    - Event payload
- * @param {object} [opts]     - Additional options
- * @param {string} [opts.tenantId] - Override tenantId (extracted from req.tenant.companyId if absent)
+ * @param {object} req     - Express request (used to extract tenantId)
+ * @param {string} type    - Event type, e.g. 'policy.created'
+ * @param {object} payload - Event payload (the actual event data)
+ * @param {object} [opts]  - Options (tenantId extracted from req if absent)
  */
 export async function emit(req, type, payload = {}, opts = {}) {
   const bus = getBus();
 
-  // Extract tenantId from request (fall back to opts.tenantId or null)
-  let tenantId = opts.tenantId ?? null;
-  if (tenantId === null && req && req.tenant && req.tenant.companyId) {
-    tenantId = req.tenant.companyId;
-  }
+  // Resolve tenantId: explicit opts > req.tenant.companyId > null
+  const tenantId = opts.tenantId ?? (req && req.tenant && req.tenant.companyId) ?? null;
+  const service = opts.service || SERVICE_NAME;
 
-  const envelope = {
-    service: SERVICE_NAME,
-    tenantId,
-    timestamp: new Date().toISOString(),
-    ...payload,
-  };
-
-  try {
-    await bus.publish(type, envelope);
-  } catch (err) {
-    // EventBus failures must not crash the HTTP request.
-    // Log and continue.
-    console.error(`[policy-os] event emit failed: ${type}`, err.message);
-  }
+  await bus.publish(type, payload, { tenantId, service });
 }
 
-/**
- * Gracefully shut down the EventBus (close Redis connection, etc.).
- * Called by the graceful shutdown handler in index.js.
- */
 export async function shutdown() {
   try {
     const bus = _bus;

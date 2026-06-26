@@ -5,3 +5,12 @@
 [submodule "companies/Nexha"]
 	path = companies/Nexha
 	url = git@github.com:imrejaul007/NeXha.git
+
+[submodule "companies/LawGens"]
+	path = companies/LawGens
+	url = git@github.com:imrejaul007/LawGens.git
+
+
+[submodule "companies/RTNM-Digital"]
+	path = companies/RTNM-Digital
+	url = git@github.com:imrejaul007/RTNM-Digital.git

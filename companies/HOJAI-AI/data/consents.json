@@ -20,13 +20,14 @@
       "id": "cs-1782512813692-38d3e2",
       "subjectId": "bulk-user",
       "purpose": "analytics.cohort",
-      "status": "active",
+      "status": "withdrawn",
       "grantedAt": "2026-06-26T22:26:53.692Z",
       "validUntil": null,
       "source": "api",
       "evidence": null,
       "description": "Including the user in analytics cohorts",
-      "metadata": {}
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:42:17.921Z"
     }
   ],
   [
@@ -81,13 +82,14 @@
       "id": "cs-1782512899038-5ff5d4",
       "subjectId": "bulk-user",
       "purpose": "analytics.cohort",
-      "status": "active",
+      "status": "withdrawn",
       "grantedAt": "2026-06-26T22:28:19.038Z",
       "validUntil": null,
       "source": "api",
       "evidence": null,
       "description": "Including the user in analytics cohorts",
-      "metadata": {}
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:42:17.921Z"
     }
   ],
   [
@@ -119,6 +121,319 @@
       "description": "Personalizing recommendations for the user",
       "metadata": {},
       "withdrawnAt": "2026-06-26T22:28:19.187Z"
+    }
+  ],
+  [
+    "cs-1782513534848-2b3cd7",
+    {
+      "id": "cs-1782513534848-2b3cd7",
+      "subjectId": "user-a",
+      "purpose": "marketing.email",
+      "status": "active",
+      "grantedAt": "2026-06-26T22:38:54.849Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Sending marketing emails to the user",
+      "metadata": {}
+    }
+  ],
+  [
+    "cs-1782513534885-ff6b9e",
+    {
+      "id": "cs-1782513534885-ff6b9e",
+      "subjectId": "bulk-user",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:38:54.885Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:42:17.921Z"
+    }
+  ],
+  [
+    "cs-1782513534921-6caf9f",
+    {
+      "id": "cs-1782513534921-6caf9f",
+      "subjectId": "user-b",
+      "purpose": "support.lookup",
+      "status": "active",
+      "grantedAt": "2026-06-26T22:38:54.921Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Looking up the user to provide support",
+      "metadata": {}
+    }
+  ],
+  [
+    "cs-1782513534963-bfe53f",
+    {
+      "id": "cs-1782513534963-bfe53f",
+      "subjectId": "withdrawn-user",
+      "purpose": "personalization.recommendations",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:38:54.963Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Personalizing recommendations for the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:38:54.968Z"
+    }
+  ],
+  [
+    "cs-1782513616746-9cba53",
+    {
+      "id": "cs-1782513616746-9cba53",
+      "subjectId": "user-a",
+      "purpose": "marketing.email",
+      "status": "active",
+      "grantedAt": "2026-06-26T22:40:16.747Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Sending marketing emails to the user",
+      "metadata": {}
+    }
+  ],
+  [
+    "cs-1782513616765-ab5b8c",
+    {
+      "id": "cs-1782513616765-ab5b8c",
+      "subjectId": "bulk-user",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:40:16.765Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:42:17.921Z"
+    }
+  ],
+  [
+    "cs-1782513616770-cb2159",
+    {
+      "id": "cs-1782513616770-cb2159",
+      "subjectId": "user-b",
+      "purpose": "support.lookup",
+      "status": "active",
+      "grantedAt": "2026-06-26T22:40:16.770Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Looking up the user to provide support",
+      "metadata": {}
+    }
+  ],
+  [
+    "cs-1782513616783-cafe68",
+    {
+      "id": "cs-1782513616783-cafe68",
+      "subjectId": "withdrawn-user",
+      "purpose": "personalization.recommendations",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:40:16.783Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Personalizing recommendations for the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:40:16.786Z"
+    }
+  ],
+  [
+    "cs-1782513737906-00754f",
+    {
+      "id": "cs-1782513737906-00754f",
+      "subjectId": "user-a",
+      "purpose": "marketing.email",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:42:17.907Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Sending marketing emails to the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:42:17.916Z"
+    }
+  ],
+  [
+    "cs-1782513737920-bcd25e",
+    {
+      "id": "cs-1782513737920-bcd25e",
+      "subjectId": "bulk-user",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:42:17.920Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:42:17.921Z"
+    }
+  ],
+  [
+    "cs-1782513737930-dd23b8",
+    {
+      "id": "cs-1782513737930-dd23b8",
+      "subjectId": "user-b",
+      "purpose": "support.lookup",
+      "status": "active",
+      "grantedAt": "2026-06-26T22:42:17.930Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Looking up the user to provide support",
+      "metadata": {}
+    }
+  ],
+  [
+    "cs-1782513737944-f22e7c",
+    {
+      "id": "cs-1782513737944-f22e7c",
+      "subjectId": "withdrawn-user",
+      "purpose": "personalization.recommendations",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:42:17.944Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Personalizing recommendations for the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:42:17.946Z"
+    }
+  ],
+  [
+    "cs-1782513802752-c3727a",
+    {
+      "id": "cs-1782513802752-c3727a",
+      "subjectId": "user-a",
+      "purpose": "marketing.email",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:43:22.752Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Sending marketing emails to the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:43:22.763Z"
+    }
+  ],
+  [
+    "cs-1782513802766-4d4ab1",
+    {
+      "id": "cs-1782513802766-4d4ab1",
+      "subjectId": "bulk-user",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:43:22.766Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:43:22.768Z"
+    }
+  ],
+  [
+    "cs-1782513802772-f72239",
+    {
+      "id": "cs-1782513802772-f72239",
+      "subjectId": "user-b",
+      "purpose": "support.lookup",
+      "status": "active",
+      "grantedAt": "2026-06-26T22:43:22.772Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Looking up the user to provide support",
+      "metadata": {}
+    }
+  ],
+  [
+    "cs-1782513802787-ece16b",
+    {
+      "id": "cs-1782513802787-ece16b",
+      "subjectId": "withdrawn-user",
+      "purpose": "personalization.recommendations",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:43:22.787Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Personalizing recommendations for the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:43:22.789Z"
+    }
+  ],
+  [
+    "cs-1782513903168-095558",
+    {
+      "id": "cs-1782513903168-095558",
+      "subjectId": "user-a",
+      "purpose": "marketing.email",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:45:03.168Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Sending marketing emails to the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:45:03.185Z"
+    }
+  ],
+  [
+    "cs-1782513903191-098a2d",
+    {
+      "id": "cs-1782513903191-098a2d",
+      "subjectId": "bulk-user",
+      "purpose": "analytics.cohort",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:45:03.191Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Including the user in analytics cohorts",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:45:03.194Z"
+    }
+  ],
+  [
+    "cs-1782513903200-086542",
+    {
+      "id": "cs-1782513903200-086542",
+      "subjectId": "user-b",
+      "purpose": "support.lookup",
+      "status": "active",
+      "grantedAt": "2026-06-26T22:45:03.200Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Looking up the user to provide support",
+      "metadata": {}
+    }
+  ],
+  [
+    "cs-1782513903219-02df87",
+    {
+      "id": "cs-1782513903219-02df87",
+      "subjectId": "withdrawn-user",
+      "purpose": "personalization.recommendations",
+      "status": "withdrawn",
+      "grantedAt": "2026-06-26T22:45:03.219Z",
+      "validUntil": null,
+      "source": "api",
+      "evidence": null,
+      "description": "Personalizing recommendations for the user",
+      "metadata": {},
+      "withdrawnAt": "2026-06-26T22:45:03.222Z"
     }
   ]
 ]

@@ -368,13 +368,17 @@ app.get('/', (_req, res) => {
 
 // ---------- Boot ----------
 seed();
+
 // Readiness probe — returns 200 once the server is accepting requests
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
-
-const server = app.listen(PORT, () => {
-  console.log(`[${SERVICE_NAME}] listening on http://localhost:${PORT}`);
-  console.log(`[${SERVICE_NAME}] seeded ${usageRecords.length} usage records, ${plans.size} plan(s), ${quotas.size} quota(s)`);
-});installGracefulShutdown(server);
+module.exports = app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] listening on http://localhost:${PORT}`);
+    console.log(`[${SERVICE_NAME}] seeded ${usageRecords.length} usage records, ${plans.size} plan(s), ${quotas.size} quota(s)`);
+  });
+  installGracefulShutdown(server);
+}

@@ -8,6 +8,7 @@ import http from 'node:http';
 process.env.NODE_ENV = 'test';
 process.env.CONSENT_REQUIRE_AUTH = 'false';
 process.env.INTERNAL_SERVICE_TOKEN = 'dev-token';
+process.env.CONSENT_LIMIT = '1000';
 process.env.PORT = '0';
 
 const app = (await import('../../src/index.js')).default;
