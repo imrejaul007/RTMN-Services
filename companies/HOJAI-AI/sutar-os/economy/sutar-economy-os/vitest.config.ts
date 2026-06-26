@@ -1,10 +1,12 @@
 import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
 
 export default defineConfig({
   test: {
-    include: ['__tests__/**/*.test.ts'],
+    globals: true,
     environment: 'node',
-    globals: false,
+    include: ['__tests__/**/*.test.ts'],
     testTimeout: 10000,
+    setupFiles: [resolve(__dirname, '__tests__/setup.ts')],
   },
 });
