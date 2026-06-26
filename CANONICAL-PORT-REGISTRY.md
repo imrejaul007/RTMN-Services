@@ -13,7 +13,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 
 | Port | Service | Path | Status |
 |------|---------|------|--------|
-| 4702 | corpid-service | `services/corpid-service/` | ✅ 200 |
+| 4702 | corpid-service | `companies/HOJAI-AI/platform/identity/corpid-service/` | ❌ Not running (run `npm start` from corpid-service dir) |
 | 4703 | memory-os | `companies/HOJAI-AI/platform/memory/memory-os/` | ✅ 200 |
 | 4152 | memory-confidence | `companies/HOJAI-AI/platform/memory/memory-confidence/` | ✅ 200 |
 | 4704 | twin-memory-bridge | `companies/HOJAI-AI/platform/twins/twin-memory-bridge/` | ✅ 200 |
@@ -31,7 +31,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 |------|---------|------|
 | 4399 | unified-os-hub | `services/unified-os-hub/` |
 | 4510 | event-bus | `services/event-bus/` |
-| 4702 | corpid-service | `services/corpid-service/` |
+| 4702 | corpid-service | `companies/HOJAI-AI/platform/identity/corpid-service/` |
 | 4703 | memory-os | `companies/HOJAI-AI/platform/memory/memory-os/` |
 | 4152 | memory-confidence | `companies/HOJAI-AI/platform/memory/memory-confidence/` |
 | 4704 | twin-memory-bridge | `companies/HOJAI-AI/platform/twins/twin-memory-bridge/` |

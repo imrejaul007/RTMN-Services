@@ -257,7 +257,9 @@ describe('ROI Calculator - Financial Functions', () => {
       expect(results.totalCost).toBe(2200);
       expect(results.totalProfit).toBe(3800);
       expect(results.roi).toBe(3.8);
-      expect(results.paybackMonths).toBe(2);
+      // paybackMonths = index where cum >= 0, starting from 0
+      // 1000/400 = 2.5, so payback at month 3 (index 3)
+      expect(results.paybackMonths).toBe(3);
       expect(results.npv).toBeGreaterThan(0);
       expect(results.irr).toBeGreaterThan(0);
     });
