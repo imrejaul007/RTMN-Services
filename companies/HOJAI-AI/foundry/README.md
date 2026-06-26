@@ -7,7 +7,56 @@
 
 **Tagline:** *"Build a startup in 30 minutes."*
 
-**Status:** v1.1 (2026-06-24) — `npx hojai create` + `npx hojai deploy` + `npx hojai add` + **all 9 starter templates** (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos) wired to a real **BaseAgent runtime** (local mode by default, remote mode via `HOJAI_SUTAR_URL`). **Real remote deploy** wired to `hojai-cloud` (port 4380) when `HOJAI_CLOUD_URL` is set. **41 tests, 0 failures.**
+**Status:** v3.0 (2026-06-27) — **HOJAI Studio** with 32 services + 15 Industry Templates
+
+---
+
+## 🚀 HOJAI Studio - 32 Killer Features
+
+```bash
+bash foundry/scripts/start-hojai-studio.sh start
+# → 32 services running on ports 4600-4764
+```
+
+### All 32 Services
+
+| Port | Service | Category |
+|------|---------|----------|
+| **4600** | Visual Builder | UI/UX |
+| **4610** | Code Generator | Dev |
+| **4620** | Template Marketplace | Marketplace |
+| **4630** | Self-Evolving Engine | AI |
+| **4640** | Agency Mode | Business |
+| **4650** | App Store Deployer | DevOps |
+| **4660** | Analytics Dashboard | Analytics |
+| **4670** | Web App Generator | UI/UX |
+| **4680** | Workflow Builder | Automation |
+| **4690** | Payment Gateway | Payments |
+| **4700** | Enterprise SSO | Auth |
+| **4710** | AI Copilot | AI |
+| **4720** | Collaboration | DevOps |
+| **4722** | Version Control | DevOps |
+| **4724** | i18n (54 langs) | Localization |
+| **4730** | Testing | QA |
+| **4732** | Monitoring | Ops |
+| **4734** | Notification | Messaging |
+| **4740** | API Client | Dev |
+| **4742** | Feature Flags | DevOps |
+| **4744** | Preview Deploys | DevOps |
+| **4746** | A11y Checker | QA |
+| **4748** | Security Scan | QA |
+| **4750** | DB Schema | Dev |
+| **4752** | Social Auth | Auth |
+| **4754** | Storage | Infrastructure |
+| **4756** | Realtime | Infrastructure |
+| **4758** | Edge Functions | Infrastructure |
+| **4760** | AI Product Manager | AI |
+| **4762** | AI Code Reviewer | AI |
+| **4764** | AI UX Researcher | AI |
+
+---
+
+### Quick Start (marketplace, b2b, company, hotel, restaurant, logistics, crm, erp, pos) wired to a real **BaseAgent runtime** (local mode by default, remote mode via `HOJAI_SUTAR_URL`). **Real remote deploy** wired to `hojai-cloud` (port 4380) when `HOJAI_CLOUD_URL` is set. **41 tests, 0 failures.**
 
 ## Quick start (30 seconds)
 

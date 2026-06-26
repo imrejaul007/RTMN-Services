@@ -1,0 +1,1 @@
+{"name": "@hojai/api-docs","version": "1.0.0","description": "API Docs - Auto-generate documentation","main": "src/index.js","type": "module","scripts": {"start": "node src/index.js"},"dependencies": {"express": "^4.18.2","uuid": "^9.0.1"}}

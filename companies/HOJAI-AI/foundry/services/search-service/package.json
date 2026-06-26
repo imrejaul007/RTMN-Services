@@ -1,0 +1,1 @@
+{"name": "@hojai/search-service","version": "1.0.0","description": "Search Service - Full-text search","main": "src/index.js","type": "module","scripts": {"start": "node src/index.js"},"dependencies": {"express": "^4.18.2","uuid": "^9.0.1"}}

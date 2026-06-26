@@ -682,14 +682,16 @@ app.get('/ready', (_req, res) => {
 });
 
 
-
-const server = app.listen(PORT, () => {
-  console.log(`Feature Flags service running on port ${PORT}`);
-  console.log(`  Health:  http://localhost:${PORT}/api/health`);
-  console.log(`  Flags:   http://localhost:${PORT}/api/flags`);
-  console.log(`  Audit:   http://localhost:${PORT}/api/audit`);
-});
-installGracefulShutdown(server);
+module.exports = app;
+if (process.env.NODE_ENV !== 'test') {
+	const server = app.listen(PORT, () => {
+		console.log(`Feature Flags service running on port ${PORT}`);
+		console.log(`  Health:  http://localhost:${PORT}/api/health`);
+		console.log(`  Flags:   http://localhost:${PORT}/api/flags`);
+		console.log(`  Audit:   http://localhost:${PORT}/api/audit`);
+	});
+	installGracefulShutdown(server);
+}
 
 // TODO: Persistence — replace in-memory Maps with a database (Postgres recommended).
 // TODO: RBAC via CorpID — restrict flag mutations to authorized owners/admins.
