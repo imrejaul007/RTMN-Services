@@ -1,0 +1,15 @@
+{
+  "name": "@hojai/monitoring",
+  "version": "1.0.0",
+  "description": "Monitoring service - APM, metrics, alerting for generated apps",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.1"
+  }
+}
