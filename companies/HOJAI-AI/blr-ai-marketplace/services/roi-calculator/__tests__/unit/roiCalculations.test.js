@@ -204,7 +204,8 @@ describe('ROI Calculator - Financial Functions', () => {
       expect(results.totalProfit).toBe(8000);
       expect(results.roi).toBe(0.8);
       expect(results.roiPercent).toBe('80.0%');
-      expect(results.paybackMonths).toBe(5);
+      // monthly profit = 2000 - 500 = 1500; payback = 10000/1500 = 6.67 -> 7 months
+      expect(results.paybackMonths).toBe(7);
       expect(results.breakEven).toBe(true);
     });
 
@@ -270,7 +271,7 @@ describe('ROI Calculator - Financial Functions', () => {
         discountRate: 0.10
       };
       const results1 = runCalc(input1);
-      expect(results1.paybackLabel).toBe('5 months');
+      expect(results1.paybackLabel).toBe('7 months');
 
       const input2 = {
         upfrontCost: 10000,
@@ -296,12 +297,12 @@ describe('ROI Calculator - Financial Functions', () => {
 
       const results = runCalc(input);
 
-      // Just verify the calculation runs without error and returns expected structure
+      // Just verify the calculation runs without error
       expect(results).toHaveProperty('npv');
       expect(results).toHaveProperty('irr');
       expect(results).toHaveProperty('totalProfit');
-      // monthly profit = 500 - 200 = 300; total = 300*3 = 900, minus 1000 upfront = -100
       expect(results).toHaveProperty('breakEven');
+      expect(results).toHaveProperty('roi');
     });
 
     it('should handle 1 month horizon', () => {
