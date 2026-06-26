@@ -156,6 +156,9 @@ AGENT_OBSERVABILITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agen
 # HOJAI Voice Gateway (Phase F, 2026-06-24) — Training-aware STT/TTS router on port 4880
 VOICE_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-gateway && PORT=4880 REDIS_URL=redis://localhost:6379 npm start"
 
+# HOJAI App Store API (4400) — Catalog for skills, agents, workflows, templates
+APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PORT=4400 npm start"
+
 # RAZO Keyboard (Phase F, 2026-06-25) — Communication OS on port 4299
 # "The keyboard that thinks" — intent detection + multi-channel messaging
 # DO_APP_URL is used by RAZO's Action Engine to call back into DO App orders/hotel-booking/etc.
@@ -430,6 +433,7 @@ status() {
     "agent-execution-engine:4813" \
     "agent-observability:4814" \
     "voice-gateway:4880" \
+    "app-store-api:4400" \
     "razo-keyboard:4299" \
     "bam-marketplace-listings:4255" \
     "blr-exploration:4261" \
@@ -605,6 +609,8 @@ start_all() {
   start_service "agent-observability"     "$AGENT_OBSERVABILITY_CMD"      4814
   # HOJAI Voice Gateway (port 4880)
   start_service "voice-gateway"           "$VOICE_GATEWAY_CMD"           4880
+  # HOJAI App Store API (port 4400)
+  start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
   start_service "razo-keyboard"          "$RAZO_KEYBOARD_CMD"           4299
   # BLR AI Marketplace — all services
@@ -704,6 +710,7 @@ stop_all() {
   stop_port 4814 "agent-observability"
   # HOJAI Voice Gateway
   stop_port 4880 "voice-gateway"
+  stop_port 4400 "app-store-api"
   stop_port 4299 "razo-keyboard"
   # BLR AI Marketplace
   stop_port 4255 "bam-marketplace-listings"
