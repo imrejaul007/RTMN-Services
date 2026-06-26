@@ -590,5 +590,92 @@
     "createdAt": "2026-06-25T20:11:01.084Z",
     "expiresAt": "2026-06-25T21:11:01.084Z",
     "endedAt": null
+  },
+  "d41b8d14-bbe7-4b1f-b662-55bebb093a1a": {
+    "id": "d41b8d14-bbe7-4b1f-b662-55bebb093a1a",
+    "traceId": "8d684c2840ef45729c14d81110932560",
+    "spanId": "4fb5b7540929442f",
+    "parentSpanId": null,
+    "principal": "user_42",
+    "tenantId": "tenant_acme",
+    "requestId": "d2e9afa0-097a-4726-bb95-295fa41080fd",
+    "attributes": {
+      "service.name": "order-os",
+      "deployment.env": "dev"
+    },
+    "baggage": {
+      "user.tier": "gold",
+      "feature.flags": "checkout-v2"
+    },
+    "spans": [
+      {
+        "id": "4fb5b7540929442f",
+        "name": "order.process",
+        "kind": "server",
+        "parentSpanId": null,
+        "attributes": {
+          "http.method": "POST",
+          "http.route": "/api/orders"
+        },
+        "startTime": "2026-06-26T22:35:08.191Z",
+        "endTime": "2026-06-26T22:35:08.641Z",
+        "status": "ok",
+        "durationMs": 450
+      },
+      {
+        "id": "aef8e2a1a73b4e53",
+        "name": "inventory.reserve",
+        "kind": "client",
+        "parentSpanId": "4fb5b7540929442f",
+        "attributes": {
+          "db.system": "mongodb"
+        },
+        "startTime": "2026-06-26T22:35:08.241Z",
+        "endTime": "2026-06-26T22:35:08.371Z",
+        "status": "ok",
+        "durationMs": 130
+      },
+      {
+        "id": "4197ac7f0b154ae8",
+        "name": "payment.charge",
+        "kind": "client",
+        "parentSpanId": "4fb5b7540929442f",
+        "attributes": {
+          "payment.provider": "stripe"
+        },
+        "startTime": "2026-06-26T22:35:08.391Z",
+        "endTime": "2026-06-26T22:35:08.611Z",
+        "status": "ok",
+        "durationMs": 220
+      },
+      {
+        "id": "2adf7aa9ae104ecd",
+        "name": "wallet.debit",
+        "kind": "internal",
+        "parentSpanId": "4197ac7f0b154ae8",
+        "attributes": {
+          "wallet.id": "wal_abc123"
+        },
+        "startTime": "2026-06-26T22:35:08.441Z",
+        "endTime": "2026-06-26T22:35:08.591Z",
+        "status": "ok",
+        "durationMs": 150
+      }
+    ],
+    "logs": [
+      {
+        "id": "f395346b-0e0a-4265-aaed-7c5a043be4bd",
+        "level": "info",
+        "message": "Order received",
+        "fields": {
+          "orderId": "ord_777"
+        },
+        "timestamp": "2026-06-26T22:35:08.196Z"
+      }
+    ],
+    "status": "active",
+    "createdAt": "2026-06-26T22:35:08.191Z",
+    "expiresAt": "2026-06-26T23:35:08.191Z",
+    "endedAt": null
   }
 }

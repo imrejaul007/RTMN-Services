@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-25T15:59:22.129Z",
-  "sdkCount": 24,
+  "generatedAt": "2026-06-26T22:35:27.743Z",
+  "sdkCount": 25,
   "sdks": [
     {
       "name": "@hojai/foundation",
@@ -43,6 +43,13 @@
       "version": "1.0.0",
       "methods": 5,
       "docsUrl": "/sdks/cloud.html"
+    },
+    {
+      "name": "@hojai/cloud-sdk",
+      "description": "HOJAI Cloud SDK - Unified SDK for all HOJAI Cloud services",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/cloud-sdk.html"
     },
     {
       "name": "@hojai/commerce",

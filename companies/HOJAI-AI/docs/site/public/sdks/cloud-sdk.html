@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CLI reference — HOJAI docs</title>
+<title>@hojai/cloud-sdk — HOJAI docs</title>
 <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body class="">
@@ -15,7 +15,7 @@
   <nav>
     <a href="/" class="">Home</a>
     <a href="/quickstart.html" class="">Quickstart</a>
-    <a href="/cli.html" class="active">CLI reference</a>
+    <a href="/cli.html" class="">CLI reference</a>
     <a href="/ai-native.html" class="">AI-native spec</a>
     <h3>SDKs (25)</h3>
     <a href="/sdks/foundation.html" class="" title="HOJAI Foundation SDK — unified client for CorpID, MemoryOS, TwinOS, SADA Trust, Flow Orchestrator, and PolicyOS. Routes through the RTMN Hub (http://localhost:4399).">foundation</a>
@@ -24,7 +24,7 @@
     <a href="/sdks/agentos.html" class="" title="AgentOS SDK — TypeScript client for HOJAI Agent Operating System. Manage AI employee lifecycle: create, deploy, pause, resume, heartbeat, version snapshots, and capability-based search across the AgentOS platform (agent-registry + agent-orc">agentos</a>
     <a href="/sdks/bizora.html" class="" title="Bizora SDK - Client for the Bizora Reports Dashboard (port 4874). Dashboards, widgets, async report generation in pdf/csv/xlsx/json.">bizora</a>
     <a href="/sdks/cloud.html" class="" title="Cloud SDK - Client for the HOJAI Cloud deploy service (port 4380). The deploy target for `npx hojai deploy --mode=remote`. Push projects, list deployments, tear down — the wildcard *.hojai.app routing layer.">cloud</a>
-    <a href="/sdks/cloud-sdk.html" class="" title="HOJAI Cloud SDK - Unified SDK for all HOJAI Cloud services">cloud-sdk</a>
+    <a href="/sdks/cloud-sdk.html" class="active" title="HOJAI Cloud SDK - Unified SDK for all HOJAI Cloud services">cloud-sdk</a>
     <a href="/sdks/commerce.html" class="" title="Commerce SDK - Client for the RABTUL commerce ecosystem. Wraps 9 rez-* services (wallet, payment, catalog, booking, cashback, gift-card, invoice, bill-payments, loyalty) into a single ergonomic client.">commerce</a>
     <a href="/sdks/copilots.html" class="" title="Copilots SDK - Client for the 7 HOJAI department copilots (agent, business, executive, finance, marketing, sales, support). One sub-client per copilot, ~50 methods total.">copilots</a>
     <a href="/sdks/department.html" class="" title="Department OS SDK - Client for the 9 horizontal Department OS services of RTMN (Sales, Marketing, Customer Success, Procurement, Workforce, Finance, Operations, CXO, Revenue Intelligence). Pairs with @hojai/industry to cover the 8 horizonta">department</a>
@@ -48,93 +48,171 @@
 </aside>
 <main>
 
-<h1>CLI reference — <code>hojai</code></h1>
-<p>The <code>@hojai/cli</code> package ships a <code>hojai</code> binary. Install globally with <code>npm install -g @hojai/cli</code> or use via <code>npx hojai</code>.</p>
+<h1>@hojai/cloud-sdk</h1>
+<p class="lead">HOJAI Cloud SDK - Unified SDK for all HOJAI Cloud services</p>
+<p><strong>Version:</strong> 1.0.0 · <a href="https://www.npmjs.com/package/@hojai/cloud-sdk">npm</a></p>
+<p><strong>Entry:</strong> <code>src/index.js</code></p>
 
-<h2>Global flags</h2>
-<ul>
-  <li><code>--json</code> — machine-readable JSON output</li>
-  <li><code>--api-key &lt;key&gt;</code> — override API key for one invocation</li>
-  <li><code>--base-url &lt;url&gt;</code> — override HOJAI base URL</li>
-</ul>
 
-<h2>Environment</h2>
-<ul>
-  <li><code>HOJAI_API_KEY</code> — API key (overrides config file)</li>
-  <li><code>HOJAI_BASE_URL</code> — base URL</li>
-  <li><code>NO_COLOR</code> — disable colored output</li>
-</ul>
 
-<pre class="md-code"><code>
-[1m[34mhojai — the HOJAI command-line tool[0m[0m
-[2m───────────────────────────────────[0m
 
-Usage: hojai &lt;command&gt; [args] [flags]
 
-Commands:
-  config [show|set|clear]        Manage CLI configuration
-  whoami                        Show current API key + gateway health
-  listings search               Search the marketplace
-  listings get &lt;id&gt;             Show a marketplace listing
-  memory capture &lt;text&gt;         Capture a memory
-  memory search &lt;query&gt;         Search your memories
-  memory compose &lt;owner&gt; &lt;q&gt;    Compose LLM context
-  ai-spec generate              Generate hojai.ai.md + .hojai/ files
-  ai-spec read                  Show current AI-native spec
-  ai-spec validate              Validate existing AI-native spec
-  deploy [--mode=local|preview|remote]   Ship the current project
-  add agent &lt;Name&gt;              Add a stub SUTAR agent to the project
-  add integration &lt;name&gt;        Add an @hojai/* SDK to the project
-  info                          Show a HOJAI project's full AI context
-  doctor                        Run health checks (config, gateway, project, deps)
-  help                          Show this help
-  version                       Print version
 
-Flags (global):
-  --json                        Machine-readable JSON output
-  --api-key &lt;key&gt;               Override API key
-  --base-url &lt;url&gt;              Override base URL
 
-Environment:
-  HOJAI_API_KEY                 API key (overrides config file)
-  HOJAI_BASE_URL                Base URL (overrides config file)
-  NO_COLOR                      Disable colored output
+<h2 id="readme">README</h2>
+<div class="md"><h1>@hojai/cloud-sdk</h1>
+<p>&gt; Unified SDK for all HOJAI Cloud services</p>
+<pre class="md-code"><code class="lang-bash">npm install @hojai/cloud-sdk</code></pre>
+<h2>Quick Start</h2>
+<pre class="md-code"><code class="lang-javascript">import { HOJAI } from '@hojai/cloud-sdk';
 
-Examples:
-  hojai config set --api-key hojai_live_xxxx
-  hojai whoami
-  hojai listings search --query &quot;negotiation&quot; --category agent
-  hojai memory capture &quot;Met Sarah at HOJAI meetup&quot; --tags conference
-  hojai memory compose u-1 &quot;What is Sarah interested in?&quot;
-  hojai ai-spec generate
-  hojai deploy                       # start the project on a free port
-  hojai deploy --mode=preview        # generate dist/preview.html
-  hojai add agent &quot;Sales Coach&quot;     # add a new SUTAR agent
-  hojai add integration payment      # add @hojai/payment to package.json
-  hojai info                         # show project context (manifest + capability)
-  hojai doctor                       # run health checks
+const client = new HOJAI({
+  apiKey: process.env.HOJAI_API_KEY,
+  baseUrl: 'http://localhost:4380'
+});</code></pre>
+<h2>Examples</h2>
+<h3>Deploy an App</h3>
+<pre class="md-code"><code class="lang-javascript">const deployment = await client.cloud.deploy({
+  name: 'my-app',
+  manifest: { name: 'My App' },
+  files: { 'apps/backend/src/index.js': '...' }
+});
 
-[36mℹ[0m All HOJAI SDKs are available as @hojai/* packages on npm.
-</code></pre>
+console.log(deployment.url); // https://my-app.hojai.app</code></pre>
+<h3>Track AI Usage</h3>
+<pre class="md-code"><code class="lang-javascript">await client.cost.trackUsage({
+  userId: 'user123',
+  model: 'gpt-4',
+  inputTokens: 1000,
+  outputTokens: 500
+});
 
-<h2>Quick examples</h2>
-<pre class="md-code"><code># Authentication
-hojai config set --api-key hojai_live_xxxx
-hojai whoami
+const summary = await client.cost.getSummary({ userId: 'user123' });
+console.log(`Total cost: $${summary.totalCost}`);</code></pre>
+<h3>Create a Voice Agent</h3>
+<pre class="md-code"><code class="lang-javascript">const agent = await client.voice.createAgent({
+  name: 'Receptionist',
+  language: 'en-IN',
+  greeting: 'Hello, how can I help you?',
+  voice: { provider: 'elevenlabs', voiceId: 'rachel' },
+  transcription: { provider: 'deepgram' }
+});
 
-# Scaffold
-npx hojai create --template marketplace
+await client.voice.activateAgent(agent.id);</code></pre>
+<h3>Build a Workflow</h3>
+<pre class="md-code"><code class="lang-javascript">const workflow = await client.workflows.createWorkflow({
+  name: 'Lead Capture'
+});
 
-# Day-to-day
-hojai ai-spec generate
-hojai info
-hojai doctor
-hojai deploy
+await client.workflows.addNode(workflow.id, {
+  type: 'trigger',
+  label: 'Form Submit',
+  config: { source: 'form' }
+});
 
-# Extend
-hojai add agent "Sales Coach"
-hojai add integration payment
-hojai add industry restaurant</code></pre>
+await client.workflows.addNode(workflow.id, {
+  type: 'llm',
+  label: 'Qualify Lead',
+  config: { prompt: 'Is this qualified?' }
+});
+
+await client.workflows.execute(workflow.id);</code></pre>
+<h3>Manage Secrets</h3>
+<pre class="md-code"><code class="lang-javascript">await client.secrets.create({
+  name: 'OPENAI_API_KEY',
+  value: process.env.OPENAI_API_KEY,
+  userId: 'user123',
+  type: 'api-key'
+});</code></pre>
+<h3>App Store</h3>
+<pre class="md-code"><code class="lang-javascript">const apps = await client.appStore.search('sales agent');
+await client.appStore.install(apps[0].id, {
+  userId: 'user123',
+  projectId: 'proj456'
+});</code></pre>
+<h3>Billing</h3>
+<pre class="md-code"><code class="lang-javascript">const plans = await client.billing.getPlans();
+await client.billing.createSubscription({
+  userId: 'user123',
+  plan: 'professional'
+});</code></pre>
+<h3>Notifications</h3>
+<pre class="md-code"><code class="lang-javascript">await client.notifications.send({
+  userId: 'user123',
+  title: 'Deployment Complete',
+  body: 'Your app is now live!',
+  channels: ['email', 'in_app']
+});</code></pre>
+<h3>Team Collaboration</h3>
+<pre class="md-code"><code class="lang-javascript">const org = await client.collaboration.createOrg({
+  name: 'My Company',
+  ownerId: 'user123'
+});
+
+await client.collaboration.inviteMember({
+  orgId: org.id,
+  email: 'teammate@example.com',
+  role: 'developer'
+});</code></pre>
+<h2>API Reference</h2>
+<table class="md-table"><thead><tr>
+<th>Service</th>
+<th>Client</th>
+<th>Port</th>
+</tr></thead><tbody>
+<tr>
+<td>HOJAI Cloud</td>
+<td><code>client.cloud</code></td>
+<td>4380</td>
+</tr>
+<tr>
+<td>App Store</td>
+<td><code>client.appStore</code></td>
+<td>4400</td>
+</tr>
+<tr>
+<td>Cost Tracker</td>
+<td><code>client.cost</code></td>
+<td>4410</td>
+</tr>
+<tr>
+<td>Secrets Manager</td>
+<td><code>client.secrets</code></td>
+<td>4420</td>
+</tr>
+<tr>
+<td>Voice Studio</td>
+<td><code>client.voice</code></td>
+<td>4430</td>
+</tr>
+<tr>
+<td>Workflow Builder</td>
+<td><code>client.workflows</code></td>
+<td>4440</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td><code>client.billing</code></td>
+<td>4460</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td><code>client.analytics</code></td>
+<td>4490</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td><code>client.notifications</code></td>
+<td>4495</td>
+</tr>
+<tr>
+<td>Collaboration</td>
+<td><code>client.collaboration</code></td>
+<td>4480</td>
+</tr>
+</tbody></table>
+<h2>License</h2>
+<p>MIT</p></div>
 
 </main>
 </body>
