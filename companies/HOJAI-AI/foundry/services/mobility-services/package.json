@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/mobility-services",
+  "version": "1.0.0",
+  "description": "Driver, Fleet, Dispatch, Surge for Mobility",
+  "main": "src/index.js",
+  "type": "module"
+}

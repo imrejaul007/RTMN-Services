@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/ecommerce-services",
+  "version": "1.0.0",
+  "description": "Inventory, Fulfillment, Returns, Catalog for E-Commerce",
+  "main": "src/index.js",
+  "type": "module"
+}
