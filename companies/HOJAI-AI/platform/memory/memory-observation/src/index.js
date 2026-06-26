@@ -1,7 +1,3 @@
-/**
- * Observation Engine - Pattern detection, predictions
- * Port: 4785
- */
 import express from 'express';
 const app = express();
 const PORT = process.env.OBSERVATION_ENGINE_PORT || 4785;
@@ -9,9 +5,8 @@ const events = new Map();
 const observations = new Map();
 function nowIso() { return new Date().toISOString(); }
 function ok(res, d) { res.json({ success: true, ...d }); }
-function fail(res, code, msg, status = 400) { res.status(status).json({ success: false, error: code, message: msg }); }
+function fail(res, code, msg) { res.status(400).json({ success: false, error: code, message: msg }); }
 function generateId() { return `obs-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`; }
-function daysBetween(d1, d2) { return Math.abs((new Date(d2).getTime() - new Date(d1).getTime()) / (1000 * 60 * 60 * 24)); }
 function extractTimePattern(dateStr) { const d = new Date(dateStr); return { hour: d.getHours(), dayOfWeek: d.getDay() }; }
 app.use(express.json());
 app.get('/health', (_req, res) => { ok(res, { status: 'healthy', service: 'memory-observation', port: PORT }); });
@@ -26,7 +21,6 @@ app.post('/api/events', (req, res) => {
 app.post('/api/observe', (req, res) => {
   const { twinId, events: twinEvents } = req.body || {};
   if (!twinId) return fail(res, 'INVALID_INPUT', 'twinId required');
-  // Simple pattern detection: group by eventType
   const patterns = [];
   const byType = {};
   for (const e of (twinEvents || [])) { if (!byType[e.eventType]) byType[e.eventType] = []; byType[e.eventType].push(e); }

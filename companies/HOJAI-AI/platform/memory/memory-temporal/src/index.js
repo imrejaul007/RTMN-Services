@@ -1,7 +1,3 @@
-/**
- * Temporal Knowledge Graph - valid_from/valid_until relationships
- * Port: 4784
- */
 import express from 'express';
 const app = express();
 const PORT = process.env.TEMPORAL_KG_PORT || 4784;
@@ -10,7 +6,7 @@ const relationships = new Map();
 const facts = new Map();
 function nowIso() { return new Date().toISOString(); }
 function ok(res, d) { res.json({ success: true, ...d }); }
-function fail(res, code, msg, status = 400) { res.status(status).json({ success: false, error: code, message: msg }); }
+function fail(res, code, msg) { res.status(400).json({ success: false, error: code, message: msg }); }
 function generateId() { return `tkg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`; }
 function isValidAt(ts, validFrom, validUntil) {
   const t = ts ? new Date(ts).getTime() : Date.now();
@@ -53,7 +49,7 @@ app.post('/api/facts', (req, res) => {
 });
 app.get('/api/facts/:id/history', (req, res) => {
   const fact = facts.get(req.params.id);
-  if (!fact) return fail(res, 'NOT_FOUND', 'Fact not found', 404);
+  if (!fact) return fail(res, 'NOT_FOUND', 'Fact not found');
   ok(res, { factId: fact.id, history: fact.versions });
 });
 app.post('/api/query/as-of', (req, res) => {
