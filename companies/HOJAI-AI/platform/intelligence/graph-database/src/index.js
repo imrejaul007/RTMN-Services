@@ -21,33 +21,38 @@
 'use strict';
 
 const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-const PORT = process.env.PORT || 4783;
+const PORT = parseInt(process.env.PORT, 10) || 4783;
 const SERVICE_NAME = 'graph-database';
+const VERSION = '1.0.0';
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'graph-database-internal-token';
+const REQUIRE_AUTH = (process.env.GRAPH_DATABASE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const NO_LISTEN = (process.env.GRAPH_DATABASE_NO_LISTEN ?? '').toLowerCase() === 'true' || process.env.NODE_ENV === 'test';
 
 // ---------------------------------------------------------------------------
 // Middleware
 // ---------------------------------------------------------------------------
 const app = express();
 
-// Validate required env at startup
-requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
 app.use(cors('*'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req, _res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+function requireInternal(req, res, next) {
+  if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
   next();
-});
+}
+
+const authOrBypass = (req, res, next) => REQUIRE_AUTH ? requireInternal(req, res, next) : next();
 
 app.get('/health', (_req, res) => res.redirect(301, '/api/health'));
 
@@ -62,11 +67,11 @@ app.get('/health', (_req, res) => res.redirect(301, '/api/health'));
  * labelIndex: label -> Set<nodeId>
  * auditLog: capped array
  */
-const nodes = new PersistentMap('nodes', { serviceName: 'graph-database' });
-const edges = new PersistentMap('edges', { serviceName: 'graph-database' });
-const nodeEdges = new PersistentMap('node-edges', { serviceName: 'graph-database' }); // nodeId -> { outgoing: Set, incoming: Set }
-const edgeIndex = new PersistentMap('edge-index', { serviceName: 'graph-database' }); // type -> Set<edgeId>
-const labelIndex = new PersistentMap('label-index', { serviceName: 'graph-database' }); // label -> Set<nodeId>
+const nodes = new Map();
+const edges = new Map();
+const nodeEdges = new Map(); // nodeId -> { outgoing: Set, incoming: Set }
+const edgeIndex = new Map(); // type -> Set<edgeId>
+const labelIndex = new Map(); // label -> Set<nodeId>
 
 const AUDIT_CAP = 5000;
 const auditLog = [];
@@ -348,7 +353,7 @@ function connectedComponents(options = {}) {
     eligibleIds.push(n.id);
   }
 
-  const parent = new PersistentMap('parent', { serviceName: 'graph-database' });
+  const parent = new Map();
   for (const id of eligibleIds) parent.set(id, id);
   function find(x) {
     while (parent.get(x) !== x) {
@@ -369,7 +374,7 @@ function connectedComponents(options = {}) {
   }
 
   // Group
-  const groups = new PersistentMap('groups', { serviceName: 'graph-database' });
+  const groups = new Map();
   for (const id of eligibleIds) {
     const root = find(id);
     if (!groups.has(root)) groups.set(root, []);
@@ -408,7 +413,7 @@ function pageRank(options = {}) {
   const N = nodeIds.length;
   if (N === 0) return { iterations: 0, scores: [] };
 
-  const idIndex = new PersistentMap('id-index', { serviceName: 'graph-database' });
+  const idIndex = new Map();
   nodeIds.forEach((id, i) => idIndex.set(id, i));
 
   // Build adjacency: for each node, list of nodes it points to.
@@ -503,7 +508,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 /** POST /api/nodes - create a node. Body: { labels: [...], properties: {...} } */
-app.post('/api/nodes',requireAuth,  (req, res) => {
+app.post('/api/nodes',authOrBypass,  (req, res) => {
   const { labels = [], properties = {} } = req.body || {};
   if (!Array.isArray(labels)) {
     return res.status(400).json({ error: 'labels (array of strings) is required' });
@@ -541,7 +546,7 @@ app.post('/api/nodes',requireAuth,  (req, res) => {
 });
 
 /** POST /api/nodes/batch - bulk create. Body: { nodes: [{ labels, properties }, ...] } */
-app.post('/api/nodes/batch',requireAuth,  (req, res) => {
+app.post('/api/nodes/batch',authOrBypass,  (req, res) => {
   const { nodes: list = [] } = req.body || {};
   if (!Array.isArray(list)) {
     return res.status(400).json({ error: 'nodes (array) is required' });
@@ -587,7 +592,7 @@ app.get('/api/nodes/:id', (req, res) => {
 });
 
 /** PATCH /api/nodes/:id - update labels and/or properties. Body: { addLabels?, removeLabels?, setProperties?, removeProperties? } */
-app.patch('/api/nodes/:id',requireAuth,  (req, res) => {
+app.patch('/api/nodes/:id',authOrBypass,  (req, res) => {
   const n = nodes.get(req.params.id);
   if (!n) return res.status(404).json({ error: 'Node not found' });
   const { addLabels = [], removeLabels = [], setProperties, removeProperties = [] } = req.body || {};
@@ -622,7 +627,7 @@ app.patch('/api/nodes/:id',requireAuth,  (req, res) => {
 });
 
 /** DELETE /api/nodes/:id - delete node + all incident edges */
-app.delete('/api/nodes/:id',requireAuth,  (req, res) => {
+app.delete('/api/nodes/:id',authOrBypass,  (req, res) => {
   const n = nodes.get(req.params.id);
   if (!n) return res.status(404).json({ error: 'Node not found' });
 
@@ -687,7 +692,7 @@ app.get('/api/nodes', (req, res) => {
 });
 
 /** POST /api/edges - create an edge. Body: { type, from, to, properties? } */
-app.post('/api/edges',requireAuth,  (req, res) => {
+app.post('/api/edges',authOrBypass,  (req, res) => {
   const { type, from, to, properties = {} } = req.body || {};
   if (typeof type !== 'string' || !type.trim()) {
     return res.status(400).json({ error: 'type (non-empty string) is required' });
@@ -734,7 +739,7 @@ app.post('/api/edges',requireAuth,  (req, res) => {
 });
 
 /** POST /api/edges/batch - bulk create. Body: { edges: [{ type, from, to, properties? }, ...] } */
-app.post('/api/edges/batch',requireAuth,  (req, res) => {
+app.post('/api/edges/batch',authOrBypass,  (req, res) => {
   const { edges: list = [] } = req.body || {};
   if (!Array.isArray(list)) {
     return res.status(400).json({ error: 'edges (array) is required' });
@@ -787,7 +792,7 @@ app.get('/api/edges/:id', (req, res) => {
 });
 
 /** PATCH /api/edges/:id - update type/properties. Body: { type?, setProperties?, removeProperties? } */
-app.patch('/api/edges/:id',requireAuth,  (req, res) => {
+app.patch('/api/edges/:id',authOrBypass,  (req, res) => {
   const e = edges.get(req.params.id);
   if (!e) return res.status(404).json({ error: 'Edge not found' });
   const { type, setProperties, removeProperties = [] } = req.body || {};
@@ -811,7 +816,7 @@ app.patch('/api/edges/:id',requireAuth,  (req, res) => {
 });
 
 /** DELETE /api/edges/:id */
-app.delete('/api/edges/:id',requireAuth,  (req, res) => {
+app.delete('/api/edges/:id',authOrBypass,  (req, res) => {
   const e = edges.get(req.params.id);
   if (!e) return res.status(404).json({ error: 'Edge not found' });
 
@@ -857,7 +862,7 @@ app.get('/api/edges', (req, res) => {
 });
 
 /** POST /api/match - Cypher-lite pattern matching. Body: { pattern } */
-app.post('/api/match',requireAuth,  (req, res) => {
+app.post('/api/match',authOrBypass,  (req, res) => {
   const { pattern } = req.body || {};
   if (typeof pattern !== 'string' || !pattern.trim()) {
     return res.status(400).json({ error: 'pattern (string) is required' });
@@ -923,7 +928,7 @@ app.post('/api/match',requireAuth,  (req, res) => {
 });
 
 /** POST /api/traverse - BFS traversal. Body: { startId, maxDepth?, direction?, edgeTypes?, labelFilter? } */
-app.post('/api/traverse',requireAuth,  (req, res) => {
+app.post('/api/traverse',authOrBypass,  (req, res) => {
   const { startId, maxDepth, direction, edgeTypes, labelFilter } = req.body || {};
   if (!startId || !nodes.has(startId)) {
     return res.status(400).json({ error: 'startId (existing node id) is required' });
@@ -956,7 +961,7 @@ app.post('/api/traverse',requireAuth,  (req, res) => {
 });
 
 /** POST /api/shortest-path - find shortest path. Body: { from, to, direction?, edgeTypes? } */
-app.post('/api/shortest-path',requireAuth,  (req, res) => {
+app.post('/api/shortest-path',authOrBypass,  (req, res) => {
   const { from, to, direction, edgeTypes } = req.body || {};
   if (!from || !to) {
     return res.status(400).json({ error: 'from and to (node ids) are required' });
@@ -987,7 +992,7 @@ app.post('/api/shortest-path',requireAuth,  (req, res) => {
 });
 
 /** POST /api/components - connected components. Body: { labelFilter? } */
-app.post('/api/components',requireAuth,  (req, res) => {
+app.post('/api/components',authOrBypass,  (req, res) => {
   const { labelFilter } = req.body || {};
   stats.totalComponentRuns++;
   const comps = connectedComponents({
@@ -1011,7 +1016,7 @@ app.post('/api/components',requireAuth,  (req, res) => {
 });
 
 /** POST /api/pagerank - PageRank. Body: { damping?, iterations?, labelFilter?, topK? } */
-app.post('/api/pagerank',requireAuth,  (req, res) => {
+app.post('/api/pagerank',authOrBypass,  (req, res) => {
   const { damping, iterations, labelFilter, topK } = req.body || {};
   stats.totalPageRankRuns++;
   const result = pageRank({
@@ -1070,7 +1075,7 @@ app.get('/api/degree/:id', (req, res) => {
 });
 
 /** POST /api/clear - wipe graph (testing). Body: { confirm: true } */
-app.post('/api/clear',requireAuth,  (req, res) => {
+app.post('/api/clear',authOrBypass,  (req, res) => {
   const { confirm } = req.body || {};
   if (confirm !== true) {
     return res.status(400).json({ error: 'pass { confirm: true } to wipe the graph' });
@@ -1103,7 +1108,7 @@ app.get('/api/stats', (_req, res) => {
 });
 
 /** POST /api/stats/reset */
-app.post('/api/stats/reset',requireAuth,  (req, res) => {
+app.post('/api/stats/reset',authOrBypass,  (req, res) => {
   stats.totalNodesCreated = 0;
   stats.totalNodesDeleted = 0;
   stats.totalEdgesCreated = 0;
@@ -1188,6 +1193,13 @@ app.get('/api/audit', (req, res) => {
 })();
 
 // ---------------------------------------------------------------------------
+// Readability probe
+// ---------------------------------------------------------------------------
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+// ---------------------------------------------------------------------------
 // Error handlers
 // ---------------------------------------------------------------------------
 app.use((req, res) => res.status(404).json({ error: `Route ${req.method} ${req.path} not found` }));
@@ -1200,14 +1212,34 @@ app.use((err, req, res, _next) => {
 // ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
+if (require.main === module && !NO_LISTEN) {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] listening on port ${PORT}`);
+    console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
+  });
+  process.on('SIGTERM', () => { server.close(() => process.exit(0)); });
+  process.on('SIGINT',  () => { server.close(() => process.exit(0)); });
+}
 
-
-const server = app.listen(PORT, () => {
-  console.log(`[${SERVICE_NAME}] listening on port ${PORT}`);
-  console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
-});
-installGracefulShutdown(server);
+module.exports = app;
+module.exports.app = app;
+module.exports.PORT = PORT;
+module.exports.SERVICE_NAME = SERVICE_NAME;
+module.exports.VERSION = VERSION;
+module.exports.REQUIRE_AUTH = REQUIRE_AUTH;
+module.exports.nodes = nodes;
+module.exports.edges = edges;
+module.exports.nodeEdges = nodeEdges;
+module.exports.edgeIndex = edgeIndex;
+module.exports.labelIndex = labelIndex;
+module.exports.stats = stats;
+module.exports.auditLog = auditLog;
+module.exports.bfs = bfs;
+module.exports.shortestPath = shortestPath;
+module.exports.connectedComponents = connectedComponents;
+module.exports.pageRank = pageRank;
+module.exports.parsePattern = parsePattern;
+module.exports.matchesLabel = matchesLabel;
+module.exports.matchesProps = matchesProps;
+module.exports.authOrBypass = authOrBypass;
+module.exports.requireInternal = requireInternal;

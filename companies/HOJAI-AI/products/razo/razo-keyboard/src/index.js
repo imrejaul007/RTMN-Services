@@ -1,4 +1,3 @@
-import { requireAuth } from '@rtmn/shared/auth';
 /**
  * RAZO Keyboard - Communication OS
  * Port 4299
@@ -7,12 +6,15 @@ import { requireAuth } from '@rtmn/shared/auth';
  */
 
 const express = require('express');
+const { createAuthMiddleware } = require('@rtmn/shared/auth');
 const { requireEnv } = require('@rtmn/shared/lib/env');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
+
+const requireAuth = createAuthMiddleware({ publicPaths: ['/health', '/ready', '/api/intent/detect', '/api/intent/batch'] });
 
 // Import modules
 const IntentRouter = require('./intents/router');
@@ -40,25 +42,9 @@ const logger = {
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(requireAuth);app.use(express.urlencoded({ extended: true }));
-
-// Request ID middleware
-app.use((req, res, next) => {
-  req.requestId = req.headers['x-request-id'] || uuidv4();
-  res.setHeader('X-Request-ID', req.requestId);
-  next();
-});
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute
-  message: { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests' } }
-});
-app.use('/api/', limiter);
-
-// Health check
+// Health check — BEFORE auth
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -68,7 +54,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Readiness check
+// Readiness check — BEFORE auth
 app.get('/ready', (req, res) => {
   res.json({
     ready: true,
