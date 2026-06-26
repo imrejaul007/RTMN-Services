@@ -3,10 +3,6 @@
  */
 'use strict';
 
-process.env.PREDICTIVE_INTELLIGENCE_NO_LISTEN = '1';
-process.env.PREDICTIVE_INTELLIGENCE_REQUIRE_AUTH = 'false';
-process.env.NODE_ENV = 'test';
-
 const http = require('http');
 const { app } = require('../../src/index');
 
