@@ -190,14 +190,6 @@ app.get('/ready', (_req, res) => {
 
 app.get('/health', (_req, res) => res.redirect(301, '/api/health'));
 
-// DEBUG trace
-app.use(function(req, _res, next) {
-  if (req.path.startsWith('/api/agents')) {
-    console.log('[TRACE] req.path=', JSON.stringify(req.path), 'req.url=', JSON.stringify(req.url), 'req.params=', JSON.stringify(req.params));
-  }
-  next();
-});
-
 /** GET /api/health */
 app.get('/api/health', (_req, res) => {
   const healthy = Array.from(agents.values()).filter(a => agentHealthStatus(a) === 'healthy').length;
@@ -287,6 +279,22 @@ app.get('/api/agents', (req, res) => {
   const page = list.slice(off, off + lim);
 
   res.json({ count: list.length, limit: lim, offset: off, agents: page });
+});
+
+/** GET /api/agents/deprecated — List deprecated agents (must be before /:id) */
+app.get('/api/agents/deprecated', (_req, res) => {
+  const list = Array.from(agents.values())
+    .filter(a => a.status === 'deprecated')
+    .map(a => ({ id: a.id, name: a.name, deprecatedAt: a.deprecatedAt, deprecation: a.deprecation }));
+  res.json({ count: list.length, agents: list });
+});
+
+/** GET /api/agents/retired — List retired agents (must be before /:id) */
+app.get('/api/agents/retired', (_req, res) => {
+  const list = Array.from(agents.values())
+    .filter(a => a.status === 'retired')
+    .map(a => ({ id: a.id, name: a.name, retiredAt: a.retiredAt, gracePeriodDays: a.gracePeriodDays }));
+  res.json({ count: list.length, agents: list });
 });
 
 /** GET /api/agents/:id — Get one agent */
@@ -806,23 +814,6 @@ app.post('/api/agents/:id/restore', authOrBypass, (req, res) => {
   res.json({ message: 'Agent restored', agent: a });
 });
 
-/** GET /api/agents/deprecated — List deprecated agents */
-app.get('/api/agents/deprecated', (req, res) => {
-  console.log('[DEBUG] GET /api/agents/deprecated called. agents.size=', agents.size);
-  const list = Array.from(agents.values())
-    .filter(a => a.status === 'deprecated')
-    .map(a => ({ id: a.id, name: a.name, deprecatedAt: a.deprecatedAt, deprecation: a.deprecation }));
-  res.json({ count: list.length, agents: list });
-});
-
-/** GET /api/agents/retired — List retired agents */
-app.get('/api/agents/retired', (req, res) => {
-  const list = Array.from(agents.values())
-    .filter(a => a.status === 'retired')
-    .map(a => ({ id: a.id, name: a.name, retiredAt: a.retiredAt, gracePeriodDays: a.gracePeriodDays }));
-  res.json({ count: list.length, agents: list });
-});
-
 // ===============================
 // POLICIES
 // ===============================
@@ -910,7 +901,7 @@ app.get('/api/audit', (req, res) => {
 // ERROR HANDLERS
 // ===============================
 
-app.use((req, res) => { console.log('[ERROR-HANDLER] 404 for', req.method, req.path); res.status(404).json({ error: 'NOT_FOUND', message: `Route ${req.method} ${req.path} not found` }); });
+app.use((req, res) => res.status(404).json({ error: 'NOT_FOUND', message: `Route ${req.method} ${req.path} not found` }));
 app.use((err, _req, res, _next) => {
   console.error(`[${SERVICE_NAME}] error:`, err);
   stats.errors++;

@@ -65,7 +65,7 @@ const SERVICES = {
   founderOS:                    { name: 'SUTAR Founder OS',                  port: 4260, layer: 4, status: 'live' },
 
   // Layer 5 — marketplace + economy + usage + policy
-  marketplace:                  { name: 'SUTAR Marketplace (Salar OS)',      port: 4250, layer: 5, status: 'live' },
+  marketplace:                  { name: 'BLR AI Marketplace',              port: 4255, layer: 5, status: 'live' },
   economyOS:                    { name: 'SUTAR Economy OS',                  port: 4294, layer: 5, status: 'live' },
   usageTracker:                 { name: 'SUTAR Usage Tracker',               port: 4252, layer: 5, status: 'live' },
   policyOS:                     { name: 'SUTAR Policy OS',                   port: 4254, layer: 5, status: 'live' },
