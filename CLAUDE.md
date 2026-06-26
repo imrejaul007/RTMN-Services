@@ -482,17 +482,12 @@ HOJAI Studio
 | Logistics | 8 agents | $2,800 | Delhivery |
 | B2B Platform | 9 agents | $3,150 | IndiaMART |
 
-### Services (26 Total)
+### Services (32 Total)
 
 | Port | Service |
 |------|---------|
 | 3001 | **Studio UI** (Web wizard) |
 | 4399 | RTMN Hub |
-| 4400 | App Store |
-| 4410 | Cost Tracker |
-| 4420 | Secrets Manager |
-| 4430 | Voice Studio |
-| 4440 | Workflow Builder |
 | 4500 | Template Compiler |
 | 4510 | BAM (Hire AI workers) |
 | 4520 | Agent Generator |
@@ -500,18 +495,19 @@ HOJAI Studio
 | 4540 | Deploy Pipeline |
 | 4550 | Flows Engine |
 | 4560 | Company Mapper (510 companies) |
-| 4610 | DO Passenger |
-| 4611 | DO Driver |
-| 4612 | DO Admin |
+| 4570 | Studio Orchestrator |
 
-### OTA Services
+### Industry Services
 
-| Port | Service |
-|------|---------|
-| 4700 | PMS Integration |
-| 4701 | GDS Integration |
-| 4702 | Payment Gateway |
-| 4703 | Build Pipeline |
+| Port | Template | Services |
+|------|---------|---------|
+| 4700 | OTA | PMS, GDS, Payment, Build |
+| 4710 | E-Commerce | Inventory, Fulfillment, Returns |
+| 4720 | Mobility | Driver, Fleet, Dispatch, Surge |
+| 4730 | Healthcare | Doctor, Pharmacy, Insurance |
+| 4740 | Education | LMS, Courses, Assessments |
+| 4750 | Fintech | Banking, Trading, Loans |
+| 4760 | Logistics | Routing, Tracking, Warehouse |
 
 ### Startup
 

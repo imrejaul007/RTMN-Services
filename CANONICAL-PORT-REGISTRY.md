@@ -605,8 +605,24 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 | **4701** | `gds-integration` | Amadeus, Sabre, Travelport |
 | **4702** | `payment-gateway` | Razorpay, Stripe |
 | **4703** | `build-pipeline` | App Store build & submit |
-| **4704** | `flows-engine` | 50+ flows across 17 templates |
-| **4705** | `company-mapper` | Maps 510 companies to templates |
+
+### Industry Services (2026-06-26)
+
+| Port | Service | Purpose |
+|---|---|---|
+| **4710** | `ecommerce-services` | Inventory, Fulfillment, Returns |
+| **4720** | `mobility-services` | Driver, Fleet, Dispatch, Surge |
+| **4730** | `healthcare-services` | Doctor, Pharmacy, Insurance |
+| **4740** | `education-services` | LMS, Courses, Assessments |
+| **4750** | `fintech-services` | Banking, Trading, Loans |
+| **4760** | `logistics-services` | Routing, Tracking, Warehouse |
+
+### Orchestration (2026-06-26)
+
+| Port | Service | Purpose |
+|---|---|---|
+| **4550** | `flows-engine` | 50+ flows across 17 templates |
+| **4560** | `company-mapper` | Maps 510 companies to templates |
 | **4570** | `studio-orchestrator` | Wires all services for deployment |
 
 ### HOJAI Studio UI
