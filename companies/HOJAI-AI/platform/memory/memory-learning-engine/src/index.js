@@ -1,7 +1,3 @@
-/**
- * Memory Learning Engine - Outcome tracking, failure analysis
- * Port: 4788
- */
 import express from 'express';
 const app = express();
 const PORT = process.env.MEMORY_LEARNING_PORT || 4788;
@@ -15,8 +11,6 @@ function generateId() { return `rule-${Date.now()}-${Math.random().toString(36).
 app.use(express.json());
 app.get('/health', (_req, res) => { ok(res, { status: 'healthy', port: PORT }); });
 app.get('/', (_req, res) => { ok(res, { service: 'memory-learning-engine' }); });
-
-// Record outcome
 app.post('/api/outcome', (req, res) => {
   const { memoryId, success, feedback } = req.body || {};
   if (!memoryId || success === undefined) return fail(res, 'INVALID_INPUT', 'memoryId and success required');
@@ -24,16 +18,11 @@ app.post('/api/outcome', (req, res) => {
   outcomes.push(outcome);
   stats.totalOutcomes++;
   if (success) stats.successes++; else stats.failures++;
-
-  // Apply learning
-  const rule = { id: generateId(), memoryId, action: success ? 'reinforce' : 'weaken', confidence: Math.abs(outcome.confidenceChange || 0.5), 应用次数: 0 };
+  const rule = { id: generateId(), memoryId, action: success ? 'reinforce' : 'weaken', confidence: 0.5, 应用次数: 0 };
   learningRules.set(rule.id, rule);
   stats.learningsApplied++;
-
   ok(res, { outcome, rule: { id: rule.id, action: rule.action } });
 });
-
-// Failure analysis
 app.post('/api/analyze/failures', (req, res) => {
   const { twinId, days = 7 } = req.body || {};
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
@@ -46,8 +35,6 @@ app.post('/api/analyze/failures', (req, res) => {
   }
   ok(res, { twinId: twinId || 'all', totalFailures: failures.length, patterns });
 });
-
-// Root cause analysis
 app.post('/api/analyze/root-cause', (req, res) => {
   const { memoryId } = req.body || {};
   if (!memoryId) return fail(res, 'INVALID_INPUT', 'memoryId required');
@@ -56,15 +43,11 @@ app.post('/api/analyze/root-cause', (req, res) => {
   const rootCauses = successRate !== null && successRate < 0.7 ? ['confidence_issue'] : [];
   ok(res, { memoryId, outcomesAnalyzed: memoryOutcomes.length, successRate, rootCauses });
 });
-
-// Behavior patterns
 app.get('/api/patterns', (req, res) => {
   const { limit = 50 } = req.query;
   const patterns = Array.from(learningRules.values()).slice(-Number(limit));
   ok(res, { count: patterns.length, patterns });
 });
-
-// Insights
 app.get('/api/insights', (req, res) => {
   const { days = 30 } = req.query;
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
@@ -72,9 +55,5 @@ app.get('/api/insights', (req, res) => {
   const successRate = recent.length > 0 ? recent.filter(o => o.success).length / recent.length : 0;
   ok(res, { trend: { days: Number(days), successRate, totalOutcomes: recent.length }, stats });
 });
-
-app.get('/api/stats', (_req, res) => {
-  ok(res, { ...stats, learningRules: learningRules.size });
-});
-
+app.get('/api/stats', (_req, res) => { ok(res, { ...stats, learningRules: learningRules.size }); });
 app.listen(PORT, () => console.log(`Memory Learning running on port ${PORT}`));

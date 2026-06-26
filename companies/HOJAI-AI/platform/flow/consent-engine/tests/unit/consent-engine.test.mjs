@@ -7,6 +7,7 @@ import http from 'node:http';
 
 process.env.NODE_ENV = 'test';
 process.env.CONSENT_REQUIRE_AUTH = 'false';
+process.env.INTERNAL_SERVICE_TOKEN = 'dev-token';
 process.env.PORT = '0';
 
 const app = (await import('../../src/index.js')).default;
@@ -22,7 +23,10 @@ function req(method, path, body) {
       hostname: url.hostname,
       port: url.port,
       path: url.pathname + url.search,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-token': 'dev-token',
+      },
     };
     const r = http.request(opts, (res) => {
       let data = '';

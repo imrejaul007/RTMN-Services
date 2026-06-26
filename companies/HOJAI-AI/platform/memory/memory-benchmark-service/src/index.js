@@ -1,7 +1,3 @@
-/**
- * Memory Benchmark Service - Recall@5, Latency, Accuracy
- * Port: 4787
- */
 import express from 'express';
 const app = express();
 const PORT = process.env.MEMORY_BENCHMARK_PORT || 4787;
@@ -19,8 +15,6 @@ function calculateStats(values) {
 app.use(express.json());
 app.get('/health', (_req, res) => { ok(res, { status: 'healthy', port: PORT }); });
 app.get('/', (_req, res) => { ok(res, { service: 'memory-benchmark' }); });
-
-// Recall benchmarks
 app.post('/api/benchmark/recall', (req, res) => {
   const { twinId, queries } = req.body || {};
   if (!twinId) return res.status(400).json({ success: false, error: 'twinId required' });
@@ -31,8 +25,6 @@ app.post('/api/benchmark/recall', (req, res) => {
   results.push(benchmark);
   ok(res, { benchmark });
 });
-
-// Latency benchmarks
 app.post('/api/benchmark/latency', (req, res) => {
   const { iterations = 100 } = req.body || {};
   const latencies = Array.from({ length: iterations }, () => Math.random() * 100 + 20);
@@ -41,8 +33,6 @@ app.post('/api/benchmark/latency', (req, res) => {
   results.push(benchmark);
   ok(res, { benchmark });
 });
-
-// Accuracy benchmarks
 app.post('/api/benchmark/accuracy', (req, res) => {
   const { twinId, testCases } = req.body || {};
   if (!twinId) return res.status(400).json({ success: false, error: 'twinId required' });
@@ -53,28 +43,18 @@ app.post('/api/benchmark/accuracy', (req, res) => {
   results.push(benchmark);
   ok(res, { benchmark });
 });
-
-// Full suite
 app.post('/api/benchmark/suite', (req, res) => {
   const { twinId } = req.body || {};
-  const suite = {
-    id: `suite-${Date.now()}`, twinId,
-    results: { recall: 0.82, latency: 145, accuracy: 0.88, contextQuality: 0.78 },
-    passed: true, timestamp: nowIso()
-  };
+  const suite = { id: `suite-${Date.now()}`, twinId, results: { recall: 0.82, latency: 145, accuracy: 0.88, contextQuality: 0.78 }, passed: true, timestamp: nowIso() };
   results.push(suite);
   ok(res, { suite });
 });
-
-// Get results
 app.get('/api/benchmark/results', (req, res) => {
   const { limit = 50 } = req.query;
   ok(res, { count: results.length, benchmarks: results.slice(-Number(limit)) });
 });
-
 app.get('/api/benchmark/stats', (_req, res) => {
   const passed = results.filter(r => r.passed).length;
   ok(res, { total: results.length, passRate: results.length > 0 ? passed / results.length : 0 });
 });
-
 app.listen(PORT, () => console.log(`Memory Benchmark running on port ${PORT}`));

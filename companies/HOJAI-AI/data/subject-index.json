@@ -1,0 +1,30 @@
+[
+  [
+    "user-a::marketing.email",
+    [
+      "cs-1782512813677-faab50",
+      "cs-1782512899000-75adee"
+    ]
+  ],
+  [
+    "bulk-user::analytics.cohort",
+    [
+      "cs-1782512813692-38d3e2",
+      "cs-1782512899038-5ff5d4"
+    ]
+  ],
+  [
+    "user-b::support.lookup",
+    [
+      "cs-1782512813697-188297",
+      "cs-1782512899053-912ba1"
+    ]
+  ],
+  [
+    "withdrawn-user::personalization.recommendations",
+    [
+      "cs-1782512813700-2836f8",
+      "cs-1782512899079-35f7f0"
+    ]
+  ]
+]
