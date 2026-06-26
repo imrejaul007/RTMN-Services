@@ -4,7 +4,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
-import { Signature, SignatureStatus, Party } from '../types/index';
+import { Signature, SignatureStatus, Party } from '../types/index.js';
 
 // In-memory stores
 const signatureRequests = new Map<string, SignatureRequest>();

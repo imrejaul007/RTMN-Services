@@ -32,6 +32,9 @@ export interface Contract {
   tags?: string[];
   createdAt: string;
   updatedAt: string;
+  activatedAt?: string;
+  terminatedAt?: string;
+  expiresAt?: string;
   createdBy?: string;
   workflowId?: string;
   slaId?: string;
@@ -215,11 +218,12 @@ export interface WorkflowCondition {
 
 export interface WorkflowNotification {
   id: string;
-  type: 'email' | 'push' | 'sms';
+  type: string;
   recipient: string;
-  template: string;
+  message?: string;
   sentAt: string;
-  status: 'sent' | 'delivered' | 'failed';
+  delivered?: boolean;
+  status?: string;
 }
 
 // Version Control Interfaces

@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { v4 as uuidv4 } from 'uuid';
-import { Amendment, AmendmentChange, Contract, Clause } from '../types/index';
+import { Amendment, AmendmentChange, Contract, Clause } from '../types/index.js';
 
 // In-memory stores
 const amendmentStore = new Map<string, Amendment>();

@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { v4 as uuidv4 } from 'uuid';
-import { RenewalSchedule, NotificationRecord, Contract, ContractStatus } from '../types/index';
+import { RenewalSchedule, NotificationRecord, Contract, ContractStatus } from '../types/index.js';
 
 // In-memory store for renewal schedules
 const renewalStore = new Map<string, RenewalSchedule>();

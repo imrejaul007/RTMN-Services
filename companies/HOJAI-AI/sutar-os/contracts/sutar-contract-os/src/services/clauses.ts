@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { v4 as uuidv4 } from 'uuid';
-import { ClauseLibraryItem } from '../types/index';
+import { ClauseLibraryItem } from '../types/index.js';
 
 // In-memory store for clauses
 const clauseStore = new Map<string, ClauseLibraryItem>();

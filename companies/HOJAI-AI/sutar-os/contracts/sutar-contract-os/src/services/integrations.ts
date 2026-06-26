@@ -3,7 +3,7 @@
 // Economy OS (port 4251) and Trust Engine (port 4180)
 // ============================================================================
 
-import { Contract, Party, PaymentRecord, TrustEngineVerification } from '../types/index';
+import { Contract, Party, PaymentRecord, TrustEngineVerification } from '../types/index.js';
 
 // Configuration
 const ECONOMY_OS_URL = process.env.ECONOMY_OS_URL || 'http://localhost:4251';

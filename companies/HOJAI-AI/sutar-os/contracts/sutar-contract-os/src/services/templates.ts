@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { v4 as uuidv4 } from 'uuid';
-import { ContractTemplate, TemplateVariable, Clause, ContractType, ApiResponse } from '../types/index';
+import { ContractTemplate, TemplateVariable, Clause, ContractType, ApiResponse } from '../types/index.js';
 
 // In-memory store for templates
 const templateStore = new Map<string, ContractTemplate>();

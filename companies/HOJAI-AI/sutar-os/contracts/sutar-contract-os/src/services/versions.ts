@@ -4,7 +4,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
-import { ContractVersion, VersionDiff, Contract, Clause, Party } from '../types/index';
+import { ContractVersion, VersionDiff, Contract, Clause, Party } from '../types/index.js';
 
 // In-memory store for versions
 const versionStore = new Map<string, ContractVersion>();
