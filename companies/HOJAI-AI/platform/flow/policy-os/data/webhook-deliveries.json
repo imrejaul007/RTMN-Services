@@ -713,5 +713,18 @@
       "durationMs": 3,
       "timestamp": "2026-06-23T09:08:28.979Z"
     }
+  ],
+  [
+    "wh-1782514472495",
+    {
+      "id": "wh-1782514472495",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 27,
+      "timestamp": "2026-06-26T22:54:32.522Z"
+    }
   ]
 ]

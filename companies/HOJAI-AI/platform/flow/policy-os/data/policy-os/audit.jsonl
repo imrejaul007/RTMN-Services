@@ -286,3 +286,4 @@
 {"id":"f6206c08-e75a-49de-87e1-422bb4d2d677","timestamp":"2026-06-23T09:08:28.962Z","type":"policy.created","policyId":"demo-foundation-72335-1782205708","actor":"u-admin","details":{"category":"security","name":"Demo US payment allow"}}
 {"id":"425f33fe-0a8b-4c6f-8ccb-cd0771581750","timestamp":"2026-06-23T09:08:28.975Z","type":"policy.evaluated","policyId":"demo-foundation-72335-1782205708","details":{"allowed":false,"reasons":["Policy 'demo-foundation-72335-1782205708' is in status 'draft' and not enforced"]}}
 {"id":"83337e87-912c-4775-9b06-3da8c76bcabc","timestamp":"2026-06-23T09:08:28.989Z","type":"policy.retired","policyId":"demo-foundation-72335-1782205708","actor":"u-admin","details":{"retiredAt":"2026-06-23T09:08:28.988Z"}}
+{"id":"15f8095e-2bbe-43d5-80ed-88209e596320","timestamp":"2026-06-26T22:54:32.494Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}
