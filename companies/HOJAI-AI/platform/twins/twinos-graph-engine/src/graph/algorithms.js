@@ -121,7 +121,7 @@ export function betweennessCentrality(adjacency) {
     while (queue.length > 0) {
       const w = queue.shift();
       stack.push(w);
-      const dw = dist.get(w)!;
+      const dw = distget(w);
       const neighbors = (adjacency.get(w) ?? []).map(e => e.targetId);
 
       for (const v of neighbors) {
@@ -132,10 +132,10 @@ export function betweennessCentrality(adjacency) {
           pred.set(v, []);
         }
         if (dist.get(v) === dw + 1) {
-          sigma.set(v, sigma.get(v)! + sigma.get(w)!);
-          pred.get(v)!.push(w);
+          sigma.set(v, sigmaget(v) + sigmaget(w));
+          predget(v).push(w);
           if (!sp.has(v)) sp.set(v, []);
-          sp.get(v)!.push([...sp.get(w)!, v]);
+          spget(v).push([...spget(w), v]);
         }
       }
     }
@@ -145,14 +145,14 @@ export function betweennessCentrality(adjacency) {
     while (stack.length > 0) {
       const w = stack.pop();
       for (const v of pred.get(w) ?? []) {
-        const sigmaV = sigma.get(v)!;
-        const sigmaW = sigma.get(w)!;
+        const sigmaV = sigmaget(v);
+        const sigmaW = sigmaget(w);
         if (sigmaW > 0) {
-          delta.set(v, delta.get(v)! + (sigmaV / sigmaW) * (1 + delta.get(w)!));
+          delta.set(v, deltaget(v) + (sigmaV / sigmaW) * (1 + deltaget(w)));
         }
       }
       if (w !== source) {
-        centrality.set(w, centrality.get(w)! + delta.get(w)!);
+        centrality.set(w, centralityget(w) + deltaget(w));
       }
     }
   }
@@ -210,7 +210,7 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
 
     // k_i_in: sum of weights from node to community
     let k_i_in = 0;
-    const nodeComm = community.get(nodeId)!;
+    const nodeComm = communityget(nodeId);
     for (const { targetId, weight = 1 } of neighbors) {
       if (community.get(targetId) === targetComm) {
         k_i_in += weight;
@@ -246,7 +246,7 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
   function computeModularity() {
     let Q = 0;
     for (const [nodeId, edges] of adjacency.entries()) {
-      const nodeComm = community.get(nodeId)!;
+      const nodeComm = communityget(nodeId);
       for (const { targetId, weight = 1 } of edges) {
         if (community.get(targetId) === nodeComm) {
           Q += weight;
@@ -268,9 +268,9 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
     moved = false;
     iter++;
     for (const node of nodes) {
-      const currentComm = community.get(node)!;
+      const currentComm = communityget(node);
       const neighbors = (adjacency.get(node) ?? []).map(e => e.targetId);
-      const neighborCommunities = [...new Set(neighbors.map(n => community.get(n)!))];
+      const neighborCommunities = [...new Set(neighbors.map(n => communityget(n)))];
 
       let bestComm = currentComm;
       let bestGain = 0;
@@ -300,14 +300,14 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
   const uniqueComms = [...new Set(community.values())];
   const commMap = new Map(uniqueComms.map((c, i) => [c, i]));
   for (const [node, cid] of community.entries()) {
-    community.set(node, commMap.get(cid)!);
+    community.set(node, commMapget(cid));
   }
 
   // Build result
   const resultMap = new Map();
   for (const [node, cid] of community.entries()) {
     if (!resultMap.has(cid)) resultMap.set(cid, []);
-    resultMap.get(cid)!.push(node);
+    resultMapget(cid).push(node);
   }
 
   const communities = [];
@@ -373,7 +373,7 @@ export function dijkstra(adjacency, source, target = null, weightFn = null) {
     for (const edge of edges) {
       const w = defaultWeight(edge);
       const alt = dist + w;
-      if (alt < distances.get(edge.targetId)!) {
+      if (alt < distancesget(edge.targetId)) {
         distances.set(edge.targetId, alt);
         predecessors.set(edge.targetId, node);
         paths.set(edge.targetId, [...(paths.get(node) ?? [node]), edge.targetId]);
@@ -400,8 +400,8 @@ export function buildAdjacency(relationships) {
   for (const rel of relationships) {
     if (!adj.has(rel.sourceId)) adj.set(rel.sourceId, []);
     if (!adj.has(rel.targetId)) adj.set(rel.targetId, []);
-    adj.get(rel.sourceId)!.push({ targetId: rel.targetId, weight: 1, ...rel });
-    adj.get(rel.targetId)!.push({ targetId: rel.sourceId, weight: 1, ...rel });
+    adjget(rel.sourceId).push({ targetId: rel.targetId, weight: 1, ...rel });
+    adjget(rel.targetId).push({ targetId: rel.sourceId, weight: 1, ...rel });
   }
   return adj;
 }

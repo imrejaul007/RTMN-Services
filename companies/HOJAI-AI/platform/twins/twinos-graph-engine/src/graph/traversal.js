@@ -165,7 +165,7 @@ export function nDegreeConnections(rootId, relationships, maxHops = 3) {
         visited.set(neighbor, depth + 1);
         queue.push([neighbor, depth + 1]);
         if (depth + 1 <= maxHops) {
-          byHop.get(depth + 1)!.push({
+          byHopget(depth + 1).push({
             id: neighbor,
             relationship: rel,
             relationshipId: rel.id,

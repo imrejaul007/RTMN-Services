@@ -1,21 +1,18 @@
 /**
  * KnowledgeGraphOS Unit Tests (ESM)
  *
- * Tests all API endpoints of the ESM service. The @rtmn/shared mock is loaded
- * first via a CommonJS shim that patches Module._resolveFilename before the
- * ESM import graph is resolved.
- *
+ * Tests all API endpoints of the ESM service.
  * Run: node --test tests/unit/knowledge-graph.test.mjs
  */
 
-import './_setup-mock.cjs';
-import { createRequire } from 'module';
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import http from 'node:http';
 
-const require = createRequire(import.meta.url);
-const { default: app } = await import('../../src/index.js');
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const { default: app } = await import(resolve(__dirname, '../../src/index.js'));
 
 const PORT = 4551;
 let server;
