@@ -41,6 +41,12 @@ export default function RootLayout({
                 <a href="/listings?q=rating=4" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                   Top Rated
                 </a>
+                <a href="/dashboard" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  Dashboard
+                </a>
+                <a href="/dashboard/moderation" className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors">
+                  Moderation
+                </a>
               </nav>
 
               {/* Actions */}

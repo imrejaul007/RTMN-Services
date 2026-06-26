@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/studio-ui",
+  "version": "1.0.0",
+  "description": "HOJAI Studio Web UI - One-click company builder",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.300.0"
+  }
+}
