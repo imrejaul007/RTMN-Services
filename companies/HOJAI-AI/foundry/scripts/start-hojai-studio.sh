@@ -1,5 +1,5 @@
 #!/bin/bash
-# HOJAI Studio - 32 Services Startup Script
+# HOJAI Studio - 42 Services Startup Script
 set -e
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
@@ -39,12 +39,22 @@ SERVICES=(
   "4760:AI Product Manager:ai-product-manager"
   "4762:AI Code Reviewer:ai-code-reviewer"
   "4764:AI UX Researcher:ai-ux-researcher"
+  "4766:API Docs:api-docs"
+  "4768:A/B Testing:ab-testing"
+  "4770:Email Service:email-service"
+  "4772:Search Service:search-service"
+  "4774:Scheduler:scheduler"
+  "4776:CDN Manager:cdn-manager"
+  "4778:Rate Limiter:rate-limiter"
+  "4780:Export Service:export-service"
+  "4782:Bot Detection:bot-detection"
+  "4784:Webhooks:webhooks"
 )
 
 check_port() { lsof -Pi ":$1" -sTCP:LISTEN -t >/dev/null 2>&1; }
 
 start_all() {
-  log "Starting HOJAI Studio - 32 services..."
+  log "Starting HOJAI Studio - 42 services..."
   BASE="/Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/foundry/services"
   for item in "${SERVICES[@]}"; do
     IFS=':' read -r port name dir <<< "$item"
@@ -64,7 +74,7 @@ start_all() {
 
 status() {
   echo -e "${BLUE}═══════════════════════════════════════════${NC}"
-  echo -e "${BLUE}     HOJAI STUDIO - 32 SERVICES STATUS      ${NC}"
+  echo -e "${BLUE}     HOJAI STUDIO - 42 SERVICES STATUS      ${NC}"
   echo -e "${BLUE}═══════════════════════════════════════════${NC}"
   printf "%-25s %-8s %-10s\n" "Service" "Port" "Status"
   echo "─────────────────────────────────────────────"

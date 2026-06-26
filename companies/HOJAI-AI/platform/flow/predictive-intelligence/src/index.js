@@ -1115,7 +1115,7 @@ app.get('/api/audit', (req, res) => {
 //
 // Seed one example forecast using a 90-day sinusoidal series and Holt-Winters.
 
-(function seed() {
+function seed() {
   const series = [];
   for (let i = 0; i < 90; i++) {
     const day = new Date(Date.now() - (89 - i) * DAY_MS);
@@ -1161,7 +1161,10 @@ app.get('/api/audit', (req, res) => {
   horizonCount++;
   audit({ op: 'seed-forecast', forecastId: id, method: 'holt-winters', horizon, principal: 'system', success: true });
   console.log(`[${SERVICE_NAME}] seeded example forecast ${id} (90d sinusoidal, Holt-Winters)`);
-})();
+}
+
+// Run seed immediately
+seed();
 
 // ============ ERROR HANDLERS ============
 
@@ -1179,9 +1182,17 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
-  console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
-  console.log(`[${SERVICE_NAME}] methods: ${METHODS.map(m => m.id).join(', ')}`);
-});
-installGracefulShutdown(server);
+// Named exports for vitest
+module.exports = app;
+module.exports.seedData = seed;
+module.exports.seed = seed;
+
+// Auto-start gated
+if (process.env.PREDICTIVE_INTELLIGENCE_NO_LISTEN !== '1' && process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
+    console.log(`[${SERVICE_NAME}] health: http://localhost:${PORT}/api/health`);
+    console.log(`[${SERVICE_NAME}] methods: ${METHODS.map(m => m.id).join(', ')}`);
+  });
+  installGracefulShutdown(server);
+}

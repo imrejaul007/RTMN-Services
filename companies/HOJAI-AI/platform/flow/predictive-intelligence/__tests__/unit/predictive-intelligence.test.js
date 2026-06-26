@@ -8,13 +8,13 @@ process.env.PREDICTIVE_INTELLIGENCE_REQUIRE_AUTH = 'false';
 process.env.NODE_ENV = 'test';
 
 const http = require('http');
-const { app, seedData } = require('../../src/index');
+const { app } = require('../../src/index');
 
 let server;
 let baseUrl;
 
 beforeAll(async () => {
-  seedData();
+  // Note: seed() is called automatically when the module loads
   server = http.createServer(app);
   await new Promise((resolve) => server.listen(0, () => resolve()));
   baseUrl = `http://127.0.0.1:${server.address().port}`;
@@ -52,9 +52,6 @@ function req(method, path, body) {
 describe('config exports', () => {
   test('app is a function', () => {
     expect(typeof app).toBe('function');
-  });
-  test('seedData is a function', () => {
-    expect(typeof seedData).toBe('function');
   });
 });
 

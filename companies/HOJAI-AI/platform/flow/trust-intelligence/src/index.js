@@ -32,6 +32,10 @@ requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4882;
 const SERVICE_NAME = 'trust-intelligence';
 
+// Auth bypass for testing
+const REQUIRE_AUTH = (process.env.TRUST_INTELLIGENCE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const authOrBypass = (req, res, next) => REQUIRE_AUTH ? requireAuth(req, res, next) : next();
+
 // ============================================================================
 // Middleware
 // ============================================================================
@@ -499,7 +503,7 @@ app.get('/health', (req, res) => {
 // ---------------------------------------------------------------------------
 
 // Record a trust score event
-app.post('/api/agents/:agentId/trust/score',requireAuth,  (req, res) => {
+app.post('/api/agents/:agentId/trust/score',authOrBypass, (req, res) => {
   const { agentId } = req.params;
   const { source, score, context, evidence } = req.body || {};
 
@@ -603,7 +607,7 @@ app.get('/api/agents/:agentId/trust/decay', (req, res) => {
 });
 
 // Bulk score lookup
-app.post('/api/agents/bulk/score',requireAuth,  (req, res) => {
+app.post('/api/agents/bulk/score',authOrBypass, (req, res) => {
   const { agentIds } = req.body || {};
   if (!Array.isArray(agentIds)) {
     return res.status(400).json({ error: 'agentIds must be an array' });
@@ -635,7 +639,7 @@ app.get('/api/trust/levels', (req, res) => {
 // Reputation Aggregation
 // ---------------------------------------------------------------------------
 
-app.post('/api/agents/:agentId/reputation',requireAuth,  (req, res) => {
+app.post('/api/agents/:agentId/reputation',authOrBypass, (req, res) => {
   const { agentId } = req.params;
   const { type, weight, source } = req.body || {};
   if (!type || (type !== 'positive' && type !== 'negative')) {
@@ -673,7 +677,7 @@ app.get('/api/agents/top-trusted', (req, res) => {
 // Risk Propagation
 // ---------------------------------------------------------------------------
 
-app.post('/api/agents/:agentId/risk/flag',requireAuth,  (req, res) => {
+app.post('/api/agents/:agentId/risk/flag',authOrBypass, (req, res) => {
   const { agentId } = req.params;
   const { severity, reason, evidence } = req.body || {};
   if (typeof severity !== 'number' || severity < 1 || severity > 10) {
@@ -718,7 +722,7 @@ app.get('/api/agents/:agentId/risk', (req, res) => {
   });
 });
 
-app.post('/api/agents/:agentId/risk/clear',requireAuth,  (req, res) => {
+app.post('/api/agents/:agentId/risk/clear',authOrBypass, (req, res) => {
   const { agentId } = req.params;
   const { flagId } = req.body || {};
   if (!agentBaseTrust.has(agentId)) {
@@ -745,7 +749,7 @@ app.post('/api/agents/:agentId/risk/clear',requireAuth,  (req, res) => {
 // Confidence Scoring
 // ---------------------------------------------------------------------------
 
-app.post('/api/agents/:agentId/confidence',requireAuth,  (req, res) => {
+app.post('/api/agents/:agentId/confidence',authOrBypass, (req, res) => {
   const { agentId } = req.params;
   const { decisionId, confidence, correct } = req.body || {};
   if (typeof confidence !== 'number' || confidence < 0 || confidence > 1) {
@@ -779,7 +783,7 @@ app.get('/api/agents/:agentId/confidence', (req, res) => {
 // Trust Graph
 // ---------------------------------------------------------------------------
 
-app.post('/api/trust/edges',requireAuth,  (req, res) => {
+app.post('/api/trust/edges',authOrBypass, (req, res) => {
   const { trusterId, trusteeId, weight } = req.body || {};
   if (!trusterId || !trusteeId) {
     return res.status(400).json({ error: 'trusterId and trusteeId are required' });
@@ -835,7 +839,7 @@ app.get('/api/analytics/leaderboard', (req, res) => {
 // Model Output Trust
 // ---------------------------------------------------------------------------
 
-app.post('/api/models/:modelId/trust',requireAuth,  (req, res) => {
+app.post('/api/models/:modelId/trust',authOrBypass, (req, res) => {
   const { modelId } = req.params;
   const { accuracy, calibration, sampleSize } = req.body || {};
   if (typeof accuracy !== 'number' || accuracy < 0 || accuracy > 1) {

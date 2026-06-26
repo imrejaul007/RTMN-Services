@@ -7,18 +7,18 @@
 
 **Tagline:** *"Build a startup in 30 minutes."*
 
-**Status:** v3.0 (2026-06-27) — **HOJAI Studio** with 32 services + 15 Industry Templates
+**Status:** v3.1 (2026-06-27) — **HOJAI Studio** with 42 services + 15 Industry Templates
 
 ---
 
-## 🚀 HOJAI Studio - 32 Killer Features
+## 🚀 HOJAI Studio - 42 Killer Features
 
 ```bash
 bash foundry/scripts/start-hojai-studio.sh start
-# → 32 services running on ports 4600-4764
+# → 42 services running on ports 4600-4784
 ```
 
-### All 32 Services
+### All 42 Services
 
 | Port | Service | Category |
 |------|---------|----------|
@@ -53,6 +53,16 @@ bash foundry/scripts/start-hojai-studio.sh start
 | **4760** | AI Product Manager | AI |
 | **4762** | AI Code Reviewer | AI |
 | **4764** | AI UX Researcher | AI |
+| **4766** | API Docs | Dev |
+| **4768** | A/B Testing | Analytics |
+| **4770** | Email Service | Messaging |
+| **4772** | Search Service | Infrastructure |
+| **4774** | Scheduler | Infrastructure |
+| **4776** | CDN Manager | Infrastructure |
+| **4778** | Rate Limiter | Security |
+| **4780** | Export Service | Analytics |
+| **4782** | Bot Detection | Security |
+| **4784** | Webhooks | Messaging |
 
 ---
 

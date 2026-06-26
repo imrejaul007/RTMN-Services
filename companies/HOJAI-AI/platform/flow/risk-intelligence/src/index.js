@@ -35,6 +35,10 @@ const { v4: uuidv4 } = require('uuid');
 const PORT = process.env.PORT || 4755;
 const SERVICE_NAME = 'risk-intelligence';
 
+// Auth bypass for testing
+const REQUIRE_AUTH = (process.env.RISK_INTELLIGENCE_REQUIRE_AUTH ?? 'true').toLowerCase() !== 'false';
+const authOrBypass = (req, res, next) => REQUIRE_AUTH ? requireAuth(req, res, next) : next();
+
 // ============ IN-MEMORY STORAGE ============
 
 /**
@@ -654,7 +658,7 @@ app.get('/api/health', (req, res) => {
  * POST /api/fraud/score
  * Body: { transaction: {amount, merchantCategory, country}, context: {deviceFingerprint, ipRiskScore, velocityLast1h, velocityLast24h, accountAge, priorFraudFlags} }
  */
-app.post('/api/fraud/score',requireAuth,  (req, res) => {
+app.post('/api/fraud/score',authOrBypass, (req, res) => {
   const body = req.body || {};
   if (!body.transaction) {
     return res.status(400).json({ error: 'transaction object is required' });
@@ -677,7 +681,7 @@ app.post('/api/fraud/score',requireAuth,  (req, res) => {
  * POST /api/fraud/score/batch
  * Body: { items: [{transaction, context}, ...] }
  */
-app.post('/api/fraud/score/batch',requireAuth,  (req, res) => {
+app.post('/api/fraud/score/batch',authOrBypass, (req, res) => {
   const items = Array.isArray(req.body && req.body.items) ? req.body.items : null;
   if (!items) return res.status(400).json({ error: 'items (array) is required' });
   if (items.length > 500) return res.status(400).json({ error: 'max 500 items per batch' });
@@ -720,7 +724,7 @@ app.get('/api/fraud/rules', (req, res) => {
  * Body: { weights: {feature: weight, ...} } or { thresholds: {low, medium, high} }
  * Updates the active fraud model (A/B testing).
  */
-app.patch('/api/fraud/rules',requireAuth,  (req, res) => {
+app.patch('/api/fraud/rules',authOrBypass, (req, res) => {
   const body = req.body || {};
   const updated = [];
   if (body.weights && typeof body.weights === 'object') {
@@ -753,7 +757,7 @@ app.patch('/api/fraud/rules',requireAuth,  (req, res) => {
  * POST /api/churn/score
  * Body: { customerId, features: {tenure, lastLoginDays, monthlyActiveDays, supportTicketsLast90d, npsScore, paymentFailures, planTier, featureAdoption, competitorSignals} }
  */
-app.post('/api/churn/score',requireAuth,  (req, res) => {
+app.post('/api/churn/score',authOrBypass, (req, res) => {
   const body = req.body || {};
   const features = body.features || {};
   const result = scoreChurn(features);
@@ -776,7 +780,7 @@ app.post('/api/churn/score',requireAuth,  (req, res) => {
  * Body: { customerIds: [...], featuresByCustomer: {id: {features}} }
  * Returns aggregated cohort risk distribution.
  */
-app.post('/api/churn/cohort',requireAuth,  (req, res) => {
+app.post('/api/churn/cohort',authOrBypass, (req, res) => {
   const body = req.body || {};
   const ids = Array.isArray(body.customerIds) ? body.customerIds : null;
   const featuresByCustomer = body.featuresByCustomer || {};
@@ -823,7 +827,7 @@ app.get('/api/churn/feature-importance', (req, res) => {
  * POST /api/credit/score
  * Body: { applicant: {monthlyIncome, debtToIncome, creditHistoryYears, priorDefaults, employmentType, requestedAmount, termMonths} }
  */
-app.post('/api/credit/score',requireAuth,  (req, res) => {
+app.post('/api/credit/score',authOrBypass, (req, res) => {
   const applicant = (req.body && req.body.applicant) || null;
   if (!applicant) return res.status(400).json({ error: 'applicant object is required' });
   const result = scoreCredit(applicant);
@@ -848,7 +852,7 @@ app.post('/api/credit/score',requireAuth,  (req, res) => {
  * Runs the credit decision for each scenario, keeping the
  * applicant features constant.
  */
-app.post('/api/credit/simulate',requireAuth,  (req, res) => {
+app.post('/api/credit/simulate',authOrBypass, (req, res) => {
   const body = req.body || {};
   const applicant = body.applicant;
   const scenarios = Array.isArray(body.scenarios) ? body.scenarios : null;
@@ -871,7 +875,7 @@ app.post('/api/credit/simulate',requireAuth,  (req, res) => {
  * Body: { fraud?: 0-100, churn?: 0-1, credit?: 300-850 }
  * Combines the supplied risk types into a single 0-100 score.
  */
-app.post('/api/risk/composite',requireAuth,  (req, res) => {
+app.post('/api/risk/composite',authOrBypass, (req, res) => {
   const body = req.body || {};
   const partials = {};
   if (body.fraud != null) partials.fraud = body.fraud;
@@ -909,7 +913,7 @@ app.get('/api/risk/thresholds', (req, res) => {
  * PATCH /api/risk/thresholds
  * Body: { thresholds?: {fraud?: {...}, churn?: {...}, credit?: {...}, composite?: {...}}, compositeWeights?: {...} }
  */
-app.patch('/api/risk/thresholds',requireAuth,  (req, res) => {
+app.patch('/api/risk/thresholds',authOrBypass, (req, res) => {
   const body = req.body || {};
   const updated = [];
   if (body.thresholds && typeof body.thresholds === 'object') {
@@ -1010,16 +1014,17 @@ app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
-
-
-const server = app.listen(PORT, () => {
-  // TODO: In production, replace in-memory Maps with Postgres +
-  //       add JWT-based RBAC checks here via CorpID.
-  // TODO: Wire up to TwinOS Hub so customer/transaction twins can
-  //       pull their own risk score directly.
-  // TODO: Promote linear models to gradient-boosted trees once we
-  //       have enough labeled fraud/churn data.
-  console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
-  console.log(`[${SERVICE_NAME}] fraud=${fraudRules.size} churn=${churnRules.size} credit=${creditRules.size} audit=${auditLog.length}`);
-});
-installGracefulShutdown(server);
+// Auto-start gated
+if (process.env.RISK_INTELLIGENCE_NO_LISTEN !== '1' && process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // TODO: In production, replace in-memory Maps with Postgres +
+    //       add JWT-based RBAC checks here via CorpID.
+    // TODO: Wire up to TwinOS Hub so customer/transaction twins can
+    //       pull their own risk score directly.
+    // TODO: Promote linear models to gradient-boosted trees once we
+    //       have enough labeled fraud/churn data.
+    console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
+    console.log(`[${SERVICE_NAME}] fraud=${fraudRules.size} churn=${churnRules.size} credit=${creditRules.size} audit=${auditLog.length}`);
+  });
+  installGracefulShutdown(server);
+}
