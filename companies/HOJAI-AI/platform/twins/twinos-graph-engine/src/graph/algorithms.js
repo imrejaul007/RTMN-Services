@@ -39,7 +39,8 @@ export function pageRank(adjacency, { damping = 0.85, maxIter = 100, tol = 1e-6 
   for (const [sourceId, edges] of adjacency.entries()) {
     for (const edge of edges) {
       if (inLinks.has(edge.targetId)) {
-        inLinks.get(edge.targetId).push({ sourceId, weight: edge.weight ?? 1 });
+        const list = inLinks.get(edge.targetId);
+        list.push({ sourceId, weight: edge.weight ?? 1 });
       }
     }
   }
@@ -62,8 +63,8 @@ export function pageRank(adjacency, { damping = 0.85, maxIter = 100, tol = 1e-6 
     let maxDelta = 0;
     for (const node of nodes) {
       let rank = (1 - damping) / n;
-      const inLinksList = inLinks.get(node) ?? [];
-      for (const { sourceId, weight = 1 } of inLinksList) {
+      const linksList = inLinks.get(node) ?? [];
+      for (const { sourceId, weight = 1 } of linksList) {
         const outDegree = (adjacency.get(sourceId) ?? []).length;
         if (outDegree > 0) {
           rank += damping * ((ranks.get(sourceId) ?? 0) * weight) / outDegree;
@@ -101,19 +102,17 @@ export function betweennessCentrality(adjacency) {
 
   for (const source of nodes) {
     // BFS from source to find all shortest paths
-    const sp = new Map();  // target → [[path...], ...]
     const dist = new Map();
     const pred = new Map(); // target → [predecessor...]
     const sigma = new Map(); // target → number of shortest paths
 
-    for (const n of nodes) {
-      dist.set(n, -1);
-      sigma.set(n, 0);
-      pred.set(n, []);
+    for (const n2 of nodes) {
+      dist.set(n2, -1);
+      sigma.set(n2, 0);
+      pred.set(n2, []);
     }
     dist.set(source, 0);
     sigma.set(source, 1);
-    sp.set(source, [[source]]);
 
     const stack = [];
     const queue = [source];
@@ -121,7 +120,7 @@ export function betweennessCentrality(adjacency) {
     while (queue.length > 0) {
       const w = queue.shift();
       stack.push(w);
-      const dw = distget(w);
+      const dw = dist.get(w);
       const neighbors = (adjacency.get(w) ?? []).map(e => e.targetId);
 
       for (const v of neighbors) {
@@ -132,10 +131,8 @@ export function betweennessCentrality(adjacency) {
           pred.set(v, []);
         }
         if (dist.get(v) === dw + 1) {
-          sigma.set(v, sigmaget(v) + sigmaget(w));
-          predget(v).push(w);
-          if (!sp.has(v)) sp.set(v, []);
-          spget(v).push([...spget(w), v]);
+          sigma.set(v, sigma.get(v) + sigma.get(w));
+          pred.get(v).push(w);
         }
       }
     }
@@ -145,14 +142,17 @@ export function betweennessCentrality(adjacency) {
     while (stack.length > 0) {
       const w = stack.pop();
       for (const v of pred.get(w) ?? []) {
-        const sigmaV = sigmaget(v);
-        const sigmaW = sigmaget(w);
+        const sigmaV = sigma.get(v);
+        const sigmaW = sigma.get(w);
         if (sigmaW > 0) {
-          delta.set(v, deltaget(v) + (sigmaV / sigmaW) * (1 + deltaget(w)));
+          const prevDelta = delta.get(v);
+          const contrib = (sigmaV / sigmaW) * (1 + delta.get(w));
+          delta.set(v, prevDelta + contrib);
         }
       }
       if (w !== source) {
-        centrality.set(w, centralityget(w) + deltaget(w));
+        const curr = centrality.get(w);
+        centrality.set(w, curr + delta.get(w));
       }
     }
   }
@@ -184,7 +184,7 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
   const nodes = Array.from(adjacency.keys());
   if (nodes.length === 0) return [];
 
-  // Compute total edge weight (2× for undirected)
+  // Compute total edge weight
   let totalWeight = 0;
   const nodeWeights = new Map(); // node → sum of outgoing weights
   for (const [id, edges] of adjacency.entries()) {
@@ -193,9 +193,6 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
     nodeWeights.set(id, w);
     totalWeight += w;
   }
-  // For undirected: each edge counted once → totalWeight = sum(outgoing) / 2 is wrong
-  // Actually totalWeight = sum of ALL edge weights (each edge once, not twice)
-  // m2 = 2 * totalWeight
   const m2 = totalWeight * 2;
 
   // Init: each node in its own community
@@ -205,12 +202,10 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
   let iter = 0;
 
   function modularityGain(node, targetComm) {
-    const nodeId = node;
     const neighbors = adjacency.get(node) ?? [];
 
     // k_i_in: sum of weights from node to community
     let k_i_in = 0;
-    const nodeComm = communityget(nodeId);
     for (const { targetId, weight = 1 } of neighbors) {
       if (community.get(targetId) === targetComm) {
         k_i_in += weight;
@@ -218,49 +213,18 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
     }
 
     // k_i: total outgoing weight
-    const k_i = nodeWeights.get(nodeId) ?? 1;
-
-    // Σ_in: total weight within target community
-    let sumIn = 0;
-    for (const [nid, edges] of adjacency.entries()) {
-      if (community.get(nid) !== targetComm) continue;
-      for (const { targetId, weight = 1 } of edges) {
-        if (community.get(targetId) === targetComm) {
-          sumIn += weight;
-        }
-      }
-    }
-    sumIn = sumIn / 2; // undirected
+    const k_i = nodeWeights.get(node) ?? 1;
 
     // Σ_tot: total weight incident to target community
     let sumTot = 0;
     for (const [nid, edges] of adjacency.entries()) {
-      if (community.get(nid) !== targetComm) continue;
-      sumTot += nodeWeights.get(nid) ?? 1;
-    }
-
-    const currentMod = (k_i_in / m2) - ((k_i * sumTot) / (m2 * m2));
-    return currentMod > 0 ? currentMod : 0;
-  }
-
-  function computeModularity() {
-    let Q = 0;
-    for (const [nodeId, edges] of adjacency.entries()) {
-      const nodeComm = communityget(nodeId);
-      for (const { targetId, weight = 1 } of edges) {
-        if (community.get(targetId) === nodeComm) {
-          Q += weight;
-        }
+      if (community.get(nid) === targetComm) {
+        sumTot += nodeWeights.get(nid) ?? 1;
       }
     }
-    Q = Q / m2;
-    // Subtract expected density term
-    let expected = 0;
-    for (const w of nodeWeights.values()) {
-      expected += w;
-    }
-    expected = (expected * expected) / m2;
-    return Q - expected / m2;
+
+    const gain = (k_i_in / m2) - ((k_i * sumTot) / (m2 * m2));
+    return gain > 0 ? gain : 0;
   }
 
   // Phase 1: Move nodes to maximize modularity
@@ -268,15 +232,14 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
     moved = false;
     iter++;
     for (const node of nodes) {
-      const currentComm = communityget(node);
       const neighbors = (adjacency.get(node) ?? []).map(e => e.targetId);
-      const neighborCommunities = [...new Set(neighbors.map(n => communityget(n)))];
+      const neighborCommunities = [...new Set(neighbors.map(n => community.get(n)))];
 
-      let bestComm = currentComm;
+      let bestComm = community.get(node);
       let bestGain = 0;
 
       for (const targetComm of neighborCommunities) {
-        if (targetComm === currentComm) continue;
+        if (targetComm === community.get(node)) continue;
         const gain = modularityGain(node, targetComm);
         if (gain > bestGain) {
           bestGain = gain;
@@ -284,12 +247,7 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
         }
       }
 
-      // Also consider creating a new community for isolated nodes
-      if (neighbors.length === 0) {
-        const newComm = communityId++;
-        community.set(node, newComm);
-        moved = true;
-      } else if (bestComm !== currentComm) {
+      if (bestGain > 0 && bestComm !== community.get(node)) {
         community.set(node, bestComm);
         moved = true;
       }
@@ -300,14 +258,14 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
   const uniqueComms = [...new Set(community.values())];
   const commMap = new Map(uniqueComms.map((c, i) => [c, i]));
   for (const [node, cid] of community.entries()) {
-    community.set(node, commMapget(cid));
+    community.set(node, commMap.get(cid));
   }
 
   // Build result
   const resultMap = new Map();
   for (const [node, cid] of community.entries()) {
     if (!resultMap.has(cid)) resultMap.set(cid, []);
-    resultMapget(cid).push(node);
+    resultMap.get(cid).push(node);
   }
 
   const communities = [];
@@ -329,7 +287,7 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
  * @param {Map<string, Array<{targetId: string, weight?: number, trust_score?: number, strength?: number}>>} adjacency
  * @param {string} source
  * @param {string|null} target  - null = find all shortest paths from source
- * @param {function} weightFn  - (edge) => number  (lower = better)
+ * @param {function|null} weightFn  - (edge) => number  (lower = better)
  * @returns {{ distances: Map<string, number>, predecessors: Map<string, string|null>, paths: Map<string, string[]> }}
  */
 export function dijkstra(adjacency, source, target = null, weightFn = null) {
@@ -373,10 +331,11 @@ export function dijkstra(adjacency, source, target = null, weightFn = null) {
     for (const edge of edges) {
       const w = defaultWeight(edge);
       const alt = dist + w;
-      if (alt < distancesget(edge.targetId)) {
+      if (alt < distances.get(edge.targetId)) {
         distances.set(edge.targetId, alt);
         predecessors.set(edge.targetId, node);
-        paths.set(edge.targetId, [...(paths.get(node) ?? [node]), edge.targetId]);
+        const prevPath = paths.get(node);
+        paths.set(edge.targetId, prevPath ? [...prevPath, edge.targetId] : [node, edge.targetId]);
         push(alt, edge.targetId);
       }
     }

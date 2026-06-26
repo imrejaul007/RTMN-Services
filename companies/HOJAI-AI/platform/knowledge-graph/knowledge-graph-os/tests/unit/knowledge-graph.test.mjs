@@ -34,7 +34,7 @@ function req(method, path, body, extraHeaders) {
       hostname: 'localhost',
       port: PORT,
       path: url.pathname + url.search,
-      headers: { 'Content-Type': 'application/json', ...(extraHeaders || {}) },
+      headers: { 'Content-Type': 'application/json', 'x-internal-token': TOKEN, ...(extraHeaders || {}) },
     };
     if (data) opts.headers['Content-Length'] = Buffer.byteLength(data);
     const r = http.request(opts, function(res) {
