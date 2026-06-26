@@ -1,0 +1,13 @@
+{
+  "name": "@rtmn/quality-os",
+  "version": "1.0.0",
+  "description": "Quality OS - Engineering Quality Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": ["quality", "testing", "coverage", "technical-debt", "engineering"],
+  "author": "RTMN",
+  "license": "MIT"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/flows-engine",
+  "version": "1.0.0",
+  "description": "Flows engine for all template types",
+  "main": "src/index.js",
+  "type": "module"
+}

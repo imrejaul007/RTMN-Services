@@ -332,7 +332,7 @@ describe('Memory Lifecycle API', function() {
     it('GET /api/stats -> 200', async function() {
       const res = await req('GET', '/api/stats');
       assert.strictEqual(res.status, 200);
-      assert.ok(typeof res.body.total_memories === 'number');
+      assert.ok(typeof res.body.totalMemories === 'number');
     });
 
     it('GET /api/audit -> 200', async function() {

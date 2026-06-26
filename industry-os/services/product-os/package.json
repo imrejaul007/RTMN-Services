@@ -1,0 +1,13 @@
+{
+  "name": "@rtmn/product-os",
+  "version": "1.0.0",
+  "description": "Product OS - Product Management Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": ["product", "roadmap", "features", "prd", "user-stories"],
+  "author": "RTMN",
+  "license": "MIT"
+}

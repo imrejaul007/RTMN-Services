@@ -53,6 +53,9 @@ SUTAR_MONITORING_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-monit
 # SUTAR Usage Tracker (port 4252)
 SUTAR_USAGE_TRACKER_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/infra/usage-tracker && PORT=4252 npm start"
 
+# SUTAR Agent Teaming (port 4853)
+AGENT_TEAMING_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/agents/agent-teaming && PORT=4853 npm start"
+
 # Intent Bus (port 4154) — pub/sub broadcast of agent intents across SUTAR
 INTENT_BUS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/observability/intent-bus && PORT=4154 REDIS_URL=redis://localhost:6379 npm start"
 
@@ -382,6 +385,7 @@ status() {
     "SUTAR Agent Network:4155" \
     "SUTAR Monitoring:3100" \
     "SUTAR Usage Tracker:4252" \
+    "Agent Teaming:4853" \
     "nexha-supplier-network:4280" \
     "nexha-supplier-registry:4281" \
     "nexha-distribution-network:4285" \
@@ -484,6 +488,7 @@ start_all() {
   start_service "sutar-agent-network"   "$SUTAR_AGENT_NETWORK_CMD"   4155
   start_service "sutar-monitoring"      "$SUTAR_MONITORING_CMD"      3100
   start_service "sutar-usage-tracker"   "$SUTAR_USAGE_TRACKER_CMD"   4252
+  start_service "agent-teaming"           "$AGENT_TEAMING_CMD"          4853
   start_service "intent-bus"              "$INTENT_BUS_CMD"             4154
   # SUTAR OS (HOJAI AI) — core economic layer
   start_service "sada-os"                  "$SADA_OS_CMD"             4190
@@ -675,6 +680,7 @@ stop_all() {
   stop_port 4155 "SUTAR Agent Network"
   stop_port 3100 "SUTAR Monitoring"
   stop_port 4252 "SUTAR Usage Tracker"
+  stop_port 4853 "Agent Teaming"
   stop_port 4154 "Intent Bus"
   stop_port 4146 "Twin Marketplace"
   stop_port 4291 "Trust Engine"

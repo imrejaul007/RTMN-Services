@@ -1,0 +1,24 @@
+{
+  "name": "@rtmn/eldercare-os",
+  "version": "1.0.0",
+  "description": "ElderCare OS - Comprehensive Senior Care Management Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": [
+    "healthcare",
+    "eldercare",
+    "senior-care",
+    "nursing-home"
+  ],
+  "author": "RTMN",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0"
+  }
+}

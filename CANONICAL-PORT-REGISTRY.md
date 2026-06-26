@@ -586,6 +586,60 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 | **4490** | `analytics-service` | Real-time metrics |
 | **4495** | `notification-service` | Email/webhook notifications |
 
+### HOJAI Foundry Services (2026-06-26)
+
+| Port | Service | Purpose |
+|---|---|---|
+| **4500** | `template-compiler` | Compiles templates to code |
+| **4510** | `bam-integration` | Hire AI workers from marketplace |
+| **4520** | `agent-generator` | Generate agents for 510 companies |
+| **4530** | `hojai-auth` | JWT tokens + API keys |
+| **4540** | `deploy-pipeline` | Template → Deploy automation |
+| **4550** | `flows-engine` | 50+ flows across 17 templates |
+
+### OTA Services (2026-06-26)
+
+| Port | Service | Purpose |
+|---|---|---|
+| **4700** | `pms-integration` | Oracle OHIP, Cloudbeds, Mews |
+| **4701** | `gds-integration` | Amadeus, Sabre, Travelport |
+| **4702** | `payment-gateway` | Razorpay, Stripe |
+| **4703** | `build-pipeline` | App Store build & submit |
+
+### DO Mobility (2026-06-26)
+
+| Port | Service | Purpose |
+|---|---|---|
+| **4610** | `do-passenger` | Voice-first ride booking |
+| **4611** | `do-driver` | Driver app |
+| **4612** | `do-admin` | Admin dashboard |
+
+### HOJAI Studio UI
+
+| Port | Service | Purpose |
+|---|---|---|
+| **3001** | `studio-ui` | Web UI for company builder |
+
+---
+
+## How to Deploy a Company
+
+```bash
+# 1. Open HOJAI Studio
+open http://localhost:3001
+
+# 2. Select template → Enter company name → Deploy
+
+# 3. Backend compiles + deploys
+curl -X POST localhost:4540/deploy \
+  -d '{"companyName": "MoveX", "template": "mobility"}'
+
+# 4. Company is live!
+#    passenger.movex.hojai.app
+#    driver.movex.hojai.app
+#    api.movex.hojai.app
+```
+
 ---
 
 ## 📋 How to Use This File

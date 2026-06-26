@@ -1,0 +1,13 @@
+{
+  "name": "@rtmn/observability-os",
+  "version": "1.0.0",
+  "description": "Observability OS - Enterprise Observability Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": ["observability", "logging", "tracing", "metrics", "monitoring"],
+  "author": "RTMN",
+  "license": "MIT"
+}

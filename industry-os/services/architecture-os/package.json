@@ -1,0 +1,13 @@
+{
+  "name": "@rtmn/architecture-os",
+  "version": "1.0.0",
+  "description": "Architecture OS - System Design & Architecture Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": ["architecture", "system-design", "patterns", "dependencies"],
+  "author": "RTMN",
+  "license": "MIT"
+}

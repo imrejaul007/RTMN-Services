@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/company-mapper",
+  "version": "1.0.0",
+  "description": "Maps all 510 companies to templates, flows, Nexha integrations",
+  "main": "src/index.js",
+  "type": "module"
+}

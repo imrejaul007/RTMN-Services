@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiGet, apiPost, getUser } from '../services/api';
 
@@ -30,6 +30,40 @@ interface AuditLog {
   details?: any;
   ip?: string;
   createdAt: string;
+}
+
+interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  plan: string;
+  userCount: number;
+  createdAt: string;
+  status: 'active' | 'suspended' | 'trial';
+}
+
+interface SSOSettings {
+  provider: 'none' | 'saml' | 'oidc';
+  enabled: boolean;
+  issuer?: string;
+  clientId?: string;
+  clientSecret?: string;
+  metadataUrl?: string;
+  callbackUrl?: string;
+  ssoDomain?: string;
+}
+
+interface RolePermission {
+  role: string;
+  permissions: string[];
+}
+
+interface ServiceToggle {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+  orgId?: string;
 }
 
 // --- Sub-components ---
@@ -348,6 +382,372 @@ function MetricsTab() {
   );
 }
 
+// --- OrgManagementTab ---
+function OrgManagementTab() {
+  const [orgs, setOrgs] = useState<Organization[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: '', slug: '', plan: 'free' });
+  const [error, setError] = useState('');
+
+  async function load() {
+    setLoading(true);
+    try {
+      const data = await apiGet<{ organizations: Organization[] }>('/admin/organizations');
+      setOrgs(data.organizations || []);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function createOrg() {
+    try {
+      await apiPost('/admin/organizations', form);
+      setShowForm(false);
+      setForm({ name: '', slug: '', plan: 'free' });
+      load();
+    } catch (e: any) {
+      alert(`Failed: ${e.message}`);
+    }
+  }
+
+  async function toggleStatus(org: Organization) {
+    try {
+      await apiPost(`/admin/organizations/${org.id}/status`, {
+        status: org.status === 'active' ? 'suspended' : 'active'
+      });
+      load();
+    } catch (e: any) {
+      alert(`Failed: ${e.message}`);
+    }
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        <button className="btn" onClick={() => { load(); setShowForm(false); }}>↻ Refresh</button>
+        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Cancel' : '+ New Organization'}
+        </button>
+      </div>
+      {error && <div className="alert alert-error" style={{ marginBottom: 12 }}>{error}</div>}
+      {showForm && (
+        <div style={{ padding: 16, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, marginBottom: 16 }}>
+          <h4 style={{ marginBottom: 12 }}>Create Organization</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+            <input placeholder="Organization Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} style={{ fontSize: 13 }} />
+            <input placeholder="slug (e.g. acme-corp)" value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') }))} style={{ fontSize: 13 }} />
+          </div>
+          <select value={form.plan} onChange={e => setForm(f => ({ ...f, plan: e.target.value }))} style={{ fontSize: 13, marginBottom: 12, width: '100%' }}>
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <button className="btn btn-primary" onClick={createOrg} disabled={!form.name || !form.slug}>Create</button>
+        </div>
+      )}
+      {loading ? <div style={{ textAlign: 'center', padding: 24 }}>Loading…</div> : (
+        <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid var(--border)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left' }}>Name</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left' }}>Slug</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left' }}>Plan</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left' }}>Users</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left' }}>Status</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left' }}>Created</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orgs.map((o) => (
+                <tr key={o.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '10px 12px', fontWeight: 500 }}>{o.name}</td>
+                  <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#6b7280' }}>{o.slug}</td>
+                  <td style={{ padding: '10px 12px' }}><span style={{ padding: '2px 8px', borderRadius: 9999, background: 'var(--bg)', fontSize: 11 }}>{o.plan}</span></td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>{o.userCount}</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <span style={{ color: o.status === 'active' ? '#22c55e' : o.status === 'trial' ? '#f59e0b' : '#ef4444', fontWeight: 500 }}>{o.status}</span>
+                  </td>
+                  <td style={{ padding: '10px 12px', color: '#6b7280' }}>{new Date(o.createdAt).toLocaleDateString()}</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <button className="btn btn-secondary" style={{ fontSize: 11 }} onClick={() => toggleStatus(o)}>
+                      {o.status === 'active' ? 'Suspend' : 'Activate'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {orgs.length === 0 && <tr><td colSpan={7} style={{ padding: 24, textAlign: 'center', color: '#6b7280' }}>No organizations</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- SSOTab ---
+function SSOTab() {
+  const [settings, setSettings] = useState<SSOSettings>({ provider: 'none', enabled: false });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  async function load() {
+    try {
+      const data = await apiGet<{ settings: SSOSettings }>('/admin/sso');
+      setSettings(data.settings || { provider: 'none', enabled: false });
+    } catch (e: any) {
+      // endpoint not implemented yet — use defaults
+    }
+  }
+
+  async function save() {
+    setSaving(true);
+    setMsg('');
+    try {
+      await apiPost('/admin/sso', settings);
+      setMsg('SSO settings saved successfully.');
+    } catch (e: any) {
+      setMsg(`Error: ${e.message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
+
+  const FIELDS_BY_PROVIDER: Record<string, string[]> = {
+    saml: ['issuer', 'metadataUrl', 'callbackUrl', 'ssoDomain'],
+    oidc: ['issuer', 'clientId', 'clientSecret', 'callbackUrl'],
+  };
+
+  return (
+    <div>
+      <h4 style={{ marginBottom: 16 }}>Single Sign-On Configuration</h4>
+      <div style={{ maxWidth: 600 }}>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 500 }}>Provider</label>
+          <select value={settings.provider} onChange={e => setSettings(s => ({ ...s, provider: e.target.value as SSOSettings['provider'] }))} style={{ fontSize: 13, width: '100%' }}>
+            <option value="none">Disabled</option>
+            <option value="saml">SAML 2.0</option>
+            <option value="oidc">OpenID Connect (OIDC)</option>
+          </select>
+        </div>
+        {settings.provider !== 'none' && (
+          <>
+            {(FIELDS_BY_PROVIDER[settings.provider] || []).map(field => (
+              <div key={field} style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 500 }}>{field}</label>
+                <input
+                  type={field === 'clientSecret' ? 'password' : 'text'}
+                  placeholder={field}
+                  value={(settings as any)[field] || ''}
+                  onChange={e => setSettings(s => ({ ...s, [field]: e.target.value }))}
+                  style={{ fontSize: 13, width: '100%' }}
+                />
+              </div>
+            ))}
+            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={settings.enabled}
+                  onChange={e => setSettings(s => ({ ...s, enabled: e.target.checked }))}
+                />
+                Enable SSO
+              </label>
+            </div>
+          </>
+        )}
+        <button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save Settings'}</button>
+        {msg && <div style={{ marginTop: 12, padding: 8, borderRadius: 6, background: msg.startsWith('Error') ? '#fef2f2' : '#f0fdf4', color: msg.startsWith('Error') ? '#ef4444' : '#22c55e', fontSize: 13 }}>{msg}</div>}
+        <div style={{ marginTop: 20, padding: 12, background: 'var(--bg)', borderRadius: 8, fontSize: 12, color: '#6b7280' }}>
+          <strong>Setup Instructions:</strong><br />
+          <strong>SAML:</strong> Configure your IdP (Okta, Azure AD, Google Workspace) to use Genie as the SP. Provide the Metadata URL or Issuer from your IdP, and set the Callback URL to the value shown above.<br />
+          <strong>OIDC:</strong> Create an OAuth 2.0 app in your IdP. Set redirect URI to the Callback URL. Copy Client ID and Client Secret.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- RBACTab ---
+const ALL_PERMISSIONS = [
+  'genie:chat', 'genie:voice', 'genie:briefing', 'genie:calendar',
+  'genie:memory', 'genie:search', 'genie:learning', 'genie:wellness',
+  'genie:money', 'genie:shopping', 'genie:creation', 'genie:execution',
+  'admin:users', 'admin:org', 'admin:sso', 'admin:rbac',
+  'admin:audit', 'admin:metrics', 'admin:services',
+  'data:export', 'data:delete',
+];
+
+const ROLES = ['user', 'org_admin', 'super_admin'];
+
+function RBACTab() {
+  const [matrix, setMatrix] = useState<Record<string, string[]>>({});
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  async function load() {
+    try {
+      const data = await apiGet<{ roles: Record<string, string[]> }>('/admin/rbac');
+      setMatrix(data.roles || {});
+    } catch (e: any) {
+      // not implemented — start with defaults
+      const defaults: Record<string, string[]> = {
+        user: ['genie:chat', 'genie:voice', 'genie:briefing', 'genie:calendar', 'genie:memory', 'genie:search', 'genie:learning', 'genie:wellness', 'genie:money', 'genie:shopping', 'genie:creation', 'genie:execution'],
+        org_admin: [], // inherits all user + org
+        super_admin: ALL_PERMISSIONS,
+      };
+      setMatrix(defaults);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function save() {
+    setSaving(true);
+    setMsg('');
+    try {
+      await apiPost('/admin/rbac', { roles: matrix });
+      setMsg('RBAC matrix saved.');
+    } catch (e: any) {
+      setMsg(`Error: ${e.message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function togglePerm(role: string, perm: string) {
+    setMatrix(prev => {
+      const perms = prev[role] || [];
+      return { ...prev, [role]: perms.includes(perm) ? perms.filter(p => p !== perm) : [...perms, perm] };
+    });
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h4>Role × Permission Matrix</h4>
+        <button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save Matrix'}</button>
+      </div>
+      {msg && <div style={{ marginBottom: 12, padding: 8, borderRadius: 6, background: msg.startsWith('Error') ? '#fef2f2' : '#f0fdf4', color: msg.startsWith('Error') ? '#ef4444' : '#22c55e', fontSize: 13 }}>{msg}</div>}
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+              <th style={{ padding: '8px 10px', textAlign: 'left' }}>Permission</th>
+              {ROLES.map(r => <th key={r} style={{ padding: '8px 10px', textAlign: 'center' }}>{r}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {ALL_PERMISSIONS.map(perm => (
+              <tr key={perm} style={{ borderBottom: '1px solid var(--border)' }}>
+                <td style={{ padding: '8px 10px', fontFamily: 'monospace' }}>{perm}</td>
+                {ROLES.map(role => (
+                  <td key={role} style={{ padding: '8px 10px', textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={(matrix[role] || []).includes(perm)}
+                      onChange={() => togglePerm(role, perm)}
+                      disabled={role === 'super_admin'}
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// --- AgentConfigTab ---
+const DEFAULT_SERVICES: ServiceToggle[] = [
+  { id: 'calendar', name: 'Calendar', description: 'Scheduling and meeting management', enabled: true },
+  { id: 'memory-inbox', name: 'Memory Inbox', description: 'Universal memory capture', enabled: true },
+  { id: 'briefing', name: 'Daily Briefing', description: 'Morning/Evening briefings', enabled: true },
+  { id: 'search', name: 'Universal Search', description: 'Search memories, twins, calendar', enabled: true },
+  { id: 'serendipity', name: 'Serendipity', description: 'Random memory resurfacing', enabled: true },
+  { id: 'forgetting', name: 'Smart Forgetting', description: 'Auto-archive expired items', enabled: true },
+  { id: 'wellness', name: 'Wellness Agent', description: 'Health and wellness coaching', enabled: true },
+  { id: 'money', name: 'Money Agent', description: 'Financial management and insights', enabled: true },
+  { id: 'shopping', name: 'Shopping Agent', description: 'Product research and purchasing', enabled: true },
+  { id: 'learning', name: 'Learning Agent', description: 'Personalized learning paths', enabled: true },
+  { id: 'creation', name: 'Creation Agent', description: 'Content creation and brainstorming', enabled: true },
+  { id: 'execution', name: 'Execution Agent', description: 'Task and project execution', enabled: true },
+];
+
+function AgentConfigTab() {
+  const [services, setServices] = useState<ServiceToggle[]>(DEFAULT_SERVICES);
+  const [orgId, setOrgId] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  async function load() {
+    if (!orgId) return;
+    try {
+      const data = await apiGet<{ services: ServiceToggle[] }>(`/admin/orgs/${orgId}/services`);
+      if (data.services?.length) setServices(data.services);
+    } catch (e: any) {
+      // fall back to defaults
+    }
+  }
+
+  function toggle(id: string) {
+    setServices(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s));
+  }
+
+  async function save() {
+    setSaving(true);
+    setMsg('');
+    try {
+      await apiPost(`/admin/orgs/${orgId}/services`, { services });
+      setMsg('Service configuration saved.');
+    } catch (e: any) {
+      setMsg(`Error: ${e.message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16 }}>
+        <label style={{ fontSize: 13 }}>Organization ID:</label>
+        <input
+          placeholder="Enter org ID to configure…"
+          value={orgId}
+          onChange={e => setOrgId(e.target.value)}
+          style={{ flex: 1, fontSize: 13 }}
+        />
+        <button className="btn" onClick={load} disabled={!orgId}>Load</button>
+        <button className="btn btn-primary" onClick={save} disabled={saving || !orgId}>{saving ? 'Saving…' : 'Save'}</button>
+      </div>
+      {msg && <div style={{ marginBottom: 12, padding: 8, borderRadius: 6, background: msg.startsWith('Error') ? '#fef2f2' : '#f0fdf4', color: msg.startsWith('Error') ? '#ef4444' : '#22c55e', fontSize: 13 }}>{msg}</div>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+        {services.map(s => (
+          <div key={s.id} style={{ padding: 14, background: 'var(--card-bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontWeight: 500, marginBottom: 2 }}>{s.name}</div>
+                <div style={{ fontSize: 12, color: '#6b7280' }}>{s.description}</div>
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginLeft: 8 }}>
+                <input type="checkbox" checked={s.enabled} onChange={() => toggle(s.id)} />
+              </label>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div style={{ padding: '14px 16px', background: 'var(--card-bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
@@ -359,7 +759,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 
 // --- Main AdminScreen ---
 
-type Tab = 'users' | 'usage' | 'audit' | 'metrics' | 'services';
+type Tab = 'users' | 'usage' | 'audit' | 'metrics' | 'services' | 'orgs' | 'sso' | 'rbac' | 'agent-config';
 
 export default function AdminScreen() {
   const navigate = useNavigate();
@@ -368,6 +768,10 @@ export default function AdminScreen() {
 
   const TABS: { id: Tab; label: string }[] = [
     { id: 'users', label: 'Users' },
+    { id: 'orgs', label: 'Organizations' },
+    { id: 'rbac', label: 'RBAC' },
+    { id: 'sso', label: 'SSO' },
+    { id: 'agent-config', label: 'Agent Config' },
     { id: 'services', label: 'Service Health' },
     { id: 'usage', label: 'Usage Analytics' },
     { id: 'audit', label: 'Audit Logs' },
@@ -409,6 +813,11 @@ export default function AdminScreen() {
       </div>
 
       {tab === 'users' && <UsersTab />}
+      {tab === 'orgs' && <OrgManagementTab />}
+      {tab === 'rbac' && <RBACTab />}
+      {tab === 'sso' && <SSOTab />}
+      {tab === 'agent-config' && <AgentConfigTab />}
+      {tab === 'services' && <div style={{ padding: 40, textAlign: 'center', color: '#6b7280' }}>Navigate to <button className="btn btn-secondary" style={{ fontSize: 13 }} onClick={() => navigate('/admin/services')}>Service Health</button> for detailed service status.</div>}
       {tab === 'usage' && <UsageTab />}
       {tab === 'audit' && <AuditTab />}
       {tab === 'metrics' && <MetricsTab />}

@@ -48,10 +48,14 @@ describe('ContextEngine', () => {
 
     it('updates lastActivity when retrieved', () => {
       const session = engine.createSession('user-1');
-      const before = session.lastActivity;
-      engine.getSession(session.id);
-      const after = engine.getSession(session.id).lastActivity;
-      expect(after).not.toBe(before);
+      // Wait 2ms so Date.now() returns a different value on next getSession call
+      const { setTimeout } = require('timers/promises');
+      return setTimeout(2).then(() => {
+        const before = session.lastActivity;
+        engine.getSession(session.id);
+        const after = engine.getSession(session.id).lastActivity;
+        expect(after).not.toBe(before);
+      });
     });
 
     it('returns undefined for unknown sessionId', () => {

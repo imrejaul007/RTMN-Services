@@ -12,7 +12,7 @@ class ActionEngine {
     this.services = {
       genie: serviceUrls.genieGateway || 'http://localhost:4701',
       'do-app': serviceUrls.doApp || 'http://localhost:3001',
-      sutar: serviceUrls.suttar || 'http://localhost:4140',
+      sutar: serviceUrls.sutar || 'http://localhost:4140',
       copilot: serviceUrls.copilot || 'http://localhost:4600',
       corpid: serviceUrls.corpid || 'http://localhost:4300',
       calendar: serviceUrls.calendar || 'http://localhost:4709',

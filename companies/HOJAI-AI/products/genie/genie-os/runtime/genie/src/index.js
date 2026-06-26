@@ -2237,5 +2237,133 @@ app.get('/api/admin/metrics', requireRole('admin'), async (req, res) => {
   });
 });
 
+// --- Organization CRUD ---
+const OrgSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  slug: { type: String, required: true, unique: true, lowercase: true },
+  plan: { type: String, enum: ['free', 'pro', 'enterprise'], default: 'free' },
+  status: { type: String, enum: ['active', 'suspended', 'trial'], default: 'trial' },
+  ownerId: mongoose.Types.ObjectId,
+  settings: { type: mongoose.Schema.Types.Mixed, default: {} },
+}, { timestamps: true });
+const Org = mongoose.model('Organization', OrgSchema);
+
+// POST /api/admin/organizations — create org
+app.post('/api/admin/organizations', requireRole('super_admin'), async (req, res, next) => {
+  try {
+    const { name, slug, plan } = req.body;
+    if (!name || !slug) return err(res, 400, 'VALIDATION', 'name and slug are required');
+    const org = await Org.create({ name, slug: slug.toLowerCase(), plan: plan || 'free' });
+    send(res, 201, { organization: org });
+  } catch (e) {
+    if (e.code === 11000) return err(res, 409, 'CONFLICT', 'slug already exists');
+    next(e);
+  }
+});
+
+// GET /api/admin/organizations — list orgs
+app.get('/api/admin/organizations', requireRole('org_admin'), async (req, res, next) => {
+  try {
+    const { page = 1, limit = 50, search } = req.query;
+    const filter = search ? { name: new RegExp(search, 'i') } : {};
+    const [orgs, total] = await Promise.all([
+      Org.find(filter).skip((+page - 1) * +limit).limit(+limit).sort({ createdAt: -1 }),
+      Org.countDocuments(filter),
+    ]);
+    // Enrich with user count
+    const enriched = await Promise.all(orgs.map(async (o) => {
+      const count = await User.countDocuments({ corpId: o._id.toString() });
+      return { ...o.toObject(), userCount: count };
+    }));
+    send(res, 200, { organizations: enriched, total, page: +page, limit: +limit });
+  } catch (e) { next(e); }
+});
+
+// PATCH /api/admin/organizations/:orgId — update org
+app.patch('/api/admin/organizations/:orgId', requireRole('super_admin'), async (req, res, next) => {
+  try {
+    const { name, plan, status, settings } = req.body;
+    const update = {};
+    if (name) update.name = name;
+    if (plan) update.plan = plan;
+    if (status) update.status = status;
+    if (settings) update.settings = settings;
+    const org = await Org.findByIdAndUpdate(req.params.orgId, update, { new: true });
+    if (!org) return err(res, 404, 'NOT_FOUND', 'Organization not found');
+    send(res, 200, { organization: org });
+  } catch (e) { next(e); }
+});
+
+// POST /api/admin/organizations/:orgId/status — suspend/activate
+app.post('/api/admin/organizations/:orgId/status', requireRole('super_admin'), async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    if (!['active', 'suspended', 'trial'].includes(status)) return err(res, 400, 'VALIDATION', 'invalid status');
+    const org = await Org.findByIdAndUpdate(req.params.orgId, { status }, { new: true });
+    if (!org) return err(res, 404, 'NOT_FOUND', 'Organization not found');
+    send(res, 200, { organization: org });
+  } catch (e) { next(e); }
+});
+
+// DELETE /api/admin/organizations/:orgId — delete org
+app.delete('/api/admin/organizations/:orgId', requireRole('super_admin'), async (req, res, next) => {
+  try {
+    await Org.findByIdAndDelete(req.params.orgId);
+    send(res, 200, { deleted: true });
+  } catch (e) { next(e); }
+});
+
+// --- SSO Settings ---
+let ssoSettings = { provider: 'none', enabled: false, issuer: '', clientId: '', callbackUrl: '' };
+
+app.get('/api/admin/sso', requireRole('super_admin'), async (req, res) => {
+  send(res, 200, { settings: ssoSettings });
+});
+
+app.post('/api/admin/sso', requireRole('super_admin'), async (req, res) => {
+  const { provider, enabled, issuer, clientId, clientSecret, metadataUrl, callbackUrl, ssoDomain } = req.body;
+  ssoSettings = { provider: provider || 'none', enabled: !!enabled, issuer, clientId, callbackUrl, ssoDomain };
+  if (clientSecret) ssoSettings['clientSecret'] = clientSecret; // store hash in production
+  if (metadataUrl) ssoSettings['metadataUrl'] = metadataUrl;
+  send(res, 200, { settings: ssoSettings });
+});
+
+// --- RBAC Matrix ---
+let rbacMatrix = {
+  user: ['genie:chat', 'genie:voice', 'genie:briefing', 'genie:calendar', 'genie:memory', 'genie:search', 'genie:learning', 'genie:wellness', 'genie:money', 'genie:shopping', 'genie:creation', 'genie:execution'],
+  org_admin: ['genie:chat', 'genie:voice', 'genie:briefing', 'genie:calendar', 'genie:memory', 'genie:search', 'genie:learning', 'genie:wellness', 'genie:money', 'genie:shopping', 'genie:creation', 'genie:execution', 'admin:users', 'admin:org', 'admin:audit'],
+  super_admin: [
+    'genie:chat', 'genie:voice', 'genie:briefing', 'genie:calendar', 'genie:memory', 'genie:search', 'genie:learning', 'genie:wellness', 'genie:money', 'genie:shopping', 'genie:creation', 'genie:execution',
+    'admin:users', 'admin:org', 'admin:sso', 'admin:rbac', 'admin:audit', 'admin:metrics', 'admin:services',
+    'data:export', 'data:delete',
+  ],
+};
+
+app.get('/api/admin/rbac', requireRole('super_admin'), async (req, res) => {
+  send(res, 200, { roles: rbacMatrix });
+});
+
+app.post('/api/admin/rbac', requireRole('super_admin'), async (req, res) => {
+  const { roles } = req.body;
+  if (!roles || typeof roles !== 'object') return err(res, 400, 'VALIDATION', 'roles object required');
+  rbacMatrix = { ...rbacMatrix, ...roles };
+  send(res, 200, { roles: rbacMatrix });
+});
+
+// Per-org service config
+let orgServiceConfig = {}; // orgId → ServiceToggle[]
+
+app.get('/api/admin/orgs/:orgId/services', requireRole('org_admin'), async (req, res) => {
+  const config = orgServiceConfig[req.params.orgId];
+  send(res, 200, { services: config || null });
+});
+
+app.post('/api/admin/orgs/:orgId/services', requireRole('org_admin'), async (req, res) => {
+  const { services } = req.body;
+  if (!Array.isArray(services)) return err(res, 400, 'VALIDATION', 'services array required');
+  orgServiceConfig[req.params.orgId] = services;
+  send(res, 200, { saved: true });
+});
+
 start();
 export { app };

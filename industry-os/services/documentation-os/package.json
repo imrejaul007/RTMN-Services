@@ -1,0 +1,24 @@
+{
+  "name": "@rtmn/documentation-os",
+  "version": "1.0.0",
+  "description": "Documentation OS - Auto-generated Documentation Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": [
+    "documentation",
+    "api-docs",
+    "auto-docs",
+    "changelog"
+  ],
+  "author": "RTMN",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0"
+  }
+}

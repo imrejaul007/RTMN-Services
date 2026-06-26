@@ -1,0 +1,13 @@
+{
+  "name": "@rtmn/verification-os",
+  "version": "1.0.0",
+  "description": "Verification OS - AI Output Reproducibility & Validation Platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "keywords": ["verification", "reproducibility", "validation", "ai", "regression"],
+  "author": "RTMN",
+  "license": "MIT"
+}
