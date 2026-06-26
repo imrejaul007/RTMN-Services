@@ -1,8 +1,8 @@
 # RTMN TwinOS - Complete Documentation
 
-> **Version:** 2.0  
-> **Last Updated:** June 18, 2026  
-> **Status:** ✅ OPERATIONAL
+> **Version:** 3.1  
+> **Last Updated:** June 26, 2026  
+> **Status:** ✅ OPERATIONAL - Graph Engine v3.1 (Relationship Enrichment, Path Finding, Temporal History, Auto-Linking)
 
 ---
 

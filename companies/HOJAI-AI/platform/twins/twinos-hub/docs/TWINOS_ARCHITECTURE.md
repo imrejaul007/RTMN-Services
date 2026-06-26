@@ -1,8 +1,8 @@
 # RTMN TwinOS Architecture Documentation
 
-**Version:** 2.0  
-**Last Updated:** June 18, 2026  
-**Status:** ✅ OPERATIONAL - 60+ Canonical Twins Defined
+**Version:** 3.1  
+**Last Updated:** June 26, 2026  
+**Status:** ✅ OPERATIONAL - 86+ Canonical Twins + Graph Engine v3.1
 
 ---
 

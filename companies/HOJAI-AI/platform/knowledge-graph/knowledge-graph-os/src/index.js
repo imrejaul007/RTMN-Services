@@ -434,10 +434,15 @@ app.get('/ready', (_req, res) => {
 });
 
 
-const server = app.listen(PORT, () => {
-  console.log(`🔗 KnowledgeGraphOS running on port ${PORT}`);
-  console.log(`   Nodes: ${graph.nodes.size}, Relationships: ${graph.relationships.size}`);
-});
-installGracefulShutdown(server);
+// Skip auto-listen in test mode so tests can control the server lifecycle
+if (process.env.NODE_ENV !== 'test' && process.env.KG_SKIP_AUTO_LISTEN !== 'true') {
+  const server = app.listen(PORT, () => {
+    console.log(`🔗 KnowledgeGraphOS running on port ${PORT}`);
+    console.log(`   Nodes: ${graph.nodes.size}, Relationships: ${graph.relationships.size}`);
+  });
+  installGracefulShutdown(server);
+}
+
+export { app, graph };
 
 export default app;

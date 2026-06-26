@@ -1,18 +1,19 @@
 import helmet from 'helmet';
-const express = require('express');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { requireAuth } = require('@rtmn/shared/auth');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
-const { graphql, buildSchema } = require('graphql');
-const cors = require('cors');
+import express from 'express';
+import { requireEnv } from '@rtmn/shared/lib/env';
+import { requireAuth } from '@rtmn/shared/auth';
+import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
+import { graphql, buildSchema } from 'graphql';
+import cors from 'cors';
+
 const app = express();
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = 4000;
+
 app.use(cors());
 app.use(express.json());
-
 app.use(helmet());
 
 const schema = buildSchema(`
@@ -44,16 +45,21 @@ app.get('/graphql', (req, res) => {
   graphql({ schema, source: query, rootValue: root }).then(result => res.json(result));
 });
 
-app.post('/graphql',requireAuth,  (req, res) => {
-  graphql({ schema, source: req.body.query, rootValue: root, variableValues: req.body.variables }).then(result => res.json(result));
+app.post('/graphql', requireAuth, (req, res) => {
+  graphql({ schema, source: req.body.query, rootValue: root, variableValues: req.body.variables })
+    .then(result => res.json(result));
 });
 
-app.get('/health', (r, res) => res.json({ status: 'healthy', service: 'GraphQL', port: PORT }));
-// Readiness probe — returns 200 once the server is accepting requests
+app.get('/health', (req, res) => res.json({ status: 'healthy', service: 'GraphQL', port: PORT }));
+
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+export default app;
 
-const server = app.listen(PORT, () => console.log('GraphQL Federation running on port ' + PORT));
-installGracefulShutdown(server);
+// Skip auto-listen in test mode
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => console.log('GraphQL Federation running on port ' + PORT));
+  installGracefulShutdown(server);
+}

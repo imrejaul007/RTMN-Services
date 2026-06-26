@@ -1,5 +1,5 @@
 /**
- * TwinOS Graph Engine v1.0 (port 4715)
+ * TwinOS Graph Engine v1.0 (port 4883)
  *
  * Dedicated graph service for the RTMN twin relationship graph.
  * Replaces and extends the BFS algorithms embedded in twinos-hub with:
@@ -43,7 +43,7 @@ import { graphStats, influenceScoring, topInfluencers } from './graph/analytics.
 const app = express();
 
 requireEnv(['PORT'], { allowDev: true });
-const PORT = process.env.PORT || 4715;
+const PORT = process.env.PORT || 4883;
 const SERVICE_NAME = 'twinos-graph-engine';
 const TWINOS_HUB_URL = process.env.TWINOS_HUB_URL || 'http://localhost:4705';
 const REFRESH_INTERVAL_MS = parseInt(process.env.REFRESH_INTERVAL_MS || '60000'); // 60s default

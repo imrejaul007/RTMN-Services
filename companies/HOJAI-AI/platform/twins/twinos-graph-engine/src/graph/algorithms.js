@@ -6,24 +6,54 @@
  * - PageRank (power iteration)
  * - Betweenness centrality (Brandes' algorithm)
  * - Community detection (Louvain-inspired greedy modularity)
- * - Shortest path (BFS with weighted edges)
- * - All-pairs shortest paths (Floyd-Warshall, for small graphs)
+ * - Shortest path (weighted Dijkstra)
+ * - Utility: build undirected adjacency list from relationships
  */
 
-import { v4 as uuidv4 } from 'uuid';
+// ─────────────────────────────────────────────────────────────────────────────
+// Utility: build undirected adjacency list from twinRelationships
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Build an undirected adjacency list from twin relationships.
+ * Each relationship creates two directed edges (one each way).
+ *
+ * @param {Array<{sourceId: string, targetId: string, strength?: number, trust_score?: number}>} relationships
+ * @returns {Map<string, Array<{targetId: string, weight: number, strength: number, trust_score: number}>>}
+ */
+export function buildAdjacency(relationships) {
+  const adj = new Map();
+  for (const rel of relationships) {
+    if (!adj.has(rel.sourceId)) adj.set(rel.sourceId, []);
+    if (!adj.has(rel.targetId)) adj.set(rel.targetId, []);
+    // Store full relationship metadata on each directional edge
+    // Forward edge: A → B
+    const forwardEdge = { ...rel };
+    forwardEdge.targetId = rel.targetId;
+    adj.get(rel.sourceId).push(forwardEdge);
+
+    // Reverse edge: B → A (undirected)
+    const reverseEdge = { ...rel };
+    reverseEdge.targetId = rel.sourceId;
+    adj.get(rel.targetId).push(reverseEdge);
+  }
+  return adj;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PageRank
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Compute PageRank on an adjacency list using the power iteration method.
+ * Compute PageRank on an undirected adjacency list using power iteration.
+ * For undirected graphs (like TwinOS relationships), we treat edges as
+ * bidirectional and normalize by the total out-degree of the source.
  *
  * @param {Map<string, Array<{targetId: string, weight?: number}>>} adjacency
  * @param {object} options
  * @param {number} options.damping  - damping factor (default 0.85)
  * @param {number} options.maxIter - max iterations (default 100)
- * @param {number} options.tol    - convergence tolerance (default 1e-6)
+ * @param {number} options.tol     - convergence tolerance (default 1e-6)
  * @returns {{ ranks: Map<string, number>, iterations: number, converged: boolean }}
  */
 export function pageRank(adjacency, { damping = 0.85, maxIter = 100, tol = 1e-6 } = {}) {
@@ -31,52 +61,53 @@ export function pageRank(adjacency, { damping = 0.85, maxIter = 100, tol = 1e-6 
   const n = nodes.length;
   if (n === 0) return { ranks: new Map(), iterations: 0, converged: true };
 
-  // Build reverse adjacency (in-links) for teleportation-free iteration
+  // Build in-links map: targetId → [{sourceId, weight}]
   const inLinks = new Map();
-  for (const [sourceId, edges] of adjacency.entries()) {
-    inLinks.set(sourceId, []);
-  }
+  for (const node of nodes) inLinks.set(node, []);
   for (const [sourceId, edges] of adjacency.entries()) {
     for (const edge of edges) {
       if (inLinks.has(edge.targetId)) {
-        const list = inLinks.get(edge.targetId);
-        list.push({ sourceId, weight: edge.weight ?? 1 });
+        inLinks.get(edge.targetId).push({ sourceId, weight: edge.weight ?? 1 });
       }
     }
   }
 
-  // Init uniform ranks
+  // Initialize uniform ranks
   let ranks = new Map(nodes.map(id => [id, 1 / n]));
-  let newRanks = new Map();
 
   for (let iter = 0; iter < maxIter; iter++) {
-    newRanks.clear();
-
-    // Compute dangling node contribution (nodes with no outgoing edges)
+    // Dangling node contribution: sum of ranks for nodes with no outgoing edges
     let danglingSum = 0;
     for (const [id, edges] of adjacency.entries()) {
-      if (edges.length === 0) {
-        danglingSum += damping * (ranks.get(id) ?? 0);
-      }
+      if (edges.length === 0) danglingSum += ranks.get(id) ?? 0;
     }
 
     let maxDelta = 0;
+    const newRanks = new Map();
+
     for (const node of nodes) {
       let rank = (1 - damping) / n;
+
+      // Sum contributions from all nodes that link to this node
       const linksList = inLinks.get(node) ?? [];
       for (const { sourceId, weight = 1 } of linksList) {
-        const outDegree = (adjacency.get(sourceId) ?? []).length;
+        const outEdges = adjacency.get(sourceId) ?? [];
+        const outDegree = outEdges.length;
         if (outDegree > 0) {
-          rank += damping * ((ranks.get(sourceId) ?? 0) * weight) / outDegree;
+          const sourceRank = ranks.get(sourceId) ?? 0;
+          rank += damping * sourceRank * weight / outDegree;
         }
       }
+
+      // Add dangling node contribution (distributed equally)
       rank += damping * danglingSum / n;
+
       newRanks.set(node, rank);
       const delta = Math.abs(rank - (ranks.get(node) ?? 0));
       if (delta > maxDelta) maxDelta = delta;
     }
 
-    ranks = new Map(newRanks);
+    ranks = newRanks;
     if (maxDelta < tol) {
       return { ranks, iterations: iter + 1, converged: true };
     }
@@ -91,7 +122,7 @@ export function pageRank(adjacency, { damping = 0.85, maxIter = 100, tol = 1e-6 
 
 /**
  * Compute betweenness centrality for all nodes using Brandes' algorithm.
- * O(|V|·|E|) on unweighted graphs.
+ * Adapted for undirected graphs: each edge contributes 0.5 to both endpoints.
  *
  * @param {Map<string, Array<{targetId: string}>>} adjacency - outgoing edges
  * @returns {Map<string, number>} - node → centrality score
@@ -101,21 +132,16 @@ export function betweennessCentrality(adjacency) {
   const centrality = new Map(nodes.map(id => [id, 0]));
 
   for (const source of nodes) {
-    // BFS from source to find all shortest paths
-    const dist = new Map();
-    const pred = new Map(); // target → [predecessor...]
-    const sigma = new Map(); // target → number of shortest paths
+    // BFS from source
+    const dist = new Map(nodes.map(id => [id, -1]));
+    const sigma = new Map(nodes.map(id => [id, 0]));
+    const pred = new Map(nodes.map(id => [id, []]));
 
-    for (const n2 of nodes) {
-      dist.set(n2, -1);
-      sigma.set(n2, 0);
-      pred.set(n2, []);
-    }
     dist.set(source, 0);
     sigma.set(source, 1);
 
-    const stack = [];
     const queue = [source];
+    const stack = [];
 
     while (queue.length > 0) {
       const w = queue.shift();
@@ -127,40 +153,37 @@ export function betweennessCentrality(adjacency) {
         if (dist.get(v) === -1) {
           dist.set(v, dw + 1);
           queue.push(v);
-          sigma.set(v, 0);
-          pred.set(v, []);
         }
         if (dist.get(v) === dw + 1) {
-          sigma.set(v, sigma.get(v) + sigma.get(w));
+          sigma.set(v, (sigma.get(v) ?? 0) + (sigma.get(w) ?? 0));
           pred.get(v).push(w);
         }
       }
     }
 
-    // Back-propagation
+    // Back-propagation of dependencies
     const delta = new Map(nodes.map(id => [id, 0]));
     while (stack.length > 0) {
       const w = stack.pop();
-      for (const v of pred.get(w) ?? []) {
-        const sigmaV = sigma.get(v);
-        const sigmaW = sigma.get(w);
+      const preds = pred.get(w) ?? [];
+      for (const v of preds) {
+        const sigmaW = sigma.get(w) ?? 0;
+        const sigmaV = sigma.get(v) ?? 0;
         if (sigmaW > 0) {
-          const prevDelta = delta.get(v);
-          const contrib = (sigmaV / sigmaW) * (1 + delta.get(w));
-          delta.set(v, prevDelta + contrib);
+          const contrib = ((sigmaV / sigmaW) * (1 + (delta.get(w) ?? 0)));
+          delta.set(v, (delta.get(v) ?? 0) + contrib);
         }
       }
       if (w !== source) {
-        const curr = centrality.get(w);
-        centrality.set(w, curr + delta.get(w));
+        centrality.set(w, (centrality.get(w) ?? 0) + (delta.get(w) ?? 0));
       }
     }
   }
 
-  // Normalize
+  // Normalize: σ(v) / ((n-1)(n-2)) for undirected graphs
   const n = nodes.length;
   if (n > 2) {
-    const norm = 2 / ((n - 1) * (n - 2));
+    const norm = 1 / ((n - 1) * (n - 2));
     for (const [id, score] of centrality.entries()) {
       centrality.set(id, score * norm);
     }
@@ -175,7 +198,6 @@ export function betweennessCentrality(adjacency) {
 
 /**
  * Detect communities using greedy modularity optimization.
- * Inspired by Louvain, simplified for in-memory execution.
  *
  * @param {Map<string, Array<{targetId: string, weight?: number}>>} adjacency
  * @returns {Array<{community: number, members: string[]}>}
@@ -184,67 +206,65 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
   const nodes = Array.from(adjacency.keys());
   if (nodes.length === 0) return [];
 
-  // Compute total edge weight
+  // Total edge weight (count each edge once)
   let totalWeight = 0;
-  const nodeWeights = new Map(); // node → sum of outgoing weights
+  const nodeWeight = new Map();
   for (const [id, edges] of adjacency.entries()) {
     let w = 0;
     for (const e of edges) { w += e.weight ?? 1; }
-    nodeWeights.set(id, w);
+    nodeWeight.set(id, w);
     totalWeight += w;
   }
+  // m2 = 2 * totalWeight (for undirected graph)
   const m2 = totalWeight * 2;
+  if (m2 === 0) return [{ community: 0, members: nodes }];
 
-  // Init: each node in its own community
+  // Start: each node in its own community
   const community = new Map(nodes.map((id, i) => [id, i]));
-  let communityId = nodes.length;
   let moved = true;
   let iter = 0;
 
-  function modularityGain(node, targetComm) {
-    const neighbors = adjacency.get(node) ?? [];
+  function gain(node, targetComm) {
+    const neighbors = (adjacency.get(node) ?? []).map(e => e.targetId);
 
-    // k_i_in: sum of weights from node to community
+    // Sum of weights from node to target community
     let k_i_in = 0;
-    for (const { targetId, weight = 1 } of neighbors) {
-      if (community.get(targetId) === targetComm) {
-        k_i_in += weight;
+    for (const nid of neighbors) {
+      if (community.get(nid) === targetComm) {
+        const edge = (adjacency.get(node) ?? []).find(e => e.targetId === nid);
+        k_i_in += edge?.weight ?? 1;
       }
     }
 
-    // k_i: total outgoing weight
-    const k_i = nodeWeights.get(node) ?? 1;
+    const k_i = nodeWeight.get(node) ?? 1;
 
-    // Σ_tot: total weight incident to target community
+    // Total weight incident to target community
     let sumTot = 0;
     for (const [nid, edges] of adjacency.entries()) {
       if (community.get(nid) === targetComm) {
-        sumTot += nodeWeights.get(nid) ?? 1;
+        sumTot += nodeWeight.get(nid) ?? 1;
       }
     }
 
-    const gain = (k_i_in / m2) - ((k_i * sumTot) / (m2 * m2));
-    return gain > 0 ? gain : 0;
+    const deltaQ = (k_i_in / m2) - ((k_i * sumTot) / (m2 * m2));
+    return Math.max(0, deltaQ);
   }
 
-  // Phase 1: Move nodes to maximize modularity
+  // Phase 1: move nodes to maximize modularity
   while (moved && iter < maxIterations) {
     moved = false;
     iter++;
     for (const node of nodes) {
       const neighbors = (adjacency.get(node) ?? []).map(e => e.targetId);
-      const neighborCommunities = [...new Set(neighbors.map(n => community.get(n)))];
+      const neighborComms = [...new Set(neighbors.map(n => community.get(n)))];
 
       let bestComm = community.get(node);
       let bestGain = 0;
 
-      for (const targetComm of neighborCommunities) {
-        if (targetComm === community.get(node)) continue;
-        const gain = modularityGain(node, targetComm);
-        if (gain > bestGain) {
-          bestGain = gain;
-          bestComm = targetComm;
-        }
+      for (const c of neighborComms) {
+        if (c === community.get(node)) continue;
+        const g = gain(node, c);
+        if (g > bestGain) { bestGain = g; bestComm = c; }
       }
 
       if (bestGain > 0 && bestComm !== community.get(node)) {
@@ -254,22 +274,22 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
     }
   }
 
-  // Phase 2: Renumber communities to 0..N-1
-  const uniqueComms = [...new Set(community.values())];
-  const commMap = new Map(uniqueComms.map((c, i) => [c, i]));
+  // Renumber communities to 0..N-1
+  const unique = [...new Set(community.values())];
+  const renum = new Map(unique.map((c, i) => [c, i]));
   for (const [node, cid] of community.entries()) {
-    community.set(node, commMap.get(cid));
+    community.set(node, renum.get(cid));
   }
 
-  // Build result
-  const resultMap = new Map();
+  // Group by community
+  const groups = new Map();
   for (const [node, cid] of community.entries()) {
-    if (!resultMap.has(cid)) resultMap.set(cid, []);
-    resultMap.get(cid).push(node);
+    if (!groups.has(cid)) groups.set(cid, []);
+    groups.get(cid).push(node);
   }
 
   const communities = [];
-  for (const [cid, members] of resultMap.entries()) {
+  for (const [cid, members] of groups.entries()) {
     communities.push({ community: cid, members });
   }
 
@@ -282,40 +302,48 @@ export function communityDetection(adjacency, { maxIterations = 50 } = {}) {
 
 /**
  * Dijkstra's algorithm with weighted edges.
- * Uses strength × trust_score as the default edge weight.
+ * Weight = 1 / (strength × trust_normalized + epsilon)
  *
- * @param {Map<string, Array<{targetId: string, weight?: number, trust_score?: number, strength?: number}>>} adjacency
+ * @param {Map<string, Array<{targetId: string, strength?: number, trust_score?: number}>>} adjacency
  * @param {string} source
- * @param {string|null} target  - null = find all shortest paths from source
- * @param {function|null} weightFn  - (edge) => number  (lower = better)
+ * @param {string|null} target
+ * @param {function|null} weightFn
  * @returns {{ distances: Map<string, number>, predecessors: Map<string, string|null>, paths: Map<string, string[]> }}
  */
 export function dijkstra(adjacency, source, target = null, weightFn = null) {
   const defaultWeight = (edge) => {
-    if (weightFn) return weightFn(edge);
-    // Lower strength and trust → higher weight (harder to traverse)
     const s = edge.strength ?? 0.5;
     const t = (edge.trust_score ?? 50) / 100;
-    return 1 / (s * t + 0.01); // avoid div/0
+    return 1 / (s * t + 0.01);
   };
 
   const distances = new Map();
   const predecessors = new Map();
   const paths = new Map();
   const visited = new Set();
-  const pq = []; // [distance, node]
+  const pq = []; // min-priority queue as sorted array
 
+  // Initialize: only nodes in adjacency keys are valid graph nodes
   for (const node of adjacency.keys()) {
     distances.set(node, Infinity);
     predecessors.set(node, null);
   }
+
+  // Source is always a valid node (must be in adjacency)
+  if (!distances.has(source)) {
+    return { distances: new Map(), predecessors: new Map(), paths: new Map() };
+  }
+
   distances.set(source, 0);
   paths.set(source, [source]);
 
   const push = (dist, node) => {
-    let i = 0;
-    while (i < pq.length && pq[i][0] <= dist) i++;
-    pq.splice(i, 0, [dist, node]);
+    let lo = 0, hi = pq.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (pq[mid][0] <= dist) lo = mid + 1; else hi = mid;
+    }
+    pq.splice(lo, 0, [dist, node]);
   };
 
   push(0, source);
@@ -329,38 +357,18 @@ export function dijkstra(adjacency, source, target = null, weightFn = null) {
 
     const edges = adjacency.get(node) ?? [];
     for (const edge of edges) {
-      const w = defaultWeight(edge);
+      const w = weightFn ? weightFn(edge) : defaultWeight(edge);
       const alt = dist + w;
-      if (alt < distances.get(edge.targetId)) {
+      const prev = distances.get(edge.targetId) ?? Infinity;
+      if (alt < prev) {
         distances.set(edge.targetId, alt);
         predecessors.set(edge.targetId, node);
-        const prevPath = paths.get(node);
-        paths.set(edge.targetId, prevPath ? [...prevPath, edge.targetId] : [node, edge.targetId]);
+        const path = paths.get(node);
+        paths.set(edge.targetId, path ? [...path, edge.targetId] : [node, edge.targetId]);
         push(alt, edge.targetId);
       }
     }
   }
 
   return { distances, predecessors, paths };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Utility: build adjacency list from twinRelationships
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Build an undirected adjacency list from twin relationships.
- *
- * @param {Array<{sourceId: string, targetId: string, strength?: number, trust_score?: number}>} relationships
- * @returns {Map<string, Array>}
- */
-export function buildAdjacency(relationships) {
-  const adj = new Map();
-  for (const rel of relationships) {
-    if (!adj.has(rel.sourceId)) adj.set(rel.sourceId, []);
-    if (!adj.has(rel.targetId)) adj.set(rel.targetId, []);
-    adj.get(rel.sourceId).push({ targetId: rel.targetId, weight: 1, ...rel });
-    adj.get(rel.targetId).push({ targetId: rel.sourceId, weight: 1, ...rel });
-  }
-  return adj;
 }

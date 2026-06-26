@@ -12,7 +12,7 @@ fail(){ echo -e "${RED}✗${NC} $1"; }
 
 kill_all() {
   go "Stopping services..."
-  for p in 3001 4399 4400 4410 4420 4430 4440 4450 4460 4470 4480 4490 4495 4500 4510 4520 4530 4540 4550 4560 4570 4610 4611 4612 4700 4701 4702 4703 4710 4720 4730 4740 4750 4760 4770 4771 4772 4773 4774 4775; do
+  for p in 3001 4399 4400 4410 4420 4430 4440 4450 4460 4470 4480 4490 4495 4500 4510 4520 4530 4540 4550 4560 4570 4580 4585 4590 4592 4595 4598 4610 4611 4612 4700 4701 4702 4703 4710 4720 4730 4740 4750 4760 4770 4771 4772 4773 4774 4775; do
     lsof -ti :$p 2>/dev/null | xargs kill 2>/dev/null || true
   done
   sleep 1
@@ -57,6 +57,7 @@ start "Deploy Pipeline" 4540 "foundry/services/deploy-pipeline"
 start "Flows Engine" 4550 "services/flows-engine"
 start "Company Mapper" 4560 "foundry/services/company-mapper"
 start "Orchestrator" 4570 "foundry/services/studio-orchestrator"
+start "Code Generator" 4580 "foundry/services/code-generator"
 
 echo ""
 echo "─── OTA Services ──"
@@ -87,17 +88,29 @@ start "DO Driver" 4611 "foundry/services/do-mobility-app/driver"
 start "DO Admin" 4612 "foundry/services/do-mobility-app/admin"
 
 echo ""
+echo "─── Enterprise OS (Missing Systems) ──"
+start "ConnectorOS" 4585 "foundry/services/connector-os"
+start "KnowledgeOS" 4590 "foundry/services/knowledge-os"
+start "ObservabilityOS" 4592 "foundry/services/observability-os"
+start "BillingOS" 4595 "foundry/services/billing-os"
+start "MobileOS" 4598 "foundry/services/mobile-os"
+
+echo ""
 echo "╔══════════════════════════════════════════════════════╗"
 echo "║  ✅ ALL SERVICES STARTED                           ║"
 echo "╠══════════════════════════════════════════════════════╣"
 echo "║                                                      ║"
-echo "║  Studio UI:    http://localhost:3001               ║"
-echo "║  Orchestrator: http://localhost:4570                 ║"
-echo "║  Company Map:  http://localhost:4560                 ║"
+echo "║  Studio UI:      http://localhost:3001             ║"
+echo "║  Orchestrator:   http://localhost:4570              ║"
+echo "║  ConnectorOS:    http://localhost:4585              ║"
+echo "║  KnowledgeOS:     http://localhost:4590              ║"
+echo "║  BillingOS:      http://localhost:4595              ║"
+echo "║  MobileOS:       http://localhost:4598              ║"
 echo "║                                                      ║"
 echo "║  Deploy: curl -X POST localhost:4570/api/v1/deploy    ║"
 echo "║          -d '{\"companyName\":\"MyApp\",\"template\":\"ota\"}'"
 echo "║                                                      ║"
 echo "╚══════════════════════════════════════════════════════╝"
 echo ""
-echo "Total: 45 services | Templates: 17 | Companies: 510 | Flows: 50+"
+echo "Total: 50 services | Templates: 17 | Companies: 510 | Flows: 50+"
+echo "Enterprise OS: ConnectorOS | KnowledgeOS | BillingOS | MobileOS | ObservabilityOS"

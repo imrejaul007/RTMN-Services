@@ -1,0 +1,27 @@
+{
+  "name": "@hojai/memory-intelligence",
+  "version": "1.0.0",
+  "description": "Memory Intelligence Service (Phase 28) — Smart Memory with Remember, Forget, Compress, Merge, Contradiction, Importance, Decay, Relationships",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["hojai", "memory", "intelligence", "smart", "phase-28"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  }
+}

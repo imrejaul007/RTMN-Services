@@ -1,0 +1,93 @@
+{
+  "template": "ecommerce",
+  "flows": [
+    {
+      "id": "buyer_journey",
+      "name": "Buyer Journey",
+      "trigger": "user_browse",
+      "description": "Complete buyer flow from discovery to purchase",
+      "steps": [
+        { "step": 1, "agent": "SearchDiscoveryAgent", "action": "show_recommendations", "description": "Display personalized product recommendations based on user history" },
+        { "step": 2, "agent": "CatalogAgent", "action": "load_product_details", "description": "Fetch product info, images, reviews" },
+        { "step": 3, "agent": "PricingAgent", "action": "check_availability", "description": "Verify stock and current pricing" },
+        { "step": 4, "agent": "FulfillmentAgent", "action": "estimate_delivery", "description": "Calculate delivery time and cost" },
+        { "step": 5, "agent": "CatalogAgent", "action": "track_wishlist", "description": "Save to wishlist for later" }
+      ]
+    },
+    {
+      "id": "order_fulfillment",
+      "name": "Order Fulfillment",
+      "trigger": "order_placed",
+      "description": "Process order from placement to delivery",
+      "steps": [
+        { "step": 1, "agent": "InventoryAgent", "action": "reserve_stock", "description": "Hold inventory for the order" },
+        { "step": 2, "agent": "FulfillmentAgent", "action": "create_shipment", "description": "Generate shipping label and pickup request" },
+        { "step": 3, "agent": "FulfillmentAgent", "action": "track_delivery", "description": "Monitor shipment in real-time" },
+        { "step": 4, "agent": "ReturnsAgent", "action": "prepare_return_label", "description": "Generate return shipping label preemptively" },
+        { "step": 5, "agent": "ConfirmationAgent", "action": "notify_delivery", "description": "Send delivery confirmation" }
+      ]
+    },
+    {
+      "id": "returns_flow",
+      "name": "Returns & Refunds",
+      "trigger": "return_requested",
+      "description": "Handle customer return requests",
+      "steps": [
+        { "step": 1, "agent": "ReturnsAgent", "action": "validate_return_window", "description": "Check if within 7-day return window" },
+        { "step": 2, "agent": "ReturnsAgent", "action": "approve_return", "description": "Auto-approve if eligible" },
+        { "step": 3, "agent": "FulfillmentAgent", "action": "schedule_pickup", "description": "Arrange reverse logistics" },
+        { "step": 4, "agent": "InventoryAgent", "action": "inspect_returned_item", "description": "Quality check returned item" },
+        { "step": 5, "agent": "PaymentAgent", "action": "process_refund", "description": "Refund to original payment method" }
+      ]
+    },
+    {
+      "id": "seller_onboarding",
+      "name": "Seller Onboarding",
+      "trigger": "seller_apply",
+      "description": "Add new seller to platform",
+      "steps": [
+        { "step": 1, "agent": "KYCAgent", "action": "verify_seller_identity", "description": "Verify business documents and GST" },
+        { "step": 2, "agent": "ComplianceAgent", "action": "approve_seller", "description": "Run compliance checks" },
+        { "step": 3, "agent": "SellerAgent", "action": "create_seller_account", "description": "Setup seller dashboard access" },
+        { "step": 4, "agent": "CatalogAgent", "action": "add_first_product", "description": "Help seller list first product" },
+        { "step": 5, "agent": "GrowthAgent", "action": "send_welcome_kit", "description": "Send onboarding guide and tips" }
+      ]
+    },
+    {
+      "id": "pricing_optimization",
+      "name": "Dynamic Pricing",
+      "trigger": "competitor_price_change",
+      "description": "Adjust prices based on market conditions",
+      "steps": [
+        { "step": 1, "agent": "PricingAgent", "action": "analyze_competitor_prices", "description": "Monitor competitor pricing" },
+        { "step": 2, "agent": "PricingAgent", "action": "calculate_optimal_price", "description": "Factor in costs, margins, demand" },
+        { "step": 3, "agent": "CatalogAgent", "action": "update_listing_price", "description": "Update product price" },
+        { "step": 4, "agent": "MarketingAgent", "action": "announce_deal", "description": "Promote via notifications" }
+      ]
+    },
+    {
+      "id": "marketing_automation",
+      "name": "Marketing Automation",
+      "trigger": "user_action",
+      "description": "Automated marketing based on user behavior",
+      "steps": [
+        { "step": 1, "agent": "AnalyticsAgent", "action": "track_user_behavior", "description": "Monitor browsing, cart, purchase patterns" },
+        { "step": 2, "agent": "MarketingAgent", "action": "send_abandon_cart_email", "description": "Remind about abandoned carts" },
+        { "step": 3, "agent": "MarketingAgent", "action": "send_personalized_offers", "description": "Custom discounts based on preferences" },
+        { "step": 4, "agent": "AnalyticsAgent", "action": "track_conversion", "description": "Measure campaign effectiveness" }
+      ]
+    },
+    {
+      "id": "fraud_detection",
+      "name": "Fraud Detection",
+      "trigger": "suspicious_activity",
+      "description": "Detect and prevent fraud",
+      "steps": [
+        { "step": 1, "agent": "FraudAgent", "action": "analyze_transaction_pattern", "description": "Check for unusual activity" },
+        { "step": 2, "agent": "FraudAgent", "action": "verify_payment", "description": "Validate payment method" },
+        { "step": 3, "agent": "FraudAgent", "action": "check_address_verification", "description": "Flag mismatched addresses" },
+        { "step": 4, "agent": "SupportAgent", "action": "send_security_alert", "description": "Notify customer if needed" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@rtmn/twinos-query-engine",
+  "version": "1.0.0",
+  "description": "TwinOS Natural Language Query Engine — converts NL queries to graph operations",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@rtmn/twinos-shared": "file:../twinos-shared",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}

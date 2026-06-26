@@ -2,6 +2,33 @@ version: '3.9'
 
 services:
   # ==========================================
+  # TwinOS Hub (4705) - Core Registry
+  # ==========================================
+  twinos-hub:
+    build:
+      context: ./twinos-hub
+      dockerfile: Dockerfile
+    container_name: twinos-hub
+    ports:
+      - "4705:4705"
+    environment:
+      - NODE_ENV=production
+      - PORT=4705
+      - SERVICE_NAME=twinos-hub
+      - LOG_LEVEL=info
+      - JWT_SECRET=${JWT_SECRET:-rtmn-dev-secret-change-in-prod}
+      - JWT_ISSUER=rtmn-twinos
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4705/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - twin-network
+
+  # ==========================================
   # Twin Learning OS (4735)
   # ==========================================
   twin-learning-os:

@@ -2,8 +2,8 @@
   "id": "food-delivery",
   "name": "Agentic Food Delivery",
   "version": "1.0.0",
-  "tagline": "AI-powered food delivery network",
-  "description": "Uber Eats/Swiggy clone with AI handling restaurant onboarding, delivery matching, dynamic pricing, and customer retention.",
+  "tagline": "AI-powered food delivery like Swiggy/Zomato",
+  "description": "Full-featured food delivery platform with AI-powered restaurant matching, delivery optimization, and real-time tracking.",
   "category": "food-delivery",
   "icon": "🍔",
   "color": "#FF5722",
@@ -38,19 +38,19 @@
   ],
 
   "flows": [
-    { "id": "order_flow", "name": "Order to Delivery Flow", "trigger": "order_placed" },
-    { "id": "restaurant_onboarding", "name": "Restaurant Onboarding Flow", "trigger": "restaurant_apply" },
-    { "id": "delivery_matching", "name": "Delivery Partner Matching Flow", "trigger": "order_ready" },
-    { "id": "support_flow", "name": "Customer Support Flow", "trigger": "complaint_raised" },
-    { "id": "marketing_flow", "name": "Personalized Marketing Flow", "trigger": "user_idle" },
-    { "id": "fraud_detection", "name": "Fraud Detection Flow", "trigger": "order_suspicious" }
+    { "id": "order_flow", "name": "Order to Delivery Flow", "trigger": "order_placed", "steps": ["validate_menu", "confirm_restaurant", "find_driver", "track_kitchen", "deliver_order", "request_review"] },
+    { "id": "restaurant_onboarding", "name": "Restaurant Onboarding Flow", "trigger": "restaurant_apply", "steps": ["verify_fssai", "approve_restaurant", "add_menu"] },
+    { "id": "delivery_matching", "name": "Delivery Partner Matching Flow", "trigger": "order_ready", "steps": ["find_driver", "send_offer", "accept_order", "pickup_food", "deliver"] },
+    { "id": "support_flow", "name": "Customer Support Flow", "trigger": "complaint_raised", "steps": ["categorize_complaint", "contact_restaurant", "process_refund"] },
+    { "id": "fraud_detection", "name": "Fraud Detection Flow", "trigger": "order_suspicious", "steps": ["analyze_pattern", "flag_account", "send_alert"] },
+    { "id": "marketing_flow", "name": "Personalized Marketing Flow", "trigger": "user_idle", "steps": ["send_push", "offer_discount"] }
   ],
 
   "nexha_connections": [
-    { "network": "payment", "purpose": "UPI, wallets, cards" },
-    { "network": "maps", "purpose": "Route optimization, ETA" },
-    { "network": "marketing", "purpose": "Push notifications, SMS" },
-    { "network": "logistics", "purpose": "Last mile delivery" }
+    { "network": "payment-network", "purpose": "UPI, wallets, cards" },
+    { "network": "logistics-network", "purpose": "Last mile delivery" },
+    { "network": "restaurant-os", "purpose": "Restaurant discovery" },
+    { "network": "marketing-os", "purpose": "Push notifications, SMS" }
   ],
 
   "integrations": [
@@ -59,6 +59,24 @@
     { "name": "delivery-tracking", "required": true },
     { "name": "payment-gateway", "required": true }
   ],
+
+  "apps": {
+    "passenger": {
+      "name": "{{company}} Customer App",
+      "screens": ["Home", "Search", "Restaurant", "Cart", "TrackOrder", "Orders", "Profile"],
+      "features": ["restaurant-discovery", "menu-browsing", "cart-management", "order-tracking", "reviews"]
+    },
+    "driver": {
+      "name": "{{company}} Delivery Partner App",
+      "screens": ["Home", "Orders", "Earnings", "Profile"],
+      "features": ["order-acceptance", "navigation", "earnings-tracking", "status-updates"]
+    },
+    "restaurant": {
+      "name": "{{company}} Restaurant Panel",
+      "screens": ["Dashboard", "Orders", "Menu", "Analytics"],
+      "features": ["order-management", "menu-management", "restaurant-dashboard"]
+    }
+  },
 
   "policies": [
     { "name": "min_order_value", "value": 99 },

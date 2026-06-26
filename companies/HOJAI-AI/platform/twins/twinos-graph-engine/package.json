@@ -2,7 +2,7 @@
   "name": "@rtmn/twinos-graph-engine",
   "version": "1.0.0",
   "description": "TwinOS Graph Engine — dedicated graph traversal, PageRank, community detection, and centrality metrics for the RTMN twin relationship graph",
-  "port": 4715,
+  "port": 4883,
   "main": "src/index.js",
   "type": "module",
   "scripts": {

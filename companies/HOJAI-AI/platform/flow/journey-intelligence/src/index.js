@@ -50,9 +50,12 @@ app.get('/ready', (_req, res) => {
 });
 
 
-const server = app.listen(PORT, () => {
-  console.log(`Journey Intelligence Service running on port ${PORT}`);
-});
-installGracefulShutdown(server);
-
 export default app;
+
+// Only start server when run directly (skip in test mode)
+if (process.env.NODE_ENV !== 'test' && process.env.KG_SKIP_AUTO_LISTEN !== 'true') {
+  const server = app.listen(PORT, () => {
+    console.log(`Journey Intelligence Service running on port ${PORT}`);
+  });
+  installGracefulShutdown(server);
+}

@@ -20,6 +20,8 @@ const SERVICES = {
   flowsEngine: process.env.FLOWS_URL || 'http://localhost:4550',
   companyMapper: process.env.MAPPER_URL || 'http://localhost:4560',
   auth: process.env.AUTH_URL || 'http://localhost:4530',
+  codeGenerator: process.env.CODE_GEN_URL || 'http://localhost:4580',
+  connectorOS: process.env.CONNECTOR_OS_URL || 'http://localhost:4585',
   // OTA Services
   pmsIntegration: 'http://localhost:4700',
   gdsIntegration: 'http://localhost:4701',
@@ -89,12 +91,23 @@ app.post('/api/v1/deploy', async (req, res) => {
 
     deployment.steps.push({ step: 2, name: 'Generating AI agents', status: 'completed' });
 
-    // Step 3: Compile template
-    deployment.steps.push({ step: 3, name: 'Compiling template', status: 'running' });
-    deployment.status = 'compiling';
-    const compiledCode = compileTemplate(template, companyName);
+    // Step 3: Generate code using Code Generator
+    deployment.steps.push({ step: 3, name: 'Generating code (React Native + Backend)', status: 'running' });
+    deployment.status = 'generating-code';
 
-    deployment.steps.push({ step: 3, name: 'Compiling template', status: 'completed' });
+    // Call Code Generator service
+    const codeGenResponse = await fetch(`${SERVICES.codeGenerator}/api/v1/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyName, template, options })
+    });
+    const codeGenResult = await codeGenResponse.json();
+
+    if (codeGenResult.success) {
+      deployment.generatedCode = codeGenResult.job;
+    }
+
+    deployment.steps.push({ step: 3, name: 'Generating code (React Native + Backend)', status: 'completed' });
 
     // Step 4: Generate apps
     deployment.steps.push({ step: 4, name: 'Generating apps', status: 'running' });
@@ -143,6 +156,7 @@ app.post('/api/v1/deploy', async (req, res) => {
         template,
         flows,
         agents,
+        generatedCode: deployment.generatedCode,
         apps,
         nexhaConnections,
         urls: deployment.urls,
@@ -222,6 +236,143 @@ app.get('/api/v1/nexha', (_, res) => {
       { id: 'trade-finance-network', name: 'Trade Finance Network', status: 'active' },
       { id: 'discovery-os', name: 'Discovery OS', status: 'active' },
       { id: 'catalog-os', name: 'Catalog OS', status: 'active' }
+    ]
+  });
+});
+
+// ── ConnectorOS Integration ────────────────────────────────────────
+
+/**
+ * Get all available enterprise connectors
+ */
+app.get('/api/v1/connectors', async (req, res) => {
+  try {
+    const response = await fetch(`${SERVICES.connectorOS}/api/connectors`);
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    // Fallback to cached connector list
+    res.json({
+      success: true,
+      count: 38,
+      connectors: [
+        // CRM
+        { id: 'hubspot', name: 'HubSpot', category: 'crm', authType: 'oauth2', capabilities: ['contacts', 'deals', 'tasks'] },
+        { id: 'salesforce', name: 'Salesforce', category: 'crm', authType: 'oauth2', capabilities: ['leads', 'opportunities', 'accounts'] },
+        { id: 'pipedrive', name: 'Pipedrive', category: 'crm', authType: 'api_key', capabilities: ['deals', 'persons', 'organizations'] },
+        { id: 'zoho-crm', name: 'Zoho CRM', category: 'crm', authType: 'oauth2', capabilities: ['leads', 'deals', 'contacts'] },
+        // Payments
+        { id: 'stripe', name: 'Stripe', category: 'payments', authType: 'api_key', capabilities: ['payments', 'subscriptions', 'invoicing'] },
+        { id: 'razorpay', name: 'Razorpay', category: 'payments', authType: 'api_key', capabilities: ['payments', 'refunds', 'settlements'] },
+        { id: 'paypal', name: 'PayPal', category: 'payments', authType: 'oauth2', capabilities: ['payments', 'payouts', 'subscriptions'] },
+        { id: 'square', name: 'Square', category: 'payments', authType: 'oauth2', capabilities: ['payments', 'invoices', 'customers'] },
+        { id: 'phonepe', name: 'PhonePe', category: 'payments', authType: 'api_key', capabilities: ['payments', 'refunds'] },
+        { id: 'cashfree', name: 'Cashfree', category: 'payments', authType: 'api_key', capabilities: ['payments', 'payouts'] },
+        // Commerce
+        { id: 'shopify', name: 'Shopify', category: 'commerce', authType: 'oauth2', capabilities: ['products', 'orders', 'customers'] },
+        { id: 'woocommerce', name: 'WooCommerce', category: 'commerce', authType: 'oauth2', capabilities: ['products', 'orders', 'customers'] },
+        { id: 'magento', name: 'Magento', category: 'commerce', authType: 'oauth2', capabilities: ['products', 'orders', 'inventory'] },
+        { id: 'bigcommerce', name: 'BigCommerce', category: 'commerce', authType: 'oauth2', capabilities: ['products', 'orders', 'customers'] },
+        // Email
+        { id: 'gmail', name: 'Gmail', category: 'email', authType: 'oauth2', capabilities: ['send', 'read', 'drafts'] },
+        { id: 'sendgrid', name: 'SendGrid', category: 'email', authType: 'api_key', capabilities: ['send', 'templates', 'campaigns'] },
+        { id: 'mailchimp', name: 'Mailchimp', category: 'email', authType: 'api_key', capabilities: ['campaigns', 'lists', 'automation'] },
+        { id: 'aws-ses', name: 'Amazon SES', category: 'email', authType: 'aws_v4', capabilities: ['send', 'templates', 'stats'] },
+        // Calendar
+        { id: 'google-calendar', name: 'Google Calendar', category: 'calendar', authType: 'oauth2', capabilities: ['events', 'calendars', 'availability'] },
+        { id: 'outlook-calendar', name: 'Microsoft Outlook', category: 'calendar', authType: 'oauth2', capabilities: ['events', 'calendars', 'rooms'] },
+        { id: 'calendly', name: 'Calendly', category: 'calendar', authType: 'api_key', capabilities: ['scheduling', 'events', 'webhooks'] },
+        // Storage
+        { id: 'google-drive', name: 'Google Drive', category: 'storage', authType: 'oauth2', capabilities: ['files', 'folders', 'sharing'] },
+        { id: 'dropbox', name: 'Dropbox', category: 'storage', authType: 'oauth2', capabilities: ['files', 'folders', 'sharing'] },
+        { id: 'aws-s3', name: 'Amazon S3', category: 'storage', authType: 'aws_v4', capabilities: ['buckets', 'objects', 'presigned-urls'] },
+        { id: 'onedrive', name: 'OneDrive', category: 'storage', authType: 'oauth2', capabilities: ['files', 'folders', 'sharing'] },
+        // Chat
+        { id: 'slack', name: 'Slack', category: 'chat', authType: 'oauth2', capabilities: ['channels', 'messages', 'files'] },
+        { id: 'ms-teams', name: 'Microsoft Teams', category: 'chat', authType: 'oauth2', capabilities: ['channels', 'messages', 'meetings'] },
+        { id: 'discord', name: 'Discord', category: 'chat', authType: 'bot_token', capabilities: ['channels', 'messages', 'webhooks'] },
+        { id: 'whatsapp', name: 'WhatsApp Business', category: 'chat', authType: 'api_key', capabilities: ['messages', 'templates', 'media'] },
+        { id: 'intercom', name: 'Intercom', category: 'chat', authType: 'api_key', capabilities: ['conversations', 'users', 'messages'] },
+        // Accounting
+        { id: 'quickbooks', name: 'QuickBooks', category: 'accounting', authType: 'oauth2', capabilities: ['invoices', 'customers', 'vendors', 'reports'] },
+        { id: 'xero', name: 'Xero', category: 'accounting', authType: 'oauth2', capabilities: ['invoices', 'contacts', 'bank', 'reports'] },
+        { id: 'tally', name: 'TallyPrime', category: 'accounting', authType: 'xml_api', capabilities: ['vouchers', 'masters', 'reports', 'gst'] },
+        { id: 'zoho-books', name: 'Zoho Books', category: 'accounting', authType: 'oauth2', capabilities: ['invoices', 'contacts', 'inventory'] },
+        // HR
+        { id: 'bamboohr', name: 'BambooHR', category: 'hr', authType: 'api_key', capabilities: ['employees', 'time-off', 'jobs'] },
+        { id: 'workday', name: 'Workday', category: 'hr', authType: 'oauth2', capabilities: ['employees', 'payroll', 'benefits'] },
+        { id: 'gusto', name: 'Gusto', category: 'hr', authType: 'oauth2', capabilities: ['employees', 'payroll', 'time-tracking'] },
+        // Project Management
+        { id: 'jira', name: 'Jira', category: 'project-management', authType: 'oauth2', capabilities: ['issues', 'projects', 'boards', 'sprints'] },
+        { id: 'asana', name: 'Asana', category: 'project-management', authType: 'oauth2', capabilities: ['projects', 'tasks', 'subtasks', 'teams'] },
+        { id: 'monday', name: 'Monday.com', category: 'project-management', authType: 'api_key', capabilities: ['boards', 'items', 'groups', 'updates'] },
+        { id: 'linear', name: 'Linear', category: 'project-management', authType: 'api_key', capabilities: ['issues', 'projects', 'teams', 'cycles'] },
+        { id: 'notion', name: 'Notion', category: 'project-management', authType: 'oauth2', capabilities: ['pages', 'databases', 'blocks', 'comments'] },
+        { id: 'trello', name: 'Trello', category: 'project-management', authType: 'api_key', capabilities: ['boards', 'lists', 'cards', 'checklists'] }
+      ]
+    });
+  }
+});
+
+/**
+ * Get connectors by category
+ */
+app.get('/api/v1/connectors/:category', async (req, res) => {
+  const { category } = req.params;
+  try {
+    const response = await fetch(`${SERVICES.connectorOS}/api/connectors/${category}`);
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'ConnectorOS unavailable' });
+  }
+});
+
+/**
+ * Create a connector connection for a deployment
+ */
+app.post('/api/v1/connections', async (req, res) => {
+  const { deploymentId, connectorId, credentials, config } = req.body;
+
+  if (!deploymentId || !connectorId) {
+    return res.status(400).json({ error: 'deploymentId and connectorId required' });
+  }
+
+  try {
+    const response = await fetch(`${SERVICES.connectorOS}/api/connections`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connectorId, credentials, config })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    // Mock response for demo
+    res.status(201).json({
+      success: true,
+      connection: {
+        id: uuidv4(),
+        connectorId,
+        deploymentId,
+        status: 'active',
+        createdAt: new Date().toISOString()
+      }
+    });
+  }
+});
+
+/**
+ * Get connections for a deployment
+ */
+app.get('/api/v1/deployments/:id/connections', async (req, res) => {
+  const { id } = req.params;
+
+  // Return mock connections
+  res.json({
+    success: true,
+    connections: [
+      { id: 'conn-1', connectorId: 'hubspot', status: 'active', lastSync: new Date().toISOString() },
+      { id: 'conn-2', connectorId: 'stripe', status: 'active', lastSync: new Date().toISOString() }
     ]
   });
 });

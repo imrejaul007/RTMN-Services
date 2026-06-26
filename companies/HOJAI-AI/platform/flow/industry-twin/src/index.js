@@ -1,21 +1,22 @@
 import helmet from 'helmet';
+import express from 'express';
+import { requireEnv } from '@rtmn/shared/lib/env';
 import { requireAuth } from '@rtmn/shared/auth';
-const express = require('express');
-const { PersistentMap } = require('@rtmn/shared/lib/persistent-map');
-const { requireEnv } = require('@rtmn/shared/lib/env');
-const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
-const { v4: uuidv4 } = require('uuid');
+import { installGracefulShutdown } from '@rtmn/shared/lib/shutdown';
+import { PersistentMap } from '@rtmn/shared/lib/persistent-map';
+import { v4 as uuidv4 } from 'uuid';
+
 const app = express();
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = 4893;
+
 app.use(express.json());
-
-
 app.use(helmet());
+app.use(requireAuth);
 
-app.use(requireAuth);const industries = new Map([
+const industries = new Map([
   ['restaurant', { id: 'restaurant', name: 'Restaurant', vertCount: 1, segments: ['fast food', 'casual', 'fine dining'], aiAgents: 15 }],
   ['hotel', { id: 'hotel', name: 'Hotel', vertCount: 1, segments: ['budget', 'mid-scale', 'luxury'], aiAgents: 12 }],
   ['healthcare', { id: 'healthcare', name: 'Healthcare', vertCount: 1, segments: ['hospital', 'clinic', 'pharmacy'], aiAgents: 18 }],
@@ -29,11 +30,15 @@ app.get('/api/industries/:id', (req, res) => {
   res.json(ind);
 });
 app.get('/health', (req, res) => res.json({ status: 'healthy', service: 'industry-twin', port: PORT }));
-// Readiness probe — returns 200 once the server is accepting requests
+
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+export default app;
 
-const server = app.listen(PORT, () => console.log('Industry Twin running on ' + PORT));
-installGracefulShutdown(server);
+// Skip auto-listen in test mode
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => console.log('Industry Twin running on ' + PORT));
+  installGracefulShutdown(server);
+}

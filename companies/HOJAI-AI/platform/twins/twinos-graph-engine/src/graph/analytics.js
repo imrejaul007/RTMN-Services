@@ -168,7 +168,7 @@ export function influenceScoring(pageRanks, betweenness, { pagerankWeight = 0.5,
   // Rank by influence descending
   const sorted = [...result.entries()].sort((a, b) => b[1].influence - a[1].influence);
   sorted.forEach(([node, data], i) => {
-    resultget(node).rank = i + 1;
+    result.get(node).rank = i + 1;
   });
 
   return result;

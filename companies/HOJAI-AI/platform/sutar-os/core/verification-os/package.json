@@ -1,0 +1,1 @@
+{"name": "@hojai/verification-os", "version": "1.0.0", "description": "VerificationOS - Research validation, confidence scoring", "main": "src/index.ts", "type": "module", "scripts": { "dev": "tsx watch src/index.ts" }, "dependencies": { "express": "^4.18.2", "uuid": "^9.0.0" }}

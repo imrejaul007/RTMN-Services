@@ -1,0 +1,1 @@
+{"name": "@hojai/innovation-os", "version": "1.0.0", "description": "InnovationOS - Ideas, pilots, R&D tracking", "main": "src/index.ts", "type": "module", "scripts": { "dev": "tsx watch src/index.ts" }, "dependencies": { "express": "^4.18.2", "uuid": "^9.0.0" }}

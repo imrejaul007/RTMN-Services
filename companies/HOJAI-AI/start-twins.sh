@@ -8,13 +8,15 @@ LOG_DIR="${RTMN_LOG_DIR:-/tmp/hojai-twins/logs}"
 mkdir -p "$LOG_DIR"
 
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║      RTMN TwinOS — HOJAI-AI Twin Services Startup          ║"
+echo "║  RTMN TwinOS — HOJAI-AI Twin + Graph Services Startup     ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
 
-# Order: hub first, then foundation twins, then commerce, then people
+# Order: hub first, then graph services, then foundation twins, then commerce, then people
 SERVICES=(
   "twinos-hub:4705"
+  "twinos-graph-engine:4883"
+  "twinos-query-engine:4884"
   "organization-twin:4710"
   "product-twin:4720"
   "employee-twin:4730"

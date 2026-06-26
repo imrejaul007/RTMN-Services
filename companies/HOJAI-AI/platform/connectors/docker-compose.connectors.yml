@@ -1,0 +1,245 @@
+# Docker Compose for Connector Ecosystem
+version: '3.8'
+
+services:
+  connector-registry:
+    build: ./connectors/connector-registry
+    container_name: connector-registry
+    ports:
+      - "4753:4753"
+    environment:
+      - NODE_ENV=production
+      - PORT=4753
+    restart: unless-stopped
+
+  # Communication Connectors
+  slack-connector:
+    build: ./connectors/slack-connector
+    container_name: slack-connector
+    ports:
+      - "4790:4790"
+    environment:
+      - NODE_ENV=production
+      - PORT=4790
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+    restart: unless-stopped
+
+  teams-connector:
+    build: ./connectors/teams-connector
+    container_name: teams-connector
+    ports:
+      - "4781:4781"
+    environment:
+      - NODE_ENV=production
+      - PORT=4781
+      - TEAMS_CLIENT_ID=${TEAMS_CLIENT_ID}
+    restart: unless-stopped
+
+  zoom-connector:
+    build: ./connectors/zoom-connector
+    container_name: zoom-connector
+    ports:
+      - "4782:4782"
+    environment:
+      - NODE_ENV=production
+      - PORT=4782
+      - ZOOM_JWT_TOKEN=${ZOOM_JWT_TOKEN}
+    restart: unless-stopped
+
+  gmail-connector:
+    build: ./connectors/gmail-connector
+    container_name: gmail-connector
+    ports:
+      - "4792:4792"
+    environment:
+      - NODE_ENV=production
+      - PORT=4792
+      - GMAIL_CLIENT_ID=${GMAIL_CLIENT_ID}
+    restart: unless-stopped
+
+  # CRM Connectors
+  salesforce-connector:
+    build: ./connectors/salesforce-connector
+    container_name: salesforce-connector
+    ports:
+      - "4786:4786"
+    environment:
+      - NODE_ENV=production
+      - PORT=4786
+      - SF_CLIENT_ID=${SF_CLIENT_ID}
+    restart: unless-stopped
+
+  hubspot-connector:
+    build: ./connectors/hubspot-connector
+    container_name: hubspot-connector
+    ports:
+      - "4780:4780"
+    environment:
+      - NODE_ENV=production
+      - PORT=4780
+      - HUBSPOT_API_KEY=${HUBSPOT_API_KEY}
+    restart: unless-stopped
+
+  zoho-connector:
+    build: ./connectors/zoho-connector
+    container_name: zoho-connector
+    ports:
+      - "4784:4784"
+    environment:
+      - NODE_ENV=production
+      - PORT=4784
+      - ZOHO_CLIENT_ID=${ZOHO_CLIENT_ID}
+    restart: unless-stopped
+
+  freshworks-connector:
+    build: ./connectors/freshworks-connector
+    container_name: freshworks-connector
+    ports:
+      - "4801:4801"
+    environment:
+      - NODE_ENV=production
+      - PORT=4801
+      - FRESHSALES_API_KEY=${FRESHSALES_API_KEY}
+    restart: unless-stopped
+
+  freshdesk-connector:
+    build: ./connectors/freshdesk-connector
+    container_name: freshdesk-connector
+    ports:
+      - "4802:4802"
+    environment:
+      - NODE_ENV=production
+      - PORT=4802
+      - FRESHDESK_API_KEY=${FRESHDESK_API_KEY}
+    restart: unless-stopped
+
+  intercom-connector:
+    build: ./connectors/intercom-connector
+    container_name: intercom-connector
+    ports:
+      - "4803:4803"
+    environment:
+      - NODE_ENV=production
+      - PORT=4803
+      - INTERCOM_ACCESS_TOKEN=${INTERCOM_ACCESS_TOKEN}
+    restart: unless-stopped
+
+  # Project Management Connectors
+  jira-connector:
+    build: ./connectors/jira-connector
+    container_name: jira-connector
+    ports:
+      - "4793:4793"
+    environment:
+      - NODE_ENV=production
+      - PORT=4793
+      - JIRA_URL=${JIRA_URL}
+    restart: unless-stopped
+
+  linear-connector:
+    build: ./connectors/linear-connector
+    container_name: linear-connector
+    ports:
+      - "4798:4798"
+    environment:
+      - NODE_ENV=production
+      - PORT=4798
+      - LINEAR_API_KEY=${LINEAR_API_KEY}
+    restart: unless-stopped
+
+  asana-connector:
+    build: ./connectors/asana-connector
+    container_name: asana-connector
+    ports:
+      - "4799:4799"
+    environment:
+      - NODE_ENV=production
+      - PORT=4799
+      - ASANA_ACCESS_TOKEN=${ASANA_ACCESS_TOKEN}
+    restart: unless-stopped
+
+  notion-connector:
+    build: ./connectors/notion-connector
+    container_name: notion-connector
+    ports:
+      - "4794:4794"
+    environment:
+      - NODE_ENV=production
+      - PORT=4794
+      - NOTION_TOKEN=${NOTION_TOKEN}
+    restart: unless-stopped
+
+  # Finance Connectors
+  quickbooks-connector:
+    build: ./connectors/quickbooks-connector
+    container_name: quickbooks-connector
+    ports:
+      - "4783:4783"
+    environment:
+      - NODE_ENV=production
+      - PORT=4783
+      - QUICKBOOKS_CLIENT_ID=${QUICKBOOKS_CLIENT_ID}
+    restart: unless-stopped
+
+  stripe-connector:
+    build: ./connectors/stripe-connector
+    container_name: stripe-connector
+    ports:
+      - "4788:4788"
+    environment:
+      - NODE_ENV=production
+      - PORT=4788
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    restart: unless-stopped
+
+  # Enterprise ERP Connectors
+  sap-connector:
+    build: ./connectors/sap-connector
+    container_name: sap-connector
+    ports:
+      - "4796:4796"
+    environment:
+      - NODE_ENV=production
+      - PORT=4796
+      - SAP_HOST=${SAP_HOST}
+    restart: unless-stopped
+
+  oracle-connector:
+    build: ./connectors/oracle-connector
+    container_name: oracle-connector
+    ports:
+      - "4797:4797"
+    environment:
+      - NODE_ENV=production
+      - PORT=4797
+      - ORACLE_CLIENT_ID=${ORACLE_CLIENT_ID}
+    restart: unless-stopped
+
+  # Commerce Connector
+  shopify-connector:
+    build: ./connectors/shopify-connector
+    container_name: shopify-connector
+    ports:
+      - "4787:4787"
+    environment:
+      - NODE_ENV=production
+      - PORT=4787
+      - SHOPIFY_SHOP_DOMAIN=${SHOPIFY_SHOP_DOMAIN}
+    restart: unless-stopped
+
+  # Calendar Connector
+  calendar-connector:
+    build: ./connectors/calendar-connector
+    container_name: calendar-connector
+    ports:
+      - "4795:4795"
+    environment:
+      - NODE_ENV=production
+      - PORT=4795
+      - GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID}
+    restart: unless-stopped
+
+networks:
+  default:
+    name: connector-ecosystem
+    driver: bridge

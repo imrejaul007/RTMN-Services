@@ -1,0 +1,493 @@
+# Docker Compose for Employee Twin Ecosystem
+# Version: 1.0.0
+# Date: June 26, 2026
+
+version: '3.8'
+
+services:
+  # ============================================
+  # PHASE 1: CORE TWINS
+  # ============================================
+
+  memory-twin:
+    build: ./twins/memory-twin
+    container_name: memory-twin
+    ports:
+      - "4738:4738"
+    environment:
+      - NODE_ENV=production
+      - PORT=4738
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4738/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  knowledge-twin:
+    build: ./twins/knowledge-twin
+    container_name: knowledge-twin
+    ports:
+      - "4739:4739"
+    environment:
+      - NODE_ENV=production
+      - PORT=4739
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4739/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  workflow-twin:
+    build: ./twins/workflow-twin
+    container_name: workflow-twin
+    ports:
+      - "4741:4741"
+    environment:
+      - NODE_ENV=production
+      - PORT=4741
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4741/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  decision-twin:
+    build: ./twins/decision-twin
+    container_name: decision-twin
+    ports:
+      - "4742:4742"
+    environment:
+      - NODE_ENV=production
+      - PORT=4742
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4742/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  communication-twin:
+    build: ./twins/communication-twin
+    container_name: communication-twin
+    ports:
+      - "4743:4743"
+    environment:
+      - NODE_ENV=production
+      - PORT=4743
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4743/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  relationship-twin:
+    build: ./twins/relationship-twin
+    container_name: relationship-twin
+    ports:
+      - "4744:4744"
+    environment:
+      - NODE_ENV=production
+      - PORT=4744
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4744/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  reputation-twin:
+    build: ./twins/reputation-twin
+    container_name: reputation-twin
+    ports:
+      - "4745:4745"
+    environment:
+      - NODE_ENV=production
+      - PORT=4745
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4745/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  behavioral-twin:
+    build: ./twins/behavioral-twin
+    container_name: behavioral-twin
+    ports:
+      - "4746:4746"
+    environment:
+      - NODE_ENV=production
+      - PORT=4746
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4746/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # PHASE 2: OBSERVATION LAYER
+  # ============================================
+
+  twin-observer:
+    build: ./twins/twin-observer
+    container_name: twin-observer
+    ports:
+      - "4747:4747"
+    environment:
+      - NODE_ENV=production
+      - PORT=4747
+      - COMMUNICATION_TWIN_URL=http://communication-twin:4743
+      - WORKFLOW_TWIN_URL=http://workflow-twin:4741
+      - DECISION_TWIN_URL=http://decision-twin:4742
+      - RELATIONSHIP_TWIN_URL=http://relationship-twin:4744
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4747/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  human-teaching:
+    build: ./twins/human-teaching
+    container_name: human-teaching
+    ports:
+      - "4748:4748"
+    environment:
+      - NODE_ENV=production
+      - PORT=4748
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4748/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  meeting-intelligence:
+    build: ./twins/meeting-intelligence
+    container_name: meeting-intelligence
+    ports:
+      - "4749:4749"
+    environment:
+      - NODE_ENV=production
+      - PORT=4749
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4749/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  skill-wallet:
+    build: ./twins/skill-wallet
+    container_name: skill-wallet
+    ports:
+      - "4750:4750"
+    environment:
+      - NODE_ENV=production
+      - PORT=4750
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4750/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # PHASE 3: AGENT RUNTIMES
+  # ============================================
+
+  browser-agent:
+    build: ./agents/browser-agent
+    container_name: browser-agent
+    ports:
+      - "4751:4751"
+    environment:
+      - NODE_ENV=production
+      - PORT=4751
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4751/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  desktop-agent:
+    build: ./agents/desktop-agent
+    container_name: desktop-agent
+    ports:
+      - "4752:4752"
+    environment:
+      - NODE_ENV=production
+      - PORT=4752
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4752/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # PHASE 4: SKILL ECONOMY
+  # ============================================
+
+  skill-creator-studio:
+    build: ./skills/skill-creator-studio
+    container_name: skill-creator-studio
+    ports:
+      - "4754:4754"
+    environment:
+      - NODE_ENV=production
+      - PORT=4754
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4754/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  skill-certification:
+    build: ./skills/skill-certification
+    container_name: skill-certification
+    ports:
+      - "4755:4755"
+    environment:
+      - NODE_ENV=production
+      - PORT=4755
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4755/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  skill-analytics:
+    build: ./skills/skill-analytics
+    container_name: skill-analytics
+    ports:
+      - "4756:4756"
+    environment:
+      - NODE_ENV=production
+      - PORT=4756
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4756/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  creator-payout:
+    build: ./skills/creator-payout
+    container_name: creator-payout
+    ports:
+      - "4757:4757"
+    environment:
+      - NODE_ENV=production
+      - PORT=4757
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4757/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  bam-skill-adapter:
+    build: ./skills/bam-skill-adapter
+    container_name: bam-skill-adapter
+    ports:
+      - "4758:4758"
+    environment:
+      - NODE_ENV=production
+      - PORT=4758
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4758/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  enterprise-skill-portal:
+    build: ./skills/enterprise-skill-portal
+    container_name: enterprise-skill-portal
+    ports:
+      - "4759:4759"
+    environment:
+      - NODE_ENV=production
+      - PORT=4759
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4759/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # PHASE 5: AUTONOMOUS EXECUTION
+  # ============================================
+
+  twin-autonomy-controller:
+    build: ./twins/twin-autonomy-controller
+    container_name: twin-autonomy-controller
+    ports:
+      - "4760:4760"
+    environment:
+      - NODE_ENV=production
+      - PORT=4760
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4760/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  execution-engine-24x7:
+    build: ./twins/execution-engine-24x7
+    container_name: execution-engine-24x7
+    ports:
+      - "4761:4761"
+    environment:
+      - NODE_ENV=production
+      - PORT=4761
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4761/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  twin-shadow-mode:
+    build: ./twins/twin-shadow-mode
+    container_name: twin-shadow-mode
+    ports:
+      - "4762:4762"
+    environment:
+      - NODE_ENV=production
+      - PORT=4762
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4762/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  emergency-stop:
+    build: ./twins/emergency-stop
+    container_name: emergency-stop
+    ports:
+      - "4763:4763"
+    environment:
+      - NODE_ENV=production
+      - PORT=4763
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4763/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  notification-orchestrator:
+    build: ./twins/notification-orchestrator
+    container_name: notification-orchestrator
+    ports:
+      - "4764:4764"
+    environment:
+      - NODE_ENV=production
+      - PORT=4764
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4764/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # PHASE 6: POLISH
+  # ============================================
+
+  twin-dashboard:
+    build: ./twins/twin-dashboard
+    container_name: twin-dashboard
+    ports:
+      - "4770:4770"
+    environment:
+      - NODE_ENV=production
+      - PORT=4770
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4770/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  twin-mobile:
+    build: ./twins/twin-mobile
+    container_name: twin-mobile
+    ports:
+      - "4771:4771"
+    environment:
+      - NODE_ENV=production
+      - PORT=4771
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4771/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  twin-analytics:
+    build: ./twins/twin-analytics
+    container_name: twin-analytics
+    ports:
+      - "4772:4772"
+    environment:
+      - NODE_ENV=production
+      - PORT=4772
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4772/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  twin-health-monitor:
+    build: ./twins/twin-health-monitor
+    container_name: twin-health-monitor
+    ports:
+      - "4773:4773"
+    environment:
+      - NODE_ENV=production
+      - PORT=4773
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4773/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # CONNECTORS
+  # ============================================
+
+  connector-registry:
+    build: ./connectors/connector-registry
+    container_name: connector-registry
+    ports:
+      - "4753:4753"
+    environment:
+      - NODE_ENV=production
+      - PORT=4753
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4753/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  default:
+    name: twin-ecosystem
+    driver: bridge

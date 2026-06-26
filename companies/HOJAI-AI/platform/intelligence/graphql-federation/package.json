@@ -2,6 +2,7 @@
   "name": "rtmn-graphql-federation",
   "version": "1.0.0",
   "description": "RTMN GraphQL Federation Gateway",
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"

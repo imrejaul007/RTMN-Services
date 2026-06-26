@@ -1,0 +1,101 @@
+{
+  "id": "ecommerce",
+  "name": "Agentic E-Commerce",
+  "version": "1.0.0",
+  "tagline": "AI-powered marketplace like Amazon/Flipkart",
+  "description": "Full-featured e-commerce marketplace with AI-powered catalog management, smart recommendations, dynamic pricing, and autonomous fulfillment.",
+  "category": "commerce",
+  "icon": "🛍️",
+  "color": "#E11D48",
+  "sector": "ecommerce",
+
+  "crew": {
+    "ai_workers": [
+      { "role": "CatalogAgent", "salary": 350, "model": "claude-3-sonnet", "skills": ["listings", "seo", "descriptions", "images", "categories"] },
+      { "role": "SearchDiscoveryAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["semantic-search", "recommendations", "personalization", "trending"] },
+      { "role": "PricingAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["dynamic-pricing", "competitor-analysis", "margin-optimization", "flash-sales"] },
+      { "role": "InventoryAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["stock-management", "forecasting", "reorder-alerts", "warehousing"] },
+      { "role": "FulfillmentAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["order-routing", "shipping", "tracking", "delivery-optimization"] },
+      { "role": "ReturnsAgent", "salary": 250, "model": "claude-3-haiku", "skills": ["return-requests", "refunds", "quality-inspection", "restocking"] },
+      { "role": "SellerAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["onboarding", "growth-tips", "performance", "payments"] },
+      { "role": "CustomerServiceAgent", "salary": 200, "model": "claude-3-haiku", "skills": ["ticket-resolution", "refunds", "complaints", "chatbot"] },
+      { "role": "MarketingAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["ads", "email", "social", "influencers", "seo"] },
+      { "role": "FraudAgent", "salary": 350, "model": "claude-3-sonnet", "skills": ["fake-reviews", "payment-fraud", "return-abuse", "account-sharing"] },
+      { "role": "AnalyticsAgent", "salary": 300, "model": "claude-3-sonnet", "skills": ["dashboards", "cohort-analysis", "attribution", "forecasting"] },
+      { "role": "GrowthAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["acquisition", "retention", "referrals", "loyalty-programs"] }
+    ]
+  },
+
+  "total_ai_salary": 4050,
+
+  "twins": [
+    { "type": "seller", "name": "{{company}} Seller" },
+    { "type": "buyer", "name": "{{company}} Buyer" },
+    { "type": "product", "name": "{{company}} Product" },
+    { "type": "order", "name": "{{company}} Order" },
+    { "type": "shipment", "name": "{{company}} Shipment" },
+    { "type": "return", "name": "{{company}} Return" },
+    { "type": "review", "name": "{{company}} Review" },
+    { "type": "cart", "name": "{{company}} Cart" },
+    { "type": "wishlist", "name": "{{company}} Wishlist" },
+    { "type": "payment", "name": "{{company}} Payment" }
+  ],
+
+  "flows": [
+    { "id": "buyer_journey", "name": "Buyer Journey Flow", "trigger": "user_browse", "steps": ["show_recommendations", "track_wishlist", "estimate_delivery"] },
+    { "id": "order_fulfillment", "name": "Order Fulfillment Flow", "trigger": "order_placed", "steps": ["reserve_stock", "create_shipment", "track_delivery", "notify_buyer"] },
+    { "id": "returns_flow", "name": "Returns & Refunds Flow", "trigger": "return_requested", "steps": ["validate_return_window", "approve_return", "process_refund"] },
+    { "id": "seller_onboarding", "name": "Seller Onboarding Flow", "trigger": "seller_apply", "steps": ["verify_seller", "onboard_seller", "add_first_product"] },
+    { "id": "pricing_optimization", "name": "Dynamic Pricing Flow", "trigger": "competitor_price_change", "steps": ["analyze_competitor", "adjust_price", "update_listing"] },
+    { "id": "marketing_automation", "name": "Marketing Automation Flow", "trigger": "user_action", "steps": ["send_email", "track_conversion"] }
+  ],
+
+  "nexha_connections": [
+    { "network": "payment-network", "purpose": "Multi-currency payments, UPI, cards, wallets" },
+    { "network": "logistics-network", "purpose": "Shipping, fulfillment, last-mile delivery" },
+    { "network": "catalog-os", "purpose": "Product catalog, categories, search" },
+    { "network": "discovery-os", "purpose": "Recommendations, trending, personalization" },
+    { "network": "fraud-os", "purpose": "Payment fraud, fake reviews detection" }
+  ],
+
+  "integrations": [
+    { "name": "payment-gateway", "required": true },
+    { "name": "logistics-api", "required": true },
+    { "name": "search-engine", "required": true },
+    { "name": "inventory-wms", "required": false }
+  ],
+
+  "apps": {
+    "passenger": {
+      "name": "{{company}} Buyer App",
+      "screens": ["Home", "Search", "ProductDetail", "Cart", "Checkout", "Orders", "Profile", "Wishlist"],
+      "features": ["product-search", "cart-management", "checkout", "order-tracking", "wishlist", "reviews"]
+    },
+    "seller": {
+      "name": "{{company}} Seller App",
+      "screens": ["Dashboard", "Products", "Orders", "Analytics", "Settings"],
+      "features": ["product-management", "order-management", "seller-dashboard", "payouts"]
+    },
+    "admin": {
+      "name": "{{company}} Admin",
+      "screens": ["Dashboard", "Products", "Orders", "Sellers", "Users", "Analytics"],
+      "features": ["full-control", "user-management", "content-moderation"]
+    }
+  },
+
+  "policies": [
+    { "name": "min_order_value", "value": 299 },
+    { "name": "return_window_days", "value": 7 },
+    { "name": "seller_commission", "value": 0.15 },
+    { "name": "fulfillment_by_marketplace", "value": true },
+    { "name": "prime_delivery_hours", "value": 24 }
+  ],
+
+  "pricing": {
+    "commission": "10-20%",
+    "fulfillment_fee": "₹40-80",
+    "storage_fee": "₹25/cubic-feet/month",
+    "referral_fee": "3-15%",
+    "closing_fee": "0.5-2%"
+  }
+}

@@ -103,7 +103,24 @@ describe('TwinOS Hub', () => {
         { sourceId: 'B', targetId: 'C', type: 'parent' },
         { sourceId: 'C', targetId: 'D', type: 'owns' },
       ];
+      // depth=2 should reach A (0), B (1), C (2) but NOT D (3)
       const connected = findConnectedTwins('A', relationships, 2);
+      expect(connected.has('A')).toBe(true);
+      expect(connected.has('B')).toBe(true);
+      expect(connected.has('C')).toBe(true);
+      expect(connected.has('D')).toBe(false);
+    });
+
+    it('should traverse depth 3 to reach D', () => {
+      const relationships = [
+        { sourceId: 'A', targetId: 'B', type: 'owns' },
+        { sourceId: 'B', targetId: 'C', type: 'parent' },
+        { sourceId: 'C', targetId: 'D', type: 'owns' },
+      ];
+      // depth=3 should reach A, B, C, D
+      const connected = findConnectedTwins('A', relationships, 3);
+      expect(connected.has('A')).toBe(true);
+      expect(connected.has('B')).toBe(true);
       expect(connected.has('C')).toBe(true);
       expect(connected.has('D')).toBe(true);
     });

@@ -1,99 +1,83 @@
 {
   "id": "mobility",
-  "name": "Mobility OS",
+  "name": "Agentic Mobility",
   "version": "1.0.0",
-  "tagline": "Build an Uber-like autonomous mobility network",
-  "description": "Complete mobility platform with ride-hailing, fleet management, dynamic pricing, and driver success. Deploy in 30 minutes with AI workers already hired.",
-  "category": "transportation",
+  "tagline": "AI-powered ride-hailing like Uber/Ola",
+  "description": "Full-featured mobility platform with AI-powered driver matching, surge pricing, safety features, and real-time tracking.",
+  "category": "mobility",
   "icon": "🚗",
   "color": "#FF6B35",
-
-  "estimated_build_time": "30 minutes",
+  "sector": "mobility",
 
   "crew": {
-    "founder": {
-      "role": "Founder",
-      "responsibilities": ["Vision", "Strategy", "Culture", "Fundraising"]
-    },
     "ai_workers": [
-      { "role": "CEO Strategist", "salary": 500, "model": "claude-3-sonnet" },
-      { "role": "COO Operations", "salary": 400, "model": "claude-3-sonnet" },
-      { "role": "Fleet Manager", "salary": 400, "model": "claude-3-sonnet" },
-      { "role": "Driver Success Agent", "salary": 200, "model": "claude-3-haiku" },
-      { "role": "Pricing Agent", "salary": 350, "model": "claude-3-sonnet" },
-      { "role": "Safety Agent", "salary": 250, "model": "claude-3-haiku" },
-      { "role": "Dispatch Agent", "salary": 200, "model": "claude-3-haiku" },
-      { "role": "Insurance Agent", "salary": 200, "model": "claude-3-haiku" },
-      { "role": "Maintenance Agent", "salary": 150, "model": "claude-3-haiku" },
-      { "role": "Growth Agent", "salary": 400, "model": "claude-3-sonnet" },
-      { "role": "Support Agent", "salary": 150, "model": "claude-3-haiku" },
-      { "role": "Finance Agent", "salary": 300, "model": "claude-3-haiku" },
-      { "role": "Legal Agent", "salary": 300, "model": "claude-3-haiku" }
+      { "role": "DispatchAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["matching", "surge-pricing", "dispatch", "routing"] },
+      { "role": "SafetyAgent", "salary": 350, "model": "claude-3-sonnet", "skills": ["background-checks", "ride-monitoring", "emergency", "insurance"] },
+      { "role": "DriverGrowthAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["acquisition", "retention", "incentives", "earnings"] },
+      { "role": "RiderGrowthAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["acquisition", "referrals", "engagement", "loyalty"] },
+      { "role": "FleetAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["vehicle-management", "maintenance", "insurance", "registration"] },
+      { "role": "InsuranceAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["coverage", "claims", "verification"] },
+      { "role": "PricingAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["dynamic-pricing", "surge", "promotions", "discounts"] },
+      { "role": "SupportAgent", "salary": 200, "model": "claude-3-haiku", "skills": ["ticket-resolution", "refunds", "complaints", "chatbot"] },
+      { "role": "ComplianceAgent", "salary": 250, "model": "claude-3-haiku", "skills": ["license-verification", "regulatory", "local-laws"] },
+      { "role": "AnalyticsAgent", "salary": 300, "model": "claude-3-sonnet", "skills": ["dashboards", "cohort-analysis", "forecasting"] },
+      { "role": "FreightAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["cargo-matching", "tracking", "pricing"] },
+      { "role": "EatsAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["restaurant-matching", "delivery-optimization"] },
+      { "role": "ConfirmationAgent", "salary": 250, "model": "claude-3-haiku", "skills": ["notifications", "receipts", "tips"] }
     ]
   },
 
   "total_ai_salary": 3800,
 
   "twins": [
-    { "type": "organization", "name": "{{company}} Organization" },
-    { "type": "customer", "name": "{{company}} Customer" },
+    { "type": "rider", "name": "{{company}} Rider" },
     { "type": "driver", "name": "{{company}} Driver" },
     { "type": "vehicle", "name": "{{company}} Vehicle" },
-    { "type": "trip", "name": "{{company}} Trip" },
-    { "type": "route", "name": "{{company}} Route" },
-    { "type": "fare", "name": "{{company}} Fare" },
-    { "type": "insurance", "name": "{{company}} Insurance" },
-    { "type": "rating", "name": "{{company}} Rating" },
-    { "type": "dispute", "name": "{{company}} Dispute" }
+    { "type": "ride", "name": "{{company}} Ride" },
+    { "type": "trip", "name": "{{company}} Trip" }
   ],
 
   "flows": [
-    { "id": "ride_booking", "name": "Ride Booking Flow", "trigger": "passenger_request" },
-    { "id": "driver_onboarding", "name": "Driver Onboarding Flow", "trigger": "driver_application" },
-    { "id": "safety_incident", "name": "Safety Incident Flow", "trigger": "incident_detected" },
-    { "id": "payment_settlement", "name": "Payment Settlement Flow", "trigger": "trip_completed" },
-    { "id": "surge_pricing", "name": "Dynamic Pricing Flow", "trigger": "demand_spike" }
-  ],
-
-  "apps": [
-    { "id": "passenger-app", "name": "Passenger App", "type": "consumer", "platform": "react-native" },
-    { "id": "driver-app", "name": "Driver App", "type": "gig-worker", "platform": "react-native" },
-    { "id": "admin-dashboard", "name": "Admin Dashboard", "type": "internal", "platform": "web" }
+    { "id": "ride_booking", "name": "Ride Booking", "trigger": "ride_request", "steps": ["parse_request", "verify_insurance", "calculate_fare", "find_driver", "pre_authorize", "match_driver", "send_eta"] },
+    { "id": "driver_onboarding", "name": "Driver Onboarding", "trigger": "driver_apply", "steps": ["background_check", "verify_license", "approve_driver"] },
+    { "id": "surge_pricing", "name": "Surge Pricing", "trigger": "demand_spike", "steps": ["calculate_surge", "notify_drivers"] },
+    { "id": "safety_incident", "name": "Safety Incident", "trigger": "incident_detected", "steps": ["assess_incident", "contact_authorities", "file_claim"] }
   ],
 
   "nexha_connections": [
-    { "network": "insurance", "purpose": "Verify driver coverage" },
-    { "network": "fuel", "purpose": "Fleet fuel management" },
-    { "network": "service_centers", "purpose": "Vehicle maintenance" },
-    { "network": "oem", "purpose": "Vehicle sourcing" }
+    { "network": "payment-network", "purpose": "Payments, payouts, tips" },
+    { "network": "mobility-os", "purpose": "Maps, routing, ETA" },
+    { "network": "insurance-network", "purpose": "Ride insurance, driver coverage" },
+    { "network": "logistics-network", "purpose": "Freight, cargo delivery" }
   ],
 
-  "integrations": [
-    { "name": "google-maps", "required": true },
-    { "name": "razorpay", "required": true },
-    { "name": "twilio", "required": true },
-    { "name": "firebase", "required": true }
-  ],
+  "apps": {
+    "passenger": {
+      "name": "{{company}} Rider App",
+      "screens": ["Home", "RideSelection", "TrackDriver", "Payment", "History", "Profile"],
+      "features": ["ride-booking", "real-time-tracking", "payment", "ride-history", "safety"]
+    },
+    "driver": {
+      "name": "{{company}} Driver App",
+      "screens": ["Home", "RideRequests", "Earnings", "History", "Profile"],
+      "features": ["ride-requests", "navigation", "earnings", "status-management"]
+    }
+  },
 
   "policies": [
-    { "name": "min_driver_rating", "value": 4.5, "action": "suspend" },
-    { "name": "max_surge_multiplier", "value": 3.0, "action": "cap" },
-    { "name": "auto_cancel_threshold", "value": 3, "action": "warn_driver" },
-    { "name": "insurance_required", "value": true, "action": "block_ride" }
+    { "name": "commission_driver", "value": 0.20 },
+    { "name": "surge_multiplier_max", "value": 3.0 },
+    { "name": "min_fare", "value": 40 },
+    { "name": "per_km_rate", "value": 10 },
+    { "name": "per_minute_rate", "value": 1 },
+    { "name": "safety_buffer_percent", "value": 10 }
   ],
 
   "pricing": {
-    "commission_rate": 0.20,
-    "driver_subscription": 499,
-    "passenger_booking_fee": 0,
-    "surge_pricing": true
-  },
-
-  "regions": [
-    { "code": "BLR", "name": "Bangalore", "country": "IN" },
-    { "code": "MUM", "name": "Mumbai", "country": "IN" },
-    { "code": "DEL", "name": "Delhi NCR", "country": "IN" },
-    { "code": "HYD", "name": "Hyderabad", "country": "IN" },
-    { "code": "CHE", "name": "Chennai", "country": "IN" }
-  ]
+    "base_fare": "₹40",
+    "per_km": "₹10-15",
+    "per_minute": "₹1",
+    "surge": "1.5x-3x during peak",
+    "booking_fee": "₹10-20"
+  }
 }

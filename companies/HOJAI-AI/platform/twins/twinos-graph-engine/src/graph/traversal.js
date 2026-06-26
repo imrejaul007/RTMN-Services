@@ -22,16 +22,35 @@ import { v4 as uuidv4 } from 'uuid';
  * @returns {boolean}
  */
 export function edgeIsActive(rel, queryAt = null, queryFrom = null, queryTo = null) {
-  const created = new Date(rel.createdAt).getTime();
-  const since   = rel.since ? new Date(rel.since).getTime() : created;
-  const until   = rel.until ? new Date(rel.until).getTime() : Infinity;
+  // Normalize all inputs to timestamps (milliseconds since epoch)
+  const toTimestamp = (v) => {
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'number') return v;
+    return new Date(v).getTime();
+  };
 
-  if (queryAt !== null) {
-    return queryAt >= since && queryAt <= until;
+  const created = toTimestamp(rel.createdAt);
+  const since   = toTimestamp(rel.since) ?? created;
+  const until   = toTimestamp(rel.until) ?? Infinity;
+
+  const tsQueryAt   = toTimestamp(queryAt);
+  const tsQueryFrom = toTimestamp(queryFrom);
+  const tsQueryTo   = toTimestamp(queryTo);
+
+  if (tsQueryAt !== null) {
+    // Point-in-time query: edge active if query time is within [since, until]
+    return tsQueryAt >= since && tsQueryAt <= until;
   }
-  if (queryFrom !== null && queryTo !== null) {
-    return !(until < queryFrom || since > queryTo);
+
+  if (tsQueryFrom !== null) {
+    // Range query: default upper bound to current time
+    const to = tsQueryTo !== null ? tsQueryTo : Date.now();
+    // Edge active if its [since, until] overlaps with [queryFrom, queryTo]
+    // Overlap = !(edge.until < query.from OR edge.since > query.to)
+    const overlaps = !(until < tsQueryFrom || since > to);
+    return overlaps;
   }
+
   return true;
 }
 
@@ -165,7 +184,7 @@ export function nDegreeConnections(rootId, relationships, maxHops = 3) {
         visited.set(neighbor, depth + 1);
         queue.push([neighbor, depth + 1]);
         if (depth + 1 <= maxHops) {
-          byHopget(depth + 1).push({
+          byHop.get(depth + 1).push({
             id: neighbor,
             relationship: rel,
             relationshipId: rel.id,

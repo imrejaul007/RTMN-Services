@@ -1,0 +1,76 @@
+{
+  "template": "food-delivery",
+  "flows": [
+    {
+      "id": "order_flow",
+      "name": "Order to Delivery",
+      "trigger": "order_placed",
+      "steps": [
+        { "step": 1, "agent": "MenuOptimizationAgent", "action": "validate_menu", "description": "Verify items are available" },
+        { "step": 2, "agent": "RestaurantOnboardingAgent", "action": "confirm_restaurant", "description": "Send order to restaurant" },
+        { "step": 3, "agent": "OrderIntelligenceAgent", "action": "track_kitchen", "description": "Monitor preparation time" },
+        { "step": 4, "agent": "DeliveryMatchingAgent", "action": "find_driver", "description": "Find nearest available driver" },
+        { "step": 5, "agent": "DeliveryPartnerAgent", "action": "accept_order", "description": "Driver accepts delivery" },
+        { "step": 6, "agent": "DeliveryPartnerAgent", "action": "pickup_food", "description": "Driver picks up from restaurant" },
+        { "step": 7, "agent": "OrderIntelligenceAgent", "action": "track_delivery", "description": "Real-time tracking for customer" },
+        { "step": 8, "agent": "DeliveryPartnerAgent", "action": "deliver_order", "description": "Driver completes delivery" },
+        { "step": 9, "agent": "CustomerRetentionAgent", "action": "request_review", "description": "Ask customer to rate experience" }
+      ]
+    },
+    {
+      "id": "restaurant_onboarding",
+      "name": "Restaurant Onboarding",
+      "trigger": "restaurant_apply",
+      "steps": [
+        { "step": 1, "agent": "ComplianceAgent", "action": "verify_fssai", "description": "Verify FSSAI license" },
+        { "step": 2, "agent": "RestaurantOnboardingAgent", "action": "approve_restaurant", "description": "Complete restaurant verification" },
+        { "step": 3, "agent": "RestaurantOnboardingAgent", "action": "setup_menu", "description": "Help add menu items" },
+        { "step": 4, "agent": "MenuOptimizationAgent", "action": "optimize_menu", "description": "Suggest popular items, pricing" }
+      ]
+    },
+    {
+      "id": "delivery_matching",
+      "name": "Delivery Partner Matching",
+      "trigger": "order_ready",
+      "steps": [
+        { "step": 1, "agent": "DeliveryMatchingAgent", "action": "find_nearby_drivers", "description": "Get drivers within 3km radius" },
+        { "step": 2, "agent": "DeliveryMatchingAgent", "action": "calculate_eta", "description": "Estimate pickup and delivery time" },
+        { "step": 3, "agent": "DeliveryMatchingAgent", "action": "apply_surge", "description": "Adjust fare for demand" },
+        { "step": 4, "agent": "DeliveryPartnerAgent", "action": "send_order_offer", "description": "Send delivery request to drivers" },
+        { "step": 5, "agent": "DeliveryPartnerAgent", "action": "accept_order", "description": "First accepting driver gets the order" }
+      ]
+    },
+    {
+      "id": "support_flow",
+      "name": "Customer Support",
+      "trigger": "complaint_raised",
+      "steps": [
+        { "step": 1, "agent": "SupportAgent", "action": "categorize_complaint", "description": "Identify issue type: food quality, delivery, wrong items" },
+        { "step": 2, "agent": "SupportAgent", "action": "contact_restaurant", "description": "Alert restaurant about issue" },
+        { "step": 3, "agent": "SupportAgent", "action": "process_refund", "description": "Initiate partial or full refund" },
+        { "step": 4, "agent": "CustomerRetentionAgent", "action": "offer_compensation", "description": "Provide discount on next order" }
+      ]
+    },
+    {
+      "id": "fraud_detection",
+      "name": "Fraud Detection",
+      "trigger": "order_suspicious",
+      "steps": [
+        { "step": 1, "agent": "FraudDetectionAgent", "action": "analyze_pattern", "description": "Check for multiple failed payments" },
+        { "step": 2, "agent": "FraudDetectionAgent", "action": "verify_address", "description": "Flag suspicious delivery addresses" },
+        { "step": 3, "agent": "FraudDetectionAgent", "action": "flag_account", "description": "Mark account for review" },
+        { "step": 4, "agent": "SupportAgent", "action": "send_alert", "description": "Notify fraud team" }
+      ]
+    },
+    {
+      "id": "marketing_flow",
+      "name": "Personalized Marketing",
+      "trigger": "user_idle",
+      "steps": [
+        { "step": 1, "agent": "MarketingAgent", "action": "analyze_user_preferences", "description": "Check cuisine history, order patterns" },
+        { "step": 2, "agent": "MarketingAgent", "action": "send_push_notification", "description": "Send personalized offer" },
+        { "step": 3, "agent": "CustomerRetentionAgent", "action": "offer_discount", "description": "Provide limited-time coupon" }
+      ]
+    }
+  ]
+}

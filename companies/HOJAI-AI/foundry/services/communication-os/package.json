@@ -1,0 +1,20 @@
+{
+  "name": "@hojai/communication-os",
+  "version": "1.0.0",
+  "description": "CommunicationOS - Multi-channel messaging with Twilio, SendGrid, FCM, and WhatsApp",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["communication", "sms", "email", "push", "whatsapp", "twilio", "sendgrid"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.1"
+  }
+}

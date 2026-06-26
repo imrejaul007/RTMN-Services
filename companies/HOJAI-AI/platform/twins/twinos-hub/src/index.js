@@ -973,6 +973,170 @@ app.post('/api/relationships/:id/interact', requireAuth, asyncHandler(async (req
 }));
 
 /**
+ * POST /api/relationships/:id/expire
+ * Mark a relationship as expired (sets until = now)
+ */
+app.post('/api/relationships/:id/expire', requireAuth, strictLimiter, asyncHandler(async (req, res) => {
+  let found = null;
+  let foundSourceId = null;
+
+  for (const [sourceId, rels] of twinRelationships.entries()) {
+    const idx = rels.findIndex(r => r.id === req.params.id);
+    if (idx !== -1) {
+      const rel = rels[idx];
+      const now = new Date().toISOString();
+      rel.until = now;
+      rel.updatedAt = now;
+      rels[idx] = rel;
+      twinRelationships.set(sourceId, rels);
+      found = rel;
+      foundSourceId = sourceId;
+      break;
+    }
+  }
+
+  if (!found) {
+    return res.status(404).json({ success: false, error: { code: 'RELATIONSHIP_NOT_FOUND', message: 'Relationship not found' } });
+  }
+
+  logger.info('Relationship expired', { relationshipId: req.params.id });
+  res.json({ success: true, relationship: found, message: 'Relationship marked as expired' });
+}));
+
+/**
+ * POST /api/relationships/:id/reactivate
+ * Reactivate an expired relationship (clears until, sets since = now)
+ */
+app.post('/api/relationships/:id/reactivate', requireAuth, strictLimiter, asyncHandler(async (req, res) => {
+  let found = null;
+  let foundSourceId = null;
+
+  for (const [sourceId, rels] of twinRelationships.entries()) {
+    const idx = rels.findIndex(r => r.id === req.params.id);
+    if (idx !== -1) {
+      const rel = rels[idx];
+      const now = new Date().toISOString();
+      rel.since = now;
+      rel.until = null;
+      rel.updatedAt = now;
+      rels[idx] = rel;
+      twinRelationships.set(sourceId, rels);
+      found = rel;
+      foundSourceId = sourceId;
+      break;
+    }
+  }
+
+  if (!found) {
+    return res.status(404).json({ success: false, error: { code: 'RELATIONSHIP_NOT_FOUND', message: 'Relationship not found' } });
+  }
+
+  logger.info('Relationship reactivated', { relationshipId: req.params.id });
+  res.json({ success: true, relationship: found, message: 'Relationship reactivated' });
+}));
+
+/**
+ * GET /api/relationships/history/:twinId
+ * Get the full temporal history of a twin's relationships
+ * Query params: ?from=&to=&include=active,expired
+ */
+app.get('/api/relationships/history/:twinId', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+  const { from, to, include = 'active,expired' } = req.query;
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const rels = twinRelationships.get(twinId) || [];
+  const includeActive = include.includes('active');
+  const includeExpired = include.includes('expired');
+
+  // Build history timeline
+  const history = [];
+
+  for (const rel of rels) {
+    // Start event
+    history.push({
+      date: rel.since || rel.createdAt,
+      type: 'started',
+      relationshipId: rel.id,
+      targetId: rel.targetId,
+      relationship: rel
+    });
+
+    // End event (if expired)
+    if (rel.until) {
+      history.push({
+        date: rel.until,
+        type: 'ended',
+        relationshipId: rel.id,
+        targetId: rel.targetId,
+        relationship: rel
+      });
+    }
+
+    // Interaction events
+    if (rel.metadata?.interactions) {
+      for (const interaction of rel.metadata.interactions) {
+        history.push({
+          date: interaction.at,
+          type: 'interaction',
+          interactionType: interaction.type,
+          relationshipId: rel.id,
+          targetId: rel.targetId,
+          interaction
+        });
+      }
+    }
+  }
+
+  // Filter by date range
+  let filtered = history;
+  if (from) {
+    const fromTime = new Date(String(from)).getTime();
+    filtered = filtered.filter(e => new Date(e.date).getTime() >= fromTime);
+  }
+  if (to) {
+    const toTime = new Date(String(to)).getTime();
+    filtered = filtered.filter(e => new Date(e.date).getTime() <= toTime);
+  }
+
+  // Filter by status
+  if (!includeActive || !includeExpired) {
+    filtered = filtered.filter(e => {
+      if (e.type === 'ended') return includeExpired;
+      if (e.type === 'started') {
+        const rel = e.relationship;
+        const isActive = !rel.until;
+        return (isActive && includeActive) || (!isActive && includeExpired);
+      }
+      return true;
+    });
+  }
+
+  // Sort by date descending
+  filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Group by status
+  const active = rels.filter(r => !r.until).length;
+  const expired = rels.filter(r => r.until).length;
+
+  res.json({
+    success: true,
+    twinId,
+    range: { from, to, include },
+    stats: {
+      total: rels.length,
+      active,
+      expired
+    },
+    totalEvents: filtered.length,
+    events: filtered
+  });
+}));
+
+/**
  * GET /api/relationships/enriched
  * Query relationships with enrichment data (filter by trust, strength, etc.)
  */
@@ -2576,6 +2740,419 @@ app.get('/api/relationships/:twinId/timeline', optionalAuth, asyncHandler(async 
     totalEvents: filteredEvents.length,
     events: filteredEvents,
     byPeriod: grouped
+  });
+}));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase 4: Event Graph — Causal Links
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Causal links form an event graph where events can cause or be caused by other events.
+// Causal types:
+//   - direct: A directly causes B (e.g., contract signed → payment initiated)
+//   - indirect: A causes B through a chain (e.g., meeting → decision → action)
+//   - parallel: A and B happen together (correlated, not necessarily causal)
+//   - triggered: A triggers B as a response
+//   - escalated: A escalates to B
+//
+// The event graph enables:
+//   - "Why did this happen?" — trace causes backwards
+//   - "What will this cause?" — follow effects forward
+//   - Impact analysis — how far does an event propagate?
+//
+
+/**
+ * GET /api/events/:id/causes
+ * Find events that caused this event (backward causal tracing)
+ * Query params: ?maxDepth=3&includeIndirect=true
+ */
+app.get('/api/events/:id/causes', optionalAuth, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { maxDepth = 3, includeIndirect = 'true' } = req.query;
+  const depthLimit = Math.min(parseInt(maxDepth) || 3, 10);
+  const includeIndirect_ = includeIndirect !== 'false';
+
+  // Find the event in all twin timelines
+  let sourceEvent = null;
+  let sourceTwinId = null;
+  for (const [twinId, timeline] of twinTimelines.entries()) {
+    const found = timeline.find(e => e.id === id);
+    if (found) {
+      sourceEvent = found;
+      sourceTwinId = twinId;
+      break;
+    }
+  }
+
+  // Also check relationship timeline events
+  if (!sourceEvent) {
+    for (const [twinId, rels] of twinRelationships.entries()) {
+      for (const rel of rels) {
+        if (rel.id === id) {
+          sourceEvent = { ...rel, type: 'relationship', twinId };
+          sourceTwinId = twinId;
+          break;
+        }
+      }
+      if (sourceEvent) break;
+    }
+  }
+
+  if (!sourceEvent) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'EVENT_NOT_FOUND', message: 'Event not found' }
+    });
+  }
+
+  // Traverse backwards through causal links
+  const visited = new Set([id]);
+  const causeChain = [];
+  const queue = [{ eventId: id, depth: 0, causalType: 'self' }];
+
+  while (queue.length > 0) {
+    const { eventId, depth, causalType } = queue.shift();
+    if (depth >= depthLimit) continue;
+
+    // Find events that caused this one
+    // Check both direct causal links and temporal proximity
+    for (const [twinId, timeline] of twinTimelines.entries()) {
+      for (const event of timeline) {
+        if (visited.has(event.id)) continue;
+        if (event.id === id) continue;
+
+        const isCause = (
+          (event.causes && event.causes.includes(id)) ||
+          (event.caused_by && event.caused_by.includes(id)) ||
+          (includeIndirect_ &&
+            event.causal_effects && event.causal_effects.includes(id) &&
+            event.causal_type === 'indirect')
+        );
+
+        if (isCause) {
+          visited.add(event.id);
+          causeChain.push({
+            event,
+            twinId,
+            depth: depth + 1,
+            causalType: event.causes?.includes(id) ? 'direct' : 'indirect',
+            chain: [...causeChain.map(c => c.event.id), event.id]
+          });
+          queue.push({ eventId: event.id, depth: depth + 1 });
+        }
+      }
+    }
+
+    // Also check temporal causality (events within 24h before are potential causes)
+    if (includeIndirect_) {
+      const eventTime = sourceEvent.at
+        ? new Date(sourceEvent.at).getTime()
+        : (sourceEvent.since ? new Date(sourceEvent.since).getTime() : Date.now());
+
+      for (const [twinId, timeline] of twinTimelines.entries()) {
+        for (const event of timeline) {
+          if (visited.has(event.id)) continue;
+          if (event.id === id) continue;
+
+          const otherTime = event.at
+            ? new Date(event.at).getTime()
+            : (event.since ? new Date(event.since).getTime() : 0);
+
+          // Event happened within 24h before and has causal_type = 'triggered'
+          if (otherTime < eventTime &&
+              eventTime - otherTime < 24 * 60 * 60 * 1000 &&
+              event.causal_type === 'triggered') {
+            visited.add(event.id);
+            causeChain.push({
+              event,
+              twinId,
+              depth: depth + 1,
+              causalType: 'triggered',
+              chain: [event.id, id]
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Sort by depth (closest causes first)
+  causeChain.sort((a, b) => a.depth - b.depth);
+
+  res.json({
+    success: true,
+    event: sourceEvent,
+    twinId: sourceTwinId,
+    totalCauses: causeChain.length,
+    maxDepth: depthLimit,
+    causes: causeChain.map(c => ({
+      event: c.event,
+      twinId: c.twinId,
+      depth: c.depth,
+      causalType: c.causalType,
+      causalChain: c.chain
+    }))
+  });
+}));
+
+/**
+ * GET /api/events/:id/effects
+ * Find events that were caused by this event (forward causal tracing)
+ * Query params: ?maxDepth=5&includeIndirect=true
+ */
+app.get('/api/events/:id/effects', optionalAuth, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { maxDepth = 5, includeIndirect = 'true' } = req.query;
+  const depthLimit = Math.min(parseInt(maxDepth) || 5, 10);
+  const includeIndirect_ = includeIndirect !== 'false';
+
+  // Find the event
+  let sourceEvent = null;
+  let sourceTwinId = null;
+  for (const [twinId, timeline] of twinTimelines.entries()) {
+    const found = timeline.find(e => e.id === id);
+    if (found) {
+      sourceEvent = found;
+      sourceTwinId = twinId;
+      break;
+    }
+  }
+
+  if (!sourceEvent) {
+    for (const [twinId, rels] of twinRelationships.entries()) {
+      for (const rel of rels) {
+        if (rel.id === id) {
+          sourceEvent = { ...rel, type: 'relationship', twinId };
+          sourceTwinId = twinId;
+          break;
+        }
+      }
+      if (sourceEvent) break;
+    }
+  }
+
+  if (!sourceEvent) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'EVENT_NOT_FOUND', message: 'Event not found' }
+    });
+  }
+
+  // Traverse forward through causal links
+  const visited = new Set([id]);
+  const effectChain = [];
+  const queue = [{ eventId: id, depth: 0 }];
+
+  while (queue.length > 0) {
+    const { eventId, depth } = queue.shift();
+    if (depth >= depthLimit) continue;
+
+    for (const [twinId, timeline] of twinTimelines.entries()) {
+      for (const event of timeline) {
+        if (visited.has(event.id)) continue;
+        if (event.id === id) continue;
+
+        const isEffect = (
+          (event.caused_by && event.caused_by.includes(eventId)) ||
+          (event.causes && event.causes.includes(eventId)) ||
+          (includeIndirect_ &&
+            event.caused_by && event.caused_by.some(cb =>
+              effectChain.some(e => e.event.id === cb)
+            ))
+        );
+
+        if (isEffect) {
+          visited.add(event.id);
+          effectChain.push({
+            event,
+            twinId,
+            depth: depth + 1,
+            causalType: event.caused_by?.includes(eventId) ? 'direct' : 'indirect'
+          });
+          queue.push({ eventId: event.id, depth: depth + 1 });
+        }
+      }
+    }
+  }
+
+  // Sort by depth
+  effectChain.sort((a, b) => a.depth - b.depth);
+
+  res.json({
+    success: true,
+    event: sourceEvent,
+    twinId: sourceTwinId,
+    totalEffects: effectChain.length,
+    maxDepth: depthLimit,
+    effects: effectChain.map(e => ({
+      event: e.event,
+      twinId: e.twinId,
+      depth: e.depth,
+      causalType: e.causalType
+    }))
+  });
+}));
+
+/**
+ * GET /api/graph/affected
+ * Find all twins/nodes affected by a given event
+ * Query params: ?eventId=X&cascade=true
+ */
+app.get('/api/graph/affected', optionalAuth, asyncHandler(async (req, res) => {
+  const { eventId } = req.query;
+
+  if (!eventId) {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'MISSING_PARAM', message: 'eventId query parameter required' }
+    });
+  }
+
+  // Find the event
+  let sourceEvent = null;
+  let sourceTwinId = null;
+  for (const [twinId, timeline] of twinTimelines.entries()) {
+    const found = timeline.find(e => e.id === eventId);
+    if (found) {
+      sourceEvent = found;
+      sourceTwinId = twinId;
+      break;
+    }
+  }
+
+  if (!sourceEvent) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'EVENT_NOT_FOUND', message: 'Event not found' }
+    });
+  }
+
+  // Find all affected twins via causal chain
+  const affected = new Map();
+  affected.set(sourceTwinId, { twinId: sourceTwinId, how: 'source', depth: 0 });
+
+  // BFS through causal links to find affected twins
+  const visited = new Set([eventId]);
+  const queue = [{ eventId, depth: 0 }];
+
+  while (queue.length > 0) {
+    const { eventId: currId, depth } = queue.shift();
+    if (depth > 10) continue;
+
+    for (const [twinId, timeline] of twinTimelines.entries()) {
+      for (const event of timeline) {
+        if (visited.has(event.id)) continue;
+
+        const isAffected = (
+          (event.caused_by && event.caused_by.includes(currId)) ||
+          (event.causes && event.causes.includes(currId)) ||
+          (event.causal_effects && event.causal_effects.includes(currId))
+        );
+
+        if (isAffected) {
+          visited.add(event.id);
+          if (!affected.has(twinId)) {
+            affected.set(twinId, {
+              twinId,
+              how: event.caused_by?.includes(currId) ? 'caused_by' : 'causes',
+              depth: depth + 1,
+              firstEventId: event.id
+            });
+          }
+          queue.push({ eventId: event.id, depth: depth + 1 });
+        }
+      }
+    }
+  }
+
+  // Also check affected twins through relationship events
+  const rels = twinRelationships.get(sourceTwinId) || [];
+  for (const rel of rels) {
+    if (rel.caused_by?.includes(eventId) || rel.causes?.includes(eventId)) {
+      const otherTwin = rel.sourceId === sourceTwinId ? rel.targetId : rel.sourceId;
+      if (!affected.has(otherTwin)) {
+        affected.set(otherTwin, {
+          twinId: otherTwin,
+          how: 'relationship',
+          depth: 1,
+          firstEventId: rel.id
+        });
+      }
+    }
+  }
+
+  res.json({
+    success: true,
+    sourceEvent: { id: eventId, twinId: sourceTwinId },
+    totalAffected: affected.size - 1, // exclude source
+    affectedTwins: Array.from(affected.values()).map(a => ({
+      twinId: a.twinId,
+      how: a.how,
+      depth: a.depth,
+      firstEventId: a.firstEventId
+    }))
+  });
+}));
+
+/**
+ * POST /api/events/:id/link
+ * Create a causal link between two events
+ * Body: { causes: string[], causal_type: 'direct' | 'indirect' | 'triggered' | 'escalated' }
+ */
+app.post('/api/events/:id/link', requireAuth, strictLimiter, asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { causes = [], causal_type = 'direct', causal_effects = [] } = req.body;
+
+  if (!Array.isArray(causes) && !Array.isArray(causal_effects)) {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'INVALID_BODY', message: 'causes or causal_effects array required' }
+    });
+  }
+
+  // Find the target event
+  let targetEvent = null;
+  let targetTwinId = null;
+  for (const [twinId, timeline] of twinTimelines.entries()) {
+    const idx = timeline.findIndex(e => e.id === id);
+    if (idx !== -1) {
+      targetEvent = timeline[idx];
+      targetTwinId = twinId;
+      break;
+    }
+  }
+
+  if (!targetEvent) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'EVENT_NOT_FOUND', message: 'Target event not found' }
+    });
+  }
+
+  // Add causal links to target event
+  const updatedEvent = {
+    ...targetEvent,
+    causal_type: causal_type || targetEvent.causal_type || 'direct'
+  };
+
+  if (causes.length > 0) {
+    updatedEvent.caused_by = [...new Set([...(targetEvent.caused_by || []), ...causes])];
+  }
+
+  if (causal_effects.length > 0) {
+    updatedEvent.causes = [...new Set([...(targetEvent.causes || []), ...causal_effects])];
+  }
+
+  // Save back to timeline
+  const timeline = twinTimelines.get(targetTwinId);
+  const idx = timeline.findIndex(e => e.id === id);
+  timeline[idx] = updatedEvent;
+  twinTimelines.set(targetTwinId, timeline);
+
+  res.json({
+    success: true,
+    event: updatedEvent,
+    message: `Causal links updated for event ${id}`
   });
 }));
 

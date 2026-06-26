@@ -1,9 +1,9 @@
 # TwinOS Hub - Digital Twins Orchestrator
 
-**Version:** 3.1.0  
+**Version:** 3.2.0  
 **Port:** 4705  
 **Status:** ✅ RUNNING | **June 26, 2026**  
-**Upgrade:** v3.0.0 → v3.1.0 — Graph Engine Phases 1-4 (Relationship Enrichment, Path Finding, Temporal History, Auto-Linking)
+**Upgrade:** v3.1.0 → v3.2.0 — Graph Engine Phases 5-7 (Graph Engine Service, Query Engine, Event Graph Causal Links)
 
 ---
 
@@ -15,6 +15,45 @@ TwinOS is one of the **3 foundational pillars of HOJAI AI**:
 - **TwinOS** = Digital Representation & Identity Layer ("What am I?")
 - **MemoryOS** = Knowledge & Experience Layer ("What do I know?")
 - **SkillOS** = Capability Layer ("What can I do?")
+
+---
+
+## TwinOS Graph Services Architecture
+
+The TwinOS graph engine is split across three services:
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **TwinOS Hub** | 4705 | Central registry, relationship CRUD, timeline events, event graph causal links |
+| **TwinOS Graph Engine** | 4883 | Graph algorithms (PageRank, betweenness, community detection, Dijkstra, temporal BFS) |
+| **TwinOS Query Engine** | 4884 | Natural language query interface to graph operations |
+
+---
+
+## What's New in v3.2
+
+**Graph Engine Phases 5-7** — Graph Engine service, Query Engine service, and Event Graph causal links.
+
+### Phase 5: TwinOS Graph Engine (port 4883)
+- Standalone service with graph algorithms: PageRank, betweenness centrality, community detection, Dijkstra
+- Temporal BFS with `edgeIsActive()` filtering
+- N-degree connection analysis and friends-of-friends recommendations
+- Influence scoring (PageRank + betweenness combined)
+- Graph statistics and caching from TwinOS Hub
+
+### Phase 6: TwinOS Query Engine (port 4884)
+- Natural language query interface: "who is connected to X", "find the shortest path from A to B"
+- 8 supported intents: find_connected, shortest_path, top_influencers, community, influence_score, entity_info, relationship_between, entity_search
+- Batch query execution and parse-only mode
+- Formats results as natural language or JSON
+
+### Phase 7: Event Graph — Causal Links
+- Timeline events can now have causal links (`caused_by`, `causes`, `causal_type`)
+- `GET /api/events/:id/causes` — trace causes backwards
+- `GET /api/events/:id/effects` — trace effects forward
+- `GET /api/graph/affected` — find all twins affected by an event
+- `POST /api/events/:id/link` — create causal links between events
+- Causal types: direct, indirect, triggered, escalated
 
 ---
 
@@ -47,11 +86,11 @@ TwinOS is one of the **3 foundational pillars of HOJAI AI**:
 
 ---
 
-## What's New in v3.0
+## What's New in v3.0 (June 19, 2026)
 
 The v3.0 release closes all gaps against the HOJAI 3-pillar TwinOS spec. All 13 spec features are now implemented.
 
-### Feature Coverage (HOJAI Spec vs Implementation)
+### v3.0 Feature Coverage (HOJAI Spec vs Implementation)
 
 | # | Feature (HOJAI Spec) | Status | Implementation |
 |---|----------------------|--------|----------------|
@@ -78,7 +117,7 @@ The v3.0 release closes all gaps against the HOJAI 3-pillar TwinOS spec. All 13 
 ```
 services/twinos-hub/
 ├── src/
-│   └── index.js              # Twin orchestration v3.0 (in-memory)
+│   └── index.js              # Twin orchestration v3.1 (in-memory)
 ├── package.json
 ├── docs/
 │   ├── TWINOS_ARCHITECTURE.md
@@ -86,7 +125,7 @@ services/twinos-hub/
 └── CLAUDE.md
 ```
 
-### In-Memory Data Stores (v3.0)
+### In-Memory Data Stores (v3.1)
 
 | Store | Purpose |
 |-------|---------|
