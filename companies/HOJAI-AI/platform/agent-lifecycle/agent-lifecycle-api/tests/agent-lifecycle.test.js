@@ -137,42 +137,43 @@ describe('Agent Lifecycle API', function() {
     it('POST /api/agents/:id/versions -> 201', async function() {
       const created = await req('POST', '/api/agents', { name: 'VersionAgent', type: 'reasoning', capabilities: [] });
       const res = await req('POST', '/api/agents/' + created.body.agent.id + '/versions', {
-        version: '1.1.0',
         changelog: 'Minor improvements',
       });
       assert.strictEqual(res.status, 201);
       assert.ok(res.body.version);
-      assert.strictEqual(res.body.version.semver, '1.1.0');
       assert.strictEqual(res.body.version.agentId, created.body.agent.id);
     });
 
     it('GET /api/agents/:id/versions -> 200', async function() {
       const created = await req('POST', '/api/agents', { name: 'VListAgent', type: 'reasoning', capabilities: [] });
-      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { version: '1.1.0', changelog: 'A' });
-      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { version: '1.2.0', changelog: 'B' });
+      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { changelog: 'A' });
+      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { changelog: 'B' });
       const res = await req('GET', '/api/agents/' + created.body.agent.id + '/versions');
       assert.strictEqual(res.status, 200);
       assert.ok(Array.isArray(res.body.versions));
-      assert.strictEqual(res.body.versions.length, 3); // 1.0.0 (initial) + 2 new
+      assert.strictEqual(res.body.versions.length, 2); // 1.0.0 + 1.0.1
     });
 
     it('GET /api/agents/:id/versions/:semver -> 200', async function() {
       const created = await req('POST', '/api/agents', { name: 'VGetAgent', type: 'reasoning', capabilities: [] });
-      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { version: '1.1.0', changelog: 'New features' });
-      const res = await req('GET', '/api/agents/' + created.body.agent.id + '/versions/1.1.0');
+      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { changelog: 'New features' });
+      const res = await req('GET', '/api/agents/' + created.body.agent.id + '/versions/1.0.0');
       assert.strictEqual(res.status, 200);
       assert.ok(res.body.version);
-      assert.strictEqual(res.body.version.semver, '1.1.0');
+      assert.strictEqual(res.body.version.semver, '1.0.0');
     });
 
     it('POST /api/agents/:id/versions/:semver/rollback -> 200', async function() {
       const created = await req('POST', '/api/agents', { name: 'RollbackAgent', type: 'reasoning', capabilities: [] });
-      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { version: '1.1.0', changelog: 'New' });
-      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { version: '1.2.0', changelog: 'Newer' });
-      const res = await req('POST', '/api/agents/' + created.body.agent.id + '/versions/1.2.0/rollback', {});
+      // POST creates 1.0.0 (initial), then 1.0.1, 1.0.2
+      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { changelog: 'v1' });
+      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { changelog: 'v2' });
+      await req('POST', '/api/agents/' + created.body.agent.id + '/versions', { changelog: 'v3' });
+      // Rollback from 1.0.2 back to 1.0.1
+      const res = await req('POST', '/api/agents/' + created.body.agent.id + '/versions/1.0.2/rollback', {});
       assert.strictEqual(res.status, 200);
       assert.ok(res.body.version);
-      assert.strictEqual(res.body.version.semver, '1.1.0');
+      assert.strictEqual(res.body.toVersion, '1.0.1');
     });
   });
 
@@ -217,6 +218,7 @@ describe('Agent Lifecycle API', function() {
     it('POST /api/agents/:id/metrics -> 201', async function() {
       const created = await req('POST', '/api/agents', { name: 'MetricsAgent', type: 'reasoning', capabilities: [] });
       const res = await req('POST', '/api/agents/' + created.body.agent.id + '/metrics', {
+        environment: 'staging',
         timestamp: new Date().toISOString(),
         requests: 100,
         errors: 2,
@@ -269,6 +271,7 @@ describe('Agent Lifecycle API', function() {
     it('POST /api/agents/:id/retire -> 200', async function() {
       const created = await req('POST', '/api/agents', { name: 'RetireAgent', type: 'reasoning', capabilities: [] });
       await req('PUT', '/api/agents/' + created.body.agent.id, { status: 'active' });
+      await req('POST', '/api/agents/' + created.body.agent.id + '/deprecate', {});
       const res = await req('POST', '/api/agents/' + created.body.agent.id + '/retire', {
         gracePeriodDays: 30,
       });
@@ -281,6 +284,7 @@ describe('Agent Lifecycle API', function() {
       const created = await req('POST', '/api/agents', { name: 'RestoreAgent', type: 'reasoning', capabilities: [] });
       await req('PUT', '/api/agents/' + created.body.agent.id, { status: 'active' });
       await req('POST', '/api/agents/' + created.body.agent.id + '/deprecate', {});
+      await req('POST', '/api/agents/' + created.body.agent.id + '/retire', { gracePeriodDays: 30 });
       const res = await req('POST', '/api/agents/' + created.body.agent.id + '/restore');
       assert.strictEqual(res.status, 200);
       assert.strictEqual(res.body.agent.status, 'deprecated');
@@ -289,6 +293,7 @@ describe('Agent Lifecycle API', function() {
     it('GET /api/agents/retired -> 200', async function() {
       const created = await req('POST', '/api/agents', { name: 'ListRetiredAgent', type: 'reasoning', capabilities: [] });
       await req('PUT', '/api/agents/' + created.body.agent.id, { status: 'active' });
+      await req('POST', '/api/agents/' + created.body.agent.id + '/deprecate', {});
       await req('POST', '/api/agents/' + created.body.agent.id + '/retire', { gracePeriodDays: 30 });
       const res = await req('GET', '/api/agents/retired');
       assert.strictEqual(res.status, 200);
@@ -358,7 +363,7 @@ describe('Agent Lifecycle API', function() {
       await req('POST', '/api/agents', { name: 'AuditAgent', type: 'reasoning', capabilities: [] });
       const res = await req('GET', '/api/audit');
       assert.strictEqual(res.status, 200);
-      assert.ok(Array.isArray(res.body.logs));
+      assert.ok(Array.isArray(res.body.entries));
     });
   });
 });

@@ -628,6 +628,40 @@ app.get('/api/agents/:id/deployments', (req, res) => {
 // MONITORING
 // ===============================
 
+/** POST /api/agents/:id/metrics — Record runtime metrics */
+app.post('/api/agents/:id/metrics', authOrBypass, (req, res) => {
+  const a = agents.get(req.params.id);
+  if (!a) return res.status(404).json({ error: 'Agent not found' });
+
+  const { environment, timestamp, requests, errors, latency_avg_ms, cost_usd } = req.body || {};
+  if (!environment) return res.status(400).json({ error: 'environment is required' });
+
+  const m = metrics.get(a.id) || new Map();
+  const ts = timestamp || new Date().toISOString();
+
+  m.set(ts, {
+    environment,
+    timestamp: ts,
+    requests: Number(requests) || 0,
+    errors: Number(errors) || 0,
+    latency_avg_ms: Number(latency_avg_ms) || 0,
+    cost_usd: Number(cost_usd) || 0
+  });
+  metrics.set(a.id, m);
+
+  // Also update the deployment metrics
+  const deps = deployments.get(a.id) || new Map();
+  const dep = Array.from(deps.values()).find(d => d.environment === environment);
+  if (dep) {
+    dep.metrics.requests = (dep.metrics.requests || 0) + (Number(requests) || 0);
+    dep.metrics.errors = (dep.metrics.errors || 0) + (Number(errors) || 0);
+    dep.metrics.costUsd = (dep.metrics.costUsd || 0) + (Number(cost_usd) || 0);
+    dep.metrics.avgLatencyMs = Number(latency_avg_ms) || dep.metrics.avgLatencyMs || 0;
+  }
+
+  res.status(201).json({ message: 'Metrics recorded', agentId: a.id, timestamp: ts });
+});
+
 /** GET /api/agents/:id/metrics — Get agent metrics */
 app.get('/api/agents/:id/metrics', (req, res) => {
   const a = agents.get(req.params.id);
@@ -803,6 +837,13 @@ app.post('/api/policies', authOrBypass, (req, res) => {
   const policy = { id, name, type, config, createdAt: new Date().toISOString() };
   policies.set(id, policy);
   res.status(201).json({ message: 'Policy created', policy });
+});
+
+/** GET /api/policies/:id — Get single policy */
+app.get('/api/policies/:id', (req, res) => {
+  const p = policies.get(req.params.id);
+  if (!p) return res.status(404).json({ error: 'Policy not found' });
+  res.json({ policy: p });
 });
 
 /** PUT /api/policies/:id — Update policy */

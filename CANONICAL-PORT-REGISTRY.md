@@ -607,8 +607,9 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 | **4703** | `build-pipeline` | App Store build & submit |
 | **4704** | `flows-engine` | 50+ flows across 17 templates |
 | **4705** | `company-mapper` | Maps 510 companies to templates |
+| **4570** | `studio-orchestrator` | Wires all services for deployment |
 
-### DO Mobility (2026-06-26)
+### HOJAI Studio UI
 
 | Port | Service | Purpose |
 |---|---|---|
