@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/social-auth",
+  "version": "1.0.0",
+  "description": "Social Auth - Google, Apple, Passwordless login",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": { "start": "node src/index.js", "dev": "node --watch src/index.js" },
+  "dependencies": { "express": "^4.18.2", "uuid": "^9.0.1" }
+}

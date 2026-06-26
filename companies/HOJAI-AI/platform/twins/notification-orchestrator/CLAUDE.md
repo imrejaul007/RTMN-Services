@@ -1,46 +1,18 @@
-# Notification Orchestrator Service
+# Notification Orchestrator
 
-**Port:** 4764  
-**Type:** Autonomous Execution  
-**Phase:** 5  
-**Author:** HOJAI AI
+## Overview
+Smart notification routing and timing.
 
----
+## Key Features
+- Smart routing
+- Timing optimization
+- Channel selection
+- Preference respect
 
-## What This Service Does
+## API Endpoints
+- POST /api/notify - Send notification
+- GET /api/notifications/:userId - Get notifications
+- GET /api/preferences/:userId - Get preferences
 
-The Notification Orchestrator routes notifications:
-- Push notifications
-- Email
-- Slack
-- Teams
-
----
-
-## Key Endpoints
-
-### Send Notification
-```
-POST /api/notifications/send
-Body: { employeeId: string, channel: "push" | "email" | "slack" | "teams", message: string }
-```
-
-### Get Notifications
-```
-GET /api/notifications/:employeeId
-```
-
----
-
-## Dependencies
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| Slack Connector | 4790 | Slack notifications |
-| Email Service | - | Email |
-
----
-
-## Data Stored
-
-- Notification history
+## Startup
+cd platform/twins/notification-orchestrator && npm run dev

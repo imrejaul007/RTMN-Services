@@ -1,76 +1,18 @@
-# Reputation Twin Service
+# Reputation Twin
 
-**Port:** 4745  
-**Type:** Core Twin  
-**Phase:** 1  
-**Author:** HOJAI AI
+## Overview
+Reputation scoring, reviews, trust metrics.
 
----
+## Key Features
+- Review aggregation
+- Trust scoring
+- Sentiment analysis
+- Reputation trends
 
-## What This Service Does
+## API Endpoints
+- GET /api/reputation/:entityId - Get reputation
+- POST /api/reviews - Add review
+- GET /api/trust/:entityId - Get trust
 
-The Reputation Twin tracks reputation and trust:
-- Reviews and ratings
-- Trust scores
-- Badges and achievements
-
----
-
-## Key Endpoints
-
-### Get Reputation Profile
-```
-GET /api/twin/:employeeId/reputation
-```
-
-### Add Review
-```
-POST /api/twin/:employeeId/reputation/reviews
-Body: {
-  reviewerId: string,
-  type: "performance" | "peer" | "customer" | "360",
-  rating: number,
-  strengths?: [],
-  improvements?: [],
-  comment?: string
-}
-```
-
-### Get Reviews
-```
-GET /api/twin/:employeeId/reputation/reviews?type=peer&limit=20
-```
-
-### Award Badge
-```
-POST /api/twin/:employeeId/reputation/badges
-Body: { name: string, description?: string, icon?: string, tier?: "bronze" | "silver" | "gold" | "platinum" }
-```
-
-### Get Badges
-```
-GET /api/twin/:employeeId/reputation/badges
-```
-
-### Get Stats
-```
-GET /api/twin/:employeeId/reputation/stats
-```
-
----
-
-## Dependencies
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| Customer Success OS | 4050 | Feedback data |
-| HRMS | 5077 | Performance data |
-
----
-
-## Data Stored
-
-- Reviews (performance, peer, customer, 360)
-- Trust scores
-- Badges and achievements
-- Trust trends
+## Startup
+cd platform/twins/reputation-twin && npm run dev

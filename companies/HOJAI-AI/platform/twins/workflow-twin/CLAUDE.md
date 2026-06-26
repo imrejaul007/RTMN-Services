@@ -1,77 +1,18 @@
-# Workflow Twin Service
+# Workflow Twin
 
-**Port:** 4741  
-**Type:** Core Twin  
-**Phase:** 1  
-**Author:** HOJAI AI
+## Overview
+Workflow patterns, process optimization.
 
----
-
-## What This Service Does
-
-The Workflow Twin captures and learns workflow patterns:
-- Task sequences
-- Approval chains
-- Tool usage patterns
-- SOP generation
-
----
-
-## Key Endpoints
-
-### Observe Action
-```
-POST /api/twin/:employeeId/workflow/observe
-Body: { tool: string, action: string, target: string, duration?: number, outcome?: string }
-```
-
-### Batch Observe
-```
-POST /api/twin/:employeeId/workflow/batch-observe
-Body: { actions: [] }
-```
-
-### Get Actions
-```
-GET /api/twin/:employeeId/workflow/actions?limit=50&tool=...
-```
-
-### Get Workflow Patterns
-```
-GET /api/twin/:employeeId/workflow/patterns?status=active
-```
-
-### Create Workflow
-```
-POST /api/twin/:employeeId/workflow/patterns
-Body: { name: string, steps: [], triggers?: {} }
-```
-
-### Simulate Workflow
-```
-POST /api/twin/:employeeId/workflow/simulate
-Body: { workflowId?: string, context?: {}, dryRun?: boolean }
-```
-
-### Get Stats
-```
-GET /api/twin/:employeeId/workflow/stats
-```
-
----
-
-## Dependencies
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| Twin Observer | 4747 | Event routing |
-| FlowOS | - | Workflow engine |
-
----
-
-## Data Stored
-
-- Workflow patterns (steps, triggers, approvals)
-- Task sequences
-- Observed actions
+## Key Features
+- Workflow tracking
+- Pattern learning
+- Optimization suggestions
 - Automation opportunities
+
+## API Endpoints
+- GET /api/workflows - List workflows
+- POST /api/workflows - Create workflow
+- POST /api/optimize - Get optimization
+
+## Startup
+cd platform/twins/workflow-twin && npm run dev

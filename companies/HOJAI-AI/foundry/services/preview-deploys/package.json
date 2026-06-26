@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/preview-deploys",
+  "version": "1.0.0",
+  "description": "Preview Deploys - Shareable preview URLs for every change",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": { "start": "node src/index.js", "dev": "node --watch src/index.js" },
+  "dependencies": { "express": "^4.18.2", "uuid": "^9.0.1" }
+}

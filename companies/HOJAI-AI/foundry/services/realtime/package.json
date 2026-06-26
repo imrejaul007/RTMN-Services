@@ -1,0 +1,9 @@
+{
+  "name": "@hojai/realtime",
+  "version": "1.0.0",
+  "description": "Realtime - WebSocket infrastructure for live features",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": { "start": "node src/index.js", "dev": "node --watch src/index.js" },
+  "dependencies": { "express": "^4.18.2", "uuid": "^9.0.1", "ws": "^8.14.2" }
+}

@@ -23,14 +23,53 @@ export const LISTING_VISIBILITY = ['PUBLIC', 'PRIVATE', 'UNLISTED'];
 export const PRICING_MODELS = ['free', 'one-time', 'subscription', 'usage-based', 'quote-only'];
 
 export const CATEGORIES = [
-  'agent',
-  'service',
-  'twin',
-  'workflow',
-  'data',
-  'integration',
-  'consulting',
-  'training',
+  // Core AI Categories
+  'agent',              // AI Agents (individual specialists)
+  'ai-employee',        // AI Employees (virtual workers - killer feature)
+  'ai-team',            // AI Teams (multi-agent teams)
+  'skill',              // Skills (reusable capabilities)
+  'memory-pack',        // Memory Packs (domain knowledge)
+  'twin',               // Twin Packs (digital twins)
+
+  // Business Structure
+  'department-os',      // Department OS (complete departments)
+  'industry-os',        // Industry OS (vertical solutions)
+  'business-capability-pack', // Business Capability Packs (killer feature)
+  'company-blueprint',  // Company Blueprints (pre-built companies)
+
+  // Workflows & Automation
+  'workflow',           // Workflows (multi-step processes)
+  'automation',         // Automation packs
+  'policy-pack',        // Policy Packs (compliance)
+
+  // Content & Design
+  'ui-kit',             // UI Component Packs
+  'theme',              // Visual themes
+  'widget',             // Widgets (embeddable components)
+  'mobile-app',         // Mobile apps
+  'prompt-pack',        // Prompt Packs (tested prompts)
+  'knowledge-pack',     // Knowledge Packs (knowledge bases)
+
+  // Integrations & APIs
+  'integration',        // Integration Connectors
+  'api',                // APIs (exposed services)
+  'mcp-server',         // MCP Servers (Model Context Protocol)
+  'sdk-extension',       // SDK Extensions
+
+  // Specialized
+  'data',               // Data Connectors
+  'simulation',         // Simulation Packs
+  'analytics',          // Analytics Packs
+  'ai-model',           // AI Models (vertical-specific)
+
+  // Commerce
+  'service',            // Services (general services)
+  'consulting',         // Consulting services
+  'training',           // Training services
+  'starter-kit',        // Starter Kits (pre-built projects)
+  'autonomous-network', // Autonomous Networks (Nexha extensions)
+  'marketplace-blueprint', // Marketplace Blueprints
+  'business-playbook',  // Business Playbooks
 ];
 
 const ListingSchema = new mongoose.Schema(
