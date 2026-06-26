@@ -1,0 +1,128 @@
+{
+  "description": "Policies for Mobility Template",
+  "policies": [
+    {
+      "id": "driver_min_rating",
+      "name": "Minimum Driver Rating",
+      "description": "Drivers must maintain minimum rating to stay active",
+      "rule": "driver.rating >= 4.5",
+      "action": "suspend_driver",
+      "notification": "Your rating has dropped below 4.5. Please improve to continue driving."
+    },
+    {
+      "id": "driver_min_trips",
+      "name": "Minimum Trip Requirement",
+      "description": "Drivers must complete minimum trips per week",
+      "rule": "driver.weekly_trips >= 20",
+      "action": "warn_driver",
+      "notification": "Complete 20 trips this week to stay active."
+    },
+    {
+      "id": "insurance_required",
+      "name": "Insurance Verification",
+      "description": "Only drivers with active insurance can receive rides",
+      "rule": "driver.insurance_status === 'active'",
+      "action": "block_ride",
+      "notification": "Your insurance has expired. Please renew to continue."
+    },
+    {
+      "id": "background_check",
+      "name": "Background Check",
+      "description": "Drivers must pass annual background re-check",
+      "rule": "driver.background_check_valid === true",
+      "action": "suspend_driver",
+      "notification": "Please complete your annual background verification."
+    },
+    {
+      "id": "vehicle_fitness",
+      "name": "Vehicle Fitness",
+      "description": "Only vehicles with valid fitness certificates can operate",
+      "rule": "vehicle.fitness_valid === true",
+      "action": "block_vehicle",
+      "notification": "Your vehicle fitness certificate has expired."
+    },
+    {
+      "id": "surge_cap",
+      "name": "Surge Pricing Cap",
+      "description": "Maximum surge multiplier",
+      "rule": "surge_multiplier <= 3.0",
+      "action": "cap_surge",
+      "notification": null
+    },
+    {
+      "id": "max_wait_time",
+      "name": "Maximum Wait Time",
+      "description": "Auto-cancel if no driver found within 5 minutes",
+      "rule": "wait_time_seconds <= 300",
+      "action": "cancel_with_fee",
+      "fee": 20,
+      "notification": "No drivers available. Your booking has been cancelled."
+    },
+    {
+      "id": "cancellation_fee_passenger",
+      "name": "Passenger Cancellation Fee",
+      "description": "Charge if passenger cancels after driver assigned",
+      "rule": "time_since_acceptance >= 120",
+      "action": "charge_fee",
+      "fee": 50,
+      "notification": "Cancellation fee of ₹50 applied."
+    },
+    {
+      "id": "cancellation_fee_driver",
+      "name": "Driver Cancellation Fee",
+      "description": "Charge if driver cancels without reason",
+      "rule": "cancelled_by === 'driver'",
+      "action": "deduct_from_earnings",
+      "fee": 100,
+      "notification": "Cancellation fee of ₹100 deducted from your earnings."
+    },
+    {
+      "id": "night_charge",
+      "name": "Night Charge",
+      "description": "Additional charge for rides between 10 PM - 6 AM",
+      "rule": "hour >= 22 OR hour < 6",
+      "action": "apply_multiplier",
+      "multiplier": 1.25
+    },
+    {
+      "id": "airport_surcharge",
+      "name": "Airport Surcharge",
+      "description": "Additional fee for airport trips",
+      "rule": "pickup_type === 'airport'",
+      "action": "apply_flat_fee",
+      "fee": 50
+    },
+    {
+      "id": "toll_share",
+      "name": "Toll Sharing",
+      "description": "Toll charges added to fare",
+      "rule": "has_toll === true",
+      "action": "add_to_fare",
+      "split": "passenger_pays"
+    },
+    {
+      "id": "minimum_fare",
+      "name": "Minimum Fare",
+      "description": "Minimum fare for any trip",
+      "rule": "calculated_fare < 60",
+      "action": "charge_minimum",
+      "minimum": 60
+    },
+    {
+      "id": "payment_auth",
+      "name": "Payment Pre-authorization",
+      "description": "Block payment method if insufficient balance",
+      "rule": "wallet_balance < estimated_fare",
+      "action": "prompt_add_funds",
+      "notification": "Please add funds to your wallet."
+    },
+    {
+      "id": "safety_alert",
+      "name": "Safety Alert Threshold",
+      "description": "Trigger safety check if unusual route deviation",
+      "rule": "route_deviation > 500",
+      "action": "alert_safety_agent",
+      "notification": "Route deviation detected."
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "description": "AI Workforce for Mobility Template",
+  "agents": [
+    {
+      "id": "ceo-strategist",
+      "role": "CEO Strategist",
+      "model": "claude-3-sonnet",
+      "salary": 500,
+      "responsibilities": [
+        "Define vision and strategy",
+        "Set quarterly OKRs",
+        "Monitor market trends",
+        "Approve major decisions",
+        "Report to board"
+      ],
+      "skills": ["strategic-planning", "market-analysis", "decision-making"],
+      "memory": ["company-strategy", "market-research", "competitor-analysis"]
+    },
+    {
+      "id": "coo-operations",
+      "role": "COO Operations",
+      "model": "claude-3-sonnet",
+      "salary": 400,
+      "responsibilities": [
+        "Manage daily operations",
+        "Optimize dispatch algorithms",
+        "Monitor fleet utilization",
+        "Handle escalations",
+        "Coordinate with city managers"
+      ],
+      "skills": ["operations-management", "logistics", "problem-solving"],
+      "memory": ["daily-operations", "fleet-metrics", "incidents"]
+    },
+    {
+      "id": "fleet-manager",
+      "role": "Fleet Manager",
+      "model": "claude-3-sonnet",
+      "salary": 400,
+      "responsibilities": [
+        "Manage vehicle inventory",
+        "Optimize fleet size by region",
+        "Track vehicle health",
+        "Plan vehicle procurement",
+        "Coordinate with OEMs"
+      ],
+      "skills": ["fleet-management", "data-analysis", "vendor-management"],
+      "memory": ["fleet-data", "vehicle-performance", "procurement"]
+    },
+    {
+      "id": "driver-success",
+      "role": "Driver Success Agent",
+      "model": "claude-3-haiku",
+      "salary": 200,
+      "responsibilities": [
+        "Onboard new drivers",
+        "Train drivers on platform",
+        "Monitor driver satisfaction",
+        "Handle driver complaints",
+        "Promote driver engagement"
+      ],
+      "skills": ["onboarding", "training", "engagement", "faq-handling"],
+      "memory": ["driver-queries", "training-material", "driver-feedback"]
+    },
+    {
+      "id": "pricing-agent",
+      "role": "Pricing Agent",
+      "model": "claude-3-sonnet",
+      "salary": 350,
+      "responsibilities": [
+        "Calculate dynamic fares",
+        "Manage surge pricing",
+        "Analyze price elasticity",
+        "Optimize driver incentives",
+        "Report pricing metrics"
+      ],
+      "skills": ["pricing-optimization", "data-analysis", "economics"],
+      "memory": ["pricing-history", "demand-patterns", "competitor-pricing"]
+    },
+    {
+      "id": "safety-agent",
+      "role": "Safety Agent",
+      "model": "claude-3-haiku",
+      "salary": 250,
+      "responsibilities": [
+        "Monitor ride safety",
+        "Handle safety incidents",
+        "Verify driver background",
+        "Track safety metrics",
+        "Coordinate with authorities"
+      ],
+      "skills": ["safety-monitoring", "incident-response", "compliance"],
+      "memory": ["safety-incidents", "background-checks", "emergency-protocols"]
+    },
+    {
+      "id": "dispatch-agent",
+      "role": "Dispatch Agent",
+      "model": "claude-3-haiku",
+      "salary": 200,
+      "responsibilities": [
+        "Match riders to drivers",
+        "Optimize pickup routes",
+        "Handle no-shows",
+        "Manage ride queue",
+        "Track ETA accuracy"
+      ],
+      "skills": ["dispatch-optimization", "route-planning", "matching-algorithms"],
+      "memory": ["dispatch-metrics", "route-optimization", "matching-history"]
+    },
+    {
+      "id": "insurance-agent",
+      "role": "Insurance Agent",
+      "model": "claude-3-haiku",
+      "salary": 200,
+      "responsibilities": [
+        "Verify insurance coverage",
+        "File insurance claims",
+        "Coordinate with insurers",
+        "Track claim status",
+        "Manage rider protection"
+      ],
+      "skills": ["insurance-knowledge", "claims-processing", "compliance"],
+      "memory": ["insurance-policies", "claims-history", "coverage-verification"]
+    },
+    {
+      "id": "maintenance-agent",
+      "role": "Maintenance Agent",
+      "model": "claude-3-haiku",
+      "salary": 150,
+      "responsibilities": [
+        "Track vehicle maintenance",
+        "Schedule service appointments",
+        "Monitor tire/oil/fuel",
+        "Coordinate with service centers",
+        "Track maintenance costs"
+      ],
+      "skills": ["vehicle-maintenance", "service-coordination", "cost-tracking"],
+      "memory": ["maintenance-schedule", "service-records", "cost-analysis"]
+    },
+    {
+      "id": "growth-agent",
+      "role": "Growth Agent",
+      "model": "claude-3-sonnet",
+      "salary": 400,
+      "responsibilities": [
+        "Drive rider acquisition",
+        "Driver recruitment campaigns",
+        "Promotions and offers",
+        "Partnership deals",
+        "Referral programs"
+      ],
+      "skills": ["growth-marketing", "campaign-management", "partnerships"],
+      "memory": ["campaign-history", "conversion-metrics", "partner-contacts"]
+    },
+    {
+      "id": "support-agent",
+      "role": "Support Agent",
+      "model": "claude-3-haiku",
+      "salary": 150,
+      "responsibilities": [
+        "Handle rider complaints",
+        "Resolve driver issues",
+        "Process refunds",
+        "Manage Lost & Found",
+        "Escalate complex cases"
+      ],
+      "skills": ["ticket-management", "refund-processing", "conflict-resolution"],
+      "memory": ["support-tickets", "refund-history", "common-issues"]
+    },
+    {
+      "id": "finance-agent",
+      "role": "Finance Agent",
+      "model": "claude-3-haiku",
+      "salary": 300,
+      "responsibilities": [
+        "Process driver payouts",
+        "Manage platform revenue",
+        "Track unit economics",
+        "Handle invoicing",
+        "Report financial metrics"
+      ],
+      "skills": ["financial-management", "payout-processing", "reporting"],
+      "memory": ["transactions", "payout-records", "financial-reports"]
+    },
+    {
+      "id": "legal-agent",
+      "role": "Legal Agent",
+      "model": "claude-3-haiku",
+      "salary": 300,
+      "responsibilities": [
+        "Ensure regulatory compliance",
+        "Review terms of service",
+        "Handle liability issues",
+        "Manage contracts",
+        "Monitor legal risks"
+      ],
+      "skills": ["regulatory-compliance", "contract-review", "risk-assessment"],
+      "memory": ["legal-cases", "compliance-records", "regulatory-updates"]
+    }
+  ]
+}

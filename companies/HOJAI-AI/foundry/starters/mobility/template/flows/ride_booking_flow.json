@@ -1,0 +1,159 @@
+{
+  "id": "ride_booking_flow",
+  "name": "Ride Booking Flow",
+  "description": "Complete ride booking from request to completion",
+  "trigger": "passenger_request",
+
+  "steps": [
+    {
+      "step": 1,
+      "name": "Receive Booking Request",
+      "agent": "dispatch_agent",
+      "action": "parse_request",
+      "inputs": ["pickup_location", "drop_location", "passenger_id", "vehicle_type"],
+      "outputs": ["parsed_request"]
+    },
+    {
+      "step": 2,
+      "name": "Verify Insurance",
+      "agent": "insurance_agent",
+      "action": "verify_passenger_coverage",
+      "inputs": ["passenger_id"],
+      "outputs": ["insurance_status"],
+      "policies": ["insurance_required"]
+    },
+    {
+      "step": 3,
+      "name": "Calculate Fare",
+      "agent": "pricing_agent",
+      "action": "calculate_fare",
+      "inputs": ["pickup_location", "drop_location", "vehicle_type", "demand_multiplier"],
+      "outputs": ["estimated_fare", "breakdown"]
+    },
+    {
+      "step": 4,
+      "name": "Find Nearest Drivers",
+      "agent": "dispatch_agent",
+      "action": "find_available_drivers",
+      "inputs": ["pickup_location", "vehicle_type"],
+      "outputs": ["driver_list"],
+      "limit": 5
+    },
+    {
+      "step": 5,
+      "name": "Send Ride Requests",
+      "agent": "dispatch_agent",
+      "action": "send_ride_requests",
+      "inputs": ["driver_list", "trip_details"],
+      "outputs": ["requests_sent"]
+    },
+    {
+      "step": 6,
+      "name": "Wait for Acceptance",
+      "agent": "dispatch_agent",
+      "action": "wait_for_acceptance",
+      "timeout": 60,
+      "outputs": ["accepted_driver", "timeout"]
+    },
+    {
+      "step": 7,
+      "name": "Confirm Booking",
+      "agent": "payment_agent",
+      "action": "pre_authorize_payment",
+      "inputs": ["passenger_id", "estimated_fare"],
+      "outputs": ["payment_auth"]
+    },
+    {
+      "step": 8,
+      "name": "Send Booking Confirmation",
+      "agent": "notification_agent",
+      "action": "send_confirmation",
+      "inputs": ["passenger_id", "driver_details", "eta", "fare"],
+      "channels": ["push", "sms"]
+    },
+    {
+      "step": 9,
+      "name": "Track Driver En Route",
+      "agent": "dispatch_agent",
+      "action": "track_driver_location",
+      "inputs": ["driver_id"],
+      "outputs": ["location_updates"]
+    },
+    {
+      "step": 10,
+      "name": "Handle Pickup",
+      "agent": "support_agent",
+      "action": "confirm_pickup",
+      "trigger": "driver_arrived",
+      "inputs": ["trip_id"],
+      "outputs": ["trip_started"]
+    },
+    {
+      "step": 11,
+      "name": "Monitor Trip",
+      "agent": "safety_agent",
+      "action": "monitor_trip",
+      "inputs": ["trip_id"],
+      "outputs": ["safety_status"]
+    },
+    {
+      "step": 12,
+      "name": "Handle Trip Completion",
+      "agent": "payment_agent",
+      "action": "charge_trip",
+      "trigger": "trip_ended",
+      "inputs": ["trip_id", "actual_distance", "actual_time"],
+      "outputs": ["final_fare", "payment_status"]
+    },
+    {
+      "step": 13,
+      "name": "Process Payout",
+      "agent": "finance_agent",
+      "action": "calculate_driver_payout",
+      "inputs": ["trip_id", "final_fare"],
+      "outputs": ["driver_payout", "platform_commission"]
+    },
+    {
+      "step": 14,
+      "name": "Request Rating",
+      "agent": "notification_agent",
+      "action": "send_rating_request",
+      "trigger": "trip_completed",
+      "inputs": ["passenger_id", "driver_id"],
+      "channels": ["push"]
+    },
+    {
+      "step": 15,
+      "name": "Update Memory",
+      "agent": "memory_agent",
+      "action": "record_trip_memory",
+      "inputs": ["trip_id", "passenger_id", "driver_id"],
+      "memory_types": ["trip_history", "preferences", "patterns"]
+    }
+  ],
+
+  "policies": [
+    {
+      "name": "insurance_required",
+      "condition": "insurance_status === 'verified'",
+      "on_violation": {
+        "action": "block_ride",
+        "message": "Insurance verification required"
+      }
+    },
+    {
+      "name": "max_wait_time",
+      "condition": "wait_time > 300",
+      "on_violation": {
+        "action": "cancel_with_fee",
+        "fee": 20
+      }
+    }
+  ],
+
+  "fallback_flows": [
+    { "trigger": "no_drivers_available", "flow": "escalate_to_pool" },
+    { "trigger": "payment_failed", "flow": "retry_payment" },
+    { "trigger": "safety_alert", "flow": "safety_incident_flow" }
+  ]
+}

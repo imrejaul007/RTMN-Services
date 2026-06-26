@@ -1,0 +1,16 @@
+{
+  "name": "@do/mobility-app",
+  "version": "1.0.0",
+  "description": "DO Mobility - Passenger + Driver + Admin",
+  "type": "module",
+  "scripts": {
+    "start:passenger": "node passenger/src/index.js",
+    "start:driver": "node driver/src/index.js",
+    "start:admin": "node admin/src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.0"
+  }
+}

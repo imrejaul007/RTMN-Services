@@ -1,0 +1,63 @@
+{
+  "id": "education",
+  "name": "Education OS",
+  "version": "1.0.0",
+  "tagline": "AI-powered learning platform",
+  "description": "Complete LMS with courses, assessments, progress tracking, and AI tutoring. Adaptive learning paths for each student.",
+  "category": "education",
+  "icon": "🎓",
+  "color": "#8B5CF6",
+
+  "crew": {
+    "ai_workers": [
+      { "role": "Curriculum Agent", "salary": 400, "model": "claude-3-sonnet" },
+      { "role": "Tutor Agent", "salary": 300, "model": "claude-3-sonnet" },
+      { "role": "Assessment Agent", "salary": 250, "model": "claude-3-haiku" },
+      { "role": "Progress Tracker", "salary": 200, "model": "claude-3-haiku" },
+      { "role": "Enrollment Agent", "salary": 200, "model": "claude-3-haiku" },
+      { "role": "Certification Agent", "salary": 200, "model": "claude-3-haiku" }
+    ]
+  },
+
+  "total_ai_salary": 1550,
+
+  "twins": [
+    { "type": "student", "name": "{{company}} Student" },
+    { "type": "instructor", "name": "{{company}} Instructor" },
+    { "type": "course", "name": "{{company}} Course" },
+    { "type": "enrollment", "name": "{{company}} Enrollment" },
+    { "type": "assessment", "name": "{{company}} Assessment" },
+    { "type": "certificate", "name": "{{company}} Certificate" }
+  ],
+
+  "flows": [
+    { "id": "student_enrollment", "name": "Student Enrollment Flow" },
+    { "id": "course_delivery", "name": "Course Delivery Flow" },
+    { "id": "assessment_grading", "name": "Assessment & Grading Flow" },
+    { "id": "certification", "name": "Certification Flow" },
+    { "id": "adaptive_learning", "name": "Adaptive Learning Path Flow" }
+  ],
+
+  "nexha_connections": [
+    { "network": "certification_authority", "purpose": "Issue certificates" },
+    { "network": "payment_network", "purpose": "Course payments" }
+  ],
+
+  "integrations": [
+    { "name": "video_streaming", "required": true },
+    { "name": "assessment_engine", "required": true },
+    { "name": "lms_standards", "required": true }
+  ],
+
+  "policies": [
+    { "name": "min_pass_percentage", "value": 60 },
+    { "name": "certificate_validity_years", "value": 2 },
+    { "name": "refund_window_days", "value": 7 }
+  ],
+
+  "pricing": {
+    "course_price": 1999,
+    "subscription_price": 499,
+    "platform_commission": 0.20
+  }
+}

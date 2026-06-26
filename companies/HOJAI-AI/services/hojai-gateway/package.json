@@ -1,0 +1,15 @@
+{
+  "name": "@hojai/hojai-gateway",
+  "version": "1.0.0",
+  "description": "HOJAI AI Gateway - Unified LLM and AI service routing",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/"
+  },
+  "keywords": ["ai", "llm", "gateway", "hojai"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

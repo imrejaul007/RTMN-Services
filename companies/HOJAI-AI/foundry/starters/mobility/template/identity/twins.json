@@ -1,0 +1,235 @@
+{
+  "description": "Digital Twins for Mobility Template",
+  "twins": [
+    {
+      "id": "organization_twin",
+      "type": "organization",
+      "name": "{{company}} Mobility",
+      "attributes": [
+        "company_name",
+        "registration_number",
+        "founded_date",
+        "regions",
+        "fleet_size",
+        "total_trips",
+        "total_revenue"
+      ],
+      "relationships": [
+        "has_drivers",
+        "has_passengers",
+        "has_vehicles",
+        "has_fleet_partners"
+      ]
+    },
+    {
+      "id": "driver_twin",
+      "type": "driver",
+      "name": "Driver Twin",
+      "attributes": [
+        "driver_id",
+        "name",
+        "phone",
+        "email",
+        "rating",
+        "total_trips",
+        "earnings",
+        "status",
+        "license_number",
+        "license_expiry",
+        "background_check_status",
+        "insurance_status",
+        "vehicle_id",
+        "documents"
+      ],
+      "states": [
+        "offline",
+        "available",
+        "busy",
+        "on_trip",
+        "suspended"
+      ],
+      "metrics": [
+        "acceptance_rate",
+        "cancellation_rate",
+        "average_rating",
+        "on_time_rate"
+      ]
+    },
+    {
+      "id": "passenger_twin",
+      "type": "customer",
+      "name": "Passenger Twin",
+      "attributes": [
+        "passenger_id",
+        "name",
+        "phone",
+        "email",
+        "rating",
+        "wallet_balance",
+        "payment_methods",
+        "home_location",
+        "work_location",
+        "preferred_vehicle_type"
+      ],
+      "preferences": [
+        "music_preference",
+        "ac_preference",
+        "conversation_preference",
+        "safety_features"
+      ],
+      "memory": [
+        "trip_history",
+        "favorite_routes",
+        "frequently_visited"
+      ]
+    },
+    {
+      "id": "vehicle_twin",
+      "type": "vehicle",
+      "name": "Vehicle Twin",
+      "attributes": [
+        "vehicle_id",
+        "registration_number",
+        "make",
+        "model",
+        "year",
+        "color",
+        "capacity",
+        "vehicle_type",
+        "fuel_type",
+        "odometer_reading",
+        "insurance_expiry",
+        "fitness_certificate_expiry",
+        "pollution_certificate_expiry"
+      ],
+      "states": [
+        "available",
+        "in_service",
+        "on_trip",
+        "maintenance",
+        "decommissioned"
+      ],
+      "metrics": [
+        "fuel_efficiency",
+        "maintenance_cost",
+        "utilization_rate"
+      ]
+    },
+    {
+      "id": "trip_twin",
+      "type": "trip",
+      "name": "Trip Twin",
+      "attributes": [
+        "trip_id",
+        "passenger_id",
+        "driver_id",
+        "vehicle_id",
+        "pickup_location",
+        "drop_location",
+        "pickup_time",
+        "drop_time",
+        "distance_km",
+        "duration_minutes",
+        "base_fare",
+        "surge_multiplier",
+        "total_fare",
+        "payment_method",
+        "status"
+      ],
+      "states": [
+        "requested",
+        "accepted",
+        "driver_en_route",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "metrics": [
+        "eta_accuracy",
+        "route_efficiency"
+      ]
+    },
+    {
+      "id": "fare_twin",
+      "type": "fare",
+      "name": "Fare Twin",
+      "attributes": [
+        "fare_id",
+        "trip_id",
+        "base_fare",
+        "distance_charge",
+        "time_charge",
+        "surge_charge",
+        "discount",
+        "total_fare",
+        "driver_share",
+        "platform_commission"
+      ],
+      "components": [
+        "waiting_charge",
+        "toll_charge",
+        "night_charge"
+      ]
+    },
+    {
+      "id": "insurance_twin",
+      "type": "insurance",
+      "name": "Insurance Twin",
+      "attributes": [
+        "policy_id",
+        "driver_id",
+        "vehicle_id",
+        "policy_type",
+        "coverage_amount",
+        "premium",
+        "start_date",
+        "end_date",
+        "claim_status"
+      ],
+      "states": [
+        "active",
+        "expired",
+        "claim_pending",
+        "claim_settled"
+      ]
+    },
+    {
+      "id": "rating_twin",
+      "type": "rating",
+      "name": "Rating Twin",
+      "attributes": [
+        "rating_id",
+        "trip_id",
+        "rater_type",
+        "ratee_type",
+        "score",
+        "feedback",
+        "tags"
+      ],
+      "aggregates": [
+        "average_rating",
+        "rating_distribution"
+      ]
+    },
+    {
+      "id": "dispute_twin",
+      "type": "dispute",
+      "name": "Dispute Twin",
+      "attributes": [
+        "dispute_id",
+        "trip_id",
+        "raised_by",
+        "reason",
+        "amount_claimed",
+        "status"
+      ],
+      "states": [
+        "open",
+        "under_review",
+        "escalated",
+        "resolved",
+        "closed"
+      ]
+    }
+  ]
+}

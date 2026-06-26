@@ -1,0 +1,63 @@
+{
+  "id": "healthcare",
+  "name": "Healthcare OS",
+  "version": "1.0.0",
+  "tagline": "AI-powered healthcare platform",
+  "description": "Complete healthcare platform with patient management, appointments, telemedicine, and pharmacy. HIPAA-compliant with AI diagnostics support.",
+  "category": "healthcare",
+  "icon": "🏥",
+  "color": "#10B981",
+
+  "crew": {
+    "ai_workers": [
+      { "role": "Patient Coordinator", "salary": 300, "model": "claude-3-haiku" },
+      { "role": "Appointment Agent", "salary": 200, "model": "claude-3-haiku" },
+      { "role": "Diagnostics Assistant", "salary": 500, "model": "claude-3-sonnet" },
+      { "role": "Pharmacy Agent", "salary": 250, "model": "claude-3-haiku" },
+      { "role": "Insurance Agent", "salary": 300, "model": "claude-3-haiku" },
+      "role": "Compliance Agent", "salary": 350, "model": "claude-3-haiku" }
+    ]
+  },
+
+  "total_ai_salary": 1900,
+
+  "twins": [
+    { "type": "patient", "name": "{{company}} Patient" },
+    { "type": "doctor", "name": "{{company}} Doctor" },
+    { "type": "appointment", "name": "{{company}} Appointment" },
+    { "type": "prescription", "name": "{{company}} Prescription" },
+    { "type": "medical_record", "name": "{{company}} Medical Record" },
+    { "type": "pharmacy", "name": "{{company}} Pharmacy" }
+  ],
+
+  "flows": [
+    { "id": "patient_onboarding", "name": "Patient Onboarding Flow" },
+    { "id": "appointment_scheduling", "name": "Appointment Scheduling Flow" },
+    { "id": "telemedicine_consult", "name": "Telemedicine Consultation" },
+    { "id": "prescription_management", "name": "Prescription Management" },
+    { "id": "insurance_claim", "name": "Insurance Claim Flow" }
+  ],
+
+  "nexha_connections": [
+    { "network": "insurance", "purpose": "Verify coverage" },
+    { "network": "pharmacy_network", "purpose": "Prescription fulfillment" },
+    { "network": "lab_network", "purpose": "Lab test coordination" }
+  ],
+
+  "integrations": [
+    { "name": "teleconferencing", "required": true },
+    { "name": "pharmacy_api", "required": false },
+    { "name": "insurance_api", "required": false }
+  ],
+
+  "policies": [
+    { "name": "hipaa_compliance", "value": true },
+    { "name": "prescription_verification", "value": true },
+    { "name": "appointment_reminder_hours", "value": 24 }
+  ],
+
+  "pricing": {
+    "consultation_fee": 500,
+    "platform_commission": 0.15
+  }
+}

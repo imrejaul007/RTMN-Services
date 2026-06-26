@@ -1,0 +1,68 @@
+{
+  "id": "finance",
+  "name": "Fintech OS",
+  "version": "1.0.0",
+  "tagline": "AI-powered financial services",
+  "description": "Digital bank with savings, loans, payments, and investment. AI-powered financial advisor for every customer.",
+  "category": "finance",
+  "icon": "💰",
+  "color": "#F59E0B",
+
+  "crew": {
+    "ai_workers": [
+      { "role": "Financial Advisor", "salary": 500, "model": "claude-3-sonnet" },
+      { "role": "Loan Officer", "salary": 350, "model": "claude-3-haiku" },
+      { "role": "Compliance Agent", "salary": 400, "model": "claude-3-haiku" },
+      { "role": "Fraud Detection", "salary": 450, "model": "claude-3-sonnet" },
+      { "role": "Payment Agent", "salary": 250, "model": "claude-3-haiku" },
+      { "role": "Investment Agent", "salary": 500, "model": "claude-3-sonnet" },
+      { "role": "Customer Success", "salary": 200, "model": "claude-3-haiku" }
+    ]
+  },
+
+  "total_ai_salary": 2650,
+
+  "twins": [
+    { "type": "account_holder", "name": "{{company}} Account Holder" },
+    { "type": "account", "name": "{{company}} Account" },
+    { "type": "transaction", "name": "{{company}} Transaction" },
+    { "type": "loan", "name": "{{company}} Loan" },
+    { "type": "investment", "name": "{{company}} Investment" },
+    { "type": "card", "name": "{{company}} Card" }
+  ],
+
+  "flows": [
+    { "id": "account_opening", "name": "Account Opening Flow" },
+    { "id": "kyc_verification", "name": "KYC Verification Flow" },
+    { "id": "loan_application", "name": "Loan Application Flow" },
+    { "id": "payment_processing", "name": "Payment Processing Flow" },
+    { "id": "fraud_alert", "name": "Fraud Detection Flow" }
+  ],
+
+  "nexha_connections": [
+    { "network": "banking_network", "purpose": "UPI, IMPS, NEFT" },
+    { "network": "credit_bureau", "purpose": "CIBIL score" },
+    { "network": "insurance_network", "purpose": "Credit life insurance" },
+    { "network": "investment_network", "purpose": "Mutual funds, stocks" }
+  ],
+
+  "integrations": [
+    { "name": "payment_gateway", "required": true },
+    { "name": "kyc_provider", "required": true },
+    { "name": "credit_bureau", "required": true }
+  ],
+
+  "policies": [
+    { "name": "kyc_min_age", "value": 18 },
+    { "name": "min_balance", "value": 1000 },
+    { "name": "loan_interest_rate", "value": 12 },
+    { "name": "fraud_threshold", "value": 50000 }
+  ],
+
+  "pricing": {
+    "account_maintenance": 0,
+    "transaction_fee": 0,
+    "loan_commission": 0.02,
+    "investment_commission": 0.01
+  }
+}
