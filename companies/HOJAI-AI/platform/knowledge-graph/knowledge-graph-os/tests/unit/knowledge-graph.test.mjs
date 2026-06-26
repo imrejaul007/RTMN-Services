@@ -5,14 +5,21 @@
  * Run: node --test tests/unit/knowledge-graph.test.mjs
  */
 
+// Set env vars BEFORE importing the service module
+process.env.REQUIRE_AUTH = 'false';
+process.env.NODE_ENV = 'test';
+
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
 import http from 'node:http';
-
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const { default: app } = await import(resolve(__dirname, '../../src/index.js'));
+
+// Auth token used by requireAuth
+const TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'dev-token-kg';
 
 const PORT = 4551;
 let server;

@@ -1,0 +1,88 @@
+{
+  "name": "@hojai/twin-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for Employee Twin Ecosystem",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./common": {
+      "import": "./dist/common.js",
+      "types": "./dist/common.d.ts"
+    },
+    "./employee": {
+      "import": "./dist/employee.js",
+      "types": "./dist/employee.d.ts"
+    },
+    "./communication": {
+      "import": "./dist/communication.js",
+      "types": "./dist/communication.d.ts"
+    },
+    "./workflow": {
+      "import": "./dist/workflow.js",
+      "types": "./dist/workflow.d.ts"
+    },
+    "./decision": {
+      "import": "./dist/decision.js",
+      "types": "./dist/decision.d.ts"
+    },
+    "./relationship": {
+      "import": "./dist/relationship.js",
+      "types": "./dist/relationship.d.ts"
+    },
+    "./behavioral": {
+      "import": "./dist/behavioral.js",
+      "types": "./dist/behavioral.d.ts"
+    },
+    "./knowledge": {
+      "import": "./dist/knowledge.js",
+      "types": "./dist/knowledge.d.ts"
+    },
+    "./reputation": {
+      "import": "./dist/reputation.js",
+      "types": "./dist/reputation.d.ts"
+    },
+    "./execution": {
+      "import": "./dist/execution.js",
+      "types": "./dist/execution.d.ts"
+    },
+    "./observation": {
+      "import": "./dist/observation.js",
+      "types": "./dist/observation.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "twin",
+    "employee",
+    "types",
+    "typescript",
+    "hojai"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  },
+  "peerDependencies": {
+    "express": "^4.18.2"
+  }
+}

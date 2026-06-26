@@ -400,8 +400,8 @@ export function buildAdjacency(relationships) {
   for (const rel of relationships) {
     if (!adj.has(rel.sourceId)) adj.set(rel.sourceId, []);
     if (!adj.has(rel.targetId)) adj.set(rel.targetId, []);
-    adjget(rel.sourceId).push({ targetId: rel.targetId, weight: 1, ...rel });
-    adjget(rel.targetId).push({ targetId: rel.sourceId, weight: 1, ...rel });
+    adj.get(rel.sourceId).push({ targetId: rel.targetId, weight: 1, ...rel });
+    adj.get(rel.targetId).push({ targetId: rel.sourceId, weight: 1, ...rel });
   }
   return adj;
 }
