@@ -910,7 +910,7 @@ app.get('/api/audit', (req, res) => {
 // ERROR HANDLERS
 // ===============================
 
-app.use((req, res) => res.status(404).json({ error: 'NOT_FOUND', message: `Route ${req.method} ${req.path} not found` }));
+app.use((req, res) => { console.log('[ERROR-HANDLER] 404 for', req.method, req.path); res.status(404).json({ error: 'NOT_FOUND', message: `Route ${req.method} ${req.path} not found` }); });
 app.use((err, _req, res, _next) => {
   console.error(`[${SERVICE_NAME}] error:`, err);
   stats.errors++;
