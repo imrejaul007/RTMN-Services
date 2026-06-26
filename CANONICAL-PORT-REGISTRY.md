@@ -605,6 +605,8 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 | **4701** | `gds-integration` | Amadeus, Sabre, Travelport |
 | **4702** | `payment-gateway` | Razorpay, Stripe |
 | **4703** | `build-pipeline` | App Store build & submit |
+| **4704** | `flows-engine` | 50+ flows across 17 templates |
+| **4705** | `company-mapper` | Maps 510 companies to templates |
 
 ### DO Mobility (2026-06-26)
 

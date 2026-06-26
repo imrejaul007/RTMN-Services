@@ -482,7 +482,7 @@ HOJAI Studio
 | Logistics | 8 agents | $2,800 | Delhivery |
 | B2B Platform | 9 agents | $3,150 | IndiaMART |
 
-### Services (21 Total)
+### Services (26 Total)
 
 | Port | Service |
 |------|---------|
@@ -498,9 +498,20 @@ HOJAI Studio
 | 4520 | Agent Generator |
 | 4530 | Auth (JWT) |
 | 4540 | Deploy Pipeline |
+| 4550 | Flows Engine |
+| 4560 | Company Mapper (510 companies) |
 | 4610 | DO Passenger |
 | 4611 | DO Driver |
 | 4612 | DO Admin |
+
+### OTA Services
+
+| Port | Service |
+|------|---------|
+| 4700 | PMS Integration |
+| 4701 | GDS Integration |
+| 4702 | Payment Gateway |
+| 4703 | Build Pipeline |
 
 ### Startup
 

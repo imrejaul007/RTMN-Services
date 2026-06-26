@@ -3,5 +3,10 @@
   "version": "1.0.0",
   "description": "Maps all 510 companies to templates, flows, Nexha integrations",
   "main": "src/index.js",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "uuid": "^14.0.1"
+  }
 }

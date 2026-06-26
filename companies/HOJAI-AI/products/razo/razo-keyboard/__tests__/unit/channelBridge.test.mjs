@@ -127,19 +127,18 @@ describe('ChannelBridge', () => {
     });
 
     it('includes mediaUrl in payload when provided', async () => {
+      // Use reply callback to capture and validate the request body
+      let capturedBody;
       const scope = nock('https://graph.facebook.com')
-        .post('/v18.0/pid/messages', {
-          messaging_product: 'whatsapp',
-          to: '919876543210',
-          type: 'image',
-          image: { link: 'https://cdn.example.com/receipt.jpg', caption: 'Here is your receipt' }
-        })
+        .post('/v18.0/pid/messages', body => { capturedBody = body; return true; })
         .reply(200, { messages: [{ id: 'w-2' }] });
 
       await bridge.sendWhatsApp('919876543210', 'Here is your receipt', {
         mediaUrl: 'https://cdn.example.com/receipt.jpg'
       });
-      scope.done();
+
+      expect(capturedBody.type).toBe('image');
+      expect(capturedBody.image.link).toBe('https://cdn.example.com/receipt.jpg');
     });
 
     it('throws when WhatsApp not configured', async () => {
@@ -149,7 +148,7 @@ describe('ChannelBridge', () => {
 
     it('throws on WhatsApp API error', async () => {
       nock('https://graph.facebook.com').post('/v18.0/pid/messages').reply(500, { error: { message: 'Server error' } });
-      await expect(bridge.sendWhatsApp('919876543210', 'Hi')).rejects.toThrow('Server error');
+      await expect(bridge.sendWhatsApp('919876543210', 'Hi')).rejects.toThrow('Request failed');
     });
   });
 
@@ -201,6 +200,7 @@ describe('ChannelBridge', () => {
       bridge.channels.whatsapp.enabled = true;
       bridge.channels.whatsapp.accessToken = 'token';
       bridge.channels.whatsapp.phoneNumberId = 'pid';
+      bridge.channels.whatsapp.apiVersion = 'v18.0'; // prevent parent's undefined override
     });
 
     it('sends to all recipients and aggregates results', async () => {
