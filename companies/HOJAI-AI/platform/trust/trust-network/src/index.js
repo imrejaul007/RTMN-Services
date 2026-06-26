@@ -326,27 +326,31 @@ app.get('/api/audit', (req, res) => {
 // 404 + error handling
 // =============================================================================
 
+// =============================================================================
+// START
+// =============================================================================
+
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+export default app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[trust-network] listening on :${PORT}`);
+  });
+  installGracefulShutdown(server);
+}
+
+// =============================================================================
+// 404 + error handling
+// =============================================================================
+
 app.use((_req, res) => res.status(404).json({ error: 'not found' }));
 app.use((err, _req, res, _next) => {
   // eslint-disable-next-line no-console
   console.error('[trust-network]', err);
   res.status(500).json({ error: err.message || 'internal error' });
 });
-
-// =============================================================================
-// START
-// =============================================================================
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
-
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[trust-network] listening on :${PORT}`);
-});
-installGracefulShutdown(server);
-
-export default app;
