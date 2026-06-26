@@ -1,7 +1,7 @@
 {
-  "name": "@hojai/memory-benchmark",
+  "name": "@hojai/memory-procedural",
   "version": "1.0.0",
-  "description": "Memory Benchmark",
+  "description": "Procedural Memory - Skills, Workflows, Best Practices",
   "main": "src/index.js",
   "type": "module",
   "scripts": { "start": "node src/index.js", "test": "vitest run" },

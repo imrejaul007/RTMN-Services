@@ -17,13 +17,22 @@ const mockTrustScoreStore = new Map();
 const mockApiKeyStore = new Map();
 const mockNamespaceStore = new Map();
 
+// Module-level constants (shared between app and tests)
+const JWT_SECRET = 'test-secret-32-chars-minimum-ok';
+const BCRYPT_ROUNDS = 4;
+const TOKEN_ISSUER = 'rtmn-corpid';
+
+function generateAccessToken(user) {
+  return jwt.sign(
+    { sub: user.id, email: user.email, role: user.role, businessId: user.businessId, type: 'access' },
+    JWT_SECRET,
+    { expiresIn: '1h', issuer: TOKEN_ISSUER, jwtid: randomBytes(16).toString('hex') }
+  );
+}
+
 function buildApp() {
   const app = express();
   app.use(express.json());
-
-  const JWT_SECRET = 'test-secret-32-chars-minimum-ok';
-  const BCRYPT_ROUNDS = 4;
-  const TOKEN_ISSUER = 'rtmn-corpid';
 
   // Mock models
   const User = {
