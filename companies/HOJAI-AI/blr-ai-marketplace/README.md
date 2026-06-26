@@ -315,6 +315,63 @@ Instant activation and deployment.
 
 ---
 
+## 🛠️ FOR DEVELOPERS - How to Publish
+
+### Quick Start
+
+1. **Sign Up** at `/login`
+2. **Complete Setup** at `/dashboard/settings`
+3. **Connect Stripe** to receive payments
+4. **Publish Listing** at `/dashboard/publish`
+5. **Wait for Approval** (24-48 hours)
+
+### Requirements to Publish
+
+| Requirement | Description |
+|-------------|-------------|
+| Stripe Account | Required for payouts |
+| Publisher Profile | Name, email, bio |
+| Quality Listing | Title, description, tags, pricing |
+| Documentation | Optional but recommended |
+
+### Revenue Split
+
+| Model | You Get | BAM Takes |
+|-------|---------|-----------|
+| **Standard** | 70% | 30% |
+| **Featured** | 60% | 40% |
+| **Partner** | 80% | 20% |
+
+### Listing Checklist
+
+- [ ] Clear title (e.g., "AI Sales Manager")
+- [ ] Category selected
+- [ ] Detailed description (min 100 words)
+- [ ] Tags (3-5 relevant)
+- [ ] Pricing set
+- [ ] Screenshots/docs (optional)
+
+---
+
+## 🚀 FOR BUYERS - Quick Start
+
+### Browse & Purchase
+
+1. **Browse** categories at `/categories`
+2. **Search** or **filter** at `/listings`
+3. **Click** on any listing
+4. **Buy** with Stripe or **Install** (free items)
+
+### What You Get
+
+- ✅ Instant access after purchase
+- ✅ 30-day money-back guarantee
+- ✅ Secure payment via Stripe
+- ✅ Auto-updates from publisher
+- ✅ Email support
+
+---
+
 ## 🎁 ADD-ONS
 
 | Add-On | Price | Description |

@@ -40,6 +40,19 @@ HUB_CMD="cd $RTMN_ROOT/companies/RABTUL-Technologies/REZ-ecosystem-connector && 
 # SUTAR Gateway (port 4140) — HTTP entry point exposing /api/sutar/* routes to all SUTAR services
 SUTAR_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-gateway && PORT=4140 npm start"
 
+# SUTAR Core services (ports 4142-4145)
+SUTAR_TWIN_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-twin-os && PORT=4142 npm start"
+SUTAR_MEMORY_BRIDGE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-memory-bridge && PORT=4143 npm start"
+SUTAR_IDENTITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-identity && PORT=4144 npm start"
+SUTAR_AGENT_ID_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-agent-id && PORT=4145 npm start"
+SUTAR_AGENT_NETWORK_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-agent-network && PORT=4155 npm start"
+
+# SUTAR Monitoring (port 3100)
+SUTAR_MONITORING_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-monitoring && PORT=3100 npm start"
+
+# SUTAR Usage Tracker (port 4252)
+SUTAR_USAGE_TRACKER_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/infra/usage-tracker && PORT=4252 npm start"
+
 # Intent Bus (port 4154) — pub/sub broadcast of agent intents across SUTAR
 INTENT_BUS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/observability/intent-bus && PORT=4154 REDIS_URL=redis://localhost:6379 npm start"
 
@@ -362,6 +375,13 @@ status() {
     "CXO OS:5100" \
     "Contract OS:4292" \
     "Negotiation Engine:4293" \
+    "SUTAR TwinOS:4142" \
+    "SUTAR Memory Bridge:4143" \
+    "SUTAR Identity:4144" \
+    "SUTAR Agent ID:4145" \
+    "SUTAR Agent Network:4155" \
+    "SUTAR Monitoring:3100" \
+    "SUTAR Usage Tracker:4252" \
     "nexha-supplier-network:4280" \
     "nexha-supplier-registry:4281" \
     "nexha-distribution-network:4285" \
@@ -457,6 +477,13 @@ start_all() {
   check_redis
   # SUTAR Gateway + Intent Bus
   start_service "sutar-gateway"           "$SUTAR_GATEWAY_CMD"          4140
+  start_service "sutar-twin-os"         "$SUTAR_TWIN_OS_CMD"         4142
+  start_service "sutar-memory-bridge"    "$SUTAR_MEMORY_BRIDGE_CMD"   4143
+  start_service "sutar-identity"         "$SUTAR_IDENTITY_CMD"        4144
+  start_service "sutar-agent-id"        "$SUTAR_AGENT_ID_CMD"       4145
+  start_service "sutar-agent-network"   "$SUTAR_AGENT_NETWORK_CMD"   4155
+  start_service "sutar-monitoring"      "$SUTAR_MONITORING_CMD"      3100
+  start_service "sutar-usage-tracker"   "$SUTAR_USAGE_TRACKER_CMD"   4252
   start_service "intent-bus"              "$INTENT_BUS_CMD"             4154
   # SUTAR OS (HOJAI AI) — core economic layer
   start_service "sada-os"                  "$SADA_OS_CMD"             4190
@@ -641,6 +668,13 @@ stop_all() {
   stop_port 4399 "Hub"
   stop_port 4190 "SADA Trust"
   stop_port 4140 "SUTAR Gateway"
+  stop_port 4142 "SUTAR TwinOS"
+  stop_port 4143 "SUTAR Memory Bridge"
+  stop_port 4144 "SUTAR Identity"
+  stop_port 4145 "SUTAR Agent ID"
+  stop_port 4155 "SUTAR Agent Network"
+  stop_port 3100 "SUTAR Monitoring"
+  stop_port 4252 "SUTAR Usage Tracker"
   stop_port 4154 "Intent Bus"
   stop_port 4146 "Twin Marketplace"
   stop_port 4291 "Trust Engine"
