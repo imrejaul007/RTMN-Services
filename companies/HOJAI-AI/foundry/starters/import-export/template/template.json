@@ -1,0 +1,77 @@
+{
+  "id": "import-export",
+  "name": "Import/Export Platform",
+  "version": "1.0.0",
+  "tagline": "AI-powered global trade network",
+  "description": "B2B marketplace for international trade. Connect buyers/sellers globally with AI handling documentation, compliance, logistics, and payments.",
+  "category": "trade",
+  "icon": "🌍",
+  "color": "#1E40AF",
+  "sector": "b2b-trade",
+
+  "crew": {
+    "ai_workers": [
+      { "role": "Trade Compliance Agent", "salary": 450, "model": "claude-3-sonnet", "skills": ["customs", "incoterms", "documentation", "compliance"] },
+      { "role": "Sourcing Agent", "salary": 400, "model": "claude-3-sonnet", "skills": ["supplier-discovery", "rfq", "negotiation", "quality-check"] },
+      { "role": "Logistics Agent", "salary": 350, "model": "claude-3-haiku", "skills": ["freight", "customs-clearance", "tracking", "delivery"] },
+      { "role": "Payment Agent", "salary": 400, "model": "claude-3-sonnet", "skills": ["letters-of-credit", "escrow", "forex", "settlement"] },
+      { "role": "Quality Agent", "salary": 300, "model": "claude-3-haiku", "skills": ["inspection", "certification", "sampling", "qa"] },
+      { "role": "Quote Agent", "salary": 350, "model": "claude-3-haiku", "skills": ["pricing", "shipping-quotes", "lead-time", "ciF-fob"] },
+      { "role": "Document Agent", "salary": 250, "model": "claude-3-haiku", "skills": ["bill-of-lading", "certificate-of-origin", "invoice", "packing-list"] },
+      { "role": "Risk Agent", "salary": 350, "model": "claude-3-sonnet", "skills": ["country-risk", "supplier-risk", "currency-risk", "insurance"] },
+      { "role": "Growth Agent", "salary": 400, "model": "claude-3-sonnet", "skills": ["buyer-acquisition", "supplier-onboarding", "trade-shows", "referrals"] }
+    ]
+  },
+
+  "total_ai_salary": 3250,
+
+  "twins": [
+    { "type": "importer", "name": "{{company}} Importer" },
+    { "type": "exporter", "name": "{{company}} Exporter" },
+    { "type": "shipment", "name": "{{company}} Shipment" },
+    { "type": "order", "name": "{{company}} Trade Order" },
+    { "type": "document", "name": "{{company}} Trade Document" },
+    { "type": "quote", "name": "{{company}} Quote" },
+    { "type": "payment", "name": "{{company}} Trade Payment" },
+    { "type": "compliance", "name": "{{company}} Compliance Record" }
+  ],
+
+  "flows": [
+    { "id": "rfq_flow", "name": "RFQ to Order Flow", "trigger": "buyer_request" },
+    { "id": "sourcing_flow", "name": "Supplier Sourcing Flow", "trigger": "product_search" },
+    { "id": "compliance_flow", "name": "Documentation & Compliance Flow", "trigger": "shipment_created" },
+    { "id": "payment_flow", "name": "Trade Payment Flow (LC/Escrow)", "trigger": "order_confirmed" },
+    { "id": "logistics_flow", "name": "End-to-End Logistics Flow", "trigger": "payment_received" },
+    { "id": "dispute_flow", "name": "Dispute Resolution Flow", "trigger": "dispute_raised" }
+  ],
+
+  "nexha_connections": [
+    { "network": "trade-finance", "purpose": "Letters of credit, factoring, insurance" },
+    { "network": "customs", "purpose": "Customs clearance, duty calculation" },
+    { "network": "logistics", "purpose": "Freight forwarding, warehousing" },
+    { "network": "insurance", "purpose": "Marine cargo insurance" },
+    { "network": "quality", "purpose": "Pre-shipment inspection, testing" }
+  ],
+
+  "integrations": [
+    { "name": "customs-api", "required": true },
+    { "name": "shipping-api", "required": true },
+    { "name": "forex-api", "required": true },
+    { "name": "document-verification", "required": true }
+  ],
+
+  "policies": [
+    { "name": "kyc_required", "value": true },
+    { "name": "trade_limit", "value": 1000000 },
+    { "name": "escrow_release_days", "value": 7 },
+    { "name": "inspection_required_above", "value": 10000 },
+    { "name": "compliance_check", "value": true }
+  ],
+
+  "pricing": {
+    "platform_fee": 0.02,
+    "payment_processing": 0.005,
+    "logistics_markup": 0.05,
+    "min_order_value": 1000
+  }
+}

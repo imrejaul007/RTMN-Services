@@ -1,0 +1,7 @@
+{
+  "name": "@ota/build-pipeline",
+  "version": "1.0.0",
+  "description": "App Store Build Pipeline - iOS/Android builds",
+  "main": "src/index.js",
+  "type": "module"
+}

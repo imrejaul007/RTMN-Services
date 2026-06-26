@@ -1,0 +1,7 @@
+{
+  "name": "@ota/gds-integration",
+  "version": "1.0.0",
+  "description": "GDS Integration - Amadeus, Sabre, Travelport",
+  "main": "src/index.js",
+  "type": "module"
+}

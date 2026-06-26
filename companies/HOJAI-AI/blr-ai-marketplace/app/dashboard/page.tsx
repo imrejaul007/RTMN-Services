@@ -34,9 +34,14 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold text-slate-900">Publisher Dashboard</h1>
           <p className="text-slate-600 mt-1">Manage your listings and track revenue</p>
         </div>
-        <Link href="/dashboard/publish" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-          + Publish New Listing
-        </Link>
+        <div className="flex gap-3">
+          <Link href="/dashboard/studio" className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2">
+            🏗️ HOJAI Studio
+          </Link>
+          <Link href="/dashboard/publish" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+            + Publish New Listing
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

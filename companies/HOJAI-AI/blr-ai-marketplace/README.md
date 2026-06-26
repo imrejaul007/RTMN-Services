@@ -465,6 +465,54 @@ Instant activation and deployment.
 
 ---
 
+## 🤖 AGENTIC FEATURES
+
+BAM is now integrated with **HOJAI Studio** and **Global Nexha** for AI-powered marketplace features:
+
+### HOJAI Studio Integration
+
+| Feature | Description |
+|---------|-------------|
+| **Blueprint → BCP** | Convert Studio blueprints to Business Capability Packs |
+| **Auto-Generate Listings** | AI analyzes market demand and creates listings |
+| **Smart Matching** | AI matches buyers with the right products |
+
+### Global Nexha Integration
+
+| Feature | Description |
+|---------|-------------|
+| **Capability Discovery** | Browse 10K+ capabilities from the Nexha network |
+| **One-Click Deploy** | Deploy purchased AI agents to any Nexha |
+| **Federation Ready** | Publish once, deploy everywhere |
+
+### Agentic Workflows
+
+```javascript
+// Example: Auto-generate BCP from Blueprint
+POST /api/studio/blueprint-to-bcp
+{
+  "blueprint": { "name": "Restaurant Blueprint", "agents": [...] },
+  "publishImmediately": true
+}
+
+// Example: Deploy to Nexha
+POST /api/nexha/deploy-agent
+{
+  "listingId": "lst_xxx",
+  "agentId": "agent_xxx",
+  "targetNexha": "my-restaurant"
+}
+```
+
+### Pages
+
+| Page | URL | Purpose |
+|------|-----|---------|
+| Studio | `/dashboard/studio` | Blueprint → BCP converter |
+| Explore | `/explore` | Nexha capability discovery |
+
+---
+
 ## 📞 CONTACT
 
 - **Sales:** sales@hojai.ai

@@ -1,0 +1,78 @@
+{
+  "id": "food-delivery",
+  "name": "Agentic Food Delivery",
+  "version": "1.0.0",
+  "tagline": "AI-powered food delivery network",
+  "description": "Uber Eats/Swiggy clone with AI handling restaurant onboarding, delivery matching, dynamic pricing, and customer retention.",
+  "category": "food-delivery",
+  "icon": "🍔",
+  "color": "#FF5722",
+  "sector": "food-delivery",
+
+  "crew": {
+    "ai_workers": [
+      { "role": "RestaurantOnboardingAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["kyc", "menu-curation", "photo-quality", "commission-setup"] },
+      { "role": "MenuOptimizationAgent", "salary": 300, "model": "claude-3-sonnet", "skills": ["pricing", "recommendations", "categories", "search-seo"] },
+      { "role": "DeliveryMatchingAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["distance-optimization", "capacity", "eta-calculation", "surge-pricing"] },
+      { "role": "DeliveryPartnerAgent", "salary": 250, "model": "claude-3-haiku", "skills": ["onboarding", "incentives", "earnings", "safety"] },
+      { "role": "OrderIntelligenceAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["order-tracking", "kitchen-display", "delay-prediction", "quality-scoring"] },
+      { "role": "CustomerRetentionAgent", "salary": 350, "model": "claude-3-sonnet", "skills": ["personalization", "offers", "loyalty", "winback"] },
+      { "role": "FraudDetectionAgent", "salary": 350, "model": "claude-3-sonnet", "skills": ["fake-orders", "gaming", "refund-abuse", "delivery-fraud"] },
+      { "role": "MarketingAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["campaigns", "discounts", "push-notifications", "referrals"] },
+      { "role": "SupportAgent", "salary": 200, "model": "claude-3-haiku", "skills": ["ticket-resolution", "refunds", "complaints", "nps"] },
+      { "role": "ComplianceAgent", "salary": 250, "model": "claude-3-haiku", "skills": ["fssai", "hygiene", "packaging", "delivery-norms"] }
+    ]
+  },
+
+  "total_ai_salary": 3100,
+
+  "twins": [
+    { "type": "restaurant", "name": "{{company}} Restaurant" },
+    { "type": "customer", "name": "{{company}} Customer" },
+    { "type": "delivery_partner", "name": "{{company}} Delivery Partner" },
+    { "type": "order", "name": "{{company}} Order" },
+    { "type": "menu_item", "name": "{{company}} Menu Item" },
+    { "type": "review", "name": "{{company}} Review" },
+    { "type": "offer", "name": "{{company}} Offer" },
+    { "type": "address", "name": "{{company}} Address" }
+  ],
+
+  "flows": [
+    { "id": "order_flow", "name": "Order to Delivery Flow", "trigger": "order_placed" },
+    { "id": "restaurant_onboarding", "name": "Restaurant Onboarding Flow", "trigger": "restaurant_apply" },
+    { "id": "delivery_matching", "name": "Delivery Partner Matching Flow", "trigger": "order_ready" },
+    { "id": "support_flow", "name": "Customer Support Flow", "trigger": "complaint_raised" },
+    { "id": "marketing_flow", "name": "Personalized Marketing Flow", "trigger": "user_idle" },
+    { "id": "fraud_detection", "name": "Fraud Detection Flow", "trigger": "order_suspicious" }
+  ],
+
+  "nexha_connections": [
+    { "network": "payment", "purpose": "UPI, wallets, cards" },
+    { "network": "maps", "purpose": "Route optimization, ETA" },
+    { "network": "marketing", "purpose": "Push notifications, SMS" },
+    { "network": "logistics", "purpose": "Last mile delivery" }
+  ],
+
+  "integrations": [
+    { "name": "restaurant-pos", "required": false },
+    { "name": "kds", "required": false },
+    { "name": "delivery-tracking", "required": true },
+    { "name": "payment-gateway", "required": true }
+  ],
+
+  "policies": [
+    { "name": "min_order_value", "value": 99 },
+    { "name": "delivery_fee_base", "value": 30 },
+    { "name": "commission_restaurant", "value": 0.20 },
+    { "name": "commission_delivery", "value": 0.15 },
+    { "name": "refund_window_minutes", "value": 10 },
+    { "name": "delivery_time_target_minutes", "value": 35 }
+  ],
+
+  "pricing": {
+    "delivery_fee": "dynamic",
+    "platform_commission": "20-30%",
+    "surge_pricing": true,
+    "subscription": 199
+  }
+}

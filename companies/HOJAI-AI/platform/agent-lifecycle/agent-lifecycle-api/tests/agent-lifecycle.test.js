@@ -3,7 +3,7 @@
  * Tests all CRUD, versioning, deployment, monitoring, policies, and lifecycle endpoints.
  */
 
-const { describe, it, beforeEach, afterEach, mock } = require('node:test');
+const { describe, it, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const http = require('node:http');
 
@@ -74,7 +74,7 @@ afterEach(async () => {
 });
 
 describe('Agent CRUD', () => {
-  it('POST /api/agents → 201', async () => {
+  it('POST /api/agents -> 201', async () => {
     const res = await request('POST', '/api/agents', {
       name: 'TestAgent',
       type: 'reasoning',
@@ -87,7 +87,7 @@ describe('Agent CRUD', () => {
     assert.strictEqual(res.body.status, 'active');
   });
 
-  it('GET /api/agents → 200 with list', async () => {
+  it('GET /api/agents -> 200 with list', async () => {
     await request('POST', '/api/agents', { name: 'Agent1', type: 'reasoning', capabilities: [], version: '1.0.0' });
     await request('POST', '/api/agents', { name: 'Agent2', type: 'creative', capabilities: [], version: '1.0.0' });
     const res = await request('GET', '/api/agents');
@@ -96,36 +96,36 @@ describe('Agent CRUD', () => {
     assert.strictEqual(res.body.agents.length, 2);
   });
 
-  it('GET /api/agents/:id → 200', async () => {
+  it('GET /api/agents/:id -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'FetchAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('GET', `/api/agents/${created.body.id}`);
+    const res = await request('GET', '/api/agents/' + created.body.id);
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.name, 'FetchAgent');
   });
 
-  it('GET /api/agents/:id → 404 for unknown id', async () => {
+  it('GET /api/agents/:id -> 404 for unknown id', async () => {
     const res = await request('GET', '/api/agents/unknown-id-12345');
     assert.strictEqual(res.status, 404);
   });
 
-  it('PUT /api/agents/:id → 200', async () => {
+  it('PUT /api/agents/:id -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'UpdateAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('PUT', `/api/agents/${created.body.id}`, { name: 'UpdatedAgent', type: 'updated' });
+    const res = await request('PUT', '/api/agents/' + created.body.id, { name: 'UpdatedAgent', type: 'updated' });
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.name, 'UpdatedAgent');
   });
 
-  it('DELETE /api/agents/:id → 204', async () => {
+  it('DELETE /api/agents/:id -> 204', async () => {
     const created = await request('POST', '/api/agents', { name: 'DeleteAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('DELETE', `/api/agents/${created.body.id}`);
+    const res = await request('DELETE', '/api/agents/' + created.body.id);
     assert.strictEqual(res.status, 204);
   });
 });
 
 describe('Agent Versioning', () => {
-  it('POST /api/agents/:id/versions → 201', async () => {
+  it('POST /api/agents/:id/versions -> 201', async () => {
     const created = await request('POST', '/api/agents', { name: 'VersionAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('POST', `/api/agents/${created.body.id}/versions`, {
+    const res = await request('POST', '/api/agents/' + created.body.id + '/versions', {
       version: '1.1.0',
       changelog: 'Minor improvements',
     });
@@ -134,54 +134,54 @@ describe('Agent Versioning', () => {
     assert.strictEqual(res.body.agent_id, created.body.id);
   });
 
-  it('GET /api/agents/:id/versions → 200', async () => {
+  it('GET /api/agents/:id/versions -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'VListAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/versions`, { version: '1.1.0', changelog: 'A' });
-    await request('POST', `/api/agents/${created.body.id}/versions`, { version: '1.2.0', changelog: 'B' });
-    const res = await request('GET', `/api/agents/${created.body.id}/versions`);
+    await request('POST', '/api/agents/' + created.body.id + '/versions', { version: '1.1.0', changelog: 'A' });
+    await request('POST', '/api/agents/' + created.body.id + '/versions', { version: '1.2.0', changelog: 'B' });
+    const res = await request('GET', '/api/agents/' + created.body.id + '/versions');
     assert.strictEqual(res.status, 200);
     assert.ok(Array.isArray(res.body.versions));
-    assert.strictEqual(res.body.versions.length, 3); // v1.0.0 + 2 new
+    assert.strictEqual(res.body.versions.length, 3);
   });
 
-  it('GET /api/agents/:id/versions/:version → 200', async () => {
+  it('GET /api/agents/:id/versions/:version -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'VGetAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/versions`, { version: '1.1.0', changelog: 'New features' });
-    const res = await request('GET', `/api/agents/${created.body.id}/versions/1.1.0`);
+    await request('POST', '/api/agents/' + created.body.id + '/versions', { version: '1.1.0', changelog: 'New features' });
+    const res = await request('GET', '/api/agents/' + created.body.id + '/versions/1.1.0');
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.version, '1.1.0');
   });
 
-  it('POST /api/agents/:id/rollback → 200', async () => {
+  it('POST /api/agents/:id/rollback -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'RollbackAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/versions`, { version: '1.1.0', changelog: 'New' });
-    const res = await request('POST', `/api/agents/${created.body.id}/rollback`, { target_version: '1.0.0' });
+    await request('POST', '/api/agents/' + created.body.id + '/versions', { version: '1.1.0', changelog: 'New' });
+    const res = await request('POST', '/api/agents/' + created.body.id + '/rollback', { target_version: '1.0.0' });
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.current_version, '1.0.0');
   });
 });
 
 describe('Agent Deployment', () => {
-  it('POST /api/agents/:id/deploy → 201', async () => {
+  it('POST /api/agents/:id/deploy -> 201', async () => {
     const created = await request('POST', '/api/agents', { name: 'DeployAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('POST', `/api/agents/${created.body.id}/deploy`, { environment: 'staging', version: '1.0.0' });
+    const res = await request('POST', '/api/agents/' + created.body.id + '/deploy', { environment: 'staging', version: '1.0.0' });
     assert.strictEqual(res.status, 201);
     assert.strictEqual(res.body.environment, 'staging');
     assert.strictEqual(res.body.status, 'deployed');
   });
 
-  it('POST /api/agents/:id/deploy with canary → 201', async () => {
+  it('POST /api/agents/:id/deploy with canary -> 201', async () => {
     const created = await request('POST', '/api/agents', { name: 'CanaryAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('POST', `/api/agents/${created.body.id}/deploy`, { environment: 'production', version: '1.0.0', canary: { enabled: true, percentage: 20 } });
+    const res = await request('POST', '/api/agents/' + created.body.id + '/deploy', { environment: 'production', version: '1.0.0', canary: { enabled: true, percentage: 20 } });
     assert.strictEqual(res.status, 201);
     assert.deepStrictEqual(res.body.canary, { enabled: true, percentage: 20 });
   });
 
-  it('GET /api/agents/:id/deployments → 200', async () => {
+  it('GET /api/agents/:id/deployments -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'DeployListAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/deploy`, { environment: 'dev', version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/deploy`, { environment: 'staging', version: '1.0.0' });
-    const res = await request('GET', `/api/agents/${created.body.id}/deployments`);
+    await request('POST', '/api/agents/' + created.body.id + '/deploy', { environment: 'dev', version: '1.0.0' });
+    await request('POST', '/api/agents/' + created.body.id + '/deploy', { environment: 'staging', version: '1.0.0' });
+    const res = await request('GET', '/api/agents/' + created.body.id + '/deployments');
     assert.strictEqual(res.status, 200);
     assert.ok(Array.isArray(res.body.deployments));
     assert.strictEqual(res.body.deployments.length, 2);
@@ -189,9 +189,9 @@ describe('Agent Deployment', () => {
 });
 
 describe('Agent Monitoring', () => {
-  it('POST /api/agents/:id/metrics → 201', async () => {
+  it('POST /api/agents/:id/metrics -> 201', async () => {
     const created = await request('POST', '/api/agents', { name: 'MetricsAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('POST', `/api/agents/${created.body.id}/metrics`, {
+    const res = await request('POST', '/api/agents/' + created.body.id + '/metrics', {
       timestamp: new Date().toISOString(),
       requests: 100,
       errors: 2,
@@ -201,27 +201,27 @@ describe('Agent Monitoring', () => {
     assert.strictEqual(res.body.agent_id, created.body.id);
   });
 
-  it('GET /api/agents/:id/metrics → 200', async () => {
+  it('GET /api/agents/:id/metrics -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'MetricsGetAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/metrics`, { timestamp: new Date().toISOString(), requests: 50, errors: 1, latency_avg_ms: 100 });
-    const res = await request('GET', `/api/agents/${created.body.id}/metrics`);
+    await request('POST', '/api/agents/' + created.body.id + '/metrics', { timestamp: new Date().toISOString(), requests: 50, errors: 1, latency_avg_ms: 100 });
+    const res = await request('GET', '/api/agents/' + created.body.id + '/metrics');
     assert.strictEqual(res.status, 200);
     assert.ok(Array.isArray(res.body.metrics));
   });
 
-  it('GET /api/agents/:id/metrics/summary → 200', async () => {
+  it('GET /api/agents/:id/metrics/summary -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'SummaryAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/metrics`, { timestamp: new Date().toISOString(), requests: 100, errors: 5, latency_avg_ms: 200 });
-    const res = await request('GET', `/api/agents/${created.body.id}/metrics/summary`);
+    await request('POST', '/api/agents/' + created.body.id + '/metrics', { timestamp: new Date().toISOString(), requests: 100, errors: 5, latency_avg_ms: 200 });
+    const res = await request('GET', '/api/agents/' + created.body.id + '/metrics/summary');
     assert.strictEqual(res.status, 200);
     assert.ok(res.body.total_requests >= 100);
   });
 });
 
 describe('Agent Deprecation', () => {
-  it('POST /api/agents/:id/deprecate → 200', async () => {
+  it('POST /api/agents/:id/deprecate -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'DeprecateAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('POST', `/api/agents/${created.body.id}/deprecate`, {
+    const res = await request('POST', '/api/agents/' + created.body.id + '/deprecate', {
       reason: 'End of life',
       sunset_date: '2026-12-31',
       replacement_agent_id: 'replacement-123',
@@ -231,20 +231,20 @@ describe('Agent Deprecation', () => {
     assert.ok(res.body.deprecated_at);
   });
 
-  it('GET /api/deprecated → 200', async () => {
+  it('GET /api/deprecated -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'ListDeprecatedAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/deprecate`, { reason: 'EOL' });
+    await request('POST', '/api/agents/' + created.body.id + '/deprecate', { reason: 'EOL' });
     const res = await request('GET', '/api/deprecated');
     assert.strictEqual(res.status, 200);
     assert.ok(Array.isArray(res.body.agents));
-    assert.ok(res.body.agents.some(a => a.id === created.body.id));
+    assert.ok(res.body.agents.some(function(a) { return a.id === created.body.id; }));
   });
 });
 
 describe('Agent Retirement', () => {
-  it('POST /api/agents/:id/retire → 200', async () => {
+  it('POST /api/agents/:id/retire -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'RetireAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('POST', `/api/agents/${created.body.id}/retire', {
+    const res = await request('POST', '/api/agents/' + created.body.id + '/retire', {
       reason: 'Superseded',
       archive_data: true,
     });
@@ -253,33 +253,33 @@ describe('Agent Retirement', () => {
     assert.ok(res.body.retired_at);
   });
 
-  it('POST /api/agents/:id/restore → 200', async () => {
+  it('POST /api/agents/:id/restore -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'RestoreAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/retire', { reason: 'Temp retire' });
-    const res = await request('POST', `/api/agents/${created.body.id}/restore`);
+    await request('POST', '/api/agents/' + created.body.id + '/retire', { reason: 'Temporary retirement' });
+    const res = await request('POST', '/api/agents/' + created.body.id + '/restore');
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.status, 'active');
   });
 
-  it('GET /api/retired → 200', async () => {
+  it('GET /api/retired -> 200', async () => {
     const created = await request('POST', '/api/agents', { name: 'ListRetiredAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    await request('POST', `/api/agents/${created.body.id}/retire`, { reason: 'Permanent' });
+    await request('POST', '/api/agents/' + created.body.id + '/retire', { reason: 'Permanent' });
     const res = await request('GET', '/api/retired');
     assert.strictEqual(res.status, 200);
     assert.ok(Array.isArray(res.body.agents));
-    assert.ok(res.body.agents.some(a => a.id === created.body.id));
+    assert.ok(res.body.agents.some(function(a) { return a.id === created.body.id; }));
   });
 });
 
 describe('Agent Policies', () => {
-  it('GET /api/policies → 200 with seeded policies', async () => {
+  it('GET /api/policies -> 200 with seeded policies', async () => {
     const res = await request('GET', '/api/policies');
     assert.strictEqual(res.status, 200);
     assert.ok(Array.isArray(res.body.policies));
-    assert.ok(res.body.policies.length >= 3); // seeded deployment, deprecation, retirement
+    assert.ok(res.body.policies.length >= 3);
   });
 
-  it('POST /api/policies → 201', async () => {
+  it('POST /api/policies -> 201', async () => {
     const res = await request('POST', '/api/policies', {
       name: 'Custom Policy',
       description: 'Test policy',
@@ -289,42 +289,42 @@ describe('Agent Policies', () => {
     assert.ok(res.body.id);
   });
 
-  it('GET /api/policies/:id → 200', async () => {
+  it('GET /api/policies/:id -> 200', async () => {
     const res = await request('GET', '/api/policies/deployment');
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.name, 'Default Deployment Policy');
   });
 
-  it('PUT /api/policies/:id → 200', async () => {
+  it('PUT /api/policies/:id -> 200', async () => {
     const res = await request('PUT', '/api/policies/deployment', { name: 'Updated Deployment Policy' });
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.name, 'Updated Deployment Policy');
   });
 
-  it('DELETE /api/policies/:id → 204', async () => {
+  it('DELETE /api/policies/:id -> 204', async () => {
     await request('POST', '/api/policies', { name: 'TempPolicy', description: 'Delete me', rules: [] });
     const list = await request('GET', '/api/policies');
-    const temp = list.body.policies.find(p => p.name === 'TempPolicy');
-    const res = await request('DELETE', `/api/policies/${temp.id}`);
+    const temp = list.body.policies.find(function(p) { return p.name === 'TempPolicy'; });
+    const res = await request('DELETE', '/api/policies/' + temp.id);
     assert.strictEqual(res.status, 204);
   });
 });
 
-describe('Health & Stats', () => {
-  it('GET /health → 200', async () => {
+describe('Health and Stats', () => {
+  it('GET /health -> 200', async () => {
     const res = await request('GET', '/health');
     assert.strictEqual(res.status, 200);
     assert.ok(res.body.status);
   });
 
-  it('GET /api/stats → 200', async () => {
+  it('GET /api/stats -> 200', async () => {
     const res = await request('GET', '/api/stats');
     assert.strictEqual(res.status, 200);
     assert.ok(typeof res.body.total_agents === 'number');
     assert.ok(typeof res.body.total_requests === 'number');
   });
 
-  it('GET /api/audit → 200', async () => {
+  it('GET /api/audit -> 200', async () => {
     await request('POST', '/api/agents', { name: 'AuditAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
     const res = await request('GET', '/api/audit');
     assert.strictEqual(res.status, 200);
@@ -333,9 +333,9 @@ describe('Health & Stats', () => {
 });
 
 describe('Quality Endpoint', () => {
-  it('GET /api/agents/:id/quality → 200 with scores', async () => {
+  it('GET /api/agents/:id/quality -> 200 with scores', async () => {
     const created = await request('POST', '/api/agents', { name: 'QualityAgent', type: 'reasoning', capabilities: [], version: '1.0.0' });
-    const res = await request('GET', `/api/agents/${created.body.id}/quality`);
+    const res = await request('GET', '/api/agents/' + created.body.id + '/quality');
     assert.strictEqual(res.status, 200);
     assert.ok(typeof res.body.overall_score === 'number');
     assert.ok(res.body.overall_score >= 0 && res.body.overall_score <= 1);

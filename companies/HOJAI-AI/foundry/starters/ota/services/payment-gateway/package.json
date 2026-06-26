@@ -1,0 +1,7 @@
+{
+  "name": "@ota/payment-gateway",
+  "version": "1.0.0",
+  "description": "Payment Gateway - Razorpay + Stripe",
+  "main": "src/index.js",
+  "type": "module"
+}

@@ -872,6 +872,7 @@ app.use((err, _req, res, _next) => {
 // ---------------------------------------------------------------------------
 
 module.exports = app;
+module.exports.app = app;
 module.exports.PORT = PORT;
 module.exports.SERVICE_NAME = SERVICE_NAME;
 module.exports.VERSION = VERSION;

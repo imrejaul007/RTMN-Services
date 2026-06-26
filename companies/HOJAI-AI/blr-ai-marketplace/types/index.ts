@@ -9,7 +9,7 @@ export interface Listing {
   title: string;
   description: string;
   shortDescription?: string;
-  category: Category;
+  category: string;
   tags: string[];
   pricingModel: PricingModel;
   price?: number;

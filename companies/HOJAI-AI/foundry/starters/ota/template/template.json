@@ -1,0 +1,88 @@
+{
+  "id": "ota",
+  "name": "Online Travel Agency (OTA)",
+  "version": "1.0.0",
+  "tagline": "AI-powered travel booking platform",
+  "description": "MakeMyTrip/Booking.com clone with AI handling hotel discovery, flight search, package booking, and travel planning. Integrates with PMS, GDS, and global travel networks.",
+  "category": "travel",
+  "icon": "✈️",
+  "color": "#0284C7",
+  "sector": "travel",
+
+  "crew": {
+    "ai_workers": [
+      { "role": "TripPlannerAgent", "salary": 450, "model": "claude-3-sonnet", "skills": ["itinerary", "destinations", "budget-optimization", "multi-city"] },
+      { "role": "HotelDiscoveryAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["hotel-search", "reviews-analysis", "pricing", "comparisons"] },
+      { "role": "FlightAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["gds-integration", "fare-comparison", "seat-selection", "fare-alerts"] },
+      { "role": "BookingAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["reservation", "confirmation", "amendments", "cancellations"] },
+      { "role": "PackageAgent", "salary": 350, "model": "claude-3-sonnet", "skills": ["holiday-packages", "custom-tours", "group-bookings", "corporate"] },
+      { "role": "VisaAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["visa-check", "document-guidance", "application-tracking"] },
+      { "role": "InsuranceAgent", "salary": 300, "model": "claude-3-haiku", "skills": ["travel-insurance", "flight-delay", "medical-coverage", "cancellation"] },
+      { "role": "CustomerServiceAgent", "salary": 200, "model": "claude-3-haiku", "skills": ["24x7-support", "chat", "refunds", "rebooking"] },
+      { "role": "MarketingAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["seo", "ads", "email", "referrals", "corporate-sales"] },
+      { "role": "CorporateAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["corporate-bookings", "travel-policy", "expense-reports", "mice"] },
+      { "role": "RevenueAgent", "salary": 400, "model": "claude-3-sonnet", "skills": ["dynamic-pricing", "yield-management", "competitor-analysis", "forecasting"] },
+      { "role": "PartnerAgent", "salary": 350, "model": "claude-3-haiku", "skills": ["hotel-onboarding", "airline-contracts", "gds-contracts", "commissions"] },
+      { "role": "AnalyticsAgent", "salary": 300, "model": "claude-3-sonnet", "skills": ["booking-analytics", "user-behavior", "cohort-analysis", "attribution"] }
+    ]
+  },
+
+  "total_ai_salary": 4450,
+
+  "twins": [
+    { "type": "traveler", "name": "{{company}} Traveler" },
+    { "type": "hotel", "name": "{{company}} Hotel Partner" },
+    { "type": "flight", "name": "{{company}} Flight" },
+    { "type": "booking", "name": "{{company}} Booking" },
+    { "type": "package", "name": "{{company}} Holiday Package" },
+    { "type": "review", "name": "{{company}} Review" },
+    { "type": "itinerary", "name": "{{company}} Itinerary" },
+    { "type": "payment", "name": "{{company}} Payment" },
+    { "type": "loyalty", "name": "{{company}} Loyalty Points" },
+    { "type": "corporate_account", "name": "{{company}} Corporate Account" }
+  ],
+
+  "flows": [
+    { "id": "hotel_search_flow", "name": "Hotel Search & Booking Flow", "trigger": "search_hotels" },
+    { "id": "flight_search_flow", "name": "Flight Search & Booking Flow", "trigger": "search_flights" },
+    { "id": "package_booking_flow", "name": "Holiday Package Booking Flow", "trigger": "book_package" },
+    { "id": "corporate_booking_flow", "name": "Corporate Travel Booking Flow", "trigger": "corporate_book" },
+    { "id": "refund_flow", "name": "Cancellation & Refund Flow", "trigger": "cancellation_requested" },
+    { "id": "loyalty_flow", "name": "Loyalty Points & Rewards Flow", "trigger": "booking_completed" }
+  ],
+
+  "nexha_connections": [
+    { "network": "hotel-os", "purpose": "Hotel inventory, rates, availability" },
+    { "network": "booking-engine", "purpose": "Real-time booking, GDS integration" },
+    { "network": "pms", "purpose": "Property Management System sync" },
+    { "network": "payment", "purpose": "Multi-currency payments, BNPL" },
+    { "network": "insurance", "purpose": "Travel insurance distribution" },
+    { "network": "visa", "purpose": "Visa services" },
+    { "network": "loyalty", "purpose": "Points aggregation" }
+  ],
+
+  "integrations": [
+    { "name": "channel-manager", "required": true },
+    { "name": "gds-api", "required": true },
+    { "name": "payment-gateway", "required": true },
+    { "name": "pms-api", "required": true },
+    { "name": "booking-engine", "required": true }
+  ],
+
+  "policies": [
+    { "name": "cancellation_window_hours", "value": 48 },
+    { "name": "refund_processing_days", "value": 7 },
+    { "name": "commission_hotel", "value": 0.15 },
+    { "name": "commission_flight", "value": 0.05 },
+    { "name": "loyalty_multiplier", "value": 1.5 },
+    { "name": "price_match_guarantee", "value": true }
+  ],
+
+  "pricing": {
+    "hotel_commission": "15-25%",
+    "flight_commission": "3-5%",
+    "package_markup": "10-20%",
+    "corporate_discount": "5-10%",
+    "loyalty_redemption": "₹1 per point"
+  }
+}

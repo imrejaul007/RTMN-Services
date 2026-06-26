@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/agent-generator",
+  "version": "1.0.0",
+  "description": "Generates agent templates for 510+ companies",
+  "main": "src/index.js",
+  "type": "module"
+}

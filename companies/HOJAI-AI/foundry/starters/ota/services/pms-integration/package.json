@@ -1,0 +1,7 @@
+{
+  "name": "@ota/pms-integration",
+  "version": "1.0.0",
+  "description": "PMS Integration Service - Oracle OHIP, Cloudbeds, Mews",
+  "main": "src/index.js",
+  "type": "module"
+}

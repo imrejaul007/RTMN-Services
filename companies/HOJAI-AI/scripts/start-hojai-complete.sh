@@ -73,14 +73,22 @@ main() {
   start "Analytics" 4490 "services" "analytics-service"
   start "Notifications" 4495 "services" "notification-service"
 
-  # Foundry (ports 4500-4510)
+  # Foundry (ports 4500-4540)
   start "Template Compiler" 4500 "foundry/services" "template-compiler"
   start "BAM Integration" 4510 "foundry/services" "bam-integration"
+  start "Agent Generator" 4520 "foundry/services" "agent-generator"
+  start "HOJAI Auth" 4530 "foundry/services" "auth-middleware"
+  start "Deploy Pipeline" 4540 "foundry/services" "deploy-pipeline"
 
   # DO Mobility (ports 4610-4612)
   start "DO Passenger" 4610 "foundry/services/do-mobility-app" "passenger"
   start "DO Driver" 4611 "foundry/services/do-mobility-app" "driver"
   start "DO Admin" 4612 "foundry/services/do-mobility-app" "admin"
+
+  # Studio UI (port 3001)
+  echo "Starting Studio UI..."
+  cd "$ROOT/products/hojai-studio-ui" 2>/dev/null && nohup npm run dev > "$LOG_DIR/studio.log" 2>&1 &
+  ok "Studio UI (3001)"
 
   echo ""
   echo "╔══════════════════════════════════════════════════════════════╗"

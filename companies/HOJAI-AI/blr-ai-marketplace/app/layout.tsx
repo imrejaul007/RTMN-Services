@@ -38,8 +38,8 @@ export default function RootLayout({
                 <a href="/listings?q=featured:true" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
                   Featured
                 </a>
-                <a href="/listings?q=rating=4" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-                  Top Rated
+                <a href="/explore" className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors">
+                  Explore Nexha
                 </a>
                 <a href="/dashboard" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
                   Dashboard

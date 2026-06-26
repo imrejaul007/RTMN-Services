@@ -21,7 +21,7 @@ function SuccessContent() {
 
     async function fetchSession() {
       try {
-        const data = await getCheckoutSession(sessionId);
+        const data = await getCheckoutSession(sessionId || '');
         setSessionData(data);
       } catch (err) {
         console.error('Failed to fetch session:', err);

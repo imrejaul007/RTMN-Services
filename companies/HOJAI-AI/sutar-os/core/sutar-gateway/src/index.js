@@ -57,7 +57,7 @@ const SERVICES = {
   agentNetwork:                 { name: 'SUTAR Agent Network (+ REZ Bridge)', port: 4155, layer: 3, status: 'live' },
 
   // Layer 4 — decision + simulation + learning + flow + founder
-  decisionEngine:               { name: 'SUTAR Decision Engine',             port: 4240, layer: 4, status: 'live' },
+  decisionEngine:               { name: 'SUTAR Decision Engine',             port: 4290, layer: 4, status: 'live' },
   simulationOS:                 { name: 'SUTAR Simulation OS',               port: 4241, layer: 4, status: 'live' },
   goalOS:                       { name: 'SUTAR Goal OS',                     port: 4242, layer: 4, status: 'live' },
   networkLearning:              { name: 'SUTAR Network Learning',            port: 4243, layer: 4, status: 'live' },
@@ -66,14 +66,14 @@ const SERVICES = {
 
   // Layer 5 — marketplace + economy + usage + policy
   marketplace:                  { name: 'SUTAR Marketplace (Salar OS)',      port: 4250, layer: 5, status: 'live' },
-  economyOS:                    { name: 'SUTAR Economy OS',                  port: 4251, layer: 5, status: 'live' },
+  economyOS:                    { name: 'SUTAR Economy OS',                  port: 4294, layer: 5, status: 'live' },
   usageTracker:                 { name: 'SUTAR Usage Tracker',               port: 4252, layer: 5, status: 'live' },
   policyOS:                     { name: 'SUTAR Policy OS',                   port: 4254, layer: 5, status: 'live' },
 
   // Layer 6 — trust + contracts + negotiation + teaming
-  trustEngine:                  { name: 'SUTAR Trust Engine',                port: 4180, layer: 6, status: 'live' },
-  contractsOS:                  { name: 'SUTAR Contracts OS',                port: 4185, layer: 6, status: 'live' },
-  negotiationEngine:            { name: 'SUTAR Negotiation Engine',          port: 4191, layer: 6, status: 'live' },
+  trustEngine:                  { name: 'SUTAR Trust Engine',                port: 4291, layer: 6, status: 'live' },
+  contractsOS:                  { name: 'SUTAR Contracts OS',                port: 4292, layer: 6, status: 'live' },
+  negotiationEngine:            { name: 'SUTAR Negotiation Engine',          port: 4293, layer: 6, status: 'live' },
 
   // Agent layer (orthogonal to the 7 layers) — team formation & leader election
   agentTeaming:                 { name: 'SUTAR Agent Teaming',               port: 4853, layer: 'agent', status: 'live' },

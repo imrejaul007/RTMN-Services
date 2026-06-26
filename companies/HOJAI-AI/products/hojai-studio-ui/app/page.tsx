@@ -3,15 +3,21 @@ import { useState } from 'react';
 import { Zap, Rocket, Users, Shield, ArrowRight, Check } from 'lucide-react';
 
 const TEMPLATES = [
-  { id: 'mobility', name: 'Mobility', icon: '🚗', desc: 'Uber-like ride-hailing', agents: 13, color: '#FF6B35' },
-  { id: 'marketplace', name: 'Marketplace', icon: '🛒', desc: 'B2C/B2B catalog', agents: 8, color: '#8B5CF6' },
-  { id: 'healthcare', name: 'Healthcare', icon: '🏥', desc: 'Telemedicine + pharmacy', agents: 6, color: '#10B981' },
-  { id: 'education', name: 'Education', icon: '🎓', desc: 'LMS + AI tutoring', agents: 6, color: '#F59E0B' },
-  { id: 'finance', name: 'Fintech', icon: '💰', desc: 'Digital bank + payments', agents: 7, color: '#EC4899' },
+  // NEW: Travel templates
+  { id: 'ota', name: 'Online Travel Agency', icon: '✈️', desc: 'MakeMyTrip/Booking.com clone', agents: 13, color: '#0284C7' },
+  // New specialized templates
+  { id: 'agentic-ecommerce', name: 'Agentic E-Commerce', icon: '🛍️', desc: 'AI-first Amazon/Flipkart clone', agents: 12, color: '#E11D48' },
+  { id: 'food-delivery', name: 'Food Delivery', icon: '🍔', desc: 'Uber Eats/Swiggy clone', agents: 10, color: '#FF5722' },
+  { id: 'import-export', name: 'Import/Export', icon: '🌍', desc: 'B2B global trade network', agents: 9, color: '#1E40AF' },
+  // Existing templates
+  { id: 'mobility', name: 'Mobility', icon: '🚗', desc: 'Uber/Ola ride-hailing', agents: 13, color: '#FF6B35' },
+  { id: 'marketplace', name: 'Marketplace', icon: '🛒', desc: 'B2C/B2B catalog + checkout', agents: 8, color: '#8B5CF6' },
+  { id: 'healthcare', name: 'Healthcare', icon: '🏥', desc: 'Practo-like telemedicine', agents: 6, color: '#10B981' },
+  { id: 'education', name: 'Education', icon: '🎓', desc: 'BYJU\\'s-like LMS', agents: 6, color: '#F59E0B' },
+  { id: 'finance', name: 'Fintech', icon: '💰', desc: 'CRED/Groww digital bank', agents: 7, color: '#EC4899' },
   { id: 'restaurant', name: 'Restaurant', icon: '🍽️', desc: 'POS + delivery', agents: 6, color: '#EF4444' },
-  { id: 'hotel', name: 'Hotel', icon: '🏨', desc: 'Booking + guest mgmt', agents: 7, color: '#06B6D4' },
-  { id: 'logistics', name: 'Logistics', icon: '🚚', desc: 'Fleet + dispatch', agents: 8, color: '#84CC16' },
-  { id: 'b2b', name: 'B2B Platform', icon: '🤝', desc: 'RFQ + trade finance', agents: 9, color: '#6366F1' },
+  { id: 'hotel', name: 'Hotel', icon: '🏨', desc: 'OYO-like booking', agents: 7, color: '#06B6D4' },
+  { id: 'logistics', name: 'Logistics', icon: '🚚', desc: 'Delhivery-like fleet', agents: 8, color: '#84CC16' },
 ];
 
 const STEPS = ['Select Template', 'Company Details', 'AI Workers', 'Review & Deploy'];

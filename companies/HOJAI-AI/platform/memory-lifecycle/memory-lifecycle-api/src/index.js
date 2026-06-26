@@ -222,8 +222,8 @@ app.post('/api/memories', authOrBypass, (req, res) => {
   if (!memoryType || typeof memoryType !== 'string') {
     return res.status(400).json({ error: 'memoryType (string) is required' });
   }
-  if (!content || typeof content !== 'string') {
-    return res.status(400).json({ error: 'content (string) is required' });
+  if (!content) {
+    return res.status(400).json({ error: 'content is required' });
   }
 
   const id = uuidv4();
@@ -404,6 +404,23 @@ app.post('/api/memories/:id/restore', authOrBypass, (req, res) => {
   res.json({ message: 'Memory restored', memory: m });
 });
 
+/** POST /api/memories/:id/archive — Archive a specific memory */
+app.post('/api/memories/:id/archive', authOrBypass, (req, res) => {
+  const m = memories.get(req.params.id);
+  if (!m) return res.status(404).json({ error: 'Memory not found' });
+
+  m.status = 'archived';
+  m.archivedAt = new Date().toISOString();
+  m.updatedAt = m.archivedAt;
+  const record = { ...m };
+  archive.set(m.id, record);
+  stats.memoriesArchived++;
+
+  audit({ _req: req, op: 'memory.archive', memoryId: m.id });
+
+  res.json({ message: 'Memory archived', memory: m });
+});
+
 /** GET /api/archive — List archived memories */
 app.get('/api/archive', (req, res) => {
   const { memoryType, limit, offset } = req.query;
@@ -530,6 +547,7 @@ app.post('/api/conflicts', authOrBypass, (req, res) => {
     memoryIdA,
     memoryIdB,
     conflictType: conflictType || 'contradiction',
+    status: 'open',
     resolution: resolution || 'pending',
     resolvedAt: resolution ? new Date().toISOString() : null,
     resolvedBy: resolution ? principalOf(req) : null,
@@ -576,10 +594,9 @@ app.post('/api/conflicts/:id/resolve', authOrBypass, (req, res) => {
 // GDPR
 // ===============================
 
-/** POST /api/gdpr/delete — GDPR right to be forgotten */
-app.post('/api/gdpr/delete', authOrBypass, (req, res) => {
-  const { entityId } = req.body || {};
-  if (!entityId) return res.status(400).json({ error: 'entityId is required' });
+/** POST /api/gdpr/delete/:entityId — GDPR right to be forgotten */
+app.post('/api/gdpr/delete/:entityId', authOrBypass, (req, res) => {
+  const entityId = req.params.entityId;
 
   const deleted = [];
   for (const [id, m] of memories) {
@@ -596,10 +613,9 @@ app.post('/api/gdpr/delete', authOrBypass, (req, res) => {
   res.json({ message: 'GDPR deletion complete', entityId, deletedCount: deleted.length });
 });
 
-/** POST /api/gdpr/anonymize — Anonymize user data */
-app.post('/api/gdpr/anonymize', authOrBypass, (req, res) => {
-  const { entityId } = req.body || {};
-  if (!entityId) return res.status(400).json({ error: 'entityId is required' });
+/** POST /api/gdpr/anonymize/:entityId — Anonymize user data */
+app.post('/api/gdpr/anonymize/:entityId', authOrBypass, (req, res) => {
+  const entityId = req.params.entityId;
 
   const anonymized = [];
   for (const [id, m] of memories) {
@@ -618,10 +634,9 @@ app.post('/api/gdpr/anonymize', authOrBypass, (req, res) => {
   res.json({ message: 'Anonymization complete', entityId, anonymizedCount: anonymized.length });
 });
 
-/** POST /api/gdpr/export — Export all user data */
-app.post('/api/gdpr/export', authOrBypass, (req, res) => {
-  const { entityId } = req.body || {};
-  if (!entityId) return res.status(400).json({ error: 'entityId is required' });
+/** GET /api/gdpr/export/:entityId — Export all user data */
+app.get('/api/gdpr/export/:entityId', authOrBypass, (req, res) => {
+  const entityId = req.params.entityId;
 
   const userMemories = Array.from(memories.values()).filter(m => m.entityId === entityId);
 
@@ -635,10 +650,11 @@ app.post('/api/gdpr/export', authOrBypass, (req, res) => {
   });
 });
 
-/** GET /api/gdpr/audit — GDPR audit log */
-app.get('/api/gdpr/audit', (req, res) => {
-  const entries = auditLog.filter(e => e.op && e.op.startsWith('gdpr.'));
-  res.json({ count: entries.length, entries });
+/** GET /api/gdpr/audit/:entityId — GDPR audit log */
+app.get('/api/gdpr/audit/:entityId', (req, res) => {
+  const entityId = req.params.entityId;
+  const entries = auditLog.filter(e => e.op && e.op.startsWith('gdpr.') && e.entityId === entityId);
+  res.json({ count: entries.length, audit_trail: entries });
 });
 
 // ===============================
@@ -651,7 +667,7 @@ app.get('/api/policies', (req, res) => {
   let list = Array.from(policies.values());
   if (type) list = list.filter(p => p.type === type);
   if (status) list = list.filter(p => p.status === status);
-  res.json({ count: list.length, policies: list });
+  res.json({ policies: list });
 });
 
 /** POST /api/policies — Create policy */
@@ -705,6 +721,13 @@ app.put('/api/policies/:id', authOrBypass, (req, res) => {
   res.json({ message: 'Policy updated', policy: p });
 });
 
+/** GET /api/policies/:id — Get single policy */
+app.get('/api/policies/:id', (req, res) => {
+  const p = policies.get(req.params.id);
+  if (!p) return res.status(404).json({ error: 'Policy not found' });
+  res.json({ policy: p });
+});
+
 /** DELETE /api/policies/:id — Delete policy */
 app.delete('/api/policies/:id', authOrBypass, (req, res) => {
   const p = policies.get(req.params.id);
@@ -717,6 +740,23 @@ app.delete('/api/policies/:id', authOrBypass, (req, res) => {
 // ===============================
 // ANALYTICS
 // ===============================
+
+/** GET /api/analytics — Aggregate analytics */
+app.get('/api/analytics', (_req, res) => {
+  const byType = {};
+  const byStatus = {};
+  for (const m of memories.values()) {
+    byType[m.memoryType] = (byType[m.memoryType] || 0) + 1;
+    byStatus[m.status] = (byStatus[m.status] || 0) + 1;
+  }
+  res.json({
+    total_memories: memories.size,
+    archived_memories: archive.size,
+    by_type: byType,
+    by_status: byStatus,
+    total_conflicts: conflicts.size,
+  });
+});
 
 /** GET /api/analytics/count — Memory counts by type */
 app.get('/api/analytics/count', (_req, res) => {
@@ -813,6 +853,7 @@ app.use((err, _req, res, _next) => {
 // ---------------------------------------------------------------------------
 
 module.exports = app;
+module.exports.app = app;
 module.exports.PORT = PORT;
 module.exports.SERVICE_NAME = SERVICE_NAME;
 module.exports.VERSION = VERSION;
