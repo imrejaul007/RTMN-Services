@@ -1,15 +1,28 @@
 #!/bin/bash
 # RTMN dev stack — one-command spin-up
 # ----------------------------------------------------------------------------
-# Starts the same services docker-compose.dev.yml would start, but using the
-# in-repo start scripts. Use this when Docker isn't available or you want
-# hot-reload.
+# Starts the FULL RTMN ecosystem:
+#   - RTMN Hub (4399)
+#   - Core Foundation (CorpID, MemoryOS, TwinOS, etc.)
+#   - SUTAR OS (Trust, Contract, Negotiation, Economy, Decision)
+#   - Nexha Platform (Capability, Reputation, Discovery, Federation, Market)
+#   - Nexha Network (Supplier, Distribution, Trade Finance, Warehouse, Pricing)
+#   - AgentOS (12 services: Registry, Capability, Tool, Skill, Message, Scheduler, etc.)
+#   - BLR AI Marketplace (7 services)
+#   - Department OS (9 services: Sales, Marketing, Finance, Workforce, etc.)
+#   - Industry OS (26 services: Restaurant, Hotel, Healthcare, Retail, etc.)
+#   - HOJAI AI (Voice Gateway, Intelligence, RAG, Vector DB, Graph DB, etc.)
+#   - Consumer Apps (Do App backend)
+#
+# Total: 85+ services across the full ecosystem
 #
 # Usage:
 #   bash scripts/dev-stack.sh start     # start everything
 #   bash scripts/dev-stack.sh stop      # stop everything
 #   bash scripts/dev-stack.sh status    # show what's running
 #   bash scripts/dev-stack.sh demo      # start + run demos/full-stack-demo.sh
+#
+# Total: 85+ services across the full ecosystem
 
 set -u
 
@@ -143,10 +156,15 @@ AGENT_OBSERVABILITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agen
 # HOJAI Voice Gateway (Phase F, 2026-06-24) — Training-aware STT/TTS router on port 4880
 VOICE_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-gateway && PORT=4880 REDIS_URL=redis://localhost:6379 npm start"
 
+# RAZO Keyboard (Phase F, 2026-06-25) — Communication OS on port 4299
+# "The keyboard that thinks" — intent detection + multi-channel messaging
+# DO_APP_URL is used by RAZO's Action Engine to call back into DO App orders/hotel-booking/etc.
+RAZO_KEYBOARD_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/razo/razo-keyboard && PORT=4299 DO_APP_URL=http://localhost:3001 REQUIRE_AUTH=false npm start"
+
 # BLR AI Marketplace (BAM) — 245 catalog entries
 # Moved from 4250 (conflicted with Nexha stub agent-marketplace)
 MARKETPLACE_LISTINGS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings && PORT=4255 MONGODB_URI=mongodb://127.0.0.1:27017/marketplace_listings npm start"
-BLR_EXPLORATION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-exploration && PORT=4255 REDIS_URL=redis://localhost:6379 npm start"
+BLR_EXPLORATION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-exploration && PORT=4261 REDIS_URL=redis://localhost:6379 npm start"
 BLR_DISCOVERY_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/discovery-engine && PORT=4256 REDIS_URL=redis://localhost:6379 npm start"
 BLR_MULTI_AGENT_EVAL_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-multi-agent-evaluator && PORT=4257 REDIS_URL=redis://localhost:6379 npm start"
 BLR_REPUTATION_AGG_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/blr-reputation-aggregator && PORT=4258 REDIS_URL=redis://localhost:6379 npm start"
@@ -198,6 +216,54 @@ NEXHA_REPUTATION_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-reputation
 NEXHA_DISCOVERY_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-discovery-os && PORT=4272 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_discovery_dev npm start"
 NEXHA_OPPORTUNITY_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-opportunity-os && PORT=4274 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_opportunity_dev npm start"
 NEXHA_MARKET_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-market-os && PORT=4275 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_market_dev npm start"
+
+# =============================================================================
+# DEPARTMENT OS — Horizontal layer across all industries (2026-06-25)
+# =============================================================================
+DEPT_SALES_OS_CMD="cd $RTMN_ROOT/industry-os/services/sales-os && PORT=5055 npm start"
+DEPT_MARKETING_OS_CMD="cd $RTMN_ROOT/industry-os/services/marketing-os && PORT=5500 npm start"
+DEPT_FINANCE_OS_CMD="cd $RTMN_ROOT/industry-os/services/finance-os && PORT=4801 npm start"
+DEPT_WORKFORCE_OS_CMD="cd $RTMN_ROOT/industry-os/services/workforce-os && PORT=5077 npm start"
+DEPT_OPERATIONS_OS_CMD="cd $RTMN_ROOT/industry-os/services/operations-os && PORT=5250 npm start"
+DEPT_REVENUE_OS_CMD="cd $RTMN_ROOT/industry-os/services/revenue-intelligence-os && PORT=5400 npm start"
+DEPT_PROCUREMENT_OS_CMD="cd $RTMN_ROOT/industry-os/services/procurement-os && PORT=5096 npm start"
+DEPT_MEDIA_OS_CMD="cd $RTMN_ROOT/industry-os/services/media-os && PORT=5600 npm start"
+
+# =============================================================================
+# INDUSTRY OS — Vertical layer for each vertical (2026-06-25)
+# =============================================================================
+IND_RESTAURANT_OS_CMD="cd $RTMN_ROOT/industry-os/services/restaurant-os && PORT=5010 npm start"
+IND_HOTEL_OS_CMD="cd $RTMN_ROOT/industry-os/services/hotel-os && PORT=5025 npm start"
+IND_HEALTHCARE_OS_CMD="cd $RTMN_ROOT/industry-os/services/healthcare-os && PORT=5020 npm start"
+IND_RETAIL_OS_CMD="cd $RTMN_ROOT/industry-os/services/retail-os && PORT=5030 npm start"
+IND_LEGAL_OS_CMD="cd $RTMN_ROOT/industry-os/services/legal-os && PORT=5035 npm start"
+IND_EXHIBITION_OS_CMD="cd $RTMN_ROOT/industry-os/services/exhibition-os && PORT=5040 npm start"
+IND_EDUCATION_OS_CMD="cd $RTMN_ROOT/industry-os/services/education-os && PORT=5060 npm start"
+IND_AGRICULTURE_OS_CMD="cd $RTMN_ROOT/industry-os/services/agriculture-os && PORT=5070 npm start"
+IND_AUTOMOTIVE_OS_CMD="cd $RTMN_ROOT/industry-os/services/automotive-os && PORT=5080 npm start"
+IND_BEAUTY_OS_CMD="cd $RTMN_ROOT/industry-os/services/beauty-os && PORT=5090 npm start"
+IND_FITNESS_OS_CMD="cd $RTMN_ROOT/industry-os/services/fitness-os && PORT=5110 npm start"
+IND_GAMING_OS_CMD="cd $RTMN_ROOT/industry-os/services/gaming-os && PORT=5120 npm start"
+IND_GOVERNMENT_OS_CMD="cd $RTMN_ROOT/industry-os/services/government-os && PORT=5130 npm start"
+IND_HOME_SERVICES_OS_CMD="cd $RTMN_ROOT/industry-os/services/home-services-os && PORT=5140 npm start"
+IND_MANUFACTURING_OS_CMD="cd $RTMN_ROOT/industry-os/services/manufacturing-os && PORT=5150 npm start"
+IND_NGO_OS_CMD="cd $RTMN_ROOT/industry-os/services/ngo-os && PORT=5160 npm start"
+IND_PROFESSIONAL_OS_CMD="cd $RTMN_ROOT/industry-os/services/professional-os && PORT=5170 npm start"
+IND_SPORTS_OS_CMD="cd $RTMN_ROOT/industry-os/services/sports-os && PORT=5180 npm start"
+IND_TRAVEL_OS_CMD="cd $RTMN_ROOT/industry-os/services/travel-os && PORT=5190 npm start"
+IND_ENTERTAINMENT_OS_CMD="cd $RTMN_ROOT/industry-os/services/entertainment-os && PORT=5200 npm start"
+IND_CONSTRUCTION_OS_CMD="cd $RTMN_ROOT/industry-os/services/construction-os && PORT=5210 npm start"
+IND_FINANCIAL_OS_CMD="cd $RTMN_ROOT/industry-os/services/financial-os && PORT=5220 npm start"
+IND_REAL_ESTATE_OS_CMD="cd $RTMN_ROOT/industry-os/services/realestate-os && PORT=5230 npm start"
+IND_TRANSPORT_OS_CMD="cd $RTMN_ROOT/industry-os/services/transport-os && PORT=5240 npm start"
+IND_EVENT_OS_CMD="cd $RTMN_ROOT/industry-os/services/event-banquet-os && PORT=4751 npm start"
+IND_ENERGY_OS_CMD="cd $RTMN_ROOT/industry-os/services/energy-os && PORT=5100 npm start"
+
+# =============================================================================
+# CONSUMER APPS
+# =============================================================================
+# Do App backend — built with tsc, entry is dist/src/index.js
+DO_APP_BACKEND_CMD="cd $RTMN_ROOT/companies/do-app/backend && PORT=3001 node dist/src/index.js"
 
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
@@ -316,6 +382,41 @@ status() {
     "nexha-federation-os:4273" \
     "nexha-global-directory:4276" \
     "nexha-partner-network:4297" \
+    "dept-sales:5055" \
+    "dept-marketing:5500" \
+    "dept-finance:4801" \
+    "dept-workforce:5077" \
+    "dept-operations:5250" \
+    "dept-revenue:5400" \
+    "dept-procurement:5096" \
+    "dept-media:5600" \
+    "ind-restaurant:5010" \
+    "ind-hotel:5025" \
+    "ind-healthcare:5020" \
+    "ind-retail:5030" \
+    "ind-legal:5035" \
+    "ind-exhibition:5040" \
+    "ind-education:5060" \
+    "ind-agriculture:5070" \
+    "ind-automotive:5080" \
+    "ind-beauty:5090" \
+    "ind-fitness:5110" \
+    "ind-gaming:5120" \
+    "ind-government:5130" \
+    "ind-home-services:5140" \
+    "ind-manufacturing:5150" \
+    "ind-ngo:5160" \
+    "ind-professional:5170" \
+    "ind-sports:5180" \
+    "ind-travel:5190" \
+    "ind-entertainment:5200" \
+    "ind-construction:5210" \
+    "ind-financial:5220" \
+    "ind-real-estate:5230" \
+    "ind-transport:5240" \
+    "ind-event:4751" \
+    "ind-energy:5100" \
+    "do-app:3001" \
     "agent-platform-api:4802" \
     "agent-registry:4803" \
     "agent-capability-store:4804" \
@@ -329,7 +430,9 @@ status() {
     "agent-execution-engine:4813" \
     "agent-observability:4814" \
     "voice-gateway:4880" \
+    "razo-keyboard:4299" \
     "bam-marketplace-listings:4255" \
+    "blr-exploration:4261" \
     "blr-discovery-engine:4256" \
     "blr-multi-agent-eval:4257" \
     "blr-reputation-agg:4258" \
@@ -445,6 +548,48 @@ start_all() {
   start_service "nexha-global-directory"    "$NEXHA_GLOBAL_DIRECTORY_CMD"    4276
   # Nexha Phase F.3 audit (2026-06-25) — partner network + autonomous logistics
   start_service "nexha-partner-network"     "$NEXHA_PARTNER_NETWORK_CMD"     4297
+  # Department OS — horizontal layer (2026-06-25)
+  start_service "dept-sales"           "$DEPT_SALES_OS_CMD"           5055
+  start_service "dept-marketing"       "$DEPT_MARKETING_OS_CMD"       5500
+  start_service "dept-finance"         "$DEPT_FINANCE_OS_CMD"         4801
+  start_service "dept-workforce"       "$DEPT_WORKFORCE_OS_CMD"       5077
+  start_service "dept-operations"      "$DEPT_OPERATIONS_OS_CMD"      5250
+  start_service "dept-revenue"         "$DEPT_REVENUE_OS_CMD"         5400
+  start_service "dept-procurement"     "$DEPT_PROCUREMENT_OS_CMD"     5096
+  start_service "dept-media"           "$DEPT_MEDIA_OS_CMD"           5600
+  # Industry OS — vertical layer (2026-06-25)
+  start_service "ind-restaurant"       "$IND_RESTAURANT_OS_CMD"       5010
+  start_service "ind-hotel"           "$IND_HOTEL_OS_CMD"           5025
+  start_service "ind-healthcare"      "$IND_HEALTHCARE_OS_CMD"      5020
+  start_service "ind-retail"          "$IND_RETAIL_OS_CMD"          5030
+  start_service "ind-legal"           "$IND_LEGAL_OS_CMD"           5035
+  start_service "ind-exhibition"      "$IND_EXHIBITION_OS_CMD"      5040
+  start_service "ind-education"       "$IND_EDUCATION_OS_CMD"       5060
+  start_service "ind-agriculture"     "$IND_AGRICULTURE_OS_CMD"     5070
+  start_service "ind-automotive"      "$IND_AUTOMOTIVE_OS_CMD"      5080
+  start_service "ind-beauty"          "$IND_BEAUTY_OS_CMD"          5090
+  start_service "ind-fitness"         "$IND_FITNESS_OS_CMD"         5110
+  start_service "ind-gaming"          "$IND_GAMING_OS_CMD"          5120
+  start_service "ind-government"     "$IND_GOVERNMENT_OS_CMD"      5130
+  start_service "ind-home-services"  "$IND_HOME_SERVICES_OS_CMD"   5140
+  start_service "ind-manufacturing"   "$IND_MANUFACTURING_OS_CMD"   5150
+  start_service "ind-ngo"             "$IND_NGO_OS_CMD"             5160
+  start_service "ind-professional"    "$IND_PROFESSIONAL_OS_CMD"    5170
+  start_service "ind-sports"          "$IND_SPORTS_OS_CMD"          5180
+  start_service "ind-travel"          "$IND_TRAVEL_OS_CMD"          5190
+  start_service "ind-entertainment"   "$IND_ENTERTAINMENT_OS_CMD"   5200
+  start_service "ind-construction"    "$IND_CONSTRUCTION_OS_CMD"    5210
+  start_service "ind-financial"       "$IND_FINANCIAL_OS_CMD"      5220
+  start_service "ind-real-estate"     "$IND_REAL_ESTATE_OS_CMD"     5230
+  start_service "ind-transport"       "$IND_TRANSPORT_OS_CMD"       5240
+  start_service "ind-event"           "$IND_EVENT_OS_CMD"           4751
+  start_service "ind-energy"          "$IND_ENERGY_OS_CMD"          5100
+  # Consumer apps (2026-06-25)
+  # Do App backend needs build first
+  DO_BUILD_CMD="cd $RTMN_ROOT/companies/do-app/backend && npm run build"
+  echo "  do-app: building..."
+  bash -c "$DO_BUILD_CMD" && echo "  do-app: build done" || echo "  do-app: build failed (skipping)"
+  start_service "do-app"              "$DO_APP_BACKEND_CMD"         3001
   # AgentOS — 12 services (Phase F audit, 2026-06-25)
   start_service "agent-platform-api"       "$AGENT_PLATFORM_CMD"           4802
   start_service "agent-registry"          "$AGENT_REGISTRY_CMD"           4803
@@ -460,9 +605,11 @@ start_all() {
   start_service "agent-observability"     "$AGENT_OBSERVABILITY_CMD"      4814
   # HOJAI Voice Gateway (port 4880)
   start_service "voice-gateway"           "$VOICE_GATEWAY_CMD"           4880
+  # RAZO Keyboard — Communication OS (port 4299)
+  start_service "razo-keyboard"          "$RAZO_KEYBOARD_CMD"           4299
   # BLR AI Marketplace — all services
   start_service "bam-marketplace-listings" "$MARKETPLACE_LISTINGS_CMD"   4255
-  start_service "blr-exploration"         "$BLR_EXPLORATION_CMD"        4255
+  start_service "blr-exploration"         "$BLR_EXPLORATION_CMD"        4261
   start_service "blr-discovery-engine"    "$BLR_DISCOVERY_ENGINE_CMD"   4256
   start_service "blr-multi-agent-eval"   "$BLR_MULTI_AGENT_EVAL_CMD"  4257
   start_service "blr-reputation-agg"     "$BLR_REPUTATION_AGG_CMD"     4258
@@ -557,13 +704,52 @@ stop_all() {
   stop_port 4814 "agent-observability"
   # HOJAI Voice Gateway
   stop_port 4880 "voice-gateway"
+  stop_port 4299 "razo-keyboard"
   # BLR AI Marketplace
   stop_port 4255 "bam-marketplace-listings"
+  stop_port 4261 "blr-exploration"
   stop_port 4256 "blr-discovery-engine"
   stop_port 4257 "blr-multi-agent-eval"
   stop_port 4258 "blr-reputation-agg"
   stop_port 4259 "blr-roi-calculator"
   stop_port 4260 "blr-founder-os"
+  # Department OS
+  stop_port 5055 "dept-sales"
+  stop_port 5500 "dept-marketing"
+  stop_port 4801 "dept-finance"
+  stop_port 5077 "dept-workforce"
+  stop_port 5250 "dept-operations"
+  stop_port 5400 "dept-revenue"
+  stop_port 5096 "dept-procurement"
+  stop_port 5600 "dept-media"
+  # Industry OS
+  stop_port 5010 "ind-restaurant"
+  stop_port 5025 "ind-hotel"
+  stop_port 5020 "ind-healthcare"
+  stop_port 5030 "ind-retail"
+  stop_port 5035 "ind-legal"
+  stop_port 5040 "ind-exhibition"
+  stop_port 5060 "ind-education"
+  stop_port 5070 "ind-agriculture"
+  stop_port 5080 "ind-automotive"
+  stop_port 5090 "ind-beauty"
+  stop_port 5110 "ind-fitness"
+  stop_port 5120 "ind-gaming"
+  stop_port 5130 "ind-government"
+  stop_port 5140 "ind-home-services"
+  stop_port 5150 "ind-manufacturing"
+  stop_port 5160 "ind-ngo"
+  stop_port 5170 "ind-professional"
+  stop_port 5180 "ind-sports"
+  stop_port 5190 "ind-travel"
+  stop_port 5200 "ind-entertainment"
+  stop_port 5210 "ind-construction"
+  stop_port 5220 "ind-financial"
+  stop_port 5230 "ind-real-estate"
+  stop_port 5240 "ind-transport"
+  stop_port 4751 "ind-event"
+  # Consumer apps
+  stop_port 3001 "do-app"
 }
 
 case "${1:-start}" in
