@@ -118,7 +118,7 @@ app.get('/health', async (_req, res) => {
     Object.entries(SERVICES).map(async ([key, svc]) => [key, await checkHealth(key, svc)])
   );
   const summary = Object.fromEntries(entries);
-  const liveCount = entries.filter(([, v]) => v.status === 'ok' || v.status === 'live').length;
+  const liveCount = entries.filter(([, v]) => v.status === 'ok' || v.status === 'live' || v.status === 'healthy').length;
   const total = entries.length;
   res.json({
     status: 'ok',
