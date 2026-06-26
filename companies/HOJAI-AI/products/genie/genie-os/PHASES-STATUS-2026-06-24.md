@@ -30,10 +30,10 @@
 | 19 | Privacy Controls | ✅ DONE | — | Via CorpID + memory |
 | 20 | Context Management | ✅ DONE | ~50 | /api/genie/personal aggregator |
 | **21** | **Multi-Modal Vision** | **✅ UPGRADED** | **~6,774** | **14 services, all upgraded + 91 tests** |
-| **22** | **Cross-Platform SDK** | **✅ MOSTLY DONE** | **~1,350** | **Python SDK (42 tests) + TS api.ts (38 helpers) + 3 wrappers** |
-| **23** | **Enterprise Admin** | **✅ DONE** | **~417** | **AdminScreen (5 tabs) + ServiceHealthScreen + all backend endpoints** |
-| **24** | **Onboarding Flow** | **✅ DONE** | **~230** | **5-step flow + goals persistence + OnboardingGate** |
-| 25 | AR/VR Interface | ❌ MISSING | — | No implementation |
+| **22** | **Cross-Platform SDK** | **✅ COMPLETE** | **~2,100** | **Python SDK (42 tests) + TS api.ts (38 helpers) + iOS Swift SDK + Android Kotlin SDK + Flutter SDK + @hojai/genie-client npm** |
+| **23** | **Enterprise Admin** | **✅ COMPLETE** | **~900** | **AdminScreen (9 tabs: Users, Organizations, RBAC, SSO, AgentConfig, ServiceHealth, Usage, Audit, Metrics) + backend endpoints** |
+| **24** | **Onboarding Flow** | **✅ COMPLETE** | **~450** | **7-step flow + voice greeting (Web Speech API TTS) + mic permission request + ARIA accessibility + organization onboarding step + OnboardingGate** |
+| **25** | **AR/VR Interface** | **✅ BUILT** | **~550** | **genie-spatial/ WebXR + React-Three-Fiber holographic Genie avatar + glassmorphism UI + particles + flat/ar/vr modes** |
 
 ---
 
