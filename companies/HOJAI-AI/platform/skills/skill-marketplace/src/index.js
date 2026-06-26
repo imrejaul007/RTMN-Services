@@ -270,13 +270,6 @@ app.get('/api/audit', (req, res) => {
 // 404 + error handling
 // =============================================================================
 
-app.use((_req, res) => res.status(404).json({ error: 'not found' }));
-app.use((err, _req, res, _next) => {
-  // eslint-disable-next-line no-console
-  console.error('[skill-marketplace]', err);
-  res.status(500).json({ error: err.message || 'internal error' });
-});
-
 // =============================================================================
 // START
 // =============================================================================
@@ -285,12 +278,22 @@ app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
-
-
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[skill-marketplace] listening on :${PORT}`);
-});
-installGracefulShutdown(server);
-
 export default app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[skill-marketplace] listening on :${PORT}`);
+  });
+  installGracefulShutdown(server);
+}
+
+// =============================================================================
+// 404 + error handling
+// =============================================================================
+
+app.use((_req, res) => res.status(404).json({ error: 'not found' }));
+app.use((err, _req, res, _next) => {
+  // eslint-disable-next-line no-console
+  console.error('[skill-marketplace]', err);
+  res.status(500).json({ error: err.message || 'internal error' });
+});

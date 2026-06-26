@@ -312,11 +312,14 @@ app.use((req, res) => res.status(404).json({ error: 'Not found', path: req.path 
 // Boot
 // =================================================================
 
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[consent-engine] listening on :${PORT} (v${SERVICE_VERSION})`);
-});
-installGracefulShutdown(server);
+export default app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[consent-engine] listening on :${PORT} (v${SERVICE_VERSION})`);
+  });
+  installGracefulShutdown(server);
+}
 
 // =================================================================
 // Graceful shutdown

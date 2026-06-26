@@ -1,0 +1,10 @@
+{
+  "name": "@hojai/memory-benchmark",
+  "version": "1.0.0",
+  "description": "Memory Benchmark - Recall@5, Latency, Accuracy metrics",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": { "start": "node src/index.js", "test": "vitest run" },
+  "dependencies": { "express": "^4.18.2" },
+  "devDependencies": { "vitest": "^1.2.0" }
+}
