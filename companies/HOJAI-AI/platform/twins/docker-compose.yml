@@ -1,0 +1,137 @@
+version: '3.9'
+
+services:
+  # ==========================================
+  # Twin Learning OS (4735)
+  # ==========================================
+  twin-learning-os:
+    build:
+      context: ./twin-learning-os
+      dockerfile: Dockerfile
+    container_name: twin-learning-os
+    ports:
+      - "4735:4735"
+    environment:
+      - NODE_ENV=production
+      - PORT=4735
+      - CORS_ORIGIN=*
+      - MEMORY_OS_URL=http://memory-os:4703
+      - DECISION_ENGINE_URL=http://localhost:4240
+      - SALAR_OS_URL=http://salar-os:4710
+      - LOG_LEVEL=combined
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4735/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - twin-network
+
+  # ==========================================
+  # Twin Feedback OS (4736)
+  # ==========================================
+  twin-feedback-os:
+    build:
+      context: ./twin-feedback-os
+      dockerfile: Dockerfile
+    container_name: twin-feedback-os
+    ports:
+      - "4736:4736"
+    environment:
+      - NODE_ENV=production
+      - PORT=4736
+      - CORS_ORIGIN=*
+      - MEMORY_OS_URL=http://memory-os:4703
+      - DECISION_ENGINE_URL=http://localhost:4240
+      - SALAR_OS_URL=http://salar-os:4710
+      - TWIN_LEARNING_OS_URL=http://twin-learning-os:4735
+      - LOG_LEVEL=combined
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4736/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - twin-network
+    depends_on:
+      twin-learning-os:
+        condition: service_healthy
+
+  # ==========================================
+  # Twin Execution OS (4737)
+  # ==========================================
+  twin-execution-os:
+    build:
+      context: ./twin-execution-os
+      dockerfile: Dockerfile
+    container_name: twin-execution-os
+    ports:
+      - "4737:4737"
+    environment:
+      - NODE_ENV=production
+      - PORT=4737
+      - CORS_ORIGIN=*
+      - FLOW_ORCHESTRATOR_URL=http://localhost:4244
+      - TWIN_LEARNING_OS_URL=http://twin-learning-os:4735
+      - TWIN_FEEDBACK_OS_URL=http://twin-feedback-os:4736
+      - DECISION_ENGINE_URL=http://localhost:4240
+      - LOG_LEVEL=combined
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4737/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - twin-network
+    depends_on:
+      twin-learning-os:
+        condition: service_healthy
+      twin-feedback-os:
+        condition: service_healthy
+
+  # ==========================================
+  # Employee Twin Facade (4739)
+  # ==========================================
+  employee-twin-facade:
+    build:
+      context: ./employee-twin-facade
+      dockerfile: Dockerfile
+    container_name: employee-twin-facade
+    ports:
+      - "4739:4739"
+    environment:
+      - NODE_ENV=production
+      - PORT=4739
+      - CORS_ORIGIN=*
+      - TWIN_LEARNING_OS_URL=http://twin-learning-os:4735
+      - TWIN_FEEDBACK_OS_URL=http://twin-feedback-os:4736
+      - TWIN_EXECUTION_OS_URL=http://twin-execution-os:4737
+      - SALAR_OS_URL=http://salar-os:4710
+      - MEMORY_OS_URL=http://memory-os:4703
+      - LOG_LEVEL=combined
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4739/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - twin-network
+    depends_on:
+      twin-learning-os:
+        condition: service_healthy
+      twin-feedback-os:
+        condition: service_healthy
+      twin-execution-os:
+        condition: service_healthy
+
+networks:
+  twin-network:
+    driver: bridge
