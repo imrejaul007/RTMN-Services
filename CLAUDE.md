@@ -818,14 +818,14 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 | Memory Substrate | 4782 | PostgreSQL + pgvector backend | ✅ 36 |
 | **Advanced Features** |
 | Memory Procedural | 4783 | Skills, workflows, best practices, learned behaviors | ✅ 10 |
-| Memory Temporal | 4784 | Temporal knowledge graph (valid_from/valid_until) | - |
-| Memory Observation | 4785 | Pattern detection, habit identification, predictions | - |
-| Memory Compiler | 4789 | Compile facts into briefs, profiles, digests | - |
+| Memory Temporal | 4784 | Temporal knowledge graph (valid_from/valid_until) | ✅ 17 |
+| Memory Observation | 4785 | Pattern detection, habit identification, predictions | ✅ 11 |
+| Memory Compiler | 4789 | Compile facts into briefs, profiles, digests | ✅ 14 |
 | **Operations** |
-| Memory Benchmark | 4787 | Metrics: Recall@5, Latency, Accuracy | - |
-| Memory Learning Engine | 4788 | Outcome tracking, failure analysis, behavior optimization | - |
+| Memory Benchmark | 4787 | Metrics: Recall@5, Latency, Accuracy | ✅ 23 |
+| Memory Learning Engine | 4788 | Outcome tracking, failure analysis, behavior optimization | ✅ 25 |
 
-**Total: 202 vitest tests passing across 5 services**
+**Total: 292 vitest tests passing across 11 services**
 
 **SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
 
