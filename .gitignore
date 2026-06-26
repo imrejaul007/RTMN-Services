@@ -35,10 +35,10 @@ Thumbs.db
 # Exceptions MUST come BEFORE the blanket ignore.
 # DO NOT use glob patterns after negations.
 
-# Exception: NeXha commerce-identity (developed in-tree)
-!companies/Nexha/commerce-identity/
-companies/Nexha/commerce-identity/node_modules/
-companies/Nexha/commerce-identity/dist/
+# Exception: NeXha commerce-identity (developed in-tree) [DEPRECATED - Nexha is now a submodule]
+# !companies/Nexha/commerce-identity/
+# companies/Nexha/commerce-identity/node_modules/
+# companies/Nexha/commerce-identity/dist/
 
 # Exception: RTNM-Group Services
 !companies/RTNM-Group/boa-os/
@@ -87,6 +87,10 @@ companies/*
 !/companies/SESSION-SUMMARY-*.md
 !/companies/REORGANIZATION-SUMMARY-*.md
 
+# NeXha - Independent company repo (submodule)
+# Canonical: git@github.com:imrejaul007/NeXha.git
+!/companies/Nexha
+
 # RABTUL-Technologies: re-include specific services (the rest is gitignored)
 !/companies/RABTUL-Technologies/REZ-SLA-monitor/
 !/companies/RABTUL-Technologies/REZ-breach-detector/
@@ -118,34 +122,8 @@ companies/HOJAI-AI/**/node_modules/
 companies/HOJAI-AI/dist/
 companies/HOJAI-AI/**/dist/
 
-# NeXha services built in-tree (procurement-os, distribution-os, trade-finance,
-# autonomous-logistics, capability-os, discovery-os, reputation-os, etc.).
-# These are full TypeScript services with their own tests + Dockerfile.
-# See ADR-0008. The blanket companies/* rule above needs explicit negations here.
-!/companies/Nexha/services/procurement-os/
-!/companies/Nexha/services/distribution-os/
-!/companies/Nexha/services/trade-finance/
-!/companies/Nexha/services/nexha-autonomous-logistics/
-!/companies/Nexha/services/nexha-capability-os/
-!/companies/Nexha/services/nexha-discovery-os/
-!/companies/Nexha/services/nexha-reputation-os/
-!/companies/Nexha/services/nexha-acp-messaging/
-!/companies/Nexha/services/nexha-business-directory/
-!/companies/Nexha/services/nexha-commerce-runtime/
-!/companies/Nexha/services/nexha-gateway/
-!/companies/Nexha/services/nexha-mission-planner/
-!/companies/Nexha/services/nexha-partner-graph/
-!/companies/Nexha/services/nexha-pricing-network/
-!/companies/Nexha/services/nexha-provisioning-engine/
-!/companies/Nexha/services/nexha-tenant-summary/
-!/companies/Nexha/services/nexha-trade-finance-network/
-!/companies/Nexha/services/nexha-warehouse-network/
-!/companies/Nexha/services/nexha-distribution-network/
-!/companies/Nexha/services/nexha-supplier-network/
-!/companies/Nexha/services/nexha-hooks-sdk/
-!/companies/Nexha/services/ecosystem-connector/
-/companies/Nexha/services/*/node_modules/
-/companies/Nexha/services/*/dist/
+# NeXha services [DEPRECATED - Nexha is now a submodule, handled above]
+# All service-specific negations removed since /companies/Nexha/** is now the submodule
 
 # HOJAI AI - recovered source from commit 08a6bf87e (historical snapshot)
 !companies/HOJAI-AI-restored/
@@ -157,8 +135,6 @@ companies/HOJAI-AI-restored/**/dist/
 # Legacy-audit archives - track all legacy content from monorepo companies
 !/companies/LawGens/
 !/companies/LawGens/**
-!/companies/Nexha/
-!/companies/Nexha/**
 !/companies/RTNM-Digital/
 !/companies/RTNM-Digital/**
 !/companies/RTNM-Group/

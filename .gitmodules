@@ -2,3 +2,6 @@
 	path = companies/HOJAI-AI
 	url = git@github.com:imrejaul007/hojai-ai.git
 	branch = main
+[submodule "companies/Nexha"]
+	path = companies/Nexha
+	url = git@github.com:imrejaul007/NeXha.git

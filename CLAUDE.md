@@ -2,7 +2,7 @@
 
 > **Version:** 5.7
 > **Last Updated:** June 26, 2026
-> **Status:** ✅ **ALL 12 OS SERVICES BUILT** — LearningOS (4760) + CommunityOS (4761) + DataOS (4762) implemented. All 6 Nexha OS services running (ports 4270-4275) + 158 tests passing. All 12 AgentOS services running (ports 4802-4814) + 637 tests passing. 25,127 tests across ecosystem. **Phase I complete:** LearningOS, CommunityOS, DataOS shipped.
+> **Status:** ✅ **ALL 12 OS SERVICES BUILT** — LearningOS (4760) + CommunityOS (4761) + DataOS (4762) implemented. All 6 Nexha OS services running (ports 4270-4275) + 158 tests passing. All 12 AgentOS services running (ports 4802-4814) + 637 tests passing. **25,169 tests across ecosystem** (Jun 26: +42 new vitest tests for razoClient + copilotClient). **Phase I complete:** LearningOS, CommunityOS, DataOS shipped.
 
 ---
 
@@ -26,6 +26,93 @@
 - ❌ Never audit, modify, or improve client code unprompted
 - ❌ Never include client code in RTMN architecture discussions
 - ❌ Never add client services to RTMN service registry unless integrated
+
+---
+
+## 🏗️ RTMN Git Architecture (June 26, 2026)
+
+### Core Rule: RTMN Root = Docs + Submodules Only
+
+**RTMN root is the coordination layer — NOT a code repository.**
+
+| What | Where |
+|------|-------|
+| **RTMN root** | Docs only (`docs/`, `CLAUDE.md`, `CANONICAL-PORT-REGISTRY.md`) + `.gitmodules` |
+| **All company code** | Each company = its own git repo, pushed to its own remote, referenced as submodule in RTMN |
+| **All services** | Belong to their parent company repo, NOT in RTMN root |
+| **All plans** | `.claude/plans/` in RTMN root (coordination docs) |
+
+### RTMN Submodules (Canonical Sources)
+
+| Company | Repo | Status |
+|---------|------|--------|
+| **HOJAI AI** | `git@github.com:imrejaul007/hojai-ai.git` | ✅ Submodule at `companies/HOJAI-AI/` |
+| **Nexha** | `git@github.com:imrejaul007/NeXha.git` | ✅ Submodule at `companies/Nexha/` |
+
+### Companies with Own Git Repos (Not Yet Submodules)
+
+| Company | Repo | RTMN Status |
+|---------|------|-------------|
+| AdBazaar | `git@github.com:imrejaul007/adBazaar.git` | ❌ Tree in RTMN (to be converted) |
+| REZ-Workspace | `git@github.com:imrejaul007/REZ-Workspace.git` | ❌ Tree in RTMN (to be converted) |
+| RABTUL-Technologies | `git@github.com:imrejaul007/RABTUL-Technologies.git` | ❌ Tree in RTMN (to be converted) |
+| do-app | `git@github.com:imrejaul007/do-app.git` | ❌ Tree in RTMN (to be converted) |
+| REZ-Consumer | `git@github.com:imrejaul007/REZ-Consumer.git` | ❌ Tree in RTMN (to be converted) |
+| REZ-Merchant | `git@github.com:imrejaul007/REZ-Merchant.git` | ❌ Tree in RTMN (to be converted) |
+| + 8 more companies | Various | ❌ All need conversion |
+
+### Companies Without Git Repos
+
+| Company | Notes |
+|---------|-------|
+| LawGens | Needs its own git repo |
+| RTNM-Digital | Needs its own git repo |
+| RTNM-Group | Needs its own git repo |
+| RTNM-REE | Needs its own git repo |
+| REZ-Exhibitor | Needs its own git repo |
+| razo-keyboard | Needs its own git repo |
+| HOJAI-AI-restored | Likely deprecated |
+
+### Root Code Directories (Should Be Moved)
+
+| Directory | Files | Should Become |
+|----------|-------|---------------|
+| `services/` | 23,905 | Submodule at `services/` |
+| `industry-os/` | 47,862 | Submodule at `industry-os/` |
+| `shared/` | 367 | Part of RTMN root or its own repo |
+| `packages/` | 2,584 | Submodule at `packages/` |
+
+### Migration Rule (per user directive June 26, 2026)
+
+> **"Each company has its own repo and all should be pushed to its own repo, none to RTMN root repo"**
+
+1. ✅ Nexha converted to submodule (June 26, 2026)
+2. ⏳ HOJAI AI already a submodule
+3. ⏳ Remaining companies → convert trees to submodules
+4. ⏳ Root code dirs → move to their own repos/submodules
+
+### How to Work with Submodules
+
+```bash
+# Clone RTMN with submodules
+git clone git@github.com:imrejaul007/RTMN-Services.git
+git submodule update --init --recursive
+
+# Update a submodule
+cd companies/Nexha
+git checkout main && git pull
+cd ../..
+git add companies/Nexha
+git commit -m "chore: Update Nexha to latest"
+```
+
+### How NOT to Work
+
+- ❌ NEVER commit code directly to RTMN root
+- ❌ NEVER add services to `services/`, `industry-os/services/`, `shared/` unless they belong to RTMN root itself
+- ❌ NEVER create new companies as directories in RTMN root — create their git repo first, then add as submodule
+
+---
 
 ---
 
@@ -363,6 +450,8 @@ The 10-week roadmap is complete. **Every phase from A through E is done.**
 
 > **📈 Phase F update (2026-06-25):** **RAZO Keyboard** (port 4299, Communication OS) integrated with Do App. RAZO transforms natural language into actionable intents that connect Genie AI, DO App, SUTAR OS, Copilots, and all 24 Industry OS. Added: `services/razoClient.ts` (intent detection, execute, sessions, messaging), `routes/razo.ts` (15 endpoints), Hub wired at `/api/foundation/razo-keyboard/*` with 25 capabilities (intent-detect, order-food, make-payment, ask-genie, etc.). See [`companies/do-app/backend/src/services/razoClient.ts`](companies/do-app/backend/src/services/razoClient.ts), [`companies/do-app/backend/src/routes/razo.ts`](companies/do-app/backend/src/routes/razo.ts), [`companies/HOJAI-AI/products/razo/razo-keyboard/`](companies/HOJAI-AI/products/razo/razo-keyboard/).
 
+> **📈 Phase F update (2026-06-26):** **Mobile Copilot UI + RAZO Autopilot + Webhook Routing + Tests.** (1) `useCopilot.ts` + `useRazo.ts` hooks in mobile with 8 methods each; (2) `CopilotCard.tsx` component — surfaces "Buy Now / Wait / Watch" verdict + active promotions in the Shop tab; (3) RAZO intent detection wired into the Autopilot tab (type natural language → see intent + entities); (4) Real webhook routing: WhatsApp/Telegram/SMS/Email → intent detect → Copilot chat fallback → channel response; (5) RAZO added to `scripts/dev-stack.sh` (port 4299); (6) 42 new vitest tests (21 razoClient + 21 copilotClient, all passing). Total test count: **25,169 tests across ecosystem**. See [`companies/do-app/mobile/src/hooks/useCopilot.ts`](companies/do-app/mobile/src/hooks/useCopilot.ts), [`companies/do-app/mobile/src/hooks/useRazo.ts`](companies/do-app/mobile/src/hooks/useRazo.ts), [`companies/do-app/mobile/src/components/CopilotCard.tsx`](companies/do-app/mobile/src/components/CopilotCard.tsx), [`companies/do-app/backend/__tests__/unit/razoClient.test.ts`](companies/do-app/backend/__tests__/unit/razoClient.test.ts), [`companies/do-app/backend/__tests__/unit/copilotClient.test.ts`](companies/do-app/backend/__tests__/unit/copilotClient.test.ts).
+
 ### Try it in 30 seconds
 
 ```bash
@@ -440,7 +529,7 @@ bash demos/full-stack-demo.sh
 | **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
 | **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
 | **HOJAI Voice Gateway** | 4880 | ✅ | Training-aware STT/TTS routing |
-| **RAZO Keyboard** | 4299 | ✅ | Communication OS — intent detection + multi-channel messaging |
+| **RAZO Keyboard** | 4299 | ✅ | Communication OS — intent detection + multi-channel messaging; in dev-stack.sh |
 
 ### Memory Layer (4 services)
 
@@ -488,7 +577,7 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
-| **RAZO Keyboard** | 4299 | ✅ | Communication OS — "The keyboard that thinks" — transforms natural language into actionable intents (order-food, book-hotel, make-payment, ask-genie, etc.) connecting Genie AI, DO App, SUTAR OS, Copilots, and all 24 Industry OS. Integrated with Do App backend (`razoClient.ts` + `routes/razo.ts`) and RTMN Hub at `/api/foundation/razo-keyboard/*` |
+| **RAZO Keyboard** | 4299 | ✅ | Communication OS — "The keyboard that thinks" — transforms natural language into actionable intents (order-food, book-hotel, make-payment, ask-genie, etc.) connecting Genie AI, DO App, SUTAR OS, Copilots, and all 24 Industry OS. Integrated with Do App backend (`razoClient.ts` + `routes/razo.ts` + real webhook routing) and RTMN Hub at `/api/foundation/razo-keyboard/*`. Mobile: `useRazo.ts` hook + RAZO intent detection in Autopilot tab. Dev stack: `scripts/dev-stack.sh` starts RAZO on port 4299. |
 
 ### REZ Services (4)
 
