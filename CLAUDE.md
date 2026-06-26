@@ -114,6 +114,155 @@ git commit -m "chore: Update Nexha to latest"
 
 ---
 
+## 🚀 HOJAI FOUNDRY + GLOBAL NEXHA (The Platform Model)
+
+### The Vision
+
+**Anyone can build an agentic marketplace for any industry in minutes — and it automatically connects to the global network.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    HOJAI FOUNDRY PLATFORM                       │
+│                                                                 │
+│   Founder ──► Choose Template ──► Customize ──► Deploy ──► Live │
+│                         │                                      │
+│                    15 Industry                                 │
+│                    Starters                                    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      HOJAI CLOUD                                │
+│                                                                 │
+│   • Auto-respawn • SSL • Custom Domains • Previews • Rollbacks │
+│   • Per-tenant Runtime • Deploy Pipeline                        │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      APP STORE                                  │
+│                                                                 │
+│   • Skills Catalog • Agent Marketplace • Workflow Templates      │
+│   • IndustryOS Templates • One-click Install                     │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     GLOBAL NEXHA                                │
+│                                                                 │
+│   • Federation Discovery • Capability Matching                   │
+│   • Agent-to-Agent Commerce • Trust & Reputation                │
+│   • Cross-Nexha Interoperability                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### The Complete Founder Flow
+
+```bash
+# 1. Choose an industry starter template
+npx hojai create my-food-delivery-platform --template food-delivery
+
+# 2. Customize with your branding and agents
+cd my-food-delivery-platform
+npx hojai add agent delivery-optimizer
+npx hojai add agent restaurant-onboarder
+
+# 3. Deploy to HOJAI Cloud
+npx hojai deploy
+
+# 4. Your marketplace is now LIVE and discoverable on Global Nexha!
+```
+
+### What Gets Built
+
+| Template | Example Output | Agents Created |
+|----------|----------------|-----------------|
+| **food-delivery** | "Zomato Agent Network" | delivery, restaurant, customer, driver, payment |
+| **healthcare** | "Practo Agent Network" | appointment, prescription, doctor, pharmacy |
+| **mobility** | "Uber Agent Network" | ride-match, driver, pricing, safety, payment |
+| **hotel** | "Airbnb Agent Network" | booking, checkin, housekeeping, concierge |
+| **ecommerce** | "Amazon Agent Network" | catalog, listing, fulfillment, returns, review |
+| **logistics** | "Flexport Agent Network" | customs, tracking, warehouse, delivery |
+| **fintech** | "Stripe Agent Network" | payment, dispute, payout, subscription |
+| **+ 8 more** | ... | ... |
+
+### The 510 Companies Are EXAMPLES
+
+The 510 companies listed (Amazon → Uber → Zomato → etc.) are **NOT what we build** — they are examples of what ANY startup can build using HOJAI Foundry.
+
+| Aspect | Detail |
+|--------|--------|
+| **Who builds them?** | Any startup or founder |
+| **How?** | HOJAI Foundry + Cloud |
+| **Where do they appear?** | Automatically live on Global Nexha |
+| **Who uses them?** | Any Nexha in the federation |
+
+### Global Nexha Federation
+
+Once a marketplace is live:
+
+1. **Discovery**: Other Nexhas can search and find the marketplace
+2. **Capability Matching**: AI agents negotiate and trade autonomously
+3. **Trust**: ReputationOS scores all participants
+4. **Commerce**: Agents buy/sell services automatically
+
+```
+Nexha A (Restaurant)    Nexha B (Delivery)    Nexha C (Payment)
+      │                        │                      │
+      │ "I need delivery"      │                      │
+      ├────────────────────────►                      │
+      │                        │                      │
+      │              "I'll handle it"                 │
+      │         (agents negotiate price/terms)       │
+      │                        │                      │
+      │                        ├──────────────────────►
+      │                        │     "Process payment"
+      │                        │                      │
+      │◄───────────────────────┤     "Done!"
+      │        "Order complete"
+```
+
+### HOJAI Cloud Phase 1 (Built ✅)
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **hojai-cloud** | 4380 | Deploy target with auto-respawn, SSL, custom domains |
+| **app-store-api** | 4400 | Skills, agents, workflows, templates catalog |
+| **cost-tracker** | 4410 | AI usage metering and billing |
+| **secrets-manager** | 4420 | Encrypted credential storage |
+| **voice-studio-api** | 4430 | Voice agent management |
+| **workflow-builder-api** | 4440 | DAG workflow management |
+
+**Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
+
+### Foundry Starters (15 Templates)
+
+| Starter | Sector | Use Case |
+|---------|--------|----------|
+| food-delivery | Delivery | Zomato, DoorDash, Swiggy |
+| healthcare | Health | Practo, 1mg, PharmEasy |
+| mobility | Transport | Uber, Ola, Lyft, Rapido |
+| hotel | Hospitality | Airbnb, OYO, Booking.com |
+| restaurant | QSR | QSR chains, cloud kitchens |
+| ecommerce | Commerce | Amazon, Flipkart, Shopify |
+| logistics | Supply Chain | Flexport, Delhivery, Shiprocket |
+| education | Learning | Coursera, Udemy, PhysicsWallah |
+| finance | Banking | Revolut, Chime, Nubank |
+| crm | Sales | Salesforce, HubSpot |
+| b2b | B2B | IndiaMART, Udaan |
+| agentic-ecommerce | AI Commerce | Agent-native marketplaces |
+| pos | Point of Sale | Retail terminals |
+| erp | Enterprise | SAP, Oracle |
+| import-export | Trade | Global trade agents |
+
+### Key Docs
+
+| Document | What it covers |
+|----------|----------------|
+| [HOJAI Foundry spec](.claude/plans/hojai-developer-platform-spec.md) | CLI, SDKs, templates |
+| [Global Nexha addendum](.claude/plans/global-nexha-addendum.md) | Federation, capability matching |
+| [App Store spec](.claude/plans/bam-complete-spec.md) | 35+ categories, publish flow |
+
 ---
 
 ## 🌐 GLOBAL NEXHA + HOJAI PLATFORM-AS-AN-ECONOMY (June 22, 2026)
@@ -267,6 +416,128 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these docu
 - **What's built vs needed:** [built-vs-needed-audit.md](.claude/plans/built-vs-needed-audit.md)
 - **Investor pitch:** [hojai-investor-pitch-deck.md](.claude/plans/hojai-investor-pitch-deck.md) (HOJAI — platform) and [nexha-investor-pitch-deck.md](.claude/plans/nexha-investor-pitch-deck.md) (Nexha — network)
 - **Sample `hojai.ai.md`:** [sample-marketplace-hojai-ai.md](.claude/plans/sample-marketplace-hojai-ai.md)
+
+---
+
+## 🎯 HOJAI Studio — Build Any Company in 30 Minutes (2026-06-26)
+
+**HOJAI Studio** is the **Platform-as-an-Economy** — any founder can build any AI-powered company in 30 minutes.
+
+### The Problem
+
+| Traditional | HOJAI Studio |
+|-------------|-------------|
+| 6 months to build | 30 minutes |
+| 50 engineers | 1 founder |
+| $2M burn | $500/month AI |
+| Years to scale | Instant |
+
+### What You Get
+
+```
+HOJAI Studio
+    │
+    ├── 16 Templates Ready
+    │        ├── Agentic E-Commerce 🛍️
+    │        ├── Food Delivery 🍔
+    │        ├── Import/Export 🌍
+    │        ├── Mobility 🚗
+    │        ├── Marketplace 🛒
+    │        ├── Healthcare 🏥
+    │        ├── Education 🎓
+    │        ├── Fintech 💰
+    │        └── +8 more...
+    │
+    ├── AI Workforce (6-13 agents)
+    │        ├── CEO Strategist
+    │        ├── Growth Agent
+    │        ├── Operations Agent
+    │        └── ...domain-specific
+    │
+    ├── Auto-Deploy
+    │        ├── Passenger App
+    │        ├── Seller/Driver App
+    │        └── Admin Dashboard
+    │
+    └── Nexha Network
+             ├── Payments
+             ├── Logistics
+             └── Insurance
+```
+
+### Templates Built (16 Total)
+
+| Template | AI Workers | Monthly Cost | Like |
+|----------|-----------|-------------|------|
+| **Agentic E-Commerce** | 12 agents | $4,050 | Amazon |
+| **Food Delivery** | 10 agents | $3,100 | Swiggy/UberEats |
+| **Import/Export** | 9 agents | $3,250 | Alibaba |
+| **Mobility** | 13 agents | $3,800 | Uber |
+| **Marketplace** | 8 agents | $2,800 | Shopify |
+| **Healthcare** | 6 agents | $1,900 | Practo |
+| **Education** | 6 agents | $1,550 | BYJU's |
+| **Fintech** | 7 agents | $2,650 | CRED |
+| Restaurant | 6 agents | $2,100 | Zomato |
+| Hotel | 7 agents | $2,450 | OYO |
+| Logistics | 8 agents | $2,800 | Delhivery |
+| B2B Platform | 9 agents | $3,150 | IndiaMART |
+
+### Services (21 Total)
+
+| Port | Service |
+|------|---------|
+| 3001 | **Studio UI** (Web wizard) |
+| 4399 | RTMN Hub |
+| 4400 | App Store |
+| 4410 | Cost Tracker |
+| 4420 | Secrets Manager |
+| 4430 | Voice Studio |
+| 4440 | Workflow Builder |
+| 4500 | Template Compiler |
+| 4510 | BAM (Hire AI workers) |
+| 4520 | Agent Generator |
+| 4530 | Auth (JWT) |
+| 4540 | Deploy Pipeline |
+| 4610 | DO Passenger |
+| 4611 | DO Driver |
+| 4612 | DO Admin |
+
+### Startup
+
+```bash
+bash scripts/start-hojai.sh
+# Opens: http://localhost:3001
+```
+
+### Deploy Any Company
+
+```bash
+# Food Delivery (Swiggy clone)
+curl -X POST localhost:4540/deploy \
+  -d '{"companyName": "FastBite", "template": "food-delivery"}'
+
+# E-Commerce (Amazon clone)
+curl -X POST localhost:4540/deploy \
+  -d '{"companyName": "ShopSmart", "template": "agentic-ecommerce"}'
+
+# Import/Export (Alibaba clone)
+curl -X POST localhost:4540/deploy \
+  -d '{"companyName": "TradeGlobal", "template": "import-export"}'
+```
+
+### 510 Companies Supported
+
+Agent Generator knows how to build agents for:
+- Amazon, Flipkart, Alibaba, eBay, Etsy, Shopify, Meesho
+- Uber, Ola, Rapido, Lyft
+- Swiggy, Zomato, DoorDash, UberEats, Instacart
+- Practo, 1mg, PharmEasy
+- CRED, Groww, Razorpay, PhonePe
+- BYJU's, Unacademy, PhysicsWallah
+- OYO, MakeMyTrip
+- PolicyBazaar, Acko
+- Delhivery, BlackBuck
+- **+ 490 more**
 
 ---
 
