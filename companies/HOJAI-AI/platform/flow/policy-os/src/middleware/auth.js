@@ -2,7 +2,7 @@
  * PolicyOS — Custom Auth Middleware
  *
  * Three authentication paths:
- *   1. X-Service-Token: <SERVICE_TOKEN>       — service-to-service (always allowed if matched)
+ *   1. X-Service-Token / X-Internal-Token: <SERVICE_TOKEN> — service-to-service (either header works)
  *   2. Authorization: Bearer <HS256-JWT>      — HS256-signed JWT verified against JWT_SECRET
  *   3. X-API-Key: <key>                       — pre-shared API key (issued via /api/apikeys)
  *
@@ -54,9 +54,10 @@ export function createCustomAuth({ requireAuth = true, serviceToken, apiKeysStor
   return async function customAuth(req, res, next) {
     if (!requireAuth) return next();
 
-    // 1. Service-to-service token
+    // 1. Service-to-service tokens (X-Service-Token and X-Internal-Token)
     const svcToken = req.headers['x-service-token'];
-    if (svcToken && svcToken === serviceToken) {
+    const intToken = req.headers['x-internal-token'];
+    if ((svcToken && svcToken === serviceToken) || (intToken && intToken === serviceToken)) {
       req.auth = { type: 'service', service: 'policy-os', role: 'admin' };
       return next();
     }
