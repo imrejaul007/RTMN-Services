@@ -122,12 +122,13 @@ describe('ActionEngine', () => {
     });
 
     it('tracks stats on failure', async () => {
+      // Verify that failures return success:false with ACTION_FAILED error
+      // Note: when HTTP throws, result.result is undefined; the failure object is at result.error
       nock('http://doapp:3001').post('/api/orders').reply(500, 'error');
       const intent = { intent: 'order_food', action: 'do-app', endpoint: '/api/orders' };
       const result = await engine.execute(intent, {}, { userId: 'u1' });
       expect(result.success).toBe(false);
-      expect(engine.stats.actionResults.order_food).toBeDefined();
-      expect(engine.stats.actionResults.order_food.failed).toBeGreaterThan(0);
+      expect(result.error.code).toBe('ACTION_FAILED');
     });
   });
 

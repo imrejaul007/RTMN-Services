@@ -1,8 +1,24 @@
 # RTMN Industry OS - Development Guide
 
-**Version:** 1.0.0  
-**Date:** June 16, 2026  
+**Version:** 1.1.0  
+**Date:** June 26, 2026  
 **Status:** ✅ 24 INDUSTRY OS SERVICES
+
+---
+
+## ⚠️ DEPRECATED: Workforce OS
+
+**Workforce OS (port 5077) is DEPRECATED.**
+
+Use **CorpPerks Backend (port 4006)** as the canonical HRMS instead.
+
+See: `services/workforce-os/DEPRECATED.md`
+
+---
+
+## Canonical HRMS
+
+For employee/HR functionality, Industry OS services should connect to **CorpPerks Backend (port 4006)** not Workforce OS.
 
 ---
 

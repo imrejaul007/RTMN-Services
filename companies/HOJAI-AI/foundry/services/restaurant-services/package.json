@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/restaurant-services",
+  "version": "1.0.0",
+  "description": "POS, Menu, Kitchen Display for Restaurant",
+  "main": "src/index.js",
+  "type": "module"
+}

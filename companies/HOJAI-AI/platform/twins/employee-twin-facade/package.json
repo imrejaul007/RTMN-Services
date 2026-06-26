@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/employee-twin-facade",
+  "version": "1.0.0",
+  "description": "Employee Twin Facade - Single unified API for all twin services",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0"
+  }
+}

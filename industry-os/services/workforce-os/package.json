@@ -1,13 +1,14 @@
 {
   "name": "workforce-os",
   "version": "1.0.0",
-  "description": "Workforce OS - Complete HR & People Management (Port 5077)",
+  "description": "DEPRECATED - Use CorpPerks Backend (port 4006) instead",
+  "deprecated": true,
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "start": "echo 'DEPRECATED - Use CorpPerks Backend (port 4006) instead'",
+    "dev": "echo 'DEPRECATED - Use CorpPerks Backend (port 4006) instead'"
   },
-  "keywords": ["hr", "workforce", "people", "hris", "rtmn"],
+  "keywords": ["deprecated", "hr", "workforce"],
   "author": "RTMN",
   "license": "MIT",
   "dependencies": {

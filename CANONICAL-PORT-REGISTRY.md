@@ -616,6 +616,12 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 | **4740** | `education-services` | LMS, Courses, Assessments |
 | **4750** | `fintech-services` | Banking, Trading, Loans |
 | **4760** | `logistics-services` | Routing, Tracking, Warehouse |
+| **4770** | `restaurant-services` | POS, Menu, KDS |
+| **4771** | `hotel-services` | Booking, Channel Manager |
+| **4772** | `b2b-services` | RFQ, Quotations, Contracts |
+| **4773** | `pos-services` | Point of Sale, Billing |
+| **4774** | `crm-services` | Leads, Deals, Pipeline |
+| **4775** | `erp-services` | HR, Projects, Finance |
 
 ### Orchestration (2026-06-26)
 

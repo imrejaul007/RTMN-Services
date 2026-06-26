@@ -1,6 +1,6 @@
-import logger from '../utils/logger';
+import logger from '../utils/logger.js';
 import trustService from './trustService.js';
-import { config } from '../config';
+import { config } from '../config/index.js';
 import {
   IReputation,
   IActivityEntry,

@@ -190,6 +190,14 @@ app.get('/ready', (_req, res) => {
 
 app.get('/health', (_req, res) => res.redirect(301, '/api/health'));
 
+// DEBUG trace
+app.use(function(req, _res, next) {
+  if (req.path.startsWith('/api/agents')) {
+    console.log('[TRACE] req.path=', JSON.stringify(req.path), 'req.url=', JSON.stringify(req.url), 'req.params=', JSON.stringify(req.params));
+  }
+  next();
+});
+
 /** GET /api/health */
 app.get('/api/health', (_req, res) => {
   const healthy = Array.from(agents.values()).filter(a => agentHealthStatus(a) === 'healthy').length;
@@ -800,6 +808,7 @@ app.post('/api/agents/:id/restore', authOrBypass, (req, res) => {
 
 /** GET /api/agents/deprecated — List deprecated agents */
 app.get('/api/agents/deprecated', (req, res) => {
+  console.log('[DEBUG] GET /api/agents/deprecated called. agents.size=', agents.size);
   const list = Array.from(agents.values())
     .filter(a => a.status === 'deprecated')
     .map(a => ({ id: a.id, name: a.name, deprecatedAt: a.deprecatedAt, deprecation: a.deprecation }));
