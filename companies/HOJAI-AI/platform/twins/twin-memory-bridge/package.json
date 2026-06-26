@@ -2,11 +2,14 @@
   "name": "@rtmn/twin-memory-bridge",
   "version": "1.0.0",
   "description": "Twin Memory Bridge (4704) — every Twin owns its own Memory. This service is the canonical place where Twin identities are linked to their Memory partitions, implementing the 'Everything has a Twin / Each Twin owns its Memory' principle.",
+  "port": 4704,
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "hojai",
@@ -25,5 +28,8 @@
     "mongodb": "^7.3.0",
     "morgan": "^1.10.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
   }
 }

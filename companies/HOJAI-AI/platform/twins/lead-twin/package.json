@@ -2,11 +2,14 @@
   "name": "@rtmn/lead-twin",
   "version": "2.0.0",
   "description": "RTMN Lead Twin Service - Lead management and tracking with digital twin capabilities",
+  "port": 4894,
   "type": "module",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "rtmn",
@@ -25,5 +28,8 @@
     "morgan": "^1.10.0",
     "uuid": "^9.0.1",
     "@rtmn/twinos-shared": "file:../twinos-shared"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
   }
 }

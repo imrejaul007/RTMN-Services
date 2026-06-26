@@ -2,12 +2,14 @@
   "name": "@rtmn/unified-twin-os",
   "version": "1.0.0",
   "description": "RTMN Unified Twin Architecture - Human/Business/Asset/Market/Agent twins with inheritance",
+  "port": 4907,
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node --test src/**/*.test.js"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -20,5 +22,8 @@
   },
   "keywords": ["rtmn", "twin", "digital-twin", "unified"],
   "author": "RTMN",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  }
 }

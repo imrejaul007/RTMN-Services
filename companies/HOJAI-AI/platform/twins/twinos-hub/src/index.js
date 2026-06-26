@@ -860,14 +860,22 @@ app.post('/api/relationships', requireAuth, strictLimiter, asyncHandler(async (r
     twinRelationships.set(sourceId, []);
   }
 
+  const now = new Date().toISOString();
   const relationship = {
     id: `rel-${uuidv4().slice(0, 8)}`,
     sourceId,
     targetId,
     type,
+    // Phase 1 enrichment fields
+    since: now,
+    until: null, // null = currently active
+    strength: metadata?.strength ?? 0.5, // 0-1 scale, default 0.5
+    trust_score: metadata?.trust_score ?? 50, // 0-100, default 50
+    shared_memories: metadata?.shared_memories ?? 0, // count of shared memories
+    last_interaction: now,
     metadata: metadata || {},
     createdBy: req.user.id,
-    createdAt: new Date().toISOString()
+    createdAt: now
   };
 
   twinRelationships.get(sourceId).push(relationship);
@@ -902,6 +910,146 @@ app.delete('/api/relationships/:id', requireAuth, asyncHandler(async (req, res) 
   logger.info('Relationship deleted', { relationshipId: req.params.id });
 
   res.json({ success: true, message: 'Relationship deleted' });
+}));
+
+// ============ PHASE 1: RELATIONSHIP ENRICHMENT ENDPOINTS ============
+
+/**
+ * POST /api/relationships/:id/interact
+ * Record an interaction between twins (updates last_interaction, can increase strength)
+ */
+app.post('/api/relationships/:id/interact', requireAuth, asyncHandler(async (req, res) => {
+  const { interaction_type, memory_id, trust_delta, strength_delta } = preventPrototypePollution(req.body);
+  let found = null;
+  let foundSourceId = null;
+
+  for (const [sourceId, rels] of twinRelationships.entries()) {
+    const idx = rels.findIndex(r => r.id === req.params.id);
+    if (idx !== -1) {
+      const rel = rels[idx];
+      rel.last_interaction = new Date().toISOString();
+
+      // Track interaction type in metadata
+      if (interaction_type) {
+        rel.metadata = rel.metadata || {};
+        rel.metadata.interactions = rel.metadata.interactions || [];
+        rel.metadata.interactions.push({
+          type: interaction_type,
+          at: rel.last_interaction,
+          memory_id
+        });
+      }
+
+      // Link shared memory
+      if (memory_id) {
+        rel.shared_memories = (rel.shared_memories || 0) + 1;
+      }
+
+      // Apply trust delta (-10 to +10)
+      if (typeof trust_delta === 'number') {
+        rel.trust_score = Math.max(0, Math.min(100, (rel.trust_score || 50) + trust_delta));
+      }
+
+      // Apply strength delta (-0.1 to +0.1)
+      if (typeof strength_delta === 'number') {
+        rel.strength = Math.max(0, Math.min(1, (rel.strength || 0.5) + strength_delta));
+      }
+
+      rel.updatedAt = rel.last_interaction;
+      rels[idx] = rel;
+      twinRelationships.set(sourceId, rels);
+      found = rel;
+      foundSourceId = sourceId;
+      break;
+    }
+  }
+
+  if (!found) {
+    return res.status(404).json({ success: false, error: { code: 'RELATIONSHIP_NOT_FOUND', message: 'Relationship not found' } });
+  }
+
+  logger.info('Interaction recorded', { relationshipId: req.params.id, interaction_type, trust_delta, strength_delta });
+  res.json({ success: true, relationship: found });
+}));
+
+/**
+ * GET /api/relationships/enriched
+ * Query relationships with enrichment data (filter by trust, strength, etc.)
+ */
+app.get('/api/relationships/enriched', optionalAuth, asyncHandler(async (req, res) => {
+  const { min_trust, min_strength, active_only, source_type, target_type } = req.query;
+  const allRels = [];
+
+  for (const [sourceId, rels] of twinRelationships.entries()) {
+    for (const rel of rels) {
+      // Filter active only (until is null)
+      if (active_only === 'true' && rel.until !== null) continue;
+
+      // Filter by minimum trust score
+      if (min_trust && (rel.trust_score || 50) < parseFloat(min_trust)) continue;
+
+      // Filter by minimum strength
+      if (min_strength && (rel.strength || 0.5) < parseFloat(min_strength)) continue;
+
+      // Filter by source/target twin type if specified
+      if (source_type) {
+        const sourceTwin = twinRegistry.get(sourceId);
+        if (!sourceTwin || sourceTwin.type !== source_type) continue;
+      }
+      if (target_type) {
+        const targetTwin = twinRegistry.get(rel.targetId);
+        if (!targetTwin || targetTwin.type !== target_type) continue;
+      }
+
+      allRels.push({
+        ...rel,
+        sourceTwin: twinRegistry.get(sourceId),
+        targetTwin: twinRegistry.get(rel.targetId)
+      });
+    }
+  }
+
+  // Sort by trust_score descending by default
+  allRels.sort((a, b) => (b.trust_score || 50) - (a.trust_score || 50));
+
+  res.json({
+    success: true,
+    count: allRels.length,
+    relationships: allRels
+  });
+}));
+
+/**
+ * GET /api/relationships/:twinId/enrichment-stats
+ * Get enrichment statistics for a specific twin's relationships
+ */
+app.get('/api/relationships/:twinId/enrichment-stats', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+  const rels = twinRelationships.get(twinId) || [];
+
+  const active = rels.filter(r => r.until === null);
+  const expired = rels.filter(r => r.until !== null);
+
+  const stats = {
+    twinId,
+    total: rels.length,
+    active: active.length,
+    expired: expired.length,
+    avg_trust_score: rels.length > 0 ? rels.reduce((s, r) => s + (r.trust_score || 50), 0) / rels.length : 0,
+    avg_strength: rels.length > 0 ? rels.reduce((s, r) => s + (r.strength || 0.5), 0) / rels.length : 0,
+    total_shared_memories: rels.reduce((s, r) => s + (r.shared_memories || 0), 0),
+    trust_distribution: {
+      high: rels.filter(r => (r.trust_score || 50) >= 80).length,
+      medium: rels.filter(r => (r.trust_score || 50) >= 50 && (r.trust_score || 50) < 80).length,
+      low: rels.filter(r => (r.trust_score || 50) < 50).length
+    },
+    strongest_relationship: active.sort((a, b) => (b.strength || 0.5) - (a.strength || 0.5))[0] || null,
+    most_trusted_relationship: active.sort((a, b) => (b.trust_score || 50) - (a.trust_score || 50))[0] || null,
+    most_recent_interaction: rels.filter(r => r.last_interaction)
+      .sort((a, b) => new Date(b.last_interaction).getTime() - new Date(a.last_interaction).getTime())[0] || null
+  };
+
+  res.json({ success: true, stats });
 }));
 
 // ============ SYNC ENDPOINTS ============
@@ -1916,7 +2064,11 @@ app.get('/api/analytics', optionalAuth, asyncHandler(async (req, res) => {
 /**
  * GET /api/relationships/graph/:twinId
  * Walk the relationship graph from a twin (BFS, depth-limited).
- * Query: ?depth=2&type=owns,belongs_to
+ * Query: ?depth=2&type=owns,belongs_to&at=2024-03-15T00:00:00Z
+ *
+ * Temporal filtering: pass ?at=ISO_DATE to see the graph as it existed at
+ * that moment. Only relationships where start_time <= at <= end_time (or
+ * end_time is null) are included.
  */
 app.get('/api/relationships/graph/:twinId', optionalAuth, asyncHandler(async (req, res) => {
   const rootId = req.params.twinId;
@@ -1925,6 +2077,42 @@ app.get('/api/relationships/graph/:twinId', optionalAuth, asyncHandler(async (re
   }
   const maxDepth = Math.min(parseInt(req.query.depth) || 2, 5);
   const typeFilter = req.query.type ? String(req.query.type).split(',').map(s => s.trim()) : null;
+
+  // ── Temporal filter ──────────────────────────────────────────────────────
+  // ?at=2024-03-15T00:00:00Z  →  show graph as of that timestamp
+  // ?from=2024-01-01&to=2024-06-01  →  show edges valid in that window
+  let queryAt = null;
+  let queryFrom = null;
+  let queryTo = null;
+  if (req.query.at) {
+    queryAt = new Date(String(req.query.at)).getTime();
+  }
+  if (req.query.from) {
+    queryFrom = new Date(String(req.query.from)).getTime();
+  }
+  if (req.query.to) {
+    queryTo = new Date(String(req.query.to)).getTime();
+  }
+
+  /**
+   * Returns true if an edge (relationship) was active at the query time(s).
+   */
+  function edgeWasActive(rel) {
+    const created = new Date(rel.createdAt).getTime();
+    const since  = rel.since  ? new Date(rel.since).getTime()  : created;
+    const until  = rel.until  ? new Date(rel.until).getTime()  : Infinity;
+
+    if (queryAt !== null) {
+      // Point-in-time query: was the edge active at that exact moment?
+      return queryAt >= since && queryAt <= until;
+    }
+    if (queryFrom !== null && queryTo !== null) {
+      // Range query: was any part of the edge valid within the window?
+      return !(until < queryFrom || since > queryTo);
+    }
+    // No temporal filter: include all edges (including expired)
+    return true;
+  }
 
   const visited = new Set([rootId]);
   const nodes = [{ id: rootId, twin: twinRegistry.get(rootId) }];
@@ -1937,8 +2125,30 @@ app.get('/api/relationships/graph/:twinId', optionalAuth, asyncHandler(async (re
       const rels = twinRelationships.get(id) || [];
       for (const r of rels) {
         if (typeFilter && !typeFilter.includes(r.type)) continue;
-        edges.push({ ...r, depth: d + 1, from: id });
+        // Temporal gate — skip edges that were not yet born or already expired
+        if (!edgeWasActive(r)) continue;
+
         const neighbor = r.sourceId === id ? r.targetId : r.sourceId;
+
+        // Add temporal metadata so callers know the edge's effective window
+        const edgeWithTemporal = {
+          ...r,
+          depth: d + 1,
+          from: id,
+          // Mark whether this edge was already expired at query time
+          ...(queryAt !== null ? {
+            active_at: queryAt,
+            expired: r.until !== null && new Date(r.until).getTime() <= queryAt,
+            temporal_depth: d + 1
+          } : {}),
+          ...(queryFrom !== null && queryTo !== null ? {
+            valid_in_range: true,
+            effective_from: r.since || r.createdAt,
+            effective_until: r.until || null
+          } : {})
+        };
+        edges.push(edgeWithTemporal);
+
         if (!visited.has(neighbor)) {
           visited.add(neighbor);
           nodes.push({ id: neighbor, twin: twinRegistry.get(neighbor) });
@@ -1950,7 +2160,494 @@ app.get('/api/relationships/graph/:twinId', optionalAuth, asyncHandler(async (re
     frontier.push(...next);
   }
 
-  res.json({ success: true, root: rootId, depth: maxDepth, nodeCount: nodes.length, edgeCount: edges.length, nodes, edges });
+  res.json({
+    success: true,
+    root: rootId,
+    depth: maxDepth,
+    nodeCount: nodes.length,
+    edgeCount: edges.length,
+    temporal: queryAt
+      ? { at: new Date(queryAt).toISOString(), type: 'point_in_time' }
+      : queryFrom && queryTo
+        ? { from: new Date(queryFrom).toISOString(), to: new Date(queryTo).toISOString(), type: 'range' }
+        : { type: 'current' },
+    nodes,
+    edges
+  });
+}));
+
+/**
+ * GET /api/graph/snapshot
+ * Get a complete snapshot of the relationship graph at a point in time.
+ * Query: ?at=2024-03-15T00:00:00Z
+ *
+ * Returns all twins and all edges that were valid at the specified timestamp,
+ * plus the TTL (time-to-live) of each edge — when it started and when it ends.
+ */
+app.get('/api/graph/snapshot', optionalAuth, asyncHandler(async (req, res) => {
+  const { at = null, include = 'all' } = req.query;
+
+  let queryAt = null;
+  if (at) {
+    queryAt = new Date(String(at)).getTime();
+  }
+
+  const allNodes = [];
+  const allEdges = [];
+
+  for (const [id, twin] of twinRegistry.entries()) {
+    allNodes.push({ id, twin });
+  }
+
+  for (const [sourceId, rels] of twinRelationships.entries()) {
+    for (const rel of rels) {
+      const created = new Date(rel.createdAt).getTime();
+      const since   = rel.since  ? new Date(rel.since).getTime()  : created;
+      const until   = rel.until  ? new Date(rel.until).getTime()  : Infinity;
+
+      let active = true;
+      let expired = false;
+      if (queryAt !== null) {
+        active  = queryAt >= since && queryAt <= until;
+        expired = until <= queryAt && until !== Infinity;
+      }
+
+      if (include === 'active' && !active) continue;
+      if (include === 'expired' && !expired) continue;
+
+      allEdges.push({
+        ...rel,
+        sourceId,
+        ttl: {
+          effective_from: rel.since || rel.createdAt,
+          effective_until: rel.until || null,
+          active_at: queryAt !== null ? new Date(queryAt).toISOString() : new Date().toISOString(),
+          is_expired: rel.until !== null,
+          was_active: active
+        }
+      });
+    }
+  }
+
+  res.json({
+    success: true,
+    snapshot_at: queryAt !== null ? new Date(queryAt).toISOString() : new Date().toISOString(),
+    type: queryAt !== null ? 'historical' : 'current',
+    nodes: allNodes,
+    edges: allEdges,
+    stats: {
+      total_nodes: allNodes.length,
+      total_edges: allEdges.length,
+      active_edges: allEdges.filter(e => !e.ttl.is_expired).length,
+      expired_edges: allEdges.filter(e => e.ttl.is_expired).length
+    }
+  });
+}));
+
+// ============ PHASE 2: PATH FINDING API ============
+
+/**
+ * GET /api/graph/path
+ * Find shortest path between two twins using BFS
+ * Query: ?from=twinId&to=twinId&maxHops=5&type=owns,works_at
+ */
+app.get('/api/graph/path', optionalAuth, asyncHandler(async (req, res) => {
+  const { from, to, maxHops = 5, type } = req.query;
+
+  if (!from || !to) {
+    return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'from and to query params are required' } });
+  }
+
+  if (!twinRegistry.has(from) || !twinRegistry.has(to)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Source or target twin not found' } });
+  }
+
+  if (from === to) {
+    return res.json({ success: true, path: [{ id: from, twin: twinRegistry.get(from) }], hops: 0, pathTypes: [] });
+  }
+
+  const typeFilter = type ? String(type).split(',').map(s => s.trim()) : null;
+  const maxDepth = Math.min(parseInt(maxHops) || 5, 10);
+
+  // BFS for shortest path
+  const visited = new Map([[from, null]]); // twinId -> previous twinId
+  const queue = [from];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    const currentPath = visited.get(current);
+
+    if (current === to) {
+      // Reconstruct path
+      const path = [];
+      const pathTypes = [];
+      let node = to;
+      while (node !== null) {
+        path.unshift({ id: node, twin: twinRegistry.get(node) });
+        const prev = visited.get(node);
+        if (prev && node !== from) {
+          // Find the relationship type
+          const rels = twinRelationships.get(prev) || [];
+          const rel = rels.find(r => r.targetId === node || r.sourceId === node);
+          pathTypes.unshift(rel?.type || 'unknown');
+        }
+        node = prev;
+      }
+
+      logger.info('Path found', { from, to, hops: path.length - 1 });
+      return res.json({ success: true, path, hops: path.length - 1, pathTypes });
+    }
+
+    const rels = twinRelationships.get(current) || [];
+    for (const rel of rels) {
+      if (typeFilter && !typeFilter.includes(rel.type)) continue;
+
+      const neighbor = rel.sourceId === current ? rel.targetId : rel.sourceId;
+      if (!visited.has(neighbor)) {
+        visited.set(neighbor, current);
+        queue.push(neighbor);
+      }
+    }
+
+    if (visited.size > maxDepth * 10) break; // Safety limit
+  }
+
+  res.json({ success: true, path: null, hops: -1, pathTypes: [], message: 'No path found within maxHops' });
+}));
+
+/**
+ * GET /api/graph/connected
+ * Find all twins connected to a given twin (within N hops)
+ * Query: ?twinId=X&hops=2&minStrength=0.5&minTrust=50
+ */
+app.get('/api/graph/connected', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId, hops = 2, minStrength, minTrust } = req.query;
+
+  if (!twinId) {
+    return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'twinId query param is required' } });
+  }
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const maxDepth = Math.min(parseInt(hops) || 2, 5);
+  const minStrengthVal = minStrength ? parseFloat(minStrength) : null;
+  const minTrustVal = minTrust ? parseFloat(minTrust) : null;
+
+  const visited = new Map([[twinId, 0]]); // twinId -> min hops to reach
+  const frontier = [twinId];
+
+  for (let d = 0; d < maxDepth; d++) {
+    const next = [];
+    for (const id of frontier) {
+      const rels = twinRelationships.get(id) || [];
+      for (const rel of rels) {
+        // Filter by enrichment criteria
+        if (minStrengthVal !== null && (rel.strength || 0.5) < minStrengthVal) continue;
+        if (minTrustVal !== null && (rel.trust_score || 50) < minTrustVal) continue;
+
+        const neighbor = rel.sourceId === id ? rel.targetId : rel.sourceId;
+        if (!visited.has(neighbor)) {
+          visited.set(neighbor, d + 1);
+          next.push(neighbor);
+        }
+      }
+    }
+    frontier.length = 0;
+    frontier.push(...next);
+  }
+
+  const connected = Array.from(visited.entries())
+    .filter(([id]) => id !== twinId)
+    .map(([id, distance]) => ({
+      id,
+      twin: twinRegistry.get(id),
+      distance,
+      // Get the relationship that connects us
+      relationship: (twinRelationships.get(twinId)?.find(r =>
+        r.sourceId === twinId && r.targetId === id ||
+        r.targetId === twinId && r.sourceId === id
+      ) || null)
+    }))
+    .sort((a, b) => a.distance - b.distance);
+
+  res.json({
+    success: true,
+    root: twinId,
+    totalConnected: connected.length,
+    byDistance: Object.fromEntries(
+      Array.from(new Set(connected.map(c => c.distance))).map(d => [
+        d,
+        connected.filter(c => c.distance === d)
+      ])
+    ),
+    connected
+  });
+}));
+
+/**
+ * POST /api/graph/path-validate
+ * Validate if a proposed path exists (for path planning)
+ * Body: { path: ['twin1', 'twin2', 'twin3'] }
+ */
+app.post('/api/graph/path-validate', requireAuth, asyncHandler(async (req, res) => {
+  const { path: twinIds } = preventPrototypePollution(req.body);
+
+  if (!Array.isArray(twinIds) || twinIds.length < 2) {
+    return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'path must be an array of at least 2 twin IDs' } });
+  }
+
+  const validation = [];
+  let valid = true;
+
+  for (let i = 0; i < twinIds.length - 1; i++) {
+    const from = twinIds[i];
+    const to = twinIds[i + 1];
+
+    const rels = twinRelationships.get(from) || [];
+    const connectingRel = rels.find(r =>
+      (r.sourceId === from && r.targetId === to) ||
+      (r.sourceId === to && r.targetId === from)
+    );
+
+    const segment = {
+      from,
+      to,
+      exists: !!connectingRel,
+      relationship: connectingRel || null
+    };
+
+    if (!connectingRel) valid = false;
+    validation.push(segment);
+  }
+
+  res.json({ success: true, valid, path: twinIds, validation });
+}));
+
+// ============ PHASE 3: TEMPORAL HISTORY QUERY ============
+
+/**
+ * GET /api/relationships/:twinId/history
+ * Query relationships as they existed at a point in time
+ * Query: ?at=2024-01-15T00:00:00Z&include=expired,active
+ */
+app.get('/api/relationships/:twinId/history', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+  const { at, include = 'all', type } = req.query;
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const queryTime = at ? new Date(String(at)).getTime() : Date.now();
+  const rels = twinRelationships.get(twinId) || [];
+
+  // Filter relationships based on temporal validity
+  const temporalRels = rels.filter(rel => {
+    const createdTime = new Date(rel.createdAt).getTime();
+    const sinceTime = rel.since ? new Date(rel.since).getTime() : createdTime;
+    const untilTime = rel.until ? new Date(rel.until).getTime() : Infinity;
+
+    // Check if relationship was valid at queryTime
+    return queryTime >= sinceTime && queryTime <= untilTime;
+  });
+
+  // Apply include filter
+  let filtered = temporalRels;
+  if (include === 'expired') {
+    filtered = temporalRels.filter(r => r.until !== null);
+  } else if (include === 'active') {
+    filtered = temporalRels.filter(r => r.until === null);
+  }
+
+  // Apply type filter
+  if (type) {
+    const types = String(type).split(',').map(s => s.trim());
+    filtered = filtered.filter(r => types.includes(r.type));
+  }
+
+  // Sort by trust_score descending
+  filtered.sort((a, b) => (b.trust_score || 50) - (a.trust_score || 50));
+
+  res.json({
+    success: true,
+    query: {
+      twinId,
+      at: new Date(queryTime).toISOString(),
+      now: new Date().toISOString(),
+      include,
+      type
+    },
+    total: filtered.length,
+    relationships: filtered
+  });
+}));
+
+/**
+ * GET /api/relationships/:twinId/timeline
+ * Get the full temporal timeline of a twin's relationships
+ * Shows when relationships started, ended, and how metrics evolved
+ */
+app.get('/api/relationships/:twinId/timeline', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+  const { from, to, granularity = 'month' } = req.query;
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const rels = twinRelationships.get(twinId) || [];
+  const events = [];
+
+  for (const rel of rels) {
+    // Start event
+    events.push({
+      date: rel.since || rel.createdAt,
+      type: 'started',
+      relationship: rel,
+      relationshipId: rel.id
+    });
+
+    // End event (if ended)
+    if (rel.until) {
+      events.push({
+        date: rel.until,
+        type: 'ended',
+        relationship: rel,
+        relationshipId: rel.id
+      });
+    }
+
+    // Key interaction events (from metadata)
+    if (rel.metadata?.interactions) {
+      const recentInteractions = rel.metadata.interactions.slice(-5); // Last 5
+      for (const interaction of recentInteractions) {
+        events.push({
+          date: interaction.at,
+          type: 'interaction',
+          interaction,
+          relationshipId: rel.id
+        });
+      }
+    }
+  }
+
+  // Filter by date range if specified
+  let filteredEvents = events;
+  if (from) {
+    const fromTime = new Date(String(from)).getTime();
+    filteredEvents = filteredEvents.filter(e => new Date(e.date).getTime() >= fromTime);
+  }
+  if (to) {
+    const toTime = new Date(String(to)).getTime();
+    filteredEvents = filteredEvents.filter(e => new Date(e.date).getTime() <= toTime);
+  }
+
+  // Sort by date
+  filteredEvents.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Group by granularity
+  const grouped = {};
+  for (const event of filteredEvents) {
+    const date = new Date(event.date);
+    let key;
+    switch (granularity) {
+      case 'day':
+        key = date.toISOString().split('T')[0];
+        break;
+      case 'week':
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        key = weekStart.toISOString().split('T')[0];
+        break;
+      case 'month':
+      default:
+        key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    }
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(event);
+  }
+
+  res.json({
+    success: true,
+    twinId,
+    range: { from, to, granularity },
+    totalEvents: filteredEvents.length,
+    events: filteredEvents,
+    byPeriod: grouped
+  });
+}));
+
+/**
+ * GET /api/relationships/:twinId/evolution
+ * Track how a specific relationship's metrics evolved over time
+ */
+app.get('/api/relationships/:twinId/:relationshipId/evolution', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId, relationshipId } = req.params;
+  const { from, to } = req.query;
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const rels = twinRelationships.get(twinId) || [];
+  const rel = rels.find(r => r.id === relationshipId);
+
+  if (!rel) {
+    return res.status(404).json({ success: false, error: { code: 'RELATIONSHIP_NOT_FOUND', message: 'Relationship not found' } });
+  }
+
+  // Build evolution timeline from current state + history
+  const evolution = [];
+
+  // Initial creation
+  evolution.push({
+    date: rel.createdAt,
+    event: 'created',
+    strength: rel.strength || 0.5,
+    trust_score: rel.trust_score || 50,
+    shared_memories: 0
+  });
+
+  // Add any historical interaction snapshots if tracked
+  if (rel.metadata?.interaction_history) {
+    for (const snapshot of rel.metadata.interaction_history) {
+      if (from && new Date(snapshot.date) < new Date(String(from))) continue;
+      if (to && new Date(snapshot.date) > new Date(String(to))) continue;
+      evolution.push({
+        date: snapshot.date,
+        event: 'interaction',
+        ...snapshot
+      });
+    }
+  }
+
+  // Current state
+  evolution.push({
+    date: new Date().toISOString(),
+    event: 'current',
+    strength: rel.strength,
+    trust_score: rel.trust_score,
+    shared_memories: rel.shared_memories,
+    active: rel.until === null
+  });
+
+  // Sort by date
+  evolution.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  res.json({
+    success: true,
+    relationship: rel,
+    evolution,
+    summary: {
+      duration: rel.until
+        ? `${Math.round((new Date(rel.until).getTime() - new Date(rel.since || rel.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days`
+        : `${Math.round((Date.now() - new Date(rel.since || rel.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days (ongoing)`,
+      strength_change: rel.strength - (evolution[0]?.strength || 0.5),
+      trust_change: rel.trust_score - (evolution[0]?.trust_score || 50)
+    }
+  });
 }));
 
 /**
@@ -1967,20 +2664,30 @@ app.get('/api/relationships/types', optionalAuth, (req, res) => {
  */
 app.put('/api/relationships/:id', requireAuth, strictLimiter, asyncHandler(async (req, res) => {
   let found = null;
+  let foundSourceId = null;
   for (const [sourceId, rels] of twinRelationships.entries()) {
     const idx = rels.findIndex(r => r.id === req.params.id);
     if (idx !== -1) {
-      const { type, metadata } = preventPrototypePollution(req.body);
+      const { type, metadata, strength, trust_score, shared_memories, until } = preventPrototypePollution(req.body);
       if (type && !VALID_RELATIONSHIP_TYPES.includes(type)) {
         return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `type must be one of: ${VALID_RELATIONSHIP_TYPES.join(', ')}` } });
       }
       const rel = rels[idx];
       if (type) rel.type = type;
       if (metadata) rel.metadata = { ...(rel.metadata || {}), ...metadata };
+      // Phase 1: Allow updating enrichment fields
+      if (typeof strength === 'number') rel.strength = Math.max(0, Math.min(1, strength));
+      if (typeof trust_score === 'number') rel.trust_score = Math.max(0, Math.min(100, trust_score));
+      if (typeof shared_memories === 'number' && shared_memories >= 0) rel.shared_memories = shared_memories;
+      if (typeof until === 'string') {
+        rel.until = until; // null to end relationship, or date to set end
+        if (until === 'now') rel.until = new Date().toISOString();
+      }
       rel.updatedAt = new Date().toISOString();
       rels[idx] = rel;
       twinRelationships.set(sourceId, rels);
       found = rel;
+      foundSourceId = sourceId;
       break;
     }
   }
@@ -1990,6 +2697,398 @@ app.put('/api/relationships/:id', requireAuth, strictLimiter, asyncHandler(async
   res.json({ success: true, relationship: found });
 }));
 
+// ============ PHASE 4: AUTO-LINKING SERVICE ============
+
+// Auto-linking state (in production, would be persisted)
+const autoLinkJobs = new Map();
+
+/**
+ * POST /api/auto-link/suggest
+ * Auto-suggest relationship links based on shared attributes
+ * Body: { twinId, strategy: 'memory' | 'attribute' | 'behavior', minConfidence: 0.5 }
+ */
+app.post('/api/auto-link/suggest', requireAuth, asyncHandler(async (req, res) => {
+  const { twinId, strategy = 'memory', minConfidence = 0.5, maxSuggestions = 10 } = preventPrototypePollution(req.body);
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const twin = twinRegistry.get(twinId);
+  const suggestions = [];
+
+  // Strategy 1: Memory-based linking (shared memories/knowledge)
+  if (strategy === 'memory' || strategy === 'all') {
+    const twinMemories = twinKnowledgeRefs.get(twinId) || [];
+    const memoryIds = new Set(twinMemories.map(m => m.knowledgeId));
+
+    for (const [otherId, otherMemories] of twinKnowledgeRefs.entries()) {
+      if (otherId === twinId) continue;
+
+      const otherMemoryIds = new Set(otherMemories.map(m => m.knowledgeId));
+      const shared = [...memoryIds].filter(id => otherMemoryIds.has(id));
+
+      if (shared.length > 0) {
+        const confidence = Math.min(1, shared.length / 10); // 1 shared = 0.1 confidence, 10+ = 1.0
+        if (confidence >= minConfidence) {
+          suggestions.push({
+            targetId: otherId,
+            targetTwin: twinRegistry.get(otherId),
+            reason: 'shared_memories',
+            sharedKnowledge: shared,
+            sharedCount: shared.length,
+            confidence,
+            suggestedType: shared.length > 3 ? 'collaborates_with' : 'knows'
+          });
+        }
+      }
+    }
+  }
+
+  // Strategy 2: Attribute-based linking (same org, team, etc.)
+  if (strategy === 'attribute' || strategy === 'all') {
+    for (const [otherId, otherTwin] of twinRegistry.entries()) {
+      if (otherId === twinId) continue;
+
+      let attrMatchScore = 0;
+      const matchingAttributes = [];
+
+      // Check shared metadata attributes
+      if (twin.metadata && otherTwin.metadata) {
+        for (const key of ['organization', 'team', 'department', 'industry', 'location']) {
+          if (twin.metadata[key] && twin.metadata[key] === otherTwin.metadata[key]) {
+            attrMatchScore += 0.25;
+            matchingAttributes.push(key);
+          }
+        }
+      }
+
+      // Check same twin type
+      if (twin.type === otherTwin.type) {
+        attrMatchScore += 0.2;
+        matchingAttributes.push('type');
+      }
+
+      if (attrMatchScore >= minConfidence) {
+        // Avoid duplicate suggestions
+        if (!suggestions.find(s => s.targetId === otherId)) {
+          suggestions.push({
+            targetId: otherId,
+            targetTwin: otherTwin,
+            reason: 'shared_attributes',
+            matchingAttributes,
+            confidence: attrMatchScore,
+            suggestedType: matchingAttributes.includes('organization') ? 'works_with' : 'similar_to'
+          });
+        }
+      }
+    }
+  }
+
+  // Strategy 3: Behavior-based linking (similar interactions/patterns)
+  if (strategy === 'behavior' || strategy === 'all') {
+    const twinRels = twinRelationships.get(twinId) || [];
+    const twinRelTypes = new Set(twinRels.map(r => r.type));
+
+    for (const [otherId, otherRels] of twinRelationships.entries()) {
+      if (otherId === twinId) continue;
+
+      const otherRelTypes = new Set(otherRels.map(r => r.type));
+      const commonTypes = [...twinRelTypes].filter(t => otherRelTypes.has(t));
+
+      if (commonTypes.length >= 2) {
+        const confidence = Math.min(1, commonTypes.length / 5);
+        if (confidence >= minConfidence) {
+          if (!suggestions.find(s => s.targetId === otherId)) {
+            suggestions.push({
+              targetId: otherId,
+              targetTwin: twinRegistry.get(otherId),
+              reason: 'similar_behavior',
+              sharedInteractionTypes: commonTypes,
+              confidence,
+              suggestedType: 'similar_to'
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Sort by confidence and limit
+  suggestions.sort((a, b) => b.confidence - a.confidence);
+  const limited = suggestions.slice(0, maxSuggestions);
+
+  // Filter out already-connected twins
+  const twinRels = twinRelationships.get(twinId) || [];
+  const existingConnections = new Set(twinRels.map(r => r.targetId));
+
+  const filtered = limited.filter(s => !existingConnections.has(s.targetId));
+
+  logger.info('Auto-link suggestions generated', { twinId, strategy, count: filtered.length });
+
+  res.json({
+    success: true,
+    twinId,
+    strategy,
+    totalScanned: twinRegistry.size - 1,
+    suggestions: filtered
+  });
+}));
+
+/**
+ * POST /api/auto-link/create
+ * Create relationships from auto-link suggestions (batch create)
+ * Body: { suggestions: [{targetId, type, strength, trust_score}] }
+ */
+app.post('/api/auto-link/create', requireAuth, asyncHandler(async (req, res) => {
+  const { suggestions, twinId, dryRun = false } = preventPrototypePollution(req.body);
+
+  if (!Array.isArray(suggestions) || suggestions.length === 0) {
+    return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'suggestions array is required' } });
+  }
+
+  if (!twinId) {
+    return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'twinId is required' } });
+  }
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const results = {
+    created: [],
+    skipped: [],
+    failed: []
+  };
+
+  for (const suggestion of suggestions) {
+    const { targetId, type = 'linked_to', strength = 0.5, trust_score = 50 } = suggestion;
+
+    // Validate target exists
+    if (!twinRegistry.has(targetId)) {
+      results.failed.push({ targetId, reason: 'Target twin not found' });
+      continue;
+    }
+
+    // Check if relationship already exists
+    const existingRels = twinRelationships.get(twinId) || [];
+    const alreadyExists = existingRels.some(r =>
+      (r.sourceId === twinId && r.targetId === targetId) ||
+      (r.sourceId === targetId && r.targetId === twinId)
+    );
+
+    if (alreadyExists) {
+      results.skipped.push({ targetId, reason: 'Relationship already exists' });
+      continue;
+    }
+
+    if (dryRun) {
+      results.skipped.push({ targetId, reason: 'Dry run - would create', type, strength, trust_score });
+      continue;
+    }
+
+    // Create the relationship with enriched metadata
+    const now = new Date().toISOString();
+    const relationship = {
+      id: `rel-${uuidv4().slice(0, 8)}`,
+      sourceId: twinId,
+      targetId,
+      type,
+      since: now,
+      until: null,
+      strength,
+      trust_score,
+      shared_memories: suggestion.sharedCount || 0,
+      last_interaction: now,
+      metadata: {
+        auto_linked: true,
+        link_reason: suggestion.reason,
+        confidence: suggestion.confidence
+      },
+      createdBy: req.user.id,
+      createdAt: now
+    };
+
+    if (!twinRelationships.has(twinId)) {
+      twinRelationships.set(twinId, []);
+    }
+    twinRelationships.get(twinId).push(relationship);
+
+    results.created.push({ targetId, relationshipId: relationship.id, type, strength, trust_score });
+  }
+
+  logger.info('Auto-link batch complete', { twinId, created: results.created.length, skipped: results.skipped.length, failed: results.failed.length });
+
+  res.json({
+    success: true,
+    dryRun,
+    twinId,
+    results
+  });
+}));
+
+/**
+ * POST /api/auto-link/jobs
+ * Start a background auto-linking job
+ * Body: { twinId, strategy, minConfidence, schedule: 'once' | 'hourly' | 'daily' }
+ */
+app.post('/api/auto-link/jobs', requireAuth, asyncHandler(async (req, res) => {
+  const { twinId, strategy = 'all', minConfidence = 0.6, schedule = 'once' } = preventPrototypePollution(req.body);
+
+  if (!twinRegistry.has(twinId)) {
+    return res.status(404).json({ success: false, error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' } });
+  }
+
+  const jobId = `job-${uuidv4().slice(0, 8)}`;
+  const job = {
+    id: jobId,
+    twinId,
+    strategy,
+    minConfidence,
+    schedule,
+    status: 'running',
+    createdAt: new Date().toISOString(),
+    lastRun: null,
+    runs: 0,
+    totalCreated: 0,
+    intervalId: null
+  };
+
+  // Run immediately
+  const runJob = async () => {
+    job.lastRun = new Date().toISOString();
+    job.runs++;
+
+    // Call the suggest endpoint internally
+    const twinMemories = twinKnowledgeRefs.get(twinId) || [];
+    const memoryIds = new Set(twinMemories.map(m => m.knowledgeId));
+    const suggestions = [];
+
+    for (const [otherId, otherMemories] of twinKnowledgeRefs.entries()) {
+      if (otherId === twinId) continue;
+      const otherMemoryIds = new Set(otherMemories.map(m => m.knowledgeId));
+      const shared = [...memoryIds].filter(id => otherMemoryIds.has(id));
+
+      if (shared.length > 0) {
+        const confidence = Math.min(1, shared.length / 10);
+        if (confidence >= minConfidence) {
+          const existingRels = twinRelationships.get(twinId) || [];
+          const alreadyExists = existingRels.some(r => r.targetId === otherId);
+
+          if (!alreadyExists) {
+            suggestions.push({ targetId: otherId, reason: 'shared_memories', sharedCount: shared.length, confidence, type: 'collaborates_with' });
+          }
+        }
+      }
+    }
+
+    // Auto-create high-confidence links
+    const highConfidence = suggestions.filter(s => s.confidence >= minConfidence + 0.2);
+    let created = 0;
+
+    for (const s of highConfidence) {
+      const relationship = {
+        id: `rel-${uuidv4().slice(0, 8)}`,
+        sourceId: twinId,
+        targetId: s.targetId,
+        type: s.type,
+        since: new Date().toISOString(),
+        until: null,
+        strength: s.confidence,
+        trust_score: Math.round(s.confidence * 100),
+        shared_memories: s.sharedCount,
+        last_interaction: new Date().toISOString(),
+        metadata: { auto_linked: true, link_reason: s.reason, confidence: s.confidence },
+        createdBy: 'system',
+        createdAt: new Date().toISOString()
+      };
+
+      if (!twinRelationships.has(twinId)) twinRelationships.set(twinId, []);
+      twinRelationships.get(twinId).push(relationship);
+      created++;
+    }
+
+    job.totalCreated += created;
+    logger.info('Auto-link job completed', { jobId, twinId, suggestionsFound: suggestions.length, created });
+  };
+
+  // Initial run
+  await runJob();
+
+  // Schedule recurring if needed
+  if (schedule === 'hourly') {
+    job.intervalId = setInterval(runJob, 60 * 60 * 1000);
+  } else if (schedule === 'daily') {
+    job.intervalId = setInterval(runJob, 24 * 60 * 60 * 1000);
+  }
+
+  if (schedule === 'once') {
+    job.status = 'completed';
+  }
+
+  autoLinkJobs.set(jobId, job);
+
+  res.json({ success: true, job });
+}));
+
+/**
+ * GET /api/auto-link/jobs/:jobId
+ * Get status of an auto-linking job
+ */
+app.get('/api/auto-link/jobs/:jobId', requireAuth, (req, res) => {
+  const job = autoLinkJobs.get(req.params.jobId);
+  if (!job) {
+    return res.status(404).json({ success: false, error: { code: 'JOB_NOT_FOUND', message: 'Auto-link job not found' } });
+  }
+  res.json({ success: true, job });
+});
+
+/**
+ * DELETE /api/auto-link/jobs/:jobId
+ * Cancel an auto-linking job
+ */
+app.delete('/api/auto-link/jobs/:jobId', requireAuth, (req, res) => {
+  const job = autoLinkJobs.get(req.params.jobId);
+  if (!job) {
+    return res.status(404).json({ success: false, error: { code: 'JOB_NOT_FOUND', message: 'Auto-link job not found' } });
+  }
+  if (job.intervalId) {
+    clearInterval(job.intervalId);
+  }
+  job.status = 'cancelled';
+  res.json({ success: true, job });
+});
+
+/**
+ * GET /api/auto-link/stats
+ * Get auto-linking statistics
+ */
+app.get('/api/auto-link/stats', requireAuth, (req, res) => {
+  const allJobs = Array.from(autoLinkJobs.values());
+
+  // Count auto-linked relationships
+  let autoLinkedCount = 0;
+  let totalRelationships = 0;
+  for (const [, rels] of twinRelationships.entries()) {
+    for (const rel of rels) {
+      totalRelationships++;
+      if (rel.metadata?.auto_linked) autoLinkedCount++;
+    }
+  }
+
+  res.json({
+    success: true,
+    stats: {
+      totalJobs: allJobs.length,
+      activeJobs: allJobs.filter(j => j.status === 'running').length,
+      completedJobs: allJobs.filter(j => j.status === 'completed').length,
+      totalAutoLinks: autoLinkedCount,
+      totalRelationships,
+      autoLinkPercentage: totalRelationships > 0 ? (autoLinkedCount / totalRelationships * 100).toFixed(2) + '%' : '0%'
+    }
+  });
+});
+
 // ============ HEALTH ENDPOINTS ============
 
 app.get('/health', (req, res) => {
@@ -1998,7 +3097,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     service: SERVICE_NAME,
-    version: '3.0.0',
+    version: '3.1.0',
     timestamp: new Date().toISOString(),
     stats: {
       totalTwins: twins.length,

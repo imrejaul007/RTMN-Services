@@ -22,7 +22,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
-import { types, TwinServiceConfig } from './types/index.js';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '4735', 10);

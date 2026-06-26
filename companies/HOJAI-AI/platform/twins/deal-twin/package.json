@@ -2,11 +2,14 @@
   "name": "@rtmn/deal-twin",
   "version": "2.0.0",
   "description": "Deal Twin Service for RTMN",
+  "port": 5322,
   "type": "module",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -23,5 +26,8 @@
   },
   "keywords": ["rtmn", "twin", "deal", "digital-twin"],
   "author": "HOJAI AI",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  }
 }

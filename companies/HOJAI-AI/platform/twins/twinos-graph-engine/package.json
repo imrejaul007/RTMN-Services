@@ -1,0 +1,29 @@
+{
+  "name": "@rtmn/twinos-graph-engine",
+  "version": "1.0.0",
+  "description": "TwinOS Graph Engine — dedicated graph traversal, PageRank, community detection, and centrality metrics for the RTMN twin relationship graph",
+  "port": 4715,
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@rtmn/twinos-shared": "file:../twinos-shared",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  },
+  "keywords": ["twinos", "graph", "pagerank", "community-detection", "rtmn"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  }
+}

@@ -2,6 +2,7 @@
   "name": "@rtmn/twin-capability-profile",
   "version": "1.0.0",
   "description": "Twin Capability Profile (4150) — every Twin advertises what it can DO (acceptQuote, checkAvailability, holdRoom, requestHousekeeping, etc.). Discovery layer for the entire ecosystem; SkillOS handles implementation.",
+  "port": 4150,
   "main": "src/index.js",
   "type": "module",
   "scripts": {

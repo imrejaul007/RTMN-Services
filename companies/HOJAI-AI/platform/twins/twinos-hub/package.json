@@ -2,11 +2,14 @@
   "name": "@rtmn/twinos-hub",
   "version": "2.0.0",
   "description": "RTMN TwinOS Hub - Central registry and coordination for all digital twins",
+  "port": 4705,
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@rtmn/twinos-shared": "file:../twinos-shared",
@@ -26,5 +29,8 @@
     "rtmn"
   ],
   "author": "HOJAI AI",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  }
 }

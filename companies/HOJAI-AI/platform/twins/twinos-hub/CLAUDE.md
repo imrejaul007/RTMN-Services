@@ -1,9 +1,9 @@
 # TwinOS Hub - Digital Twins Orchestrator
 
-**Version:** 3.0.0  
+**Version:** 3.1.0  
 **Port:** 4705  
-**Status:** ✅ RUNNING | **June 19, 2026**  
-**Upgrade:** v2.0.0 → v3.0.0 — Full HOJAI 3-pillar spec compliance
+**Status:** ✅ RUNNING | **June 26, 2026**  
+**Upgrade:** v3.0.0 → v3.1.0 — Graph Engine Phases 1-4 (Relationship Enrichment, Path Finding, Temporal History, Auto-Linking)
 
 ---
 
@@ -15,6 +15,35 @@ TwinOS is one of the **3 foundational pillars of HOJAI AI**:
 - **TwinOS** = Digital Representation & Identity Layer ("What am I?")
 - **MemoryOS** = Knowledge & Experience Layer ("What do I know?")
 - **SkillOS** = Capability Layer ("What can I do?")
+
+---
+
+## What's New in v3.1
+
+**Graph Engine Phases 1-4** — Enriched relationships, path finding, temporal history, and auto-linking.
+
+### Phase 1: Relationship Enrichment
+- Added `since`, `until`, `strength`, `trust_score`, `shared_memories`, `last_interaction` fields
+- Track temporal validity (when relationships start/end)
+- Trust and strength metrics (0-100, 0-1 scale)
+- Shared memory counts and interaction history
+
+### Phase 2: Path Finding API
+- BFS shortest path between any two twins
+- Find all connected twins within N hops
+- Filter by relationship strength/trust thresholds
+- Validate proposed relationship paths
+
+### Phase 3: Temporal History Query
+- Query relationships as they existed at a point in time
+- Full temporal timeline with day/week/month grouping
+- Track metric evolution over time
+
+### Phase 4: Auto-Linking Service
+- 3 linking strategies: memory-based, attribute-based, behavior-based
+- Batch create from suggestions (with dry-run mode)
+- Background jobs with hourly/daily scheduling
+- Auto-linking statistics and job management
 
 ---
 
@@ -200,6 +229,37 @@ GET    /api/relationships/graph/:twinId  # BFS walk (depth, type filter)
 GET    /api/relationships/types       # Valid type vocabulary
 ```
 
+### v3.1: Relationship Enrichment (Phase 1)
+```
+POST   /api/relationships/:id/interact          # Record interaction (trust_delta, strength_delta)
+GET    /api/relationships/enriched             # Query with filters (min_trust, min_strength, active_only)
+GET    /api/relationships/:twinId/enrichment-stats  # Per-twin stats (avg_trust, avg_strength, distribution)
+```
+
+### v3.1: Path Finding API (Phase 2)
+```
+GET    /api/graph/path                      # BFS shortest path (?from=X&to=Y&maxHops=5&type=owns,works_with)
+GET    /api/graph/connected                 # Find all twins within N hops (?twinId=X&hops=2&minStrength=0.5)
+POST   /api/graph/path-validate              # Validate proposed path exists (body: {path: [a,b,c]})
+```
+
+### v3.1: Temporal History Query (Phase 3)
+```
+GET    /api/relationships/:twinId/history    # Query relationships at point in time (?at=2024-01-15&include=active,expired)
+GET    /api/relationships/:twinId/timeline   # Full temporal timeline (?from=&to=&granularity=month)
+GET    /api/relationships/:twinId/:relId/evolution  # Track metric evolution over time
+```
+
+### v3.1: Auto-Linking Service (Phase 4)
+```
+POST   /api/auto-link/suggest                # Suggest links (body: {twinId, strategy: memory|attribute|behavior})
+POST   /api/auto-link/create                 # Batch create from suggestions (body: {twinId, suggestions[], dryRun})
+POST   /api/auto-link/jobs                   # Background job (?schedule=once|hourly|daily)
+GET    /api/auto-link/jobs/:jobId            # Job status
+DELETE /api/auto-link/jobs/:jobId            # Cancel job
+GET    /api/auto-link/stats                  # Auto-linking statistics
+```
+
 ### Sync (preserved from v2)
 ```
 POST   /api/sync/:id
@@ -237,6 +297,28 @@ curl -X POST http://localhost:4705/api/twins \
     "attributes": { "age": 30, "city": "Mumbai" },
     "tags": ["vip", "premium"]
   }'
+
+### v3.1: Create relationship with enrichment
+```bash
+curl -X POST http://localhost:4705/api/relationships \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sourceId": "emp_001",
+    "targetId": "dept_engineering",
+    "type": "belongs_to",
+    "metadata": { "strength": 0.9, "trust_score": 95 }
+  }'
+
+### v3.1: Find shortest path between twins
+curl "http://localhost:4705/api/graph/path?from=emp_001&to=org_hojai"
+
+### v3.1: Query relationships at a point in time
+curl "http://localhost:4705/api/relationships/emp_001/history?at=2025-01-01"
+
+### v3.1: Auto-suggest relationship links
+curl -X POST http://localhost:4705/api/auto-link/suggest \
+  -H "Content-Type: application/json" \
+  -d '{"twinId": "emp_001", "strategy": "memory", "minConfidence": 0.5}'
 ```
 
 ### Set context, add a goal, run a simulation

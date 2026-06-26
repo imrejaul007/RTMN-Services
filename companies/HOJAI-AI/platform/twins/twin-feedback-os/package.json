@@ -2,6 +2,7 @@
   "name": "@hojai/twin-feedback-os",
   "version": "1.0.0",
   "description": "Twin Feedback OS - Human corrections and RLHF loop",
+  "port": 4909,
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@hojai/employee-twin-facade",
   "version": "1.0.0",
   "description": "Employee Twin Facade - Single unified API for all twin services",
+  "port": 4731,
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",

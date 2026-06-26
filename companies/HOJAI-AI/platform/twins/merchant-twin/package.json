@@ -2,11 +2,14 @@
   "name": "@rtmn/merchant-twin",
   "version": "1.0.0",
   "description": "RTMN Merchant Twin Service - Merchant digital twin with stores, offers, staff, settlements",
+  "port": 4888,
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -19,5 +22,8 @@
   },
   "keywords": ["twinos", "merchant", "commerce", "stores", "offers", "staff", "rtmn"],
   "author": "HOJAI AI",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  }
 }

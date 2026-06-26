@@ -2,6 +2,7 @@
   "name": "@hojai/salar-os",
   "version": "1.0.0",
   "description": "Salar OS - Workforce Intelligence (Capability Registry + Human/Agent/Hybrid Twins)",
+  "port": 4716,
   "main": "src/index.ts",
   "type": "module",
   "scripts": {

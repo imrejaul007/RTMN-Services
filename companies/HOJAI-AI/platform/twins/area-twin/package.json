@@ -1,8 +1,12 @@
 {
-  "name": "rtmn-twin",
+  "name": "@rtmn/area-twin",
   "version": "1.0.0",
+  "description": "RTMN Area Twin Service - Geographic area digital twin",
+  "port": 4910,
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -12,5 +16,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
   }
 }

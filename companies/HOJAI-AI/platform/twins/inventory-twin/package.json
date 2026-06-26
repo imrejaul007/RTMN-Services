@@ -2,6 +2,7 @@
   "name": "@rtmn/inventory-twin",
   "version": "1.0.0",
   "description": "RTMN Inventory Twin Service - Stock levels, warehouses, transfers, and adjustments",
+  "port": 4887,
   "type": "module",
   "main": "src/index.js",
   "scripts": {

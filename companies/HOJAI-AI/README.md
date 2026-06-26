@@ -1,12 +1,31 @@
-# HOJAI AI
+# HOJAI Studio — Build Any AI Company in 30 Minutes
 
-> **The AI Infrastructure Company** - Powering the RTMN Ecosystem
+> **The Platform-as-an-Economy** - 17 templates, 510 companies, 45 services
 
 ---
 
-## ⚠️ Status Notice (2026-06-19)
+## Quick Start
 
-This folder is the **HOJAI AI company root** - brand layer, divisions, marketplace, external-client docs, AND runtime services (since 2026-06-19).
+```bash
+# Start all services
+bash scripts/start-hojai.sh
+
+# Test services
+bash test-all.sh
+
+# Open Studio UI
+open http://localhost:3001
+```
+
+---
+
+## What's Built
+
+- **17 Templates** — OTA, E-Commerce, Food Delivery, Mobility, Healthcare, Education, Fintech, Logistics, and more
+- **45 Services** — All industry-specific services ready
+- **510 Companies** — All pre-mapped from master list
+- **50+ Flows** — All business flows ready
+- **Studio UI** — Web wizard at port 3001
 
 For the actual working HOJAI AI services, see [./services/](./services/):
 

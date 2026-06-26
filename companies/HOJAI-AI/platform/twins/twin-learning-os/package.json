@@ -2,6 +2,7 @@
   "name": "@hojai/twin-learning-os",
   "version": "1.0.0",
   "description": "Twin Learning OS - Unified orchestrator connecting all 9 twin types",
+  "port": 4903,
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",

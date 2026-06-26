@@ -68,10 +68,10 @@ app.get('/ready', (_req: Request, res: Response) => { res.json({ ready: true, se
 
 app.post('/api/feedback', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { employeeId, capability, capabilityArea, feedbackType, twinAction, correction, currentConfidence } = req.body;
+    const { employeeId, capability, capabilityArea, feedbackType, twinAction, correction, currentConfidence } = req.body as Feedback & { feedbackType: string };
     if (!employeeId || !capability || !feedbackType) { const e: AppError = new Error('Missing required fields: employeeId, capability, feedbackType'); e.statusCode = 400; throw e; }
-    if (!FEEDBACK_TYPES[feedbackType]) { const e: AppError = new Error(`Invalid feedbackType. Valid: ${Object.keys(FEEDBACK_TYPES).join(', ')}`); e.statusCode = 400; throw e; }
-    if (FEEDBACK_TYPES[feedbackType].requiresCorrection && !correction) { const e: AppError = new Error(`Feedback type '${feedbackType}' requires a correction object`); e.statusCode = 400; throw e; }
+    if (!FEEDBACK_TYPES[feedbackType as keyof typeof FEEDBACK_TYPES]) { const e: AppError = new Error(`Invalid feedbackType. Valid: ${Object.keys(FEEDBACK_TYPES).join(', ')}`); e.statusCode = 400; throw e; }
+    if (FEEDBACK_TYPES[feedbackType as keyof typeof FEEDBACK_TYPES].requiresCorrection && !correction) { const e: AppError = new Error(`Feedback type '${feedbackType}' requires a correction object`); e.statusCode = 400; throw e; }
     const feedback: Feedback = { id: `fb_${feedbackIdCounter++}`, employeeId, capability, capabilityArea: capabilityArea || 'general', feedbackType, twinAction, correction, currentConfidence, newConfidence: calculateNewConfidence(currentConfidence || 70, feedbackType), outcome: 'applied', timestamp: new Date().toISOString() };
     if (!feedbackStore[employeeId]) feedbackStore[employeeId] = [];
     feedbackStore[employeeId].push(feedback);

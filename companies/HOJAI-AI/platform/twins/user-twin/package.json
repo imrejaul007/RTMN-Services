@@ -2,11 +2,14 @@
   "name": "@rtmn/user-twin",
   "version": "1.0.0",
   "description": "RTMN User Twin Service - Digital twin for platform users",
+  "port": 4889,
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": ["rtmn", "twinos", "user", "digital-twin"],
   "author": "HOJAI AI",
@@ -19,5 +22,8 @@
     "morgan": "^1.10.0",
     "uuid": "^9.0.1",
     "@rtmn/twinos-shared": "file:../twinos-shared"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
   }
 }
