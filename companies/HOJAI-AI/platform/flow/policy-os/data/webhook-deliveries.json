@@ -1519,5 +1519,57 @@
       "durationMs": 5,
       "timestamp": "2026-06-27T20:07:13.079Z"
     }
+  ],
+  [
+    "wh-1782591252430",
+    {
+      "id": "wh-1782591252430",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 27,
+      "timestamp": "2026-06-27T20:14:12.458Z"
+    }
+  ],
+  [
+    "wh-1782591252463",
+    {
+      "id": "wh-1782591252463",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 3,
+      "timestamp": "2026-06-27T20:14:12.466Z"
+    }
+  ],
+  [
+    "wh-1782591326530",
+    {
+      "id": "wh-1782591326530",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 40,
+      "timestamp": "2026-06-27T20:15:26.570Z"
+    }
+  ],
+  [
+    "wh-1782591326577",
+    {
+      "id": "wh-1782591326577",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 4,
+      "timestamp": "2026-06-27T20:15:26.581Z"
+    }
   ]
 ]

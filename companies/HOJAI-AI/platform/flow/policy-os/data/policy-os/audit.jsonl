@@ -348,3 +348,7 @@
 {"id":"9efd3e6c-a470-42f3-b310-55c728aa923f","timestamp":"2026-06-27T20:04:44.923Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}
 {"id":"e8160c0f-7f81-4980-97b0-7652afc6ad91","timestamp":"2026-06-27T20:07:13.023Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}
 {"id":"fb36ad95-6791-4c1a-91d0-221d4117ba77","timestamp":"2026-06-27T20:07:13.073Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}
+{"id":"40d67b49-8df8-4fcf-9e11-e31df3e4bf09","timestamp":"2026-06-27T20:14:12.429Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}
+{"id":"3fbbdbb2-77ee-479c-b66c-dd7fb22ecbe3","timestamp":"2026-06-27T20:14:12.463Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}
+{"id":"9bc618ac-c807-40df-b62d-591c1276d42a","timestamp":"2026-06-27T20:15:26.529Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}
+{"id":"e4ff11ce-ca0d-48b1-b776-bb65b0477da0","timestamp":"2026-06-27T20:15:26.576Z","type":"policy.evaluated","policyId":null,"details":{"allowed":false,"reasons":["No matching policy found - fail-closed default"]}}

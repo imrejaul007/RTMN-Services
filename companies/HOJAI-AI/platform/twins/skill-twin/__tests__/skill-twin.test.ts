@@ -246,10 +246,11 @@ describe('SkillTwin', () => {
 
   describe('GET /api/skills/analytics/summary', () => {
     it('should return skill analytics', async () => {
-      await request(app).post('/api/skills').send({ name: 'Skill 1', category: 'technical', level: 'expert' });
-      await request(app).post('/api/skills').send({ name: 'Skill 2', category: 'soft', level: 'intermediate' });
+      const createApp = createSkillTwinService();
+      await request(createApp).post('/api/skills').send({ name: 'Skill 1', category: 'technical', level: 'expert' });
+      await request(createApp).post('/api/skills').send({ name: 'Skill 2', category: 'soft', level: 'intermediate' });
 
-      const res = await request(app)
+      const res = await request(createApp)
         .get('/api/skills/analytics/summary');
 
       expect(res.status).toBe(200);
