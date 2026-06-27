@@ -489,3 +489,5 @@ const server = app.listen(PORT, () => {
 installGracefulShutdown(server);
 
 module.exports = app;
+module.exports.SERVICES = SERVICES;
+module.exports.ROUTES = ROUTES;

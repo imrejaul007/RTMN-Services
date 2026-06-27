@@ -17,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { useEffect, useImperativeHandle, useRef, useState, forwardRef } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, forwardRef } from 'react';
 import { HojaiWidget, HojaiWidgetConfig, WidgetMessage } from '@hojai/widget-core';
 
 export type {
@@ -75,19 +75,23 @@ export const HojaiChat = forwardRef<HojaiChatHandle, HojaiChatProps>(
       };
     }, []);
 
+    const send = useCallback((text: string) => {
+      if (!widgetRef.current) return Promise.reject(new Error('Widget not ready'));
+      return widgetRef.current.send(text);
+    }, []);
+
+    const open = useCallback(() => widgetRef.current?.open(), []);
+
+    const close = useCallback(() => widgetRef.current?.close(), []);
+
+    const getHistory = useCallback(() => widgetRef.current?.getHistory() || [], []);
+
+    const identify = useCallback((user: any) => widgetRef.current?.identify(user), []);
+
     useImperativeHandle(
       ref,
-      () => ({
-        send: (text: string) => {
-          if (!widgetRef.current) return Promise.reject(new Error('Widget not ready'));
-          return widgetRef.current.send(text);
-        },
-        open: () => widgetRef.current?.open(),
-        close: () => widgetRef.current?.close(),
-        getHistory: () => widgetRef.current?.getHistory() || [],
-        identify: (user: any) => widgetRef.current?.identify(user)
-      }),
-      [ready]
+      () => ({ send, open, close, getHistory, identify }),
+      [send, open, close, getHistory, identify]
     );
 
     return (

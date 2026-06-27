@@ -95,7 +95,7 @@ describe('ACN Integration Service', () => {
   // Workflow Execution
   // =========================================================================
   describe('executeWorkflow', () => {
-    it('should create workflow record with running status', async () => {
+    it('should create workflow record and complete successfully', async () => {
       const workflow = await executeWorkflow(WORKFLOW_TYPES.PAYMENT_TO_REZ, {
         fromAgent: 'genie-1',
         toAgent: 'merchant-1',
@@ -104,9 +104,10 @@ describe('ACN Integration Service', () => {
 
       expect(workflow.id).toMatch(/^WF-/);
       expect(workflow.type).toBe('payment_to_rez');
-      expect(workflow.status).toBe('running');
+      expect(workflow.status).toBe('completed');
       expect(workflow.steps).toBeDefined();
       expect(workflow.startedAt).toBeDefined();
+      expect(workflow.completedAt).toBeDefined();
     });
 
     it('should complete workflow successfully', async () => {

@@ -542,3 +542,10 @@ const server = app.listen(PORT, () => {
 installGracefulShutdown(server);
 
 module.exports = app;
+module.exports.RTMN_SERVICES = RTMN_SERVICES;
+module.exports.WORKFLOW_TYPES = WORKFLOW_TYPES;
+module.exports.executeWorkflow = executeWorkflow;
+module.exports.runGenieToIndustry = runGenieToIndustry;
+module.exports.runMerchantToDepartment = runMerchantToDepartment;
+module.exports.runContractToTwin = runContractToTwin;
+module.exports.runPaymentToREZ = runPaymentToREZ;

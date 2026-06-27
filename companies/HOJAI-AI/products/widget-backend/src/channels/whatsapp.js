@@ -29,11 +29,66 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const fs = require('fs');
 
 const router = express.Router();
 
-// ─── In-memory session store ───────────────────────────────────────────
-const sessions = new Map(); // sessionId -> { companyId, visitorId, phone, createdAt, messageLog }
+// ─── File-based session store with 24h TTL ─────────────────────────────
+const SESSION_FILE = '/tmp/widget-whatsapp-sessions.json';
+const SESSION_TTL_MS = 24 * 3600 * 1000; // 24 hours
+
+const sessions = new Map(); // sessionId -> { companyId, visitorId, phone, createdAt, expiresAt, messageLog }
+
+function loadSessions() {
+  try {
+    if (fs.existsSync(SESSION_FILE)) {
+      const data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf8'));
+      const now = Date.now();
+      for (const [id, session] of Object.entries(data)) {
+        // Only load sessions that haven't expired
+        if (new Date(session.expiresAt).getTime() > now) {
+          sessions.set(id, session);
+        }
+      }
+      const removed = Object.keys(data).length - sessions.size;
+      if (removed > 0) {
+        console.log(`[whatsapp-channel] Loaded ${sessions.size} sessions, removed ${removed} expired`);
+      } else {
+        console.log(`[whatsapp-channel] Loaded ${sessions.size} sessions from disk`);
+      }
+    }
+  } catch (err) {
+    console.error('[whatsapp-channel] Failed to load sessions:', err.message);
+  }
+}
+
+function saveSessions() {
+  try {
+    const data = Object.fromEntries(sessions);
+    fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('[whatsapp-channel] Failed to save sessions:', err.message);
+  }
+}
+
+// Load persisted sessions on startup
+loadSessions();
+
+// Periodic cleanup of expired sessions (every hour)
+setInterval(() => {
+  const now = Date.now();
+  let cleaned = 0;
+  for (const [id, session] of sessions) {
+    if (new Date(session.expiresAt).getTime() <= now) {
+      sessions.delete(id);
+      cleaned++;
+    }
+  }
+  if (cleaned > 0) {
+    console.log(`[whatsapp-channel] Cleaned up ${cleaned} expired sessions`);
+    saveSessions();
+  }
+}, 3600 * 1000);
 
 // ─── WhatsApp OS client (lazy import) ────────────────────────────────
 let WhatsAppClient = null;
@@ -128,10 +183,11 @@ router.post('/start', apiKeyAuth, (req, res) => {
       visitorId,
       phone,
       createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      expiresAt: new Date(Date.now() + SESSION_TTL_MS).toISOString(),
       messageLog: []
     };
     sessions.set(sessionId, session);
+    saveSessions();
 
     res.json({
       success: true,
@@ -184,6 +240,7 @@ router.post('/send', apiKeyAuth, async (req, res) => {
       messageId: result.messageId,
       source: result.source
     });
+    saveSessions();
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -225,6 +282,7 @@ router.post('/webhook', (req, res) => {
     messageId,
     receivedAt: timestamp || new Date().toISOString()
   });
+  saveSessions();
 
   res.json({
     success: true,
@@ -244,6 +302,7 @@ router.post('/end', apiKeyAuth, (req, res) => {
     return res.status(400).json({ success: false, error: 'sessionId is required' });
   }
   const existed = sessions.delete(sessionId);
+  if (existed) saveSessions();
   res.json({ success: true, data: { sessionId, ended: existed } });
 });
 

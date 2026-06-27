@@ -10,7 +10,8 @@
     - shop.metafields.hojai.color        (hex, e.g. "#3B82F6")
     - shop.metafields.hojai.position     ("bottom-right" | "bottom-left")
 
-  Public API key is fetched server-side and rendered as data-key on the script tag.
+  Production: Use OAuth to fetch the API key server-side from HOJAI.
+  For development/testing only: set shop.metafields.hojai.api_key directly.
 {% endcomment %}
 
 {%- liquid

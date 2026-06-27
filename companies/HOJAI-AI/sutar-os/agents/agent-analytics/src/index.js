@@ -651,3 +651,9 @@ app.listen(PORT, () => {
 installGracefulShutdown(server);
 
 module.exports = app;
+module.exports.EVENT_TYPES = EVENT_TYPES;
+module.exports.recordEvent = recordEvent;
+module.exports.updateRealtimeMetrics = updateRealtimeMetrics;
+module.exports.checkAlerts = checkAlerts;
+module.exports.calculateMetrics = calculateMetrics;
+module.exports.createDashboard = createDashboard;

@@ -23,6 +23,7 @@ const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const rateLimit = require('express-rate-limit');
 const rezIntel = require('./rez-intel-client');
 const intentEngine = require('./intent-engine');
 const sutarRouter = require('./sutar-router');
@@ -46,10 +47,65 @@ function requireInternal(req, res, next) {
 }
 
 
+// ── CORS ─────────────────────────────────────────────────────────────────
+// Explicit whitelist via ALLOWED_ORIGINS env var (comma-separated).
+// Defaults to empty (no cross-origin requests allowed) unless NODE_ENV=test.
+const rawOrigins = process.env.ALLOWED_ORIGINS || '';
+const allowedOrigins = rawOrigins
+  ? rawOrigins.split(',').map((o) => o.trim()).filter(Boolean)
+  : [];
+
+const corsOptions = {
+  origin: allowedOrigins.length > 0
+    ? allowedOrigins
+    : process.env.NODE_ENV === 'test' ? '*' : false,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Internal-Token'],
+  exposedHeaders: ['X-Request-Id'],
+  credentials: true
+};
+
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(morgan('combined'));
 app.use(express.json({ limit: '1mb' }));
+
+// ── Rate Limiter (BUG-06: 100 req/min per companyId) ──────────────────────
+// Key: extract companyId from JSON body (POST) or query string (GET).
+// Falls back to IP when companyId is not yet available (e.g., unauthenticated).
+const widgetRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  // BUG-06: per-companyId rate limiting instead of per-IP
+  keyGenerator: (req) => {
+    // POST /api/v1/widget/message — companyId is in the JSON body
+    if (req.method === 'POST' && req.body && req.body.companyId) {
+      return `company:${req.body.companyId}`;
+    }
+    // GET endpoints — fall back to API key if present, else IP
+    const auth = req.get('Authorization') || '';
+    const token = auth.replace(/^Bearer\s+/i, '').trim();
+    if (token) return `key:${token}`;
+    return req.ip;
+  },
+  handler: (req, res) => {
+    const companyId = req.body && req.body.companyId;
+    res.status(429).json({
+      success: false,
+      error: 'Too many requests',
+      message: `Rate limit exceeded. Max 100 requests/minute per companyId.${companyId ? ` (companyId: ${companyId})` : ''}`
+    });
+  },
+  skip: (req) => {
+    // Skip health/ready/status endpoints — they are cheap and should not count against limits.
+    const skipPaths = ['/health', '/ready', '/rez-intel-status'];
+    return skipPaths.includes(req.path);
+  }
+});
+
+app.use('/api/v1/widget', widgetRateLimiter);
 
 // ─── Serve widget bundle + demo ──────────────────────────────────────────
 // Find the @hojai/widget-core dist (CJS or ESM build)
@@ -126,7 +182,7 @@ function apiKeyAuth(req, res, next) {
   if (!token) {
     return res.status(401).json({ success: false, error: 'Missing Authorization header' });
   }
-  if (token !== HOJAI_API_KEY && !token.startsWith('pk_live_') && !token.startsWith('pk_test_')) {
+  if (token !== HOJAI_API_KEY) {
     return res.status(401).json({ success: false, error: 'Invalid API key' });
   }
   req.widgetAuth = { token };

@@ -581,6 +581,30 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 
 ---
 
+## 🟢 Phase 25: Multi-Modal Services (11 new ports, added 2026-06-27)
+
+11 services in `companies/HOJAI-AI/platform/multimodal/`, all built and tested (143 tests passing, 0 failures).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **5347** | `mm-embedder` | Text embeddings via OpenAI API; deterministic fallback | 14 |
+| **5348** | `mm-vector-index` | FAISS-like cosine similarity search | 15 |
+| **5349** | `mm-chunker` | Text chunking (recursive, semantic, token-based) | 14 |
+| **5350** | `mm-asset-store` | Asset metadata storage with embeddings | 15 |
+| **5351** | `multimodal-api` | Unified API gateway | 11 |
+| **5352** | `image-pipeline` | Image processing pipeline | 15 |
+| **5353** | `audio-pipeline` | Audio processing pipeline | 15 |
+| **5354** | `video-pipeline` | Video processing pipeline | 15 |
+| **5355** | `mm-audio-transcription` | Audio→text via OpenAI Whisper | 12 |
+| **5356** | `mm-ocr` | Document OCR via OpenAI GPT-4o | 10 |
+| **5357** | `mm-image-understanding` | Image analysis via OpenAI GPT-4o | 11 |
+
+**Also in multimodal/:** `mm-video-analysis` (port 5358), `mm-visual-generator` (port 5359).
+
+**Real LLM integration:** mm-embedder, mm-ocr, mm-image-understanding, mm-audio-transcription, mm-visual-generator all call real OpenAI APIs when `OPENAI_API_KEY` env var is set. Falls back to deterministic stubs otherwise.
+
+---
+
 ## HOJAI Cloud Phase 1 Services (2026-06-25)
 
 | Port | Service | Purpose | Tests |

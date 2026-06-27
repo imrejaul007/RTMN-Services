@@ -732,3 +732,11 @@ app.listen(PORT, () => {
 installGracefulShutdown(server);
 
 module.exports = app;
+module.exports.LEARNING_TYPES = LEARNING_TYPES;
+module.exports.recordBehavior = recordBehavior;
+module.exports.updatePreferenceProfile = updatePreferenceProfile;
+module.exports.recordNegotiation = recordNegotiation;
+module.exports.learnStrategy = learnStrategy;
+module.exports.predictPrice = predictPrice;
+module.exports.getRecommendations = getRecommendations;
+module.exports.getOptimalStrategy = getOptimalStrategy;

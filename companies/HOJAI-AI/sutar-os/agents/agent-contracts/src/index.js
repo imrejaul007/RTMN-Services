@@ -806,3 +806,15 @@ app.listen(PORT, () => {
 installGracefulShutdown(server);
 
 module.exports = app;
+module.exports.CONTRACT_STATES = CONTRACT_STATES;
+module.exports.CONTRACT_TYPES = CONTRACT_TYPES;
+module.exports.createContract = createContract;
+module.exports.signContract = signContract;
+module.exports.activateContract = activateContract;
+module.exports.completeMilestone = completeMilestone;
+module.exports.fulfillContract = fulfillContract;
+module.exports.completeContract = completeContract;
+module.exports.raiseDispute = raiseDispute;
+module.exports.cancelContract = cancelContract;
+module.exports.releaseEscrow = releaseEscrow;
+module.exports.refundEscrow = refundEscrow;
