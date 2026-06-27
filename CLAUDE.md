@@ -791,18 +791,18 @@ bash demos/full-stack-demo.sh
 | **CXO OS** | 5100 | ✅ | 8 | 15 |
 | **Revenue Intelligence OS** | 5400 | ✅ | 8 | 8 |
 
-### Foundation Services (4)
+### Foundation Services (7)
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
 | **CorpID** | 4702 | ✅ | Universal Identity |
-| **Memory Layer** (12 services) | 4703, 4152, 4704, 4793, 4782-4789 | ✅ | Knowledge & Experience — see "Memory Layer" below |
+| **Memory Layer** (17 services) | 4703, 4152, 4704, 4780-4793 | ✅ | Knowledge & Experience — see "Memory Layer" below |
 | **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
 | **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
 | **HOJAI Voice Gateway** | 4880 | ✅ | Training-aware STT/TTS routing |
 | **RAZO Keyboard** | 4299 | ✅ | Communication OS — intent detection + multi-channel messaging; in dev-stack.sh |
 
-### Memory Layer (11 services) — World-Class AI Memory System
+### Memory Layer (17 services) — World-Class AI Memory System
 
 The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pattern detection, knowledge compilation, and self-improvement capabilities. Inspired by Mem0, Zep, LangMem, and Pinecone Nexus.
 
@@ -824,8 +824,15 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 | **Operations** |
 | Memory Benchmark | 4787 | Metrics: Recall@5, Latency, Accuracy | ✅ 16 |
 | Memory Learning Engine | 4788 | Outcome tracking, failure analysis, behavior optimization | ✅ 18 |
+| **Enterprise Features** |
+| Memory Relationships | 4790 | Graph-based relationships, bidirectional links, path finding, community detection | ✅ 39 |
+| Memory Governance | 4791 | GDPR/CCPA compliance, ownership chains, consent management, retention policies | ✅ 36 |
+| Memory Forgetting | 4792 | Scheduled/manual forgetting, undo capabilities, forgetting policies | ✅ 27 |
+| Memory Import | 4780 | Multi-source ingestion, format conversion, validation, import jobs | ✅ 19 |
+| Memory Portability | 4793 | Export jobs, backup, migration, GDPR portability requests | ✅ 15 |
+| Memory Marketplace | 4781 | Template marketplace, subscriptions, reviews, categories | ✅ 14 |
 
-**Total: 229 vitest tests passing across 11 services** (June 27, 2026)
+**Total: 379 vitest tests passing across 17 services** (June 27, 2026)
 
 **SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
 
