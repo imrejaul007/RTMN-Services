@@ -1,0 +1,14 @@
+{
+  "name": "@hojai/knowledge-network",
+  "version": "1.0.0",
+  "description": "Knowledge Network - Cross-service knowledge graph connections",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": ["knowledge", "graph", "network", "connections"],
+  "license": "MIT"
+}
