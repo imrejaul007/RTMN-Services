@@ -1,0 +1,23 @@
+{
+  "name": "@hojai/feature-store",
+  "version": "1.0.0",
+  "description": "Feature Store - Pre-computed memory features",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "npx vitest run",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": [
+    "feature",
+    "store",
+    "precomputed",
+    "ml"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.9"
+  }
+}
