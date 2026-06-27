@@ -1,0 +1,26 @@
+{
+  "name": "@hojai/saga-coordinator",
+  "version": "1.0.0",
+  "description": "Saga Coordinator for FlowOS - Distributed transaction management with compensating transactions",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test __tests__/*.test.js"
+  },
+  "keywords": [
+    "saga",
+    "distributed-transactions",
+    "compensation",
+    "flowos"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}
