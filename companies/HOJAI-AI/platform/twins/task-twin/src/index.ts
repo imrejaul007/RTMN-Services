@@ -47,11 +47,11 @@ export interface TaskUpdate {
   dependencies?: string[];
 }
 
-// In-memory storage
-const tasks: Map<string, Task> = new Map();
-
 // Create TaskTwin service
 export function createTaskTwinService() {
+  // In-memory storage (instance-level to allow testing)
+  const tasks: Map<string, Task> = new Map();
+
   const app = express();
   app.use(express.json());
 
@@ -81,6 +81,81 @@ export function createTaskTwinService() {
 
     tasks.set(task.id, task);
     return res.status(201).json(task);
+  });
+
+  // GET /api/tasks - List tasks (MUST come before :id route)
+  app.get('/api/tasks', (req: Request, res: Response) => {
+    const { status, assignee, priority, tags } = req.query;
+    let filtered = Array.from(tasks.values());
+
+    if (status) {
+      filtered = filtered.filter(t => t.status === status);
+    }
+    if (assignee) {
+      filtered = filtered.filter(t => t.assignee === assignee);
+    }
+    if (priority) {
+      filtered = filtered.filter(t => t.priority === priority);
+    }
+    if (tags) {
+      const tagList = (tags as string).split(',');
+      filtered = filtered.filter(t => tagList.some(tag => t.tags.includes(tag)));
+    }
+
+    return res.status(200).json({ tasks: filtered, total: filtered.length });
+  });
+
+  // GET /api/tasks/analytics - Task analytics (MUST come before :id route)
+  app.get('/api/tasks/analytics', (_req: Request, res: Response) => {
+    const allTasks = Array.from(tasks.values());
+
+    const byStatus: Record<string, number> = {};
+    const byPriority: Record<string, number> = {};
+    let completedCount = 0;
+
+    allTasks.forEach(task => {
+      byStatus[task.status] = (byStatus[task.status] || 0) + 1;
+      byPriority[task.priority] = (byPriority[task.priority] || 0) + 1;
+      if (task.status === 'completed') completedCount++;
+    });
+
+    return res.status(200).json({
+      total: allTasks.length,
+      byStatus,
+      byPriority,
+      completionRate: allTasks.length > 0 ? (completedCount / allTasks.length) * 100 : 0
+    });
+  });
+
+  // POST /api/tasks/bulk-update - Bulk update (MUST come before :id route)
+  app.post('/api/tasks/bulk-update', (req: Request, res: Response) => {
+    const { taskIds, updates } = req.body;
+
+    if (!taskIds || taskIds.length === 0) {
+      return res.status(400).json({ error: 'taskIds array is required' });
+    }
+
+    const updatedTasks: Task[] = [];
+    taskIds.forEach((id: string) => {
+      const task = tasks.get(id);
+      if (task) {
+        if (updates.title !== undefined) task.title = updates.title;
+        if (updates.status !== undefined) {
+          task.status = updates.status;
+          if (updates.status === 'completed') {
+            task.completedAt = new Date().toISOString();
+          }
+        }
+        if (updates.priority !== undefined) task.priority = updates.priority;
+        if (updates.assignee !== undefined) task.assignee = updates.assignee;
+        if (updates.dueDate !== undefined) task.dueDate = updates.dueDate;
+        task.updatedAt = new Date().toISOString();
+        tasks.set(task.id, task);
+        updatedTasks.push(task);
+      }
+    });
+
+    return res.status(200).json({ updated: updatedTasks.length, tasks: updatedTasks });
   });
 
   // GET /api/tasks/:id - Get task
@@ -129,28 +204,6 @@ export function createTaskTwinService() {
     return res.status(204).send();
   });
 
-  // GET /api/tasks - List tasks
-  app.get('/api/tasks', (req: Request, res: Response) => {
-    const { status, assignee, priority, tags } = req.query;
-    let filtered = Array.from(tasks.values());
-
-    if (status) {
-      filtered = filtered.filter(t => t.status === status);
-    }
-    if (assignee) {
-      filtered = filtered.filter(t => t.assignee === assignee);
-    }
-    if (priority) {
-      filtered = filtered.filter(t => t.priority === priority);
-    }
-    if (tags) {
-      const tagList = (tags as string).split(',');
-      filtered = filtered.filter(t => tagList.some(tag => t.tags.includes(tag)));
-    }
-
-    return res.status(200).json({ tasks: filtered, total: filtered.length });
-  });
-
   // POST /api/tasks/:id/delegate - Delegate task
   app.post('/api/tasks/:id/delegate', (req: Request, res: Response) => {
     const task = tasks.get(req.params.id);
@@ -169,59 +222,6 @@ export function createTaskTwinService() {
 
     tasks.set(task.id, task);
     return res.status(200).json(task);
-  });
-
-  // GET /api/tasks/analytics - Task analytics
-  app.get('/api/tasks/analytics', (_req: Request, res: Response) => {
-    const allTasks = Array.from(tasks.values());
-
-    const byStatus: Record<string, number> = {};
-    const byPriority: Record<string, number> = {};
-    let completedCount = 0;
-
-    allTasks.forEach(task => {
-      byStatus[task.status] = (byStatus[task.status] || 0) + 1;
-      byPriority[task.priority] = (byPriority[task.priority] || 0) + 1;
-      if (task.status === 'completed') completedCount++;
-    });
-
-    return res.status(200).json({
-      total: allTasks.length,
-      byStatus,
-      byPriority,
-      completionRate: allTasks.length > 0 ? (completedCount / allTasks.length) * 100 : 0
-    });
-  });
-
-  // POST /api/tasks/bulk-update - Bulk update
-  app.post('/api/tasks/bulk-update', (req: Request, res: Response) => {
-    const { taskIds, updates } = req.body;
-
-    if (!taskIds || taskIds.length === 0) {
-      return res.status(400).json({ error: 'taskIds array is required' });
-    }
-
-    const updatedTasks: Task[] = [];
-    taskIds.forEach((id: string) => {
-      const task = tasks.get(id);
-      if (task) {
-        if (updates.title !== undefined) task.title = updates.title;
-        if (updates.status !== undefined) {
-          task.status = updates.status;
-          if (updates.status === 'completed') {
-            task.completedAt = new Date().toISOString();
-          }
-        }
-        if (updates.priority !== undefined) task.priority = updates.priority;
-        if (updates.assignee !== undefined) task.assignee = updates.assignee;
-        if (updates.dueDate !== undefined) task.dueDate = updates.dueDate;
-        task.updatedAt = new Date().toISOString();
-        tasks.set(task.id, task);
-        updatedTasks.push(task);
-      }
-    });
-
-    return res.status(200).json({ updated: updatedTasks.length, tasks: updatedTasks });
   });
 
   // GET /health - Health check

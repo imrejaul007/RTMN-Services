@@ -88,9 +88,6 @@ export type SkillLevel =
   | 'expert'
   | 'master';
 
-// In-memory storage
-const skills: Map<string, Skill> = new Map();
-
 // Validation helpers
 function validateSkillCategory(category: string): category is SkillCategory {
   return ['technical', 'soft', 'domain', 'leadership', 'communication', 'analytical', 'creative', 'operational'].includes(category);
@@ -115,6 +112,9 @@ function calculateProficiencyScore(level: SkillLevel, yearsOfExperience: number)
 
 // Create SkillTwin service
 export function createSkillTwinService() {
+  // In-memory storage (instance-level to allow testing)
+  const skills: Map<string, Skill> = new Map();
+
   const app = express();
   app.use(express.json());
 

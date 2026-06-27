@@ -894,7 +894,7 @@ export class HojaiWidget {
   }
 
   private _genId(): string {
-    return 'm_' + Math.random().toString(36).slice(2, 11);
+    return 'm_' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2, 11));
   }
 
   private _generateVisitorId(): string {
@@ -903,12 +903,12 @@ export class HojaiWidget {
       const KEY = 'hojai_vid';
       let id = window.localStorage.getItem(KEY);
       if (!id) {
-        id = 'v_' + Math.random().toString(36).slice(2, 14);
+        id = 'v_' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2, 14));
         window.localStorage.setItem(KEY, id);
       }
       return id;
     } catch {
-      return 'v_' + Math.random().toString(36).slice(2, 14);
+      return 'v_' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2, 14));
     }
   }
 }

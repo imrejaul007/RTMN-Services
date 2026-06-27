@@ -247,12 +247,43 @@ router.post('/send', apiKeyAuth, async (req, res) => {
   }
 });
 
+// BUG-08 fix: WhatsApp webhook verification (GET) + HMAC signature validation (POST)
+// WhatsApp sends GET with hub.mode, hub.verify_token, hub.challenge for verification
+router.get('/webhook', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || 'hojai_widget_verify';
+
+  if (mode === 'subscribe' && token === verifyToken) {
+    console.log('[whatsapp-channel] Webhook verified successfully');
+    return res.status(200).send(challenge);
+  }
+  return res.status(403).json({ success: false, error: 'Forbidden' });
+});
+
+// Compute HMAC-SHA256 of the request body using the app secret.
+// WhatsApp sends X-Hub-Signature-256: sha256=<hex-digest> in the POST header.
+function verifyHmacSignature(req, webhookSecret) {
+  const signature = req.get('X-Hub-Signature-256') || req.get('x-hub-signature-256');
+  if (!signature || !webhookSecret) return false;
+  const expected = 'sha256=' + require('crypto')
+    .createHmac('sha256', webhookSecret)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+  return signature === expected;
+}
+
 // Webhook for inbound messages from WhatsApp Business API.
 // Payload shape (varies by provider, but we normalize):
 //   { from: '+91...', body: 'text', messageId: 'wamid.XXX', timestamp: 'ISO' }
 router.post('/webhook', (req, res) => {
-  // Verify webhook signature in production (HMAC of body with webhook secret)
-  // For MVP, accept all
+  // BUG-08 fix: HMAC verification
+  const webhookSecret = process.env.WHATSAPP_WEBHOOK_SECRET;
+  if (webhookSecret && !verifyHmacSignature(req, webhookSecret)) {
+    return res.status(403).json({ success: false, error: 'Invalid signature' });
+  }
+
   const { from, body, messageId, timestamp } = req.body || {};
   if (!from || !body) {
     return res.status(400).json({ success: false, error: 'from and body are required' });
