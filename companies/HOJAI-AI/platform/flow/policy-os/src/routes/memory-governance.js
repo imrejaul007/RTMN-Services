@@ -56,6 +56,21 @@ export function detectPII(text) {
     { type: PII_CATEGORIES.IP, regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g },
   ];
 
+  function maskValue(m, type) {
+    if (type === PII_CATEGORIES.EMAIL) {
+      // Show only first char of local and domain: t***@d***.com
+      const [local, domain] = m.split('@');
+      const domParts = domain.split('.');
+      const maskedDomain = domParts.map(d => d.length > 1 ? d[0] + '*'.repeat(Math.min(d.length - 1, 4)) : d).join('.');
+      return (local.length > 1 ? local[0] + '*'.repeat(Math.min(local.length - 1, 5)) : local) + '@' + maskedDomain;
+    }
+    // Numeric mask: keep first 4, show *, keep last 4 (for cards, SSN, phone, aadhar)
+    const digits = m.replace(/\D/g, '');
+    const sep = m.match(/\D/g) || [];
+    if (digits.length <= 4) return m[0] + '*'.repeat(m.length - 1);
+    return digits.slice(0, 3) + '*'.repeat(4) + digits.slice(-3);
+  }
+
   const findings = [];
   for (const p of patterns) {
     const matches = text.match(p.regex);
@@ -63,7 +78,7 @@ export function detectPII(text) {
       for (const m of matches) {
         findings.push({
           type: p.type,
-          masked: m.replace(/\d(?=\d{4})/g, '*'),
+          masked: maskValue(m, p.type),
           index: text.indexOf(m),
         });
       }

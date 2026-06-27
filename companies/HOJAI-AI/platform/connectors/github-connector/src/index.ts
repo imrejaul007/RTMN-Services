@@ -1,11 +1,13 @@
 /**
  * GitHub Connector
  * Port: 4791
- * Real GitHub API integration for code and collaboration
+ * Real GitHub API integration with OAuth
  */
 
 import express, { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { generateAuthUrl, exchangeCode, getToken, revokeToken, callGitHubApi, listRepos, getRepo, createIssue, listIssues } from './auth/github-oauth.js';
+import crypto from 'crypto';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '4791', 10);
@@ -83,6 +85,119 @@ app.get('/health', (_req, res) => res.json({
 }));
 
 app.get('/ready', (_req, res) => res.json({ ready: true }));
+
+// ============ OAUTH ROUTES ============
+
+/**
+ * Get OAuth authorization URL
+ */
+app.get('/oauth/authorize', (req: Request, res: Response) => {
+  const state = crypto.randomBytes(16).toString('hex');
+  const authUrl = generateAuthUrl(state);
+  res.json({ authUrl, state });
+});
+
+/**
+ * Handle OAuth callback
+ */
+app.get('/oauth/callback', async (req: Request, res: Response) => {
+  const { code, state, error } = req.query;
+
+  if (error) {
+    return res.status(400).json({ error: `OAuth error: ${error}` });
+  }
+
+  if (!code) {
+    return res.status(400).json({ error: 'No authorization code' });
+  }
+
+  try {
+    const tokenData = await exchangeCode(code as string);
+    res.json({
+      success: true,
+      message: 'GitHub app connected successfully',
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Check connection status
+ */
+app.get('/oauth/status', (_req: Request, res: Response) => {
+  const token = getToken();
+  res.json({
+    connected: !!token,
+    scope: token?.scope,
+  });
+});
+
+/**
+ * Disconnect GitHub
+ */
+app.delete('/oauth/disconnect', (_req: Request, res: Response) => {
+  revokeToken();
+  res.json({ success: true, message: 'Disconnected from GitHub' });
+});
+
+// ============ REAL GITHUB API ============
+
+/**
+ * List repositories via real GitHub API
+ */
+app.get('/api/github/repos', async (req: Request, res: Response) => {
+  try {
+    const repos = await listRepos();
+    res.json({ success: true, repos });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Get repository details via real GitHub API
+ */
+app.get('/api/github/repos/:owner/:repo', async (req: Request, res: Response) => {
+  const { owner, repo } = req.params;
+  try {
+    const data = await getRepo(owner, repo);
+    res.json({ success: true, repo: data });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Create issue via real GitHub API
+ */
+app.post('/api/github/issues', async (req: Request, res: Response) => {
+  const { owner, repo, title, body, labels } = req.body;
+
+  if (!owner || !repo || !title) {
+    return res.status(400).json({ error: 'owner, repo, title required' });
+  }
+
+  try {
+    const issue = await createIssue(owner, repo, { title, body, labels });
+    res.json({ success: true, issue });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * List issues via real GitHub API
+ */
+app.get('/api/github/issues/:owner/:repo', async (req: Request, res: Response) => {
+  const { owner, repo } = req.params;
+  try {
+    const issues = await listIssues(owner, repo);
+    res.json({ success: true, issues });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ============ REPOS ============
 

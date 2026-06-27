@@ -4,20 +4,20 @@
     {
       "policyId": "__fail_closed__",
       "allows": 0,
-      "denies": 67,
-      "total": 67,
+      "denies": 71,
+      "total": 71,
       "byActor": {
-        "anonymous": 67
+        "anonymous": 71
       },
       "byReason": {
-        "No matching policy found - fail-closed default": 67
+        "No matching policy found - fail-closed default": 71
       },
       "byDay": {
         "2026-06-21": 15,
         "2026-06-26": 5,
-        "2026-06-27": 47
+        "2026-06-27": 51
       },
-      "lastEvaluatedAt": "2026-06-27T18:18:33.323Z"
+      "lastEvaluatedAt": "2026-06-27T19:58:10.178Z"
     }
   ],
   [

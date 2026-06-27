@@ -98,8 +98,8 @@ describe('RELATIONSHIP_TYPES', () => {
     assert.strictEqual(RELATIONSHIP_TYPES.COLLEAGUE_OF, 'colleague_of');
   });
 
-  it('has 17 relationship types', () => {
-    assert.strictEqual(Object.keys(RELATIONSHIP_TYPES).length, 17);
+  it('has 16 relationship types', () => {
+    assert.strictEqual(Object.keys(RELATIONSHIP_TYPES).length, 16);
   });
 
   it('COLLEAGUE_OF is defined', () => {
