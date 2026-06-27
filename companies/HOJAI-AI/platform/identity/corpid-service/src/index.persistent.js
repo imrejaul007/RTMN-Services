@@ -961,8 +961,8 @@ app.delete('/api/auth/sessions', requireAuth, asyncHandler(async (req, res) => {
 
 // ============ MFA (TOTP) ============
 
-// TOTP secret storage (in production, encrypt this)
-const mfaSecretStore = new Map(); // email → { secret, enabled, backupCodes[] }
+// TOTP secret storage (persistent)
+const MfaSecret = createModel('MfaSecret', { key: 'email' });
 
 function generateMfaSecret() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -999,7 +999,8 @@ app.post('/api/mfa/setup', requireAuth, asyncHandler(async (req, res) => {
   const secret = generateMfaSecret();
   const backupCodes = generateBackupCodes();
 
-  mfaSecretStore.set(user.email, {
+  await MfaSecret.create({
+    email: user.email,
     secret,
     enabled: false, // Needs verification to enable
     backupCodes: backupCodes.map(c => ({ code: c, used: false })),
@@ -1025,7 +1026,7 @@ app.post('/api/mfa/verify', requireAuth, [
   const user = await User.findOne(req.user.email);
   if (!user) throw new NotFoundError('User not found');
 
-  const mfaData = mfaSecretStore.get(user.email);
+  const mfaData = await MfaSecret.findOne(user.email);
   if (!mfaData) throw new NotFoundError('MFA not set up. Call /api/mfa/setup first.');
 
   const { code } = req.body;
@@ -1034,6 +1035,7 @@ app.post('/api/mfa/verify', requireAuth, [
   const backupCode = mfaData.backupCodes.find(bc => bc.code === code && !bc.used);
   if (backupCode) {
     backupCode.used = true;
+    await MfaSecret.updateOne({ email: user.email }, { backupCodes: mfaData.backupCodes });
     logger.info({ userId: user.id }, 'MFA verified via backup code');
     return res.json({
       success: true,
@@ -1054,7 +1056,7 @@ app.post('/api/mfa/verify', requireAuth, [
   }
 
   // Enable MFA
-  mfaData.enabled = true;
+  await MfaSecret.updateOne({ email: user.email }, { enabled: true });
   logger.info({ userId: user.id }, 'MFA enabled');
   res.json({
     success: true,
@@ -1068,7 +1070,7 @@ app.get('/api/mfa/status', requireAuth, asyncHandler(async (req, res) => {
   const user = await User.findOne(req.user.email);
   if (!user) throw new NotFoundError('User not found');
 
-  const mfaData = mfaSecretStore.get(user.email);
+  const mfaData = await MfaSecret.findOne(user.email);
   res.json({
     success: true,
     enabled: mfaData?.enabled || false,
@@ -1084,7 +1086,7 @@ app.post('/api/mfa/disable', requireAuth, [
   const user = await User.findOne(req.user.email);
   if (!user) throw new NotFoundError('User not found');
 
-  const mfaData = mfaSecretStore.get(user.email);
+  const mfaData = await MfaSecret.findOne(user.email);
   if (!mfaData) throw new NotFoundError('MFA not enabled');
 
   const { code } = req.body;
@@ -1102,7 +1104,7 @@ app.post('/api/mfa/disable', requireAuth, [
     }
   }
 
-  mfaSecretStore.delete(user.email);
+  await MfaSecret.deleteOne({ email: user.email });
   logger.info({ userId: user.id }, 'MFA disabled');
   res.json({ success: true, message: 'MFA disabled' });
 }));
