@@ -1070,3 +1070,81 @@ Week 21: Launch prep + documentation
 *This plan is the canonical implementation guide for HOJAI SiteOS. It supersedes all previous widget plans.*
 
 *Last updated: 2026-06-27*
+
+---
+
+## REUSE AUDIT — 200+ Existing Services to Reuse
+
+**Key insight: We don't build from scratch. We build the SiteOS GLUE LAYER that connects to existing RTMN services.**
+
+### REUSE SUMMARY
+
+| HOJAI SiteOS Feature | Existing Service | Port | % Reusable |
+|---|---|---|---|
+| Command Center / AI Advisor | Genie Gateway, Business Copilot, Marketing Copilot | 4701, 4600, 4929 | ~70% |
+| Visual Automation Builder | FlowOS Executor, Workflow Builder API | 7007, 4440 | ~80% |
+| Employee Copilot | Employee Twin, TwinOS Hub, Agent Copilot | 4730, 4705, 4920 | ~75% |
+| Churn Intervention | Customer Success OS, Risk Intelligence, Predictive Intelligence | 4050, 4755, 4754 | ~70% |
+| Identity Resolution | CorpID, Identity Cloud OS, Customer Twin | 4702, 4162, 4895 | ~80% |
+| Marketing Automation | Marketing OS, Notification Service, REZ CRM Hub | 5500, (HOJAI), 4056 | ~85% |
+| Lead Scoring | Sales OS, Revenue Intelligence OS | 5055, 5400 | ~75% |
+| Knowledge Base (RAG) | MemoryOS, Memory Intelligence, Memory Learning Engine | 4703, 4786, 4788 | ~80% |
+| Voice Widget | Voice Gateway, Genie Voice Services | 4880, 4767-4715 | ~70% |
+| Meta Pixel/CAPI | REZ DSP, REZ Audience, REZ CDP | 4990, 4805, 4901 | ~80% |
+| CRM Connectors | Sales OS, REZ CRM Hub | 5055, 4056 | ~100% |
+| Nexus Connect | All Nexha services (13) | 4270-4340 | ~60% |
+| Agent-to-Agent Protocol | Nexha ACP Messaging, AgentOS | 4340, 4802-4814 | ~70% |
+| Agent Reputation | Nexha Reputation OS, BLR AI Marketplace | 4271, 4250 | ~70% |
+| Product Federation | Nexha Supplier Registry | 4281 | ~70% |
+| Campaign Auto-Creation | Marketing OS, FlowOS | 5500, 7007 | ~80% |
+| Coupon Optimization | REZ Wallet | 4004 | ~60% |
+| Dynamic Pricing | Nexha Pricing Network | 4286 | ~60% |
+| Budget Allocation | Revenue Intelligence OS | 5400 | ~60% |
+| Customer Twin | Customer Twin, Order Twin, Wallet Twin | 4895, 4885, 4896 | ~90% |
+| Heatmaps/Session Recording | Analytics Service, Media OS | (HOJAI), 5600 | ~60% |
+| Competitor Intelligence | Nexha Market OS | 4275 | ~50% |
+| Business Benchmarking | CXO OS | 5100 | ~50% |
+| Reputation Management | Nexha Reputation OS | 4271 | ~50% |
+| Lookalike Generator | REZ Audience | 4805 | ~60% |
+| A/B Testing | ExperimentOS, Quality OS | 4165, 4757 | ~70% |
+| Multi-Touch Attribution | REZ Attribution | 4803 | ~80% |
+| 5 Vertical Templates | All 26 Industry OS | various | ~80% |
+
+### WHAT TO BUILD (SiteOS Glue Layer Only)
+
+| Service | Description | Existing Foundation | Lines |
+|---|---|---|---|
+| **SiteOS Gateway** | Unified entry point, connects widget to all existing services | widget-backend (exists) | ~2,000 |
+| **Business Context Wrapper** | Wrap Genie Gateway for business owner Q&A | Genie Gateway 4701 | ~2,000 |
+| **Workflow UI** | Drag-drop visual builder for non-technical owners | FlowOS Executor 7007 | ~3,000 |
+| **Channel Stitcher** | Match visitor IDs across website/WhatsApp/email/phone/QR | CorpID 4702, Customer Twin 4895 | ~2,000 |
+| **Event Tracker** | Track 100 events on website, send to Analytics | Analytics Service | ~1,500 |
+| **Heatmap Aggregator** | Aggregate click/scroll data into heatmaps | Analytics Service | ~1,500 |
+| **Benchmark Database** | Industry averages by vertical | CXO OS 5100 | ~1,000 |
+| **Review Scrapers** | Google/social/app store review scraping | Reputation OS 4271 | ~2,000 |
+| **Lookalike Algorithm** | Best customer → lookalike profile | REZ Audience 4805 | ~1,500 |
+| **Ad CAPI Sync** | Server-side conversion tracking to Meta/Google | REZ DSP 4990 | ~1,500 |
+| **Vertical Configs** | 5 industry-specific agent configurations | All 26 Industry OS | ~2,000 |
+| **Phone IVR** | Twilio-based voice receptionist | Voice Gateway 4880 | ~2,000 |
+| **Product Federation** | Sync catalog to Nexus Discovery | Nexha 4281 | ~1,500 |
+| **Merchant Agent** | Expose widget as merchant agent on Nexus | Nexha ACP 4340 | ~1,500 |
+| **Command Center UI** | Natural language Q&A dashboard for owners | Genie Gateway 4701 | ~2,000 |
+
+**Total SiteOS glue layer: ~15 services, ~26,000 lines**
+
+### EXISTING FOUNDATIONS TO LEVERAGE
+
+- **Memory Layer:** 17 services (4703, 4152, 4704, 4780-4793) — fully reusable
+- **TwinOS:** 86+ twins (4705, 4895, 4885, 4896, etc.) — fully reusable
+- **AgentOS:** 12 services (4802-4814) — fully reusable
+- **All 26 Industry OS** — fully reusable for verticals
+- **Marketing OS (5500):** 13 modules, 15 AI agents — fully reusable
+- **Sales OS (5055):** 13 modules, 22 AI agents — fully reusable
+- **Customer Success OS (4050):** 8 modules, 6 agents — fully reusable
+- **Nexha Network (13 services):** 4270-4340 — fully reusable
+- **REZ Services:** CRM (4056), Wallet (4004), Auth (4002), Care (4055) — fully reusable
+- **Genie Suite:** Gateway (4701), Voice (4880), Calendar (4709), Briefing (4712) — fully reusable
+- **FlowOS:** Executor (7007), Builder (4440), Canonical (4156) — fully reusable
+- **BLR AI Marketplace (4250):** 1,200+ catalog items — fully reusable
+
+**REUSE: ~70% already exists. Build: ~30% SiteOS glue layer only.**

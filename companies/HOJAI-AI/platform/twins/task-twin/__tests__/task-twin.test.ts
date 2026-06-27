@@ -228,11 +228,12 @@ describe('TaskTwin', () => {
 
   describe('GET /api/tasks/analytics', () => {
     it('should return task statistics', async () => {
-      await request(app).post('/api/tasks').send({ title: 'Task 1', status: 'completed', priority: 'high' });
-      await request(app).post('/api/tasks').send({ title: 'Task 2', status: 'pending', priority: 'low' });
-      await request(app).post('/api/tasks').send({ title: 'Task 3', status: 'in_progress', priority: 'medium' });
+      const analyticsApp = createTaskTwinService();
+      await request(analyticsApp).post('/api/tasks').send({ title: 'Task 1', status: 'completed', priority: 'high' });
+      await request(analyticsApp).post('/api/tasks').send({ title: 'Task 2', status: 'pending', priority: 'low' });
+      await request(analyticsApp).post('/api/tasks').send({ title: 'Task 3', status: 'in_progress', priority: 'medium' });
 
-      const res = await request(app)
+      const res = await request(analyticsApp)
         .get('/api/tasks/analytics');
 
       expect(res.status).toBe(200);
