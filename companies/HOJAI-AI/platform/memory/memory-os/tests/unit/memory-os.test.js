@@ -1,528 +1,368 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
-// Mock dependencies before importing the module
-vi.mock('axios', () => ({
-  default: {
-    create: vi.fn(() => ({
-      interceptors: {
-        request: { use: vi.fn() },
-        response: { use: vi.fn() }
-      },
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn()
-    }))
-  }
-}));
+// Mock dependencies before importing
+const mockStorage = new Map();
+const mockVersionStorage = new Map();
+const mockAuditLog = [];
+
+vi.mock('../../src/index.js', async () => {
+  const actual = await vi.importActual('../../src/index.js');
+  return { ...actual };
+});
 
 describe('MemoryOS Core', () => {
   describe('Memory Types', () => {
-    it('should support episodic memory type', () => {
-      const memoryTypes = [
-        'episodic', 'semantic', 'procedural', 'working',
-        'sensory', '事实性', '情感性', '情景'
-      ];
-      expect(memoryTypes).toContain('episodic');
+    const ALLOWED_TYPES = [
+      'identity', 'preference', 'knowledge', 'experience', 'relationship',
+      'conversation', 'decision', 'event', 'workflow', 'goal',
+      'financial', 'shopping', 'health', 'learning', 'ai'
+    ];
+
+    it('should have 15 memory types', () => {
+      expect(ALLOWED_TYPES).toHaveLength(15);
     });
 
-    it('should support semantic memory type', () => {
-      const memoryTypes = [
-        'episodic', 'semantic', 'procedural', 'working',
-        'sensory', '事实性', '情感性', '情景'
-      ];
-      expect(memoryTypes).toContain('semantic');
+    it('should include identity type', () => {
+      expect(ALLOWED_TYPES).toContain('identity');
     });
 
-    it('should support procedural memory type', () => {
-      const memoryTypes = [
-        'episodic', 'semantic', 'procedural', 'working',
-        'sensory', '事实性', '情感性', '情景'
-      ];
-      expect(memoryTypes).toContain('procedural');
+    it('should include preference type', () => {
+      expect(ALLOWED_TYPES).toContain('preference');
     });
 
-    it('should support working memory type', () => {
-      const memoryTypes = [
-        'episodic', 'semantic', 'procedural', 'working',
-        'sensory', '事实性', '情感性', '情景'
-      ];
-      expect(memoryTypes).toContain('working');
+    it('should validate memory types', () => {
+      const isValidType = (t) => ALLOWED_TYPES.includes(t);
+      expect(isValidType('identity')).toBe(true);
+      expect(isValidType('preference')).toBe(true);
+      expect(isValidType('invalid')).toBe(false);
     });
   });
 
-  describe('Memory Importance Levels', () => {
-    it('should have importance levels defined', () => {
-      const importanceLevels = [1, 2, 3, 4, 5];
-      expect(importanceLevels).toHaveLength(5);
-      expect(Math.min(...importanceLevels)).toBe(1);
-      expect(Math.max(...importanceLevels)).toBe(5);
+  describe('Importance Levels', () => {
+    const ALLOWED_IMPORTANCE = ['Critical', 'High', 'Medium', 'Low', 'Temporary'];
+
+    it('should have 5 importance levels', () => {
+      expect(ALLOWED_IMPORTANCE).toHaveLength(5);
     });
 
-    it('should calculate importance correctly', () => {
-      const calculateImportance = (memory) => {
-        const importanceScore = memory.accessCount * 0.1 +
-          memory.emotionalValence * 0.3 +
-          memory.recencyWeight * 0.2 +
-          memory.relevanceScore * 0.4;
-        return Math.min(5, Math.max(1, Math.round(importanceScore)));
+    it('should validate importance', () => {
+      const isValidImportance = (i) => ALLOWED_IMPORTANCE.includes(i);
+      expect(isValidImportance('High')).toBe(true);
+      expect(isValidImportance('Invalid')).toBe(false);
+    });
+
+    it('should calculate importance score', () => {
+      const calculateImportance = (accessCount, emotionalValence, recencyWeight, relevanceScore) => {
+        const score = accessCount * 0.1 + emotionalValence * 0.3 +
+                      recencyWeight * 0.2 + relevanceScore * 0.4;
+        return Math.min(5, Math.max(1, Math.round(score)));
       };
 
+      expect(calculateImportance(10, 0.8, 0.9, 0.7)).toBeGreaterThanOrEqual(1);
+      expect(calculateImportance(10, 0.8, 0.9, 0.7)).toBeLessThanOrEqual(5);
+    });
+  });
+
+  describe('Lifecycle States', () => {
+    const ALLOWED_LIFECYCLE = [
+      'created', 'captured', 'indexed', 'connected', 'learned',
+      'recalled', 'summarized', 'archived', 'deleted'
+    ];
+
+    it('should have 9 lifecycle states', () => {
+      expect(ALLOWED_LIFECYCLE).toHaveLength(9);
+    });
+
+    it('should validate lifecycle', () => {
+      const isValidLifecycle = (s) => ALLOWED_LIFECYCLE.includes(s);
+      expect(isValidLifecycle('created')).toBe(true);
+      expect(isValidLifecycle('invalid')).toBe(false);
+    });
+  });
+
+  describe('Memory Operations', () => {
+    it('should generate unique IDs', () => {
+      const generateId = () => Math.random().toString(36).substring(2, 15);
+      const id1 = generateId();
+      const id2 = generateId();
+      expect(id1).not.toBe(id2);
+    });
+
+    it('should track memory creation', () => {
       const memory = {
-        accessCount: 10,
-        emotionalValence: 0.8,
-        recencyWeight: 0.9,
-        relevanceScore: 0.7
+        id: 'test-id',
+        content: 'Test content',
+        type: 'preference',
+        twinId: 'twin-1',
+        version: 1,
+        createdAt: Date.now()
       };
-      const importance = calculateImportance(memory);
-      expect(importance).toBeGreaterThanOrEqual(1);
-      expect(importance).toBeLessThanOrEqual(5);
+      mockStorage.set(memory.id, memory);
+      expect(mockStorage.has('test-id')).toBe(true);
+    });
+
+    it('should update memory', () => {
+      const memory = {
+        id: 'test-id',
+        content: 'Original',
+        version: 1
+      };
+      mockVersionStorage.set('test-id:1', { ...memory });
+
+      memory.content = 'Updated';
+      memory.version = 2;
+      mockVersionStorage.set('test-id:2', { ...memory });
+      mockStorage.set(memory.id, memory);
+
+      expect(mockStorage.get('test-id').content).toBe('Updated');
+      expect(mockVersionStorage.get('test-id:1').content).toBe('Original');
+    });
+
+    it('should delete memory', () => {
+      mockStorage.set('test-id', { id: 'test-id' });
+      expect(mockStorage.has('test-id')).toBe(true);
+      mockStorage.delete('test-id');
+      expect(mockStorage.has('test-id')).toBe(false);
     });
   });
 
-  describe('Memory Lifecycle', () => {
-    it('should track memory from creation to potential deletion', () => {
-      const memoryLifecycle = {
-        created: { status: 'active', timestamp: Date.now() },
-        accessed: { status: 'active', timestamp: Date.now() },
-        updated: { status: 'active', timestamp: Date.now() },
-        archived: { status: 'archived', timestamp: null },
-        deleted: { status: 'deleted', timestamp: null }
-      };
+  describe('Version History', () => {
+    it('should track versions', () => {
+      const versions = new Map();
+      versions.set('mem-1:1', { id: 'mem-1', content: 'v1', version: 1 });
+      versions.set('mem-1:2', { id: 'mem-1', content: 'v2', version: 2 });
+      versions.set('mem-1:3', { id: 'mem-1', content: 'v3', version: 3 });
 
-      expect(memoryLifecycle.created.status).toBe('active');
-      expect(memoryLifecycle.accessed.status).toBe('active');
-      expect(memoryLifecycle.updated.status).toBe('active');
-    });
-
-    it('should handle memory state transitions', () => {
-      const states = ['active', 'archived', 'deleted'];
-      const validTransition = {
-        'active': ['archived', 'deleted'],
-        'archived': ['active', 'deleted'],
-        'deleted': []
-      };
-
-      expect(validTransition['active']).toContain('archived');
-      expect(validTransition['active']).toContain('deleted');
-      expect(validTransition['archived']).toContain('active');
-      expect(validTransition['deleted']).toHaveLength(0);
-    });
-  });
-
-  describe('Memory Versioning', () => {
-    it('should track memory versions', () => {
-      const versions = [
-        { version: 1, content: 'Original', timestamp: Date.now() - 1000 },
-        { version: 2, content: 'Updated', timestamp: Date.now() }
-      ];
-
-      expect(versions).toHaveLength(2);
-      expect(versions[0].version).toBeLessThan(versions[1].version);
+      expect(versions.size).toBe(3);
     });
 
     it('should retrieve specific version', () => {
-      const memory = {
-        versions: [
-          { version: 1, content: 'Original content', timestamp: 1000 },
-          { version: 2, content: 'Updated content', timestamp: 2000 }
-        ]
+      const versions = new Map();
+      versions.set('mem-1:1', { id: 'mem-1', content: 'v1', version: 1 });
+      versions.set('mem-1:2', { id: 'mem-1', content: 'v2', version: 2 });
+      versions.set('mem-1:3', { id: 'mem-1', content: 'v3', version: 3 });
+
+      expect(versions.get('mem-1:1').content).toBe('v1');
+      expect(versions.get('mem-1:3').content).toBe('v3');
+    });
+
+    it('should get all versions', () => {
+      const versions = new Map();
+      versions.set('mem-1:1', { id: 'mem-1', content: 'v1', version: 1 });
+      versions.set('mem-1:2', { id: 'mem-1', content: 'v2', version: 2 });
+      versions.set('mem-1:3', { id: 'mem-1', content: 'v3', version: 3 });
+
+      const getVersions = (memId) => {
+        const result = [];
+        let v = 1;
+        let version;
+        while (version = versions.get(`${memId}:${v}`)) {
+          result.push(version);
+          v++;
+        }
+        return result;
       };
 
-      const getVersion = (mem, ver) => mem.versions.find(v => v.version === ver);
-      expect(getVersion(memory, 1)?.content).toBe('Original content');
-      expect(getVersion(memory, 2)?.content).toBe('Updated content');
-    });
-  });
-
-  describe('Confidence Scoring', () => {
-    it('should calculate memory confidence', () => {
-      const calculateConfidence = (source, decay, reinforcement) => {
-        const base = source * 0.6;
-        const decayFactor = 1 - (decay * 0.3);
-        const reinforcementFactor = 1 + (reinforcement * 0.2);
-        return Math.min(1, Math.max(0, base * decayFactor * reinforcementFactor));
-      };
-
-      const confidence = calculateConfidence(0.9, 0.2, 0.1);
-      expect(confidence).toBeGreaterThanOrEqual(0);
-      expect(confidence).toBeLessThanOrEqual(1);
-    });
-
-    it('should handle low confidence memories', () => {
-      const calculateConfidence = (source, decay, reinforcement) => {
-        const base = source * 0.6;
-        const decayFactor = 1 - (decay * 0.3);
-        const reinforcementFactor = 1 + (reinforcement * 0.2);
-        return Math.min(1, Math.max(0, base * decayFactor * reinforcementFactor));
-      };
-
-      const lowConfidence = calculateConfidence(0.3, 0.8, 0);
-      expect(lowConfidence).toBeLessThan(0.5);
-    });
-  });
-
-  describe('Memory Search', () => {
-    it('should search memories by content', () => {
-      const memories = [
-        { id: '1', content: 'Meeting with John', type: 'episodic' },
-        { id: '2', content: 'Project deadline tomorrow', type: 'semantic' },
-        { id: '3', content: 'Call John about the project', type: 'episodic' }
-      ];
-
-      const search = (mem, query) => mem.filter(m =>
-        m.content.toLowerCase().includes(query.toLowerCase())
-      );
-
-      expect(search(memories, 'John')).toHaveLength(2);
-      expect(search(memories, 'project')).toHaveLength(2);
-      expect(search(memories, 'meeting')).toHaveLength(1);
-    });
-
-    it('should search by metadata filters', () => {
-      const memories = [
-        { id: '1', type: 'episodic', importance: 4 },
-        { id: '2', type: 'semantic', importance: 2 },
-        { id: '3', type: 'episodic', importance: 5 }
-      ];
-
-      const filterByType = (mem, type) => mem.filter(m => m.type === type);
-      const filterByImportance = (mem, min) => mem.filter(m => m.importance >= min);
-
-      expect(filterByType(memories, 'episodic')).toHaveLength(2);
-      expect(filterByImportance(memories, 4)).toHaveLength(2);
+      expect(getVersions('mem-1')).toHaveLength(3);
     });
   });
 
   describe('Knowledge Graph', () => {
-    it('should maintain entity relationships', () => {
-      const graph = {
-        entities: {
-          'John': { type: 'person', id: 'person-1' },
-          'Project A': { type: 'project', id: 'project-1' }
-        },
-        relationships: [
-          { from: 'John', to: 'Project A', type: 'works_on' }
-        ]
-      };
+    const graph = {
+      entities: {},
+      relationships: []
+    };
 
-      expect(graph.entities['John']).toBeDefined();
-      expect(graph.entities['Project A']).toBeDefined();
+    it('should add entities', () => {
+      graph.entities['person-1'] = { id: 'person-1', type: 'person', label: 'John' };
+      expect(graph.entities['person-1']).toBeDefined();
+    });
+
+    it('should add relationships', () => {
+      graph.relationships.push({
+        from: 'person-1',
+        to: 'company-1',
+        type: 'works_at'
+      });
       expect(graph.relationships).toHaveLength(1);
-      expect(graph.relationships[0].type).toBe('works_on');
     });
 
     it('should traverse relationships', () => {
-      const graph = {
-        entities: {
-          'A': { connections: ['B', 'C'] },
-          'B': { connections: ['C'] },
-          'C': { connections: [] }
-        }
-      };
+      const getConnections = (entityId) =>
+        graph.relationships.filter(r => r.from === entityId || r.to === entityId);
 
-      const getConnections = (entity) => graph.entities[entity]?.connections || [];
-      expect(getConnections('A')).toContain('B');
-      expect(getConnections('A')).toContain('C');
-      expect(getConnections('C')).toHaveLength(0);
+      const connections = getConnections('person-1');
+      expect(connections).toHaveLength(1);
+    });
+  });
+
+  describe('Search', () => {
+    const memories = [
+      { id: '1', content: 'Meeting with John', type: 'event' },
+      { id: '2', content: 'Project deadline', type: 'goal' },
+      { id: '3', content: 'Call John', type: 'task' }
+    ];
+
+    it('should search by content', () => {
+      const search = (query) =>
+        memories.filter(m => m.content.toLowerCase().includes(query.toLowerCase()));
+
+      expect(search('John')).toHaveLength(2);
+      expect(search('project')).toHaveLength(1);
+    });
+
+    it('should filter by type', () => {
+      const filterByType = (type) => memories.filter(m => m.type === type);
+      expect(filterByType('event')).toHaveLength(1);
+      expect(filterByType('goal')).toHaveLength(1);
     });
   });
 
   describe('Working Memory', () => {
-    it('should hold limited items in working memory', () => {
-      const workingMemory = {
-        items: [],
-        capacity: 7 // Miller's law
-      };
+    const workingMemory = {
+      items: [],
+      capacity: 7
+    };
 
-      for (let i = 0; i < 5; i++) {
-        workingMemory.items.push({ id: i, content: `Item ${i}` });
-      }
-
-      expect(workingMemory.items).toHaveLength(5);
+    it('should have limited capacity', () => {
       expect(workingMemory.capacity).toBe(7);
     });
 
-    it('should evict oldest when over capacity', () => {
-      const workingMemory = {
-        items: [],
-        capacity: 3
-      };
-
-      const addItem = (wm, item) => {
-        if (wm.items.length >= wm.capacity) {
-          wm.items.shift(); // Evict oldest
+    it('should evict oldest when full', () => {
+      const addItem = (item) => {
+        if (workingMemory.items.length >= workingMemory.capacity) {
+          workingMemory.items.shift();
         }
-        wm.items.push(item);
+        workingMemory.items.push(item);
       };
 
-      addItem(workingMemory, { id: 1 });
-      addItem(workingMemory, { id: 2 });
-      addItem(workingMemory, { id: 3 });
-      addItem(workingMemory, { id: 4 }); // Should evict id 1
+      for (let i = 0; i < 10; i++) {
+        addItem({ id: i, content: `Item ${i}` });
+      }
 
-      expect(workingMemory.items).toHaveLength(3);
-      expect(workingMemory.items[0].id).toBe(2);
-      expect(workingMemory.items[2].id).toBe(4);
+      expect(workingMemory.items).toHaveLength(7);
+      expect(workingMemory.items[0].id).toBe(3);
     });
   });
 
   describe('Long-term Memory', () => {
-    it('should organize long-term memories by type', () => {
-      const longTermMemories = {
-        episodic: [],
-        semantic: [],
-        procedural: []
+    const longTermMemories = {
+      byType: {},
+      byTwin: {}
+    };
+
+    it('should organize by type', () => {
+      const addMemory = (memory) => {
+        longTermMemories.byType[memory.type] =
+          (longTermMemories.byType[memory.type] || 0) + 1;
       };
 
-      longTermMemories.episodic.push({ id: 'e1', content: 'Yesterday meeting' });
-      longTermMemories.semantic.push({ id: 's1', content: 'Water freezes at 0°C' });
-      longTermMemories.procedural.push({ id: 'p1', content: 'How to ride a bike' });
+      addMemory({ type: 'preference' });
+      addMemory({ type: 'preference' });
+      addMemory({ type: 'knowledge' });
 
-      expect(longTermMemories.episodic).toHaveLength(1);
-      expect(longTermMemories.semantic).toHaveLength(1);
-      expect(longTermMemories.procedural).toHaveLength(1);
+      expect(longTermMemories.byType['preference']).toBe(2);
+      expect(longTermMemories.byType['knowledge']).toBe(1);
     });
 
-    it('should calculate memory strength based on retrieval', () => {
-      const calculateStrength = (retrievals, consolidation) => {
-        const retrievalBonus = Math.log(retrievals + 1) * 0.1;
-        const consolidationBonus = consolidation * 0.2;
-        return Math.min(1, retrievalBonus + consolidationBonus);
+    it('should organize by twin', () => {
+      const addMemory = (memory) => {
+        longTermMemories.byTwin[memory.twinId] =
+          (longTermMemories.byTwin[memory.twinId] || 0) + 1;
       };
 
-      expect(calculateStrength(5, 0.5)).toBeGreaterThan(0.2);
-      expect(calculateStrength(0, 0)).toBeLessThan(0.1);
-    });
-  });
+      addMemory({ twinId: 'twin-1' });
+      addMemory({ twinId: 'twin-1' });
+      addMemory({ twinId: 'twin-2' });
 
-  describe('Timeline', () => {
-    it('should track memory events in timeline', () => {
-      const timeline = [
-        { timestamp: 1000, event: 'Memory created', type: 'create' },
-        { timestamp: 2000, event: 'Memory accessed', type: 'access' },
-        { timestamp: 3000, event: 'Memory updated', type: 'update' }
-      ];
-
-      expect(timeline).toHaveLength(3);
-      expect(timeline[0].timestamp).toBeLessThan(timeline[1].timestamp);
-      expect(timeline[1].timestamp).toBeLessThan(timeline[2].timestamp);
-    });
-
-    it('should query timeline by time range', () => {
-      const timeline = [
-        { timestamp: 1000, event: 'Event 1' },
-        { timestamp: 2000, event: 'Event 2' },
-        { timestamp: 3000, event: 'Event 3' },
-        { timestamp: 4000, event: 'Event 4' }
-      ];
-
-      const queryRange = (tl, start, end) =>
-        tl.filter(e => e.timestamp >= start && e.timestamp <= end);
-
-      expect(queryRange(timeline, 1500, 2500)).toHaveLength(1);
-      expect(queryRange(timeline, 0, 5000)).toHaveLength(4);
-    });
-  });
-
-  describe('Memory Sharing', () => {
-    it('should support sharing memories between agents', () => {
-      const sharingPermissions = {
-        private: ['sensitive-data'],
-        shared: ['general-info', 'project-updates'],
-        public: ['contact-info']
-      };
-
-      const canShare = (mem, permission) => {
-        if (permission === 'public') return true;
-        if (permission === 'shared') return !sharingPermissions.private.includes(mem);
-        return false;
-      };
-
-      expect(canShare('general-info', 'shared')).toBe(true);
-      expect(canShare('sensitive-data', 'shared')).toBe(false);
-      expect(canShare('contact-info', 'public')).toBe(true);
+      expect(longTermMemories.byTwin['twin-1']).toBe(2);
+      expect(longTermMemories.byTwin['twin-2']).toBe(1);
     });
   });
 
   describe('Audit Log', () => {
-    it('should track all memory operations', () => {
-      const auditLog = [];
-
-      const logOperation = (op, memoryId, details) => {
-        auditLog.push({
+    it('should log operations', () => {
+      const log = (action, entityId, details) => {
+        mockAuditLog.push({
           timestamp: Date.now(),
-          operation: op,
-          memoryId,
+          action,
+          entityId,
           details
         });
       };
 
-      logOperation('create', 'mem-1', { type: 'episodic' });
-      logOperation('access', 'mem-1', { source: 'user-query' });
-      logOperation('update', 'mem-1', { changes: ['content'] });
+      log('CREATE', 'mem-1', { type: 'preference' });
+      log('UPDATE', 'mem-1', { changes: ['content'] });
+      log('DELETE', 'mem-1', {});
 
-      expect(auditLog).toHaveLength(3);
-      expect(auditLog[0].operation).toBe('create');
-      expect(auditLog[1].operation).toBe('access');
-      expect(auditLog[2].operation).toBe('update');
-    });
-
-    it('should maintain audit integrity', () => {
-      const auditLog = [];
-      const addEntry = (entry) => auditLog.push(entry);
-
-      addEntry({ id: 1, timestamp: Date.now(), action: 'test' });
-      expect(auditLog).toHaveLength(1);
-      expect(auditLog[0].id).toBe(1);
+      expect(mockAuditLog).toHaveLength(3);
+      expect(mockAuditLog[0].action).toBe('CREATE');
     });
   });
 
   describe('Smart Forgetting', () => {
-    it('should forget low-importance old memories', () => {
-      const memories = [
-        { id: '1', importance: 1, age: 90, accessed: false },
-        { id: '2', importance: 5, age: 90, accessed: true },
-        { id: '3', importance: 2, age: 30, accessed: true }
-      ];
-
+    it('should identify forgettable memories', () => {
       const shouldForget = (mem) =>
-        mem.importance < 2 && mem.age > 60 && !mem.accessed;
+        mem.importance < 2 && mem.accessCount < 2 && mem.daysSinceAccess > 60;
+
+      const memories = [
+        { id: '1', importance: 1, accessCount: 1, daysSinceAccess: 90 },
+        { id: '2', importance: 4, accessCount: 10, daysSinceAccess: 90 },
+        { id: '3', importance: 2, accessCount: 5, daysSinceAccess: 30 }
+      ];
 
       const forgettable = memories.filter(shouldForget);
       expect(forgettable).toHaveLength(1);
       expect(forgettable[0].id).toBe('1');
     });
 
-    it('should preserve high-importance memories', () => {
-      const preserve = (mem) => mem.importance >= 4 || mem.accessed;
+    it('should preserve important memories', () => {
+      const shouldPreserve = (mem) => mem.importance >= 3 || mem.accessCount >= 5;
 
-      expect(preserve({ importance: 5, accessed: false })).toBe(true);
-      expect(preserve({ importance: 1, accessed: true })).toBe(true);
-      expect(preserve({ importance: 2, accessed: false })).toBe(false);
-    });
-  });
-
-  describe('Analytics', () => {
-    it('should track memory statistics', () => {
-      const stats = {
-        totalMemories: 100,
-        byType: { episodic: 40, semantic: 35, procedural: 25 },
-        averageConfidence: 0.75,
-        averageImportance: 3.2
-      };
-
-      expect(stats.totalMemories).toBe(100);
-      expect(stats.byType.episodic + stats.byType.semantic + stats.byType.procedural)
-        .toBe(100);
-    });
-
-    it('should calculate memory efficiency', () => {
-      const calculateEfficiency = (successful, total) =>
-        total > 0 ? successful / total : 0;
-
-      expect(calculateEfficiency(80, 100)).toBe(0.8);
-      expect(calculateEfficiency(0, 0)).toBe(0);
-    });
-  });
-
-  describe('Learning', () => {
-    it('should adapt based on retrieval patterns', () => {
-      const patterns = {
-        frequentQueries: ['project-status', 'meeting-notes'],
-        recentAccess: ['task-123', 'contact-info'],
-        failedRetrievals: ['old-file']
-      };
-
-      const adaptPriority = (patterns) => {
-        const priorities = {};
-        patterns.frequentQueries.forEach(q => priorities[q] = 3);
-        patterns.recentAccess.forEach(a => priorities[a] = 2);
-        return priorities;
-      };
-
-      const priorities = adaptPriority(patterns);
-      expect(priorities['project-status']).toBe(3);
-      expect(priorities['task-123']).toBe(2);
-    });
-
-    it('should update memory consolidation based on usage', () => {
-      const consolidationScore = (retrievals, updates) =>
-        Math.min(1, (retrievals * 0.1 + updates * 0.2) / 10);
-
-      expect(consolidationScore(5, 2)).toBeGreaterThan(0);
-      expect(consolidationScore(100, 50)).toBeLessThanOrEqual(1);
-    });
-  });
-
-  describe('Bulk Operations', () => {
-    it('should batch memory operations', () => {
-      const batch = [];
-      const batchSize = 10;
-
-      for (let i = 0; i < 25; i++) {
-        batch.push({ id: i, data: `item-${i}` });
-      }
-
-      const batches = [];
-      for (let i = 0; i < batch.length; i += batchSize) {
-        batches.push(batch.slice(i, i + batchSize));
-      }
-
-      expect(batches).toHaveLength(3);
-      expect(batches[0]).toHaveLength(10);
-      expect(batches[1]).toHaveLength(10);
-      expect(batches[2]).toHaveLength(5);
-    });
-
-    it('should merge duplicate memories', () => {
-      const memories = [
-        { id: '1', content: 'Meeting at 3pm', confidence: 0.9 },
-        { id: '2', content: 'Meeting at 3pm', confidence: 0.7 }
-      ];
-
-      const mergeDuplicates = (mem) => {
-        const merged = {};
-        mem.forEach(m => {
-          const key = m.content;
-          if (!merged[key] || merged[key].confidence < m.confidence) {
-            merged[key] = m;
-          }
-        });
-        return Object.values(merged);
-      };
-
-      const result = mergeDuplicates(memories);
-      expect(result).toHaveLength(1);
-      expect(result[0].confidence).toBe(0.9);
+      expect(shouldPreserve({ importance: 4, accessCount: 1 })).toBe(true);
+      expect(shouldPreserve({ importance: 1, accessCount: 10 })).toBe(true);
+      expect(shouldPreserve({ importance: 1, accessCount: 1 })).toBe(false);
     });
   });
 
   describe('Pagination', () => {
-    it('should paginate memory results', () => {
+    it('should paginate results', () => {
       const allMemories = Array.from({ length: 100 }, (_, i) => ({ id: i }));
-      const pageSize = 10;
       const page = 3;
+      const limit = 10;
 
-      const paginate = (items, size, p) =>
-        items.slice((p - 1) * size, p * size);
+      const paginated = allMemories.slice((page - 1) * limit, page * limit);
 
-      const result = paginate(allMemories, pageSize, page);
-      expect(result).toHaveLength(10);
-      expect(result[0].id).toBe(20);
-      expect(result[9].id).toBe(29);
+      expect(paginated).toHaveLength(10);
+      expect(paginated[0].id).toBe(20);
     });
 
-    it('should handle last page correctly', () => {
+    it('should handle last page', () => {
       const allMemories = Array.from({ length: 25 }, (_, i) => ({ id: i }));
-      const pageSize = 10;
-      const lastPage = Math.ceil(allMemories.length / pageSize);
+      const lastPage = Math.ceil(allMemories.length / 10);
 
-      const paginate = (items, size, p) =>
-        items.slice((p - 1) * size, p * size);
+      const paginated = allMemories.slice((lastPage - 1) * 10, lastPage * 10);
 
-      const result = paginate(allMemories, pageSize, lastPage);
-      expect(result).toHaveLength(5);
+      expect(paginated).toHaveLength(5);
+    });
+  });
+
+  describe('Retention Policy', () => {
+    const DEFAULT_RETENTION_DAYS = 90;
+
+    it('should use default retention', () => {
+      expect(DEFAULT_RETENTION_DAYS).toBe(90);
+    });
+
+    it('should check expiration', () => {
+      const isExpired = (memory) => {
+        if (!memory.expiresAt) return false;
+        return new Date(memory.expiresAt).getTime() <= Date.now();
+      };
+
+      expect(isExpired({})).toBe(false);
+      expect(isExpired({ expiresAt: '2020-01-01' })).toBe(true);
+      expect(isExpired({ expiresAt: '2099-01-01' })).toBe(false);
     });
   });
 });
