@@ -125,13 +125,17 @@ test('reviewerStats counts reviews', () => {
 
 // ---------- HTTP ----------
 
-function makeRequest(theApp, method, urlPath, body) {
+const TEST_TOKEN = 'test-internal-token-123';
+process.env.INTERNAL_SERVICE_TOKEN = TEST_TOKEN;
+
+function makeRequest(theApp, method, urlPath, body, includeAuth = false) {
   return new Promise((resolve, reject) => {
     const server = theApp.listen(0, () => {
       const { port } = server.address();
+      const headers = { 'Content-Type': 'application/json' };
+      if (includeAuth) headers['x-internal-token'] = TEST_TOKEN;
       const opts = {
-        method, hostname: '127.0.0.1', port, path: urlPath,
-        headers: { 'Content-Type': 'application/json' },
+        method, hostname: '127.0.0.1', port, path: urlPath, headers,
       };
       const req = http.request(opts, (res) => {
         let data = '';
@@ -159,7 +163,7 @@ test('GET /api/health returns ok', async () => {
 test('POST /api/review/queue adds an item', async () => {
   const res = await makeRequest(app, 'POST', '/api/review/queue', {
     input: 'q', output: 'a', reference: 'ref', judgeConfidence: 0.5,
-  });
+  }, true);
   assert.equal(res.status, 201);
   assert.ok(res.body.id);
 });

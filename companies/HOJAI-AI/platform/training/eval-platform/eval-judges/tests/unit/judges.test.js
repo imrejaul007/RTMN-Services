@@ -12,6 +12,10 @@ const {
 } = require('../../src/index');
 const http = require('node:http');
 
+// Set up internal auth for tests
+const TEST_TOKEN = 'test-internal-token-12345';
+process.env.INTERNAL_SERVICE_TOKEN = TEST_TOKEN;
+
 // ---------- Heuristic tests ----------
 
 test('heuristicAccuracy exact match = 1', () => {
@@ -193,7 +197,10 @@ function makeRequest(theApp, method, urlPath, body) {
       const { port } = server.address();
       const opts = {
         method, hostname: '127.0.0.1', port, path: urlPath,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-token': TEST_TOKEN,
+        },
       };
       const req = http.request(opts, (res) => {
         let data = '';
