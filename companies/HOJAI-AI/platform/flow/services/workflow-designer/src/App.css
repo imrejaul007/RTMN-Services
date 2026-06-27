@@ -1,0 +1,145 @@
+/* FlowOS Workflow Designer Styles */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-bottom: 1px solid #334155;
+}
+
+.header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.version {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  padding: 0.25rem 0.75rem;
+  background: #1e293b;
+  border-radius: 9999px;
+  border: 1px solid #334155;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toolbar-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+  background: #334155;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: #475569;
+  border-color: #60a5fa;
+}
+
+.toolbar-btn.primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  border-color: #6366f1;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.canvas {
+  flex: 1;
+  background: #0f172a;
+}
+
+.properties-panel {
+  width: 300px;
+  padding: 1rem;
+  background: #1e293b;
+  border-left: 1px solid #334155;
+  overflow-y: auto;
+}
+
+.properties-panel h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #f1f5f9;
+}
+
+.property-group {
+  margin-bottom: 1rem;
+}
+
+.property-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.property-group input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  color: #e2e8f0;
+}
+
+.node {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 2px solid;
+  min-width: 120px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.node-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.node-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.trigger-node { background: #10b981; border-color: #34d399; color: white; }
+.terminal-node { background: #ef4444; border-color: #f87171; color: white; }
+.human-task-node { background: #8b5cf6; border-color: #a78bfa; color: white; }
+.service-task-node { background: #3b82f6; border-color: #60a5fa; color: white; }
+.condition-node { background: #f59e0b; border-color: #fbbf24; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.parallel-node { background: #06b6d4; border-color: #22d3ee; color: white; border-radius: 50%; width: 80px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; }

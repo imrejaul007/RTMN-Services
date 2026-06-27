@@ -1,0 +1,21 @@
+{
+  "name": "@hojai/workflow-designer",
+  "version": "1.0.0",
+  "description": "Phase 2.3 - Visual BPMN workflow designer with drag-and-drop interface",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "reactflow": "^11.10.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.10"
+  }
+}
