@@ -476,6 +476,19 @@ app.get('/api/audit', async (req, res) => {
 // START — with persistence init and warm-up
 // =============================================================================
 
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+export default app;
+if (process.env.NODE_ENV !== 'test') {
+  startup().catch(err => {
+    console.error('memory-confidence startup failed:', err);
+    process.exit(1);
+  });
+}
+
 async function startup() {
   await persistence.connect();
   if (persistence.isUsingMongo()) {
@@ -489,12 +502,6 @@ async function startup() {
       console.warn('[memory-confidence] warmup failed:', e.message);
     }
   }
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
   const server = app.listen(PORT, () => {
     console.log(`Memory Confidence Engine running on port ${PORT}`);
     console.log(`  Storage: ${persistence.isUsingMongo() ? 'MongoDB' : 'in-memory (fallback)'}`);
@@ -502,8 +509,3 @@ app.get('/ready', (_req, res) => {
   });
   installGracefulShutdown(server);
 }
-
-startup().catch(err => {
-  console.error('memory-confidence startup failed:', err);
-  process.exit(1);
-});

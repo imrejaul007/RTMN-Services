@@ -1272,11 +1272,81 @@ async function startup() {
   }
   // Pre-create the vector collection (best-effort)
   embedClient.ensureCollection().catch(() => { /* silent */ });
+// =============================================================================
+// READINESS PROBE
+// =============================================================================
+
 // Readiness probe — returns 200 once the server is accepting requests
+// MUST be defined BEFORE the 404 catch-all (defined at line ~1213)
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+// =============================================================================
+// START — with persistence init and warm-up
+// =============================================================================
+
+async function startup() {
+  await persistence.connect();
+  if (persistence.isUsingMongo()) {
+    try {
+      // Warm up memories
+      const r = await persistence.memoryList({}, { limit: 100000 });
+      if (r && r.list) {
+        for (const m of r.list) memories.set(m.id, m);
+        console.log(`[MemoryOS] warmed up with ${r.list.length} memories from MongoDB`);
+      }
+      // Warm up history (so /revert works after restart)
+      const histCursor = await persistence.getDb().collection('history').find({}).limit(100000);
+      const histEntries = await histCursor.toArray();
+      for (const h of histEntries) {
+        if (!historyStore.has(h.memoryId)) historyStore.set(h.memoryId, []);
+        historyStore.get(h.memoryId).push({
+          version: h.version,
+          snapshot: h.snapshot,
+          changedAt: h.changedAt,
+        });
+      }
+      console.log(`[MemoryOS] warmed up ${histEntries.length} history entries`);
+      // Warm up knowledge graph, timelines, working, long-term, summaries
+      const kgCursor = await persistence.getDb().collection('knowledgeNodes').find({}).limit(100000);
+      const kgNodes = await kgCursor.toArray();
+      for (const n of kgNodes) knowledgeGraph.set(n.id || n._id, n);
+      const tlCursor = await persistence.getDb().collection('timelines').find({}).limit(100000);
+      const tlEntries = await tlCursor.toArray();
+      for (const t of tlEntries) {
+        if (!timelines.has(t.twinId)) timelines.set(t.twinId, []);
+        timelines.get(t.twinId).push(t);
+      }
+      const wmCursor = await persistence.getDb().collection('workingMemory').find({}).limit(100000);
+      const wmEntries = await wmCursor.toArray();
+      for (const w of wmEntries) workingMemory.set(w.twinId, w);
+      const ltCursor = await persistence.getDb().collection('longTermMemory').find({}).limit(100000);
+      const ltEntries = await ltCursor.toArray();
+      for (const l of ltEntries) {
+        if (!longTermMemory.has(l.twinId)) longTermMemory.set(l.twinId, []);
+        longTermMemory.get(l.twinId).push(l);
+      }
+      const smCursor = await persistence.getDb().collection('summaries').find({}).limit(100000);
+      const smEntries = await smCursor.toArray();
+      for (const s of smEntries) summaries.set(s.id || s._id, s);
+      console.log(`[MemoryOS] warmed up kg=${kgNodes.length} tl=${tlEntries.length} wm=${wmEntries.length} lt=${ltEntries.length} sm=${smEntries.length}`);
+    } catch (e) {
+      console.warn('[MemoryOS] warmup failed:', e.message);
+    }
+  }
+  // Pre-create the vector collection (best-effort)
+  embedClient.ensureCollection().catch(() => { /* silent */ });
+}
+
+// Export app for testing
+export default app;
+
+if (process.env.NODE_ENV !== 'test') {
+  startup().catch(err => {
+    console.error('MemoryOS startup failed:', err);
+    process.exit(1);
+  });
 
   const server = app.listen(PORT, () => {
     console.log(`MemoryOS v2.1.0 running on port ${PORT} - The Knowledge & Experience Layer ("What do I know?")`);
@@ -1286,8 +1356,6 @@ app.get('/ready', (_req, res) => {
   });
   installGracefulShutdown(server);
 }
-
-startup().catch(err => {
   console.error('MemoryOS startup failed:', err);
   process.exit(1);
 });

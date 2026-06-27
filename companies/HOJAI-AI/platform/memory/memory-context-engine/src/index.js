@@ -323,23 +323,25 @@ app.get('/api/stats', (_req, res) => {
   res.json({ ...stats, byTwin: { ...stats.byTwin }, byMode: { ...stats.byMode } });
 });
 
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+export default app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    console.log(`Memory Context Engine running on port ${PORT}`);
+    console.log(`  MemoryOS:  ${MEMORYOS_URL}`);
+    console.log(`  Confidence: ${CONFIDENCE_URL}`);
+    console.log(`  Bridge:    ${BRIDGE_URL}`);
+  });
+  installGracefulShutdown(server);
+}
+
 // 404 + error handler
 app.use((_req, res) => res.status(404).json({ error: 'not found' }));
 app.use((err, _req, res, _next) => {
   console.error('[memory-context-engine]', err);
   res.status(500).json({ error: err.message || 'internal error' });
 });
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
-
-const server = app.listen(PORT, () => {
-  console.log(`Memory Context Engine running on port ${PORT}`);
-  console.log(`  MemoryOS:  ${MEMORYOS_URL}`);
-  console.log(`  Confidence: ${CONFIDENCE_URL}`);
-  console.log(`  Bridge:    ${BRIDGE_URL}`);
-});
-installGracefulShutdown(server);
