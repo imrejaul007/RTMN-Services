@@ -802,30 +802,30 @@ bash demos/full-stack-demo.sh
 | **HOJAI Voice Gateway** | 4880 | ✅ | Training-aware STT/TTS routing |
 | **RAZO Keyboard** | 4299 | ✅ | Communication OS — intent detection + multi-channel messaging; in dev-stack.sh |
 
-### Memory Layer (12 services) — World-Class AI Memory System
+### Memory Layer (11 services) — World-Class AI Memory System
 
 The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pattern detection, knowledge compilation, and self-improvement capabilities. Inspired by Mem0, Zep, LangMem, and Pinecone Nexus.
 
 | Service | Port | Purpose | Tests |
 |---------|------|---------|-------|
 | **Core Storage** |
-| MemoryOS | 4703 | The dumb store — 15 memory types, knowledge graph, working/long-term | ✅ 51 |
-| Memory Confidence | 4152 | Per-fact reliability (base × decay × contradiction) | ✅ 35 |
+| MemoryOS | 4703 | The dumb store — 15 memory types, knowledge graph, working/long-term | ✅ 35 |
+| Memory Confidence | 4152 | Per-fact reliability (base × decay × contradiction) | ✅ 19 |
 | Twin Memory Bridge | 4704 | Twin ↔ memory partition links | - |
-| Memory Context Engine | 4793 | LLM context composer (relevance × confidence × recency) | ✅ 29 |
+| Memory Context Engine | 4793 | LLM context composer (relevance × confidence × recency) | ✅ 17 |
 | **Intelligent Memory** |
 | Memory Intelligence | 4786 | Remember, Forget, Compress, Merge, Contradiction, Importance, Decay | ✅ 41 |
-| Memory Substrate | 4782 | PostgreSQL + pgvector backend | ✅ 36 |
+| Memory Substrate | 4782 | PostgreSQL + pgvector backend | ✅ 27 |
 | **Advanced Features** |
 | Memory Procedural | 4783 | Skills, workflows, best practices, learned behaviors | ✅ 10 |
-| Memory Temporal | 4784 | Temporal knowledge graph (valid_from/valid_until) | ✅ 17 |
-| Memory Observation | 4785 | Pattern detection, habit identification, predictions | ✅ 11 |
-| Memory Compiler | 4789 | Compile facts into briefs, profiles, digests | ✅ 14 |
+| Memory Temporal | 4784 | Temporal knowledge graph (valid_from/valid_until) | ✅ 11 |
+| Memory Observation | 4785 | Pattern detection, habit identification, predictions | ✅ 23 |
+| Memory Compiler | 4789 | Compile facts into briefs, profiles, digests | ✅ 12 |
 | **Operations** |
-| Memory Benchmark | 4787 | Metrics: Recall@5, Latency, Accuracy | ✅ 23 |
-| Memory Learning Engine | 4788 | Outcome tracking, failure analysis, behavior optimization | ✅ 25 |
+| Memory Benchmark | 4787 | Metrics: Recall@5, Latency, Accuracy | ✅ 16 |
+| Memory Learning Engine | 4788 | Outcome tracking, failure analysis, behavior optimization | ✅ 18 |
 
-**Total: 292 vitest tests passing across 11 services**
+**Total: 229 vitest tests passing across 11 services** (June 27, 2026)
 
 **SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
 
