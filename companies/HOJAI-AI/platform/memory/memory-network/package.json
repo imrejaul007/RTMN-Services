@@ -1,0 +1,23 @@
+{
+  "name": "@hojai/memory-network",
+  "version": "1.0.0",
+  "description": "Memory Network - Inter-service communication for memory layer",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": [
+    "memory",
+    "network",
+    "messaging",
+    "pubsub"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.9"
+  }
+}
