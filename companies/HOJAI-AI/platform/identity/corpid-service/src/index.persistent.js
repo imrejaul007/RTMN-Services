@@ -836,8 +836,85 @@ app.post('/auth/login', authLimiter, [
   const isValid = await verifyPassword(password, user.passwordHash);
   if (!isValid) throw new UnauthorizedError('Invalid email or password');
 
+  // Check if MFA is enabled for this user
+  const mfaData = await MfaSecret.findOne(user.email);
+  if (mfaData?.enabled) {
+    // Generate temporary MFA completion token (valid for 5 minutes)
+    const mfaToken = jwt.sign(
+      {
+        sub: user.id,
+        type: 'mfa_challenge',
+        email: user.email,
+        mfaSecret: mfaData.secret,
+      },
+      JWT_SECRET,
+      { expiresIn: '5m', issuer: TOKEN_ISSUER }
+    );
+
+    logger.info({ userId: user.id, email: user.email }, 'MFA required - challenge issued');
+    return res.json({
+      success: true,
+      mfaRequired: true,
+      mfaToken,
+      message: 'MFA verification required',
+    });
+  }
+
   const tokens = await generateTokens(user);
   logger.info({ userId: user.id, email: user.email }, 'User logged in');
+
+  res.json({
+    success: true,
+    message: 'Login successful',
+    ...tokens,
+    user: {
+      id: user.id, email: user.email, name: user.name,
+      role: user.role, businessId: user.businessId,
+    },
+  });
+}));
+
+// MFA completion endpoint - completes login after MFA verification
+app.post('/auth/mfa-verify', [
+  body('mfaToken').notEmpty().withMessage('mfaToken required'),
+  body('code').trim().isLength({ min: 6, max: 6 }).withMessage('6-digit code required'),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { mfaToken, code } = sanitizeInput(req.body);
+
+  // Verify the MFA challenge token
+  const decoded = verifyToken(mfaToken);
+  if (!decoded) throw new UnauthorizedError('Invalid or expired MFA token');
+  if (decoded.type !== 'mfa_challenge') throw new UnauthorizedError('Invalid MFA challenge token');
+
+  // Verify the TOTP code
+  const mfaData = await MfaSecret.findOne(decoded.email);
+  if (!mfaData?.enabled) throw new UnauthorizedError('MFA not enabled');
+
+  // Check backup code
+  const backupCode = mfaData.backupCodes?.find(bc => bc.code === code && !bc.used);
+  if (!backupCode) {
+    // Verify TOTP
+    const expected = totpGenerate(mfaData.secret);
+    if (code !== expected) {
+      logger.warn({ email: decoded.email }, 'Invalid MFA code during login');
+      return res.status(401).json({
+        success: false,
+        error: { code: 'INVALID_CODE', message: 'Invalid MFA code' },
+      });
+    }
+  } else {
+    // Mark backup code as used
+    backupCode.used = true;
+    await MfaSecret.updateOne({ email: decoded.email }, { backupCodes: mfaData.backupCodes });
+  }
+
+  // Get user and generate tokens
+  const user = await User.findOne(decoded.email);
+  if (!user) throw new NotFoundError('User not found');
+
+  const tokens = await generateTokens(user);
+  logger.info({ userId: user.id, email: user.email }, 'User logged in with MFA');
 
   res.json({
     success: true,
