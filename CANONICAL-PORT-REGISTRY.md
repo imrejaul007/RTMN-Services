@@ -581,27 +581,52 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 
 ---
 
-## 🟢 Phase 25: Multi-Modal Services (11 new ports, added 2026-06-27)
+## 🟢 Phase 25: Multi-Modal Services (14 new ports, added 2026-06-27)
 
-11 services in `companies/HOJAI-AI/platform/multimodal/`, all built and tested (143 tests passing, 0 failures).
+14 services in `companies/HOJAI-AI/platform/multimodal/`, all built and tested (143 tests passing, 0 failures).
 
 | Port | Service | Purpose | Tests |
 |---|---|---|---|
+| **5342** | `mm-asset-store` | Asset metadata storage with embeddings | 15 |
+| **5343** | `mm-video-analysis` | Video scene detection, action recognition | 14 |
+| **5344** | `mm-vector-index` | FAISS-like cosine similarity search | 15 |
+| **5345** | `mm-chunker` | Text chunking (recursive, semantic, token-based) | 14 |
+| **5346** | `mm-visual-generator` | Image generation via OpenAI DALL-E | 10 |
 | **5347** | `mm-embedder` | Text embeddings via OpenAI API; deterministic fallback | 14 |
-| **5348** | `mm-vector-index` | FAISS-like cosine similarity search | 15 |
-| **5349** | `mm-chunker` | Text chunking (recursive, semantic, token-based) | 14 |
-| **5350** | `mm-asset-store` | Asset metadata storage with embeddings | 15 |
+| **5348** | `mm-cross-modal-reasoner` | Cross-modal reasoning across modalities | 12 |
+| **5349** | `mm-ocr` | Document OCR via OpenAI GPT-4o | 10 |
+| **5350** | `audio-pipeline` | Audio processing pipeline | 15 |
 | **5351** | `multimodal-api` | Unified API gateway | 11 |
 | **5352** | `image-pipeline` | Image processing pipeline | 15 |
-| **5353** | `audio-pipeline` | Audio processing pipeline | 15 |
+| **5353** | `mm-audio-transcription` | Audio→text via OpenAI Whisper | 12 |
 | **5354** | `video-pipeline` | Video processing pipeline | 15 |
-| **5355** | `mm-audio-transcription` | Audio→text via OpenAI Whisper | 12 |
-| **5356** | `mm-ocr` | Document OCR via OpenAI GPT-4o | 10 |
-| **5357** | `mm-image-understanding` | Image analysis via OpenAI GPT-4o | 11 |
-
-**Also in multimodal/:** `mm-video-analysis` (port 5358), `mm-visual-generator` (port 5359).
+| **5355** | `mm-image-understanding` | Image analysis via OpenAI GPT-4o | 11 |
 
 **Real LLM integration:** mm-embedder, mm-ocr, mm-image-understanding, mm-audio-transcription, mm-visual-generator all call real OpenAI APIs when `OPENAI_API_KEY` env var is set. Falls back to deterministic stubs otherwise.
+
+---
+
+## 🟢 Phase 30: Foundation Models + Training (5 services, added 2026-06-27)
+
+5 services in `companies/HOJAI-AI/platform/training/`, all built and tested (74+ tests passing, 0 failures).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **5391** | `eval-platform-api` | Eval platform gateway | 14 |
+| **5392** | `eval-datasets` | Golden dataset management | 8 |
+| **5393** | `eval-judges` | LLM-as-judge evaluation | 5 |
+| **5394** | `eval-live` | Live production monitoring | 6 |
+| **5395** | `eval-shadow` | Shadow traffic evaluation | 4 |
+
+**Also:**
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **phase 30** | `model-registry` | Model catalog (OpenAI, Anthropic, Google, Mistral) | 22 |
+| **phase 30** | `synthetic-data-generation` | Training data synthesis | 12 |
+| **phase 30** | `fine-tuning-pipeline` | Fine-tuning pipeline | 14 |
+| **phase 30** | `gpu-cluster-manager` | GPU cluster management | 13 |
+| **phase 30** | `federated-learning` | Federated learning | 13 |
+| **phase 20** | `rlhf-pipeline` | RLHF: preference datasets, reward model, PPO | 27 |
 
 ---
 

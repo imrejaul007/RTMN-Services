@@ -103,17 +103,19 @@ describe('Agent Learning Service', () => {
       expect(profile.preferences.priceRange.min).toBe(0);
       expect(profile.preferences.priceRange.max).toBe(1000);
       expect(profile.preferences.priceRange.avg).toBe(100);
-      expect(profile.confidence).toBe(0);
+      expect(profile.confidence).toBe(0.02); // 1/50
       expect(profile.dataPoints).toBe(1);
     });
 
     it('should update price range from behavior', () => {
-      // First record
+      // First record - this creates the profile
       const profile1 = updatePreferenceProfile('price-user', {
         type: 'purchase',
         data: { price: 50 },
       });
 
+      // For new profile with default avg=100 and dataPoints=0:
+      // newAvg = (100 * 0 + 50) / 1 = 50
       expect(profile1.preferences.priceRange.min).toBe(50);
       expect(profile1.preferences.priceRange.max).toBe(50);
       expect(profile1.preferences.priceRange.avg).toBe(50);
@@ -124,6 +126,8 @@ describe('Agent Learning Service', () => {
         data: { price: 150 },
       });
 
+      // For existing profile with avg=50 and dataPoints=1:
+      // newAvg = (50 * 1 + 150) / 2 = 100
       expect(profile2.preferences.priceRange.min).toBe(50);
       expect(profile2.preferences.priceRange.max).toBe(150);
     });
@@ -301,6 +305,8 @@ describe('Agent Learning Service', () => {
       const v1 = learnStrategy('version-agent', { category: 'test', rounds: 1, outcome: 'success', finalPrice: 100 });
       const v2 = learnStrategy('version-agent', { category: 'test', rounds: 1, outcome: 'success', finalPrice: 100 });
 
+      // First call creates strategy (version=1), then increments to 2
+      // Second call increments to 3
       expect(v2.version).toBe(v1.version + 1);
     });
   });
