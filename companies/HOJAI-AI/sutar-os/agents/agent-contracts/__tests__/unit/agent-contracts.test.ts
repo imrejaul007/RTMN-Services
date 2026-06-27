@@ -263,7 +263,7 @@ describe('Agent Contracts Service', () => {
       const milestone = fulfillment.milestones.find(m => m.id === 'm1');
       expect(milestone.status).toBe('completed');
       expect(milestone.completedAt).toBeDefined();
-      expect(milestone.proof).toBe('deliverable-1');
+      expect(milestone.proof).toEqual({ proof: 'deliverable-1' });
     });
 
     it('should transition to FULFILLED when all milestones complete', () => {

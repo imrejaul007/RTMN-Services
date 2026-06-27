@@ -63,6 +63,7 @@ import { registerAttributePolicyRoutes } from './routes/attribute-policies.js';
 import { registerNLAuthoringRoutes } from './routes/nl-authoring.js';
 import { registerNLExplanationRoutes } from './routes/nl-explanation.js';
 import { registerReBACRoutes } from './routes/rebac.js';
+import { registerAIGovernanceRoutes } from './routes/ai-governance.js';
 import { validatePolicyBody, CATEGORIES, POLICY_STATUSES } from './lib/validation.js';
 import { prototypePollutionMiddleware, sanitizePolicyId, sanitizeExpression, sanitizeName, validateWebhookUrl } from './lib/sanitization.js';
 import {
@@ -498,6 +499,8 @@ registerNLAuthoringRoutes(app, { auditLog, customAuth });
 registerNLExplanationRoutes(app, { auditLog, customAuth });
 // Phase 3: ReBAC — Relationship-Based Access Control
 registerReBACRoutes(app, { auditLog, customAuth });
+// Phase 4: AI Governance — Model registry, output validation, constitutions
+registerAIGovernanceRoutes(app, { auditLog, customAuth });
 
 // =================================================================
 // Error handlers

@@ -14,6 +14,24 @@ export type { UiStrings, LanguageCode } from './i18n.js';
 export { createVoiceInput, isVoiceSupported, mapLanguageToSpeech } from './voice.js';
 export type { VoiceInput, VoiceInputOptions, VoiceInputCallbacks } from './voice.js';
 
+// Re-export rich content types
+export type {
+  RichContentType,
+  ProductCard,
+  RichContentProducts,
+  QuoteOption,
+  RichContentQuote,
+  TimeSlot,
+  RichContentTimeSlots,
+  RichContentOrderConfirmation,
+  SupportAction,
+  RichContentSupportSuggestions,
+  RecommendationCard,
+  RichContentRecommendations,
+  RichContent,
+  RichContentActionHandler
+} from './index.js';
+
 export type WidgetEvent =
   | 'open'
   | 'close'
@@ -480,9 +498,286 @@ export class HojaiWidget {
     if (!list) return;
     const el = document.createElement('div');
     el.className = `hojai-msg hojai-msg-${m.role}`;
-    el.textContent = m.content;
+
+    // Render rich content if present
+    if (m.rich) {
+      const richEl = this._renderRichContent(m);
+      if (m.content) {
+        const textEl = document.createElement('p');
+        textEl.textContent = m.content;
+        textEl.className = 'hojai-rich-text';
+        el.appendChild(textEl);
+      }
+      if (richEl) el.appendChild(richEl);
+    } else {
+      el.textContent = m.content;
+    }
+
     list.appendChild(el);
     list.scrollTop = list.scrollHeight;
+  }
+
+  private _renderRichContent(m: WidgetMessage): HTMLElement | null {
+    if (!m.rich) return null;
+
+    const container = document.createElement('div');
+    container.className = 'hojai-rich';
+
+    switch (m.rich.type) {
+      case 'products':
+        this._renderProducts(container, m.rich as RichContentProducts);
+        break;
+      case 'quote':
+        this._renderQuote(container, m.rich as RichContentQuote, m);
+        break;
+      case 'time_slots':
+        this._renderTimeSlots(container, m.rich as RichContentTimeSlots, m);
+        break;
+      case 'order_confirmation':
+        this._renderOrderConfirmation(container, m.rich as RichContentOrderConfirmation);
+        break;
+      case 'support_suggestions':
+        this._renderSupportSuggestions(container, m.rich as RichContentSupportSuggestions, m);
+        break;
+      case 'recommendations':
+        this._renderRecommendations(container, m.rich as RichContentRecommendations, m);
+        break;
+      default:
+        // Unknown type, render as JSON
+        const pre = document.createElement('pre');
+        pre.className = 'hojai-rich-unknown';
+        pre.textContent = JSON.stringify(m.rich, null, 2);
+        container.appendChild(pre);
+    }
+
+    return container;
+  }
+
+  private _renderProducts(container: HTMLElement, rich: RichContentProducts): void {
+    if (rich.title) {
+      const title = document.createElement('div');
+      title.className = 'hojai-rich-title';
+      title.textContent = rich.title;
+      container.appendChild(title);
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'hojai-products-grid';
+
+    for (const product of rich.items) {
+      const card = document.createElement('div');
+      card.className = 'hojai-product-card';
+
+      const currency = product.currency || 'USD';
+      const formattedPrice = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency
+      }).format(product.price);
+
+      card.innerHTML = `
+        ${product.imageUrl ? `<img class="hojai-product-image" src="${escapeAttr(product.imageUrl)}" alt="${escapeAttr(product.name)}" loading="lazy" />` : '<div class="hojai-product-image-placeholder">📦</div>'}
+        <div class="hojai-product-info">
+          <div class="hojai-product-name">${escapeHTML(product.name)}</div>
+          ${product.description ? `<div class="hojai-product-desc">${escapeHTML(product.description)}</div>` : ''}
+          <div class="hojai-product-price">${formattedPrice}</div>
+          ${product.rating ? `<div class="hojai-product-rating">${'⭐'.repeat(Math.round(product.rating))} ${product.rating.toFixed(1)}</div>` : ''}
+          ${product.inStock === false ? '<div class="hojai-product-oos">Out of Stock</div>' : ''}
+        </div>
+        ${product.inStock !== false ? `<button class="hojai-product-add" data-product-id="${escapeAttr(product.id)}">Add to Cart</button>` : ''}
+      `;
+
+      const addBtn = card.querySelector<HTMLButtonElement>('.hojai-product-add');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          this.onRichAction?.('products', { productId: product.id, action: 'add_to_cart' }, { id: '', role: 'user', content: '', timestamp: Date.now() });
+        });
+      }
+
+      grid.appendChild(card);
+    }
+
+    container.appendChild(grid);
+  }
+
+  private _renderQuote(container: HTMLElement, rich: RichContentQuote, msg: WidgetMessage): void {
+    const card = document.createElement('div');
+    card.className = 'hojai-quote-card';
+
+    if (rich.message) {
+      const msgEl = document.createElement('p');
+      msgEl.className = 'hojai-quote-message';
+      msgEl.textContent = rich.message;
+      card.appendChild(msgEl);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'hojai-quote-actions';
+
+    for (const option of rich.options) {
+      const btn = document.createElement('button');
+      btn.className = option.action === 'accept' ? 'hojai-quote-accept' : 'hojai-quote-counter';
+      btn.textContent = option.label;
+      btn.dataset.optionId = option.id;
+      btn.dataset.action = option.action;
+      btn.addEventListener('click', () => {
+        this.onRichAction?.('quote', { quoteId: rich.quoteId, optionId: option.id, action: option.action }, msg);
+      });
+      actions.appendChild(btn);
+    }
+
+    card.appendChild(actions);
+
+    if (rich.expiresAt) {
+      const expiry = document.createElement('div');
+      expiry.className = 'hojai-quote-expiry';
+      const remaining = Math.max(0, Math.floor((rich.expiresAt - Date.now()) / 1000 / 60));
+      expiry.textContent = `Expires in ${remaining} minutes`;
+      card.appendChild(expiry);
+    }
+
+    container.appendChild(card);
+  }
+
+  private _renderTimeSlots(container: HTMLElement, rich: RichContentTimeSlots, msg: WidgetMessage): void {
+    if (rich.title) {
+      const title = document.createElement('div');
+      title.className = 'hojai-rich-title';
+      title.textContent = rich.title;
+      container.appendChild(title);
+    }
+
+    const slots = document.createElement('div');
+    slots.className = 'hojai-time-slots';
+
+    for (const slot of rich.slots) {
+      const btn = document.createElement('button');
+      btn.className = `hojai-time-slot${slot.available ? '' : ' hojai-time-slot-disabled'}${rich.selectedSlot === slot.id ? ' hojai-time-slot-selected' : ''}`;
+      btn.textContent = slot.label;
+      btn.disabled = !slot.available;
+      btn.dataset.slotId = slot.id;
+
+      if (slot.available) {
+        btn.addEventListener('click', () => {
+          this.onRichAction?.('time_slots', { slotId: slot.id, datetime: slot.datetime }, msg);
+          // Visual feedback
+          slots.querySelectorAll('.hojai-time-slot').forEach(b => b.classList.remove('hojai-time-slot-selected'));
+          btn.classList.add('hojai-time-slot-selected');
+        });
+      }
+
+      slots.appendChild(btn);
+    }
+
+    container.appendChild(slots);
+  }
+
+  private _renderOrderConfirmation(container: HTMLElement, rich: RichContentOrderConfirmation): void {
+    const card = document.createElement('div');
+    card.className = 'hojai-order-card';
+
+    card.innerHTML = `
+      <div class="hojai-order-icon">✅</div>
+      <div class="hojai-order-id">Order #${escapeHTML(rich.orderId)}</div>
+      <div class="hojai-order-summary">${escapeHTML(rich.summary)}</div>
+      ${rich.estimatedDelivery ? `<div class="hojai-order-delivery">Estimated delivery: ${escapeHTML(rich.estimatedDelivery)}</div>` : ''}
+      ${rich.trackingUrl ? `<a class="hojai-order-track" href="${escapeAttr(rich.trackingUrl)}" target="_blank" rel="noopener">Track Order →</a>` : ''}
+      ${rich.items && rich.items.length > 0 ? `<div class="hojai-order-items"></div>` : ''}
+    `;
+
+    // Add items if present
+    if (rich.items && rich.items.length > 0) {
+      const itemsEl = card.querySelector('.hojai-order-items')!;
+      for (const item of rich.items) {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'hojai-order-item';
+        itemEl.textContent = `${item.name} × 1`;
+        itemsEl.appendChild(itemEl);
+      }
+    }
+
+    container.appendChild(card);
+  }
+
+  private _renderSupportSuggestions(container: HTMLElement, rich: RichContentSupportSuggestions, msg: WidgetMessage): void {
+    if (rich.title) {
+      const title = document.createElement('div');
+      title.className = 'hojai-rich-title';
+      title.textContent = rich.title;
+      container.appendChild(title);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'hojai-support-actions';
+
+    for (const action of rich.actions) {
+      const btn = document.createElement('button');
+      btn.className = 'hojai-support-action';
+      btn.innerHTML = `${action.icon ? escapeHTML(action.icon) + ' ' : ''}${escapeHTML(action.label)}`;
+      btn.dataset.actionId = action.id;
+      btn.addEventListener('click', () => {
+        this.onRichAction?.('support_suggestions', { actionId: action.id, action: action.action }, msg);
+      });
+      actions.appendChild(btn);
+    }
+
+    container.appendChild(actions);
+  }
+
+  private _renderRecommendations(container: HTMLElement, rich: RichContentRecommendations, msg: WidgetMessage): void {
+    if (rich.title) {
+      const title = document.createElement('div');
+      title.className = 'hojai-rich-title';
+      title.textContent = rich.title;
+      container.appendChild(title);
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'hojai-recommendations-grid';
+
+    for (const product of rich.items) {
+      const card = document.createElement('div');
+      card.className = 'hojai-recommendation-card';
+
+      const currency = product.currency || 'USD';
+      const formattedPrice = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency
+      }).format(product.price);
+
+      let priceHtml = `<div class="hojai-rec-price">${formattedPrice}</div>`;
+      if (product.discount && product.discount > 0) {
+        const originalPrice = product.price / (1 - product.discount / 100);
+        const formattedOriginal = new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(originalPrice);
+        priceHtml = `
+          <div class="hojai-rec-price-container">
+            <span class="hojai-rec-price">${formattedPrice}</span>
+            <span class="hojai-rec-original">${formattedOriginal}</span>
+            <span class="hojai-rec-discount">-${product.discount}%</span>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        ${product.imageUrl ? `<img class="hojai-rec-image" src="${escapeAttr(product.imageUrl)}" alt="${escapeAttr(product.name)}" loading="lazy" />` : '<div class="hojai-rec-image-placeholder">🎯</div>'}
+        <div class="hojai-rec-info">
+          ${product.reason ? `<div class="hojai-rec-reason">${escapeHTML(product.reason)}</div>` : ''}
+          <div class="hojai-rec-name">${escapeHTML(product.name)}</div>
+          ${priceHtml}
+        </div>
+        <button class="hojai-rec-add" data-product-id="${escapeAttr(product.id)}">Add to Cart</button>
+      `;
+
+      const addBtn = card.querySelector<HTMLButtonElement>('.hojai-rec-add');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          this.onRichAction?.('recommendations', { productId: product.id, action: 'add_to_cart' }, msg);
+        });
+      }
+
+      grid.appendChild(card);
+    }
+
+    container.appendChild(grid);
   }
 
   private _showTyping(show: boolean): void {
@@ -648,5 +943,67 @@ function widgetStyles(color: string): string {
     @media (max-width: 480px) {
       .hojai-panel { width: calc(100vw - 32px); height: calc(100vh - 100px); }
     }
+    /* Rich Content Styles */
+    .hojai-rich { margin-top: 8px; }
+    .hojai-rich-title { font-weight: 600; font-size: 13px; color: #374151; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; }
+    .hojai-rich-text { margin: 0 0 8px 0; }
+    .hojai-rich-unknown { background: #f3f4f6; padding: 8px; border-radius: 6px; font-size: 12px; overflow-x: auto; margin: 0; }
+    /* Products Grid */
+    .hojai-products-grid { display: grid; gap: 8px; }
+    .hojai-product-card { background: #f9fafb; border-radius: 8px; padding: 8px; border: 1px solid #e5e7eb; }
+    .hojai-product-image { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; }
+    .hojai-product-image-placeholder { width: 100%; height: 80px; background: #e5e7eb; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .hojai-product-info { padding: 4px 0; }
+    .hojai-product-name { font-weight: 500; font-size: 13px; color: #111827; margin-bottom: 2px; }
+    .hojai-product-desc { font-size: 11px; color: #6b7280; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hojai-product-price { font-weight: 600; font-size: 14px; color: ${color}; }
+    .hojai-product-rating { font-size: 11px; color: #6b7280; }
+    .hojai-product-oos { font-size: 11px; color: #ef4444; font-weight: 500; }
+    .hojai-product-add { width: 100%; padding: 6px 8px; background: ${color}; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
+    .hojai-product-add:hover { opacity: 0.9; }
+    /* Quote Card */
+    .hojai-quote-card { background: #f9fafb; border-radius: 8px; padding: 12px; border: 1px solid #e5e7eb; }
+    .hojai-quote-message { margin: 0 0 10px 0; font-size: 13px; color: #374151; }
+    .hojai-quote-actions { display: flex; gap: 8px; }
+    .hojai-quote-accept { flex: 1; padding: 8px; background: #10b981; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .hojai-quote-counter { flex: 1; padding: 8px; background: #fff; color: #374151; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .hojai-quote-accept:hover { background: #059669; }
+    .hojai-quote-counter:hover { background: #f3f4f6; }
+    .hojai-quote-expiry { font-size: 11px; color: #6b7280; text-align: center; margin-top: 8px; }
+    /* Time Slots */
+    .hojai-time-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+    .hojai-time-slot { padding: 8px 12px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .hojai-time-slot:hover:not(:disabled) { border-color: ${color}; background: #f0f9ff; }
+    .hojai-time-slot-selected { background: ${color} !important; color: #fff !important; border-color: ${color} !important; }
+    .hojai-time-slot-disabled { opacity: 0.5; cursor: not-allowed; }
+    /* Order Confirmation */
+    .hojai-order-card { background: #f0fdf4; border-radius: 8px; padding: 12px; border: 1px solid #bbf7d0; text-align: center; }
+    .hojai-order-icon { font-size: 32px; margin-bottom: 8px; }
+    .hojai-order-id { font-weight: 600; font-size: 14px; color: #166534; margin-bottom: 4px; }
+    .hojai-order-summary { font-size: 13px; color: #15803d; margin-bottom: 8px; }
+    .hojai-order-delivery { font-size: 12px; color: #166534; margin-bottom: 8px; }
+    .hojai-order-track { display: inline-block; padding: 8px 16px; background: #10b981; color: #fff; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: 500; }
+    .hojai-order-track:hover { background: #059669; }
+    .hojai-order-items { margin-top: 8px; text-align: left; }
+    .hojai-order-item { font-size: 12px; color: #166534; padding: 4px 0; border-bottom: 1px solid #dcfce7; }
+    .hojai-order-item:last-child { border-bottom: none; }
+    /* Support Actions */
+    .hojai-support-actions { display: flex; flex-direction: column; gap: 6px; }
+    .hojai-support-action { padding: 10px 12px; background: #fff; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; text-align: left; cursor: pointer; transition: all 0.2s; }
+    .hojai-support-action:hover { border-color: ${color}; background: #f0f9ff; }
+    /* Recommendations */
+    .hojai-recommendations-grid { display: grid; gap: 8px; }
+    .hojai-recommendation-card { background: #f9fafb; border-radius: 8px; padding: 8px; border: 1px solid #e5e7eb; position: relative; }
+    .hojai-rec-image { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; }
+    .hojai-rec-image-placeholder { width: 100%; height: 80px; background: #e5e7eb; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .hojai-rec-info { padding: 4px 0; }
+    .hojai-rec-reason { font-size: 11px; color: ${color}; font-weight: 500; margin-bottom: 2px; }
+    .hojai-rec-name { font-weight: 500; font-size: 13px; color: #111827; margin-bottom: 4px; }
+    .hojai-rec-price-container { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .hojai-rec-price { font-weight: 600; font-size: 14px; color: ${color}; }
+    .hojai-rec-original { font-size: 12px; color: #9ca3af; text-decoration: line-through; }
+    .hojai-rec-discount { font-size: 11px; color: #ef4444; font-weight: 600; background: #fef2f2; padding: 2px 4px; border-radius: 4px; }
+    .hojai-rec-add { width: 100%; padding: 6px 8px; background: ${color}; color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
+    .hojai-rec-add:hover { opacity: 0.9; }
   `;
 }
