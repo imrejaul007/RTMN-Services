@@ -101,6 +101,10 @@ describe('RELATIONSHIP_TYPES', () => {
   it('has 17 relationship types', () => {
     assert.strictEqual(Object.keys(RELATIONSHIP_TYPES).length, 17);
   });
+
+  it('COLLEAGUE_OF is defined', () => {
+    assert.strictEqual(RELATIONSHIP_TYPES.COLLEAGUE_OF, 'colleague_of');
+  });
 });
 
 describe('findReachable — empty graph', () => {

@@ -52,7 +52,7 @@ export const SCORE_DIMENSIONS = {
 
 // ── Multi-dimensional Trust Scoring ──────────────────────────────────────────
 
-function computeTrustLevel(score) {
+export function computeTrustLevel(score) {
   if (score >= TRUST_LEVELS.PLATINUM.min) return TRUST_LEVELS.PLATINUM;
   if (score >= TRUST_LEVELS.GOLD.min) return TRUST_LEVELS.GOLD;
   if (score >= TRUST_LEVELS.SILVER.min) return TRUST_LEVELS.SILVER;
@@ -61,7 +61,7 @@ function computeTrustLevel(score) {
   return TRUST_LEVELS.RESTRICTED;
 }
 
-function computeWeightedScore(dimensions) {
+export function computeWeightedScore(dimensions) {
   const weights = {
     [SCORE_DIMENSIONS.RELIABILITY]: 0.25,
     [SCORE_DIMENSIONS.SAFETY]: 0.25,

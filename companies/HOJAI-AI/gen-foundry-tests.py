@@ -48,14 +48,88 @@ def get_routes(src_path):
 
     return routes
 
-def generate_test(svc_name, src_path, port, routes):
+def generate_test(svc_name, src_path, port, routes, is_esm=False):
     """Generate test file content."""
 
     # Get auth-protected routes (mutating)
     protected = [(m, p) for m, p in routes if m != 'GET']
     public_gets = [p for m, p in routes if m == 'GET']
 
-    test = f'''// Auto-generated tests for {svc_name}
+    if is_esm:
+        # ESM format
+        test = f'''// Auto-generated tests for {svc_name}
+// Run with: NODE_ENV=test node --test tests/{svc_name}.test.mjs
+
+process.env.NODE_ENV = 'test';
+process.env.INTERNAL_SERVICE_TOKEN = 'test-token';
+process.env.PORT = '{port}';
+process.env.DATA_DIR = '/tmp/{svc_name}-test';
+
+import {{ describe, it, before, after }} from 'node:test';
+import assert from 'node:assert';
+import http from 'node:http';
+import {{ createServer }} from 'http';
+
+// Import app (guards against listen in NODE_ENV=test)
+const {{ default: app }} = await import('../src/index.js');
+
+let server;
+let baseUrl;
+
+function req(method, path, body, headers) {{
+  return new Promise((resolve) => {{
+    if (!baseUrl) {{ resolve({{ status: 0 }}); return; }}
+    const url = new URL(baseUrl + path);
+    const opts = {{
+      method: method.toUpperCase(),
+      hostname: url.hostname,
+      port: url.port,
+      path: url.pathname,
+      headers: {{ 'Content-Type': 'application/json', ...headers }}
+    }};
+    const r = http.request(opts, (res) => {{
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => {{
+        const raw = Buffer.concat(chunks).toString('utf8');
+        let parsed;
+        try {{ parsed = JSON.parse(raw); }} catch {{ parsed = raw; }}
+        resolve({{ status: res.statusCode, body: parsed }});
+      }});
+    }});
+    r.on('error', () => resolve({{ status: 0 }}));
+    if (body) r.write(JSON.stringify(body));
+    r.end();
+  }});
+}}
+
+describe('{svc_name}', () => {{
+  before(async () => {{
+    await new Promise((resolve) => {{
+      server = createServer(app);
+      server.listen(0, () => {{
+        baseUrl = `http://127.0.0.1:${{server.address().port}}`;
+        resolve();
+      }});
+    }});
+  }});
+
+  after(() => {{ server?.close(); }});
+
+  // Health checks
+  it('GET /health returns 200', async () => {{
+    const r = await req('GET', '/health');
+    assert.equal(r.status, 200, `health failed: ${{JSON.stringify(r)}}`);
+  }});
+
+  it('GET /ready returns 200', async () => {{
+    const r = await req('GET', '/ready');
+    assert.ok([200, 404].includes(r.status), `/ready failed: ${{r.status}}`);
+  }});
+'''
+    else:
+        # CJS format
+        test = f'''// Auto-generated tests for {svc_name}
 // Run with: NODE_ENV=test node --test tests/{svc_name}.test.cjs
 
 'use strict';
@@ -127,7 +201,7 @@ describe('{svc_name}', () => {{
   }});
 '''
 
-    # Add public GET routes
+    # Add public GET routes (same for both)
     for path in public_gets[:5]:  # Limit to 5
         if path not in ['/health', '/ready']:
             test += f'''
@@ -139,7 +213,6 @@ describe('{svc_name}', () => {{
 
     # Add auth tests
     if protected:
-        # Get first mutating route for auth test
         method, path = protected[0]
         test += f'''
   // Auth tests
@@ -167,7 +240,7 @@ describe('{svc_name}', () => {{
   });
 });
 '''
-    return test
+    return test, '.mjs' if is_esm else '.test.cjs'
 
 def main():
     base = '/Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/foundry/services'

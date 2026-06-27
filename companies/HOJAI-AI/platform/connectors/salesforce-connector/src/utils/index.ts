@@ -11,7 +11,7 @@ export type { SalesforceToken, TokenStorageEntry } from './token.js';
 
 export {
   rateLimit,
-  sessionMiddleware,
+  session,
   requireAuth,
   optionalAuth,
   errorHandler,
