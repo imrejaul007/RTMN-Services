@@ -1,0 +1,24 @@
+{
+  "name": "@hojai/memory-multimodal",
+  "version": "1.0.0",
+  "description": "Memory Multimodal - Image, audio, video, document memory processing",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "npx vitest run",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": [
+    "multimodal",
+    "vision",
+    "audio",
+    "video",
+    "document"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.9"
+  }
+}
