@@ -1,0 +1,21 @@
+{
+  "name": "@hojai/connector-registry",
+  "version": "1.0.0",
+  "description": "Phase 3.1 - Connector Registry for FlowOS - Slack, Gmail, Webhook, HTTP connectors",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test __tests__/*.test.js"
+  },
+  "keywords": ["flowos", "connectors", "n8n", "integration"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  }
+}
