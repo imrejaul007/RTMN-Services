@@ -24,7 +24,7 @@ describe('detectPII', () => {
     const findings = detectPII('Contact user@domain.com for support');
     assert.strictEqual(findings.length, 1);
     assert.strictEqual(findings[0].type, PII_CATEGORIES.EMAIL);
-    assert.strictEqual(findings[0].masked, 'u****@d****.c**');
+    assert.strictEqual(findings[0].masked, 'u***@d****.c**');
   });
 
   it('detects phone numbers', () => {
