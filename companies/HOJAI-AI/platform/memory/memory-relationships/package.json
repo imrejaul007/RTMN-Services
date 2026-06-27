@@ -1,0 +1,25 @@
+{
+  "name": "@hojai/memory-relationships",
+  "version": "1.0.0",
+  "description": "Memory Relationships (port 4790) — Organizational relationship intelligence for MemoryOS. Tracks who knows whom, trust levels, interaction frequencies, social graphs, business relationships, and team structures.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run"
+  },
+  "keywords": ["hojai", "memory", "relationships", "organization", "graph"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  }
+}

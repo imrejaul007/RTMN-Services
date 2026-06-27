@@ -199,7 +199,7 @@ service's `publicPaths` list. The shared module also re-exports
 `/api/auth/toggle` runtime-toggle behavior. This removes the duplicate
 CorpID-verify logic that previously lived in three of the four services.
 
-## Test coverage (115/115 active)
+## Test coverage (115 + 164 = 279 active)
 
 | Service | Tests | Status |
 |---------|-------|--------|
@@ -207,7 +207,21 @@ CorpID-verify logic that previously lived in three of the four services.
 | `memory-os` learning e2e | 14 / 14 | ✅ |
 | `twin-memory-bridge` e2e | 33 / 33 | ✅ |
 | `memory-context-engine` smoke | 8 / 8 | ✅ (includes auth-toggle flow) |
-| `memory-confidence` smoke | 2 / 9 | ⚠️ (pre-existing schema-mismatch bugs in auto-generated tests; **not** auth-related — POST /api/facts with `{"test":true}` returns 400 because `twinId`/`content` are missing, GET / returns 302 redirect to /health, etc.) |
+| `memory-confidence` smoke | 2 / 9 | ⚠️ (pre-existing schema-mismatch bugs in auto-generated tests; **not** auth-related) |
+
+### Phase 1-4 New Services (June 27, 2026)
+
+| Service | Port | Tests | Status |
+|---------|------|-------|--------|
+| `memory-relationships` | 4790 | 39 | ✅ |
+| `memory-governance` | 4791 | 36 | ✅ |
+| `memory-forgetting` | 4792 | 27 | ✅ |
+| `memory-import` | 4780 | 19 | ✅ |
+| `memory-portability` | 4793 | 15 | ✅ |
+| `memory-marketplace` | 4781 | 14 | ✅ |
+| `memory-temporal` | - | 11 | ✅ |
+| `memory-observation` | - | 23 | ✅ |
+| `memory-learning-engine` | - | 18 | ✅ |
 
 ### How to run all tests
 

@@ -1,0 +1,33 @@
+{
+  "name": "@hojai/memory-governance",
+  "version": "1.0.0",
+  "description": "Memory Governance (port 4791) — Enterprise memory compliance: ownership, consent, GDPR/AI Act export, deletion, retention policies, and audit trail for MemoryOS.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "hojai",
+    "memory",
+    "governance",
+    "gdpr",
+    "compliance",
+    "privacy"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^1.2.0"
+  }
+}
