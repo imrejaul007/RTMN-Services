@@ -116,11 +116,13 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       conditions.push(`AccountId = '${accountId}'`);
     }
     if (isClosed !== undefined) {
-      const isClosedBool = isClosed === 'true' || isClosed === true;
+      const isClosedVal = String(isClosed).toLowerCase();
+      const isClosedBool = isClosedVal === 'true';
       conditions.push(`IsClosed = ${isClosedBool}`);
     }
     if (isWon !== undefined) {
-      const isWonBool = isWon === 'true' || isWon === true;
+      const isWonVal = String(isWon).toLowerCase();
+      const isWonBool = isWonVal === 'true';
       conditions.push(`IsWon = ${isWonBool}`);
     }
 
