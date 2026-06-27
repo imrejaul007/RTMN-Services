@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.10
-> **Last Updated:** June 26, 2026
-> **New:** Employee Twin Ecosystem Complete Plan (`.claude/plans/employee-twin-ecosystem-complete-plan.md`)
-> **Status:** ✅ **ALL COMPANIES HAVE GIT REPOS** — 10 companies with independent repos, 63 Industry OS services complete. **ALL 14 MISSING OS BUILT** (verification-os, prompt-twin-os, architecture-os, product-os, quality-os, observability-os, reliability-os, documentation-os, experimentation-os, eldercare-os, insurance-os, organization-os, talent-os, workforce-intelligence).
+> **Version:** 5.11
+> **Last Updated:** June 27, 2026
+> **New:** MemoryOS 12/12 Competitive Capabilities Complete — 26 services, 500+ tests
+> **Status:** ✅ **Memory Layer Complete** — 12/12 competitive capabilities (Truth Engine, Multimodal, Federation added)
 
 ---
 
@@ -796,15 +796,17 @@ bash demos/full-stack-demo.sh
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
 | **CorpID** | 4702 | ✅ | Universal Identity |
-| **Memory Layer** (17 services) | 4703, 4152, 4704, 4780-4793 | ✅ | Knowledge & Experience — see "Memory Layer" below |
+| **Memory Layer** (26 services) | 4703, 4152, 4704, 4780-4803 | ✅ | Knowledge & Experience — see "Memory Layer" below |
 | **TwinOS Hub** | 4705 | ✅ | Digital Twins (86+ twins) |
 | **TwinOS Shared** | N/A | ✅ | Shared Library for Twins |
 | **HOJAI Voice Gateway** | 4880 | ✅ | Training-aware STT/TTS routing |
 | **RAZO Keyboard** | 4299 | ✅ | Communication OS — intent detection + multi-channel messaging; in dev-stack.sh |
 
-### Memory Layer (17 services) — World-Class AI Memory System
+### Memory Layer (26 services) — World-Class AI Memory System
 
 The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pattern detection, knowledge compilation, and self-improvement capabilities. Inspired by Mem0, Zep, LangMem, and Pinecone Nexus.
+
+> **12/12 Competitive Capabilities Complete** — HOJAI MemoryOS now has full coverage that no competitor matches (Mem0, Zep, Glean, OpenAI).
 
 | Service | Port | Purpose | Tests |
 |---------|------|---------|-------|
@@ -831,8 +833,23 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 | Memory Import | 4780 | Multi-source ingestion, format conversion, validation, import jobs | ✅ 19 |
 | Memory Portability | 4793 | Export jobs, backup, migration, GDPR portability requests | ✅ 15 |
 | Memory Marketplace | 4781 | Template marketplace, subscriptions, reviews, categories | ✅ 14 |
+| **Network & Data** |
+| Memory Network | 4795 | Inter-service communication, pub/sub messaging, service registry | ✅ 27 |
+| Knowledge Network | 4796 | Cross-service knowledge graph connections, graph traversal | ✅ 22 |
+| Data Catalog | 4797 | Memory data indexing and discovery | ✅ 11 |
+| Experiment Tracking | 4798 | Memory experiments and iterations | ✅ 12 |
+| Feature Store | 4799 | Pre-computed memory features | ✅ 10 |
+| Knowledge Distillation | 4800 | Compress and distill memory knowledge | ✅ 10 |
+| **Truth & Multi-modal** |
+| Memory Truth Engine | 4801 | Source credibility, contradiction detection, evidence chains | ✅ 12 |
+| Memory Multimodal | 4802 | Image, audio, video, document memory processing | ✅ 16 |
+| Memory Federation | 4803 | Cross-company memory sharing with privacy boundaries | ✅ 14 |
 
-**Total: 379 vitest tests passing across 17 services** (June 27, 2026)
+**Total: 500+ vitest tests passing across 26 services** (June 27, 2026)
+
+**SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
+
+See [HOJAI-AI/docs/MEMORY-LAYER.md](companies/HOJAI-AI/docs/MEMORY-LAYER.md)
 
 **SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
 
@@ -1632,17 +1649,17 @@ All 86+ twins now have:
 - [SUTAR OS API Reference](docs/sutar-os/API.md) - All API endpoints
 - [SUTAR OS Integration Guide](docs/sutar-os/INTEGRATION.md) - Integration with RTMN
 
-### SUTAR OS - 25 Services Summary
+### SUTAR OS - Services Summary (Updated 2026-06-27)
 
 | Category | Services | Port Range |
 |----------|----------|------------|
-| **Gateway & Twin** | 5 services (Gateway, Twin OS, Memory Bridge, Identity OS, Agent ID) | 4140-4145 |
-| **Intent & Network** | 3 services (Intent Bus, Agent Network, REZ Bridge) | 4154-4155 |
-| **Decision & Flow** | 6 services (Decision, Simulation, Goal OS, Network Learning, Flow OS, Founder OS) | 4240-4244, 4260 |
-| **Marketplace & Economy** | 4 services (Economy OS, Usage Tracker, Policy OS + see BLR AI Marketplace) | 4250-4254 |
-| **Trust & Contracts** | 3 services (Trust Engine, Contract OS, Negotiation Engine) | 4291, 4292, 4293 |
-| **Discovery & ROI** | 5 services (Exploration, Discovery, Multi-Agent Evaluator, Reputation, ROI Calculator) → **moved to BLR AI Marketplace 2026-06-21** | 4255-4259 |
-| **Monitoring** | 1 service (System Monitoring) | 3100 |
+| **Gateway & Twin** | 7 services (Gateway, Twin OS, Memory Bridge, Identity OS, Agent ID, Tenant Instances, Agent Network) | 3100, 4140-4145, 4155 |
+| **Decision & Trust** | 3 services (Decision Engine, Trust Engine, Contract OS) | 4290, 4291, 4292 |
+| **Economy & Negotiation** | 2 services (Economy OS, Negotiation Engine) | 4293, 4294 |
+| **SUTAR OS New** | 24 enterprise OS modules (Constitutional, Runtime, Observation, Safety, Crisis, Change Mgmt, Innovation, Verification, Physical World, Device, Negotiation, Culture, Organization, Secrets, Compliance, Simulation, Calendar, Chat, Search, Notification, Brand, Presence, Media) | 4855-4881 |
+| **Agent Teaming** | 5 services (Agent Teaming, Orchestration, Contracts, Marketplace, Analytics) | 4830, 4845, 4848, 4851, 4853 |
+
+> **Note:** Port range is 3100-4881 (not 4140-4260 as previously documented). Discovery & ROI services moved to BLR AI Marketplace 2026-06-21.
 
 ### Key Services
 
@@ -1650,22 +1667,26 @@ All 86+ twins now have:
 |---------|------|---------|
 | **sutar-gateway** | 4140 | API gateway for all SUTAR services |
 | **sutar-decision-engine** | 4290 | AI-powered policy decisions |
-| **sutar-goal-os** | 4242 | Goal decomposition and tracking |
+| **sutar-twin-os** | 4142 | Digital twin management |
+| **sutar-memory-bridge** | 4143 | Twin ↔ memory partition links |
+| **sutar-identity** | 4144 | Universal identity |
+| **sutar-agent-id** | 4145 | Agent identity |
+| **sutar-tenant-instances** | 4141 | Per-tenant SUTAR shards |
 | ~~sutar-marketplace~~ → **BLR AI Marketplace** | 4250 | AI Service Marketplace (moved 2026-06-21) |
 | **sutar-economy-os** | 4294 | Economic layer for transactions |
 | **sutar-negotiation-engine** | 4293 | Multi-party negotiation |
 | **sutar-trust-engine** | 4291 | Trust scoring and reputation |
 | **sutar-contract-os** | 4292 | Smart contracts |
-| **sutar-discovery-engine** | 4256 | Opportunity discovery |
-| **nexha-pricing-network** | 4286 | Market price aggregation + dynamic pricing recommendations (Phase C.6) — was sutar-pricing-intelligence, moved to Nexha 2026-06-22 |
+| **nexha-pricing-network** | 4286 | Market price aggregation (was sutar-pricing-intelligence, moved to Nexha 2026-06-22) |
+| **nexha-autonomous-logistics** | 4295 | Multi-carrier shipping, customs, tracking (moved from 4293 2026-06-27) |
 
 ### SUTAR OS vs ACN (Agent Commerce Network)
 
 | Aspect | SUTAR OS | ACN |
 |--------|----------|-----|
 | **Purpose** | Autonomous Economic Infrastructure | Agent-to-Agent Commerce |
-| **Services** | 25 services | 15 services |
-| **Port Range** | 3100-4260 | 4716, 4800-4851 |
+| **Services** | 40+ services | 15 services |
+| **Port Range** | 3100-4881 | 4716, 4800-4853 |
 
 ### SUTAR OS at the RTMN Unified Hub (2026-06-22)
 
