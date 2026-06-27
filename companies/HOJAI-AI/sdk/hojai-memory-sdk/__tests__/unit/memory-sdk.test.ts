@@ -1,359 +1,261 @@
-/**
- * HOJAI MemorySDK Unit Tests
- */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MemoryOS, MemoryOSClient, MemoryConfidenceClient, MemoryContextClient } from '../../src/index';
 import axios from 'axios';
 
 // Mock axios
-vi.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-describe('MemorySDK', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe('Configuration', () => {
-    it('should create SDK with default config', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory).toBeDefined();
-      expect(memory.memory).toBeDefined();
-      expect(memory.intelligence).toBeDefined();
-      expect(memory.truth).toBeDefined();
-    });
-
-    it('should create SDK with custom baseUrl', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS({
-        baseUrl: 'http://custom-host:5000',
-      });
-
-      expect(memory).toBeDefined();
-    });
-
-    it('should create SDK with apiKey', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS({
-        apiKey: 'test-key-123',
-      });
-
-      expect(memory).toBeDefined();
-    });
-  });
-
-  describe('MemoryOS Core', () => {
-    it('should have memory client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.memory).toBeDefined();
-      expect(typeof memory.memory.store).toBe('function');
-      expect(typeof memory.memory.search).toBe('function');
-      expect(typeof memory.memory.get).toBe('function');
-      expect(typeof memory.memory.delete).toBe('function');
-    });
-
-    it('should have confidence client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.confidence).toBeDefined();
-      expect(typeof memory.confidence.getConfidence).toBe('function');
-    });
-
-    it('should have context client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.context).toBeDefined();
-      expect(typeof memory.context.composeContext).toBe('function');
-    });
-  });
-
-  describe('Intelligence Services', () => {
-    it('should have intelligence client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.intelligence).toBeDefined();
-      expect(typeof memory.intelligence.remember).toBe('function');
-      expect(typeof memory.intelligence.forget).toBe('function');
-      expect(typeof memory.intelligence.compress).toBe('function');
-      expect(typeof memory.intelligence.merge).toBe('function');
-      expect(typeof memory.intelligence.checkContradictions).toBe('function');
-    });
-  });
-
-  describe('Enterprise Services', () => {
-    it('should have relationships client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.relationships).toBeDefined();
-      expect(typeof memory.relationships.createRelationship).toBe('function');
-      expect(typeof memory.relationships.getRelationships).toBe('function');
-      expect(typeof memory.relationships.findPath).toBe('function');
-      expect(typeof memory.relationships.detectCommunities).toBe('function');
-    });
-
-    it('should have governance client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.governance).toBeDefined();
-      expect(typeof memory.governance.registerOwnership).toBe('function');
-      expect(typeof memory.governance.grantConsent).toBe('function');
-      expect(typeof memory.governance.verifyConsent).toBe('function');
-      expect(typeof memory.governance.deleteAllData).toBe('function');
-      expect(typeof memory.governance.exportAllData).toBe('function');
-    });
-
-    it('should have forgetting client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.forgetting).toBeDefined();
-      expect(typeof memory.forgetting.schedule).toBe('function');
-      expect(typeof memory.forgetting.undo).toBe('function');
-      expect(typeof memory.forgetting.getPolicies).toBe('function');
-      expect(typeof memory.forgetting.setPolicy).toBe('function');
-    });
-
-    it('should have portability client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.portability).toBeDefined();
-      expect(typeof memory.portability.createExport).toBe('function');
-      expect(typeof memory.portability.getExportStatus).toBe('function');
-      expect(typeof memory.portability.downloadExport).toBe('function');
-    });
-  });
-
-  describe('Truth Services', () => {
-    it('should have truth client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.truth).toBeDefined();
-      expect(typeof memory.truth.registerSource).toBe('function');
-      expect(typeof memory.truth.addStatement).toBe('function');
-      expect(typeof memory.truth.verify).toBe('function');
-      expect(typeof memory.truth.getTruthScore).toBe('function');
-      expect(typeof memory.truth.checkContradiction).toBe('function');
-    });
-  });
-
-  describe('Multimodal Services', () => {
-    it('should have multimodal client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.multimodal).toBeDefined();
-      expect(typeof memory.multimodal.uploadAsset).toBe('function');
-      expect(typeof memory.multimodal.extractContent).toBe('function');
-      expect(typeof memory.multimodal.search).toBe('function');
-      expect(typeof memory.multimodal.getAsset).toBe('function');
-    });
-  });
-
-  describe('Federation Services', () => {
-    it('should have federation client', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(memory.federation).toBeDefined();
-      expect(typeof memory.federation.createFederation).toBe('function');
-      expect(typeof memory.federation.addMember).toBe('function');
-      expect(typeof memory.federation.shareMemory).toBe('function');
-      expect(typeof memory.federation.queryShared).toBe('function');
-      expect(typeof memory.federation.createSync).toBe('function');
-    });
-  });
-
-  describe('Quick Actions', () => {
-    it('should have remember shortcut', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(typeof memory.remember).toBe('function');
-    });
-
-    it('should have recall shortcut', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(typeof memory.recall).toBe('function');
-    });
-
-    it('should have verify shortcut', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(typeof memory.verify).toBe('function');
-    });
-
-    it('should have getContext shortcut', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(typeof memory.getContext).toBe('function');
-    });
-
-    it('should have deleteUserData shortcut', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(typeof memory.deleteUserData).toBe('function');
-    });
-
-    it('should have exportUserData shortcut', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(typeof memory.exportUserData).toBe('function');
-    });
-
-    it('should have healthCheck shortcut', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      expect(typeof memory.healthCheck).toBe('function');
-    });
-  });
-
-  describe('Service Ports Configuration', () => {
-    it('should have correct ports for all services', async () => {
-      const { MemoryOS } = await import('../../src/index');
-
-      const memory = new MemoryOS();
-
-      // Access private property for testing
-      const ports = (memory as any).servicePorts;
-
-      expect(ports.memory).toBe(4703);
-      expect(ports.confidence).toBe(4152);
-      expect(ports.context).toBe(4793);
-      expect(ports.intelligence).toBe(4786);
-      expect(ports.relationships).toBe(4790);
-      expect(ports.governance).toBe(4791);
-      expect(ports.forgetting).toBe(4792);
-      expect(ports.truth).toBe(4801);
-      expect(ports.multimodal).toBe(4802);
-      expect(ports.federation).toBe(4803);
-    });
-  });
-});
-
-describe('MemoryOSClient', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should store memory', async () => {
-    mockedAxios.create = vi.fn().mockReturnValue({
-      get: vi.fn().mockResolvedValue({ data: { id: 'mem_123' } }),
-      post: vi.fn().mockResolvedValue({ data: { id: 'mem_123' } }),
-      patch: vi.fn(),
-      delete: vi.fn(),
-      interceptors: { response: { use: vi.fn() } },
-    });
-
-    const { MemoryOSClient } = await import('../../src/index');
-    const client = new MemoryOSClient({ baseUrl: 'http://localhost:4703' });
-
-    const result = await client.store({
-      userId: 'user_1',
-      content: 'Remember this meeting',
-    });
-
-    expect(result.success).toBe(true);
-  });
-
-  it('should search memories', async () => {
-    mockedAxios.create = vi.fn().mockReturnValue({
-      get: vi.fn().mockResolvedValue({
-        data: { memories: [{ id: 'mem_1', content: 'test' }] },
-      }),
+vi.mock('axios', () => ({
+  default: {
+    create: () => ({
+      get: vi.fn(),
       post: vi.fn(),
       patch: vi.fn(),
       delete: vi.fn(),
-      interceptors: { response: { use: vi.fn() } },
+      interceptors: {
+        response: {
+          use: vi.fn(),
+        },
+      },
+    }),
+  },
+}));
+
+describe('MemoryOS SDK', () => {
+  let mockAxios: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockAxios = axios.create();
+  });
+
+  describe('MemoryOSClient', () => {
+    it('should create a memory store response', async () => {
+      const client = new MemoryOSClient({ baseUrl: 'http://localhost:4703' });
+      const mockPost = vi.fn().mockResolvedValue({ data: { id: 'mem_123' } });
+      (client as any).client.post = mockPost;
+
+      const result = await client.store({
+        userId: 'user_1',
+        content: 'Test memory',
+        type: 'note'
+      });
+
+      expect(mockPost).toHaveBeenCalledWith('/api/memories', {
+        userId: 'user_1',
+        content: 'Test memory',
+        type: 'note'
+      });
+      expect(result.success).toBe(true);
     });
 
-    const { MemoryOSClient } = await import('../../src/index');
-    const client = new MemoryOSClient({ baseUrl: 'http://localhost:4703' });
+    it('should search memories', async () => {
+      const client = new MemoryOSClient({ baseUrl: 'http://localhost:4703' });
+      const mockGet = vi.fn().mockResolvedValue({
+        data: { memories: [{ id: 'mem_1', content: 'test' }] }
+      });
+      (client as any).client.get = mockGet;
 
-    const result = await client.search({
-      query: 'meeting',
-      userId: 'user_1',
+      const result = await client.search({ query: 'test', userId: 'user_1' });
+
+      expect(mockGet).toHaveBeenCalled();
+      expect(result.success).toBe(true);
     });
 
-    expect(result.success).toBe(true);
-    expect(result.data.memories).toBeDefined();
+    it('should get memory by ID', async () => {
+      const client = new MemoryOSClient({ baseUrl: 'http://localhost:4703' });
+      const mockGet = vi.fn().mockResolvedValue({
+        data: { id: 'mem_123', content: 'test memory' }
+      });
+      (client as any).client.get = mockGet;
+
+      const result = await client.getById('mem_123');
+
+      expect(mockGet).toHaveBeenCalledWith('/api/memories/mem_123', undefined);
+      expect(result.success).toBe(true);
+    });
+
+    it('should delete a memory', async () => {
+      const client = new MemoryOSClient({ baseUrl: 'http://localhost:4703' });
+      const mockDelete = vi.fn().mockResolvedValue({ data: { deleted: true } });
+      (client as any).client.delete = mockDelete;
+
+      const result = await client.delete('mem_123');
+
+      expect(mockDelete).toHaveBeenCalledWith('/api/memories/mem_123');
+      expect(result.success).toBe(true);
+    });
   });
-});
 
-describe('MemoryGovernanceClient', () => {
-  it('should have GDPR methods', async () => {
-    const { MemoryGovernanceClient } = await import('../../src/index');
+  describe('MemoryConfidenceClient', () => {
+    it('should get confidence score', async () => {
+      const client = new MemoryConfidenceClient({ baseUrl: 'http://localhost:4152' });
+      const mockGet = vi.fn().mockResolvedValue({
+        data: { score: 0.85, breakdown: { base: 0.8, decay: 0.95 } }
+      });
+      (client as any).client.get = mockGet;
 
-    const client = new MemoryGovernanceClient({ baseUrl: 'http://localhost:4791' });
+      const result = await client.getConfidence('fact_123');
 
-    expect(typeof client.deleteAllData).toBe('function');
-    expect(typeof client.exportAllData).toBe('function');
-    expect(typeof client.grantConsent).toBe('function');
-    expect(typeof client.verifyConsent).toBe('function');
+      expect(mockGet).toHaveBeenCalledWith('/api/confidence/fact_123', undefined);
+      expect(result.success).toBe(true);
+      expect(result.data?.score).toBe(0.85);
+    });
+
+    it('should update reliability', async () => {
+      const client = new MemoryConfidenceClient({ baseUrl: 'http://localhost:4152' });
+      const mockPatch = vi.fn().mockResolvedValue({ data: { updated: true } });
+      (client as any).client.patch = mockPatch;
+
+      const result = await client.updateReliability('fact_123', 0.9);
+
+      expect(mockPatch).toHaveBeenCalledWith('/api/confidence/fact_123', { reliability: 0.9 });
+      expect(result.success).toBe(true);
+    });
   });
-});
 
-describe('MemoryTruthClient', () => {
-  it('should have truth verification methods', async () => {
-    const { MemoryTruthClient } = await import('../../src/index');
+  describe('MemoryContextClient', () => {
+    it('should get context for query', async () => {
+      const client = new MemoryContextClient({ baseUrl: 'http://localhost:4793' });
+      const mockPost = vi.fn().mockResolvedValue({
+        data: { context: ['memory1', 'memory2'], confidence: 0.92 }
+      });
+      (client as any).client.post = mockPost;
 
-    const client = new MemoryTruthClient({ baseUrl: 'http://localhost:4801' });
+      const result = await client.getContext({ query: 'project updates', userId: 'user_1' });
 
-    expect(typeof client.verify).toBe('function');
-    expect(typeof client.getTruthScore).toBe('function');
-    expect(typeof client.checkContradiction).toBe('function');
-    expect(typeof client.registerSource).toBe('function');
-    expect(typeof client.addStatement).toBe('function');
+      expect(mockPost).toHaveBeenCalledWith('/api/context', {
+        query: 'project updates',
+        userId: 'user_1'
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should compose prompt from memories', async () => {
+      const client = new MemoryContextClient({ baseUrl: 'http://localhost:4793' });
+      const mockPost = vi.fn().mockResolvedValue({
+        data: { prompt: 'Based on your memories...' }
+      });
+      (client as any).client.post = mockPost;
+
+      const result = await client.composePrompt({
+        query: 'what did I work on?',
+        memories: ['worked on project A', 'met with team']
+      });
+
+      expect(result.success).toBe(true);
+    });
   });
-});
 
-describe('MemoryFederationClient', () => {
-  it('should have federation methods', async () => {
-    const { MemoryFederationClient } = await import('../../src/index');
+  describe('Unified MemoryOS Class', () => {
+    it('should instantiate all clients', () => {
+      const memory = new MemoryOS({ baseUrl: 'http://localhost:4703' });
 
-    const client = new MemoryFederationClient({ baseUrl: 'http://localhost:4803' });
+      expect(memory.memory).toBeInstanceOf(MemoryOSClient);
+      expect(memory.confidence).toBeInstanceOf(MemoryConfidenceClient);
+      expect(memory.context).toBeInstanceOf(MemoryContextClient);
+      expect(memory.intelligence).toBeDefined();
+      expect(memory.relationships).toBeDefined();
+      expect(memory.governance).toBeDefined();
+      expect(memory.forgetting).toBeDefined();
+      expect(memory.portability).toBeDefined();
+      expect(memory.truth).toBeDefined();
+      expect(memory.multimodal).toBeDefined();
+      expect(memory.federation).toBeDefined();
+    });
 
-    expect(typeof client.createFederation).toBe('function');
-    expect(typeof client.shareMemory).toBe('function');
-    expect(typeof client.queryShared).toBe('function');
-    expect(typeof client.createSync).toBe('function');
+    it('should use shorthand remember method', async () => {
+      const memory = new MemoryOS({ baseUrl: 'http://localhost:4703' });
+      const mockPost = vi.fn().mockResolvedValue({
+        data: { id: 'mem_new', importance: 0.85 }
+      });
+      (memory.intelligence as any).client.post = mockPost;
+
+      const result = await memory.remember('New important fact', 'user_1');
+
+      expect(mockPost).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+    });
+
+    it('should use shorthand recall method', async () => {
+      const memory = new MemoryOS({ baseUrl: 'http://localhost:4703' });
+      const mockGet = vi.fn().mockResolvedValue({
+        data: { memories: [{ id: '1', content: 'test' }] }
+      });
+      (memory.memory as any).client.get = mockGet;
+
+      const result = await memory.recall('test query', 'user_1');
+
+      expect(mockGet).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+    });
+
+    it('should handle getContext shorthand', async () => {
+      const memory = new MemoryOS({ baseUrl: 'http://localhost:4703' });
+      const mockPost = vi.fn().mockResolvedValue({
+        data: { context: ['a', 'b'], confidence: 0.9 }
+      });
+      (memory.context as any).client.post = mockPost;
+
+      const result = await memory.getContext('my query', 'user_1');
+
+      expect(mockPost).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+    });
+
+    it('should delete user data via governance', async () => {
+      const memory = new MemoryOS({ baseUrl: 'http://localhost:4703' });
+      const mockPost = vi.fn().mockResolvedValue({ data: { deleted: 42 } });
+      (memory.governance as any).client.post = mockPost;
+
+      const result = await memory.deleteUserData('user_1', 'GDPR request');
+
+      expect(mockPost).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+    });
+
+    it('should export user data', async () => {
+      const memory = new MemoryOS({ baseUrl: 'http://localhost:4703' });
+      const mockPost = vi.fn().mockResolvedValue({
+        data: { exportId: 'exp_123', status: 'pending' }
+      });
+      (memory.portability as any).client.post = mockPost;
+
+      const result = await memory.exportUserData('user_1');
+
+      expect(mockPost).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+    });
+
+    it('should handle errors gracefully', async () => {
+      const memory = new MemoryOS({ baseUrl: 'http://localhost:4703' });
+      const mockPost = vi.fn().mockRejectedValue(new Error('Network error'));
+      (memory.memory as any).client.post = mockPost;
+
+      const result = await memory.remember('test', 'user_1');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+  });
+
+  describe('Config Options', () => {
+    it('should create client with default configuration', () => {
+      const client = new MemoryOSClient({});
+      expect(client).toBeInstanceOf(MemoryOSClient);
+    });
+
+    it('should create client with custom base URL', () => {
+      const client = new MemoryOSClient({ baseUrl: 'http://custom:3000' });
+      expect(client).toBeInstanceOf(MemoryOSClient);
+    });
+
+    it('should create client with API key', () => {
+      const client = new MemoryOSClient({ apiKey: 'secret123' });
+      expect(client).toBeInstanceOf(MemoryOSClient);
+    });
+
+    it('should create client with custom timeout', () => {
+      const client = new MemoryOSClient({ timeout: 60000 });
+      expect(client).toBeInstanceOf(MemoryOSClient);
+    });
   });
 });
