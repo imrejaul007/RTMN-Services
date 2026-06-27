@@ -605,6 +605,44 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 
 ---
 
+## 🟢 Phase 3: Memory Layer (26 services, added 2026-06-27)
+
+26 services in `companies/HOJAI-AI/platform/memory/`, all built and tested (500+ tests passing, 0 failures).
+
+| Port | Service | Purpose | Tests |
+|---|---|---|---|
+| **4703** | `memory-os` | Core storage — 15 memory types, knowledge graph, working/long-term | 35 |
+| **4152** | `memory-confidence` | Per-fact reliability scoring | 19 |
+| **4704** | `twin-memory-bridge` | Twin ↔ memory partition links | - |
+| **4793** | `memory-context-engine` | LLM context composer (relevance × confidence × recency) | 17 |
+| **4786** | `memory-intelligence-service` | Remember, Forget, Compress, Merge, Contradiction | 41 |
+| **4782** | `memory-substrate` | PostgreSQL + pgvector backend | 27 |
+| **4783** | `memory-procedural` | Skills, workflows, best practices | 10 |
+| **4784** | `memory-temporal` | Temporal knowledge graph (valid_from/valid_until) | 11 |
+| **4785** | `memory-observation` | Pattern detection, habit identification | 23 |
+| **4789** | `memory-compiler` | Compile facts into briefs, profiles, digests | 12 |
+| **4787** | `memory-benchmark-service` | Recall@5, Latency, Accuracy metrics | 16 |
+| **4788** | `memory-learning-engine` | Outcome tracking, failure analysis | 18 |
+| **4790** | `memory-relationships` | Graph relationships, path finding | 39 |
+| **4791** | `memory-governance` | GDPR/CCPA compliance, consent management | 36 |
+| **4792** | `memory-forgetting` | Scheduled/manual forgetting, undo capabilities | 27 |
+| **4780** | `memory-import` | Multi-source ingestion, format conversion | 19 |
+| **4794** | `memory-portability` | Export jobs, backup, migration | 15 |
+| **4781** | `memory-marketplace` | Template marketplace, subscriptions | 14 |
+| **4795** | `memory-network` | Inter-service pub/sub messaging | 27 |
+| **4796** | `knowledge-network` | Cross-service knowledge graph connections | 22 |
+| **4797** | `data-catalog` | Memory data indexing and discovery | 11 |
+| **4798** | `experiment-tracking` | Memory experiments and iterations | 12 |
+| **4799** | `feature-store` | Pre-computed memory features | 10 |
+| **4800** | `knowledge-distillation` | Compress and distill memory knowledge | 10 |
+| **4801** | `memory-truth-engine` | Source credibility, contradiction detection | 12 |
+| **4802** | `memory-multimodal` | Image, audio, video, document processing | 16 |
+| **4803** | `memory-federation` | Cross-company memory sharing | 14 |
+
+**SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
+
+---
+
 ## HOJAI Cloud Phase 1 Services (2026-06-25)
 
 | Port | Service | Purpose | Tests |

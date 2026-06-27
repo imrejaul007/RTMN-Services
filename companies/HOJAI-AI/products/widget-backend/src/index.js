@@ -158,18 +158,78 @@ app.get('/', (_req, res) => {
 });
 
 // ─── Data stores ────────────────────────────────────────────────────────
-// In-memory for MVP. Persist to MongoDB / MemoryOS later.
-const conversations = new Map(); // visitorId -> { messages, user, createdAt, updatedAt }
+// JSON file persistence to /tmp/ — survives restarts within the same container/pod.
+// Persist to MongoDB / MemoryOS later for cross-instance sharing.
+const DATA_DIR = '/tmp/widget-conversations';
+
+function ensureDataDir() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+}
+
+function conversationFilePath(visitorId) {
+  // Sanitize visitorId to be a safe filename (UUIDs are safe; arbitrary strings get stripped)
+  const safe = visitorId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  return path.join(DATA_DIR, `conv_${safe}.json`);
+}
+
+function loadConversation(visitorId) {
+  const filePath = conversationFilePath(visitorId);
+  if (fs.existsSync(filePath)) {
+    try {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(raw);
+    } catch (err) {
+      console.warn(`[widget] failed to load conversation ${visitorId}:`, err.message);
+    }
+  }
+  return null;
+}
+
+function saveConversation(visitorId, data) {
+  const filePath = conversationFilePath(visitorId);
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error(`[widget] failed to save conversation ${visitorId}:`, err.message);
+  }
+}
+
+// In-memory cache backed by JSON files on disk.
+// A Proxy wrapper auto-saves to disk on every property write.
+const conversations = new Map(); // visitorId -> proxied conversation object
+
+// Ensure data directory exists at startup
+ensureDataDir();
 
 function getConversation(visitorId) {
   if (!conversations.has(visitorId)) {
-    conversations.set(visitorId, {
+    // Try loading from disk first
+    const persisted = loadConversation(visitorId);
+    const base = persisted || {
       visitorId,
       messages: [],
       user: null,
       createdAt: Date.now(),
       updatedAt: Date.now()
+    };
+
+    // Wrap in a Proxy so ANY property mutation triggers a save
+    const proxied = new Proxy(base, {
+      set(target, prop, value) {
+        target[prop] = value;
+        saveConversation(visitorId, target);
+        return true;
+      },
+      deleteProperty(target, prop) {
+        delete target[prop];
+        saveConversation(visitorId, target);
+        return true;
+      }
     });
+
+    conversations.set(visitorId, proxied);
   }
   return conversations.get(visitorId);
 }
