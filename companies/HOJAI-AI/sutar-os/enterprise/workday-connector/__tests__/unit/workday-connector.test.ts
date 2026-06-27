@@ -94,7 +94,7 @@ describe('Workday Connector — Capability Inference', () => {
     if (title.includes('engineer') || title.includes('developer')) caps.push('code_review', 'technical_planning');
     if (title.includes('sales')) caps.push('lead_generation', 'negotiation');
     if (dept.includes('finance')) caps.push('budget_management', 'expense_tracking');
-    if (dept.includes('hr')) caps.push('recruitment', 'onboarding');
+    if (dept.includes('hr') || dept.includes('people') || dept.includes('talent') || dept.includes('human')) caps.push('recruitment', 'onboarding');
     return caps;
   }
 
@@ -145,8 +145,8 @@ describe('Workday Connector — Capability Inference', () => {
 describe('Workday Connector — Role Level Inference', () => {
   function inferRoleLevel(wdWorker: any) {
     const title = (wdWorker.Job_Title || '').toLowerCase();
+    if (title.includes('director') || title.includes('vp')) return 'senior_leadership';
     if (title.includes('ceo') || title.includes('cto') || title.includes('cfo')) return 'executive';
-    if (title.includes('vp') || title.includes('director')) return 'senior_leadership';
     if (title.includes('manager') || title.includes('head')) return 'management';
     if (title.includes('senior') || title.includes('lead')) return 'senior_individual';
     return 'individual_contributor';

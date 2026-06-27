@@ -23,6 +23,7 @@ import { body, param, query, validationResult } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 // Shared library
 import { createLogger } from '../../../../shared/lib/logger.js';
@@ -40,6 +41,47 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN || '7d';
 const TOKEN_ISSUER = 'rtmn-corpid';
 const BCRYPT_ROUNDS = 12;
+
+// ============ STORAGE ENCRYPTION (Phase 6) ============
+// AES-256-GCM encryption for sensitive data at rest
+// Encryption key derived from STORAGE_ENCRYPTION_KEY env var
+
+const STORAGE_ENCRYPTION_KEY = process.env.STORAGE_ENCRYPTION_KEY
+  ? crypto.scryptSync(process.env.STORAGE_ENCRYPTION_KEY, 'corpID-salt-v1', 32)
+  : null;
+const ENCRYPTION_ALGORITHM = 'aes-256-gcm';
+
+/**
+ * Encrypt data using AES-256-GCM
+ * @param {Object} data - Plaintext object to encrypt
+ * @returns {Object} { iv, data: encryptedHex, tag }
+ */
+function encryptData(data) {
+  if (!STORAGE_ENCRYPTION_KEY) return data; // No encryption if key not configured
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, STORAGE_ENCRYPTION_KEY, iv);
+  const encrypted = Buffer.concat([cipher.update(JSON.stringify(data)), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return { iv: iv.toString('hex'), data: encrypted.toString('hex'), tag: tag.toString('hex') };
+}
+
+/**
+ * Decrypt data using AES-256-GCM
+ * @param {Object} encrypted - { iv, data, tag }
+ * @returns {Object} Decrypted plaintext object
+ */
+function decryptData(encrypted) {
+  if (!STORAGE_ENCRYPTION_KEY || !encrypted.iv) return encrypted; // No encryption
+  try {
+    const decipher = crypto.createDecipheriv(ENCRYPTION_ALGORITHM, STORAGE_ENCRYPTION_KEY, Buffer.from(encrypted.iv, 'hex'));
+    decipher.setAuthTag(Buffer.from(encrypted.tag, 'hex'));
+    const decrypted = Buffer.concat([decipher.update(Buffer.from(encrypted.data, 'hex')), decipher.final()]);
+    return JSON.parse(decrypted.toString());
+  } catch (err) {
+    logger.error({ err }, 'Decryption failed');
+    throw new Error('Failed to decrypt data');
+  }
+}
 
 // ============ AGENTOS BRIDGE ============
 // Bidirectional bridge: CorpID (4702) ↔ AgentOS (port 4803)
@@ -1928,6 +1970,309 @@ app.get('/api/acp/verify/:corpId', asyncHandler(async (req, res) => {
     const score = s?.score ?? 50;
     res.json({ success: true, verified: score >= 50, corpId, score, source: 'corpID' });
   }
+}));
+
+// GET /api/acp/entity/:corpId — get CorpID entity info for ACP context
+app.get('/api/acp/entity/:corpId', asyncHandler(async (req, res) => {
+  const { corpId } = req.params;
+
+  // Try to find as user
+  let user = await User.findOne(corpId);
+  let entityType = 'user';
+  let name = user?.name || corpId;
+
+  if (!user) {
+    const agent = await Agent.findOne(corpId);
+    if (agent) {
+      user = { id: agent.agentId, name: agent.name, email: agent.ownerId, role: 'agent', businessId: agent.businessId };
+      entityType = 'agent';
+      name = agent.name;
+    }
+  }
+
+  const trust = await TrustScore.findOne(corpId);
+  const score = trust?.score ?? 50;
+  const level = trust?.level || getTrustLevel(score);
+
+  res.json({
+    success: true,
+    entity: {
+      corpId,
+      type: entityType,
+      name,
+      trustScore: score,
+      trustLevel: level,
+      verified: true,
+      verifiedAt: new Date().toISOString(),
+    },
+  });
+}));
+
+// POST /api/acp/enrich — enrich an ACP message with CorpID data
+app.post('/api/acp/enrich', [
+  body('message.senderId').trim().notEmpty().withMessage('message.senderId required'),
+  body('message.type').optional().isString(),
+  body('message.targetId').optional().isString(),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { message } = sanitizeInput(req.body);
+  const { senderId, type: msgType, targetId } = message;
+
+  // Verify sender is a valid CorpID
+  let user = await User.findOne(senderId);
+  let entityType = 'user';
+  let name = user?.name || senderId;
+
+  if (!user) {
+    const agent = await Agent.findOne(senderId);
+    if (agent) {
+      user = { id: agent.agentId, name: agent.name, email: agent.ownerId };
+      entityType = 'agent';
+      name = agent.name;
+    }
+  }
+
+  if (!user) {
+    throw new NotFoundError(`Invalid CorpID in ACP message: ${senderId}`);
+  }
+
+  // Get trust score
+  const trust = await TrustScore.findOne(senderId);
+  const score = trust?.score ?? 50;
+  const level = trust?.level || getTrustLevel(score);
+
+  // Get delegation chain if sender is an agent
+  let delegationChain = [];
+  if (entityType === 'agent') {
+    const chain = [];
+    const visited = new Set();
+    let current = senderId;
+    const MAX_DEPTH = 10;
+
+    for (let depth = 0; depth < MAX_DEPTH; depth++) {
+      if (visited.has(current)) break;
+      visited.add(current);
+
+      const delegation = await Delegation.findOne({ delegateId: current, status: 'active' });
+      if (!delegation) break;
+      if (delegation.expiresAt && new Date(delegation.expiresAt) < new Date()) break;
+
+      chain.push({
+        delegationId: delegation.delegationId,
+        delegatorId: delegation.delegatorId,
+        scope: delegation.scope,
+        effectiveTrust: delegation.effectiveTrustScore,
+      });
+      current = delegation.delegatorId;
+    }
+    delegationChain = chain;
+  }
+
+  res.json({
+    success: true,
+    enrichedMessage: {
+      ...message,
+      sender: {
+        corpId: senderId,
+        type: entityType,
+        name,
+        trustScore: score,
+        trustLevel: level,
+        delegationChain,
+        verified: true,
+        verifiedAt: new Date().toISOString(),
+      },
+      target: targetId ? { corpId: targetId } : undefined,
+    },
+  });
+}));
+
+// ============ OIDC PROVIDER (Federation Phase 6) ============
+// Basic OIDC endpoints for enterprise SSO integration
+
+const OIDC_CONFIG = {
+  issuer: `http://localhost:${PORT}`,
+  authorization_endpoint: `http://localhost:${PORT}/api/federation/oidc/authorize`,
+  token_endpoint: `http://localhost:${PORT}/api/federation/oidc/token`,
+  userinfo_endpoint: `http://localhost:${PORT}/api/federation/oidc/userinfo`,
+  jwks_uri: `http://localhost:${PORT}/api/federation/oidc/jwks`,
+  revocation_endpoint: `http://localhost:${PORT}/api/federation/oidc/revoke`,
+  response_types_supported: ['code'],
+  subject_types_supported: ['public'],
+  id_token_signing_alg_values_supported: ['RS256'],
+  scopes_supported: ['openid', 'profile', 'email'],
+  token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post'],
+  claims_supported: ['sub', 'name', 'email', 'role', 'businessId', 'trustScore'],
+};
+
+// GET /.well-known/openid-configuration — OIDC discovery document
+app.get('/.well-known/openid-configuration', (_req, res) => {
+  res.json({ ...OIDC_CONFIG, issuer: `http://localhost:${PORT}` });
+});
+
+// GET /.well-known/oauth-authorization-server — OAuth 2.0 discovery (Azure AD compatibility)
+app.get('/.well-known/oauth-authorization-server', (_req, res) => {
+  res.json({ ...OIDC_CONFIG, issuer: `http://localhost:${PORT}` });
+});
+
+// GET /api/federation/oidc/jwks — JSON Web Key Set
+app.get('/api/federation/oidc/jwks', (_req, res) => {
+  // In production, load from a proper key management system
+  // For now, return a placeholder that services can use
+  res.json({
+    keys: [
+      {
+        kty: 'RSA',
+        use: 'sig',
+        kid: 'corpID-key-1',
+        alg: 'RS256',
+        // Public key components (placeholder — replace with real key in production)
+        n: 'placeholder-modulus',
+        e: 'AQAB',
+      },
+    ],
+  });
+});
+
+// GET /api/federation/oidc/userinfo — Get user info (requires OIDC token)
+app.get('/api/federation/oidc/userinfo', requireAuth, asyncHandler(async (req, res) => {
+  const user = await User.findOne(req.user.email);
+  if (!user) throw new NotFoundError('User not found');
+
+  const trust = await TrustScore.findOne(req.user.id);
+  res.json({
+    sub: req.user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    businessId: user.businessId || undefined,
+    trustScore: trust?.score ?? 50,
+  });
+}));
+
+// POST /api/federation/oidc/token — Exchange authorization code for tokens
+app.post('/api/federation/oidc/token', [
+  body('grant_type').isIn(['authorization_code', 'refresh_token']).withMessage('Invalid grant_type'),
+  body('code').optional().isString(),
+  body('refresh_token').optional().isString(),
+  body('client_id').trim().notEmpty().withMessage('client_id required'),
+  body('client_secret').optional().isString(),
+  body('redirect_uri').optional().isURL(),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { grant_type, code, refresh_token, client_id } = sanitizeInput(req.body);
+
+  // Validate client_id against registered OAuth clients (basic check)
+  const validClients = (process.env.OIDC_ALLOWED_CLIENTS || '').split(',').filter(Boolean);
+  if (validClients.length > 0 && !validClients.includes(client_id)) {
+    throw new UnauthorizedError('Invalid client_id');
+  }
+
+  if (grant_type === 'authorization_code') {
+    // In a real implementation, validate the code against stored codes
+    // For now, generate tokens directly
+    const user = await User.findOne(code); // code is used as email placeholder
+    if (!user) throw new UnauthorizedError('Invalid authorization code');
+
+    const accessToken = jwt.sign(
+      { sub: user.id, email: user.email, type: 'access', oidc: true },
+      JWT_SECRET,
+      { expiresIn: '1h', issuer: TOKEN_ISSUER }
+    );
+    const idToken = jwt.sign(
+      { sub: user.id, email: user.email, name: user.name, aud: client_id, type: 'id_token' },
+      JWT_SECRET,
+      { expiresIn: '1h', issuer: TOKEN_ISSUER }
+    );
+
+    res.json({
+      access_token: accessToken,
+      token_type: 'Bearer',
+      expires_in: 3600,
+      id_token: idToken,
+    });
+  } else if (grant_type === 'refresh_token') {
+    // Refresh token flow — generate new access token
+    const decoded = verifyToken(refresh_token);
+    if (!decoded || decoded.type !== 'refresh') throw new UnauthorizedError('Invalid refresh token');
+
+    const accessToken = jwt.sign(
+      { sub: decoded.sub, email: decoded.email, type: 'access', oidc: true },
+      JWT_SECRET,
+      { expiresIn: '1h', issuer: TOKEN_ISSUER }
+    );
+
+    res.json({ access_token: accessToken, token_type: 'Bearer', expires_in: 3600 });
+  }
+}));
+
+// POST /api/federation/oidc/revoke — Revoke token
+app.post('/api/federation/oidc/revoke', [
+  body('token').trim().notEmpty().withMessage('token required'),
+  body('token_type_hint').optional().isIn(['access_token', 'refresh_token']),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { token } = sanitizeInput(req.body);
+  // In a real implementation, add token to a revocation list
+  // For now, just acknowledge the revocation
+  logger.info({ token: token.substring(0, 10) + '...' }, 'Token revocation requested');
+  res.json({ success: true });
+}));
+
+// ============ SAML SP (Federation Phase 6) ============
+// Basic SAML Service Provider endpoints
+
+// GET /api/federation/saml/metadata — SP metadata XML
+app.get('/api/federation/saml/metadata', (_req, res) => {
+  const entityId = `http://localhost:${PORT}`;
+  const acsUrl = `http://localhost:${PORT}/api/federation/saml/acs`;
+
+  res.type('application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="${entityId}">
+  <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${acsUrl}" index="0" isDefault="true"/>
+  </md:SPSSODescriptor>
+</md:EntityDescriptor>`);
+});
+
+// POST /api/federation/saml/acs — SAML Assertion Consumer Service
+app.post('/api/federation/saml/acs', [
+  body('SAMLResponse').trim().notEmpty().withMessage('SAMLResponse required'),
+  body('RelayState').optional().isString(),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { SAMLResponse, RelayState } = sanitizeInput(req.body);
+
+  // In a real implementation, decode and validate the SAML assertion
+  // For now, this is a placeholder that returns instructions
+  logger.info({ RelayState }, 'SAML ACS called');
+
+  // Decode base64 SAML response (simplified)
+  let samlData = {};
+  try {
+    const decoded = Buffer.from(SAMLResponse, 'base64').toString('utf-8');
+    // In production, parse XML and validate signature, conditions, etc.
+    logger.debug({ samlLength: decoded.length }, 'SAML assertion decoded');
+  } catch (err) {
+    throw new ValidationError('Invalid SAMLResponse encoding');
+  }
+
+  // Return a simple redirect with a token
+  // In production, extract user info from the SAML assertion and create a session
+  const redirectUrl = RelayState || '/';
+  res.redirect(`${redirectUrl}${redirectUrl.includes('?') ? '&' : '?'}saml_success=true`);
+}));
+
+// GET /api/federation/saml/sls — SAML Single Logout Service
+app.get('/api/federation/saml/sls', asyncHandler(async (req, res) => {
+  const { SAMLRequest, RelayState } = req.query;
+
+  // In production, process the logout request and redirect
+  logger.info({ RelayState }, 'SAML SLS called');
+  const redirectUrl = RelayState || '/';
+  res.redirect(`${redirectUrl}${redirectUrl.includes('?') ? '&' : '?'}logout=true`);
 }));
 
 // ============ TIMELINE ROUTES ============

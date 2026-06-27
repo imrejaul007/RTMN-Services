@@ -179,7 +179,7 @@ describe('validateOutput — NO_REFUSALS', () => {
     assert.strictEqual(result.valid, false);
     const v = result.violations.find(v => v.rule === 'no_refusals');
     assert.ok(v);
-    assert.strictEqual(v.severity, 'warning');
+    assert.strictEqual(v.severity, 'error');
   });
 });
 
@@ -220,7 +220,8 @@ describe('validateOutput — summary messages', () => {
   });
 
   it('returns correct summary for warnings only', () => {
-    const result = validateOutput("I'm sorry I can't help", [{ type: 'no_refusals' }]);
+    // Use FORMATMarkdown rule which produces warnings (no markdown formatting)
+    const result = validateOutput("Just plain text without any markdown", [{ type: 'format_markdown' }]);
     assert.strictEqual(result.summary, 'Output passed with warnings');
   });
 });
