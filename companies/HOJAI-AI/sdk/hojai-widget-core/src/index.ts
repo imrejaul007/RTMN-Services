@@ -14,24 +14,6 @@ export type { UiStrings, LanguageCode } from './i18n.js';
 export { createVoiceInput, isVoiceSupported, mapLanguageToSpeech } from './voice.js';
 export type { VoiceInput, VoiceInputOptions, VoiceInputCallbacks } from './voice.js';
 
-// Re-export rich content types
-export type {
-  RichContentType,
-  ProductCard,
-  RichContentProducts,
-  QuoteOption,
-  RichContentQuote,
-  TimeSlot,
-  RichContentTimeSlots,
-  RichContentOrderConfirmation,
-  SupportAction,
-  RichContentSupportSuggestions,
-  RecommendationCard,
-  RichContentRecommendations,
-  RichContent,
-  RichContentActionHandler
-} from './index.js';
-
 export type WidgetEvent =
   | 'open'
   | 'close'
@@ -103,6 +85,7 @@ export interface QuoteOption {
   id: string;
   label: string;
   value: string;
+  action?: string;
 }
 
 export interface RichContentQuote {
@@ -615,12 +598,13 @@ export class HojaiWidget {
 
     for (const option of rich.options) {
       const btn = document.createElement('button');
-      btn.className = option.action === 'accept' ? 'hojai-quote-accept' : 'hojai-quote-counter';
+      const action = option.action || 'counter';
+      btn.className = action === 'accept' ? 'hojai-quote-accept' : 'hojai-quote-counter';
       btn.textContent = option.label;
       btn.dataset.optionId = option.id;
-      btn.dataset.action = option.action;
+      btn.dataset.action = action;
       btn.addEventListener('click', () => {
-        this.onRichAction?.('quote', { quoteId: rich.quoteId, optionId: option.id, action: option.action }, msg);
+        this.onRichAction?.('quote', { quoteId: rich.quoteId, optionId: option.id, action }, msg);
       });
       actions.appendChild(btn);
     }
