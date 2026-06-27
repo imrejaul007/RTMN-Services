@@ -132,7 +132,7 @@ curl -X POST http://localhost:4254/api/agents/register \\
   });
 
   // ── Sandbox Evaluation ──────────────────────────────────────────────────────
-  app.post('/api/sandbox/evaluate', customAuth, (req, res) => {
+  app.post('/api/sandbox/evaluate', customAuth, async (req, res) => {
     const { expression, context, maxMemory = '10mb' } = req.body;
 
     if (!expression || typeof expression !== 'string') {

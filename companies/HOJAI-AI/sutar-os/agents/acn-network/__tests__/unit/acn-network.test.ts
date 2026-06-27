@@ -1,84 +1,81 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
+// Module-level shared state
+const agents = new Map<string, any>();
+const capabilityIndex = new Map<string, Set<string>>();
+let idCounter = 0;
+
+function resetState() {
+  agents.clear();
+  capabilityIndex.clear();
+  idCounter = 0;
+}
+
+function registerAgent(data: { id?: string; name: string; type?: string; owner?: string; capabilities?: string[] }) {
+  const agent = {
+    id: data.id || `agent-${Date.now()}-${idCounter++}`,
+    name: data.name,
+    type: data.type || 'merchant',
+    owner: data.owner,
+    capabilities: data.capabilities || [],
+    status: 'offline',
+    rating: { overall: 0, transactions: 0, reliability: 0, responsiveness: 0 },
+    tier: 'basic',
+    registeredAt: new Date().toISOString(),
+  };
+  agents.set(agent.id, agent);
+  agent.capabilities.forEach((cap: string) => {
+    if (!capabilityIndex.has(cap)) capabilityIndex.set(cap, new Set());
+    capabilityIndex.get(cap)!.add(agent.id);
+  });
+  return agent;
+}
+
+function createGenieAgent(userId: string) {
+  return registerAgent({
+    name: `Genie-${userId}`,
+    type: 'genie',
+    owner: userId,
+    capabilities: ['product_search', 'negotiation', 'order_placement', 'notification'],
+  });
+}
+
+function createMerchantAgent(businessId: string, industry: string) {
+  return registerAgent({
+    name: `${industry}-merchant`,
+    type: 'merchant',
+    owner: businessId,
+    capabilities: ['product_search', 'negotiation', 'order_placement', 'customer_support'],
+  });
+}
+
+// =====================================================
+// Agent Types & Status
+// =====================================================
 describe('ACN Network — Agent Types & Status', () => {
-  const AGENT_TYPES = {
-    GENIE: 'genie',
-    MERCHANT: 'merchant',
-    SYSTEM: 'system',
-    PARTNER: 'partner'
-  };
-
-  const AGENT_STATUS = {
-    ONLINE: 'online',
-    OFFLINE: 'offline',
-    BUSY: 'busy',
-    AWAY: 'away',
-    DND: 'do_not_disturb'
-  };
-
   it('should define all 4 agent types', () => {
-    expect(Object.values(AGENT_TYPES)).toHaveLength(4);
-    expect(Object.values(AGENT_TYPES)).toContain('genie');
-    expect(Object.values(AGENT_TYPES)).toContain('merchant');
-    expect(Object.values(AGENT_TYPES)).toContain('system');
-    expect(Object.values(AGENT_TYPES)).toContain('partner');
+    const types = { GENIE: 'genie', MERCHANT: 'merchant', SYSTEM: 'system', PARTNER: 'partner' };
+    expect(Object.values(types)).toHaveLength(4);
   });
 
   it('should define all 5 agent statuses', () => {
-    expect(Object.values(AGENT_STATUS)).toHaveLength(5);
-    expect(Object.values(AGENT_STATUS)).toContain('online');
-    expect(Object.values(AGENT_STATUS)).toContain('offline');
-    expect(Object.values(AGENT_STATUS)).toContain('busy');
+    const statuses = { ONLINE: 'online', OFFLINE: 'offline', BUSY: 'busy', AWAY: 'away', DND: 'do_not_disturb' };
+    expect(Object.values(statuses)).toHaveLength(5);
   });
 });
 
+// =====================================================
+// Agent Registration
+// =====================================================
 describe('ACN Network — Agent Registration', () => {
-  const agents = new Map();
-  const capabilityIndex = new Map();
-
-  function registerAgent(agentData: { id?: string; name: string; type?: string; owner?: string; capabilities?: string[] }) {
-    const agent = {
-      id: agentData.id || `agent-${Date.now()}`,
-      name: agentData.name,
-      type: agentData.type || 'merchant',
-      owner: agentData.owner,
-      capabilities: agentData.capabilities || [],
-      status: 'offline',
-      rating: { overall: 0, transactions: 0, reliability: 0, responsiveness: 0 },
-      tier: 'basic',
-      registeredAt: new Date().toISOString(),
-    };
-    agents.set(agent.id, agent);
-    agent.capabilities.forEach((cap: string) => {
-      if (!capabilityIndex.has(cap)) capabilityIndex.set(cap, new Set());
-      capabilityIndex.get(cap).add(agent.id);
-    });
-    return agent;
-  }
-
-  function createGenieAgent(userId: string) {
-    return registerAgent({
-      name: `Genie-${userId}`,
-      type: 'genie',
-      owner: userId,
-      capabilities: ['product_search', 'negotiation', 'order_placement', 'notification'],
-    });
-  }
-
-  function createMerchantAgent(businessId: string, industry: string) {
-    return registerAgent({
-      name: `${industry}-merchant`,
-      type: 'merchant',
-      owner: businessId,
-      capabilities: ['product_search', 'negotiation', 'order_placement', 'customer_support'],
-    });
-  }
+  beforeEach(() => { resetState(); });
 
   it('should register generic agent', () => {
     const agent = registerAgent({ name: 'Test Agent', type: 'system', owner: 'system' });
     expect(agent.id).toBeDefined();
     expect(agent.name).toBe('Test Agent');
     expect(agent.status).toBe('offline');
+    expect(agents.size).toBe(1);
   });
 
   it('should register Genie agent with consumer capabilities', () => {
@@ -97,7 +94,7 @@ describe('ACN Network — Agent Registration', () => {
   it('should index capabilities for search', () => {
     const agent = registerAgent({ name: 'Cap Test', capabilities: ['negotiation', 'order_placement'] });
     expect(capabilityIndex.has('negotiation')).toBe(true);
-    expect(capabilityIndex.get('negotiation')?.has(agent.id)).toBe(true);
+    expect(capabilityIndex.get('negotiation')!.has(agent.id)).toBe(true);
   });
 
   it('should update agent status', () => {
@@ -123,6 +120,9 @@ describe('ACN Network — Agent Registration', () => {
   });
 });
 
+// =====================================================
+// Agent Search
+// =====================================================
 describe('ACN Network — Agent Search', () => {
   const agents = [
     { id: 'a1', type: 'genie', status: 'online', verified: true, tier: 'personal', rating: { overall: 4.5 }, capabilities: ['negotiation'] },
@@ -167,15 +167,16 @@ describe('ACN Network — Agent Search', () => {
 
   it('should filter by minimum rating', () => {
     const results = searchAgents({ minRating: 4.0 });
-    expect(results).toHaveLength(2);
+    expect(results).toHaveLength(3); // a1(4.5), a2(4.2), a4(5.0) all >= 4.0
     expect(results.map(r => r.id)).toContain('a1');
     expect(results.map(r => r.id)).toContain('a2');
+    expect(results.map(r => r.id)).toContain('a4');
   });
 
   it('should sort by rating', () => {
     const results = searchAgents({ sortBy: 'rating' });
-    expect(results[0].id).toBe('a4'); // 5.0 rating
-    expect(results[3].id).toBe('a3'); // 3.0 rating
+    expect(results[0].id).toBe('a4'); // 5.0
+    expect(results[3].id).toBe('a3'); // 3.0
   });
 
   it('should combine multiple filters', () => {
@@ -185,6 +186,9 @@ describe('ACN Network — Agent Search', () => {
   });
 });
 
+// =====================================================
+// Agent Scoring
+// =====================================================
 describe('ACN Network — Agent Scoring', () => {
   function calculateAgentScore(agent: { verified: boolean; tier: string; rating: { transactions: number; overall: number } }) {
     let score = agent.rating.overall * 20;

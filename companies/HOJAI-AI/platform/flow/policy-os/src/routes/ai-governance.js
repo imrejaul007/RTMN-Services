@@ -40,7 +40,7 @@ export const MODEL_PROVIDERS = {
 
 // ── Output Validation ─────────────────────────────────────────────────────────
 
-const VALIDATION_RULES = {
+export const VALIDATION_RULES = {
   MAX_LENGTH: 'max_length',
   NO_PII: 'no_pii',
   NO_HARMFUL_CONTENT: 'no_harmful',

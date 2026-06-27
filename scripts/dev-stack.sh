@@ -245,6 +245,9 @@ NEXHA_PROVISIONING_ENGINE_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-prov
 NEXHA_HOOKS_SDK_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-hooks-sdk && PORT=4386 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_hooks_dev npm start"
 NEXHA_TENANT_SUMMARY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-tenant-summary && PORT=4387 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_summary_dev npm start"
 NEXHA_PARTNER_NETWORK_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-partner-network && PORT=4297 npm start"
+
+# Phase 5: Autonomy Layer — AI Business Advisor (Port 5412)
+WIDGET_COMMAND_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/widget-command && PORT=5412 npm start"
 NEXHA_FEDERATION_OS_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-federation-os && npm run build && PORT=4273 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_federation_dev npm start"
 NEXHA_GLOBAL_DIRECTORY_CMD="cd $RTMN_ROOT/companies/Nexha/services/nexha-global-directory && npm run build && PORT=4276 JWT_SECRET=$JWT_SECRET INTERNAL_TOKEN=$INTERNAL_TOKEN MONGODB_URI=mongodb://127.0.0.1:27017/nexha_global_dev npm start"
 
@@ -463,6 +466,7 @@ status() {
     "ind-event:4751" \
     "ind-energy:5260" \
     "do-app:3001" \
+    "widget-command:5412" \
     "agent-platform-api:4802" \
     "agent-registry:4803" \
     "agent-capability-store:4804" \
@@ -674,6 +678,8 @@ start_all() {
   start_service "ind-transport"       "$IND_TRANSPORT_OS_CMD"       5240
   start_service "ind-event"           "$IND_EVENT_OS_CMD"           4751
   start_service "ind-energy"          "$IND_ENERGY_OS_CMD"          5260
+  # Phase 5: Autonomy Layer — AI Business Advisor (2026-06-27)
+  start_service "widget-command"      "$WIDGET_COMMAND_CMD"         5412
   # Consumer apps (2026-06-25)
   # Do App backend needs build first
   DO_BUILD_CMD="cd $RTMN_ROOT/companies/do-app/backend && npm run build"
@@ -878,6 +884,8 @@ stop_all() {
   stop_port 4751 "ind-event"
   # Consumer apps
   stop_port 3001 "do-app"
+  # Phase 5: Autonomy Layer
+  stop_port 5412 "widget-command"
 }
 
 case "${1:-start}" in

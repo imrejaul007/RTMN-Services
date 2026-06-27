@@ -1,11 +1,13 @@
 /**
  * Slack Connector
  * Port: 4790
- * Real Slack API integration for workplace communication
+ * Real Slack API integration with OAuth
  */
 
 import express, { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { generateAuthUrl, exchangeCode, getToken, revokeToken, callSlackApi } from './auth/slack-oauth.js';
+import crypto from 'crypto';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '4790', 10);
@@ -61,6 +63,119 @@ app.get('/health', (_req, res) => res.json({
 }));
 
 app.get('/ready', (_req, res) => res.json({ ready: true }));
+
+// ============ OAUTH ROUTES ============
+
+/**
+ * Get OAuth authorization URL
+ */
+app.get('/oauth/authorize', (req: Request, res: Response) => {
+  const state = crypto.randomBytes(16).toString('hex');
+  const authUrl = generateAuthUrl(state);
+  res.json({ authUrl, state });
+});
+
+/**
+ * Handle OAuth callback
+ */
+app.get('/oauth/callback', async (req: Request, res: Response) => {
+  const { code, state, error } = req.query;
+
+  if (error) {
+    return res.status(400).json({ error: `OAuth error: ${error}` });
+  }
+
+  if (!code) {
+    return res.status(400).json({ error: 'No authorization code' });
+  }
+
+  try {
+    const tokenData = await exchangeCode(code as string);
+    res.json({
+      success: true,
+      teamId: tokenData.teamId,
+      teamName: tokenData.teamName,
+      message: 'Slack app connected successfully',
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Check connection status
+ */
+app.get('/oauth/status', (req: Request, res: Response) => {
+  const teamId = req.query.teamId as string || 'default';
+  const token = getToken(teamId);
+  res.json({
+    connected: !!token,
+    teamId: token?.teamId,
+    teamName: token?.teamName,
+    expiresAt: token?.expiresAt,
+  });
+});
+
+/**
+ * Disconnect Slack
+ */
+app.delete('/oauth/disconnect', (req: Request, res: Response) => {
+  const teamId = req.query.teamId as string || 'default';
+  revokeToken(teamId);
+  res.json({ success: true, message: 'Disconnected from Slack' });
+});
+
+// ============ REAL SLACK API ============
+
+/**
+ * List channels via real Slack API
+ */
+app.get('/api/slack/channels', async (req: Request, res: Response) => {
+  const teamId = req.query.teamId as string || 'default';
+
+  try {
+    const result = await callSlackApi(teamId, 'conversations.list', { types: 'public_channel,private_channel' });
+    res.json({ success: true, channels: result.channels });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Post message via real Slack API
+ */
+app.post('/api/slack/messages', async (req: Request, res: Response) => {
+  const { teamId, channel, text, blocks } = req.body;
+
+  if (!channel || !text) {
+    return res.status(400).json({ error: 'channel and text required' });
+  }
+
+  try {
+    const result = await callSlackApi(teamId || 'default', 'chat.postMessage', {
+      channel,
+      text,
+      blocks: blocks || undefined,
+    });
+    res.json({ success: true, message: result.message });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Get user info via real Slack API
+ */
+app.get('/api/slack/users', async (req: Request, res: Response) => {
+  const teamId = req.query.teamId as string || 'default';
+
+  try {
+    const result = await callSlackApi(teamId, 'users.list', {});
+    res.json({ success: true, users: result.members });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ============ CHANNELS ============
 

@@ -46,7 +46,7 @@ export const PII_CATEGORIES = {
   CUSTOM: 'custom',
 };
 
-function detectPII(text) {
+export function detectPII(text) {
   const patterns = [
     { type: PII_CATEGORIES.EMAIL, regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
     { type: PII_CATEGORIES.PHONE, regex: /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g },

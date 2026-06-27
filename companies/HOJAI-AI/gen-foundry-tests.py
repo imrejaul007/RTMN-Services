@@ -242,6 +242,25 @@ describe('{svc_name}', () => {{
 '''
     return test, '.mjs' if is_esm else '.test.cjs'
 
+def detect_esm(src_path):
+    """Detect if a service uses ESM or CJS module system."""
+    with open(src_path) as f:
+        content = f.read()
+    # ESM indicators: import statements at top level (not in strings)
+    # Look for top-level import (not inside comments or strings)
+    lines = content.split('\n')
+    for line in lines[:30]:  # Check first 30 lines
+        stripped = line.strip()
+        if stripped.startswith('//') or stripped.startswith('*') or not stripped:
+            continue
+        if stripped.startswith('import ') and not 'require' in stripped[:10]:
+            return True
+        if stripped.startswith("import '") or stripped.startswith('import "'):
+            return True
+        if 'from "' in stripped or "from '" in stripped:
+            return True
+    return False
+
 def main():
     base = '/Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/foundry/services'
 
@@ -262,6 +281,8 @@ def main():
     ]
 
     created = 0
+    esm_count = 0
+    cjs_count = 0
     for svc in priority:
         src = os.path.join(base, svc, 'src', 'index.js')
         if not os.path.exists(src):
@@ -269,7 +290,11 @@ def main():
 
         test_dir = os.path.join(base, svc, 'tests')
         os.makedirs(test_dir, exist_ok=True)
-        test_file = os.path.join(test_dir, f'{svc}.test.cjs')
+
+        # Detect module system
+        is_esm = detect_esm(src)
+        ext = '.test.mjs' if is_esm else '.test.cjs'
+        test_file = os.path.join(test_dir, f'{svc}{ext}')
 
         if os.path.exists(test_file):
             continue
@@ -280,15 +305,19 @@ def main():
         if not routes:
             continue
 
-        test_content = generate_test(svc, src, port, routes)
+        test_content, _ = generate_test(svc, src, port, routes, is_esm)
 
         with open(test_file, 'w') as f:
             f.write(test_content)
 
         created += 1
-        print(f'Created: {svc}.test.cjs ({len(routes)} routes)')
+        if is_esm:
+            esm_count += 1
+        else:
+            cjs_count += 1
+        print(f'Created: {svc}{ext} ({len(routes)} routes, {"ESM" if is_esm else "CJS"})')
 
-    print(f'\n=== Created {created} test files ===')
+    print(f'\n=== Created {created} test files ({esm_count} ESM, {cjs_count} CJS) ===')
 
 if __name__ == '__main__':
     main()
