@@ -174,6 +174,7 @@ function updateRealtimeMetrics(agentId, eventType, data) {
   }
 
   realtimeMetrics.set(agentId, realtime);
+  return realtime;
 }
 
 /**

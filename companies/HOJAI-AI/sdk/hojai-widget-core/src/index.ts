@@ -49,15 +49,116 @@ export interface HojaiWidgetConfig {
   user?: WidgetUser;
   visitorId?: string;
   debug?: boolean;
+  onRichAction?: RichContentActionHandler;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rich Content Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type RichContentType =
+  | 'products'
+  | 'quote'
+  | 'time_slots'
+  | 'order_confirmation'
+  | 'support_suggestions'
+  | 'recommendations';
+
+export interface ProductCard {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  price: number;
+  currency?: string;
+  description?: string;
+  rating?: number;
+  inStock?: boolean;
+}
+
+export interface RichContentProducts {
+  type: 'products';
+  items: ProductCard[];
+  title?: string;
+}
+
+export interface QuoteOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface RichContentQuote {
+  type: 'quote';
+  quoteId: string;
+  message: string;
+  options: QuoteOption[];
+  expiresAt?: number;
+}
+
+export interface TimeSlot {
+  id: string;
+  label: string;
+  datetime: string;
+  available: boolean;
+}
+
+export interface RichContentTimeSlots {
+  type: 'time_slots';
+  title?: string;
+  slots: TimeSlot[];
+  selectedSlot?: string;
+}
+
+export interface RichContentOrderConfirmation {
+  type: 'order_confirmation';
+  orderId: string;
+  summary: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
+  items?: ProductCard[];
+}
+
+export interface SupportAction {
+  id: string;
+  label: string;
+  action: string;
+  icon?: string;
+}
+
+export interface RichContentSupportSuggestions {
+  type: 'support_suggestions';
+  title?: string;
+  actions: SupportAction[];
+}
+
+export interface RecommendationCard extends ProductCard {
+  reason?: string;
+  discount?: number;
+}
+
+export interface RichContentRecommendations {
+  type: 'recommendations';
+  title?: string;
+  items: RecommendationCard[];
+}
+
+export type RichContent =
+  | RichContentProducts
+  | RichContentQuote
+  | RichContentTimeSlots
+  | RichContentOrderConfirmation
+  | RichContentSupportSuggestions
+  | RichContentRecommendations;
 
 export interface WidgetMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  rich?: any;
+  rich?: RichContent | null;
   timestamp: number;
 }
+
+export type RichContentActionHandler = (type: RichContentType, data: any, msg: WidgetMessage) => void;
 
 export interface WidgetSendOptions {
   context?: Record<string, any>;
@@ -72,6 +173,7 @@ export class HojaiWidget {
   private user?: WidgetUser;
   private visitorId: string;
   private debug: boolean;
+  private onRichAction?: RichContentActionHandler;
 
   private listeners: Map<WidgetEvent, Set<WidgetListener>> = new Map();
   private history: WidgetMessage[] = [];
@@ -92,6 +194,7 @@ export class HojaiWidget {
     this.user = cfg.user;
     this.visitorId = cfg.visitorId || this._generateVisitorId();
     this.debug = !!cfg.debug;
+    this.onRichAction = cfg.onRichAction;
 
     this.config = {
       name: cfg.config?.name || 'HOJAI Assistant',

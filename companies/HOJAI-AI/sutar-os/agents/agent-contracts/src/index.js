@@ -401,10 +401,12 @@ function refundEscrow(contractId, reason) {
     esc.status = 'refunded';
     esc.refundedAt = new Date().toISOString();
     esc.refundReason = reason;
+    escrow.set(contractId, esc);
 
     const contract = contracts.get(contractId);
     if (contract) {
       contract.escrow.status = 'refunded';
+      contract.escrow.refundedAt = new Date().toISOString();
       contracts.set(contractId, contract);
     }
   }
