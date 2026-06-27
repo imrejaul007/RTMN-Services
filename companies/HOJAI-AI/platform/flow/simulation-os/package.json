@@ -5,17 +5,28 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run",
+    "test:watch": "node --experimental-vm-modules node_modules/vitest/vitest.mjs"
   },
-  "keywords": ["sutar", "simulation", "what-if", "scenarios", "monte-carlo"],
+  "keywords": [
+    "sutar",
+    "simulation",
+    "what-if",
+    "scenarios",
+    "monte-carlo"
+  ],
   "author": "HOJAI AI",
   "license": "MIT",
   "dependencies": {
-    "express": "^5.2.1",
-    "cors": "^2.8.5",
-    "helmet": "^8.1.0",
     "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
     "morgan": "^1.10.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.9"
   }
 }

@@ -191,7 +191,7 @@ export function validateOutput(output, rules = [], context = {}) {
         const lower = output.toLowerCase();
         for (const p of refusalPatterns) {
           if (lower.includes(p)) {
-            violations.push({ rule: rule.type, severity: 'warning', message: `AI refusal detected: "${p}"` });
+            violations.push({ rule: rule.type, severity: 'error', message: `AI refusal detected: "${p}"` });
           }
         }
         break;

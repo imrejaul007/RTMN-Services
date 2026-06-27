@@ -107,6 +107,7 @@ const Business = createModel('Business', { key: 'id' });
 const RefreshToken = createModel('RefreshToken', { key: 'token' });
 const ApiKey = createModel('ApiKey', { key: 'id' });
 const TrustScore = createModel('TrustScore', { key: 'corpId' });
+const TrustDimension = createModel('TrustDimension', { key: 'dimensionKey' });
 const Namespace = createModel('Namespace', { key: 'name' });
 const Agent = createModel('Agent', { key: 'agentId' });
 const AgentInteraction = createModel('AgentInteraction', { key: 'id' });
@@ -2404,6 +2405,182 @@ app.delete('/api/delegations/:delegationId/expire', requireAuth, asyncHandler(as
   });
 
   res.json({ success: true, delegation: updated });
+}));
+
+// GET /api/delegations/issued — list delegations I created (delegator)
+app.get('/api/delegations/issued', requireAuth, asyncHandler(async (req, res) => {
+  const { status } = req.query;
+  let all = await Delegation.find({ delegatorId: req.user.id });
+  if (status) all = all.filter(d => d.status === status);
+
+  res.json({ success: true, count: all.length, delegations: all.map(d => ({
+    delegationId: d.delegationId,
+    delegateId: d.delegateId,
+    delegateName: d.delegateName,
+    scope: d.scope,
+    status: d.status,
+    expiresAt: d.expiresAt,
+    createdAt: d.createdAt,
+  })) });
+}));
+
+// GET /api/delegations/received — list delegations I received (delegate)
+app.get('/api/delegations/received', requireAuth, asyncHandler(async (req, res) => {
+  const { status } = req.query;
+  let all = await Delegation.find({ delegateId: req.user.id });
+  if (status) all = all.filter(d => d.status === status);
+
+  res.json({ success: true, count: all.length, delegations: all.map(d => ({
+    delegationId: d.delegationId,
+    delegatorId: d.delegatorId,
+    scope: d.scope,
+    status: d.status,
+    expiresAt: d.expiresAt,
+    createdAt: d.createdAt,
+  })) });
+}));
+
+// GET /api/delegations/chain/:entityId — get full delegation chain for an entity
+app.get('/api/delegations/chain/:entityId', requireAuth, asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+  const chain = [];
+  const visited = new Set();
+  let current = entityId;
+  const MAX_DEPTH = 10;
+
+  for (let depth = 0; depth < MAX_DEPTH; depth++) {
+    if (visited.has(current)) break; // circular detection
+    visited.add(current);
+
+    const delegation = await Delegation.findOne({ delegateId: current, status: 'active' });
+    if (!delegation) break;
+
+    // Check expiration
+    if (delegation.expiresAt && new Date(delegation.expiresAt) < new Date()) break;
+
+    chain.push({
+      delegationId: delegation.delegationId,
+      delegatorId: delegation.delegatorId,
+      delegateId: delegation.delegateId,
+      scope: delegation.scope,
+      attenuationFactor: delegation.attenuationFactor,
+      effectiveTrustScore: delegation.effectiveTrustScore,
+      expiresAt: delegation.expiresAt,
+    });
+
+    current = delegation.delegatorId;
+  }
+
+  res.json({ success: true, entityId, chainLength: chain.length, chain });
+}));
+
+// POST /api/delegations/:delegationId/approve — approve pending delegation
+app.post('/api/delegations/:delegationId/approve', requireAuth, asyncHandler(async (req, res) => {
+  const delegation = await Delegation.findOne(req.params.delegationId);
+  if (!delegation) throw new NotFoundError('Delegation not found');
+  if (delegation.delegateId !== req.user.id) throw new ForbiddenError('Only delegate can approve');
+
+  if (delegation.status !== 'pending_approval') {
+    throw new ValidationError('Delegation is not pending approval');
+  }
+
+  const now = new Date().toISOString();
+  const updated = await Delegation.updateOne({ delegationId: req.params.delegationId }, {
+    status: 'active',
+    updatedAt: now,
+    history: [...(delegation.history || []), { event: 'approved', by: req.user.id, at: now, details: {} }],
+  });
+
+  logger.info({ delegationId: req.params.delegationId }, 'Delegation approved');
+  res.json({ success: true, delegation: updated });
+}));
+
+// POST /api/delegations/:delegationId/reject — reject pending delegation
+app.post('/api/delegations/:delegationId/reject', requireAuth, asyncHandler(async (req, res) => {
+  const delegation = await Delegation.findOne(req.params.delegationId);
+  if (!delegation) throw new NotFoundError('Delegation not found');
+  if (delegation.delegateId !== req.user.id) throw new ForbiddenError('Only delegate can reject');
+
+  if (delegation.status !== 'pending_approval') {
+    throw new ValidationError('Delegation is not pending approval');
+  }
+
+  const now = new Date().toISOString();
+  const updated = await Delegation.updateOne({ delegationId: req.params.delegationId }, {
+    status: 'rejected',
+    updatedAt: now,
+    history: [...(delegation.history || []), { event: 'rejected', by: req.user.id, at: now, details: {} }],
+  });
+
+  logger.info({ delegationId: req.params.delegationId }, 'Delegation rejected');
+  res.json({ success: true, delegation: updated });
+}));
+
+// POST /api/delegations/check — check if entity has authority for an action (SUTAR integration)
+app.post('/api/delegations/check', [
+  body('agentId').trim().notEmpty().withMessage('agentId required'),
+  body('requiredScope').trim().notEmpty().withMessage('requiredScope required'),
+  body('context').optional().isObject(),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { agentId, requiredScope, context = {} } = sanitizeInput(req.body);
+
+  // Build the delegation chain
+  const chain = [];
+  const visited = new Set();
+  let current = agentId;
+  const MAX_DEPTH = 10;
+
+  for (let depth = 0; depth < MAX_DEPTH; depth++) {
+    if (visited.has(current)) break;
+    visited.add(current);
+
+    const delegation = await Delegation.findOne({ delegateId: current, status: 'active' });
+    if (!delegation) break;
+
+    // Check expiration
+    if (delegation.expiresAt && new Date(delegation.expiresAt) < new Date()) break;
+
+    // Check scope
+    const hasScope = delegation.scope.includes(requiredScope) ||
+                     delegation.scope.some(s => s.endsWith(':*') && requiredScope.startsWith(s.slice(0, -2)));
+
+    if (!hasScope) {
+      chain.push({ delegationId: delegation.delegationId, delegatorId: delegation.delegatorId, hasScope: false });
+      current = delegation.delegatorId;
+      continue;
+    }
+
+    // Check constraints
+    if (delegation.constraints) {
+      if (delegation.constraints.maxValue && context.value > delegation.constraints.maxValue) {
+        chain.push({ delegationId: delegation.delegationId, delegatorId: delegation.delegatorId, hasScope: true, reason: 'maxValue exceeded' });
+        res.json({ authorized: false, reason: `Transaction value ${context.value} exceeds maxValue ${delegation.constraints.maxValue}`, chain });
+        return;
+      }
+      if (delegation.constraints.allowedEntities?.length && context.entityId && !delegation.constraints.allowedEntities.includes(context.entityId)) {
+        chain.push({ delegationId: delegation.delegationId, delegatorId: delegation.delegatorId, hasScope: true, reason: 'entity not allowed' });
+        res.json({ authorized: false, reason: `Entity ${context.entityId} not in allowedEntities`, chain });
+        return;
+      }
+    }
+
+    chain.push({
+      delegationId: delegation.delegationId,
+      delegatorId: delegation.delegatorId,
+      hasScope: true,
+      effectiveTrust: delegation.effectiveTrustScore,
+    });
+
+    res.json({
+      authorized: true,
+      chain,
+      effectiveTrust: delegation.effectiveTrustScore,
+    });
+    return;
+  }
+
+  res.json({ authorized: false, reason: 'No valid delegation chain found', chain });
 }));
 
 // ============ RELATIONSHIP ROUTES ============
