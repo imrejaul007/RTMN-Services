@@ -83,6 +83,61 @@ function decryptData(encrypted) {
   }
 }
 
+// ============ MEMORYOS BRIDGE (Phase 5) ============
+// Emit identity events to MemoryOS for temporal knowledge graph
+
+const MEMORY_OS_URL = process.env.MEMORY_OS_URL || 'http://localhost:4703';
+
+const IDENTITY_EVENT_TYPES = {
+  'agent.created':       'agent_passport_created',
+  'agent.updated':       'agent_passport_updated',
+  'agent.suspended':     'agent_passport_suspended',
+  'agent.resumed':       'agent_passport_resumed',
+  'agent.revoked':       'agent_passport_revoked',
+  'delegation.created':  'delegation_granted',
+  'delegation.updated':  'delegation_updated',
+  'delegation.revoked':  'delegation_revoked',
+  'delegation.expired':  'delegation_expired',
+  'delegation.approved': 'delegation_approved',
+  'delegation.rejected': 'delegation_rejected',
+  'trust.updated':       'trust_score_changed',
+  'relationship.created': 'relationship_established',
+  'relationship.ended':  'relationship_terminated',
+  'workload.registered': 'workload_identity_registered',
+  'workload.rotated':   'workload_credentials_rotated',
+  'workload.suspended': 'workload_suspended',
+  'workload.decommissioned': 'workload_decommissioned',
+  'session.created':     'session_started',
+  'session.terminated':  'session_ended',
+  'user.registered':     'user_registered',
+  'user.updated':        'user_updated',
+};
+
+/**
+ * Emit an identity event to MemoryOS (non-blocking, fire-and-forget)
+ */
+async function emitIdentityEvent(corpId, eventType, data = {}) {
+  const memoryEvent = {
+    entityId: corpId,
+    eventType: IDENTITY_EVENT_TYPES[eventType] || eventType,
+    timestamp: new Date().toISOString(),
+    data,
+    source: 'corpID',
+    tags: ['identity', 'audit', 'corpID'],
+  };
+
+  try {
+    await fetch(`${MEMORY_OS_URL}/api/memory/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(memoryEvent),
+    });
+  } catch (err) {
+    // Non-blocking — log but don't fail the main operation
+    logger.debug({ err, corpId, eventType }, 'MemoryOS event emission failed (non-fatal)');
+  }
+}
+
 // ============ AGENTOS BRIDGE ============
 // Bidirectional bridge: CorpID (4702) ↔ AgentOS (port 4803)
 // CorpID owns canonical agent identity (CI-AGT- typed)
@@ -1854,6 +1909,10 @@ app.put('/api/trust/score/:corpId/dimensions/:dim', [
   await refreshOverallTrustScore(corpId);
 
   logger.info({ corpId, dim, score: updates.score }, 'Trust dimension updated');
+
+  // Emit to MemoryOS (non-blocking)
+  emitIdentityEvent(corpId, 'trust.updated', { dimension: dim, score: updates.score, oldScore: existing.score }).catch(() => {});
+
   res.json({ success: true, dimension: updated });
 }));
 
@@ -2461,6 +2520,9 @@ app.post('/api/agents', requireAuth, strictLimiter, [
 
   logger.info({ agentId, ownerId: req.user.id }, 'Agent passport created');
 
+  // Emit to MemoryOS (non-blocking)
+  emitIdentityEvent(agentId, 'agent.created', { ownerId: req.user.id, name: agent.name }).catch(() => {});
+
   // Sync to AgentOS (non-blocking)
   bridgeRegisterAgent(agent).catch(() => {});
 
@@ -2567,6 +2629,9 @@ app.delete('/api/agents/:agentId', requireAuth, asyncHandler(async (req, res) =>
   });
 
   logger.info({ agentId: req.params.agentId, revokedBy: req.user.id }, 'Agent passport revoked');
+
+  // Emit to MemoryOS (non-blocking)
+  emitIdentityEvent(req.params.agentId, 'agent.revoked', { revokedBy: req.user.id }).catch(() => {});
 
   // Sync to AgentOS (non-blocking)
   bridgeRevokeAgent(req.params.agentId).catch(() => {});
@@ -2786,6 +2851,10 @@ app.post('/api/delegations', requireAuth, strictLimiter, [
   });
 
   logger.info({ delegationId, delegatorId: req.user.id, delegateId: body.delegateId }, 'Delegation created');
+
+  // Emit to MemoryOS (non-blocking)
+  emitIdentityEvent(req.user.id, 'delegation.created', { delegationId, delegateId: body.delegateId, scope: body.scope }).catch(() => {});
+
   res.status(201).json({ success: true, delegation });
 }));
 
@@ -2868,6 +2937,10 @@ app.delete('/api/delegations/:delegationId', requireAuth, asyncHandler(async (re
   });
 
   logger.info({ delegationId: req.params.delegationId, by: req.user.id }, 'Delegation revoked');
+
+  // Emit to MemoryOS (non-blocking)
+  emitIdentityEvent(delegation.delegatorId, 'delegation.revoked', { delegationId: req.params.delegationId, delegateId: delegation.delegateId }).catch(() => {});
+
   res.json({ success: true, delegation: updated });
 }));
 

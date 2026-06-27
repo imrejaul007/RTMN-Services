@@ -1,0 +1,8 @@
+{
+  "name": "@hojai/heatmap-aggregator",
+  "version": "1.0.0",
+  "description": "Heatmap Aggregator - aggregate click/scroll data into heatmaps",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.18.2" }
+}
