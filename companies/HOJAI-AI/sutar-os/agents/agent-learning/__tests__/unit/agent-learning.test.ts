@@ -342,8 +342,8 @@ describe('Agent Learning Service', () => {
       const prediction = predictPrice('prod-1', 'electronics', 1000);
 
       expect(prediction.confidence).toBeGreaterThan(0);
-      // Average of 800 and 850
-      expect(prediction.predictedPrice).toBe('825.00');
+      // Average of 800 and 850 = 825
+      expect(prediction.predictedPrice).toBe(825);
     });
 
     it('should provide price range', () => {
@@ -364,8 +364,8 @@ describe('Agent Learning Service', () => {
 
       const prediction = predictPrice('prod-2', 'fashion', 150);
 
-      expect(prediction.range.min).toBe('100.00');
-      expect(prediction.range.max).toBe('200.00');
+      expect(prediction.range.min).toBe(100);
+      expect(prediction.range.max).toBe(200);
     });
   });
 
