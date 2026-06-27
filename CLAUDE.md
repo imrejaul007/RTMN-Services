@@ -814,13 +814,13 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 | Service | Port | Purpose | Tests |
 |---------|------|---------|-------|
 | **Core Storage** |
-| MemoryOS | 4703 | The dumb store — 15 memory types, knowledge graph, working/long-term | ✅ 35 |
+| MemoryOS | 4703 | The dumb store — 15 memory types, knowledge graph, working/long-term | ✅ 23 |
 | Memory Confidence | 4152 | Per-fact reliability (base × decay × contradiction) | ✅ 19 |
-| Twin Memory Bridge | 4704 | Twin ↔ memory partition links | - |
+| Twin Memory Bridge | 4704 | Twin ↔ memory partition links | ✅ (in twins/) |
 | Memory Context Engine | 4793 | LLM context composer (relevance × confidence × recency) | ✅ 17 |
 | **Intelligent Memory** |
 | Memory Intelligence | 4786 | Remember, Forget, Compress, Merge, Contradiction, Importance, Decay | ✅ 41 |
-| Memory Substrate | 4782 | PostgreSQL + pgvector backend | ✅ 27 |
+| Memory Substrate | 4782 | PostgreSQL + pgvector backend | ✅ 43 |
 | **Advanced Features** |
 | Memory Procedural | 4783 | Skills, workflows, best practices, learned behaviors | ✅ 10 |
 | Memory Temporal | 4784 | Temporal knowledge graph (valid_from/valid_until) | ✅ 11 |
@@ -848,7 +848,7 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 | Memory Multimodal | 4802 | Image, audio, video, document memory processing | ✅ 16 |
 | Memory Federation | 4803 | Cross-company memory sharing with privacy boundaries | ✅ 14 |
 
-**Total: 500+ vitest tests passing across 26 services** (June 27, 2026)
+**Total: 473 tests across 26 services** (June 28, 2026)
 
 **SDK:** `@hojai/memory-sdk` at `companies/HOJAI-AI/sdk/hojai-memory-sdk/` — Unified TypeScript SDK for all 26 memory services
 
