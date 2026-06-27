@@ -6,6 +6,18 @@
 import express from 'express';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4530;
 
 // Middleware
@@ -37,7 +49,7 @@ app.get('/ready', (req, res) => {
 });
 
 // Track event
-app.post('/api/v1/events', (req, res) => {
+app.post('/api/v1/events', requireInternal, (req, res) => {
   const { type, userId, data = {} } = req.body;
   const event = {
     id: `evt_${Date.now()}`,

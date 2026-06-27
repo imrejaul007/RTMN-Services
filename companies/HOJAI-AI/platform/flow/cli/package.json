@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/flow-cli",
+  "version": "1.0.0",
+  "description": "Command-line interface for FlowOS workflow orchestration",
+  "type": "module",
+  "bin": {
+    "flow": "./bin/flow.js"
+  },
+  "scripts": {
+    "start": "node bin/flow.js",
+    "dev": "node --watch bin/flow.js"
+  },
+  "keywords": ["workflow", "orchestration", "cli"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^5.3.0",
+    "inquirer": "^9.2.12",
+    "axios": "^1.6.0"
+  }
+}

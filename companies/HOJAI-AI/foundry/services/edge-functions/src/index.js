@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4758;
 app.use(express.json());
 
@@ -36,7 +47,7 @@ export default async function handler(request) {
 };`;
 
 // REST API - Functions
-app.post('/api/functions', (req, res) => {
+app.post('/api/functions', requireInternal, (req, res) => {
   const { projectId, name, description, runtime = 'nodejs', code, environment = {} } = req.body;
   const functionId = uuidv4();
 
@@ -73,21 +84,21 @@ app.get('/api/functions/:functionId', (req, res) => {
   res.json(fn);
 });
 
-app.patch('/api/functions/:functionId', (req, res) => {
+app.patch('/api/functions/:functionId', requireInternal, (req, res) => {
   const fn = functions.get(req.params.functionId);
   if (!fn) return res.status(404).json({ error: 'Function not found' });
   Object.assign(fn, req.body, { updatedAt: new Date().toISOString() });
   res.json(fn);
 });
 
-app.delete('/api/functions/:functionId', (req, res) => {
+app.delete('/api/functions/:functionId', requireInternal, (req, res) => {
   if (!functions.has(req.params.functionId)) return res.status(404).json({ error: 'Function not found' });
   functions.delete(req.params.functionId);
   res.json({ deleted: true });
 });
 
 // REST API - Deploy
-app.post('/api/functions/:functionId/deploy', (req, res) => {
+app.post('/api/functions/:functionId/deploy', requireInternal, (req, res) => {
   const fn = functions.get(req.params.functionId);
   if (!fn) return res.status(404).json({ error: 'Function not found' });
 
@@ -112,7 +123,7 @@ app.post('/api/functions/:functionId/deploy', (req, res) => {
 });
 
 // REST API - Execute
-app.post('/api/functions/:functionId/execute', async (req, res) => {
+app.post('/api/functions/:functionId/execute', requireInternal, async (req, res) => {
   const fn = functions.get(req.params.functionId);
   if (!fn) return res.status(404).json({ error: 'Function not found' });
 

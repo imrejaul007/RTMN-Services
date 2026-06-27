@@ -49,6 +49,7 @@ import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 import { PersistentStore } from '../../../../shared/lib/persistent-store.js';
+import { resolveEncryptionKey } from './services/key-manager.js';
 import { createCustomAuth, createServiceToken } from './middleware/auth.js';
 import { registerPolicyRoutes } from './routes/policies.js';
 import { registerRbacRoutes } from './routes/rbac.js';
@@ -56,7 +57,14 @@ import { registerApiKeyRoutes } from './routes/apikeys.js';
 import { registerApprovalRoutes } from './routes/approvals.js';
 import { registerWebhookRoutes } from './routes/webhooks.js';
 import { registerAnalyticsRoutes, registerAuditRoutes } from './routes/analytics.js';
+import { registerAttributeRoutes } from './routes/attributes.js';
+import { registerConditionTemplateRoutes } from './routes/condition-templates.js';
+import { registerAttributePolicyRoutes } from './routes/attribute-policies.js';
+import { registerNLAuthoringRoutes } from './routes/nl-authoring.js';
+import { registerNLExplanationRoutes } from './routes/nl-explanation.js';
+import { registerReBACRoutes } from './routes/rebac.js';
 import { validatePolicyBody, CATEGORIES, POLICY_STATUSES } from './lib/validation.js';
+import { prototypePollutionMiddleware, sanitizePolicyId, sanitizeExpression, sanitizeName, validateWebhookUrl } from './lib/sanitization.js';
 import {
   evaluatePolicy,
   applyExceptions,
@@ -65,6 +73,18 @@ import {
 } from './lib/evaluation.js';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = parseInt(process.env.PORT || '4254', 10);
 const SERVICE_NAME = 'policy-os';
 const SERVICE_VERSION = '1.3.1';
@@ -82,19 +102,23 @@ const WRITE_LIMIT = parseInt(process.env.POLICYOS_WRITE_LIMIT || '20', 10);
 
 // =================================================================
 // Persistent Stores (file-backed JSON, survive restarts)
+// Phase 0.2: Sensitive stores use AES-256-GCM at-rest encryption
 // =================================================================
 
-const STORE_OPTS = { serviceName: SERVICE_NAME };
-const policies = new PersistentStore('policies', STORE_OPTS);
-const roles = new PersistentStore('roles', STORE_OPTS);
-const userRoles = new PersistentStore('user-roles', STORE_OPTS);
-const approvals = new PersistentStore('approvals', STORE_OPTS);
-const policyChanges = new PersistentStore('policy-changes', STORE_OPTS);
-const users = new PersistentStore('users', STORE_OPTS);
-const apiKeys = new PersistentStore('api-keys', STORE_OPTS);
-const webhooks = new PersistentStore('webhooks', STORE_OPTS);
-const webhookDeliveries = new PersistentStore('webhook-deliveries', STORE_OPTS);
-const evalMetrics = new PersistentStore('eval-metrics', STORE_OPTS);
+const encryption = resolveEncryptionKey();
+
+const BASE_OPTS = { serviceName: SERVICE_NAME, encryptionKey: encryption.key };
+
+const policies = new PersistentStore('policies', BASE_OPTS);
+const roles = new PersistentStore('roles', BASE_OPTS);
+const userRoles = new PersistentStore('user-roles', BASE_OPTS);
+const approvals = new PersistentStore('approvals', { ...BASE_OPTS, encryptFields: ['metadata'] });
+const policyChanges = new PersistentStore('policy-changes', BASE_OPTS);
+const users = new PersistentStore('users', { ...BASE_OPTS, encryptFields: ['password', 'passwordHash'] });
+const apiKeys = new PersistentStore('api-keys', { ...BASE_OPTS, encryptFields: ['key'] });
+const webhooks = new PersistentStore('webhooks', { ...BASE_OPTS, encryptFields: ['secret'] });
+const webhookDeliveries = new PersistentStore('webhook-deliveries', BASE_OPTS);
+const evalMetrics = new PersistentStore('eval-metrics', BASE_OPTS);
 
 let auditCount = 0;
 const audit = [];
@@ -115,20 +139,34 @@ const customAuth = createCustomAuth({
 
 const authOrBypass = (req, res, next) => (REQUIRE_AUTH ? requireAuth(req, res, next) : next());
 
-// Rate limiters
+// =================================================================
+// Per-Tenant Rate Limiters (Phase 0.6)
+// Key = "tenantId:endpoint" — each tenant gets their own budget.
+// Falls back to IP when no tenant identity is present (unauthenticated
+// requests share a global limit but cannot crowd out authenticated ones).
+// =================================================================
+
+function tenantKeyGenerator(req) {
+  // Prefer authenticated tenant identity; fall back to IP.
+  const tenant = req.auth?.tenantId || req.auth?.owner || null;
+  return `${tenant || req.ip}:${req.path}`;
+}
+
 const evaluateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: EVAL_LIMIT,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: `Rate limit exceeded; max ${EVAL_LIMIT} evaluations per minute` },
+  keyGenerator: tenantKeyGenerator,
+  message: { error: `Rate limit exceeded; max ${EVAL_LIMIT} evaluations per minute per tenant` },
 });
 const writeLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: WRITE_LIMIT,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: `Rate limit exceeded; max ${WRITE_LIMIT} writes per minute` },
+  keyGenerator: tenantKeyGenerator,
+  message: { error: `Rate limit exceeded; max ${WRITE_LIMIT} writes per minute per tenant` },
 });
 
 // =================================================================
@@ -386,6 +424,8 @@ app.use(helmet({
 app.use(cors(CORS_ORIGIN ? { origin: CORS_ORIGIN.split(',').map((s) => s.trim()) } : undefined));
 app.use(compression());
 app.use(express.json({ limit: '1mb' }));
+// Phase 0.7: Strip prototype-pollution keys from all JSON bodies.
+app.use(prototypePollutionMiddleware);
 app.use(morgan('tiny'));
 
 app.use((req, res, next) => {
@@ -448,6 +488,16 @@ registerApprovalRoutes(app, routeDeps);
 registerWebhookRoutes(app, routeDeps);
 registerAnalyticsRoutes(app, { evalMetrics, customAuth });
 registerAuditRoutes(app, { audit, customAuth });
+// Phase 2: ABAC v2 routes
+registerAttributeRoutes(app, { customAuth });
+registerConditionTemplateRoutes(app, { auditLog, customAuth });
+registerAttributePolicyRoutes(app, { auditLog, customAuth });
+// Phase 2.4: Natural Language Policy Authoring
+registerNLAuthoringRoutes(app, { auditLog, customAuth });
+// Phase 2.5: Natural Language Explanation of Decisions
+registerNLExplanationRoutes(app, { auditLog, customAuth });
+// Phase 3: ReBAC — Relationship-Based Access Control
+registerReBACRoutes(app, { auditLog, customAuth });
 
 // =================================================================
 // Error handlers

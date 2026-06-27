@@ -3,11 +3,6 @@
  * Tests the 16 public routes + named exports + bypass behavior.
  */
 
-// Set env BEFORE importing the app
-process.env.DECISION_INTELLIGENCE_NO_LISTEN = '1';
-process.env.DECISION_INTELLIGENCE_REQUIRE_AUTH = 'false';
-process.env.NODE_ENV = 'test';
-
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import http from 'http';
 import app from '../../src/index.js';

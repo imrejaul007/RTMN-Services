@@ -1,5 +1,5 @@
 /**
- * Connector Hub (port 4785)
+ * Connector Hub (port 4855)
  *
  * The "Data Connectors" half of Division 6. Each connector is a small
  * adapter that exposes a common interface over a third-party SaaS:
@@ -26,7 +26,7 @@
  *   - gsheets      (spreadsheets, values)
  *   - twilio       (messages, calls)
  *
- * Port: 4785
+ * Port: 4855 (was 4785, conflicted with reasoning-engine — fixed 2026-06-27)
  * Pattern: in-memory + Express 5
  */
 
@@ -41,8 +41,20 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 
-const PORT = process.env.CONNECTOR_HUB_PORT || 4785;
+const PORT = process.env.CONNECTOR_HUB_PORT || 4855;
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
@@ -352,6 +364,23 @@ app.get('/api/connections', (req, res) => {
 });
 
 // =============================================================================
+// START
+// =============================================================================
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+export default app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[connector-hub] listening on :${PORT} (connectors: ${Object.keys(CONNECTORS).join(', ')})`);
+  });
+  installGracefulShutdown(server);
+}
+
+// =============================================================================
 // 404 + error handling
 // =============================================================================
 
@@ -362,20 +391,3 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message || 'internal error' });
 });
 
-// =============================================================================
-// START
-// =============================================================================
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
-
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[connector-hub] listening on :${PORT} (connectors: ${Object.keys(CONNECTORS).join(', ')})`);
-});
-installGracefulShutdown(server);
-
-export default app;

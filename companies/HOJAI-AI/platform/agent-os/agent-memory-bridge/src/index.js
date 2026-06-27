@@ -306,6 +306,18 @@ function scheduleSync(agentId, memoryId) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -316,7 +328,7 @@ app.get('/health', (_req, res) => res.json({ service: SERVICE_NAME, version: VER
 app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // Create memory (auto-sync attempt to MemoryOS, fallback local)
-app.post('/api/agents/:agentId/memories', (req, res) => {
+app.post('/api/agents/:agentId/memories', requireInternal, (req, res) => {
   const errs = validateMemory({ ...req.body, agentId: req.params.agentId });
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -352,7 +364,7 @@ app.get('/api/agents/:agentId/sync-queue', (req, res) => {
   res.json({ agentId: req.params.agentId, count: pending.length, pending });
 });
 
-app.post('/api/agents/:agentId/recall', (req, res) => {
+app.post('/api/agents/:agentId/recall', requireInternal, (req, res) => {
   const body = req.body || {};
   const memories = loadMemories(req.params.agentId);
   const results = searchByQuery(memories, body.q, body.type);
@@ -375,7 +387,7 @@ app.get('/api/agents/:agentId/stats', (req, res) => {
   });
 });
 
-app.post('/api/agents/:agentId/memories/:memoryId/sync', (req, res) => {
+app.post('/api/agents/:agentId/memories/:memoryId/sync', requireInternal, (req, res) => {
   const memories = loadMemories(req.params.agentId);
   const idx = findMemoryIndex(memories, req.params.memoryId);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.memoryId });
@@ -397,7 +409,7 @@ app.get('/api/agents/:agentId/memories/:memoryId', (req, res) => {
 });
 
 // Update (content/tags/confidence)
-app.patch('/api/agents/:agentId/memories/:memoryId', (req, res) => {
+app.patch('/api/agents/:agentId/memories/:memoryId', requireInternal, (req, res) => {
   const memories = loadMemories(req.params.agentId);
   const idx = findMemoryIndex(memories, req.params.memoryId);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.memoryId });
@@ -427,7 +439,7 @@ app.patch('/api/agents/:agentId/memories/:memoryId', (req, res) => {
 });
 
 // Delete
-app.delete('/api/agents/:agentId/memories/:memoryId', (req, res) => {
+app.delete('/api/agents/:agentId/memories/:memoryId', requireInternal, (req, res) => {
   const memories = loadMemories(req.params.agentId);
   const idx = findMemoryIndex(memories, req.params.memoryId);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.memoryId });

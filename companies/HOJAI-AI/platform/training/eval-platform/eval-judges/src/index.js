@@ -27,7 +27,7 @@ const morgan = require('morgan');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const PORT = parseInt(process.env.PORT, 10) || 4782;
+const PORT = parseInt(process.env.PORT, 10) || 5393;
 const SERVICE_NAME = 'eval-judges';
 const VERSION = '1.0.0';
 const INFERENCE_GATEWAY_URL = process.env.INFERENCE_GATEWAY_URL || 'http://localhost:4770';
@@ -338,6 +338,18 @@ const customRubrics = loadCustomRubrics();
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -360,7 +372,7 @@ app.get('/api/rubrics', (_req, res) => {
   res.json({ count: builtIn.length + custom.length, builtIn, custom });
 });
 
-app.post('/api/rubrics', (req, res) => {
+app.post('/api/rubrics', requireInternal, (req, res) => {
   const { name, description, keywords, requiredPatterns, minLength, maxLength } = req.body || {};
   if (!name) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'name required' });
   customRubrics[name] = { description: description || '', keywords: keywords || [], requiredPatterns: requiredPatterns || [], minLength, maxLength };
@@ -368,7 +380,7 @@ app.post('/api/rubrics', (req, res) => {
   res.status(201).json({ name, ...customRubrics[name] });
 });
 
-app.post('/api/score', async (req, res, next) => {
+app.post('/api/score', requireInternal, async (req, res, next) => {
   try {
     const { rubric, input, output, reference, mode = 'heuristic' } = req.body || {};
     if (!rubric || input === undefined || output === undefined) {
@@ -384,7 +396,7 @@ app.post('/api/score', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-app.post('/api/batch', async (req, res, next) => {
+app.post('/api/batch', requireInternal, async (req, res, next) => {
   try {
     const { rubric, items, mode = 'heuristic' } = req.body || {};
     if (!rubric || !Array.isArray(items)) {
@@ -405,7 +417,7 @@ app.post('/api/batch', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-app.post('/api/pairwise', (req, res) => {
+app.post('/api/pairwise', requireInternal, (req, res) => {
   const { input, outputA, outputB, rubric = 'relevance', reference } = req.body || {};
   if (input === undefined || outputA === undefined || outputB === undefined) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'input, outputA, outputB required' });
@@ -413,7 +425,7 @@ app.post('/api/pairwise', (req, res) => {
   res.json(pairwiseCompare({ input, outputA, outputB, rubric, reference }));
 });
 
-app.post('/api/calibrate', (req, res) => {
+app.post('/api/calibrate', requireInternal, (req, res) => {
   const { judgeScores, goldScores } = req.body || {};
   if (!Array.isArray(judgeScores) || !Array.isArray(goldScores)) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'judgeScores[] and goldScores[] required' });

@@ -99,6 +99,18 @@ const USE_RAZO = process.env.USE_RAZO !== 'false';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['GENIE_PORT'], { allowDev: true });
 app.use(helmet()); app.use(cors()); app.use(compression()); app.use(express.json({ limit: '2mb' }));
@@ -172,7 +184,7 @@ async function callInternal(url, method, body) {
 
 app.get('/health', (req, res) => send(res, 200, { service: 'genie', status: 'healthy', version: '1.0.0' }));
 
-app.post('/api/auth/signup', async (req, res, next) => {
+app.post('/api/auth/signup', requireInternal, async (req, res, next) => {
   try {
     const data = signupSchema.parse(req.body);
     const existing = await User.findOne({ email: data.email });
@@ -188,7 +200,7 @@ app.post('/api/auth/signup', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.post('/api/auth/login', async (req, res, next) => {
+app.post('/api/auth/login', requireInternal, async (req, res, next) => {
   try {
     const data = loginSchema.parse(req.body);
     const user = await User.findOne({ email: data.email });
@@ -1690,7 +1702,7 @@ app.get('/api/razo/session/:sessionId', authMiddleware, async (req, res, next) =
 
 // RAZO webhook — receive async callbacks (delivery confirmations, etc.)
 // RAZO posts here; we forward to the appropriate downstream service or persist.
-app.post('/api/razo/webhook', async (req, res, next) => {
+app.post('/api/razo/webhook', requireInternal, async (req, res, next) => {
   if (!USE_RAZO) return res.json({ success: true, skipped: true, reason: 'razo disabled' });
   try {
     // For now: just acknowledge. Real implementation: route by event type.
@@ -1732,7 +1744,7 @@ app.post('/api/razo/ask-genie', authMiddleware, async (req, res, next) => {
 // We open an audio capture session and return a sessionId.
 // The device then streams audio (e.g. POST /api/voice/wake/:sessionId/audio),
 // runtime/genie transcribes via Voice OS, calls /api/ask, and synthesizes the response.
-app.post('/api/voice/wake', async (req, res, next) => {
+app.post('/api/voice/wake', requireInternal, async (req, res, next) => {
   try {
     const { userId, wakeWord, deviceId, language } = req.body || {};
     if (!userId) return err(res, 400, 'INVALID_INPUT', 'userId required');
@@ -1758,7 +1770,7 @@ app.post('/api/voice/wake', async (req, res, next) => {
 //  1. Transcribe via Voice OS
 //  2. Run /api/ask with the transcript
 //  3. Optionally synthesize the answer back to speech
-app.post('/api/voice/wake/:sessionId/audio', async (req, res, next) => {
+app.post('/api/voice/wake/:sessionId/audio', requireInternal, async (req, res, next) => {
   if (!USE_VOICE_OS) return err(res, 503, 'DISABLED', 'voice-os disabled');
   try {
     const { sessionId } = req.params;

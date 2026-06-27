@@ -18,6 +18,18 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -71,7 +83,7 @@ app.get('/api/v1', (req, res) => {
 });
 
 // Track usage
-app.post('/api/v1/usage', (req, res) => {
+app.post('/api/v1/usage', requireInternal, (req, res) => {
   try {
     const record = trackUsage(req.body);
     res.status(201).json({ success: true, record });
@@ -103,7 +115,7 @@ app.get('/api/v1/usage/summary', (req, res) => {
 });
 
 // Set budget
-app.post('/api/v1/budgets', (req, res) => {
+app.post('/api/v1/budgets', requireInternal, (req, res) => {
   try {
     const { userId, monthlyLimit, alertThreshold } = req.body;
     if (!userId || !monthlyLimit) {
@@ -128,7 +140,7 @@ app.get('/api/v1/budgets/:userId', (req, res) => {
 });
 
 // Create alert
-app.post('/api/v1/alerts', (req, res) => {
+app.post('/api/v1/alerts', requireInternal, (req, res) => {
   try {
     const alert = createAlert(req.body);
     res.status(201).json({ success: true, alert });
@@ -148,7 +160,7 @@ app.get('/api/v1/alerts/:userId', (req, res) => {
 });
 
 // Delete alert
-app.delete('/api/v1/alerts/:id', (req, res) => {
+app.delete('/api/v1/alerts/:id', requireInternal, (req, res) => {
   try {
     const deleted = deleteAlert(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Alert not found' });

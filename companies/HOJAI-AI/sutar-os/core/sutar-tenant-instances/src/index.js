@@ -25,6 +25,17 @@ const MONGO_URI =
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.disable('x-powered-by');
 app.use(helmet());
 app.use(cors());
@@ -57,7 +68,7 @@ async function start() {
       res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
     });
 
-    app.post('/api/enrich', async (req, res) => {
+    app.post('/api/enrich', requireInternal, async (req, res) => {
       const { agentRole, userId, companyId, query, context } = req.body || {};
       const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
       res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });

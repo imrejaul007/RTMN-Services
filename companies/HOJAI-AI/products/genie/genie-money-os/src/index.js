@@ -16,6 +16,18 @@ const insightsRoutes = require('./routes/insights');
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Phase A: persistent stores for demo data (transactions / budgets / goals)
 const transactionsStore = new PersistentMap('transactions', { serviceName: 'genie-money-os' });
 const budgetsStore = new PersistentMap('budgets', { serviceName: 'genie-money-os' });

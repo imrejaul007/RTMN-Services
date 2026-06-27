@@ -183,6 +183,17 @@ function recordOutcome(taskId, outcome /* 'success' | 'failure' */, options = {}
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -202,13 +213,13 @@ app.get('/api/health', (_req, res) => {
 });
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
-app.post('/api/decide', (req, res) => {
+app.post('/api/decide', requireInternal, (req, res) => {
   const decision = decideRetry(req.body || {});
   // Don't auto-record here; caller records outcomes via /api/record-outcome
   res.json(decision);
 });
 
-app.post('/api/record-outcome', (req, res) => {
+app.post('/api/record-outcome', requireInternal, (req, res) => {
   const { taskId, outcome, options } = req.body || {};
   if (!taskId || !['success', 'failure'].includes(outcome)) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'taskId and outcome (success|failure) required' });
@@ -218,7 +229,7 @@ app.post('/api/record-outcome', (req, res) => {
   res.json({ taskId, breaker: { state: b.state, failures: b.failures } });
 });
 
-app.post('/api/reset-breaker', (req, res) => {
+app.post('/api/reset-breaker', requireInternal, (req, res) => {
   const { taskId } = req.body || {};
   if (!taskId) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'taskId required' });
   delete breakerState[taskId];

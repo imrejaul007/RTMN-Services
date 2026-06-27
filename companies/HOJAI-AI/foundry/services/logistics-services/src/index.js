@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(express.json());
 const PORT = process.env.PORT || 4760;
 
@@ -17,7 +28,7 @@ const routes = new Map();
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'logistics-services' }));
 
 // Shipments
-app.post('/api/shipments', (req, res) => {
+app.post('/api/shipments', requireInternal, (req, res) => {
   const { pickup, delivery, weight, dimensions } = req.body;
   const shipment = {
     id: uuidv4(),
@@ -44,7 +55,7 @@ app.get('/api/shipments/:id', (req, res) => {
   res.json({ success: true, shipment });
 });
 
-app.put('/api/shipments/:id/status', (req, res) => {
+app.put('/api/shipments/:id/status', requireInternal, (req, res) => {
   const shipment = shipments.get(req.params.id);
   if (!shipment) return res.status(404).json({ error: 'Shipment not found' });
   shipment.status = req.body.status;
@@ -65,7 +76,7 @@ app.get('/api/warehouses', (req, res) => {
   res.json({ success: true, count: results.length, warehouses: results });
 });
 
-app.post('/api/warehouses', (req, res) => {
+app.post('/api/warehouses', requireInternal, (req, res) => {
   const warehouse = { id: uuidv4(), ...req.body };
   warehouses.set(warehouse.id, warehouse);
   res.status(201).json({ success: true, warehouse });

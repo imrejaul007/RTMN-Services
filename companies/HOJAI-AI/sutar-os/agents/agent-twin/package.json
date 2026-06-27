@@ -29,5 +29,6 @@
     "digital-twin"
   ],
   "author": "HOJAI AI",
-  "license": "MIT"
+  "license": "MIT",
+  "port": 5324
 }

@@ -309,6 +309,18 @@ async function applyReplan(graphId, plan) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -329,7 +341,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // Decide replan strategy
-app.post('/api/replan', async (req, res) => {
+app.post('/api/replan', requireInternal, async (req, res) => {
   const { graphId, signal, options } = req.body || {};
   if (!graphId) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'graphId required' });
   const graphRes = await dg('GET', `/api/graphs/${encodeURIComponent(graphId)}`);
@@ -340,7 +352,7 @@ app.post('/api/replan', async (req, res) => {
 });
 
 // Record a replan
-app.post('/api/replans', async (req, res) => {
+app.post('/api/replans', requireInternal, async (req, res) => {
   const { graphId, signal, options } = req.body || {};
   if (!graphId) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'graphId required' });
   const graphRes = await dg('GET', `/api/graphs/${encodeURIComponent(graphId)}`);

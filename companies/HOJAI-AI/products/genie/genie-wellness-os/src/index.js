@@ -16,6 +16,18 @@ const insightsRoutes = require('./routes/insights');
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Phase A: persistent stores for demo data (mood/sleep/hydration entries)
 const moodsStore = new PersistentMap('moods', { serviceName: 'genie-wellness-os' });
 const sleepStore = new PersistentMap('sleep-logs', { serviceName: 'genie-wellness-os' });

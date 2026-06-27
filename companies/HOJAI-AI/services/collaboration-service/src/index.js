@@ -6,6 +6,18 @@
 import express from 'express';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4540;
 app.use(express.json());
 
@@ -32,7 +44,7 @@ app.get('/ready', (req, res) => {
 });
 
 // Create thread
-app.post('/api/v1/threads', (req, res) => {
+app.post('/api/v1/threads', requireInternal, (req, res) => {
   const { title, context, userId } = req.body;
   const id = `thd_${Date.now()}`;
   const thread = { id, title, context, userId, createdAt: new Date().toISOString() };
@@ -46,7 +58,7 @@ app.get('/api/v1/threads', (req, res) => {
 });
 
 // Add comment
-app.post('/api/v1/threads/:threadId/comments', (req, res) => {
+app.post('/api/v1/threads/:threadId/comments', requireInternal, (req, res) => {
   const { threadId } = req.params;
   const { content, userId } = req.body;
   if (!threads.has(threadId)) return res.status(404).json({ error: 'Thread not found' });
@@ -56,7 +68,7 @@ app.post('/api/v1/threads/:threadId/comments', (req, res) => {
 });
 
 // Presence (who's online)
-app.post('/api/v1/presence', (req, res) => {
+app.post('/api/v1/presence', requireInternal, (req, res) => {
   const { userId, status = 'online' } = req.body;
   presence.set(userId, { userId, status, lastSeen: new Date().toISOString() });
   res.json({ success: true });

@@ -11,6 +11,18 @@ import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4782;
 
 // Middleware
@@ -49,7 +61,7 @@ app.get('/health', (req, res) => {
 });
 
 // Memory CRUD
-app.post('/memories', (req, res) => {
+app.post('/memories', requireInternal, (req, res) => {
   const { content, type, metadata, embedding } = req.body;
 
   if (!content || !type) {
@@ -111,7 +123,7 @@ app.get('/memories/:id', (req, res) => {
   res.json(memory);
 });
 
-app.put('/memories/:id', (req, res) => {
+app.put('/memories/:id', requireInternal, (req, res) => {
   const { id } = req.params;
   const { content, type, metadata, embedding } = req.body;
 
@@ -143,7 +155,7 @@ app.put('/memories/:id', (req, res) => {
   res.json(memory);
 });
 
-app.delete('/memories/:id', (req, res) => {
+app.delete('/memories/:id', requireInternal, (req, res) => {
   const { id } = req.params;
 
   if (!storage.memories.has(id)) {
@@ -157,7 +169,7 @@ app.delete('/memories/:id', (req, res) => {
 });
 
 // Search
-app.post('/search', (req, res) => {
+app.post('/search', requireInternal, (req, res) => {
   const { query, type, limit = 10 } = req.body;
 
   if (!query) {
@@ -188,7 +200,7 @@ app.post('/search', (req, res) => {
 });
 
 // Vector search (simplified - would use pgvector in production)
-app.post('/search/vector', (req, res) => {
+app.post('/search/vector', requireInternal, (req, res) => {
   const { embedding, limit = 10 } = req.body;
 
   if (!embedding || !Array.isArray(embedding)) {
@@ -215,7 +227,7 @@ app.post('/search/vector', (req, res) => {
 });
 
 // Relationships
-app.post('/relationships', (req, res) => {
+app.post('/relationships', requireInternal, (req, res) => {
   const { from, to, type, metadata } = req.body;
 
   if (!from || !to || !type) {
@@ -259,7 +271,7 @@ app.get('/relationships', (req, res) => {
   res.json({ data: relationships, total: relationships.length });
 });
 
-app.delete('/relationships/:id', (req, res) => {
+app.delete('/relationships/:id', requireInternal, (req, res) => {
   const { id } = req.params;
 
   if (!storage.relationships.has(id)) {

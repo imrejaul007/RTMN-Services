@@ -847,11 +847,25 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 
 **Total: 500+ vitest tests passing across 26 services** (June 27, 2026)
 
-**SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
+**SDK:** `@hojai/memory-sdk` at `companies/HOJAI-AI/sdk/hojai-memory-sdk/` — Unified TypeScript SDK for all 26 memory services
+
+```typescript
+import { MemoryOS } from '@hojai/memory-sdk';
+const memory = new MemoryOS({ apiKey: '...' });
+await memory.remember('Meeting at 3pm', 'user_1');
+await memory.verify('Product launches Q4');
+```
 
 See [HOJAI-AI/docs/MEMORY-LAYER.md](companies/HOJAI-AI/docs/MEMORY-LAYER.md)
 
-**SDK:** `@hojai/memory` at `companies/HOJAI-AI/sdk/hojai-memory/`
+**SDK:** `@hojai/memory-sdk` at `companies/HOJAI-AI/sdk/hojai-memory-sdk/` — Unified TypeScript SDK for all 26 memory services
+
+```typescript
+import { MemoryOS } from '@hojai/memory-sdk';
+const memory = new MemoryOS({ apiKey: '...' });
+await memory.remember('Meeting at 3pm', 'user_1');
+await memory.verify('Product launches Q4');
+```
 
 See [HOJAI-AI/docs/MEMORY-LAYER.md](companies/HOJAI-AI/docs/MEMORY-LAYER.md)
 

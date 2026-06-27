@@ -1,0 +1,32 @@
+[
+  [
+    "8a1b6444-e157-4d3f-bf9e-62fdf200ab96",
+    {
+      "id": "8a1b6444-e157-4d3f-bf9e-62fdf200ab96",
+      "listingId": "7e1e49c7-c0ca-46c0-88d0-47da79024dc1",
+      "buyerOrg": "test-org",
+      "instanceId": "cni-accfd913",
+      "deployedAt": "2026-06-27T03:12:12.578Z",
+      "authMethod": "api-key",
+      "entities": [],
+      "runtime": "connector-hub:4785",
+      "configSteps": [
+        "1. Open connector-hub:4785/configure/undefined",
+        "2. Provide API-KEY credentials",
+        "3. Map entities: "
+      ]
+    }
+  ],
+  [
+    "9b4010a3-90f9-4bb9-802c-7963bd65bdf1",
+    {
+      "id": "9b4010a3-90f9-4bb9-802c-7963bd65bdf1",
+      "listingId": "7e1e49c7-c0ca-46c0-88d0-47da79024dc1",
+      "buyerOrg": "test-org",
+      "instanceId": "pki-72165352",
+      "deployedAt": "2026-06-27T06:21:05.814Z",
+      "components": [],
+      "componentCount": 0
+    }
+  ]
+]

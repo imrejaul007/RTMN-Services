@@ -271,10 +271,20 @@ export function safeEval(expression, context, user = {}) {
   if (typeof expression !== 'string') {
     throw new Error('Expression must be a string');
   }
-  if (expression.length > 1000) {
+  // Phase 0.7: strip control characters before evaluation.
+  const clean = expression
+    .split('')
+    .filter((ch) => {
+      const code = ch.charCodeAt(0);
+      if (code === 9 || code === 10 || code === 13) return true; // allow tab/newline/cr
+      if (code < 32 || code === 127) return false;              // block other control chars
+      return true;
+    })
+    .join('');
+  if (clean.length > 1000) {
     throw new Error('Expression too long (max 1000 chars)');
   }
-  const tokens = tokenize(expression);
+  const tokens = tokenize(clean);
   const ast = parse(tokens);
   return !!evalNode(ast, context || {}, user || {});
 }
@@ -289,11 +299,21 @@ export function validateExpression(expression) {
   if (typeof expression !== 'string') {
     return { valid: false, error: 'Expression must be a string' };
   }
-  if (expression.length > 1000) {
+  // Phase 0.7: strip control characters before validation.
+  const clean = expression
+    .split('')
+    .filter((ch) => {
+      const code = ch.charCodeAt(0);
+      if (code === 9 || code === 10 || code === 13) return true;
+      if (code < 32 || code === 127) return false;
+      return true;
+    })
+    .join('');
+  if (clean.length > 1000) {
     return { valid: false, error: 'Expression too long (max 1000 chars)' };
   }
   try {
-    const tokens = tokenize(expression);
+    const tokens = tokenize(clean);
     parse(tokens);
     return { valid: true };
   } catch (e) {

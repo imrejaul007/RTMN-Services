@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4782;
 app.use(express.json());
 
@@ -20,7 +31,7 @@ const patterns = [
 ];
 
 // REST API - Check Request
-app.post('/api/check', (req, res) => {
+app.post('/api/check', requireInternal, (req, res) => {
   const { ip, userAgent, headers, requestData } = req.body;
 
   let score = 0;
@@ -73,7 +84,7 @@ app.post('/api/check', (req, res) => {
 });
 
 // REST API - Verify Challenge (CAPTCHA)
-app.post('/api/challenge', (req, res) => {
+app.post('/api/challenge', requireInternal, (req, res) => {
   const { token } = req.body;
   // In production, verify with reCAPTCHA/hCaptcha
   res.json({ valid: Math.random() > 0.2, token });
@@ -97,7 +108,7 @@ app.get('/api/analytics', (req, res) => {
 });
 
 // REST API - Add Pattern
-app.post('/api/patterns', (req, res) => {
+app.post('/api/patterns', requireInternal, (req, res) => {
   const { type, pattern, score } = req.body;
   patterns.push({ id: uuidv4(), type, pattern, score });
   res.json({ added: true, patterns: patterns.length });
@@ -111,13 +122,13 @@ app.get('/api/detections', (req, res) => {
 
 // REST API - Whitelist
 const whitelist = new Set();
-app.post('/api/whitelist', (req, res) => {
+app.post('/api/whitelist', requireInternal, (req, res) => {
   const { ip } = req.body;
   whitelist.add(ip);
   res.json({ whitelisted: ip });
 });
 
-app.delete('/api/whitelist/:ip', (req, res) => {
+app.delete('/api/whitelist/:ip', requireInternal, (req, res) => {
   whitelist.delete(req.params.ip);
   res.json({ removed: true });
 });

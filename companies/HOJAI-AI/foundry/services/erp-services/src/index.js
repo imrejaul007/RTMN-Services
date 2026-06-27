@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(express.json());
 const PORT = process.env.PORT || 4775;
 
@@ -19,7 +30,7 @@ const purchaseOrders = new Map();
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'erp-services' }));
 
 // HR
-app.post('/api/employees', (req, res) => {
+app.post('/api/employees', requireInternal, (req, res) => {
   const emp = { id: uuidv4(), ...req.body, status: 'active', joinedAt: new Date().toISOString() };
   employees.set(emp.id, emp);
   res.status(201).json({ success: true, employee: emp });
@@ -32,7 +43,7 @@ app.get('/api/employees/:id', (req, res) => {
 });
 
 // Projects
-app.post('/api/projects', (req, res) => {
+app.post('/api/projects', requireInternal, (req, res) => {
   const proj = { id: uuidv4(), ...req.body, status: 'planning', progress: 0, createdAt: new Date().toISOString() };
   projects.set(proj.id, proj);
   res.status(201).json({ success: true, project: proj });
@@ -43,7 +54,7 @@ app.get('/api/projects', (req, res) => {
   if (status) results = results.filter(p => p.status === status);
   res.json({ success: true, projects: results });
 });
-app.put('/api/projects/:id/status', (req, res) => {
+app.put('/api/projects/:id/status', requireInternal, (req, res) => {
   const p = projects.get(req.params.id);
   if (!p) return res.status(404).json({ error: 'Project not found' });
   p.status = req.body.status;
@@ -53,14 +64,14 @@ app.put('/api/projects/:id/status', (req, res) => {
 
 // Inventory
 app.get('/api/inventory', (_, res) => res.json({ success: true, items: Array.from(inventory.values()) }));
-app.post('/api/inventory', (req, res) => {
+app.post('/api/inventory', requireInternal, (req, res) => {
   const item = { id: uuidv4(), ...req.body, quantity: req.body.quantity || 0 };
   inventory.set(item.id, item);
   res.status(201).json({ success: true, item });
 });
 
 // Finance / Invoices
-app.post('/api/invoices', (req, res) => {
+app.post('/api/invoices', requireInternal, (req, res) => {
   const inv = { id: `INV${Date.now()}`, ...req.body, status: 'draft', createdAt: new Date().toISOString() };
   invoices.set(inv.id, inv);
   res.status(201).json({ success: true, invoice: inv });
@@ -73,7 +84,7 @@ app.get('/api/invoices', (req, res) => {
 });
 
 // Purchase Orders
-app.post('/api/purchase-orders', (req, res) => {
+app.post('/api/purchase-orders', requireInternal, (req, res) => {
   const po = { id: `PO${Date.now()}`, ...req.body, status: 'pending' };
   purchaseOrders.set(po.id, po);
   res.status(201).json({ success: true, purchaseOrder: po });

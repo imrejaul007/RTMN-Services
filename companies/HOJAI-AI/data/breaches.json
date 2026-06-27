@@ -1,0 +1,78 @@
+[
+  [
+    "brch-942c6e64",
+    {
+      "id": "brch-942c6e64",
+      "agreementId": "agr-1",
+      "customerName": "Acme Corp",
+      "type": "response_time",
+      "severity": "high",
+      "description": "Response delayed",
+      "expectedResponseTime": 4,
+      "actualResponseTime": 15.3,
+      "expectedResolutionTime": 24,
+      "actualResolutionTime": null,
+      "financialImpact": 2574,
+      "resolved": false,
+      "resolvedAt": null,
+      "createdAt": "2026-06-27T02:50:35.127Z"
+    }
+  ],
+  [
+    "brch-5791f957",
+    {
+      "id": "brch-5791f957",
+      "agreementId": "agr-1",
+      "customerName": "Acme Corp",
+      "type": "resolution_time",
+      "severity": "medium",
+      "description": "",
+      "expectedResponseTime": 4,
+      "actualResponseTime": 1,
+      "expectedResolutionTime": 24,
+      "actualResolutionTime": 0,
+      "financialImpact": 3644,
+      "resolved": true,
+      "resolvedAt": "2026-06-27T02:50:35.131Z",
+      "createdAt": "2026-06-27T02:50:35.130Z"
+    }
+  ],
+  [
+    "brch-24b5da80",
+    {
+      "id": "brch-24b5da80",
+      "agreementId": "agr-1",
+      "customerName": "Acme Corp",
+      "type": "response_time",
+      "severity": "high",
+      "description": "Response delayed",
+      "expectedResponseTime": 4,
+      "actualResponseTime": 0.2,
+      "expectedResolutionTime": 24,
+      "actualResolutionTime": null,
+      "financialImpact": 3961,
+      "resolved": false,
+      "resolvedAt": null,
+      "createdAt": "2026-06-27T02:55:23.094Z"
+    }
+  ],
+  [
+    "brch-a9af448e",
+    {
+      "id": "brch-a9af448e",
+      "agreementId": "agr-1",
+      "customerName": "Acme Corp",
+      "type": "resolution_time",
+      "severity": "medium",
+      "description": "",
+      "expectedResponseTime": 4,
+      "actualResponseTime": 5,
+      "expectedResolutionTime": 24,
+      "actualResolutionTime": 0,
+      "financialImpact": 4809,
+      "resolved": true,
+      "resolvedAt": "2026-06-27T02:55:23.098Z",
+      "createdAt": "2026-06-27T02:55:23.097Z"
+    }
+  ]
+]

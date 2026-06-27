@@ -1,4 +1,3 @@
-import helmet from 'helmet';
 /**
  * Dispute Resolution Service
  *
@@ -22,7 +21,16 @@ const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 
-app.use(helmet());
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
@@ -458,7 +466,7 @@ app.get('/health', (req, res) => {
  * Create dispute
  * POST /api/disputes
  */
-app.post('/api/disputes',requireAuth,  (req, res) => {
+app.post('/api/disputes', requireAuth, (req, res) => {
   try {
     const dispute = createDispute(req.body);
     res.status(201).json(dispute);
@@ -485,7 +493,7 @@ app.get('/api/disputes/:id', (req, res) => {
  * Update dispute
  * PUT /api/disputes/:id
  */
-app.put('/api/disputes/:id',requireAuth,  (req, res) => {
+app.put('/api/disputes/:id', requireAuth, (req, res) => {
   try {
     const dispute = disputes.get(req.params.id);
     if (!dispute) {
@@ -504,7 +512,7 @@ app.put('/api/disputes/:id',requireAuth,  (req, res) => {
  * Add evidence
  * POST /api/disputes/:id/evidence
  */
-app.post('/api/disputes/:id/evidence',requireAuth,  (req, res) => {
+app.post('/api/disputes/:id/evidence', requireAuth, (req, res) => {
   try {
     const ev = addEvidence(req.params.id, req.body);
     res.status(201).json(ev);
@@ -526,7 +534,7 @@ app.get('/api/disputes/:id/evidence', (req, res) => {
  * Analyze dispute
  * POST /api/disputes/:id/analyze
  */
-app.post('/api/disputes/:id/analyze',requireAuth,  (req, res) => {
+app.post('/api/disputes/:id/analyze', requireAuth, (req, res) => {
   try {
     const analysis = analyzeDispute(req.params.id);
     res.json(analysis);
@@ -539,7 +547,7 @@ app.post('/api/disputes/:id/analyze',requireAuth,  (req, res) => {
  * Start mediation
  * POST /api/disputes/:id/mediate
  */
-app.post('/api/disputes/:id/mediate',requireAuth,  (req, res) => {
+app.post('/api/disputes/:id/mediate', requireAuth, (req, res) => {
   try {
     const { mediatorId } = req.body;
     const mediation = startMediation(req.params.id, mediatorId);
@@ -553,7 +561,7 @@ app.post('/api/disputes/:id/mediate',requireAuth,  (req, res) => {
  * Submit mediation proposal
  * POST /api/mediations/:id/propose
  */
-app.post('/api/mediations/:id/propose',requireAuth,  (req, res) => {
+app.post('/api/mediations/:id/propose', requireAuth, (req, res) => {
   try {
     const proposal = submitMediationProposal(req.params.id, req.body);
     res.status(201).json(proposal);
@@ -578,7 +586,7 @@ app.get('/api/mediations/:id', (req, res) => {
  * Escalate to arbitration
  * POST /api/disputes/:id/escalate
  */
-app.post('/api/disputes/:id/escalate',requireAuth,  (req, res) => {
+app.post('/api/disputes/:id/escalate', requireAuth, (req, res) => {
   try {
     const { arbitratorId } = req.body;
     const arbitration = escalateToArbitration(req.params.id, arbitratorId);
@@ -592,7 +600,7 @@ app.post('/api/disputes/:id/escalate',requireAuth,  (req, res) => {
  * Make arbitration decision
  * POST /api/arbitrations/:id/decide
  */
-app.post('/api/arbitrations/:id/decide',requireAuth,  (req, res) => {
+app.post('/api/arbitrations/:id/decide', requireAuth, (req, res) => {
   try {
     const arbitration = makeArbitrationDecision(req.params.id, req.body);
     res.json(arbitration);
@@ -605,7 +613,7 @@ app.post('/api/arbitrations/:id/decide',requireAuth,  (req, res) => {
  * Resolve dispute
  * POST /api/disputes/:id/resolve
  */
-app.post('/api/disputes/:id/resolve',requireAuth,  (req, res) => {
+app.post('/api/disputes/:id/resolve', requireAuth, (req, res) => {
   try {
     const dispute = resolveDispute(req.params.id, req.body);
     res.json(dispute);
@@ -686,9 +694,14 @@ app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
 
+// 404 handler — must be last, after all defined routes
+app.use((_req, res) => {
+  res.status(404).json({ error: 'Not Found' });
+});
 
-
-const server = app.listen(PORT, () => {
+module.exports = app;
+if (process.env.NODE_ENV !== 'test') {
+	const server = app.listen(PORT, () => {
   console.log(`
 ╔══════════════════════════════════════════════════════════════╗
 ║           DISPUTE RESOLUTION SERVICE                         ║
@@ -722,5 +735,5 @@ const server = app.listen(PORT, () => {
   `);
 });
 installGracefulShutdown(server);
+}
 
-module.exports = app;

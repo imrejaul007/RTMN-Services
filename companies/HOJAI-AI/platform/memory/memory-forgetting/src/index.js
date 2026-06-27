@@ -17,6 +17,18 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores (would be replaced with Memory Substrate in production)
@@ -46,7 +58,7 @@ const logForget = (action, details) => {
  * Schedule a memory for forgetting
  * POST /api/v1/forgetting/schedule
  */
-app.post('/api/v1/forgetting/schedule', async (req, res) => {
+app.post('/api/v1/forgetting/schedule', requireInternal, async (req, res) => {
   try {
     const { memoryId, reason, scheduledAt, cascade, undoable } = req.body;
 
@@ -137,7 +149,7 @@ app.get('/api/v1/forgetting/schedules', async (req, res) => {
  * Cancel scheduled forgetting
  * DELETE /api/v1/forgetting/schedule/:scheduleId
  */
-app.delete('/api/v1/forgetting/schedule/:scheduleId', async (req, res) => {
+app.delete('/api/v1/forgetting/schedule/:scheduleId', requireInternal, async (req, res) => {
   try {
     const schedule = scheduledForgets.get(req.params.scheduleId);
 
@@ -168,7 +180,7 @@ app.delete('/api/v1/forgetting/schedule/:scheduleId', async (req, res) => {
  * Request immediate forgetting
  * POST /api/v1/forgetting/forget
  */
-app.post('/api/v1/forgetting/forget', async (req, res) => {
+app.post('/api/v1/forgetting/forget', requireInternal, async (req, res) => {
   try {
     const { memoryId, reason, preserveRelations, verificationId } = req.body;
 
@@ -284,7 +296,7 @@ app.get('/api/v1/forgetting/history', async (req, res) => {
  * Request undo of forgetting
  * POST /api/v1/forgetting/undo
  */
-app.post('/api/v1/forgetting/undo', async (req, res) => {
+app.post('/api/v1/forgetting/undo', requireInternal, async (req, res) => {
   try {
     const { memoryId, requesterId } = req.body;
 
@@ -349,7 +361,7 @@ app.post('/api/v1/forgetting/undo', async (req, res) => {
  * Execute undo
  * POST /api/v1/forgetting/undo/:undoId/execute
  */
-app.post('/api/v1/forgetting/undo/:undoId/execute', async (req, res) => {
+app.post('/api/v1/forgetting/undo/:undoId/execute', requireInternal, async (req, res) => {
   try {
     const undoRequest = undoRequests.get(req.params.undoId);
 
@@ -398,7 +410,7 @@ app.post('/api/v1/forgetting/undo/:undoId/execute', async (req, res) => {
  * Cancel undo request
  * DELETE /api/v1/forgetting/undo/:undoId
  */
-app.delete('/api/v1/forgetting/undo/:undoId', async (req, res) => {
+app.delete('/api/v1/forgetting/undo/:undoId', requireInternal, async (req, res) => {
   try {
     const undoRequest = undoRequests.get(req.params.undoId);
 
@@ -490,7 +502,7 @@ app.get('/api/v1/forgetting/undo-requests', async (req, res) => {
  * Register memory link for cascading
  * POST /api/v1/forgetting/links
  */
-app.post('/api/v1/forgetting/links', async (req, res) => {
+app.post('/api/v1/forgetting/links', requireInternal, async (req, res) => {
   try {
     const { sourceId, targetId, linkType, bidirectional } = req.body;
 
@@ -556,7 +568,7 @@ app.get('/api/v1/forgetting/links/:memoryId', async (req, res) => {
  * Delete link
  * DELETE /api/v1/forgetting/links/:memoryId/:targetId
  */
-app.delete('/api/v1/forgetting/links/:memoryId/:targetId', async (req, res) => {
+app.delete('/api/v1/forgetting/links/:memoryId/:targetId', requireInternal, async (req, res) => {
   try {
     const links = memoryLinks.get(req.params.memoryId) || [];
     const filtered = links.filter(l => l.targetId !== req.params.targetId);
@@ -578,7 +590,7 @@ app.delete('/api/v1/forgetting/links/:memoryId/:targetId', async (req, res) => {
  * Create forgetting policy
  * POST /api/v1/forgetting/policies
  */
-app.post('/api/v1/forgetting/policies', async (req, res) => {
+app.post('/api/v1/forgetting/policies', requireInternal, async (req, res) => {
   try {
     const { name, description, memoryType, retentionPeriod, cascade, undoable, conditions } = req.body;
 
@@ -656,7 +668,7 @@ app.get('/api/v1/forgetting/policies', async (req, res) => {
  * Preview forgetting based on policy
  * POST /api/v1/forgetting/policies/:policyId/preview
  */
-app.post('/api/v1/forgetting/policies/:policyId/preview', async (req, res) => {
+app.post('/api/v1/forgetting/policies/:policyId/preview', requireInternal, async (req, res) => {
   try {
     const policy = forgettingPolicies.get(req.params.policyId);
 

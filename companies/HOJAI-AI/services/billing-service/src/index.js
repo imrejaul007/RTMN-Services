@@ -20,6 +20,18 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -83,7 +95,7 @@ app.get('/api/v1/plans', (req, res) => {
 });
 
 // Subscriptions
-app.post('/api/v1/subscriptions', (req, res) => {
+app.post('/api/v1/subscriptions', requireInternal, (req, res) => {
   try {
     const { userId, plan, billingCycle, stripeCustomerId } = req.body;
     if (!userId || !plan) {
@@ -114,13 +126,13 @@ app.get('/api/v1/subscriptions/user/:userId', (req, res) => {
   res.json({ success: true, subscription: sub });
 });
 
-app.patch('/api/v1/subscriptions/:id', (req, res) => {
+app.patch('/api/v1/subscriptions/:id', requireInternal, (req, res) => {
   const sub = updateSubscription(req.params.id, req.body);
   if (!sub) return res.status(404).json({ error: 'Subscription not found' });
   res.json({ success: true, subscription: sub });
 });
 
-app.post('/api/v1/subscriptions/:id/cancel', (req, res) => {
+app.post('/api/v1/subscriptions/:id/cancel', requireInternal, (req, res) => {
   const { cancelAtPeriodEnd } = req.body;
   const sub = cancelSubscription(req.params.id, cancelAtPeriodEnd !== false);
   if (!sub) return res.status(404).json({ error: 'Subscription not found' });
@@ -140,7 +152,7 @@ app.get('/api/v1/invoices/:id', (req, res) => {
   res.json({ success: true, invoice });
 });
 
-app.post('/api/v1/invoices', (req, res) => {
+app.post('/api/v1/invoices', requireInternal, (req, res) => {
   try {
     const invoice = createInvoice(req.body);
     res.status(201).json({ success: true, invoice });
@@ -149,14 +161,14 @@ app.post('/api/v1/invoices', (req, res) => {
   }
 });
 
-app.post('/api/v1/invoices/:id/pay', (req, res) => {
+app.post('/api/v1/invoices/:id/pay', requireInternal, (req, res) => {
   const invoice = markInvoicePaid(req.params.id);
   if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
   res.json({ success: true, invoice });
 });
 
 // Payments
-app.post('/api/v1/payments', (req, res) => {
+app.post('/api/v1/payments', requireInternal, (req, res) => {
   try {
     const payment = createPayment(req.body);
     res.status(201).json({ success: true, payment });
@@ -177,14 +189,14 @@ app.get('/api/v1/payments/:id', (req, res) => {
   res.json({ success: true, payment });
 });
 
-app.patch('/api/v1/payments/:id', (req, res) => {
+app.patch('/api/v1/payments/:id', requireInternal, (req, res) => {
   const payment = updatePayment(req.params.id, req.body);
   if (!payment) return res.status(404).json({ error: 'Payment not found' });
   res.json({ success: true, payment });
 });
 
 // Payment Methods
-app.post('/api/v1/payment-methods', (req, res) => {
+app.post('/api/v1/payment-methods', requireInternal, (req, res) => {
   try {
     const method = addPaymentMethod(req.body);
     res.status(201).json({ success: true, paymentMethod: method });
@@ -200,30 +212,30 @@ app.get('/api/v1/payment-methods', (req, res) => {
   res.json({ success: true, count: methods.length, paymentMethods: methods });
 });
 
-app.delete('/api/v1/payment-methods/:id', (req, res) => {
+app.delete('/api/v1/payment-methods/:id', requireInternal, (req, res) => {
   const deleted = deletePaymentMethod(req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Payment method not found' });
   res.json({ success: true, message: 'Payment method deleted' });
 });
 
-app.post('/api/v1/payment-methods/:id/default', (req, res) => {
+app.post('/api/v1/payment-methods/:id/default', requireInternal, (req, res) => {
   const method = setDefaultPaymentMethod(req.params.id);
   if (!method) return res.status(404).json({ error: 'Payment method not found' });
   res.json({ success: true, paymentMethod: method });
 });
 
 // Provider Integration
-app.post('/api/v1/providers/stripe/customer', (req, res) => {
+app.post('/api/v1/providers/stripe/customer', requireInternal, (req, res) => {
   const customer = createStripeCustomer(req.body);
   res.status(201).json({ success: true, customer });
 });
 
-app.post('/api/v1/providers/stripe/payment-intent', (req, res) => {
+app.post('/api/v1/providers/stripe/payment-intent', requireInternal, (req, res) => {
   const intent = createStripePaymentIntent(req.body);
   res.status(201).json({ success: true, paymentIntent: intent });
 });
 
-app.post('/api/v1/providers/razorpay/order', (req, res) => {
+app.post('/api/v1/providers/razorpay/order', requireInternal, (req, res) => {
   const order = createRazorpayOrder(req.body);
   res.status(201).json({ success: true, order });
 });

@@ -22,6 +22,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4735;
 
 // Middleware
@@ -475,7 +487,7 @@ app.get('/api/twin/:employeeId/:twinType', async (req, res) => {
 });
 
 // Learn patterns from events
-app.post('/api/twin/:employeeId/learn', async (req, res) => {
+app.post('/api/twin/:employeeId/learn', requireInternal, async (req, res) => {
   try {
     const { employeeId } = req.params;
     const { events } = req.body;
@@ -502,7 +514,7 @@ app.post('/api/twin/:employeeId/learn', async (req, res) => {
 });
 
 // Observe a single event
-app.post('/api/observe', async (req, res) => {
+app.post('/api/observe', requireInternal, async (req, res) => {
   try {
     const { employeeId, event } = req.body;
 

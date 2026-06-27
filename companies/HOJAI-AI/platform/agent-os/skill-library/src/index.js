@@ -326,6 +326,18 @@ function saveSkillVersions(versions) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -336,7 +348,7 @@ app.get('/health', (_req, res) => res.json({ service: SERVICE_NAME, version: VER
 app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // Create skill
-app.post('/api/skills', (req, res) => {
+app.post('/api/skills', requireInternal, (req, res) => {
   const errs = validateSkill(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -389,7 +401,7 @@ app.get('/api/skills/search', (req, res) => {
 });
 
 // Versions routes - must come before /:id
-app.post('/api/skills/:id/versions', (req, res) => {
+app.post('/api/skills/:id/versions', requireInternal, (req, res) => {
   const skills = loadSkills();
   const idx = skills.findIndex((s) => s.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -460,7 +472,7 @@ app.get('/api/skills/:id/plan', (req, res) => {
   });
 });
 
-app.post('/api/skills/:id/resolve', (req, res) => {
+app.post('/api/skills/:id/resolve', requireInternal, (req, res) => {
   const skills = loadSkills();
   const skill = findSkill(skills, req.params.id);
   if (!skill) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -483,7 +495,7 @@ app.get('/api/skills/:id', (req, res) => {
 });
 
 // Update
-app.patch('/api/skills/:id', (req, res) => {
+app.patch('/api/skills/:id', requireInternal, (req, res) => {
   const skills = loadSkills();
   const idx = skills.findIndex((s) => s.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -512,7 +524,7 @@ app.patch('/api/skills/:id', (req, res) => {
 });
 
 // Delete
-app.delete('/api/skills/:id', (req, res) => {
+app.delete('/api/skills/:id', requireInternal, (req, res) => {
   const skills = loadSkills();
   const idx = skills.findIndex((s) => s.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });

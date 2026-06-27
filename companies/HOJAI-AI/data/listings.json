@@ -1,0 +1,1696 @@
+[
+  [
+    "7e1e49c7-c0ca-46c0-88d0-47da79024dc1",
+    {
+      "id": "7e1e49c7-c0ca-46c0-88d0-47da79024dc1",
+      "skillId": "skl-reason",
+      "title": "ReAct Reasoner",
+      "category": "cat-ai",
+      "price": 199,
+      "pricingModel": "one-time",
+      "publisher": "HOJAI",
+      "featured": true,
+      "status": "published",
+      "rating": 5,
+      "reviewCount": 4,
+      "createdAt": "2026-06-27T02:38:40.348Z",
+      "sales": 4,
+      "updatedAt": "2026-06-27T06:21:05.789Z"
+    }
+  ],
+  [
+    "fe2f4a90-712e-4a88-8541-40859a42cfcf",
+    {
+      "id": "fe2f4a90-712e-4a88-8541-40859a42cfcf",
+      "skillId": "skl-crm",
+      "title": "CRM Lead Lookup",
+      "category": "cat-commerce",
+      "price": 19,
+      "pricingModel": "subscription",
+      "publisher": "AdBazaar",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T02:38:40.348Z",
+      "sales": 0
+    }
+  ],
+  [
+    "e7c9cdb4-14d0-4f05-9aab-b86050718b77",
+    {
+      "id": "e7c9cdb4-14d0-4f05-9aab-b86050718b77",
+      "skillId": "skl-cal",
+      "title": "Calendar Conflict Check",
+      "category": "cat-prod",
+      "price": 9,
+      "pricingModel": "subscription",
+      "publisher": "Genie",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T02:38:40.348Z",
+      "sales": 0
+    }
+  ],
+  [
+    "abaad08a-882b-4aab-9041-3898ad77ec7a",
+    {
+      "id": "abaad08a-882b-4aab-9041-3898ad77ec7a",
+      "skillId": "skl-wa",
+      "title": "WhatsApp Send",
+      "category": "cat-comm",
+      "price": 29,
+      "pricingModel": "usage",
+      "publisher": "Genie",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T02:38:40.348Z",
+      "sales": 0
+    }
+  ],
+  [
+    "7d114e21-b4d8-4bbe-a97e-ca80190aa6f0",
+    {
+      "id": "7d114e21-b4d8-4bbe-a97e-ca80190aa6f0",
+      "skillId": "skl-rest",
+      "title": "Restaurant Booking",
+      "category": "cat-industry",
+      "price": 39,
+      "pricingModel": "subscription",
+      "publisher": "RestaurantOS",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T02:38:40.348Z",
+      "sales": 0
+    }
+  ],
+  [
+    "46cce1d2-2e9d-4d21-b39f-4317c90b59a8",
+    {
+      "id": "46cce1d2-2e9d-4d21-b39f-4317c90b59a8",
+      "connectorId": "cnc-salesforce",
+      "title": "Salesforce CRM Connector",
+      "category": "cat-crm",
+      "price": 49,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "provider": "salesforce",
+      "authMethod": "oauth2",
+      "entities": [
+        "lead",
+        "contact",
+        "opportunity",
+        "account"
+      ],
+      "description": "Read/write Salesforce leads, contacts, opportunities, accounts.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "5c717252-0dc4-4799-ab6f-1d3dcb295560",
+    {
+      "id": "5c717252-0dc4-4799-ab6f-1d3dcb295560",
+      "connectorId": "cnc-hubspot",
+      "title": "HubSpot CRM Connector",
+      "category": "cat-crm",
+      "price": 39,
+      "pricingModel": "subscription",
+      "publisher": "AdBazaar",
+      "featured": false,
+      "provider": "hubspot",
+      "authMethod": "oauth2",
+      "entities": [
+        "contact",
+        "company",
+        "deal"
+      ],
+      "description": "Read/write HubSpot contacts, companies, deals.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "2bcf47ea-c091-48ba-9a1d-5f075d948d3f",
+    {
+      "id": "2bcf47ea-c091-48ba-9a1d-5f075d948d3f",
+      "connectorId": "cnc-stripe",
+      "title": "Stripe Payments Connector",
+      "category": "cat-payments",
+      "price": 29,
+      "pricingModel": "usage",
+      "publisher": "REZ",
+      "featured": true,
+      "provider": "stripe",
+      "authMethod": "api-key",
+      "entities": [
+        "customer",
+        "subscription",
+        "invoice",
+        "charge"
+      ],
+      "description": "Read/write Stripe customers, subscriptions, invoices, charges.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "e4f9e16e-9c17-4d1d-a4ba-830b1fef96e7",
+    {
+      "id": "e4f9e16e-9c17-4d1d-a4ba-830b1fef96e7",
+      "connectorId": "cnc-shopify",
+      "title": "Shopify E-Commerce Connector",
+      "category": "cat-ecommerce",
+      "price": 59,
+      "pricingModel": "subscription",
+      "publisher": "REZ-Merchant",
+      "featured": true,
+      "provider": "shopify",
+      "authMethod": "oauth2",
+      "entities": [
+        "product",
+        "order",
+        "customer",
+        "inventory"
+      ],
+      "description": "Read/write Shopify products, orders, customers, inventory.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "51e222b9-93bf-46a6-94e3-a1325aca9809",
+    {
+      "id": "51e222b9-93bf-46a6-94e3-a1325aca9809",
+      "connectorId": "cnc-slack",
+      "title": "Slack Comms Connector",
+      "category": "cat-comms",
+      "price": 19,
+      "pricingModel": "subscription",
+      "publisher": "Genie",
+      "featured": false,
+      "provider": "slack",
+      "authMethod": "oauth2",
+      "entities": [
+        "channel",
+        "message",
+        "user"
+      ],
+      "description": "Send/receive Slack messages, list channels/users.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "e4c1c1a4-7c57-4af4-aad5-f371e70a2014",
+    {
+      "id": "e4c1c1a4-7c57-4af4-aad5-f371e70a2014",
+      "connectorId": "cnc-notion",
+      "title": "Notion Productivity Connector",
+      "category": "cat-productivity",
+      "price": 19,
+      "pricingModel": "subscription",
+      "publisher": "Genie",
+      "featured": false,
+      "provider": "notion",
+      "authMethod": "oauth2",
+      "entities": [
+        "page",
+        "database",
+        "block"
+      ],
+      "description": "Read/write Notion pages, databases, blocks.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "56662e32-3638-4803-8cd5-c4e9a71b639a",
+    {
+      "id": "56662e32-3638-4803-8cd5-c4e9a71b639a",
+      "connectorId": "cnc-twilio",
+      "title": "Twilio Comms Connector",
+      "category": "cat-comms",
+      "price": 39,
+      "pricingModel": "usage",
+      "publisher": "HOJAI",
+      "featured": false,
+      "provider": "twilio",
+      "authMethod": "api-key",
+      "entities": [
+        "sms",
+        "call",
+        "voicemail"
+      ],
+      "description": "Send SMS, place calls, retrieve voicemails.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "367739c2-f684-4118-a5bb-004aaff091ff",
+    {
+      "id": "367739c2-f684-4118-a5bb-004aaff091ff",
+      "connectorId": "cnc-gsheets",
+      "title": "Google Sheets Connector",
+      "category": "cat-data",
+      "price": 9,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "provider": "gsheets",
+      "authMethod": "oauth2",
+      "entities": [
+        "spreadsheet",
+        "row"
+      ],
+      "description": "Read/write Google Sheets rows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:04:19.604Z",
+      "sales": 0
+    }
+  ],
+  [
+    "21b31739-58bd-4dfc-b3fc-c575f93bc1d9",
+    {
+      "id": "21b31739-58bd-4dfc-b3fc-c575f93bc1d9",
+      "title": "Test Connector",
+      "description": "",
+      "category": "cat-crm",
+      "price": 29,
+      "pricingModel": "subscription",
+      "publisher": "unknown",
+      "connectorId": "cnc-21b317",
+      "provider": "test",
+      "authMethod": "api-key",
+      "entities": [],
+      "tags": [],
+      "status": "published",
+      "rating": 0,
+      "reviewCount": 0,
+      "sales": 0,
+      "createdAt": "2026-06-27T03:04:19.697Z"
+    }
+  ],
+  [
+    "578ecdd0-f856-46da-aba3-922d7dbe3631",
+    {
+      "id": "578ecdd0-f856-46da-aba3-922d7dbe3631",
+      "connectorId": "cnc-salesforce",
+      "title": "Salesforce CRM Connector",
+      "category": "cat-crm",
+      "price": 49,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "provider": "salesforce",
+      "authMethod": "oauth2",
+      "entities": [
+        "lead",
+        "contact",
+        "opportunity",
+        "account"
+      ],
+      "description": "Read/write Salesforce leads, contacts, opportunities, accounts.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "bdde3bb6-57f7-4736-965d-0e35b5ea267c",
+    {
+      "id": "bdde3bb6-57f7-4736-965d-0e35b5ea267c",
+      "connectorId": "cnc-hubspot",
+      "title": "HubSpot CRM Connector",
+      "category": "cat-crm",
+      "price": 39,
+      "pricingModel": "subscription",
+      "publisher": "AdBazaar",
+      "featured": false,
+      "provider": "hubspot",
+      "authMethod": "oauth2",
+      "entities": [
+        "contact",
+        "company",
+        "deal"
+      ],
+      "description": "Read/write HubSpot contacts, companies, deals.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "e0afdff0-8abb-4bba-8754-fcf4ea0f3c02",
+    {
+      "id": "e0afdff0-8abb-4bba-8754-fcf4ea0f3c02",
+      "connectorId": "cnc-stripe",
+      "title": "Stripe Payments Connector",
+      "category": "cat-payments",
+      "price": 29,
+      "pricingModel": "usage",
+      "publisher": "REZ",
+      "featured": true,
+      "provider": "stripe",
+      "authMethod": "api-key",
+      "entities": [
+        "customer",
+        "subscription",
+        "invoice",
+        "charge"
+      ],
+      "description": "Read/write Stripe customers, subscriptions, invoices, charges.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "49f19420-29de-426a-8b90-cb10d52695a2",
+    {
+      "id": "49f19420-29de-426a-8b90-cb10d52695a2",
+      "connectorId": "cnc-shopify",
+      "title": "Shopify E-Commerce Connector",
+      "category": "cat-ecommerce",
+      "price": 59,
+      "pricingModel": "subscription",
+      "publisher": "REZ-Merchant",
+      "featured": true,
+      "provider": "shopify",
+      "authMethod": "oauth2",
+      "entities": [
+        "product",
+        "order",
+        "customer",
+        "inventory"
+      ],
+      "description": "Read/write Shopify products, orders, customers, inventory.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "d948f43c-a100-43a1-ac37-dffaf06d2ea7",
+    {
+      "id": "d948f43c-a100-43a1-ac37-dffaf06d2ea7",
+      "connectorId": "cnc-slack",
+      "title": "Slack Comms Connector",
+      "category": "cat-comms",
+      "price": 19,
+      "pricingModel": "subscription",
+      "publisher": "Genie",
+      "featured": false,
+      "provider": "slack",
+      "authMethod": "oauth2",
+      "entities": [
+        "channel",
+        "message",
+        "user"
+      ],
+      "description": "Send/receive Slack messages, list channels/users.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "13907827-baa3-47d1-be27-a35e2b63fcba",
+    {
+      "id": "13907827-baa3-47d1-be27-a35e2b63fcba",
+      "connectorId": "cnc-notion",
+      "title": "Notion Productivity Connector",
+      "category": "cat-productivity",
+      "price": 19,
+      "pricingModel": "subscription",
+      "publisher": "Genie",
+      "featured": false,
+      "provider": "notion",
+      "authMethod": "oauth2",
+      "entities": [
+        "page",
+        "database",
+        "block"
+      ],
+      "description": "Read/write Notion pages, databases, blocks.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "f07d430b-944c-4abf-a873-cd6028b0bcf3",
+    {
+      "id": "f07d430b-944c-4abf-a873-cd6028b0bcf3",
+      "connectorId": "cnc-twilio",
+      "title": "Twilio Comms Connector",
+      "category": "cat-comms",
+      "price": 39,
+      "pricingModel": "usage",
+      "publisher": "HOJAI",
+      "featured": false,
+      "provider": "twilio",
+      "authMethod": "api-key",
+      "entities": [
+        "sms",
+        "call",
+        "voicemail"
+      ],
+      "description": "Send SMS, place calls, retrieve voicemails.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "65c37590-ce07-48b2-8684-bffc88792356",
+    {
+      "id": "65c37590-ce07-48b2-8684-bffc88792356",
+      "connectorId": "cnc-gsheets",
+      "title": "Google Sheets Connector",
+      "category": "cat-data",
+      "price": 9,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "provider": "gsheets",
+      "authMethod": "oauth2",
+      "entities": [
+        "spreadsheet",
+        "row"
+      ],
+      "description": "Read/write Google Sheets rows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T03:12:12.452Z",
+      "sales": 0
+    }
+  ],
+  [
+    "f122cae5-dbe8-43e0-b2df-3952983f6811",
+    {
+      "id": "f122cae5-dbe8-43e0-b2df-3952983f6811",
+      "title": "Test Connector",
+      "description": "",
+      "category": "cat-crm",
+      "price": 29,
+      "pricingModel": "subscription",
+      "publisher": "unknown",
+      "connectorId": "cnc-f122ca",
+      "provider": "test",
+      "authMethod": "api-key",
+      "entities": [],
+      "tags": [],
+      "status": "published",
+      "rating": 0,
+      "reviewCount": 0,
+      "sales": 0,
+      "createdAt": "2026-06-27T03:12:12.545Z"
+    }
+  ],
+  [
+    "e2426700-1336-4c7a-864a-0c09be86a0f4",
+    {
+      "id": "e2426700-1336-4c7a-864a-0c09be86a0f4",
+      "packId": "pk-restaurant-starter",
+      "title": "Restaurant Starter Pack",
+      "category": "cat-hospitality",
+      "price": 499,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "restaurant",
+      "components": {
+        "services": [
+          {
+            "name": "restaurant-os",
+            "port": 5010
+          },
+          {
+            "name": "sales-os",
+            "port": 5055
+          }
+        ],
+        "agents": [
+          {
+            "name": "reservation-bot"
+          },
+          {
+            "name": "menu-recommender"
+          },
+          {
+            "name": "review-sentiment"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "restaurant",
+            "schema": "menu+tables+orders"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "order-to-kitchen"
+          },
+          {
+            "name": "reservation-confirm"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "stripe-payments"
+          },
+          {
+            "name": "twilio-sms"
+          }
+        ]
+      },
+      "description": "Everything a restaurant needs: OS + 3 AI agents + 1 twin + 2 workflows + 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T05:59:33.151Z",
+      "sales": 0
+    }
+  ],
+  [
+    "06cbf800-d145-4593-b979-3ebaef154b6c",
+    {
+      "id": "06cbf800-d145-4593-b979-3ebaef154b6c",
+      "packId": "pk-hotel-starter",
+      "title": "Hotel Starter Pack",
+      "category": "cat-hospitality",
+      "price": 899,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "hotel",
+      "components": {
+        "services": [
+          {
+            "name": "hotel-os",
+            "port": 5025
+          },
+          {
+            "name": "marketing-os",
+            "port": 5500
+          }
+        ],
+        "agents": [
+          {
+            "name": "booking-assistant"
+          },
+          {
+            "name": "concierge-bot"
+          },
+          {
+            "name": "review-monitor"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "hotel",
+            "schema": "rooms+bookings+guests"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "guest-checkin"
+          },
+          {
+            "name": "post-stay-followup"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "stripe-payments"
+          },
+          {
+            "name": "whatsapp-business"
+          }
+        ]
+      },
+      "description": "Complete hotel OS with booking + concierge agents, 1 hotel twin, 2 workflows, 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T05:59:33.151Z",
+      "sales": 0
+    }
+  ],
+  [
+    "77f5d5a0-b13a-4ecc-b5c0-cce2b984191c",
+    {
+      "id": "77f5d5a0-b13a-4ecc-b5c0-cce2b984191c",
+      "packId": "pk-beauty-starter",
+      "title": "Beauty & Salon Starter Pack",
+      "category": "cat-services",
+      "price": 299,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "beauty",
+      "components": {
+        "services": [
+          {
+            "name": "beauty-os",
+            "port": 5090
+          }
+        ],
+        "agents": [
+          {
+            "name": "appointment-reminder"
+          },
+          {
+            "name": "service-recommender"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "stylist",
+            "schema": "skills+availability"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "appointment-reminder-24h"
+          },
+          {
+            "name": "membership-renewal"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "whatsapp-business"
+          }
+        ]
+      },
+      "description": "Beauty OS + 2 agents + stylist twin + 2 workflows + WhatsApp integration.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T05:59:33.151Z",
+      "sales": 0
+    }
+  ],
+  [
+    "a22eda0c-c6af-4ad7-a82d-8ca492d139ff",
+    {
+      "id": "a22eda0c-c6af-4ad7-a82d-8ca492d139ff",
+      "packId": "pk-healthcare-starter",
+      "title": "Healthcare Starter Pack",
+      "category": "cat-healthcare",
+      "price": 1499,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "healthcare",
+      "components": {
+        "services": [
+          {
+            "name": "healthcare-os",
+            "port": 5020
+          }
+        ],
+        "agents": [
+          {
+            "name": "patient-triage"
+          },
+          {
+            "name": "appointment-scheduler"
+          },
+          {
+            "name": "prescription-checker"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "patient",
+            "schema": "demographics+conditions+medications"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "patient-intake"
+          },
+          {
+            "name": "appointment-confirm"
+          },
+          {
+            "name": "prescription-refill"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "twilio-sms"
+          },
+          {
+            "name": "stripe-payments"
+          }
+        ]
+      },
+      "description": "HIPAA-ready: patient twin + 3 clinical agents + 3 workflows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T05:59:33.151Z",
+      "sales": 0
+    }
+  ],
+  [
+    "0105e147-4400-483a-82a7-e9d12f60ae1b",
+    {
+      "id": "0105e147-4400-483a-82a7-e9d12f60ae1b",
+      "packId": "pk-retail-starter",
+      "title": "Retail Starter Pack",
+      "category": "cat-retail",
+      "price": 599,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "retail",
+      "components": {
+        "services": [
+          {
+            "name": "retail-os",
+            "port": 5030
+          },
+          {
+            "name": "marketing-os",
+            "port": 5500
+          }
+        ],
+        "agents": [
+          {
+            "name": "product-recommender"
+          },
+          {
+            "name": "cart-abandon-recovery"
+          },
+          {
+            "name": "demand-forecaster"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "customer",
+            "schema": "profile+LTV+segments"
+          },
+          {
+            "twinType": "product",
+            "schema": "catalog+inventory"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "abandoned-cart-recovery"
+          },
+          {
+            "name": "loyalty-reward"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "shopify"
+          },
+          {
+            "name": "stripe-payments"
+          }
+        ]
+      },
+      "description": "Retail OS + 3 AI agents + 2 twins + 2 workflows + 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T05:59:33.151Z",
+      "sales": 0
+    }
+  ],
+  [
+    "ed621aab-9507-47e1-a68f-40823addac0c",
+    {
+      "id": "ed621aab-9507-47e1-a68f-40823addac0c",
+      "packId": "pk-legal-starter",
+      "title": "Legal Practice Starter Pack",
+      "category": "cat-services",
+      "price": 799,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "legal",
+      "components": {
+        "services": [
+          {
+            "name": "legal-os",
+            "port": 5035
+          }
+        ],
+        "agents": [
+          {
+            "name": "contract-analyzer"
+          },
+          {
+            "name": "case-researcher"
+          },
+          {
+            "name": "document-summarizer"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "case",
+            "schema": "parties+filings+deadlines"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "contract-review"
+          },
+          {
+            "name": "deadline-reminder"
+          }
+        ],
+        "integrations": []
+      },
+      "description": "Legal OS + 3 AI agents + case twin + 2 workflows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T05:59:33.151Z",
+      "sales": 0
+    }
+  ],
+  [
+    "097f38df-6d8a-4bef-a3b0-8c1415189fde",
+    {
+      "id": "097f38df-6d8a-4bef-a3b0-8c1415189fde",
+      "packId": "pk-restaurant-starter",
+      "title": "Restaurant Starter Pack",
+      "category": "cat-hospitality",
+      "price": 499,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "restaurant",
+      "components": {
+        "services": [
+          {
+            "name": "restaurant-os",
+            "port": 5010
+          },
+          {
+            "name": "sales-os",
+            "port": 5055
+          }
+        ],
+        "agents": [
+          {
+            "name": "reservation-bot"
+          },
+          {
+            "name": "menu-recommender"
+          },
+          {
+            "name": "review-sentiment"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "restaurant",
+            "schema": "menu+tables+orders"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "order-to-kitchen"
+          },
+          {
+            "name": "reservation-confirm"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "stripe-payments"
+          },
+          {
+            "name": "twilio-sms"
+          }
+        ]
+      },
+      "description": "Everything a restaurant needs: OS + 3 AI agents + 1 twin + 2 workflows + 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:10:46.591Z",
+      "sales": 0
+    }
+  ],
+  [
+    "74b6aa06-8ae1-410a-9c1f-6bcace4d73e0",
+    {
+      "id": "74b6aa06-8ae1-410a-9c1f-6bcace4d73e0",
+      "packId": "pk-hotel-starter",
+      "title": "Hotel Starter Pack",
+      "category": "cat-hospitality",
+      "price": 899,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "hotel",
+      "components": {
+        "services": [
+          {
+            "name": "hotel-os",
+            "port": 5025
+          },
+          {
+            "name": "marketing-os",
+            "port": 5500
+          }
+        ],
+        "agents": [
+          {
+            "name": "booking-assistant"
+          },
+          {
+            "name": "concierge-bot"
+          },
+          {
+            "name": "review-monitor"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "hotel",
+            "schema": "rooms+bookings+guests"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "guest-checkin"
+          },
+          {
+            "name": "post-stay-followup"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "stripe-payments"
+          },
+          {
+            "name": "whatsapp-business"
+          }
+        ]
+      },
+      "description": "Complete hotel OS with booking + concierge agents, 1 hotel twin, 2 workflows, 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:10:46.591Z",
+      "sales": 0
+    }
+  ],
+  [
+    "d493d230-065f-49a2-840b-7b8b74d4b1b8",
+    {
+      "id": "d493d230-065f-49a2-840b-7b8b74d4b1b8",
+      "packId": "pk-beauty-starter",
+      "title": "Beauty & Salon Starter Pack",
+      "category": "cat-services",
+      "price": 299,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "beauty",
+      "components": {
+        "services": [
+          {
+            "name": "beauty-os",
+            "port": 5090
+          }
+        ],
+        "agents": [
+          {
+            "name": "appointment-reminder"
+          },
+          {
+            "name": "service-recommender"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "stylist",
+            "schema": "skills+availability"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "appointment-reminder-24h"
+          },
+          {
+            "name": "membership-renewal"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "whatsapp-business"
+          }
+        ]
+      },
+      "description": "Beauty OS + 2 agents + stylist twin + 2 workflows + WhatsApp integration.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:10:46.591Z",
+      "sales": 0
+    }
+  ],
+  [
+    "aa35bb44-f272-4fc4-a1f3-cc697dac4c9a",
+    {
+      "id": "aa35bb44-f272-4fc4-a1f3-cc697dac4c9a",
+      "packId": "pk-healthcare-starter",
+      "title": "Healthcare Starter Pack",
+      "category": "cat-healthcare",
+      "price": 1499,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "healthcare",
+      "components": {
+        "services": [
+          {
+            "name": "healthcare-os",
+            "port": 5020
+          }
+        ],
+        "agents": [
+          {
+            "name": "patient-triage"
+          },
+          {
+            "name": "appointment-scheduler"
+          },
+          {
+            "name": "prescription-checker"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "patient",
+            "schema": "demographics+conditions+medications"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "patient-intake"
+          },
+          {
+            "name": "appointment-confirm"
+          },
+          {
+            "name": "prescription-refill"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "twilio-sms"
+          },
+          {
+            "name": "stripe-payments"
+          }
+        ]
+      },
+      "description": "HIPAA-ready: patient twin + 3 clinical agents + 3 workflows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:10:46.591Z",
+      "sales": 0
+    }
+  ],
+  [
+    "42ebba57-2b0f-45df-a465-187c31b0f08d",
+    {
+      "id": "42ebba57-2b0f-45df-a465-187c31b0f08d",
+      "packId": "pk-retail-starter",
+      "title": "Retail Starter Pack",
+      "category": "cat-retail",
+      "price": 599,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "retail",
+      "components": {
+        "services": [
+          {
+            "name": "retail-os",
+            "port": 5030
+          },
+          {
+            "name": "marketing-os",
+            "port": 5500
+          }
+        ],
+        "agents": [
+          {
+            "name": "product-recommender"
+          },
+          {
+            "name": "cart-abandon-recovery"
+          },
+          {
+            "name": "demand-forecaster"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "customer",
+            "schema": "profile+LTV+segments"
+          },
+          {
+            "twinType": "product",
+            "schema": "catalog+inventory"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "abandoned-cart-recovery"
+          },
+          {
+            "name": "loyalty-reward"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "shopify"
+          },
+          {
+            "name": "stripe-payments"
+          }
+        ]
+      },
+      "description": "Retail OS + 3 AI agents + 2 twins + 2 workflows + 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:10:46.591Z",
+      "sales": 0
+    }
+  ],
+  [
+    "3b3ccfa7-404b-43b4-bc04-51c80bff9228",
+    {
+      "id": "3b3ccfa7-404b-43b4-bc04-51c80bff9228",
+      "packId": "pk-legal-starter",
+      "title": "Legal Practice Starter Pack",
+      "category": "cat-services",
+      "price": 799,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "legal",
+      "components": {
+        "services": [
+          {
+            "name": "legal-os",
+            "port": 5035
+          }
+        ],
+        "agents": [
+          {
+            "name": "contract-analyzer"
+          },
+          {
+            "name": "case-researcher"
+          },
+          {
+            "name": "document-summarizer"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "case",
+            "schema": "parties+filings+deadlines"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "contract-review"
+          },
+          {
+            "name": "deadline-reminder"
+          }
+        ],
+        "integrations": []
+      },
+      "description": "Legal OS + 3 AI agents + case twin + 2 workflows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:10:46.591Z",
+      "sales": 0
+    }
+  ],
+  [
+    "f883eaf7-16cc-450f-9c54-ffb87e903011",
+    {
+      "id": "f883eaf7-16cc-450f-9c54-ffb87e903011",
+      "packId": "pk-restaurant-starter",
+      "title": "Restaurant Starter Pack",
+      "category": "cat-hospitality",
+      "price": 499,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "restaurant",
+      "components": {
+        "services": [
+          {
+            "name": "restaurant-os",
+            "port": 5010
+          },
+          {
+            "name": "sales-os",
+            "port": 5055
+          }
+        ],
+        "agents": [
+          {
+            "name": "reservation-bot"
+          },
+          {
+            "name": "menu-recommender"
+          },
+          {
+            "name": "review-sentiment"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "restaurant",
+            "schema": "menu+tables+orders"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "order-to-kitchen"
+          },
+          {
+            "name": "reservation-confirm"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "stripe-payments"
+          },
+          {
+            "name": "twilio-sms"
+          }
+        ]
+      },
+      "description": "Everything a restaurant needs: OS + 3 AI agents + 1 twin + 2 workflows + 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:21:05.677Z",
+      "sales": 0
+    }
+  ],
+  [
+    "f817196c-1453-465e-bef9-fb88097b0edc",
+    {
+      "id": "f817196c-1453-465e-bef9-fb88097b0edc",
+      "packId": "pk-hotel-starter",
+      "title": "Hotel Starter Pack",
+      "category": "cat-hospitality",
+      "price": 899,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "hotel",
+      "components": {
+        "services": [
+          {
+            "name": "hotel-os",
+            "port": 5025
+          },
+          {
+            "name": "marketing-os",
+            "port": 5500
+          }
+        ],
+        "agents": [
+          {
+            "name": "booking-assistant"
+          },
+          {
+            "name": "concierge-bot"
+          },
+          {
+            "name": "review-monitor"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "hotel",
+            "schema": "rooms+bookings+guests"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "guest-checkin"
+          },
+          {
+            "name": "post-stay-followup"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "stripe-payments"
+          },
+          {
+            "name": "whatsapp-business"
+          }
+        ]
+      },
+      "description": "Complete hotel OS with booking + concierge agents, 1 hotel twin, 2 workflows, 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:21:05.677Z",
+      "sales": 0
+    }
+  ],
+  [
+    "4e3650c9-0426-4fbb-86c4-d0974d53df56",
+    {
+      "id": "4e3650c9-0426-4fbb-86c4-d0974d53df56",
+      "packId": "pk-beauty-starter",
+      "title": "Beauty & Salon Starter Pack",
+      "category": "cat-services",
+      "price": 299,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "beauty",
+      "components": {
+        "services": [
+          {
+            "name": "beauty-os",
+            "port": 5090
+          }
+        ],
+        "agents": [
+          {
+            "name": "appointment-reminder"
+          },
+          {
+            "name": "service-recommender"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "stylist",
+            "schema": "skills+availability"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "appointment-reminder-24h"
+          },
+          {
+            "name": "membership-renewal"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "whatsapp-business"
+          }
+        ]
+      },
+      "description": "Beauty OS + 2 agents + stylist twin + 2 workflows + WhatsApp integration.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:21:05.677Z",
+      "sales": 0
+    }
+  ],
+  [
+    "cae09e1a-10f8-4097-8808-0ddb52cbf28e",
+    {
+      "id": "cae09e1a-10f8-4097-8808-0ddb52cbf28e",
+      "packId": "pk-healthcare-starter",
+      "title": "Healthcare Starter Pack",
+      "category": "cat-healthcare",
+      "price": 1499,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": true,
+      "industry": "healthcare",
+      "components": {
+        "services": [
+          {
+            "name": "healthcare-os",
+            "port": 5020
+          }
+        ],
+        "agents": [
+          {
+            "name": "patient-triage"
+          },
+          {
+            "name": "appointment-scheduler"
+          },
+          {
+            "name": "prescription-checker"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "patient",
+            "schema": "demographics+conditions+medications"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "patient-intake"
+          },
+          {
+            "name": "appointment-confirm"
+          },
+          {
+            "name": "prescription-refill"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "twilio-sms"
+          },
+          {
+            "name": "stripe-payments"
+          }
+        ]
+      },
+      "description": "HIPAA-ready: patient twin + 3 clinical agents + 3 workflows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:21:05.677Z",
+      "sales": 0
+    }
+  ],
+  [
+    "d058a5ac-13dd-436d-a682-eba1f852fa37",
+    {
+      "id": "d058a5ac-13dd-436d-a682-eba1f852fa37",
+      "packId": "pk-retail-starter",
+      "title": "Retail Starter Pack",
+      "category": "cat-retail",
+      "price": 599,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "retail",
+      "components": {
+        "services": [
+          {
+            "name": "retail-os",
+            "port": 5030
+          },
+          {
+            "name": "marketing-os",
+            "port": 5500
+          }
+        ],
+        "agents": [
+          {
+            "name": "product-recommender"
+          },
+          {
+            "name": "cart-abandon-recovery"
+          },
+          {
+            "name": "demand-forecaster"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "customer",
+            "schema": "profile+LTV+segments"
+          },
+          {
+            "twinType": "product",
+            "schema": "catalog+inventory"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "abandoned-cart-recovery"
+          },
+          {
+            "name": "loyalty-reward"
+          }
+        ],
+        "integrations": [
+          {
+            "name": "shopify"
+          },
+          {
+            "name": "stripe-payments"
+          }
+        ]
+      },
+      "description": "Retail OS + 3 AI agents + 2 twins + 2 workflows + 2 integrations.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:21:05.677Z",
+      "sales": 0
+    }
+  ],
+  [
+    "98d51c9c-adc0-4e02-90d3-f60095cb91ab",
+    {
+      "id": "98d51c9c-adc0-4e02-90d3-f60095cb91ab",
+      "packId": "pk-legal-starter",
+      "title": "Legal Practice Starter Pack",
+      "category": "cat-services",
+      "price": 799,
+      "pricingModel": "subscription",
+      "publisher": "HOJAI",
+      "featured": false,
+      "industry": "legal",
+      "components": {
+        "services": [
+          {
+            "name": "legal-os",
+            "port": 5035
+          }
+        ],
+        "agents": [
+          {
+            "name": "contract-analyzer"
+          },
+          {
+            "name": "case-researcher"
+          },
+          {
+            "name": "document-summarizer"
+          }
+        ],
+        "twins": [
+          {
+            "twinType": "case",
+            "schema": "parties+filings+deadlines"
+          }
+        ],
+        "workflows": [
+          {
+            "name": "contract-review"
+          },
+          {
+            "name": "deadline-reminder"
+          }
+        ],
+        "integrations": []
+      },
+      "description": "Legal OS + 3 AI agents + case twin + 2 workflows.",
+      "status": "published",
+      "rating": 4.5,
+      "reviewCount": 0,
+      "createdAt": "2026-06-27T06:21:05.677Z",
+      "sales": 0
+    }
+  ],
+  [
+    "dee3bc48-174a-4be6-9c17-ce6c6da1bbc9",
+    {
+      "id": "dee3bc48-174a-4be6-9c17-ce6c6da1bbc9",
+      "title": "Test Pack",
+      "description": "Test description",
+      "category": "cat-services",
+      "price": 99,
+      "pricingModel": "subscription",
+      "publisher": "TestCo",
+      "packId": "pk-dee3bc",
+      "industry": "restaurant",
+      "components": {
+        "services": [],
+        "agents": [],
+        "twins": [],
+        "workflows": [],
+        "integrations": []
+      },
+      "tags": [],
+      "status": "published",
+      "rating": 0,
+      "reviewCount": 0,
+      "sales": 0,
+      "createdAt": "2026-06-27T06:21:05.782Z"
+    }
+  ]
+]

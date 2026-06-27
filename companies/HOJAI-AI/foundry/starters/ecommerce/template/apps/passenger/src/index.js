@@ -15,6 +15,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3000;
 
@@ -135,7 +147,7 @@ app.get('/api/categories', (_, res) => {
 
 // ── Cart ───────────────────────────────────────────────────────────────────────
 
-app.post('/api/cart/add', (req, res) => {
+app.post('/api/cart/add', requireInternal, (req, res) => {
   const { userId, productId, quantity = 1 } = req.body;
 
   if (!userId || !productId) {
@@ -171,7 +183,7 @@ app.get('/api/cart/:userId', (req, res) => {
   res.json({ success: true, cart, total, items: cart.length });
 });
 
-app.put('/api/cart/update', (req, res) => {
+app.put('/api/cart/update', requireInternal, (req, res) => {
   const { userId, productId, quantity } = req.body;
 
   const cart = carts.get(userId);
@@ -192,7 +204,7 @@ app.put('/api/cart/update', (req, res) => {
   res.json({ success: true, cart, total, items: cart.length });
 });
 
-app.delete('/api/cart/:userId/items/:productId', (req, res) => {
+app.delete('/api/cart/:userId/items/:productId', requireInternal, (req, res) => {
   const cart = carts.get(req.params.userId);
   if (!cart) return res.status(404).json({ error: 'Cart not found' });
 
@@ -204,14 +216,14 @@ app.delete('/api/cart/:userId/items/:productId', (req, res) => {
   res.json({ success: true, cart, total, items: cart.length });
 });
 
-app.delete('/api/cart/:userId', (req, res) => {
+app.delete('/api/cart/:userId', requireInternal, (req, res) => {
   carts.set(req.params.userId, []);
   res.json({ success: true, cart: [], total: 0, items: 0 });
 });
 
 // ── Checkout & Orders ─────────────────────────────────────────────────────────
 
-app.post('/api/checkout', (req, res) => {
+app.post('/api/checkout', requireInternal, (req, res) => {
   const { userId, address, paymentMethod } = req.body;
 
   const cart = carts.get(userId);
@@ -247,7 +259,7 @@ app.post('/api/checkout', (req, res) => {
   res.status(201).json({ success: true, order });
 });
 
-app.post('/api/payment/verify', (req, res) => {
+app.post('/api/payment/verify', requireInternal, (req, res) => {
   const { orderId, transactionId } = req.body;
 
   const order = orders.get(orderId);
@@ -282,7 +294,7 @@ app.get('/api/orders/:userId/:orderId', (req, res) => {
 
 // ── Wishlist ───────────────────────────────────────────────────────────────────
 
-app.post('/api/wishlist/add', (req, res) => {
+app.post('/api/wishlist/add', requireInternal, (req, res) => {
   const { userId, productId } = req.body;
 
   if (!wishlists.has(userId)) {
@@ -304,7 +316,7 @@ app.get('/api/wishlist/:userId', (req, res) => {
   res.json({ success: true, wishlist: wishlistProducts });
 });
 
-app.delete('/api/wishlist/:userId/items/:productId', (req, res) => {
+app.delete('/api/wishlist/:userId/items/:productId', requireInternal, (req, res) => {
   const wishlist = wishlists.get(req.params.userId);
   if (!wishlist) return res.status(404).json({ error: 'Wishlist not found' });
 
@@ -316,7 +328,7 @@ app.delete('/api/wishlist/:userId/items/:productId', (req, res) => {
 
 // ── Reviews ────────────────────────────────────────────────────────────────────
 
-app.post('/api/reviews', (req, res) => {
+app.post('/api/reviews', requireInternal, (req, res) => {
   const { productId, userId, rating, title, comment } = req.body;
 
   const product = products.find(p => p.id === productId);

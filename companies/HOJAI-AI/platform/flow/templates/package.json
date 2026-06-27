@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/flow-templates",
+  "version": "1.0.0",
+  "description": "Pre-built workflow templates for FlowOS",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
+  },
+  "keywords": ["workflow", "templates", "automation"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

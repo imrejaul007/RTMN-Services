@@ -309,6 +309,18 @@ function runLoop(execution) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -319,7 +331,7 @@ app.get('/health', (_req, res) => res.json({ service: SERVICE_NAME, version: VER
 app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // Create execution (auto-runs the stub LLM loop synchronously)
-app.post('/api/executions', (req, res) => {
+app.post('/api/executions', requireInternal, (req, res) => {
   const errs = validateExecution(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -369,7 +381,7 @@ app.get('/api/executions/:id', (req, res) => {
 });
 
 // Cancel
-app.post('/api/executions/:id/cancel', (req, res) => {
+app.post('/api/executions/:id/cancel', requireInternal, (req, res) => {
   const executions = loadExecutions();
   const idx = findIndex(executions, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -383,7 +395,7 @@ app.post('/api/executions/:id/cancel', (req, res) => {
 });
 
 // Pause
-app.post('/api/executions/:id/pause', (req, res) => {
+app.post('/api/executions/:id/pause', requireInternal, (req, res) => {
   const executions = loadExecutions();
   const idx = findIndex(executions, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -397,7 +409,7 @@ app.post('/api/executions/:id/pause', (req, res) => {
 });
 
 // Continue (resume from paused)
-app.post('/api/executions/:id/continue', (req, res) => {
+app.post('/api/executions/:id/continue', requireInternal, (req, res) => {
   const executions = loadExecutions();
   const idx = findIndex(executions, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -425,7 +437,7 @@ app.get('/api/executions/:id/steps', (req, res) => {
 });
 
 // Manually add a step
-app.post('/api/executions/:id/step', (req, res) => {
+app.post('/api/executions/:id/step', requireInternal, (req, res) => {
   const executions = loadExecutions();
   const idx = findIndex(executions, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });

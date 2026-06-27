@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(express.json());
 const PORT = process.env.PORT || 4771;
 
@@ -25,14 +36,14 @@ app.get('/api/rooms', (req, res) => {
   res.json({ success: true, count: results.length, rooms: results });
 });
 
-app.post('/api/rooms', (req, res) => {
+app.post('/api/rooms', requireInternal, (req, res) => {
   const room = { id: uuidv4(), ...req.body, status: 'available' };
   rooms.set(room.id, room);
   res.status(201).json({ success: true, room });
 });
 
 // Bookings
-app.post('/api/bookings', (req, res) => {
+app.post('/api/bookings', requireInternal, (req, res) => {
   const { roomId, guest, checkin, checkout, guests } = req.body;
   const room = rooms.get(roomId);
   if (!room) return res.status(404).json({ error: 'Room not found' });
@@ -53,7 +64,7 @@ app.get('/api/bookings/:id', (req, res) => {
 
 // Channel Manager
 app.get('/api/channels', (_, res) => res.json({ success: true, channels: Array.from(channels.values()) }));
-app.post('/api/channels', (req, res) => {
+app.post('/api/channels', requireInternal, (req, res) => {
   const ch = { id: uuidv4(), ...req.body, status: 'connected' };
   channels.set(ch.id, ch);
   res.status(201).json({ success: true, channel: ch });

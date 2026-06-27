@@ -1,5 +1,17 @@
 import express from 'express';
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.MEMORY_COMPILER_PORT || 4789;
 const artifacts = new Map();
 function nowIso() { return new Date().toISOString(); }
@@ -11,7 +23,7 @@ function formatFactsAsBullets(facts) { return (facts || []).map(f => `• ${f.ob
 app.use(express.json());
 app.get('/health', (_req, res) => { ok(res, { status: 'healthy', service: 'memory-compiler', port: PORT }); });
 app.get('/', (_req, res) => { ok(res, { service: 'memory-compiler', port: PORT }); });
-app.post('/api/compile', (req, res) => {
+app.post('/api/compile', requireInternal, (req, res) => {
   const { twinId, type, facts } = req.body || {};
   if (!twinId || !type) return fail(res, 'INVALID_INPUT', 'twinId and type required');
   const rawTokens = estimateTokens(facts);

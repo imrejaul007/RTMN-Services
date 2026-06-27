@@ -230,6 +230,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = parseInt(process.env.PORT || '4147', 10);
 
 app.use(cors());
@@ -264,7 +276,7 @@ app.get('/api/v1/info', (_req, res) => {
 });
 
 // Compute diff
-app.post('/api/v1/diff', (req, res) => {
+app.post('/api/v1/diff', requireInternal, (req, res) => {
   try {
     const { oldBlueprint, newBlueprint } = req.body;
 
@@ -283,7 +295,7 @@ app.post('/api/v1/diff', (req, res) => {
 });
 
 // Apply diff
-app.post('/api/v1/apply', (req, res) => {
+app.post('/api/v1/apply', requireInternal, (req, res) => {
   try {
     const { blueprint, diff } = req.body;
 
@@ -302,7 +314,7 @@ app.post('/api/v1/apply', (req, res) => {
 });
 
 // Check equality
-app.post('/api/v1/equal', (req, res) => {
+app.post('/api/v1/equal', requireInternal, (req, res) => {
   try {
     const { blueprintA, blueprintB } = req.body;
 

@@ -8,6 +8,17 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4720;
 
@@ -45,7 +56,7 @@ app.get('/api/drivers/:id', (req, res) => {
   res.json({ success: true, driver });
 });
 
-app.post('/api/drivers', (req, res) => {
+app.post('/api/drivers', requireInternal, (req, res) => {
   const driver = {
     id: uuidv4(),
     ...req.body,
@@ -59,7 +70,7 @@ app.post('/api/drivers', (req, res) => {
   res.status(201).json({ success: true, driver });
 });
 
-app.put('/api/drivers/:id/status', (req, res) => {
+app.put('/api/drivers/:id/status', requireInternal, (req, res) => {
   const driver = drivers.get(req.params.id);
   if (!driver) return res.status(404).json({ error: 'Driver not found' });
 
@@ -72,7 +83,7 @@ app.put('/api/drivers/:id/status', (req, res) => {
 
 // ── Ride Booking ─────────────────────────────────────────────────
 
-app.post('/api/rides/request', (req, res) => {
+app.post('/api/rides/request', requireInternal, (req, res) => {
   const { pickup, drop, vehicleType, userId } = req.body;
 
   // Calculate base fare
@@ -104,7 +115,7 @@ app.post('/api/rides/request', (req, res) => {
   res.status(201).json({ success: true, ride });
 });
 
-app.post('/api/rides/:id/accept', (req, res) => {
+app.post('/api/rides/:id/accept', requireInternal, (req, res) => {
   const { driverId } = req.body;
   const ride = rides.get(req.params.id);
 
@@ -124,7 +135,7 @@ app.post('/api/rides/:id/accept', (req, res) => {
   res.json({ success: true, ride, driver });
 });
 
-app.post('/api/rides/:id/start', (req, res) => {
+app.post('/api/rides/:id/start', requireInternal, (req, res) => {
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
 
@@ -135,7 +146,7 @@ app.post('/api/rides/:id/start', (req, res) => {
   res.json({ success: true, ride });
 });
 
-app.post('/api/rides/:id/complete', (req, res) => {
+app.post('/api/rides/:id/complete', requireInternal, (req, res) => {
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
 
@@ -159,7 +170,7 @@ app.post('/api/rides/:id/complete', (req, res) => {
   res.json({ success: true, ride });
 });
 
-app.post('/api/rides/:id/cancel', (req, res) => {
+app.post('/api/rides/:id/cancel', requireInternal, (req, res) => {
   const { reason } = req.body;
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
@@ -197,7 +208,7 @@ app.get('/api/surge', (req, res) => {
   });
 });
 
-app.post('/api/surge/update', (req, res) => {
+app.post('/api/surge/update', requireInternal, (req, res) => {
   const { lat, lng, multiplier, radius } = req.body;
 
   const zoneId = `${lat},${lng}`;
@@ -231,7 +242,7 @@ app.get('/api/fleet/stats', (_, res) => {
 
 // ── Safety ──────────────────────────────────────────────────────
 
-app.post('/api/safety/emergency', (req, res) => {
+app.post('/api/safety/emergency', requireInternal, (req, res) => {
   const { rideId, type, location } = req.body;
 
   // In production: alert authorities, notify emergency contacts

@@ -32,6 +32,18 @@ import { v4 as uuidv4 } from 'uuid';
 const PORT = process.env.INDUSTRY_PACKS_PORT || 4148;
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
@@ -245,7 +257,12 @@ app.get('/api/listings', (req, res) => {
   if (maxPrice) list = list.filter((l) => l.price <= parseFloat(maxPrice));
   if (q) {
     const needle = String(q).toLowerCase();
-    list = list.filter((l) => l.title.toLowerCase().includes(needle) || (l.description || '').toLowerCase().includes(needle) || l.industry.toLowerCase().includes(needle));
+    list = list.filter((l) =>
+      (l.title || '').toLowerCase().includes(needle) ||
+      (l.description || '').toLowerCase().includes(needle) ||
+      (l.industry || '').toLowerCase().includes(needle) ||
+      (l.publisher || '').toLowerCase().includes(needle)
+    );
   }
   if (sort === 'price-asc')  list.sort((a, b) => a.price - b.price);
   if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
@@ -335,20 +352,21 @@ app.post('/api/installs',requireAuth,  (req, res) => {
   if (!l) return res.status(404).json({ error: 'listing not found' });
   const id = uuidv4();
   const deployedComponents = [];
+  const comps = l.components || {};
   // pretend each component is deployed
-  for (const svc of (l.components.services || [])) {
+  for (const svc of (comps.services || [])) {
     deployedComponents.push({ kind: 'service', name: svc.name, port: svc.port, status: 'deployed', endpoint: `http://localhost:${svc.port}/health` });
   }
-  for (const a of (l.components.agents || [])) {
+  for (const a of (comps.agents || [])) {
     deployedComponents.push({ kind: 'agent', name: a.name, status: 'deployed', runtime: 'ai-intelligence:4881' });
   }
-  for (const t of (l.components.twins || [])) {
+  for (const t of (comps.twins || [])) {
     deployedComponents.push({ kind: 'twin', twinType: t.twinType, schema: t.schema, status: 'deployed', runtime: 'twinOS-Hub:4705' });
   }
-  for (const w of (l.components.workflows || [])) {
+  for (const w of (comps.workflows || [])) {
     deployedComponents.push({ kind: 'workflow', name: w.name, status: 'deployed', runtime: 'flow-orchestrator:4244' });
   }
-  for (const i of (l.components.integrations || [])) {
+  for (const i of (comps.integrations || [])) {
     deployedComponents.push({ kind: 'integration', name: i.name, status: 'installed', runtime: 'connector-hub:4785' });
   }
   const install = {
@@ -392,6 +410,14 @@ app.get('/api/audit', (req, res) => {
 });
 
 // =============================================================================
+// START
+// =============================================================================
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+// =============================================================================
 // 404 + error handling
 // =============================================================================
 
@@ -402,20 +428,12 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message || 'internal error' });
 });
 
-// =============================================================================
-// START
-// =============================================================================
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
-
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[industry-packs] listening on :${PORT}`);
-});
-installGracefulShutdown(server);
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[industry-packs] listening on :${PORT}`);
+  });
+  installGracefulShutdown(server);
+}
 
 export default app;

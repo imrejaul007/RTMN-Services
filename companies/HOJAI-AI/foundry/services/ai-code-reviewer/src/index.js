@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4762;
 app.use(express.json());
 
@@ -31,7 +42,7 @@ const CODE_ISSUES = [
 ];
 
 // REST API - Submit Code for Review
-app.post('/api/review', (req, res) => {
+app.post('/api/review', requireInternal, (req, res) => {
   const { projectId, code, language = 'javascript', fileName } = req.body;
   const reviewId = uuidv4();
 
@@ -78,7 +89,7 @@ app.get('/api/issues', (req, res) => {
 });
 
 // REST API - Batch Review
-app.post('/api/review/batch', (req, res) => {
+app.post('/api/review/batch', requireInternal, (req, res) => {
   const { projectId, files } = req.body; // files: [{name, code, language}]
 
   const results = files.map((file, i) => {
@@ -104,7 +115,7 @@ app.post('/api/review/batch', (req, res) => {
 });
 
 // REST API - Code Suggestion
-app.post('/api/suggest', (req, res) => {
+app.post('/api/suggest', requireInternal, (req, res) => {
   const { code, language = 'javascript', context } = req.body;
 
   // Generate improvement suggestions
@@ -142,7 +153,7 @@ app.post('/api/suggest', (req, res) => {
 });
 
 // REST API - Generate PR Description
-app.post('/api/pr-description', (req, res) => {
+app.post('/api/pr-description', requireInternal, (req, res) => {
   const { changes, issues } = req.body;
 
   const summary = {
@@ -177,7 +188,7 @@ ${generateSummary(issues)}
 });
 
 // REST API - Learn Pattern
-app.post('/api/patterns', (req, res) => {
+app.post('/api/patterns', requireInternal, (req, res) => {
   const { pattern, message, severity, suggestion } = req.body;
   const newPattern = { id: uuidv4(), pattern, message, severity, suggestion, learnedAt: new Date().toISOString() };
   patterns.push(newPattern);

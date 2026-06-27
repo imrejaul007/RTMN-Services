@@ -5,6 +5,18 @@ import express from 'express';
 import cors from 'cors';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3001;
 
@@ -31,7 +43,7 @@ app.get('/api/hotels', (_, res) => {
   res.json({ success: true, hotels: [] });
 });
 
-app.post('/api/hotels', (req, res) => {
+app.post('/api/hotels', requireInternal, (req, res) => {
   res.status(201).json({ success: true, hotel: { id: Date.now(), ...req.body } });
 });
 

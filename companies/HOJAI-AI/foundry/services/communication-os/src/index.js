@@ -15,6 +15,17 @@ import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.COMMUNICATION_OS_PORT || 4610;
 
@@ -616,7 +627,7 @@ const whatsapp = new WhatsAppClient();
 /**
  * POST /api/sms - Send SMS
  */
-app.post('/api/sms', async (req, res) => {
+app.post('/api/sms', requireInternal, async (req, res) => {
   const { to, body, from } = req.body;
 
   if (!to || !body) {
@@ -644,7 +655,7 @@ app.post('/api/sms', async (req, res) => {
 /**
  * POST /api/whatsapp - Send WhatsApp message
  */
-app.post('/api/whatsapp', async (req, res) => {
+app.post('/api/whatsapp', requireInternal, async (req, res) => {
   const { to, message, type = 'text', mediaUrl } = req.body;
 
   if (!to || !message) {
@@ -678,7 +689,7 @@ app.post('/api/whatsapp', async (req, res) => {
 /**
  * POST /api/email - Send email
  */
-app.post('/api/email', async (req, res) => {
+app.post('/api/email', requireInternal, async (req, res) => {
   const { to, subject, html, options = {} } = req.body;
 
   if (!to || !subject || !html) {
@@ -706,7 +717,7 @@ app.post('/api/email', async (req, res) => {
 /**
  * POST /api/push - Send push notification
  */
-app.post('/api/push', async (req, res) => {
+app.post('/api/push', requireInternal, async (req, res) => {
   const { deviceToken, notification, data = {}, topic } = req.body;
 
   if (!deviceToken && !topic) {
@@ -730,7 +741,7 @@ app.post('/api/push', async (req, res) => {
 /**
  * POST /api/voice - Make voice call
  */
-app.post('/api/voice', async (req, res) => {
+app.post('/api/voice', requireInternal, async (req, res) => {
   const { to, twimlUrl, options = {} } = req.body;
 
   if (!to) {
@@ -795,7 +806,7 @@ app.get('/api/messages/:id', async (req, res) => {
 /**
  * POST /api/templates - Create message template
  */
-app.post('/api/templates', (req, res) => {
+app.post('/api/templates', requireInternal, (req, res) => {
   const { name, channel, subject, body, variables = [], metadata = {} } = req.body;
 
   if (!name || !channel || !body) {
@@ -834,7 +845,7 @@ app.get('/api/templates', (req, res) => {
 /**
  * POST /api/templates/:id/send - Send using template
  */
-app.post('/api/templates/:id/send', async (req, res) => {
+app.post('/api/templates/:id/send', requireInternal, async (req, res) => {
   const { to, variables = {} } = req.body;
   const template = templates.get(req.params.id);
 
@@ -867,7 +878,7 @@ app.post('/api/templates/:id/send', async (req, res) => {
 /**
  * POST /api/campaigns - Create campaign
  */
-app.post('/api/campaigns', (req, res) => {
+app.post('/api/campaigns', requireInternal, (req, res) => {
   const { name, channel, templateId, recipients = [], schedule, metadata = {} } = req.body;
 
   if (!name || !channel) {
@@ -912,7 +923,7 @@ app.get('/api/campaigns', (req, res) => {
 /**
  * POST /api/campaigns/:id/send - Send campaign
  */
-app.post('/api/campaigns/:id/send', async (req, res) => {
+app.post('/api/campaigns/:id/send', requireInternal, async (req, res) => {
   const campaign = campaigns.get(req.params.id);
 
   if (!campaign) {
@@ -978,7 +989,7 @@ app.post('/api/campaigns/:id/send', async (req, res) => {
 /**
  * POST /api/webhooks - Register webhook
  */
-app.post('/api/webhooks', (req, res) => {
+app.post('/api/webhooks', requireInternal, (req, res) => {
   const { url, events, channel, secret } = req.body;
 
   if (!url || !events || !channel) {
@@ -1012,7 +1023,7 @@ app.get('/api/webhooks', (req, res) => {
 /**
  * POST /api/webhooks/deliver - Internal: deliver webhook
  */
-app.post('/api/webhooks/deliver', async (req, res) => {
+app.post('/api/webhooks/deliver', requireInternal, async (req, res) => {
   const { event, data, channel } = req.body;
 
   // Find matching webhooks
@@ -1085,7 +1096,7 @@ app.post('/api/webhooks/twilio', express.urlencoded({ extended: false }), (req, 
 /**
  * Email webhook (SendGrid)
  */
-app.post('/api/webhooks/sendgrid', (req, res) => {
+app.post('/api/webhooks/sendgrid', requireInternal, (req, res) => {
   const { sg_message_id, event, email, timestamp } = req.body;
 
   deliveryLogs.set(sg_message_id, {
@@ -1103,7 +1114,7 @@ app.post('/api/webhooks/sendgrid', (req, res) => {
 /**
  * FCM device registration
  */
-app.post('/api/devices', (req, res) => {
+app.post('/api/devices', requireInternal, (req, res) => {
   const { userId, deviceToken, platform, metadata = {} } = req.body;
 
   if (!userId || !deviceToken || !platform) {

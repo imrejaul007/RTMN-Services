@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4778;
 app.use(express.json());
 
@@ -44,7 +55,7 @@ app.get('/api/check', (req, res) => {
 });
 
 // REST API - Record Request
-app.post('/api/record', (req, res) => {
+app.post('/api/record', requireInternal, (req, res) => {
   const { key = 'default', identifier, success = true } = req.body;
 
   requests.push({
@@ -63,7 +74,7 @@ app.post('/api/record', (req, res) => {
 });
 
 // REST API - Create/Update Limit
-app.post('/api/limits', (req, res) => {
+app.post('/api/limits', requireInternal, (req, res) => {
   const { key, requests, window, by = 'ip' } = req.body;
   limits.set(key, { requests, window, by });
   res.json(limits.get(key));
@@ -73,7 +84,7 @@ app.post('/api/limits', (req, res) => {
 app.get('/api/limits', (req, res) => res.json(Array.from(limits.entries()).map(([key, config]) => ({ key, ...config }))));
 
 // REST API - Delete Limit
-app.delete('/api/limits/:key', (req, res) => {
+app.delete('/api/limits/:key', requireInternal, (req, res) => {
   if (!limits.has(req.params.key)) return res.status(404).json({ error: 'Not found' });
   limits.delete(req.params.key);
   res.json({ deleted: true });

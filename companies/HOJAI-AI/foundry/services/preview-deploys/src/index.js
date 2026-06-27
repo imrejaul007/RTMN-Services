@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4744;
 app.use(express.json());
 
@@ -14,7 +25,7 @@ const previews = new Map(); // previewId -> preview data
 const builds = []; // build history
 
 // REST API - Create Preview
-app.post('/api/previews', (req, res) => {
+app.post('/api/previews', requireInternal, (req, res) => {
   const { projectId, branch, commitSha, commitMessage, pullRequestId, appName } = req.body;
   const id = uuidv4().slice(0, 8);
   const preview = {
@@ -56,7 +67,7 @@ app.get('/api/previews', (req, res) => {
 });
 
 // REST API - Update Preview Status
-app.patch('/api/previews/:id', (req, res) => {
+app.patch('/api/previews/:id', requireInternal, (req, res) => {
   const preview = previews.get(req.params.id);
   if (!preview) return res.status(404).json({ error: 'Preview not found' });
   Object.assign(preview, req.body);
@@ -64,14 +75,14 @@ app.patch('/api/previews/:id', (req, res) => {
 });
 
 // REST API - Delete Preview
-app.delete('/api/previews/:id', (req, res) => {
+app.delete('/api/previews/:id', requireInternal, (req, res) => {
   if (!previews.has(req.params.id)) return res.status(404).json({ error: 'Preview not found' });
   previews.delete(req.params.id);
   res.json({ deleted: true });
 });
 
 // REST API - Add Comment
-app.post('/api/previews/:id/comments', (req, res) => {
+app.post('/api/previews/:id/comments', requireInternal, (req, res) => {
   const preview = previews.get(req.params.id);
   if (!preview) return res.status(404).json({ error: 'Preview not found' });
   const { userId, userName, text, x, y, screenshot } = req.body;
@@ -115,7 +126,7 @@ app.get('/api/previews/:id/deployments', (req, res) => {
   res.json(preview.deployments || []);
 });
 
-app.post('/api/previews/:id/deploy', (req, res) => {
+app.post('/api/previews/:id/deploy', requireInternal, (req, res) => {
   const preview = previews.get(req.params.id);
   if (!preview) return res.status(404).json({ error: 'Preview not found' });
 

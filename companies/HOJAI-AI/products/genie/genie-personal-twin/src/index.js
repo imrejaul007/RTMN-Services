@@ -30,6 +30,18 @@ const traitsStore = new PersistentMap('traits', { serviceName: SERVICE_NAME });
 const momentsStore = new PersistentMap('moments', { serviceName: SERVICE_NAME });
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));

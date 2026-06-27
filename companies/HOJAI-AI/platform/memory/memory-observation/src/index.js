@@ -1,6 +1,18 @@
 import express from 'express';
 const app = express();
-const PORT = process.env.OBSERVATION_ENGINE_PORT || 4785;
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+const PORT = process.env.OBSERVATION_ENGINE_PORT || 4854;
 const events = new Map();
 const observations = new Map();
 function nowIso() { return new Date().toISOString(); }
@@ -11,14 +23,14 @@ function extractTimePattern(dateStr) { const d = new Date(dateStr); return { hou
 app.use(express.json());
 app.get('/health', (_req, res) => { ok(res, { status: 'healthy', service: 'memory-observation', port: PORT }); });
 app.get('/', (_req, res) => { ok(res, { service: 'memory-observation', port: PORT }); });
-app.post('/api/events', (req, res) => {
+app.post('/api/events', requireInternal, (req, res) => {
   const { twinId, eventType, timestamp } = req.body || {};
   if (!twinId || !eventType) return fail(res, 'INVALID_INPUT', 'twinId and eventType required');
   const event = { id: generateId(), twinId, eventType, timestamp: timestamp || nowIso(), timePattern: extractTimePattern(timestamp || nowIso()), createdAt: nowIso() };
   events.set(event.id, event);
   ok(res, { event: { id: event.id, twinId, eventType } });
 });
-app.post('/api/observe', (req, res) => {
+app.post('/api/observe', requireInternal, (req, res) => {
   const { twinId, events: twinEvents } = req.body || {};
   if (!twinId) return fail(res, 'INVALID_INPUT', 'twinId required');
   const patterns = [];
@@ -37,7 +49,7 @@ app.get('/api/observations', (req, res) => {
   if (twinId) results = results.filter(o => o.twinId === twinId);
   ok(res, { count: results.length, observations: results });
 });
-app.post('/api/analyze/anomalies', (req, res) => {
+app.post('/api/analyze/anomalies', requireInternal, (req, res) => {
   const { twinId } = req.body || {};
   if (!twinId) return fail(res, 'INVALID_INPUT', 'twinId required');
   const twinEvents = Array.from(events.values()).filter(e => e.twinId === twinId);

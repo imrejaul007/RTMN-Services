@@ -240,6 +240,17 @@ async function applyStrategy(graphId, plan) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -260,7 +271,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // Decide recovery strategy (pure, no side effects)
-app.post('/api/decide', async (req, res) => {
+app.post('/api/decide', requireInternal, async (req, res) => {
   const { graphId, failedTaskId, history, options } = req.body || {};
   if (!graphId || !failedTaskId) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'graphId and failedTaskId required' });
@@ -273,7 +284,7 @@ app.post('/api/decide', async (req, res) => {
 });
 
 // Apply a recovery plan (mutates dependency-graph state)
-app.post('/api/recover', async (req, res) => {
+app.post('/api/recover', requireInternal, async (req, res) => {
   const { graphId, runId, failedTaskId, history, options } = req.body || {};
   if (!graphId || !failedTaskId) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'graphId and failedTaskId required' });
@@ -287,7 +298,7 @@ app.post('/api/recover', async (req, res) => {
 });
 
 // Checkpoints
-app.post('/api/checkpoints', async (req, res) => {
+app.post('/api/checkpoints', requireInternal, async (req, res) => {
   const { runId, graphId } = req.body || {};
   if (!runId || !graphId) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'runId and graphId required' });
   const graphRes = await dg('GET', `/api/graphs/${encodeURIComponent(graphId)}`);
@@ -296,7 +307,7 @@ app.post('/api/checkpoints', async (req, res) => {
   res.status(201).json(cp);
 });
 
-app.post('/api/checkpoints/:runId/rollback', async (req, res) => {
+app.post('/api/checkpoints/:runId/rollback', requireInternal, async (req, res) => {
   const { graphId, taskIds } = req.body || {};
   if (!graphId || !Array.isArray(taskIds)) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'graphId and taskIds[] required' });
@@ -306,7 +317,7 @@ app.post('/api/checkpoints/:runId/rollback', async (req, res) => {
 });
 
 // Failure learning
-app.post('/api/learnings', (req, res) => {
+app.post('/api/learnings', requireInternal, (req, res) => {
   const { taskId, taskKind, error, outcome } = req.body || {};
   if (!taskId || !taskKind || !outcome) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'taskId, taskKind, outcome required' });

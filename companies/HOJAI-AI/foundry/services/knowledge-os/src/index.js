@@ -15,6 +15,17 @@ import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.KNOWLEDGE_OS_PORT || 4590;
 
@@ -57,7 +68,7 @@ const DOCUMENT_TYPES = {
  */
 
 // POST /api/knowledge-bases - Create a knowledge base
-app.post('/api/knowledge-bases', (req, res) => {
+app.post('/api/knowledge-bases', requireInternal, (req, res) => {
   const { name, description, type, owner, settings } = req.body;
 
   if (!name) {
@@ -139,7 +150,7 @@ app.get('/api/knowledge-bases/:id', (req, res) => {
 });
 
 // DELETE /api/knowledge-bases/:id - Delete knowledge base
-app.delete('/api/knowledge-bases/:id', (req, res) => {
+app.delete('/api/knowledge-bases/:id', requireInternal, (req, res) => {
   const kb = knowledgeBases.get(req.params.id);
   if (!kb) {
     return res.status(404).json({ error: 'Knowledge base not found' });
@@ -163,7 +174,7 @@ app.delete('/api/knowledge-bases/:id', (req, res) => {
  */
 
 // POST /api/documents - Add a document to a knowledge base
-app.post('/api/documents', (req, res) => {
+app.post('/api/documents', requireInternal, (req, res) => {
   const { kbId, title, content, type, metadata, source } = req.body;
 
   if (!kbId || !title || !content) {
@@ -226,7 +237,7 @@ app.post('/api/documents', (req, res) => {
 });
 
 // POST /api/documents/batch - Batch add documents
-app.post('/api/documents/batch', (req, res) => {
+app.post('/api/documents/batch', requireInternal, (req, res) => {
   const { kbId, documents: docs } = req.body;
 
   if (!kbId || !docs || !Array.isArray(docs)) {
@@ -326,7 +337,7 @@ app.get('/api/documents/:id', (req, res) => {
 });
 
 // DELETE /api/documents/:id - Delete document
-app.delete('/api/documents/:id', (req, res) => {
+app.delete('/api/documents/:id', requireInternal, (req, res) => {
   const doc = documents.get(req.params.id);
   if (!doc) {
     return res.status(404).json({ error: 'Document not found' });
@@ -351,7 +362,7 @@ app.delete('/api/documents/:id', (req, res) => {
  */
 
 // POST /api/search - Search knowledge base
-app.post('/api/search', (req, res) => {
+app.post('/api/search', requireInternal, (req, res) => {
   const { query, kbId, maxResults, filters, mode } = req.body;
 
   if (!query) {
@@ -408,7 +419,7 @@ app.post('/api/search', (req, res) => {
 });
 
 // POST /api/rag - Retrieval Augmented Generation request
-app.post('/api/rag', (req, res) => {
+app.post('/api/rag', requireInternal, (req, res) => {
   const { query, kbId, agentId, context, options } = req.body;
 
   if (!query) {
@@ -481,7 +492,7 @@ app.get('/api/agents/:agentId/memory', (req, res) => {
 });
 
 // POST /api/agents/:agentId/memory - Add to agent memory
-app.post('/api/agents/:agentId/memory', (req, res) => {
+app.post('/api/agents/:agentId/memory', requireInternal, (req, res) => {
   const { agentId } = req.params;
   const { type, content, metadata, tags, importance } = req.body;
 
@@ -521,7 +532,7 @@ app.post('/api/agents/:agentId/memory', (req, res) => {
 });
 
 // POST /api/agents/:agentId/memory/learn - Mark memory as learned
-app.post('/api/agents/:agentId/memory/learn', (req, res) => {
+app.post('/api/agents/:agentId/memory/learn', requireInternal, (req, res) => {
   const { agentId } = req.params;
   const { memoryId, reinforcement } = req.body;
 
@@ -549,7 +560,7 @@ app.post('/api/agents/:agentId/memory/learn', (req, res) => {
 });
 
 // DELETE /api/agents/:agentId/memory - Clear agent memory
-app.delete('/api/agents/:agentId/memory', (req, res) => {
+app.delete('/api/agents/:agentId/memory', requireInternal, (req, res) => {
   const { agentId } = req.params;
   const { olderThan, type } = req.query;
 
@@ -584,7 +595,7 @@ app.delete('/api/agents/:agentId/memory', (req, res) => {
  */
 
 // POST /api/feedback - Record feedback
-app.post('/api/feedback', (req, res) => {
+app.post('/api/feedback', requireInternal, (req, res) => {
   const { agentId, type, content, outcome, rating, metadata } = req.body;
 
   if (!agentId || !content) {

@@ -14,6 +14,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3000;
 
@@ -83,7 +95,7 @@ app.get('/api/doctors/:id/slots', (req, res) => {
 });
 
 // Symptom checker
-app.post('/api/symptom-check', (req, res) => {
+app.post('/api/symptom-check', requireInternal, (req, res) => {
   const { symptoms } = req.body;
 
   // Mock symptom analysis
@@ -111,7 +123,7 @@ app.post('/api/symptom-check', (req, res) => {
 });
 
 // Book appointment
-app.post('/api/appointments', (req, res) => {
+app.post('/api/appointments', requireInternal, (req, res) => {
   const { patientId, doctorId, date, time, type = 'in-clinic' } = req.body;
 
   if (!patientId || !doctorId || !date || !time) {
@@ -157,7 +169,7 @@ app.get('/api/appointments/:patientId/:id', (req, res) => {
   res.json({ success: true, appointment: appt });
 });
 
-app.post('/api/appointments/:id/cancel', (req, res) => {
+app.post('/api/appointments/:id/cancel', requireInternal, (req, res) => {
   const appt = appointments.get(req.params.id);
   if (!appt) return res.status(404).json({ error: 'Appointment not found' });
 
@@ -176,7 +188,7 @@ app.get('/api/prescriptions/:patientId', (req, res) => {
   res.json({ success: true, prescriptions: patientRx });
 });
 
-app.post('/api/prescriptions', (req, res) => {
+app.post('/api/prescriptions', requireInternal, (req, res) => {
   const { patientId, doctorId, doctorName, medicines, notes } = req.body;
 
   const prescription = {
@@ -200,7 +212,7 @@ app.get('/api/records/:patientId', (req, res) => {
   res.json({ success: true, records: patientRecords });
 });
 
-app.post('/api/records', (req, res) => {
+app.post('/api/records', requireInternal, (req, res) => {
   const { patientId, type, title, data, date } = req.body;
 
   if (!records.has(patientId)) records.set(patientId, []);
@@ -245,7 +257,7 @@ app.get('/api/lab-tests', (_, res) => {
   });
 });
 
-app.post('/api/labs/book', (req, res) => {
+app.post('/api/labs/book', requireInternal, (req, res) => {
   const { patientId, labId, tests, address, date } = req.body;
 
   const booking = {
@@ -264,7 +276,7 @@ app.post('/api/labs/book', (req, res) => {
 });
 
 // Insurance
-app.post('/api/insurance/verify', (req, res) => {
+app.post('/api/insurance/verify', requireInternal, (req, res) => {
   const { policyNumber } = req.body;
 
   // Mock verification

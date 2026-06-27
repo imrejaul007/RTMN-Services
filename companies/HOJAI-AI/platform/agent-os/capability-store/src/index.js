@@ -362,6 +362,18 @@ function findAgentsForCapability(capabilityId) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -372,7 +384,7 @@ app.get('/health', (_req, res) => res.json({ service: SERVICE_NAME, version: VER
 app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // Create
-app.post('/api/capabilities', (req, res) => {
+app.post('/api/capabilities', requireInternal, (req, res) => {
   const errs = validateCapability(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -422,7 +434,7 @@ app.get('/api/capabilities/search', (req, res) => {
   res.json({ count: capabilities.length, capabilities: capabilities.map(summarizeCapability) });
 });
 
-app.post('/api/capabilities/resolve', (req, res) => {
+app.post('/api/capabilities/resolve', requireInternal, (req, res) => {
   if (!req.body || !req.body.goal || typeof req.body.goal !== 'string') {
     return res.status(400).json({ error: 'validation', details: ['goal required (non-empty string)'] });
   }
@@ -453,7 +465,7 @@ app.get('/api/capabilities/:id/agents', (req, res) => {
   res.json({ capabilityId: req.params.id, count: agents.length, agents });
 });
 
-app.post('/api/capabilities/:id/prerequisites', (req, res) => {
+app.post('/api/capabilities/:id/prerequisites', requireInternal, (req, res) => {
   const capabilities = loadCapabilities();
   const prereqs = loadPrerequisites();
   const cap = findCapability(capabilities, req.params.id);
@@ -494,7 +506,7 @@ app.post('/api/capabilities/:id/prerequisites', (req, res) => {
   res.status(201).json(summarizeCapability(capabilities.find((c) => c.id === req.params.id) || cap));
 });
 
-app.delete('/api/capabilities/:id/prerequisites/:prereqId', (req, res) => {
+app.delete('/api/capabilities/:id/prerequisites/:prereqId', requireInternal, (req, res) => {
   const capabilities = loadCapabilities();
   const prereqs = loadPrerequisites();
   const cap = findCapability(capabilities, req.params.id);
@@ -528,7 +540,7 @@ app.get('/api/capabilities/:id', (req, res) => {
 });
 
 // Update
-app.patch('/api/capabilities/:id', (req, res) => {
+app.patch('/api/capabilities/:id', requireInternal, (req, res) => {
   const capabilities = loadCapabilities();
   const idx = capabilities.findIndex((c) => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -547,7 +559,7 @@ app.patch('/api/capabilities/:id', (req, res) => {
 });
 
 // Delete (cascade-delete prereq edges)
-app.delete('/api/capabilities/:id', (req, res) => {
+app.delete('/api/capabilities/:id', requireInternal, (req, res) => {
   const capabilities = loadCapabilities();
   const idx = capabilities.findIndex((c) => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });

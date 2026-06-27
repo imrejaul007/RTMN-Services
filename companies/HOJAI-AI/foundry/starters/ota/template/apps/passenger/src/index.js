@@ -13,6 +13,18 @@ import express from 'express';
 import cors from 'cors';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3000;
 
@@ -47,7 +59,7 @@ app.get('/api/hotels', (req, res) => {
 });
 
 // Hotel booking
-app.post('/api/hotels/book', (req, res) => {
+app.post('/api/hotels/book', requireInternal, (req, res) => {
   const { hotelId, checkin, checkout, guests, paymentMethod } = req.body;
   const hotel = hotels.find(h => h.id === hotelId);
   if (!hotel) return res.status(404).json({ error: 'Hotel not found' });
@@ -81,7 +93,7 @@ app.get('/api/flights', (req, res) => {
 });
 
 // Flight booking
-app.post('/api/flights/book', (req, res) => {
+app.post('/api/flights/book', requireInternal, (req, res) => {
   const { flightId, passengers, paymentMethod } = req.body;
   const flight = flights.find(f => f.id === flightId);
   if (!flight) return res.status(404).json({ error: 'Flight not found' });
@@ -107,7 +119,7 @@ app.get('/api/packages', (req, res) => {
   res.json({ success: true, count: packages.length, packages });
 });
 
-app.post('/api/packages/book', (req, res) => {
+app.post('/api/packages/book', requireInternal, (req, res) => {
   const { packageId, travelers, date } = req.body;
   const pkg = packages.find(p => p.id === packageId);
   if (!pkg) return res.status(404).json({ error: 'Package not found' });
@@ -129,7 +141,7 @@ app.post('/api/packages/book', (req, res) => {
 });
 
 // AI Trip Planner
-app.post('/api/trip/plan', (req, res) => {
+app.post('/api/trip/plan', requireInternal, (req, res) => {
   const { destination, dates, budget, travelers, preferences } = req.body;
 
   // Simulate AI planning
@@ -160,7 +172,7 @@ app.get('/api/bookings', (req, res) => {
 });
 
 // Corporate booking
-app.post('/api/corporate/book', (req, res) => {
+app.post('/api/corporate/book', requireInternal, (req, res) => {
   const { employeeId, type, details, policyApproval } = req.body;
 
   const booking = {
@@ -178,7 +190,7 @@ app.post('/api/corporate/book', (req, res) => {
 });
 
 // Payment
-app.post('/api/payment', (req, res) => {
+app.post('/api/payment', requireInternal, (req, res) => {
   const { bookingId, method, details } = req.body;
 
   res.json({

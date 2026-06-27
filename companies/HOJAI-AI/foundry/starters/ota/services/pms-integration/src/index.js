@@ -8,6 +8,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4700;
 
@@ -66,7 +78,7 @@ app.get('/api/providers', (_, res) => {
 });
 
 // Connect hotel to PMS
-app.post('/api/connect', async (req, res) => {
+app.post('/api/connect', requireInternal, async (req, res) => {
   const { hotelId, provider, credentials } = req.body;
 
   if (!hotelId || !provider) {
@@ -103,7 +115,7 @@ app.post('/api/connect', async (req, res) => {
 });
 
 // Sync inventory (rooms) from PMS
-app.post('/api/sync/inventory', async (req, res) => {
+app.post('/api/sync/inventory', requireInternal, async (req, res) => {
   const { connectionId } = req.body;
   const connection = hotelConnections.get(connectionId);
 
@@ -155,7 +167,7 @@ app.get('/api/rates/:hotelId', async (req, res) => {
 });
 
 // Create reservation in PMS
-app.post('/api/reservation', async (req, res) => {
+app.post('/api/reservation', requireInternal, async (req, res) => {
   const { connectionId, reservation } = req.body;
   const connection = hotelConnections.get(connectionId);
 
@@ -186,7 +198,7 @@ app.post('/api/reservation', async (req, res) => {
 });
 
 // Update reservation
-app.put('/api/reservation/:id', async (req, res) => {
+app.put('/api/reservation/:id', requireInternal, async (req, res) => {
   const { id } = req.params;
   const { action, ...updates } = req.body;
 
@@ -220,7 +232,7 @@ app.get('/api/guests/:hotelId', async (req, res) => {
 });
 
 // Disconnect PMS
-app.delete('/api/connect/:connectionId', (req, res) => {
+app.delete('/api/connect/:connectionId', requireInternal, (req, res) => {
   const { connectionId } = req.params;
   if (hotelConnections.delete(connectionId)) {
     res.json({ success: true, message: 'PMS disconnected' });

@@ -276,7 +276,7 @@ IND_FINANCIAL_OS_CMD="cd $RTMN_ROOT/industry-os/services/financial-os && PORT=52
 IND_REAL_ESTATE_OS_CMD="cd $RTMN_ROOT/industry-os/services/realestate-os && PORT=5230 npm start"
 IND_TRANSPORT_OS_CMD="cd $RTMN_ROOT/industry-os/services/transport-os && PORT=5240 npm start"
 IND_EVENT_OS_CMD="cd $RTMN_ROOT/industry-os/services/event-banquet-os && PORT=4751 npm start"
-IND_ENERGY_OS_CMD="cd $RTMN_ROOT/industry-os/services/energy-os && PORT=5100 npm start"
+IND_ENERGY_OS_CMD="cd $RTMN_ROOT/industry-os/services/energy-os && npm start"
 
 # =============================================================================
 # CONSUMER APPS
@@ -442,7 +442,7 @@ status() {
     "ind-real-estate:5230" \
     "ind-transport:5240" \
     "ind-event:4751" \
-    "ind-energy:5100" \
+    "ind-energy:5260" \
     "do-app:3001" \
     "agent-platform-api:4802" \
     "agent-registry:4803" \
@@ -619,7 +619,7 @@ start_all() {
   start_service "ind-real-estate"     "$IND_REAL_ESTATE_OS_CMD"     5230
   start_service "ind-transport"       "$IND_TRANSPORT_OS_CMD"       5240
   start_service "ind-event"           "$IND_EVENT_OS_CMD"           4751
-  start_service "ind-energy"          "$IND_ENERGY_OS_CMD"          5100
+  start_service "ind-energy"          "$IND_ENERGY_OS_CMD"          5260
   # Consumer apps (2026-06-25)
   # Do App backend needs build first
   DO_BUILD_CMD="cd $RTMN_ROOT/companies/do-app/backend && npm run build"
@@ -703,6 +703,7 @@ stop_all() {
   stop_port 4704 "Twin Memory Bridge"
   stop_port 4705 "TwinOS Hub"
   stop_port 5100 "CXO OS"
+  stop_port 5260 "Energy OS"
   stop_port 4254 "PolicyOS"
   stop_port 4743 "SkillOS"
   stop_port 4241 "SimulationOS"

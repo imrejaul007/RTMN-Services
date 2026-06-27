@@ -1,0 +1,42 @@
+[
+  [
+    "att-1782527690374-8753f3",
+    {
+      "id": "att-1782527690374-8753f3",
+      "controlId": "soc2.cc6",
+      "attestedBy": "cto@example.com",
+      "attestedAt": "2026-06-27T02:34:50.374Z",
+      "validUntil": "2027-01-01T00:00:00Z",
+      "status": "revoked",
+      "notes": null,
+      "revokedAt": "2026-06-27T02:34:50.380Z",
+      "revokedBy": "admin"
+    }
+  ],
+  [
+    "att-1782527832445-b698e9",
+    {
+      "id": "att-1782527832445-b698e9",
+      "controlId": "soc2.cc6",
+      "attestedBy": "cto@example.com",
+      "attestedAt": "2026-06-27T02:37:12.445Z",
+      "validUntil": "2027-01-01T00:00:00Z",
+      "status": "revoked",
+      "notes": null,
+      "revokedAt": "2026-06-27T02:37:12.451Z",
+      "revokedBy": "admin"
+    }
+  ],
+  [
+    "att-1782527832455-be17f4",
+    {
+      "id": "att-1782527832455-be17f4",
+      "controlId": "gdpr.art32",
+      "attestedBy": "auditor@example.com",
+      "attestedAt": "2026-06-27T02:37:12.455Z",
+      "validUntil": "2028-01-01T00:00:00Z",
+      "status": "active",
+      "notes": null
+    }
+  ]
+]

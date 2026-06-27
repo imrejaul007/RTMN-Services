@@ -1,7 +1,7 @@
 /**
  * eval-benchmarks — Standard + custom benchmarks, leaderboard, public export
  *
- * Port: 4789
+ * Port: 5397 (was 4789, conflicted with proactive-engine — fixed 2026-06-27)
  *
  * Provides:
  *   - Built-in benchmark library: MMLU, HellaSwag, GSM8K, HumanEval, TruthfulQA
@@ -26,7 +26,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = parseInt(process.env.PORT || '4789', 10);
+const PORT = parseInt(process.env.PORT || '5397', 10);
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const BENCH_DIR = path.join(DATA_DIR, 'benchmarks');
 const LEADERBOARD_FILE = path.join(DATA_DIR, 'leaderboard.json');

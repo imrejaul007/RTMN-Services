@@ -9,6 +9,17 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4756;
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
@@ -20,7 +31,7 @@ const channels = new Map(); // channelId -> { subscribers, messages }
 const presence = new Map(); // channelId -> presence data
 
 // REST API - Channels
-app.post('/api/channels', (req, res) => {
+app.post('/api/channels', requireInternal, (req, res) => {
   const { name, projectId, type = 'broadcast', persistence = false } = req.body;
   const channel = {
     id: uuidv4(),
@@ -77,7 +88,7 @@ app.get('/api/channels/:channelId/messages', (req, res) => {
   res.json(messages.slice(-parseInt(limit)));
 });
 
-app.post('/api/channels/:channelId/messages', (req, res) => {
+app.post('/api/channels/:channelId/messages', requireInternal, (req, res) => {
   const channel = channels.get(req.params.channelId);
   if (!channel) return res.status(404).json({ error: 'Channel not found' });
 
@@ -105,7 +116,7 @@ app.get('/api/channels/:channelId/presence', (req, res) => {
   res.json(Object.values(pres));
 });
 
-app.post('/api/channels/:channelId/typing', (req, res) => {
+app.post('/api/channels/:channelId/typing', requireInternal, (req, res) => {
   const { userId, isTyping } = req.body;
   broadcast(req.params.channelId, { type: 'typing', userId, isTyping });
   res.json({ ok: true });

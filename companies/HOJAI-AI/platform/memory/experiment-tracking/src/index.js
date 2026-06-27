@@ -6,6 +6,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 const experiments = new Map();
@@ -15,7 +27,7 @@ const metrics = new Map();
 function genId(prefix = 'exp') { return `${prefix}_${crypto.randomBytes(6).toString('hex')}`; }
 
 // Experiments
-app.post('/api/experiments', (req, res) => {
+app.post('/api/experiments', requireInternal, (req, res) => {
   const { name, description, hypothesis, parameters, tags } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   const id = genId('exp');
@@ -37,7 +49,7 @@ app.get('/api/experiments/:id', (req, res) => {
   res.json({ experiment: e });
 });
 
-app.patch('/api/experiments/:id', (req, res) => {
+app.patch('/api/experiments/:id', requireInternal, (req, res) => {
   const e = experiments.get(req.params.id);
   if (!e) return res.status(404).json({ error: 'Experiment not found' });
   const { status, tags, parameters } = req.body;
@@ -48,7 +60,7 @@ app.patch('/api/experiments/:id', (req, res) => {
 });
 
 // Runs
-app.post('/api/runs', (req, res) => {
+app.post('/api/runs', requireInternal, (req, res) => {
   const { experimentId, config, status } = req.body;
   if (!experimentId) return res.status(400).json({ error: 'experimentId is required' });
   if (!experiments.has(experimentId)) return res.status(404).json({ error: 'Experiment not found' });
@@ -73,7 +85,7 @@ app.get('/api/runs/:id', (req, res) => {
   res.json({ run: r });
 });
 
-app.patch('/api/runs/:id', (req, res) => {
+app.patch('/api/runs/:id', requireInternal, (req, res) => {
   const r = runs.get(req.params.id);
   if (!r) return res.status(404).json({ error: 'Run not found' });
   const { status, metrics: m } = req.body;
@@ -83,7 +95,7 @@ app.patch('/api/runs/:id', (req, res) => {
 });
 
 // Metrics
-app.post('/api/metrics', (req, res) => {
+app.post('/api/metrics', requireInternal, (req, res) => {
   const { runId, name, value, step } = req.body;
   if (!runId || !name || value === undefined) return res.status(400).json({ error: 'runId, name, and value are required' });
   if (!runs.has(runId)) return res.status(404).json({ error: 'Run not found' });

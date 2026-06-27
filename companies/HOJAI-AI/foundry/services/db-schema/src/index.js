@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4750;
 app.use(express.json());
 
@@ -29,7 +40,7 @@ const DATA_TYPES = {
 };
 
 // REST API - Schemas
-app.post('/api/schemas', (req, res) => {
+app.post('/api/schemas', requireInternal, (req, res) => {
   const { projectId, name, database = 'postgres' } = req.body;
   const schema = {
     id: uuidv4(),
@@ -54,7 +65,7 @@ app.get('/api/schemas/:projectId', (req, res) => {
 });
 
 // REST API - Tables
-app.post('/api/schemas/:projectId/tables', (req, res) => {
+app.post('/api/schemas/:projectId/tables', requireInternal, (req, res) => {
   const schema = schemas.get(req.params.projectId);
   if (!schema) return res.status(404).json({ error: 'Schema not found' });
 
@@ -81,7 +92,7 @@ app.post('/api/schemas/:projectId/tables', (req, res) => {
   res.json(table);
 });
 
-app.patch('/api/schemas/:projectId/tables/:tableId', (req, res) => {
+app.patch('/api/schemas/:projectId/tables/:tableId', requireInternal, (req, res) => {
   const schema = schemas.get(req.params.projectId);
   if (!schema) return res.status(404).json({ error: 'Schema not found' });
 
@@ -93,7 +104,7 @@ app.patch('/api/schemas/:projectId/tables/:tableId', (req, res) => {
   res.json(table);
 });
 
-app.delete('/api/schemas/:projectId/tables/:tableId', (req, res) => {
+app.delete('/api/schemas/:projectId/tables/:tableId', requireInternal, (req, res) => {
   const schema = schemas.get(req.params.projectId);
   if (!schema) return res.status(404).json({ error: 'Schema not found' });
 
@@ -105,7 +116,7 @@ app.delete('/api/schemas/:projectId/tables/:tableId', (req, res) => {
 });
 
 // REST API - Columns
-app.post('/api/schemas/:projectId/tables/:tableId/columns', (req, res) => {
+app.post('/api/schemas/:projectId/tables/:tableId/columns', requireInternal, (req, res) => {
   const schema = schemas.get(req.params.projectId);
   if (!schema) return res.status(404).json({ error: 'Schema not found' });
 
@@ -122,7 +133,7 @@ app.post('/api/schemas/:projectId/tables/:tableId/columns', (req, res) => {
 });
 
 // REST API - Relationships
-app.post('/api/schemas/:projectId/relationships', (req, res) => {
+app.post('/api/schemas/:projectId/relationships', requireInternal, (req, res) => {
   const schema = schemas.get(req.params.projectId);
   if (!schema) return res.status(404).json({ error: 'Schema not found' });
 
@@ -156,7 +167,7 @@ app.get('/api/schemas/:projectId/migrations', (req, res) => {
 });
 
 // REST API - Import from existing DB
-app.post('/api/schemas/:projectId/import', (req, res) => {
+app.post('/api/schemas/:projectId/import', requireInternal, (req, res) => {
   const schema = schemas.get(req.params.projectId);
   if (!schema) return res.status(404).json({ error: 'Schema not found' });
 

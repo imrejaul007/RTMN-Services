@@ -1,0 +1,46 @@
+{
+  "name": "@hojai/workday-connector",
+  "version": "1.0.0",
+  "description": "Production-ready Workday connector with OAuth 2.0 SAML assertion flow and REST API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.4.5",
+    "winston": "^3.11.0",
+    "uuid": "^9.0.1",
+    "xml2js": "^0.6.2",
+    "@xmldom/xmldom": "^0.8.10",
+    "xpath": "^0.0.34"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/uuid": "^9.0.8",
+    "@types/node": "^20.11.30",
+    "@types/xml2js": "^0.4.14",
+    "typescript": "^5.4.3",
+    "vitest": "^1.4.0",
+    "nock": "^13.5.4",
+    "tsx": "^4.7.0"
+  },
+  "keywords": [
+    "workday",
+    "hris",
+    "connector",
+    "sutar-os",
+    "workforce"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

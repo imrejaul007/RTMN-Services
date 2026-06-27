@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4760;
 app.use(express.json());
 
@@ -63,7 +74,7 @@ function extractEntities(text) {
 }
 
 // REST API - Projects
-app.post('/api/projects', (req, res) => {
+app.post('/api/projects', requireInternal, (req, res) => {
   const { projectId, name, industry } = req.body;
   projects.set(projectId, {
     projectId,
@@ -79,7 +90,7 @@ app.post('/api/projects', (req, res) => {
 });
 
 // REST API - Submit Feedback
-app.post('/api/feedback', (req, res) => {
+app.post('/api/feedback', requireInternal, (req, res) => {
   const { projectId, userId, text, source = 'app', rating, metadata = {} } = req.body;
 
   const category = detectCategory(text);
@@ -176,7 +187,7 @@ app.get('/api/feedback/:projectId/analyze', (req, res) => {
 });
 
 // REST API - Generate Roadmap
-app.post('/api/roadmap', (req, res) => {
+app.post('/api/roadmap', requireInternal, (req, res) => {
   const { projectId, horizon = '3months' } = req.body;
   const projectFeedback = feedback.filter(f => f.projectId === projectId);
 

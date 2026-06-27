@@ -1,0 +1,12 @@
+{
+  "name": "@hojai/flow-integration-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run",
+    "test:watch": "node --experimental-vm-modules node_modules/vitest/vitest.mjs"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  }
+}

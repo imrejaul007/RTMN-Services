@@ -20,6 +20,18 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
@@ -93,7 +105,7 @@ app.get('/api/v1/workflows/:id', (req, res) => {
   }
 });
 
-app.post('/api/v1/workflows', (req, res) => {
+app.post('/api/v1/workflows', requireInternal, (req, res) => {
   try {
     const workflow = createWorkflow(req.body);
     res.status(201).json({ success: true, workflow });
@@ -102,7 +114,7 @@ app.post('/api/v1/workflows', (req, res) => {
   }
 });
 
-app.patch('/api/v1/workflows/:id', (req, res) => {
+app.patch('/api/v1/workflows/:id', requireInternal, (req, res) => {
   try {
     const workflow = updateWorkflow(req.params.id, req.body);
     if (!workflow) return res.status(404).json({ error: 'Workflow not found' });
@@ -112,7 +124,7 @@ app.patch('/api/v1/workflows/:id', (req, res) => {
   }
 });
 
-app.delete('/api/v1/workflows/:id', (req, res) => {
+app.delete('/api/v1/workflows/:id', requireInternal, (req, res) => {
   try {
     const deleted = deleteWorkflow(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Workflow not found' });
@@ -124,7 +136,7 @@ app.delete('/api/v1/workflows/:id', (req, res) => {
 
 // ── Nodes ──────────────────────────────────────────────────────────────
 
-app.post('/api/v1/workflows/:id/nodes', (req, res) => {
+app.post('/api/v1/workflows/:id/nodes', requireInternal, (req, res) => {
   try {
     const node = addNode(req.params.id, req.body);
     if (!node) return res.status(404).json({ error: 'Workflow not found' });
@@ -134,7 +146,7 @@ app.post('/api/v1/workflows/:id/nodes', (req, res) => {
   }
 });
 
-app.patch('/api/v1/workflows/:id/nodes/:nodeId', (req, res) => {
+app.patch('/api/v1/workflows/:id/nodes/:nodeId', requireInternal, (req, res) => {
   try {
     const node = updateNode(req.params.id, req.params.nodeId, req.body);
     if (!node) return res.status(404).json({ error: 'Node not found' });
@@ -144,7 +156,7 @@ app.patch('/api/v1/workflows/:id/nodes/:nodeId', (req, res) => {
   }
 });
 
-app.delete('/api/v1/workflows/:id/nodes/:nodeId', (req, res) => {
+app.delete('/api/v1/workflows/:id/nodes/:nodeId', requireInternal, (req, res) => {
   try {
     deleteNode(req.params.id, req.params.nodeId);
     res.json({ success: true, message: 'Node deleted' });
@@ -155,7 +167,7 @@ app.delete('/api/v1/workflows/:id/nodes/:nodeId', (req, res) => {
 
 // ── Edges ─────────────────────────────────────────────────────────────
 
-app.post('/api/v1/workflows/:id/edges', (req, res) => {
+app.post('/api/v1/workflows/:id/edges', requireInternal, (req, res) => {
   try {
     const edge = addEdge(req.params.id, req.body);
     if (!edge) return res.status(404).json({ error: 'Workflow not found' });
@@ -165,7 +177,7 @@ app.post('/api/v1/workflows/:id/edges', (req, res) => {
   }
 });
 
-app.delete('/api/v1/workflows/:id/edges/:from/:to', (req, res) => {
+app.delete('/api/v1/workflows/:id/edges/:from/:to', requireInternal, (req, res) => {
   try {
     deleteEdge(req.params.id, req.params.from, req.params.to);
     res.json({ success: true, message: 'Edge deleted' });
@@ -176,7 +188,7 @@ app.delete('/api/v1/workflows/:id/edges/:from/:to', (req, res) => {
 
 // ── Validation ────────────────────────────────────────────────────────
 
-app.post('/api/v1/workflows/:id/validate', (req, res) => {
+app.post('/api/v1/workflows/:id/validate', requireInternal, (req, res) => {
   try {
     const result = validateWorkflow(req.params.id);
     res.json({ success: true, ...result });
@@ -187,7 +199,7 @@ app.post('/api/v1/workflows/:id/validate', (req, res) => {
 
 // ── Execution ────────────────────────────────────────────────────────
 
-app.post('/api/v1/workflows/:id/execute', (req, res) => {
+app.post('/api/v1/workflows/:id/execute', requireInternal, (req, res) => {
   try {
     const workflow = getWorkflow(req.params.id);
     if (!workflow) return res.status(404).json({ error: 'Workflow not found' });

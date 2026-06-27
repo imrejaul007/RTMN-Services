@@ -9,6 +9,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 const PORT = 4510;
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 
 // ── BAM Agent Catalog ───────────────────────────────────
@@ -79,7 +90,7 @@ app.get('/api/v1/categories', (_, res) => {
 });
 
 // Hire an agent
-app.post('/api/v1/hire', (req, res) => {
+app.post('/api/v1/hire', requireInternal, (req, res) => {
   const { companyId, agentId, config } = req.body;
   if (!companyId || !agentId) {
     return res.status(400).json({ error: 'companyId and agentId required' });
@@ -133,7 +144,7 @@ app.get('/api/v1/company/:companyId/agents', (req, res) => {
 });
 
 // Fire agent
-app.delete('/api/v1/company/:companyId/agents/:agentInstanceId', (req, res) => {
+app.delete('/api/v1/company/:companyId/agents/:agentInstanceId', requireInternal, (req, res) => {
   const { companyId, agentInstanceId } = req.params;
   const agents = hiredAgents.get(companyId) || [];
   const index = agents.findIndex(a => a.id === agentInstanceId);
@@ -144,7 +155,7 @@ app.delete('/api/v1/company/:companyId/agents/:agentInstanceId', (req, res) => {
 });
 
 // Assign task to agent
-app.post('/api/v1/company/:companyId/agents/:agentInstanceId/tasks', (req, res) => {
+app.post('/api/v1/company/:companyId/agents/:agentInstanceId/tasks', requireInternal, (req, res) => {
   const { companyId, agentInstanceId } = req.params;
   const { task, input } = req.body;
   if (!task) return res.status(400).json({ error: 'task required' });

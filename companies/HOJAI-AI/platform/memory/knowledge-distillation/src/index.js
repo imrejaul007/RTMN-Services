@@ -6,6 +6,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 const distillations = new Map();
@@ -15,7 +27,7 @@ const knowledgeBases = new Map();
 function genId(prefix = 'kd') { return `${prefix}_${crypto.randomBytes(6).toString('hex')}`; }
 
 // Knowledge Bases
-app.post('/api/bases', (req, res) => {
+app.post('/api/bases', requireInternal, (req, res) => {
   const { name, description, sourceType, capacity } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   const id = genId('kb');
@@ -34,7 +46,7 @@ app.get('/api/bases/:id', (req, res) => {
 });
 
 // Distillations
-app.post('/api/distillations', (req, res) => {
+app.post('/api/distillations', requireInternal, (req, res) => {
   const { baseId, sourceData, targetSize, strategy } = req.body;
   if (!baseId || !sourceData) return res.status(400).json({ error: 'baseId and sourceData are required' });
   if (!knowledgeBases.has(baseId)) return res.status(404).json({ error: 'Knowledge base not found' });
@@ -61,7 +73,7 @@ app.get('/api/distillations/:id', (req, res) => {
 });
 
 // Summaries
-app.post('/api/summaries', (req, res) => {
+app.post('/api/summaries', requireInternal, (req, res) => {
   const { baseId, content, type, maxLength } = req.body;
   if (!baseId || !content) return res.status(400).json({ error: 'baseId and content are required' });
   if (!knowledgeBases.has(baseId)) return res.status(404).json({ error: 'Knowledge base not found' });

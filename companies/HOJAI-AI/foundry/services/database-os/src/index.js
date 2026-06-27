@@ -19,6 +19,17 @@ const app = express();
 app.use(cors(), express.json());
 const PORT = process.env.DATABASE_OS_PORT || 4620;
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 // ============================================
 // CONFIGURATION
 // ============================================
@@ -748,7 +759,7 @@ elasticsearch.connect();
  */
 
 // POST /api/mongodb/collections - Create collection
-app.post('/api/mongodb/collections', (req, res) => {
+app.post('/api/mongodb/collections', requireInternal, (req, res) => {
   const { name, schema } = req.body;
 
   if (!name) {
@@ -762,7 +773,7 @@ app.post('/api/mongodb/collections', (req, res) => {
 });
 
 // POST /api/mongodb/insert - Insert document
-app.post('/api/mongodb/insert', async (req, res) => {
+app.post('/api/mongodb/insert', requireInternal, async (req, res) => {
   const { collection, document } = req.body;
 
   if (!collection || !document) {
@@ -774,7 +785,7 @@ app.post('/api/mongodb/insert', async (req, res) => {
 });
 
 // POST /api/mongodb/find - Find documents
-app.post('/api/mongodb/find', async (req, res) => {
+app.post('/api/mongodb/find', requireInternal, async (req, res) => {
   const { collection, query, options } = req.body;
 
   if (!collection) {
@@ -786,7 +797,7 @@ app.post('/api/mongodb/find', async (req, res) => {
 });
 
 // POST /api/mongodb/update - Update document
-app.post('/api/mongodb/update', async (req, res) => {
+app.post('/api/mongodb/update', requireInternal, async (req, res) => {
   const { collection, query, update } = req.body;
 
   if (!collection || !query || !update) {
@@ -798,7 +809,7 @@ app.post('/api/mongodb/update', async (req, res) => {
 });
 
 // POST /api/mongodb/delete - Delete document
-app.post('/api/mongodb/delete', async (req, res) => {
+app.post('/api/mongodb/delete', requireInternal, async (req, res) => {
   const { collection, query } = req.body;
 
   if (!collection || !query) {
@@ -810,7 +821,7 @@ app.post('/api/mongodb/delete', async (req, res) => {
 });
 
 // POST /api/mongodb/aggregate - Aggregate documents
-app.post('/api/mongodb/aggregate', async (req, res) => {
+app.post('/api/mongodb/aggregate', requireInternal, async (req, res) => {
   const { collection, pipeline } = req.body;
 
   if (!collection || !pipeline) {
@@ -822,7 +833,7 @@ app.post('/api/mongodb/aggregate', async (req, res) => {
 });
 
 // POST /api/mongodb/indexes - Create index
-app.post('/api/mongodb/indexes', async (req, res) => {
+app.post('/api/mongodb/indexes', requireInternal, async (req, res) => {
   const { collection, index } = req.body;
 
   if (!collection || !index) {
@@ -838,7 +849,7 @@ app.post('/api/mongodb/indexes', async (req, res) => {
  */
 
 // POST /api/postgresql/tables - Create table
-app.post('/api/postgresql/tables', (req, res) => {
+app.post('/api/postgresql/tables', requireInternal, (req, res) => {
   const { name, columns } = req.body;
 
   if (!name || !columns) {
@@ -850,8 +861,8 @@ app.post('/api/postgresql/tables', (req, res) => {
   res.status(201).json({ success: true, table: name });
 });
 
-// POST /api/postgresql/insert - Insert row
-app.post('/api/postgresql/insert', async (req, res) => {
+// POST /api/postgresql/insert - requireInternal, Insert row
+app.post('/api/postgresql/insert', requireInternal, async (req, res) => {
   const { table, data } = req.body;
 
   if (!table || !data) {
@@ -863,7 +874,7 @@ app.post('/api/postgresql/insert', async (req, res) => {
 });
 
 // POST /api/postgresql/select - Select rows
-app.post('/api/postgresql/select', async (req, res) => {
+app.post('/api/postgresql/select', requireInternal, async (req, res) => {
   const { table, conditions, options } = req.body;
 
   if (!table) {
@@ -875,7 +886,7 @@ app.post('/api/postgresql/select', async (req, res) => {
 });
 
 // POST /api/postgresql/update - Update rows
-app.post('/api/postgresql/update', async (req, res) => {
+app.post('/api/postgresql/update', requireInternal, async (req, res) => {
   const { table, conditions, data } = req.body;
 
   if (!table || !conditions || !data) {
@@ -887,7 +898,7 @@ app.post('/api/postgresql/update', async (req, res) => {
 });
 
 // POST /api/postgresql/delete - Delete rows
-app.post('/api/postgresql/delete', async (req, res) => {
+app.post('/api/postgresql/delete', requireInternal, async (req, res) => {
   const { table, conditions } = req.body;
 
   if (!table || !conditions) {
@@ -909,7 +920,7 @@ app.get('/api/redis/get/:key', async (req, res) => {
 });
 
 // POST /api/redis/set - Set value
-app.post('/api/redis/set', async (req, res) => {
+app.post('/api/redis/set', requireInternal, async (req, res) => {
   const { key, value, options } = req.body;
 
   if (!key || value === undefined) {
@@ -927,7 +938,7 @@ app.get('/api/redis/keys/:pattern', async (req, res) => {
 });
 
 // POST /api/redis/del - Delete key
-app.post('/api/redis/del', async (req, res) => {
+app.post('/api/redis/del', requireInternal, async (req, res) => {
   const { key } = req.body;
 
   if (!key) {
@@ -939,7 +950,7 @@ app.post('/api/redis/del', async (req, res) => {
 });
 
 // POST /api/redis/hset - Hash set
-app.post('/api/redis/hset', async (req, res) => {
+app.post('/api/redis/hset', requireInternal, async (req, res) => {
   const { key, field, value } = req.body;
 
   if (!key || !field || value === undefined) {
@@ -961,7 +972,7 @@ app.get('/api/redis/hget/:key/:field', async (req, res) => {
  */
 
 // POST /api/elasticsearch/indices - Create index
-app.post('/api/elasticsearch/indices', async (req, res) => {
+app.post('/api/elasticsearch/indices', requireInternal, async (req, res) => {
   const { name, mappings } = req.body;
 
   if (!name) {
@@ -974,7 +985,7 @@ app.post('/api/elasticsearch/indices', async (req, res) => {
 });
 
 // POST /api/elasticsearch/index - Index document
-app.post('/api/elasticsearch/index', async (req, res) => {
+app.post('/api/elasticsearch/index', requireInternal, async (req, res) => {
   const { index, document, id } = req.body;
 
   if (!index || !document) {
@@ -986,7 +997,7 @@ app.post('/api/elasticsearch/index', async (req, res) => {
 });
 
 // POST /api/elasticsearch/search - Search
-app.post('/api/elasticsearch/search', async (req, res) => {
+app.post('/api/elasticsearch/search', requireInternal, async (req, res) => {
   const { index, query } = req.body;
 
   if (!index || !query) {
@@ -998,7 +1009,7 @@ app.post('/api/elasticsearch/search', async (req, res) => {
 });
 
 // POST /api/elasticsearch/bulk - Bulk operations
-app.post('/api/elasticsearch/bulk', async (req, res) => {
+app.post('/api/elasticsearch/bulk', requireInternal, async (req, res) => {
   const { operations } = req.body;
 
   if (!operations) {
@@ -1014,7 +1025,7 @@ app.post('/api/elasticsearch/bulk', async (req, res) => {
  */
 
 // POST /api/schemas - Create schema
-app.post('/api/schemas', (req, res) => {
+app.post('/api/schemas', requireInternal, (req, res) => {
   const { name, type, definition, indexes = [] } = req.body;
 
   if (!name || !type || !definition) {
@@ -1066,7 +1077,7 @@ app.get('/api/schemas', (req, res) => {
  */
 
 // POST /api/migrations - Create migration
-app.post('/api/migrations', (req, res) => {
+app.post('/api/migrations', requireInternal, (req, res) => {
   const { name, up, down, description } = req.body;
 
   if (!name || !up) {
@@ -1103,7 +1114,7 @@ app.get('/api/migrations', (req, res) => {
 });
 
 // POST /api/migrations/:id/run - Run migration
-app.post('/api/migrations/:id/run', async (req, res) => {
+app.post('/api/migrations/:id/run', requireInternal, async (req, res) => {
   const migration = migrations.get(req.params.id);
 
   if (!migration) {
@@ -1132,7 +1143,7 @@ app.post('/api/migrations/:id/run', async (req, res) => {
 });
 
 // POST /api/migrations/:id/rollback - Rollback migration
-app.post('/api/migrations/:id/rollback', async (req, res) => {
+app.post('/api/migrations/:id/rollback', requireInternal, async (req, res) => {
   const migration = migrations.get(req.params.id);
 
   if (!migration) {
@@ -1166,7 +1177,7 @@ app.post('/api/migrations/:id/rollback', async (req, res) => {
  */
 
 // POST /api/backups - Create backup
-app.post('/api/backups', (req, res) => {
+app.post('/api/backups', requireInternal, (req, res) => {
   const { type, name, metadata = {} } = req.body;
 
   if (!type) {
@@ -1214,7 +1225,7 @@ app.get('/api/backups', (req, res) => {
 });
 
 // POST /api/backups/:id/restore - Restore backup
-app.post('/api/backups/:id/restore', async (req, res) => {
+app.post('/api/backups/:id/restore', requireInternal, async (req, res) => {
   const backup = backups.get(req.params.id);
 
   if (!backup) {

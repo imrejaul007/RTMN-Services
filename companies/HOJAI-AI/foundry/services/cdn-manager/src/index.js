@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4776;
 app.use(express.json());
 
@@ -15,7 +26,7 @@ const cache = []; // cache entries
 const purges = []; // purge history
 
 // REST API - Create Zone
-app.post('/api/zones', (req, res) => {
+app.post('/api/zones', requireInternal, (req, res) => {
   const { projectId, name, origin, settings = {} } = req.body;
   const zone = {
     id: uuidv4(),
@@ -51,7 +62,7 @@ app.get('/api/zones', (req, res) => {
 });
 
 // REST API - Purge Cache
-app.post('/api/zones/:id/purge', (req, res) => {
+app.post('/api/zones/:id/purge', requireInternal, (req, res) => {
   const { urls, everything = false } = req.body;
   const zone = zones.get(req.params.id);
   if (!zone) return res.status(404).json({ error: 'Zone not found' });
@@ -70,7 +81,7 @@ app.post('/api/zones/:id/purge', (req, res) => {
 });
 
 // REST API - Add Cache Rule
-app.post('/api/zones/:id/rules', (req, res) => {
+app.post('/api/zones/:id/rules', requireInternal, (req, res) => {
   const zone = zones.get(req.params.id);
   if (!zone) return res.status(404).json({ error: 'Zone not found' });
 
@@ -101,7 +112,7 @@ app.get('/api/zones/:id/stats', (req, res) => {
 });
 
 // REST API - Create Distribution
-app.post('/api/distributions', (req, res) => {
+app.post('/api/distributions', requireInternal, (req, res) => {
   const { zoneId, cnames, enabled = true } = req.body;
   const zone = zones.get(zoneId);
   if (!zone) return res.status(404).json({ error: 'Zone not found' });
@@ -119,7 +130,7 @@ app.post('/api/distributions', (req, res) => {
 });
 
 // REST API - Invalidate
-app.post('/api/invalidate', (req, res) => {
+app.post('/api/invalidate', requireInternal, (req, res) => {
   const { zoneId, paths } = req.body;
   const invalidation = {
     id: uuidv4(),

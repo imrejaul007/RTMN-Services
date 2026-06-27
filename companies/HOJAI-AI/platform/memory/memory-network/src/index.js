@@ -8,6 +8,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -30,7 +42,7 @@ function generateMsgId() {
 // ============ SERVICE REGISTRY ============
 
 // Register a memory service
-app.post('/api/services', (req, res) => {
+app.post('/api/services', requireInternal, (req, res) => {
   const { name, url, port, capabilities, metadata } = req.body;
 
   if (!name) {
@@ -97,7 +109,7 @@ app.get('/api/services/:serviceId', (req, res) => {
 });
 
 // Update service status
-app.patch('/api/services/:serviceId', (req, res) => {
+app.patch('/api/services/:serviceId', requireInternal, (req, res) => {
   const { serviceId } = req.params;
   const { status, capabilities, metadata } = req.body;
   const service = services.get(serviceId);
@@ -115,7 +127,7 @@ app.patch('/api/services/:serviceId', (req, res) => {
 });
 
 // Unregister service
-app.delete('/api/services/:serviceId', (req, res) => {
+app.delete('/api/services/:serviceId', requireInternal, (req, res) => {
   const { serviceId } = req.params;
 
   if (!services.has(serviceId)) {
@@ -130,7 +142,7 @@ app.delete('/api/services/:serviceId', (req, res) => {
 });
 
 // Heartbeat - service alive check
-app.post('/api/services/:serviceId/heartbeat', (req, res) => {
+app.post('/api/services/:serviceId/heartbeat', requireInternal, (req, res) => {
   const { serviceId } = req.params;
   const { healthy } = req.body;
   const service = services.get(serviceId);
@@ -151,7 +163,7 @@ app.post('/api/services/:serviceId/heartbeat', (req, res) => {
 // ============ PUBSUB MESSAGING ============
 
 // Publish message to a topic
-app.post('/api/publish', (req, res) => {
+app.post('/api/publish', requireInternal, (req, res) => {
   const { topic, message, sourceId, priority } = req.body;
 
   if (!topic || !message) {
@@ -193,7 +205,7 @@ app.post('/api/publish', (req, res) => {
 });
 
 // Subscribe to a topic
-app.post('/api/subscribe', (req, res) => {
+app.post('/api/subscribe', requireInternal, (req, res) => {
   const { serviceId, topic, callback } = req.body;
 
   if (!serviceId || !topic) {
@@ -211,7 +223,7 @@ app.post('/api/subscribe', (req, res) => {
 });
 
 // Unsubscribe from topic
-app.delete('/api/subscribe', (req, res) => {
+app.delete('/api/subscribe', requireInternal, (req, res) => {
   const { serviceId, topic } = req.body;
 
   if (!serviceId || !topic) {
@@ -349,7 +361,7 @@ app.get('/api/stats', (req, res) => {
 // ============ ROUTING ============
 
 // Route message to specific service
-app.post('/api/route', (req, res) => {
+app.post('/api/route', requireInternal, (req, res) => {
   const { targetId, message, sourceId } = req.body;
 
   if (!targetId || !message) {
@@ -378,7 +390,7 @@ app.post('/api/route', (req, res) => {
 });
 
 // Broadcast to all services
-app.post('/api/broadcast', (req, res) => {
+app.post('/api/broadcast', requireInternal, (req, res) => {
   const { message, sourceId, excludeSelf } = req.body;
 
   if (!message) {

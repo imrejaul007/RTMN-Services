@@ -16,6 +16,18 @@ import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.CICD_OS_PORT || 4630;
 
@@ -765,7 +777,7 @@ const ssl = new SSLCertManager();
  */
 
 // POST /api/pipelines - Create pipeline
-app.post('/api/pipelines', (req, res) => {
+app.post('/api/pipelines', requireInternal, (req, res) => {
   const { name, source, config = {} } = req.body;
 
   if (!name) {
@@ -808,7 +820,7 @@ app.get('/api/pipelines/:id', (req, res) => {
 });
 
 // POST /api/pipelines/:id/trigger - Trigger pipeline
-app.post('/api/pipelines/:id/trigger', (req, res) => {
+app.post('/api/pipelines/:id/trigger', requireInternal, (req, res) => {
   const pipeline = pipelines.get(req.params.id);
   if (!pipeline) {
     return res.status(404).json({ error: 'Pipeline not found' });
@@ -835,7 +847,7 @@ app.post('/api/pipelines/:id/trigger', (req, res) => {
  */
 
 // POST /api/docker/build - Build image
-app.post('/api/docker/build', async (req, res) => {
+app.post('/api/docker/build', requireInternal, async (req, res) => {
   const { dockerfile, context, tag, options } = req.body;
 
   if (!tag) {
@@ -863,7 +875,7 @@ app.post('/api/docker/build', async (req, res) => {
 });
 
 // POST /api/docker/push - Push image
-app.post('/api/docker/push', async (req, res) => {
+app.post('/api/docker/push', requireInternal, async (req, res) => {
   const { tag } = req.body;
 
   if (!tag) {
@@ -875,14 +887,14 @@ app.post('/api/docker/push', async (req, res) => {
 });
 
 // GET /api/docker/generate - Generate Dockerfile
-app.post('/api/docker/generate', (req, res) => {
+app.post('/api/docker/generate', requireInternal, (req, res) => {
   const config = req.body;
   const dockerfile = docker.generateDockerfile(config);
   res.json({ success: true, dockerfile });
 });
 
 // POST /api/docker/compose - Generate Docker Compose
-app.post('/api/docker/compose', (req, res) => {
+app.post('/api/docker/compose', requireInternal, (req, res) => {
   const { services, options } = req.body;
   const compose = docker.generateDockerCompose(services, options);
   res.json({ success: true, compose });
@@ -893,56 +905,56 @@ app.post('/api/docker/compose', (req, res) => {
  */
 
 // POST /api/k8s/deployment - Generate deployment
-app.post('/api/k8s/deployment', (req, res) => {
+app.post('/api/k8s/deployment', requireInternal, (req, res) => {
   const config = req.body;
   const deployment = kubernetes.generateDeployment(config);
   res.json({ success: true, manifest: deployment });
 });
 
 // POST /api/k8s/service - Generate service
-app.post('/api/k8s/service', (req, res) => {
+app.post('/api/k8s/service', requireInternal, (req, res) => {
   const config = req.body;
   const service = kubernetes.generateService(config);
   res.json({ success: true, manifest: service });
 });
 
 // POST /api/k8s/ingress - Generate ingress
-app.post('/api/k8s/ingress', (req, res) => {
+app.post('/api/k8s/ingress', requireInternal, (req, res) => {
   const config = req.body;
   const ingress = kubernetes.generateIngress(config);
   res.json({ success: true, manifest: ingress });
 });
 
 // POST /api/k8s/configmap - Generate configmap
-app.post('/api/k8s/configmap', (req, res) => {
+app.post('/api/k8s/configmap', requireInternal, (req, res) => {
   const config = req.body;
   const configmap = kubernetes.generateConfigMap(config);
   res.json({ success: true, manifest: configmap });
 });
 
 // POST /api/k8s/secret - Generate secret
-app.post('/api/k8s/secret', (req, res) => {
+app.post('/api/k8s/secret', requireInternal, (req, res) => {
   const config = req.body;
   const secret = kubernetes.generateSecret(config);
   res.json({ success: true, manifest: secret });
 });
 
 // POST /api/k8s/hpa - Generate HPA
-app.post('/api/k8s/hpa', (req, res) => {
+app.post('/api/k8s/hpa', requireInternal, (req, res) => {
   const config = req.body;
   const hpa = kubernetes.generateHorizontalPodAutoscaler(config);
   res.json({ success: true, manifest: hpa });
 });
 
 // POST /api/k8s/helm - Generate Helm chart
-app.post('/api/k8s/helm', (req, res) => {
+app.post('/api/k8s/helm', requireInternal, (req, res) => {
   const config = req.body;
   const chart = kubernetes.generateHelmChart(config);
   res.json({ success: true, chart });
 });
 
 // POST /api/k8s/apply - Apply manifest
-app.post('/api/k8s/apply', async (req, res) => {
+app.post('/api/k8s/apply', requireInternal, async (req, res) => {
   const { manifest } = req.body;
 
   if (!manifest) {
@@ -958,7 +970,7 @@ app.post('/api/k8s/apply', async (req, res) => {
  */
 
 // POST /api/github/workflow - Generate workflow
-app.post('/api/github/workflow', (req, res) => {
+app.post('/api/github/workflow', requireInternal, (req, res) => {
   const { name, on, buildConfig, testConfig, deployConfig } = req.body;
 
   const jobs = {};
@@ -991,7 +1003,7 @@ app.post('/api/github/workflow', (req, res) => {
  */
 
 // POST /api/gitlab/ci - Generate GitLab CI config
-app.post('/api/gitlab/ci', (req, res) => {
+app.post('/api/gitlab/ci', requireInternal, (req, res) => {
   const { stages, variables, buildConfig, deployConfig } = req.body;
 
   const ciConfig = gitlab.generateCIConfig({ stages, variables });
@@ -1017,7 +1029,7 @@ app.post('/api/gitlab/ci', (req, res) => {
  */
 
 // POST /api/ssl/cert - Request certificate
-app.post('/api/ssl/cert', async (req, res) => {
+app.post('/api/ssl/cert', requireInternal, async (req, res) => {
   const { domain } = req.body;
 
   if (!domain) {
@@ -1035,13 +1047,13 @@ app.get('/api/ssl/certs', (req, res) => {
 });
 
 // POST /api/ssl/certs/:id/renew - Renew certificate
-app.post('/api/ssl/certs/:id/renew', async (req, res) => {
+app.post('/api/ssl/certs/:id/renew', requireInternal, async (req, res) => {
   const result = await ssl.renewCertificate(req.params.id);
   res.json(result);
 });
 
 // POST /api/ssl/certs/:id/revoke - Revoke certificate
-app.post('/api/ssl/certs/:id/revoke', async (req, res) => {
+app.post('/api/ssl/certs/:id/revoke', requireInternal, async (req, res) => {
   const result = await ssl.revokeCertificate(req.params.id);
   res.json(result);
 });
@@ -1051,7 +1063,7 @@ app.post('/api/ssl/certs/:id/revoke', async (req, res) => {
  */
 
 // POST /api/deployments - Create deployment
-app.post('/api/deployments', (req, res) => {
+app.post('/api/deployments', requireInternal, (req, res) => {
   const { name, environment, image, replicas = 1, port = 80 } = req.body;
 
   if (!name || !environment) {
@@ -1110,7 +1122,7 @@ app.get('/api/deployments/:id', (req, res) => {
 });
 
 // POST /api/deployments/:id/rollback - Rollback deployment
-app.post('/api/deployments/:id/rollback', (req, res) => {
+app.post('/api/deployments/:id/rollback', requireInternal, (req, res) => {
   const deployment = deployments.get(req.params.id);
   if (!deployment) {
     return res.status(404).json({ error: 'Deployment not found' });
@@ -1135,7 +1147,7 @@ app.post('/api/deployments/:id/rollback', (req, res) => {
  */
 
 // POST /api/environments - Create environment
-app.post('/api/environments', (req, res) => {
+app.post('/api/environments', requireInternal, (req, res) => {
   const { name, type, variables = {} } = req.body;
 
   if (!name) {

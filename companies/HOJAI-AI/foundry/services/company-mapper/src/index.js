@@ -10,6 +10,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(express.json());
 const PORT = 4560;
 
@@ -462,7 +473,7 @@ app.get('/api/v1/company/:id', (req, res) => {
   res.json({ success: true, company: { id: req.params.id, ...company } });
 });
 
-app.post('/api/v1/generate/:id', (req, res) => {
+app.post('/api/v1/generate/:id', requireInternal, (req, res) => {
   const company = COMPANIES[req.params.id.toLowerCase()];
   if (!company) return res.status(404).json({ error: 'Company not found' });
 

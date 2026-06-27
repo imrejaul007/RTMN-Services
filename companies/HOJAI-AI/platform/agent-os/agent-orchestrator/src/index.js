@@ -344,6 +344,18 @@ function findRunIndex(runs, id) { return runs.findIndex((r) => r && r.id === id)
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -354,7 +366,7 @@ app.get('/health', (_req, res) => res.json({ service: SERVICE_NAME, version: VER
 app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // Create workflow
-app.post('/api/workflows', (req, res) => {
+app.post('/api/workflows', requireInternal, (req, res) => {
   const errs = validateWorkflow(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
   const workflows = loadWorkflows();
@@ -396,7 +408,7 @@ app.get('/api/workflows/runs/:runId', (req, res) => {
   res.json(summarizeRun(r));
 });
 
-app.post('/api/workflows/runs/:runId/cancel', (req, res) => {
+app.post('/api/workflows/runs/:runId/cancel', requireInternal, (req, res) => {
   const runs = loadRuns();
   const idx = findRunIndex(runs, req.params.runId);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.runId });
@@ -420,7 +432,7 @@ app.post('/api/workflows/runs/:runId/cancel', (req, res) => {
   res.json(summarizeRun(r));
 });
 
-app.post('/api/workflows/runs/:runId/step/:stepId/complete', (req, res) => {
+app.post('/api/workflows/runs/:runId/step/:stepId/complete', requireInternal, (req, res) => {
   const runs = loadRuns();
   const workflows = loadWorkflows();
   const idx = findRunIndex(runs, req.params.runId);
@@ -466,7 +478,7 @@ app.post('/api/workflows/runs/:runId/step/:stepId/complete', (req, res) => {
   res.json(summarizeRun(r));
 });
 
-app.post('/api/workflows/runs/:runId/step/:stepId/fail', (req, res) => {
+app.post('/api/workflows/runs/:runId/step/:stepId/fail', requireInternal, (req, res) => {
   const runs = loadRuns();
   const workflows = loadWorkflows();
   const idx = findRunIndex(runs, req.params.runId);
@@ -527,7 +539,7 @@ app.get('/api/workflows/:id', (req, res) => {
 });
 
 // Update workflow
-app.patch('/api/workflows/:id', (req, res) => {
+app.patch('/api/workflows/:id', requireInternal, (req, res) => {
   const workflows = loadWorkflows();
   const idx = findWorkflowIndex(workflows, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -541,7 +553,7 @@ app.patch('/api/workflows/:id', (req, res) => {
 });
 
 // Delete workflow
-app.delete('/api/workflows/:id', (req, res) => {
+app.delete('/api/workflows/:id', requireInternal, (req, res) => {
   const workflows = loadWorkflows();
   const idx = findWorkflowIndex(workflows, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -551,7 +563,7 @@ app.delete('/api/workflows/:id', (req, res) => {
 });
 
 // Start a run for a workflow
-app.post('/api/workflows/:id/run', (req, res) => {
+app.post('/api/workflows/:id/run', requireInternal, (req, res) => {
   const workflows = loadWorkflows();
   const idx = findWorkflowIndex(workflows, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });

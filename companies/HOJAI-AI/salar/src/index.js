@@ -31,6 +31,18 @@ if (IS_PRODUCTION) {
 const CORPID_URL = process.env.CORPID_URL || 'http://localhost:7001';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(compression());
@@ -153,7 +165,7 @@ app.get('/health', (req, res) => send(res, 200, { service: 'salar', status: 'hea
 app.get('/ready',  (req, res) => send(res, 200, { service: 'salar', status: 'ready',   version: '1.0.0' }));
 
 // AUTH
-app.post('/api/auth/signup', async (req, res, next) => {
+app.post('/api/auth/signup', requireInternal, async (req, res, next) => {
   try {
     const data = signupSchema.parse(req.body);
     if (await Provider.findOne({ email: data.email })) return err(res, 409, 'CONFLICT', 'Email exists');
@@ -167,7 +179,7 @@ app.post('/api/auth/signup', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.post('/api/auth/login', async (req, res, next) => {
+app.post('/api/auth/login', requireInternal, async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
     const p = await Provider.findOne({ email });
@@ -240,7 +252,7 @@ app.get('/api/providers/:providerId/listings', async (req, res, next) => {
 });
 
 // REVIEWS
-app.post('/api/listings/:listingId/reviews', async (req, res, next) => {
+app.post('/api/listings/:listingId/reviews', requireInternal, async (req, res, next) => {
   try {
     const data = reviewSchema.parse(req.body);
     const listing = await Listing.findOne({ listingId: req.params.listingId });
@@ -255,7 +267,7 @@ app.post('/api/listings/:listingId/reviews', async (req, res, next) => {
 });
 
 // PURCHASES
-app.post('/api/listings/:listingId/purchase', async (req, res, next) => {
+app.post('/api/listings/:listingId/purchase', requireInternal, async (req, res, next) => {
   try {
     const data = purchaseSchema.parse(req.body);
     const listing = await Listing.findOne({ listingId: req.params.listingId, published: true });

@@ -17,6 +17,17 @@ const DEPLOY_DIR = process.env.DEPLOY_DIR || '/tmp/hojai-deploys';
 const BASE_DOMAIN = process.env.BASE_DOMAIN || 'hojai.app';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 
 // Deployments store
@@ -87,7 +98,7 @@ Hired from BAM: https://app.hojai.ai/bam
 }
 
 // Deploy endpoint
-app.post('/deploy', async (req, res) => {
+app.post('/deploy', requireInternal, async (req, res) => {
   const { companyName, template, config } = req.body;
 
   if (!companyName || !template) {

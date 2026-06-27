@@ -8,6 +8,17 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4710;
 
@@ -51,13 +62,13 @@ app.get('/api/products/:id', (req, res) => {
   res.json({ success: true, product });
 });
 
-app.post('/api/products', (req, res) => {
+app.post('/api/products', requireInternal, (req, res) => {
   const product = { id: uuidv4(), ...req.body, createdAt: new Date().toISOString() };
   products.set(product.id, product);
   res.status(201).json({ success: true, product });
 });
 
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', requireInternal, (req, res) => {
   const product = products.get(req.params.id);
   if (!product) return res.status(404).json({ error: 'Product not found' });
   const updated = { ...product, ...req.body };
@@ -65,7 +76,7 @@ app.put('/api/products/:id', (req, res) => {
   res.json({ success: true, product: updated });
 });
 
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', requireInternal, (req, res) => {
   if (!products.has(req.params.id)) return res.status(404).json({ error: 'Product not found' });
   products.delete(req.params.id);
   res.json({ success: true, message: 'Product deleted' });
@@ -86,7 +97,7 @@ app.get('/api/inventory', (req, res) => {
   res.json({ success: true, count: items.length, inventory: items });
 });
 
-app.post('/api/inventory/adjust', (req, res) => {
+app.post('/api/inventory/adjust', requireInternal, (req, res) => {
   const { productId, adjustment, reason } = req.body;
   const product = products.get(productId);
   if (!product) return res.status(404).json({ error: 'Product not found' });
@@ -102,7 +113,7 @@ app.post('/api/inventory/adjust', (req, res) => {
 
 // ── Orders ───────────────────────────────────────────────────────
 
-app.post('/api/orders', (req, res) => {
+app.post('/api/orders', requireInternal, (req, res) => {
   const { items, buyer, address, paymentMethod } = req.body;
 
   if (!items || items.length === 0) {
@@ -160,7 +171,7 @@ app.get('/api/orders/:id', (req, res) => {
   res.json({ success: true, order });
 });
 
-app.put('/api/orders/:id/status', (req, res) => {
+app.put('/api/orders/:id/status', requireInternal, (req, res) => {
   const order = orders.get(req.params.id);
   if (!order) return res.status(404).json({ error: 'Order not found' });
 
@@ -178,7 +189,7 @@ app.put('/api/orders/:id/status', (req, res) => {
 
 // ── Returns ──────────────────────────────────────────────────────
 
-app.post('/api/returns', (req, res) => {
+app.post('/api/returns', requireInternal, (req, res) => {
   const { orderId, items, reason } = req.body;
   const order = orders.get(orderId);
 
@@ -210,7 +221,7 @@ app.get('/api/returns', (req, res) => {
   res.json({ success: true, count: results.length, returns: results });
 });
 
-app.put('/api/returns/:id/status', (req, res) => {
+app.put('/api/returns/:id/status', requireInternal, (req, res) => {
   const ret = returns.get(req.params.id);
   if (!ret) return res.status(404).json({ error: 'Return not found' });
 
@@ -237,7 +248,7 @@ app.put('/api/returns/:id/status', (req, res) => {
 
 // ── Sellers ──────────────────────────────────────────────────────
 
-app.post('/api/sellers', (req, res) => {
+app.post('/api/sellers', requireInternal, (req, res) => {
   const seller = {
     id: uuidv4(),
     ...req.body,
@@ -261,7 +272,7 @@ app.get('/api/sellers/:id', (req, res) => {
   res.json({ success: true, seller });
 });
 
-app.put('/api/sellers/:id/status', (req, res) => {
+app.put('/api/sellers/:id/status', requireInternal, (req, res) => {
   const seller = sellers.get(req.params.id);
   if (!seller) return res.status(404).json({ error: 'Seller not found' });
 

@@ -309,6 +309,18 @@ async function proxyRemote(tool, input) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -318,7 +330,7 @@ app.get('/health', (_req, res) => res.json({ service: SERVICE_NAME, version: VER
 app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // Create tool
-app.post('/api/tools', (req, res) => {
+app.post('/api/tools', requireInternal, (req, res) => {
   const errs = validateTool(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -357,7 +369,7 @@ app.get('/api/tools/:id', (req, res) => {
 });
 
 // Update (PATCH - in place, no version)
-app.patch('/api/tools/:id', (req, res) => {
+app.patch('/api/tools/:id', requireInternal, (req, res) => {
   const tools = loadTools();
   const idx = findToolIndex(tools, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -374,7 +386,7 @@ app.patch('/api/tools/:id', (req, res) => {
 });
 
 // Delete
-app.delete('/api/tools/:id', (req, res) => {
+app.delete('/api/tools/:id', requireInternal, (req, res) => {
   const tools = loadTools();
   const idx = findToolIndex(tools, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -384,7 +396,7 @@ app.delete('/api/tools/:id', (req, res) => {
 });
 
 // Invoke a tool (remote: proxy HTTP; local: 400)
-app.post('/api/tools/:id/invoke', async (req, res) => {
+app.post('/api/tools/:id/invoke', requireInternal, async (req, res) => {
   const tools = loadTools();
   const idx = findToolIndex(tools, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });

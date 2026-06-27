@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4774;
 app.use(express.json());
 
@@ -15,7 +26,7 @@ const schedules = []; // cron jobs
 const executions = []; // job runs
 
 // REST API - Create Job
-app.post('/api/jobs', (req, res) => {
+app.post('/api/jobs', requireInternal, (req, res) => {
   const { projectId, name, type = 'once', config, handler } = req.body;
   const job = {
     id: uuidv4(),
@@ -33,7 +44,7 @@ app.post('/api/jobs', (req, res) => {
 });
 
 // REST API - Schedule Recurring Job
-app.post('/api/schedules', (req, res) => {
+app.post('/api/schedules', requireInternal, (req, res) => {
   const { projectId, name, cron, handler, enabled = true } = req.body;
   const schedule = {
     id: uuidv4(),
@@ -51,7 +62,7 @@ app.post('/api/schedules', (req, res) => {
 });
 
 // REST API - Trigger Job
-app.post('/api/jobs/:id/trigger', (req, res) => {
+app.post('/api/jobs/:id/trigger', requireInternal, (req, res) => {
   const job = jobs.get(req.params.id);
   if (!job) return res.status(404).json({ error: 'Job not found' });
 
@@ -103,7 +114,7 @@ app.get('/api/schedules', (req, res) => {
 });
 
 // REST API - Toggle Schedule
-app.post('/api/schedules/:id/toggle', (req, res) => {
+app.post('/api/schedules/:id/toggle', requireInternal, (req, res) => {
   const schedule = schedules.find(s => s.id === req.params.id);
   if (!schedule) return res.status(404).json({ error: 'Not found' });
   schedule.enabled = !schedule.enabled;
@@ -120,7 +131,7 @@ app.get('/api/executions', (req, res) => {
 });
 
 // REST API - Delete Job
-app.delete('/api/jobs/:id', (req, res) => {
+app.delete('/api/jobs/:id', requireInternal, (req, res) => {
   if (!jobs.has(req.params.id)) return res.status(404).json({ error: 'Job not found' });
   jobs.delete(req.params.id);
   res.json({ deleted: true });

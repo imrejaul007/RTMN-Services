@@ -21,6 +21,18 @@ import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4791;
 
 // Middleware
@@ -173,7 +185,7 @@ const applyRetentionPolicy = (memory, policy) => {
 // ============================================
 
 // Grant ownership
-app.post('/ownership', (req, res) => {
+app.post('/ownership', requireInternal, (req, res) => {
   const { memoryId, ownerId, ownerType, metadata } = req.body;
 
   if (!memoryId || !ownerId) {
@@ -207,7 +219,7 @@ app.get('/ownership/:memoryId', (req, res) => {
 });
 
 // Transfer ownership
-app.post('/ownership/:memoryId/transfer', (req, res) => {
+app.post('/ownership/:memoryId/transfer', requireInternal, (req, res) => {
   const { newOwnerId, newOwnerType, reason } = req.body;
 
   const record = ownership.get(req.params.memoryId);
@@ -255,7 +267,7 @@ app.get('/ownership', (req, res) => {
 });
 
 // Delete ownership (memory deleted)
-app.delete('/ownership/:memoryId', (req, res) => {
+app.delete('/ownership/:memoryId', requireInternal, (req, res) => {
   if (!ownership.has(req.params.memoryId)) {
     return res.status(404).json({ error: 'Ownership record not found' });
   }
@@ -271,7 +283,7 @@ app.delete('/ownership/:memoryId', (req, res) => {
 // ============================================
 
 // Grant consent
-app.post('/consents', (req, res) => {
+app.post('/consents', requireInternal, (req, res) => {
   const { entityId, entityType, type, expiresAt, metadata } = req.body;
 
   if (!entityId || !type) {
@@ -374,7 +386,7 @@ app.get('/consents/check/:entityId/:type', (req, res) => {
 });
 
 // Withdraw consent
-app.post('/consents/:id/withdraw', (req, res) => {
+app.post('/consents/:id/withdraw', requireInternal, (req, res) => {
   const consent = consents.get(req.params.id);
   if (!consent) {
     return res.status(404).json({ error: 'Consent not found' });
@@ -402,7 +414,7 @@ app.post('/consents/:id/withdraw', (req, res) => {
 // ============================================
 
 // Create retention policy
-app.post('/retention-policies', (req, res) => {
+app.post('/retention-policies', requireInternal, (req, res) => {
   const { name, description, rules, appliesTo, metadata } = req.body;
 
   if (!name || !rules) {
@@ -443,7 +455,7 @@ app.get('/retention-policies', (req, res) => {
 });
 
 // Update retention policy
-app.put('/retention-policies/:id', (req, res) => {
+app.put('/retention-policies/:id', requireInternal, (req, res) => {
   const policy = retentionPolicies.get(req.params.id);
   if (!policy) {
     return res.status(404).json({ error: 'Retention policy not found' });
@@ -465,7 +477,7 @@ app.put('/retention-policies/:id', (req, res) => {
 });
 
 // Delete retention policy
-app.delete('/retention-policies/:id', (req, res) => {
+app.delete('/retention-policies/:id', requireInternal, (req, res) => {
   if (!retentionPolicies.has(req.params.id)) {
     return res.status(404).json({ error: 'Retention policy not found' });
   }
@@ -477,7 +489,7 @@ app.delete('/retention-policies/:id', (req, res) => {
 });
 
 // Preview retention actions
-app.post('/retention-policies/:id/preview', (req, res) => {
+app.post('/retention-policies/:id/preview', requireInternal, (req, res) => {
   const policy = retentionPolicies.get(req.params.id);
   if (!policy) {
     return res.status(404).json({ error: 'Retention policy not found' });
@@ -509,7 +521,7 @@ app.post('/retention-policies/:id/preview', (req, res) => {
 // ============================================
 
 // Create deletion request
-app.post('/deletion-requests', (req, res) => {
+app.post('/deletion-requests', requireInternal, (req, res) => {
   const { memoryId, requesterId, requesterType, reason, regulation } = req.body;
 
   if (!memoryId || !requesterId) {
@@ -582,7 +594,7 @@ app.get('/deletion-requests', (req, res) => {
 });
 
 // Complete deletion request
-app.post('/deletion-requests/:id/complete', (req, res) => {
+app.post('/deletion-requests/:id/complete', requireInternal, (req, res) => {
   const request = deletionRequests.get(req.params.id);
   if (!request) {
     return res.status(404).json({ error: 'Deletion request not found' });
@@ -605,7 +617,7 @@ app.post('/deletion-requests/:id/complete', (req, res) => {
 });
 
 // Deny deletion request
-app.post('/deletion-requests/:id/deny', (req, res) => {
+app.post('/deletion-requests/:id/deny', requireInternal, (req, res) => {
   const { reason } = req.body;
 
   const request = deletionRequests.get(req.params.id);
@@ -631,7 +643,7 @@ app.post('/deletion-requests/:id/deny', (req, res) => {
 // ============================================
 
 // Create export job
-app.post('/exports', (req, res) => {
+app.post('/exports', requireInternal, (req, res) => {
   const { entityId, entityType, format, dataCategories, memoryIds } = req.body;
 
   if (!entityId) {
@@ -708,7 +720,7 @@ app.get('/exports', (req, res) => {
 // ============================================
 
 // Record data processing
-app.post('/processing-records', (req, res) => {
+app.post('/processing-records', requireInternal, (req, res) => {
   const { memoryId, processorId, processorType, purpose, legalBasis, dataCategories } = req.body;
 
   if (!memoryId || !processorId || !purpose) {

@@ -126,7 +126,7 @@ export function generateSuggestions(policy, context, reason) {
     suggestions.push('Ensure the user has the required scope for this skill');
   }
   if (userId && reason) {
-    suggestions.push('Contact ${userId} to verify identity');
+    suggestions.push(`Contact ${userId} to verify identity`);
   }
   return Array.from(new Set(suggestions)).slice(0, 6);
 }

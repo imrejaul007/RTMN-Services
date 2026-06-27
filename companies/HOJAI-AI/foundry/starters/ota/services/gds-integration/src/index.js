@@ -8,6 +8,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4701;
 
@@ -116,7 +128,7 @@ app.get('/api/flights/search', async (req, res) => {
 });
 
 // Book flight
-app.post('/api/flights/book', async (req, res) => {
+app.post('/api/flights/book', requireInternal, async (req, res) => {
   const { flightId, passengers, contact, paymentMethod } = req.body;
 
   if (!flightId || !passengers || passengers.length === 0) {
@@ -163,7 +175,7 @@ app.get('/api/flights/booking/:pnr', async (req, res) => {
 });
 
 // Cancel booking
-app.post('/api/flights/cancel/:pnr', async (req, res) => {
+app.post('/api/flights/cancel/:pnr', requireInternal, async (req, res) => {
   const { pnr } = req.params;
   const { reason, refundAmount } = req.body;
 

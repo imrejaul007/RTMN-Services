@@ -435,6 +435,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = parseInt(process.env.PORT || '4148', 10);
 
 app.use(cors());
@@ -469,7 +481,7 @@ app.get('/api/v1/info', (_req, res) => {
 });
 
 // Run evolution
-app.post('/api/v1/evolve', (req, res) => {
+app.post('/api/v1/evolve', requireInternal, (req, res) => {
   try {
     const { blueprint, metrics, config } = req.body;
 

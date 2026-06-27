@@ -17,6 +17,17 @@ import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.BILLING_OS_PORT || 4595;
 
@@ -196,7 +207,7 @@ app.get('/api/plans/:id', (req, res) => {
  */
 
 // POST /api/subscriptions - Create subscription
-app.post('/api/subscriptions', (req, res) => {
+app.post('/api/subscriptions', requireInternal, (req, res) => {
   const { customerId, planId, period, paymentMethod, trialDays, metadata } = req.body;
 
   if (!customerId || !planId) {
@@ -285,7 +296,7 @@ app.get('/api/subscriptions/:id', (req, res) => {
 });
 
 // POST /api/subscriptions/:id/cancel - Cancel subscription
-app.post('/api/subscriptions/:id/cancel', (req, res) => {
+app.post('/api/subscriptions/:id/cancel', requireInternal, (req, res) => {
   const { immediate = false } = req.body;
   const sub = subscriptions.get(req.params.id);
 
@@ -309,7 +320,7 @@ app.post('/api/subscriptions/:id/cancel', (req, res) => {
 });
 
 // POST /api/subscriptions/:id/pause - Pause subscription
-app.post('/api/subscriptions/:id/pause', (req, res) => {
+app.post('/api/subscriptions/:id/pause', requireInternal, (req, res) => {
   const sub = subscriptions.get(req.params.id);
   if (!sub) {
     return res.status(404).json({ error: 'Subscription not found' });
@@ -325,7 +336,7 @@ app.post('/api/subscriptions/:id/pause', (req, res) => {
 });
 
 // POST /api/subscriptions/:id/resume - Resume subscription
-app.post('/api/subscriptions/:id/resume', (req, res) => {
+app.post('/api/subscriptions/:id/resume', requireInternal, (req, res) => {
   const sub = subscriptions.get(req.params.id);
   if (!sub) {
     return res.status(404).json({ error: 'Subscription not found' });
@@ -341,7 +352,7 @@ app.post('/api/subscriptions/:id/resume', (req, res) => {
 });
 
 // POST /api/subscriptions/:id/change - Change plan
-app.post('/api/subscriptions/:id/change', (req, res) => {
+app.post('/api/subscriptions/:id/change', requireInternal, (req, res) => {
   const { newPlanId, immediate = false } = req.body;
   const sub = subscriptions.get(req.params.id);
 
@@ -411,7 +422,7 @@ app.get('/api/invoices/:id', (req, res) => {
 });
 
 // POST /api/invoices - Create invoice
-app.post('/api/invoices', (req, res) => {
+app.post('/api/invoices', requireInternal, (req, res) => {
   const { customerId, subscriptionId, items, dueDate, metadata } = req.body;
 
   if (!customerId || !items || items.length === 0) {
@@ -457,7 +468,7 @@ app.post('/api/invoices', (req, res) => {
 });
 
 // POST /api/invoices/:id/send - Send invoice
-app.post('/api/invoices/:id/send', (req, res) => {
+app.post('/api/invoices/:id/send', requireInternal, (req, res) => {
   const invoice = invoices.get(req.params.id);
   if (!invoice) {
     return res.status(404).json({ error: 'Invoice not found' });
@@ -473,7 +484,7 @@ app.post('/api/invoices/:id/send', (req, res) => {
 });
 
 // POST /api/invoices/:id/void - Void invoice
-app.post('/api/invoices/:id/void', (req, res) => {
+app.post('/api/invoices/:id/void', requireInternal, (req, res) => {
   const invoice = invoices.get(req.params.id);
   if (!invoice) {
     return res.status(404).json({ error: 'Invoice not found' });
@@ -493,7 +504,7 @@ app.post('/api/invoices/:id/void', (req, res) => {
  */
 
 // POST /api/payments - Process payment
-app.post('/api/payments', (req, res) => {
+app.post('/api/payments', requireInternal, (req, res) => {
   const { customerId, invoiceId, amount, currency, paymentMethod, metadata } = req.body;
 
   if (!customerId || !amount) {
@@ -574,7 +585,7 @@ app.get('/api/payments/:id', (req, res) => {
 });
 
 // POST /api/payments/:id/refund - Refund payment
-app.post('/api/payments/:id/refund', (req, res) => {
+app.post('/api/payments/:id/refund', requireInternal, (req, res) => {
   const { amount, reason } = req.body;
   const payment = payments.get(req.params.id);
 
@@ -604,7 +615,7 @@ app.post('/api/payments/:id/refund', (req, res) => {
  */
 
 // POST /api/usage/record - Record usage
-app.post('/api/usage/record', (req, res) => {
+app.post('/api/usage/record', requireInternal, (req, res) => {
   const { customerId, subscriptionId, metric, quantity, timestamp } = req.body;
 
   if (!customerId || !metric || quantity === undefined) {
@@ -676,7 +687,7 @@ app.get('/api/usage/:customerId', (req, res) => {
  */
 
 // POST /api/credits - Add credits
-app.post('/api/credits', (req, res) => {
+app.post('/api/credits', requireInternal, (req, res) => {
   const { customerId, amount, reason, expiresAt } = req.body;
 
   if (!customerId || !amount) {
@@ -726,7 +737,7 @@ app.get('/api/credits/:customerId', (req, res) => {
  */
 
 // POST /api/coupons - Create coupon
-app.post('/api/coupons', (req, res) => {
+app.post('/api/coupons', requireInternal, (req, res) => {
   const { code, type, value, currency, maxRedemptions, expiresAt, appliesTo, metadata } = req.body;
 
   if (!code || !type || !value) {
@@ -784,7 +795,7 @@ app.get('/api/coupons/:code', (req, res) => {
 });
 
 // POST /api/coupons/:code/redeem - Redeem coupon
-app.post('/api/coupons/:code/redeem', (req, res) => {
+app.post('/api/coupons/:code/redeem', requireInternal, (req, res) => {
   const { customerId, subscriptionId } = req.body;
   const coupon = coupons.get(req.params.code.toUpperCase());
 
@@ -819,7 +830,7 @@ app.post('/api/coupons/:code/redeem', (req, res) => {
  */
 
 // POST /api/payouts - Create payout
-app.post('/api/payouts', (req, res) => {
+app.post('/api/payouts', requireInternal, (req, res) => {
   const { partnerId, amount, currency, method, metadata } = req.body;
 
   if (!partnerId || !amount) {

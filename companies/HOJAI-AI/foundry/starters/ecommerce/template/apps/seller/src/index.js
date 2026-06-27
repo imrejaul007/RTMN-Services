@@ -13,6 +13,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3001;
 
@@ -75,7 +87,7 @@ app.get('/api/seller/:id/products', (req, res) => {
   res.json({ success: true, products });
 });
 
-app.post('/api/seller/:id/products', (req, res) => {
+app.post('/api/seller/:id/products', requireInternal, (req, res) => {
   const product = {
     id: uuidv4(),
     sellerId: req.params.id,
@@ -93,7 +105,7 @@ app.post('/api/seller/:id/products', (req, res) => {
   res.status(201).json({ success: true, product });
 });
 
-app.put('/api/seller/:id/products/:productId', (req, res) => {
+app.put('/api/seller/:id/products/:productId', requireInternal, (req, res) => {
   const products = sellerProducts.get(req.params.id);
   if (!products) return res.status(404).json({ error: 'Products not found' });
 
@@ -104,7 +116,7 @@ app.put('/api/seller/:id/products/:productId', (req, res) => {
   res.json({ success: true, product: products[idx] });
 });
 
-app.delete('/api/seller/:id/products/:productId', (req, res) => {
+app.delete('/api/seller/:id/products/:productId', requireInternal, (req, res) => {
   const products = sellerProducts.get(req.params.id);
   if (!products) return res.status(404).json({ error: 'Products not found' });
 
@@ -120,7 +132,7 @@ app.get('/api/seller/:id/orders', (req, res) => {
   res.json({ success: true, orders });
 });
 
-app.put('/api/seller/:id/orders/:orderId', (req, res) => {
+app.put('/api/seller/:id/orders/:orderId', requireInternal, (req, res) => {
   const orders = sellerOrders.get(req.params.id) || [];
   const order = orders.find(o => o.id === req.params.orderId);
   if (!order) return res.status(404).json({ error: 'Order not found' });

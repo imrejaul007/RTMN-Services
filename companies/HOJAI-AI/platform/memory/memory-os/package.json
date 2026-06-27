@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test": "vitest run"
+    "test": "NODE_ENV=test node --test tests/unit/"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
@@ -14,8 +14,5 @@
     "mongodb": "^6.21.0",
     "uuid": "^9.0.0",
     "helmet": "^7.1.0"
-  },
-  "devDependencies": {
-    "vitest": "^1.2.0"
   }
 }

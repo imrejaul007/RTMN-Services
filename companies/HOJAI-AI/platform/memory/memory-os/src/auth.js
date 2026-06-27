@@ -20,7 +20,7 @@ const PUBLIC_PATHS = [
   '/api/memory/importance-levels',
   '/api/memory/lifecycle-stages',
   '/api/auth/toggle',
-  '/api/memories',
+  // Read-only memory endpoints (safe to expose without auth for testing)
   '/api/memories/search',
   '/api/memories/analytics',
   '/api/memories/timeline',

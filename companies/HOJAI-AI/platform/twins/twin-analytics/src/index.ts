@@ -9,7 +9,7 @@ const PORT = parseInt(process.env.PORT || '4772', 10);
 app.use(express.json());
 
 app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'twin-analytics' }));
-app.get('/ready', (_r, res) => res.json({ ready: true }));
+app.get('/ready', (_r, res) => res.json({ ready: true });
 
 app.get('/api/analytics/:employeeId/insights', (req, res) => {
   res.json({ success: true, data: { employeeId: req.params.employeeId, insights: [], trends: {} } });

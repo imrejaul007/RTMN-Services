@@ -19,6 +19,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4737;
 
 // Middleware
@@ -257,7 +269,7 @@ app.get('/health', (req, res) => {
 });
 
 // Create new task
-app.post('/api/tasks', async (req, res) => {
+app.post('/api/tasks', requireInternal, async (req, res) => {
   try {
     const {
       employeeId,
@@ -391,7 +403,7 @@ app.get('/api/queue/:employeeId', (req, res) => {
 });
 
 // Approve task
-app.post('/api/tasks/:taskId/approve', async (req, res) => {
+app.post('/api/tasks/:taskId/approve', requireInternal, async (req, res) => {
   const task = taskStore.get(req.params.taskId);
 
   if (!task) {
@@ -434,7 +446,7 @@ app.post('/api/tasks/:taskId/approve', async (req, res) => {
 });
 
 // Reject task
-app.post('/api/tasks/:taskId/reject', async (req, res) => {
+app.post('/api/tasks/:taskId/reject', requireInternal, async (req, res) => {
   const task = taskStore.get(req.params.taskId);
 
   if (!task) {
@@ -475,7 +487,7 @@ app.post('/api/tasks/:taskId/reject', async (req, res) => {
 });
 
 // Cancel task
-app.post('/api/tasks/:taskId/cancel', (req, res) => {
+app.post('/api/tasks/:taskId/cancel', requireInternal, (req, res) => {
   const task = taskStore.get(req.params.taskId);
 
   if (!task) {
@@ -499,7 +511,7 @@ app.post('/api/tasks/:taskId/cancel', (req, res) => {
 });
 
 // Retry failed task
-app.post('/api/tasks/:taskId/retry', async (req, res) => {
+app.post('/api/tasks/:taskId/retry', requireInternal, async (req, res) => {
   const task = taskStore.get(req.params.taskId);
 
   if (!task) {
@@ -528,7 +540,7 @@ app.post('/api/tasks/:taskId/retry', async (req, res) => {
 });
 
 // Rollback completed task
-app.post('/api/tasks/:taskId/rollback', async (req, res) => {
+app.post('/api/tasks/:taskId/rollback', requireInternal, async (req, res) => {
   const task = taskStore.get(req.params.taskId);
 
   if (!task) {
@@ -599,7 +611,7 @@ app.get('/api/permissions/:employeeId', (req, res) => {
 });
 
 // Update tool permissions
-app.patch('/api/permissions/:employeeId', (req, res) => {
+app.patch('/api/permissions/:employeeId', requireInternal, (req, res) => {
   // In production, update database
   res.json({
     success: true,

@@ -7,6 +7,18 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 const PORT = process.env.PORT || 4774;
 
@@ -18,7 +30,7 @@ const tasks = new Map();
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'crm-services' }));
 
 // Contacts
-app.post('/api/contacts', (req, res) => {
+app.post('/api/contacts', requireInternal, (req, res) => {
   const contact = { id: uuidv4(), ...req.body, createdAt: new Date().toISOString() };
   contacts.set(contact.id, contact);
   res.status(201).json({ success: true, contact });
@@ -31,7 +43,7 @@ app.get('/api/contacts/:id', (req, res) => {
 });
 
 // Leads
-app.post('/api/leads', (req, res) => {
+app.post('/api/leads', requireInternal, (req, res) => {
   const lead = { id: uuidv4(), ...req.body, status: 'new', source: req.body.source || 'web', createdAt: new Date().toISOString() };
   leads.set(lead.id, lead);
   res.status(201).json({ success: true, lead });
@@ -42,7 +54,7 @@ app.get('/api/leads', (req, res) => {
   if (status) results = results.filter(l => l.status === status);
   res.json({ success: true, count: results.length, leads: results });
 });
-app.put('/api/leads/:id', (req, res) => {
+app.put('/api/leads/:id', requireInternal, (req, res) => {
   const l = leads.get(req.params.id);
   if (!l) return res.status(404).json({ error: 'Lead not found' });
   const updated = { ...l, ...req.body };
@@ -51,13 +63,13 @@ app.put('/api/leads/:id', (req, res) => {
 });
 
 // Deals
-app.post('/api/deals', (req, res) => {
+app.post('/api/deals', requireInternal, (req, res) => {
   const deal = { id: uuidv4(), ...req.body, stage: 'qualification', value: req.body.value || 0, probability: 20, createdAt: new Date().toISOString() };
   deals.set(deal.id, deal);
   res.status(201).json({ success: true, deal });
 });
 app.get('/api/deals', (req, res) => res.json({ success: true, deals: Array.from(deals.values()) }));
-app.put('/api/deals/:id/stage', (req, res) => {
+app.put('/api/deals/:id/stage', requireInternal, (req, res) => {
   const d = deals.get(req.params.id);
   if (!d) return res.status(404).json({ error: 'Deal not found' });
   d.stage = req.body.stage;
@@ -67,7 +79,7 @@ app.put('/api/deals/:id/stage', (req, res) => {
 });
 
 // Tasks
-app.post('/api/tasks', (req, res) => {
+app.post('/api/tasks', requireInternal, (req, res) => {
   const task = { id: uuidv4(), ...req.body, status: 'pending', createdAt: new Date().toISOString() };
   tasks.set(task.id, task);
   res.status(201).json({ success: true, task });

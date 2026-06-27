@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(express.json());
 const PORT = process.env.PORT || 4773;
 
@@ -18,7 +29,7 @@ const invoices = new Map();
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'pos-services' }));
 
 // Transactions / Billing
-app.post('/api/transactions', (req, res) => {
+app.post('/api/transactions', requireInternal, (req, res) => {
   const { items, customerId, paymentMethod } = req.body;
   const subtotal = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
   const tax = subtotal * 0.18;
@@ -43,7 +54,7 @@ app.get('/api/transactions', (req, res) => {
 });
 
 // Customers
-app.post('/api/customers', (req, res) => {
+app.post('/api/customers', requireInternal, (req, res) => {
   const customer = { id: uuidv4(), ...req.body, points: 0, createdAt: new Date().toISOString() };
   customers.set(customer.id, customer);
   res.status(201).json({ success: true, customer });
@@ -57,12 +68,12 @@ app.get('/api/customers/:id', (req, res) => {
 
 // Inventory
 app.get('/api/inventory', (_, res) => res.json({ success: true, items: Array.from(inventory.values()) }));
-app.post('/api/inventory', (req, res) => {
+app.post('/api/inventory', requireInternal, (req, res) => {
   const item = { id: uuidv4(), ...req.body, stock: req.body.stock || 0 };
   inventory.set(item.id, item);
   res.status(201).json({ success: true, item });
 });
-app.put('/api/inventory/:id', (req, res) => {
+app.put('/api/inventory/:id', requireInternal, (req, res) => {
   const item = inventory.get(req.params.id);
   if (!item) return res.status(404).json({ error: 'Item not found' });
   const updated = { ...item, ...req.body };

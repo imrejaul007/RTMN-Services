@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4772;
 app.use(express.json());
 
@@ -14,14 +25,14 @@ const indices = new Map(); // indexName -> documents
 const searchLogs = [];
 
 // REST API - Create Index
-app.post('/api/indices', (req, res) => {
+app.post('/api/indices', requireInternal, (req, res) => {
   const { name, fields = ['title', 'content'], options = {} } = req.body;
   indices.set(name, { name, fields, documents: [], options, createdAt: new Date().toISOString() });
   res.json({ name, documents: 0 });
 });
 
 // REST API - Index Document
-app.post('/api/indices/:name/documents', (req, res) => {
+app.post('/api/indices/:name/documents', requireInternal, (req, res) => {
   const index = indices.get(req.params.name);
   if (!index) return res.status(404).json({ error: 'Index not found' });
 
@@ -36,7 +47,7 @@ app.post('/api/indices/:name/documents', (req, res) => {
 });
 
 // REST API - Bulk Index
-app.post('/api/indices/:name/bulk', (req, res) => {
+app.post('/api/indices/:name/bulk', requireInternal, (req, res) => {
   const index = indices.get(req.params.name);
   if (!index) return res.status(404).json({ error: 'Index not found' });
 
@@ -85,7 +96,7 @@ app.get('/api/indices/:name/suggest', (req, res) => {
 });
 
 // REST API - Delete
-app.delete('/api/indices/:name/documents/:id', (req, res) => {
+app.delete('/api/indices/:name/documents/:id', requireInternal, (req, res) => {
   const index = indices.get(req.params.name);
   if (!index) return res.status(404).json({ error: 'Index not found' });
   index.documents = index.documents.filter(d => d.id !== req.params.id);

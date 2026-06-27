@@ -1,4 +1,3 @@
-import helmet from 'helmet';
 /**
  * Agent Reputation Service
  *
@@ -18,8 +17,20 @@ const { requireEnv } = require('@rtmn/shared/lib/env');
 const { requireAuth } = require('@rtmn/shared/auth');
 const { installGracefulShutdown } = require('@rtmn/shared/lib/shutdown');
 const { v4: uuidv4 } = require('uuid');
+const helmet = require('helmet');
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 
 app.use(helmet());
 
@@ -508,6 +519,9 @@ app.get('/api/reputation/:agentId/transactions', (req, res) => {
  */
 app.post('/api/reputation/:agentId/disputes',requireAuth,  (req, res) => {
   try {
+    if (!req.body.reason) {
+      return res.status(400).json({ error: 'reason is required' });
+    }
     const dispute = recordDispute(req.params.agentId, req.body);
     const reputation = agentReputations.get(req.params.agentId);
     res.json({ dispute, reputation });
@@ -648,7 +662,9 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
+module.exports = app;
+if (process.env.NODE_ENV !== 'test') {
+	const server = app.listen(PORT, () => {
   console.log(`
 ╔══════════════════════════════════════════════════════════════╗
 ║           AGENT REPUTATION SERVICE                            ║
@@ -680,5 +696,5 @@ const server = app.listen(PORT, () => {
   `);
 });
 installGracefulShutdown(server);
+}
 
-module.exports = app;

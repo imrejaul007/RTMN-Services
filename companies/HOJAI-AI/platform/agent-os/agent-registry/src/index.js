@@ -252,6 +252,18 @@ function snapshotAgent(agent) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -262,7 +274,7 @@ app.get('/health', (_req, res) => res.json({ service: SERVICE_NAME, version: VER
 app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // Create
-app.post('/api/agents', (req, res) => {
+app.post('/api/agents', requireInternal, (req, res) => {
   const errs = validateAgent(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -296,7 +308,7 @@ app.get('/api/agents/search', (req, res) => {
 });
 
 // Heartbeat
-app.post('/api/agents/:id/heartbeat', (req, res) => {
+app.post('/api/agents/:id/heartbeat', requireInternal, (req, res) => {
   const agents = loadAgents();
   const idx = findIndex(agents, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -317,7 +329,7 @@ app.get('/api/agents/:id/versions', (req, res) => {
 });
 
 // Explicit snapshot
-app.post('/api/agents/:id/versions', (req, res) => {
+app.post('/api/agents/:id/versions', requireInternal, (req, res) => {
   const agents = loadAgents();
   const idx = findIndex(agents, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -337,7 +349,7 @@ app.get('/api/agents/:id', (req, res) => {
 });
 
 // Update - bumps version and creates snapshot
-app.patch('/api/agents/:id', (req, res) => {
+app.patch('/api/agents/:id', requireInternal, (req, res) => {
   const errs = validateAgent(req.body, { partial: true });
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -357,7 +369,7 @@ app.patch('/api/agents/:id', (req, res) => {
 });
 
 // Delete
-app.delete('/api/agents/:id', (req, res) => {
+app.delete('/api/agents/:id', requireInternal, (req, res) => {
   const agents = loadAgents();
   const idx = findIndex(agents, req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });

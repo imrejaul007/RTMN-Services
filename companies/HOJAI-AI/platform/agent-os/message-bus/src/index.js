@@ -248,6 +248,18 @@ function listAll(arr) { return Array.isArray(arr) ? arr : []; }
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -262,7 +274,7 @@ app.get('/ready', (_req, res) => res.json({ ready: true }));
 // ---------------------------------------------------------------------------
 
 // Create topic
-app.post('/api/topics', (req, res) => {
+app.post('/api/topics', requireInternal, (req, res) => {
   const errs = validateTopic(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -314,7 +326,7 @@ app.get('/api/topics/:name/messages/latest', (req, res) => {
 });
 
 // Publish message
-app.post('/api/topics/:name/messages', (req, res) => {
+app.post('/api/topics/:name/messages', requireInternal, (req, res) => {
   const topics = loadTopics();
   const idx = topics.findIndex((t) => t.name === req.params.name);
   if (idx === -1) return res.status(404).json({ error: 'not_found', name: req.params.name });
@@ -353,7 +365,7 @@ app.get('/api/topics/:name/messages', (req, res) => {
 });
 
 // Clear messages
-app.delete('/api/topics/:name/messages', (req, res) => {
+app.delete('/api/topics/:name/messages', requireInternal, (req, res) => {
   const topics = loadTopics();
   const idx = topics.findIndex((t) => t.name === req.params.name);
   if (idx === -1) return res.status(404).json({ error: 'not_found', name: req.params.name });
@@ -372,7 +384,7 @@ app.get('/api/topics/:name', (req, res) => {
 });
 
 // Delete topic
-app.delete('/api/topics/:name', (req, res) => {
+app.delete('/api/topics/:name', requireInternal, (req, res) => {
   const topics = loadTopics();
   const idx = topics.findIndex((t) => t.name === req.params.name);
   if (idx === -1) return res.status(404).json({ error: 'not_found', name: req.params.name });
@@ -390,7 +402,7 @@ app.delete('/api/topics/:name', (req, res) => {
 // Subscriptions
 // ---------------------------------------------------------------------------
 
-app.post('/api/subscriptions', (req, res) => {
+app.post('/api/subscriptions', requireInternal, (req, res) => {
   const errs = validateSubscription(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
 
@@ -428,7 +440,7 @@ app.get('/api/subscriptions/:id', (req, res) => {
   res.json(s);
 });
 
-app.post('/api/subscriptions/:id/pull', (req, res) => {
+app.post('/api/subscriptions/:id/pull', requireInternal, (req, res) => {
   const subs = loadSubscriptions();
   const idx = subs.findIndex((s) => s.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -478,7 +490,7 @@ app.post('/api/subscriptions/:id/pull', (req, res) => {
   res.json({ subscriptionId: sub.id, pattern: sub.pattern, count: allMessages.length, messages: allMessages });
 });
 
-app.delete('/api/subscriptions/:id', (req, res) => {
+app.delete('/api/subscriptions/:id', requireInternal, (req, res) => {
   const subs = loadSubscriptions();
   const idx = subs.findIndex((s) => s.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not_found', id: req.params.id });

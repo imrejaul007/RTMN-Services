@@ -298,6 +298,17 @@ async function decompose(goal, context = {}, options = {}) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -320,7 +331,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // POST /api/decompose — main entry point
-app.post('/api/decompose', async (req, res, next) => {
+app.post('/api/decompose', requireInternal, async (req, res, next) => {
   try {
     const { goal, context, options } = req.body || {};
     const record = await decompose(goal, context, options || {});
@@ -343,7 +354,7 @@ app.get('/api/decompositions', (req, res) => {
 });
 
 // Validate DAG (utility for callers that build plans manually)
-app.post('/api/validate', (req, res) => {
+app.post('/api/validate', requireInternal, (req, res) => {
   const { tasks } = req.body || {};
   const result = validateDag(tasks);
   res.status(result.valid ? 200 : 400).json(result);

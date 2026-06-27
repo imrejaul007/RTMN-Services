@@ -31,6 +31,18 @@ import paymentRoutes from './routes/payments.js';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4251;
@@ -160,7 +172,7 @@ function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-app.post('/auth/register', async (req, res) => {
+app.post('/auth/register', requireInternal, async (req, res) => {
   const { businessId, email, password, role, businessName } = req.body;
   if (!email || !password || !businessId) {
     return res.status(400).json({ error: 'businessId, email, password required' });
@@ -184,7 +196,7 @@ app.post('/auth/register', async (req, res) => {
   res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
 });
 
-app.post('/auth/login', async (req, res) => {
+app.post('/auth/login', requireInternal, async (req, res) => {
   const { email, password } = req.body;
   const user = authUsers.get(email);
   if (!user) {

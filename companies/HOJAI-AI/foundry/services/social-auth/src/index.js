@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4752;
 app.use(express.json());
 
@@ -19,7 +30,7 @@ const magicLinks = []; // magic link requests
 const PROVIDERS = ['google', 'apple', 'facebook', 'twitter', 'github', 'linkedin'];
 
 // REST API - Configure Provider
-app.post('/api/providers', (req, res) => {
+app.post('/api/providers', requireInternal, (req, res) => {
   const { projectId, provider, config } = req.body;
   if (!PROVIDERS.includes(provider)) return res.status(400).json({ error: 'Invalid provider' });
 
@@ -40,7 +51,7 @@ app.get('/api/providers', (req, res) => {
 });
 
 // REST API - OAuth Start
-app.post('/api/oauth/:provider/start', (req, res) => {
+app.post('/api/oauth/:provider/start', requireInternal, (req, res) => {
   const { provider } = req.params;
   const { projectId, redirectUri, state } = req.body;
 
@@ -58,7 +69,7 @@ app.post('/api/oauth/:provider/start', (req, res) => {
 });
 
 // REST API - OAuth Callback
-app.post('/api/oauth/:provider/callback', async (req, res) => {
+app.post('/api/oauth/:provider/callback', requireInternal, async (req, res) => {
   const { provider } = req.params;
   const { code, projectId } = req.body;
 
@@ -82,7 +93,7 @@ app.post('/api/oauth/:provider/callback', async (req, res) => {
 });
 
 // REST API - Magic Link (Passwordless)
-app.post('/api/magic-link', (req, res) => {
+app.post('/api/magic-link', requireInternal, (req, res) => {
   const { projectId, email } = req.body;
 
   const token = uuidv4();
@@ -104,7 +115,7 @@ app.post('/api/magic-link', (req, res) => {
   });
 });
 
-app.post('/api/magic-link/verify', (req, res) => {
+app.post('/api/magic-link/verify', requireInternal, (req, res) => {
   const { token } = req.body;
 
   const magicLink = magicLinks.find(m => m.token === token && !m.used);
@@ -139,12 +150,12 @@ app.get('/api/sessions/:sessionId', (req, res) => {
   res.json(session);
 });
 
-app.delete('/api/sessions/:sessionId', (req, res) => {
+app.delete('/api/sessions/:sessionId', requireInternal, (req, res) => {
   sessions.delete(req.params.sessionId);
   res.json({ deleted: true });
 });
 
-app.post('/api/sessions/:sessionId/refresh', (req, res) => {
+app.post('/api/sessions/:sessionId/refresh', requireInternal, (req, res) => {
   const session = sessions.get(req.params.sessionId);
   if (!session) return res.status(404).json({ error: 'Session not found' });
 
@@ -164,7 +175,7 @@ app.get('/api/users/me', (req, res) => {
   res.json(user);
 });
 
-app.patch('/api/users/me', (req, res) => {
+app.patch('/api/users/me', requireInternal, (req, res) => {
   const { sessionId } = req.query;
   const session = sessions.get(sessionId);
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
@@ -176,7 +187,7 @@ app.patch('/api/users/me', (req, res) => {
   res.json(user);
 });
 
-app.post('/api/users/me/avatar', (req, res) => {
+app.post('/api/users/me/avatar', requireInternal, (req, res) => {
   const { sessionId } = req.query;
   const { avatar } = req.body;
   const session = sessions.get(sessionId);
@@ -190,7 +201,7 @@ app.post('/api/users/me/avatar', (req, res) => {
 });
 
 // REST API - Password Auth
-app.post('/api/password/login', (req, res) => {
+app.post('/api/password/login', requireInternal, (req, res) => {
   const { email, password, projectId } = req.body;
 
   // Find user (in production, verify password hash)
@@ -213,7 +224,7 @@ app.post('/api/password/login', (req, res) => {
   res.json({ user, sessionId, token: sessionId });
 });
 
-app.post('/api/password/register', (req, res) => {
+app.post('/api/password/register', requireInternal, (req, res) => {
   const { email, password, name, projectId } = req.body;
 
   if (Array.from(users.values()).find(u => u.email === email)) {

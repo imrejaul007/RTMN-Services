@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4770;
 app.use(express.json());
 
@@ -27,7 +38,7 @@ Object.entries(DEFAULT_TEMPLATES).forEach(([key, t]) => templates.set(key, { key
 // REST API - Templates
 app.get('/api/templates', (req, res) => res.json(Array.from(templates.values())));
 
-app.post('/api/templates', (req, res) => {
+app.post('/api/templates', requireInternal, (req, res) => {
   const { key, name, subject, html, text } = req.body;
   const template = { id: uuidv4(), key, name, subject, html, text };
   templates.set(key, template);
@@ -35,7 +46,7 @@ app.post('/api/templates', (req, res) => {
 });
 
 // REST API - Send Email
-app.post('/api/send', (req, res) => {
+app.post('/api/send', requireInternal, (req, res) => {
   const { to, templateKey, subject, variables = {}, from = 'noreply@hojai.app', projectId } = req.body;
 
   const template = templates.get(templateKey);
@@ -56,7 +67,7 @@ app.post('/api/send', (req, res) => {
 });
 
 // REST API - Batch Send
-app.post('/api/send/batch', (req, res) => {
+app.post('/api/send/batch', requireInternal, (req, res) => {
   const { to, templateKey, variables, projectId } = req.body;
   const campaignId = uuidv4();
 

@@ -1,0 +1,165 @@
+[
+  [
+    "cmp-pol-1782527690342-c88a7a",
+    {
+      "id": "cmp-pol-1782527690342-c88a7a",
+      "name": "Data Retention Policy",
+      "controlIds": [
+        "gdpr.art5",
+        "gdpr.art17"
+      ],
+      "evidenceTypes": [
+        "logs",
+        "audit"
+      ],
+      "createdAt": "2026-06-27T02:34:50.342Z"
+    }
+  ],
+  [
+    "cmp-pol-1782527832406-dbb52f",
+    {
+      "id": "cmp-pol-1782527832406-dbb52f",
+      "name": "Data Retention Policy",
+      "controlIds": [
+        "gdpr.art5",
+        "gdpr.art17"
+      ],
+      "evidenceTypes": [
+        "logs",
+        "audit"
+      ],
+      "createdAt": "2026-06-27T02:37:12.406Z"
+    }
+  ],
+  [
+    "policy-1",
+    {
+      "id": "policy-1",
+      "name": "Gold Support Updated",
+      "tier": "gold",
+      "responseTime": 2,
+      "resolutionTime": 4,
+      "availability": 99.9,
+      "supportChannels": [
+        "email",
+        "phone",
+        "chat"
+      ],
+      "priorityLevels": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "price": 999,
+      "features": [
+        "24/7 Support",
+        "Dedicated Manager",
+        "Quarterly Reviews"
+      ],
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "policy-2",
+    {
+      "id": "policy-2",
+      "name": "Silver Support",
+      "tier": "silver",
+      "responseTime": 4,
+      "resolutionTime": 24,
+      "availability": 99.5,
+      "supportChannels": [
+        "email",
+        "chat"
+      ],
+      "priorityLevels": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "price": 499,
+      "features": [
+        "Business Hours",
+        "Email Support",
+        "Knowledge Base"
+      ],
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "policy-3",
+    {
+      "id": "policy-3",
+      "name": "Bronze Support",
+      "tier": "bronze",
+      "responseTime": 8,
+      "resolutionTime": 48,
+      "availability": 99,
+      "supportChannels": [
+        "email"
+      ],
+      "priorityLevels": [
+        "medium",
+        "low"
+      ],
+      "price": 199,
+      "features": [
+        "Email Support",
+        "FAQ Access"
+      ],
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  [
+    "policy-43bca40b",
+    {
+      "id": "policy-43bca40b",
+      "name": "Platinum Support",
+      "tier": "platinum",
+      "responseTime": 0.5,
+      "resolutionTime": 2,
+      "availability": 99,
+      "supportChannels": [
+        "email"
+      ],
+      "priorityLevels": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "price": 1999,
+      "features": [],
+      "status": "active",
+      "createdAt": "2026-06-27T02:50:35.101Z"
+    }
+  ],
+  [
+    "policy-a55f8954",
+    {
+      "id": "policy-a55f8954",
+      "name": "Platinum Support",
+      "tier": "platinum",
+      "responseTime": 0.5,
+      "resolutionTime": 2,
+      "availability": 99,
+      "supportChannels": [
+        "email"
+      ],
+      "priorityLevels": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "price": 1999,
+      "features": [],
+      "status": "active",
+      "createdAt": "2026-06-27T02:55:23.070Z"
+    }
+  ]
+]

@@ -25,7 +25,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const PORT = parseInt(process.env.PORT, 10) || 4787;
+const PORT = parseInt(process.env.PORT, 10) || 5398;
 const SERVICE_NAME = 'eval-canary';
 const VERSION = '1.0.0';
 const DATA_DIR = process.env.EVAL_CANARY_DATA_DIR || path.join(__dirname, '../data');
@@ -94,6 +94,18 @@ function recordScoreWindow(canary, scoreNew, scoreBaseline) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -111,7 +123,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // Start
-app.post('/api/canary/start', (req, res) => {
+app.post('/api/canary/start', requireInternal, (req, res) => {
   const { name, modelNew, modelBaseline, initialTrafficPct = 1, autoRollbackThreshold = 0.05, autoRollbackWindows = 2, tenantFilter, windowSize = 50 } = req.body || {};
   if (!name || !modelNew || !modelBaseline) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'name, modelNew, modelBaseline required' });
   const id = crypto.randomUUID();
@@ -150,7 +162,7 @@ app.get('/api/canary/:id', (req, res) => {
 });
 
 // Adjust traffic
-app.post('/api/canary/:id/traffic', (req, res) => {
+app.post('/api/canary/:id/traffic', requireInternal, (req, res) => {
   const c = canaries.get(req.params.id);
   if (!c) return res.status(404).json({ error: 'NOT_FOUND' });
   const { trafficPct, reason = 'manual' } = req.body || {};
@@ -166,7 +178,7 @@ app.post('/api/canary/:id/traffic', (req, res) => {
 });
 
 // Record score
-app.post('/api/canary/:id/score', (req, res) => {
+app.post('/api/canary/:id/score', requireInternal, (req, res) => {
   const c = canaries.get(req.params.id);
   if (!c) return res.status(404).json({ error: 'NOT_FOUND' });
   const { scoreNew, scoreBaseline } = req.body || {};
@@ -192,7 +204,7 @@ app.post('/api/canary/:id/score', (req, res) => {
 });
 
 // Promote (set 100%, lock baseline as new model)
-app.post('/api/canary/:id/promote', (req, res) => {
+app.post('/api/canary/:id/promote', requireInternal, (req, res) => {
   const c = canaries.get(req.params.id);
   if (!c) return res.status(404).json({ error: 'NOT_FOUND' });
   if (c.status !== 'active') return res.status(409).json({ error: 'NOT_ACTIVE' });
@@ -206,7 +218,7 @@ app.post('/api/canary/:id/promote', (req, res) => {
 });
 
 // Rollback (set 0%, restore baseline)
-app.post('/api/canary/:id/rollback', (req, res) => {
+app.post('/api/canary/:id/rollback', requireInternal, (req, res) => {
   const c = canaries.get(req.params.id);
   if (!c) return res.status(404).json({ error: 'NOT_FOUND' });
   c.trafficPct = 0;
@@ -218,7 +230,7 @@ app.post('/api/canary/:id/rollback', (req, res) => {
   res.json(c);
 });
 
-app.delete('/api/canary/:id', (req, res) => {
+app.delete('/api/canary/:id', requireInternal, (req, res) => {
   if (!canaries.delete(req.params.id)) return res.status(404).json({ error: 'NOT_FOUND' });
   saveCanaries();
   res.json({ deleted: req.params.id });

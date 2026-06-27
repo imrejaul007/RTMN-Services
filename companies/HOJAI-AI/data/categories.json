@@ -1,0 +1,186 @@
+[
+  [
+    "cat-ai",
+    {
+      "id": "cat-ai",
+      "name": "AI & Reasoning",
+      "parent": null
+    }
+  ],
+  [
+    "cat-commerce",
+    {
+      "id": "cat-commerce",
+      "name": "Commerce",
+      "parent": null
+    }
+  ],
+  [
+    "cat-biz",
+    {
+      "id": "cat-biz",
+      "name": "Business",
+      "parent": null
+    }
+  ],
+  [
+    "cat-prod",
+    {
+      "id": "cat-prod",
+      "name": "Productivity",
+      "parent": null
+    }
+  ],
+  [
+    "cat-comm",
+    {
+      "id": "cat-comm",
+      "name": "Communication",
+      "parent": null
+    }
+  ],
+  [
+    "cat-industry",
+    {
+      "id": "cat-industry",
+      "name": "Industry",
+      "parent": null
+    }
+  ],
+  [
+    "cat-crm",
+    {
+      "id": "cat-crm",
+      "name": "CRM",
+      "parent": null
+    }
+  ],
+  [
+    "cat-ecommerce",
+    {
+      "id": "cat-ecommerce",
+      "name": "E-Commerce",
+      "parent": null
+    }
+  ],
+  [
+    "cat-payments",
+    {
+      "id": "cat-payments",
+      "name": "Payments",
+      "parent": null
+    }
+  ],
+  [
+    "cat-comms",
+    {
+      "id": "cat-comms",
+      "name": "Communications",
+      "parent": null
+    }
+  ],
+  [
+    "cat-productivity",
+    {
+      "id": "cat-productivity",
+      "name": "Productivity",
+      "parent": null
+    }
+  ],
+  [
+    "cat-data",
+    {
+      "id": "cat-data",
+      "name": "Data & Warehousing",
+      "parent": null
+    }
+  ],
+  [
+    "cat-6c8568",
+    {
+      "id": "cat-6c8568",
+      "name": "Analytics",
+      "parent": null
+    }
+  ],
+  [
+    "cat-c5eaf5",
+    {
+      "id": "cat-c5eaf5",
+      "name": "Analytics",
+      "parent": null
+    }
+  ],
+  [
+    "cat-hospitality",
+    {
+      "id": "cat-hospitality",
+      "name": "Hospitality",
+      "parent": null
+    }
+  ],
+  [
+    "cat-retail",
+    {
+      "id": "cat-retail",
+      "name": "Retail",
+      "parent": null
+    }
+  ],
+  [
+    "cat-healthcare",
+    {
+      "id": "cat-healthcare",
+      "name": "Healthcare",
+      "parent": null
+    }
+  ],
+  [
+    "cat-services",
+    {
+      "id": "cat-services",
+      "name": "Professional Services",
+      "parent": null
+    }
+  ],
+  [
+    "cat-finance",
+    {
+      "id": "cat-finance",
+      "name": "Finance",
+      "parent": null
+    }
+  ],
+  [
+    "cat-education",
+    {
+      "id": "cat-education",
+      "name": "Education",
+      "parent": null
+    }
+  ],
+  [
+    "cat-4e3f9e",
+    {
+      "id": "cat-4e3f9e",
+      "name": "Analytics",
+      "parent": null
+    }
+  ],
+  [
+    "cat-1f0185",
+    {
+      "id": "cat-1f0185",
+      "name": "Analytics",
+      "parent": null
+    }
+  ],
+  [
+    "cat-95fe17",
+    {
+      "id": "cat-95fe17",
+      "name": "Analytics",
+      "parent": null
+    }
+  ]
+]

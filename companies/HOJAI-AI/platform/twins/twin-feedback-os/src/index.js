@@ -19,6 +19,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4736;
 
 // Middleware
@@ -228,7 +240,7 @@ app.get('/health', (req, res) => {
 });
 
 // Submit feedback
-app.post('/api/feedback', async (req, res) => {
+app.post('/api/feedback', requireInternal, async (req, res) => {
   try {
     const { employeeId, capability, capabilityArea, feedbackType, twinAction, correction, currentConfidence } = req.body;
 
@@ -304,7 +316,7 @@ app.post('/api/feedback', async (req, res) => {
 });
 
 // Batch feedback submission
-app.post('/api/feedback/batch', async (req, res) => {
+app.post('/api/feedback/batch', requireInternal, async (req, res) => {
   try {
     const { feedback: feedbackList } = req.body;
 
@@ -451,7 +463,7 @@ app.get('/api/stats', (req, res) => {
 });
 
 // Quick approve/reject endpoints
-app.post('/api/feedback/:feedbackId/approve', (req, res) => {
+app.post('/api/feedback/:feedbackId/approve', requireInternal, (req, res) => {
   // For approving a specific feedback
   res.json({
     success: true,
@@ -459,7 +471,7 @@ app.post('/api/feedback/:feedbackId/approve', (req, res) => {
   });
 });
 
-app.post('/api/feedback/:feedbackId/reject', (req, res) => {
+app.post('/api/feedback/:feedbackId/reject', requireInternal, (req, res) => {
   // For rejecting a specific feedback
   res.json({
     success: true,

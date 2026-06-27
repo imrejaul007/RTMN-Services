@@ -15,6 +15,17 @@ import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.MAPS_OS_PORT || 4600;
 
@@ -737,7 +748,7 @@ const geofencingEngine = new GeofencingEngine();
  */
 
 // POST /api/geocode - Forward geocoding
-app.post('/api/geocode', async (req, res) => {
+app.post('/api/geocode', requireInternal, async (req, res) => {
   const { address, provider = 'google' } = req.body;
 
   if (!address) {
@@ -765,7 +776,7 @@ app.post('/api/geocode', async (req, res) => {
 });
 
 // POST /api/reverse-geocode - Reverse geocoding
-app.post('/api/reverse-geocode', async (req, res) => {
+app.post('/api/reverse-geocode', requireInternal, async (req, res) => {
   const { lat, lng, provider = 'google' } = req.body;
 
   if (lat === undefined || lng === undefined) {
@@ -787,7 +798,7 @@ app.post('/api/reverse-geocode', async (req, res) => {
  */
 
 // POST /api/places/search - Search places
-app.post('/api/places/search', async (req, res) => {
+app.post('/api/places/search', requireInternal, async (req, res) => {
   const { query, location, radius = 5000, provider = 'google' } = req.body;
 
   if (!query) {
@@ -827,7 +838,7 @@ app.get('/api/places/:placeId', (req, res) => {
  */
 
 // POST /api/directions - Get directions
-app.post('/api/directions', async (req, res) => {
+app.post('/api/directions', requireInternal, async (req, res) => {
   const { origin, destination, mode = 'DRIVING', provider = 'google' } = req.body;
 
   if (!origin || !destination) {
@@ -846,7 +857,7 @@ app.post('/api/directions', async (req, res) => {
 });
 
 // POST /api/distance-matrix - Get distance matrix
-app.post('/api/distance-matrix', async (req, res) => {
+app.post('/api/distance-matrix', requireInternal, async (req, res) => {
   const { origins, destinations, mode = 'DRIVING' } = req.body;
 
   if (!origins || !destinations) {
@@ -862,7 +873,7 @@ app.post('/api/distance-matrix', async (req, res) => {
  */
 
 // POST /api/routes/optimize - Optimize delivery route
-app.post('/api/routes/optimize', async (req, res) => {
+app.post('/api/routes/optimize', requireInternal, async (req, res) => {
   const { stops, options = {} } = req.body;
 
   if (!stops || stops.length === 0) {
@@ -892,7 +903,7 @@ app.get('/api/routes/:id', (req, res) => {
  */
 
 // POST /api/geofences - Create geofence
-app.post('/api/geofences', (req, res) => {
+app.post('/api/geofences', requireInternal, (req, res) => {
   const { name, type, center, radius, coordinates, metadata = {} } = req.body;
 
   if (!name || !type) {
@@ -936,7 +947,7 @@ app.get('/api/geofences', (req, res) => {
 });
 
 // POST /api/geofences/check - Check entities against geofences
-app.post('/api/geofences/check', (req, res) => {
+app.post('/api/geofences/check', requireInternal, (req, res) => {
   const { entities, geofenceIds } = req.body;
 
   if (!entities || !geofenceIds) {
@@ -954,7 +965,7 @@ app.post('/api/geofences/check', (req, res) => {
  */
 
 // POST /api/elevation - Get elevation for points
-app.post('/api/elevation', async (req, res) => {
+app.post('/api/elevation', requireInternal, async (req, res) => {
   const { latlngs } = req.body;
 
   if (!latlngs || latlngs.length === 0) {

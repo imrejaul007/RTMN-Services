@@ -19,6 +19,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4739;
 
 // Middleware
@@ -362,7 +374,7 @@ app.get('/api/employee/:employeeId/rlhf', async (req, res) => {
 // ============================================================
 
 // Submit feedback
-app.post('/api/feedback', async (req, res) => {
+app.post('/api/feedback', requireInternal, async (req, res) => {
   try {
     const feedback = await callService('twinFeedbackOS', '/api/feedback', {
       method: 'POST',
@@ -379,7 +391,7 @@ app.post('/api/feedback', async (req, res) => {
 });
 
 // Learn from events
-app.post('/api/employee/:employeeId/learn', async (req, res) => {
+app.post('/api/employee/:employeeId/learn', requireInternal, async (req, res) => {
   try {
     const { employeeId } = req.params;
     const { events } = req.body;
@@ -399,7 +411,7 @@ app.post('/api/employee/:employeeId/learn', async (req, res) => {
 });
 
 // Observe event
-app.post('/api/observe', async (req, res) => {
+app.post('/api/observe', requireInternal, async (req, res) => {
   try {
     const { employeeId, event } = req.body;
     const result = await callService('twinLearningOS', '/api/observe', {
@@ -417,7 +429,7 @@ app.post('/api/observe', async (req, res) => {
 });
 
 // Create task
-app.post('/api/tasks', async (req, res) => {
+app.post('/api/tasks', requireInternal, async (req, res) => {
   try {
     const task = await callService('twinExecutionOS', '/api/tasks', {
       method: 'POST',
@@ -434,7 +446,7 @@ app.post('/api/tasks', async (req, res) => {
 });
 
 // Approve task
-app.post('/api/tasks/:taskId/approve', async (req, res) => {
+app.post('/api/tasks/:taskId/approve', requireInternal, async (req, res) => {
   try {
     const result = await callService('twinExecutionOS', `/api/tasks/${req.params.taskId}/approve`, {
       method: 'POST',
@@ -450,7 +462,7 @@ app.post('/api/tasks/:taskId/approve', async (req, res) => {
 });
 
 // Reject task
-app.post('/api/tasks/:taskId/reject', async (req, res) => {
+app.post('/api/tasks/:taskId/reject', requireInternal, async (req, res) => {
   try {
     const result = await callService('twinExecutionOS', `/api/tasks/${req.params.taskId}/reject`, {
       method: 'POST',
@@ -467,7 +479,7 @@ app.post('/api/tasks/:taskId/reject', async (req, res) => {
 });
 
 // Cancel task
-app.post('/api/tasks/:taskId/cancel', async (req, res) => {
+app.post('/api/tasks/:taskId/cancel', requireInternal, async (req, res) => {
   try {
     const result = await callService('twinExecutionOS', `/api/tasks/${req.params.taskId}/cancel`, {
       method: 'POST',
@@ -483,7 +495,7 @@ app.post('/api/tasks/:taskId/cancel', async (req, res) => {
 });
 
 // Retry task
-app.post('/api/tasks/:taskId/retry', async (req, res) => {
+app.post('/api/tasks/:taskId/retry', requireInternal, async (req, res) => {
   try {
     const result = await callService('twinExecutionOS', `/api/tasks/${req.params.taskId}/retry`, {
       method: 'POST',
@@ -499,7 +511,7 @@ app.post('/api/tasks/:taskId/retry', async (req, res) => {
 });
 
 // Rollback task
-app.post('/api/tasks/:taskId/rollback', async (req, res) => {
+app.post('/api/tasks/:taskId/rollback', requireInternal, async (req, res) => {
   try {
     const result = await callService('twinExecutionOS', `/api/tasks/${req.params.taskId}/rollback`, {
       method: 'POST',
@@ -515,7 +527,7 @@ app.post('/api/tasks/:taskId/rollback', async (req, res) => {
 });
 
 // Update permissions
-app.patch('/api/employee/:employeeId/permissions', async (req, res) => {
+app.patch('/api/employee/:employeeId/permissions', requireInternal, async (req, res) => {
   try {
     const result = await callService('twinExecutionOS', `/api/permissions/${req.params.employeeId}`, {
       method: 'PATCH',
@@ -532,7 +544,7 @@ app.patch('/api/employee/:employeeId/permissions', async (req, res) => {
 });
 
 // Emit CorpPerks event
-app.post('/api/events', async (req, res) => {
+app.post('/api/events', requireInternal, async (req, res) => {
   try {
     const result = await callService('twinLearningBridge', '/api/events', {
       method: 'POST',

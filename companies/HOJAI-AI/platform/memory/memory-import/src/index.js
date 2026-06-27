@@ -14,6 +14,18 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -27,7 +39,7 @@ const createId = (prefix) => `${prefix}_${Date.now()}_${uuidv4().slice(0, 8)}`;
 // SOURCE CONFIGURATIONS
 // ============================================
 
-app.post('/api/v1/import/sources', async (req, res) => {
+app.post('/api/v1/import/sources', requireInternal, async (req, res) => {
   try {
     const { name, type, connectionConfig, importConfig } = req.body;
 
@@ -87,7 +99,7 @@ app.get('/api/v1/import/sources/:sourceId', async (req, res) => {
   }
 });
 
-app.delete('/api/v1/import/sources/:sourceId', async (req, res) => {
+app.delete('/api/v1/import/sources/:sourceId', requireInternal, async (req, res) => {
   try {
     const source = sourceConfigs.get(req.params.sourceId);
     if (!source) return res.status(404).json({ error: 'Source not found' });
@@ -103,7 +115,7 @@ app.delete('/api/v1/import/sources/:sourceId', async (req, res) => {
 // IMPORT MAPPINGS
 // ============================================
 
-app.post('/api/v1/import/mappings', async (req, res) => {
+app.post('/api/v1/import/mappings', requireInternal, async (req, res) => {
   try {
     const { sourceId, fieldMappings, memoryType, transformRules } = req.body;
 
@@ -159,7 +171,7 @@ app.get('/api/v1/import/mappings', async (req, res) => {
 // IMPORT JOBS
 // ============================================
 
-app.post('/api/v1/import/jobs', async (req, res) => {
+app.post('/api/v1/import/jobs', requireInternal, async (req, res) => {
   try {
     const { sourceId, mappingId, options } = req.body;
 
@@ -233,7 +245,7 @@ app.get('/api/v1/import/jobs', async (req, res) => {
 });
 
 // Execute import job
-app.post('/api/v1/import/jobs/:jobId/execute', async (req, res) => {
+app.post('/api/v1/import/jobs/:jobId/execute', requireInternal, async (req, res) => {
   try {
     const job = importJobs.get(req.params.jobId);
     if (!job) return res.status(404).json({ error: 'Job not found' });
@@ -289,7 +301,7 @@ app.post('/api/v1/import/jobs/:jobId/execute', async (req, res) => {
   }
 });
 
-app.post('/api/v1/import/jobs/:jobId/cancel', async (req, res) => {
+app.post('/api/v1/import/jobs/:jobId/cancel', requireInternal, async (req, res) => {
   try {
     const job = importJobs.get(req.params.jobId);
     if (!job) return res.status(404).json({ error: 'Job not found' });
@@ -312,7 +324,7 @@ app.post('/api/v1/import/jobs/:jobId/cancel', async (req, res) => {
 // FORMAT CONVERSION
 // ============================================
 
-app.post('/api/v1/import/convert', async (req, res) => {
+app.post('/api/v1/import/convert', requireInternal, async (req, res) => {
   try {
     const { data, fromFormat, toFormat } = req.body;
 
@@ -359,7 +371,7 @@ app.post('/api/v1/import/convert', async (req, res) => {
 // VALIDATION
 // ============================================
 
-app.post('/api/v1/import/validate', async (req, res) => {
+app.post('/api/v1/import/validate', requireInternal, async (req, res) => {
   try {
     const { data, rules } = req.body;
 

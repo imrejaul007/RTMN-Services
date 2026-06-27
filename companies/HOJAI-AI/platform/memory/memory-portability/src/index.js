@@ -14,6 +14,18 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -28,7 +40,7 @@ const createId = (prefix) => `${prefix}_${Date.now()}_${uuidv4().slice(0, 8)}`;
 // EXPORT JOBS
 // ============================================
 
-app.post('/api/v1/portability/exports', async (req, res) => {
+app.post('/api/v1/portability/exports', requireInternal, async (req, res) => {
   try {
     const { subjectId, format, memoryTypes, includeRelations, encryption } = req.body;
 
@@ -92,7 +104,7 @@ app.get('/api/v1/portability/exports', async (req, res) => {
   }
 });
 
-app.post('/api/v1/portability/exports/:exportId/execute', async (req, res) => {
+app.post('/api/v1/portability/exports/:exportId/execute', requireInternal, async (req, res) => {
   try {
     const job = exportJobs.get(req.params.exportId);
     if (!job) return res.status(404).json({ error: 'Export not found' });
@@ -121,7 +133,7 @@ app.post('/api/v1/portability/exports/:exportId/execute', async (req, res) => {
   }
 });
 
-app.post('/api/v1/portability/exports/:exportId/download', async (req, res) => {
+app.post('/api/v1/portability/exports/:exportId/download', requireInternal, async (req, res) => {
   try {
     const job = exportJobs.get(req.params.exportId);
     if (!job) return res.status(404).json({ error: 'Export not found' });
@@ -148,7 +160,7 @@ app.post('/api/v1/portability/exports/:exportId/download', async (req, res) => {
 // BACKUP JOBS
 // ============================================
 
-app.post('/api/v1/portability/backups', async (req, res) => {
+app.post('/api/v1/portability/backups', requireInternal, async (req, res) => {
   try {
     const { name, scope, memoryTypes, schedule, retention } = req.body;
 
@@ -210,7 +222,7 @@ app.get('/api/v1/portability/backups', async (req, res) => {
   }
 });
 
-app.post('/api/v1/portability/backups/:backupId/execute', async (req, res) => {
+app.post('/api/v1/portability/backups/:backupId/execute', requireInternal, async (req, res) => {
   try {
     const job = backupJobs.get(req.params.backupId);
     if (!job) return res.status(404).json({ error: 'Backup not found' });
@@ -241,7 +253,7 @@ app.post('/api/v1/portability/backups/:backupId/execute', async (req, res) => {
 // MIGRATION JOBS
 // ============================================
 
-app.post('/api/v1/portability/migrations', async (req, res) => {
+app.post('/api/v1/portability/migrations', requireInternal, async (req, res) => {
   try {
     const { sourceSystem, targetSystem, memoryTypes, options } = req.body;
 
@@ -299,7 +311,7 @@ app.get('/api/v1/portability/migrations', async (req, res) => {
   }
 });
 
-app.post('/api/v1/portability/migrations/:migrationId/execute', async (req, res) => {
+app.post('/api/v1/portability/migrations/:migrationId/execute', requireInternal, async (req, res) => {
   try {
     const job = migrationJobs.get(req.params.migrationId);
     if (!job) return res.status(404).json({ error: 'Migration not found' });
@@ -330,7 +342,7 @@ app.post('/api/v1/portability/migrations/:migrationId/execute', async (req, res)
 // PORTABILITY REQUESTS (GDPR)
 // ============================================
 
-app.post('/api/v1/portability/requests', async (req, res) => {
+app.post('/api/v1/portability/requests', requireInternal, async (req, res) => {
   try {
     const { subjectId, subjectType, requestType, format, urgency } = req.body;
 
@@ -388,7 +400,7 @@ app.get('/api/v1/portability/requests', async (req, res) => {
   }
 });
 
-app.post('/api/v1/portability/requests/:requestId/process', async (req, res) => {
+app.post('/api/v1/portability/requests/:requestId/process', requireInternal, async (req, res) => {
   try {
     const request = portabilityRequests.get(req.params.requestId);
     if (!request) return res.status(404).json({ error: 'Request not found' });

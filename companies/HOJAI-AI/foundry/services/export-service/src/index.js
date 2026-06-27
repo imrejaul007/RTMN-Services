@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4780;
 app.use(express.json());
 
@@ -24,7 +35,7 @@ templates.set('report', {
 });
 
 // REST API - Export to PDF
-app.post('/api/export/pdf', (req, res) => {
+app.post('/api/export/pdf', requireInternal, (req, res) => {
   const { projectId, templateKey, data, filename } = req.body;
   const exportId = uuidv4();
 
@@ -46,7 +57,7 @@ app.post('/api/export/pdf', (req, res) => {
 });
 
 // REST API - Export to CSV
-app.post('/api/export/csv', (req, res) => {
+app.post('/api/export/csv', requireInternal, (req, res) => {
   const { projectId, data, columns, filename } = req.body;
   const exportId = uuidv4();
 
@@ -92,14 +103,14 @@ app.get('/api/export/:id/download', (req, res) => {
 // REST API - Templates
 app.get('/api/templates', (req, res) => res.json(Array.from(templates.values())));
 
-app.post('/api/templates', (req, res) => {
+app.post('/api/templates', requireInternal, (req, res) => {
   const { key, name, html } = req.body;
   templates.set(key, { key, name, html });
   res.json({ key, name });
 });
 
 // REST API - Batch Export
-app.post('/api/export/batch', (req, res) => {
+app.post('/api/export/batch', requireInternal, (req, res) => {
   const { projectId, exports: exportJobs } = req.body;
   const batchId = uuidv4();
 

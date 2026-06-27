@@ -12,7 +12,7 @@
  *  6. X-Service-Token still works (service-to-service path unchanged).
  */
 
-import { test, before, after } from 'node:test';
+import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import jwt from 'jsonwebtoken';
@@ -25,28 +25,38 @@ let server;
 let port;
 let policyMod;
 
-function startApp(env) {
+async function startApp(env) {
+  // Reset auth module state before loading the app — must await so the
+  // cached module's _initialized flag is cleared BEFORE index.js imports it.
+  try {
+    const authMod = await import('../../src/middleware/auth.js');
+    authMod._resetAuthState();
+  } catch {
+    // Module may not exist in some test envs — ignore.
+  }
+
+  process.env.PORT = '0';
+  process.env.POLICYOS_REQUIRE_AUTH = 'true';
+  process.env.NODE_ENV = 'test';
+  process.env.POLICYOS_SERVICE_TOKEN = SERVICE_TOKEN;
+  if (env.setJwtSecret) process.env.JWT_SECRET = JWT_SECRET;
+  else delete process.env.JWT_SECRET;
+
+  // Bust ESM cache so index.js re-evaluates auth middleware.
+  const url = new URL('../../src/index.js', import.meta.url);
+  url.searchParams.set('bust', `${Date.now()}-${Math.random()}`);
+
+  const mod = await import(url.href);
+  policyMod = mod;
+  const app = mod.default || mod.app;
+  if (!app) throw new Error('policy-os did not export app');
+
   return new Promise((resolve, reject) => {
-    process.env.PORT = '0';
-    process.env.POLICYOS_REQUIRE_AUTH = 'true';
-    process.env.NODE_ENV = 'test';
-    process.env.POLICYOS_SERVICE_TOKEN = SERVICE_TOKEN;
-    if (env.setJwtSecret) process.env.JWT_SECRET = JWT_SECRET;
-    else delete process.env.JWT_SECRET;
-    // Re-import the module fresh per env
-    const url = new URL('../../src/index.js', import.meta.url);
-    url.searchParams.set('bust', `${Date.now()}-${Math.random()}`);
-    import(url.href).then((mod) => {
-      policyMod = mod;
-      // policy-os exports `app` as default
-      const app = mod.default || mod.app;
-      if (!app) return reject(new Error('policy-os did not export app'));
-      const s = app.listen(0, '127.0.0.1', (err) => {
-        if (err) return reject(err);
-        port = s.address().port;
-        resolve(s);
-      });
-    }).catch(reject);
+    const s = app.listen(0, '127.0.0.1', (err) => {
+      if (err) return reject(err);
+      port = s.address().port;
+      resolve(s);
+    });
   });
 }
 
@@ -82,6 +92,15 @@ before(async () => {
   server = await startApp({ setJwtSecret: true });
 });
 
+beforeEach(async () => {
+  // Reset auth module state between tests to ensure fresh initialization.
+  // JWT_SECRET is already set globally by the time tests run.
+  const { _resetAuthState } = await import('../../src/middleware/auth.js');
+  _resetAuthState();
+  // Ensure JWT_SECRET is set for this test run (it was set in before())
+  process.env.JWT_SECRET = JWT_SECRET;
+});
+
 after(async () => {
   if (server) await new Promise((r) => server.close(r));
 });
@@ -94,7 +113,9 @@ function legacyBase64Token(payload) {
 }
 
 function goodJwt(payload = { sub: 'test-user', role: 'user' }, opts = { expiresIn: '1h' }) {
-  return jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', ...opts });
+  // auth.js requires 'aud' claim when POLICYOS_JWT_AUDIENCE is set (phase 0.5).
+  const fullPayload = payload.aud ? payload : { ...payload, aud: 'policy-os' };
+  return jwt.sign(fullPayload, JWT_SECRET, { algorithm: 'HS256', ...opts });
 }
 
 // We use /api/policies/evaluate as the test endpoint (POST, auth required).
@@ -154,7 +175,7 @@ test('JWT_SECRET missing -> Bearer path is denied (deny-by-default)', async () =
   await new Promise((r) => server.close(r));
   server = await startApp({ setJwtSecret: false });
   // Even a real signed JWT should be denied because JWT_SECRET isn't loaded.
-  const token = jwt.sign({ sub: 'test', role: 'admin' }, 'any-secret-32-chars-min-cccccccccccc', { algorithm: 'HS256', expiresIn: '1h' });
+  const token = jwt.sign({ sub: 'test', role: 'admin', aud: 'policy-os' }, 'any-secret-32-chars-min-cccccccccccc', { algorithm: 'HS256', expiresIn: '1h' });
   const res = await callJson('POST', '/api/policies/evaluate', { policyId: 'default-allow', context: {} },
     { 'Authorization': `Bearer ${token}` });
   assert.equal(res.status, 401, `Bearer auth should be denied when JWT_SECRET missing; got ${res.status}`);

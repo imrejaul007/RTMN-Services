@@ -19,6 +19,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { buildQueue } from './build-queue.js';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.MOBILE_OS_PORT || 4598;
 
@@ -64,7 +75,7 @@ const BUILD_TYPES = {
  */
 
 // POST /api/apps - Create app
-app.post('/api/apps', (req, res) => {
+app.post('/api/apps', requireInternal, (req, res) => {
   const { companyId, name, bundleId, platform, category, description, icon } = req.body;
 
   if (!companyId || !name || !bundleId || !platform) {
@@ -181,7 +192,7 @@ app.get('/api/apps/:id', (req, res) => {
  */
 
 // POST /api/builds - Queue a new build
-app.post('/api/builds', async (req, res) => {
+app.post('/api/builds', requireInternal, async (req, res) => {
   const {
     appId,
     platform,
@@ -279,7 +290,7 @@ app.get('/api/builds/:id/logs', (req, res) => {
 });
 
 // POST /api/builds/:id/cancel - Cancel a build
-app.post('/api/builds/:id/cancel', (req, res) => {
+app.post('/api/builds/:id/cancel', requireInternal, (req, res) => {
   const success = buildQueue.cancelBuild(req.params.id);
   if (!success) {
     return res.status(400).json({ error: 'Cannot cancel build (not pending or running)' });
@@ -288,7 +299,7 @@ app.post('/api/builds/:id/cancel', (req, res) => {
 });
 
 // POST /api/builds/:id/retry - Retry a failed build
-app.post('/api/builds/:id/retry', async (req, res) => {
+app.post('/api/builds/:id/retry', requireInternal, async (req, res) => {
   const newBuild = buildQueue.retryBuild(req.params.id);
   if (!newBuild) {
     return res.status(400).json({ error: 'Cannot retry (build not failed)' });
@@ -332,7 +343,7 @@ app.get('/api/builds/queue/status', (req, res) => {
  */
 
 // POST /api/certificates - Upload certificate
-app.post('/api/certificates', (req, res) => {
+app.post('/api/certificates', requireInternal, (req, res) => {
   const { companyId, type, name, file, password } = req.body;
 
   if (!companyId || !type || !name) {
@@ -380,7 +391,7 @@ app.get('/api/certificates', (req, res) => {
 });
 
 // DELETE /api/certificates/:id - Revoke certificate
-app.delete('/api/certificates/:id', (req, res) => {
+app.delete('/api/certificates/:id', requireInternal, (req, res) => {
   const cert = certificates.get(req.params.id);
   if (!cert) {
     return res.status(404).json({ error: 'Certificate not found' });
@@ -395,7 +406,7 @@ app.delete('/api/certificates/:id', (req, res) => {
  */
 
 // POST /api/profiles - Create provisioning profile
-app.post('/api/profiles', (req, res) => {
+app.post('/api/profiles', requireInternal, (req, res) => {
   const { companyId, name, type, appId, certificateId, devices } = req.body;
 
   if (!companyId || !name || !type || !appId) {
@@ -450,7 +461,7 @@ app.get('/api/profiles', (req, res) => {
  */
 
 // POST /api/submissions - Submit to app store
-app.post('/api/submissions', (req, res) => {
+app.post('/api/submissions', requireInternal, (req, res) => {
   const { appId, platform, buildId, releaseNotes, screenshots, metadata } = req.body;
 
   if (!appId || !platform) {
@@ -519,7 +530,7 @@ app.get('/api/submissions/:id', (req, res) => {
 });
 
 // POST /api/submissions/:id/cancel - Cancel submission
-app.post('/api/submissions/:id/cancel', (req, res) => {
+app.post('/api/submissions/:id/cancel', requireInternal, (req, res) => {
   const submission = submissions.get(req.params.id);
   if (!submission) {
     return res.status(404).json({ error: 'Submission not found' });
@@ -538,7 +549,7 @@ app.post('/api/submissions/:id/cancel', (req, res) => {
  */
 
 // POST /api/releases - Create release
-app.post('/api/releases', (req, res) => {
+app.post('/api/releases', requireInternal, (req, res) => {
   const { appId, version, platform, buildId, releaseType, mandatory, rolloutPercentage } = req.body;
 
   if (!appId || !version || !platform) {
@@ -601,7 +612,7 @@ app.get('/api/releases', (req, res) => {
 });
 
 // POST /api/releases/:id/publish - Publish release
-app.post('/api/releases/:id/publish', (req, res) => {
+app.post('/api/releases/:id/publish', requireInternal, (req, res) => {
   const release = releases.get(req.params.id);
   if (!release) {
     return res.status(404).json({ error: 'Release not found' });
@@ -620,7 +631,7 @@ app.post('/api/releases/:id/publish', (req, res) => {
 });
 
 // POST /api/releases/:id/rollback - Rollback release
-app.post('/api/releases/:id/rollback', (req, res) => {
+app.post('/api/releases/:id/rollback', requireInternal, (req, res) => {
   const release = releases.get(req.params.id);
   if (!release) {
     return res.status(404).json({ error: 'Release not found' });
@@ -640,7 +651,7 @@ app.post('/api/releases/:id/rollback', (req, res) => {
  */
 
 // POST /api/ota/deploy - Deploy OTA update
-app.post('/api/ota/deploy', (req, res) => {
+app.post('/api/ota/deploy', requireInternal, (req, res) => {
   const { appId, version, platform, bundleUrl, description, mandatory } = req.body;
 
   if (!appId || !version || !platform || !bundleUrl) {
@@ -696,7 +707,7 @@ app.get('/api/ota/check', (req, res) => {
  */
 
 // POST /api/crashes - Report crash
-app.post('/api/crashes', (req, res) => {
+app.post('/api/crashes', requireInternal, (req, res) => {
   const { appId, platform, version, crashType, stackTrace, deviceInfo, metadata } = req.body;
 
   if (!appId || !platform || !crashType) {
@@ -763,7 +774,7 @@ app.get('/api/crashes/:id', (req, res) => {
 });
 
 // POST /api/crashes/:id/resolve - Mark crash as resolved
-app.post('/api/crashes/:id/resolve', (req, res) => {
+app.post('/api/crashes/:id/resolve', requireInternal, (req, res) => {
   const crash = crashReports.get(req.params.id);
   if (!crash) {
     return res.status(404).json({ error: 'Crash not found' });
@@ -780,7 +791,7 @@ app.post('/api/crashes/:id/resolve', (req, res) => {
  */
 
 // POST /api/notifications/send - Send push notification
-app.post('/api/notifications/send', (req, res) => {
+app.post('/api/notifications/send', requireInternal, (req, res) => {
   const { appId, platform, title, body, data, target } = req.body;
 
   if (!appId || !title || !body) {
@@ -1021,7 +1032,7 @@ const CODEMAGIC_API = 'https://api.codemagic.io/v1';
 const codemagicApps = new Map();
 
 // POST /api/codemagic/apps - Register app with Codemagic
-app.post('/api/codemagic/apps', async (req, res) => {
+app.post('/api/codemagic/apps', requireInternal, async (req, res) => {
   const { appId, platform, repoUrl, branch } = req.body;
 
   if (!appId || !platform || !repoUrl) {
@@ -1070,7 +1081,7 @@ app.get('/api/codemagic/apps/:appId', (req, res) => {
 });
 
 // POST /api/codemagic/builds - Trigger Codemagic build
-app.post('/api/codemagic/builds', async (req, res) => {
+app.post('/api/codemagic/builds', requireInternal, async (req, res) => {
   const { appId, platform, branch, workflowId } = req.body;
 
   if (!appId || !platform) {
@@ -1149,7 +1160,7 @@ app.get('/api/codemagic/builds', (req, res) => {
 });
 
 // POST /api/codemagic/workflows/generate - Generate workflow config
-app.post('/api/codemagic/workflows/generate', (req, res) => {
+app.post('/api/codemagic/workflows/generate', requireInternal, (req, res) => {
   const { platform, appName, bundleId, signing } = req.body;
 
   if (!platform || !appName) {

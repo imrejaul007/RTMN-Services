@@ -10,6 +10,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 const PORT = 4470;
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet(), cors(), express.json());
 
 // Stores
@@ -46,7 +58,7 @@ app.get('/api/v1/pipelines', (req, res) => {
   res.json({ success: true, count: result.length, pipelines: result });
 });
 
-app.post('/api/v1/pipelines', (req, res) => {
+app.post('/api/v1/pipelines', requireInternal, (req, res) => {
   const { orgId, repo, branch = 'main', buildCommand = 'npm install && npm run build', deployOnSuccess = true } = req.body;
   if (!orgId || !repo) return res.status(400).json({ error: 'orgId and repo are required' });
   const id = uuidv4();
@@ -61,14 +73,14 @@ app.get('/api/v1/pipelines/:id', (req, res) => {
   res.json({ success: true, pipeline: p });
 });
 
-app.delete('/api/v1/pipelines/:id', (req, res) => {
+app.delete('/api/v1/pipelines/:id', requireInternal, (req, res) => {
   if (!pipelines.has(req.params.id)) return res.status(404).json({ error: 'Pipeline not found' });
   pipelines.delete(req.params.id);
   res.json({ success: true, message: 'Pipeline deleted' });
 });
 
 // Builds
-app.post('/api/v1/builds', (req, res) => {
+app.post('/api/v1/builds', requireInternal, (req, res) => {
   const { pipelineId, commitSha, commitMessage, author, branch } = req.body;
   if (!pipelineId) return res.status(400).json({ error: 'pipelineId is required' });
   const pipeline = pipelines.get(pipelineId);
@@ -98,7 +110,7 @@ app.get('/api/v1/builds/:id', (req, res) => {
 });
 
 // Webhook endpoint
-app.post('/api/v1/webhooks/github', (req, res) => {
+app.post('/api/v1/webhooks/github', requireInternal, (req, res) => {
   const { action, pull_request, repository, commits } = req.body;
   // Find matching pipeline
   const repo = repository?.full_name;
@@ -125,7 +137,7 @@ app.post('/api/v1/webhooks/github', (req, res) => {
   res.json({ message: 'Webhook processed' });
 });
 
-app.post('/api/v1/deploy', (req, res) => {
+app.post('/api/v1/deploy', requireInternal, (req, res) => {
   const { buildId, environment = 'production' } = req.body;
   if (!buildId) return res.status(400).json({ error: 'buildId is required' });
   const build = builds.get(buildId);

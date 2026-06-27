@@ -24,7 +24,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const PORT = parseInt(process.env.PORT, 10) || 4788;
+const PORT = parseInt(process.env.PORT, 10) || 5396;
 const SERVICE_NAME = 'eval-review';
 const VERSION = '1.0.0';
 const DATA_DIR = process.env.EVAL_REVIEW_DATA_DIR || path.join(__dirname, '../data');
@@ -169,6 +169,18 @@ function reviewerStats(reviewerId, items) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -186,7 +198,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // Add to queue
-app.post('/api/review/queue', (req, res) => {
+app.post('/api/review/queue', requireInternal, (req, res) => {
   const { input, output, reference, judgeScore, judgeConfidence, priority } = req.body || {};
   if (input === undefined || output === undefined) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'input, output required' });
   const id = crypto.randomUUID();
@@ -223,7 +235,7 @@ app.get('/api/review/queue/next', (req, res) => {
 });
 
 // Submit review
-app.post('/api/review/:id/submit', (req, res) => {
+app.post('/api/review/:id/submit', requireInternal, (req, res) => {
   const it = queue.get(req.params.id);
   if (!it) return res.status(404).json({ error: 'NOT_FOUND' });
   const { reviewerId, score, label, notes, durationMs } = req.body || {};
@@ -301,7 +313,7 @@ app.get('/api/review/calibrate-payload', (req, res) => {
   });
 });
 
-app.delete('/api/review/:id', (req, res) => {
+app.delete('/api/review/:id', requireInternal, (req, res) => {
   if (!queue.delete(req.params.id)) return res.status(404).json({ error: 'NOT_FOUND' });
   saveQueue();
   res.json({ deleted: req.params.id });

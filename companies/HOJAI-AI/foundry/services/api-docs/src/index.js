@@ -7,13 +7,25 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = 4766;
 app.use(express.json());
 
 const docs = new Map(); // projectId -> API docs
 
 // REST API - Generate Docs
-app.post('/api/generate', (req, res) => {
+app.post('/api/generate', requireInternal, (req, res) => {
   const { projectId, name, routes } = req.body;
   const projectDocs = {
     id: uuidv4(),
@@ -53,7 +65,7 @@ app.get('/api/docs/:projectId/export', (req, res) => {
 });
 
 // REST API - Add Endpoint
-app.post('/api/docs/:projectId/endpoints', (req, res) => {
+app.post('/api/docs/:projectId/endpoints', requireInternal, (req, res) => {
   const doc = docs.get(req.params.projectId);
   if (!doc) return res.status(404).json({ error: 'Not found' });
 

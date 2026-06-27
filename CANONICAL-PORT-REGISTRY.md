@@ -47,7 +47,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | Port | Service | Path |
 |------|---------|------|
 | 4800 | acp-protocol | `services/acp-protocol/` |
-| 4801 | acn-network | `services/acn-network/` (⚠️ collides with finance-os) |
+| 4806 | acn-network | `companies/HOJAI-AI/sutar-os/agents/acn-network/` (fixed 2026-06-27: was 4801, conflicted with finance-os) |
 | 4810 | merchant-agents | `services/merchant-agents/` |
 | 4820 | agent-reputation | `services/agent-reputation/` |
 | 4830 | agent-contracts | `services/agent-contracts/` |
@@ -205,6 +205,7 @@ HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HO
 
 | Port | Service | Path | Notes |
 |------|---------|------|-------|
+| 4770 | inference-gateway | `companies/HOJAI-AI/platform/intelligence/inference-gateway/` | Phase F — real LLM gateway: OpenAI, Anthropic, Google, Mistral |
 | 4772 | semantic-cache | `companies/HOJAI-AI/platform/intelligence/semantic-cache/` | Phase F.13 — embedding-based semantic caching |
 | 4780 | vector-db | `companies/HOJAI-AI/platform/intelligence/vector-db/` | Phase F.8 — in-memory vector store |
 | 4781 | rag-platform | `companies/HOJAI-AI/platform/intelligence/rag-platform/` | Phase F.14 — retrieval-augmented generation |
@@ -220,6 +221,18 @@ HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HO
 | 4791 | agent-builder | `companies/HOJAI-AI/platform/intelligence/agent-builder/` | Phase F.22 — blueprint CRUD, instantiation |
 | 4792 | background-agents | `companies/HOJAI-AI/platform/intelligence/background-agents/` | Phase F.23 — job scheduler, run history |
 | 4793 | memory-context-engine | `companies/HOJAI-AI/platform/memory/memory-context-engine/` | Memory layer — smart retriever for LLM context windows |
+| 4794 | memory-relationships | `companies/HOJAI-AI/platform/memory/memory-relationships/` | Organizational relationship intelligence (was 4790, fixed 2026-06-27) |
+| 4796 | energy-os | `companies/HOJAI-AI/products/energy-os/` | Internal HOJAI energy service |
+| 5391 | eval-platform-api | `companies/HOJAI-AI/platform/training/eval-platform/eval-platform-api/` | Eval platform gateway (was 4780, fixed 2026-06-27) |
+| 5392 | eval-datasets | `companies/HOJAI-AI/platform/training/eval-platform/eval-datasets/` | Golden dataset management (was 4781, fixed 2026-06-27) |
+| 5393 | eval-judges | `companies/HOJAI-AI/platform/training/eval-platform/eval-judges/` | LLM-as-judge evaluation (was 4782, fixed 2026-06-27) |
+| 5394 | eval-live | `companies/HOJAI-AI/platform/training/eval-platform/eval-live/` | Live production monitoring (was 4783, fixed 2026-06-27) |
+| 5395 | eval-shadow | `companies/HOJAI-AI/platform/training/eval-platform/eval-shadow/` | Shadow traffic evaluation (was 4784, fixed 2026-06-27) |
+| 5396 | eval-review | `companies/HOJAI-AI/platform/training/eval-platform/eval-review/` | Human review workflow (was 4788, fixed 2026-06-27) |
+| 5397 | eval-benchmarks | `companies/HOJAI-AI/platform/training/eval-platform/eval-benchmarks/` | Benchmark suite management (was 4789, fixed 2026-06-27) |
+| 5398 | eval-canary | `companies/HOJAI-AI/platform/training/eval-platform/eval-canary/` | Canary deployment evaluation (was 4787, fixed 2026-06-27) |
+| 4854 | memory-observation | `companies/HOJAI-AI/platform/memory/memory-observation/` | Memory observation + pattern detection (was 4785, fixed 2026-06-27) |
+| 4855 | connector-hub | `companies/HOJAI-AI/platform/connectors/connector-hub/` | Data connectors adapter hub (was 4785, fixed 2026-06-27) |
 | 4880 | voice-gateway | `companies/HOJAI-AI/products/voice-os/core/voice-gateway/` | Phase F — training-aware STT/TTS router |
 | 4881 | ai-intelligence | `companies/HOJAI-AI/platform/intelligence/ai-intelligence/` | Phase F.4 — multi-agent orchestration |
 | 4882 | trust-intelligence | `companies/HOJAI-AI/platform/flow/trust-intelligence/` | Phase F.12 — AI agent trust scoring |
@@ -232,16 +245,16 @@ HOJAI platform services live at `companies/HOJAI-AI/platform/` and `companies/HO
 | 4755 | risk-intelligence | `companies/HOJAI-AI/platform/flow/risk-intelligence/` | Phase F.11 — fraud, churn, credit, composite risk |
 | 4756 | decision-intelligence | `companies/HOJAI-AI/platform/flow/decision-intelligence/` | Phase F.6 — recommendations, NBA, multi-criteria decisions |
 
-### ⚠️ Reserved Phase 31 ports (eval-platform — not yet implemented)
-The following were reserved for Phase 31 eval-platform but are currently used by Phase F services. eval-platform will need renumbering when implemented:
-- 4780 → eval-platform-api (currently vector-db)
-- 4782 → eval-datasets (currently unused, pending)
-- 4783 → eval-live (currently graph-database)
-- 4784 → eval-shadow (currently knowledge-extraction)
-- 4787 → eval-canary (currently reflection-engine)
-- 4788 → eval-review (currently behavior-intelligence)
-- 4789 → eval-benchmarks (currently proactive-engine)
-- 4793 → memory-context-engine (Phase F.21 fix: freed 4790 for multi-agent-runtime)
+### ✅ Phase 31 eval-platform (fixed 2026-06-27)
+The following were reserved for Phase 31 eval-platform but conflicted with Phase F services. Moved to 5391-5398:
+- 5391 → eval-platform-api (was 4780, conflicted with vector-db)
+- 5392 → eval-datasets (was 4781, conflicted with rag-platform)
+- 5393 → eval-judges (was 4782, conflicted with eval-judges registry)
+- 5394 → eval-live (was 4783, conflicted with graph-database)
+- 5395 → eval-shadow (was 4784, conflicted with knowledge-extraction)
+- 5396 → eval-review (was 4788, conflicted with memorylearning-engine)
+- 5397 → eval-benchmarks (was 4789, conflicted with proactive-engine)
+- 5398 → eval-canary (was 4787, conflicted with reflection-engine)
 
 ### ✅ Port Conflicts Resolved
 
@@ -252,6 +265,16 @@ The following were reserved for Phase 31 eval-platform but are currently used by
 | 2026-06-22 | 4250 | BAM marketplace vs Nexha stub | bam-marketplace-listings → 4255 |
 | 2026-06-25 | 3001 | Grafana vs do-app | grafana → 3030 |
 | 2026-06-25 | 4790 | memory-context-engine vs multi-agent-runtime | memory-context-engine → 4793 |
+| 2026-06-27 | 4785 | memory-observation vs reasoning-engine | memory-observation → 4854, connector-hub → 4855 |
+| 2026-06-27 | 4790 | memory-relationships vs multi-agent-runtime | memory-relationships → 4794 |
+| 2026-06-27 | 4780 | eval-platform-api vs vector-db | eval-platform-api → 5391 |
+| 2026-06-27 | 4781 | eval-datasets vs rag-platform | eval-datasets → 5392 |
+| 2026-06-27 | 4782 | eval-judges vs eval-judges registry | eval-judges → 5393 |
+| 2026-06-27 | 4783 | eval-live vs graph-database | eval-live → 5394 |
+| 2026-06-27 | 4784 | eval-shadow vs knowledge-extraction | eval-shadow → 5395 |
+| 2026-06-27 | 4787 | eval-canary vs reflection-engine | eval-canary → 5398 |
+| 2026-06-27 | 4788 | eval-review vs memorylearning-engine | eval-review → 5396 |
+| 2026-06-27 | 4789 | eval-benchmarks vs proactive-engine | eval-benchmarks → 5397 |
 
 ### ⚠️ energy-os: two different services at two different ports
 - `companies/HOJAI-AI/products/energy-os/` (port 4796) — internal HOJAI energy service

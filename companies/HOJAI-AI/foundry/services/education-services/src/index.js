@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(express.json());
 const PORT = process.env.PORT || 4740;
 
@@ -32,14 +43,14 @@ app.get('/api/courses/:id', (req, res) => {
   res.json({ success: true, course });
 });
 
-app.post('/api/courses', (req, res) => {
+app.post('/api/courses', requireInternal, (req, res) => {
   const course = { id: uuidv4(), ...req.body, students: 0, rating: 0, createdAt: new Date().toISOString() };
   courses.set(course.id, course);
   res.status(201).json({ success: true, course });
 });
 
 // Enrollments
-app.post('/api/enroll', (req, res) => {
+app.post('/api/enroll', requireInternal, (req, res) => {
   const { courseId, userId } = req.body;
   const enrollment = { id: uuidv4(), courseId, userId, progress: 0, status: 'active', enrolledAt: new Date().toISOString() };
   enrollments.set(enrollment.id, enrollment);
@@ -54,7 +65,7 @@ app.get('/api/enrollments', (req, res) => {
 });
 
 // Assessments
-app.post('/api/assessments/submit', (req, res) => {
+app.post('/api/assessments/submit', requireInternal, (req, res) => {
   const { enrollmentId, answers } = req.body;
   const score = Math.floor(Math.random() * 30) + 70; // Mock grading
   const assessment = { id: uuidv4(), enrollmentId, answers, score, submittedAt: new Date().toISOString() };
@@ -63,7 +74,7 @@ app.post('/api/assessments/submit', (req, res) => {
 });
 
 // Certificates
-app.post('/api/certificates/generate', (req, res) => {
+app.post('/api/certificates/generate', requireInternal, (req, res) => {
   const { enrollmentId, courseName, userName } = req.body;
   const cert = { id: uuidv4(), enrollmentId, courseName, userName, issuedAt: new Date().toISOString() };
   certificates.set(cert.id, cert);

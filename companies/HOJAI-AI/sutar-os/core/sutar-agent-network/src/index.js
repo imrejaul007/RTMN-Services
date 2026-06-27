@@ -24,6 +24,17 @@ const rezIntel = require('./rez-intel-client');
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4155;
@@ -183,7 +194,7 @@ app.get('/rez-intel-status', async (req, res) => {
   res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
 });
 
-app.post('/api/enrich', async (req, res) => {
+app.post('/api/enrich', requireInternal, async (req, res) => {
   const { agentRole, userId, companyId, query, context } = req.body || {};
   const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });

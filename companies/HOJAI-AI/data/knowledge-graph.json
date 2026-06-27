@@ -1,0 +1,12 @@
+[
+  [
+    "node-test-1",
+    {
+      "id": "node-test-1",
+      "type": "person",
+      "label": "Test Node",
+      "metadata": {},
+      "links": []
+    }
+  ]
+]

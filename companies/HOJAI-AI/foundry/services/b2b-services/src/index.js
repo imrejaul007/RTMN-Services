@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(express.json());
 const PORT = process.env.PORT || 4772;
 
@@ -18,7 +29,7 @@ const suppliers = new Map();
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'b2b-services' }));
 
 // RFQs
-app.post('/api/rfqs', (req, res) => {
+app.post('/api/rfqs', requireInternal, (req, res) => {
   const rfq = { id: uuidv4(), ...req.body, status: 'open', createdAt: new Date().toISOString() };
   rfqs.set(rfq.id, rfq);
   res.status(201).json({ success: true, rfq });
@@ -31,7 +42,7 @@ app.get('/api/rfqs/:id', (req, res) => {
 });
 
 // Quotations
-app.post('/api/quotes', (req, res) => {
+app.post('/api/quotes', requireInternal, (req, res) => {
   const quote = { id: uuidv4(), ...req.body, status: 'submitted', createdAt: new Date().toISOString() };
   quotes.set(quote.id, quote);
   res.status(201).json({ success: true, quote });
@@ -39,7 +50,7 @@ app.post('/api/quotes', (req, res) => {
 app.get('/api/quotes', (req, res) => res.json({ success: true, quotes: Array.from(quotes.values()) }));
 
 // Contracts
-app.post('/api/contracts', (req, res) => {
+app.post('/api/contracts', requireInternal, (req, res) => {
   const contract = { id: uuidv4(), ...req.body, status: 'active', createdAt: new Date().toISOString() };
   contracts.set(contract.id, contract);
   res.status(201).json({ success: true, contract });
@@ -47,7 +58,7 @@ app.post('/api/contracts', (req, res) => {
 app.get('/api/contracts', (req, res) => res.json({ success: true, contracts: Array.from(contracts.values()) }));
 
 // Suppliers
-app.post('/api/suppliers', (req, res) => {
+app.post('/api/suppliers', requireInternal, (req, res) => {
   const supplier = { id: uuidv4(), ...req.body, status: 'approved', rating: 4.5 };
   suppliers.set(supplier.id, supplier);
   res.status(201).json({ success: true, supplier });

@@ -13,6 +13,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4500;
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'template-compiler', version: '1.0.0' }));
@@ -29,7 +40,7 @@ app.get('/api/v1', (_, res) => res.json({
 }));
 
 // Compile a template
-app.post('/api/v1/compile', (req, res) => {
+app.post('/api/v1/compile', requireInternal, (req, res) => {
   const { name, template, outputDir } = req.body;
 
   if (!name || !template) {

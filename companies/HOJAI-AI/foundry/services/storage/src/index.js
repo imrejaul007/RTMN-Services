@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4754;
 app.use(express.json());
 
@@ -21,7 +32,7 @@ const DOC_FORMATS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
 const ALL_FORMATS = [...IMAGE_FORMATS, ...VIDEO_FORMATS, ...DOC_FORMATS, 'zip', 'txt'];
 
 // REST API - Upload
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload', requireInternal, (req, res) => {
   const { projectId, name, mimeType, size, folderId } = req.body;
 
   const ext = name.split('.').pop().toLowerCase();
@@ -69,14 +80,14 @@ app.get('/api/files', (req, res) => {
 });
 
 // REST API - Delete File
-app.delete('/api/files/:fileId', (req, res) => {
+app.delete('/api/files/:fileId', requireInternal, (req, res) => {
   if (!files.has(req.params.fileId)) return res.status(404).json({ error: 'File not found' });
   files.delete(req.params.fileId);
   res.json({ deleted: true });
 });
 
 // REST API - Generate Variants
-app.post('/api/files/:fileId/variants', (req, res) => {
+app.post('/api/files/:fileId/variants', requireInternal, (req, res) => {
   const file = files.get(req.params.fileId);
   if (!file) return res.status(404).json({ error: 'File not found' });
 
@@ -96,7 +107,7 @@ app.post('/api/files/:fileId/variants', (req, res) => {
 });
 
 // REST API - Image Transform
-app.post('/api/transform', (req, res) => {
+app.post('/api/transform', requireInternal, (req, res) => {
   const { fileId, width, height, format = 'webp', quality = 80, fit = 'cover' } = req.body;
 
   const file = files.get(fileId);
@@ -118,7 +129,7 @@ app.post('/api/transform', (req, res) => {
 });
 
 // REST API - Folders
-app.post('/api/folders', (req, res) => {
+app.post('/api/folders', requireInternal, (req, res) => {
   const { projectId, name, parentId } = req.body;
   const folder = {
     id: uuidv4(),
@@ -141,7 +152,7 @@ app.get('/api/folders', (req, res) => {
   res.json(list);
 });
 
-app.delete('/api/folders/:folderId', (req, res) => {
+app.delete('/api/folders/:folderId', requireInternal, (req, res) => {
   if (!folders.has(req.params.folderId)) return res.status(404).json({ error: 'Folder not found' });
   folders.delete(req.params.folderId);
   res.json({ deleted: true });

@@ -24,6 +24,17 @@ const rezIntel = require('./rez-intel-client');
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors());
 app.use(helmet());
 
@@ -31,7 +42,7 @@ app.use(helmet());
 requireEnv(['PORT'], { allowDev: true });
 setupSecurity(app, { serviceName: 'acn-network' });
 
-const PORT = process.env.PORT || 4801;
+const PORT = process.env.PORT || 4806;
 
 // In-memory stores (replace with proper database in production)
 const agents = new PersistentMap('agents', { serviceName: 'acn-network' });
@@ -922,7 +933,7 @@ app.get('/rez-intel-status', async (req, res) => {
   res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
 });
 
-app.post('/api/enrich', async (req, res) => {
+app.post('/api/enrich', requireInternal, async (req, res) => {
   const { agentRole, userId, companyId, query, context } = req.body || {};
   const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });

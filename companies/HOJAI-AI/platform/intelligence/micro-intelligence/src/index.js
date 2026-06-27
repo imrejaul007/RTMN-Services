@@ -243,6 +243,24 @@ function callUpstream(targetUrl, payload, timeoutMs) {
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
+// Readiness probe — returns 200 once the server is accepting requests
+// NOTE: Must be registered BEFORE the 404 catch-all
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
@@ -578,18 +596,14 @@ function seed() {
 }
 
 seed();
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
-
-const server = app.listen(PORT, () => {
-  console.log(`[${SERVICE_NAME}] Listening on port ${PORT}`);
-  console.log(`[${SERVICE_NAME}] Health: http://localhost:${PORT}/health`);
-  console.log(`[${SERVICE_NAME}] Version ${VERSION}`);
-});
-installGracefulShutdown(server);
 
 module.exports = { app, Breaker };
+
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] Listening on port ${PORT}`);
+    console.log(`[${SERVICE_NAME}] Health: http://localhost:${PORT}/health`);
+    console.log(`[${SERVICE_NAME}] Version ${VERSION}`);
+  });
+  installGracefulShutdown(server);
+}

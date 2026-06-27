@@ -16,5 +16,6 @@
     "morgan": "^1.10.0",
     "uuid": "^9.0.1",
     "@rtmn/shared": "file:../../shared"
-  }
+  },
+  "port": 4140
 }

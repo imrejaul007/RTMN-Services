@@ -10,6 +10,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -30,7 +42,7 @@ function genId(prefix = 'fed') {
 // ============ FEDERATIONS ============
 
 // Create a federation
-app.post('/api/federations', (req, res) => {
+app.post('/api/federations', requireInternal, (req, res) => {
   const { name, memberIds, sharedPolicies } = req.body;
 
   if (!name) {
@@ -78,7 +90,7 @@ app.get('/api/federations', (req, res) => {
 });
 
 // Update federation
-app.patch('/api/federations/:federationId', (req, res) => {
+app.patch('/api/federations/:federationId', requireInternal, (req, res) => {
   const federation = federations.get(req.params.federationId);
   if (!federation) {
     return res.status(404).json({ error: 'Federation not found' });
@@ -96,7 +108,7 @@ app.patch('/api/federations/:federationId', (req, res) => {
 });
 
 // Delete federation
-app.delete('/api/federations/:federationId', (req, res) => {
+app.delete('/api/federations/:federationId', requireInternal, (req, res) => {
   if (!federations.has(req.params.federationId)) {
     return res.status(404).json({ error: 'Federation not found' });
   }
@@ -108,7 +120,7 @@ app.delete('/api/federations/:federationId', (req, res) => {
 // ============ MEMBERS ============
 
 // Register a member (company/nexha)
-app.post('/api/members', (req, res) => {
+app.post('/api/members', requireInternal, (req, res) => {
   const { type, name, memoryEndpoint, credentials, metadata } = req.body;
 
   if (!type || !name) {
@@ -161,7 +173,7 @@ app.get('/api/members', (req, res) => {
 });
 
 // Update member
-app.patch('/api/members/:memberId', (req, res) => {
+app.patch('/api/members/:memberId', requireInternal, (req, res) => {
   const member = members.get(req.params.memberId);
   if (!member) {
     return res.status(404).json({ error: 'Member not found' });
@@ -181,7 +193,7 @@ app.patch('/api/members/:memberId', (req, res) => {
 // ============ SHARED MEMORIES ============
 
 // Share a memory across federation
-app.post('/api/shared-memories', (req, res) => {
+app.post('/api/shared-memories', requireInternal, (req, res) => {
   const { sourceMemberId, federationId, content, permissions, ttl } = req.body;
 
   if (!sourceMemberId || !federationId || !content) {
@@ -278,7 +290,7 @@ app.get('/api/shared-memories', (req, res) => {
 });
 
 // Revoke shared memory
-app.delete('/api/shared-memories/:memoryId', (req, res) => {
+app.delete('/api/shared-memories/:memoryId', requireInternal, (req, res) => {
   const memory = sharedMemories.get(req.params.memoryId);
   if (!memory) {
     return res.status(404).json({ error: 'Shared memory not found' });
@@ -298,7 +310,7 @@ app.delete('/api/shared-memories/:memoryId', (req, res) => {
 // ============ PRIVACY POLICIES ============
 
 // Create privacy policy
-app.post('/api/privacy-policies', (req, res) => {
+app.post('/api/privacy-policies', requireInternal, (req, res) => {
   const { name, rules, scope, ownerId } = req.body;
 
   if (!name || !ownerId) {
@@ -345,7 +357,7 @@ app.get('/api/privacy-policies', (req, res) => {
 // ============ SYNC JOBS ============
 
 // Create sync job
-app.post('/api/sync', (req, res) => {
+app.post('/api/sync', requireInternal, (req, res) => {
   const { type, sourceId, targetId, memoryIds, direction } = req.body;
 
   if (!type || !sourceId || !targetId) {
@@ -385,7 +397,7 @@ app.get('/api/sync/:jobId', (req, res) => {
 });
 
 // Update sync job (progress)
-app.patch('/api/sync/:jobId', (req, res) => {
+app.patch('/api/sync/:jobId', requireInternal, (req, res) => {
   const job = syncJobs.get(req.params.jobId);
   if (!job) {
     return res.status(404).json({ error: 'Sync job not found' });
@@ -438,7 +450,7 @@ app.get('/api/access-logs', (req, res) => {
 
 // ============ QUERY (Cross-federation search) ============
 
-app.post('/api/query', (req, res) => {
+app.post('/api/query', requireInternal, (req, res) => {
   const { query, federationId, requesterId, filters } = req.body;
 
   if (!query) {

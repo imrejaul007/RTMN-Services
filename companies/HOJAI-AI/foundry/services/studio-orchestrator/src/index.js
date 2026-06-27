@@ -8,6 +8,17 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4570;
 
@@ -51,7 +62,7 @@ app.get('/health', (_, res) => res.json({
  * 4. Deploy apps
  * 5. Connect to Nexha
  */
-app.post('/api/v1/deploy', async (req, res) => {
+app.post('/api/v1/deploy', requireInternal, async (req, res) => {
   const { companyName, companyId, template, sector, options } = req.body;
 
   if (!companyName || !template) {
@@ -208,7 +219,7 @@ app.get('/api/v1/flows', (req, res) => {
   res.json({ success: true, flows });
 });
 
-app.post('/api/v1/flows/:template/:flow/execute', async (req, res) => {
+app.post('/api/v1/flows/:template/:flow/execute', requireInternal, async (req, res) => {
   const flow = FLOWS[req.params.template]?.[req.params.flow];
   if (!flow) return res.status(404).json({ error: 'Flow not found' });
 
@@ -331,7 +342,7 @@ app.get('/api/v1/connectors/:category', async (req, res) => {
 /**
  * Create a connector connection for a deployment
  */
-app.post('/api/v1/connections', async (req, res) => {
+app.post('/api/v1/connections', requireInternal, async (req, res) => {
   const { deploymentId, connectorId, credentials, config } = req.body;
 
   if (!deploymentId || !connectorId) {
@@ -377,7 +388,7 @@ app.get('/api/v1/deployments/:id/connections', async (req, res) => {
   });
 });
 
-app.post('/api/v1/nexha/:networkId/connect', (req, res) => {
+app.post('/api/v1/nexha/:networkId/connect', requireInternal, (req, res) => {
   const { networkId } = req.params;
   const { deploymentId } = req.body;
 

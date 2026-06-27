@@ -7,6 +7,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+import { validateWebhookUrl } from '../lib/sanitization.js';
 
 export function registerWebhookRoutes(app, {
   webhooks,
@@ -30,6 +31,10 @@ export function registerWebhookRoutes(app, {
   app.post('/api/webhooks', customAuth, writeLimiter, async (req, res) => {
     const { url, events, secret, active } = req.body || {};
     if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
+
+    // Phase 0.7: validate URL security (no javascript:, internal IPs, etc.)
+    const validation = validateWebhookUrl(url);
+    if (!validation.valid) return res.status(400).json({ error: validation.reason });
     if (!Array.isArray(events) || events.length === 0) {
       return res.status(400).json({ error: 'events must be a non-empty array of audit-event types' });
     }
@@ -113,7 +118,7 @@ export function registerWebhookRoutes(app, {
       wh.lastDeliveryAt = entry.timestamp;
       wh.lastError = ok ? null : `HTTP ${resp.status}`;
       await webhooks.set(wh.id, wh);
-      res.json({ ok: result.status === 'success', delivery: entry });
+      res.json({ ok, delivery: entry });
     } catch (err) {
       const entry = {
         id: deliveryId, webhookId: wh.id, event: testPayload.event,

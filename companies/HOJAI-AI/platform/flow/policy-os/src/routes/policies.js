@@ -6,6 +6,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { validatePolicyBody } from '../lib/validation.js';
+import { sanitizePolicyId, sanitizeExpression, sanitizeName } from '../lib/sanitization.js';
 
 // =================================================================
 // Policy CRUD
@@ -39,14 +40,22 @@ export function registerPolicyRoutes(app, {
     const body = req.body || {};
     const v = validatePolicyBody(body);
     if (!v.ok) return res.status(400).json({ error: 'validation failed', errors: v.errors });
-    const id = body.id || `pol-${uuidv4().slice(0, 8)}`;
+
+    // Phase 0.7: sanitize provided policy IDs and names.
+    let id = body.id ? sanitizePolicyId(body.id) : null;
+    if (body.id && !id) {
+      return res.status(400).json({ error: 'Invalid policy ID. Use only alphanumeric characters and hyphens, max 64 chars.' });
+    }
+    id = id || `pol-${uuidv4().slice(0, 8)}`;
     if (policies.has(id)) {
       return res.status(409).json({ error: `Policy with id '${id}' already exists` });
     }
+
+    const name = sanitizeName(body.name) || body.name;
     const now = new Date().toISOString();
     const policy = {
       id,
-      name: body.name,
+      name,
       description: body.description || '',
       category: body.category,
       version: 1,

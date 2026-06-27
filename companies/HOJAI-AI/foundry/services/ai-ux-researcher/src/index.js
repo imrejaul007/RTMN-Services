@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4764;
 app.use(express.json());
 
@@ -20,7 +31,7 @@ const funnels = []; // funnel definitions
 const EVENT_TYPES = ['pageview', 'click', 'scroll', 'hover', 'input', 'submit', 'error', 'custom'];
 
 // REST API - Track Event
-app.post('/api/track', (req, res) => {
+app.post('/api/track', requireInternal, (req, res) => {
   const { sessionId, projectId, eventType, eventData, userId, timestamp } = req.body;
 
   const event = {
@@ -58,7 +69,7 @@ app.post('/api/track', (req, res) => {
 });
 
 // REST API - Start Session
-app.post('/api/sessions', (req, res) => {
+app.post('/api/sessions', requireInternal, (req, res) => {
   const { projectId, userId, metadata = {} } = req.body;
   const sessionId = uuidv4();
 
@@ -93,7 +104,7 @@ app.get('/api/sessions', (req, res) => {
 });
 
 // REST API - End Session
-app.post('/api/sessions/:sessionId/end', (req, res) => {
+app.post('/api/sessions/:sessionId/end', requireInternal, (req, res) => {
   const session = sessions.get(req.params.sessionId);
   if (!session) return res.status(404).json({ error: 'Session not found' });
 
@@ -141,7 +152,7 @@ app.get('/api/heatmaps/:projectId', (req, res) => {
 });
 
 // REST API - Generate Persona
-app.post('/api/personas', (req, res) => {
+app.post('/api/personas', requireInternal, (req, res) => {
   const { projectId, name, demographics, goals, painPoints, behavior } = req.body;
 
   const persona = {
@@ -167,7 +178,7 @@ app.get('/api/personas/:projectId', (req, res) => {
   res.json(projectPersonas);
 });
 
-app.delete('/api/personas/:personaId', (req, res) => {
+app.delete('/api/personas/:personaId', requireInternal, (req, res) => {
   personas.forEach((list, projectId) => {
     const filtered = list.filter(p => p.id !== req.params.personaId);
     if (filtered.length !== list.length) {
@@ -223,7 +234,7 @@ app.get('/api/analytics/:projectId', (req, res) => {
 });
 
 // REST API - Funnels
-app.post('/api/funnels', (req, res) => {
+app.post('/api/funnels', requireInternal, (req, res) => {
   const { projectId, name, steps } = req.body;
   const funnel = {
     id: uuidv4(),

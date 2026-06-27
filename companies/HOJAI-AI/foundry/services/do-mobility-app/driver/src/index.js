@@ -7,6 +7,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 
 const PORT = 4611;
@@ -31,7 +43,7 @@ drivers.set(demoDriver.id, demoDriver);
 app.get('/health', (_, res) => res.json({ status: 'ok', app: 'do-mobility-driver', port: PORT }));
 
 // Go online/offline
-app.post('/api/status', (req, res) => {
+app.post('/api/status', requireInternal, (req, res) => {
   const { online } = req.body;
   demoDriver.status = online ? 'online' : 'offline';
   res.json({ success: true, status: demoDriver.status });
@@ -51,7 +63,7 @@ app.get('/api/rides/requests', (req, res) => {
 });
 
 // Accept ride
-app.post('/api/rides/:id/accept', (req, res) => {
+app.post('/api/rides/:id/accept', requireInternal, (req, res) => {
   const ride = {
     id: req.params.id,
     driverId: demoDriver.id,

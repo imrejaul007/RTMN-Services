@@ -1,7 +1,7 @@
 /**
  * Memory Relationships Service
  * Organizational Relationship Intelligence for MemoryOS
- * Port: 4790
+ * Port: 4794 (was 4790, conflicted with multi-agent-runtime on 2026-06-27)
  *
  * Tracks:
  * - Who knows whom
@@ -19,7 +19,19 @@ import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
-const PORT = process.env.PORT || 4790;
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+const PORT = process.env.PORT || 4794;
 
 // Middleware
 app.use(cors());
@@ -156,7 +168,7 @@ const getTrustCategory = (score) => {
 // ============================================
 
 // Create organization/department/team
-app.post('/entities', (req, res) => {
+app.post('/entities', requireInternal, (req, res) => {
   const { name, type, parentId, metadata } = req.body;
 
   if (!name || !type) {
@@ -211,7 +223,7 @@ app.get('/entities', (req, res) => {
 });
 
 // Update entity
-app.put('/entities/:id', (req, res) => {
+app.put('/entities/:id', requireInternal, (req, res) => {
   const entity = entities.get(req.params.id);
   if (!entity) {
     return res.status(404).json({ error: 'Entity not found' });
@@ -230,7 +242,7 @@ app.put('/entities/:id', (req, res) => {
 });
 
 // Delete entity
-app.delete('/entities/:id', (req, res) => {
+app.delete('/entities/:id', requireInternal, (req, res) => {
   if (!entities.has(req.params.id)) {
     return res.status(404).json({ error: 'Entity not found' });
   }
@@ -246,7 +258,7 @@ app.delete('/entities/:id', (req, res) => {
 // ============================================
 
 // Create person
-app.post('/persons', (req, res) => {
+app.post('/persons', requireInternal, (req, res) => {
   const { name, email, role, entityId, metadata } = req.body;
 
   if (!name) {
@@ -308,7 +320,7 @@ app.get('/persons', (req, res) => {
 });
 
 // Update person
-app.put('/persons/:id', (req, res) => {
+app.put('/persons/:id', requireInternal, (req, res) => {
   const person = persons.get(req.params.id);
   if (!person) {
     return res.status(404).json({ error: 'Person not found' });
@@ -329,7 +341,7 @@ app.put('/persons/:id', (req, res) => {
 });
 
 // Delete person
-app.delete('/persons/:id', (req, res) => {
+app.delete('/persons/:id', requireInternal, (req, res) => {
   if (!persons.has(req.params.id)) {
     return res.status(404).json({ error: 'Person not found' });
   }
@@ -345,7 +357,7 @@ app.delete('/persons/:id', (req, res) => {
 // ============================================
 
 // Create relationship
-app.post('/relationships', (req, res) => {
+app.post('/relationships', requireInternal, (req, res) => {
   const { fromId, fromType, toId, toType, type, metadata } = req.body;
 
   if (!fromId || !toId || !type) {
@@ -477,7 +489,7 @@ app.get('/network/:id', (req, res) => {
 });
 
 // Update relationship
-app.put('/relationships/:id', (req, res) => {
+app.put('/relationships/:id', requireInternal, (req, res) => {
   const relationship = relationships.get(req.params.id);
   if (!relationship) {
     return res.status(404).json({ error: 'Relationship not found' });
@@ -503,7 +515,7 @@ app.put('/relationships/:id', (req, res) => {
 });
 
 // Delete relationship
-app.delete('/relationships/:id', (req, res) => {
+app.delete('/relationships/:id', requireInternal, (req, res) => {
   const relationship = relationships.get(req.params.id);
   if (!relationship) {
     return res.status(404).json({ error: 'Relationship not found' });
@@ -540,7 +552,7 @@ app.delete('/relationships/:id', (req, res) => {
 // ============================================
 
 // Record interaction
-app.post('/interactions', (req, res) => {
+app.post('/interactions', requireInternal, (req, res) => {
   const { fromId, toId, type, sentiment, notes, metadata } = req.body;
 
   if (!fromId || !toId || !type) {
@@ -631,7 +643,7 @@ app.get('/interactions', (req, res) => {
 // ============================================
 
 // Create team
-app.post('/teams', (req, res) => {
+app.post('/teams', requireInternal, (req, res) => {
   const { name, entityId, leadId, memberIds, metadata } = req.body;
 
   if (!name) {
@@ -709,7 +721,7 @@ app.get('/teams', (req, res) => {
 });
 
 // Add team member
-app.post('/teams/:id/members', (req, res) => {
+app.post('/teams/:id/members', requireInternal, (req, res) => {
   const team = teams.get(req.params.id);
   if (!team) {
     return res.status(404).json({ error: 'Team not found' });
@@ -733,7 +745,7 @@ app.post('/teams/:id/members', (req, res) => {
 });
 
 // Remove team member
-app.delete('/teams/:id/members/:personId', (req, res) => {
+app.delete('/teams/:id/members/:personId', requireInternal, (req, res) => {
   const team = teams.get(req.params.id);
   if (!team) {
     return res.status(404).json({ error: 'Team not found' });

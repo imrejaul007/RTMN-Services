@@ -1,0 +1,140 @@
+[
+  [
+    "88af5c39-fcc3-49f6-a064-172f531fc80f",
+    {
+      "id": "88af5c39-fcc3-49f6-a064-172f531fc80f",
+      "twinId": "twin-auth",
+      "type": "knowledge",
+      "content": "Auth test",
+      "tags": [],
+      "visibility": "private",
+      "metadata": {},
+      "kind": "long-term",
+      "importance": "High",
+      "lifecycleStage": "created",
+      "version": 1,
+      "confidence": 0.5,
+      "ttl": null,
+      "expiresAt": null,
+      "contradictions": 0,
+      "accessCount": 0,
+      "createdAt": "2026-06-27T07:26:02.620Z",
+      "updatedAt": "2026-06-27T07:26:02.620Z"
+    }
+  ],
+  [
+    "133e9677-5ef2-40f2-872b-8cd7003ea176",
+    {
+      "id": "133e9677-5ef2-40f2-872b-8cd7003ea176",
+      "twinId": "twin-auth2",
+      "type": "knowledge",
+      "content": "Auth test",
+      "tags": [],
+      "visibility": "private",
+      "metadata": {},
+      "kind": "long-term",
+      "importance": "High",
+      "lifecycleStage": "created",
+      "version": 1,
+      "confidence": 0.5,
+      "ttl": null,
+      "expiresAt": null,
+      "contradictions": 0,
+      "accessCount": 0,
+      "createdAt": "2026-06-27T07:26:02.623Z",
+      "updatedAt": "2026-06-27T07:26:02.623Z"
+    }
+  ],
+  [
+    "abeb9af1-75b7-499f-8ee3-61092b4b466c",
+    {
+      "id": "abeb9af1-75b7-499f-8ee3-61092b4b466c",
+      "twinId": "twin-1",
+      "type": "knowledge",
+      "content": "Test memory",
+      "tags": [],
+      "visibility": "private",
+      "metadata": {},
+      "kind": "long-term",
+      "importance": "High",
+      "lifecycleStage": "created",
+      "version": 1,
+      "confidence": 0.5,
+      "ttl": null,
+      "expiresAt": null,
+      "contradictions": 0,
+      "accessCount": 0,
+      "createdAt": "2026-06-27T07:26:02.630Z",
+      "updatedAt": "2026-06-27T07:26:02.630Z"
+    }
+  ],
+  [
+    "48b7153a-2eb9-4cc4-bb5a-694959d0bc22",
+    {
+      "id": "48b7153a-2eb9-4cc4-bb5a-694959d0bc22",
+      "twinId": "twin-auth",
+      "type": "knowledge",
+      "content": "Auth test",
+      "tags": [],
+      "visibility": "private",
+      "metadata": {},
+      "kind": "long-term",
+      "importance": "High",
+      "lifecycleStage": "created",
+      "version": 1,
+      "confidence": 0.5,
+      "ttl": null,
+      "expiresAt": null,
+      "contradictions": 0,
+      "accessCount": 0,
+      "createdAt": "2026-06-27T07:29:38.656Z",
+      "updatedAt": "2026-06-27T07:29:38.656Z"
+    }
+  ],
+  [
+    "ad0a93d0-82a2-44e4-bfd8-547df4989dd4",
+    {
+      "id": "ad0a93d0-82a2-44e4-bfd8-547df4989dd4",
+      "twinId": "twin-auth",
+      "type": "knowledge",
+      "content": "Auth test",
+      "tags": [],
+      "visibility": "private",
+      "metadata": {},
+      "kind": "long-term",
+      "importance": "High",
+      "lifecycleStage": "created",
+      "version": 1,
+      "confidence": 0.5,
+      "ttl": null,
+      "expiresAt": null,
+      "contradictions": 0,
+      "accessCount": 0,
+      "createdAt": "2026-06-27T07:38:19.005Z",
+      "updatedAt": "2026-06-27T07:38:19.005Z"
+    }
+  ],
+  [
+    "2d0449af-bf1b-4756-ac71-564ed9725ce2",
+    {
+      "id": "2d0449af-bf1b-4756-ac71-564ed9725ce2",
+      "twinId": "twin-auth",
+      "type": "knowledge",
+      "content": "Auth test",
+      "tags": [],
+      "visibility": "private",
+      "metadata": {},
+      "kind": "long-term",
+      "importance": "High",
+      "lifecycleStage": "created",
+      "version": 1,
+      "confidence": 0.5,
+      "ttl": null,
+      "expiresAt": null,
+      "contradictions": 0,
+      "accessCount": 0,
+      "createdAt": "2026-06-27T08:16:01.714Z",
+      "updatedAt": "2026-06-27T08:16:01.714Z"
+    }
+  ]
+]

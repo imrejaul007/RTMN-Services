@@ -41,6 +41,18 @@ const TWINOS_URL = process.env.TWINOS_URL || 'http://localhost:4705';
 const POLICYOS_URL = process.env.POLICYOS_URL || 'http://localhost:4254';
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
@@ -150,8 +162,11 @@ function seed() {
       capabilitiesByName: s.capabilities.map(c => c.name),
     });
     for (const cap of s.capabilities) {
-      if (!capabilityIndex.has(cap.name)) capabilityIndex.set(cap.name, new Set());
-      capabilityIndex.get(cap.name).add(s.twinId);
+      const existing = capabilityIndex.get(cap.name);
+      const arr = Array.isArray(existing) ? existing : [];
+      if (!arr.includes(s.twinId)) {
+        capabilityIndex.set(cap.name, [...arr, s.twinId]);
+      }
     }
   }
 }
@@ -168,14 +183,22 @@ function auditLog(entry) {
 
 function reindex(twinId, capabilities) {
   // remove old entries
-  for (const [cap, set] of capabilityIndex.entries()) {
-    set.delete(twinId);
-    if (set.size === 0) capabilityIndex.delete(cap);
+  for (const [cap, existing] of capabilityIndex.entries()) {
+    const arr = Array.isArray(existing) ? existing : [];
+    const filtered = arr.filter(id => id !== twinId);
+    if (filtered.length === 0) {
+      capabilityIndex.delete(cap);
+    } else if (filtered.length !== arr.length) {
+      capabilityIndex.set(cap, filtered);
+    }
   }
   // add new
   for (const c of capabilities || []) {
-    if (!capabilityIndex.has(c.name)) capabilityIndex.set(c.name, new Set());
-    capabilityIndex.get(c.name).add(twinId);
+    const existing = capabilityIndex.get(c.name) || [];
+    const arr = Array.isArray(existing) ? existing : [];
+    if (!arr.includes(twinId)) {
+      capabilityIndex.set(c.name, [...arr, twinId]);
+    }
   }
 }
 
@@ -408,12 +431,13 @@ app.delete('/api/profiles/:twinId',requireAuth,  (req, res) => {
   res.status(204).end();
 });
 
-// ── Discovery: by capability name ─────────────────────────────��────────────
+// ── Discovery: by capability name ──────────────────────────────
 
 app.get('/api/discover/by-capability/:capability', (req, res) => {
-  const set = capabilityIndex.get(req.params.capability);
-  if (!set || set.size === 0) return res.json({ capability: req.params.capability, twins: [], count: 0 });
-  const twins = Array.from(set).map((tid) => {
+  const arr = capabilityIndex.get(req.params.capability);
+  const twinIds = Array.isArray(arr) ? arr : [];
+  if (twinIds.length === 0) return res.json({ capability: req.params.capability, twins: [], count: 0 });
+  const twins = twinIds.map((tid) => {
     const p = profiles.get(tid);
     if (!p) return null;
     const cap = p.capabilities.find(c => c.name === req.params.capability);
@@ -463,10 +487,13 @@ app.get('/api/search', (req, res) => {
 // ── Capability graph (which capabilities exist, which twins provide each) ──
 
 app.get('/api/capability-graph', (_req, res) => {
-  const nodes = Array.from(capabilityIndex.keys()).map(name => ({
-    capability: name,
-    providedBy: capabilityIndex.get(name).size,
-  }));
+  const nodes = Array.from(capabilityIndex.keys()).map(name => {
+    const arr = capabilityIndex.get(name);
+    return {
+      capability: name,
+      providedBy: Array.isArray(arr) ? arr.length : 0,
+    };
+  });
   res.json({
     totalCapabilities: capabilityIndex.size,
     totalProfiles: profiles.size,
@@ -555,6 +582,15 @@ app.post('/api/policy-check', requireAuth, async (req, res) => {
 });
 
 // =============================================================================
+// READINESS
+// =============================================================================
+
+// Readiness probe — must be registered BEFORE the 404 catch-all
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+// =============================================================================
 // 404 + error handling
 // =============================================================================
 
@@ -567,16 +603,12 @@ app.use((err, _req, res, _next) => {
 // =============================================================================
 // START
 // =============================================================================
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
-
-const server = app.listen(PORT, () => {
-  console.log(`[twin-capability-profile] listening on :${PORT}`);
-});
-installGracefulShutdown(server);
 
 export default app;
+
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    console.log(`[twin-capability-profile] listening on :${PORT}`);
+  });
+  installGracefulShutdown(server);
+}

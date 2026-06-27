@@ -1,7 +1,7 @@
 /**
  * eval-platform-api — Main API gateway for the HOJAI evaluation platform.
  *
- * Port: 4780
+ * Port: 5391 (was 4780, conflicted with vector-db — fixed 2026-06-27)
  *
  * Exposes:
  *   GET  /api/health                          — health + version + sub-service map
@@ -27,7 +27,7 @@
 
 const express = require('express');
 
-const PORT = parseInt(process.env.PORT || '4780', 10);
+const PORT = parseInt(process.env.PORT || '5391', 10);
 const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'eval-platform-internal-token';
 const PROXY_TIMEOUT_MS = parseInt(process.env.PROXY_TIMEOUT_MS || '8000', 10);
 

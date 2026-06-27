@@ -1,0 +1,28 @@
+[
+  [
+    "ev-1782527690364-15236a",
+    {
+      "id": "ev-1782527690364-15236a",
+      "controlId": "gdpr.art32",
+      "kind": "audit-log",
+      "summary": "Firewall logs reviewed",
+      "source": "siem",
+      "capturedBy": "admin",
+      "capturedAt": "2026-06-27T02:34:50.364Z",
+      "metadata": {}
+    }
+  ],
+  [
+    "ev-1782527832427-186e73",
+    {
+      "id": "ev-1782527832427-186e73",
+      "controlId": "gdpr.art32",
+      "kind": "audit-log",
+      "summary": "Firewall logs reviewed",
+      "source": "siem",
+      "capturedBy": "admin",
+      "capturedAt": "2026-06-27T02:37:12.427Z",
+      "metadata": {}
+    }
+  ]
+]

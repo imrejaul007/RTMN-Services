@@ -6,6 +6,18 @@
 import express from 'express';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4550;
 app.use(express.json());
 
@@ -35,7 +47,7 @@ app.get('/ready', (req, res) => {
 });
 
 // Send notification
-app.post('/api/v1/send', (req, res) => {
+app.post('/api/v1/send', requireInternal, (req, res) => {
   const { userId, channel, template, data = {} } = req.body;
   const notification = {
     id: `notif_${Date.now()}`,

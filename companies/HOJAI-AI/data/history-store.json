@@ -1,0 +1,134 @@
+[
+  [
+    "88af5c39-fcc3-49f6-a064-172f531fc80f",
+    [
+      {
+        "version": 1,
+        "snapshot": {
+          "content": "Auth test",
+          "tags": [],
+          "visibility": "private",
+          "type": "knowledge",
+          "kind": "long-term",
+          "importance": "High",
+          "lifecycleStage": "created",
+          "metadata": {},
+          "ttl": null,
+          "expiresAt": null,
+          "confidence": 0.5
+        },
+        "changedAt": "2026-06-27T07:26:02.621Z"
+      }
+    ]
+  ],
+  [
+    "133e9677-5ef2-40f2-872b-8cd7003ea176",
+    [
+      {
+        "version": 1,
+        "snapshot": {
+          "content": "Auth test",
+          "tags": [],
+          "visibility": "private",
+          "type": "knowledge",
+          "kind": "long-term",
+          "importance": "High",
+          "lifecycleStage": "created",
+          "metadata": {},
+          "ttl": null,
+          "expiresAt": null,
+          "confidence": 0.5
+        },
+        "changedAt": "2026-06-27T07:26:02.624Z"
+      }
+    ]
+  ],
+  [
+    "abeb9af1-75b7-499f-8ee3-61092b4b466c",
+    [
+      {
+        "version": 1,
+        "snapshot": {
+          "content": "Test memory",
+          "tags": [],
+          "visibility": "private",
+          "type": "knowledge",
+          "kind": "long-term",
+          "importance": "High",
+          "lifecycleStage": "created",
+          "metadata": {},
+          "ttl": null,
+          "expiresAt": null,
+          "confidence": 0.5
+        },
+        "changedAt": "2026-06-27T07:26:02.631Z"
+      }
+    ]
+  ],
+  [
+    "48b7153a-2eb9-4cc4-bb5a-694959d0bc22",
+    [
+      {
+        "version": 1,
+        "snapshot": {
+          "content": "Auth test",
+          "tags": [],
+          "visibility": "private",
+          "type": "knowledge",
+          "kind": "long-term",
+          "importance": "High",
+          "lifecycleStage": "created",
+          "metadata": {},
+          "ttl": null,
+          "expiresAt": null,
+          "confidence": 0.5
+        },
+        "changedAt": "2026-06-27T07:29:38.657Z"
+      }
+    ]
+  ],
+  [
+    "ad0a93d0-82a2-44e4-bfd8-547df4989dd4",
+    [
+      {
+        "version": 1,
+        "snapshot": {
+          "content": "Auth test",
+          "tags": [],
+          "visibility": "private",
+          "type": "knowledge",
+          "kind": "long-term",
+          "importance": "High",
+          "lifecycleStage": "created",
+          "metadata": {},
+          "ttl": null,
+          "expiresAt": null,
+          "confidence": 0.5
+        },
+        "changedAt": "2026-06-27T07:38:19.006Z"
+      }
+    ]
+  ],
+  [
+    "2d0449af-bf1b-4756-ac71-564ed9725ce2",
+    [
+      {
+        "version": 1,
+        "snapshot": {
+          "content": "Auth test",
+          "tags": [],
+          "visibility": "private",
+          "type": "knowledge",
+          "kind": "long-term",
+          "importance": "High",
+          "lifecycleStage": "created",
+          "metadata": {},
+          "ttl": null,
+          "expiresAt": null,
+          "confidence": 0.5
+        },
+        "changedAt": "2026-06-27T08:16:01.715Z"
+      }
+    ]
+  ]
+]

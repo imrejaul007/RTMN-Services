@@ -1,0 +1,15 @@
+[
+  [
+    "agent-001",
+    [
+      {
+        "id": "d3ddc07d-e276-48e7-a74c-b42cc64d7488",
+        "success": true,
+        "volume": 100,
+        "responseTime": 1.5,
+        "type": "payment",
+        "timestamp": "2026-06-27T03:43:14.822Z"
+      }
+    ]
+  ]
+]

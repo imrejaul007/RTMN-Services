@@ -28,7 +28,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const PORT = parseInt(process.env.PORT, 10) || 4784;
+const PORT = parseInt(process.env.PORT, 10) || 5395;
 const SERVICE_NAME = 'eval-shadow';
 const VERSION = '1.0.0';
 const EVAL_JUDGES_URL = process.env.EVAL_JUDGES_URL || 'http://localhost:4782';
@@ -172,6 +172,18 @@ async function scoreOne(input, output, rubric, reference) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -189,7 +201,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // Start shadow run
-app.post('/api/shadow/start', (req, res) => {
+app.post('/api/shadow/start', requireInternal, (req, res) => {
   const { name, modelA, modelB, rubric = 'relevance' } = req.body || {};
   if (!name || !modelA || !modelB) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'name, modelA, modelB required' });
   const id = crypto.randomUUID();
@@ -214,7 +226,7 @@ app.get('/api/shadow/:id', (req, res) => {
 });
 
 // Add comparison (one row per (input, outputA, outputB))
-app.post('/api/shadow/:id/compare', async (req, res, next) => {
+app.post('/api/shadow/:id/compare', requireInternal, async (req, res, next) => {
   try {
     const r = runs.get(req.params.id);
     if (!r) return res.status(404).json({ error: 'NOT_FOUND' });
@@ -256,7 +268,7 @@ app.get('/api/shadow/:id/compare', (req, res) => {
 });
 
 // Decision (ship recommendation)
-app.post('/api/shadow/:id/decide', (req, res) => {
+app.post('/api/shadow/:id/decide', requireInternal, (req, res) => {
   const r = runs.get(req.params.id);
   if (!r) return res.status(404).json({ error: 'NOT_FOUND' });
   const alpha = req.body?.alpha !== undefined ? req.body.alpha : 0.05;
@@ -287,7 +299,7 @@ app.post('/api/shadow/:id/decide', (req, res) => {
   res.json({ id: r.id, ...r.decision });
 });
 
-app.delete('/api/shadow/:id', (req, res) => {
+app.delete('/api/shadow/:id', requireInternal, (req, res) => {
   if (!runs.delete(req.params.id)) return res.status(404).json({ error: 'NOT_FOUND' });
   saveRuns();
   res.json({ deleted: req.params.id });

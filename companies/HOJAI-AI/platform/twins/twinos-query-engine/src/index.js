@@ -33,6 +33,18 @@ const GRAPH_ENGINE_URL = process.env.GRAPH_ENGINE_URL || 'http://localhost:4883'
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Security & middleware
 app.use(helmet());
 app.use(cors());

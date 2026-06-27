@@ -1,0 +1,30 @@
+{
+  "name": "flow-security-service",
+  "version": "1.0.0",
+  "description": "Security service with RBAC, audit logging, and compliance tracking",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  },
+  "keywords": [
+    "security",
+    "rbac",
+    "audit",
+    "compliance"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

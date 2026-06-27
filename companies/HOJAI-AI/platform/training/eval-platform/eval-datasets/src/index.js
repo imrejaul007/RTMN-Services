@@ -1,5 +1,5 @@
 /**
- * eval-datasets (port 4781) — Phase 31.1
+ * eval-datasets (port 5392) — Phase 31.1 (was 4781, conflicted with rag-platform — fixed 2026-06-27)
  *
  * Golden dataset management for the evaluation platform.
  *
@@ -22,7 +22,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const PORT = parseInt(process.env.PORT, 10) || 4781;
+const PORT = parseInt(process.env.PORT, 10) || 5392;
 const SERVICE_NAME = 'eval-datasets';
 const VERSION = '1.0.0';
 const DATA_DIR = process.env.EVAL_DATASETS_DATA_DIR || path.join(__dirname, '../data/datasets');
@@ -199,6 +199,18 @@ function listAll() {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -218,7 +230,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // CRUD
-app.post('/api/datasets', (req, res) => {
+app.post('/api/datasets', requireInternal, (req, res) => {
   const v = validateDataset(req.body);
   if (!v.valid) return res.status(400).json({ error: 'VALIDATION_ERROR', errors: v.errors });
   const now = new Date().toISOString();
@@ -247,7 +259,7 @@ app.get('/api/datasets/:id', (req, res) => {
   res.json(ds);
 });
 
-app.patch('/api/datasets/:id', (req, res) => {
+app.patch('/api/datasets/:id', requireInternal, (req, res) => {
   const ds = loadDataset(req.params.id);
   if (!ds) return res.status(404).json({ error: 'NOT_FOUND' });
   // Patch merges metadata but not examples; examples are versioned via /versions
@@ -258,7 +270,7 @@ app.patch('/api/datasets/:id', (req, res) => {
   res.json(ds);
 });
 
-app.delete('/api/datasets/:id', (req, res) => {
+app.delete('/api/datasets/:id', requireInternal, (req, res) => {
   const ds = loadDataset(req.params.id);
   if (!ds) return res.status(404).json({ error: 'NOT_FOUND' });
   try { fs.unlinkSync(datasetPath(req.params.id)); } catch (_) { /* ignore */ }
@@ -266,7 +278,7 @@ app.delete('/api/datasets/:id', (req, res) => {
 });
 
 // Versioning
-app.post('/api/datasets/:id/versions', (req, res) => {
+app.post('/api/datasets/:id/versions', requireInternal, (req, res) => {
   const ds = loadDataset(req.params.id);
   if (!ds) return res.status(404).json({ error: 'NOT_FOUND' });
   if (!Array.isArray(req.body.examples)) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'examples required' });
@@ -300,7 +312,7 @@ app.get('/api/datasets/:id/versions/:version', (req, res) => {
 });
 
 // Import
-app.post('/api/datasets/import', (req, res) => {
+app.post('/api/datasets/import', requireInternal, (req, res) => {
   const { format, name, text, examples: providedExamples } = req.body || {};
   let raw = [];
   if (Array.isArray(providedExamples)) {
@@ -345,7 +357,7 @@ app.post('/api/datasets/import', (req, res) => {
 });
 
 // Split
-app.post('/api/datasets/:id/split', (req, res) => {
+app.post('/api/datasets/:id/split', requireInternal, (req, res) => {
   const ds = loadDataset(req.params.id);
   if (!ds) return res.status(404).json({ error: 'NOT_FOUND' });
   const ratios = req.body?.ratios || { train: 0.7, val: 0.15, test: 0.15 };
@@ -355,7 +367,7 @@ app.post('/api/datasets/:id/split', (req, res) => {
 });
 
 // Tag
-app.post('/api/datasets/:id/tag', (req, res) => {
+app.post('/api/datasets/:id/tag', requireInternal, (req, res) => {
   const ds = loadDataset(req.params.id);
   if (!ds) return res.status(404).json({ error: 'NOT_FOUND' });
   const { add = [], remove = [] } = req.body || {};
@@ -368,7 +380,7 @@ app.post('/api/datasets/:id/tag', (req, res) => {
 });
 
 // Validate
-app.post('/api/datasets/validate', (req, res) => {
+app.post('/api/datasets/validate', requireInternal, (req, res) => {
   const v = validateDataset(req.body);
   res.status(v.valid ? 200 : 400).json(v);
 });

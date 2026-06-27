@@ -22,6 +22,18 @@ const PORT = process.env.PORT || 4580;
 const OUTPUT_DIR = process.env.OUTPUT_DIR || '/tmp/hojai-generated';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 
 // Generation jobs
@@ -876,7 +888,7 @@ app.get('/api/v1/templates/:id', (req, res) => {
 });
 
 // Generate full project
-app.post('/api/v1/generate', async (req, res) => {
+app.post('/api/v1/generate', requireInternal, async (req, res) => {
   const { companyName, template, options } = req.body;
 
   if (!companyName || !template) {

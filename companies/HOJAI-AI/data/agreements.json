@@ -1,0 +1,74 @@
+[
+  [
+    "agr-1",
+    {
+      "id": "agr-1",
+      "customerId": "cust-1",
+      "customerName": "Acme Corp",
+      "policyId": "policy-1",
+      "status": "active",
+      "startDate": "2025-01-01",
+      "endDate": "2026-01-01",
+      "ticketsHandled": 156,
+      "breaches": 4
+    }
+  ],
+  [
+    "agr-2",
+    {
+      "id": "agr-2",
+      "customerId": "cust-2",
+      "customerName": "Global Tech",
+      "policyId": "policy-2",
+      "status": "suspended",
+      "startDate": "2025-03-01",
+      "endDate": "2026-03-01",
+      "ticketsHandled": 89,
+      "breaches": 1
+    }
+  ],
+  [
+    "agr-3",
+    {
+      "id": "agr-3",
+      "customerId": "cust-3",
+      "customerName": "StartUp Inc",
+      "policyId": "policy-3",
+      "status": "active",
+      "startDate": "2025-02-01",
+      "endDate": "2026-02-01",
+      "ticketsHandled": 45,
+      "breaches": 3
+    }
+  ],
+  [
+    "agr-3ed48161",
+    {
+      "id": "agr-3ed48161",
+      "customerId": "cust-new",
+      "customerName": "New Corp",
+      "policyId": "policy-2",
+      "status": "active",
+      "startDate": "2025-01-01",
+      "endDate": "2026-01-01",
+      "ticketsHandled": 0,
+      "breaches": 0,
+      "createdAt": "2026-06-27T02:50:35.117Z"
+    }
+  ],
+  [
+    "agr-68bdcf05",
+    {
+      "id": "agr-68bdcf05",
+      "customerId": "cust-new",
+      "customerName": "New Corp",
+      "policyId": "policy-2",
+      "status": "active",
+      "startDate": "2025-01-01",
+      "endDate": "2026-01-01",
+      "ticketsHandled": 0,
+      "breaches": 0,
+      "createdAt": "2026-06-27T02:55:23.086Z"
+    }
+  ]
+]

@@ -1,5 +1,17 @@
 import express from 'express';
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.MEMORY_BENCHMARK_PORT || 4787;
 const results = [];
 function nowIso() { return new Date().toISOString(); }
@@ -15,7 +27,7 @@ function calculateStats(values) {
 app.use(express.json());
 app.get('/health', (_req, res) => { ok(res, { status: 'healthy', port: PORT }); });
 app.get('/', (_req, res) => { ok(res, { service: 'memory-benchmark' }); });
-app.post('/api/benchmark/recall', (req, res) => {
+app.post('/api/benchmark/recall', requireInternal, (req, res) => {
   const { twinId, queries } = req.body || {};
   if (!twinId) return res.status(400).json({ success: false, error: 'twinId required' });
   const queryResults = (queries || []).map(q => ({ query: q, recall: Math.random() * 0.3 + 0.7 }));
@@ -25,7 +37,7 @@ app.post('/api/benchmark/recall', (req, res) => {
   results.push(benchmark);
   ok(res, { benchmark });
 });
-app.post('/api/benchmark/latency', (req, res) => {
+app.post('/api/benchmark/latency', requireInternal, (req, res) => {
   const { iterations = 100 } = req.body || {};
   const latencies = Array.from({ length: iterations }, () => Math.random() * 100 + 20);
   const stats = calculateStats(latencies);
@@ -33,7 +45,7 @@ app.post('/api/benchmark/latency', (req, res) => {
   results.push(benchmark);
   ok(res, { benchmark });
 });
-app.post('/api/benchmark/accuracy', (req, res) => {
+app.post('/api/benchmark/accuracy', requireInternal, (req, res) => {
   const { twinId, testCases } = req.body || {};
   if (!twinId) return res.status(400).json({ success: false, error: 'twinId required' });
   const correct = (testCases || []).filter(() => Math.random() > 0.2).length;
@@ -43,7 +55,7 @@ app.post('/api/benchmark/accuracy', (req, res) => {
   results.push(benchmark);
   ok(res, { benchmark });
 });
-app.post('/api/benchmark/suite', (req, res) => {
+app.post('/api/benchmark/suite', requireInternal, (req, res) => {
   const { twinId } = req.body || {};
   const suite = { id: `suite-${Date.now()}`, twinId, results: { recall: 0.82, latency: 145, accuracy: 0.88, contextQuality: 0.78 }, passed: true, timestamp: nowIso() };
   results.push(suite);

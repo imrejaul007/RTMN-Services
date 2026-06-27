@@ -14,6 +14,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3000;
 
@@ -88,7 +100,7 @@ app.get('/api/restaurants/:id/menu', (req, res) => {
 });
 
 // Cart
-app.post('/api/cart/add', (req, res) => {
+app.post('/api/cart/add', requireInternal, (req, res) => {
   const { userId, restaurantId, itemId, quantity = 1, notes } = req.body;
 
   if (!userId || !restaurantId || !itemId) {
@@ -139,14 +151,14 @@ app.get('/api/cart/:userId/:restaurantId', (req, res) => {
   });
 });
 
-app.delete('/api/cart/:userId/:restaurantId', (req, res) => {
+app.delete('/api/cart/:userId/:restaurantId', requireInternal, (req, res) => {
   const cartKey = `${req.params.userId}_${req.params.restaurantId}`;
   carts.delete(cartKey);
   res.json({ success: true });
 });
 
 // Orders
-app.post('/api/orders', (req, res) => {
+app.post('/api/orders', requireInternal, (req, res) => {
   const { userId, restaurantId, address, paymentMethod } = req.body;
 
   const cartKey = `${userId}_${restaurantId}`;
@@ -224,7 +236,7 @@ app.get('/api/track/:orderId', (req, res) => {
 });
 
 // Reviews
-app.post('/api/reviews', (req, res) => {
+app.post('/api/reviews', requireInternal, (req, res) => {
   const { orderId, rating, comment } = req.body;
   const order = orders.get(orderId);
 
@@ -254,7 +266,7 @@ app.get('/api/offers', (_, res) => {
   });
 });
 
-app.post('/api/offers/validate', (req, res) => {
+app.post('/api/offers/validate', requireInternal, (req, res) => {
   const { code, orderTotal } = req.body;
   const offer = { id: 'o1', code: 'FIRST50', discount: 50, minOrder: 200, type: 'flat' };
 

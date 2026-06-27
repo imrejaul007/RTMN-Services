@@ -10,6 +10,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -35,7 +47,7 @@ const SUPPORTED_TYPES = {
 // ============ ASSETS ============
 
 // Upload/register an asset
-app.post('/api/assets', (req, res) => {
+app.post('/api/assets', requireInternal, (req, res) => {
   const { type, source, url, metadata, tags } = req.body;
 
   if (!type || !source) {
@@ -108,7 +120,7 @@ app.get('/api/assets', (req, res) => {
 });
 
 // Update asset (after processing)
-app.patch('/api/assets/:assetId', (req, res) => {
+app.patch('/api/assets/:assetId', requireInternal, (req, res) => {
   const asset = assets.get(req.params.assetId);
   if (!asset) {
     return res.status(404).json({ error: 'Asset not found' });
@@ -130,7 +142,7 @@ app.patch('/api/assets/:assetId', (req, res) => {
 });
 
 // Link asset to memory
-app.post('/api/assets/:assetId/link', (req, res) => {
+app.post('/api/assets/:assetId/link', requireInternal, (req, res) => {
   const asset = assets.get(req.params.assetId);
   if (!asset) {
     return res.status(404).json({ error: 'Asset not found' });
@@ -151,7 +163,7 @@ app.post('/api/assets/:assetId/link', (req, res) => {
 });
 
 // Delete asset
-app.delete('/api/assets/:assetId', (req, res) => {
+app.delete('/api/assets/:assetId', requireInternal, (req, res) => {
   if (!assets.has(req.params.assetId)) {
     return res.status(404).json({ error: 'Asset not found' });
   }
@@ -166,7 +178,7 @@ app.delete('/api/assets/:assetId', (req, res) => {
 // ============ PROCESSORS ============
 
 // Register a processor
-app.post('/api/processors', (req, res) => {
+app.post('/api/processors', requireInternal, (req, res) => {
   const { type, config } = req.body;
 
   if (!type) {
@@ -210,7 +222,7 @@ app.get('/api/processors', (req, res) => {
 });
 
 // Update processor status
-app.patch('/api/processors/:processorId', (req, res) => {
+app.patch('/api/processors/:processorId', requireInternal, (req, res) => {
   const processor = processors.get(req.params.processorId);
   if (!processor) {
     return res.status(404).json({ error: 'Processor not found' });
@@ -226,7 +238,7 @@ app.patch('/api/processors/:processorId', (req, res) => {
 // ============ EXTRACTIONS ============
 
 // Process an asset (extract content)
-app.post('/api/extract', (req, res) => {
+app.post('/api/extract', requireInternal, (req, res) => {
   const { assetId, processorType } = req.body;
 
   if (!assetId) {
@@ -333,7 +345,7 @@ app.get('/api/search', (req, res) => {
 });
 
 // Find similar assets
-app.post('/api/similar', (req, res) => {
+app.post('/api/similar', requireInternal, (req, res) => {
   const { assetId, limit } = req.body;
 
   if (!assetId) {
@@ -367,7 +379,7 @@ app.post('/api/similar', (req, res) => {
 // ============ TRANSCRIPTS (Audio/Video) ============
 
 // Get/set transcript for audio/video
-app.post('/api/transcripts', (req, res) => {
+app.post('/api/transcripts', requireInternal, (req, res) => {
   const { assetId, segments, language } = req.body;
 
   if (!assetId || !segments) {
@@ -406,7 +418,7 @@ app.get('/api/transcripts/:assetId', (req, res) => {
 
 // ============ THUMBNAILS ============
 
-app.post('/api/thumbnails', (req, res) => {
+app.post('/api/thumbnails', requireInternal, (req, res) => {
   const { assetId, data, format } = req.body;
 
   if (!assetId || !data) {
@@ -434,7 +446,7 @@ app.get('/api/thumbnails/:assetId', (req, res) => {
 // ============ ENTITY EXTRACTION ============
 
 // Extract entities from text
-app.post('/api/entities/extract', (req, res) => {
+app.post('/api/entities/extract', requireInternal, (req, res) => {
   const { text, types } = req.body;
 
   if (!text) {

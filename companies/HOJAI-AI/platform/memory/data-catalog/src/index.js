@@ -6,6 +6,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 const catalogs = new Map();
@@ -15,7 +27,7 @@ const dataItems = new Map();
 function genId(prefix = 'cat') { return `${prefix}_${crypto.randomBytes(6).toString('hex')}`; }
 
 // Catalogs
-app.post('/api/catalogs', (req, res) => {
+app.post('/api/catalogs', requireInternal, (req, res) => {
   const { name, description, schema, owner } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   const id = genId('catalog');
@@ -37,14 +49,14 @@ app.get('/api/catalogs/:id', (req, res) => {
   res.json({ catalog: c });
 });
 
-app.delete('/api/catalogs/:id', (req, res) => {
+app.delete('/api/catalogs/:id', requireInternal, (req, res) => {
   if (!catalogs.has(req.params.id)) return res.status(404).json({ error: 'Catalog not found' });
   catalogs.delete(req.params.id);
   res.json({ message: 'Catalog deleted' });
 });
 
 // Data Items
-app.post('/api/items', (req, res) => {
+app.post('/api/items', requireInternal, (req, res) => {
   const { catalogId, name, type, data, tags, metadata } = req.body;
   if (!catalogId || !name) return res.status(400).json({ error: 'catalogId and name are required' });
   if (!catalogs.has(catalogId)) return res.status(404).json({ error: 'Catalog not found' });
@@ -71,7 +83,7 @@ app.get('/api/items/:id', (req, res) => {
   res.json({ item });
 });
 
-app.delete('/api/items/:id', (req, res) => {
+app.delete('/api/items/:id', requireInternal, (req, res) => {
   const item = dataItems.get(req.params.id);
   if (!item) return res.status(404).json({ error: 'Item not found' });
   const cat = catalogs.get(item.catalogId);
@@ -81,7 +93,7 @@ app.delete('/api/items/:id', (req, res) => {
 });
 
 // Indexes
-app.post('/api/indexes', (req, res) => {
+app.post('/api/indexes', requireInternal, (req, res) => {
   const { name, catalogId, fields, type } = req.body;
   if (!name || !catalogId) return res.status(400).json({ error: 'name and catalogId are required' });
   const id = genId('idx');
@@ -96,7 +108,7 @@ app.get('/api/indexes', (req, res) => {
   res.json({ indexes: result, total: result.length });
 });
 
-app.delete('/api/indexes/:id', (req, res) => {
+app.delete('/api/indexes/:id', requireInternal, (req, res) => {
   if (!indexes.has(req.params.id)) return res.status(404).json({ error: 'Index not found' });
   indexes.delete(req.params.id);
   res.json({ message: 'Index deleted' });

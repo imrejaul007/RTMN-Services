@@ -6,6 +6,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 const featureGroups = new Map();
@@ -15,7 +27,7 @@ const featureViews = new Map();
 function genId(prefix = 'fg') { return `${prefix}_${crypto.randomBytes(6).toString('hex')}`; }
 
 // Feature Groups
-app.post('/api/groups', (req, res) => {
+app.post('/api/groups', requireInternal, (req, res) => {
   const { name, description, entity, schema } = req.body;
   if (!name || !entity) return res.status(400).json({ error: 'name and entity are required' });
   const id = genId('fg');
@@ -37,7 +49,7 @@ app.get('/api/groups/:id', (req, res) => {
 });
 
 // Features
-app.post('/api/features', (req, res) => {
+app.post('/api/features', requireInternal, (req, res) => {
   const { groupId, name, type, description, defaultValue } = req.body;
   if (!groupId || !name || !type) return res.status(400).json({ error: 'groupId, name, and type are required' });
   if (!featureGroups.has(groupId)) return res.status(404).json({ error: 'Group not found' });
@@ -61,7 +73,7 @@ app.get('/api/features/:id', (req, res) => {
 });
 
 // Feature Values
-app.post('/api/values', (req, res) => {
+app.post('/api/values', requireInternal, (req, res) => {
   const { featureId, entityId, value, timestamp } = req.body;
   if (!featureId || !entityId || value === undefined) return res.status(400).json({ error: 'featureId, entityId, and value are required' });
   const key = `${featureId}:${entityId}`;
@@ -75,7 +87,7 @@ app.get('/api/values', (req, res) => {
 });
 
 // Feature Views
-app.post('/api/views', (req, res) => {
+app.post('/api/views', requireInternal, (req, res) => {
   const { name, groupIds, description } = req.body;
   if (!name || !groupIds) return res.status(400).json({ error: 'name and groupIds are required' });
   const id = genId('fv');

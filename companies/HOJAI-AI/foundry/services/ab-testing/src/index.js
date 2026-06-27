@@ -7,6 +7,18 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = 4768;
 app.use(express.json());
 
@@ -15,7 +27,7 @@ const assignments = []; // user assignments
 const conversions = []; // conversion events
 
 // REST API - Create Experiment
-app.post('/api/experiments', (req, res) => {
+app.post('/api/experiments', requireInternal, (req, res) => {
   const { projectId, name, hypothesis, variants, metrics, traffic = 100 } = req.body;
   const exp = {
     id: uuidv4(),
@@ -38,7 +50,7 @@ app.post('/api/experiments', (req, res) => {
 });
 
 // REST API - Start Experiment
-app.post('/api/experiments/:id/start', (req, res) => {
+app.post('/api/experiments/:id/start', requireInternal, (req, res) => {
   const exp = experiments.get(req.params.id);
   if (!exp) return res.status(404).json({ error: 'Not found' });
   exp.status = 'running';
@@ -71,7 +83,7 @@ app.get('/api/experiments/:id/variant', (req, res) => {
 });
 
 // REST API - Track Conversion
-app.post('/api/conversions', (req, res) => {
+app.post('/api/conversions', requireInternal, (req, res) => {
   const { experimentId, userId, metric, value } = req.body;
   conversions.push({
     id: uuidv4(),

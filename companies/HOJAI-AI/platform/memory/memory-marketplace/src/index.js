@@ -14,6 +14,18 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -28,7 +40,7 @@ const createId = (prefix) => `${prefix}_${Date.now()}_${uuidv4().slice(0, 8)}`;
 // CATEGORIES
 // ============================================
 
-app.post('/api/v1/marketplace/categories', async (req, res) => {
+app.post('/api/v1/marketplace/categories', requireInternal, async (req, res) => {
   try {
     const { name, description, parentId, tags } = req.body;
 
@@ -74,7 +86,7 @@ app.get('/api/v1/marketplace/categories', async (req, res) => {
 // MEMORY TEMPLATES
 // ============================================
 
-app.post('/api/v1/marketplace/templates', async (req, res) => {
+app.post('/api/v1/marketplace/templates', requireInternal, async (req, res) => {
   try {
     const { name, description, providerId, categoryId, memoryType, price, features, compatibility, tags } = req.body;
 
@@ -158,7 +170,7 @@ app.get('/api/v1/marketplace/templates/:templateId', async (req, res) => {
   }
 });
 
-app.put('/api/v1/marketplace/templates/:templateId', async (req, res) => {
+app.put('/api/v1/marketplace/templates/:templateId', requireInternal, async (req, res) => {
   try {
     const template = memoryTemplates.get(req.params.templateId);
     if (!template) return res.status(404).json({ error: 'Template not found' });
@@ -181,7 +193,7 @@ app.put('/api/v1/marketplace/templates/:templateId', async (req, res) => {
   }
 });
 
-app.post('/api/v1/marketplace/templates/:templateId/publish', async (req, res) => {
+app.post('/api/v1/marketplace/templates/:templateId/publish', requireInternal, async (req, res) => {
   try {
     const template = memoryTemplates.get(req.params.templateId);
     if (!template) return res.status(404).json({ error: 'Template not found' });
@@ -201,7 +213,7 @@ app.post('/api/v1/marketplace/templates/:templateId/publish', async (req, res) =
   }
 });
 
-app.delete('/api/v1/marketplace/templates/:templateId', async (req, res) => {
+app.delete('/api/v1/marketplace/templates/:templateId', requireInternal, async (req, res) => {
   try {
     const template = memoryTemplates.get(req.params.templateId);
     if (!template) return res.status(404).json({ error: 'Template not found' });
@@ -220,7 +232,7 @@ app.delete('/api/v1/marketplace/templates/:templateId', async (req, res) => {
 // SUBSCRIPTIONS
 // ============================================
 
-app.post('/api/v1/marketplace/subscriptions', async (req, res) => {
+app.post('/api/v1/marketplace/subscriptions', requireInternal, async (req, res) => {
   try {
     const { templateId, subscriberId, plan, duration } = req.body;
 
@@ -279,7 +291,7 @@ app.get('/api/v1/marketplace/subscriptions', async (req, res) => {
   }
 });
 
-app.post('/api/v1/marketplace/subscriptions/:subscriptionId/cancel', async (req, res) => {
+app.post('/api/v1/marketplace/subscriptions/:subscriptionId/cancel', requireInternal, async (req, res) => {
   try {
     const subscription = subscriptions.get(req.params.subscriptionId);
     if (!subscription) return res.status(404).json({ error: 'Subscription not found' });
@@ -298,7 +310,7 @@ app.post('/api/v1/marketplace/subscriptions/:subscriptionId/cancel', async (req,
 // REVIEWS
 // ============================================
 
-app.post('/api/v1/marketplace/reviews', async (req, res) => {
+app.post('/api/v1/marketplace/reviews', requireInternal, async (req, res) => {
   try {
     const { templateId, reviewerId, rating, comment } = req.body;
 

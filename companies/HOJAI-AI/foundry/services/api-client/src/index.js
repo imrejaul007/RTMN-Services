@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4740;
 app.use(express.json());
 
@@ -15,7 +26,7 @@ const histories = []; // recent requests
 const environments = new Map(); // envId -> { name, variables }
 
 // REST API - Collections
-app.post('/api/collections', (req, res) => {
+app.post('/api/collections', requireInternal, (req, res) => {
   const { name, description } = req.body;
   const id = uuidv4();
   collections.set(id, { id, name, description, requests: [], folders: [], createdAt: new Date().toISOString() });
@@ -30,7 +41,7 @@ app.get('/api/collections/:id', (req, res) => {
   res.json(col);
 });
 
-app.post('/api/collections/:id/requests', (req, res) => {
+app.post('/api/collections/:id/requests', requireInternal, (req, res) => {
   const col = collections.get(req.params.id);
   if (!col) return res.status(404).json({ error: 'Not found' });
   const { name, method, url, headers, body, params } = req.body;
@@ -40,7 +51,7 @@ app.post('/api/collections/:id/requests', (req, res) => {
 });
 
 // REST API - Request Execution
-app.post('/api/execute', async (req, res) => {
+app.post('/api/execute', requireInternal, async (req, res) => {
   const { method = 'GET', url, headers = {}, body, params = {} } = req.body;
 
   // Build URL with params
@@ -87,7 +98,7 @@ app.get('/api/history', (req, res) => {
 });
 
 // REST API - Environments
-app.post('/api/environments', (req, res) => {
+app.post('/api/environments', requireInternal, (req, res) => {
   const { name, variables = {} } = req.body;
   const id = uuidv4();
   environments.set(id, { id, name, variables, createdAt: new Date().toISOString() });
@@ -102,7 +113,7 @@ app.get('/api/environments/:id', (req, res) => {
   res.json(env);
 });
 
-app.patch('/api/environments/:id', (req, res) => {
+app.patch('/api/environments/:id', requireInternal, (req, res) => {
   const env = environments.get(req.params.id);
   if (!env) return res.status(404).json({ error: 'Not found' });
   Object.assign(env, req.body);
@@ -110,7 +121,7 @@ app.patch('/api/environments/:id', (req, res) => {
 });
 
 // REST API - Code Generation
-app.post('/api/code', (req, res) => {
+app.post('/api/code', requireInternal, (req, res) => {
   const { language = 'javascript', request } = req.body;
   const { method, url, headers, body } = request || {};
 

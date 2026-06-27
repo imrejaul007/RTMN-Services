@@ -24,6 +24,18 @@ import {
 } from './prometheus.js';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.OBSERVABILITY_OS_PORT || 4592;
 
@@ -71,7 +83,7 @@ const ALERT_SEVERITY = {
  */
 
 // POST /api/metrics - Record a metric
-app.post('/api/metrics', (req, res) => {
+app.post('/api/metrics', requireInternal, (req, res) => {
   const { name, type, value, labels, timestamp, unit } = req.body;
 
   if (!name || value === undefined) {
@@ -120,7 +132,7 @@ app.post('/api/metrics', (req, res) => {
 });
 
 // POST /api/metrics/batch - Record multiple metrics
-app.post('/api/metrics/batch', (req, res) => {
+app.post('/api/metrics/batch', requireInternal, (req, res) => {
   const { metrics: metricList } = req.body;
 
   if (!metricList || !Array.isArray(metricList)) {
@@ -277,7 +289,7 @@ app.get('/api/metrics/:name/latest', (req, res) => {
  */
 
 // POST /api/ai/metrics - Record AI worker metrics
-app.post('/api/ai/metrics', (req, res) => {
+app.post('/api/ai/metrics', requireInternal, (req, res) => {
   const { agentId, category, value, metadata } = req.body;
 
   if (!agentId || !category || value === undefined) {
@@ -400,7 +412,7 @@ app.get('/api/ai/leaderboard', (req, res) => {
  */
 
 // POST /api/traces - Record a trace
-app.post('/api/traces', (req, res) => {
+app.post('/api/traces', requireInternal, (req, res) => {
   const { name, duration, status, metadata, spans } = req.body;
 
   if (!name) {
@@ -480,7 +492,7 @@ app.get('/api/traces/:id', (req, res) => {
  */
 
 // POST /api/logs - Record a log
-app.post('/api/logs', (req, res) => {
+app.post('/api/logs', requireInternal, (req, res) => {
   const { level, message, source, metadata } = req.body;
 
   if (!message) {
@@ -585,7 +597,7 @@ app.get('/api/logs/stats', (req, res) => {
  */
 
 // POST /api/alerts - Create alert
-app.post('/api/alerts', (req, res) => {
+app.post('/api/alerts', requireInternal, (req, res) => {
   const { name, condition, threshold, severity, duration, notification } = req.body;
 
   if (!name || !condition || threshold === undefined) {
@@ -657,7 +669,7 @@ app.get('/api/alerts/:id', (req, res) => {
 });
 
 // POST /api/alerts/:id/acknowledge - Acknowledge alert
-app.post('/api/alerts/:id/acknowledge', (req, res) => {
+app.post('/api/alerts/:id/acknowledge', requireInternal, (req, res) => {
   const alert = alerts.get(req.params.id);
   if (!alert) {
     return res.status(404).json({ error: 'Alert not found' });
@@ -673,7 +685,7 @@ app.post('/api/alerts/:id/acknowledge', (req, res) => {
 });
 
 // POST /api/alerts/:id/resolve - Resolve alert
-app.post('/api/alerts/:id/resolve', (req, res) => {
+app.post('/api/alerts/:id/resolve', requireInternal, (req, res) => {
   const alert = alerts.get(req.params.id);
   if (!alert) {
     return res.status(404).json({ error: 'Alert not found' });
@@ -1039,7 +1051,7 @@ app.get('/api/prometheus/dashboard', (req, res) => {
 });
 
 // POST /api/prometheus/record - Record a metric via Prometheus registry
-app.post('/api/prometheus/record', (req, res) => {
+app.post('/api/prometheus/record', requireInternal, (req, res) => {
   const { metric, type, value, labels } = req.body;
 
   if (!metric || value === undefined) {

@@ -13,6 +13,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3002;
 
@@ -116,7 +128,7 @@ app.get('/api/admin/sellers', (req, res) => {
   });
 });
 
-app.put('/api/admin/sellers/:id/status', (req, res) => {
+app.put('/api/admin/sellers/:id/status', requireInternal, (req, res) => {
   const seller = sellers.get(req.params.id);
   if (!seller) return res.status(404).json({ error: 'Seller not found' });
 
@@ -141,7 +153,7 @@ app.get('/api/admin/orders', (req, res) => {
   });
 });
 
-app.put('/api/admin/orders/:id/status', (req, res) => {
+app.put('/api/admin/orders/:id/status', requireInternal, (req, res) => {
   const order = orders.get(req.params.id);
   if (!order) return res.status(404).json({ error: 'Order not found' });
 
@@ -155,12 +167,12 @@ app.get('/api/admin/moderation', (req, res) => {
   res.json({ success: true, queue, count: queue.length });
 });
 
-app.post('/api/admin/moderation/:id/approve', (req, res) => {
+app.post('/api/admin/moderation/:id/approve', requireInternal, (req, res) => {
   moderationQueue.delete(req.params.id);
   res.json({ success: true });
 });
 
-app.post('/api/admin/moderation/:id/reject', (req, res) => {
+app.post('/api/admin/moderation/:id/reject', requireInternal, (req, res) => {
   const item = moderationQueue.get(req.params.id);
   if (item) {
     item.rejected = true;

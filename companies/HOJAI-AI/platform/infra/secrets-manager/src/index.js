@@ -221,6 +221,18 @@ function requireRole(...allowed) {
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 
@@ -434,7 +446,7 @@ app.get('/api/audit', requireRole('admin', 'superadmin'), (req, res) => {
   res.json({ count: entries.length, entries });
 });
 
-app.post('/api/secrets/bulk', (req, res) => {
+app.post('/api/secrets/bulk', requireInternal, (req, res) => {
   // Bulk read is sensitive (returns values). Require admin role.
   // Internal services get through via requireRole bypass.
   if (!req.auth.isInternalCall && !['admin', 'superadmin'].includes(req.auth.role)) {
@@ -494,6 +506,10 @@ app.get('/ready', (_req, res) => {
 
 
 
-const server = app.listen(PORT, () => {
-  console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
-});installGracefulShutdown(server);
+module.exports = app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    console.log(`[${SERVICE_NAME}] running on port ${PORT}`);
+  });
+  installGracefulShutdown(server);
+}

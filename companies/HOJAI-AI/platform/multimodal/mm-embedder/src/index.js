@@ -184,6 +184,18 @@ function validateEmbed(body) {
 // ---------------------------------------------------------------------------
 function createApp() {
   const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
   app.use(express.json({ limit: '30mb' }));
 
   app.get('/health', (_req, res) => res.json({
@@ -220,7 +232,7 @@ function createApp() {
   });
 
   // POST /embed
-  app.post('/embed', async (req, res) => {
+  app.post('/embed', requireInternal, async (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     const err = validateEmbed(req.body);
     if (err) return res.status(400).json({ error: 'validation', message: err });
@@ -261,7 +273,7 @@ function createApp() {
   });
 
   // POST /embed/batch
-  app.post('/embed/batch', async (req, res) => {
+  app.post('/embed/batch', requireInternal, async (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     const items = Array.isArray(req.body?.items) ? req.body.items : null;
     if (!items) return res.status(400).json({ error: 'items[] required' });
@@ -386,7 +398,7 @@ function createApp() {
   });
 
   // DELETE /embeddings/:id
-  app.delete('/embeddings/:id', (req, res) => {
+  app.delete('/embeddings/:id', requireInternal, (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     const data = loadAll();
     if (!data.embeddings[req.params.id]) return res.status(404).json({ error: 'not_found' });

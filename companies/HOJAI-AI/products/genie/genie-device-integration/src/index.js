@@ -47,6 +47,18 @@ const WAKE_WORD_TIMEOUT_MS = parseInt(process.env.WAKE_WORD_TIMEOUT_MS || '3000'
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4769;
@@ -379,7 +391,7 @@ app.get('/api/integration/wake-word', (req, res) => {
 // action is "start" or "stop" — derived from the mode by listening-modes.
 // Auth: x-internal-token only (service-to-service, no JWT — listening-modes
 // doesn't have a user context for this call).
-app.post('/api/devices/:id/mode', async (req, res) => {
+app.post('/api/devices/:id/mode', requireInternal, async (req, res) => {
   // Verify internal token — this is a service-to-service webhook, not user-facing
   const token = req.headers['x-internal-token'];
   if (!INTERNAL_TOKEN || token !== INTERNAL_TOKEN) {

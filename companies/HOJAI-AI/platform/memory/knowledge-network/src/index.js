@@ -8,6 +8,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -25,7 +37,7 @@ function generateId(prefix = 'kn') {
 // ============ KNOWLEDGE NODES ============
 
 // Register a knowledge node
-app.post('/api/nodes', (req, res) => {
+app.post('/api/nodes', requireInternal, (req, res) => {
   const { type, label, properties, services, tags } = req.body;
 
   if (!type || !label) {
@@ -86,7 +98,7 @@ app.get('/api/nodes/:nodeId', (req, res) => {
 });
 
 // Update node
-app.patch('/api/nodes/:nodeId', (req, res) => {
+app.patch('/api/nodes/:nodeId', requireInternal, (req, res) => {
   const node = knowledgeNodes.get(req.params.nodeId);
   if (!node) return res.status(404).json({ error: 'Node not found' });
 
@@ -102,7 +114,7 @@ app.patch('/api/nodes/:nodeId', (req, res) => {
 });
 
 // Delete node (also removes all links)
-app.delete('/api/nodes/:nodeId', (req, res) => {
+app.delete('/api/nodes/:nodeId', requireInternal, (req, res) => {
   const node = knowledgeNodes.get(req.params.nodeId);
   if (!node) return res.status(404).json({ error: 'Node not found' });
 
@@ -120,7 +132,7 @@ app.delete('/api/nodes/:nodeId', (req, res) => {
 // ============ CROSS-SERVICE LINKS ============
 
 // Create a link between nodes
-app.post('/api/links', (req, res) => {
+app.post('/api/links', requireInternal, (req, res) => {
   const { sourceNodeId, targetNodeId, relationship, strength, metadata } = req.body;
 
   if (!sourceNodeId || !targetNodeId || !relationship) {
@@ -174,7 +186,7 @@ app.get('/api/links/:linkId', (req, res) => {
 });
 
 // Update link
-app.patch('/api/links/:linkId', (req, res) => {
+app.patch('/api/links/:linkId', requireInternal, (req, res) => {
   const link = crossServiceLinks.get(req.params.linkId);
   if (!link) return res.status(404).json({ error: 'Link not found' });
 
@@ -187,7 +199,7 @@ app.patch('/api/links/:linkId', (req, res) => {
 });
 
 // Delete link
-app.delete('/api/links/:linkId', (req, res) => {
+app.delete('/api/links/:linkId', requireInternal, (req, res) => {
   const link = crossServiceLinks.get(req.params.linkId);
   if (!link) return res.status(404).json({ error: 'Link not found' });
 
@@ -208,7 +220,7 @@ app.delete('/api/links/:linkId', (req, res) => {
 // ============ NETWORK VIEWS ============
 
 // Create a network view
-app.post('/api/views', (req, res) => {
+app.post('/api/views', requireInternal, (req, res) => {
   const { name, nodeTypes, filters, createdBy } = req.body;
 
   if (!name) {
@@ -244,7 +256,7 @@ app.get('/api/views/:viewId', (req, res) => {
 });
 
 // Delete view
-app.delete('/api/views/:viewId', (req, res) => {
+app.delete('/api/views/:viewId', requireInternal, (req, res) => {
   if (!networkViews.has(req.params.viewId)) {
     return res.status(404).json({ error: 'View not found' });
   }
@@ -341,7 +353,7 @@ app.get('/api/graph/path', (req, res) => {
 // ============ SYNC OPERATIONS ============
 
 // Log a sync operation
-app.post('/api/sync', (req, res) => {
+app.post('/api/sync', requireInternal, (req, res) => {
   const { sourceService, targetService, operation, nodesAffected } = req.body;
 
   const logEntry = {

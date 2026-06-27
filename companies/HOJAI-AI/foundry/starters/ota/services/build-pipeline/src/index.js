@@ -8,6 +8,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4703;
 
@@ -30,7 +42,7 @@ const BUILD_STEPS = [
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'build-pipeline' }));
 
 // Create build
-app.post('/api/build', async (req, res) => {
+app.post('/api/build', requireInternal, async (req, res) => {
   const { appName, platform, branch, commit, config } = req.body;
 
   if (!appName || !platform) {
@@ -104,7 +116,7 @@ app.get('/api/builds', (req, res) => {
 });
 
 // Cancel build
-app.post('/api/build/:id/cancel', (req, res) => {
+app.post('/api/build/:id/cancel', requireInternal, (req, res) => {
   const build = builds.get(req.params.id);
   if (!build) {
     return res.status(404).json({ error: 'Build not found' });
@@ -121,7 +133,7 @@ app.post('/api/build/:id/cancel', (req, res) => {
 });
 
 // Submit to App Store
-app.post('/api/submit', async (req, res) => {
+app.post('/api/submit', requireInternal, async (req, res) => {
   const { buildId, platform, metadata } = req.body;
 
   if (!buildId || !platform) {

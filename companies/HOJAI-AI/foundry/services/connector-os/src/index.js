@@ -28,6 +28,18 @@ import hrConnectors from './connectors/hr/index.js';
 import projectConnectors from './connectors/project-management/index.js';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.CONNECTOR_OS_PORT || 4585;
 
 // Middleware
@@ -106,7 +118,7 @@ app.get('/api/connectors/:category', (req, res) => {
 });
 
 // POST /api/connections - Create a new connection
-app.post('/api/connections', async (req, res) => {
+app.post('/api/connections', requireInternal, async (req, res) => {
   try {
     const { connectorId, credentials, config } = req.body;
 
@@ -211,7 +223,7 @@ app.get('/api/connections/:connectionId', (req, res) => {
 });
 
 // DELETE /api/connections/:connectionId - Delete a connection
-app.delete('/api/connections/:connectionId', (req, res) => {
+app.delete('/api/connections/:connectionId', requireInternal, (req, res) => {
   const { connectionId } = req.params;
 
   if (!connections.has(connectionId)) {
@@ -230,7 +242,7 @@ app.delete('/api/connections/:connectionId', (req, res) => {
 });
 
 // POST /api/connections/:connectionId/sync - Trigger sync
-app.post('/api/connections/:connectionId/sync', async (req, res) => {
+app.post('/api/connections/:connectionId/sync', requireInternal, async (req, res) => {
   try {
     const { connectionId } = req.params;
     const { direction = 'pull', entities = [] } = req.body;
@@ -308,7 +320,7 @@ app.get('/api/connections/:connectionId/sync/:jobId', (req, res) => {
  */
 
 // POST /api/webhooks - Create a webhook
-app.post('/api/webhooks', (req, res) => {
+app.post('/api/webhooks', requireInternal, (req, res) => {
   const { connectionId, events, url, secret } = req.body;
 
   if (!connectionId || !events || !url) {
@@ -368,7 +380,7 @@ app.get('/api/webhooks', (req, res) => {
 });
 
 // DELETE /api/webhooks/:webhookId - Delete a webhook
-app.delete('/api/webhooks/:webhookId', (req, res) => {
+app.delete('/api/webhooks/:webhookId', requireInternal, (req, res) => {
   const { webhookId } = req.params;
 
   if (!webhooks.has(webhookId)) {
@@ -392,7 +404,7 @@ app.delete('/api/webhooks/:webhookId', (req, res) => {
  */
 
 // POST /api/ai/query - AI worker query across all connected systems
-app.post('/api/ai/query', async (req, res) => {
+app.post('/api/ai/query', requireInternal, async (req, res) => {
   try {
     const { query, context } = req.body;
 
@@ -421,7 +433,7 @@ app.post('/api/ai/query', async (req, res) => {
 });
 
 // POST /api/ai/action - Execute action via connector
-app.post('/api/ai/action', async (req, res) => {
+app.post('/api/ai/action', requireInternal, async (req, res) => {
   try {
     const { connectorId, action, params, connectionId } = req.body;
 

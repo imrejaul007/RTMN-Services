@@ -244,13 +244,12 @@ export function rotateSecret(id, userId) {
 // ── Stats ──────────────────────────────────────────────────────────────
 
 export function getStats() {
+  const typeCounts = {};
+  for (const s of secrets.values()) {
+    typeCounts[s.type] = (typeCounts[s.type] || 0) + 1;
+  }
   return {
     totalSecrets: secrets.size,
-    byType: Object.fromEntries(
-      Array.from(secrets.values()).reduce((acc, s) => {
-        acc[s.type] = (acc[s.type] || 0) + 1;
-        return acc;
-      }, {})
-    )
+    byType: typeCounts
   };
 }

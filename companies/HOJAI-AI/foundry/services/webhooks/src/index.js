@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4784;
 app.use(express.json());
 
@@ -15,7 +26,7 @@ const events = []; // event log
 const deliveries = []; // delivery attempts
 
 // REST API - Create Subscription
-app.post('/api/subscriptions', (req, res) => {
+app.post('/api/subscriptions', requireInternal, (req, res) => {
   const { projectId, url, events: eventTypes, secret, enabled = true, retries = 3 } = req.body;
   const sub = {
     id: uuidv4(),
@@ -49,7 +60,7 @@ app.get('/api/subscriptions/:id', (req, res) => {
 });
 
 // REST API - Update Subscription
-app.patch('/api/subscriptions/:id', (req, res) => {
+app.patch('/api/subscriptions/:id', requireInternal, (req, res) => {
   const sub = subscriptions.get(req.params.id);
   if (!sub) return res.status(404).json({ error: 'Not found' });
   Object.assign(sub, req.body);
@@ -57,14 +68,14 @@ app.patch('/api/subscriptions/:id', (req, res) => {
 });
 
 // REST API - Delete Subscription
-app.delete('/api/subscriptions/:id', (req, res) => {
+app.delete('/api/subscriptions/:id', requireInternal, (req, res) => {
   if (!subscriptions.has(req.params.id)) return res.status(404).json({ error: 'Not found' });
   subscriptions.delete(req.params.id);
   res.json({ deleted: true });
 });
 
 // REST API - Emit Event
-app.post('/api/events', (req, res) => {
+app.post('/api/events', requireInternal, (req, res) => {
   const { projectId, event, data } = req.body;
   const eventId = uuidv4();
 
@@ -113,7 +124,7 @@ app.get('/api/events', (req, res) => {
 });
 
 // REST API - Retry Failed
-app.post('/api/events/:id/retry', (req, res) => {
+app.post('/api/events/:id/retry', requireInternal, (req, res) => {
   const evt = events.find(e => e.id === req.params.id);
   if (!evt) return res.status(404).json({ error: 'Not found' });
 
@@ -127,7 +138,7 @@ app.post('/api/events/:id/retry', (req, res) => {
 });
 
 // REST API - Test Webhook
-app.post('/api/subscriptions/:id/test', (req, res) => {
+app.post('/api/subscriptions/:id/test', requireInternal, (req, res) => {
   const sub = subscriptions.get(req.params.id);
   if (!sub) return res.status(404).json({ error: 'Not found' });
 

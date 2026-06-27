@@ -1,5 +1,17 @@
 import express from 'express';
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.MEMORY_LEARNING_PORT || 4788;
 const outcomes = [];
 const learningRules = new Map();
@@ -11,7 +23,7 @@ function generateId() { return `rule-${Date.now()}-${Math.random().toString(36).
 app.use(express.json());
 app.get('/health', (_req, res) => { ok(res, { status: 'healthy', port: PORT }); });
 app.get('/', (_req, res) => { ok(res, { service: 'memory-learning-engine' }); });
-app.post('/api/outcome', (req, res) => {
+app.post('/api/outcome', requireInternal, (req, res) => {
   const { memoryId, success, feedback } = req.body || {};
   if (!memoryId || success === undefined) return fail(res, 'INVALID_INPUT', 'memoryId and success required');
   const outcome = { id: `out-${Date.now()}`, memoryId, success, feedback, timestamp: nowIso() };
@@ -23,7 +35,7 @@ app.post('/api/outcome', (req, res) => {
   stats.learningsApplied++;
   ok(res, { outcome, rule: { id: rule.id, action: rule.action } });
 });
-app.post('/api/analyze/failures', (req, res) => {
+app.post('/api/analyze/failures', requireInternal, (req, res) => {
   const { twinId, days = 7 } = req.body || {};
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
   const failures = outcomes.filter(o => !o.success && new Date(o.timestamp).getTime() > cutoff);
@@ -35,7 +47,7 @@ app.post('/api/analyze/failures', (req, res) => {
   }
   ok(res, { twinId: twinId || 'all', totalFailures: failures.length, patterns });
 });
-app.post('/api/analyze/root-cause', (req, res) => {
+app.post('/api/analyze/root-cause', requireInternal, (req, res) => {
   const { memoryId } = req.body || {};
   if (!memoryId) return fail(res, 'INVALID_INPUT', 'memoryId required');
   const memoryOutcomes = outcomes.filter(o => o.memoryId === memoryId);

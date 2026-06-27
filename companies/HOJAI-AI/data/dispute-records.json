@@ -1,0 +1,36 @@
+[
+  [
+    "agent-001",
+    [
+      {
+        "id": "6f3fd5d6-2736-4bd2-a273-80fd7d4174e1",
+        "reason": "item not delivered",
+        "severity": "high",
+        "disputedBy": "buyer-1",
+        "timestamp": "2026-06-27T03:23:29.077Z",
+        "status": "open"
+      },
+      {
+        "id": "eb99f559-9784-4591-8b76-17d59f8b0a98",
+        "timestamp": "2026-06-27T03:23:29.079Z",
+        "status": "open"
+      },
+      {
+        "id": "4bea4ac2-62b6-498d-8dd5-b47a9d79aa2b",
+        "reason": "item not delivered",
+        "severity": "high",
+        "disputedBy": "buyer-1",
+        "timestamp": "2026-06-27T03:29:27.534Z",
+        "status": "open"
+      },
+      {
+        "id": "403e3ece-0ace-4034-b57c-40cc354722d2",
+        "reason": "item not delivered",
+        "severity": "high",
+        "disputedBy": "buyer-1",
+        "timestamp": "2026-06-27T03:43:14.828Z",
+        "status": "open"
+      }
+    ]
+  ]
+]

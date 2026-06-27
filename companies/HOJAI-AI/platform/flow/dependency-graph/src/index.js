@@ -213,6 +213,17 @@ function readyTasks(graph) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -233,7 +244,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
 // ---- Create graph ----
-app.post('/api/graphs', (req, res) => {
+app.post('/api/graphs', requireInternal, (req, res) => {
   const { goalId, tasks } = req.body || {};
   if (!Array.isArray(tasks) || tasks.length === 0) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'tasks array required' });
@@ -267,7 +278,7 @@ app.get('/api/graphs/:id', (req, res) => {
   res.json(g);
 });
 
-app.delete('/api/graphs/:id', (req, res) => {
+app.delete('/api/graphs/:id', requireInternal, (req, res) => {
   const existed = graphs.delete(req.params.id);
   if (!existed) return res.status(404).json({ error: 'NOT_FOUND' });
   saveStore(graphs);
@@ -276,13 +287,13 @@ app.delete('/api/graphs/:id', (req, res) => {
 
 // ---- Graph algorithms ----
 
-app.post('/api/graphs/:id/topological', (req, res) => {
+app.post('/api/graphs/:id/topological', requireInternal, (req, res) => {
   const g = graphs.get(req.params.id);
   if (!g) return res.status(404).json({ error: 'NOT_FOUND' });
   res.json({ id: g.id, order: topologicalSort(g.tasks) });
 });
 
-app.post('/api/graphs/:id/parallel-batches', (req, res) => {
+app.post('/api/graphs/:id/parallel-batches', requireInternal, (req, res) => {
   const g = graphs.get(req.params.id);
   if (!g) return res.status(404).json({ error: 'NOT_FOUND' });
   try {
@@ -293,14 +304,14 @@ app.post('/api/graphs/:id/parallel-batches', (req, res) => {
   }
 });
 
-app.post('/api/graphs/:id/critical-path', (req, res) => {
+app.post('/api/graphs/:id/critical-path', requireInternal, (req, res) => {
   const g = graphs.get(req.params.id);
   if (!g) return res.status(404).json({ error: 'NOT_FOUND' });
   const result = criticalPath(g.tasks);
   res.json({ id: g.id, ...result, tasks: result.path.map((id) => g.tasks.find((t) => t.id === id)) });
 });
 
-app.post('/api/graphs/:id/validate', (req, res) => {
+app.post('/api/graphs/:id/validate', requireInternal, (req, res) => {
   const g = graphs.get(req.params.id);
   if (!g) return res.status(404).json({ error: 'NOT_FOUND' });
   const result = validateDag(g.tasks);
@@ -314,7 +325,7 @@ app.get('/api/graphs/:id/ready', (req, res) => {
 });
 
 // ---- Mark task state ----
-app.post('/api/graphs/:id/mark', (req, res) => {
+app.post('/api/graphs/:id/mark', requireInternal, (req, res) => {
   const g = graphs.get(req.params.id);
   if (!g) return res.status(404).json({ error: 'NOT_FOUND' });
   const { taskId, status, result } = req.body || {};

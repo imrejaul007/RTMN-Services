@@ -202,6 +202,18 @@ function createService({ dataDir, internalToken }) {
   writeData(dataDir, data);
 
   const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
   app.use(express.json({ limit: '5mb' }));
 
   // Request logger (lightweight)
@@ -287,7 +299,7 @@ function createService({ dataDir, internalToken }) {
     res.json(t);
   });
 
-  app.post('/marketplace/install', (req, res) => {
+  app.post('/marketplace/install', requireInternal, (req, res) => {
     const { template_id, project_id, user_id } = req.body || {};
     if (typeof template_id !== 'string' || !template_id) return res.status(400).json({ error: 'validation', message: 'template_id required' });
     if (typeof project_id !== 'string' || !project_id) return res.status(400).json({ error: 'validation', message: 'project_id required' });
@@ -320,7 +332,7 @@ function createService({ dataDir, internalToken }) {
     res.json({ installed: list, total: list.length });
   });
 
-  app.post('/marketplace/publish', (req, res) => {
+  app.post('/marketplace/publish', requireInternal, (req, res) => {
     const { name, description, category, tags, author } = req.body || {};
     if (typeof name !== 'string' || !name.trim()) return res.status(400).json({ error: 'validation', message: 'name required' });
     if (typeof description !== 'string') return res.status(400).json({ error: 'validation', message: 'description required' });

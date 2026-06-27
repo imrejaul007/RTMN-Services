@@ -8,6 +8,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4702;
 
@@ -30,7 +42,7 @@ app.get('/api/providers', (_, res) => {
 });
 
 // Create payment order
-app.post('/api/order', async (req, res) => {
+app.post('/api/order', requireInternal, async (req, res) => {
   const { amount, currency, provider, method, bookingId, description, customer } = req.body;
 
   if (!amount || !provider) {
@@ -75,7 +87,7 @@ app.post('/api/order', async (req, res) => {
 });
 
 // Verify payment
-app.post('/api/verify', async (req, res) => {
+app.post('/api/verify', requireInternal, async (req, res) => {
   const { orderId, paymentId, signature } = req.body;
 
   const order = transactions.get(orderId);
@@ -117,7 +129,7 @@ app.get('/api/transaction/:id', (req, res) => {
 });
 
 // Refund
-app.post('/api/refund', async (req, res) => {
+app.post('/api/refund', requireInternal, async (req, res) => {
   const { transactionId, amount, reason } = req.body;
 
   const transaction = transactions.get(transactionId);
@@ -146,7 +158,7 @@ app.post('/api/refund', async (req, res) => {
 });
 
 // Webhook endpoint
-app.post('/api/webhook/:provider', async (req, res) => {
+app.post('/api/webhook/:provider', requireInternal, async (req, res) => {
   const { provider } = req.params;
   const payload = req.body;
 
@@ -196,7 +208,7 @@ async function handleRefundProcessed(payload) {
 
 // ── UPI Specific ─────────────────────────────────────────────────
 
-app.post('/api/upi/qr', async (req, res) => {
+app.post('/api/upi/qr', requireInternal, async (req, res) => {
   const { amount, upiId, description } = req.body;
 
   // Generate QR code URL

@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = process.env.PORT || 4730;
 
 app.use(express.json());
@@ -93,7 +104,7 @@ const TEST_TEMPLATES = {
 };
 
 // REST API - Test Suites
-app.post('/api/suites', (req, res) => {
+app.post('/api/suites', requireInternal, (req, res) => {
   const { projectId, name, type, category, tests } = req.body;
   const suiteId = uuidv4();
 
@@ -134,7 +145,7 @@ app.get('/api/suites/:suiteId', (req, res) => {
   res.json(suite);
 });
 
-app.patch('/api/suites/:suiteId', (req, res) => {
+app.patch('/api/suites/:suiteId', requireInternal, (req, res) => {
   const { suiteId } = req.params;
   const updates = req.body;
   const suite = testSuites.get(suiteId);
@@ -147,7 +158,7 @@ app.patch('/api/suites/:suiteId', (req, res) => {
   res.json(suite);
 });
 
-app.delete('/api/suites/:suiteId', (req, res) => {
+app.delete('/api/suites/:suiteId', requireInternal, (req, res) => {
   const { suiteId } = req.params;
 
   if (!testSuites.has(suiteId)) {
@@ -169,7 +180,7 @@ app.get('/api/templates', (req, res) => {
   res.json(TEST_TEMPLATES);
 });
 
-app.post('/api/templates/:appType/generate', (req, res) => {
+app.post('/api/templates/:appType/generate', requireInternal, (req, res) => {
   const { appType } = req.params;
   const { projectId, name } = req.body;
 
@@ -199,7 +210,7 @@ app.post('/api/templates/:appType/generate', (req, res) => {
 });
 
 // REST API - Test Runs
-app.post('/api/runs', (req, res) => {
+app.post('/api/runs', requireInternal, (req, res) => {
   const { suiteId, environment = 'staging', parallel = false } = req.body;
   const suite = testSuites.get(suiteId);
 
@@ -451,7 +462,7 @@ app.get('/api/flaky/:projectId', (req, res) => {
 });
 
 // Performance Tests
-app.post('/api/performance', (req, res) => {
+app.post('/api/performance', requireInternal, (req, res) => {
   const { projectId, endpoint, iterations = 10 } = req.body;
 
   const results = {

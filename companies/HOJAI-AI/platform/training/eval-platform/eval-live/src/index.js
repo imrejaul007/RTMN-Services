@@ -23,7 +23,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const PORT = parseInt(process.env.PORT, 10) || 4783;
+const PORT = parseInt(process.env.PORT, 10) || 5394;
 const SERVICE_NAME = 'eval-live';
 const VERSION = '1.0.0';
 const EVAL_JUDGES_URL = process.env.EVAL_JUDGES_URL || 'http://localhost:4782';
@@ -190,6 +190,18 @@ async function scoreOne({ input, output, reference, mode = 'heuristic', rubrics 
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -207,7 +219,7 @@ app.get('/api/health', (_req, res) => {
 });
 app.get('/ready', (_req, res) => res.json({ ready: true, ts: new Date().toISOString() }));
 
-app.post('/api/config', (req, res) => {
+app.post('/api/config', requireInternal, (req, res) => {
   const { samplingRate, defaultRubrics, windowMinutes, dataRetentionDays, alertCooldownMs } = req.body || {};
   if (samplingRate !== undefined) config.samplingRate = Math.max(0, Math.min(1, samplingRate));
   if (Array.isArray(defaultRubrics)) config.defaultRubrics = defaultRubrics;
@@ -218,7 +230,7 @@ app.post('/api/config', (req, res) => {
 });
 
 // Sample endpoint: inference-gateway or caller POSTs here
-app.post('/api/sample', async (req, res, next) => {
+app.post('/api/sample', requireInternal, async (req, res, next) => {
   try {
     const { input, output, reference, model, latencyMs, costUsd, rubrics, mode, forceScore } = req.body || {};
     if (input === undefined || output === undefined) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'input, output required' });
@@ -238,7 +250,7 @@ app.post('/api/sample', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-app.post('/api/score', async (req, res, next) => {
+app.post('/api/score', requireInternal, async (req, res, next) => {
   // Direct scoring endpoint (skips sampling gate)
   try {
     const { input, output, reference, rubric = config.defaultRubrics[0], mode = 'heuristic' } = req.body || {};
@@ -255,7 +267,7 @@ app.get('/api/metrics', (req, res) => {
 });
 
 // Alerts
-app.post('/api/alerts', (req, res) => {
+app.post('/api/alerts', requireInternal, (req, res) => {
   const { name, metric, threshold, direction = 'lt', windowCount = 2 } = req.body || {};
   if (!name || !metric || threshold === undefined) return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'name, metric, threshold required' });
   const alert = { id: crypto.randomUUID(), name, metric, threshold, direction, windowCount, createdAt: new Date().toISOString(), lastFiredAt: null };
@@ -267,7 +279,7 @@ app.get('/api/alerts', (_req, res) => {
   res.json({ count: alerts.length, alerts, recentFires: alertFires.slice(-20) });
 });
 
-app.delete('/api/alerts/:id', (req, res) => {
+app.delete('/api/alerts/:id', requireInternal, (req, res) => {
   const i = alerts.findIndex((a) => a.id === req.params.id);
   if (i === -1) return res.status(404).json({ error: 'NOT_FOUND' });
   alerts.splice(i, 1);
@@ -275,7 +287,7 @@ app.delete('/api/alerts/:id', (req, res) => {
 });
 
 // Run alert evaluation on demand (and on a schedule via setInterval)
-app.post('/api/alerts/evaluate', (_req, res) => {
+app.post('/api/alerts/evaluate', requireInternal, (_req, res) => {
   const fired = evaluateAlerts();
   res.json({ fired, totalFires: alertFires.length });
 });

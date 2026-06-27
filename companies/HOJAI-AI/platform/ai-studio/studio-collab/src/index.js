@@ -109,6 +109,18 @@ function recordActivity(data, projectId, userId, action, target) {
 function createService({ dataDir, internalToken }) {
   const data = readData(dataDir);
   const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
   app.use(express.json({ limit: '1mb' }));
 
   // Auth middleware
@@ -147,7 +159,7 @@ function createService({ dataDir, internalToken }) {
   app.get('/ready', (req, res) => res.json({ ready: true }));
 
   // ----- Comments -----
-  app.post('/comments', (req, res) => {
+  app.post('/comments', requireInternal, (req, res) => {
     const err = validateComment(req.body);
     if (err) return res.status(400).json({ error: 'validation', message: err });
 
@@ -186,7 +198,7 @@ function createService({ dataDir, internalToken }) {
     res.json({ comments: list, total: list.length });
   });
 
-  app.post('/comments/:id/resolve', (req, res) => {
+  app.post('/comments/:id/resolve', requireInternal, (req, res) => {
     const c = data.comments[req.params.id];
     if (!c) return res.status(404).json({ error: 'not_found' });
     if (typeof req.body?.user_id !== 'string' || !req.body.user_id.trim()) {
@@ -200,7 +212,7 @@ function createService({ dataDir, internalToken }) {
   });
 
   // ----- Locks -----
-  app.post('/locks/acquire', (req, res) => {
+  app.post('/locks/acquire', requireInternal, (req, res) => {
     const err = validateLock(req.body);
     if (err) return res.status(400).json({ error: 'validation', message: err });
 
@@ -231,7 +243,7 @@ function createService({ dataDir, internalToken }) {
     res.status(existing ? 200 : 201).json(lock);
   });
 
-  app.post('/locks/release', (req, res) => {
+  app.post('/locks/release', requireInternal, (req, res) => {
     const { target_type, target_id, user_id } = req.body || {};
     if (!target_type || !target_id || !user_id) {
       return res.status(400).json({ error: 'validation', message: 'target_type, target_id, user_id required' });
@@ -255,7 +267,7 @@ function createService({ dataDir, internalToken }) {
   });
 
   // ----- Activity -----
-  app.post('/activity', (req, res) => {
+  app.post('/activity', requireInternal, (req, res) => {
     const err = validateActivity(req.body);
     if (err) return res.status(400).json({ error: 'validation', message: err });
     const entry = recordActivity(data, req.body.project_id, req.body.user_id, req.body.action, req.body.target);
@@ -274,7 +286,7 @@ function createService({ dataDir, internalToken }) {
   });
 
   // ----- Share links -----
-  app.post('/share', (req, res) => {
+  app.post('/share', requireInternal, (req, res) => {
     const err = validateShareLink(req.body);
     if (err) return res.status(400).json({ error: 'validation', message: err });
 

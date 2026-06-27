@@ -8,6 +8,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4550;
 
@@ -375,7 +387,7 @@ app.get('/api/v1/flows/:template/:flow', (req, res) => {
   res.json({ success: true, flow: flowDef });
 });
 
-app.post('/api/v1/execute/:template/:flow', async (req, res) => {
+app.post('/api/v1/execute/:template/:flow', requireInternal, async (req, res) => {
   const { template, flow } = req.params;
   const flowDef = FLOWS[template]?.[flow];
   if (!flowDef) return res.status(404).json({ error: 'Flow not found' });

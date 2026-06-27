@@ -6,6 +6,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import http from 'http';
 import {
   createSecret, getSecret, listSecrets, updateSecret, deleteSecret,
   rotateSecret, getAccessLog, getStats
@@ -15,6 +16,30 @@ const PORT = process.env.PORT || 4420;
 const HOST = process.env.HOST || '0.0.0.0';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
+// Auth middleware
+const requireAuth = (req, res, next) => {
+  if (process.env.REQUIRE_AUTH !== 'true') {
+    return next();
+  }
+  const token = req.headers['x-internal-service-token'];
+  if (!token || token !== process.env.INTERNAL_SERVICE_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+};
 
 app.use(helmet());
 app.use(cors());
@@ -27,6 +52,9 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+// Apply auth middleware to API routes
+app.use('/api', requireAuth);
 
 // Health
 app.get('/health', (req, res) => {
@@ -62,7 +90,7 @@ app.get('/api/v1', (req, res) => {
 });
 
 // Create secret
-app.post('/api/v1/secrets', (req, res) => {
+app.post('/api/v1/secrets', requireInternal, (req, res) => {
   try {
     const { name, value, userId, projectId, type, metadata } = req.body;
     if (!name || !value || !userId) {
@@ -107,7 +135,7 @@ app.get('/api/v1/secrets/:id', (req, res) => {
 });
 
 // Update secret
-app.patch('/api/v1/secrets/:id', (req, res) => {
+app.patch('/api/v1/secrets/:id', requireInternal, (req, res) => {
   try {
     const { userId, name, value, metadata } = req.body;
     if (!userId) {
@@ -124,7 +152,7 @@ app.patch('/api/v1/secrets/:id', (req, res) => {
 });
 
 // Delete secret
-app.delete('/api/v1/secrets/:id', (req, res) => {
+app.delete('/api/v1/secrets/:id', requireInternal, (req, res) => {
   try {
     const { userId } = req.query;
     if (!userId) {
@@ -141,7 +169,7 @@ app.delete('/api/v1/secrets/:id', (req, res) => {
 });
 
 // Rotate secret
-app.post('/api/v1/secrets/:id/rotate', (req, res) => {
+app.post('/api/v1/secrets/:id/rotate', requireInternal, (req, res) => {
   try {
     const { userId } = req.body;
     if (!userId) {
@@ -187,8 +215,10 @@ app.get('/', (req, res) => {
   });
 });
 
-app.listen(PORT, HOST, () => {
-  console.log(`
+// Only start the server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
 ║     🔐 HOJAI SECRETS MANAGER — PORT ${PORT}                       ║
@@ -204,7 +234,14 @@ app.listen(PORT, HOST, () => {
 ║     POST /api/v1/secrets/:id/rotate — Rotate secret          ║
 ║     GET  /api/v1/secrets/:id/logs — Access logs                ║
 ╚══════════════════════════════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => process.exit(0));
+  });
+}
 
 export default app;

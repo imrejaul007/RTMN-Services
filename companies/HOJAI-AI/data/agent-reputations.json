@@ -1,0 +1,45 @@
+[
+  [
+    "agent-001",
+    {
+      "agentId": "agent-001",
+      "agentType": "merchant",
+      "overall": 67,
+      "factors": {
+        "transactionSuccess": 100,
+        "responseTime": 80,
+        "disputeRate": 0,
+        "identityVerified": 100,
+        "longevity": 8.244545915778792e-8,
+        "consistency": 50
+      },
+      "stats": {
+        "totalTransactions": 1,
+        "successfulTransactions": 1,
+        "failedTransactions": 0,
+        "disputedTransactions": 1,
+        "totalVolume": 100,
+        "averageResponseTime": 1.5,
+        "longestStreak": 1,
+        "currentStreak": 1
+      },
+      "badges": [
+        "VERIFIED"
+      ],
+      "level": "bronze",
+      "rank": 0,
+      "createdAt": "2026-06-27T03:43:14.811Z",
+      "lastUpdated": "2026-06-27T03:43:14.837Z",
+      "verified": true,
+      "verifiedAt": "2026-06-27T03:43:14.837Z",
+      "verifiedBy": "system",
+      "riskFlags": [
+        "unverified"
+      ],
+      "blocked": false,
+      "blockedAt": null,
+      "blockReason": null,
+      "verificationLevel": "basic"
+    }
+  ]
+]

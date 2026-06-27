@@ -52,6 +52,18 @@ const deviceHooks = [];
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4768;
@@ -311,7 +323,7 @@ app.get('/api/integration/device-integration', (req, res) => {
   });
 });
 
-app.delete('/api/integration/device-integration', (req, res) => {
+app.delete('/api/integration/device-integration', requireInternal, (req, res) => {
   const before = deviceHooks.length;
   deviceHooks.length = 0;
   res.json({ cleared: before });

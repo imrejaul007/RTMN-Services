@@ -31,6 +31,18 @@ import { v4 as uuidv4 } from 'uuid';
 const PORT = process.env.CONNECTOR_MARKETPLACE_PORT || 4147;
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
@@ -215,7 +227,11 @@ app.get('/api/listings', (req, res) => {
   if (maxPrice) list = list.filter((l) => l.price <= parseFloat(maxPrice));
   if (q) {
     const needle = String(q).toLowerCase();
-    list = list.filter((l) => l.title.toLowerCase().includes(needle) || (l.description || '').toLowerCase().includes(needle) || l.provider.toLowerCase().includes(needle));
+    list = list.filter((l) =>
+      (l.title || '').toLowerCase().includes(needle) ||
+      (l.description || '').toLowerCase().includes(needle) ||
+      (l.provider || '').toLowerCase().includes(needle)
+    );
   }
   if (sort === 'price-asc')  list.sort((a, b) => a.price - b.price);
   if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
@@ -304,6 +320,8 @@ app.post('/api/installs',requireAuth,  (req, res) => {
   const l = listings.get(listingId);
   if (!l) return res.status(404).json({ error: 'listing not found' });
   const id = uuidv4();
+  const authMethod = l.authMethod || 'api-key';
+  const entities = Array.isArray(l.entities) ? l.entities : [];
   const install = {
     id,
     listingId,
@@ -312,13 +330,13 @@ app.post('/api/installs',requireAuth,  (req, res) => {
     buyerOrg: buyerOrg || 'anonymous',
     instanceId: `cni-${uuidv4().slice(0, 8)}`,
     deployedAt: new Date().toISOString(),
-    authMethod: l.authMethod,
-    entities: l.entities,
+    authMethod,
+    entities,
     runtime: 'connector-hub:4785',
     configSteps: [
       `1. Open connector-hub:4785/configure/${l.connectorId}`,
-      `2. Provide ${l.authMethod.toUpperCase()} credentials`,
-      `3. Map entities: ${l.entities.join(', ')}`,
+      `2. Provide ${authMethod.toUpperCase()} credentials`,
+      `3. Map entities: ${entities.join(', ')}`,
     ],
   };
   installs.set(id, install);
@@ -350,6 +368,14 @@ app.get('/api/audit', (req, res) => {
 });
 
 // =============================================================================
+// START
+// =============================================================================
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+// =============================================================================
 // 404 + error handling
 // =============================================================================
 
@@ -360,20 +386,12 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message || 'internal error' });
 });
 
-// =============================================================================
-// START
-// =============================================================================
-// Readiness probe — returns 200 once the server is accepting requests
-app.get('/ready', (_req, res) => {
-  res.json({ ready: true, timestamp: new Date().toISOString() });
-});
-
-
-
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[connector-marketplace] listening on :${PORT}`);
-});
-installGracefulShutdown(server);
-
 export default app;
+
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[connector-marketplace] listening on :${PORT}`);
+  });
+  installGracefulShutdown(server);
+}

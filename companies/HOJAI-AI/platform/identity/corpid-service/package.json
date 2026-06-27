@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.persistent.js",
-    "start:v2": "node src/index.js",
+    "start:v2": "node src/index.v2-deprecated.js",
     "dev": "node --watch src/index.persistent.js",
     "test": "NODE_ENV=test vitest run",
     "test:watch": "NODE_ENV=test vitest",

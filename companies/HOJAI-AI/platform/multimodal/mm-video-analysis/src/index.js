@@ -461,6 +461,18 @@ function createJob(type, input, result, meta) {
 // ---------------------------------------------------------------------------
 function createApp() {
   const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
   app.use(express.json({ limit: '500mb' }));
 
   // Health / readiness
@@ -484,7 +496,7 @@ function createApp() {
   });
 
   // POST /scenes
-  app.post('/scenes', async (req, res) => {
+  app.post('/scenes', requireInternal, async (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     if (!req.body || !req.body.data) return res.status(400).json({ error: 'validation', message: 'data (base64) required' });
 
@@ -513,7 +525,7 @@ function createApp() {
   });
 
   // POST /actions (stub — requires ML model)
-  app.post('/actions', async (req, res) => {
+  app.post('/actions', requireInternal, async (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     if (!req.body || !req.body.data) return res.status(400).json({ error: 'validation', message: 'data (base64) required' });
     try {
@@ -528,7 +540,7 @@ function createApp() {
   });
 
   // POST /shots
-  app.post('/shots', async (req, res) => {
+  app.post('/shots', requireInternal, async (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     if (!req.body || !req.body.data) return res.status(400).json({ error: 'validation', message: 'data (base64) required' });
 
@@ -557,7 +569,7 @@ function createApp() {
   });
 
   // POST /keyframes
-  app.post('/keyframes', async (req, res) => {
+  app.post('/keyframes', requireInternal, async (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     if (!req.body || !req.body.data) return res.status(400).json({ error: 'validation', message: 'data (base64) required' });
 
@@ -587,7 +599,7 @@ function createApp() {
   });
 
   // POST /summarize
-  app.post('/summarize', async (req, res) => {
+  app.post('/summarize', requireInternal, async (req, res) => {
     if (req.headers['x-internal-token'] !== INTERNAL_TOKEN) return res.status(401).json({ error: 'unauthorized' });
     if (!req.body || !req.body.data) return res.status(400).json({ error: 'validation', message: 'data (base64) required' });
 

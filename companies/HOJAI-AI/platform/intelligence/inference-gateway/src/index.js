@@ -389,7 +389,9 @@ const stats = {
   byTier: { premium: 0, budget: 0, free: 0 },
   fallbackHits: 0,
   stubHits: 0,
-  errors: 0
+  errors: 0,
+  cacheHits: 0,
+  cacheMisses: 0,
 };
 
 const auditLog = [];
@@ -399,6 +401,18 @@ const auditLog = [];
 // ============================================================
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
@@ -720,7 +734,7 @@ app.get('/api/secrets/cache', (_req, res) => {
   });
 });
 
-app.post('/api/secrets/cache/clear', (_req, res) => {
+app.post('/api/secrets/cache/clear', requireInternal, (_req, res) => {
   clearCache();
   res.json({ message: 'Cache cleared' });
 });
@@ -751,4 +765,9 @@ if (require.main === module) {
   installGracefulShutdown(server);
 }
 
-module.exports = { app, selectModel, MODEL_CATALOG };
+module.exports = {
+  app, selectModel, MODEL_CATALOG,
+  PORT, SERVICE_NAME, VERSION,
+  stats,
+  auditLog,
+};

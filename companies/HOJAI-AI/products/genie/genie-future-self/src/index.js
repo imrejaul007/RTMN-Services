@@ -15,6 +15,18 @@ const letterRoutes = require('./routes/letter');
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Phase A: persistent stores for future-self profiles, advice, letters
 const profilesStore = new PersistentMap('future-profiles', { serviceName: 'genie-future-self' });
 const adviceStore = new PersistentMap('future-advice', { serviceName: 'genie-future-self' });

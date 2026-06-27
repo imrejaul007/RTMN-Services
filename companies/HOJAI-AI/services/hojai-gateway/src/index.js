@@ -12,6 +12,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.PORT || 4500;
 
 // Middleware
@@ -120,7 +132,7 @@ app.get('/api/v1/models', (req, res) => {
 });
 
 // Smart routing - select best model based on requirements
-app.post('/api/v1/route', (req, res) => {
+app.post('/api/v1/route', requireInternal, (req, res) => {
   const { task, latency, cost, capabilities = [] } = req.body;
 
   const category = categorizeTask(task);
@@ -152,7 +164,7 @@ app.post('/api/v1/route', (req, res) => {
 });
 
 // Chat completion (stub - production would call actual AI providers)
-app.post('/api/v1/chat', async (req, res) => {
+app.post('/api/v1/chat', requireInternal, async (req, res) => {
   const { model = 'hojai-brain', messages, temperature = 0.7, max_tokens = 2048 } = req.body;
 
   // Verify model exists
@@ -191,7 +203,7 @@ app.post('/api/v1/chat', async (req, res) => {
 });
 
 // Embedding generation (stub)
-app.post('/api/v1/embed', async (req, res) => {
+app.post('/api/v1/embed', requireInternal, async (req, res) => {
   const { model = 'hojai-embed', input } = req.body;
 
   const modelInfo = modelRegistry.embedding.find(m => m.id === model);
@@ -219,7 +231,7 @@ app.post('/api/v1/embed', async (req, res) => {
 });
 
 // Reasoning tasks (stub)
-app.post('/api/v1/reason', async (req, res) => {
+app.post('/api/v1/reason', requireInternal, async (req, res) => {
   const { model = 'hojai-reason', problem, steps = 3 } = req.body;
 
   const modelInfo = modelRegistry.reasoning.find(m => m.id === model);
@@ -241,7 +253,7 @@ app.post('/api/v1/reason', async (req, res) => {
 });
 
 // Batch processing
-app.post('/api/v1/batch', async (req, res) => {
+app.post('/api/v1/batch', requireInternal, async (req, res) => {
   const { requests, parallel = true } = req.body;
 
   if (!Array.isArray(requests) || requests.length === 0) {

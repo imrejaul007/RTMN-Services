@@ -10,6 +10,18 @@ import express from 'express';
 import crypto from 'crypto';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(express.json());
 
 // In-memory stores
@@ -26,7 +38,7 @@ function genId(prefix = 'truth') {
 // ============ SOURCE PROFILES ============
 
 // Register a source
-app.post('/api/sources', (req, res) => {
+app.post('/api/sources', requireInternal, (req, res) => {
   const { sourceId, type, role, baseCredibility } = req.body;
   if (!sourceId || !type) {
     return res.status(400).json({ error: 'sourceId and type are required' });
@@ -58,7 +70,7 @@ app.get('/api/sources/:sourceId', (req, res) => {
 });
 
 // Update source credibility
-app.patch('/api/sources/:sourceId', (req, res) => {
+app.patch('/api/sources/:sourceId', requireInternal, (req, res) => {
   const profile = sourceProfiles.get(req.params.sourceId);
   if (!profile) {
     return res.status(404).json({ error: 'Source not found' });
@@ -75,7 +87,7 @@ app.patch('/api/sources/:sourceId', (req, res) => {
 // ============ STATEMENTS ============
 
 // Add a statement
-app.post('/api/statements', (req, res) => {
+app.post('/api/statements', requireInternal, (req, res) => {
   const { content, sourceId, sourceType, sourceRole, confidence, validFrom, validUntil, contexts, linkedFacts } = req.body;
 
   if (!content || !sourceId) {
@@ -148,7 +160,7 @@ app.get('/api/statements', (req, res) => {
 });
 
 // Update statement (new version)
-app.patch('/api/statements/:statementId', (req, res) => {
+app.patch('/api/statements/:statementId', requireInternal, (req, res) => {
   const statement = statements.get(req.params.statementId);
   if (!statement) {
     return res.status(404).json({ error: 'Statement not found' });
@@ -167,7 +179,7 @@ app.patch('/api/statements/:statementId', (req, res) => {
 // ============ EVIDENCE CHAINS ============
 
 // Create evidence chain
-app.post('/api/evidence-chains', (req, res) => {
+app.post('/api/evidence-chains', requireInternal, (req, res) => {
   const { statementIds, relationships } = req.body;
 
   if (!statementIds || !Array.isArray(statementIds) || statementIds.length < 2) {
@@ -232,7 +244,7 @@ app.get('/api/evidence-chains', (req, res) => {
 // ============ CONTRADICTION DETECTION ============
 
 // Check for contradictions
-app.post('/api/contradictions/check', (req, res) => {
+app.post('/api/contradictions/check', requireInternal, (req, res) => {
   const { statementAId, statementBId } = req.body;
 
   if (!statementAId || !statementBId) {
@@ -282,7 +294,7 @@ app.get('/api/contradictions/:contradictionId', (req, res) => {
 });
 
 // Resolve contradiction
-app.patch('/api/contradictions/:contradictionId', (req, res) => {
+app.patch('/api/contradictions/:contradictionId', requireInternal, (req, res) => {
   const contradiction = contradictions.get(req.params.contradictionId);
   if (!contradiction) {
     return res.status(404).json({ error: 'Contradiction not found' });
@@ -379,7 +391,7 @@ app.get('/api/truth-scores/:entityId', (req, res) => {
 // ============ VERIFICATION ============
 
 // Verify a claim against evidence
-app.post('/api/verify', (req, res) => {
+app.post('/api/verify', requireInternal, (req, res) => {
   const { claim, context } = req.body;
 
   if (!claim) {

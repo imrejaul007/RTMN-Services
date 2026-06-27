@@ -18,6 +18,18 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Middleware
 app.use(helmet());
 app.use(cors());
@@ -101,7 +113,7 @@ app.get('/api/v1/agents/:id', (req, res) => {
   }
 });
 
-app.post('/api/v1/agents', (req, res) => {
+app.post('/api/v1/agents', requireInternal, (req, res) => {
   try {
     const agent = createAgent(req.body);
     res.status(201).json({ success: true, agent });
@@ -110,7 +122,7 @@ app.post('/api/v1/agents', (req, res) => {
   }
 });
 
-app.patch('/api/v1/agents/:id', (req, res) => {
+app.patch('/api/v1/agents/:id', requireInternal, (req, res) => {
   try {
     const agent = updateAgent(req.params.id, req.body);
     if (!agent) {
@@ -122,7 +134,7 @@ app.patch('/api/v1/agents/:id', (req, res) => {
   }
 });
 
-app.delete('/api/v1/agents/:id', (req, res) => {
+app.delete('/api/v1/agents/:id', requireInternal, (req, res) => {
   try {
     const deleted = deleteAgent(req.params.id);
     if (!deleted) {
@@ -134,7 +146,7 @@ app.delete('/api/v1/agents/:id', (req, res) => {
   }
 });
 
-app.post('/api/v1/agents/:id/activate', (req, res) => {
+app.post('/api/v1/agents/:id/activate', requireInternal, (req, res) => {
   try {
     const agent = updateAgent(req.params.id, { status: AgentStatus.ACTIVE });
     if (!agent) {
@@ -146,7 +158,7 @@ app.post('/api/v1/agents/:id/activate', (req, res) => {
   }
 });
 
-app.post('/api/v1/agents/:id/pause', (req, res) => {
+app.post('/api/v1/agents/:id/pause', requireInternal, (req, res) => {
   try {
     const agent = updateAgent(req.params.id, { status: AgentStatus.PAUSED });
     if (!agent) {
@@ -160,7 +172,7 @@ app.post('/api/v1/agents/:id/pause', (req, res) => {
 
 // ── Conversations ───────────────────────────────────────────────────────
 
-app.post('/api/v1/conversations', (req, res) => {
+app.post('/api/v1/conversations', requireInternal, (req, res) => {
   try {
     const { agentId, phone, metadata } = req.body;
     if (!agentId) {
@@ -199,7 +211,7 @@ app.get('/api/v1/conversations/:id', (req, res) => {
   }
 });
 
-app.post('/api/v1/conversations/:id/transcript', (req, res) => {
+app.post('/api/v1/conversations/:id/transcript', requireInternal, (req, res) => {
   try {
     const { speaker, text, type } = req.body;
     if (!text) {
@@ -215,7 +227,7 @@ app.post('/api/v1/conversations/:id/transcript', (req, res) => {
   }
 });
 
-app.post('/api/v1/conversations/:id/end', (req, res) => {
+app.post('/api/v1/conversations/:id/end', requireInternal, (req, res) => {
   try {
     const { status, duration } = req.body;
     const conversation = endConversation(req.params.id, { status, duration });

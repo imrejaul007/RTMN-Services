@@ -85,6 +85,18 @@ const POLICY_CACHE_TTL_MS = Number(process.env.POLICY_CACHE_TTL_MS) || 5 * 60 * 
 const policyDecisionCache = new Map(); // policyId -> { allowed, checkedAt, error }
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());

@@ -420,6 +420,18 @@ function getSystemBuckets(metrics, n = DEFAULT_METRIC_BUCKETS) {
 // ---------------------------------------------------------------------------
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -431,7 +443,7 @@ app.get('/ready', (_req, res) => res.json({ ready: true }));
 
 // ---------------- Traces ----------------
 
-app.post('/api/traces', (req, res) => {
+app.post('/api/traces', requireInternal, (req, res) => {
   const errs = validateTrace(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
   const traces = loadTraces();
@@ -452,7 +464,7 @@ app.post('/api/traces', (req, res) => {
 });
 
 // IMPORTANT: specific routes must come BEFORE :id
-app.post('/api/traces/:id/spans', (req, res) => {
+app.post('/api/traces/:id/spans', requireInternal, (req, res) => {
   const traces = loadTraces();
   const trace = findTrace(traces, req.params.id);
   if (!trace) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -485,7 +497,7 @@ app.post('/api/traces/:id/spans', (req, res) => {
 });
 
 // End a span — MUST come before GET /api/traces/:id
-app.post('/api/traces/:id/spans/:spanId/end', (req, res) => {
+app.post('/api/traces/:id/spans/:spanId/end', requireInternal, (req, res) => {
   const traces = loadTraces();
   const trace = findTrace(traces, req.params.id);
   if (!trace) return res.status(404).json({ error: 'not_found', id: req.params.id });
@@ -555,7 +567,7 @@ app.get('/api/metrics/system', (req, res) => {
 });
 
 // Record a metric for an agent — POST must come before GET :agentId
-app.post('/api/metrics/agents/:agentId', (req, res) => {
+app.post('/api/metrics/agents/:agentId', requireInternal, (req, res) => {
   const errs = validateMetric(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
   const metrics = loadMetrics();
@@ -580,7 +592,7 @@ app.get('/api/metrics/agents/:agentId', (req, res) => {
 
 // ---------------- Logs ----------------
 
-app.post('/api/logs', (req, res) => {
+app.post('/api/logs', requireInternal, (req, res) => {
   const errs = validateLog(req.body);
   if (errs.length) return res.status(400).json({ error: 'validation', details: errs });
   const log = {

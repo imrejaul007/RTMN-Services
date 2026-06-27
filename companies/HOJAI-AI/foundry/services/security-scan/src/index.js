@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4748;
 app.use(express.json());
 
@@ -28,7 +39,7 @@ const SECURITY_CHECKS = [
 ];
 
 // REST API - Scan
-app.post('/api/scan', (req, res) => {
+app.post('/api/scan', requireInternal, (req, res) => {
   const { projectId, code, language = 'javascript' } = req.body;
   const scanId = uuidv4();
 

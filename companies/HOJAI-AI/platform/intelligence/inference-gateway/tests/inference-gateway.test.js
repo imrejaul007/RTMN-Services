@@ -61,7 +61,6 @@ test('exports', function() {
   assert.equal(typeof exported.MODEL_CATALOG, 'object', 'MODEL_CATALOG exported');
   assert.equal(typeof exported.stats, 'object', 'stats exported');
   assert.equal(typeof exported.auditLog, 'object', 'auditLog exported');
-  assert.equal(typeof exported.authOrBypass, 'function', 'authOrBypass exported');
 });
 
 test('selectModel - explicit model wins', function() {

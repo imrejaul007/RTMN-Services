@@ -27,6 +27,18 @@ import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 const PORT = process.env.MEMORY_INTELLIGENCE_PORT || 4795;
 
 // Upstream services
@@ -333,7 +345,7 @@ app.get('/', (_req, res) => {
 // 28.1 REMEMBER - Importance scoring, context preservation, relationships
 // =============================================================================
 
-app.post('/api/memory/remember', async (req, res) => {
+app.post('/api/memory/remember', requireInternal, async (req, res) => {
   const {
     twinId,
     content,
@@ -426,7 +438,7 @@ app.get('/api/memory/remember/:id', (req, res) => {
 // 28.2 FORGET - Expiration, unused detection, GDPR
 // =============================================================================
 
-app.post('/api/memory/forget', async (req, res) => {
+app.post('/api/memory/forget', requireInternal, async (req, res) => {
   const { id, reason = 'user_request', hardDelete = false, archiveFirst = true } = req.body || {};
 
   if (!id) return fail(res, 'INVALID_INPUT', 'id required');
@@ -470,7 +482,7 @@ app.post('/api/memory/forget', async (req, res) => {
 });
 
 // GDPR compliance - forget all memories for a twin
-app.post('/api/memory/forget/gdpr', async (req, res) => {
+app.post('/api/memory/forget/gdpr', requireInternal, async (req, res) => {
   const { twinId, reason = 'gdpr_request' } = req.body || {};
 
   if (!twinId) return fail(res, 'INVALID_INPUT', 'twinId required');
@@ -501,7 +513,7 @@ app.post('/api/memory/forget/gdpr', async (req, res) => {
 });
 
 // Check for unused memories
-app.post('/api/memory/forget/check-unused', async (req, res) => {
+app.post('/api/memory/forget/check-unused', requireInternal, async (req, res) => {
   const { days = 90 } = req.body || {};
   const threshold = nowMs() - (days * 24 * 60 * 60 * 1000);
 
@@ -537,7 +549,7 @@ app.post('/api/memory/forget/check-unused', async (req, res) => {
 // 28.3 COMPRESS - Summarization, deduplication, archival
 // =============================================================================
 
-app.post('/api/memory/compress', async (req, res) => {
+app.post('/api/memory/compress', requireInternal, async (req, res) => {
   const { id, summaryLength = CONFIG.compression.MAX_CONTENT_LENGTH } = req.body || {};
 
   if (!id) return fail(res, 'INVALID_INPUT', 'id required');
@@ -580,7 +592,7 @@ app.post('/api/memory/compress', async (req, res) => {
 });
 
 // Deduplication
-app.post('/api/memory/compress/deduplicate', async (req, res) => {
+app.post('/api/memory/compress/deduplicate', requireInternal, async (req, res) => {
   const { twinId, threshold = CONFIG.compression.DEDUP_SIMILARITY_THRESHOLD } = req.body || {};
 
   if (!twinId) return fail(res, 'INVALID_INPUT', 'twinId required');
@@ -628,7 +640,7 @@ app.post('/api/memory/compress/deduplicate', async (req, res) => {
 // 28.4 MERGE - Duplicate detection, contradiction resolution
 // =============================================================================
 
-app.post('/api/memory/merge', async (req, res) => {
+app.post('/api/memory/merge', requireInternal, async (req, res) => {
   const { sourceId, targetId, strategy = 'newer' } = req.body || {};
 
   if (!sourceId || !targetId) {
@@ -702,7 +714,7 @@ app.post('/api/memory/merge', async (req, res) => {
 // 28.5 CONTRADICTION - Detection, source credibility, recency
 // =============================================================================
 
-app.post('/api/memory/contradiction/detect', async (req, res) => {
+app.post('/api/memory/contradiction/detect', requireInternal, async (req, res) => {
   const { twinId } = req.body || {};
 
   if (!twinId) return fail(res, 'INVALID_INPUT', 'twinId required');
@@ -763,7 +775,7 @@ app.post('/api/memory/contradiction/detect', async (req, res) => {
 });
 
 // Resolve contradiction
-app.post('/api/memory/contradiction/resolve', async (req, res) => {
+app.post('/api/memory/contradiction/resolve', requireInternal, async (req, res) => {
   const { id1, id2, keepId, reason } = req.body || {};
 
   if (!id1 || !id2 || !keepId) {
@@ -808,7 +820,7 @@ app.post('/api/memory/contradiction/resolve', async (req, res) => {
 // 28.6 IMPORTANCE - Access frequency, user marking, contextual relevance
 // =============================================================================
 
-app.post('/api/memory/importance/mark', async (req, res) => {
+app.post('/api/memory/importance/mark', requireInternal, async (req, res) => {
   const { id, importance } = req.body || {};
 
   if (!id || !importance) {
@@ -840,7 +852,7 @@ app.post('/api/memory/importance/mark', async (req, res) => {
 });
 
 // Pin memory (prevent decay)
-app.post('/api/memory/importance/pin', async (req, res) => {
+app.post('/api/memory/importance/pin', requireInternal, async (req, res) => {
   const { id, pinned = true } = req.body || {};
 
   if (!id) return fail(res, 'INVALID_INPUT', 'id required');
@@ -898,7 +910,7 @@ app.get('/api/memory/importance/ranking', (req, res) => {
 // 28.7 DECAY - Time-based decay, access-based boost, automatic archival
 // =============================================================================
 
-app.post('/api/memory/decay/apply', async (req, res) => {
+app.post('/api/memory/decay/apply', requireInternal, async (req, res) => {
   const { twinId } = req.body || {};
 
   const affected = [];
@@ -927,7 +939,7 @@ app.post('/api/memory/decay/apply', async (req, res) => {
 });
 
 // Boost memory on access
-app.post('/api/memory/decay/boost', async (req, res) => {
+app.post('/api/memory/decay/boost', requireInternal, async (req, res) => {
   const { id } = req.body || {};
 
   if (!id) return fail(res, 'INVALID_INPUT', 'id required');
@@ -1005,7 +1017,7 @@ app.get('/api/memory/decay/report', (req, res) => {
 // 28.8 RELATIONSHIPS - Entity linking, causal chains, temporal ordering
 // =============================================================================
 
-app.post('/api/memory/relationships/add', async (req, res) => {
+app.post('/api/memory/relationships/add', requireInternal, async (req, res) => {
   const { from, to, type, weight = 1 } = req.body || {};
 
   if (!from || !to || !type) {
@@ -1112,7 +1124,7 @@ app.get('/api/memory/relationships/:id', (req, res) => {
 });
 
 // Entity linking
-app.post('/api/memory/relationships/entity-link', async (req, res) => {
+app.post('/api/memory/relationships/entity-link', requireInternal, async (req, res) => {
   const { memoryId, entities } = req.body || {};
 
   if (!memoryId || !entities) {

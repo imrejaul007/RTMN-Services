@@ -19,6 +19,18 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
@@ -87,7 +99,7 @@ app.get('/api/v1/sdks', (req, res) => {
 });
 
 // API Explorer - make test request
-app.post('/api/v1/explorer/request', async (req, res) => {
+app.post('/api/v1/explorer/request', requireInternal, async (req, res) => {
   const { service, method, path, body, headers } = req.body;
 
   if (!service || !method || !path) {
@@ -141,7 +153,7 @@ app.get('/api/v1/explorer/:id', (req, res) => {
 });
 
 // Save explorer state
-app.post('/api/v1/explorer', (req, res) => {
+app.post('/api/v1/explorer', requireInternal, (req, res) => {
   const id = Date.now().toString(36) + Math.random().toString(36).slice(2);
   apiExplorerState.set(id, req.body);
   res.status(201).json({ success: true, id });

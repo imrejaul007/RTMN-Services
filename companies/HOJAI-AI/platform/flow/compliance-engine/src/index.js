@@ -28,6 +28,17 @@ import { PersistentStore } from '../../../../shared/lib/persistent-store.js';
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 const PORT = process.env.PORT || 4261;
@@ -431,11 +442,14 @@ app.use((req, res) => res.status(404).json({ error: 'Not found', path: req.path 
 // Boot
 // =================================================================
 
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[compliance-engine] listening on :${PORT} (v${SERVICE_VERSION})`);
-});
-installGracefulShutdown(server);
+export default app;
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[compliance-engine] listening on :${PORT} (v${SERVICE_VERSION})`);
+  });
+  installGracefulShutdown(server);
+}
 
 // =================================================================
 // Graceful shutdown

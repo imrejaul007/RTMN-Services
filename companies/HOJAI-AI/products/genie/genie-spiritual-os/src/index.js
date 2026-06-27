@@ -15,6 +15,18 @@ const insightsRoutes = require('./routes/insights');
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Phase A: persistent stores for spiritual practice data
 const prayersStore = new PersistentMap('prayers', { serviceName: 'genie-spiritual-os' });
 const gratitudeStore = new PersistentMap('gratitude', { serviceName: 'genie-spiritual-os' });

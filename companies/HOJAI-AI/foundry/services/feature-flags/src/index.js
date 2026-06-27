@@ -7,6 +7,17 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = 4742;
 app.use(express.json());
 
@@ -27,7 +38,7 @@ Object.entries(DEFAULT_FLAGS).forEach(([key, flag]) => {
 });
 
 // REST API - Flags
-app.post('/api/flags', (req, res) => {
+app.post('/api/flags', requireInternal, (req, res) => {
   const { key, name, description, enabled = false, rollout = 0, metadata = {} } = req.body;
   if (flags.has(key)) return res.status(409).json({ error: 'Flag already exists' });
   const flag = { key, name, description, enabled, rollout, metadata, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
@@ -43,21 +54,21 @@ app.get('/api/flags/:key', (req, res) => {
   res.json(flag);
 });
 
-app.patch('/api/flags/:key', (req, res) => {
+app.patch('/api/flags/:key', requireInternal, (req, res) => {
   const flag = flags.get(req.params.key);
   if (!flag) return res.status(404).json({ error: 'Flag not found' });
   Object.assign(flag, req.body, { updatedAt: new Date().toISOString() });
   res.json(flag);
 });
 
-app.delete('/api/flags/:key', (req, res) => {
+app.delete('/api/flags/:key', requireInternal, (req, res) => {
   if (!flags.has(req.params.key)) return res.status(404).json({ error: 'Flag not found' });
   flags.delete(req.params.key);
   res.json({ deleted: true });
 });
 
 // REST API - Toggle flag
-app.post('/api/flags/:key/toggle', (req, res) => {
+app.post('/api/flags/:key/toggle', requireInternal, (req, res) => {
   const flag = flags.get(req.params.key);
   if (!flag) return res.status(404).json({ error: 'Flag not found' });
   flag.enabled = !flag.enabled;
@@ -89,7 +100,7 @@ app.get('/api/evaluate/:key', (req, res) => {
 });
 
 // REST API - Batch evaluate
-app.post('/api/evaluate', (req, res) => {
+app.post('/api/evaluate', requireInternal, (req, res) => {
   const { keys, userId, userTraits = {} } = req.body;
   const results = keys.map(key => {
     const flag = flags.get(key);
@@ -106,14 +117,14 @@ app.post('/api/evaluate', (req, res) => {
 });
 
 // REST API - User Overrides
-app.post('/api/flags/:key/override', (req, res) => {
+app.post('/api/flags/:key/override', requireInternal, (req, res) => {
   const { userId, enabled } = req.body;
   if (!overrides.has(req.params.key)) overrides.set(req.params.key, new Map());
   overrides.get(req.params.key).set(userId, enabled);
   res.json({ key: req.params.key, userId, enabled });
 });
 
-app.delete('/api/flags/:key/override/:userId', (req, res) => {
+app.delete('/api/flags/:key/override/:userId', requireInternal, (req, res) => {
   if (overrides.has(req.params.key)) {
     overrides.get(req.params.key).delete(req.params.userId);
   }

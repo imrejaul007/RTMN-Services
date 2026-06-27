@@ -8,6 +8,17 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 4730;
 
@@ -33,14 +44,14 @@ app.get('/api/doctors/:id', (req, res) => {
   res.json({ success: true, doctor });
 });
 
-app.post('/api/doctors', (req, res) => {
+app.post('/api/doctors', requireInternal, (req, res) => {
   const doctor = { id: uuidv4(), ...req.body, rating: 0, reviews: 0, createdAt: new Date().toISOString() };
   doctors.set(doctor.id, doctor);
   res.status(201).json({ success: true, doctor });
 });
 
 // Appointments
-app.post('/api/appointments', (req, res) => {
+app.post('/api/appointments', requireInternal, (req, res) => {
   const { doctorId, patientId, date, time, type } = req.body;
   const appointment = {
     id: uuidv4(), doctorId, patientId, date, time, type,
@@ -59,7 +70,7 @@ app.get('/api/appointments', (req, res) => {
 });
 
 // Prescriptions
-app.post('/api/prescriptions', (req, res) => {
+app.post('/api/prescriptions', requireInternal, (req, res) => {
   const prescription = { id: uuidv4(), ...req.body, createdAt: new Date().toISOString() };
   prescriptions.set(prescription.id, prescription);
   res.status(201).json({ success: true, prescription });
@@ -72,7 +83,7 @@ app.get('/api/prescriptions/:id', (req, res) => {
 });
 
 // Patients / Health Records
-app.post('/api/patients', (req, res) => {
+app.post('/api/patients', requireInternal, (req, res) => {
   const patient = { id: uuidv4(), ...req.body, createdAt: new Date().toISOString() };
   patients.set(patient.id, patient);
   res.status(201).json({ success: true, patient });
@@ -85,7 +96,7 @@ app.get('/api/patients/:id/records', (req, res) => {
 });
 
 // Telemedicine
-app.post('/api/telemedicine/connect', (req, res) => {
+app.post('/api/telemedicine/connect', requireInternal, (req, res) => {
   const { appointmentId } = req.body;
   res.json({ success: true, sessionUrl: `https://meet.hojai.health/${uuidv4()}`, expiresIn: '30 mins' });
 });
@@ -98,7 +109,7 @@ app.get('/api/labs', (req, res) => {
   ]});
 });
 
-app.post('/api/labs/book', (req, res) => {
+app.post('/api/labs/book', requireInternal, (req, res) => {
   const { labId, tests, patientId, date } = req.body;
   res.status(201).json({ success: true, booking: { id: uuidv4(), labId, tests, patientId, date, status: 'confirmed' } });
 });

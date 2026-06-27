@@ -16,6 +16,17 @@ const helmet = require('helmet');
 const { v4: uuid } = require('uuid');
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
 const PORT = process.env.STUDIO_INTEGRATION_PORT || 4278;
 
 app.use(helmet());
@@ -29,7 +40,7 @@ app.use(express.json());
 /**
  * Import blueprint from HOJAI Studio and auto-generate BCP listing
  */
-app.post('/api/studio/blueprint-to-bcp', async (req, res) => {
+app.post('/api/studio/blueprint-to-bcp', requireInternal, async (req, res) => {
   try {
     const { blueprint, publisherId, publishImmediately } = req.body;
 
@@ -140,7 +151,7 @@ app.get('/api/studio/blueprints', async (req, res) => {
 /**
  * Auto-publish listing to BAM
  */
-app.post('/api/studio/publish-to-bam', async (req, res) => {
+app.post('/api/studio/publish-to-bam', requireInternal, async (req, res) => {
   try {
     const { blueprint, listingData, publisherId } = req.body;
 
@@ -248,7 +259,7 @@ app.get('/api/nexha/capabilities', async (req, res) => {
 /**
  * Deploy AI agent to Nexha federation from BAM purchase
  */
-app.post('/api/nexha/deploy-agent', async (req, res) => {
+app.post('/api/nexha/deploy-agent', requireInternal, async (req, res) => {
   try {
     const { listingId, agentId, tenantId, targetNexha } = req.body;
 
@@ -288,7 +299,7 @@ app.post('/api/nexha/deploy-agent', async (req, res) => {
 /**
  * Register capability in Nexha from BAM listing
  */
-app.post('/api/nexha/register-capability', async (req, res) => {
+app.post('/api/nexha/register-capability', requireInternal, async (req, res) => {
   try {
     const { listingId, capability, publisherId } = req.body;
 
@@ -322,7 +333,7 @@ app.post('/api/nexha/register-capability', async (req, res) => {
 /**
  * Auto-generate listings based on market demand
  */
-app.post('/api/agentic/generate-listings', async (req, res) => {
+app.post('/api/agentic/generate-listings', requireInternal, async (req, res) => {
   try {
     const { industry, targetMarket } = req.body;
 
@@ -365,7 +376,7 @@ app.post('/api/agentic/generate-listings', async (req, res) => {
 /**
  * Match buyers with sellers based on needs
  */
-app.post('/api/agentic/match', async (req, res) => {
+app.post('/api/agentic/match', requireInternal, async (req, res) => {
   try {
     const { buyerNeeds, buyerIndustry } = req.body;
 

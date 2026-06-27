@@ -14,6 +14,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 const PORT = process.env.PORT || 3000;
 
@@ -92,7 +104,7 @@ app.get('/api/fare-estimate', (req, res) => {
 });
 
 // Book ride
-app.post('/api/rides', (req, res) => {
+app.post('/api/rides', requireInternal, (req, res) => {
   const { userId, vehicleType, pickup, drop, scheduledTime } = req.body;
 
   if (!userId || !vehicleType) {
@@ -135,7 +147,7 @@ app.post('/api/rides', (req, res) => {
 });
 
 // Accept by driver
-app.post('/api/rides/:id/accept', (req, res) => {
+app.post('/api/rides/:id/accept', requireInternal, (req, res) => {
   const { driverId } = req.body;
   const ride = rides.get(req.params.id);
 
@@ -155,7 +167,7 @@ app.post('/api/rides/:id/accept', (req, res) => {
 });
 
 // Start ride
-app.post('/api/rides/:id/start', (req, res) => {
+app.post('/api/rides/:id/start', requireInternal, (req, res) => {
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
 
@@ -167,7 +179,7 @@ app.post('/api/rides/:id/start', (req, res) => {
 });
 
 // Complete ride
-app.post('/api/rides/:id/complete', (req, res) => {
+app.post('/api/rides/:id/complete', requireInternal, (req, res) => {
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
 
@@ -179,7 +191,7 @@ app.post('/api/rides/:id/complete', (req, res) => {
 });
 
 // Cancel ride
-app.post('/api/rides/:id/cancel', (req, res) => {
+app.post('/api/rides/:id/cancel', requireInternal, (req, res) => {
   const { reason } = req.body;
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
@@ -229,7 +241,7 @@ app.get('/api/rides/:id/track', (req, res) => {
 });
 
 // Payment
-app.post('/api/rides/:id/pay', (req, res) => {
+app.post('/api/rides/:id/pay', requireInternal, (req, res) => {
   const { method, promoCode } = req.body;
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
@@ -257,7 +269,7 @@ app.post('/api/rides/:id/pay', (req, res) => {
 });
 
 // Verify payment
-app.post('/api/rides/:id/payment/verify', (req, res) => {
+app.post('/api/rides/:id/payment/verify', requireInternal, (req, res) => {
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
 
@@ -268,7 +280,7 @@ app.post('/api/rides/:id/payment/verify', (req, res) => {
 });
 
 // Emergency
-app.post('/api/rides/:id/emergency', (req, res) => {
+app.post('/api/rides/:id/emergency', requireInternal, (req, res) => {
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
 
@@ -285,7 +297,7 @@ app.post('/api/rides/:id/emergency', (req, res) => {
 });
 
 // Rating
-app.post('/api/rides/:id/rate', (req, res) => {
+app.post('/api/rides/:id/rate', requireInternal, (req, res) => {
   const { rating, comment } = req.body;
   const ride = rides.get(req.params.id);
   if (!ride) return res.status(404).json({ error: 'Ride not found' });
@@ -297,7 +309,7 @@ app.post('/api/rides/:id/rate', (req, res) => {
 });
 
 // Support
-app.post('/api/support', (req, res) => {
+app.post('/api/support', requireInternal, (req, res) => {
   const { rideId, issue, description } = req.body;
 
   const ticket = {

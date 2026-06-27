@@ -8,6 +8,18 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
+
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
 app.use(cors(), express.json());
 
 const PORT = 4610;
@@ -31,7 +43,7 @@ users.set(demoUser.id, demoUser);
 app.get('/health', (_, res) => res.json({ status: 'ok', app: 'do-mobility-passenger', port: PORT }));
 
 // Voice booking endpoint
-app.post('/api/book/voice', (req, res) => {
+app.post('/api/book/voice', requireInternal, (req, res) => {
   const { command, userId = demoUser.id } = req.body;
 
   // Parse voice command
@@ -75,7 +87,7 @@ app.post('/api/book/voice', (req, res) => {
 });
 
 // Quick booking
-app.post('/api/book', (req, res) => {
+app.post('/api/book', requireInternal, (req, res) => {
   const { destination, vehicleType = 'auto', userId = demoUser.id } = req.body;
 
   const fares = { auto: 180, sedan: 250, suv: 350, bike: 60 };

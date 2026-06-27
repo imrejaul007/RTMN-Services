@@ -611,6 +611,18 @@ function audit(entry) {
 
 const app = express();
 
+// ── Internal Auth ────────────────────────────────────────────────
+function requireInternal(req, res, next) {
+  const token = req.headers['x-internal-token'];
+  const expected = process.env.INTERNAL_SERVICE_TOKEN;
+  if (token && expected && token === expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+
+
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
 app.use(helmet());
@@ -1013,6 +1025,9 @@ app.use((err, req, res, next) => {
 app.get('/ready', (_req, res) => {
   res.json({ ready: true, timestamp: new Date().toISOString() });
 });
+
+// Named exports for vitest
+module.exports = { app, authOrBypass };
 
 // Auto-start gated
 if (process.env.RISK_INTELLIGENCE_NO_LISTEN !== '1' && process.env.NODE_ENV !== 'test') {

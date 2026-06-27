@@ -286,4 +286,65 @@ foundry/
 
 ---
 
+## Testing
+
+### Test Infrastructure
+
+HOJAI AI uses **Vitest** for testing across all services.
+
+```bash
+# Run all tests
+cd companies/HOJAI-AI
+npx vitest run
+
+# Run tests for specific service
+npx vitest run platform/twins/behavioral-twin/__tests__/
+
+# Run with coverage
+npx vitest run --coverage
+```
+
+### Test Coverage
+
+| Service Group | Tests Created | Status |
+|--------------|--------------|--------|
+| **Twin Services** | behavioral-twin, knowledge-twin, memory-twin, relationship-twin, reputation-twin, twin-analytics, twin-mobile | ✅ Complete |
+| **Connector Services** | salesforce-connector, hubspot-connector, slack-connector, github-connector, jira-connector, notion-connector, shopify-connector | ✅ Complete |
+| **AgentOS Services** | agent-registry | ✅ Complete |
+| **Skills Services** | skill-os | ✅ Complete |
+| **BLR AI Marketplace** | roi-calculator | ✅ Complete |
+
+### Test Patterns
+
+All tests follow these patterns:
+
+1. **Constants Validation** - Verify all enum values and constants
+2. **Validation Tests** - Test input validation for all entities
+3. **Calculation Tests** - Verify mathematical functions (ROI, scoring, etc.)
+4. **Edge Case Tests** - Handle empty inputs, boundary conditions, error states
+5. **Business Logic Tests** - Test core functionality with realistic scenarios
+
+### Adding New Tests
+
+```typescript
+// Example test structure
+import { describe, it, expect } from 'vitest';
+
+describe('MyService - Feature', () => {
+  it('should do something', () => {
+    const result = myFunction(input);
+    expect(result).toBe(expected);
+  });
+});
+```
+
+### Running Tests in CI
+
+Tests run automatically on:
+- Every push to main branch
+- Pull request creation
+- Manual trigger via GitHub Actions
+
+---
+
 *Built with ❤️ by HOJAI AI*
