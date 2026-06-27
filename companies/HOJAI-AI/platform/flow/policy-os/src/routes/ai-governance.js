@@ -55,7 +55,7 @@ export const VALIDATION_RULES = {
 
 function detectPII(text) {
   const patterns = [
-    { type: 'email', regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
+    { type: 'email', regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g },
     { type: 'phone', regex: /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g },
     { type: 'ssn', regex: /\d{3}[-.\s]?\d{2}[-.\s]?\d{4}/g },
     { type: 'credit_card', regex: /\d{4}[-.\s]?\d{4}[-.\s]?\d{4}[-.\s]?\d{4}/g },
@@ -182,7 +182,12 @@ export function validateOutput(output, rules = [], context = {}) {
       }
 
       case VALIDATION_RULES.NO_REFUSALS: {
-        const refusalPatterns = ["i'm sorry", "i cannot", "i'm unable", "sorry, i can't", "i'm sorry but i can't"];
+        const refusalPatterns = [
+          "i'm sorry", "i cannot", "i'm unable",
+          "sorry, i can't", "i'm sorry but i can't",
+          "i'm sorry but i can", "i cannot help",
+          "cannot assist", "unable to help",
+        ];
         const lower = output.toLowerCase();
         for (const p of refusalPatterns) {
           if (lower.includes(p)) {

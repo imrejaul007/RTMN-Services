@@ -1,7 +1,7 @@
 {
-  "name": "@hojai/task-twin",
+  "name": "@hojai/skill-twin",
   "version": "1.0.0",
-  "description": "Task Twin - Digital twin for task management with delegation support",
+  "description": "Skill Twin - Digital twin for skill management and tracking",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": ["digital-twin", "task-management", "employee-twin", "hojai"],
+  "keywords": ["digital-twin", "skill-management", "employee-twin", "hojai"],
   "author": "HOJAI AI",
   "license": "MIT",
   "dependencies": {
@@ -21,10 +21,8 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/uuid": "^9.0.7",
-    "@types/supertest": "^6.0.2",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "supertest": "^6.3.4",
     "vitest": "^1.2.0"
   }
 }
