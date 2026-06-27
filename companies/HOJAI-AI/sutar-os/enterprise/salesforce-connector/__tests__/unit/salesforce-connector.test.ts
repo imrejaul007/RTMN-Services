@@ -76,7 +76,7 @@ describe('Salesforce Connector — Field Mappings', () => {
     expect(merchant.website).toBe('https://acme.example.com');
     expect(merchant.phone).toBe('+1-555-0100');
     expect(merchant.city).toBe('San Francisco');
-    expect(merchant.country).toToBe('USA');
+    expect(merchant.country).toBe('USA');
     expect(merchant.annualRevenue).toBe(5000000);
     expect(merchant.employeeCount).toBe(250);
     expect(merchant.accountType).toBe('Customer');

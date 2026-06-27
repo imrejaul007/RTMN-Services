@@ -1,18 +1,14 @@
 /**
  * Task Twin Service v1.0
- * Digital twin for task management
+ * Digital twin for task management with delegation support
  * Port: 4893
  */
 
-import express from 'express';
+import express, { type Request, type Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-const app = express();
-const PORT = parseInt(process.env.PORT || '4893', 10);
-app.use(express.json());
-
-// In-memory storage
-interface Task {
+// Types
+export interface Task {
   id: string;
   title: string;
   description?: string;
@@ -28,142 +24,223 @@ interface Task {
   dependencies: string[];
 }
 
-const tasks = new Map<string, Task>();
-const delegationHistory: Array<{ from: string; to: string; taskId: string; timestamp: string }> = [];
+export interface TaskCreate {
+  title: string;
+  description?: string;
+  status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  assignee?: string;
+  delegator?: string;
+  dueDate?: string;
+  tags?: string[];
+  dependencies?: string[];
+}
 
-// Middleware
-app.use((req, _res, next) => {
-  (req as any).requestId = uuidv4();
-  next();
-});
+export interface TaskUpdate {
+  title?: string;
+  description?: string;
+  status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  assignee?: string;
+  dueDate?: string;
+  tags?: string[];
+  dependencies?: string[];
+}
 
-// Health
-app.get('/health', (_req, res) => {
-  res.json({ status: 'healthy', service: 'task-twin', version: '1.0.0', tasks: tasks.size });
-});
+// In-memory storage
+const tasks: Map<string, Task> = new Map();
 
-app.get('/ready', (_req, res) => res.json({ ready: true }));
+// Create TaskTwin service
+export function createTaskTwinService() {
+  const app = express();
+  app.use(express.json());
 
-// List tasks
-app.get('/api/tasks', (req, res) => {
-  const { status, priority, assignee } = req.query;
-  let all = Array.from(tasks.values());
-  if (status) all = all.filter(t => t.status === status);
-  if (priority) all = all.filter(t => t.priority === priority);
-  if (assignee) all = all.filter(t => t.assignee === assignee);
-  res.json({ success: true, data: { tasks: all, total: all.length } });
-});
+  // POST /api/tasks - Create task
+  app.post('/api/tasks', (req: Request, res: Response) => {
+    const { title, description, status, priority, assignee, delegator, dueDate, tags, dependencies } = req.body;
 
-// Get task
-app.get('/api/tasks/:id', (req, res) => {
-  const task = tasks.get(req.params.id);
-  if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
-  res.json({ success: true, data: task });
-});
+    if (!title) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
 
-// Create task
-app.post('/api/tasks', (req, res) => {
-  const { title, description, priority = 'medium', assignee, dueDate, tags = [], dependencies = [] } = req.body;
-  if (!title) return res.status(400).json({ success: false, error: 'title required' });
+    const task: Task = {
+      id: uuidv4(),
+      title,
+      description,
+      status: status || 'pending',
+      priority: priority || 'medium',
+      assignee,
+      delegator,
+      dueDate,
+      completedAt: undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      tags: tags || [],
+      dependencies: dependencies || []
+    };
 
-  const task: Task = {
-    id: `task_${Date.now()}`,
-    title,
-    description,
-    status: 'pending',
-    priority,
-    assignee,
-    dueDate,
-    tags,
-    dependencies,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  tasks.set(task.id, task);
-  res.status(201).json({ success: true, data: task });
-});
-
-// Update task
-app.patch('/api/tasks/:id', (req, res) => {
-  const task = tasks.get(req.params.id);
-  if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
-
-  const { title, description, status, priority, assignee, dueDate, tags } = req.body;
-  if (title) task.title = title;
-  if (description !== undefined) task.description = description;
-  if (status) {
-    task.status = status;
-    if (status === 'completed') task.completedAt = new Date().toISOString();
-  }
-  if (priority) task.priority = priority;
-  if (assignee !== undefined) task.assignee = assignee;
-  if (dueDate !== undefined) task.dueDate = dueDate;
-  if (tags) task.tags = tags;
-  task.updatedAt = new Date().toISOString();
-
-  tasks.set(task.id, task);
-  res.json({ success: true, data: task });
-});
-
-// Delegate task
-app.post('/api/tasks/:id/delegate', (req, res) => {
-  const task = tasks.get(req.params.id);
-  if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
-
-  const { to, reason } = req.body;
-  if (!to) return res.status(400).json({ success: false, error: 'to (assignee) required' });
-
-  delegationHistory.push({
-    from: task.assignee || 'unassigned',
-    to,
-    taskId: task.id,
-    timestamp: new Date().toISOString()
+    tasks.set(task.id, task);
+    return res.status(201).json(task);
   });
 
-  task.assignee = to;
-  task.delegator = task.assignee;
-  task.updatedAt = new Date().toISOString();
-  tasks.set(task.id, task);
-
-  res.json({ success: true, data: { task, delegation: { from: task.delegator, to, reason } } });
-});
-
-// Get delegation history
-app.get('/api/delegations', (req, res) => {
-  const { taskId } = req.query;
-  let history = [...delegationHistory];
-  if (taskId) history = history.filter(d => d.taskId === taskId);
-  res.json({ success: true, data: { history, total: history.length } });
-});
-
-// Task analytics
-app.get('/api/analytics', (req, res) => {
-  const all = Array.from(tasks.values());
-  const byStatus = { pending: 0, in_progress: 0, completed: 0, cancelled: 0 };
-  const byPriority = { low: 0, medium: 0, high: 0, urgent: 0 };
-
-  all.forEach(t => {
-    byStatus[t.status]++;
-    byPriority[t.priority]++;
+  // GET /api/tasks/:id - Get task
+  app.get('/api/tasks/:id', (req: Request, res: Response) => {
+    const task = tasks.get(req.params.id);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    return res.status(200).json(task);
   });
 
-  const overdue = all.filter(t =>
-    t.status !== 'completed' && t.status !== 'cancelled' &&
-    t.dueDate && new Date(t.dueDate) < new Date()
-  ).length;
+  // PUT /api/tasks/:id - Update task
+  app.put('/api/tasks/:id', (req: Request, res: Response) => {
+    const task = tasks.get(req.params.id);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
 
-  res.json({
-    success: true,
-    data: {
-      total: all.length,
+    const { title, description, status, priority, assignee, dueDate, tags, dependencies } = req.body;
+
+    if (title !== undefined) task.title = title;
+    if (description !== undefined) task.description = description;
+    if (status !== undefined) {
+      task.status = status;
+      if (status === 'completed') {
+        task.completedAt = new Date().toISOString();
+      }
+    }
+    if (priority !== undefined) task.priority = priority;
+    if (assignee !== undefined) task.assignee = assignee;
+    if (dueDate !== undefined) task.dueDate = dueDate;
+    if (tags !== undefined) task.tags = tags;
+    if (dependencies !== undefined) task.dependencies = dependencies;
+    task.updatedAt = new Date().toISOString();
+
+    tasks.set(task.id, task);
+    return res.status(200).json(task);
+  });
+
+  // DELETE /api/tasks/:id - Delete task
+  app.delete('/api/tasks/:id', (req: Request, res: Response) => {
+    if (!tasks.has(req.params.id)) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    tasks.delete(req.params.id);
+    return res.status(204).send();
+  });
+
+  // GET /api/tasks - List tasks
+  app.get('/api/tasks', (req: Request, res: Response) => {
+    const { status, assignee, priority, tags } = req.query;
+    let filtered = Array.from(tasks.values());
+
+    if (status) {
+      filtered = filtered.filter(t => t.status === status);
+    }
+    if (assignee) {
+      filtered = filtered.filter(t => t.assignee === assignee);
+    }
+    if (priority) {
+      filtered = filtered.filter(t => t.priority === priority);
+    }
+    if (tags) {
+      const tagList = (tags as string).split(',');
+      filtered = filtered.filter(t => tagList.some(tag => t.tags.includes(tag)));
+    }
+
+    return res.status(200).json({ tasks: filtered, total: filtered.length });
+  });
+
+  // POST /api/tasks/:id/delegate - Delegate task
+  app.post('/api/tasks/:id/delegate', (req: Request, res: Response) => {
+    const task = tasks.get(req.params.id);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    const { newAssignee, reason } = req.body;
+    if (!newAssignee) {
+      return res.status(400).json({ error: 'newAssignee is required' });
+    }
+
+    task.delegator = task.assignee || undefined;
+    task.assignee = newAssignee;
+    task.updatedAt = new Date().toISOString();
+
+    tasks.set(task.id, task);
+    return res.status(200).json(task);
+  });
+
+  // GET /api/tasks/analytics - Task analytics
+  app.get('/api/tasks/analytics', (_req: Request, res: Response) => {
+    const allTasks = Array.from(tasks.values());
+
+    const byStatus: Record<string, number> = {};
+    const byPriority: Record<string, number> = {};
+    let completedCount = 0;
+
+    allTasks.forEach(task => {
+      byStatus[task.status] = (byStatus[task.status] || 0) + 1;
+      byPriority[task.priority] = (byPriority[task.priority] || 0) + 1;
+      if (task.status === 'completed') completedCount++;
+    });
+
+    return res.status(200).json({
+      total: allTasks.length,
       byStatus,
       byPriority,
-      overdue,
-      completionRate: all.length > 0 ? (byStatus.completed / all.length) * 100 : 0
-    }
+      completionRate: allTasks.length > 0 ? (completedCount / allTasks.length) * 100 : 0
+    });
   });
+
+  // POST /api/tasks/bulk-update - Bulk update
+  app.post('/api/tasks/bulk-update', (req: Request, res: Response) => {
+    const { taskIds, updates } = req.body;
+
+    if (!taskIds || taskIds.length === 0) {
+      return res.status(400).json({ error: 'taskIds array is required' });
+    }
+
+    const updatedTasks: Task[] = [];
+    taskIds.forEach((id: string) => {
+      const task = tasks.get(id);
+      if (task) {
+        if (updates.title !== undefined) task.title = updates.title;
+        if (updates.status !== undefined) {
+          task.status = updates.status;
+          if (updates.status === 'completed') {
+            task.completedAt = new Date().toISOString();
+          }
+        }
+        if (updates.priority !== undefined) task.priority = updates.priority;
+        if (updates.assignee !== undefined) task.assignee = updates.assignee;
+        if (updates.dueDate !== undefined) task.dueDate = updates.dueDate;
+        task.updatedAt = new Date().toISOString();
+        tasks.set(task.id, task);
+        updatedTasks.push(task);
+      }
+    });
+
+    return res.status(200).json({ updated: updatedTasks.length, tasks: updatedTasks });
+  });
+
+  // GET /health - Health check
+  app.get('/health', (_req: Request, res: Response) => {
+    return res.status(200).json({
+      status: 'healthy',
+      service: 'task-twin',
+      timestamp: new Date().toISOString(),
+      tasks: tasks.size
+    });
+  });
+
+  return app;
+}
+
+// Start server if run directly
+const PORT = parseInt(process.env.PORT || '4893', 10);
+const server = createTaskTwinService().listen(PORT, () => {
+  console.log(`Task Twin - Port ${PORT}`);
 });
 
-const server = app.listen(PORT, () => console.log(`Task Twin - Port ${PORT}`));
-process.on('SIGTERM', () => server.close());
-export default app;
+export default server;
