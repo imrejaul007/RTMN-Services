@@ -1712,6 +1712,143 @@ app.get('/api/trust/risk-check', requireAuth, asyncHandler(async (req, res) => {
   res.json({ success: true, ...result });
 }));
 
+// Trust Dimension endpoints (multi-dimensional trust)
+const TRUST_DIMENSIONS_CONFIG = {
+  identity:    { weight: 0.15, sources: ['corpID'], description: 'Identity verification level' },
+  behavioral: { weight: 0.20, sources: ['corpID'], description: 'Login patterns, auth behavior' },
+  financial:  { weight: 0.20, sources: ['wallet', 'sutar'], description: 'Payment history, transaction trust' },
+  social:     { weight: 0.10, sources: ['twinOS', 'corpID'], description: 'Endorsements, relationship strength' },
+  business:   { weight: 0.15, sources: ['sutar', 'twinOS'], description: 'B2B reputation, contract compliance' },
+  agent:      { weight: 0.20, sources: ['agentOS', 'corpID'], description: 'Decision quality, delegation fulfillment' },
+};
+
+// GET /api/trust/score/:corpId/dimensions — get all trust dimensions
+app.get('/api/trust/score/:corpId/dimensions', asyncHandler(async (req, res) => {
+  const { corpId } = req.params;
+  const dimensions = [];
+
+  for (const [dim, config] of Object.entries(TRUST_DIMENSIONS_CONFIG)) {
+    const key = `${corpId}:${dim}`;
+    const td = await TrustDimension.findOne(key);
+    dimensions.push({
+      dimension: dim,
+      score: td?.score ?? 50,
+      level: td?.level ?? getTrustLevel(td?.score ?? 50),
+      weight: config.weight,
+      description: config.description,
+      sources: config.sources,
+      lastUpdated: td?.lastUpdated ?? null,
+    });
+  }
+
+  // Compute overall from weighted dimensions
+  const overallScore = dimensions.reduce((sum, d) => sum + d.score * d.weight, 0);
+
+  res.json({ success: true, corpId, dimensions, overallScore: Math.round(overallScore) });
+}));
+
+// GET /api/trust/score/:corpId/dimensions/:dim — get specific dimension
+app.get('/api/trust/score/:corpId/dimensions/:dim', asyncHandler(async (req, res) => {
+  const { corpId, dim } = req.params;
+  if (!TRUST_DIMENSIONS_CONFIG[dim]) throw new NotFoundError(`Unknown dimension: ${dim}`);
+
+  const key = `${corpId}:${dim}`;
+  const td = await TrustDimension.findOne(key);
+  const config = TRUST_DIMENSIONS_CONFIG[dim];
+
+  res.json({
+    success: true,
+    corpId,
+    dimension: dim,
+    score: td?.score ?? 50,
+    level: td?.level ?? getTrustLevel(td?.score ?? 50),
+    weight: config.weight,
+    description: config.description,
+    sources: config.sources,
+    signals: td?.signals ?? [],
+    history: td?.history ?? [],
+    lastUpdated: td?.lastUpdated ?? null,
+  });
+}));
+
+// PUT /api/trust/score/:corpId/dimensions/:dim — update dimension (internal services only)
+app.put('/api/trust/score/:corpId/dimensions/:dim', [
+  body('score').optional().isInt({ min: 0, max: 100 }),
+  body('signal').optional().isObject(),
+  body('signal.type').optional().isString(),
+  body('signal.value').optional().isInt(),
+  body('signal.source').optional().isString(),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { corpId, dim } = req.params;
+  if (!TRUST_DIMENSIONS_CONFIG[dim]) throw new NotFoundError(`Unknown dimension: ${dim}`);
+
+  const key = `${corpId}:${dim}`;
+  const existing = await TrustDimension.findOne(key) || { score: 50, signals: [], history: [] };
+  const body = sanitizeInput(req.body);
+  const now = new Date().toISOString();
+
+  const updates = { dimensionKey: key, corpId, dimension: dim, lastUpdated: now };
+
+  if (body.score !== undefined) {
+    updates.score = body.score;
+    updates.level = getTrustLevel(body.score);
+    updates.history = [...(existing.history || []), { score: body.score, at: now, reason: body.reason || 'manual_update' }];
+  }
+
+  if (body.signal) {
+    updates.signals = [...(existing.signals || []), { ...body.signal, at: now }];
+    // Auto-update score based on signals
+    if (body.signal.type && body.signal.value !== undefined) {
+      const signalDelta = body.signal.value;
+      updates.score = Math.max(0, Math.min(100, (existing.score ?? 50) + signalDelta));
+      updates.level = getTrustLevel(updates.score);
+    }
+  }
+
+  const updated = await TrustDimension.updateOne({ dimensionKey: key }, updates);
+
+  // Update overall TrustScore as well
+  await refreshOverallTrustScore(corpId);
+
+  logger.info({ corpId, dim, score: updates.score }, 'Trust dimension updated');
+  res.json({ success: true, dimension: updated });
+}));
+
+// POST /api/trust/score/:corpId/refresh — recompute overall score from dimensions
+app.post('/api/trust/score/:corpId/refresh', asyncHandler(async (req, res) => {
+  const { corpId } = req.params;
+  const refreshed = await refreshOverallTrustScore(corpId);
+  res.json({ success: true, ...refreshed });
+}));
+
+// Helper: recompute overall trust score from weighted dimensions
+async function refreshOverallTrustScore(corpId) {
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  for (const [dim, config] of Object.entries(TRUST_DIMENSIONS_CONFIG)) {
+    const key = `${corpId}:${dim}`;
+    const td = await TrustDimension.findOne(key);
+    const score = td?.score ?? 50;
+    weightedSum += score * config.weight;
+    totalWeight += config.weight;
+  }
+
+  const overallScore = Math.round(weightedSum / totalWeight);
+  const overallLevel = getTrustLevel(overallScore);
+
+  // Update the base TrustScore
+  const existing = await TrustScore.findOne(corpId);
+  if (existing) {
+    await TrustScore.updateOne({ corpId }, { score: overallScore, level: overallLevel, updatedAt: new Date().toISOString() });
+  } else {
+    await TrustScore.create({ corpId, score: overallScore, level: overallLevel, history: [] });
+  }
+
+  return { corpId, score: overallScore, level: overallLevel };
+}
+
 // ============ FEDERATION ROUTES ============
 
 app.get('/api/federation/providers', (_req, res) => {
