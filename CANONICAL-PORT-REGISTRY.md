@@ -606,9 +606,9 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 
 ---
 
-## 🟢 Phase 30: Foundation Models + Training (5 services, added 2026-06-27)
+## 🟢 Training Services (Phase 20/30/31, added 2026-06-27)
 
-5 services in `companies/HOJAI-AI/platform/training/`, all built and tested (74+ tests passing, 0 failures).
+Training services in `companies/HOJAI-AI/platform/training/` and `rlhf-pipeline/`, all built and tested (100+ tests passing, 0 failures).
 
 | Port | Service | Purpose | Tests |
 |---|---|---|---|
@@ -617,16 +617,19 @@ The deploy target for `npx hojai deploy --mode=remote`. When `HOJAI_CLOUD_URL` i
 | **5393** | `eval-judges` | LLM-as-judge evaluation | 5 |
 | **5394** | `eval-live` | Live production monitoring | 6 |
 | **5395** | `eval-shadow` | Shadow traffic evaluation | 4 |
+| **5396** | `eval-review` | Human review workflow | 6 |
+| **5397** | `eval-benchmarks` | Benchmark suite management | 8 |
+| **5398** | `eval-canary` | Canary deployment evaluation | 4 |
 
-**Also:**
-| Port | Service | Purpose | Tests |
-|---|---|---|---|
-| **phase 30** | `model-registry` | Model catalog (OpenAI, Anthropic, Google, Mistral) | 22 |
-| **phase 30** | `synthetic-data-generation` | Training data synthesis | 12 |
-| **phase 30** | `fine-tuning-pipeline` | Fine-tuning pipeline | 14 |
-| **phase 30** | `gpu-cluster-manager` | GPU cluster management | 13 |
-| **phase 30** | `federated-learning` | Federated learning | 13 |
-| **phase 20** | `rlhf-pipeline` | RLHF: preference datasets, reward model, PPO | 27 |
+**Non-port services (no HTTP server):**
+| Service | Path | Tests |
+|---|---|---|
+| `model-registry` | `platform/training/model-registry/` | 22 |
+| `synthetic-data-generation` | `platform/training/synthetic-data-generation/` | 12 |
+| `fine-tuning-pipeline` | `platform/training/fine-tuning-pipeline/` | 14 |
+| `gpu-cluster-manager` | `platform/training/gpu-cluster-manager/` | 13 |
+| `federated-learning` | `platform/training/federated-learning/` | 13 |
+| `rlhf-pipeline` | `platform/training/rlhf-pipeline/` | 27 |
 
 ---
 
