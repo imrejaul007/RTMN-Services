@@ -1,0 +1,8 @@
+{
+  "name": "@hojai/review-scrapers",
+  "version": "1.0.0",
+  "description": "Review Scrapers - monitor reviews across Google, social, app stores",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.18.2", "axios": "^1.6.0" }
+}
