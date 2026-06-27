@@ -1,0 +1,33 @@
+{
+  "name": "@hojai/widget-nexus",
+  "version": "1.0.0",
+  "description": "Nexus Connect — connects HOJAI SiteOS to the global agent economy. Syncs products to Nexus Discovery, routes agent queries via ACP protocol, integrates with DO App, tracks agent reputation, and creates contracts via SUTAR Contract OS.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["hojai", "nexus", "agent", "federation", "widget", "siteos"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/supertest": "^7.2.0",
+    "supertest": "^7.2.2",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

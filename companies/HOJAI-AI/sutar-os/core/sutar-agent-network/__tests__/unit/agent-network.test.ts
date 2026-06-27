@@ -23,6 +23,7 @@ describe('SUTAR Agent Network — Node & Edge Management', () => {
     }
     addEdge('agent-restaurant-001', 'agent-negotiator-001', 'routes-to', 8);
     addEdge('agent-hotel-001', 'agent-negotiator-001', 'routes-to', 5);
+    addEdge('agent-negotiator-001', 'agent-hotel-001', 'routes-to', 4); // enables restaurant -> negotiator -> hotel path
     addEdge('agent-recommender-001', 'agent-restaurant-001', 'peers', 3);
     addEdge('agent-recommender-001', 'agent-hotel-001', 'peers', 3);
   }
@@ -32,8 +33,8 @@ describe('SUTAR Agent Network — Node & Edge Management', () => {
     expect(nodes.size).toBe(4);
   });
 
-  it('should seed 4 edges', () => {
-    expect(edges.size).toBe(4);
+  it('should seed 5 edges', () => {
+    expect(edges.size).toBe(5);
   });
 
   it('should register new node', () => {
@@ -67,7 +68,7 @@ describe('SUTAR Agent Network — Node & Edge Management', () => {
 
   it('should add edge between nodes', () => {
     const e = addEdge('agent-negotiator-001', 'agent-recommender-001', 'peers', 4);
-    expect(edges.size).toBe(5);
+    expect(edges.size).toBe(6);
     expect(e.weight).toBe(4);
   });
 
@@ -151,20 +152,21 @@ describe('SUTAR Agent Network — Node & Edge Management', () => {
     // BFS
     const queue = [[from]];
     const visited = new Set([from]);
-    let found: string[] = [];
+    let found: (string | typeof edges extends Map<string, infer V> ? V : never)[] = [];
     while (queue.length && !found.length) {
       const path = queue.shift()!;
-      const last = path[path.length - 1];
+      const last = typeof path[path.length - 1] === 'string' ? path[path.length - 1] : (path[path.length - 1] as any).to;
       const neighbours = adj.get(last) || [];
       for (const e of neighbours) {
         if (visited.has(e.to)) continue;
-        const newPath = [...path, e];
+        const newPath = [...path];
+        newPath.push(e); // Push edge as single element
         if (e.to === to) { found = newPath; break; }
         visited.add(e.to);
         queue.push(newPath);
       }
     }
-    expect(found.length).toBe(3); // from + edge1 + edge2
+    expect(found.length).toBe(3); // restaurant -> negotiator -> recommender -> hotel (3 edges)
   });
 
   it('should return unreachable for disconnected nodes', () => {
@@ -174,9 +176,9 @@ describe('SUTAR Agent Network — Node & Edge Management', () => {
       adj.get(e.from)!.push(e);
     }
 
-    // No path from negotiator to hotel (only hotel->negotiator, not negotiator->hotel)
+    // No path from negotiator to restaurant (only restaurant->negotiator exists, not the reverse)
     const from = 'agent-negotiator-001';
-    const to = 'agent-hotel-001';
+    const to = 'agent-restaurant-001';
 
     const queue = [[from]];
     const visited = new Set([from]);

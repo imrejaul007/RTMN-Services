@@ -1,0 +1,20 @@
+{
+  "name": "@hojai/widget-intelligence-layer",
+  "version": "1.0.0",
+  "description": "HOJAI SiteOS Widget Intelligence Layer - Lead Scoring, Customer Twin, Automation, Analytics",
+  "private": true,
+  "workspaces": [
+    "widget-intelligence",
+    "widget-customer-twin",
+    "widget-automation",
+    "widget-analytics"
+  ],
+  "scripts": {
+    "install:all": "npm install --workspaces",
+    "start:all": "npm start --workspaces",
+    "test:all": "npm test --workspaces"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

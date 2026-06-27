@@ -557,3 +557,4 @@ installGracefulShutdown(server, async () => {
 });
 
 export default app;
+export { ALLOWED_CREATE_FIELDS, ALLOWED_UPDATE_FIELDS };

@@ -68,6 +68,25 @@ NEGOTIATION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/contracts/suta
 DECISION_ENGINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-decision-engine && PORT=4290 REDIS_URL=redis://localhost:6379 npm start"
 ECONOMY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/economy/sutar-economy-os && PORT=4294 REDIS_URL=redis://localhost:6379 npm start"
 
+# SUTAR OS — 17 additional services (Layer 14: Autonomous Layer)
+CONSTITUTIONAL_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/constitutional-os && PORT=4855 npm start"
+RUNTIME_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/runtime-os && PORT=4860 npm start"
+OBSERVATION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/observation-os && PORT=4861 npm start"
+SAFETY_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/safety-os && PORT=4862 npm start"
+CRISIS_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/crisis-os && PORT=4863 npm start"
+CHANGE_MGMT_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/change-mgmt-os && PORT=4864 npm start"
+INNOVATION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/innovation-os && PORT=4865 npm start"
+PHYSICAL_WORLD_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/physical-world-os && PORT=4867 npm start"
+DEVICE_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/device-os && PORT=4868 npm start"
+NEGOTIATION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/negotiation-os && PORT=4869 npm start"
+CULTURE_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/culture-os && PORT=4870 npm start"
+ORGANIZATION_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/organization-os && PORT=4871 npm start"
+CALENDAR_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/calendar-os && PORT=4875 npm start"
+CHAT_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/chat-os && PORT=4876 npm start"
+BRAND_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/brand-os && PORT=4879 npm start"
+PRESENCE_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/presence-os && PORT=4880 npm start"
+MEDIA_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/sutar-os/core/media-os && PORT=4881 npm start"
+
 # SADA Trust (Phase F.3, 2026-06-22) — Trust + Governance + Risk + Verification
 # Uses in-memory Mongo (mongodb-memory-server) when MONGODB_MEMORY=true,
 # otherwise expects a real MongoDB. Auth bypass for local dev.
@@ -465,7 +484,24 @@ status() {
     "blr-multi-agent-eval:4257" \
     "blr-reputation-agg:4258" \
     "blr-roi-calculator:4259" \
-    "blr-founder-os:4260"; do
+    "blr-founder-os:4260" \
+    "constitutional-os:4855" \
+    "runtime-os:4860" \
+    "observation-os:4861" \
+    "safety-os:4862" \
+    "crisis-os:4863" \
+    "change-mgmt-os:4864" \
+    "innovation-os:4865" \
+    "physical-world-os:4867" \
+    "device-os:4868" \
+    "negotiation-os:4869" \
+    "culture-os:4870" \
+    "organization-os:4871" \
+    "calendar-os:4875" \
+    "chat-os:4876" \
+    "brand-os:4879" \
+    "presence-os:4880" \
+    "media-os:4881"; do
     name="${entry%:*}"
     port="${entry#*:}"
     if lsof -i ":$port" >/dev/null 2>&1; then
@@ -497,6 +533,24 @@ start_all() {
   start_service "negotiation-engine"     "$NEGOTIATION_ENGINE_CMD"   4293
   start_service "decision-engine"          "$DECISION_ENGINE_CMD"     4290
   start_service "economy-os"               "$ECONOMY_OS_CMD"          4294
+  # SUTAR OS — Layer 14: Autonomous Layer (17 services)
+  start_service "constitutional-os"       "$CONSTITUTIONAL_OS_CMD"   4855
+  start_service "runtime-os"              "$RUNTIME_OS_CMD"          4860
+  start_service "observation-os"          "$OBSERVATION_OS_CMD"      4861
+  start_service "safety-os"               "$SAFETY_OS_CMD"          4862
+  start_service "crisis-os"              "$CRISIS_OS_CMD"          4863
+  start_service "change-mgmt-os"         "$CHANGE_MGMT_OS_CMD"     4864
+  start_service "innovation-os"          "$INNOVATION_OS_CMD"      4865
+  start_service "physical-world-os"      "$PHYSICAL_WORLD_OS_CMD"   4867
+  start_service "device-os"              "$DEVICE_OS_CMD"          4868
+  start_service "negotiation-os"         "$NEGOTIATION_OS_CMD"     4869
+  start_service "culture-os"             "$CULTURE_OS_CMD"         4870
+  start_service "organization-os"        "$ORGANIZATION_OS_CMD"     4871
+  start_service "calendar-os"            "$CALENDAR_OS_CMD"        4875
+  start_service "chat-os"                "$CHAT_OS_CMD"            4876
+  start_service "brand-os"               "$BRAND_OS_CMD"           4879
+  start_service "presence-os"            "$PRESENCE_OS_CMD"        4880
+  start_service "media-os"              "$MEDIA_OS_CMD"           4881
   # HOJAI AI — Core Foundation (CorpID, MemoryOS, TwinOS)
   start_service "corp-id"                 "$CORP_ID_CMD"             4702
   start_service "memory-os"               "$MEMORY_OS_CMD"           4703
@@ -688,6 +742,24 @@ stop_all() {
   stop_port 4293 "Negotiation Engine"
   stop_port 4290 "Decision Engine"
   stop_port 4294 "Economy OS"
+  # SUTAR OS — Layer 14: Autonomous Layer (17 services)
+  stop_port 4855 "constitutional-os"
+  stop_port 4860 "runtime-os"
+  stop_port 4861 "observation-os"
+  stop_port 4862 "safety-os"
+  stop_port 4863 "crisis-os"
+  stop_port 4864 "change-mgmt-os"
+  stop_port 4865 "innovation-os"
+  stop_port 4867 "physical-world-os"
+  stop_port 4868 "device-os"
+  stop_port 4869 "negotiation-os"
+  stop_port 4870 "culture-os"
+  stop_port 4871 "organization-os"
+  stop_port 4875 "calendar-os"
+  stop_port 4876 "chat-os"
+  stop_port 4879 "brand-os"
+  stop_port 4880 "presence-os"
+  stop_port 4881 "media-os"
   stop_port 4702 "CorpID"
   stop_port 4703 "MemoryOS"
   stop_port 4152 "Memory Confidence"

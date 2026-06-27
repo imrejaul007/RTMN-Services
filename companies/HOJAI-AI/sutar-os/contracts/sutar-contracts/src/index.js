@@ -371,3 +371,8 @@ const server = app.listen(PORT, () => {
   console.log(`${SERVICE_NAME} listening on :${PORT}`);
 });
 installGracefulShutdown(server);
+
+module.exports = app;
+module.exports.transition = transition;
+module.exports.TEMPLATES = TEMPLATES;
+module.exports.LIFECYCLE = LIFECYCLE;

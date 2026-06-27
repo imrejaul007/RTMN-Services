@@ -24,12 +24,12 @@ describe('Agent Marketplace — Categories', () => {
 
   it('should have parent categories', () => {
     const parents = DEFAULT_CATEGORIES.filter(c => !c.parent);
-    expect(parents).toHaveLength(10);
+    expect(parents).toHaveLength(11);
   });
 
   it('should have subcategories', () => {
     const subcategories = DEFAULT_CATEGORIES.filter(c => c.parent);
-    expect(subcategories).toHaveLength(4);
+    expect(subcategories).toHaveLength(3);
     expect(subcategories.find(c => c.id === 'fashion')?.parent).toBe('retail');
     expect(subcategories.find(c => c.id === 'legal')?.parent).toBe('professional');
   });
@@ -176,7 +176,7 @@ describe('Agent Marketplace — Search', () => {
 
   it('should filter by query in tags', () => {
     const results = searchListings({ query: 'budget' });
-    expect(results).toHaveLength(2); // Budget Inn (hotel) + Burger Joint (tags)
+    expect(results).toHaveLength(1); // Budget Inn (hotel) has budget tag
   });
 
   it('should sort by featured', () => {

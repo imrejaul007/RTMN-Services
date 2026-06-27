@@ -1,0 +1,31 @@
+{
+  "name": "@hojai/widget-kb",
+  "version": "1.0.0",
+  "description": "HOJAI SiteOS Knowledge Base Widget - RAG-powered FAQ and document search",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "node-fetch": "^3.3.2",
+    "cheerio": "^1.0.0-rc.18"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

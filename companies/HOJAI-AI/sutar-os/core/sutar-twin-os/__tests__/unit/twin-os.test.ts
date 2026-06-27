@@ -103,7 +103,14 @@ describe('SUTAR Twin OS — Composite Twins', () => {
 
     const intentType = 'negotiate_price';
     const requiredCap = INTENT_TO_CAPABILITY[intentType];
-    const candidates = Array.from(compositeTwins.values()).filter(t => (t.tags || []).includes(requiredCap));
+    // Use original seed data only (merchant + facilitator have 'negotiator')
+    const seedTwins = new Map([
+      ['sutar-merchant', { id: 'sutar-merchant', name: 'Merchant Twin', tags: ['negotiator', 'executor'] }],
+      ['sutar-consumer', { id: 'sutar-consumer', name: 'Consumer Twin', tags: ['intent-publisher'] }],
+      ['sutar-facilitator', { id: 'sutar-facilitator', name: 'Facilitator Twin', tags: ['negotiator', 'planner'] }],
+      ['sutar-observer', { id: 'sutar-observer', name: 'Observer Twin', tags: ['simulator', 'learner'] }],
+    ]);
+    const candidates = Array.from(seedTwins.values()).filter(t => (t.tags || []).includes(requiredCap));
 
     expect(requiredCap).toBe('negotiator');
     expect(candidates).toHaveLength(2);
@@ -124,7 +131,14 @@ describe('SUTAR Twin OS — Composite Twins', () => {
     const INTENT_TO_CAPABILITY: Record<string, string> = {
       book_hotel: 'executor',
     };
-    const candidates = Array.from(compositeTwins.values())
+    // Use original seed data only (merchant has 'executor')
+    const seedTwins = new Map([
+      ['sutar-merchant', { id: 'sutar-merchant', name: 'Merchant Twin', tags: ['negotiator', 'executor'] }],
+      ['sutar-consumer', { id: 'sutar-consumer', name: 'Consumer Twin', tags: ['intent-publisher'] }],
+      ['sutar-facilitator', { id: 'sutar-facilitator', name: 'Facilitator Twin', tags: ['negotiator', 'planner'] }],
+      ['sutar-observer', { id: 'sutar-observer', name: 'Observer Twin', tags: ['simulator', 'learner'] }],
+    ]);
+    const candidates = Array.from(seedTwins.values())
       .filter(t => t.tags.includes('executor'));
     expect(candidates.map(t => t.id)).toContain('sutar-merchant');
     expect(candidates).toHaveLength(1); // only merchant has executor

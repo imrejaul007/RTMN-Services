@@ -1222,3 +1222,12 @@ const server = app.listen(PORT, () => {
 installGracefulShutdown(server);
 
 module.exports = app;
+module.exports.INDUSTRIES = INDUSTRIES;
+module.exports.INDUSTRY_TEMPLATES = INDUSTRY_TEMPLATES;
+module.exports.createMerchantAI = createMerchantAI;
+module.exports.handleQuery = handleQuery;
+module.exports.generateQuote = generateQuote;
+module.exports.handleCounterOffer = handleCounterOffer;
+module.exports.processOrder = processOrder;
+module.exports.findMatchingProduct = findMatchingProduct;
+module.exports.trackOrder = trackOrder;

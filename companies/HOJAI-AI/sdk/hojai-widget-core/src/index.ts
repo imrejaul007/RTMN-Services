@@ -7,12 +7,15 @@
 
 import { getStrings, applyI18n, type UiStrings } from './i18n.js';
 import { createVoiceInput, isVoiceSupported, mapLanguageToSpeech, type VoiceInput } from './voice.js';
+import { createTTS, findBestVoice, type TTSInstance, type TTSOptions } from './tts.js';
 
 // Re-export for consumers
 export { getStrings, applyI18n, LANGUAGES } from './i18n.js';
 export type { UiStrings, LanguageCode } from './i18n.js';
 export { createVoiceInput, isVoiceSupported, mapLanguageToSpeech } from './voice.js';
 export type { VoiceInput, VoiceInputOptions, VoiceInputCallbacks } from './voice.js';
+export { createTTS, findBestVoice } from './tts.js';
+export type { TTSInstance, TTSOptions } from './tts.js';
 
 export type WidgetEvent =
   | 'open'
@@ -30,7 +33,13 @@ export interface WidgetTheme {
   position?: 'bottom-right' | 'bottom-left' | 'inline';
   language?: string;
   greeting?: string;
-  voice?: { enabled?: boolean };
+  voice?: {
+    enabled?: boolean;
+    autoSpeak?: boolean;  // Auto-speak AI responses
+    rate?: number;        // Speech rate (0.1 - 10)
+    pitch?: number;        // Speech pitch (0 - 2)
+    volume?: number;      // Speech volume (0 - 1)
+  };
 }
 
 export interface WidgetUser {
@@ -183,6 +192,9 @@ export class HojaiWidget {
   private strings: UiStrings;
   private voiceInput?: VoiceInput;
   private voiceListening = false;
+  private tts?: TTSInstance;
+  private ttsEnabled = false;
+  private autoSpeakEnabled = false;
 
   constructor(cfg: HojaiWidgetConfig) {
     if (!cfg.apiKey) throw new Error('HojaiWidget: apiKey is required');
@@ -206,8 +218,17 @@ export class HojaiWidget {
       greeting:
         cfg.config?.greeting ||
         `Hi! I'm ${cfg.config?.name || 'HOJAI Assistant'}. How can I help you today?`,
-      voice: { enabled: !!cfg.config?.voice?.enabled }
+      voice: {
+        enabled: !!cfg.config?.voice?.enabled,
+        autoSpeak: !!cfg.config?.voice?.autoSpeak,
+        rate: cfg.config?.voice?.rate ?? 1.0,
+        pitch: cfg.config?.voice?.pitch ?? 1.0,
+        volume: cfg.config?.voice?.volume ?? 1.0,
+      }
     };
+
+    this.ttsEnabled = !!this.config.voice.enabled;
+    this.autoSpeakEnabled = !!this.config.voice.autoSpeak;
 
     this.strings = getStrings(this.config.language);
   }
@@ -254,9 +275,57 @@ export class HojaiWidget {
 
     this.rootEl = root;
     this._applyI18n();
+    this._initTTS();
     this._wireVoice();
     this._wireEvents();
     this._log('rendered');
+  }
+
+  /**
+   * Initialize Text-to-Speech.
+   */
+  private _initTTS(): void {
+    if (!this.ttsEnabled) return;
+    this.tts = createTTS({
+      lang: mapLanguageToSpeech(this.config.language),
+      rate: this.config.voice.rate,
+      pitch: this.config.voice.pitch,
+      volume: this.config.voice.volume,
+    });
+  }
+
+  /**
+   * Speak text using TTS. Uses auto-selected voice.
+   */
+  speak(text: string, options?: TTSOptions): void {
+    if (!this.tts) return;
+    const voice = findBestVoice(mapLanguageToSpeech(this.config.language));
+    this.tts.speak(text, {
+      ...options,
+      lang: options?.lang || mapLanguageToSpeech(this.config.language),
+      voice: voice?.name,
+    });
+  }
+
+  /**
+   * Stop any ongoing TTS speech.
+   */
+  stopSpeaking(): void {
+    this.tts?.stop();
+  }
+
+  /**
+   * Enable or disable auto-speak for AI responses.
+   */
+  setAutoSpeak(enabled: boolean): void {
+    this.autoSpeakEnabled = enabled;
+  }
+
+  /**
+   * Check if auto-speak is enabled.
+   */
+  isAutoSpeakEnabled(): boolean {
+    return this.autoSpeakEnabled;
   }
 
   /**
@@ -356,6 +425,9 @@ export class HojaiWidget {
   }
 
   destroy(): void {
+    // Stop any ongoing TTS
+    this.tts?.stop();
+    // Remove DOM
     if (this.rootEl) {
       this.rootEl.remove();
       this.rootEl = undefined;
@@ -455,6 +527,12 @@ export class HojaiWidget {
       this._appendMessage(assistantMsg);
       this._renderMessage(assistantMsg);
       this._emit('response', assistantMsg);
+
+      // Auto-speak AI response if enabled
+      if (this.autoSpeakEnabled && assistantMsg.content) {
+        this.speak(assistantMsg.content);
+      }
+
       return assistantMsg;
     } catch (err: any) {
       this._showTyping(false);

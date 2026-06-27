@@ -210,7 +210,8 @@ describe('Negotiation AI Service', () => {
   describe('predictFinalPrice', () => {
     it('should return target price when no offers', () => {
       const result = predictFinalPrice([], 100);
-      expect(result.predictedPrice).toBe(100);
+      // When no offers, returns the targetPrice directly
+      expect(result).toBe(100);
     });
 
     it('should predict based on convergence pattern', () => {

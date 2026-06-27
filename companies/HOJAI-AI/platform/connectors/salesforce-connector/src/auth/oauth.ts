@@ -5,7 +5,7 @@
 
 import axios, { AxiosError } from 'axios';
 import * as crypto from 'crypto';
-import * as queryString from 'query-string';
+import queryString from 'query-string';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   SalesforceAuthToken,

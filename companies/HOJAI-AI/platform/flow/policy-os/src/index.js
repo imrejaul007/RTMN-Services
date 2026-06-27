@@ -64,6 +64,12 @@ import { registerNLAuthoringRoutes } from './routes/nl-authoring.js';
 import { registerNLExplanationRoutes } from './routes/nl-explanation.js';
 import { registerReBACRoutes } from './routes/rebac.js';
 import { registerAIGovernanceRoutes } from './routes/ai-governance.js';
+import { registerAgentTrustRoutes } from './routes/agent-trust.js';
+import { registerMemoryGovernanceRoutes } from './routes/memory-governance.js';
+import { registerTwinGovernanceRoutes } from './routes/twin-governance.js';
+import { registerConstitutionalAIRoutes } from './routes/constitutional-ai.js';
+import { registerLifecycleAutomationRoutes } from './routes/lifecycle-automation.js';
+import { registerDeveloperExperienceRoutes } from './routes/developer-experience.js';
 import { validatePolicyBody, CATEGORIES, POLICY_STATUSES } from './lib/validation.js';
 import { prototypePollutionMiddleware, sanitizePolicyId, sanitizeExpression, sanitizeName, validateWebhookUrl } from './lib/sanitization.js';
 import {
@@ -501,6 +507,18 @@ registerNLExplanationRoutes(app, { auditLog, customAuth });
 registerReBACRoutes(app, { auditLog, customAuth });
 // Phase 4: AI Governance — Model registry, output validation, constitutions
 registerAIGovernanceRoutes(app, { auditLog, customAuth });
+// Phase 5: Agent Trust — Identity registry, multi-dimensional scoring
+registerAgentTrustRoutes(app, { auditLog, customAuth });
+// Phase 6: Memory Governance — Access policies, retention, PII detection
+registerMemoryGovernanceRoutes(app, { auditLog, customAuth });
+// Phase 7: Twin Governance — TwinOS bridge, version governance, cross-twin
+registerTwinGovernanceRoutes(app, { auditLog, customAuth });
+// Phase 8: Constitutional AI — Documents, review, harm categorization
+registerConstitutionalAIRoutes(app, { auditLog, customAuth });
+// Phase 9: Lifecycle Automation — Automation engine, approval queue
+registerLifecycleAutomationRoutes(app, { auditLog, customAuth });
+// Phase 10: Developer Experience — OpenAPI, SDKs, sandbox, compliance reports
+registerDeveloperExperienceRoutes(app, { auditLog, customAuth });
 
 // =================================================================
 // Error handlers

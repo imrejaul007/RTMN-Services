@@ -535,3 +535,9 @@ const server = app.listen(PORT, () => {
 installGracefulShutdown(server);
 
 module.exports = app;
+module.exports.STRATEGY_TYPES = STRATEGY_TYPES;
+module.exports.calculateOptimalCounter = calculateOptimalCounter;
+module.exports.shouldAcceptOrContinue = shouldAcceptOrContinue;
+module.exports.predictFinalPrice = predictFinalPrice;
+module.exports.generatePersona = generatePersona;
+module.exports.analyzeOutcome = analyzeOutcome;
