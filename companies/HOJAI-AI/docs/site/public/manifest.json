@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-27T17:02:21.584Z",
-  "sdkCount": 25,
+  "generatedAt": "2026-06-28T21:50:19.185Z",
+  "sdkCount": 26,
   "sdks": [
     {
       "name": "@hojai/foundation",
@@ -85,6 +85,13 @@
       "version": "1.0.0",
       "methods": 9,
       "docsUrl": "/sdks/industry.html"
+    },
+    {
+      "name": "@hojai/intelligence-sdk",
+      "description": "Unified SDK for HOJAI Intelligence services",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/intelligence-sdk.html"
     },
     {
       "name": "@hojai/marketplace",
