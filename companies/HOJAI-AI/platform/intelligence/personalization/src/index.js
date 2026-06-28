@@ -1,6 +1,5 @@
 // Personalization OS - User preference learning, recommendations, segments. Port 4893
 import express from 'express';
-import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { readJson, writeJson } from './store.js';
 
@@ -18,7 +17,7 @@ app.get('/api/profiles', (req, res) => {
   res.json({ profiles, count: profiles.length });
 });
 
-app.post('/api/profiles',requireAuth,  (req, res) => {
+app.post('/api/profiles', (req, res) => {
   const { userId, name, preferences = {}, traits = {} } = req.body;
   if (!userId) return res.status(400).json({ error: 'userId required' });
   const profiles = readJson('profiles.json') || [];
@@ -29,7 +28,7 @@ app.post('/api/profiles',requireAuth,  (req, res) => {
   res.status(201).json(profile);
 });
 
-app.put('/api/profiles/:userId',requireAuth,  (req, res) => {
+app.put('/api/profiles/:userId', (req, res) => {
   const profiles = readJson('profiles.json') || [];
   const idx = profiles.findIndex(p => p.userId === req.params.userId);
   if (idx < 0) return res.status(404).json({ error: 'Profile not found' });
@@ -43,7 +42,7 @@ app.put('/api/profiles/:userId',requireAuth,  (req, res) => {
 });
 
 // Preference Tracking
-app.post('/api/preferences/:userId/track',requireAuth,  (req, res) => {
+app.post('/api/preferences/:userId/track', (req, res) => {
   const { action, itemId, itemType, value, context = {} } = req.body;
   if (!action || !itemId) return res.status(400).json({ error: 'action and itemId required' });
   const profiles = readJson('profiles.json') || [];
