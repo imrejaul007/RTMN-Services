@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": "20a17ae8-6b07-4237-a9dd-346bc288b306",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-28T22:31:34.074Z"
+  },
+  {
+    "id": "9cc5c7d0-ae3a-4bac-8365-6edb7045ac37",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-28T22:31:34.078Z"
+  },
+  {
+    "id": "6b14b3c6-3f1e-4bd9-9345-034bcdc903af",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-28T22:31:34.079Z"
+  },
+  {
+    "id": "3c1ffc2c-ee64-40ed-a2b8-85c06e0d1edf",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-28T22:31:34.080Z"
+  }
+]
