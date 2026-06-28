@@ -3748,6 +3748,43 @@ app.get('/api/relationships/types', requireAuth, asyncHandler(async (req, res) =
   res.json({ success: true, nodeTypes: REL_NODE_TYPES, edgeTypes: REL_EDGE_TYPES });
 }));
 
+// GET /api/entity-types — List all supported entity types (P0 Entity Extension)
+app.get('/api/entity-types', (req, res) => {
+  res.json({
+    success: true,
+    entityTypes: Object.entries(ENTITY_TYPE_PREFIXES).map(([key, prefix]) => ({
+      key,
+      prefix,
+      description: getEntityTypeDescription(key),
+    })),
+  });
+});
+
+function getEntityTypeDescription(type) {
+  const descriptions = {
+    IND: 'Individual/Human user',
+    BIZ: 'Business/Company',
+    AGT: 'AI Agent',
+    WRK: 'Workload/Service',
+    DEV: 'Device (IoT, mobile, etc.)',
+    API: 'API/Application',
+    TWN: 'Digital Twin',
+    AST: 'Asset (physical/digital)',
+    ORG: 'Organization (detailed)',
+    DEP: 'Department',
+    TEAM: 'Team',
+    PROD: 'Product/SKU',
+    CONTRACT: 'Contract/Agreement',
+    POLICY: 'Business Policy',
+    CERT: 'Certificate/Credential',
+    KPI: 'KPI/Metric',
+    EVT: 'Business Event',
+    LOC: 'Location',
+    REL: 'Relationship',
+  };
+  return descriptions[type] || 'Unknown entity type';
+}
+
 // POST /api/relationships/nodes — create or get node
 app.post('/api/relationships/nodes', requireAuth, asyncHandler(async (req, res) => {
   const { entityType, entityId, properties = {} } = sanitizeInput(req.body);
