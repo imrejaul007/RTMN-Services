@@ -188,10 +188,23 @@ All 23 Genie services have unique, non-overlapping port assignments. The histori
 | 4920 | agent-copilot | `services/agent-copilot/` |
 | 4954 | journey-intelligence | `services/journey-intelligence/` |
 | 5175 | lead-os-gateway | `services/lead-os-gateway/` |
-| 5321 | buyer-twin | `companies/HOJAI-AI/platform/twins/buyer-twin/` (was 3000, fixed 2026-06-24) |
-| 5322 | deal-twin | `companies/HOJAI-AI/platform/twins/deal-twin/` (was 3000, fixed 2026-06-24) |
-| 5323 | property-twin | `companies/HOJAI-AI/platform/twins/property-twin/` (was 3000, fixed 2026-06-24) |
-| 5324 | agent-twin | `companies/HOJAI-AI/sutar-os/agents/agent-twin/` (was 3000, fixed 2026-06-24) |
+| 5321 | buyer-twin | `companies/HOJAI-AI/platform/twins/buyer-twin/` |
+| 5322 | deal-twin | `companies/HOJAI-AI/platform/twins/deal-twin/` |
+| 5323 | property-twin | `companies/HOJAI-AI/platform/twins/property-twin/` |
+| 5324 | agent-twin | `companies/HOJAI-AI/sutar-os/agents/agent-twin/` |
+
+### 🆕 Living Autonomous Twins (June 28, 2026)
+
+| Port | Service | Path | Tests |
+|------|---------|------|-------|
+| **4715** | **twin-intelligence-orchestrator** | `platform/twins/twin-intelligence-orchestrator/` | 20 ✅ |
+| **4718** | **twin-behavior-model** | `platform/twins/twin-behavior-model/` | 20 ✅ |
+| **4724** | **twin-working-memory** | `platform/memory/twin-working-memory/` | 7 ✅ |
+| **4725** | **memory-procedural** | `platform/memory/memory-procedural/` | 8 ✅ |
+| 4735 | twin-learning-os | `platform/twins/twin-learning-os/` | - |
+| 4736 | twin-feedback-os | `platform/twins/twin-feedback-os/` | - |
+| 4737 | twin-execution-os | `platform/twins/twin-execution-os/` | - |
+| 4739 | employee-twin-facade | `platform/twins/employee-twin-facade/` | - |
 
 ### ⚠️ TwinOS Port Collisions
 - **order-twin (4885)** vs **customer-intelligence (4885)** — move order-twin → 4900
