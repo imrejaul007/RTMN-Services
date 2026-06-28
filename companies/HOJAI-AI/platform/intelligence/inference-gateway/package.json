@@ -1,11 +1,14 @@
 {
   "name": "rtmn-inference-gateway",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "HOJAI Inference Gateway — multi-model LLM router (OpenAI, Anthropic, Google, Mistral, local) with cost + latency optimization, real SDK adapters, circuit breaker, secrets-manager integration, and SSE streaming.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node --test tests/unit/"
+    "build": "tsc",
+    "dev": "tsc --watch & node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
@@ -17,5 +20,12 @@
     "jsonwebtoken": "^9.0.3",
     "openai": "^4.104.0",
     "uuid": "^9.0.0"
-  }
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "nock": "^13.5.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  },
+  "type": "commonjs"
 }
