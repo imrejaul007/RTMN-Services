@@ -1,0 +1,8 @@
+{
+  "name": "@hojai/workflow-visual-builder",
+  "version": "1.0.0",
+  "description": "Visual workflow builder - pre-built templates, FlowOS integration",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.18.2", "axios": "^1.6.0" }
+}

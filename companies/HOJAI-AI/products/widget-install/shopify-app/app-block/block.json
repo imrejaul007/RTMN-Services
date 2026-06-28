@@ -1,0 +1,31 @@
+{
+  "name": "HOJAI Widget",
+  "handle": "hojai-widget",
+  "description": "Add HOJAI AI assistant to your store",
+  "author": "HOJAI",
+  "version": "1.0.0",
+  "license": "MIT",
+  "icon": "https://cdn.hojai.ai/icon.svg",
+  "settings": [
+    {
+      "name": "api_key",
+      "type": "string",
+      "label": "API Key",
+      "description": "Your HOJAI API key"
+    },
+    {
+      "name": "position",
+      "type": "select",
+      "label": "Position",
+      "options": [
+        { "value": "bottom-right", "label": "Bottom Right" },
+        { "value": "bottom-left", "label": "Bottom Left" }
+      ]
+    },
+    {
+      "name": "color",
+      "type": "color",
+      "label": "Primary Color"
+    }
+  ]
+}

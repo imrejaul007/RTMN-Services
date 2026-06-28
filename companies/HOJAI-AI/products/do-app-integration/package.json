@@ -1,0 +1,8 @@
+{
+  "name": "@hojai/do-app-integration",
+  "version": "1.0.0",
+  "description": "DO App Integration - catalog sync, order routing, commission",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.18.2", "axios": "^1.6.0" }
+}

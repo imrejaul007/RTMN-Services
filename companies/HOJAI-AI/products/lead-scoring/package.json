@@ -1,0 +1,8 @@
+{
+  "name": "@hojai/lead-scoring",
+  "version": "1.0.0",
+  "description": "Lead scoring engine - weighted signals, velocity, recency",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.18.2", "axios": "^1.6.0" }
+}
