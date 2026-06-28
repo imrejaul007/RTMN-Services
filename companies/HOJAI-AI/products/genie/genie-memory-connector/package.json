@@ -1,0 +1,24 @@
+{
+  "name": "@hojai/genie-memory-connector",
+  "version": "1.0.0",
+  "description": "Genie + MemoryOS Integration - Connect Genie AI to HOJAI MemoryOS",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test __tests__/**/*.test.js"
+  },
+  "keywords": ["genie", "memory", "ai", "hojai"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -223,6 +223,15 @@ const REL_NODE_TYPES = {
   USER: 'user', ORGANIZATION: 'organization', DEPARTMENT: 'department', TEAM: 'team',
   CONSUMER: 'consumer', MERCHANT: 'merchant', BRANCH: 'branch', AGENT: 'agent',
   DEVICE: 'device', API_KEY: 'api_key', TWIN: 'twin', EMPLOYEE: 'employee',
+  // Extended entity types (P0 Entity Extension)
+  ASSET: 'asset',           // CI-AST- Physical/digital assets
+  PRODUCT: 'product',       // CI-PROD- Products/SKUs
+  CONTRACT: 'contract',     // CI-CONTRACT- Legal agreements
+  POLICY: 'policy',         // CI-POLICY- Business policies
+  CERTIFICATE: 'certificate', // CI-CERT- Credentials/certs
+  KPI: 'kpi',               // CI-KPI- Metrics/KPIs
+  EVENT: 'event',           // CI-EVT- Business events
+  LOCATION: 'location',     // CI-LOC- Physical/logical locations
 };
 const REL_EDGE_TYPES = {
   OWNS: 'owns', MEMBER_OF: 'member_of', MANAGES: 'manages', REPORTS_TO: 'reports_to',
