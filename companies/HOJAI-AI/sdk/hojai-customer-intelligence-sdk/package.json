@@ -1,0 +1,58 @@
+{
+  "name": "@hojai/customer-intelligence-sdk",
+  "version": "1.0.0",
+  "description": "Unified SDK for HOJAI Customer Intelligence - Trust scores, COD recommendations, return risk, support intelligence, and more",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./gateway": {
+      "import": "./dist/gateway.mjs",
+      "require": "./dist/gateway.js",
+      "types": "./dist/gateway.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/",
+    "publish": "npm publish --access public"
+  },
+  "keywords": [
+    "hojai",
+    "customer-intelligence",
+    "sdk",
+    "trust-score",
+    "cod",
+    "fraud-detection",
+    "customer-support",
+    "d2c"
+  ],
+  "author": "HOJAI AI",
+  "license": "PROPRIETARY",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}
