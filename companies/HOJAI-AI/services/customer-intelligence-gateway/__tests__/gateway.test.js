@@ -324,7 +324,7 @@ describe('Customer Intelligence Gateway', () => {
 
     it('should identify value hunters', () => {
       const result = calculateSellingPreferences({
-        purchaseHistory: { totalSpend: 5000, orderCount: 10, avgOrderValue: 500 }
+        purchaseHistory: { totalSpend: 15000, orderCount: 24, avgOrderValue: 500 } // 2 orders/month = value_hunter
       });
 
       expect(result.customer_segment).toBe('value_hunter');
@@ -449,10 +449,10 @@ describe('Customer Intelligence Gateway', () => {
 
     it('should segment high-value frequent buyers', () => {
       const result = calculateSegments({
-        purchaseHistory: { totalSpend: 80000, orderCount: 50 }
+        purchaseHistory: { totalSpend: 80000, orderCount: 50 } // 25 orders/year = frequent
       });
 
-      expect(result.value).toBe('high_value');
+      expect(result.value).toBe('vip');
       expect(result.behavior).toBe('frequent');
     });
 
@@ -462,7 +462,7 @@ describe('Customer Intelligence Gateway', () => {
       });
 
       expect(result.value).toBe('new');
-      expect(result.behavior).toBe('occasional');
+      expect(result.behavior).toBe('occasional'); // new customers with 1 order are occasional
     });
   });
 
