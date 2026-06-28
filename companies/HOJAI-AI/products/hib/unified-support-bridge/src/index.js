@@ -57,14 +57,24 @@ const CORPID_URL = process.env.CORPID_URL || 'http://localhost:4702';
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(morgan('combined'));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
 
-// Capture raw body for signature verification
+// Capture raw body BEFORE any parsing — needed for WhatsApp webhook signature verification.
+// The webhook provider sends HMAC-signed raw bytes; we need them before JSON parsing.
 app.use((req, res, next) => {
-  req.rawBody = '';
-  req.on('data', (chunk) => { req.rawBody += chunk.toString(); });
-  next();
+  const chunks = [];
+  req.on('data', (chunk) => chunks.push(chunk));
+  req.on('end', () => {
+    req.rawBody = Buffer.concat(chunks).toString('utf8');
+    // Re-parse based on content type
+    const ct = req.headers['content-type'] || '';
+    if (ct.includes('application/json') && req.rawBody) {
+      try { req.body = JSON.parse(req.rawBody); } catch { req.body = {}; }
+    } else if (ct.includes('application/x-www-form-urlencoded')) {
+      const params = new URLSearchParams(req.rawBody);
+      req.body = Object.fromEntries(params);
+    }
+    next();
+  });
 });
 
 // ─── Storage (Redis/MongoDB/in-memory) ──────────────────────
@@ -354,12 +364,7 @@ app.get('/health', async (_req, res) => {
 
 // ── WhatsApp Webhook ──────────────────────────────────
 app.all('/api/webhooks/whatsapp', async (req, res) => {
-  req.rawBody = '';
-  await new Promise((resolve) => {
-    req.on('data', (c) => { req.rawBody += c.toString(); });
-    req.on('end', resolve);
-  });
-
+  // rawBody is captured by middleware
   await whatsappWebhook.handleRequest(req, res);
 });
 
