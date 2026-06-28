@@ -2095,3 +2095,105 @@ The ecosystem architecture is now structurally cleaner. Future work should focus
 1. Deduplication at destination homes (see DEDUP-CANDIDATES.md)
 2. Filling in or pruning scaffold-only services
 3. Port consolidation into destination-company port ranges (long-term)
+
+---
+
+## 🎯 DEEP PRODUCT AUDIT - STANDALONE SELLABLE PRODUCTS (v2.0, June 27, 2026)
+
+### Audit Framework
+
+For every Industry OS, the question is:
+> **What can you sell independently tomorrow without building an entirely new company?**
+
+```
+Industry OS Architecture
+├── Core Operating System (the foundation)
+├── Standalone SaaS Products (sell separately)
+├── AI Workers (add-on or subscription)
+├── Consumer Apps (B2C revenue)
+├── Network/Marketplace Layer (B2B2C)
+└── Intelligence Products (analytics + insights)
+```
+
+**Formula:** 24 industries × 12 products = **288 revenue surfaces**
+
+### Canonical Expansion Model
+
+For EVERY Industry:
+| Layer | Count | Purpose |
+|-------|-------|---------|
+| 1 Core Industry OS | 1 | Foundation (some clones need real build) |
+| 5 Standalone SaaS Products | 5 | Independent sellable products |
+| 3 AI Workers | 3 | Subscription add-ons |
+| 2 Consumer Apps | 2 | B2C revenue |
+| 1 Marketplace | 1 | B2B2C commission |
+| 1 Intelligence Platform | 1 | Analytics + insights |
+
+### The Real Moat
+
+> **Not the count of 827 services. ONE shared intelligence stack creating hundreds of natural extensions.**
+
+Shared infrastructure powering ALL verticals:
+- CorpID → MemoryOS → TwinOS → SUTAR → Nexha → RABTUL
+- AgentOS → Voice Gateway → Genie OS
+- All Industry OS reuse this same stack
+
+### Standalone Products Inventory
+
+| Category | Built | Missing | Total |
+|----------|-------|---------|-------|
+| Cross-Industry Platforms | 9 | 6 | 15 |
+| Restaurant Ecosystem | 4 | 3 | 7 |
+| Hospitality Ecosystem | 6 | 4 | 10 |
+| Healthcare Ecosystem | 5 | 6 | 11 |
+| Retail Ecosystem | 4 | 5 | 9 |
+| Real Estate Ecosystem | 5 | 4 | 9 |
+| Education Ecosystem | 0 | 8 | 8 |
+| Legal Ecosystem | 0 | 6 | 6 |
+| Construction Ecosystem | 0 | 6 | 6 |
+| Agriculture Ecosystem | 0 | 7 | 7 |
+| Fitness Ecosystem | 0 | 6 | 6 |
+| Other Industries | 0 | 30 | 30 |
+| **TOTAL** | **33** | **91** | **124** |
+
+### Priority Cross-Industry Products (P0)
+
+| # | Product | Why | Effort |
+|---|---------|-----|--------|
+| 1 | **AI Copilot Suite** | One assistant across ALL products | 6 months |
+| 2 | **Subscription Billing Engine** | Every SaaS needs this | 4 months |
+| 3 | **WhatsApp Business OS** | Distribution in India/GCC | 4 months |
+| 4 | **Product Analytics Platform** | Every SaaS needs this | 3 months |
+| 5 | **MarketplaceOS** | Reusable across industries | 6 months |
+
+### Products to Remove from Priority List
+
+These are **NOT standalone products**—they're features inside larger products:
+
+| Product | Belongs In |
+|---------|-----------|
+| Logo Generator AI | **Founder OS / Copilot Suite** |
+| Translator AI | **Copilot Suite** |
+| Content Writer AI | **Copilot Suite** |
+| SEO Auditor AI | **Marketing OS** |
+| Business Plan Generator | **Founder OS** |
+| Pitch Deck Builder | **Founder OS** |
+
+### Key Documents
+
+| Document | What it covers |
+|----------|----------------|
+| [RTMN Deep Product Audit](docs/RTMN-DEEP-PRODUCT-AUDIT.md) | Complete standalone products inventory |
+| [RTMN Product Catalog](docs/RTMN-PRODUCT-CATALOG.md) | All 827 services/products |
+
+### Honest Scorecard (v2.0)
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Vision | 10/10 | One of the broadest AI-native ecosystem visions |
+| Architecture | 9/10 | Strong layering: CorpID → Memory → Twin → SUTAR → Nexha |
+| Reusability | 10/10 | Shared infrastructure across ALL domains |
+| Product Clarity | 5/10 | Products, services, features, agents are mixed |
+| Standalone Products | 3/10 | Only ~33 have clear standalone sellability |
+| GTM Focus | 4/10 | Too many things dilute execution |
+| Expansion Potential | 10/10 | Massive white space (288 revenue surfaces) |
