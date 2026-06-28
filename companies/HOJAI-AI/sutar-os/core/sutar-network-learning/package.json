@@ -1,0 +1,19 @@
+{
+  "name": "@sutar/sutar-network-learning",
+  "version": "1.0.0",
+  "description": "SUTAR OS — Learning from Agent Network Outcomes",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0",
+    "@rtmn/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}
