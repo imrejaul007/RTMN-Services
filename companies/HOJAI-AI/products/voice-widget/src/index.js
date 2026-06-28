@@ -1,4 +1,5 @@
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const app = express();
@@ -22,7 +23,7 @@ app.get('/ready', (req, res) => {
 });
 
 // POST /api/voice/synthesize - Convert text to speech
-app.post('/api/voice/synthesize', async (req, res) => {
+app.post('/api/voice/synthesize',requireAuth,  async (req, res) => {
   try {
     const { text, voice, language, speed, format } = req.body;
     if (!text) return res.status(400).json({ success: false, error: 'text is required' });
@@ -60,7 +61,7 @@ app.post('/api/voice/synthesize', async (req, res) => {
 });
 
 // POST /api/voice/transcribe - Convert speech to text
-app.post('/api/voice/transcribe', async (req, res) => {
+app.post('/api/voice/transcribe',requireAuth,  async (req, res) => {
   try {
     const { audioUrl, language, format } = req.body;
     if (!audioUrl) return res.status(400).json({ success: false, error: 'audioUrl is required' });
@@ -91,7 +92,7 @@ app.post('/api/voice/transcribe', async (req, res) => {
 });
 
 // POST /api/voice/ivr/start - Start IVR session
-app.post('/api/voice/ivr/start', async (req, res) => {
+app.post('/api/voice/ivr/start',requireAuth,  async (req, res) => {
   try {
     const { companyId, phone, context, flowId } = req.body;
     if (!companyId || !phone) {
@@ -165,7 +166,7 @@ app.get('/api/voice/ivr/:sessionId', (req, res) => {
 });
 
 // POST /api/voice/ivr/:sessionId/input - Process IVR input
-app.post('/api/voice/ivr/:sessionId/input', async (req, res) => {
+app.post('/api/voice/ivr/:sessionId/input',requireAuth,  async (req, res) => {
   try {
     const { sessionId } = req.params;
     const { dtmf, transcription, intent } = req.body;
@@ -215,7 +216,7 @@ app.post('/api/voice/ivr/:sessionId/input', async (req, res) => {
 });
 
 // DELETE /api/voice/ivr/:sessionId - End IVR session
-app.delete('/api/voice/ivr/:sessionId', (req, res) => {
+app.delete('/api/voice/ivr/:sessionId',requireAuth,  (req, res) => {
   const { sessionId } = req.params;
   const session = ivrSessions.get(sessionId);
 
@@ -250,7 +251,7 @@ app.get('/api/voice/config/:companyId', (req, res) => {
 });
 
 // PUT /api/voice/config/:companyId - Update voice config
-app.put('/api/voice/config/:companyId', (req, res) => {
+app.put('/api/voice/config/:companyId',requireAuth,  (req, res) => {
   const { companyId } = req.params;
   const updates = req.body;
 
@@ -265,7 +266,7 @@ app.put('/api/voice/config/:companyId', (req, res) => {
 });
 
 // POST /api/voice/config/:companyId/flows - Create IVR flow
-app.post('/api/voice/config/:companyId/flows', (req, res) => {
+app.post('/api/voice/config/:companyId/flows',requireAuth,  (req, res) => {
   const { companyId } = req.params;
   const { flowId, name, greeting, menu, timeout, maxRetries, nodes } = req.body;
 
@@ -316,7 +317,7 @@ app.get('/api/voice/config/:companyId/flows', (req, res) => {
 });
 
 // POST /api/voice/recordings - Save recording
-app.post('/api/voice/recordings', (req, res) => {
+app.post('/api/voice/recordings',requireAuth,  (req, res) => {
   const { sessionId, duration, format } = req.body;
 
   const recording = {

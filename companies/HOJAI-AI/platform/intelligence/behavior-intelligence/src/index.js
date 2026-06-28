@@ -7,6 +7,7 @@
 'use strict';
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -144,7 +145,7 @@ function createApp() {
   app.use(express.json({ limit: '1mb' }));
   app.use((req, res, next) => { const s = Date.now(); res.on('finish', () => console.log(`[behavior-intelligence] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${Date.now()-s}ms)`)); next(); });
 
-  app.post('/api/behavior/event', authOrBypass, (req, res) => {
+  app.post('/api/behavior/event',requireAuth,  authOrBypass, (req, res) => {
     const { userId, event, properties, actor } = req.body || {};
     if (!userId || !event) return res.status(400).json({ error: 'userId and event are required' });
     const entry = { id: uuidv4(), userId, event, properties: properties || {}, recordedAt: new Date().toISOString() };
@@ -173,7 +174,7 @@ function createApp() {
     res.json(detectAnomalies(windowMs, events));
   });
 
-  app.post('/api/behavior/funnel', authOrBypass, (req, res) => {
+  app.post('/api/behavior/funnel',requireAuth,  authOrBypass, (req, res) => {
     const { steps, actor } = req.body || {};
     if (!Array.isArray(steps) || steps.length === 0) return res.status(400).json({ error: 'steps (non-empty array) is required' });
     const funnel = computeFunnel(steps, events);

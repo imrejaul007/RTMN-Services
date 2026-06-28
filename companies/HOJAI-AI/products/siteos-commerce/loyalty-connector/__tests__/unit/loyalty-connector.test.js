@@ -35,19 +35,22 @@ describe('Tier Configuration', () => {
 
   it('should calculate tier correctly for silver', () => {
     const points = 2000;
-    const tier = TIERS.find(t => points >= t.minPoints);
+    // Service uses reverse loop - find highest tier first
+    const tier = [...TIERS].reverse().find(t => points >= t.minPoints);
     expect(tier.name).toBe('silver');
   });
 
   it('should calculate tier correctly for gold', () => {
     const points = 7000;
-    const tier = TIERS.find(t => points >= t.minPoints);
+    // Service uses reverse loop - find highest tier first
+    const tier = [...TIERS].reverse().find(t => points >= t.minPoints);
     expect(tier.name).toBe('gold');
   });
 
   it('should calculate tier correctly for platinum', () => {
     const points = 20000;
-    const tier = TIERS.find(t => points >= t.minPoints);
+    // Service uses reverse loop - find highest tier first
+    const tier = [...TIERS].reverse().find(t => points >= t.minPoints);
     expect(tier.name).toBe('platinum');
   });
 });

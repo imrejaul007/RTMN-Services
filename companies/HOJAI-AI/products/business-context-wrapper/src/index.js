@@ -6,6 +6,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.BUSINESS_CONTEXT_PORT || 5451;
@@ -25,7 +26,7 @@ app.get('/health', (_req, res) => {
 });
 
 // POST /api/business/ask - Natural language Q&A for business owners
-app.post('/api/business/ask', async (req, res) => {
+app.post('/api/business/ask',requireAuth,  async (req, res) => {
   try {
     const { question, companyId, period } = req.body;
     if (!question) {
@@ -106,7 +107,7 @@ app.get('/api/business/dashboard', async (req, res) => {
 });
 
 // POST /api/business/recommend - Get AI recommendations
-app.post('/api/business/recommend', async (req, res) => {
+app.post('/api/business/recommend',requireAuth,  async (req, res) => {
   try {
     const { companyId, area } = req.body;
     if (!companyId) {
@@ -440,6 +441,12 @@ function generateRecommendations(area, revenueData, customerData, marketingData)
 
   return recommendations.sort((a, b) => a.priority - b.priority);
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Business Context Wrapper running on port ${PORT}`);

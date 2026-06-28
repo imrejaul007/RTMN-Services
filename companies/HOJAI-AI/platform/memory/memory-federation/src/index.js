@@ -581,6 +581,12 @@ function logAccess(memberId, action, resourceId, status) {
 }
 
 const PORT = process.env.PORT || 4803;
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Memory Federation running on port ${PORT}`);
 });

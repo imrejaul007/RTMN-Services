@@ -9,18 +9,19 @@
  * reputation-os and wasn't injected by a malicious caller.
  */
 
-export function registerAttributePolicyRoutes(app, { auditLog, customAuth }) {
+export function registerAttributePolicyRoutes(app, { auditLog, customAuth, attributePolicies }) {
 
-  // ── Attribute Policy Store ───────────────────────────────────────────────
+  // ── Attribute Policy Store (persistent) ──────────────────────────────────
 
   /**
    * Attribute policies: Map<attributePath, Policy>
    * Policy says: who (which sources) can set this attribute.
    */
-  const attributePolicies = new Map();
+  const store = attributePolicies;
 
-  // Seed default attribute policies
+  // Seed default attribute policies if store is empty
   function seedPolicies() {
+    if (store.size > 0) return; // Don't overwrite persisted data
     const seeds = [
       {
         path: 'user.trustScore',
@@ -79,7 +80,7 @@ export function registerAttributePolicyRoutes(app, { auditLog, customAuth }) {
     ];
 
     for (const p of seeds) {
-      attributePolicies.set(p.path, p);
+      store.set(p.path, p);
     }
   }
   seedPolicies();
@@ -91,7 +92,7 @@ export function registerAttributePolicyRoutes(app, { auditLog, customAuth }) {
    * Returns { allowed, reason }.
    */
   function evaluateAttributePolicy(path, source, value) {
-    const policy = attributePolicies.get(path);
+    const policy = store.get(path);
     if (!policy) {
       // No policy — attribute is unrestricted (open)
       return { allowed: true, reason: 'no policy defined' };
@@ -133,7 +134,7 @@ export function registerAttributePolicyRoutes(app, { auditLog, customAuth }) {
 
   // GET /api/attribute-policies — list all attribute policies
   app.get('/api/attribute-policies', (req, res) => {
-    const list = Array.from(attributePolicies.values());
+    const list = Array.from(store.values());
     res.json({ count: list.length, policies: list });
   });
 
@@ -150,24 +151,24 @@ export function registerAttributePolicyRoutes(app, { auditLog, customAuth }) {
       requireTamperProof: body.requireTamperProof ?? true,
       description: body.description || '',
     };
-    attributePolicies.set(body.path, policy);
+    store.set(body.path, policy);
     auditLog({ type: 'attribute-policy.updated', actor: req.auth?.sub || 'unknown', details: { path: body.path } });
     res.json({ ok: true, policy });
   });
 
   // GET /api/attribute-policies/:path — get one policy
   app.get('/api/attribute-policies/:path', (req, res) => {
-    const p = attributePolicies.get(req.params.path);
+    const p = store.get(req.params.path);
     if (!p) return res.status(404).json({ error: `No policy for '${req.params.path}'` });
     res.json(p);
   });
 
   // DELETE /api/attribute-policies/:path — remove a policy
   app.delete('/api/attribute-policies/:path', customAuth, (req, res) => {
-    if (!attributePolicies.has(req.params.path)) {
+    if (!store.has(req.params.path)) {
       return res.status(404).json({ error: `No policy for '${req.params.path}'` });
     }
-    attributePolicies.delete(req.params.path);
+    store.delete(req.params.path);
     auditLog({ type: 'attribute-policy.deleted', actor: req.auth?.sub || 'unknown', details: { path: req.params.path } });
     res.json({ ok: true });
   });

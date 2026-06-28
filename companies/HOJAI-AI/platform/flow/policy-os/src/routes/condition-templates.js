@@ -7,14 +7,15 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
-export function registerConditionTemplateRoutes(app, { auditLog, customAuth }) {
+export function registerConditionTemplateRoutes(app, { auditLog, customAuth, conditionTemplates }) {
 
-  // ── Template store (in-memory, seed data) ────────────────────────────────
+  // ── Template store (persistent — survives restarts) ─────────────────────────
 
-  const templates = new Map();
+  const store = conditionTemplates;
 
-  // Seed standard templates
+  // Seed standard templates if store is empty (first boot)
   function seedTemplates() {
+    if (store.size > 0) return; // Don't overwrite persisted data
     const seeds = [
       {
         id: 'tpl-high-value-transaction',
@@ -108,7 +109,7 @@ export function registerConditionTemplateRoutes(app, { auditLog, customAuth }) {
     ];
 
     for (const t of seeds) {
-      templates.set(t.id, t);
+      store.set(t.id, t);
     }
   }
   seedTemplates();
@@ -153,7 +154,7 @@ export function registerConditionTemplateRoutes(app, { auditLog, customAuth }) {
     if (!body.id || !body.name || !body.template) {
       return res.status(400).json({ error: 'id, name, and template are required' });
     }
-    if (templates.has(body.id)) {
+    if (store.has(body.id)) {
       return res.status(409).json({ error: `Template '${body.id}' already exists` });
     }
     const template = {
@@ -166,7 +167,7 @@ export function registerConditionTemplateRoutes(app, { auditLog, customAuth }) {
       tags: Array.isArray(body.tags) ? body.tags : [],
       createdAt: new Date().toISOString(),
     };
-    templates.set(template.id, template);
+    store.set(template.id, template);
     auditLog({ type: 'condition-template.created', actor: req.auth?.sub || 'unknown', details: { id: body.id, name: body.name } });
     res.status(201).json(template);
   });
@@ -174,7 +175,7 @@ export function registerConditionTemplateRoutes(app, { auditLog, customAuth }) {
   // GET /api/condition-templates — list all templates
   app.get('/api/condition-templates', (req, res) => {
     const { category, tag } = req.query;
-    let list = Array.from(templates.values());
+    let list = Array.from(store.values());
     if (category) list = list.filter((t) => t.category === category);
     if (tag) list = list.filter((t) => t.tags?.includes(tag));
     res.json({ count: list.length, templates: list });
@@ -182,14 +183,14 @@ export function registerConditionTemplateRoutes(app, { auditLog, customAuth }) {
 
   // GET /api/condition-templates/:id — get one template
   app.get('/api/condition-templates/:id', (req, res) => {
-    const t = templates.get(req.params.id);
+    const t = store.get(req.params.id);
     if (!t) return res.status(404).json({ error: `Template '${req.params.id}' not found` });
     res.json(t);
   });
 
   // POST /api/condition-templates/:id/instantiate — fill in parameters
   app.post('/api/condition-templates/:id/instantiate', customAuth, (req, res) => {
-    const t = templates.get(req.params.id);
+    const t = store.get(req.params.id);
     if (!t) return res.status(404).json({ error: `Template '${req.params.id}' not found` });
     const rawParams = req.body || {};
 
@@ -221,10 +222,10 @@ export function registerConditionTemplateRoutes(app, { auditLog, customAuth }) {
 
   // DELETE /api/condition-templates/:id — delete a template
   app.delete('/api/condition-templates/:id', customAuth, (req, res) => {
-    if (!templates.has(req.params.id)) {
+    if (!store.has(req.params.id)) {
       return res.status(404).json({ error: `Template '${req.params.id}' not found` });
     }
-    templates.delete(req.params.id);
+    store.delete(req.params.id);
     auditLog({ type: 'condition-template.deleted', actor: req.auth?.sub || 'unknown', details: { id: req.params.id } });
     res.json({ ok: true });
   });

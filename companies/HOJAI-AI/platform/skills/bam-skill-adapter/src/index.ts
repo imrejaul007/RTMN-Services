@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4758', 10);
 app.use(express.json());
@@ -15,7 +16,7 @@ app.get('/api/bam/skills', (req, res) => {
   res.json({ success: true, data: { skills: [], total: 0 } });
 });
 
-app.post('/api/bam/sync', (req, res) => {
+app.post('/api/bam/sync',requireAuth,  (req, res) => {
   res.json({ success: true, data: { synced: 0, message: 'Sync complete' } });
 });
 

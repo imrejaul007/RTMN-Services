@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * KnowledgeGraphOS - Production-Ready Knowledge Graph Service
  * ===========================================================
@@ -1281,7 +1282,7 @@ app.get('/api/stats', (_req, res) => {
 // NODE ENDPOINTS
 // ============================================
 
-app.post('/api/nodes', (req: Request, res: Response) => {
+app.post('/api/nodes',requireAuth,  (req: Request, res: Response) => {
   try {
     const input = nodeSchema.parse(req.body);
     const node = graph.createNode(input);
@@ -1318,7 +1319,7 @@ app.get('/api/nodes/:id', (req: Request, res: Response) => {
   res.json(node);
 });
 
-app.put('/api/nodes/:id', (req: Request, res: Response) => {
+app.put('/api/nodes/:id',requireAuth,  (req: Request, res: Response) => {
   try {
     const { properties, labels, type, deprecated } = req.body;
     const node = graph.updateNode(req.params.id, { properties, labels, type, deprecated });
@@ -1331,7 +1332,7 @@ app.put('/api/nodes/:id', (req: Request, res: Response) => {
   }
 });
 
-app.patch('/api/nodes/:id', (req: Request, res: Response) => {
+app.patch('/api/nodes/:id',requireAuth,  (req: Request, res: Response) => {
   const node = graph.updateNode(req.params.id, req.body);
   if (!node) {
     return res.status(404).json({ error: 'Node not found' });
@@ -1339,7 +1340,7 @@ app.patch('/api/nodes/:id', (req: Request, res: Response) => {
   res.json(node);
 });
 
-app.delete('/api/nodes/:id', (req: Request, res: Response) => {
+app.delete('/api/nodes/:id',requireAuth,  (req: Request, res: Response) => {
   const deleted = graph.deleteNode(req.params.id);
   if (!deleted) {
     return res.status(404).json({ error: 'Node not found' });
@@ -1356,7 +1357,7 @@ app.get('/api/nodes/:id/history', (req: Request, res: Response) => {
 // EDGE ENDPOINTS
 // ============================================
 
-app.post('/api/edges', (req: Request, res: Response) => {
+app.post('/api/edges',requireAuth,  (req: Request, res: Response) => {
   try {
     const input = edgeSchema.parse(req.body);
     const edge = graph.createEdge(input);
@@ -1391,7 +1392,7 @@ app.get('/api/edges/:id', (req: Request, res: Response) => {
   res.json(edge);
 });
 
-app.delete('/api/edges/:id', (req: Request, res: Response) => {
+app.delete('/api/edges/:id',requireAuth,  (req: Request, res: Response) => {
   const deleted = graph.deleteEdge(req.params.id);
   if (!deleted) {
     return res.status(404).json({ error: 'Edge not found' });
@@ -1412,7 +1413,7 @@ app.get('/api/nodes/:id/edges', (req: Request, res: Response) => {
 // TRAVERSAL ENDPOINTS
 // ============================================
 
-app.post('/api/graph/traverse', (req: Request, res: Response) => {
+app.post('/api/graph/traverse',requireAuth,  (req: Request, res: Response) => {
   try {
     const { startId, depth, direction, types, algorithm = 'bfs' } = traversalSchema.parse(req.body);
 
@@ -1433,7 +1434,7 @@ app.post('/api/graph/traverse', (req: Request, res: Response) => {
   }
 });
 
-app.post('/api/graph/path', (req: Request, res: Response) => {
+app.post('/api/graph/path',requireAuth,  (req: Request, res: Response) => {
   const { from, to, algorithm = 'dijkstra', edgeTypes, maxDepth, maxWeight } = req.body;
 
   if (!from || !to) {
@@ -1469,7 +1470,7 @@ app.get('/api/graph/path/:from/:to', (req: Request, res: Response) => {
   res.json({ from, to, ...result });
 });
 
-app.post('/api/graph/communities', (req: Request, res: Response) => {
+app.post('/api/graph/communities',requireAuth,  (req: Request, res: Response) => {
   const { resolution, maxIterations } = req.body;
   const communities = graph.detectCommunities({ resolution, maxIterations });
   res.json({ communities, totalCommunities: communities.length });
@@ -1479,7 +1480,7 @@ app.post('/api/graph/communities', (req: Request, res: Response) => {
 // QUERY ENDPOINT
 // ============================================
 
-app.post('/api/graph/query', (req: Request, res: Response) => {
+app.post('/api/graph/query',requireAuth,  (req: Request, res: Response) => {
   const { query } = req.body;
   if (!query) {
     return res.status(400).json({ error: 'Query is required' });
@@ -1508,7 +1509,7 @@ app.get('/api/search', (req: Request, res: Response) => {
 // ENTITY RESOLUTION ENDPOINT
 // ============================================
 
-app.post('/api/resolve', (req: Request, res: Response) => {
+app.post('/api/resolve',requireAuth,  (req: Request, res: Response) => {
   const { candidateIds, matchThreshold, matchProperties } = req.body;
 
   if (!candidateIds || !Array.isArray(candidateIds)) {

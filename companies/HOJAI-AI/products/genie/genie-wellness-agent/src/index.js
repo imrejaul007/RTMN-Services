@@ -140,6 +140,12 @@ autoSeed([
     ]),
   },
 ]);
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 const server = app.listen(PORT, () => {
   console.log(`Genie Wellness Agent running on port ${PORT}`);

@@ -56,4 +56,10 @@ app.post('/api/analyze/anomalies', requireInternal, (req, res) => {
   ok(res, { twinId, eventCount: twinEvents.length, anomalyCount: 0, anomalies: [] });
 });
 app.get('/api/stats', (_req, res) => { ok(res, { events: events.size, observations: observations.size }); });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => console.log(`Observation Engine running on port ${PORT}`));

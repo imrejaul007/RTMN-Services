@@ -13,6 +13,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -76,7 +77,7 @@ app.get('/api/v1/budget/categories', (_req, res) => {
   res.json(apiResponse(true, CATEGORIES));
 });
 
-app.post('/api/v1/budget/track', apiKeyAuth, (req, res) => {
+app.post('/api/v1/budget/track',requireAuth,  apiKeyAuth, (req, res) => {
   const { companyId, category, amountUsd, type, date, notes } = req.body || {};
   if (!companyId || !category || !amountUsd || !type) {
     return res.status(400).json(apiResponse(false, undefined, 'companyId, category, amountUsd, type are required'));
@@ -102,7 +103,7 @@ app.post('/api/v1/budget/track', apiKeyAuth, (req, res) => {
   res.status(201).json(apiResponse(true, tx));
 });
 
-app.post('/api/v1/budget/forecast', apiKeyAuth, (req, res) => {
+app.post('/api/v1/budget/forecast',requireAuth,  apiKeyAuth, (req, res) => {
   const { companyId, monthlyRevenue, monthlyExpenses, currentCashUsd, months = 12 } = req.body || {};
   if (typeof monthlyRevenue !== 'number' || typeof monthlyExpenses !== 'number' || typeof currentCashUsd !== 'number') {
     return res.status(400).json(apiResponse(false, undefined, 'monthlyRevenue, monthlyExpenses, currentCashUsd (all numbers) required'));
@@ -112,7 +113,7 @@ app.post('/api/v1/budget/forecast', apiKeyAuth, (req, res) => {
   res.json(apiResponse(true, forecast));
 });
 
-app.post('/api/v1/budget/variance', apiKeyAuth, (req, res) => {
+app.post('/api/v1/budget/variance',requireAuth,  apiKeyAuth, (req, res) => {
   const { companyId, period, planned, actual } = req.body || {};
   if (!Array.isArray(planned) || !Array.isArray(actual)) {
     return res.status(400).json(apiResponse(false, undefined, 'planned and actual must be arrays of {category, amountUsd}'));
@@ -126,7 +127,7 @@ app.post('/api/v1/budget/variance', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/budget/board-report', apiKeyAuth, (req, res) => {
+app.post('/api/v1/budget/board-report',requireAuth,  apiKeyAuth, (req, res) => {
   const { companyId, quarter, transactions: providedTx } = req.body || {};
   const txSource = providedTx || transactions.filter((t) => !companyId || t.companyId === companyId);
   const report = generateBoardReport(companyId || 'all', quarter || 'current', txSource);

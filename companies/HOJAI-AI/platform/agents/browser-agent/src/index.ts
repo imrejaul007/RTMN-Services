@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Browser Agent Runtime Service
  * Port: 4751
@@ -99,7 +100,7 @@ app.get('/ready', (_req, res) => {
 /**
  * Create a browser session
  */
-app.post('/api/browser/sessions', (req: Request, res: Response) => {
+app.post('/api/browser/sessions',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId, twinId } = req.body;
 
@@ -142,7 +143,7 @@ app.get('/api/browser/sessions/:sessionId', (req: Request, res: Response) => {
 /**
  * Execute action in session
  */
-app.post('/api/browser/sessions/:sessionId/actions', (req: Request, res: Response) => {
+app.post('/api/browser/sessions/:sessionId/actions',requireAuth,  (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params;
     const { type, selector, value, timeout = 5000 } = req.body;
@@ -175,7 +176,7 @@ app.post('/api/browser/sessions/:sessionId/actions', (req: Request, res: Respons
 /**
  * Create a task
  */
-app.post('/api/browser/tasks', (req: Request, res: Response) => {
+app.post('/api/browser/tasks',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId, description, target, steps } = req.body;
 
@@ -219,7 +220,7 @@ app.get('/api/browser/tasks/:taskId', (req: Request, res: Response) => {
 /**
  * Execute task
  */
-app.post('/api/browser/tasks/:taskId/execute', async (req: Request, res: Response) => {
+app.post('/api/browser/tasks/:taskId/execute',requireAuth,  async (req: Request, res: Response) => {
   try {
     const { taskId } = req.params;
     const task = tasks.get(taskId);
@@ -253,7 +254,7 @@ app.post('/api/browser/tasks/:taskId/execute', async (req: Request, res: Respons
 /**
  * Take screenshot
  */
-app.post('/api/browser/sessions/:sessionId/screenshot', (req: Request, res: Response) => {
+app.post('/api/browser/sessions/:sessionId/screenshot',requireAuth,  (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params;
     const session = sessions.get(sessionId);
@@ -280,7 +281,7 @@ app.post('/api/browser/sessions/:sessionId/screenshot', (req: Request, res: Resp
 /**
  * Describe page using vision
  */
-app.post('/api/browser/vision/describe', (req: Request, res: Response) => {
+app.post('/api/browser/vision/describe',requireAuth,  (req: Request, res: Response) => {
   try {
     const { image, question } = req.body;
 
@@ -305,7 +306,7 @@ app.post('/api/browser/vision/describe', (req: Request, res: Response) => {
 /**
  * Close session
  */
-app.delete('/api/browser/sessions/:sessionId', (req: Request, res: Response) => {
+app.delete('/api/browser/sessions/:sessionId',requireAuth,  (req: Request, res: Response) => {
   const { sessionId } = req.params;
   const session = sessions.get(sessionId);
 

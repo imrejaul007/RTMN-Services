@@ -332,6 +332,12 @@ app.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 const server = app.listen(PORT, () => {
   // eslint-disable-next-line no-console

@@ -4,6 +4,7 @@
  * Full profile: identity, behavior, signals, predictive, consent
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.CUSTOMER_TWIN_FULL_PORT || 5460;
@@ -49,7 +50,7 @@ app.get('/api/twin/:id', async (req, res) => {
 });
 
 // PUT /:id
-app.put('/api/twin/:id', (req, res) => {
+app.put('/api/twin/:id',requireAuth,  (req, res) => {
   const { id } = req.params;
   const existing = profiles.get(id) || {};
   const updated = { ...existing, ...req.body, updatedAt: new Date().toISOString() };
@@ -58,7 +59,7 @@ app.put('/api/twin/:id', (req, res) => {
 });
 
 // POST /:id/events
-app.post('/api/twin/:id/events', (req, res) => {
+app.post('/api/twin/:id/events',requireAuth,  (req, res) => {
   const { id } = req.params;
   const { event, properties } = req.body;
   if (!event) return res.status(400).json({ success: false, error: 'event required' });
@@ -97,7 +98,7 @@ app.get('/api/twin/:id/history', (req, res) => {
 });
 
 // POST /:id/consent
-app.post('/api/twin/:id/consent', (req, res) => {
+app.post('/api/twin/:id/consent',requireAuth,  (req, res) => {
   const { id } = req.params;
   const { email, sms, whatsapp, tracking } = req.body;
 
@@ -178,6 +179,12 @@ function calculatePredictive(profile) {
     predictedNextPurchase: daysSince > 30 ? 'soon' : 'imminent'
   };
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Customer Twin Full running on port ${PORT}`));
 module.exports = app;

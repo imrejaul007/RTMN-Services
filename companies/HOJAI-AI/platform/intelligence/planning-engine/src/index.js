@@ -1,5 +1,6 @@
 // Planning Engine - Task decomposition, DAG execution, goal-to-task planning. Port 4896
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { readJson, writeJson } from './store.js';
 import { validatePlan, topologicalSort, detectCycle, getExecutionLevels, NODE_TYPES } from './validator.js';
@@ -25,7 +26,7 @@ app.get('/api/plans/:id', (req, res) => {
   res.json(plan);
 });
 
-app.post('/api/plans', (req, res) => {
+app.post('/api/plans',requireAuth,  (req, res) => {
   const { name, description, goal, owner, metadata = {} } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
 
@@ -65,7 +66,7 @@ app.post('/api/plans', (req, res) => {
   res.status(201).json(plan);
 });
 
-app.put('/api/plans/:id', (req, res) => {
+app.put('/api/plans/:id',requireAuth,  (req, res) => {
   const plans = readJson('plans.json') || [];
   const idx = plans.findIndex(p => p.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Plan not found' });
@@ -78,7 +79,7 @@ app.put('/api/plans/:id', (req, res) => {
   res.json(plans[idx]);
 });
 
-app.delete('/api/plans/:id', (req, res) => {
+app.delete('/api/plans/:id',requireAuth,  (req, res) => {
   const plans = readJson('plans.json') || [];
   const idx = plans.findIndex(p => p.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Plan not found' });
@@ -88,7 +89,7 @@ app.delete('/api/plans/:id', (req, res) => {
 });
 
 // Goal decomposition
-app.post('/api/decompose', (req, res) => {
+app.post('/api/decompose',requireAuth,  (req, res) => {
   const { goal, options = {} } = req.body;
   if (!goal) return res.status(400).json({ error: 'goal required' });
   const result = decomposeGoal(goal, options);
@@ -96,14 +97,14 @@ app.post('/api/decompose', (req, res) => {
 });
 
 // Plan validation
-app.post('/api/plans/:id/validate', (req, res) => {
+app.post('/api/plans/:id/validate',requireAuth,  (req, res) => {
   const plan = (readJson('plans.json') || []).find(p => p.id === req.params.id);
   if (!plan) return res.status(404).json({ error: 'Plan not found' });
   const result = validatePlan(plan);
   res.json(result);
 });
 
-app.post('/api/validate', (req, res) => {
+app.post('/api/validate',requireAuth,  (req, res) => {
   const { nodes, edges } = req.body;
   if (!nodes || !edges) return res.status(400).json({ error: 'nodes and edges required' });
   const result = validatePlan({ name: 'temp', nodes, edges });
@@ -111,7 +112,7 @@ app.post('/api/validate', (req, res) => {
 });
 
 // Topological sort preview
-app.post('/api/toposort', (req, res) => {
+app.post('/api/toposort',requireAuth,  (req, res) => {
   const { nodes, edges } = req.body;
   if (!nodes || !edges) return res.status(400).json({ error: 'nodes and edges required' });
   try {
@@ -124,7 +125,7 @@ app.post('/api/toposort', (req, res) => {
 });
 
 // Cycle detection
-app.post('/api/cycles', (req, res) => {
+app.post('/api/cycles',requireAuth,  (req, res) => {
   const { nodes, edges } = req.body;
   if (!nodes || !edges) return res.status(400).json({ error: 'nodes and edges required' });
   const cycle = detectCycle(nodes, edges);
@@ -132,7 +133,7 @@ app.post('/api/cycles', (req, res) => {
 });
 
 // Plan execution
-app.post('/api/plans/:id/execute', (req, res) => {
+app.post('/api/plans/:id/execute',requireAuth,  (req, res) => {
   const plan = (readJson('plans.json') || []).find(p => p.id === req.params.id);
   if (!plan) return res.status(404).json({ error: 'Plan not found' });
   if (plan.status === 'running') return res.status(409).json({ error: 'Plan already running' });
@@ -181,7 +182,7 @@ app.get('/api/executions/:id', (req, res) => {
 });
 
 // Strategy suggestion
-app.post('/api/strategy', (req, res) => {
+app.post('/api/strategy',requireAuth,  (req, res) => {
   const { nodes, edges } = req.body;
   if (!nodes || !edges) return res.status(400).json({ error: 'nodes and edges required' });
   res.json({ strategy: suggestStrategy(nodes, edges) });

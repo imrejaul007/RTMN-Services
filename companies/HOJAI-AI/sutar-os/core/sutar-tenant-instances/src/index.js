@@ -92,6 +92,12 @@ async function start() {
         res.status(500).json({ success: false, error: error.message });
       }
     });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console

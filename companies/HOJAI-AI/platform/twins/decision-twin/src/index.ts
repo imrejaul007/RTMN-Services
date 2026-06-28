@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Decision Twin Service
  * Port: 4742
@@ -101,7 +102,7 @@ app.get('/ready', (_req, res) => {
 /**
  * Capture a decision
  */
-app.post('/api/twin/:employeeId/decision/capture', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/decision/capture',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { type, domain, description, choice, alternatives, reasoning, outcome } = req.body;
@@ -189,7 +190,7 @@ app.get('/api/twin/:employeeId/decision/history', (req: Request, res: Response) 
 /**
  * Predict a decision
  */
-app.post('/api/twin/:employeeId/decision/predict', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/decision/predict',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { context, options } = req.body;
@@ -234,7 +235,7 @@ app.post('/api/twin/:employeeId/decision/predict', (req: Request, res: Response)
 /**
  * Add reasoning to a decision
  */
-app.post('/api/twin/:employeeId/decision/:decisionId/reasoning', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/decision/:decisionId/reasoning',requireAuth,  (req: Request, res: Response) => {
   try {
     const { decisionId } = req.params;
     const { reasoning } = req.body;

@@ -627,7 +627,7 @@ app.post('/api/plans/generate', requireAuth, async (req, res, next) => {
 });
 
 // Plan execution
-app.post('/api/plans/:planId/execute', reqI, async (req, res, next) => {
+app.post('/api/plans/:planId/execute',requireAuth,  reqI, async (req, res, next) => {
   try {
     const p = await Plan.findOne({ planId: req.params.planId });
     if (!p) return errR(res, 404, 'NOT_FOUND', 'Plan not found');
@@ -642,7 +642,7 @@ app.post('/api/plans/:planId/execute', reqI, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.post('/api/plans/:planId/pause', reqI, async (req, res, next) => {
+app.post('/api/plans/:planId/pause',requireAuth,  reqI, async (req, res, next) => {
   try {
     const p = await Plan.findOneAndUpdate({ planId: req.params.planId, status: 'running' }, { $set: { status: 'paused' } }, { new: true });
     if (!p) return errR(res, 404, 'NOT_FOUND', 'Plan not found or not running');
@@ -650,7 +650,7 @@ app.post('/api/plans/:planId/pause', reqI, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.post('/api/plans/:planId/resume', reqI, async (req, res, next) => {
+app.post('/api/plans/:planId/resume',requireAuth,  reqI, async (req, res, next) => {
   try {
     const p = await Plan.findOneAndUpdate({ planId: req.params.planId, status: 'paused' }, { $set: { status: 'running' } }, { new: true });
     if (!p) return errR(res, 404, 'NOT_FOUND', 'Plan not found or not paused');

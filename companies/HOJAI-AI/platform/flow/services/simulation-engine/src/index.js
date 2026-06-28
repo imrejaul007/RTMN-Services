@@ -471,6 +471,12 @@ app.get('/api/states', (req, res) => {
 });
 
 // Start server
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Simulation Engine service running on port ${PORT}`);
 });

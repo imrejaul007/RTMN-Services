@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Notification OS - Multi-channel Notifications
  * Enterprise notification system with preferences
@@ -138,7 +139,7 @@ app.get('/ready', (_req: Request, res: Response) => {
 });
 
 // Send notification
-app.post('/api/notifications/send', (req: Request, res: Response) => {
+app.post('/api/notifications/send',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = SendNotificationSchema.parse(req.body);
     const id = uuidv4();
@@ -225,7 +226,7 @@ app.get('/api/notifications/:id', (req: Request, res: Response) => {
 });
 
 // Mark as read
-app.put('/api/notifications/:id/read', (req: Request, res: Response) => {
+app.put('/api/notifications/:id/read',requireAuth,  (req: Request, res: Response) => {
   const notification = notifications.get(req.params.id);
   if (!notification) return res.status(404).json({ error: 'Notification not found' });
 
@@ -235,7 +236,7 @@ app.put('/api/notifications/:id/read', (req: Request, res: Response) => {
 });
 
 // Mark all as read
-app.post('/api/notifications/read-all', (req: Request, res: Response) => {
+app.post('/api/notifications/read-all',requireAuth,  (req: Request, res: Response) => {
   const { userId } = req.body;
   const now = new Date().toISOString();
   let count = 0;
@@ -254,7 +255,7 @@ app.post('/api/notifications/read-all', (req: Request, res: Response) => {
 });
 
 // Delete notification
-app.delete('/api/notifications/:id', (req: Request, res: Response) => {
+app.delete('/api/notifications/:id',requireAuth,  (req: Request, res: Response) => {
   if (!notifications.has(req.params.id)) return res.status(404).json({ error: 'Notification not found' });
   notifications.delete(req.params.id);
   res.json({ success: true });
@@ -277,7 +278,7 @@ app.get('/api/notifications/preferences/:userId', (req: Request, res: Response) 
   res.json(prefs);
 });
 
-app.post('/api/notifications/preferences', (req: Request, res: Response) => {
+app.post('/api/notifications/preferences',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = PreferencesSchema.parse(req.body);
     const prefs: UserPreferences = data;
@@ -294,7 +295,7 @@ app.get('/api/notifications/templates', (_req: Request, res: Response) => {
   res.json({ total: templates.size, templates: Array.from(templates.values()) });
 });
 
-app.post('/api/notifications/templates', (req: Request, res: Response) => {
+app.post('/api/notifications/templates',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = TemplateSchema.parse(req.body);
     const id = 'tmpl-' + uuidv4().slice(0, 8);
@@ -307,7 +308,7 @@ app.post('/api/notifications/templates', (req: Request, res: Response) => {
   }
 });
 
-app.post('/api/notifications/templates/:id/send', (req: Request, res: Response) => {
+app.post('/api/notifications/templates/:id/send',requireAuth,  (req: Request, res: Response) => {
   const template = templates.get(req.params.id);
   if (!template) return res.status(404).json({ error: 'Template not found' });
 
@@ -342,7 +343,7 @@ app.post('/api/notifications/templates/:id/send', (req: Request, res: Response) 
 });
 
 // Broadcast
-app.post('/api/notifications/broadcast', (req: Request, res: Response) => {
+app.post('/api/notifications/broadcast',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = BroadcastSchema.parse(req.body);
     const now = new Date().toISOString();

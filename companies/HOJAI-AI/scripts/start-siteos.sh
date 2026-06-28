@@ -14,7 +14,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# All 27 services with ports
+# All 33 services with ports (27 existing + 6 commerce)
 declare -A SERVICES=(
   ["siteos-gateway"]="5450"
   ["business-context-wrapper"]="5451"
@@ -42,6 +42,12 @@ declare -A SERVICES=(
   ["campaign-auto-creation"]="5473"
   ["dynamic-pricing"]="5474"
   ["benchmark-database"]="5475"
+  ["siteos-commerce/product-catalog"]="5476"
+  ["siteos-commerce/cart-service"]="5477"
+  ["siteos-commerce/checkout-service"]="5478"
+  ["siteos-commerce/payment-gateway"]="5479"
+  ["siteos-commerce/review-collection"]="5480"
+  ["siteos-commerce/loyalty-connector"]="5481"
 )
 
 install_service() {
@@ -56,21 +62,23 @@ install_service() {
 start_service() {
   local svc=$1
   local port=$2
+  # Handle nested commerce services
+  local svc_name=$(basename "$svc")
   local dir="$BASE/$svc"
 
   # Check if already running
   if curl -sf "http://localhost:$port/health" > /dev/null 2>&1; then
-    echo -e "${YELLOW}  :$port $svc ${YELLOW}already running${NC}"
+    echo -e "${YELLOW}  :$port $svc_name ${YELLOW}already running${NC}"
     return 0
   fi
 
   if [ -d "$dir" ] && [ -f "$dir/package.json" ]; then
-    echo -e "${GREEN}  Starting :$port $svc...${NC}"
+    echo -e "${GREEN}  Starting :$port $svc_name...${NC}"
     (cd "$dir" && npm start > /dev/null 2>&1) &
-    echo $! > "$PID_DIR/$svc.pid"
+    echo $! > "$PID_DIR/${svc_name}.pid"
     sleep 0.3
   else
-    echo -e "${YELLOW}  Skipping :$port $svc (not found)${NC}"
+    echo -e "${YELLOW}  Skipping :$port $svc_name (not found)${NC}"
   fi
 }
 

@@ -16,6 +16,7 @@
 'use strict';
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -216,7 +217,7 @@ app.get('/api/health', (_req, res) => {
 // ===============================
 
 /** POST /api/memories — Create a memory */
-app.post('/api/memories', authOrBypass, (req, res) => {
+app.post('/api/memories',requireAuth,  authOrBypass, (req, res) => {
   const { memoryType, content, entityId, ttlDays, metadata, tags } = req.body || {};
 
   if (!memoryType || typeof memoryType !== 'string') {
@@ -308,7 +309,7 @@ app.get('/api/memories/:id', (req, res) => {
 });
 
 /** PUT /api/memories/:id — Update memory */
-app.put('/api/memories/:id', authOrBypass, (req, res) => {
+app.put('/api/memories/:id',requireAuth,  authOrBypass, (req, res) => {
   const m = memories.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Memory not found' });
 
@@ -327,7 +328,7 @@ app.put('/api/memories/:id', authOrBypass, (req, res) => {
 });
 
 /** DELETE /api/memories/:id — Delete memory */
-app.delete('/api/memories/:id', authOrBypass, (req, res) => {
+app.delete('/api/memories/:id',requireAuth,  authOrBypass, (req, res) => {
   const m = memories.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Memory not found' });
 
@@ -338,7 +339,7 @@ app.delete('/api/memories/:id', authOrBypass, (req, res) => {
 });
 
 /** POST /api/memories/:id/extend — Extend TTL */
-app.post('/api/memories/:id/extend', authOrBypass, (req, res) => {
+app.post('/api/memories/:id/extend',requireAuth,  authOrBypass, (req, res) => {
   const m = memories.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Memory not found' });
 
@@ -361,7 +362,7 @@ app.post('/api/memories/:id/extend', authOrBypass, (req, res) => {
 // ===============================
 
 /** POST /api/archive — Archive memories older than threshold */
-app.post('/api/archive', authOrBypass, (req, res) => {
+app.post('/api/archive',requireAuth,  authOrBypass, (req, res) => {
   const { daysOld = 90, memoryType } = req.body || {};
   const threshold = new Date(Date.now() - parseInt(daysOld) * 86400 * 1000);
 
@@ -386,7 +387,7 @@ app.post('/api/archive', authOrBypass, (req, res) => {
 });
 
 /** POST /api/memories/:id/restore — Restore from archive */
-app.post('/api/memories/:id/restore', authOrBypass, (req, res) => {
+app.post('/api/memories/:id/restore',requireAuth,  authOrBypass, (req, res) => {
   const m = memories.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Memory not found' });
   if (m.status !== 'archived') {
@@ -405,7 +406,7 @@ app.post('/api/memories/:id/restore', authOrBypass, (req, res) => {
 });
 
 /** POST /api/memories/:id/archive — Archive a specific memory */
-app.post('/api/memories/:id/archive', authOrBypass, (req, res) => {
+app.post('/api/memories/:id/archive',requireAuth,  authOrBypass, (req, res) => {
   const m = memories.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Memory not found' });
 
@@ -438,7 +439,7 @@ app.get('/api/archive', (req, res) => {
 // ===============================
 
 /** POST /api/dedup — Find duplicate memories */
-app.post('/api/dedup', authOrBypass, (req, res) => {
+app.post('/api/dedup',requireAuth,  authOrBypass, (req, res) => {
   const { memoryType, similarityThreshold = 0.9, entityId } = req.body || {};
 
   let candidates = Array.from(memories.values()).filter(m => m.status === 'active');
@@ -476,7 +477,7 @@ app.post('/api/dedup', authOrBypass, (req, res) => {
 });
 
 /** POST /api/dedup/merge — Merge duplicate memories */
-app.post('/api/dedup/merge', authOrBypass, (req, res) => {
+app.post('/api/dedup/merge',requireAuth,  authOrBypass, (req, res) => {
   const { keepId, mergeIds } = req.body || {};
 
   if (!keepId || !Array.isArray(mergeIds) || mergeIds.length === 0) {
@@ -534,7 +535,7 @@ app.get('/api/dedup/stats', (_req, res) => {
 // ===============================
 
 /** POST /api/conflicts — Create/report a conflict */
-app.post('/api/conflicts', authOrBypass, (req, res) => {
+app.post('/api/conflicts',requireAuth,  authOrBypass, (req, res) => {
   const { memoryIdA, memoryIdB, conflictType, resolution } = req.body || {};
 
   if (!memoryIdA || !memoryIdB) {
@@ -571,7 +572,7 @@ app.get('/api/conflicts', (req, res) => {
 });
 
 /** POST /api/conflicts/:id/resolve — Resolve a conflict */
-app.post('/api/conflicts/:id/resolve', authOrBypass, (req, res) => {
+app.post('/api/conflicts/:id/resolve',requireAuth,  authOrBypass, (req, res) => {
   const c = conflicts.get(req.params.id);
   if (!c) return res.status(404).json({ error: 'Conflict not found' });
 
@@ -595,7 +596,7 @@ app.post('/api/conflicts/:id/resolve', authOrBypass, (req, res) => {
 // ===============================
 
 /** POST /api/gdpr/delete/:entityId — GDPR right to be forgotten */
-app.post('/api/gdpr/delete/:entityId', authOrBypass, (req, res) => {
+app.post('/api/gdpr/delete/:entityId',requireAuth,  authOrBypass, (req, res) => {
   const entityId = req.params.entityId;
 
   const deleted = [];
@@ -614,7 +615,7 @@ app.post('/api/gdpr/delete/:entityId', authOrBypass, (req, res) => {
 });
 
 /** POST /api/gdpr/anonymize/:entityId — Anonymize user data */
-app.post('/api/gdpr/anonymize/:entityId', authOrBypass, (req, res) => {
+app.post('/api/gdpr/anonymize/:entityId',requireAuth,  authOrBypass, (req, res) => {
   const entityId = req.params.entityId;
 
   const anonymized = [];
@@ -671,7 +672,7 @@ app.get('/api/policies', (req, res) => {
 });
 
 /** POST /api/policies — Create policy */
-app.post('/api/policies', authOrBypass, (req, res) => {
+app.post('/api/policies',requireAuth,  authOrBypass, (req, res) => {
   const { name, type, action, retentionDays, memoryTypes, similarityThreshold, autoMerge } = req.body || {};
 
   if (!name || typeof name !== 'string') {
@@ -702,7 +703,7 @@ app.post('/api/policies', authOrBypass, (req, res) => {
 });
 
 /** PUT /api/policies/:id — Update policy */
-app.put('/api/policies/:id', authOrBypass, (req, res) => {
+app.put('/api/policies/:id',requireAuth,  authOrBypass, (req, res) => {
   const p = policies.get(req.params.id);
   if (!p) return res.status(404).json({ error: 'Policy not found' });
 
@@ -729,7 +730,7 @@ app.get('/api/policies/:id', (req, res) => {
 });
 
 /** DELETE /api/policies/:id — Delete policy */
-app.delete('/api/policies/:id', authOrBypass, (req, res) => {
+app.delete('/api/policies/:id',requireAuth,  authOrBypass, (req, res) => {
   const p = policies.get(req.params.id);
   if (!p) return res.status(404).json({ error: 'Policy not found' });
   policies.delete(req.params.id);
@@ -823,7 +824,7 @@ app.get('/api/stats', (_req, res) => {
 });
 
 /** POST /api/stats/reset */
-app.post('/api/stats/reset', authOrBypass, (req, res) => {
+app.post('/api/stats/reset',requireAuth,  authOrBypass, (req, res) => {
   for (const k of Object.keys(stats)) stats[k] = 0;
   res.json({ message: 'Stats reset', stats });
 });

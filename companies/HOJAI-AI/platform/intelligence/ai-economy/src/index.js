@@ -1,5 +1,6 @@
 // AI Economy OS - Agent marketplace, pricing, billing, micro-transactions. Port 4894
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { readJson, writeJson } from './store.js';
 
@@ -24,7 +25,7 @@ app.get('/api/listings/:id', (req, res) => {
   res.json(listing);
 });
 
-app.post('/api/listings', (req, res) => {
+app.post('/api/listings',requireAuth,  (req, res) => {
   const { name, description, category, price, providerId, capabilities = [] } = req.body;
   if (!name || price === undefined) return res.status(400).json({ error: 'name and price required' });
   const listing = { id: uuidv4(), name, description, category: category || 'general', price: parseFloat(price), providerId, capabilities, status: 'active', views: 0, purchases: 0, rating: null, createdAt: new Date().toISOString() };
@@ -34,7 +35,7 @@ app.post('/api/listings', (req, res) => {
   res.status(201).json(listing);
 });
 
-app.delete('/api/listings/:id', (req, res) => {
+app.delete('/api/listings/:id',requireAuth,  (req, res) => {
   const listings = readJson('listings.json') || [];
   const idx = listings.findIndex(l => l.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Listing not found' });
@@ -59,7 +60,7 @@ app.get('/api/pricing/estimate', (req, res) => {
   }
 });
 
-app.post('/api/pricing/quote', (req, res) => {
+app.post('/api/pricing/quote',requireAuth,  (req, res) => {
   const { listingId, buyerId, customTerms } = req.body;
   if (!listingId) return res.status(400).json({ error: 'listingId required' });
   const listing = (readJson('listings.json') || []).find(l => l.id === listingId);
@@ -72,7 +73,7 @@ app.post('/api/pricing/quote', (req, res) => {
 });
 
 // Transactions
-app.post('/api/transactions', (req, res) => {
+app.post('/api/transactions',requireAuth,  (req, res) => {
   const { listingId, buyerId, sellerId, amount, type = 'purchase' } = req.body;
   if (!listingId || !buyerId || amount === undefined) return res.status(400).json({ error: 'listingId, buyerId, amount required' });
   const tx = { id: uuidv4(), listingId, buyerId, sellerId: sellerId || null, amount: parseFloat(amount), type, status: 'pending', escrow: true, createdAt: new Date().toISOString(), completedAt: null };
@@ -91,7 +92,7 @@ app.get('/api/transactions/:id', (req, res) => {
   res.json(tx);
 });
 
-app.post('/api/transactions/:id/complete', (req, res) => {
+app.post('/api/transactions/:id/complete',requireAuth,  (req, res) => {
   const transactions = readJson('transactions.json') || [];
   const idx = transactions.findIndex(t => t.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Transaction not found' });
@@ -110,7 +111,7 @@ app.get('/api/wallets/:ownerId', (req, res) => {
   res.json(wallet);
 });
 
-app.post('/api/wallets/:ownerId/topup', (req, res) => {
+app.post('/api/wallets/:ownerId/topup',requireAuth,  (req, res) => {
   const { amount } = req.body;
   if (!amount || amount <= 0) return res.status(400).json({ error: 'positive amount required' });
   const wallets = readJson('wallets.json') || [];

@@ -70,7 +70,7 @@ function simulateRun(job) {
 }
 
 // POST /api/jobs
-app.post('/api/jobs', authOrBypass, (req, res) => {
+app.post('/api/jobs',requireAuth,  authOrBypass, (req, res) => {
   const { name, schedule, payload, actor } = req.body || {};
   if (!name) return res.status(400).json({ error: 'name is required' });
   const job = {
@@ -104,7 +104,7 @@ app.get('/api/jobs/:id', (req, res) => {
 });
 
 // POST /api/jobs/:id/run
-app.post('/api/jobs/:id/run', authOrBypass, (req, res) => {
+app.post('/api/jobs/:id/run',requireAuth,  authOrBypass, (req, res) => {
   const j = jobs.get(req.params.id);
   if (!j) return res.status(404).json({ error: 'Job not found' });
   if (j.cancelled) return res.status(400).json({ error: 'Job is cancelled' });
@@ -119,7 +119,7 @@ app.post('/api/jobs/:id/run', authOrBypass, (req, res) => {
 });
 
 // POST /api/jobs/:id/cancel
-app.post('/api/jobs/:id/cancel', authOrBypass, (req, res) => {
+app.post('/api/jobs/:id/cancel',requireAuth,  authOrBypass, (req, res) => {
   const j = jobs.get(req.params.id);
   if (!j) return res.status(404).json({ error: 'Job not found' });
   j.cancelled = true;

@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -31,7 +32,7 @@ app.get('/api/suppliers', (req, res) => {
   res.json({ success: true, data: { suppliers: all, total: all.length } });
 });
 
-app.post('/api/suppliers', (req, res) => {
+app.post('/api/suppliers',requireAuth,  (req, res) => {
   const { SUPPLIER_NUMBER, SUPPLIER_NAME, EMAIL, SITE } = req.body;
   if (!SUPPLIER_NUMBER) return res.status(400).json({ success: false, error: 'SUPPLIER_NUMBER required' });
   const supplier: OracleSupplier = { id: `sup_${Date.now()}`, SUPPLIER_NUMBER, SUPPLIER_NAME: SUPPLIER_NAME || '', EMAIL: EMAIL || '', SITE: SITE || '', STATUS: 'ACTIVE' };
@@ -47,7 +48,7 @@ app.get('/api/invoices', (req, res) => {
   res.json({ success: true, data: { invoices: all, total: all.length } });
 });
 
-app.post('/api/invoices', (req, res) => {
+app.post('/api/invoices',requireAuth,  (req, res) => {
   const { INVOICE_NUM, SUPPLIER, INVOICE_AMOUNT, CURRENCY_CODE } = req.body;
   if (!INVOICE_NUM) return res.status(400).json({ success: false, error: 'INVOICE_NUM required' });
   const invoice: OracleInvoice = { id: `inv_${Date.now()}`, INVOICE_NUM, SUPPLIER: SUPPLIER || '', INVOICE_AMOUNT: INVOICE_AMOUNT || 0, CURRENCY_CODE: CURRENCY_CODE || 'USD', INVOICE_DATE: new Date().toISOString(), STATUS: 'APPROVED' };

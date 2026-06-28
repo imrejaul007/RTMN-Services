@@ -210,4 +210,124 @@ describe('MemoryOS — 404', () => {
   });
 });
 
+describe('MemoryOS — Working Memory Hierarchy', () => {
+  it('PUT /api/memory/working/user/:twinId → 200', async () => {
+    const r = await fetch(url('/api/memory/working/user/twin-123'), {
+      method: 'PUT',
+      headers: hdrs(),
+      body: JSON.stringify({ context: { test: true }, currentTask: 'Testing' }),
+    });
+    assert.equal(r.status, 200);
+  });
+
+  it('GET /api/memory/working/user/:twinId → 200', async () => {
+    const r = await fetch(url('/api/memory/working/user/twin-123'), { headers: hdrs() });
+    assert.equal(r.status, 200);
+  });
+
+  it('PUT /api/memory/working/department/:deptId → 200', async () => {
+    const r = await fetch(url('/api/memory/working/department/engineering'), {
+      method: 'PUT',
+      headers: hdrs(),
+      body: JSON.stringify({ name: 'Engineering', currentGoals: ['ship v1'] }),
+    });
+    assert.equal(r.status, 200);
+  });
+
+  it('GET /api/memory/working/departments → 200', async () => {
+    const r = await fetch(url('/api/memory/working/departments'), { headers: hdrs() });
+    assert.equal(r.status, 200);
+  });
+
+  it('PUT /api/memory/working/project/:projectId → 200', async () => {
+    const r = await fetch(url('/api/memory/working/project/proj-1'), {
+      method: 'PUT',
+      headers: hdrs(),
+      body: JSON.stringify({ name: 'MemoryOS', department: 'engineering', phase: 'active' }),
+    });
+    assert.equal(r.status, 200);
+  });
+
+  it('GET /api/memory/working/projects → 200', async () => {
+    const r = await fetch(url('/api/memory/working/projects'), { headers: hdrs() });
+    assert.equal(r.status, 200);
+  });
+
+  it('PUT /api/memory/working/team/:teamId → 200', async () => {
+    const r = await fetch(url('/api/memory/working/team/team-platform'), {
+      method: 'PUT',
+      headers: hdrs(),
+      body: JSON.stringify({ name: 'Platform Team', department: 'engineering' }),
+    });
+    assert.equal(r.status, 200);
+  });
+
+  it('GET /api/memory/working/teams → 200', async () => {
+    const r = await fetch(url('/api/memory/working/teams'), { headers: hdrs() });
+    assert.equal(r.status, 200);
+  });
+
+  it('PUT /api/memory/working/company/:companyId → 200', async () => {
+    const r = await fetch(url('/api/memory/working/company/hojai'), {
+      method: 'PUT',
+      headers: hdrs(),
+      body: JSON.stringify({ name: 'HOJAI AI', mission: { vision: 'AI for everyone' } }),
+    });
+    assert.equal(r.status, 200);
+  });
+
+  it('GET /api/memory/context → 200', async () => {
+    const r = await fetch(url('/api/memory/context?twinId=twin-123&deptId=engineering'), { headers: hdrs() });
+    assert.equal(r.status, 200);
+  });
+});
+
+describe('MemoryOS — New Memory Types', () => {
+  it('POST /api/memories with engineering_decision → 201', async () => {
+    const r = await fetch(url('/api/memories'), {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({
+        twinId: 'twin-test',
+        content: 'Use PostgreSQL for main database',
+        type: 'engineering_decision',
+        department: 'engineering',
+        approvers: ['CTO'],
+        alternatives: ['MongoDB', 'MySQL']
+      }),
+    });
+    assert.equal(r.status, 201);
+  });
+
+  it('POST /api/memories with sales_win → 201', async () => {
+    const r = await fetch(url('/api/memories'), {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({
+        twinId: 'twin-sales',
+        content: 'Closed deal with Acme Corp for $100K',
+        type: 'sales_win',
+        department: 'sales',
+        outcome: 'contract_signed'
+      }),
+    });
+    assert.equal(r.status, 201);
+  });
+
+  it('POST /api/memories with incident_postmortem → 201', async () => {
+    const r = await fetch(url('/api/memories'), {
+      method: 'POST',
+      headers: hdrs(),
+      body: JSON.stringify({
+        twinId: 'twin-ops',
+        content: 'Database outage on June 15 - root cause was disk full',
+        type: 'incident_postmortem',
+        department: 'operations',
+        reason: 'Disk monitoring not set up'
+      }),
+    });
+    assert.equal(r.status, 201);
+  });
+});
+
 after(() => { server?.close(); });

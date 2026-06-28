@@ -4,6 +4,7 @@
  * Natural language Q&A for business owners
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.AI_ADVISOR_PORT || 5472;
@@ -21,7 +22,7 @@ app.get('/health', (req, res) => {
 });
 
 // POST /api/advisor/ask - Ask business question
-app.post('/api/advisor/ask', async (req, res) => {
+app.post('/api/advisor/ask',requireAuth,  async (req, res) => {
   try {
     const { question, companyId } = req.body;
     if (!question) return res.status(400).json({ error: 'question required' });
@@ -79,6 +80,12 @@ async function fetchData(companyId, category) {
 function buildPrompt(q, data) {
   return `Business owner asks: "${q}"\n\nData:\nRevenue: Rs ${data.revenue?.total || 0}\nGrowth: ${data.revenue?.growth || 0}%\n\nProvide: Answer + 3 recommendations with revenue impact.`;
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`AI Business Advisor running on port ${PORT}`));
 module.exports = app;

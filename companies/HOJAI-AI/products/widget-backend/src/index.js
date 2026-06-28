@@ -17,6 +17,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -311,7 +312,7 @@ app.get('/rez-intel-status', async (_req, res) => {
 });
 
 // Main handler — receives visitor messages from the widget.
-app.post('/api/v1/widget/message', apiKeyAuth, async (req, res) => {
+app.post('/api/v1/widget/message',requireAuth,  apiKeyAuth, async (req, res) => {
   const start = Date.now();
   try {
     const {
@@ -418,7 +419,7 @@ app.post('/api/v1/widget/message', apiKeyAuth, async (req, res) => {
   }
 });
 
-app.post('/api/v1/widget/identify', apiKeyAuth, (req, res) => {
+app.post('/api/v1/widget/identify',requireAuth,  apiKeyAuth, (req, res) => {
   const { visitorId, user } = req.body || {};
   if (!visitorId) return res.status(400).json({ success: false, error: 'visitorId is required' });
   if (!user || typeof user !== 'object') {

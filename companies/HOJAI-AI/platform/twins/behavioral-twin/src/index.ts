@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Behavioral Twin Service
  * Port: 4746
@@ -127,7 +128,7 @@ app.get('/api/twin/:employeeId/behavior/work-style', (req: Request, res: Respons
 /**
  * Set work style preferences
  */
-app.post('/api/twin/:employeeId/behavior/work-style', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/behavior/work-style',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const updates = req.body;
@@ -183,7 +184,7 @@ app.get('/api/twin/:employeeId/behavior/energy-map', (req: Request, res: Respons
 /**
  * Log energy level
  */
-app.post('/api/twin/:employeeId/behavior/energy-log', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/behavior/energy-log',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { day, timeSlot, level, tasks } = req.body;
@@ -262,7 +263,7 @@ app.get('/api/twin/:employeeId/behavior/optimal-hours', (req: Request, res: Resp
 /**
  * Track productivity
  */
-app.post('/api/twin/:employeeId/behavior/track', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/behavior/track',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const metrics = req.body;
@@ -322,7 +323,7 @@ app.get('/api/twin/:employeeId/behavior/patterns', (req: Request, res: Response)
 /**
  * Observe and learn behavior
  */
-app.post('/api/twin/:employeeId/behavior/observe', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/behavior/observe',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { behavior, category } = req.body;

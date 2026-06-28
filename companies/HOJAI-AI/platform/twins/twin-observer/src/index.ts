@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Twin Observer Service
  * Port: 4747
@@ -82,7 +83,7 @@ app.get('/ready', (_req, res) => {
 /**
  * Subscribe to events for an employee
  */
-app.post('/api/observer/subscribe', (req: Request, res: Response) => {
+app.post('/api/observer/subscribe',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId, twinId, sources } = req.body;
 
@@ -119,7 +120,7 @@ app.get('/api/observer/subscriptions/:employeeId', (req: Request, res: Response)
 /**
  * Ingest a single event
  */
-app.post('/api/observer/events', (req: Request, res: Response) => {
+app.post('/api/observer/events',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId, source, type, data } = req.body;
 
@@ -155,7 +156,7 @@ app.post('/api/observer/events', (req: Request, res: Response) => {
 /**
  * Batch ingest events
  */
-app.post('/api/observer/events/batch', (req: Request, res: Response) => {
+app.post('/api/observer/events/batch',requireAuth,  (req: Request, res: Response) => {
   try {
     const { events: eventList } = req.body;
 
@@ -290,7 +291,7 @@ app.get('/api/observer/stats/:employeeId', (req: Request, res: Response) => {
 /**
  * Unsubscribe
  */
-app.delete('/api/observer/subscribe/:subscriptionId', (req: Request, res: Response) => {
+app.delete('/api/observer/subscribe/:subscriptionId',requireAuth,  (req: Request, res: Response) => {
   const { subscriptionId } = req.params;
   subscriptions.delete(subscriptionId);
   res.json({ success: true, data: { deleted: subscriptionId } });

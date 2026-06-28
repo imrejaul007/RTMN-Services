@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Skill Creator Studio Service
  * Port: 4754
@@ -24,7 +25,7 @@ function generateId(p: string) { return `${p}_${Date.now().toString(36)}_${uuidv
 app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'skill-creator-studio', version: '1.0.0' }));
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
-app.post('/api/creator/drafts', (req: Request, res: Response) => {
+app.post('/api/creator/drafts',requireAuth,  (req: Request, res: Response) => {
   const { name, description, tools, category } = req.body;
   const draft: SkillDraft = { id: generateId('draft'), name: name || '', description: description || '', tools: tools || [], category: category || 'general', status: 'draft', createdAt: new Date().toISOString() };
   drafts.set(draft.id, draft);
@@ -37,21 +38,21 @@ app.get('/api/creator/drafts/:id', (req, res) => {
   res.json({ success: true, data: draft });
 });
 
-app.patch('/api/creator/drafts/:id', (req, res) => {
+app.patch('/api/creator/drafts/:id',requireAuth,  (req, res) => {
   const draft = drafts.get(req.params.id);
   if (!draft) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND' } });
   Object.assign(draft, req.body);
   res.json({ success: true, data: draft });
 });
 
-app.post('/api/creator/test/:draftId', (req, res) => {
+app.post('/api/creator/test/:draftId',requireAuth,  (req, res) => {
   const draft = drafts.get(req.params.draftId);
   if (!draft) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND' } });
   draft.status = 'testing';
   res.json({ success: true, data: { testId: generateId('test'), draftId: draft.id, status: 'testing', results: { passed: true, message: 'Test passed (would run in sandbox)' } });
 });
 
-app.post('/api/creator/publish/:draftId', (req, res) => {
+app.post('/api/creator/publish/:draftId',requireAuth,  (req, res) => {
   const draft = drafts.get(req.params.draftId);
   if (!draft) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND' } });
   draft.status = 'published';

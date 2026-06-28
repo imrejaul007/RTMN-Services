@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4771', 10);
 app.use(express.json());
@@ -15,7 +16,7 @@ app.get('/api/mobile/:employeeId/summary', (req, res) => {
   res.json({ success: true, data: { employeeId: req.params.employeeId, tasks: 5, suggestions: 3, twinStatus: 'active' } });
 });
 
-app.post('/api/mobile/:employeeId/voice', (req, res) => {
+app.post('/api/mobile/:employeeId/voice',requireAuth,  (req, res) => {
   res.json({ success: true, data: { transcribed: 'What tasks do I have?', action: 'query_tasks' } });
 });
 

@@ -1049,7 +1049,7 @@ app.get('/api/health', (_req, res) => {
 
 // ---------- NER ----------
 
-app.post('/api/ner/extract', authOrBypass,  (req, res) => {
+app.post('/api/ner/extract',requireAuth,  authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { text, types, minConfidence, includeSpans } = req.body || {};
   if (typeof text !== 'string') {
@@ -1110,7 +1110,7 @@ app.get('/api/ner/types', (_req, res) => {
 
 // ---------- Entity Linking ----------
 
-app.post('/api/link', authOrBypass,  (req, res) => {
+app.post('/api/link',requireAuth,  authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { entities, knowledgeBase } = req.body || {};
   if (!Array.isArray(entities)) {
@@ -1149,7 +1149,7 @@ app.post('/api/link', authOrBypass,  (req, res) => {
 
 // ---------- KB CRUD ----------
 
-app.post('/api/kb/entities', authOrBypass,  (req, res) => {
+app.post('/api/kb/entities',requireAuth,  authOrBypass,  (req, res) => {
   const { id, canonical, type, aliases, properties } = req.body || {};
   if (typeof canonical !== 'string' || !canonical.trim()) {
     return res.status(400).json({ error: 'canonical (non-empty string) is required', code: 'INVALID_CANONICAL' });
@@ -1209,7 +1209,7 @@ app.get('/api/kb/entities', (req, res) => {
   });
 });
 
-app.delete('/api/kb/entities/:id', authOrBypass,  (req, res) => {
+app.delete('/api/kb/entities/:id',requireAuth,  authOrBypass,  (req, res) => {
   const entry = kbEntities.get(req.params.id);
   if (!entry) {
     return res.status(404).json({ error: 'Entity not found', code: 'NOT_FOUND' });
@@ -1235,7 +1235,7 @@ app.get('/api/kb/stats', (_req, res) => {
 
 // ---------- Fact extraction ----------
 
-app.post('/api/facts/extract', authOrBypass,  (req, res) => {
+app.post('/api/facts/extract',requireAuth,  authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { text, minConfidence, maxFacts } = req.body || {};
   if (typeof text !== 'string') {
@@ -1273,7 +1273,7 @@ app.post('/api/facts/extract', authOrBypass,  (req, res) => {
 
 // ---------- Combined ----------
 
-app.post('/api/extract-all', authOrBypass,  (req, res) => {
+app.post('/api/extract-all',requireAuth,  authOrBypass,  (req, res) => {
   const startMs = Date.now();
   const { text, options } = req.body || {};
   if (typeof text !== 'string') {
@@ -1392,7 +1392,7 @@ app.get('/api/stats', (_req, res) => {
   });
 });
 
-app.post('/api/stats/reset', authOrBypass,  (req, res) => {
+app.post('/api/stats/reset',requireAuth,  authOrBypass,  (req, res) => {
   stats.extractionsRun = 0;
   stats.entitiesFound = 0;
   stats.factsExtracted = 0;

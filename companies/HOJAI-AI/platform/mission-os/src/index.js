@@ -67,7 +67,7 @@ function getMissionOr404(req, res) {
 }
 
 // POST /api/missions
-app.post('/api/missions', authOrBypass, (req, res) => {
+app.post('/api/missions',requireAuth,  authOrBypass, (req, res) => {
   const { title, goal, owner, deadline, tags, actor } = req.body || {};
   if (!title || !goal) return res.status(400).json({ error: 'title and goal are required' });
   const mission = {
@@ -118,7 +118,7 @@ app.get('/api/missions/:id', (req, res) => {
 });
 
 // PUT /api/missions/:id
-app.put('/api/missions/:id', authOrBypass, (req, res) => {
+app.put('/api/missions/:id',requireAuth,  authOrBypass, (req, res) => {
   const m = getMissionOr404(req, res);
   if (!m) return;
   const { title, goal, owner, deadline, tags, status, actor } = req.body || {};
@@ -139,7 +139,7 @@ app.put('/api/missions/:id', authOrBypass, (req, res) => {
 });
 
 // POST /api/missions/:id/complete
-app.post('/api/missions/:id/complete', authOrBypass, (req, res) => {
+app.post('/api/missions/:id/complete',requireAuth,  authOrBypass, (req, res) => {
   const m = getMissionOr404(req, res);
   if (!m) return;
   // Mark all incomplete tasks as completed
@@ -159,7 +159,7 @@ app.post('/api/missions/:id/complete', authOrBypass, (req, res) => {
 });
 
 // POST /api/missions/:id/tasks
-app.post('/api/missions/:id/tasks', authOrBypass, (req, res) => {
+app.post('/api/missions/:id/tasks',requireAuth,  authOrBypass, (req, res) => {
   const m = getMissionOr404(req, res);
   if (!m) return;
   const { title, dependsOn, owner, deadline, actor } = req.body || {};
@@ -183,7 +183,7 @@ app.post('/api/missions/:id/tasks', authOrBypass, (req, res) => {
 });
 
 // PUT /api/missions/:id/tasks/:taskId
-app.put('/api/missions/:id/tasks/:taskId', authOrBypass, (req, res) => {
+app.put('/api/missions/:id/tasks/:taskId',requireAuth,  authOrBypass, (req, res) => {
   const m = getMissionOr404(req, res);
   if (!m) return;
   const t = tasks.get(req.params.taskId);

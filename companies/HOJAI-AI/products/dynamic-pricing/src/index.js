@@ -4,6 +4,7 @@
  * Demand-based + competitor-aware pricing
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.DYNAMIC_PRICING_PORT || 5474;
@@ -15,7 +16,7 @@ app.get('/health', (req, res) => {
 });
 
 // POST /api/pricing/recommend - Get price recommendation
-app.post('/api/pricing/recommend', (req, res) => {
+app.post('/api/pricing/recommend',requireAuth,  (req, res) => {
   try {
     const { productId, demand, competitorPrice, inventory } = req.body;
     const basePrice = req.body.price || 1000;
@@ -63,6 +64,12 @@ app.get('/api/pricing/optimize/:productId', (req, res) => {
     }
   });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Dynamic Pricing running on port ${PORT}`));
 module.exports = app;

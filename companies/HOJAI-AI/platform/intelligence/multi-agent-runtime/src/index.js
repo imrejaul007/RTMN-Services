@@ -56,7 +56,7 @@ function audit(action, actor, payload) {
 const VALID_STATUSES = ['pending', 'running', 'completed', 'failed', 'cancelled'];
 
 // POST /api/agents
-app.post('/api/agents', authOrBypass, (req, res) => {
+app.post('/api/agents',requireAuth,  authOrBypass, (req, res) => {
   const { name, role, capabilities, actor } = req.body || {};
   if (!name) return res.status(400).json({ error: 'name is required' });
   const agent = {
@@ -89,7 +89,7 @@ app.get('/api/agents/:id', (req, res) => {
 });
 
 // DELETE /api/agents/:id
-app.delete('/api/agents/:id', authOrBypass, (req, res) => {
+app.delete('/api/agents/:id',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
   agents.delete(req.params.id);
@@ -98,7 +98,7 @@ app.delete('/api/agents/:id', authOrBypass, (req, res) => {
 });
 
 // POST /api/agents/:id/assign
-app.post('/api/agents/:id/assign', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/assign',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
   const { task, priority, actor } = req.body || {};
@@ -129,7 +129,7 @@ app.get('/api/agents/:id/tasks', (req, res) => {
 });
 
 // POST /api/assignments/:id/complete
-app.post('/api/assignments/:id/complete', authOrBypass, (req, res) => {
+app.post('/api/assignments/:id/complete',requireAuth,  authOrBypass, (req, res) => {
   const t = assignments.get(req.params.id);
   if (!t) return res.status(404).json({ error: 'Assignment not found' });
   const { result, status, actor } = req.body || {};

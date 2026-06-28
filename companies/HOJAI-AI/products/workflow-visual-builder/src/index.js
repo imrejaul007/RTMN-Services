@@ -4,6 +4,7 @@
  * Pre-built templates, FlowOS integration
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.WORKFLOW_BUILDER_PORT || 5462;
@@ -166,7 +167,7 @@ app.get('/api/templates/:id', (req, res) => {
 });
 
 // POST /workflows (create from template)
-app.post('/api/workflows', (req, res) => {
+app.post('/api/workflows',requireAuth,  (req, res) => {
   const { templateId, companyId, name, config } = req.body;
   if (!templateId) return res.status(400).json({ success: false, error: 'templateId required' });
 
@@ -196,7 +197,7 @@ app.get('/api/workflows/:id', (req, res) => {
 });
 
 // PUT /workflows/:id
-app.put('/api/workflows/:id', (req, res) => {
+app.put('/api/workflows/:id',requireAuth,  (req, res) => {
   const wf = workflows.get(req.params.id);
   if (!wf) return res.status(404).json({ success: false, error: 'Workflow not found' });
   const updated = { ...wf, ...req.body, id: req.params.id, updatedAt: new Date().toISOString() };
@@ -205,7 +206,7 @@ app.put('/api/workflows/:id', (req, res) => {
 });
 
 // POST /workflows/:id/activate
-app.post('/api/workflows/:id/activate', async (req, res) => {
+app.post('/api/workflows/:id/activate',requireAuth,  async (req, res) => {
   const wf = workflows.get(req.params.id);
   if (!wf) return res.status(404).json({ success: false, error: 'Workflow not found' });
 
@@ -226,7 +227,7 @@ app.post('/api/workflows/:id/activate', async (req, res) => {
 });
 
 // POST /workflows/validate
-app.post('/api/workflows/validate', (req, res) => {
+app.post('/api/workflows/validate',requireAuth,  (req, res) => {
   const { templateId, steps } = req.body;
   const template = TEMPLATES.find(t => t.id === templateId);
   const workflowSteps = steps || template?.steps || [];
@@ -242,6 +243,12 @@ app.post('/api/workflows/validate', (req, res) => {
 
   res.json({ success: true, data: { valid: issues.length === 0, issues } });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Workflow Visual Builder running on port ${PORT}`));
 module.exports = app;

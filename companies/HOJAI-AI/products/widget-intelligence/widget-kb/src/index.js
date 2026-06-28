@@ -12,6 +12,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -617,7 +618,7 @@ app.get('/ready', (req, res) => {
  * Upload and process a document
  * POST /api/kb/upload
  */
-app.post('/api/kb/upload', async (req, res) => {
+app.post('/api/kb/upload',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1),
@@ -663,7 +664,7 @@ app.post('/api/kb/upload', async (req, res) => {
  * Crawl URL and index
  * POST /api/kb/crawl
  */
-app.post('/api/kb/crawl', async (req, res) => {
+app.post('/api/kb/crawl',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       url: z.string().url(),
@@ -736,7 +737,7 @@ app.get('/api/kb/documents', (req, res) => {
  * Delete document
  * DELETE /api/kb/document/:docId
  */
-app.delete('/api/kb/document/:docId', (req, res) => {
+app.delete('/api/kb/document/:docId',requireAuth,  (req, res) => {
   const doc = documentsStore.get(req.params.docId);
   if (!doc) {
     return res.status(404).json({ error: 'Document not found' });
@@ -761,7 +762,7 @@ app.delete('/api/kb/document/:docId', (req, res) => {
  * Create FAQ
  * POST /api/kb/faq
  */
-app.post('/api/kb/faq', (req, res) => {
+app.post('/api/kb/faq',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       question: z.string().min(1),
@@ -785,7 +786,7 @@ app.post('/api/kb/faq', (req, res) => {
  * Import FAQs from JSON
  * POST /api/kb/faqs/import/json
  */
-app.post('/api/kb/faqs/import/json', (req, res) => {
+app.post('/api/kb/faqs/import/json',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       faqs: z.array(z.object({
@@ -817,7 +818,7 @@ app.post('/api/kb/faqs/import/json', (req, res) => {
  * Import FAQs from CSV
  * POST /api/kb/faqs/import/csv
  */
-app.post('/api/kb/faqs/import/csv', (req, res) => {
+app.post('/api/kb/faqs/import/csv',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       csv: z.string().min(1),
@@ -866,7 +867,7 @@ app.get('/api/kb/faq/:faqId', (req, res) => {
  * Update FAQ
  * PATCH /api/kb/faq/:faqId
  */
-app.patch('/api/kb/faq/:faqId', (req, res) => {
+app.patch('/api/kb/faq/:faqId',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       question: z.string().min(1).optional(),
@@ -900,7 +901,7 @@ app.patch('/api/kb/faq/:faqId', (req, res) => {
  * Rate FAQ
  * POST /api/kb/faq/:faqId/rate
  */
-app.post('/api/kb/faq/:faqId/rate', (req, res) => {
+app.post('/api/kb/faq/:faqId/rate',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       helpful: z.boolean(),
@@ -931,7 +932,7 @@ app.post('/api/kb/faq/:faqId/rate', (req, res) => {
  * Query knowledge base
  * POST /api/kb/query
  */
-app.post('/api/kb/query', (req, res) => {
+app.post('/api/kb/query',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       query: z.string().min(1),

@@ -15,6 +15,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -131,7 +132,7 @@ app.get('/api/v1/languages', (_req, res) => {
   }));
 });
 
-app.post('/api/v1/translate', apiKeyAuth, (req, res) => {
+app.post('/api/v1/translate',requireAuth,  apiKeyAuth, (req, res) => {
   const { text, sourceLang = 'auto', targetLang, brandVoice = 'neutral' } = req.body || {};
   if (!text || !targetLang) {
     return res.status(400).json(apiResponse(false, undefined, 'text and targetLang are required'));
@@ -155,7 +156,7 @@ app.post('/api/v1/translate', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/localize/cultural', apiKeyAuth, (req, res) => {
+app.post('/api/v1/localize/cultural',requireAuth,  apiKeyAuth, (req, res) => {
   const { text, targetLocale, adjustments = [] } = req.body || {};
   if (!text || !targetLocale) {
     return res.status(400).json(apiResponse(false, undefined, 'text and targetLocale required'));
@@ -191,7 +192,7 @@ app.post('/api/v1/localize/cultural', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/brand-voice/detect', apiKeyAuth, (req, res) => {
+app.post('/api/v1/brand-voice/detect',requireAuth,  apiKeyAuth, (req, res) => {
   const { samples = [] } = req.body || {};
   if (!Array.isArray(samples) || samples.length === 0) {
     return res.status(400).json(apiResponse(false, undefined, 'samples array required'));

@@ -6,6 +6,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -73,7 +74,7 @@ app.get('/api/agents', (req, res) => {
   res.json({ success: true, data: { agents: all, total: all.length } });
 });
 
-app.post('/api/agents', (req, res) => {
+app.post('/api/agents',requireAuth,  (req, res) => {
   const { name, type, capabilities, limits } = req.body;
   if (!name || !type) return res.status(400).json({ success: false, error: 'name and type required' });
 
@@ -97,7 +98,7 @@ app.post('/api/agents', (req, res) => {
   res.status(201).json({ success: true, data: agent });
 });
 
-app.patch('/api/agents/:id/status', (req, res) => {
+app.patch('/api/agents/:id/status',requireAuth,  (req, res) => {
   const agent = agents.get(req.params.id);
   if (!agent) return res.status(404).json({ success: false, error: 'Agent not found' });
   const { status } = req.body;
@@ -107,7 +108,7 @@ app.patch('/api/agents/:id/status', (req, res) => {
   res.json({ success: true, data: agent });
 });
 
-app.post('/api/agents/:id/restart', (req, res) => {
+app.post('/api/agents/:id/restart',requireAuth,  (req, res) => {
   const agent = agents.get(req.params.id);
   if (!agent) return res.status(404).json({ success: false, error: 'Agent not found' });
   agent.status = 'starting';
@@ -118,7 +119,7 @@ app.post('/api/agents/:id/restart', (req, res) => {
   res.json({ success: true, data: { agentId: agent.id, action: 'restarting' } });
 });
 
-app.delete('/api/agents/:id', (req, res) => {
+app.delete('/api/agents/:id',requireAuth,  (req, res) => {
   const agent = agents.get(req.params.id);
   if (!agent) return res.status(404).json({ success: false, error: 'Agent not found' });
   agent.status = 'stopped';
@@ -127,7 +128,7 @@ app.delete('/api/agents/:id', (req, res) => {
 });
 
 // === RESOURCE MANAGEMENT ===
-app.post('/api/agents/:id/resources', (req, res) => {
+app.post('/api/agents/:id/resources',requireAuth,  (req, res) => {
   const agent = agents.get(req.params.id);
   if (!agent) return res.status(404).json({ success: false, error: 'Agent not found' });
   const { memory, cpu, tokens } = req.body;
@@ -142,7 +143,7 @@ app.get('/api/quotas/:teamId', (req, res) => {
   res.json({ success: true, data: quota || { teamId: req.params.teamId, monthlyTokens: 0, dailyCost: 0, agents: 0, storage: 0 });
 });
 
-app.post('/api/quotas', (req, res) => {
+app.post('/api/quotas',requireAuth,  (req, res) => {
   const { teamId, monthlyTokens, agents: agentLimit, storage } = req.body;
   if (!teamId) return res.status(400).json({ success: false, error: 'teamId required' });
   const quota: ResourceQuota = { teamId, monthlyTokens: monthlyTokens || 1000000, dailyCost: 0, agents: agentLimit || 10, storage: storage || 100 };
@@ -158,7 +159,7 @@ app.get('/api/schedule', (req, res) => {
   res.json({ success: true, data: { schedules: all } });
 });
 
-app.post('/api/schedule', (req, res) => {
+app.post('/api/schedule',requireAuth,  (req, res) => {
   const { agentId, cron, payload } = req.body;
   if (!agentId || !cron) return res.status(400).json({ success: false, error: 'agentId and cron required' });
   const schedule: Schedule = { id: uuidv4(), agentId, cron, payload, enabled: true, retries: 0 };
@@ -167,7 +168,7 @@ app.post('/api/schedule', (req, res) => {
   res.status(201).json({ success: true, data: schedule });
 });
 
-app.patch('/api/schedule/:id', (req, res) => {
+app.patch('/api/schedule/:id',requireAuth,  (req, res) => {
   const schedule = schedules.get(req.params.id);
   if (!schedule) return res.status(404).json({ success: false, error: 'Schedule not found' });
   Object.assign(schedule, req.body);
@@ -177,7 +178,7 @@ app.patch('/api/schedule/:id', (req, res) => {
 // === PODS (Agent Groups) ===
 app.get('/api/pods', (_req, res) => res.json({ success: true, data: { pods: Array.from(pods.values() } }));
 
-app.post('/api/pods', (req, res) => {
+app.post('/api/pods',requireAuth,  (req, res) => {
   const { name, agents: agentIds, isolation, resources } = req.body;
   if (!name) return res.status(400).json({ success: false, error: 'name required' });
   const pod: Pod = {
@@ -191,7 +192,7 @@ app.post('/api/pods', (req, res) => {
   res.status(201).json({ success: true, data: pod });
 });
 
-app.patch('/api/pods/:id/scale', (req, res) => {
+app.patch('/api/pods/:id/scale',requireAuth,  (req, res) => {
   const pod = pods.get(req.params.id);
   if (!pod) return res.status(404).json({ success: false, error: 'Pod not found' });
   pod.scaling.current = req.body.instances || pod.scaling.current;

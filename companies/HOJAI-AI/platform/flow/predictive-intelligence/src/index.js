@@ -766,7 +766,7 @@ app.get('/api/methods', (req, res) => {
  * POST /api/forecast
  * Body: { series: [{t,v}], horizon, method?, seasonality? }
  */
-app.post('/api/forecast',authOrBypass, (req, res) => {
+app.post('/api/forecast',requireAuth, authOrBypass, (req, res) => {
   const { series, horizon, method, seasonality } = req.body || {};
   if (!Array.isArray(series) || series.length < 2) {
     return res.status(400).json({ error: 'series must be an array of at least 2 {t,v} points' });
@@ -839,7 +839,7 @@ app.post('/api/forecast',authOrBypass, (req, res) => {
  * POST /api/forecast/batch
  * Body: { series: [{name?, series, horizon, method?, seasonality?}, ...] }
  */
-app.post('/api/forecast/batch',authOrBypass, (req, res) => {
+app.post('/api/forecast/batch',requireAuth, authOrBypass, (req, res) => {
   const items = req.body && req.body.series;
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'series (array) is required' });
@@ -900,7 +900,7 @@ app.get('/api/forecasts', (req, res) => {
 /**
  * DELETE /api/forecast/:id
  */
-app.delete('/api/forecast/:id',authOrBypass, (req, res) => {
+app.delete('/api/forecast/:id',requireAuth, authOrBypass, (req, res) => {
   const f = forecasts.get(req.params.id);
   if (!f) return res.status(404).json({ error: 'Forecast not found' });
   forecasts.delete(req.params.id);
@@ -914,7 +914,7 @@ app.delete('/api/forecast/:id',authOrBypass, (req, res) => {
  * POST /api/anomaly/detect
  * Body: { series, threshold?, method? }
  */
-app.post('/api/anomaly/detect',authOrBypass, (req, res) => {
+app.post('/api/anomaly/detect',requireAuth, authOrBypass, (req, res) => {
   const { series, threshold, method } = req.body || {};
   if (!Array.isArray(series) || series.length < 3) {
     return res.status(400).json({ error: 'series must have at least 3 points' });
@@ -953,7 +953,7 @@ app.post('/api/anomaly/detect',authOrBypass, (req, res) => {
  * Body: { history, point, method?, threshold? }
  * Scores a single point against history. `point` is a number or {t,v}.
  */
-app.post('/api/anomaly/score',authOrBypass, (req, res) => {
+app.post('/api/anomaly/score',requireAuth, authOrBypass, (req, res) => {
   const { history, point, method, threshold } = req.body || {};
   if (!Array.isArray(history) || history.length < 3) {
     return res.status(400).json({ error: 'history must have at least 3 points' });
@@ -1002,7 +1002,7 @@ app.post('/api/anomaly/score',authOrBypass, (req, res) => {
  * POST /api/trend
  * Body: { series }
  */
-app.post('/api/trend',authOrBypass, (req, res) => {
+app.post('/api/trend',requireAuth, authOrBypass, (req, res) => {
   const { series } = req.body || {};
   if (!Array.isArray(series) || series.length < 2) {
     return res.status(400).json({ error: 'series must have at least 2 points' });
@@ -1022,7 +1022,7 @@ app.post('/api/trend',authOrBypass, (req, res) => {
  * POST /api/trend/decompose
  * Body: { series, seasonality }
  */
-app.post('/api/trend/decompose',authOrBypass, (req, res) => {
+app.post('/api/trend/decompose',requireAuth, authOrBypass, (req, res) => {
   const { series, seasonality } = req.body || {};
   if (!Array.isArray(series) || series.length < 4) {
     return res.status(400).json({ error: 'series must have at least 4 points' });
@@ -1053,7 +1053,7 @@ app.post('/api/trend/decompose',authOrBypass, (req, res) => {
  * POST /api/demand/predict
  * Body: { historicalDemand, leadTimeDays, currentStock, serviceLevel? }
  */
-app.post('/api/demand/predict',authOrBypass, (req, res) => {
+app.post('/api/demand/predict',requireAuth, authOrBypass, (req, res) => {
   const { historicalDemand, leadTimeDays, currentStock, serviceLevel } = req.body || {};
   if (!Array.isArray(historicalDemand) || historicalDemand.length < 3) {
     return res.status(400).json({ error: 'historicalDemand must have at least 3 points' });
@@ -1084,7 +1084,7 @@ app.post('/api/demand/predict',authOrBypass, (req, res) => {
  * POST /api/evaluate
  * Body: { series, method, testSplit? }
  */
-app.post('/api/evaluate',authOrBypass, (req, res) => {
+app.post('/api/evaluate',requireAuth, authOrBypass, (req, res) => {
   const { series, method, testSplit } = req.body || {};
   if (!Array.isArray(series) || series.length < 5) {
     return res.status(400).json({ error: 'series must have at least 5 points' });

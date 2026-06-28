@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Task Twin Service v1.0
  * Digital twin for task management with delegation support
@@ -56,7 +57,7 @@ export function createTaskTwinService() {
   app.use(express.json());
 
   // POST /api/tasks - Create task
-  app.post('/api/tasks', (req: Request, res: Response) => {
+  app.post('/api/tasks',requireAuth,  (req: Request, res: Response) => {
     const { title, description, status, priority, assignee, delegator, dueDate, tags, dependencies } = req.body;
 
     if (!title) {
@@ -128,7 +129,7 @@ export function createTaskTwinService() {
   });
 
   // POST /api/tasks/bulk-update - Bulk update (MUST come before :id route)
-  app.post('/api/tasks/bulk-update', (req: Request, res: Response) => {
+  app.post('/api/tasks/bulk-update',requireAuth,  (req: Request, res: Response) => {
     const { taskIds, updates } = req.body;
 
     if (!taskIds || taskIds.length === 0) {
@@ -168,7 +169,7 @@ export function createTaskTwinService() {
   });
 
   // PUT /api/tasks/:id - Update task
-  app.put('/api/tasks/:id', (req: Request, res: Response) => {
+  app.put('/api/tasks/:id',requireAuth,  (req: Request, res: Response) => {
     const task = tasks.get(req.params.id);
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
@@ -196,7 +197,7 @@ export function createTaskTwinService() {
   });
 
   // DELETE /api/tasks/:id - Delete task
-  app.delete('/api/tasks/:id', (req: Request, res: Response) => {
+  app.delete('/api/tasks/:id',requireAuth,  (req: Request, res: Response) => {
     if (!tasks.has(req.params.id)) {
       return res.status(404).json({ error: 'Task not found' });
     }
@@ -205,7 +206,7 @@ export function createTaskTwinService() {
   });
 
   // POST /api/tasks/:id/delegate - Delegate task
-  app.post('/api/tasks/:id/delegate', (req: Request, res: Response) => {
+  app.post('/api/tasks/:id/delegate',requireAuth,  (req: Request, res: Response) => {
     const task = tasks.get(req.params.id);
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });

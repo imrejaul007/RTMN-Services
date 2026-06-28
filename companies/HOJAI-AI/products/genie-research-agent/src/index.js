@@ -18,6 +18,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
@@ -78,7 +79,7 @@ app.get('/info', (_req, res) => {
   }));
 });
 
-app.post('/api/v1/research/search', apiKeyAuth, (req, res) => {
+app.post('/api/v1/research/search',requireAuth,  apiKeyAuth, (req, res) => {
   const { query, limit = 5, sources = ['web', 'kb'] } = req.body || {};
   if (!query) return res.status(400).json(apiResponse(false, undefined, 'query is required'));
 
@@ -92,7 +93,7 @@ app.post('/api/v1/research/search', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/research/synthesize', apiKeyAuth, (req, res) => {
+app.post('/api/v1/research/synthesize',requireAuth,  apiKeyAuth, (req, res) => {
   const { query, sources = [], maxWords = 500 } = req.body || {};
   if (!query) return res.status(400).json(apiResponse(false, undefined, 'query is required'));
   if (!Array.isArray(sources) || sources.length === 0) {
@@ -115,7 +116,7 @@ app.post('/api/v1/research/synthesize', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/research/extract', apiKeyAuth, (req, res) => {
+app.post('/api/v1/research/extract',requireAuth,  apiKeyAuth, (req, res) => {
   const { text } = req.body || {};
   if (!text) return res.status(400).json(apiResponse(false, undefined, 'text is required'));
 
@@ -133,7 +134,7 @@ app.post('/api/v1/research/extract', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/research/citations/format', apiKeyAuth, (req, res) => {
+app.post('/api/v1/research/citations/format',requireAuth,  apiKeyAuth, (req, res) => {
   const { sources = [], style = 'apa' } = req.body || {};
   if (!Array.isArray(sources)) return res.status(400).json(apiResponse(false, undefined, 'sources array is required'));
 

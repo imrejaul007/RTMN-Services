@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Reputation Twin Service
  * Port: 4745
@@ -119,7 +120,7 @@ function calculatePercentile(rating: number): number {
 /**
  * Add review
  */
-app.post('/api/twin/:employeeId/reputation/reviews', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/reputation/reviews',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { reviewerId, type, rating, strengths, improvements, comment } = req.body;
@@ -198,7 +199,7 @@ app.get('/api/twin/:employeeId/reputation/reviews', (req: Request, res: Response
 /**
  * Award badge
  */
-app.post('/api/twin/:employeeId/reputation/badges', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/reputation/badges',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { name, description, icon, tier } = req.body;

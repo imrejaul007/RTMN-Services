@@ -50,4 +50,10 @@ app.get('/api/stats', (_req, res) => {
   for (const a of artifacts.values()) byType[a.type] = (byType[a.type] || 0) + 1;
   ok(res, { totalArtifacts: artifacts.size, byType });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => console.log(`Knowledge Compiler running on port ${PORT}`));

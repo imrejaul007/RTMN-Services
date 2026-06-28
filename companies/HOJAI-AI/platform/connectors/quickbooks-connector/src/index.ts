@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -55,7 +56,7 @@ app.get('/api/invoices', (req, res) => {
   res.json({ success: true, data: { invoices: all, total: all.length } });
 });
 
-app.post('/api/invoices', (req, res) => {
+app.post('/api/invoices',requireAuth,  (req, res) => {
   const { customer, amount, due_date, line_items } = req.body;
   if (!customer || !amount) return res.status(400).json({ success: false, error: 'customer and amount required' });
   const invoice: Invoice = { id: `inv_${Date.now()}`, customer, amount, due_date: due_date || '', status: 'draft', line_items: line_items || [] };
@@ -72,7 +73,7 @@ app.get('/api/expenses', (req, res) => {
   res.json({ success: true, data: { expenses: all, total: all.length } });
 });
 
-app.post('/api/expenses', (req, res) => {
+app.post('/api/expenses',requireAuth,  (req, res) => {
   const { vendor, amount, date, category } = req.body;
   if (!vendor || !amount) return res.status(400).json({ success: false, error: 'vendor and amount required' });
   const expense: Expense = { id: `exp_${Date.now()}`, vendor, amount, date: date || new Date().toISOString(), category: category || 'general', status: 'pending' };

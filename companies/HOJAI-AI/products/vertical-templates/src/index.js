@@ -5,6 +5,7 @@
  * Reuses: All 26 Industry OS services
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const app = express();
 const PORT = process.env.VERTICAL_TEMPLATES_PORT || 5455;
 
@@ -41,7 +42,7 @@ app.get('/api/verticals/:name', (req, res) => {
 });
 
 // POST /api/verticals/activate - Activate vertical for company
-app.post('/api/verticals/activate', (req, res) => {
+app.post('/api/verticals/activate',requireAuth,  (req, res) => {
   const { companyId, verticalName, websiteUrl, websiteContent } = req.body;
   if (!companyId) return res.status(400).json({ success: false, error: 'companyId is required' });
 
@@ -70,7 +71,7 @@ app.get('/api/verticals/:name/intents', (req, res) => {
 });
 
 // POST /api/verticals/:name/intent-match - Match user message to intent
-app.post('/api/verticals/:name/intent-match', (req, res) => {
+app.post('/api/verticals/:name/intent-match',requireAuth,  (req, res) => {
   const v = verticals[req.params.name];
   if (!v) return res.status(404).json({ success: false, error: 'Vertical not found' });
 
@@ -118,7 +119,7 @@ app.get('/api/verticals/company/:companyId', (req, res) => {
 });
 
 // POST /api/verticals/detect - Auto-detect vertical from URL/content
-app.post('/api/verticals/detect', (req, res) => {
+app.post('/api/verticals/detect',requireAuth,  (req, res) => {
   const { url, content } = req.body;
   const detected = detectVertical(url, content);
   res.json({ success: true, data: { detected, vertical: verticals[detected] } });
@@ -161,6 +162,12 @@ function detectVertical(url, pageContent) {
   // Retail is the default
   return 'retail';
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Vertical Templates running on port ${PORT}`);

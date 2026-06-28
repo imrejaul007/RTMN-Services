@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Innovation OS - Production Implementation
  * Ideas, pilots, R&D tracking, innovation pipeline
@@ -97,7 +98,7 @@ app.get('/api/ideas/:id', (req: Request, res: Response) => {
 });
 
 // Create idea
-app.post('/api/ideas', (req: Request, res: Response) => {
+app.post('/api/ideas',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = CreateIdeaSchema.parse(req.body);
     const id = uuidv4();
@@ -121,7 +122,7 @@ app.post('/api/ideas', (req: Request, res: Response) => {
 });
 
 // Update idea
-app.put('/api/ideas/:id', (req: Request, res: Response) => {
+app.put('/api/ideas/:id',requireAuth,  (req: Request, res: Response) => {
   const idea = ideas.get(req.params.id);
   if (!idea) return res.status(404).json({ error: 'Idea not found' });
 
@@ -145,7 +146,7 @@ app.put('/api/ideas/:id', (req: Request, res: Response) => {
 });
 
 // Vote on idea
-app.post('/api/ideas/:id/vote', (req: Request, res: Response) => {
+app.post('/api/ideas/:id/vote',requireAuth,  (req: Request, res: Response) => {
   const idea = ideas.get(req.params.id);
   if (!idea) return res.status(404).json({ error: 'Idea not found' });
 
@@ -165,7 +166,7 @@ app.post('/api/ideas/:id/vote', (req: Request, res: Response) => {
 });
 
 // Comment on idea
-app.post('/api/ideas/:id/comments', (req: Request, res: Response) => {
+app.post('/api/ideas/:id/comments',requireAuth,  (req: Request, res: Response) => {
   const idea = ideas.get(req.params.id);
   if (!idea) return res.status(404).json({ error: 'Idea not found' });
 
@@ -179,7 +180,7 @@ app.post('/api/ideas/:id/comments', (req: Request, res: Response) => {
 });
 
 // Update pilot metrics
-app.put('/api/ideas/:id/pilot', (req: Request, res: Response) => {
+app.put('/api/ideas/:id/pilot',requireAuth,  (req: Request, res: Response) => {
   const idea = ideas.get(req.params.id);
   if (!idea) return res.status(404).json({ error: 'Idea not found' });
   if (idea.status !== 'pilot') return res.status(400).json({ error: 'Idea must be in pilot status' });
@@ -195,7 +196,7 @@ app.get('/api/goals', (_req: Request, res: Response) => {
   res.json({ goals: Array.from(goals.values()) });
 });
 
-app.post('/api/goals', (req: Request, res: Response) => {
+app.post('/api/goals',requireAuth,  (req: Request, res: Response) => {
   const { title, target, metric, deadline } = req.body;
   if (!title || !target || !metric) return res.status(400).json({ error: 'title, target, metric required' });
 
@@ -204,7 +205,7 @@ app.post('/api/goals', (req: Request, res: Response) => {
   res.status(201).json(goal);
 });
 
-app.put('/api/goals/:id', (req: Request, res: Response) => {
+app.put('/api/goals/:id',requireAuth,  (req: Request, res: Response) => {
   const goal = goals.get(req.params.id);
   if (!goal) return res.status(404).json({ error: 'Goal not found' });
 

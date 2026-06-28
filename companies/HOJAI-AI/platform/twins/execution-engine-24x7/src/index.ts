@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * 24x7 Execution Engine - Port: 4761
  * Manages continuous task execution and sleep/wake cycles
@@ -18,7 +19,7 @@ const schedules = new Map<string, SleepSchedule>();
 app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'execution-engine-24x7', version: '1.0.0', timestamp: new Date().toISOString() }));
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
-app.post('/api/queue', (req: Request, res: Response) => {
+app.post('/api/queue',requireAuth,  (req: Request, res: Response) => {
   const { employeeId, description, priority, scheduledFor } = req.body;
   const task: Task = { id: `t_${Date.now()}`, employeeId, description, priority: priority || 'normal', status: 'queued', scheduledFor, createdAt: new Date().toISOString() };
   tasks.set(task.id, task);
@@ -30,7 +31,7 @@ app.get('/api/queue/:employeeId', (req, res) => {
   res.json({ success: true, data: { tasks: empTasks, total: empTasks.length } });
 });
 
-app.post('/api/queue/:taskId/execute', (req, res) => {
+app.post('/api/queue/:taskId/execute',requireAuth,  (req, res) => {
   const task = tasks.get(req.params.taskId);
   if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
   task.status = 'executing';
@@ -43,7 +44,7 @@ app.get('/api/schedule/:employeeId', (req, res) => {
   res.json({ success: true, data: schedule });
 });
 
-app.post('/api/schedule/:employeeId/mode', (req, res) => {
+app.post('/api/schedule/:employeeId/mode',requireAuth,  (req, res) => {
   const { mode } = req.body;
   schedules.set(req.params.employeeId, { employeeId: req.params.employeeId, mode: mode || 'active', timezone: 'UTC' });
   res.json({ success: true, data: { mode, employeeId: req.params.employeeId } });

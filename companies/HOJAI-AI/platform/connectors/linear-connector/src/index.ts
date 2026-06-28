@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -34,7 +35,7 @@ app.get('/api/issues', (req, res) => {
   res.json({ success: true, data: { issues: all, total: all.length } });
 });
 
-app.post('/api/issues', (req, res) => {
+app.post('/api/issues',requireAuth,  (req, res) => {
   const { title, description, team, assignee, priority = 0, labels = [] } = req.body;
   if (!title) return res.status(400).json({ success: false, error: 'title required' });
   const num = issues.size + 1;
@@ -55,7 +56,7 @@ app.post('/api/issues', (req, res) => {
   res.status(201).json({ success: true, data: issue });
 });
 
-app.patch('/api/issues/:id', (req, res) => {
+app.patch('/api/issues/:id',requireAuth,  (req, res) => {
   const issue = issues.get(req.params.id);
   if (!issue) return res.status(404).json({ success: false, error: 'Issue not found' });
   Object.assign(issue, req.body, { updatedAt: new Date().toISOString() });
@@ -64,7 +65,7 @@ app.patch('/api/issues/:id', (req, res) => {
 
 app.get('/api/projects', (_req, res) => res.json({ success: true, data: { projects: Array.from(projects.values()), total: projects.size } }));
 
-app.post('/api/projects', (req, res) => {
+app.post('/api/projects',requireAuth,  (req, res) => {
   const { name, description, members = [] } = req.body;
   if (!name) return res.status(400).json({ success: false, error: 'name required' });
   const project: LinearProject = { id: `proj_${Date.now()}`, name, description, state: 'Active', members };

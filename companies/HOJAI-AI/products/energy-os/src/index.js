@@ -27,7 +27,7 @@ function requireInternal(req, res, next) {
   return res.status(401).json({ error: 'Unauthorized' });
 }
 
-const PORT = process.env.PORT || 4296;
+const PORT = process.env.PORT || 4932; // was 4296 (conflicted with execution-os)
 
 // Middleware
 app.use(cors());

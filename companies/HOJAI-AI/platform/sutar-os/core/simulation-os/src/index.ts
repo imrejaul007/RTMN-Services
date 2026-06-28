@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Simulation OS - Production Implementation
  * Company, market, pricing, and risk simulation engine
@@ -179,7 +180,7 @@ app.get('/ready', (_req: Request, res: Response) => {
 });
 
 // Company Simulation
-app.post('/api/simulate/company', async (req: Request, res: Response) => {
+app.post('/api/simulate/company',requireAuth,  async (req: Request, res: Response) => {
   try {
     const data = CompanySimulationSchema.parse(req.body);
     const id = uuidv4();
@@ -283,7 +284,7 @@ app.post('/api/simulate/company', async (req: Request, res: Response) => {
 });
 
 // Market Simulation
-app.post('/api/simulate/market', async (req: Request, res: Response) => {
+app.post('/api/simulate/market',requireAuth,  async (req: Request, res: Response) => {
   try {
     const data = MarketSimulationSchema.parse(req.body);
     const id = uuidv4();
@@ -396,7 +397,7 @@ app.post('/api/simulate/market', async (req: Request, res: Response) => {
 });
 
 // Pricing Simulation
-app.post('/api/simulate/pricing', async (req: Request, res: Response) => {
+app.post('/api/simulate/pricing',requireAuth,  async (req: Request, res: Response) => {
   try {
     const data = PricingSimulationSchema.parse(req.body);
     const id = uuidv4();
@@ -497,7 +498,7 @@ app.post('/api/simulate/pricing', async (req: Request, res: Response) => {
 });
 
 // Risk Simulation
-app.post('/api/simulate/risk', async (req: Request, res: Response) => {
+app.post('/api/simulate/risk',requireAuth,  async (req: Request, res: Response) => {
   try {
     const data = RiskSimulationSchema.parse(req.body);
     const id = uuidv4();
@@ -650,7 +651,7 @@ app.get('/api/simulate', (req: Request, res: Response) => {
 });
 
 // Cancel simulation
-app.delete('/api/simulate/:id', (req: Request, res: Response) => {
+app.delete('/api/simulate/:id',requireAuth,  (req: Request, res: Response) => {
   const simulation = simulations.get(req.params.id);
   if (!simulation) {
     return res.status(404).json({ error: 'Simulation not found' });

@@ -475,6 +475,12 @@ app.get('/api/v1/info', (req, res) => {
 });
 
 const PORT = process.env.PORT || 4793;
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 const server = app.listen(PORT, () => {
   console.log(`[Memory Portability Service] Running on port ${PORT}`);
 });

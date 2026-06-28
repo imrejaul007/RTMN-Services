@@ -4,6 +4,7 @@
  * Monitor reviews across Google, social, app stores
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.REVIEW_SCRAPERS_PORT || 5456;
@@ -84,7 +85,7 @@ app.get('/api/reviews/alerts', (req, res) => {
 });
 
 // POST /api/reviews/ingest - Ingest reviews from external source
-app.post('/api/reviews/ingest', (req, res) => {
+app.post('/api/reviews/ingest',requireAuth,  (req, res) => {
   const { source, reviews: newReviews } = req.body;
   if (!source || !Array.isArray(newReviews)) {
     return res.status(400).json({ success: false, error: 'source and reviews array are required' });
@@ -139,7 +140,7 @@ app.get('/api/reviews/sentiment', (req, res) => {
 });
 
 // POST /api/reviews/respond - Generate AI response
-app.post('/api/reviews/respond', (req, res) => {
+app.post('/api/reviews/respond',requireAuth,  (req, res) => {
   const { reviewId, source, responseType, tone } = req.body;
 
   const templates = {
@@ -241,6 +242,12 @@ for (const source of mockSources) {
   }));
   reviews.set(source, mockReviews);
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Review Scrapers running on port ${PORT}`);

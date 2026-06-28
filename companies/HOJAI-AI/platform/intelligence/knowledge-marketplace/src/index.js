@@ -1103,7 +1103,7 @@ app.get('/api/industries', (req, res) => {
 // ============================================================
 
 // Purchase knowledge pack
-app.post('/api/knowledge/:id/purchase', authOrBypass,  (req, res) => {
+app.post('/api/knowledge/:id/purchase',requireAuth,  authOrBypass,  (req, res) => {
   const pack = knowledgePacks.get(req.params.id);
   if (!pack) {
     return res.status(404).json({ success: false, error: 'Knowledge pack not found' });
@@ -1188,7 +1188,7 @@ app.get('/api/knowledge/:id/download', (req, res) => {
 // ============================================================
 
 // Add review
-app.post('/api/knowledge/:id/reviews', authOrBypass,  (req, res) => {
+app.post('/api/knowledge/:id/reviews',requireAuth,  authOrBypass,  (req, res) => {
   const pack = knowledgePacks.get(req.params.id);
   if (!pack) {
     return res.status(404).json({ success: false, error: 'Knowledge pack not found' });
@@ -1238,7 +1238,7 @@ app.get('/api/creator/packs', (req, res) => {
 });
 
 // Create knowledge pack (for creators)
-app.post('/api/knowledge', authOrBypass,  (req, res) => {
+app.post('/api/knowledge',requireAuth,  authOrBypass,  (req, res) => {
   const { name, description, category, type, price, preview, industries, tags, creator } = req.body;
 
   if (!name || !category || !creator) {
@@ -1281,7 +1281,7 @@ app.post('/api/knowledge', authOrBypass,  (req, res) => {
 });
 
 // Update knowledge pack
-app.patch('/api/knowledge/:id', authOrBypass,  (req, res) => {
+app.patch('/api/knowledge/:id',requireAuth,  authOrBypass,  (req, res) => {
   const pack = knowledgePacks.get(req.params.id);
   if (!pack) {
     return res.status(404).json({ success: false, error: 'Knowledge pack not found' });

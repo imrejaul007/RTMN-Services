@@ -150,8 +150,11 @@ export class ExecutionClient {
 export class ConnectorClient {
   constructor(client) {
     this.client = client;
+    // FlowOS Connector Integration (port 5375)
+    this.integrationUrl = client.baseUrl.replace(/\/$/, '') + ':5375';
   }
 
+  // === Hub Connectors (original methods) ===
   async list(type = null) {
     const path = type ? `/api/connectors?type=${type}` : '/api/connectors';
     return this.client.request('GET', path);
@@ -169,8 +172,90 @@ export class ConnectorClient {
     return this.client.request('POST', `/api/connectors/${id}/test`, testData);
   }
 
-  async invoke(id, action, params = {}) {
-    return this.client.request('POST', `/api/connectors/${id}/invoke`, { action, params });
+  // === Workflow Connector Integration (NEW) ===
+
+  /**
+   * Configure a connector for a specific workflow
+   * @param {string} workflowId - Workflow ID
+   * @param {string} connectorId - Connector ID (e.g., 'salesforce', 'stripe')
+   * @param {object} config - Connector configuration
+   */
+  async configure(workflowId, connectorId, config) {
+    return this.client.request('POST', '/api/connectors/configure', {
+      workflowId,
+      connectorId,
+      config
+    });
+  }
+
+  /**
+   * Get connector configurations for a workflow
+   * @param {string} workflowId - Workflow ID
+   */
+  async getConfigurations(workflowId) {
+    return this.client.request('GET', `/api/connectors/configure/${workflowId}`);
+  }
+
+  /**
+   * Invoke a connector action from a workflow
+   * @param {string} workflowId - Workflow ID
+   * @param {string} connectorId - Connector ID
+   * @param {string} action - Action to invoke
+   * @param {object} params - Action parameters
+   * @param {string} idempotencyKey - Optional idempotency key
+   */
+  async invoke(workflowId, connectorId, action, params = {}, idempotencyKey = null) {
+    return this.client.request('POST', '/api/connectors/invoke', {
+      workflowId,
+      connectorId,
+      action,
+      params,
+      idempotencyKey
+    });
+  }
+
+  /**
+   * Batch invoke multiple connector actions
+   * @param {string} workflowId - Workflow ID
+   * @param {array} requests - Array of {connectorId, action, params}
+   */
+  async batchInvoke(workflowId, requests) {
+    return this.client.request('POST', '/api/connectors/batch', {
+      workflowId,
+      requests
+    });
+  }
+
+  /**
+   * Get all available connectors from the registry
+   */
+  async listRegistry() {
+    return this.client.request('GET', '/api/connectors/registry');
+  }
+
+  /**
+   * Get connector capabilities
+   * @param {string} connectorId - Connector ID
+   */
+  async getCapabilities(connectorId) {
+    return this.client.request('GET', `/api/connectors/${connectorId}/capabilities`);
+  }
+
+  /**
+   * Get connector execution history for a workflow
+   * @param {string} workflowId - Workflow ID
+   * @param {number} limit - Max results
+   */
+  async getHistory(workflowId, limit = 50) {
+    return this.client.request('GET', `/api/connectors/history/${workflowId}?limit=${limit}`);
+  }
+
+  /**
+   * Get connector execution details
+   * @param {string} executionId - Execution ID
+   */
+  async getExecution(executionId) {
+    return this.client.request('GET', `/api/connectors/executions/${executionId}`);
   }
 }
 

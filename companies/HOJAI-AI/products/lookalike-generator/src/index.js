@@ -4,6 +4,7 @@
  * Find best customers and generate lookalike profiles for ad platforms
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.LOOKALIKE_PORT || 5457;
@@ -76,7 +77,7 @@ app.get('/api/lookalikes/best-customers', async (req, res) => {
 });
 
 // POST /api/lookalikes/generate - Generate lookalike profiles
-app.post('/api/lookalikes/generate', async (req, res) => {
+app.post('/api/lookalikes/generate',requireAuth,  async (req, res) => {
   try {
     const { companyId, sourceAudienceId, size } = req.body;
     if (!companyId) return res.status(400).json({ success: false, error: 'companyId is required' });
@@ -110,7 +111,7 @@ app.post('/api/lookalikes/generate', async (req, res) => {
 });
 
 // POST /api/lookalikes/sync/:platform - Sync to ad platform
-app.post('/api/lookalikes/sync/:platform', async (req, res) => {
+app.post('/api/lookalikes/sync/:platform',requireAuth,  async (req, res) => {
   try {
     const { platform } = req.params;
     const { audienceId, campaignId } = req.body;
@@ -284,6 +285,12 @@ function generateMockCustomers(count) {
     interests: [categories[i % categories.length], categories[(i + 1) % categories.length]]
   }));
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Lookalike Generator running on port ${PORT}`);

@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Slack Connector
  * Port: 4790
@@ -119,7 +120,7 @@ app.get('/oauth/status', (req: Request, res: Response) => {
 /**
  * Disconnect Slack
  */
-app.delete('/oauth/disconnect', (req: Request, res: Response) => {
+app.delete('/oauth/disconnect',requireAuth,  (req: Request, res: Response) => {
   const teamId = req.query.teamId as string || 'default';
   revokeToken(teamId);
   res.json({ success: true, message: 'Disconnected from Slack' });
@@ -144,7 +145,7 @@ app.get('/api/slack/channels', async (req: Request, res: Response) => {
 /**
  * Post message via real Slack API
  */
-app.post('/api/slack/messages', async (req: Request, res: Response) => {
+app.post('/api/slack/messages',requireAuth,  async (req: Request, res: Response) => {
   const { teamId, channel, text, blocks } = req.body;
 
   if (!channel || !text) {
@@ -207,7 +208,7 @@ app.get('/api/channels/:channelId', (req, res) => {
 /**
  * Post message to channel
  */
-app.post('/api/channels/:channelId/messages', (req, res) => {
+app.post('/api/channels/:channelId/messages',requireAuth,  (req, res) => {
   const { channelId } = req.params;
   const { text, user } = req.body;
 
@@ -299,7 +300,7 @@ app.get('/api/users/:userId', (req, res) => {
 /**
  * Handle incoming webhooks from Slack
  */
-app.post('/api/webhooks/slack', (req, res) => {
+app.post('/api/webhooks/slack',requireAuth,  (req, res) => {
   const { body } = req;
 
   // Challenge response for URL verification

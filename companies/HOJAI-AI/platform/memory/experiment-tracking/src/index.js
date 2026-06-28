@@ -121,5 +121,11 @@ app.get('/api/stats', (req, res) => {
 app.get('/health', (req, res) => res.json({ service: 'experiment-tracking', status: 'healthy', timestamp: new Date().toISOString() }));
 
 const PORT = process.env.PORT || 4798;
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => console.log(`Experiment Tracking running on port ${PORT}`));
 export default app;

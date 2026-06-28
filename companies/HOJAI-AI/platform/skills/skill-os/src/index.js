@@ -437,7 +437,7 @@ function generateOpenAPI(expressApp) {
 // 1. SKILL REGISTRY
 // =============================================================================
 
-app.post('/api/skills', authOrBypass, async (req, res) => {
+app.post('/api/skills',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const { name, category, description = '', tags = [], code = '', template = null, permissions: perms = [], rateLimit: rl, requiresApproval = false } = req.body || {};
     if (!name || !category) return fail(res, 'INVALID_INPUT', 'name and category are required');
@@ -494,7 +494,7 @@ app.get('/api/skills/categories', async (_req, res) => {
   ok(res, { count: cats.length, categories: cats });
 });
 
-app.post('/api/skills/categories', authOrBypass, async (req, res) => {
+app.post('/api/skills/categories',requireAuth,  authOrBypass, async (req, res) => {
   const { id, name, description = '' } = req.body || {};
   if (!id || !name) return fail(res, 'INVALID_INPUT', 'id and name required');
   if (await categoriesStore.has(id)) return fail(res, 'CONFLICT', 'category exists');
@@ -576,7 +576,7 @@ app.get('/api/skills/marketplace', async (req, res) => {
   ok(res, { count: list.length, listings: list });
 });
 
-app.post('/api/skills/marketplace', authOrBypass, async (req, res) => {
+app.post('/api/skills/marketplace',requireAuth,  authOrBypass, async (req, res) => {
   const { name, provider, version = '1.0.0', description = '', price = 0, category, metadata = {} } = req.body || {};
   if (!name || !provider || !category) return fail(res, 'INVALID_INPUT', 'name, provider, category required');
   const id = `mp-${uuidv4().slice(0, 8)}`;
@@ -591,7 +591,7 @@ app.get('/api/skills/:id', async (req, res) => {
   ok(res, { data: s });
 });
 
-app.put('/api/skills/:id', authOrBypass, async (req, res) => {
+app.put('/api/skills/:id',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const updatable = ['name','description','tags','code','template','permissions','rateLimit','budget','requiresApproval','status','metadata','publisher','requiredModels','supportedLanguages','supportedIndustries','license','pricingModel','price','visibility','inputSchema','outputSchema','compliance'];
@@ -604,7 +604,7 @@ app.put('/api/skills/:id', authOrBypass, async (req, res) => {
   ok(res, { data: s });
 });
 
-app.delete('/api/skills/:id', authOrBypass, async (req, res) => {
+app.delete('/api/skills/:id',requireAuth,  authOrBypass, async (req, res) => {
   if (!(await skillsStore.has(req.params.id))) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   await skillsStore.delete(req.params.id);
   logEvent(req.params.id, 'deleted', {});
@@ -617,7 +617,7 @@ app.delete('/api/skills/:id', authOrBypass, async (req, res) => {
 // 2. SKILL RUNTIME
 // =============================================================================
 
-app.post('/api/skills/:id/execute', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/execute',requireAuth,  authOrBypass, async (req, res) => {
   const start = Date.now();
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
@@ -665,7 +665,7 @@ app.post('/api/skills/:id/execute', authOrBypass, async (req, res) => {
 // 5. SKILL COMPOSITION
 // =============================================================================
 
-app.post('/api/skills/compose', authOrBypass, async (req, res) => {
+app.post('/api/skills/compose',requireAuth,  authOrBypass, async (req, res) => {
   const { steps = [] } = req.body || {};
   if (!Array.isArray(steps) || steps.length === 0) return fail(res, 'INVALID_INPUT', 'steps array required');
   const compositionId = uuidv4();
@@ -693,7 +693,7 @@ app.post('/api/skills/compose', authOrBypass, async (req, res) => {
 // 6. SKILL LEARNING
 // =============================================================================
 
-app.post('/api/skills/:id/learn', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/learn',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { feedback, score = 1.0, hint } = req.body || {};
@@ -719,7 +719,7 @@ app.get('/api/skills/:id/learn', async (req, res) => {
 // 7. SKILL VERSIONING
 // =============================================================================
 
-app.post('/api/skills/:id/versions', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/versions',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { version, code, changelog = '' } = req.body || {};
@@ -746,7 +746,7 @@ app.get('/api/skills/:id/versions', async (req, res) => {
 // 8. SKILL PERMISSIONS
 // =============================================================================
 
-app.post('/api/skills/:id/permissions', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/permissions',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { principal, action, effect = 'allow' } = req.body || {};
@@ -787,7 +787,7 @@ app.get('/api/analytics', async (_req, res) => {
 // 10. SKILL TEMPLATES
 // =============================================================================
 
-app.post('/api/skill-templates', authOrBypass, async (req, res) => {
+app.post('/api/skill-templates',requireAuth,  authOrBypass, async (req, res) => {
   const { name, category, code, description = '' } = req.body || {};
   if (!name || !category || !code) return fail(res, 'INVALID_INPUT', 'name, category, code required');
   const id = `tpl-${uuidv4().slice(0, 8)}`;
@@ -803,7 +803,7 @@ app.get('/api/skill-templates', async (req, res) => {
   ok(res, { count: list.length, templates: list });
 });
 
-app.post('/api/skill-templates/:id/instantiate', authOrBypass, async (req, res) => {
+app.post('/api/skill-templates/:id/instantiate',requireAuth,  authOrBypass, async (req, res) => {
   const tpl = await skillTemplatesStore.get(req.params.id);
   if (!tpl) return fail(res, 'NOT_FOUND', 'template not found', 404);
   const { name, tags = [] } = req.body || {};
@@ -826,7 +826,7 @@ app.post('/api/skill-templates/:id/instantiate', authOrBypass, async (req, res) 
 // 11. SKILL DEPENDENCIES
 // =============================================================================
 
-app.post('/api/skills/:id/dependencies', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/dependencies',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { dependsOn, kind = 'runtime' } = req.body || {};
@@ -869,7 +869,7 @@ app.get('/api/skill-events', async (req, res) => {
 // 13. SKILL POLICIES
 // =============================================================================
 
-app.put('/api/skills/:id/policies', authOrBypass, async (req, res) => {
+app.put('/api/skills/:id/policies',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { rateLimit, budget, requiresApproval } = req.body || {};
@@ -885,7 +885,7 @@ app.put('/api/skills/:id/policies', authOrBypass, async (req, res) => {
 // 14-16. SKILL INTEGRATIONS (real upstream calls)
 // =============================================================================
 
-app.post('/api/skills/:id/memory', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/memory',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { op = 'read', memoryId, data, partition } = req.body || {};
@@ -900,7 +900,7 @@ app.post('/api/skills/:id/memory', authOrBypass, async (req, res) => {
   ok(res, { op, skillId: s.id, partition: partitionKey, memoryId, upstream: { url: MEMORYOS_URL, status: r.status, data: r.data } });
 });
 
-app.post('/api/skills/:id/twin', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/twin',requireAuth,  authOrBypass, async (req, res) => {
   // Accept either a skill id (in skillsStore) or an asset id of type=skill (in assetsStore)
   let s = await getSkill(req.params.id);
   if (!s) {
@@ -920,7 +920,7 @@ app.post('/api/skills/:id/twin', authOrBypass, async (req, res) => {
   ok(res, { op, skillId: s.id, twinId: resolvedTwinId, upstream: { url: TWINOS_URL, status: r.status, data: r.data } });
 });
 
-app.post('/api/skills/:id/flow', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/flow',requireAuth,  authOrBypass, async (req, res) => {
   const s = await getSkill(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'skill not found', 404);
   const { flowId, step, input } = req.body || {};
@@ -937,7 +937,7 @@ app.post('/api/skills/:id/flow', authOrBypass, async (req, res) => {
 // 18. SKILL TESTING (real VM execution)
 // =============================================================================
 
-app.post('/api/skills/:id/test', authOrBypass, async (req, res) => {
+app.post('/api/skills/:id/test',requireAuth,  authOrBypass, async (req, res) => {
   let s = await getSkill(req.params.id);
   if (!s) {
     const a = await getAsset(req.params.id);
@@ -1022,7 +1022,7 @@ app.get('/api/assets', async (req, res) => {
   ok(res, { count: list.length, assets: list });
 });
 
-app.post('/api/assets', authOrBypass, async (req, res) => {
+app.post('/api/assets',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const { name, assetType, description = '', category, tags = [], code = null, visibility = 'public' } = req.body || {};
     if (!name || !assetType) return fail(res, 'INVALID_INPUT', 'name and assetType required');
@@ -1077,7 +1077,7 @@ app.get('/api/assets/:id', async (req, res) => {
   ok(res, { data: a });
 });
 
-app.put('/api/assets/:id', authOrBypass, async (req, res) => {
+app.put('/api/assets/:id',requireAuth,  authOrBypass, async (req, res) => {
   const a = await getAsset(req.params.id);
   if (!a) return fail(res, 'NOT_FOUND', 'asset not found', 404);
   try {
@@ -1095,7 +1095,7 @@ app.put('/api/assets/:id', authOrBypass, async (req, res) => {
   }
 });
 
-app.delete('/api/assets/:id', authOrBypass, async (req, res) => {
+app.delete('/api/assets/:id',requireAuth,  authOrBypass, async (req, res) => {
   if (!(await assetsStore.has(req.params.id))) return fail(res, 'NOT_FOUND', 'asset not found', 404);
   await assetsStore.delete(req.params.id);
   emitEvent(req, 'asset.unregistered', { assetId: req.params.id });
@@ -1108,7 +1108,7 @@ app.delete('/api/assets/:id', authOrBypass, async (req, res) => {
 // INSTALL REGISTRY
 // =============================================================================
 
-app.post('/api/assets/:id/install', authOrBypass, async (req, res) => {
+app.post('/api/assets/:id/install',requireAuth,  authOrBypass, async (req, res) => {
   const a = await getAsset(req.params.id);
   if (!a) return fail(res, 'NOT_FOUND', 'asset not found', 404);
   const { tenantId, version } = req.body || {};
@@ -1155,7 +1155,7 @@ app.get('/api/installed', async (req, res) => {
   ok(res, { count: list.length, installs: list, scope: { tenantId: scope.tenantId, isGlobal: scope.isGlobal } });
 });
 
-app.delete('/api/installed/:id', authOrBypass, async (req, res) => {
+app.delete('/api/installed/:id',requireAuth,  authOrBypass, async (req, res) => {
   const install = await installsStore.get(req.params.id);
   if (!install) return fail(res, 'NOT_FOUND', 'install not found', 404);
   install.status = 'uninstalled';
@@ -1166,7 +1166,7 @@ app.delete('/api/installed/:id', authOrBypass, async (req, res) => {
   ok(res, { data: install });
 });
 
-app.post('/api/installed/:id/pin', authOrBypass, async (req, res) => {
+app.post('/api/installed/:id/pin',requireAuth,  authOrBypass, async (req, res) => {
   const install = await installsStore.get(req.params.id);
   if (!install) return fail(res, 'NOT_FOUND', 'install not found', 404);
   install.pinnedVersion = true;
@@ -1178,7 +1178,7 @@ app.post('/api/installed/:id/pin', authOrBypass, async (req, res) => {
   ok(res, { data: install });
 });
 
-app.post('/api/installed/:id/upgrade', authOrBypass, async (req, res) => {
+app.post('/api/installed/:id/upgrade',requireAuth,  authOrBypass, async (req, res) => {
   const install = await installsStore.get(req.params.id);
   if (!install) return fail(res, 'NOT_FOUND', 'install not found', 404);
   const asset = await getAsset(install.assetId);
@@ -1196,7 +1196,7 @@ app.post('/api/installed/:id/upgrade', authOrBypass, async (req, res) => {
   ok(res, { data: install });
 });
 
-app.post('/api/installed/:id/rollback', authOrBypass, async (req, res) => {
+app.post('/api/installed/:id/rollback',requireAuth,  authOrBypass, async (req, res) => {
   const install = await installsStore.get(req.params.id);
   if (!install) return fail(res, 'NOT_FOUND', 'install not found', 404);
   const history = install.versionHistory || [];
@@ -1234,7 +1234,7 @@ app.get('/api/installed/:id/history', async (req, res) => {
 // CERTIFICATION
 // =============================================================================
 
-app.post('/api/assets/:id/certify', authOrBypass, async (req, res) => {
+app.post('/api/assets/:id/certify',requireAuth,  authOrBypass, async (req, res) => {
   const a = await getAsset(req.params.id);
   if (!a) return fail(res, 'NOT_FOUND', 'asset not found', 404);
   try {
@@ -1260,7 +1260,7 @@ app.get('/api/assets/:id/certify', async (req, res) => {
 // BILLING
 // =============================================================================
 
-app.post('/api/billing/charge', authOrBypass, async (req, res) => {
+app.post('/api/billing/charge',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const tx = buildTransaction(req.body);
     await transactionsStore.set(tx.id, tx);
@@ -1297,7 +1297,7 @@ app.get('/api/billing/payouts/:publisherId', async (req, res) => {
 // GOVERNANCE
 // =============================================================================
 
-app.post('/api/assets/:id/deprecate', authOrBypass, async (req, res) => {
+app.post('/api/assets/:id/deprecate',requireAuth,  authOrBypass, async (req, res) => {
   const a = await getAsset(req.params.id);
   if (!a) return fail(res, 'NOT_FOUND', 'asset not found', 404);
   const dep = buildDeprecation(req.body || {});
@@ -1329,7 +1329,7 @@ app.get('/api/audit', async (req, res) => {
 // PHASE 3: PERSONAL SKILL LIBRARIES
 // =============================================================================
 
-app.post('/api/libraries', authOrBypass, async (req, res) => {
+app.post('/api/libraries',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const lib = buildLibrary(req.body);
     await librariesStore.set(lib.id, lib);
@@ -1353,7 +1353,7 @@ app.get('/api/libraries/:id', async (req, res) => {
   ok(res, { data: lib });
 });
 
-app.put('/api/libraries/:id', authOrBypass, async (req, res) => {
+app.put('/api/libraries/:id',requireAuth,  authOrBypass, async (req, res) => {
   const lib = await librariesStore.get(req.params.id);
   if (!lib) return fail(res, 'NOT_FOUND', 'library not found', 404);
   const updatable = ['name', 'description', 'visibility'];
@@ -1363,13 +1363,13 @@ app.put('/api/libraries/:id', authOrBypass, async (req, res) => {
   ok(res, { data: lib });
 });
 
-app.delete('/api/libraries/:id', authOrBypass, async (req, res) => {
+app.delete('/api/libraries/:id',requireAuth,  authOrBypass, async (req, res) => {
   if (!(await librariesStore.has(req.params.id))) return fail(res, 'NOT_FOUND', 'library not found', 404);
   await librariesStore.delete(req.params.id);
   ok(res, { deleted: req.params.id });
 });
 
-app.post('/api/libraries/:id/skills/:assetId', authOrBypass, async (req, res) => {
+app.post('/api/libraries/:id/skills/:assetId',requireAuth,  authOrBypass, async (req, res) => {
   const lib = await librariesStore.get(req.params.id);
   if (!lib) return fail(res, 'NOT_FOUND', 'library not found', 404);
   const a = await assetsStore.get(req.params.assetId);
@@ -1382,7 +1382,7 @@ app.post('/api/libraries/:id/skills/:assetId', authOrBypass, async (req, res) =>
   ok(res, { data: lib });
 });
 
-app.delete('/api/libraries/:id/skills/:assetId', authOrBypass, async (req, res) => {
+app.delete('/api/libraries/:id/skills/:assetId',requireAuth,  authOrBypass, async (req, res) => {
   const lib = await librariesStore.get(req.params.id);
   if (!lib) return fail(res, 'NOT_FOUND', 'library not found', 404);
   lib.skillIds = lib.skillIds.filter((s) => s !== req.params.assetId);
@@ -1399,7 +1399,7 @@ app.get('/api/libraries/:id/skills', async (req, res) => {
   ok(res, { count: valid.length, skills: valid });
 });
 
-app.post('/api/libraries/:id/agents/:agentId', authOrBypass, async (req, res) => {
+app.post('/api/libraries/:id/agents/:agentId',requireAuth,  authOrBypass, async (req, res) => {
   const lib = await librariesStore.get(req.params.id);
   if (!lib) return fail(res, 'NOT_FOUND', 'library not found', 404);
   const agent = await resolveOwner(req.params.agentId, { expectedType: 'agent' });
@@ -1417,7 +1417,7 @@ app.post('/api/libraries/:id/agents/:agentId', authOrBypass, async (req, res) =>
 // PHASE 3: TRAINING DATASETS
 // =============================================================================
 
-app.post('/api/datasets', authOrBypass, async (req, res) => {
+app.post('/api/datasets',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const ds = buildDataset(req.body);
     await datasetsStore.set(ds.id, ds);
@@ -1441,7 +1441,7 @@ app.get('/api/datasets/:id', async (req, res) => {
   ok(res, { data: ds });
 });
 
-app.put('/api/datasets/:id', authOrBypass, async (req, res) => {
+app.put('/api/datasets/:id',requireAuth,  authOrBypass, async (req, res) => {
   const ds = await datasetsStore.get(req.params.id);
   if (!ds) return fail(res, 'NOT_FOUND', 'dataset not found', 404);
   if (ds.status !== 'draft') return fail(res, 'NOT_DRAFT', 'cannot edit a finalized or archived dataset', 409);
@@ -1452,7 +1452,7 @@ app.put('/api/datasets/:id', authOrBypass, async (req, res) => {
   ok(res, { data: ds });
 });
 
-app.post('/api/datasets/:id/examples', authOrBypass, async (req, res) => {
+app.post('/api/datasets/:id/examples',requireAuth,  authOrBypass, async (req, res) => {
   const ds = await datasetsStore.get(req.params.id);
   if (!ds) return fail(res, 'NOT_FOUND', 'dataset not found', 404);
   try {
@@ -1464,7 +1464,7 @@ app.post('/api/datasets/:id/examples', authOrBypass, async (req, res) => {
   } catch (e) { fail(res, 'INVALID_INPUT', e.message, 400); }
 });
 
-app.post('/api/datasets/:id/finalize', authOrBypass, async (req, res) => {
+app.post('/api/datasets/:id/finalize',requireAuth,  authOrBypass, async (req, res) => {
   const ds = await datasetsStore.get(req.params.id);
   if (!ds) return fail(res, 'NOT_FOUND', 'dataset not found', 404);
   try {
@@ -1475,7 +1475,7 @@ app.post('/api/datasets/:id/finalize', authOrBypass, async (req, res) => {
   } catch (e) { fail(res, 'INVALID_INPUT', e.message, 400); }
 });
 
-app.post('/api/datasets/:id/version', authOrBypass, async (req, res) => {
+app.post('/api/datasets/:id/version',requireAuth,  authOrBypass, async (req, res) => {
   const parent = await datasetsStore.get(req.params.id);
   if (!parent) return fail(res, 'NOT_FOUND', 'dataset not found', 404);
   try {
@@ -1486,7 +1486,7 @@ app.post('/api/datasets/:id/version', authOrBypass, async (req, res) => {
   } catch (e) { fail(res, 'INVALID_INPUT', e.message, 400); }
 });
 
-app.delete('/api/datasets/:id', authOrBypass, async (req, res) => {
+app.delete('/api/datasets/:id',requireAuth,  authOrBypass, async (req, res) => {
   const ds = await datasetsStore.get(req.params.id);
   if (!ds) return fail(res, 'NOT_FOUND', 'dataset not found', 404);
   ds.status = 'archived';
@@ -1499,7 +1499,7 @@ app.delete('/api/datasets/:id', authOrBypass, async (req, res) => {
 // PHASE 3: TRAINING JOBS
 // =============================================================================
 
-app.post('/api/training/jobs', authOrBypass, async (req, res) => {
+app.post('/api/training/jobs',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const job = buildJob(req.body);
     await trainingJobsStore.set(job.id, job);
@@ -1528,7 +1528,7 @@ app.get('/api/training/jobs/:id', async (req, res) => {
   ok(res, { data: job });
 });
 
-app.post('/api/training/jobs/:id/sync', authOrBypass, async (req, res) => {
+app.post('/api/training/jobs/:id/sync',requireAuth,  authOrBypass, async (req, res) => {
   const job = await trainingJobsStore.get(req.params.id);
   if (!job) return fail(res, 'NOT_FOUND', 'job not found', 404);
   if (!job.backendId) {
@@ -1557,7 +1557,7 @@ app.post('/api/training/jobs/:id/sync', authOrBypass, async (req, res) => {
   ok(res, { data: updated });
 });
 
-app.post('/api/training/jobs/:id/cancel', authOrBypass, async (req, res) => {
+app.post('/api/training/jobs/:id/cancel',requireAuth,  authOrBypass, async (req, res) => {
   const job = await trainingJobsStore.get(req.params.id);
   if (!job) return fail(res, 'NOT_FOUND', 'job not found', 404);
   if (!['queued', 'running'].includes(job.status)) {
@@ -1574,7 +1574,7 @@ app.post('/api/training/jobs/:id/cancel', authOrBypass, async (req, res) => {
 // PHASE 3: MODEL ADAPTERS
 // =============================================================================
 
-app.post('/api/adapters', authOrBypass, async (req, res) => {
+app.post('/api/adapters',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const adapter = buildModelAdapter(req.body);
     await modelAdaptersStore.set(adapter.id, adapter);
@@ -1597,7 +1597,7 @@ app.get('/api/adapters/:id', async (req, res) => {
   ok(res, { data: a });
 });
 
-app.put('/api/adapters/:id', authOrBypass, async (req, res) => {
+app.put('/api/adapters/:id',requireAuth,  authOrBypass, async (req, res) => {
   const a = await modelAdaptersStore.get(req.params.id);
   if (!a) return fail(res, 'NOT_FOUND', 'adapter not found', 404);
   const updatable = ['name', 'status', 'endpoint'];
@@ -1611,7 +1611,7 @@ app.put('/api/adapters/:id', authOrBypass, async (req, res) => {
 // PHASE 3: REVIEWS
 // =============================================================================
 
-app.post('/api/assets/:id/reviews', authOrBypass, async (req, res) => {
+app.post('/api/assets/:id/reviews',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const a = await assetsStore.get(req.params.id);
     if (!a) return fail(res, 'NOT_FOUND', 'asset not found', 404);
@@ -1639,7 +1639,7 @@ app.get('/api/reviews/:id', async (req, res) => {
   ok(res, { data: r });
 });
 
-app.put('/api/reviews/:id', authOrBypass, async (req, res) => {
+app.put('/api/reviews/:id',requireAuth,  authOrBypass, async (req, res) => {
   const r = await reviewsStore.get(req.params.id);
   if (!r) return fail(res, 'NOT_FOUND', 'review not found', 404);
   const updatable = ['rating', 'title', 'body', 'pros', 'cons'];
@@ -1649,13 +1649,13 @@ app.put('/api/reviews/:id', authOrBypass, async (req, res) => {
   ok(res, { data: r });
 });
 
-app.delete('/api/reviews/:id', authOrBypass, async (req, res) => {
+app.delete('/api/reviews/:id',requireAuth,  authOrBypass, async (req, res) => {
   if (!(await reviewsStore.has(req.params.id))) return fail(res, 'NOT_FOUND', 'review not found', 404);
   await reviewsStore.delete(req.params.id);
   ok(res, { deleted: req.params.id });
 });
 
-app.post('/api/reviews/:id/helpful', authOrBypass, async (req, res) => {
+app.post('/api/reviews/:id/helpful',requireAuth,  authOrBypass, async (req, res) => {
   const r = await reviewsStore.get(req.params.id);
   if (!r) return fail(res, 'NOT_FOUND', 'review not found', 404);
   const kind = req.body?.vote === 'unhelpful' ? 'unhelpful' : 'helpful';
@@ -1664,7 +1664,7 @@ app.post('/api/reviews/:id/helpful', authOrBypass, async (req, res) => {
   ok(res, { data: updated });
 });
 
-app.post('/api/reviews/:id/response', authOrBypass, async (req, res) => {
+app.post('/api/reviews/:id/response',requireAuth,  authOrBypass, async (req, res) => {
   const r = await reviewsStore.get(req.params.id);
   if (!r) return fail(res, 'NOT_FOUND', 'review not found', 404);
   try {
@@ -1674,7 +1674,7 @@ app.post('/api/reviews/:id/response', authOrBypass, async (req, res) => {
   } catch (e) { fail(res, 'INVALID_INPUT', e.message, 400); }
 });
 
-app.post('/api/reviews/:id/flag', authOrBypass, async (req, res) => {
+app.post('/api/reviews/:id/flag',requireAuth,  authOrBypass, async (req, res) => {
   const r = await reviewsStore.get(req.params.id);
   if (!r) return fail(res, 'NOT_FOUND', 'review not found', 404);
   const updated = flagReview(r, req.body?.reason);
@@ -1725,7 +1725,7 @@ app.get('/api/creators/:creatorId/assets', async (req, res) => {
 // PHASE 3: PRICING PLANS
 // =============================================================================
 
-app.post('/api/assets/:id/plans', authOrBypass, async (req, res) => {
+app.post('/api/assets/:id/plans',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const a = await assetsStore.get(req.params.id);
     if (!a) return fail(res, 'NOT_FOUND', 'asset not found', 404);
@@ -1740,7 +1740,7 @@ app.get('/api/assets/:id/plans', async (req, res) => {
   ok(res, { count: list.length, plans: list });
 });
 
-app.put('/api/plans/:id', authOrBypass, async (req, res) => {
+app.put('/api/plans/:id',requireAuth,  authOrBypass, async (req, res) => {
   const p = await pricingPlansStore.get(req.params.id);
   if (!p) return fail(res, 'NOT_FOUND', 'plan not found', 404);
   const updatable = ['name', 'price', 'interval', 'features', 'limits', 'active', 'trialDays'];
@@ -1750,7 +1750,7 @@ app.put('/api/plans/:id', authOrBypass, async (req, res) => {
   ok(res, { data: p });
 });
 
-app.delete('/api/plans/:id', authOrBypass, async (req, res) => {
+app.delete('/api/plans/:id',requireAuth,  authOrBypass, async (req, res) => {
   const p = await pricingPlansStore.get(req.params.id);
   if (!p) return fail(res, 'NOT_FOUND', 'plan not found', 404);
   p.active = false;
@@ -1762,7 +1762,7 @@ app.delete('/api/plans/:id', authOrBypass, async (req, res) => {
 // PHASE 3: SUBSCRIPTIONS
 // =============================================================================
 
-app.post('/api/subscriptions', authOrBypass, async (req, res) => {
+app.post('/api/subscriptions',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const { planId } = req.body || {};
     if (!planId) return fail(res, 'INVALID_INPUT', 'planId required');
@@ -1794,7 +1794,7 @@ app.get('/api/subscriptions', async (req, res) => {
   ok(res, { count: list.length, subscriptions: list });
 });
 
-app.put('/api/subscriptions/:id', authOrBypass, async (req, res) => {
+app.put('/api/subscriptions/:id',requireAuth,  authOrBypass, async (req, res) => {
   const s = await subscriptionsStore.get(req.params.id);
   if (!s) return fail(res, 'NOT_FOUND', 'subscription not found', 404);
   const updatable = ['status', 'autoRenew'];
@@ -1810,7 +1810,7 @@ app.put('/api/subscriptions/:id', authOrBypass, async (req, res) => {
 // PHASE 3: PAYOUTS
 // =============================================================================
 
-app.post('/api/billing/payouts', authOrBypass, async (req, res) => {
+app.post('/api/billing/payouts',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const payout = buildPayout(req.body);
     await payoutsStore.set(payout.id, payout);
@@ -1827,7 +1827,7 @@ app.get('/api/billing/payouts', async (req, res) => {
   ok(res, { count: list.length, payouts: list });
 });
 
-app.put('/api/billing/payouts/:id', authOrBypass, async (req, res) => {
+app.put('/api/billing/payouts/:id',requireAuth,  authOrBypass, async (req, res) => {
   const p = await payoutsStore.get(req.params.id);
   if (!p) return fail(res, 'NOT_FOUND', 'payout not found', 404);
   const updatable = ['status', 'notes', 'destination'];
@@ -1858,7 +1858,7 @@ app.get('/api/dashboard/publisher/:publisherId', async (req, res) => {
 // PHASE 3: ENHANCEMENT (AGENTS + PACKS)
 // =============================================================================
 
-app.post('/api/agents/:agentId/enhance', authOrBypass, async (req, res) => {
+app.post('/api/agents/:agentId/enhance',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const { skillIds, libraryId, tenantId, installedBy } = req.body || {};
     if (!Array.isArray(skillIds) || skillIds.length === 0) return fail(res, 'INVALID_INPUT', 'skillIds required');
@@ -1891,7 +1891,7 @@ app.get('/api/agents/:agentId/skills', async (req, res) => {
   ok(res, { count: skills.filter(Boolean).length, agentId: req.params.agentId, skills: skills.filter(Boolean).map(fillMetadata) });
 });
 
-app.post('/api/assets/:id/install-pack', authOrBypass, async (req, res) => {
+app.post('/api/assets/:id/install-pack',requireAuth,  authOrBypass, async (req, res) => {
   try {
     const pack = await assetsStore.get(req.params.id);
     if (!pack) return fail(res, 'NOT_FOUND', 'pack not found', 404);

@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Notion Connector
  * Port: 4794
@@ -45,7 +46,7 @@ app.get('/api/pages', (req, res) => {
   res.json({ success: true, data: { pages: all, total: all.length } });
 });
 
-app.post('/api/pages', (req, res) => {
+app.post('/api/pages',requireAuth,  (req, res) => {
   const { title, content, parent, tags } = req.body;
   if (!title) return res.status(400).json({ success: false, error: 'title required' });
 

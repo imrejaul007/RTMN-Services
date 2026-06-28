@@ -2334,6 +2334,170 @@ app.get('/api/federation/saml/sls', asyncHandler(async (req, res) => {
   res.redirect(`${redirectUrl}${redirectUrl.includes('?') ? '&' : '?'}logout=true`);
 }));
 
+// ============ TIMELINE HELPERS ============
+
+/**
+ * Generate human-readable title for timeline event
+ */
+function generateTimelineTitle(event) {
+  const titles = {
+    'user.registered': 'Account Created',
+    'user.login': 'Logged In',
+    'user.logout': 'Logged Out',
+    'user.password_changed': 'Password Changed',
+    'user.profile_updated': 'Profile Updated',
+    'mfa.enabled': 'MFA Enabled',
+    'mfa.disabled': 'MFA Disabled',
+    'agent.created': 'AI Agent Created',
+    'agent.updated': 'AI Agent Updated',
+    'agent.suspended': 'AI Agent Suspended',
+    'agent.revoked': 'AI Agent Revoked',
+    'agent.delegation_granted': 'Delegation Granted',
+    'agent.delegation_revoked': 'Delegation Revoked',
+    'trust.score_changed': 'Trust Score Updated',
+    'trust.elevated': 'Trust Score Increased',
+    'trust.degraded': 'Trust Score Decreased',
+    'workload.registered': 'Workload Registered',
+    'workload.credential_rotated': 'Credentials Rotated',
+    'session.started': 'New Session Started',
+    'session.terminated': 'Session Ended',
+    'delegation.created': 'Delegation Created',
+    'delegation.updated': 'Delegation Updated',
+    'delegation.revoked': 'Delegation Revoked',
+    'delegation.approved': 'Delegation Approved',
+    'delegation.rejected': 'Delegation Rejected',
+    'delegation.expired': 'Delegation Expired',
+    'risk.alert': 'Security Alert',
+    'risk.mitigated': 'Risk Mitigated',
+    'business.joined': 'Joined Business',
+    'business.left': 'Left Business',
+    'role.changed': 'Role Changed',
+  };
+  return titles[event.type] || event.type.replace('.', ' ').replace(/_/g, ' ');
+}
+
+/**
+ * Generate human-readable description for timeline event
+ */
+function generateTimelineDescription(event) {
+  const data = event.data || {};
+
+  switch (event.type) {
+    case 'trust.score_changed':
+      return `Trust score changed from ${data.from || '?'} to ${data.to || data.score || '?'}`;
+    case 'delegation.created':
+      return `Granted ${event.actor} delegation for: ${data.scope?.join(', ') || 'specific scope'}`;
+    case 'agent.created':
+      return `Created AI agent "${data.name || event.actor}"`;
+    case 'agent.suspended':
+      return `AI agent suspended: ${data.reason || 'No reason provided'}`;
+    case 'mfa.enabled':
+      return 'Two-factor authentication enabled';
+    case 'user.login':
+      return `Login from ${data.ip || 'unknown location'}`;
+    case 'risk.alert':
+      return `Risk alert: ${data.riskType || 'Unknown risk'} (score: ${data.score || '?'})`;
+    case 'session.started':
+      return `New session started ${data.device ? `on ${data.device}` : ''}`;
+    default:
+      return data.description || `Event: ${event.type}`;
+  }
+}
+
+/**
+ * Get icon for timeline event type
+ */
+function getTimelineIcon(eventType) {
+  const icons = {
+    'user.*': '👤',
+    'auth.*': '🔐',
+    'mfa.*': '🛡️',
+    'agent.*': '🤖',
+    'trust.*': '⭐',
+    'workload.*': '⚙️',
+    'session.*': '📱',
+    'delegation.*': '🔗',
+    'risk.*': '⚠️',
+    'business.*': '🏢',
+    'role.*': '👔',
+    'profile.*': '📝',
+  };
+
+  for (const [pattern, icon] of Object.entries(icons)) {
+    const regex = new RegExp('^' + pattern.replace('*', '.*') + '$');
+    if (regex.test(eventType)) return icon;
+  }
+  return '📌';
+}
+
+/**
+ * Determine event impact
+ */
+function getTimelineImpact(event) {
+  const negative = ['risk.alert', 'trust.degraded', 'agent.suspended', 'delegation.revoked', 'session.terminated', 'mfa.disabled'];
+  const positive = ['trust.elevated', 'mfa.enabled', 'delegation.approved', 'agent.created'];
+
+  if (negative.includes(event.type)) return 'negative';
+  if (positive.includes(event.type)) return 'positive';
+  return 'neutral';
+}
+
+/**
+ * Generate timeline highlights
+ */
+function generateTimelineHighlights(events) {
+  const highlights = [];
+
+  const trustChanges = events.filter(e => e.type.startsWith('trust.'));
+  if (trustChanges.length > 0) {
+    highlights.push(`${trustChanges.length} trust score change(s)`);
+  }
+
+  const agentEvents = events.filter(e => e.type.startsWith('agent.'));
+  if (agentEvents.length > 0) {
+    highlights.push(`${agentEvents.length} agent event(s)`);
+  }
+
+  const delegationEvents = events.filter(e => e.type.startsWith('delegation.'));
+  if (delegationEvents.length > 0) {
+    highlights.push(`${delegationEvents.length} delegation event(s)`);
+  }
+
+  const riskAlerts = events.filter(e => e.type === 'risk.alert');
+  if (riskAlerts.length > 0) {
+    highlights.push(`${riskAlerts.length} security alert(s)`);
+  }
+
+  return highlights;
+}
+
+/**
+ * Identify risk indicators from events
+ */
+function identifyRiskIndicators(events) {
+  const indicators = [];
+
+  const failedLogins = events.filter(e => e.type === 'user.login_failed' || e.type === 'auth.failed');
+  if (failedLogins.length > 3) {
+    indicators.push({ type: 'multiple_failed_logins', count: failedLogins.length, severity: 'medium' });
+  }
+
+  const riskAlerts = events.filter(e => e.type === 'risk.alert');
+  if (riskAlerts.length > 0) {
+    const highSeverity = riskAlerts.filter(e => e.data?.score > 70);
+    if (highSeverity.length > 0) {
+      indicators.push({ type: 'high_risk_alerts', count: highSeverity.length, severity: 'high' });
+    }
+  }
+
+  const trustDegrades = events.filter(e => e.type === 'trust.degraded');
+  if (trustDegrades.length > 0) {
+    indicators.push({ type: 'trust_degradation', count: trustDegrades.length, severity: 'medium' });
+  }
+
+  return indicators;
+}
+
 // ============ TIMELINE ROUTES ============
 
 app.post('/api/timeline/events', requireAuth, [
@@ -2368,6 +2532,159 @@ app.get('/api/timeline/events', requireAuth, asyncHandler(async (req, res) => {
   events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   const limited = events.slice(0, parseInt(limit));
   res.json({ success: true, count: limited.length, events: limited });
+}));
+
+// GET /api/timeline/:entityId — Get human-readable timeline for any entity
+app.get('/api/timeline/:entityId', requireAuth, asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+  const { category, from, to, limit = '100' } = req.query;
+
+  let events = await IdentityEvent.find();
+  events = events.filter(e => e.corpId === entityId);
+
+  if (category) events = events.filter(e => e.category === category);
+  if (from) events = events.filter(e => new Date(e.timestamp) >= new Date(from));
+  if (to) events = events.filter(e => new Date(e.timestamp) <= new Date(to));
+
+  events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const limited = events.slice(0, parseInt(limit));
+
+  // Transform to human-readable timeline entries
+  const timeline = limited.map(e => ({
+    id: e.eventId,
+    entityId: e.corpId,
+    eventType: e.type,
+    title: generateTimelineTitle(e),
+    description: generateTimelineDescription(e),
+    icon: getTimelineIcon(e.type),
+    category: e.category,
+    impact: getTimelineImpact(e),
+    timestamp: e.timestamp,
+    actor: e.actor,
+    evidence: { source: 'corpID', data: e.data },
+  }));
+
+  res.json({ success: true, entityId, count: timeline.length, timeline });
+}));
+
+// GET /api/timeline/:entityId/summary — AI-generated timeline summary
+app.get('/api/timeline/:entityId/summary', requireAuth, asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+  const { period = '30d' } = req.query;
+
+  const now = new Date();
+  const periodDays = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 30;
+  const fromDate = new Date(now.getTime() - periodDays * 24 * 60 * 60 * 1000);
+
+  let events = await IdentityEvent.find();
+  events = events.filter(e => e.corpId === entityId && new Date(e.timestamp) >= fromDate);
+
+  // Generate summary stats
+  const byCategory = {};
+  const byType = {};
+  const byDay = {};
+  let lastActivity = null;
+
+  for (const e of events) {
+    byCategory[e.category] = (byCategory[e.category] || 0) + 1;
+    byType[e.type] = (byType[e.type] || 0) + 1;
+    const day = e.timestamp.split('T')[0];
+    byDay[day] = (byDay[day] || 0) + 1;
+    if (!lastActivity || new Date(e.timestamp) > new Date(lastActivity)) {
+      lastActivity = e.timestamp;
+    }
+  }
+
+  // Generate human-readable summary
+  const summary = {
+    entityId,
+    period,
+    totalEvents: events.length,
+    categories: byCategory,
+    mostActiveDay: Object.entries(byDay).sort((a, b) => b[1] - a[1])[0]?.[0] || null,
+    lastActivity,
+    highlights: generateTimelineHighlights(events),
+    riskIndicators: identifyRiskIndicators(events),
+  };
+
+  res.json({ success: true, summary });
+}));
+
+// POST /api/timeline/:entityId/annotate — Add human annotation to timeline
+app.post('/api/timeline/:entityId/annotate', [
+  requireAuth,
+  body('eventId').optional().trim(),
+  body('title').trim().isLength({ min: 1, max: 200 }).withMessage('title required (1-200 chars)'),
+  body('description').optional().trim().isLength({ max: 1000 }),
+  body('category').optional().isIn(['lifecycle', 'trust', 'relationship', 'security', 'business', 'general']),
+  body('impact').optional().isIn(['positive', 'negative', 'neutral']),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+  const { eventId, title, description, category = 'general', impact = 'neutral' } = sanitizeInput(req.body);
+
+  // Create annotation event
+  const event = await IdentityEvent.create({
+    eventId: `EVT-${uuidv4()}`,
+    corpId: entityId,
+    type: `annotation.${category}`,
+    category,
+    actor: req.user.id,
+    data: { title, description, annotatedEventId: eventId, impact },
+    timestamp: new Date().toISOString(),
+  });
+
+  logger.info({ eventId: event.eventId, entityId, title }, 'Timeline annotation added');
+  res.status(201).json({ success: true, event });
+}));
+
+// GET /api/timeline/:entityId/related — Get timelines of related entities
+app.get('/api/timeline/:entityId/related', requireAuth, asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+  const { depth = '1', limit = '50' } = req.query;
+
+  // Find related entities via relationship graph
+  const nodes = await RelNode.find();
+  const edges = await RelEdge.find();
+  const related = new Map();
+  const visited = new Set([entityId]);
+  const maxDepth = parseInt(depth);
+
+  // BFS to find related entities
+  let queue = [entityId];
+  for (let d = 0; d < maxDepth && queue.length > 0; d++) {
+    const nextQueue = [];
+    for (const current of queue) {
+      const outgoing = edges.filter(e => e.sourceNodeId === current);
+      const incoming = edges.filter(e => e.targetNodeId === current);
+
+      for (const edge of [...outgoing, ...incoming]) {
+        const relatedId = edge.sourceNodeId === current ? edge.targetNodeId : edge.sourceNodeId;
+        if (visited.has(relatedId)) continue;
+        visited.add(relatedId);
+        nextQueue.push(relatedId);
+
+        const node = nodes.find(n => n.nodeId === relatedId);
+        if (node) {
+          // Get recent events for this entity
+          let events = await IdentityEvent.find();
+          events = events.filter(e => e.corpId === node.entityId)
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+            .slice(0, parseInt(limit));
+
+          related.set(relatedId, {
+            node,
+            relationship: edge.edgeType,
+            depth: d + 1,
+            recentEvents: events.map(e => ({ type: e.type, timestamp: e.timestamp })),
+          });
+        }
+      }
+    }
+    queue = nextQueue;
+  }
+
+  res.json({ success: true, entityId, relatedCount: related.size, related: Object.fromEntries(related) });
 }));
 
 // ============ NAMESPACES ============

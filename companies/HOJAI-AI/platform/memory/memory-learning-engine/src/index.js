@@ -68,4 +68,10 @@ app.get('/api/insights', (req, res) => {
   ok(res, { trend: { days: Number(days), successRate, totalOutcomes: recent.length }, stats });
 });
 app.get('/api/stats', (_req, res) => { ok(res, { ...stats, learningRules: learningRules.size }); });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => console.log(`Memory Learning running on port ${PORT}`));

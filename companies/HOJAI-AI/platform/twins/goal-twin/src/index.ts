@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Goal Twin Service v1.0
  * Digital twin for employee goals and OKRs
@@ -90,7 +91,7 @@ export function createGoalTwinService() {
   app.use(express.json());
 
   // POST /api/goals - Create goal
-  app.post('/api/goals', (req: Request, res: Response) => {
+  app.post('/api/goals',requireAuth,  (req: Request, res: Response) => {
     const { title, description, category, type, priority, employeeId, department, startDate, targetDate, milestones, metrics, metadata } = req.body;
 
     if (!title) {
@@ -181,7 +182,7 @@ export function createGoalTwinService() {
   });
 
   // PUT /api/goals/:id - Update goal
-  app.put('/api/goals/:id', (req: Request, res: Response) => {
+  app.put('/api/goals/:id',requireAuth,  (req: Request, res: Response) => {
     const goal = goals.get(req.params.id);
     if (!goal) {
       return res.status(404).json({ error: 'Goal not found' });
@@ -213,7 +214,7 @@ export function createGoalTwinService() {
   });
 
   // DELETE /api/goals/:id - Delete goal
-  app.delete('/api/goals/:id', (req: Request, res: Response) => {
+  app.delete('/api/goals/:id',requireAuth,  (req: Request, res: Response) => {
     if (!goals.has(req.params.id)) {
       return res.status(404).json({ error: 'Goal not found' });
     }
@@ -222,7 +223,7 @@ export function createGoalTwinService() {
   });
 
   // POST /api/goals/:id/milestones - Add milestone
-  app.post('/api/goals/:id/milestones', (req: Request, res: Response) => {
+  app.post('/api/goals/:id/milestones',requireAuth,  (req: Request, res: Response) => {
     const goal = goals.get(req.params.id);
     if (!goal) {
       return res.status(404).json({ error: 'Goal not found' });
@@ -248,7 +249,7 @@ export function createGoalTwinService() {
   });
 
   // PUT /api/goals/:id/milestones/:milestoneId - Update milestone
-  app.put('/api/goals/:id/milestones/:milestoneId', (req: Request, res: Response) => {
+  app.put('/api/goals/:id/milestones/:milestoneId',requireAuth,  (req: Request, res: Response) => {
     const goal = goals.get(req.params.id);
     if (!goal) {
       return res.status(404).json({ error: 'Goal not found' });
@@ -274,7 +275,7 @@ export function createGoalTwinService() {
   });
 
   // PUT /api/goals/:id/metrics/:metricId - Update metric
-  app.put('/api/goals/:id/metrics/:metricId', (req: Request, res: Response) => {
+  app.put('/api/goals/:id/metrics/:metricId',requireAuth,  (req: Request, res: Response) => {
     const goal = goals.get(req.params.id);
     if (!goal) {
       return res.status(404).json({ error: 'Goal not found' });

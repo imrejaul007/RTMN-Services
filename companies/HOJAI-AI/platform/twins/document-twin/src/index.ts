@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Document Twin Service v1.0
  * Digital twin for employee documents
@@ -29,7 +30,7 @@ export function createDocumentTwinService() {
   const app = express();
   app.use(express.json());
 
-  app.post('/api/documents', (req: Request, res: Response) => {
+  app.post('/api/documents',requireAuth,  (req: Request, res: Response) => {
     const { employeeId, type, name, url, content, metadata, expiresAt } = req.body;
     if (!employeeId || !type || !name) {
       return res.status(400).json({ error: 'employeeId, type, and name are required' });
@@ -79,7 +80,7 @@ export function createDocumentTwinService() {
     return res.status(200).json(doc);
   });
 
-  app.put('/api/documents/:id', (req: Request, res: Response) => {
+  app.put('/api/documents/:id',requireAuth,  (req: Request, res: Response) => {
     const doc = documents.get(req.params.id);
     if (!doc) return res.status(404).json({ error: 'Document not found' });
 
@@ -93,7 +94,7 @@ export function createDocumentTwinService() {
     return res.status(200).json(doc);
   });
 
-  app.delete('/api/documents/:id', (req: Request, res: Response) => {
+  app.delete('/api/documents/:id',requireAuth,  (req: Request, res: Response) => {
     if (!documents.has(req.params.id)) return res.status(404).json({ error: 'Document not found' });
     documents.delete(req.params.id);
     return res.status(204).send();

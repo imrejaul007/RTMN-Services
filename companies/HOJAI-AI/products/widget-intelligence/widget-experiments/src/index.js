@@ -10,6 +10,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -607,7 +608,7 @@ app.get('/ready', (req, res) => {
  * Create experiment
  * POST /api/experiments
  */
-app.post('/api/experiments', (req, res) => {
+app.post('/api/experiments',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1),
@@ -672,7 +673,7 @@ app.get('/api/experiments/:id', (req, res) => {
  * Update experiment
  * PATCH /api/experiments/:id
  */
-app.patch('/api/experiments/:id', (req, res) => {
+app.patch('/api/experiments/:id',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1).optional(),
@@ -700,7 +701,7 @@ app.patch('/api/experiments/:id', (req, res) => {
  * Start experiment
  * POST /api/experiments/:id/start
  */
-app.post('/api/experiments/:id/start', (req, res) => {
+app.post('/api/experiments/:id/start',requireAuth,  (req, res) => {
   const experiment = startExperiment(req.params.id);
   if (!experiment) {
     return res.status(404).json({ error: 'Experiment not found' });
@@ -712,7 +713,7 @@ app.post('/api/experiments/:id/start', (req, res) => {
  * Pause experiment
  * POST /api/experiments/:id/pause
  */
-app.post('/api/experiments/:id/pause', (req, res) => {
+app.post('/api/experiments/:id/pause',requireAuth,  (req, res) => {
   const experiment = pauseExperiment(req.params.id);
   if (!experiment) {
     return res.status(404).json({ error: 'Experiment not found' });
@@ -724,7 +725,7 @@ app.post('/api/experiments/:id/pause', (req, res) => {
  * Complete experiment
  * POST /api/experiments/:id/complete
  */
-app.post('/api/experiments/:id/complete', (req, res) => {
+app.post('/api/experiments/:id/complete',requireAuth,  (req, res) => {
   const experiment = completeExperiment(req.params.id);
   if (!experiment) {
     return res.status(404).json({ error: 'Experiment not found' });
@@ -740,7 +741,7 @@ app.post('/api/experiments/:id/complete', (req, res) => {
  * Add variant to experiment
  * POST /api/experiments/:id/variant
  */
-app.post('/api/experiments/:id/variant', (req, res) => {
+app.post('/api/experiments/:id/variant',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1),
@@ -780,7 +781,7 @@ app.get('/api/experiments/:id/variant/:variantId', (req, res) => {
  * Update variant
  * PATCH /api/experiments/:id/variant/:variantId
  */
-app.patch('/api/experiments/:id/variant/:variantId', (req, res) => {
+app.patch('/api/experiments/:id/variant/:variantId',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1).optional(),
@@ -813,7 +814,7 @@ app.patch('/api/experiments/:id/variant/:variantId', (req, res) => {
  * Assign visitor to variant
  * POST /api/experiments/:id/assign
  */
-app.post('/api/experiments/:id/assign', (req, res) => {
+app.post('/api/experiments/:id/assign',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       visitorId: z.string().min(1),
@@ -867,7 +868,7 @@ app.get('/api/experiments/:id/assign/:visitorId', (req, res) => {
  * Track conversion
  * POST /api/experiments/:id/conversion
  */
-app.post('/api/experiments/:id/conversion', (req, res) => {
+app.post('/api/experiments/:id/conversion',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       visitorId: z.string().min(1),
@@ -936,7 +937,7 @@ app.get('/api/experiments/:id/significance', (req, res) => {
  * Calculate minimum sample size
  * POST /api/experiments/sample-size
  */
-app.post('/api/experiments/sample-size', (req, res) => {
+app.post('/api/experiments/sample-size',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       baselineRate: z.number().min(0).max(1),

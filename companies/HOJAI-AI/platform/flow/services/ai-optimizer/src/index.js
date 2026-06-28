@@ -325,6 +325,12 @@ app.get('/api/suggestions/:workflowId', (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`AI Optimizer Service running on port ${PORT}`);

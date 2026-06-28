@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Desktop Agent Runtime Service
  * Port: 4752
@@ -30,20 +31,20 @@ const errorHandler = (err: ApiError, _req: Request, res: Response, _next: NextFu
 app.get('/health', (_req, res) => res.json({ status: 'healthy', service: 'desktop-agent', version: '1.0.0', timestamp: new Date().toISOString() }));
 app.get('/ready', (_req, res) => res.json({ ready: true, service: 'desktop-agent' }));
 
-app.post('/api/desktop/sessions', (req: Request, res: Response) => {
+app.post('/api/desktop/sessions',requireAuth,  (req: Request, res: Response) => {
   const { employeeId, app } = req.body;
   if (!employeeId) return res.status(400).json({ success: false, error: { code: 'MISSING_FIELD', message: 'employeeId required' } });
   const session = { id: `ds_${Date.now()}`, employeeId, app, status: 'active', startedAt: new Date().toISOString(), actions: [] };
   res.status(201).json({ success: true, data: { sessionId: session.id, session } });
 });
 
-app.post('/api/desktop/sessions/:sessionId/actions', (req: Request, res: Response) => {
+app.post('/api/desktop/sessions/:sessionId/actions',requireAuth,  (req: Request, res: Response) => {
   const { type, action, target } = req.body;
   const result = { id: `a_${Date.now()}`, type, action, target, timestamp: new Date().toISOString(), success: true, message: 'Action recorded (desktop automation would execute)' };
   res.json({ success: true, data: result });
 });
 
-app.post('/api/desktop/apps/connect', (req: Request, res: Response) => {
+app.post('/api/desktop/apps/connect',requireAuth,  (req: Request, res: Response) => {
   const { appType, credentials } = req.body;
   res.json({ success: true, data: { appType, connected: true, message: 'Desktop app connected (automation ready)' } });
 });

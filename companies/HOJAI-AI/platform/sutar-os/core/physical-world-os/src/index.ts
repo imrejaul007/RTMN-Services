@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Physical World OS - Production Implementation
  * IoT device management, telemetry, device commands
@@ -43,7 +44,7 @@ app.get('/api/devices/:id', (req, res) => {
   res.json(device);
 });
 
-app.post('/api/devices', (req, res) => {
+app.post('/api/devices',requireAuth,  (req, res) => {
   const { name, type, location, metadata, firmware } = req.body;
   if (!name || !type) return res.status(400).json({ error: 'name, type required' });
   const id = uuidv4();
@@ -51,7 +52,7 @@ app.post('/api/devices', (req, res) => {
   res.status(201).json(devices.get(id));
 });
 
-app.put('/api/devices/:id', (req, res) => {
+app.put('/api/devices/:id',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   Object.assign(device, req.body);
@@ -59,14 +60,14 @@ app.put('/api/devices/:id', (req, res) => {
   res.json(device);
 });
 
-app.delete('/api/devices/:id', (req, res) => {
+app.delete('/api/devices/:id',requireAuth,  (req, res) => {
   if (!devices.has(req.params.id)) return res.status(404).json({ error: 'Device not found' });
   devices.delete(req.params.id);
   res.json({ success: true });
 });
 
 // ============ COMMANDS ============
-app.post('/api/devices/:id/command', (req, res) => {
+app.post('/api/devices/:id/command',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   const { command, params } = req.body;
@@ -91,7 +92,7 @@ app.get('/api/devices/:id/status', (req, res) => {
 });
 
 // ============ TELEMETRY ============
-app.post('/api/devices/:id/telemetry', (req, res) => {
+app.post('/api/devices/:id/telemetry',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   const { metrics, location } = req.body;
@@ -116,7 +117,7 @@ app.get('/api/devices/:id/telemetry', (req, res) => {
 });
 
 // ============ WEBHOOKS ============
-app.post('/api/webhooks', (req, res) => {
+app.post('/api/webhooks',requireAuth,  (req, res) => {
   const { deviceId, url, events } = req.body;
   if (!url) return res.status(400).json({ error: 'url required' });
   const webhook: Webhook = { id: uuidv4(), deviceId: deviceId || '', url, events: events || ['status_change'], active: true };
@@ -124,7 +125,7 @@ app.post('/api/webhooks', (req, res) => {
   res.status(201).json(webhook);
 });
 
-app.post('/api/devices/:id/webhook', (req, res) => {
+app.post('/api/devices/:id/webhook',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   res.json({ received: true, deviceId: device.id, timestamp: new Date().toISOString() });

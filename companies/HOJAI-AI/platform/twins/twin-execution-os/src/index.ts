@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -62,7 +63,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 app.get('/ready', (_req: Request, res: Response) => { res.json({ ready: true, service: 'twin-execution-os', timestamp: new Date().toISOString() }); });
 
-app.post('/api/tasks', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/tasks',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { employeeId, description, taskType, capability, context, priority = 'normal', scheduledFor } = req.body;
     if (!employeeId || !description || !taskType) { const e: AppError = new Error('Missing required fields: employeeId, description, taskType'); e.statusCode = 400; throw e; }
@@ -97,7 +98,7 @@ app.get('/api/queue/:employeeId', (req: Request, res: Response) => {
   res.json({ success: true, data: { employeeId, total: tasks.length, byStatus: { pending: tasks.filter(t => t.status === 'pending').length, approved: tasks.filter(t => t.status === 'approved').length, executing: tasks.filter(t => t.status === 'executing').length, completed: tasks.filter(t => t.status === 'completed').length, failed: tasks.filter(t => t.status === 'failed').length }, tasks } });
 });
 
-app.post('/api/tasks/:taskId/approve', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/tasks/:taskId/approve',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const task = taskStore[req.params.taskId];
     if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
@@ -111,7 +112,7 @@ app.post('/api/tasks/:taskId/approve', async (req: Request, res: Response, next:
   } catch (err) { next(err); }
 });
 
-app.post('/api/tasks/:taskId/reject', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/tasks/:taskId/reject',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const task = taskStore[req.params.taskId];
     if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
@@ -122,7 +123,7 @@ app.post('/api/tasks/:taskId/reject', async (req: Request, res: Response, next: 
   } catch (err) { next(err); }
 });
 
-app.post('/api/tasks/:taskId/cancel', (req: Request, res: Response) => {
+app.post('/api/tasks/:taskId/cancel',requireAuth,  (req: Request, res: Response) => {
   const task = taskStore[req.params.taskId];
   if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
   if (['completed', 'failed', 'cancelled'].includes(task.status)) return res.status(400).json({ success: false, error: `Cannot cancel task (current status: ${task.status})` });
@@ -130,7 +131,7 @@ app.post('/api/tasks/:taskId/cancel', (req: Request, res: Response) => {
   res.json({ success: true, data: { taskId: task.id, status: 'cancelled' } });
 });
 
-app.post('/api/tasks/:taskId/retry', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/tasks/:taskId/retry',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const task = taskStore[req.params.taskId];
     if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
@@ -144,7 +145,7 @@ app.post('/api/tasks/:taskId/retry', async (req: Request, res: Response, next: N
   } catch (err) { next(err); }
 });
 
-app.post('/api/tasks/:taskId/rollback', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/tasks/:taskId/rollback',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const task = taskStore[req.params.taskId];
     if (!task) return res.status(404).json({ success: false, error: 'Task not found' });

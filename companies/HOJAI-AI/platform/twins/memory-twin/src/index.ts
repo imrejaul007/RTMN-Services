@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -28,7 +29,7 @@ function generateId(p: string) { return `${p}_${Date.now().toString(36)}_${uuidv
 app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'memory-twin', version: '1.0.0' }));
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
-app.post('/api/memory/:employeeId', (req, res) => {
+app.post('/api/memory/:employeeId',requireAuth,  (req, res) => {
   const { employeeId } = req.params;
   const { type, content, confidence = 50, source, tags = [] } = req.body;
   if (!content) return res.status(400).json({ success: false, error: 'content required' });

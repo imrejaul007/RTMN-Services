@@ -1,4 +1,5 @@
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
@@ -28,7 +29,7 @@ app.get('/ready', (req, res) => {
 });
 
 // POST /api/kb - Create knowledge base
-app.post('/api/kb', (req, res) => {
+app.post('/api/kb',requireAuth,  (req, res) => {
   const { companyId, name, description, type, settings } = req.body;
 
   if (!companyId || !name) {
@@ -99,7 +100,7 @@ app.get('/api/kb/:kbId', (req, res) => {
 });
 
 // PUT /api/kb/:kbId - Update knowledge base
-app.put('/api/kb/:kbId', (req, res) => {
+app.put('/api/kb/:kbId',requireAuth,  (req, res) => {
   const { kbId } = req.params;
   const updates = req.body;
 
@@ -118,7 +119,7 @@ app.put('/api/kb/:kbId', (req, res) => {
 });
 
 // DELETE /api/kb/:kbId - Delete knowledge base
-app.delete('/api/kb/:kbId', (req, res) => {
+app.delete('/api/kb/:kbId',requireAuth,  (req, res) => {
   const { kbId } = req.params;
 
   if (!knowledgeBases.has(kbId)) {
@@ -141,7 +142,7 @@ app.delete('/api/kb/:kbId', (req, res) => {
 });
 
 // POST /api/kb/:kbId/documents - Upload document reference
-app.post('/api/kb/:kbId/documents', (req, res) => {
+app.post('/api/kb/:kbId/documents',requireAuth,  (req, res) => {
   const { kbId } = req.params;
   const { name, fileUrl, fileType, metadata } = req.body;
 
@@ -183,7 +184,7 @@ app.post('/api/kb/:kbId/documents', (req, res) => {
 });
 
 // POST /api/kb/:kbId/documents/bulk - Upload multiple documents
-app.post('/api/kb/:kbId/documents/bulk', (req, res) => {
+app.post('/api/kb/:kbId/documents/bulk',requireAuth,  (req, res) => {
   const { kbId } = req.params;
   const { files } = req.body;
 
@@ -249,7 +250,7 @@ app.get('/api/kb/:kbId/documents', (req, res) => {
 });
 
 // POST /api/kb/:kbId/urls - Add URL to crawl
-app.post('/api/kb/:kbId/urls', (req, res) => {
+app.post('/api/kb/:kbId/urls',requireAuth,  (req, res) => {
   const { kbId } = req.params;
   const { url, name, selectors, schedule } = req.body;
 
@@ -293,7 +294,7 @@ app.post('/api/kb/:kbId/urls', (req, res) => {
 });
 
 // POST /api/kb/:kbId/urls/bulk - Add multiple URLs
-app.post('/api/kb/:kbId/urls/bulk', (req, res) => {
+app.post('/api/kb/:kbId/urls/bulk',requireAuth,  (req, res) => {
   const { kbId } = req.params;
   const { urlList } = req.body;
 
@@ -363,7 +364,7 @@ app.get('/api/kb/:kbId/urls', (req, res) => {
 });
 
 // POST /api/kb/:kbId/faqs - Add FAQ
-app.post('/api/kb/:kbId/faqs', (req, res) => {
+app.post('/api/kb/:kbId/faqs',requireAuth,  (req, res) => {
   const { kbId } = req.params;
   const { question, answer, category, tags, metadata } = req.body;
 
@@ -406,7 +407,7 @@ app.post('/api/kb/:kbId/faqs', (req, res) => {
 });
 
 // POST /api/kb/:kbId/faqs/import - Import FAQs from CSV or JSON
-app.post('/api/kb/:kbId/faqs/import', (req, res) => {
+app.post('/api/kb/:kbId/faqs/import',requireAuth,  (req, res) => {
   const { kbId } = req.params;
   const { faqs: faqList, format } = req.body;
 
@@ -485,7 +486,7 @@ app.get('/api/kb/:kbId/faqs', (req, res) => {
 });
 
 // PUT /api/kb/:kbId/faqs/:faqId - Update FAQ
-app.put('/api/kb/:kbId/faqs/:faqId', (req, res) => {
+app.put('/api/kb/:kbId/faqs/:faqId',requireAuth,  (req, res) => {
   const { kbId, faqId } = req.params;
   const updates = req.body;
 
@@ -504,7 +505,7 @@ app.put('/api/kb/:kbId/faqs/:faqId', (req, res) => {
 });
 
 // DELETE /api/kb/:kbId/faqs/:faqId - Delete FAQ
-app.delete('/api/kb/:kbId/faqs/:faqId', (req, res) => {
+app.delete('/api/kb/:kbId/faqs/:faqId',requireAuth,  (req, res) => {
   const { kbId, faqId } = req.params;
 
   const faq = faqs.get(faqId);
@@ -524,7 +525,7 @@ app.delete('/api/kb/:kbId/faqs/:faqId', (req, res) => {
 });
 
 // POST /api/kb/:kbId/query - Query knowledge base with RAG
-app.post('/api/kb/:kbId/query', async (req, res) => {
+app.post('/api/kb/:kbId/query',requireAuth,  async (req, res) => {
   try {
     const { kbId } = req.params;
     const { question, topK, filters } = req.body;
@@ -583,7 +584,7 @@ app.post('/api/kb/:kbId/query', async (req, res) => {
 });
 
 // POST /api/kb/:kbId/faqs/:faqId/feedback - Provide FAQ feedback
-app.post('/api/kb/:kbId/faqs/:faqId/feedback', (req, res) => {
+app.post('/api/kb/:kbId/faqs/:faqId/feedback',requireAuth,  (req, res) => {
   const { kbId, faqId } = req.params;
   const { helpful } = req.body;
 

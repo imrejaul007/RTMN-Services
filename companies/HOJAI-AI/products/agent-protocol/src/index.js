@@ -4,6 +4,7 @@
  * ACP protocol handlers for merchant agents
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.AGENT_PROTOCOL_PORT || 5469;
@@ -18,7 +19,7 @@ app.get('/health', (req, res) => {
 });
 
 // POST /api/agent/query - Handle agent query
-app.post('/api/agent/query', async (req, res) => {
+app.post('/api/agent/query',requireAuth,  async (req, res) => {
   try {
     const { agentType, query, context } = req.body;
     if (!query) return res.status(400).json({ error: 'query required' });
@@ -40,7 +41,7 @@ app.post('/api/agent/query', async (req, res) => {
 });
 
 // POST /api/agent/negotiate - Start negotiation
-app.post('/api/agent/negotiate', async (req, res) => {
+app.post('/api/agent/negotiate',requireAuth,  async (req, res) => {
   try {
     const { buyerAgent, sellerAgent, product, initialOffer } = req.body;
     res.json({
@@ -56,7 +57,7 @@ app.post('/api/agent/negotiate', async (req, res) => {
 });
 
 // POST /api/agent/contract - Generate contract
-app.post('/api/agent/contract', async (req, res) => {
+app.post('/api/agent/contract',requireAuth,  async (req, res) => {
   try {
     const { terms, parties } = req.body;
     res.json({
@@ -70,6 +71,12 @@ app.post('/api/agent/contract', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Agent Protocol running on port ${PORT}`));
 module.exports = app;

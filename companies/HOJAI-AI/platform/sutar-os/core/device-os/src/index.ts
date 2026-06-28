@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Device OS - Production Implementation
  * Device fleet management, groups, configurations
@@ -56,7 +57,7 @@ app.get('/api/devices/:id', (req, res) => {
   res.json({ ...device, configs: deviceConfigs });
 });
 
-app.post('/api/devices', (req, res) => {
+app.post('/api/devices',requireAuth,  (req, res) => {
   const { name, type, group, config, tags, metadata, location } = req.body;
   if (!name || !type) return res.status(400).json({ error: 'name, type required' });
   const id = uuidv4();
@@ -66,7 +67,7 @@ app.post('/api/devices', (req, res) => {
   res.status(201).json(devices.get(id));
 });
 
-app.put('/api/devices/:id', (req, res) => {
+app.put('/api/devices/:id',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   const { name, type, status, tags, metadata, location } = req.body;
@@ -80,7 +81,7 @@ app.put('/api/devices/:id', (req, res) => {
   res.json(device);
 });
 
-app.delete('/api/devices/:id', (req, res) => {
+app.delete('/api/devices/:id',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   const g = groups.get(device.group);
@@ -89,7 +90,7 @@ app.delete('/api/devices/:id', (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/devices/:id/heartbeat', (req, res) => {
+app.post('/api/devices/:id/heartbeat',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   device.lastSeen = new Date().toISOString();
@@ -108,7 +109,7 @@ app.get('/api/groups/:id', (req, res) => {
   res.json({ ...group, devices: groupDevices });
 });
 
-app.post('/api/groups', (req, res) => {
+app.post('/api/groups',requireAuth,  (req, res) => {
   const { name, description, color } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
   const id = uuidv4();
@@ -116,7 +117,7 @@ app.post('/api/groups', (req, res) => {
   res.status(201).json(groups.get(id));
 });
 
-app.put('/api/groups/:id', (req, res) => {
+app.put('/api/groups/:id',requireAuth,  (req, res) => {
   const group = groups.get(req.params.id);
   if (!group) return res.status(404).json({ error: 'Group not found' });
   const { name, description, color } = req.body;
@@ -126,7 +127,7 @@ app.put('/api/groups/:id', (req, res) => {
   res.json(group);
 });
 
-app.delete('/api/groups/:id', (req, res) => {
+app.delete('/api/groups/:id',requireAuth,  (req, res) => {
   const group = groups.get(req.params.id);
   if (!group) return res.status(404).json({ error: 'Group not found' });
   if (group.deviceCount > 0) return res.status(400).json({ error: 'Cannot delete group with devices' });
@@ -141,7 +142,7 @@ app.get('/api/devices/:id/config', (req, res) => {
   res.json(device.config);
 });
 
-app.put('/api/devices/:id/config', (req, res) => {
+app.put('/api/devices/:id/config',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   const { config, appliedBy } = req.body;
@@ -176,7 +177,7 @@ app.get('/api/firmware/:version', (req, res) => {
   res.json(fw);
 });
 
-app.post('/api/firmware', (req, res) => {
+app.post('/api/firmware',requireAuth,  (req, res) => {
   const { version, type, size, releaseNotes } = req.body;
   if (!version) return res.status(400).json({ error: 'version required' });
   if (firmwares.has(version)) return res.status(409).json({ error: 'Version already exists' });
@@ -185,7 +186,7 @@ app.post('/api/firmware', (req, res) => {
   res.status(201).json(firmwares.get(version));
 });
 
-app.post('/api/devices/:id/firmware', (req, res) => {
+app.post('/api/devices/:id/firmware',requireAuth,  (req, res) => {
   const device = devices.get(req.params.id);
   if (!device) return res.status(404).json({ error: 'Device not found' });
   const { version } = req.body;
@@ -204,7 +205,7 @@ app.get('/api/devices/firmware-update', (req, res) => {
 });
 
 // ============ BULK OPERATIONS ============
-app.post('/api/devices/bulk', (req, res) => {
+app.post('/api/devices/bulk',requireAuth,  (req, res) => {
   const { deviceIds, action, params } = req.body;
   if (!deviceIds || !action) return res.status(400).json({ error: 'deviceIds, action required' });
 

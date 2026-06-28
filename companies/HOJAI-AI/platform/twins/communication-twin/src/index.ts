@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Communication Twin Service
  * Port: 4743
@@ -226,7 +227,7 @@ app.get('/ready', (_req: Request, res: Response) => {
 /**
  * Analyze and learn writing style from a text sample
  */
-app.post('/api/twin/:employeeId/communication/style', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/communication/style',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { text, channel = 'email' } = req.body;
@@ -372,7 +373,7 @@ app.get('/api/twin/:employeeId/communication/profile', (req: Request, res: Respo
 /**
  * Update specific aspects of writing profile
  */
-app.patch('/api/twin/:employeeId/communication/style', (req: Request, res: Response) => {
+app.patch('/api/twin/:employeeId/communication/style',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const updates = req.body;
@@ -409,7 +410,7 @@ app.patch('/api/twin/:employeeId/communication/style', (req: Request, res: Respo
 /**
  * Analyze tone of a text
  */
-app.post('/api/twin/:employeeId/communication/tone', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/communication/tone',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { text, channel = 'email' } = req.body;
@@ -518,7 +519,7 @@ app.get('/api/twin/:employeeId/communication/tone-history', (req: Request, res: 
 /**
  * Set negotiation style
  */
-app.post('/api/twin/:employeeId/communication/negotiation-style', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/communication/negotiation-style',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { style } = req.body;
@@ -580,7 +581,7 @@ app.get('/api/twin/:employeeId/communication/patterns', (req: Request, res: Resp
 /**
  * Add a communication pattern
  */
-app.post('/api/twin/:employeeId/communication/patterns', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/communication/patterns',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { channel, type, pattern } = req.body;
@@ -622,7 +623,7 @@ app.post('/api/twin/:employeeId/communication/patterns', (req: Request, res: Res
 /**
  * Simulate communication response
  */
-app.post('/api/twin/:employeeId/communication/simulate', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/communication/simulate',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { context, recipientType = 'peer', channel = 'email' } = req.body;

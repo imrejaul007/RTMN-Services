@@ -4,6 +4,7 @@
  * Weighted signals, velocity, recency, intent detection
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.LEAD_SCORING_PORT || 5458;
@@ -28,7 +29,7 @@ app.get('/health', (req, res) => {
 });
 
 // POST /api/lead/score
-app.post('/api/lead/score', async (req, res) => {
+app.post('/api/lead/score',requireAuth,  async (req, res) => {
   try {
     const { visitorId, companyId, signals } = req.body;
     if (!signals || !Array.isArray(signals)) {
@@ -104,6 +105,12 @@ app.get('/api/lead/intent-levels', (req, res) => {
     }
   });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Lead Scoring running on port ${PORT}`));
 module.exports = app;

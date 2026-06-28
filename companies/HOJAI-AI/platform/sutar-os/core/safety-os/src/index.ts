@@ -6,6 +6,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -55,7 +56,7 @@ app.get('/api/killswitches', (req, res) => {
   res.json({ success: true, data: { switches: all } });
 });
 
-app.post('/api/killswitches', (req, res) => {
+app.post('/api/killswitches',requireAuth,  (req, res) => {
   const { name, scope, target } = req.body;
   if (!name || !scope) return res.status(400).json({ success: false, error: 'name and scope required' });
   const sw: KillSwitch = { id: uuidv4(), name, scope, target, enabled: true, createdAt: new Date().toISOString() };
@@ -64,7 +65,7 @@ app.post('/api/killswitches', (req, res) => {
   res.status(201).json({ success: true, data: sw });
 });
 
-app.post('/api/killswitches/:id/trigger', (req, res) => {
+app.post('/api/killswitches/:id/trigger',requireAuth,  (req, res) => {
   const sw = killSwitches.get(req.params.id);
   if (!sw) return res.status(404).json({ success: false, error: 'Switch not found' });
   sw.enabled = false;
@@ -75,7 +76,7 @@ app.post('/api/killswitches/:id/trigger', (req, res) => {
   res.json({ success: true, data: sw });
 });
 
-app.post('/api/killswitches/:id/enable', (req, res) => {
+app.post('/api/killswitches/:id/enable',requireAuth,  (req, res) => {
   const sw = killSwitches.get(req.params.id);
   if (!sw) return res.status(404).json({ success: false, error: 'Switch not found' });
   sw.enabled = true;
@@ -87,7 +88,7 @@ app.post('/api/killswitches/:id/enable', (req, res) => {
 // Rate Limiting
 app.get('/api/ratelimits', (_req, res) => res.json({ success: true, data: { limits: Array.from(rateLimits.values()) }));
 
-app.post('/api/ratelimits', (req, res) => {
+app.post('/api/ratelimits',requireAuth,  (req, res) => {
   const { agentType, action, maxPerMinute = 100, maxPerHour = 1000 } = req.body;
   if (!agentType) return res.status(400).json({ success: false, error: 'agentType required' });
   const limit: RateLimit = { id: uuidv4(), agentType, action: action || 'all', maxPerMinute, maxPerHour, currentMinute: 0, currentHour: 0, window: new Date().toISOString() };
@@ -95,7 +96,7 @@ app.post('/api/ratelimits', (req, res) => {
   res.status(201).json({ success: true, data: limit });
 });
 
-app.post('/api/check/:agentType/:action', (req, res) => {
+app.post('/api/check/:agentType/:action',requireAuth,  (req, res) => {
   const { agentType, action } = req.params;
   const limit = Array.from(rateLimits.values()).find(l => l.agentType === agentType && l.action === action);
   if (!limit) return res.json({ success: true, data: { allowed: true, reason: 'No rate limit' });
@@ -112,7 +113,7 @@ app.get('/api/rules', (req, res) => {
   res.json({ success: true, data: { rules: all } });
 });
 
-app.post('/api/rules', (req, res) => {
+app.post('/api/rules',requireAuth,  (req, res) => {
   const { pattern, category, severity, action } = req.body;
   const rule: BehaviorRule = { id: uuidv4(), pattern, category, severity, action };
   behaviorRules.set(rule.id, rule);
@@ -125,21 +126,21 @@ app.get('/api/containment/:agentId', (req, res) => {
   res.json({ success: true, data: c || { isolated: false } });
 });
 
-app.post('/api/contain/:agentId', (req, res) => {
+app.post('/api/contain/:agentId',requireAuth,  (req, res) => {
   const { reason } = req.body;
   containment.set(req.params.agentId, { id: uuidv4(), agentId: req.params.agentId, reason: reason || 'Manual containment', isolated: true, createdAt: new Date().toISOString() });
   log('AGENT_CONTAINED', { agentId: req.params.agentId, reason });
   res.status(201).json({ success: true, data: { contained: true } });
 });
 
-app.post('/api/release/:agentId', (req, res) => {
+app.post('/api/release/:agentId',requireAuth,  (req, res) => {
   containment.delete(req.params.agentId);
   log('AGENT_RELEASED', { agentId: req.params.agentId });
   res.json({ success: true, data: { released: true } });
 });
 
 // Global emergency stop
-app.post('/api/emergency/stop', (req, res) => {
+app.post('/api/emergency/stop',requireAuth,  (req, res) => {
   const { reason, triggeredBy } = req.body;
   killSwitches.forEach((sw, id) => { sw.enabled = false; sw.triggeredBy = triggeredBy; sw.reason = reason; sw.triggeredAt = new Date().toISOString(); });
   containment.forEach((_, agentId) => containment.set(agentId, { ...containment.get(agentId)!, isolated: true }));
@@ -147,7 +148,7 @@ app.post('/api/emergency/stop', (req, res) => {
   res.json({ success: true, data: { stopped: true, affected: killSwitches.size } });
 });
 
-app.post('/api/emergency/resume', (_req, res) => {
+app.post('/api/emergency/resume',requireAuth,  (_req, res) => {
   killSwitches.forEach(sw => { sw.enabled = true; delete sw.triggeredAt; });
   res.json({ success: true, data: { resumed: true } });
 });

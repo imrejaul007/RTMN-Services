@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Workflow Twin Service
  * Port: 4741
@@ -180,7 +181,7 @@ app.get('/ready', (_req: Request, res: Response) => {
 /**
  * Record a workflow action
  */
-app.post('/api/twin/:employeeId/workflow/observe', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/workflow/observe',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { tool, action, target, duration, outcome, context } = req.body;
@@ -285,7 +286,7 @@ function detectWorkflowPattern(actionSequence: ObservedAction[]): WorkflowPatter
 /**
  * Batch observe actions
  */
-app.post('/api/twin/:employeeId/workflow/batch-observe', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/workflow/batch-observe',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { actions: actionList } = req.body;
@@ -361,7 +362,7 @@ app.get('/api/twin/:employeeId/workflow/patterns', (req: Request, res: Response)
 /**
  * Create a workflow pattern
  */
-app.post('/api/twin/:employeeId/workflow/patterns', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/workflow/patterns',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { name, description, trigger, steps, approvals, tools } = req.body;
@@ -430,7 +431,7 @@ app.get('/api/twin/:employeeId/workflow/patterns/:workflowId', (req: Request, re
 /**
  * Update workflow
  */
-app.patch('/api/twin/:employeeId/workflow/patterns/:workflowId', (req: Request, res: Response) => {
+app.patch('/api/twin/:employeeId/workflow/patterns/:workflowId',requireAuth,  (req: Request, res: Response) => {
   try {
     const { workflowId } = req.params;
     const updates = req.body;
@@ -453,7 +454,7 @@ app.patch('/api/twin/:employeeId/workflow/patterns/:workflowId', (req: Request, 
 /**
  * Train workflow with more data
  */
-app.post('/api/twin/:employeeId/workflow/patterns/:workflowId/train', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/workflow/patterns/:workflowId/train',requireAuth,  (req: Request, res: Response) => {
   try {
     const { workflowId } = req.params;
     const workflow = workflows.get(workflowId);
@@ -482,7 +483,7 @@ app.post('/api/twin/:employeeId/workflow/patterns/:workflowId/train', (req: Requ
 /**
  * Simulate a workflow
  */
-app.post('/api/twin/:employeeId/workflow/simulate', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/workflow/simulate',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { workflowId, context, dryRun = true } = req.body;

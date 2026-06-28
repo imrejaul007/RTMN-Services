@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Human Teaching Service
  * Port: 4748
@@ -83,7 +84,7 @@ app.get('/ready', (_req, res) => res.json({ ready: true }));
 /**
  * Create teaching session
  */
-app.post('/api/teaching/sessions', (req, res) => {
+app.post('/api/teaching/sessions',requireAuth,  (req, res) => {
   const { employeeId, twinId, topic, description, type } = req.body;
 
   if (!employeeId || !topic) {
@@ -114,7 +115,7 @@ app.post('/api/teaching/sessions', (req, res) => {
 /**
  * Start recording
  */
-app.post('/api/teaching/sessions/:id/start', (req, res) => {
+app.post('/api/teaching/sessions/:id/start',requireAuth,  (req, res) => {
   const session = sessions.get(req.params.id);
   if (!session) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Session not found' } });
 
@@ -125,7 +126,7 @@ app.post('/api/teaching/sessions/:id/start', (req, res) => {
 /**
  * Stop recording
  */
-app.post('/api/teaching/sessions/:id/stop', (req, res) => {
+app.post('/api/teaching/sessions/:id/stop',requireAuth,  (req, res) => {
   const session = sessions.get(req.params.id);
   if (!session) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Session not found' } });
 
@@ -168,7 +169,7 @@ app.get('/api/teaching/sessions', (req, res) => {
 /**
  * Add frame
  */
-app.post('/api/teaching/sessions/:id/frames', (req, res) => {
+app.post('/api/teaching/sessions/:id/frames',requireAuth,  (req, res) => {
   const session = sessions.get(req.params.id);
   if (!session) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Session not found' } });
 
@@ -188,7 +189,7 @@ app.post('/api/teaching/sessions/:id/frames', (req, res) => {
 /**
  * Add voice segment (transcription)
  */
-app.post('/api/teaching/sessions/:id/voice', (req, res) => {
+app.post('/api/teaching/sessions/:id/voice',requireAuth,  (req, res) => {
   const session = sessions.get(req.params.id);
   if (!session) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Session not found' } });
 
@@ -209,7 +210,7 @@ app.post('/api/teaching/sessions/:id/voice', (req, res) => {
 /**
  * Add explanation
  */
-app.post('/api/teaching/sessions/:id/explanations', (req, res) => {
+app.post('/api/teaching/sessions/:id/explanations',requireAuth,  (req, res) => {
   const session = sessions.get(req.params.id);
   if (!session) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Session not found' } });
 
@@ -229,7 +230,7 @@ app.post('/api/teaching/sessions/:id/explanations', (req, res) => {
 /**
  * Extract knowledge from session (AI processing)
  */
-app.post('/api/teaching/sessions/:id/extract', (req, res) => {
+app.post('/api/teaching/sessions/:id/extract',requireAuth,  (req, res) => {
   const session = sessions.get(req.params.id);
   if (!session) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Session not found' } });
 
@@ -298,7 +299,7 @@ app.post('/api/teaching/sessions/:id/extract', (req, res) => {
 /**
  * Add step to session
  */
-app.post('/api/teaching/sessions/:sessionId/steps', (req, res) => {
+app.post('/api/teaching/sessions/:sessionId/steps',requireAuth,  (req, res) => {
   const { description, screenshot, voiceNote, keyPoints } = req.body;
 
   const sessionSteps = Array.from(steps.values()).filter(s => s.sessionId === req.params.sessionId);
@@ -333,7 +334,7 @@ app.get('/api/teaching/sessions/:sessionId/steps', (req, res) => {
 /**
  * Validate extracted knowledge
  */
-app.post('/api/teaching/knowledge/:knowledgeId/validate', (req, res) => {
+app.post('/api/teaching/knowledge/:knowledgeId/validate',requireAuth,  (req, res) => {
   const { employeeId, validated } = req.body;
 
   // Find and update knowledge
@@ -368,7 +369,7 @@ app.get('/api/teaching/knowledge/:employeeId', (req, res) => {
 /**
  * Link knowledge to twins
  */
-app.post('/api/teaching/knowledge/:knowledgeId/link', (req, res) => {
+app.post('/api/teaching/knowledge/:knowledgeId/link',requireAuth,  (req, res) => {
   const { twinId } = req.body;
 
   for (const [empId, knowledges] of extractedKnowledge.entries()) {

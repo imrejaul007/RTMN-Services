@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4788', 10);
 app.use(express.json());
@@ -21,7 +22,7 @@ app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'stripe-c
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
 app.get('/api/customers', (_r, res) => res.json({ success: true, data: { customers: Array.from(customers.values()), total: customers.size } }));
-app.post('/api/customers', (req, res) => {
+app.post('/api/customers',requireAuth,  (req, res) => {
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ success: false, error: 'email required' });
   const customer: StripeCustomer = { id: `cus_${Date.now()}`, email, name: name || '', balance: 0 };
@@ -30,7 +31,7 @@ app.post('/api/customers', (req, res) => {
 });
 
 app.get('/api/payments', (_r, res) => res.json({ success: true, data: { payments: Array.from(payments.values()), total: payments.size } }));
-app.post('/api/payments', (req, res) => {
+app.post('/api/payments',requireAuth,  (req, res) => {
   const { amount, currency, customer, description } = req.body;
   if (!amount || !customer) return res.status(400).json({ success: false, error: 'amount and customer required' });
   const payment: StripePayment = { id: `pi_${Date.now()}`, amount, currency: currency || 'usd', status: 'succeeded', customer, description };

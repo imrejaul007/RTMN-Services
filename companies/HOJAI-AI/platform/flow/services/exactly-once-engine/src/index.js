@@ -417,6 +417,12 @@ app.get('/api/status-types', (req, res) => {
 });
 
 // Start server
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Exactly-Once Engine running on port ${PORT}`);
 });

@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4787', 10);
 app.use(express.json());
@@ -19,7 +20,7 @@ app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'shopify-
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
 app.get('/api/products', (_r, res) => res.json({ success: true, data: { products: Array.from(products.values()), total: products.size } }));
-app.post('/api/products', (req, res) => {
+app.post('/api/products',requireAuth,  (req, res) => {
   const { title, description, price, inventory } = req.body;
   if (!title) return res.status(400).json({ success: false, error: 'title required' });
   const product: ShopifyProduct = { id: `prod_${Date.now()}`, title, description: description || '', price: price || 0, inventory: inventory || 0, status: 'draft' };
@@ -28,7 +29,7 @@ app.post('/api/products', (req, res) => {
 });
 
 app.get('/api/orders', (_r, res) => res.json({ success: true, data: { orders: Array.from(orders.values()), total: orders.size } }));
-app.post('/api/orders', (req, res) => {
+app.post('/api/orders',requireAuth,  (req, res) => {
   const { customer, items, total } = req.body;
   const order: ShopifyOrder = { id: `order_${Date.now()}`, orderNumber: orders.size + 1, customer: customer || '', total: total || 0, status: 'pending', items: items || [] };
   orders.set(order.id, order);

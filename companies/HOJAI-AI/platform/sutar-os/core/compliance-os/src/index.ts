@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Compliance OS - Production Implementation
  * SOC2, ISO27001, GDPR, HIPAA, PCI-DSS controls and audit trails
@@ -300,7 +301,7 @@ app.get('/api/controls/:id', (req: Request, res: Response) => {
   res.json(control);
 });
 
-app.post('/api/controls', async (req: Request, res: Response) => {
+app.post('/api/controls',requireAuth,  async (req: Request, res: Response) => {
   try {
     const data = CreateControlSchema.parse(req.body);
 
@@ -340,7 +341,7 @@ app.post('/api/controls', async (req: Request, res: Response) => {
   }
 });
 
-app.put('/api/controls/:id', (req: Request, res: Response) => {
+app.put('/api/controls/:id',requireAuth,  (req: Request, res: Response) => {
   const control = controls.get(req.params.id);
   if (!control) {
     return res.status(404).json({ error: 'Control not found' });
@@ -368,7 +369,7 @@ app.put('/api/controls/:id', (req: Request, res: Response) => {
   res.json(control);
 });
 
-app.delete('/api/controls/:id', (req: Request, res: Response) => {
+app.delete('/api/controls/:id',requireAuth,  (req: Request, res: Response) => {
   const control = controls.get(req.params.id);
   if (!control) {
     return res.status(404).json({ error: 'Control not found' });
@@ -382,7 +383,7 @@ app.delete('/api/controls/:id', (req: Request, res: Response) => {
 
 // ─── Evidence Endpoints ────────────────────────────────────────────────────────
 
-app.post('/api/controls/:id/evidence', (req: Request, res: Response) => {
+app.post('/api/controls/:id/evidence',requireAuth,  (req: Request, res: Response) => {
   const control = controls.get(req.params.id);
   if (!control) {
     return res.status(404).json({ error: 'Control not found' });
@@ -415,7 +416,7 @@ app.post('/api/controls/:id/evidence', (req: Request, res: Response) => {
   }
 });
 
-app.post('/api/evidence/:evidenceId/approve', (req: Request, res: Response) => {
+app.post('/api/evidence/:evidenceId/approve',requireAuth,  (req: Request, res: Response) => {
   const { approved } = req.body;
 
   for (const control of controls.values()) {
@@ -436,7 +437,7 @@ app.post('/api/evidence/:evidenceId/approve', (req: Request, res: Response) => {
 
 // ─── Findings Endpoints ────────────────────────────────────────────────────────
 
-app.post('/api/controls/:id/findings', (req: Request, res: Response) => {
+app.post('/api/controls/:id/findings',requireAuth,  (req: Request, res: Response) => {
   const control = controls.get(req.params.id);
   if (!control) {
     return res.status(404).json({ error: 'Control not found' });
@@ -469,7 +470,7 @@ app.post('/api/controls/:id/findings', (req: Request, res: Response) => {
   }
 });
 
-app.put('/api/findings/:id', (req: Request, res: Response) => {
+app.put('/api/findings/:id',requireAuth,  (req: Request, res: Response) => {
   const { status, notes } = req.body;
 
   for (const control of controls.values()) {

@@ -6,6 +6,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -50,7 +51,7 @@ app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'observat
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
 // Metrics
-app.post('/metrics', (req, res) => {
+app.post('/metrics',requireAuth,  (req, res) => {
   const { agentId, metric, value, unit } = req.body;
   metrics.push({ id: uuidv4(), agentId, metric, value, unit: unit || 'count', timestamp: new Date().toISOString() });
   if (metrics.length > 100000) metrics.splice(0, 50000);
@@ -72,7 +73,7 @@ app.get('/api/metrics/aggregate', (req, res) => {
 });
 
 // Traces
-app.post('/traces', (req, res) => {
+app.post('/traces',requireAuth,  (req, res) => {
   const { agentId, operation, steps } = req.body;
   const trace: Trace = {
     id: uuidv4(), agentId, operation,
@@ -93,7 +94,7 @@ app.get('/api/agents/:agentId/traces', (req, res) => {
 });
 
 // Alerts
-app.post('/alerts', (req, res) => {
+app.post('/alerts',requireAuth,  (req, res) => {
   const { agentId, severity, metric, threshold, actual, message } = req.body;
   const alert: Alert = {
     id: uuidv4(), agentId, severity: severity || 'medium',
@@ -113,7 +114,7 @@ app.get('/alerts', (req, res) => {
   res.json({ success: true, data: { alerts: all.slice(-100) } });
 });
 
-app.patch('/alerts/:id/acknowledge', (req, res) => {
+app.patch('/alerts/:id/acknowledge',requireAuth,  (req, res) => {
   const alert = alerts.find(a => a.id === req.params.id);
   if (!alert) return res.status(404).json({ success: false });
   alert.status = 'acknowledged';

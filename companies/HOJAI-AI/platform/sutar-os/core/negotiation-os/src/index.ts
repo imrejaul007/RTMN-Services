@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Negotiation OS - Production Implementation
  * BATNA, multi-round bargaining, contract optimization
@@ -207,7 +208,7 @@ app.get('/api/templates/:id', (req, res) => {
   res.json(template);
 });
 
-app.post('/api/templates', (req, res) => {
+app.post('/api/templates',requireAuth,  (req, res) => {
   const { name, type, description, steps, estimatedDuration } = req.body;
   if (!name || !type || !steps?.length) return res.status(400).json({ error: 'name, type, steps required' });
 
@@ -234,7 +235,7 @@ app.get('/api/negotiations/:id', (req, res) => {
   res.json(negotiation);
 });
 
-app.post('/api/negotiations', (req, res) => {
+app.post('/api/negotiations',requireAuth,  (req, res) => {
   try {
     const data = CreateNegotiationSchema.parse(req.body);
     const template = templates.get(data.templateId);
@@ -260,7 +261,7 @@ app.post('/api/negotiations', (req, res) => {
   }
 });
 
-app.post('/api/negotiations/:id/offer', (req, res) => {
+app.post('/api/negotiations/:id/offer',requireAuth,  (req, res) => {
   const negotiation = negotiations.get(req.params.id);
   if (!negotiation) return res.status(404).json({ error: 'Negotiation not found' });
   if (negotiation.status === 'agreed' || negotiation.status === 'failed') {
@@ -290,7 +291,7 @@ app.post('/api/negotiations/:id/offer', (req, res) => {
   }
 });
 
-app.post('/api/negotiations/:id/accept', (req, res) => {
+app.post('/api/negotiations/:id/accept',requireAuth,  (req, res) => {
   const negotiation = negotiations.get(req.params.id);
   if (!negotiation) return res.status(404).json({ error: 'Negotiation not found' });
 
@@ -310,7 +311,7 @@ app.post('/api/negotiations/:id/accept', (req, res) => {
   res.json(negotiation);
 });
 
-app.post('/api/negotiations/:id/reject', (req, res) => {
+app.post('/api/negotiations/:id/reject',requireAuth,  (req, res) => {
   const negotiation = negotiations.get(req.params.id);
   if (!negotiation) return res.status(404).json({ error: 'Negotiation not found' });
 
@@ -338,7 +339,7 @@ app.post('/api/negotiations/:id/reject', (req, res) => {
   res.json(negotiation);
 });
 
-app.post('/api/negotiations/:id/cancel', (req, res) => {
+app.post('/api/negotiations/:id/cancel',requireAuth,  (req, res) => {
   const negotiation = negotiations.get(req.params.id);
   if (!negotiation) return res.status(404).json({ error: 'Negotiation not found' });
 
@@ -368,7 +369,7 @@ app.get('/api/negotiations/:id/batna', (req, res) => {
 
 app.get('/api/strategies', (_req, res) => res.json({ strategies: Array.from(strategies.values()) }));
 
-app.post('/api/negotiations/:id/score', (req, res) => {
+app.post('/api/negotiations/:id/score',requireAuth,  (req, res) => {
   const negotiation = negotiations.get(req.params.id);
   if (!negotiation) return res.status(404).json({ error: 'Negotiation not found' });
 

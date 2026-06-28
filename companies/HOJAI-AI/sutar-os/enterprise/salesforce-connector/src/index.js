@@ -300,7 +300,7 @@ app.post('/api/sync/opportunities', requireAuth, async (req, res) => {
   res.json({ operation: 'sync_opportunities', ...results });
 });
 
-app.post('/api/webhooks/salesforce', async (req, res) => {
+app.post('/api/webhooks/salesforce',requireAuth,  async (req, res) => {
   // Verify Salesforce webhook signature (simplified demo)
   const signature = req.headers['x-salesforce-signature'];
   if (!signature) {
@@ -330,6 +330,12 @@ app.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 const server = app.listen(PORT, () => {
   // eslint-disable-next-line no-console

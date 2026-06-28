@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Search OS - Enterprise Search
  * Full-text search with ranking and facets
@@ -208,7 +209,7 @@ app.get('/ready', (_req: Request, res: Response) => {
 });
 
 // Index document
-app.post('/api/search/index', (req: Request, res: Response) => {
+app.post('/api/search/index',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = IndexSchema.parse(req.body);
     const id = uuidv4();
@@ -296,7 +297,7 @@ app.get('/api/search', (req: Request, res: Response) => {
 });
 
 // Search POST (for complex queries)
-app.post('/api/search', (req: Request, res: Response) => {
+app.post('/api/search',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = SearchSchema.parse(req.body);
     const { q, type, tags, author, dateFrom, dateTo, limit, offset } = data;
@@ -385,7 +386,7 @@ app.get('/api/search/index/:id', (req: Request, res: Response) => {
 });
 
 // Update document
-app.put('/api/search/index/:id', (req: Request, res: Response) => {
+app.put('/api/search/index/:id',requireAuth,  (req: Request, res: Response) => {
   const doc = documents.get(req.params.id);
   if (!doc) return res.status(404).json({ error: 'Document not found' });
 
@@ -411,7 +412,7 @@ app.put('/api/search/index/:id', (req: Request, res: Response) => {
 });
 
 // Delete document
-app.delete('/api/search/index/:id', (req: Request, res: Response) => {
+app.delete('/api/search/index/:id',requireAuth,  (req: Request, res: Response) => {
   if (!documents.has(req.params.id)) return res.status(404).json({ error: 'Document not found' });
   removeFromIndex(req.params.id);
   documents.delete(req.params.id);
@@ -431,7 +432,7 @@ app.get('/api/search/status', (_req: Request, res: Response) => {
 });
 
 // Bulk index
-app.post('/api/search/index/bulk', (req: Request, res: Response) => {
+app.post('/api/search/index/bulk',requireAuth,  (req: Request, res: Response) => {
   const schema = z.object({
     documents: z.array(IndexSchema),
   });

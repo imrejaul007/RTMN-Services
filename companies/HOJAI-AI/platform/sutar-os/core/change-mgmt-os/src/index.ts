@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Change Management OS - Production Implementation
  * Change requests, approvals, rollout tracking, rollback
@@ -112,7 +113,7 @@ app.get('/api/changes/:id', (req: Request, res: Response) => {
 });
 
 // Create change
-app.post('/api/changes', (req: Request, res: Response) => {
+app.post('/api/changes',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = CreateChangeSchema.parse(req.body);
     const id = uuidv4();
@@ -144,7 +145,7 @@ app.post('/api/changes', (req: Request, res: Response) => {
 });
 
 // Update change
-app.put('/api/changes/:id', (req: Request, res: Response) => {
+app.put('/api/changes/:id',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
 
@@ -162,7 +163,7 @@ app.put('/api/changes/:id', (req: Request, res: Response) => {
 });
 
 // Submit for approval
-app.post('/api/changes/:id/submit', (req: Request, res: Response) => {
+app.post('/api/changes/:id/submit',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
   if (change.status !== 'draft') return res.status(400).json({ error: 'Only draft changes can be submitted' });
@@ -174,7 +175,7 @@ app.post('/api/changes/:id/submit', (req: Request, res: Response) => {
 });
 
 // Approve change
-app.post('/api/changes/:id/approve', (req: Request, res: Response) => {
+app.post('/api/changes/:id/approve',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
   if (change.status !== 'pending_approval') return res.status(400).json({ error: 'Only pending changes can be approved' });
@@ -187,7 +188,7 @@ app.post('/api/changes/:id/approve', (req: Request, res: Response) => {
 });
 
 // Reject change
-app.post('/api/changes/:id/reject', (req: Request, res: Response) => {
+app.post('/api/changes/:id/reject',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
 
@@ -198,7 +199,7 @@ app.post('/api/changes/:id/reject', (req: Request, res: Response) => {
 });
 
 // Start rollout
-app.post('/api/changes/:id/start', (req: Request, res: Response) => {
+app.post('/api/changes/:id/start',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
   if (change.status !== 'approved') return res.status(400).json({ error: 'Only approved changes can be started' });
@@ -211,7 +212,7 @@ app.post('/api/changes/:id/start', (req: Request, res: Response) => {
 });
 
 // Complete phase
-app.post('/api/changes/:id/phases/:phaseId/complete', (req: Request, res: Response) => {
+app.post('/api/changes/:id/phases/:phaseId/complete',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
 
@@ -234,7 +235,7 @@ app.post('/api/changes/:id/phases/:phaseId/complete', (req: Request, res: Respon
 });
 
 // Complete change
-app.post('/api/changes/:id/complete', (req: Request, res: Response) => {
+app.post('/api/changes/:id/complete',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
 
@@ -248,7 +249,7 @@ app.post('/api/changes/:id/complete', (req: Request, res: Response) => {
 });
 
 // Rollback
-app.post('/api/changes/:id/rollback', (req: Request, res: Response) => {
+app.post('/api/changes/:id/rollback',requireAuth,  (req: Request, res: Response) => {
   const change = changes.get(req.params.id);
   if (!change) return res.status(404).json({ error: 'Change not found' });
 

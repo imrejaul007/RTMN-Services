@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Payroll Twin Service v1.0
  * Digital twin for payroll management
@@ -41,7 +42,7 @@ export function createPayrollTwinService() {
   const app = express();
   app.use(express.json());
 
-  app.post('/api/payroll', (req: Request, res: Response) => {
+  app.post('/api/payroll',requireAuth,  (req: Request, res: Response) => {
     const { employeeId, period, grossSalary, deductions, bonuses } = req.body;
     if (!employeeId || !period || grossSalary === undefined) {
       return res.status(400).json({ error: 'employeeId, period, and grossSalary are required' });
@@ -100,7 +101,7 @@ export function createPayrollTwinService() {
     return res.status(200).json(record);
   });
 
-  app.put('/api/payroll/:id', (req: Request, res: Response) => {
+  app.put('/api/payroll/:id',requireAuth,  (req: Request, res: Response) => {
     const record = records.get(req.params.id);
     if (!record) return res.status(404).json({ error: 'Payroll record not found' });
 
@@ -113,7 +114,7 @@ export function createPayrollTwinService() {
     return res.status(200).json(record);
   });
 
-  app.delete('/api/payroll/:id', (req: Request, res: Response) => {
+  app.delete('/api/payroll/:id',requireAuth,  (req: Request, res: Response) => {
     if (!records.has(req.params.id)) return res.status(404).json({ error: 'Payroll record not found' });
     records.delete(req.params.id);
     return res.status(204).send();

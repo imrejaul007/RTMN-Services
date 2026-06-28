@@ -4,6 +4,7 @@
  * 100 event types organized by category
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const app = express();
 const PORT = process.env.EVENT_TAXONOMY_PORT || 5461;
 
@@ -200,7 +201,7 @@ app.get('/api/events/types', (req, res) => {
 });
 
 // GET /events/validate
-app.post('/api/events/validate', (req, res) => {
+app.post('/api/events/validate',requireAuth,  (req, res) => {
   const { event } = req.body;
   if (!event) return res.status(400).json({ success: false, error: 'event required' });
 
@@ -229,6 +230,12 @@ function suggestEvent(event) {
   }
   return null;
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Event Taxonomy running on port ${PORT} — ${Object.values(TAXONOMY).reduce((s, c) => s + Object.keys(c.events).length, 0)} events`));
 module.exports = app;

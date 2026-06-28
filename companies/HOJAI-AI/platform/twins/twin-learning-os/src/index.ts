@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Twin Learning OS
  *
@@ -609,7 +610,7 @@ app.get('/api/twin/:employeeId/:twinType', async (req: Request, res: Response) =
 });
 
 // Learn patterns from events
-app.post('/api/twin/:employeeId/learn', async (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/learn',requireAuth,  async (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { events } = req.body;
@@ -636,7 +637,7 @@ app.post('/api/twin/:employeeId/learn', async (req: Request, res: Response) => {
 });
 
 // Observe a single event
-app.post('/api/observe', async (req: Request, res: Response) => {
+app.post('/api/observe',requireAuth,  async (req: Request, res: Response) => {
   try {
     const { employeeId, event } = req.body;
 

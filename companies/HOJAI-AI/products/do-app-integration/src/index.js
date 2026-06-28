@@ -4,6 +4,7 @@
  * Sync catalog to DO, route orders, manage commissions
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.DO_APP_PORT || 5470;
@@ -18,7 +19,7 @@ app.get('/health', (req, res) => {
 });
 
 // POST /api/do/sync - Sync products to DO App
-app.post('/api/do/sync', async (req, res) => {
+app.post('/api/do/sync',requireAuth,  async (req, res) => {
   try {
     const { companyId, products } = req.body;
     if (!companyId || !products) {
@@ -39,7 +40,7 @@ app.post('/api/do/sync', async (req, res) => {
 });
 
 // POST /api/do/order - Route order to merchant
-app.post('/api/do/order', async (req, res) => {
+app.post('/api/do/order',requireAuth,  async (req, res) => {
   try {
     const { orderId, merchantId, items, customer } = req.body;
     if (!orderId || !merchantId) {
@@ -64,6 +65,12 @@ app.get('/api/do/commission/:orderId', (req, res) => {
   const commission = { orderId: req.params.orderId, rate: 0.05, amount: 0 };
   res.json({ success: true, data: commission });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`DO App Integration running on port ${PORT}`));
 module.exports = app;

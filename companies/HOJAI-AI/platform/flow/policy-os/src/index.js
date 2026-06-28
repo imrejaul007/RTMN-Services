@@ -127,6 +127,19 @@ const webhooks = new PersistentStore('webhooks', { ...BASE_OPTS, encryptFields: 
 const webhookDeliveries = new PersistentStore('webhook-deliveries', BASE_OPTS);
 const evalMetrics = new PersistentStore('eval-metrics', BASE_OPTS);
 
+// Phase 2–10 persistent stores (data now survives restarts)
+const relationships = new PersistentStore('relationships', BASE_OPTS);
+const conditionTemplates = new PersistentStore('condition-templates', BASE_OPTS);
+const attributePolicies = new PersistentStore('attribute-policies', BASE_OPTS);
+const aiModels = new PersistentStore('ai-models', BASE_OPTS);
+const constitutions = new PersistentStore('constitutions', BASE_OPTS);
+const agentRegistry = new PersistentStore('agent-registry', BASE_OPTS);
+const memoryPolicies = new PersistentStore('memory-policies', BASE_OPTS);
+const twinPolicies = new PersistentStore('twin-policies', BASE_OPTS);
+const automations = new PersistentStore('automations', BASE_OPTS);
+const approvalQueue = new PersistentStore('approval-queue', BASE_OPTS);
+const execHistory = new PersistentStore('exec-history', BASE_OPTS);
+
 let auditCount = 0;
 const audit = [];
 const AUDIT_FILE_PATH = `${process.env.HOJAI_DATA_DIR || './data/'}/policy-os/audit.jsonl`;
@@ -486,6 +499,20 @@ const routeDeps = {
   evaluateLimiter, writeLimiter,
   evaluatePolicy, applyExceptions, findPolicy: policyFinder, evaluateComposition,
   CATEGORIES, POLICY_STATUSES, audit,
+  // Phase 2: ABAC v2
+  conditionTemplates, attributePolicies,
+  // Phase 3: ReBAC
+  relationships,
+  // Phase 4: AI Governance
+  aiModels, constitutions,
+  // Phase 5: Agent Trust
+  agentRegistry,
+  // Phase 6: Memory Governance
+  memoryPolicies,
+  // Phase 7: Twin Governance
+  twinPolicies,
+  // Phase 9: Lifecycle Automation
+  automations, approvalQueue, execHistory,
 };
 
 registerPolicyRoutes(app, routeDeps);
@@ -497,26 +524,26 @@ registerAnalyticsRoutes(app, { evalMetrics, customAuth });
 registerAuditRoutes(app, { audit, customAuth });
 // Phase 2: ABAC v2 routes
 registerAttributeRoutes(app, { customAuth });
-registerConditionTemplateRoutes(app, { auditLog, customAuth });
-registerAttributePolicyRoutes(app, { auditLog, customAuth });
+registerConditionTemplateRoutes(app, { auditLog, customAuth, conditionTemplates });
+registerAttributePolicyRoutes(app, { auditLog, customAuth, attributePolicies });
 // Phase 2.4: Natural Language Policy Authoring
 registerNLAuthoringRoutes(app, { auditLog, customAuth });
 // Phase 2.5: Natural Language Explanation of Decisions
 registerNLExplanationRoutes(app, { auditLog, customAuth });
 // Phase 3: ReBAC — Relationship-Based Access Control
-registerReBACRoutes(app, { auditLog, customAuth });
+registerReBACRoutes(app, { auditLog, customAuth, relationships });
 // Phase 4: AI Governance — Model registry, output validation, constitutions
-registerAIGovernanceRoutes(app, { auditLog, customAuth });
+registerAIGovernanceRoutes(app, { auditLog, customAuth, aiModels, constitutions });
 // Phase 5: Agent Trust — Identity registry, multi-dimensional scoring
-registerAgentTrustRoutes(app, { auditLog, customAuth });
+registerAgentTrustRoutes(app, { auditLog, customAuth, agentRegistry });
 // Phase 6: Memory Governance — Access policies, retention, PII detection
-registerMemoryGovernanceRoutes(app, { auditLog, customAuth });
+registerMemoryGovernanceRoutes(app, { auditLog, customAuth, memoryPolicies });
 // Phase 7: Twin Governance — TwinOS bridge, version governance, cross-twin
-registerTwinGovernanceRoutes(app, { auditLog, customAuth });
+registerTwinGovernanceRoutes(app, { auditLog, customAuth, twinPolicies });
 // Phase 8: Constitutional AI — Documents, review, harm categorization
-registerConstitutionalAIRoutes(app, { auditLog, customAuth });
+registerConstitutionalAIRoutes(app, { auditLog, customAuth, constitutions });
 // Phase 9: Lifecycle Automation — Automation engine, approval queue
-registerLifecycleAutomationRoutes(app, { auditLog, customAuth });
+registerLifecycleAutomationRoutes(app, { auditLog, customAuth, automations, approvalQueue, execHistory });
 // Phase 10: Developer Experience — OpenAPI, SDKs, sandbox, compliance reports
 registerDeveloperExperienceRoutes(app, { auditLog, customAuth });
 

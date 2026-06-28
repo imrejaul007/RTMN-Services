@@ -544,6 +544,12 @@ app.post('/api/categories', requireAuth, (req, res) => {
 });
 
 // ── Boot ───────────────────────────────────────────────────────────────────────
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`[product-catalog] listening on http://localhost:${PORT}`);

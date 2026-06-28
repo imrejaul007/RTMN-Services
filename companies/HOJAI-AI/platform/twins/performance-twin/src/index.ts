@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Performance Twin Service v1.0
  * Digital twin for employee performance tracking
@@ -82,7 +83,7 @@ export function createPerformanceTwinService() {
   app.use(express.json());
 
   // POST /api/performance - Create performance record
-  app.post('/api/performance', (req: Request, res: Response) => {
+  app.post('/api/performance',requireAuth,  (req: Request, res: Response) => {
     const { employeeId, period, metrics, feedback } = req.body;
 
     if (!employeeId || !period) {
@@ -172,7 +173,7 @@ export function createPerformanceTwinService() {
   });
 
   // PUT /api/performance/:id - Update record
-  app.put('/api/performance/:id', (req: Request, res: Response) => {
+  app.put('/api/performance/:id',requireAuth,  (req: Request, res: Response) => {
     const record = records.get(req.params.id);
     if (!record) {
       return res.status(404).json({ error: 'Performance record not found' });
@@ -215,7 +216,7 @@ export function createPerformanceTwinService() {
   });
 
   // DELETE /api/performance/:id - Delete record
-  app.delete('/api/performance/:id', (req: Request, res: Response) => {
+  app.delete('/api/performance/:id',requireAuth,  (req: Request, res: Response) => {
     if (!records.has(req.params.id)) {
       return res.status(404).json({ error: 'Performance record not found' });
     }
@@ -224,7 +225,7 @@ export function createPerformanceTwinService() {
   });
 
   // POST /api/performance/:id/feedback - Add feedback
-  app.post('/api/performance/:id/feedback', (req: Request, res: Response) => {
+  app.post('/api/performance/:id/feedback',requireAuth,  (req: Request, res: Response) => {
     const record = records.get(req.params.id);
     if (!record) {
       return res.status(404).json({ error: 'Performance record not found' });

@@ -77,7 +77,13 @@ export async function start() {
     await mongoose.connect(MONGODB_URI);
   }
   return new Promise((resolve) => {
-    _server = app.listen(PORT, () => {
+    _server =
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+ app.listen(PORT, () => {
       // eslint-disable-next-line no-console
       console.log(`[marketplace-listings] listening on :${PORT} (mongo=${MONGODB_URI})`);
       resolve(_server);

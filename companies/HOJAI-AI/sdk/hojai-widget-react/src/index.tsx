@@ -33,6 +33,13 @@ export { HojaiWidget };
 export { default as HojaiChat } from './HojaiChat.js';
 export type { HojaiMessage, HojaiAttachment, HojaiAction, HojaiChatProps } from './HojaiChat.js';
 
+// Commerce components
+export { ProductCard } from './components/ProductCard';
+export { CartDrawer } from './components/CartDrawer';
+export { CheckoutFlow } from './components/CheckoutFlow';
+export * from './components/types';
+export { useCommerce } from './hooks/useCommerce';
+
 export interface HojaiChatProps extends HojaiWidgetConfig {
   className?: string;
   style?: React.CSSProperties;

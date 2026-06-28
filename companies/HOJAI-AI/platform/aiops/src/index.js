@@ -1,5 +1,6 @@
 // AIOps OS - Production observability, metrics, alerts, incidents, dashboards. Port 4898
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { readJson, writeJson } from './store.js';
 
@@ -24,7 +25,7 @@ app.get('/api/metrics', (req, res) => {
   res.json({ metrics: metrics.slice(-parseInt(limit)), count: metrics.length });
 });
 
-app.post('/api/metrics', (req, res) => {
+app.post('/api/metrics',requireAuth,  (req, res) => {
   const { service, name, value, unit, labels = {} } = req.body;
   if (!service || !name || value === undefined) return res.status(400).json({ error: 'service, name, value required' });
   const metric = { id: uuidv4(), service, name, value: parseFloat(value), unit, labels, timestamp: new Date().toISOString() };
@@ -69,7 +70,7 @@ app.get('/api/alerts/:id', (req, res) => {
   res.json(alert);
 });
 
-app.post('/api/alerts', (req, res) => {
+app.post('/api/alerts',requireAuth,  (req, res) => {
   const { name, description, severity = 'medium', service, condition, threshold } = req.body;
   if (!name || !service) return res.status(400).json({ error: 'name and service required' });
   const alert = {
@@ -85,7 +86,7 @@ app.post('/api/alerts', (req, res) => {
   res.status(201).json(alert);
 });
 
-app.post('/api/alerts/:id/acknowledge', (req, res) => {
+app.post('/api/alerts/:id/acknowledge',requireAuth,  (req, res) => {
   const alerts = loadAlerts();
   const idx = alerts.findIndex(a => a.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Alert not found' });
@@ -95,7 +96,7 @@ app.post('/api/alerts/:id/acknowledge', (req, res) => {
   res.json(alerts[idx]);
 });
 
-app.post('/api/alerts/:id/resolve', (req, res) => {
+app.post('/api/alerts/:id/resolve',requireAuth,  (req, res) => {
   const alerts = loadAlerts();
   const idx = alerts.findIndex(a => a.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Alert not found' });
@@ -105,7 +106,7 @@ app.post('/api/alerts/:id/resolve', (req, res) => {
   res.json(alerts[idx]);
 });
 
-app.post('/api/alerts/:id/snooze', (req, res) => {
+app.post('/api/alerts/:id/snooze',requireAuth,  (req, res) => {
   const { duration = 3600 } = req.body; // seconds
   const alerts = loadAlerts();
   const idx = alerts.findIndex(a => a.id === req.params.id);
@@ -134,7 +135,7 @@ app.get('/api/incidents/:id', (req, res) => {
   res.json(incident);
 });
 
-app.post('/api/incidents', (req, res) => {
+app.post('/api/incidents',requireAuth,  (req, res) => {
   const { title, description, severity = 'medium', service, alertIds = [] } = req.body;
   if (!title || !service) return res.status(400).json({ error: 'title and service required' });
   const incident = {
@@ -150,7 +151,7 @@ app.post('/api/incidents', (req, res) => {
   res.status(201).json(incident);
 });
 
-app.post('/api/incidents/:id/timeline', (req, res) => {
+app.post('/api/incidents/:id/timeline',requireAuth,  (req, res) => {
   const { event, note } = req.body;
   if (!event) return res.status(400).json({ error: 'event required' });
   const incidents = loadIncidents();
@@ -162,7 +163,7 @@ app.post('/api/incidents/:id/timeline', (req, res) => {
   res.json(incidents[idx]);
 });
 
-app.post('/api/incidents/:id/transition', (req, res) => {
+app.post('/api/incidents/:id/transition',requireAuth,  (req, res) => {
   const { toState } = req.body;
   if (!INCIDENT_STATES.includes(toState)) return res.status(400).json({ error: 'Invalid state' });
   const incidents = loadIncidents();
@@ -190,7 +191,7 @@ app.get('/api/dashboards/:id', (req, res) => {
   res.json(dashboard);
 });
 
-app.post('/api/dashboards', (req, res) => {
+app.post('/api/dashboards',requireAuth,  (req, res) => {
   const { name, description, widgets = [], filters = {} } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
   const dashboard = { id: uuidv4(), name, description, widgets, filters, createdAt: new Date().toISOString() };
@@ -200,7 +201,7 @@ app.post('/api/dashboards', (req, res) => {
   res.status(201).json(dashboard);
 });
 
-app.delete('/api/dashboards/:id', (req, res) => {
+app.delete('/api/dashboards/:id',requireAuth,  (req, res) => {
   const dashboards = loadDashboards();
   const idx = dashboards.findIndex(d => d.id === req.params.id);
   if (idx < 0) return res.status(404).json({ error: 'Dashboard not found' });

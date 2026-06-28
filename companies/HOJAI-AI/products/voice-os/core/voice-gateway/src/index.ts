@@ -17,6 +17,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -196,7 +197,7 @@ async function transcribeWithFallback(
 
 // ── STT Routes ─────────────────────────────────────────────────────────────────
 
-app.post('/api/v1/stt', asyncRoute(async (req, res) => {
+app.post('/api/v1/stt',requireAuth,  asyncRoute(async (req, res) => {
   const validation = TranscribeSchema.safeParse(req.body);
   if (!validation.success) {
     res.status(400).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`));
@@ -326,7 +327,7 @@ app.post('/api/v1/stt', asyncRoute(async (req, res) => {
 }));
 
 // Batch STT
-app.post('/api/v1/stt/batch', asyncRoute(async (req, res) => {
+app.post('/api/v1/stt/batch',requireAuth,  asyncRoute(async (req, res) => {
   const validation = z.object({ requests: z.array(TranscribeSchema) }).safeParse(req.body);
   if (!validation.success) {
     res.status(400).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`));
@@ -372,7 +373,7 @@ app.get('/api/v1/stt/engines', (_req, res) => {
 
 // ── TTS Routes ─────────────────────────────────────────────────────────────────
 
-app.post('/api/v1/tts', asyncRoute(async (req, res) => {
+app.post('/api/v1/tts',requireAuth,  asyncRoute(async (req, res) => {
   const validation = SynthesizeSchema.safeParse(req.body);
   if (!validation.success) {
     res.status(400).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`));
@@ -432,7 +433,7 @@ app.get('/api/v1/tts/engines', (_req, res) => {
 
 // ── Language Detection ─────────────────────────────────────────────────────────
 
-app.post('/api/v1/detect-language', asyncRoute(async (req, res) => {
+app.post('/api/v1/detect-language',requireAuth,  asyncRoute(async (req, res) => {
   const validation = z.object({
     audio: z.string().optional(),
     text: z.string().optional(),
@@ -458,7 +459,7 @@ app.post('/api/v1/detect-language', asyncRoute(async (req, res) => {
 
 // ── Audio Analysis ──────────────────────────────────────────────────────────────
 
-app.post('/api/v1/analyze-audio', asyncRoute(async (req, res) => {
+app.post('/api/v1/analyze-audio',requireAuth,  asyncRoute(async (req, res) => {
   const validation = z.object({ audio: z.string(), filename: z.string().default('audio.webm') }).safeParse(req.body);
   if (!validation.success) {
     res.status(400).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`));
@@ -483,7 +484,7 @@ app.post('/api/v1/analyze-audio', asyncRoute(async (req, res) => {
 
 // ── Benchmark ─────────────────────────────────────────────────────────────────
 
-app.post('/api/v1/training/benchmark', asyncRoute(async (req, res) => {
+app.post('/api/v1/training/benchmark',requireAuth,  asyncRoute(async (req, res) => {
   const validation = BenchmarkSchema.parse(req.body);
   const { corpus, engines: requestedEngines, force } = validation;
 
@@ -541,7 +542,7 @@ app.post('/api/v1/training/benchmark', asyncRoute(async (req, res) => {
   }));
 }));
 
-app.post('/api/v1/training/samples/upload', asyncRoute(async (req, res) => {
+app.post('/api/v1/training/samples/upload',requireAuth,  asyncRoute(async (req, res) => {
   // Upload ground truth samples for benchmark corpus
   const { samples } = BenchmarkSamplesSchema.parse(req.body);
 
@@ -593,7 +594,7 @@ app.get('/api/v1/training/stats', (_req, res) => {
   }));
 });
 
-app.post('/api/v1/training/export', asyncRoute(async (req, res) => {
+app.post('/api/v1/training/export',requireAuth,  asyncRoute(async (req, res) => {
   const { format: exportFormat } = req.query;
   const fs = await import('fs');
   // Drain in-memory event queue for stt_sample events
@@ -618,7 +619,7 @@ app.post('/api/v1/training/export', asyncRoute(async (req, res) => {
   res.json(apiResponse(true, { ...output, path: outPath }));
 }));
 
-app.delete('/api/v1/training/samples', asyncRoute(async (_req, res) => {
+app.delete('/api/v1/training/samples',requireAuth,  asyncRoute(async (_req, res) => {
   const count = audioHashSet.size;
   audioHashSet.clear();
   res.json(apiResponse(true, { cleared: count, message: 'Training samples cleared. Benchmark results retained.' }));

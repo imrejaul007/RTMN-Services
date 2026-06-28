@@ -69,4 +69,10 @@ app.get('/api/benchmark/stats', (_req, res) => {
   const passed = results.filter(r => r.passed).length;
   ok(res, { total: results.length, passRate: results.length > 0 ? passed / results.length : 0 });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => console.log(`Memory Benchmark running on port ${PORT}`));

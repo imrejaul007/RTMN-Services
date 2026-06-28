@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Presence OS - Production Implementation
  * User presence, availability, timezone management
@@ -118,7 +119,7 @@ app.get('/api/users/:userId', (req, res) => {
   res.json(user);
 });
 
-app.post('/api/users', (req, res) => {
+app.post('/api/users',requireAuth,  (req, res) => {
   const { userId, name, email, timezone, capabilities } = req.body;
   if (!userId || !name) return res.status(400).json({ error: 'userId, name required' });
 
@@ -133,7 +134,7 @@ app.post('/api/users', (req, res) => {
   res.status(201).json(user);
 });
 
-app.patch('/api/users/:userId', (req, res) => {
+app.patch('/api/users/:userId',requireAuth,  (req, res) => {
   const user = users.get(req.params.userId);
   if (!user) return res.status(404).json({ error: 'User not found' });
   Object.assign(user, req.body);
@@ -141,7 +142,7 @@ app.patch('/api/users/:userId', (req, res) => {
   res.json(user);
 });
 
-app.delete('/api/users/:userId', (req, res) => {
+app.delete('/api/users/:userId',requireAuth,  (req, res) => {
   if (!users.has(req.params.userId)) return res.status(404).json({ error: 'User not found' });
   users.delete(req.params.userId);
   res.json({ success: true });
@@ -149,7 +150,7 @@ app.delete('/api/users/:userId', (req, res) => {
 
 // ============ STATUS UPDATE ============
 
-app.post('/api/update', (req, res) => {
+app.post('/api/update',requireAuth,  (req, res) => {
   try {
     const data = UpdatePresenceSchema.parse(req.body);
     const user = users.get(data.userId);
@@ -180,7 +181,7 @@ app.post('/api/update', (req, res) => {
   }
 });
 
-app.post('/api/bulk-update', (req, res) => {
+app.post('/api/bulk-update',requireAuth,  (req, res) => {
   const { updates } = req.body;
   if (!updates?.length) return res.status(400).json({ error: 'updates array required' });
 
@@ -222,7 +223,7 @@ app.get('/api/meeting', (req, res) => {
   res.json({ count: inMeeting.length, users: inMeeting, meetings: activeMeetings });
 });
 
-app.post('/api/meetings', (req, res) => {
+app.post('/api/meetings',requireAuth,  (req, res) => {
   const { title, participants, startTime, endTime } = req.body;
   if (!title || !participants?.length) return res.status(400).json({ error: 'title, participants required' });
 
@@ -238,7 +239,7 @@ app.post('/api/meetings', (req, res) => {
   res.status(201).json(meeting);
 });
 
-app.post('/api/meetings/:id/start', (req, res) => {
+app.post('/api/meetings/:id/start',requireAuth,  (req, res) => {
   const meeting = meetings.get(req.params.id);
   if (!meeting) return res.status(404).json({ error: 'Meeting not found' });
 
@@ -251,7 +252,7 @@ app.post('/api/meetings/:id/start', (req, res) => {
   res.json(meeting);
 });
 
-app.post('/api/meetings/:id/end', (req, res) => {
+app.post('/api/meetings/:id/end',requireAuth,  (req, res) => {
   const meeting = meetings.get(req.params.id);
   if (!meeting) return res.status(404).json({ error: 'Meeting not found' });
 
@@ -291,7 +292,7 @@ app.get('/api/availability/:userId', (req, res) => {
   });
 });
 
-app.post('/api/availability', (req, res) => {
+app.post('/api/availability',requireAuth,  (req, res) => {
   const { userId, date, startTime, endTime, available } = req.body;
   if (!userId || !date) return res.status(400).json({ error: 'userId, date required' });
 

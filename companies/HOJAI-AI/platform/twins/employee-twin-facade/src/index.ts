@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Employee Twin Facade - Unified API
  *
@@ -315,7 +316,7 @@ app.get('/api/twin/:employeeId/patterns', async (req: Request, res: Response, ne
 // ============================================================
 
 // Record learning event
-app.post('/api/twin/:employeeId/events', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/twin/:employeeId/events',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { employeeId } = req.params;
     const { type, context, choice, reasoning } = req.body;
@@ -356,7 +357,7 @@ app.post('/api/twin/:employeeId/events', async (req: Request, res: Response, nex
 });
 
 // Submit feedback
-app.post('/api/twin/:employeeId/feedback', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/twin/:employeeId/feedback',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { employeeId } = req.params;
     const { capability, feedbackType, twinAction, correction, currentConfidence } = req.body;
@@ -425,7 +426,7 @@ app.get('/api/twin/:employeeId/feedback', async (req: Request, res: Response, ne
 // ============================================================
 
 // Create task
-app.post('/api/twin/:employeeId/tasks', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/twin/:employeeId/tasks',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { employeeId } = req.params;
     const { description, taskType, capability, context, priority } = req.body;
@@ -494,7 +495,7 @@ app.get('/api/twin/:employeeId/tasks', async (req: Request, res: Response, next:
 });
 
 // Approve task
-app.post('/api/twin/:employeeId/tasks/:taskId/approve', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/twin/:employeeId/tasks/:taskId/approve',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { employeeId, taskId } = req.params;
     const requestId = (req as any).requestId;
@@ -514,7 +515,7 @@ app.post('/api/twin/:employeeId/tasks/:taskId/approve', async (req: Request, res
 });
 
 // Reject task
-app.post('/api/twin/:employeeId/tasks/:taskId/reject', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/twin/:employeeId/tasks/:taskId/reject',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { employeeId, taskId } = req.params;
     const { reason } = req.body;

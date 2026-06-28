@@ -14,6 +14,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -284,7 +285,7 @@ app.post('/api/agents/register', authenticateRequest, requireAdmin, (req, res) =
 
 // ---- Agent authentication: API key -> JWT ----
 
-app.post('/api/agents/auth', (req, res) => {
+app.post('/api/agents/auth',requireAuth,  (req, res) => {
   const { agentId, apiKey } = req.body || {};
   if (!agentId || !apiKey) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'agentId and apiKey are required' });
@@ -329,7 +330,7 @@ app.post('/api/agents/auth', (req, res) => {
 
 // ---- Permission check (RBAC) ----
 
-app.post('/api/agents/check-permission', authenticateRequest, (req, res) => {
+app.post('/api/agents/check-permission',requireAuth,  authenticateRequest, (req, res) => {
   const { agentId, permission } = req.body || {};
   if (!agentId || !permission) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'agentId and permission are required' });

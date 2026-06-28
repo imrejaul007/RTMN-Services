@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Verification OS - Production Implementation
  * AI output verification and quality control
@@ -100,7 +101,7 @@ app.get('/ready', (_req: Request, res: Response) => {
 });
 
 // Verify output
-app.post('/api/verify/output', async (req: Request, res: Response) => {
+app.post('/api/verify/output',requireAuth,  async (req: Request, res: Response) => {
   try {
     const data = VerifySchema.parse(req.body);
     const id = uuidv4();
@@ -170,7 +171,7 @@ app.get('/api/verify/:id', (req: Request, res: Response) => {
 });
 
 // Batch verify
-app.post('/api/verify/batch', async (req: Request, res: Response) => {
+app.post('/api/verify/batch',requireAuth,  async (req: Request, res: Response) => {
   const schema = z.object({
     items: z.array(z.object({
       type: z.enum(['llm_output', 'document', 'code', 'image', 'audio']),
@@ -198,7 +199,7 @@ app.post('/api/verify/batch', async (req: Request, res: Response) => {
 });
 
 // Retry failed verification
-app.post('/api/verify/:id/retry', (req: Request, res: Response) => {
+app.post('/api/verify/:id/retry',requireAuth,  (req: Request, res: Response) => {
   const task = tasks.get(req.params.id);
   if (!task) return res.status(404).json({ error: 'Verification task not found' });
   if (task.status !== 'failed') return res.status(400).json({ error: 'Can only retry failed tasks' });
@@ -265,7 +266,7 @@ app.get('/api/verify/rules', (_req: Request, res: Response) => {
   res.json({ total: rules.size, rules: Array.from(rules.values()) });
 });
 
-app.post('/api/verify/rules', (req: Request, res: Response) => {
+app.post('/api/verify/rules',requireAuth,  (req: Request, res: Response) => {
   const schema = z.object({
     name: z.string(),
     type: z.string(),
@@ -285,7 +286,7 @@ app.post('/api/verify/rules', (req: Request, res: Response) => {
   }
 });
 
-app.put('/api/verify/rules/:id', (req: Request, res: Response) => {
+app.put('/api/verify/rules/:id',requireAuth,  (req: Request, res: Response) => {
   const rule = rules.get(req.params.id);
   if (!rule) return res.status(404).json({ error: 'Rule not found' });
   const { enabled, name, description } = req.body;
@@ -295,7 +296,7 @@ app.put('/api/verify/rules/:id', (req: Request, res: Response) => {
   res.json(rule);
 });
 
-app.delete('/api/verify/rules/:id', (req: Request, res: Response) => {
+app.delete('/api/verify/rules/:id',requireAuth,  (req: Request, res: Response) => {
   if (!rules.has(req.params.id)) return res.status(404).json({ error: 'Rule not found' });
   rules.delete(req.params.id);
   res.json({ success: true });

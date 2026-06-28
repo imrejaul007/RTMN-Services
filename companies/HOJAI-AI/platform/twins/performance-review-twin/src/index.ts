@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Performance Review Twin Service v1.0
  * Digital twin for formal performance reviews
@@ -47,7 +48,7 @@ export function createPerformanceReviewTwinService() {
   const app = express();
   app.use(express.json());
 
-  app.post('/api/reviews', (req: Request, res: Response) => {
+  app.post('/api/reviews',requireAuth,  (req: Request, res: Response) => {
     const { employeeId, reviewerId, period, type, ratings, achievements, areasForImprovement, developmentPlan } = req.body;
     if (!employeeId || !reviewerId || !period || !type) {
       return res.status(400).json({ error: 'employeeId, reviewerId, period, and type are required' });
@@ -113,7 +114,7 @@ export function createPerformanceReviewTwinService() {
     return res.status(200).json(review);
   });
 
-  app.put('/api/reviews/:id', (req: Request, res: Response) => {
+  app.put('/api/reviews/:id',requireAuth,  (req: Request, res: Response) => {
     const review = reviews.get(req.params.id);
     if (!review) return res.status(404).json({ error: 'Review not found' });
 
@@ -129,7 +130,7 @@ export function createPerformanceReviewTwinService() {
     return res.status(200).json(review);
   });
 
-  app.delete('/api/reviews/:id', (req: Request, res: Response) => {
+  app.delete('/api/reviews/:id',requireAuth,  (req: Request, res: Response) => {
     if (!reviews.has(req.params.id)) return res.status(404).json({ error: 'Review not found' });
     reviews.delete(req.params.id);
     return res.status(204).send();

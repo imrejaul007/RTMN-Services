@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
@@ -261,7 +262,7 @@ app.post('/api/payments/upi/verify', requireAuth, (req, res) => {
 });
 
 // Razorpay webhook handler
-app.post('/api/payments/webhook', async (req, res) => {
+app.post('/api/payments/webhook',requireAuth,  async (req, res) => {
   const signature = req.headers['x-razorpay-signature'];
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -341,6 +342,12 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 const server = app.listen(PORT, () => {
   console.log(`Payment Gateway Service running on port ${PORT}`);
 });

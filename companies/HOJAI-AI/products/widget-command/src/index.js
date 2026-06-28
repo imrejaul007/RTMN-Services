@@ -23,6 +23,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
@@ -953,7 +954,7 @@ app.get('/health', (req, res) => {
  * POST /api/command/ask
  * Ask natural language question about business
  */
-app.post('/api/command/ask', async (req, res) => {
+app.post('/api/command/ask',requireAuth,  async (req, res) => {
   try {
     const { question, businessId, context } = req.body;
 
@@ -1073,7 +1074,7 @@ app.get('/api/command/insights', (req, res) => {
  * POST /api/command/campaign/create
  * Auto-create campaign on churn risk detection
  */
-app.post('/api/command/campaign/create', async (req, res) => {
+app.post('/api/command/campaign/create',requireAuth,  async (req, res) => {
   try {
     const churnSignal = req.body;
 
@@ -1158,7 +1159,7 @@ app.get('/api/command/campaigns', (req, res) => {
  * POST /api/command/coupon/optimize
  * Analyze and find minimum effective discount
  */
-app.post('/api/command/coupon/optimize', async (req, res) => {
+app.post('/api/command/coupon/optimize',requireAuth,  async (req, res) => {
   try {
     const options = req.body || {};
 
@@ -1232,7 +1233,7 @@ app.get('/api/command/coupon/recommendations', (req, res) => {
  * POST /api/command/pricing/dynamic
  * Apply dynamic pricing rules
  */
-app.post('/api/command/pricing/dynamic', async (req, res) => {
+app.post('/api/command/pricing/dynamic',requireAuth,  async (req, res) => {
   try {
     const inventoryData = req.body;
 
@@ -1278,7 +1279,7 @@ app.get('/api/command/pricing/recommendations', async (req, res) => {
  * POST /api/command/budget/allocate
  * Analyze ROAS and reallocate budget
  */
-app.post('/api/command/budget/allocate', async (req, res) => {
+app.post('/api/command/budget/allocate',requireAuth,  async (req, res) => {
   try {
     const channelData = req.body;
 
@@ -1395,7 +1396,7 @@ app.get('/api/command/query', async (req, res) => {
  * POST /api/command/execute
  * Execute recommended action
  */
-app.post('/api/command/execute', async (req, res) => {
+app.post('/api/command/execute',requireAuth,  async (req, res) => {
   try {
     const { action, autoApprove } = req.body;
 
@@ -1583,6 +1584,12 @@ app.use((err, req, res, next) => {
 // =============================================================================
 // START SERVER
 // =============================================================================
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`[Widget Command] AI Business Advisor running on port ${PORT}`);

@@ -25,6 +25,7 @@
 'use strict';
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http');
@@ -428,7 +429,7 @@ app.get('/api/health', async (req, res) => {
  * POST /api/documents
  * Body: { collection, documentId?, content, metadata?, chunkSize?, chunkOverlap? }
  */
-app.post('/api/documents',authOrBypass,  async (req, res) => {
+app.post('/api/documents',requireAuth, authOrBypass,  async (req, res) => {
   const start = Date.now();
   const { collection, documentId, content, metadata, chunkSize, chunkOverlap } = req.body || {};
   if (typeof collection !== 'string' || !collection.trim()) {
@@ -543,7 +544,7 @@ app.get('/api/documents/:documentId', (req, res) => {
 /**
  * DELETE /api/documents/:documentId
  */
-app.delete('/api/documents/:documentId',authOrBypass,  async (req, res) => {
+app.delete('/api/documents/:documentId',requireAuth, authOrBypass,  async (req, res) => {
   const doc = documents.get(req.params.documentId);
   if (!doc) return res.status(404).json({ error: `document '${req.params.documentId}' not found`, code: 'DOCUMENT_NOT_FOUND' });
 
@@ -585,7 +586,7 @@ app.get('/api/documents', (req, res) => {
  * POST /api/retrieve
  * Body: { collection, query, topK?, filter? }
  */
-app.post('/api/retrieve',authOrBypass,  async (req, res) => {
+app.post('/api/retrieve',requireAuth, authOrBypass,  async (req, res) => {
   const start = Date.now();
   const { collection, query, topK, filter } = req.body || {};
   if (typeof collection !== 'string' || !collection.trim()) {
@@ -635,7 +636,7 @@ app.post('/api/retrieve',authOrBypass,  async (req, res) => {
  * POST /api/rag/query
  * Body: { collection, query, topK?, filter?, systemPrompt?, model?, temperature?, maxTokens?, includeSources? }
  */
-app.post('/api/rag/query',authOrBypass,  async (req, res) => {
+app.post('/api/rag/query',requireAuth, authOrBypass,  async (req, res) => {
   const start = Date.now();
   const {
     collection, query, topK, filter,
@@ -742,7 +743,7 @@ app.post('/api/rag/query',authOrBypass,  async (req, res) => {
 /**
  * POST /api/rag/stream  (not yet implemented)
  */
-app.post('/api/rag/stream',authOrBypass,  (req, res) => {
+app.post('/api/rag/stream',requireAuth, authOrBypass,  (req, res) => {
   res.status(501).json({
     error: 'NOT_IMPLEMENTED',
     message: 'Streaming responses are planned for v1.1. Use /api/rag/query for non-streaming.',
@@ -754,7 +755,7 @@ app.post('/api/rag/stream',authOrBypass,  (req, res) => {
 
 app.get('/api/config', (req, res) => res.json({ ...config }));
 
-app.post('/api/config',authOrBypass,  (req, res) => {
+app.post('/api/config',requireAuth, authOrBypass,  (req, res) => {
   const { vectorDbUrl, inferenceUrl, defaultChunkSize, defaultChunkOverlap, defaultModel, defaultTemperature, defaultTopK } = req.body || {};
   if (vectorDbUrl !== undefined) {
     if (typeof vectorDbUrl !== 'string' || !vectorDbUrl.startsWith('http')) {
@@ -819,7 +820,7 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-app.post('/api/stats/reset',authOrBypass,  (req, res) => {
+app.post('/api/stats/reset',requireAuth, authOrBypass,  (req, res) => {
   const old = { ...stats };
   stats.queriesAnswered = 0;
   stats.retrievalsOnly = 0;

@@ -72,7 +72,7 @@ function evaluate(rule, context) {
 }
 
 // POST /api/proactive/rule
-app.post('/api/proactive/rule', authOrBypass, (req, res) => {
+app.post('/api/proactive/rule',requireAuth,  authOrBypass, (req, res) => {
   const { name, trigger, action, priority, actor } = req.body || {};
   if (!name || !action) return res.status(400).json({ error: 'name and action are required' });
   const rule = {
@@ -103,7 +103,7 @@ app.get('/api/proactive/rules/:id', (req, res) => {
 });
 
 // DELETE /api/proactive/rules/:id
-app.delete('/api/proactive/rules/:id', authOrBypass, (req, res) => {
+app.delete('/api/proactive/rules/:id',requireAuth,  authOrBypass, (req, res) => {
   const r = rules.get(req.params.id);
   if (!r) return res.status(404).json({ error: 'Rule not found' });
   rules.delete(req.params.id);
@@ -112,7 +112,7 @@ app.delete('/api/proactive/rules/:id', authOrBypass, (req, res) => {
 });
 
 // POST /api/proactive/suggest
-app.post('/api/proactive/suggest', authOrBypass, (req, res) => {
+app.post('/api/proactive/suggest',requireAuth,  authOrBypass, (req, res) => {
   const { userId, context, actor, prefer } = req.body || {};
   if (!userId) return res.status(400).json({ error: 'userId is required' });
   const ctx = { userId, ...(context || {}) };

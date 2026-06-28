@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Culture OS - Production Implementation
  * Company values, surveys, alignment tracking
@@ -55,7 +56,7 @@ app.get('/api/values/:id', (req, res) => {
   res.json(value);
 });
 
-app.post('/api/values', (req, res) => {
+app.post('/api/values',requireAuth,  (req, res) => {
   const { name, description, examples, color, icon } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
   const id = uuidv4();
@@ -64,14 +65,14 @@ app.post('/api/values', (req, res) => {
   res.status(201).json(values.get(id));
 });
 
-app.put('/api/values/:id', (req, res) => {
+app.put('/api/values/:id',requireAuth,  (req, res) => {
   const value = values.get(req.params.id);
   if (!value) return res.status(404).json({ error: 'Value not found' });
   Object.assign(value, req.body);
   res.json(value);
 });
 
-app.delete('/api/values/:id', (req, res) => {
+app.delete('/api/values/:id',requireAuth,  (req, res) => {
   const value = values.get(req.params.id);
   if (!value) return res.status(404).json({ error: 'Value not found' });
   value.active = false;
@@ -87,7 +88,7 @@ app.get('/api/alignment', (req, res) => {
   res.json({ userId, scores, averageScore: Math.round(avgScore) });
 });
 
-app.post('/api/alignment', (req, res) => {
+app.post('/api/alignment',requireAuth,  (req, res) => {
   const { userId, valueId, score, evidence } = req.body;
   if (!userId || !valueId || score === undefined) return res.status(400).json({ error: 'userId, valueId, score required' });
   if (!alignmentScores.has(userId)) alignmentScores.set(userId, []);
@@ -126,7 +127,7 @@ app.get('/api/surveys/:id', (req, res) => {
   res.json({ ...survey, responses: responses.length });
 });
 
-app.post('/api/surveys', (req, res) => {
+app.post('/api/surveys',requireAuth,  (req, res) => {
   const { title, description, questions, deadline } = req.body;
   if (!title || !questions?.length) return res.status(400).json({ error: 'title, questions required' });
   const id = uuidv4();
@@ -135,21 +136,21 @@ app.post('/api/surveys', (req, res) => {
   res.status(201).json(survey);
 });
 
-app.post('/api/surveys/:id/publish', (req, res) => {
+app.post('/api/surveys/:id/publish',requireAuth,  (req, res) => {
   const survey = surveys.get(req.params.id);
   if (!survey) return res.status(404).json({ error: 'Survey not found' });
   survey.status = 'active';
   res.json(survey);
 });
 
-app.post('/api/surveys/:id/close', (req, res) => {
+app.post('/api/surveys/:id/close',requireAuth,  (req, res) => {
   const survey = surveys.get(req.params.id);
   if (!survey) return res.status(404).json({ error: 'Survey not found' });
   survey.status = 'closed';
   res.json(survey);
 });
 
-app.post('/api/surveys/:id/respond', (req, res) => {
+app.post('/api/surveys/:id/respond',requireAuth,  (req, res) => {
   const survey = surveys.get(req.params.id);
   if (!survey) return res.status(404).json({ error: 'Survey not found' });
   if (survey.status !== 'active') return res.status(400).json({ error: 'Survey not active' });
@@ -183,7 +184,7 @@ app.get('/api/events', (req, res) => {
   res.json({ total: result.length, events: result });
 });
 
-app.post('/api/events', (req, res) => {
+app.post('/api/events',requireAuth,  (req, res) => {
   const { title, description, date, type, attendees } = req.body;
   if (!title || !date) return res.status(400).json({ error: 'title, date required' });
   const id = uuidv4();

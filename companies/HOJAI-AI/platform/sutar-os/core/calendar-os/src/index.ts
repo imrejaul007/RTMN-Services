@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Calendar OS - Production Implementation
  * Events, scheduling, availability, calendar integrations
@@ -52,7 +53,7 @@ app.get('/api/events/:id', (req, res) => {
   res.json(event);
 });
 
-app.post('/api/events', (req, res) => {
+app.post('/api/events',requireAuth,  (req, res) => {
   const { title, description, start, end, allDay, attendees, location, reminders, createdBy, color, visibility } = req.body;
   if (!title || !start || !end) return res.status(400).json({ error: 'title, start, end required' });
   const id = uuidv4();
@@ -60,14 +61,14 @@ app.post('/api/events', (req, res) => {
   res.status(201).json(events.get(id));
 });
 
-app.put('/api/events/:id', (req, res) => {
+app.put('/api/events/:id',requireAuth,  (req, res) => {
   const event = events.get(req.params.id);
   if (!event) return res.status(404).json({ error: 'Event not found' });
   Object.assign(event, req.body);
   res.json(event);
 });
 
-app.delete('/api/events/:id', (req, res) => {
+app.delete('/api/events/:id',requireAuth,  (req, res) => {
   if (!events.has(req.params.id)) return res.status(404).json({ error: 'Event not found' });
   events.delete(req.params.id);
   res.json({ success: true });
@@ -82,7 +83,7 @@ app.get('/api/conflicts', (req, res) => {
 });
 
 // ============ AVAILABILITY ============
-app.post('/api/availability', (req, res) => {
+app.post('/api/availability',requireAuth,  (req, res) => {
   const { attendees, duration, startDate, endDate } = req.body;
   if (!attendees || !duration) return res.status(400).json({ error: 'attendees and duration required' });
   const slots = [];
@@ -105,7 +106,7 @@ app.get('/api/calendars', (req, res) => {
   res.json({ calendars: result });
 });
 
-app.post('/api/calendars', (req, res) => {
+app.post('/api/calendars',requireAuth,  (req, res) => {
   const { userId, name, color } = req.body;
   if (!userId || !name) return res.status(400).json({ error: 'userId, name required' });
   const id = uuidv4();

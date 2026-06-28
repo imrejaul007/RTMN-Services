@@ -54,7 +54,7 @@ function audit(action, actor, payload) {
 }
 
 // POST /api/blueprints
-app.post('/api/blueprints', authOrBypass, (req, res) => {
+app.post('/api/blueprints',requireAuth,  authOrBypass, (req, res) => {
   const { name, systemPrompt, tools, model, knowledge, actor } = req.body || {};
   if (!name || !systemPrompt) return res.status(400).json({ error: 'name and systemPrompt are required' });
   const bp = {
@@ -87,7 +87,7 @@ app.get('/api/blueprints/:id', (req, res) => {
 });
 
 // PUT /api/blueprints/:id
-app.put('/api/blueprints/:id', authOrBypass, (req, res) => {
+app.put('/api/blueprints/:id',requireAuth,  authOrBypass, (req, res) => {
   const bp = blueprints.get(req.params.id);
   if (!bp) return res.status(404).json({ error: 'Blueprint not found' });
   const { name, systemPrompt, tools, model, knowledge, actor } = req.body || {};
@@ -104,7 +104,7 @@ app.put('/api/blueprints/:id', authOrBypass, (req, res) => {
 });
 
 // DELETE /api/blueprints/:id
-app.delete('/api/blueprints/:id', authOrBypass, (req, res) => {
+app.delete('/api/blueprints/:id',requireAuth,  authOrBypass, (req, res) => {
   const bp = blueprints.get(req.params.id);
   if (!bp) return res.status(404).json({ error: 'Blueprint not found' });
   blueprints.delete(req.params.id);
@@ -113,7 +113,7 @@ app.delete('/api/blueprints/:id', authOrBypass, (req, res) => {
 });
 
 // POST /api/blueprints/:id/instantiate
-app.post('/api/blueprints/:id/instantiate', authOrBypass, (req, res) => {
+app.post('/api/blueprints/:id/instantiate',requireAuth,  authOrBypass, (req, res) => {
   const bp = blueprints.get(req.params.id);
   if (!bp) return res.status(404).json({ error: 'Blueprint not found' });
   const { name, actor } = req.body || {};

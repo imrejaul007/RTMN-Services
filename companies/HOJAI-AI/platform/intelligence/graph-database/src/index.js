@@ -21,6 +21,7 @@
 'use strict';
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -508,7 +509,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 /** POST /api/nodes - create a node. Body: { labels: [...], properties: {...} } */
-app.post('/api/nodes',authOrBypass,  (req, res) => {
+app.post('/api/nodes',requireAuth, authOrBypass,  (req, res) => {
   const { labels = [], properties = {} } = req.body || {};
   if (!Array.isArray(labels)) {
     return res.status(400).json({ error: 'labels (array of strings) is required' });
@@ -546,7 +547,7 @@ app.post('/api/nodes',authOrBypass,  (req, res) => {
 });
 
 /** POST /api/nodes/batch - bulk create. Body: { nodes: [{ labels, properties }, ...] } */
-app.post('/api/nodes/batch',authOrBypass,  (req, res) => {
+app.post('/api/nodes/batch',requireAuth, authOrBypass,  (req, res) => {
   const { nodes: list = [] } = req.body || {};
   if (!Array.isArray(list)) {
     return res.status(400).json({ error: 'nodes (array) is required' });
@@ -592,7 +593,7 @@ app.get('/api/nodes/:id', (req, res) => {
 });
 
 /** PATCH /api/nodes/:id - update labels and/or properties. Body: { addLabels?, removeLabels?, setProperties?, removeProperties? } */
-app.patch('/api/nodes/:id',authOrBypass,  (req, res) => {
+app.patch('/api/nodes/:id',requireAuth, authOrBypass,  (req, res) => {
   const n = nodes.get(req.params.id);
   if (!n) return res.status(404).json({ error: 'Node not found' });
   const { addLabels = [], removeLabels = [], setProperties, removeProperties = [] } = req.body || {};
@@ -627,7 +628,7 @@ app.patch('/api/nodes/:id',authOrBypass,  (req, res) => {
 });
 
 /** DELETE /api/nodes/:id - delete node + all incident edges */
-app.delete('/api/nodes/:id',authOrBypass,  (req, res) => {
+app.delete('/api/nodes/:id',requireAuth, authOrBypass,  (req, res) => {
   const n = nodes.get(req.params.id);
   if (!n) return res.status(404).json({ error: 'Node not found' });
 
@@ -692,7 +693,7 @@ app.get('/api/nodes', (req, res) => {
 });
 
 /** POST /api/edges - create an edge. Body: { type, from, to, properties? } */
-app.post('/api/edges',authOrBypass,  (req, res) => {
+app.post('/api/edges',requireAuth, authOrBypass,  (req, res) => {
   const { type, from, to, properties = {} } = req.body || {};
   if (typeof type !== 'string' || !type.trim()) {
     return res.status(400).json({ error: 'type (non-empty string) is required' });
@@ -739,7 +740,7 @@ app.post('/api/edges',authOrBypass,  (req, res) => {
 });
 
 /** POST /api/edges/batch - bulk create. Body: { edges: [{ type, from, to, properties? }, ...] } */
-app.post('/api/edges/batch',authOrBypass,  (req, res) => {
+app.post('/api/edges/batch',requireAuth, authOrBypass,  (req, res) => {
   const { edges: list = [] } = req.body || {};
   if (!Array.isArray(list)) {
     return res.status(400).json({ error: 'edges (array) is required' });
@@ -792,7 +793,7 @@ app.get('/api/edges/:id', (req, res) => {
 });
 
 /** PATCH /api/edges/:id - update type/properties. Body: { type?, setProperties?, removeProperties? } */
-app.patch('/api/edges/:id',authOrBypass,  (req, res) => {
+app.patch('/api/edges/:id',requireAuth, authOrBypass,  (req, res) => {
   const e = edges.get(req.params.id);
   if (!e) return res.status(404).json({ error: 'Edge not found' });
   const { type, setProperties, removeProperties = [] } = req.body || {};
@@ -816,7 +817,7 @@ app.patch('/api/edges/:id',authOrBypass,  (req, res) => {
 });
 
 /** DELETE /api/edges/:id */
-app.delete('/api/edges/:id',authOrBypass,  (req, res) => {
+app.delete('/api/edges/:id',requireAuth, authOrBypass,  (req, res) => {
   const e = edges.get(req.params.id);
   if (!e) return res.status(404).json({ error: 'Edge not found' });
 
@@ -862,7 +863,7 @@ app.get('/api/edges', (req, res) => {
 });
 
 /** POST /api/match - Cypher-lite pattern matching. Body: { pattern } */
-app.post('/api/match',authOrBypass,  (req, res) => {
+app.post('/api/match',requireAuth, authOrBypass,  (req, res) => {
   const { pattern } = req.body || {};
   if (typeof pattern !== 'string' || !pattern.trim()) {
     return res.status(400).json({ error: 'pattern (string) is required' });
@@ -928,7 +929,7 @@ app.post('/api/match',authOrBypass,  (req, res) => {
 });
 
 /** POST /api/traverse - BFS traversal. Body: { startId, maxDepth?, direction?, edgeTypes?, labelFilter? } */
-app.post('/api/traverse',authOrBypass,  (req, res) => {
+app.post('/api/traverse',requireAuth, authOrBypass,  (req, res) => {
   const { startId, maxDepth, direction, edgeTypes, labelFilter } = req.body || {};
   if (!startId || !nodes.has(startId)) {
     return res.status(400).json({ error: 'startId (existing node id) is required' });
@@ -961,7 +962,7 @@ app.post('/api/traverse',authOrBypass,  (req, res) => {
 });
 
 /** POST /api/shortest-path - find shortest path. Body: { from, to, direction?, edgeTypes? } */
-app.post('/api/shortest-path',authOrBypass,  (req, res) => {
+app.post('/api/shortest-path',requireAuth, authOrBypass,  (req, res) => {
   const { from, to, direction, edgeTypes } = req.body || {};
   if (!from || !to) {
     return res.status(400).json({ error: 'from and to (node ids) are required' });
@@ -992,7 +993,7 @@ app.post('/api/shortest-path',authOrBypass,  (req, res) => {
 });
 
 /** POST /api/components - connected components. Body: { labelFilter? } */
-app.post('/api/components',authOrBypass,  (req, res) => {
+app.post('/api/components',requireAuth, authOrBypass,  (req, res) => {
   const { labelFilter } = req.body || {};
   stats.totalComponentRuns++;
   const comps = connectedComponents({
@@ -1016,7 +1017,7 @@ app.post('/api/components',authOrBypass,  (req, res) => {
 });
 
 /** POST /api/pagerank - PageRank. Body: { damping?, iterations?, labelFilter?, topK? } */
-app.post('/api/pagerank',authOrBypass,  (req, res) => {
+app.post('/api/pagerank',requireAuth, authOrBypass,  (req, res) => {
   const { damping, iterations, labelFilter, topK } = req.body || {};
   stats.totalPageRankRuns++;
   const result = pageRank({
@@ -1075,7 +1076,7 @@ app.get('/api/degree/:id', (req, res) => {
 });
 
 /** POST /api/clear - wipe graph (testing). Body: { confirm: true } */
-app.post('/api/clear',authOrBypass,  (req, res) => {
+app.post('/api/clear',requireAuth, authOrBypass,  (req, res) => {
   const { confirm } = req.body || {};
   if (confirm !== true) {
     return res.status(400).json({ error: 'pass { confirm: true } to wipe the graph' });
@@ -1108,7 +1109,7 @@ app.get('/api/stats', (_req, res) => {
 });
 
 /** POST /api/stats/reset */
-app.post('/api/stats/reset',authOrBypass,  (req, res) => {
+app.post('/api/stats/reset',requireAuth, authOrBypass,  (req, res) => {
   stats.totalNodesCreated = 0;
   stats.totalNodesDeleted = 0;
   stats.totalEdgesCreated = 0;

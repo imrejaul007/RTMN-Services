@@ -17,6 +17,7 @@
 'use strict';
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -217,7 +218,7 @@ app.get('/api/health', (_req, res) => {
 // ===============================
 
 /** POST /api/agents — Create a new agent */
-app.post('/api/agents', authOrBypass, (req, res) => {
+app.post('/api/agents',requireAuth,  authOrBypass, (req, res) => {
   const { name, description, model, prompt, tools, skills, metadata } = req.body || {};
 
   if (!name || typeof name !== 'string' || !name.trim()) {
@@ -318,7 +319,7 @@ app.get('/api/agents/:id', (req, res) => {
 });
 
 /** PUT /api/agents/:id — Update agent */
-app.put('/api/agents/:id', authOrBypass, (req, res) => {
+app.put('/api/agents/:id',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -357,7 +358,7 @@ app.put('/api/agents/:id', authOrBypass, (req, res) => {
 });
 
 /** DELETE /api/agents/:id — Delete agent */
-app.delete('/api/agents/:id', authOrBypass, (req, res) => {
+app.delete('/api/agents/:id',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -390,7 +391,7 @@ app.delete('/api/agents/:id', authOrBypass, (req, res) => {
 // ===============================
 
 /** POST /api/agents/:id/versions — Create new version */
-app.post('/api/agents/:id/versions', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/versions',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -460,7 +461,7 @@ app.get('/api/agents/:id/versions/:semver', (req, res) => {
 });
 
 /** POST /api/agents/:id/versions/:semver/rollback — Rollback to previous version */
-app.post('/api/agents/:id/versions/:semver/rollback', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/versions/:semver/rollback',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -499,7 +500,7 @@ app.post('/api/agents/:id/versions/:semver/rollback', authOrBypass, (req, res) =
 // ===============================
 
 /** POST /api/agents/:id/deploy — Deploy to an environment */
-app.post('/api/agents/:id/deploy', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/deploy',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -563,7 +564,7 @@ app.post('/api/agents/:id/deploy', authOrBypass, (req, res) => {
 });
 
 /** POST /api/agents/:id/canary — Canary deployment */
-app.post('/api/agents/:id/canary', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/canary',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -645,7 +646,7 @@ app.get('/api/agents/:id/deployments', (req, res) => {
 // ===============================
 
 /** POST /api/agents/:id/metrics — Record runtime metrics */
-app.post('/api/agents/:id/metrics', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/metrics',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -740,7 +741,7 @@ app.get('/api/agents/:id/quality', (req, res) => {
 // ===============================
 
 /** POST /api/agents/:id/deprecate — Mark agent as deprecated */
-app.post('/api/agents/:id/deprecate', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/deprecate',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -765,7 +766,7 @@ app.post('/api/agents/:id/deprecate', authOrBypass, (req, res) => {
 });
 
 /** POST /api/agents/:id/retire — Retire agent */
-app.post('/api/agents/:id/retire', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/retire',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -795,7 +796,7 @@ app.post('/api/agents/:id/retire', authOrBypass, (req, res) => {
 });
 
 /** POST /api/agents/:id/restore — Restore retired agent */
-app.post('/api/agents/:id/restore', authOrBypass, (req, res) => {
+app.post('/api/agents/:id/restore',requireAuth,  authOrBypass, (req, res) => {
   const a = agents.get(req.params.id);
   if (!a) return res.status(404).json({ error: 'Agent not found' });
 
@@ -827,7 +828,7 @@ app.get('/api/policies', (req, res) => {
 });
 
 /** POST /api/policies — Create policy */
-app.post('/api/policies', authOrBypass, (req, res) => {
+app.post('/api/policies',requireAuth,  authOrBypass, (req, res) => {
   const { name, type, config } = req.body || {};
   if (!name || !type || !config) {
     return res.status(400).json({ error: 'name, type, and config are required' });
@@ -847,7 +848,7 @@ app.get('/api/policies/:id', (req, res) => {
 });
 
 /** PUT /api/policies/:id — Update policy */
-app.put('/api/policies/:id', authOrBypass, (req, res) => {
+app.put('/api/policies/:id',requireAuth,  authOrBypass, (req, res) => {
   const p = policies.get(req.params.id);
   if (!p) return res.status(404).json({ error: 'Policy not found' });
   const { name, config } = req.body || {};
@@ -857,7 +858,7 @@ app.put('/api/policies/:id', authOrBypass, (req, res) => {
 });
 
 /** DELETE /api/policies/:id — Delete policy */
-app.delete('/api/policies/:id', authOrBypass, (req, res) => {
+app.delete('/api/policies/:id',requireAuth,  authOrBypass, (req, res) => {
   const p = policies.get(req.params.id);
   if (!p) return res.status(404).json({ error: 'Policy not found' });
   policies.delete(req.params.id);
@@ -882,7 +883,7 @@ app.get('/api/stats', (_req, res) => {
 });
 
 /** POST /api/stats/reset */
-app.post('/api/stats/reset', authOrBypass, (req, res) => {
+app.post('/api/stats/reset',requireAuth,  authOrBypass, (req, res) => {
   for (const k of Object.keys(stats)) stats[k] = 0;
   res.json({ message: 'Stats reset', stats });
 });

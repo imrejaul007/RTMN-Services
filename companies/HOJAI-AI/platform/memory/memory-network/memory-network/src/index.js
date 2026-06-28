@@ -8,7 +8,7 @@
  * - Ecosystem Memory (Cross-company context)
  * - Agent Memory (AI agent memories)
  *
- * Port: 4295
+ * Port: 4931 (was 4295, conflicted with mission-os)
  */
 
 import express from 'express';
@@ -38,7 +38,7 @@ function requireInternal(req, res, next) {
   return res.status(401).json({ error: 'Unauthorized' });
 }
 
-const PORT = process.env.PORT || 4295;
+const PORT = process.env.PORT || 4931; // was 4295 (conflicted with mission-os)
 
 // Logger setup
 const logger = winston.createLogger({

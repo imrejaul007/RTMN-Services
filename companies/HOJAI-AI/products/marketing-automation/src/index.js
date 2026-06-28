@@ -4,6 +4,7 @@
  * 8 automation rules: abandoned_cart, welcome_series, win_back, post_purchase, birthday, low_stock, price_drop, replenishment
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.MARKETING_AUTOMATION_PORT || 5459;
@@ -130,7 +131,7 @@ app.get('/api/rules/:id', (req, res) => {
 });
 
 // PUT /api/rules/:id
-app.put('/api/rules/:id', (req, res) => {
+app.put('/api/rules/:id',requireAuth,  (req, res) => {
   const rule = rules.get(req.params.id);
   if (!rule) return res.status(404).json({ success: false, error: 'Rule not found' });
   const updated = { ...rule, ...req.body, id: req.params.id };
@@ -139,7 +140,7 @@ app.put('/api/rules/:id', (req, res) => {
 });
 
 // POST /api/rules/:id/test
-app.post('/api/rules/:id/test', (req, res) => {
+app.post('/api/rules/:id/test',requireAuth,  (req, res) => {
   const rule = rules.get(req.params.id);
   if (!rule) return res.status(404).json({ success: false, error: 'Rule not found' });
   const { customerId, data } = req.body;
@@ -157,7 +158,7 @@ app.post('/api/rules/:id/test', (req, res) => {
 });
 
 // POST /api/rules/:id/execute
-app.post('/api/rules/:id/execute', async (req, res) => {
+app.post('/api/rules/:id/execute',requireAuth,  async (req, res) => {
   const rule = rules.get(req.params.id);
   if (!rule) return res.status(404).json({ success: false, error: 'Rule not found' });
 
@@ -206,6 +207,12 @@ function parseDelay(delay) {
   if (match[2] === 'h') return num * 3600000;
   return num * 86400000;
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Marketing Automation running on port ${PORT}`));
 module.exports = app;

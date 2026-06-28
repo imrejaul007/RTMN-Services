@@ -113,5 +113,11 @@ app.get('/api/stats', (req, res) => {
 app.get('/health', (req, res) => res.json({ service: 'feature-store', status: 'healthy', timestamp: new Date().toISOString() }));
 
 const PORT = process.env.PORT || 4799;
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => console.log(`Feature Store running on port ${PORT}`));
 export default app;

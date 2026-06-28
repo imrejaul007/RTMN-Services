@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -31,7 +32,7 @@ app.get('/api/users', (req, res) => {
   res.json({ success: true, data: { users: all, total: all.length } });
 });
 
-app.post('/api/users', (req, res) => {
+app.post('/api/users',requireAuth,  (req, res) => {
   const { name, email, phone, custom_attributes } = req.body;
   if (!name || !email) return res.status(400).json({ success: false, error: 'name and email required' });
   const user: IntercomUser = { id: `user_${Date.now()}`, name, email, phone, custom_attributes: custom_attributes || {}, created_at: new Date().toISOString() };
@@ -46,7 +47,7 @@ app.get('/api/conversations', (req, res) => {
   res.json({ success: true, data: { conversations: all, total: all.length } });
 });
 
-app.post('/api/conversations', (req, res) => {
+app.post('/api/conversations',requireAuth,  (req, res) => {
   const { user_id, assignee_id } = req.body;
   if (!user_id) return res.status(400).json({ success: false, error: 'user_id required' });
   const conv: IntercomConversation = { id: `conv_${Date.now()}`, user_id, assignee_id, state: 'open', last_message_at: new Date().toISOString(), tags: [] };
@@ -59,7 +60,7 @@ app.get('/api/conversations/:id/messages', (req, res) => {
   res.json({ success: true, data: { messages: messages.get(req.params.id) || [], total: (messages.get(req.params.id) || []).length } });
 });
 
-app.post('/api/conversations/:id/reply', (req, res) => {
+app.post('/api/conversations/:id/reply',requireAuth,  (req, res) => {
   const { body, message_type, author_id } = req.body;
   if (!body) return res.status(400).json({ success: false, error: 'body required' });
   const msg: IntercomMessage = { id: `msg_${Date.now()}`, conversation_id: req.params.id, body, message_type: message_type || 'admin', author_id: author_id || '', created_at: new Date().toISOString() };

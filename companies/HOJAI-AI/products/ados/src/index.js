@@ -1,4 +1,5 @@
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const CryptoJS = require('crypto-js');
@@ -27,7 +28,7 @@ app.get('/ready', (req, res) => {
 });
 
 // POST /api/pixel/config - Configure a pixel
-app.post('/api/pixel/config', (req, res) => {
+app.post('/api/pixel/config',requireAuth,  (req, res) => {
   const { companyId, platform, pixelId, accessToken, enhancedConversions, partnerInfo } = req.body;
 
   if (!companyId || !platform || !pixelId) {
@@ -73,7 +74,7 @@ app.get('/api/pixel/config/:companyId/:platform', (req, res) => {
 });
 
 // DELETE /api/pixel/config/:companyId/:platform - Remove pixel config
-app.delete('/api/pixel/config/:companyId/:platform', (req, res) => {
+app.delete('/api/pixel/config/:companyId/:platform',requireAuth,  (req, res) => {
   const { companyId, platform } = req.params;
   const key = `${companyId}:${platform}`;
 
@@ -86,7 +87,7 @@ app.delete('/api/pixel/config/:companyId/:platform', (req, res) => {
 });
 
 // POST /api/events/track - Track conversion event
-app.post('/api/events/track', async (req, res) => {
+app.post('/api/events/track',requireAuth,  async (req, res) => {
   try {
     const { companyId, platform, eventName, eventData, userData, customData, testMode } = req.body;
 
@@ -134,7 +135,7 @@ app.post('/api/events/track', async (req, res) => {
 });
 
 // POST /api/events/track/batch - Track multiple events
-app.post('/api/events/track/batch', async (req, res) => {
+app.post('/api/events/track/batch',requireAuth,  async (req, res) => {
   try {
     const { events: eventList } = req.body;
 
@@ -223,7 +224,7 @@ app.get('/api/campaigns', (req, res) => {
 });
 
 // POST /api/campaigns - Create campaign
-app.post('/api/campaigns', (req, res) => {
+app.post('/api/campaigns',requireAuth,  (req, res) => {
   const { companyId, name, platform, budget, objective, targeting, startDate, endDate } = req.body;
 
   if (!companyId || !name || !platform) {
@@ -275,7 +276,7 @@ app.get('/api/campaigns/:campaignId', (req, res) => {
 });
 
 // PUT /api/campaigns/:campaignId - Update campaign
-app.put('/api/campaigns/:campaignId', (req, res) => {
+app.put('/api/campaigns/:campaignId',requireAuth,  (req, res) => {
   const { campaignId } = req.params;
   const updates = req.body;
 
@@ -319,7 +320,7 @@ app.get('/api/audiences', (req, res) => {
 });
 
 // POST /api/audiences - Create audience
-app.post('/api/audiences', (req, res) => {
+app.post('/api/audiences',requireAuth,  (req, res) => {
   const { companyId, platform, name, description, rules, sourcePlatform } = req.body;
 
   if (!companyId || !name) {
@@ -349,7 +350,7 @@ app.post('/api/audiences', (req, res) => {
 });
 
 // POST /api/audiences/sync - Sync audience data
-app.post('/api/audiences/sync', async (req, res) => {
+app.post('/api/audiences/sync',requireAuth,  async (req, res) => {
   try {
     const { audienceId, users } = req.body;
 
@@ -383,7 +384,7 @@ app.post('/api/audiences/sync', async (req, res) => {
 });
 
 // POST /api/enhanced-conversions - Send enhanced conversion
-app.post('/api/enhanced-conversions', async (req, res) => {
+app.post('/api/enhanced-conversions',requireAuth,  async (req, res) => {
   try {
     const { companyId, platform, conversionType, conversionData, userData } = req.body;
 

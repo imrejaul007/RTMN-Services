@@ -9,6 +9,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -395,7 +396,7 @@ app.get('/ready', (req, res) => {
  * Create voice session
  * POST /api/voice/session
  */
-app.post('/api/voice/session', async (req, res) => {
+app.post('/api/voice/session',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       visitorId: z.string().min(1),
@@ -442,7 +443,7 @@ app.get('/api/voice/session/:sessionId', (req, res) => {
  * Update voice session
  * PATCH /api/voice/session/:sessionId
  */
-app.patch('/api/voice/session/:sessionId', (req, res) => {
+app.patch('/api/voice/session/:sessionId',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       voiceEnabled: z.boolean().optional(),
@@ -476,7 +477,7 @@ app.patch('/api/voice/session/:sessionId', (req, res) => {
  * Delete voice session
  * DELETE /api/voice/session/:sessionId
  */
-app.delete('/api/voice/session/:sessionId', (req, res) => {
+app.delete('/api/voice/session/:sessionId',requireAuth,  (req, res) => {
   const deleted = deleteVoiceSession(req.params.sessionId);
   if (!deleted) {
     return res.status(404).json({ error: 'Session not found' });
@@ -525,7 +526,7 @@ app.get('/api/voice/tts/voices', (req, res) => {
  * Start outbound call
  * POST /api/voice/start
  */
-app.post('/api/voice/start', async (req, res) => {
+app.post('/api/voice/start',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       to: z.string().min(10),
@@ -575,7 +576,7 @@ app.get('/api/voice/call/:callSid', (req, res) => {
  * IVR webhook endpoint
  * POST /api/voice/ivr
  */
-app.post('/api/voice/iv', (req, res) => {
+app.post('/api/voice/iv',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       configId: z.string().min(1),
@@ -612,7 +613,7 @@ app.post('/api/voice/iv', (req, res) => {
  * Create IVR configuration
  * POST /api/voice/ivr/config
  */
-app.post('/api/voice/ivr/config', (req, res) => {
+app.post('/api/voice/ivr/config',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1),

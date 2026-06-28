@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Gmail Connector
  * Port: 4792
@@ -72,7 +73,7 @@ app.get('/api/messages/:id', (req, res) => {
 });
 
 // Send message
-app.post('/api/messages', (req, res) => {
+app.post('/api/messages',requireAuth,  (req, res) => {
   const { to, subject, body, from } = req.body;
   if (!to || !subject) return res.status(400).json({ success: false, error: 'to and subject required' });
 

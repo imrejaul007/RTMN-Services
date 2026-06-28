@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * GitHub Connector
  * Port: 4791
@@ -136,7 +137,7 @@ app.get('/oauth/status', (_req: Request, res: Response) => {
 /**
  * Disconnect GitHub
  */
-app.delete('/oauth/disconnect', (_req: Request, res: Response) => {
+app.delete('/oauth/disconnect',requireAuth,  (_req: Request, res: Response) => {
   revokeToken();
   res.json({ success: true, message: 'Disconnected from GitHub' });
 });
@@ -171,7 +172,7 @@ app.get('/api/github/repos/:owner/:repo', async (req: Request, res: Response) =>
 /**
  * Create issue via real GitHub API
  */
-app.post('/api/github/issues', async (req: Request, res: Response) => {
+app.post('/api/github/issues',requireAuth,  async (req: Request, res: Response) => {
   const { owner, repo, title, body, labels } = req.body;
 
   if (!owner || !repo || !title) {
@@ -254,7 +255,7 @@ app.get('/api/repos/:owner/:repo/issues', (req, res) => {
 /**
  * Create issue
  */
-app.post('/api/repos/:owner/:repo/issues', (req, res) => {
+app.post('/api/repos/:owner/:repo/issues',requireAuth,  (req, res) => {
   const { title, body, assignee, labels } = req.body;
 
   if (!title) {
@@ -301,7 +302,7 @@ app.get('/api/repos/:owner/:repo/pulls', (req, res) => {
 /**
  * Create PR
  */
-app.post('/api/repos/:owner/:repo/pulls', (req, res) => {
+app.post('/api/repos/:owner/:repo/pulls',requireAuth,  (req, res) => {
   const { title, body, head, base } = req.body;
 
   if (!title || !head || !base) {

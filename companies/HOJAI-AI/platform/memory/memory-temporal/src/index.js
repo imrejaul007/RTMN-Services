@@ -72,4 +72,10 @@ app.post('/api/query/as-of', requireInternal, (req, res) => {
   ok(res, { asOf, count: results.length, facts: results });
 });
 app.get('/api/stats', (_req, res) => { ok(res, { nodes: nodes.size, relationships: relationships.size, facts: facts.size }); });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => console.log(`Temporal KG running on port ${PORT}`));

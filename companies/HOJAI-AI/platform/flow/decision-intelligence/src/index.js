@@ -723,7 +723,7 @@ app.get('/api/stats', (req, res) => {
  * POST /api/recommend/event
  * Record a user-item interaction. Body: { userId, itemId, eventType, metadata? }
  */
-app.post('/api/recommend/event', authOrBypass,  (req, res) => {
+app.post('/api/recommend/event',requireAuth,  authOrBypass,  (req, res) => {
   const { userId, itemId, eventType, metadata } = req.body || {};
   if (!userId || typeof userId !== 'string') {
     return res.status(400).json({ error: 'userId (string) is required' });
@@ -762,7 +762,7 @@ app.post('/api/recommend/event', authOrBypass,  (req, res) => {
  * Body: { userId, itemPool?, method?, k?, weights? }
  * Returns top-k recommendations.
  */
-app.post('/api/recommend/items', authOrBypass,  (req, res) => {
+app.post('/api/recommend/items',requireAuth,  authOrBypass,  (req, res) => {
   const { userId, itemPool, method, k, weights } = req.body || {};
   if (!userId || typeof userId !== 'string') {
     return res.status(400).json({ error: 'userId (string) is required' });
@@ -833,7 +833,7 @@ app.post('/api/recommend/items', authOrBypass,  (req, res) => {
  * POST /api/recommend/items/batch
  * Body: { userIds: [...], itemPool?, method?, k? }
  */
-app.post('/api/recommend/items/batch', authOrBypass,  (req, res) => {
+app.post('/api/recommend/items/batch',requireAuth,  authOrBypass,  (req, res) => {
   const { userIds, itemPool, method, k } = req.body || {};
   if (!Array.isArray(userIds) || userIds.length === 0) {
     return res.status(400).json({ error: 'userIds (non-empty array) is required' });
@@ -951,7 +951,7 @@ app.get('/api/recommend/similarity/:itemId', (req, res) => {
  * POST /api/nba/actions
  * Register a reusable action template. Body: { id, name, description?, expectedValue, cost, tags?, goal? }
  */
-app.post('/api/nba/actions', authOrBypass,  (req, res) => {
+app.post('/api/nba/actions',requireAuth,  authOrBypass,  (req, res) => {
   const { id, name, description, expectedValue, cost, tags, goal } = req.body || {};
   if (!name || typeof name !== 'string') {
     return res.status(400).json({ error: 'name (string) is required' });
@@ -989,7 +989,7 @@ app.get('/api/nba/actions', (req, res) => {
  * Body: { customer: {tier, lifecycleStage, nps, ...}, availableActions?: [...], goal: 'revenue'|'retention'|'expansion'|'engagement' }
  * If availableActions is omitted, all templates are used.
  */
-app.post('/api/nba', authOrBypass,  (req, res) => {
+app.post('/api/nba',requireAuth,  authOrBypass,  (req, res) => {
   const { customer, availableActions, goal } = req.body || {};
   if (!customer || typeof customer !== 'object') {
     return res.status(400).json({ error: 'customer (object) is required' });
@@ -1034,7 +1034,7 @@ app.post('/api/nba', authOrBypass,  (req, res) => {
  * POST /api/decision/wsm
  * Body: { alternatives: [{name, scores: {criterion: value}}], weights: {criterion: weight}, sensitivity?: {pivot?, pct?} }
  */
-app.post('/api/decision/wsm', authOrBypass,  (req, res) => {
+app.post('/api/decision/wsm',requireAuth,  authOrBypass,  (req, res) => {
   const { alternatives, weights, sensitivity } = req.body || {};
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
     return res.status(400).json({ error: 'alternatives (non-empty array) is required' });
@@ -1077,7 +1077,7 @@ app.post('/api/decision/wsm', authOrBypass,  (req, res) => {
  * POST /api/decision/topsis
  * Body: { alternatives, criteria, weights, impacts }
  */
-app.post('/api/decision/topsis', authOrBypass,  (req, res) => {
+app.post('/api/decision/topsis',requireAuth,  authOrBypass,  (req, res) => {
   const { alternatives, criteria, weights, impacts } = req.body || {};
   if (!Array.isArray(alternatives) || alternatives.length === 0) {
     return res.status(400).json({ error: 'alternatives (non-empty array) is required' });

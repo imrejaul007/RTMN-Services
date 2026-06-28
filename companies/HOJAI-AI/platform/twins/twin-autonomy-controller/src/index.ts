@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Twin Autonomy Controller Service
  * Port: 4760
@@ -123,7 +124,7 @@ app.get('/api/autonomy/:employeeId/settings', (req: Request, res: Response) => {
 /**
  * Update autonomy settings
  */
-app.patch('/api/autonomy/:employeeId/settings', (req: Request, res: Response) => {
+app.patch('/api/autonomy/:employeeId/settings',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const updates = req.body;
@@ -154,7 +155,7 @@ app.patch('/api/autonomy/:employeeId/settings', (req: Request, res: Response) =>
 /**
  * Set autonomy mode
  */
-app.post('/api/autonomy/:employeeId/mode', (req: Request, res: Response) => {
+app.post('/api/autonomy/:employeeId/mode',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { mode } = req.body;
@@ -192,7 +193,7 @@ app.post('/api/autonomy/:employeeId/mode', (req: Request, res: Response) => {
 /**
  * Add boundary
  */
-app.post('/api/autonomy/:employeeId/boundaries', (req: Request, res: Response) => {
+app.post('/api/autonomy/:employeeId/boundaries',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { type, condition, allowed, maxValue } = req.body;
@@ -246,7 +247,7 @@ app.get('/api/autonomy/:employeeId/boundaries', (req: Request, res: Response) =>
 /**
  * Delete boundary
  */
-app.delete('/api/autonomy/:employeeId/boundaries/:boundaryId', (req: Request, res: Response) => {
+app.delete('/api/autonomy/:employeeId/boundaries/:boundaryId',requireAuth,  (req: Request, res: Response) => {
   const { employeeId, boundaryId } = req.params;
   const userSettings = settings.get(employeeId);
 
@@ -264,7 +265,7 @@ app.delete('/api/autonomy/:employeeId/boundaries/:boundaryId', (req: Request, re
 /**
  * Check if task requires approval
  */
-app.post('/api/autonomy/:employeeId/check-approval', (req: Request, res: Response) => {
+app.post('/api/autonomy/:employeeId/check-approval',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { confidence, type, amount, vendor } = req.body;
@@ -327,7 +328,7 @@ app.get('/api/autonomy/:employeeId/pending-approvals', (req: Request, res: Respo
 /**
  * Approve task
  */
-app.post('/api/autonomy/:employeeId/approve/:taskId', (req: Request, res: Response) => {
+app.post('/api/autonomy/:employeeId/approve/:taskId',requireAuth,  (req: Request, res: Response) => {
   try {
     const { taskId } = req.params;
     const approval = approvals.get(taskId);
@@ -349,7 +350,7 @@ app.post('/api/autonomy/:employeeId/approve/:taskId', (req: Request, res: Respon
 /**
  * Reject task
  */
-app.post('/api/autonomy/:employeeId/reject/:taskId', (req: Request, res: Response) => {
+app.post('/api/autonomy/:employeeId/reject/:taskId',requireAuth,  (req: Request, res: Response) => {
   try {
     const { taskId } = req.params;
     const { reason } = req.body;

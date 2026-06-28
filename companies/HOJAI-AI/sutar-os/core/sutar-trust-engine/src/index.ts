@@ -361,7 +361,7 @@ app.get("/rez-intel-status", async (_req, res) => {
   }));
 });
 
-app.post("/api/enrich", async (req, res) => {
+app.post("/api/enrich",requireAuth,  async (req, res) => {
   try {
     const { agentRole, userId, companyId, query, context } = req.body || {};
     const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
@@ -371,7 +371,7 @@ app.post("/api/enrich", async (req, res) => {
   }
 });
 
-app.post("/api/v1/trust/enriched", async (req, res) => {
+app.post("/api/v1/trust/enriched",requireAuth,  async (req, res) => {
   // Trust lookup with REZ Intel context enrichment
   try {
     const { entityId, entityType } = req.body || {};

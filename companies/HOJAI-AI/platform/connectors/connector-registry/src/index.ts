@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -27,7 +28,7 @@ app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'freshwor
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
 app.get('/api/leads', (_r, res) => res.json({ success: true, data: { leads: Array.from(leads.values()), total: leads.size } }));
-app.post('/api/leads', (req, res) => {
+app.post('/api/leads',requireAuth,  (req, res) => {
   const { email, first_name, last_name, lead_status } = req.body;
   if (!email) return res.status(400).json({ success: false, error: 'email required' });
   const lead: FreshLead = { id: `lead_${Date.now()}`, email, first_name: first_name || '', last_name: last_name || '', lead_status: lead_status || 'New' };
@@ -36,7 +37,7 @@ app.post('/api/leads', (req, res) => {
 });
 
 app.get('/api/contacts', (_r, res) => res.json({ success: true, data: { contacts: Array.from(contacts.values()), total: contacts.size } }));
-app.post('/api/contacts', (req, res) => {
+app.post('/api/contacts',requireAuth,  (req, res) => {
   const { email, first_name, last_name } = req.body;
   const contact: FreshContact = { id: `contact_${Date.now()}`, email: email || '', first_name: first_name || '', last_name: last_name || '' };
   contacts.set(contact.id, contact);
@@ -44,7 +45,7 @@ app.post('/api/contacts', (req, res) => {
 });
 
 app.get('/api/accounts', (_r, res) => res.json({ success: true, data: { accounts: Array.from(accounts.values()), total: accounts.size } }));
-app.post('/api/accounts', (req, res) => {
+app.post('/api/accounts',requireAuth,  (req, res) => {
   const { name, website, industry } = req.body;
   const account: FreshAccount = { id: `acc_${Date.now()}`, name: name || '', website, industry };
   accounts.set(account.id, account);
@@ -52,7 +53,7 @@ app.post('/api/accounts', (req, res) => {
 });
 
 app.get('/api/deals', (_r, res) => res.json({ success: true, data: { deals: Array.from(deals.values()), total: deals.size } }));
-app.post('/api/deals', (req, res) => {
+app.post('/api/deals',requireAuth,  (req, res) => {
   const { name, amount, stage } = req.body;
   const deal: FreshDeal = { id: `deal_${Date.now()}`, name: name || '', amount: amount || 0, stage: stage || 'Open', probability: 50 };
   deals.set(deal.id, deal);

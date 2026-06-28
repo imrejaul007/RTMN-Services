@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * HumanOS - Human-in-the-Loop and Approval Workflows
  * Port: 4871
@@ -99,7 +100,7 @@ app.get('/api/approvals/:id', (req, res) => {
   res.json(approval);
 });
 
-app.post('/api/approvals', (req, res) => {
+app.post('/api/approvals',requireAuth,  (req, res) => {
   const { type, title, description, requester, approvers, priority, amount, deadline } = req.body;
   if (!type || !title || !requester || !approvers?.length) {
     return res.status(400).json({ error: 'type, title, requester, approvers required' });
@@ -122,7 +123,7 @@ app.post('/api/approvals', (req, res) => {
   res.status(201).json(approval);
 });
 
-app.post('/api/approvals/:id/approve', (req, res) => {
+app.post('/api/approvals/:id/approve',requireAuth,  (req, res) => {
   const approval = approvals.get(req.params.id);
   if (!approval) return res.status(404).json({ error: 'Approval not found' });
   if (approval.status !== 'pending') return res.status(400).json({ error: 'Approval not pending' });
@@ -146,7 +147,7 @@ app.post('/api/approvals/:id/approve', (req, res) => {
   res.json(approval);
 });
 
-app.post('/api/approvals/:id/reject', (req, res) => {
+app.post('/api/approvals/:id/reject',requireAuth,  (req, res) => {
   const approval = approvals.get(req.params.id);
   if (!approval) return res.status(404).json({ error: 'Approval not found' });
   if (approval.status !== 'pending') return res.status(400).json({ error: 'Approval not pending' });
@@ -162,7 +163,7 @@ app.post('/api/approvals/:id/reject', (req, res) => {
   res.json(approval);
 });
 
-app.post('/api/approvals/:id/escalate', (req, res) => {
+app.post('/api/approvals/:id/escalate',requireAuth,  (req, res) => {
   const approval = approvals.get(req.params.id);
   if (!approval) return res.status(404).json({ error: 'Approval not found' });
 
@@ -202,7 +203,7 @@ app.get('/api/delegations', (req, res) => {
   res.json({ total: result.length, delegations: result });
 });
 
-app.post('/api/delegations', (req, res) => {
+app.post('/api/delegations',requireAuth,  (req, res) => {
   const { from, to, scope, startDate, endDate } = req.body;
   if (!from || !to || !startDate || !endDate) return res.status(400).json({ error: 'from, to, startDate, endDate required' });
 
@@ -211,7 +212,7 @@ app.post('/api/delegations', (req, res) => {
   res.status(201).json(delegations.get(id));
 });
 
-app.post('/api/delegations/:id/revoke', (req, res) => {
+app.post('/api/delegations/:id/revoke',requireAuth,  (req, res) => {
   const delegation = delegations.get(req.params.id);
   if (!delegation) return res.status(404).json({ error: 'Delegation not found' });
 
@@ -228,7 +229,7 @@ app.get('/api/takeovers', (req, res) => {
   res.json({ total: result.length, takeovers: result });
 });
 
-app.post('/api/takeover/request', (req, res) => {
+app.post('/api/takeover/request',requireAuth,  (req, res) => {
   const { agentId, reason, context, requestedBy } = req.body;
   if (!agentId || !reason || !requestedBy) return res.status(400).json({ error: 'agentId, reason, requestedBy required' });
 
@@ -238,7 +239,7 @@ app.post('/api/takeover/request', (req, res) => {
   res.status(201).json(takeover);
 });
 
-app.post('/api/takeover/:id/accept', (req, res) => {
+app.post('/api/takeover/:id/accept',requireAuth,  (req, res) => {
   const takeover = takeovers.get(req.params.id);
   if (!takeover) return res.status(404).json({ error: 'Takeover not found' });
   if (takeover.status !== 'pending') return res.status(400).json({ error: 'Takeover not pending' });
@@ -249,7 +250,7 @@ app.post('/api/takeover/:id/accept', (req, res) => {
   res.json(takeover);
 });
 
-app.post('/api/takeover/:id/complete', (req, res) => {
+app.post('/api/takeover/:id/complete',requireAuth,  (req, res) => {
   const takeover = takeovers.get(req.params.id);
   if (!takeover) return res.status(404).json({ error: 'Takeover not found' });
   if (takeover.status !== 'accepted') return res.status(400).json({ error: 'Takeover not accepted' });

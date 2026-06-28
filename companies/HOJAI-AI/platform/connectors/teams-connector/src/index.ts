@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Microsoft Teams Connector
  * Port: 4781
@@ -68,7 +69,7 @@ app.get('/api/channels/:channelId/messages', (req, res) => {
   res.json({ success: true, data: { messages: channelMessages.slice(-Number(limit)), total: channelMessages.length } });
 });
 
-app.post('/api/channels/:channelId/messages', (req, res) => {
+app.post('/api/channels/:channelId/messages',requireAuth,  (req, res) => {
   const { content, from } = req.body;
   if (!content) return res.status(400).json({ success: false, error: 'content required' });
 

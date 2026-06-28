@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -78,7 +79,7 @@ app.get('/api/materials', (req, res) => {
   res.json({ success: true, data: { materials: all, total: all.length } });
 });
 
-app.post('/api/materials', (req, res) => {
+app.post('/api/materials',requireAuth,  (req, res) => {
   const { MATERIAL_ID, DESCRIPTION, UNIT, PRICE, CURRENCY, PLANT } = req.body;
   if (!MATERIAL_ID) return res.status(400).json({ success: false, error: 'MATERIAL_ID required' });
   const material: SAPMaterial = {
@@ -103,7 +104,7 @@ app.get('/api/vendors', (req, res) => {
   res.json({ success: true, data: { vendors: all, total: all.length } });
 });
 
-app.post('/api/vendors', (req, res) => {
+app.post('/api/vendors',requireAuth,  (req, res) => {
   const { VENDOR_ID, NAME, CITY, COUNTRY, PAYMENT_TERMS } = req.body;
   if (!VENDOR_ID || !NAME) return res.status(400).json({ success: false, error: 'VENDOR_ID and NAME required' });
   const vendor: SAPVendor = { id: `vend_${Date.now()}`, VENDOR_ID, NAME, CITY: CITY || '', COUNTRY: COUNTRY || '', PAYMENT_TERMS: PAYMENT_TERMS || 'NET30' };
@@ -120,7 +121,7 @@ app.get('/api/purchase-orders', (req, res) => {
   res.json({ success: true, data: { purchaseOrders: all, total: all.length } });
 });
 
-app.post('/api/purchase-orders', (req, res) => {
+app.post('/api/purchase-orders',requireAuth,  (req, res) => {
   const { PO_NUMBER, VENDOR, DATE, DELIVERY_DATE, ITEMS } = req.body;
   if (!PO_NUMBER || !VENDOR) return res.status(400).json({ success: false, error: 'PO_NUMBER and VENDOR required' });
   const total = (ITEMS || []).reduce((sum: number, item: any) => sum + (item.PRICE || 0) * (item.QUANTITY || 0), 0);
@@ -147,7 +148,7 @@ app.get('/api/invoices', (req, res) => {
   res.json({ success: true, data: { invoices: all, total: all.length } });
 });
 
-app.post('/api/invoices', (req, res) => {
+app.post('/api/invoices',requireAuth,  (req, res) => {
   const { INVOICE_NUMBER, VENDOR, AMOUNT, CURRENCY, DATE } = req.body;
   if (!INVOICE_NUMBER || !VENDOR) return res.status(400).json({ success: false, error: 'INVOICE_NUMBER and VENDOR required' });
   const invoice: SAPInvoice = {

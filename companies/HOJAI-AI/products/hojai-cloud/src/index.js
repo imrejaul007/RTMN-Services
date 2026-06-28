@@ -748,6 +748,12 @@ async function boot() {
   if (expiringCerts.length > 0) {
     console.warn(`[hojai-cloud] ${expiringCerts.length} certificate(s) expiring soon: ${expiringCerts.map(c => c.domain).join(', ')}`);
   }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
   app.listen(PORT, () => {
     console.log(`[hojai-cloud] v1.2 listening on http://localhost:${PORT}`);

@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -18,7 +19,7 @@ function generateId(p: string) { return `${p}_${Date.now().toString(36)}_${uuidv
 app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'meeting-intelligence', version: '1.0.0' }));
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
-app.post('/api/meetings/:employeeId', (req, res) => {
+app.post('/api/meetings/:employeeId',requireAuth,  (req, res) => {
   const { employeeId } = req.params;
   const { title, participants = [] } = req.body;
   const meeting: Meeting = { id: generateId('mtg'), title: title || '', participants: [employeeId, ...participants], transcript: '', decisions: [], actionItems: [], createdAt: new Date().toISOString() };
@@ -32,7 +33,7 @@ app.get('/api/meetings/:employeeId', (req, res) => {
   res.json({ success: true, data: { meetings: empMeetings, total: empMeetings.length } });
 });
 
-app.post('/api/meetings/:meetingId/transcribe', (req, res) => {
+app.post('/api/meetings/:meetingId/transcribe',requireAuth,  (req, res) => {
   const { meetingId } = req.params;
   const { transcript } = req.body;
   const meeting = meetings.get(meetingId);
@@ -41,7 +42,7 @@ app.post('/api/meetings/:meetingId/transcribe', (req, res) => {
   res.json({ success: true, data: meeting });
 });
 
-app.post('/api/meetings/:meetingId/decisions', (req, res) => {
+app.post('/api/meetings/:meetingId/decisions',requireAuth,  (req, res) => {
   const { meetingId } = req.params;
   const { decision } = req.body;
   const meeting = meetings.get(meetingId);
@@ -50,7 +51,7 @@ app.post('/api/meetings/:meetingId/decisions', (req, res) => {
   res.json({ success: true, data: meeting });
 });
 
-app.post('/api/meetings/:meetingId/actions', (req, res) => {
+app.post('/api/meetings/:meetingId/actions',requireAuth,  (req, res) => {
   const { meetingId } = req.params;
   const { description, assignee, dueDate } = req.body;
   const meeting = meetings.get(meetingId);

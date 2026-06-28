@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4759', 10);
 app.use(express.json());
@@ -15,7 +16,7 @@ app.get('/api/enterprise/:companyId/skills', (req, res) => {
   res.json({ success: true, data: { companyId: req.params.companyId, skills: [], total: 0 } });
 });
 
-app.post('/api/enterprise/:companyId/license', (req, res) => {
+app.post('/api/enterprise/:companyId/license',requireAuth,  (req, res) => {
   res.json({ success: true, data: { licensed: true } });
 });
 

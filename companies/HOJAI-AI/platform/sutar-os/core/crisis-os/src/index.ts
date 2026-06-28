@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Crisis OS - Production Implementation
  * Incident Management, War Rooms, Business Continuity
@@ -173,7 +174,7 @@ app.get('/api/incidents/:id', (req, res) => {
   res.json(incident);
 });
 
-app.post('/api/incidents', (req, res) => {
+app.post('/api/incidents',requireAuth,  (req, res) => {
   try {
     const data = CreateIncidentSchema.parse(req.body);
     const id = uuidv4();
@@ -205,7 +206,7 @@ app.post('/api/incidents', (req, res) => {
   }
 });
 
-app.patch('/api/incidents/:id', (req, res) => {
+app.patch('/api/incidents/:id',requireAuth,  (req, res) => {
   const incident = incidents.get(req.params.id);
   if (!incident) return res.status(404).json({ error: 'Incident not found' });
 
@@ -226,7 +227,7 @@ app.patch('/api/incidents/:id', (req, res) => {
   res.json(incident);
 });
 
-app.post('/api/incidents/:id/timeline', (req, res) => {
+app.post('/api/incidents/:id/timeline',requireAuth,  (req, res) => {
   const incident = incidents.get(req.params.id);
   if (!incident) return res.status(404).json({ error: 'Incident not found' });
 
@@ -240,7 +241,7 @@ app.post('/api/incidents/:id/timeline', (req, res) => {
   res.json(entry);
 });
 
-app.post('/api/incidents/:id/escalate', (req, res) => {
+app.post('/api/incidents/:id/escalate',requireAuth,  (req, res) => {
   const incident = incidents.get(req.params.id);
   if (!incident) return res.status(404).json({ error: 'Incident not found' });
 
@@ -268,7 +269,7 @@ app.get('/api/playbooks/:id', (req, res) => {
   res.json(playbook);
 });
 
-app.post('/api/playbooks/:id/execute', (req, res) => {
+app.post('/api/playbooks/:id/execute',requireAuth,  (req, res) => {
   const playbook = playbooks.get(req.params.id);
   if (!playbook) return res.status(404).json({ error: 'Playbook not found' });
 
@@ -287,7 +288,7 @@ app.post('/api/playbooks/:id/execute', (req, res) => {
   res.json({ execution, message: `Playbook "${playbook.name}" execution started` });
 });
 
-app.post('/api/playbooks', (req, res) => {
+app.post('/api/playbooks',requireAuth,  (req, res) => {
   const { name, description, trigger, severity, steps, automated } = req.body;
   if (!name || !trigger || !steps?.length) return res.status(400).json({ error: 'name, trigger, steps required' });
 
@@ -306,7 +307,7 @@ app.get('/api/war-rooms', (req, res) => {
   res.json({ total: result.length, warRooms: result });
 });
 
-app.post('/api/war-rooms', (req, res) => {
+app.post('/api/war-rooms',requireAuth,  (req, res) => {
   const { incidentId, name, participants } = req.body;
   if (!incidentId || !name) return res.status(400).json({ error: 'incidentId, name required' });
 
@@ -323,7 +324,7 @@ app.post('/api/war-rooms', (req, res) => {
   res.status(201).json(warRooms.get(id));
 });
 
-app.post('/api/war-rooms/:id/join', (req, res) => {
+app.post('/api/war-rooms/:id/join',requireAuth,  (req, res) => {
   const room = warRooms.get(req.params.id);
   if (!room) return res.status(404).json({ error: 'War room not found' });
 
@@ -338,7 +339,7 @@ app.post('/api/war-rooms/:id/join', (req, res) => {
   res.json(room);
 });
 
-app.post('/api/war-rooms/:id/close', (req, res) => {
+app.post('/api/war-rooms/:id/close',requireAuth,  (req, res) => {
   const room = warRooms.get(req.params.id);
   if (!room) return res.status(404).json({ error: 'War room not found' });
 
@@ -348,7 +349,7 @@ app.post('/api/war-rooms/:id/close', (req, res) => {
   res.json(room);
 });
 
-app.post('/api/war-rooms/:id/notes', (req, res) => {
+app.post('/api/war-rooms/:id/notes',requireAuth,  (req, res) => {
   const room = warRooms.get(req.params.id);
   if (!room) return res.status(404).json({ error: 'War room not found' });
 
@@ -367,7 +368,7 @@ app.get('/api/backups', (req, res) => {
   res.json({ total: result.length, backups: result });
 });
 
-app.post('/api/backups', (req, res) => {
+app.post('/api/backups',requireAuth,  (req, res) => {
   const { name, type, frequency, retention, target } = req.body;
   if (!name || !type || !target) return res.status(400).json({ error: 'name, type, target required' });
 
@@ -376,7 +377,7 @@ app.post('/api/backups', (req, res) => {
   res.status(201).json(backups.get(id));
 });
 
-app.post('/api/backups/:id/trigger', (req, res) => {
+app.post('/api/backups/:id/trigger',requireAuth,  (req, res) => {
   const backup = backups.get(req.params.id);
   if (!backup) return res.status(404).json({ error: 'Backup not found' });
 

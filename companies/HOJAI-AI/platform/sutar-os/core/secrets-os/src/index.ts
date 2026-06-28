@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Secrets OS - Encrypted Secrets Management
  * AES-256-GCM encryption, access logging, versioning
@@ -162,7 +163,7 @@ app.get('/ready', (_req: Request, res: Response) => {
 });
 
 // Create secret
-app.post('/api/secrets', (req: Request, res: Response) => {
+app.post('/api/secrets',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = CreateSecretSchema.parse(req.body);
 
@@ -257,7 +258,7 @@ app.get('/api/secrets/:name', (req: Request, res: Response) => {
 });
 
 // Update secret
-app.put('/api/secrets/:name', (req: Request, res: Response) => {
+app.put('/api/secrets/:name',requireAuth,  (req: Request, res: Response) => {
   const secret = secrets.get(req.params.name);
   if (!secret) return res.status(404).json({ error: 'Secret not found' });
 
@@ -302,7 +303,7 @@ app.put('/api/secrets/:name', (req: Request, res: Response) => {
 });
 
 // Rotate secret
-app.post('/api/secrets/:name/rotate', (req: Request, res: Response) => {
+app.post('/api/secrets/:name/rotate',requireAuth,  (req: Request, res: Response) => {
   const secret = secrets.get(req.params.name);
   if (!secret) return res.status(404).json({ error: 'Secret not found' });
 
@@ -344,7 +345,7 @@ app.post('/api/secrets/:name/rotate', (req: Request, res: Response) => {
 });
 
 // Delete secret
-app.delete('/api/secrets/:name', (req: Request, res: Response) => {
+app.delete('/api/secrets/:name',requireAuth,  (req: Request, res: Response) => {
   const secret = secrets.get(req.params.name);
   if (!secret) return res.status(404).json({ error: 'Secret not found' });
 
@@ -380,7 +381,7 @@ app.get('/api/secrets/:name/versions', (req: Request, res: Response) => {
 });
 
 // Rollback to previous version
-app.post('/api/secrets/:name/rollback', (req: Request, res: Response) => {
+app.post('/api/secrets/:name/rollback',requireAuth,  (req: Request, res: Response) => {
   const secret = secrets.get(req.params.name);
   if (!secret) return res.status(404).json({ error: 'Secret not found' });
 
@@ -409,7 +410,7 @@ app.get('/api/keys', (_req: Request, res: Response) => {
   res.json({ total: keys.length, keys });
 });
 
-app.post('/api/keys', (req: Request, res: Response) => {
+app.post('/api/keys',requireAuth,  (req: Request, res: Response) => {
   try {
     const data = CreateApiKeySchema.parse(req.body);
     const key = crypto.randomBytes(32).toString('hex');
@@ -427,7 +428,7 @@ app.post('/api/keys', (req: Request, res: Response) => {
   }
 });
 
-app.delete('/api/keys/:key', (req: Request, res: Response) => {
+app.delete('/api/keys/:key',requireAuth,  (req: Request, res: Response) => {
   if (!apiKeys.has(req.params.key)) return res.status(404).json({ error: 'API key not found' });
   apiKeys.delete(req.params.key);
   res.json({ success: true });

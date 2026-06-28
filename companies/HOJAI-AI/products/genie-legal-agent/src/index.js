@@ -12,6 +12,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -100,7 +101,7 @@ app.get('/info', (_req, res) => {
   }));
 });
 
-app.post('/api/v1/legal/review', apiKeyAuth, (req, res) => {
+app.post('/api/v1/legal/review',requireAuth,  apiKeyAuth, (req, res) => {
   const { contractText, contractType } = req.body || {};
   if (!contractText) return res.status(400).json(apiResponse(false, undefined, 'contractText is required'));
 
@@ -116,7 +117,7 @@ app.post('/api/v1/legal/review', apiKeyAuth, (req, res) => {
   res.json(apiResponse(true, summary));
 });
 
-app.post('/api/v1/legal/extract', apiKeyAuth, (req, res) => {
+app.post('/api/v1/legal/extract',requireAuth,  apiKeyAuth, (req, res) => {
   const { contractText } = req.body || {};
   if (!contractText) return res.status(400).json(apiResponse(false, undefined, 'contractText is required'));
 
@@ -135,7 +136,7 @@ app.post('/api/v1/legal/extract', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/legal/regulations/check', apiKeyAuth, (req, res) => {
+app.post('/api/v1/legal/regulations/check',requireAuth,  apiKeyAuth, (req, res) => {
   const { documentText, jurisdictions = ['EU', 'US', 'IN'] } = req.body || {};
   if (!documentText) return res.status(400).json(apiResponse(false, undefined, 'documentText is required'));
 
@@ -157,7 +158,7 @@ app.post('/api/v1/legal/regulations/check', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/legal/draft', apiKeyAuth, (req, res) => {
+app.post('/api/v1/legal/draft',requireAuth,  apiKeyAuth, (req, res) => {
   const { type = 'nda', partyA, partyB, jurisdiction = 'US', term = '2 years' } = req.body || {};
   if (!partyA || !partyB) {
     return res.status(400).json(apiResponse(false, undefined, 'partyA and partyB required'));

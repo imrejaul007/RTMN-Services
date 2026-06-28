@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4795', 10);
 app.use(express.json());
@@ -34,7 +35,7 @@ app.get('/api/events/:userId', (req, res) => {
   res.json({ success: true, data: { events: userEvents, total: userEvents.length } });
 });
 
-app.post('/api/events/:userId', (req, res) => {
+app.post('/api/events/:userId',requireAuth,  (req, res) => {
   const { title, start, end, attendees, location } = req.body;
   if (!title || !start) return res.status(400).json({ success: false, error: 'title and start required' });
 

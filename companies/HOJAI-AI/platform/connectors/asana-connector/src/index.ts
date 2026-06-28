@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -33,7 +34,7 @@ app.get('/api/tasks', (req, res) => {
   res.json({ success: true, data: { tasks: all, total: all.length } });
 });
 
-app.post('/api/tasks', (req, res) => {
+app.post('/api/tasks',requireAuth,  (req, res) => {
   const { name, notes, due_on, assignee, projects = [], tags = [] } = req.body;
   if (!name) return res.status(400).json({ success: false, error: 'name required' });
   const task: AsanaTask = {
@@ -52,7 +53,7 @@ app.post('/api/tasks', (req, res) => {
   res.status(201).json({ success: true, data: task });
 });
 
-app.patch('/api/tasks/:id', (req, res) => {
+app.patch('/api/tasks/:id',requireAuth,  (req, res) => {
   const task = tasks.get(req.params.id);
   if (!task) return res.status(404).json({ success: false, error: 'Task not found' });
   Object.assign(task, req.body, { modified_at: new Date().toISOString() });
@@ -61,7 +62,7 @@ app.patch('/api/tasks/:id', (req, res) => {
 
 app.get('/api/projects', (_req, res) => res.json({ success: true, data: { projects: Array.from(projectList.values()), total: projectList.size } }));
 
-app.post('/api/projects', (req, res) => {
+app.post('/api/projects',requireAuth,  (req, res) => {
   const { name, notes, color } = req.body;
   if (!name) return res.status(400).json({ success: false, error: 'name required' });
   const project: AsanaProject = { id: `proj_${Date.now()}`, name, notes, color, archived: false };

@@ -4,6 +4,7 @@
  * Sync products/services to Nexus Discovery
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.PRODUCT_FEDERATION_PORT || 5468;
@@ -18,7 +19,7 @@ app.get('/health', (req, res) => {
 });
 
 // POST /api/federation/sync - Sync products to Nexus
-app.post('/api/federation/sync', async (req, res) => {
+app.post('/api/federation/sync',requireAuth,  async (req, res) => {
   try {
     const { companyId, products } = req.body;
     if (!companyId || !products) {
@@ -74,6 +75,12 @@ function transformToNexusFormat(product, companyId) {
     indexedAt: new Date().toISOString()
   };
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Product Federation running on port ${PORT}`));
 module.exports = app;

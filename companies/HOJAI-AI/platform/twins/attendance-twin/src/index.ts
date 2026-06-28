@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Attendance Twin Service v1.0
  * Digital twin for employee attendance tracking
@@ -42,7 +43,7 @@ export function createAttendanceTwinService() {
   app.use(express.json());
 
   // POST /api/attendance - Create record
-  app.post('/api/attendance', (req: Request, res: Response) => {
+  app.post('/api/attendance',requireAuth,  (req: Request, res: Response) => {
     const { employeeId, date, checkIn, checkOut, status, type, reason, overtime } = req.body;
 
     if (!employeeId || !date) {
@@ -119,7 +120,7 @@ export function createAttendanceTwinService() {
   });
 
   // PUT /api/attendance/:id - Update record
-  app.put('/api/attendance/:id', (req: Request, res: Response) => {
+  app.put('/api/attendance/:id',requireAuth,  (req: Request, res: Response) => {
     const record = records.get(req.params.id);
     if (!record) return res.status(404).json({ error: 'Attendance record not found' });
 
@@ -137,7 +138,7 @@ export function createAttendanceTwinService() {
   });
 
   // DELETE /api/attendance/:id
-  app.delete('/api/attendance/:id', (req: Request, res: Response) => {
+  app.delete('/api/attendance/:id',requireAuth,  (req: Request, res: Response) => {
     if (!records.has(req.params.id)) return res.status(404).json({ error: 'Attendance record not found' });
     records.delete(req.params.id);
     return res.status(204).send();

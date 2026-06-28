@@ -9,12 +9,13 @@
  *
  * @author HOJAI AI - Foundation
  * @version 1.0.0
- * @port 4785
+ * @port 4933
  */
 
 'use strict';
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -26,8 +27,9 @@ const crypto = require('crypto');
 // Config
 // ---------------------------------------------------------------------------
 
-const PORT = parseInt(process.env.PORT || '4785', 10);
-const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || 'reasoning-engine-internal-token';
+const PORT = parseInt(process.env.PORT || '4933', 10); // was 4785 (conflicted with connector-hub)
+const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN;
+if (!INTERNAL_TOKEN) { console.error('INTERNAL_TOKEN env var required'); process.exit(1); }
 const SERVICE_NAME = 'reasoning-engine';
 const DATA_DIR = () => process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 
@@ -140,7 +142,7 @@ function createApp() {
     next();
   });
 
-  app.post('/api/reason', authOrBypass, (req, res) => {
+  app.post('/api/reason',requireAuth,  authOrBypass, (req, res) => {
     const { query, context, strategy } = req.body || {};
     if (!query || typeof query !== 'string')
       return res.status(400).json({ error: 'query (string) is required' });
@@ -186,7 +188,7 @@ function createApp() {
     res.json(run);
   });
 
-  app.delete('/api/reason/:id', authOrBypass, (req, res) => {
+  app.delete('/api/reason/:id',requireAuth,  authOrBypass, (req, res) => {
     const run = reasoningRuns.get(req.params.id);
     if (!run) return res.status(404).json({ error: 'Reasoning run not found' });
     reasoningRuns.delete(req.params.id);

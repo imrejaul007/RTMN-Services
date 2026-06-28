@@ -127,7 +127,7 @@ const metrics: IntelligenceMetrics = {
  * POST /api/analyze
  * Main analysis endpoint - runs all agents
  */
-app.post('/api/analyze', authOrBypass,  async (req: Request, res: Response) => {
+app.post('/api/analyze',requireAuth,  authOrBypass,  async (req: Request, res: Response) => {
   const startTime = Date.now();
   const requestId = uuidv4();
 
@@ -245,7 +245,7 @@ app.post('/api/analyze', authOrBypass,  async (req: Request, res: Response) => {
  * POST /api/generate-brief
  * Generate customer brief with context
  */
-app.post('/api/generate-brief', authOrBypass,  async (req: Request, res: Response) => {
+app.post('/api/generate-brief',requireAuth,  authOrBypass,  async (req: Request, res: Response) => {
   const briefId = uuidv4();
 
   try {
@@ -338,7 +338,7 @@ app.post('/api/generate-brief', authOrBypass,  async (req: Request, res: Respons
  * POST /api/policy/evaluate
  * Evaluate policies for given context
  */
-app.post('/api/policy/evaluate', authOrBypass,  async (req: Request, res: Response) => {
+app.post('/api/policy/evaluate',requireAuth,  authOrBypass,  async (req: Request, res: Response) => {
   const evaluationId = uuidv4();
 
   try {
@@ -1232,7 +1232,7 @@ app.get('/api/agents', (_req: Request, res: Response) => {
  * POST /api/conversation/session
  * Create new conversation session
  */
-app.post('/api/conversation/session', authOrBypass,  async (req: Request, res: Response) => {
+app.post('/api/conversation/session',requireAuth,  authOrBypass,  async (req: Request, res: Response) => {
   try {
     const { customerId, channel, agentId } = req.body;
 
@@ -1278,7 +1278,7 @@ app.get('/api/conversation/session/:sessionId', async (req: Request, res: Respon
  * POST /api/customer/profile
  * Get or create customer profile
  */
-app.post('/api/customer/profile', authOrBypass,  async (req: Request, res: Response) => {
+app.post('/api/customer/profile',requireAuth,  authOrBypass,  async (req: Request, res: Response) => {
   try {
     const { customerId } = req.body;
 

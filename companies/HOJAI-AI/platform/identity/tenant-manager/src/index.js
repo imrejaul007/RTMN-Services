@@ -190,7 +190,7 @@ function getProjectOr404(req, res) {
  * POST /api/tenants
  * Create a new tenant. `name` and `slug` are required.
  */
-app.post('/api/tenants', authOrBypass,  (req, res) => {
+app.post('/api/tenants',requireAuth,  authOrBypass,  (req, res) => {
   const { name, slug, plan, status, metadata, settings, region } = req.body || {};
   if (!name || !slug) {
     return res.status(400).json({ error: 'name and slug are required' });
@@ -255,7 +255,7 @@ app.get('/api/tenants/by-slug/:slug', (req, res) => {
 });
 
 /** PUT /api/tenants/:id - partial update */
-app.put('/api/tenants/:id', authOrBypass,  (req, res) => {
+app.put('/api/tenants/:id',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { name, plan, metadata, settings, region } = req.body || {};
@@ -276,7 +276,7 @@ app.put('/api/tenants/:id', authOrBypass,  (req, res) => {
 });
 
 /** DELETE /api/tenants/:id - soft delete (status='deleted') */
-app.delete('/api/tenants/:id', authOrBypass,  (req, res) => {
+app.delete('/api/tenants/:id',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   tenant.status = 'deleted';
@@ -286,7 +286,7 @@ app.delete('/api/tenants/:id', authOrBypass,  (req, res) => {
 });
 
 /** POST /api/tenants/:id/suspend */
-app.post('/api/tenants/:id/suspend', authOrBypass,  (req, res) => {
+app.post('/api/tenants/:id/suspend',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   tenant.status = 'suspended';
@@ -296,7 +296,7 @@ app.post('/api/tenants/:id/suspend', authOrBypass,  (req, res) => {
 });
 
 /** POST /api/tenants/:id/activate */
-app.post('/api/tenants/:id/activate', authOrBypass,  (req, res) => {
+app.post('/api/tenants/:id/activate',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   tenant.status = 'active';
@@ -310,7 +310,7 @@ app.post('/api/tenants/:id/activate', authOrBypass,  (req, res) => {
 // ---------------------------------------------------------------------------
 
 /** POST /api/tenants/:id/projects */
-app.post('/api/tenants/:id/projects', authOrBypass,  (req, res) => {
+app.post('/api/tenants/:id/projects',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { name, slug, metadata } = req.body || {};
@@ -363,7 +363,7 @@ app.get('/api/projects/:projectId', (req, res) => {
 });
 
 /** PUT /api/projects/:projectId */
-app.put('/api/projects/:projectId', authOrBypass,  (req, res) => {
+app.put('/api/projects/:projectId',requireAuth,  authOrBypass,  (req, res) => {
   const project = getProjectOr404(req, res);
   if (!project) return;
   const { name, metadata } = req.body || {};
@@ -375,7 +375,7 @@ app.put('/api/projects/:projectId', authOrBypass,  (req, res) => {
 });
 
 /** DELETE /api/projects/:projectId */
-app.delete('/api/projects/:projectId', authOrBypass,  (req, res) => {
+app.delete('/api/projects/:projectId',requireAuth,  authOrBypass,  (req, res) => {
   const project = getProjectOr404(req, res);
   if (!project) return;
   projects.delete(project.id);
@@ -399,7 +399,7 @@ function ensureMembers(tenant) {
 }
 
 /** POST /api/tenants/:id/members */
-app.post('/api/tenants/:id/members', authOrBypass,  (req, res) => {
+app.post('/api/tenants/:id/members',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { userId, email, role, projectIds } = req.body || {};
@@ -441,7 +441,7 @@ app.get('/api/tenants/:id/members', (req, res) => {
 });
 
 /** PUT /api/tenants/:id/members/:userId */
-app.put('/api/tenants/:id/members/:userId', authOrBypass,  (req, res) => {
+app.put('/api/tenants/:id/members/:userId',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { role, projectIds } = req.body || {};
@@ -457,7 +457,7 @@ app.put('/api/tenants/:id/members/:userId', authOrBypass,  (req, res) => {
 });
 
 /** DELETE /api/tenants/:id/members/:userId */
-app.delete('/api/tenants/:id/members/:userId', authOrBypass,  (req, res) => {
+app.delete('/api/tenants/:id/members/:userId',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const idx = ensureMembers(tenant).findIndex(m => m.userId === req.params.userId);
@@ -472,7 +472,7 @@ app.delete('/api/tenants/:id/members/:userId', authOrBypass,  (req, res) => {
 // ---------------------------------------------------------------------------
 
 /** POST /api/tenants/:id/keys */
-app.post('/api/tenants/:id/keys', authOrBypass,  (req, res) => {
+app.post('/api/tenants/:id/keys',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { name, scopes, expiresAt } = req.body || {};
@@ -508,7 +508,7 @@ app.get('/api/tenants/:id/keys', (req, res) => {
 });
 
 /** DELETE /api/tenants/:id/keys/:keyId */
-app.delete('/api/tenants/:id/keys/:keyId', authOrBypass,  (req, res) => {
+app.delete('/api/tenants/:id/keys/:keyId',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const entry = Array.from(apiKeysByHash.values()).find(
@@ -522,7 +522,7 @@ app.delete('/api/tenants/:id/keys/:keyId', authOrBypass,  (req, res) => {
 });
 
 /** POST /api/keys/validate - returns tenant + scopes if valid */
-app.post('/api/keys/validate', authOrBypass,  (req, res) => {
+app.post('/api/keys/validate',requireAuth,  authOrBypass,  (req, res) => {
   const { key } = req.body || {};
   if (!key || typeof key !== 'string') {
     return res.status(400).json({ valid: false, error: 'key is required' });
@@ -554,7 +554,7 @@ app.post('/api/keys/validate', authOrBypass,  (req, res) => {
 // ---------------------------------------------------------------------------
 
 /** POST /api/tenants/:id/usage */
-app.post('/api/tenants/:id/usage', authOrBypass,  (req, res) => {
+app.post('/api/tenants/:id/usage',requireAuth,  authOrBypass,  (req, res) => {
   const tenant = getTenantOr404(req, res);
   if (!tenant) return;
   const { metric, quantity, timestamp, metadata } = req.body || {};

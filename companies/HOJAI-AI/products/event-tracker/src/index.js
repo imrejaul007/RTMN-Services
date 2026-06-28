@@ -4,6 +4,7 @@
  * Tracks 100 events on websites for HOJAI SiteOS analytics
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const app = express();
 const fs = require('fs');
 const path = require('path');
@@ -75,7 +76,7 @@ app.get('/health', (_req, res) => {
 });
 
 // POST /api/events/track - Track a single event
-app.post('/api/events/track', (req, res) => {
+app.post('/api/events/track',requireAuth,  (req, res) => {
   try {
     const { visitorId, pageId, companyId, event, properties, timestamp } = req.body;
     if (!event) return res.status(400).json({ success: false, error: 'event is required' });
@@ -113,7 +114,7 @@ app.post('/api/events/track', (req, res) => {
 });
 
 // POST /api/events/batch - Track batch of events
-app.post('/api/events/batch', (req, res) => {
+app.post('/api/events/batch',requireAuth,  (req, res) => {
   try {
     const { events: batch } = req.body;
     if (!Array.isArray(batch)) {
@@ -237,6 +238,12 @@ app.get('/api/events/funnel/:companyId', (req, res) => {
 app.get('/api/events/types', (_req, res) => {
   res.json({ success: true, data: { types: [...EVENT_TYPES], count: EVENT_TYPES.size } });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Event Tracker running on port ${PORT} — ${EVENT_TYPES.size} event types`);

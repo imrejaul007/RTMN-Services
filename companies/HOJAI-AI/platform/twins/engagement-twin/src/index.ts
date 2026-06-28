@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Engagement Twin Service v1.0
  * Digital twin for employee engagement tracking
@@ -38,7 +39,7 @@ export function createEngagementTwinService() {
   const app = express();
   app.use(express.json());
 
-  app.post('/api/engagement', (req: Request, res: Response) => {
+  app.post('/api/engagement',requireAuth,  (req: Request, res: Response) => {
     const { employeeId, period, dimensions, responses } = req.body;
     if (!employeeId || !period) {
       return res.status(400).json({ error: 'employeeId and period are required' });
@@ -90,7 +91,7 @@ export function createEngagementTwinService() {
     return res.status(200).json(survey);
   });
 
-  app.put('/api/engagement/:id', (req: Request, res: Response) => {
+  app.put('/api/engagement/:id',requireAuth,  (req: Request, res: Response) => {
     const survey = surveys.get(req.params.id);
     if (!survey) return res.status(404).json({ error: 'Survey not found' });
 
@@ -102,7 +103,7 @@ export function createEngagementTwinService() {
     return res.status(200).json(survey);
   });
 
-  app.delete('/api/engagement/:id', (req: Request, res: Response) => {
+  app.delete('/api/engagement/:id',requireAuth,  (req: Request, res: Response) => {
     if (!surveys.has(req.params.id)) return res.status(404).json({ error: 'Survey not found' });
     surveys.delete(req.params.id);
     return res.status(204).send();

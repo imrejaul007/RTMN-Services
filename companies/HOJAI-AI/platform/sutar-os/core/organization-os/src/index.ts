@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Organization OS - Production Implementation
  * Org Structure, Capabilities, Reporting Lines
@@ -187,7 +188,7 @@ app.get('/api/nodes/:id', (req, res) => {
   res.json({ ...node, children, teams: teams_, directReports: reports });
 });
 
-app.post('/api/nodes', (req, res) => {
+app.post('/api/nodes',requireAuth,  (req, res) => {
   try {
     const data = CreateNodeSchema.parse(req.body);
     const id = uuidv4();
@@ -201,7 +202,7 @@ app.post('/api/nodes', (req, res) => {
   }
 });
 
-app.put('/api/nodes/:id', (req, res) => {
+app.put('/api/nodes/:id',requireAuth,  (req, res) => {
   const node = nodes.get(req.params.id);
   if (!node) return res.status(404).json({ error: 'Node not found' });
 
@@ -210,7 +211,7 @@ app.put('/api/nodes/:id', (req, res) => {
   res.json(node);
 });
 
-app.delete('/api/nodes/:id', (req, res) => {
+app.delete('/api/nodes/:id',requireAuth,  (req, res) => {
   if (!nodes.has(req.params.id)) return res.status(404).json({ error: 'Node not found' });
   nodes.delete(req.params.id);
   res.json({ success: true });
@@ -262,7 +263,7 @@ app.get('/api/teams/:id', (req, res) => {
   res.json({ ...team, members, lead, department: dept });
 });
 
-app.post('/api/teams', (req, res) => {
+app.post('/api/teams',requireAuth,  (req, res) => {
   const { name, departmentId, leadId, capabilities, skills, headcount, budget } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
 
@@ -271,7 +272,7 @@ app.post('/api/teams', (req, res) => {
   res.status(201).json(teams.get(id));
 });
 
-app.put('/api/teams/:id', (req, res) => {
+app.put('/api/teams/:id',requireAuth,  (req, res) => {
   const team = teams.get(req.params.id);
   if (!team) return res.status(404).json({ error: 'Team not found' });
   Object.assign(team, req.body);
@@ -300,7 +301,7 @@ app.get('/api/capabilities/search', (req, res) => {
   res.json({ capabilities: results });
 });
 
-app.post('/api/capabilities', (req, res) => {
+app.post('/api/capabilities',requireAuth,  (req, res) => {
   const { name, category, level, description, certifications } = req.body;
   if (!name || !category) return res.status(400).json({ error: 'name, category required' });
 
@@ -320,7 +321,7 @@ app.get('/api/delegations', (req, res) => {
   res.json({ total: result.length, delegations: result });
 });
 
-app.post('/api/delegations', (req, res) => {
+app.post('/api/delegations',requireAuth,  (req, res) => {
   const { fromNodeId, toNodeId, scope, startDate, endDate } = req.body;
   if (!fromNodeId || !toNodeId || !startDate) return res.status(400).json({ error: 'fromNodeId, toNodeId, startDate required' });
 
@@ -329,7 +330,7 @@ app.post('/api/delegations', (req, res) => {
   res.status(201).json(delegations.get(id));
 });
 
-app.post('/api/delegations/:id/revoke', (req, res) => {
+app.post('/api/delegations/:id/revoke',requireAuth,  (req, res) => {
   const delegation = delegations.get(req.params.id);
   if (!delegation) return res.status(404).json({ error: 'Delegation not found' });
   delegation.active = false;
@@ -346,7 +347,7 @@ app.get('/api/roles', (req, res) => {
   res.json({ total: result.length, roles: result });
 });
 
-app.post('/api/roles', (req, res) => {
+app.post('/api/roles',requireAuth,  (req, res) => {
   const { name, level, department, responsibilities, requirements, compensation } = req.body;
   if (!name || !level) return res.status(400).json({ error: 'name, level required' });
 

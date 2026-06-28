@@ -11,6 +11,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -928,7 +929,7 @@ app.get('/ready', (req, res) => {
  * Create CRM configuration
  * POST /api/crm/config
  */
-app.post('/api/crm/config', (req, res) => {
+app.post('/api/crm/config',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       type: z.enum(['hubspot', 'salesforce']),
@@ -994,7 +995,7 @@ app.get('/api/crm/config/:configId', (req, res) => {
  * Update CRM configuration
  * PATCH /api/crm/config/:configId
  */
-app.patch('/api/crm/config/:configId', (req, res) => {
+app.patch('/api/crm/config/:configId',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().optional(),
@@ -1034,7 +1035,7 @@ app.patch('/api/crm/config/:configId', (req, res) => {
  * Create local contact
  * POST /api/crm/contact
  */
-app.post('/api/crm/contact', (req, res) => {
+app.post('/api/crm/contact',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       email: z.string().email(),
@@ -1087,7 +1088,7 @@ app.get('/api/crm/contact/email/:email', (req, res) => {
  * Update contact
  * PATCH /api/crm/contact/:contactId
  */
-app.patch('/api/crm/contact/:contactId', (req, res) => {
+app.patch('/api/crm/contact/:contactId',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       firstName: z.string().optional(),
@@ -1122,7 +1123,7 @@ app.patch('/api/crm/contact/:contactId', (req, res) => {
  * Create local deal
  * POST /api/crm/deal
  */
-app.post('/api/crm/deal', (req, res) => {
+app.post('/api/crm/deal',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1),
@@ -1162,7 +1163,7 @@ app.get('/api/crm/deal/:dealId', (req, res) => {
  * Update deal
  * PATCH /api/crm/deal/:dealId
  */
-app.patch('/api/crm/deal/:dealId', (req, res) => {
+app.patch('/api/crm/deal/:dealId',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().optional(),
@@ -1196,7 +1197,7 @@ app.patch('/api/crm/deal/:dealId', (req, res) => {
  * Sync visitor to CRM
  * POST /api/crm/sync/:visitorId
  */
-app.post('/api/crm/sync/:visitorId', async (req, res) => {
+app.post('/api/crm/sync/:visitorId',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       email: z.string().email(),
@@ -1233,7 +1234,7 @@ app.get('/api/crm/sync/:visitorId', (req, res) => {
  * Update contact LTV
  * POST /api/crm/contact/:contactId/ltv
  */
-app.post('/api/crm/contact/:contactId/ltv', async (req, res) => {
+app.post('/api/crm/contact/:contactId/ltv',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       amount: z.number(),

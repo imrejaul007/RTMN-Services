@@ -101,7 +101,7 @@ function audit(action, actor, payload) {
 }
 
 // POST /api/reflect
-app.post('/api/reflect', authOrBypass, (req, res) => {
+app.post('/api/reflect',requireAuth,  authOrBypass, (req, res) => {
   const { text, dimensions, actor } = req.body || {};
   if (!text || typeof text !== 'string') return res.status(400).json({ error: 'text (string) is required' });
   const { scores, overall } = scoreText(text, dimensions);
@@ -119,7 +119,7 @@ app.post('/api/reflect', authOrBypass, (req, res) => {
 });
 
 // POST /api/reflect/compare
-app.post('/api/reflect/compare', authOrBypass, (req, res) => {
+app.post('/api/reflect/compare',requireAuth,  authOrBypass, (req, res) => {
   const { items } = req.body || {};
   if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: 'items (non-empty array) is required' });
   const ranked = items.map((it, i) => {

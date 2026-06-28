@@ -4,6 +4,7 @@
  * Auto-generate campaigns from goals
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.CAMPAIGN_AUTO_PORT || 5473;
@@ -17,7 +18,7 @@ app.get('/health', (req, res) => {
 });
 
 // POST /api/campaigns/generate - Generate campaign from goal
-app.post('/api/campaigns/generate', (req, res) => {
+app.post('/api/campaigns/generate',requireAuth,  (req, res) => {
   try {
     const { goal, audience, companyId } = req.body;
     if (!goal) return res.status(400).json({ error: 'goal required' });
@@ -40,7 +41,7 @@ app.post('/api/campaigns/generate', (req, res) => {
 });
 
 // POST /api/campaigns/execute - Execute campaign
-app.post('/api/campaigns/execute', (req, res) => {
+app.post('/api/campaigns/execute',requireAuth,  (req, res) => {
   try {
     const { campaignId } = req.body;
     res.json({ success: true, data: { campaignId, status: 'scheduled' } });
@@ -65,6 +66,12 @@ function generateTemplates(goal) {
   }
   return templates;
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Campaign Auto-Creation running on port ${PORT}`));
 module.exports = app;

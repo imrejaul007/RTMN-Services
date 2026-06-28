@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Knowledge Twin Service
  * Port: 4739
@@ -96,7 +97,7 @@ app.get('/ready', (_req, res) => {
 /**
  * Add knowledge node
  */
-app.post('/api/twin/:employeeId/knowledge', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/knowledge',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { concept, description, type, category, tags, source, level } = req.body;
@@ -168,7 +169,7 @@ app.get('/api/twin/:employeeId/knowledge/expertise', (req: Request, res: Respons
 /**
  * Add expertise
  */
-app.post('/api/twin/:employeeId/knowledge/expertise', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/knowledge/expertise',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { domain, subdomains, level, yearsExperience, certifications } = req.body;
@@ -210,7 +211,7 @@ app.get('/api/twin/:employeeId/knowledge/gaps', (req: Request, res: Response) =>
 /**
  * Add knowledge gap
  */
-app.post('/api/twin/:employeeId/knowledge/gaps', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/knowledge/gaps',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { topic, priority, currentLevel, desiredLevel } = req.body;
@@ -241,7 +242,7 @@ app.post('/api/twin/:employeeId/knowledge/gaps', (req: Request, res: Response) =
 /**
  * Query knowledge
  */
-app.post('/api/twin/:employeeId/knowledge/query', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/knowledge/query',requireAuth,  (req: Request, res: Response) => {
   const { employeeId } = req.params;
   const { query, category } = req.body;
 

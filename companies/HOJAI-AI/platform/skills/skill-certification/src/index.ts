@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Skill Certification Service - Port: 4755
  * Manages skill certification levels and reviewer pool
@@ -17,14 +18,14 @@ const certifications = new Map<string, Certification>();
 app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'skill-certification', version: '1.0.0' }));
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
-app.post('/api/certification/request', (req: Request, res: Response) => {
+app.post('/api/certification/request',requireAuth,  (req: Request, res: Response) => {
   const { skillId, requestedLevel } = req.body;
   const cert: Certification = { id: `cert_${Date.now()}`, skillId, level: requestedLevel || 'community', status: 'pending', createdAt: new Date().toISOString() };
   certifications.set(cert.id, cert);
   res.status(201).json({ success: true, data: cert });
 });
 
-app.post('/api/certification/:certId/approve', (req: Request, res: Response) => {
+app.post('/api/certification/:certId/approve',requireAuth,  (req: Request, res: Response) => {
   const cert = certifications.get(req.params.certId);
   if (!cert) return res.status(404).json({ success: false, error: 'Not found' });
   cert.status = 'approved';
@@ -32,7 +33,7 @@ app.post('/api/certification/:certId/approve', (req: Request, res: Response) => 
   res.json({ success: true, data: cert });
 });
 
-app.post('/api/certification/:certId/reject', (req: Request, res: Response) => {
+app.post('/api/certification/:certId/reject',requireAuth,  (req: Request, res: Response) => {
   const cert = certifications.get(req.params.certId);
   if (!cert) return res.status(404).json({ success: false, error: 'Not found' });
   cert.status = 'rejected';

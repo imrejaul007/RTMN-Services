@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * HubSpot Connector
  * Port: 4780
@@ -112,7 +113,7 @@ app.get('/api/contacts/:id', (req, res) => {
 /**
  * Create contact
  */
-app.post('/api/contacts', (req, res) => {
+app.post('/api/contacts',requireAuth,  (req, res) => {
   const { email, firstname, lastname, company, phone, jobtitle } = req.body;
 
   if (!email) return res.status(400).json({ success: false, error: 'email is required' });
@@ -131,7 +132,7 @@ app.post('/api/contacts', (req, res) => {
 /**
  * Update contact
  */
-app.patch('/api/contacts/:id', (req, res) => {
+app.patch('/api/contacts/:id',requireAuth,  (req, res) => {
   const contact = contacts.get(req.params.id);
   if (!contact) return res.status(404).json({ success: false, error: 'Contact not found' });
 
@@ -167,7 +168,7 @@ app.get('/api/deals/:id', (req, res) => {
 /**
  * Create deal
  */
-app.post('/api/deals', (req, res) => {
+app.post('/api/deals',requireAuth,  (req, res) => {
   const { dealname, amount, dealstage, closedate, pipeline = 'default' } = req.body;
 
   if (!dealname) return res.status(400).json({ success: false, error: 'dealname is required' });
@@ -205,7 +206,7 @@ app.get('/api/companies', (req, res) => {
 /**
  * Create company
  */
-app.post('/api/companies', (req, res) => {
+app.post('/api/companies',requireAuth,  (req, res) => {
   const { name, domain, industry, phone } = req.body;
 
   if (!name) return res.status(400).json({ success: false, error: 'name is required' });
@@ -237,7 +238,7 @@ app.get('/api/tickets', (req, res) => {
 /**
  * Create ticket
  */
-app.post('/api/tickets', (req, res) => {
+app.post('/api/tickets',requireAuth,  (req, res) => {
   const { subject, content, priority = 'MEDIUM' } = req.body;
 
   if (!subject) return res.status(400).json({ success: false, error: 'subject is required' });

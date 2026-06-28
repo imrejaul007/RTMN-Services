@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Media OS - Production Implementation
  * Media processing, transcription, CDN management
@@ -46,7 +47,7 @@ app.get('/api/:id', (req, res) => {
   res.json({ ...m, transcodes: Array.from(transcodes.values()).filter(t => t.mediaId === m.id), thumbnails: thumbnails.get(m.id) || [] });
 });
 
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload',requireAuth,  (req, res) => {
   const { name, type, url, size, mimeType, tags, metadata, dimensions, duration, uploadedBy } = req.body;
   if (!name || !type || !url) return res.status(400).json({ error: 'name, type, url required' });
   const id = uuidv4();
@@ -54,7 +55,7 @@ app.post('/api/upload', (req, res) => {
   res.status(201).json(media.get(id));
 });
 
-app.put('/api/:id', (req, res) => {
+app.put('/api/:id',requireAuth,  (req, res) => {
   const m = media.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Media not found' });
   const { name, tags, metadata } = req.body;
@@ -64,14 +65,14 @@ app.put('/api/:id', (req, res) => {
   res.json(m);
 });
 
-app.delete('/api/:id', (req, res) => {
+app.delete('/api/:id',requireAuth,  (req, res) => {
   if (!media.has(req.params.id)) return res.status(404).json({ error: 'Media not found' });
   media.delete(req.params.id);
   res.json({ success: true });
 });
 
 // ============ TRANSCODING ============
-app.post('/api/transcode/:id', (req, res) => {
+app.post('/api/transcode/:id',requireAuth,  (req, res) => {
   const m = media.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Media not found' });
   if (m.type !== 'video' && m.type !== 'audio') return res.status(400).json({ error: 'Only video/audio can be transcoded' });
@@ -99,7 +100,7 @@ app.get('/api/transcode/:id/progress', (req, res) => {
 });
 
 // ============ THUMBNAILS ============
-app.post('/api/:id/thumbnail', (req, res) => {
+app.post('/api/:id/thumbnail',requireAuth,  (req, res) => {
   const m = media.get(req.params.id);
   if (!m) return res.status(404).json({ error: 'Media not found' });
   const { url, time, size } = req.body;
@@ -111,7 +112,7 @@ app.post('/api/:id/thumbnail', (req, res) => {
 });
 
 // ============ TRANSCRIPTION ============
-app.post('/api/transcribe', (req, res) => {
+app.post('/api/transcribe',requireAuth,  (req, res) => {
   const { mediaId, language } = req.body;
   const m = media.get(mediaId);
   if (!m) return res.status(404).json({ error: 'Media not found' });
@@ -132,7 +133,7 @@ app.get('/api/transcriptions/:mediaId', (req, res) => {
 });
 
 // ============ CDN ============
-app.post('/api/cdn/purge', (req, res) => {
+app.post('/api/cdn/purge',requireAuth,  (req, res) => {
   const { urls, reason } = req.body;
   if (!urls) return res.status(400).json({ error: 'urls required' });
   const purged = (urls as string[]).map(url => { cdnCache.push({ url, invalidatedAt: new Date().toISOString(), reason }); return url; });

@@ -1,4 +1,5 @@
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const app = express();
@@ -25,7 +26,7 @@ app.get('/ready', (req, res) => {
 });
 
 // POST /api/crm/config - Configure CRM connection
-app.post('/api/crm/config', (req, res) => {
+app.post('/api/crm/config',requireAuth,  (req, res) => {
   const { companyId, crmType, apiKey, apiSecret, instanceUrl, refreshToken } = req.body;
 
   if (!companyId || !crmType || !apiKey) {
@@ -81,7 +82,7 @@ app.get('/api/crm/config/:companyId/:crmType', (req, res) => {
 });
 
 // DELETE /api/crm/config/:companyId/:crmType - Remove CRM config
-app.delete('/api/crm/config/:companyId/:crmType', (req, res) => {
+app.delete('/api/crm/config/:companyId/:crmType',requireAuth,  (req, res) => {
   const { companyId, crmType } = req.params;
   const key = `${companyId}:${crmType}`;
 
@@ -94,7 +95,7 @@ app.delete('/api/crm/config/:companyId/:crmType', (req, res) => {
 });
 
 // POST /api/crm/contacts - Create contact
-app.post('/api/crm/contacts', async (req, res) => {
+app.post('/api/crm/contacts',requireAuth,  async (req, res) => {
   try {
     const { companyId, crmType, contactData } = req.body;
 
@@ -177,7 +178,7 @@ app.get('/api/crm/contacts/:contactId', (req, res) => {
 });
 
 // PUT /api/crm/contacts/:contactId - Update contact
-app.put('/api/crm/contacts/:contactId', async (req, res) => {
+app.put('/api/crm/contacts/:contactId',requireAuth,  async (req, res) => {
   try {
     const { contactId } = req.params;
     const updates = req.body;
@@ -213,7 +214,7 @@ app.put('/api/crm/contacts/:contactId', async (req, res) => {
 });
 
 // POST /api/crm/companies - Create company
-app.post('/api/crm/companies', async (req, res) => {
+app.post('/api/crm/companies',requireAuth,  async (req, res) => {
   try {
     const { companyId, crmType, companyData } = req.body;
 
@@ -275,7 +276,7 @@ app.get('/api/crm/companies', (req, res) => {
 });
 
 // POST /api/crm/deals - Create deal
-app.post('/api/crm/deals', async (req, res) => {
+app.post('/api/crm/deals',requireAuth,  async (req, res) => {
   try {
     const { companyId, crmType, dealData, contactIds, companyIdRef } = req.body;
 
@@ -341,7 +342,7 @@ app.get('/api/crm/deals', (req, res) => {
 });
 
 // PUT /api/crm/deals/:dealId/stage - Update deal stage
-app.put('/api/crm/deals/:dealId/stage', async (req, res) => {
+app.put('/api/crm/deals/:dealId/stage',requireAuth,  async (req, res) => {
   try {
     const { dealId } = req.params;
     const { stage, notes } = req.body;
@@ -384,7 +385,7 @@ app.put('/api/crm/deals/:dealId/stage', async (req, res) => {
 });
 
 // POST /api/crm/sync - Trigger sync job
-app.post('/api/crm/sync', async (req, res) => {
+app.post('/api/crm/sync',requireAuth,  async (req, res) => {
   try {
     const { companyId, crmType, syncType, filters } = req.body;
 
@@ -470,7 +471,7 @@ app.get('/api/crm/sync', (req, res) => {
 });
 
 // POST /api/crm/query - Query CRM data (unified interface)
-app.post('/api/crm/query', async (req, res) => {
+app.post('/api/crm/query',requireAuth,  async (req, res) => {
   try {
     const { companyId, crmType, entity, filters, page, limit } = req.body;
 

@@ -4,6 +4,7 @@
  * Trust scores for merchant agents
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.AGENT_REPUTATION_PORT || 5471;
@@ -37,7 +38,7 @@ app.get('/api/reputation/:agentId', async (req, res) => {
 });
 
 // POST /api/reputation/:agentId/update - Update reputation
-app.post('/api/reputation/:agentId/update', (req, res) => {
+app.post('/api/reputation/:agentId/update',requireAuth,  (req, res) => {
   const { score, transactionCount, fulfillmentRate, responseTime } = req.body;
   const existing = reputations.get(req.params.agentId) || { agentId: req.params.agentId, score: 75 };
   const updated = {
@@ -51,6 +52,12 @@ app.post('/api/reputation/:agentId/update', (req, res) => {
   reputations.set(req.params.agentId, updated);
   res.json({ success: true, data: updated });
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Agent Reputation running on port ${PORT}`));
 module.exports = app;

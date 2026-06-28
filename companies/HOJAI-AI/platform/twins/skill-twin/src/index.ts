@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -124,7 +125,7 @@ export function createSkillTwinService() {
   };
 
   // Routes
-  app.post('/api/skills', (req: Request, res: Response) => {
+  app.post('/api/skills',requireAuth,  (req: Request, res: Response) => {
     const { name, category, level, description, employeeId, certifications, endorsements, yearsOfExperience, proficiencyScore, metadata } = req.body;
 
     if (!name) {
@@ -164,7 +165,7 @@ export function createSkillTwinService() {
     sendResponse(res, 200, skill);
   });
 
-  app.put('/api/skills/:id', (req: Request, res: Response) => {
+  app.put('/api/skills/:id',requireAuth,  (req: Request, res: Response) => {
     const skill = skills.get(req.params.id);
     if (!skill) {
       return sendResponse(res, 404, { error: 'Skill not found' });
@@ -198,7 +199,7 @@ export function createSkillTwinService() {
     sendResponse(res, 200, skill);
   });
 
-  app.delete('/api/skills/:id', (req: Request, res: Response) => {
+  app.delete('/api/skills/:id',requireAuth,  (req: Request, res: Response) => {
     if (!skills.has(req.params.id)) {
       return sendResponse(res, 404, { error: 'Skill not found' });
     }
@@ -246,7 +247,7 @@ export function createSkillTwinService() {
   });
 
   // Endorsements
-  app.post('/api/skills/:id/endorse', (req: Request, res: Response) => {
+  app.post('/api/skills/:id/endorse',requireAuth,  (req: Request, res: Response) => {
     const skill = skills.get(req.params.id);
     if (!skill) {
       return sendResponse(res, 404, { error: 'Skill not found' });
@@ -273,7 +274,7 @@ export function createSkillTwinService() {
   });
 
   // Certifications
-  app.post('/api/skills/:id/certifications', (req: Request, res: Response) => {
+  app.post('/api/skills/:id/certifications',requireAuth,  (req: Request, res: Response) => {
     const skill = skills.get(req.params.id);
     if (!skill) {
       return sendResponse(res, 404, { error: 'Skill not found' });

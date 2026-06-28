@@ -28,6 +28,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -220,7 +221,7 @@ app.get('/api/v1/employees/slug/:slug', apiKeyAuth, (req, res) => {
   res.json(apiResponse(true, emp));
 });
 
-app.post('/api/v1/employees', apiKeyAuth, (req, res) => {
+app.post('/api/v1/employees',requireAuth,  apiKeyAuth, (req, res) => {
   try {
     const body = req.body || {};
     if (!body.name || !body.slug) {
@@ -256,7 +257,7 @@ app.post('/api/v1/employees', apiKeyAuth, (req, res) => {
   }
 });
 
-app.patch('/api/v1/employees/:id', apiKeyAuth, (req, res) => {
+app.patch('/api/v1/employees/:id',requireAuth,  apiKeyAuth, (req, res) => {
   const emp = findEmployee(req.params.id);
   if (!emp) return res.status(404).json(apiResponse(false, undefined, 'Employee not found'));
   const allowed = ['name', 'description', 'category', 'capabilities', 'tags', 'serviceUrl', 'port', 'version', 'pricing', 'status', 'rating'];
@@ -267,7 +268,7 @@ app.patch('/api/v1/employees/:id', apiKeyAuth, (req, res) => {
   res.json(apiResponse(true, emp));
 });
 
-app.delete('/api/v1/employees/:id', apiKeyAuth, (req, res) => {
+app.delete('/api/v1/employees/:id',requireAuth,  apiKeyAuth, (req, res) => {
   const emp = findEmployee(req.params.id);
   if (!emp) return res.status(404).json(apiResponse(false, undefined, 'Employee not found'));
   emp.status = 'retired';
@@ -289,7 +290,7 @@ app.get('/api/v1/employees/:id/install', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/employees/:id/install', apiKeyAuth, async (req, res) => {
+app.post('/api/v1/employees/:id/install',requireAuth,  apiKeyAuth, async (req, res) => {
   const emp = findEmployee(req.params.id);
   if (!emp) return res.status(404).json(apiResponse(false, undefined, 'Employee not found'));
 
@@ -322,7 +323,7 @@ app.post('/api/v1/employees/:id/install', apiKeyAuth, async (req, res) => {
 // POST /api/v1/employees/:id/register-with-agentos
 // Manually trigger AgentOS registration for an employee (bypasses install)
 
-app.post('/api/v1/employees/:id/register-with-agentos', apiKeyAuth, async (req, res) => {
+app.post('/api/v1/employees/:id/register-with-agentos',requireAuth,  apiKeyAuth, async (req, res) => {
   const emp = findEmployee(req.params.id);
   if (!emp) return res.status(404).json(apiResponse(false, undefined, 'Employee not found'));
   if (!emp.serviceUrl) {
@@ -344,7 +345,7 @@ app.post('/api/v1/employees/:id/register-with-agentos', apiKeyAuth, async (req, 
 // ─── Bulk sync: register ALL available employees with AgentOS ────────────
 // POST /api/v1/employees/sync-to-agentos
 
-app.post('/api/v1/employees/sync-to-agentos', apiKeyAuth, async (req, res) => {
+app.post('/api/v1/employees/sync-to-agentos',requireAuth,  apiKeyAuth, async (req, res) => {
   const available = filterEmployees({ status: 'available' }).filter((e) => e.serviceUrl);
   const results = [];
   for (const emp of available) {

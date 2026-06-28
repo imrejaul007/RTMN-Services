@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -25,7 +26,7 @@ app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'zoho-con
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
 app.get('/api/leads', (_r, res) => res.json({ success: true, data: { leads: Array.from(leads.values()) } }));
-app.post('/api/leads', (req, res) => {
+app.post('/api/leads',requireAuth,  (req, res) => {
   const { First_Name, Last_Name, Email, Company } = req.body;
   if (!Email) return res.status(400).json({ success: false, error: 'Email required' });
   const lead: ZohoLead = { id: `lead_${Date.now()}`, First_Name: First_Name || '', Last_Name: Last_Name || '', Email, Company: Company || '', Status: 'Not Contacted' };
@@ -34,7 +35,7 @@ app.post('/api/leads', (req, res) => {
 });
 
 app.get('/api/deals', (_r, res) => res.json({ success: true, data: { deals: Array.from(deals.values()) } }));
-app.post('/api/deals', (req, res) => {
+app.post('/api/deals',requireAuth,  (req, res) => {
   const { Deal_Name, Amount, Stage } = req.body;
   if (!Deal_Name) return res.status(400).json({ success: false, error: 'Deal_Name required' });
   const deal: ZohoDeal = { id: `deal_${Date.now()}`, Deal_Name, Amount: Amount || '0', Stage: Stage || 'Planning', Closing_Date: '' };

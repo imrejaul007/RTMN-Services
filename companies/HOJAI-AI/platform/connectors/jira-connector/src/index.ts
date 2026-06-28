@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Jira Connector
  * Port: 4793
@@ -61,7 +62,7 @@ app.get('/api/projects/:key/issues', (req, res) => {
   res.json({ success: true, data: { issues: projectIssues, total: projectIssues.length } });
 });
 
-app.post('/api/projects/:key/issues', (req, res) => {
+app.post('/api/projects/:key/issues',requireAuth,  (req, res) => {
   const { key } = req.params;
   const { summary, description, type = 'task', assignee, priority = 'medium' } = req.body;
   if (!summary) return res.status(400).json({ success: false, error: 'summary required' });

@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Notification Orchestrator - Port: 4764
  * Route notifications to appropriate channels
@@ -15,7 +16,7 @@ const notifications = new Map<string, Notification>();
 app.get('/health', (_r, res) => res.json({ status: 'healthy', service: 'notification-orchestrator' }));
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
-app.post('/api/notifications/send', (req: Request, res: Response) => {
+app.post('/api/notifications/send',requireAuth,  (req: Request, res: Response) => {
   const { employeeId, channel, message } = req.body;
   const n: Notification = { id: `n_${Date.now()}`, employeeId, channel: channel || 'push', message, status: 'sent', createdAt: new Date().toISOString() };
   notifications.set(n.id, n);

@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -66,7 +67,7 @@ app.use(errorHandler);
 app.get('/health', (_req: Request, res: Response) => { res.json({ status: 'healthy', service: 'twin-feedback-os', version: '1.0.0', timestamp: new Date().toISOString(), feedbackTypes: Object.keys(FEEDBACK_TYPES), totalFeedback: Object.keys(feedbackStore).reduce((sum, emp) => sum + feedbackStore[emp].length, 0), patterns: Object.keys(correctionPatterns).length }); });
 app.get('/ready', (_req: Request, res: Response) => { res.json({ ready: true, service: 'twin-feedback-os', timestamp: new Date().toISOString() }); });
 
-app.post('/api/feedback', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/feedback',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { employeeId, capability, capabilityArea, feedbackType, twinAction, correction, currentConfidence } = req.body as Feedback & { feedbackType: string };
     if (!employeeId || !capability || !feedbackType) { const e: AppError = new Error('Missing required fields: employeeId, capability, feedbackType'); e.statusCode = 400; throw e; }
@@ -81,7 +82,7 @@ app.post('/api/feedback', async (req: Request, res: Response, next: NextFunction
   } catch (err) { next(err); }
 });
 
-app.post('/api/feedback/batch', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/feedback/batch',requireAuth,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { feedback: feedbackList } = req.body;
     if (!Array.isArray(feedbackList)) { const e: AppError = new Error('Feedback must be an array'); e.statusCode = 400; throw e; }

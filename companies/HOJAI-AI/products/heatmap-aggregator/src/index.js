@@ -4,6 +4,7 @@
  * Aggregates click/scroll data into heatmaps
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const app = express();
 const PORT = process.env.HEATMAP_AGGREGATOR_PORT || 5454;
 
@@ -46,7 +47,7 @@ app.get('/health', (_req, res) => {
 });
 
 // POST /api/heatmap/clicks - Record click positions
-app.post('/api/heatmap/clicks', (req, res) => {
+app.post('/api/heatmap/clicks',requireAuth,  (req, res) => {
   try {
     const { pageId, companyId, clicks, width, height } = req.body;
     if (!pageId || !Array.isArray(clicks)) {
@@ -76,7 +77,7 @@ app.post('/api/heatmap/clicks', (req, res) => {
 });
 
 // POST /api/heatmap/scrolls - Record scroll depth
-app.post('/api/heatmap/scrolls', (req, res) => {
+app.post('/api/heatmap/scrolls',requireAuth,  (req, res) => {
   try {
     const { pageId, depths, visitorId } = req.body;
     if (!pageId || !Array.isArray(depths)) {
@@ -102,7 +103,7 @@ app.post('/api/heatmap/scrolls', (req, res) => {
 });
 
 // POST /api/heatmap/rage-clicks - Record rage clicks (multiple clicks in same spot)
-app.post('/api/heatmap/rage-clicks', (req, res) => {
+app.post('/api/heatmap/rage-clicks',requireAuth,  (req, res) => {
   try {
     const { pageId, positions, visitorId } = req.body;
     if (!pageId || !Array.isArray(positions)) {
@@ -216,6 +217,12 @@ app.get('/api/heatmap/summary', (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Heatmap Aggregator running on port ${PORT}`);

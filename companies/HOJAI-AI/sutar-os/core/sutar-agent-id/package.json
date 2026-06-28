@@ -1,11 +1,13 @@
 {
   "name": "sutar-agent-id",
   "version": "1.0.0",
-  "description": "SUTAR OS Agent ID — Persistent identity + capability manifest for every SUTAR agent.",
+  "description": "SUTAR OS Agent ID \u2014 Persistent identity + capability manifest for every SUTAR agent.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "axios": "^1.7.0",

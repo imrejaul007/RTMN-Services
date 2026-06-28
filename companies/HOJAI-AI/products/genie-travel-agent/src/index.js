@@ -16,6 +16,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -75,7 +76,7 @@ app.get('/info', (_req, res) => {
   }));
 });
 
-app.post('/api/v1/travel/search/flights', apiKeyAuth, (req, res) => {
+app.post('/api/v1/travel/search/flights',requireAuth,  apiKeyAuth, (req, res) => {
   const { origin, destination, departDate, returnDate, passengers = 1, cabinClass = 'economy' } = req.body || {};
   if (!origin || !destination || !departDate) {
     return res.status(400).json(apiResponse(false, undefined, 'origin, destination, departDate are required'));
@@ -88,7 +89,7 @@ app.post('/api/v1/travel/search/flights', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/travel/search/hotels', apiKeyAuth, (req, res) => {
+app.post('/api/v1/travel/search/hotels',requireAuth,  apiKeyAuth, (req, res) => {
   const { city, checkIn, checkOut, guests = 1, minStars = 0, maxPriceUsd = null } = req.body || {};
   if (!city || !checkIn || !checkOut) {
     return res.status(400).json(apiResponse(false, undefined, 'city, checkIn, checkOut are required'));
@@ -101,14 +102,14 @@ app.post('/api/v1/travel/search/hotels', apiKeyAuth, (req, res) => {
   }));
 });
 
-app.post('/api/v1/travel/itinerary/plan', apiKeyAuth, (req, res) => {
+app.post('/api/v1/travel/itinerary/plan',requireAuth,  apiKeyAuth, (req, res) => {
   const { city, days = 3, interests = [], pace = 'moderate', budgetUsd = 2000 } = req.body || {};
   if (!city) return res.status(400).json(apiResponse(false, undefined, 'city is required'));
   const itinerary = planItinerary({ city, days, interests, pace, budgetUsd });
   res.json(apiResponse(true, itinerary));
 });
 
-app.post('/api/v1/travel/rebook', apiKeyAuth, (req, res) => {
+app.post('/api/v1/travel/rebook',requireAuth,  apiKeyAuth, (req, res) => {
   const { bookingId, reason } = req.body || {};
   if (!bookingId) return res.status(400).json(apiResponse(false, undefined, 'bookingId is required'));
 

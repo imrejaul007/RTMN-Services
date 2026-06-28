@@ -7,6 +7,7 @@
  */
 
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const helmet = require('helmet');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -86,7 +87,7 @@ function audit(action, actor, payload) {
 }
 
 // POST /api/intent
-app.post('/api/intent', authOrBypass, (req, res) => {
+app.post('/api/intent',requireAuth,  authOrBypass, (req, res) => {
   const { text, actor } = req.body || {};
   if (!text || typeof text !== 'string') return res.status(400).json({ error: 'text (string) is required' });
   const result = detectIntent(text);
@@ -95,7 +96,7 @@ app.post('/api/intent', authOrBypass, (req, res) => {
 });
 
 // POST /api/intent/batch
-app.post('/api/intent/batch', authOrBypass, (req, res) => {
+app.post('/api/intent/batch',requireAuth,  authOrBypass, (req, res) => {
   const { texts, actor } = req.body || {};
   if (!Array.isArray(texts) || texts.length === 0) return res.status(400).json({ error: 'texts (non-empty array) is required' });
   const results = texts.map(t => ({ text: t, ...detectIntent(t) }));

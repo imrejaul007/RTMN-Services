@@ -5,6 +5,7 @@
  * Reuses: CorpID (4702), Customer Twin (4895), MemoryOS (4703)
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const app = express();
 const PORT = process.env.CHANNEL_STITCHER_PORT || 5452;
@@ -25,7 +26,7 @@ app.get('/health', (_req, res) => {
 });
 
 // POST /api/identity/resolve - Resolve identity across channels
-app.post('/api/identity/resolve', async (req, res) => {
+app.post('/api/identity/resolve',requireAuth,  async (req, res) => {
   try {
     const { channel, identifier, visitorId, email, phone, name, attributes } = req.body;
     if (!channel || !identifier) {
@@ -81,7 +82,7 @@ app.get('/api/identity/profile/:id', async (req, res) => {
 });
 
 // POST /api/identity/merge - Merge two identities
-app.post('/api/identity/merge', async (req, res) => {
+app.post('/api/identity/merge',requireAuth,  async (req, res) => {
   try {
     const { sourceId, targetId } = req.body;
     if (!sourceId || !targetId) {
@@ -117,7 +118,7 @@ app.post('/api/identity/merge', async (req, res) => {
 });
 
 // POST /api/identity/link - Link new channel to existing identity
-app.post('/api/identity/link', async (req, res) => {
+app.post('/api/identity/link',requireAuth,  async (req, res) => {
   try {
     const { identityId, channel, identifier, attributes } = req.body;
     const identity = identityGraph.get(identityId);
@@ -207,6 +208,12 @@ async function syncToCustomerTwin(identity) {
     console.warn('Failed to sync to Customer Twin:', e.message);
   }
 }
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Channel Stitcher running on port ${PORT}`);

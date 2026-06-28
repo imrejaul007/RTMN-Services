@@ -82,7 +82,7 @@ function getExecutionOr404(req, res) {
 }
 
 // POST /api/executions — create a new execution (runs synchronously when kind=noop or wait)
-app.post('/api/executions', authOrBypass, (req, res) => {
+app.post('/api/executions',requireAuth,  authOrBypass, (req, res) => {
   const { name, missionId, taskId, steps, maxRetries, timeoutMs, runInline, actor } = req.body || {};
   if (!name) return res.status(400).json({ error: 'name is required' });
   if (!Array.isArray(steps) || steps.length === 0) return res.status(400).json({ error: 'steps[] is required and must be non-empty' });
@@ -151,7 +151,7 @@ app.get('/api/executions/:id', (req, res) => {
 });
 
 // POST /api/executions/:id/run — kick off execution
-app.post('/api/executions/:id/run', authOrBypass, (req, res) => {
+app.post('/api/executions/:id/run',requireAuth,  authOrBypass, (req, res) => {
   const e = getExecutionOr404(req, res);
   if (!e) return;
   if (e.status === 'running') return res.status(409).json({ error: 'execution already running' });
@@ -160,7 +160,7 @@ app.post('/api/executions/:id/run', authOrBypass, (req, res) => {
 });
 
 // POST /api/executions/:id/cancel
-app.post('/api/executions/:id/cancel', authOrBypass, (req, res) => {
+app.post('/api/executions/:id/cancel',requireAuth,  authOrBypass, (req, res) => {
   const e = getExecutionOr404(req, res);
   if (!e) return;
   if (e.status === 'success' || e.status === 'failed' || e.status === 'cancelled' || e.status === 'timeout') {
@@ -174,7 +174,7 @@ app.post('/api/executions/:id/cancel', authOrBypass, (req, res) => {
 });
 
 // DELETE /api/executions/:id
-app.delete('/api/executions/:id', authOrBypass, (req, res) => {
+app.delete('/api/executions/:id',requireAuth,  authOrBypass, (req, res) => {
   const e = getExecutionOr404(req, res);
   if (!e) return;
   executions.delete(e.id);

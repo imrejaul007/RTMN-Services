@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Brand OS - Production Implementation
  * Brand guidelines, assets, compliance checking
@@ -63,7 +64,7 @@ app.get('/api/assets/:id', (req, res) => {
   res.json(asset);
 });
 
-app.post('/api/assets', (req, res) => {
+app.post('/api/assets',requireAuth,  (req, res) => {
   const { name, type, url, tags, uploadedBy, size, format } = req.body;
   if (!name || !type || !url) return res.status(400).json({ error: 'name, type, url required' });
   const id = uuidv4();
@@ -71,14 +72,14 @@ app.post('/api/assets', (req, res) => {
   res.status(201).json(assets.get(id));
 });
 
-app.put('/api/assets/:id', (req, res) => {
+app.put('/api/assets/:id',requireAuth,  (req, res) => {
   const asset = assets.get(req.params.id);
   if (!asset) return res.status(404).json({ error: 'Asset not found' });
   Object.assign(asset, req.body);
   res.json(asset);
 });
 
-app.delete('/api/assets/:id', (req, res) => {
+app.delete('/api/assets/:id',requireAuth,  (req, res) => {
   if (!assets.has(req.params.id)) return res.status(404).json({ error: 'Asset not found' });
   assets.delete(req.params.id);
   res.json({ success: true });
@@ -97,7 +98,7 @@ app.get('/api/guidelines/:id', (req, res) => {
   res.json(g);
 });
 
-app.post('/api/guidelines', (req, res) => {
+app.post('/api/guidelines',requireAuth,  (req, res) => {
   const { name, category, content, version } = req.body;
   if (!name || !category || !content) return res.status(400).json({ error: 'name, category, content required' });
   const id = uuidv4();
@@ -105,7 +106,7 @@ app.post('/api/guidelines', (req, res) => {
   res.status(201).json(guidelines.get(id));
 });
 
-app.put('/api/guidelines/:id', (req, res) => {
+app.put('/api/guidelines/:id',requireAuth,  (req, res) => {
   const g = guidelines.get(req.params.id);
   if (!g) return res.status(404).json({ error: 'Guideline not found' });
   Object.assign(g, req.body);
@@ -126,7 +127,7 @@ app.get('/api/compliance', (req, res) => {
   res.json({ total: checks.length, checks });
 });
 
-app.post('/api/compliance/check', (req, res) => {
+app.post('/api/compliance/check',requireAuth,  (req, res) => {
   const { assetId, guidelineId } = req.body;
   if (!assetId || !guidelineId) return res.status(400).json({ error: 'assetId, guidelineId required' });
   const asset = assets.get(assetId);

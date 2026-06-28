@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Personal Skill Wallet Service
  * Port: 4750
@@ -162,7 +163,7 @@ app.get('/api/wallet/:employeeId/skills', (req: Request, res: Response) => {
 /**
  * Install a skill from BAM
  */
-app.post('/api/wallet/:employeeId/skills/install', (req: Request, res: Response) => {
+app.post('/api/wallet/:employeeId/skills/install',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { skillId, name, source = 'bam', version = '1.0.0', parameters = {} } = req.body;
@@ -219,7 +220,7 @@ app.post('/api/wallet/:employeeId/skills/install', (req: Request, res: Response)
 /**
  * Uninstall a skill
  */
-app.post('/api/wallet/:employeeId/skills/:skillId/uninstall', (req: Request, res: Response) => {
+app.post('/api/wallet/:employeeId/skills/:skillId/uninstall',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId, skillId } = req.params;
     const wallet = wallets.get(employeeId);
@@ -247,7 +248,7 @@ app.post('/api/wallet/:employeeId/skills/:skillId/uninstall', (req: Request, res
 /**
  * Update skill status
  */
-app.patch('/api/wallet/:employeeId/skills/:skillId', (req: Request, res: Response) => {
+app.patch('/api/wallet/:employeeId/skills/:skillId',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId, skillId } = req.params;
     const updates = req.body;
@@ -275,7 +276,7 @@ app.patch('/api/wallet/:employeeId/skills/:skillId', (req: Request, res: Respons
 /**
  * Add to favorites
  */
-app.post('/api/wallet/:employeeId/favorites/:skillId', (req: Request, res: Response) => {
+app.post('/api/wallet/:employeeId/favorites/:skillId',requireAuth,  (req: Request, res: Response) => {
   const { employeeId, skillId } = req.params;
   let wallet = wallets.get(employeeId);
 
@@ -303,7 +304,7 @@ app.post('/api/wallet/:employeeId/favorites/:skillId', (req: Request, res: Respo
 /**
  * Create skill composition
  */
-app.post('/api/wallet/:employeeId/compose', (req: Request, res: Response) => {
+app.post('/api/wallet/:employeeId/compose',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { name, skills, purpose } = req.body;
@@ -348,7 +349,7 @@ app.get('/api/wallet/:employeeId/compositions', (req: Request, res: Response) =>
 /**
  * Add certification
  */
-app.post('/api/wallet/:employeeId/certifications', (req: Request, res: Response) => {
+app.post('/api/wallet/:employeeId/certifications',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { name, issuer, expiresAt } = req.body;

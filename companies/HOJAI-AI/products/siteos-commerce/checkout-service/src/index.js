@@ -769,6 +769,12 @@ app.use((req, res) => {
 });
 
 // Start server
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Checkout Service running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);

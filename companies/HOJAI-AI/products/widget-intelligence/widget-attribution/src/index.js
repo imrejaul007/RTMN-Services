@@ -9,6 +9,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -694,7 +695,7 @@ app.get('/ready', (req, res) => {
  * Track touchpoint
  * POST /api/attribution/track
  */
-app.post('/api/attribution/track', (req, res) => {
+app.post('/api/attribution/track',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       visitorId: z.string().min(1),
@@ -739,7 +740,7 @@ app.get('/api/attribution/touchpoint/:touchpointId', (req, res) => {
  * Delete touchpoint
  * DELETE /api/attribution/touchpoint/:touchpointId
  */
-app.delete('/api/attribution/touchpoint/:touchpointId', (req, res) => {
+app.delete('/api/attribution/touchpoint/:touchpointId',requireAuth,  (req, res) => {
   const deleted = deleteTouchpoint(req.params.touchpointId);
   if (!deleted) {
     return res.status(404).json({ error: 'Touchpoint not found' });
@@ -755,7 +756,7 @@ app.delete('/api/attribution/touchpoint/:touchpointId', (req, res) => {
  * Track conversion
  * POST /api/attribution/conversion
  */
-app.post('/api/attribution/conversion', (req, res) => {
+app.post('/api/attribution/conversion',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       visitorId: z.string().min(1),
@@ -820,7 +821,7 @@ app.get('/api/attribution/journey/:visitorId', (req, res) => {
  * Calculate attribution
  * POST /api/attribution/calculate
  */
-app.post('/api/attribution/calculate', (req, res) => {
+app.post('/api/attribution/calculate',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       visitorId: z.string().min(1),

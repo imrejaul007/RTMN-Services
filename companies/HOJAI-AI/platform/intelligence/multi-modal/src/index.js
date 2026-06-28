@@ -1,5 +1,6 @@
 // Multi-Modal OS - Image, audio, video processing, OCR, transcription. Port 4897
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { readJson, writeJson } from './store.js';
 import {
@@ -16,7 +17,7 @@ function loadJobs() { return readJson('jobs.json') || []; }
 function saveJobs(jobs) { writeJson('jobs.json', jobs); }
 
 // --- Upload / Detect ---
-app.post('/api/detect', (req, res) => {
+app.post('/api/detect',requireAuth,  (req, res) => {
   const { filename, magicBytes } = req.body;
   if (!filename) return res.status(400).json({ error: 'filename required' });
   const info = detectFileType(filename, magicBytes);
@@ -24,7 +25,7 @@ app.post('/api/detect', (req, res) => {
 });
 
 // --- Image Processing ---
-app.post('/api/image/process', (req, res) => {
+app.post('/api/image/process',requireAuth,  (req, res) => {
   const { filename, operation, params = {}, metadata = {} } = req.body;
   if (!filename || !operation) return res.status(400).json({ error: 'filename and operation required' });
 
@@ -53,7 +54,7 @@ app.post('/api/image/process', (req, res) => {
 });
 
 // --- Audio Processing ---
-app.post('/api/audio/process', (req, res) => {
+app.post('/api/audio/process',requireAuth,  (req, res) => {
   const { filename, operation, params = {}, metadata = {} } = req.body;
   if (!filename || !operation) return res.status(400).json({ error: 'filename and operation required' });
 
@@ -81,7 +82,7 @@ app.post('/api/audio/process', (req, res) => {
 });
 
 // --- Video Processing ---
-app.post('/api/video/process', (req, res) => {
+app.post('/api/video/process',requireAuth,  (req, res) => {
   const { filename, operation, params = {}, metadata = {} } = req.body;
   if (!filename || !operation) return res.status(400).json({ error: 'filename and operation required' });
 
@@ -109,7 +110,7 @@ app.post('/api/video/process', (req, res) => {
 });
 
 // --- OCR ---
-app.post('/api/ocr', (req, res) => {
+app.post('/api/ocr',requireAuth,  (req, res) => {
   const { filename, metadata = {}, options = {} } = req.body;
   if (!filename) return res.status(400).json({ error: 'filename required' });
 
@@ -136,7 +137,7 @@ app.post('/api/ocr', (req, res) => {
 });
 
 // --- Transcription ---
-app.post('/api/transcribe', (req, res) => {
+app.post('/api/transcribe',requireAuth,  (req, res) => {
   const { filename, mediaType, metadata = {}, options = {} } = req.body;
   if (!filename) return res.status(400).json({ error: 'filename required' });
 
@@ -184,7 +185,7 @@ app.get('/api/formats', (req, res) => {
 });
 
 // --- Batch Processing ---
-app.post('/api/batch', (req, res) => {
+app.post('/api/batch',requireAuth,  (req, res) => {
   const { tasks } = req.body;
   if (!tasks || !Array.isArray(tasks)) return res.status(400).json({ error: 'tasks array required' });
 

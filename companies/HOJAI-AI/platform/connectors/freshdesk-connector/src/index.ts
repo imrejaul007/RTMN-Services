@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -32,7 +33,7 @@ app.get('/api/tickets', (req, res) => {
   res.json({ success: true, data: { tickets: all, total: all.length } });
 });
 
-app.post('/api/tickets', (req, res) => {
+app.post('/api/tickets',requireAuth,  (req, res) => {
   const { subject, description, priority = 1, type, requester_id } = req.body;
   if (!subject) return res.status(400).json({ success: false, error: 'subject required' });
   const ticket: Ticket = {
@@ -52,7 +53,7 @@ app.post('/api/tickets', (req, res) => {
 });
 
 app.get('/api/contacts', (_r, res) => res.json({ success: true, data: { contacts: Array.from(contacts.values()), total: contacts.size } }));
-app.post('/api/contacts', (req, res) => {
+app.post('/api/contacts',requireAuth,  (req, res) => {
   const { name, email, phone } = req.body;
   if (!name || !email) return res.status(400).json({ success: false, error: 'name and email required' });
   const contact: Contact = { id: `contact_${Date.now()}`, name, email, phone };
@@ -61,7 +62,7 @@ app.post('/api/contacts', (req, res) => {
 });
 
 app.get('/api/companies', (_r, res) => res.json({ success: true, data: { companies: Array.from(companies.values()), total: companies.size } }));
-app.post('/api/companies', (req, res) => {
+app.post('/api/companies',requireAuth,  (req, res) => {
   const { name, domain } = req.body;
   if (!name) return res.status(400).json({ success: false, error: 'name required' });
   const company: Company = { id: `company_${Date.now()}`, name, domain };

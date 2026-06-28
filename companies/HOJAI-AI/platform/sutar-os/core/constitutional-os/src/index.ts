@@ -6,6 +6,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -171,7 +172,7 @@ app.get('/api/missions', (_req, res) => {
   res.json({ success: true, data: { missions: all, total: all.length } });
 });
 
-app.post('/api/missions', (req, res) => {
+app.post('/api/missions',requireAuth,  (req, res) => {
   const { text, priority, source } = req.body;
   if (!text) return res.status(400).json({ success: false, error: 'text required' });
   const mission: Mission = {
@@ -193,7 +194,7 @@ app.get('/api/values', (_req, res) => {
   res.json({ success: true, data: { values: all } });
 });
 
-app.post('/api/values', (req, res) => {
+app.post('/api/values',requireAuth,  (req, res) => {
   const { name, description, examples, weight } = req.body;
   if (!name) return res.status(400).json({ success: false, error: 'name required' });
   const value: Value = { id: uuidv4(), name, description: description || '', examples: examples || [], weight: weight || 5 };
@@ -211,7 +212,7 @@ app.get('/api/red-lines', (req, res) => {
   res.json({ success: true, data: { redLines: all, total: all.length } });
 });
 
-app.post('/api/red-lines', (req, res) => {
+app.post('/api/red-lines',requireAuth,  (req, res) => {
   const { rule, category, severity, description, approvedBy, exceptions } = req.body;
   if (!rule || !category || !severity) return res.status(400).json({ success: false, error: 'rule, category, severity required' });
   const redLine: RedLine = { id: uuidv4(), rule, category, severity, description: description || '', approvedBy: approvedBy || '', exceptions: exceptions || [] };
@@ -221,7 +222,7 @@ app.post('/api/red-lines', (req, res) => {
 });
 
 // === CHECK RED LINES ===
-app.post('/api/check/:actionType', (req, res) => {
+app.post('/api/check/:actionType',requireAuth,  (req, res) => {
   const { action, context } = req.body;
   const allRedLines = Array.from(redLines.values());
 
@@ -269,7 +270,7 @@ app.get('/api/authority/:agentType', (req, res) => {
   res.json({ success: true, data: { authorities: auth } });
 });
 
-app.post('/api/authority', (req, res) => {
+app.post('/api/authority',requireAuth,  (req, res) => {
   const { agentType, scope, maxValue, blacklist, whitelist } = req.body;
   if (!agentType || !scope) return res.status(400).json({ success: false, error: 'agentType and scope required' });
   const auth: Authority = { id: uuidv4(), agentType, scope, maxValue, blacklist: blacklist || [], whitelist };
@@ -280,7 +281,7 @@ app.post('/api/authority', (req, res) => {
 // === ESCALATION PATHS ===
 app.get('/api/escalations', (_req, res) => res.json({ success: true, data: { paths: Array.from(escalations.values()) } }));
 
-app.post('/api/escalations/:scenario/escalate', (req, res) => {
+app.post('/api/escalations/:scenario/escalate',requireAuth,  (req, res) => {
   const { scenario } = req.params;
   const paths = Array.from(escalations.values()).filter(e => e.scenario.toLowerCase().includes(scenario.toLowerCase()));
   if (paths.length === 0) return res.status(404).json({ success: false, error: 'No escalation path found' });
@@ -293,7 +294,7 @@ app.post('/api/escalations/:scenario/escalate', (req, res) => {
 // === PRINCIPLES ===
 app.get('/api/principles', (_req, res) => res.json({ success: true, data: { principles: Array.from(principles.values()) } }));
 
-app.post('/api/principles', (req, res) => {
+app.post('/api/principles',requireAuth,  (req, res) => {
   const { name, statement, examples } = req.body;
   if (!name || !statement) return res.status(400).json({ success: false, error: 'name and statement required' });
   const principle: Principle = { id: uuidv4(), name, statement, examples: examples || [] };
@@ -315,7 +316,7 @@ function logDecision(type: string, data: any) {
 }
 
 // Constitutional check endpoint for agents
-app.post('/api/agent/:agentType/authorize', (req, res) => {
+app.post('/api/agent/:agentType/authorize',requireAuth,  (req, res) => {
   const { agentType } = req.params;
   const { action, value } = req.body;
 

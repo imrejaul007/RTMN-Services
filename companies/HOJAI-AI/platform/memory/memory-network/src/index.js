@@ -431,6 +431,12 @@ app.get('/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 4795;
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 const server = app.listen(PORT, () => {
   console.log(`Memory Network running on port ${PORT}`);
 });

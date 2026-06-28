@@ -1,5 +1,6 @@
 // Governance OS - AI policy enforcement, audit trails, compliance checks. Port 4895
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { readJson, writeJson } from './store.js';
 
@@ -21,7 +22,7 @@ app.get('/api/policies/:id', (req, res) => {
   res.json(policy);
 });
 
-app.post('/api/policies', (req, res) => {
+app.post('/api/policies',requireAuth,  (req, res) => {
   const { name, description, type, rules, severity = 'medium' } = req.body;
   if (!name || !type || !rules) return res.status(400).json({ error: 'name, type, rules required' });
   const policy = { id: uuidv4(), name, description, type, rules, severity, status: 'active', version: 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
@@ -31,7 +32,7 @@ app.post('/api/policies', (req, res) => {
   res.status(201).json(policy);
 });
 
-app.post('/api/policies/:id/evaluate', (req, res) => {
+app.post('/api/policies/:id/evaluate',requireAuth,  (req, res) => {
   const { action, actor, resource, context = {} } = req.body;
   if (!action || !actor) return res.status(400).json({ error: 'action and actor required' });
   const policies = readJson('policies.json') || [];
@@ -55,7 +56,7 @@ app.post('/api/policies/:id/evaluate', (req, res) => {
 });
 
 // Audit Trail
-app.post('/api/audits', (req, res) => {
+app.post('/api/audits',requireAuth,  (req, res) => {
   const { actor, action, resource, outcome = 'success', metadata = {} } = req.body;
   if (!actor || !action) return res.status(400).json({ error: 'actor and action required' });
   const audit = { id: uuidv4(), actor, action, resource, outcome, metadata, timestamp: new Date().toISOString() };

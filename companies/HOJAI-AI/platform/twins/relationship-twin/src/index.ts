@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Relationship Twin Service
  * Port: 4744
@@ -129,7 +130,7 @@ app.get('/api/twin/:employeeId/relationship/graph', (req: Request, res: Response
 /**
  * Add/update relationship
  */
-app.post('/api/twin/:employeeId/relationship/connect', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/relationship/connect',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { name, email, role, company, type = 'internal' } = req.body;
@@ -167,7 +168,7 @@ app.post('/api/twin/:employeeId/relationship/connect', (req: Request, res: Respo
 /**
  * Update relationship
  */
-app.patch('/api/twin/:employeeId/relationship/:personId', (req: Request, res: Response) => {
+app.patch('/api/twin/:employeeId/relationship/:personId',requireAuth,  (req: Request, res: Response) => {
   try {
     const { personId } = req.params;
     const updates = req.body;
@@ -188,7 +189,7 @@ app.patch('/api/twin/:employeeId/relationship/:personId', (req: Request, res: Re
 /**
  * Add interaction
  */
-app.post('/api/twin/:employeeId/relationship/interaction', (req: Request, res: Response) => {
+app.post('/api/twin/:employeeId/relationship/interaction',requireAuth,  (req: Request, res: Response) => {
   try {
     const { employeeId } = req.params;
     const { personId, type, subject, outcome, sentiment, duration } = req.body;

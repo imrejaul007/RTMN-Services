@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
@@ -73,7 +74,7 @@ app.get('/api/meetings/:id', (req, res) => {
   res.json({ success: true, data: meeting });
 });
 
-app.post('/api/meetings', (req, res) => {
+app.post('/api/meetings',requireAuth,  (req, res) => {
   const { topic, start_time, duration, host_id } = req.body;
 
   if (!topic || !start_time) return res.status(400).json({ success: false, error: 'topic and start_time required' });

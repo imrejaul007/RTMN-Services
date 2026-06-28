@@ -567,13 +567,13 @@ app.get('/rez-intel-status', async (_req, res) => {
   });
 });
 
-app.post('/api/enrich', async (req, res) => {
+app.post('/api/enrich',requireAuth,  async (req, res) => {
   const { agentRole, userId, companyId, query, context } = req.body;
   const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });
 });
 
-app.post('/api/v1/decide/enriched', async (req, res) => {
+app.post('/api/v1/decide/enriched',requireAuth,  async (req, res) => {
   // Decide with REZ Intel context enrichment
   const requestId = req.headers['x-request-id'] as string;
   try {

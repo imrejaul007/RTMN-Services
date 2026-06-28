@@ -67,6 +67,12 @@ const sharingPolicies = new PersistentMap('sharing-policies', { serviceName: 'me
 const workingMemory = new PersistentMap('working-memory', { serviceName: 'memory-os' });     // twinId -> working memory
 const longTermMemory = new PersistentMap('long-term-memory', { serviceName: 'memory-os' });    // twinId -> long-term entries
 const accessLog = [];                // privacy audit log
+// NEW: Working Memory Hierarchy (5 levels)
+const userWorkingMemory = new PersistentMap('user-working-memory', { serviceName: 'memory-os' });
+const departmentWorkingMemory = new PersistentMap('department-working-memory', { serviceName: 'memory-os' });
+const projectWorkingMemory = new PersistentMap('project-working-memory', { serviceName: 'memory-os' });
+const teamWorkingMemory = new PersistentMap('team-working-memory', { serviceName: 'memory-os' });
+const companyWorkingMemory = new PersistentMap('company-working-memory', { serviceName: 'memory-os' });
 const historyStore = new PersistentMap('history-store', { serviceName: 'memory-os' });      // memoryId -> [{ version, snapshot, changedAt }]
 const contradictions = new PersistentMap('contradictions', { serviceName: 'memory-os' });    // memoryId -> [{ amount, reason, ts }]
 
@@ -218,9 +224,23 @@ function log(memoryId, op, principal = 'anonymous') {
 // =============================================================================
 
 const ALLOWED_TYPES = [
-  'identity', 'preference', 'knowledge', 'experience', 'relationship',
-  'conversation', 'decision', 'event', 'workflow', 'goal',
-  'financial', 'shopping', 'health', 'learning', 'ai'
+  // Personal Types (8)
+  'identity', 'preference', 'experience', 'health', 'learning',
+  'goal', 'relationship', 'financial',
+  // Organizational/Department Types (13)
+  'engineering_decision', 'sales_win', 'sales_loss',
+  'marketing_campaign', 'finance_approval', 'hr_policy',
+  'operations_sop', 'legal_review', 'strategy_change',
+  'incident_postmortem', 'meeting_summary',
+  'project_kickoff', 'project_retrospective',
+  // Knowledge Types (8)
+  'knowledge', 'fact', 'research', 'documentation',
+  'code', 'architecture', 'best_practice', 'competitor_info',
+  // Agent Types (8)
+  'conversation', 'decision', 'event', 'workflow', 'ai',
+  'agent_goal', 'agent_decision', 'agent_error',
+  // Other (3)
+  'shopping', 'lesson_learned', 'agent_improvement'
 ];
 
 const ALLOWED_IMPORTANCE = ['Critical', 'High', 'Medium', 'Low', 'Temporary'];
@@ -229,10 +249,16 @@ const ALLOWED_LIFECYCLE = [
   'recalled', 'summarized', 'archived', 'deleted'
 ];
 const DEFAULT_RETENTION_DAYS = 90;
+// NEW: Expanded visibility scopes for organizational memory
+const ALLOWED_VISIBILITY = ['private', 'team', 'department', 'company', 'public'];
+// NEW: Allowed departments
+const ALLOWED_DEPARTMENTS = ['engineering', 'sales', 'marketing', 'finance', 'hr', 'operations', 'legal', 'executive', 'support', 'product'];
 
 function isValidType(t) { return ALLOWED_TYPES.includes(t); }
 function isValidImportance(i) { return ALLOWED_IMPORTANCE.includes(i); }
 function isValidLifecycle(s) { return ALLOWED_LIFECYCLE.includes(s); }
+function isValidVisibility(v) { return ALLOWED_VISIBILITY.includes(v); }
+function isValidDepartment(d) { return ALLOWED_DEPARTMENTS.includes(d); }
 
 function isExpired(m) {
   if (!m || !m.expiresAt) return false;
@@ -349,7 +375,9 @@ app.get('/health', (_req, res) => ok(res, {
 app.post('/api/memories',requireAuth,  async (req, res) => {
   const {
     twinId, type = 'general', content, tags = [], visibility = 'private', metadata = {},
-    importance = 'Medium', ttl, lifecycleStage, confidence
+    importance = 'Medium', ttl, lifecycleStage, confidence,
+    // NEW: Organizational context
+    department, team, project, approvers, alternatives, reason, outcome, stakeholders
   } = req.body || {};
   if (!twinId || !content) return fail(res, 'INVALID_INPUT', 'twinId and content required');
   if (!isValidType(type)) {
@@ -379,7 +407,16 @@ app.post('/api/memories',requireAuth,  async (req, res) => {
     expiresAt,
     contradictions: 0,
     accessCount: 0,
-    createdAt: nowIso(), updatedAt: nowIso()
+    createdAt: nowIso(), updatedAt: nowIso(),
+    // NEW: Organizational context
+    department: department || null,
+    team: team || null,
+    project: project || null,
+    approvers: approvers || [],
+    alternatives: alternatives || [],
+    reason: reason || null,
+    outcome: outcome || null,
+    stakeholders: stakeholders || []
   };
   await persistMemory(m);
   await persistTimelineAppend(twinId, id);
@@ -944,27 +981,198 @@ app.get('/api/knowledge-graph/walk', (req, res) => {
 });
 
 // =============================================================================
-// WORKING MEMORY
+// WORKING MEMORY (Level 1: User)
 // =============================================================================
 
-app.put('/api/memory/working/:twinId',requireAuth,  async (req, res) => {
+app.put('/api/memory/working/user/:twinId',requireAuth,  async (req, res) => {
   const { context, currentTask, currentConversation, currentWorkflow } = req.body || {};
   const wm = {
     twinId: req.params.twinId,
+    level: 'user',
     context: context || {},
     currentTask: currentTask || null,
     currentConversation: currentConversation || null,
     currentWorkflow: currentWorkflow || null,
     updatedAt: nowIso()
   };
+  userWorkingMemory.set(req.params.twinId, wm);
   await persistWorking(req.params.twinId, wm);
   ok(res, { data: wm });
 });
 
-app.get('/api/memory/working/:twinId', (req, res) => {
-  const wm = workingMemory.get(req.params.twinId);
-  if (!wm) return fail(res, 'NOT_FOUND', 'no working memory for twin', 404);
+app.get('/api/memory/working/user/:twinId', (req, res) => {
+  const wm = userWorkingMemory.get(req.params.twinId);
+  if (!wm) return fail(res, 'NOT_FOUND', 'no user working memory found', 404);
   ok(res, { data: wm });
+});
+
+// =============================================================================
+// WORKING MEMORY (Level 2: Department)
+// =============================================================================
+
+app.put('/api/memory/working/department/:deptId',requireAuth,  async (req, res) => {
+  const { name, context, currentGoals, activeProjects, teamMembers } = req.body || {};
+  if (!name) return fail(res, 'INVALID_INPUT', 'name required');
+  const wm = {
+    deptId: req.params.deptId,
+    name,
+    level: 'department',
+    context: context || {},
+    currentGoals: currentGoals || [],
+    activeProjects: activeProjects || [],
+    teamMembers: teamMembers || [],
+    updatedAt: nowIso()
+  };
+  departmentWorkingMemory.set(req.params.deptId, wm);
+  ok(res, { data: wm });
+});
+
+app.get('/api/memory/working/department/:deptId', (req, res) => {
+  const wm = departmentWorkingMemory.get(req.params.deptId);
+  if (!wm) return fail(res, 'NOT_FOUND', 'no department working memory found', 404);
+  ok(res, { data: wm });
+});
+
+app.get('/api/memory/working/departments', (req, res) => {
+  const all = Array.from(departmentWorkingMemory.entries()).map(([id, wm]) => ({ id, ...wm }));
+  ok(res, { count: all.length, departments: all });
+});
+
+// =============================================================================
+// WORKING MEMORY (Level 3: Project)
+// =============================================================================
+
+app.put('/api/memory/working/project/:projectId',requireAuth,  async (req, res) => {
+  const { name, department, phase, teamMembers, recentDecisions, currentBlockers } = req.body || {};
+  if (!name) return fail(res, 'INVALID_INPUT', 'name required');
+  const wm = {
+    projectId: req.params.projectId,
+    name,
+    level: 'project',
+    department: department || null,
+    phase: phase || 'planning',
+    teamMembers: teamMembers || [],
+    recentDecisions: recentDecisions || [],
+    currentBlockers: currentBlockers || [],
+    updatedAt: nowIso()
+  };
+  projectWorkingMemory.set(req.params.projectId, wm);
+  ok(res, { data: wm });
+});
+
+app.get('/api/memory/working/project/:projectId', (req, res) => {
+  const wm = projectWorkingMemory.get(req.params.projectId);
+  if (!wm) return fail(res, 'NOT_FOUND', 'no project working memory found', 404);
+  ok(res, { data: wm });
+});
+
+app.get('/api/memory/working/projects', (req, res) => {
+  const { department } = req.query;
+  let all = Array.from(projectWorkingMemory.entries()).map(([id, wm]) => ({ id, ...wm }));
+  if (department) all = all.filter(p => p.department === department);
+  ok(res, { count: all.length, projects: all });
+});
+
+// =============================================================================
+// WORKING MEMORY (Level 4: Team)
+// =============================================================================
+
+app.put('/api/memory/working/team/:teamId',requireAuth,  async (req, res) => {
+  const { name, department, goals, culture, members } = req.body || {};
+  if (!name) return fail(res, 'INVALID_INPUT', 'name required');
+  const wm = {
+    teamId: req.params.teamId,
+    name,
+    level: 'team',
+    department: department || null,
+    goals: goals || [],
+    culture: culture || {},
+    members: members || [],
+    updatedAt: nowIso()
+  };
+  teamWorkingMemory.set(req.params.teamId, wm);
+  ok(res, { data: wm });
+});
+
+app.get('/api/memory/working/team/:teamId', (req, res) => {
+  const wm = teamWorkingMemory.get(req.params.teamId);
+  if (!wm) return fail(res, 'NOT_FOUND', 'no team working memory found', 404);
+  ok(res, { data: wm });
+});
+
+app.get('/api/memory/working/teams', (req, res) => {
+  const all = Array.from(teamWorkingMemory.entries()).map(([id, wm]) => ({ id, ...wm }));
+  ok(res, { count: all.length, teams: all });
+});
+
+// =============================================================================
+// WORKING MEMORY (Level 5: Company)
+// =============================================================================
+
+app.put('/api/memory/working/company/:companyId',requireAuth,  async (req, res) => {
+  const { name, mission, values, strategy, news, metrics } = req.body || {};
+  if (!name) return fail(res, 'INVALID_INPUT', 'name required');
+  const wm = {
+    companyId: req.params.companyId,
+    name,
+    level: 'company',
+    mission: mission || {},
+    values: values || [],
+    strategy: strategy || {},
+    news: news || [],
+    metrics: metrics || {},
+    updatedAt: nowIso()
+  };
+  companyWorkingMemory.set(req.params.companyId, wm);
+  ok(res, { data: wm });
+});
+
+app.get('/api/memory/working/company/:companyId', (req, res) => {
+  const wm = companyWorkingMemory.get(req.params.companyId);
+  if (!wm) return fail(res, 'NOT_FOUND', 'no company working memory found', 404);
+  ok(res, { data: wm });
+});
+
+// =============================================================================
+// UNIFIED CONTEXT (Get all levels at once)
+// =============================================================================
+
+app.get('/api/memory/context', (req, res) => {
+  const { twinId, deptId, projectId, teamId, companyId } = req.query;
+  const context = {};
+  if (twinId) context.user = userWorkingMemory.get(twinId) || null;
+  if (deptId) context.department = departmentWorkingMemory.get(deptId) || null;
+  if (projectId) context.project = projectWorkingMemory.get(projectId) || null;
+  if (teamId) context.team = teamWorkingMemory.get(teamId) || null;
+  if (companyId) context.company = companyWorkingMemory.get(companyId) || null;
+  ok(res, { data: context });
+});
+
+// =============================================================================
+// LEGACY: Backward compatible working memory (redirects to user level)
+// =============================================================================
+
+app.put('/api/memory/working/:twinId',requireAuth,  async (req, res) => {
+  // Redirect to user level
+  const { context, currentTask, currentConversation, currentWorkflow } = req.body || {};
+  const wm = {
+    twinId: req.params.twinId,
+    level: 'user',
+    context: context || {},
+    currentTask: currentTask || null,
+    currentConversation: currentConversation || null,
+    currentWorkflow: currentWorkflow || null,
+    updatedAt: nowIso()
+  };
+  userWorkingMemory.set(req.params.twinId, wm);
+  await persistWorking(req.params.twinId, wm);
+  ok(res, { data: wm, note: 'Use /api/memory/working/user/:twinId instead' });
+});
+
+app.get('/api/memory/working/:twinId', (req, res) => {
+  const wm = userWorkingMemory.get(req.params.twinId) || workingMemory.get(req.params.twinId);
+  if (!wm) return fail(res, 'NOT_FOUND', 'no working memory found', 404);
+  ok(res, { data: wm, note: 'Use /api/memory/working/user/:twinId instead' });
 });
 
 // =============================================================================

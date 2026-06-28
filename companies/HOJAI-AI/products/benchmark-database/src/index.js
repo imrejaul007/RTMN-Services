@@ -4,6 +4,7 @@
  * Industry benchmarks for comparison
  */
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const app = express();
 const PORT = process.env.BENCHMARK_PORT || 5475;
 
@@ -48,7 +49,7 @@ app.get('/api/benchmark/:industry', (req, res) => {
 });
 
 // POST /api/benchmark/compare - Compare your metrics vs industry
-app.post('/api/benchmark/compare', (req, res) => {
+app.post('/api/benchmark/compare',requireAuth,  (req, res) => {
   try {
     const { industry, metrics } = req.body;
     const benchmarks = BENCHMARKS[industry] || BENCHMARKS.ecommerce;
@@ -74,6 +75,12 @@ app.post('/api/benchmark/compare', (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+// Readiness probe — returns 200 once the server is accepting requests
+app.get('/ready', (_req, res) => {
+  res.json({ ready: true, timestamp: new Date().toISOString() });
+});
+
+
 
 app.listen(PORT, () => console.log(`Benchmark Database running on port ${PORT}`));
 module.exports = app;

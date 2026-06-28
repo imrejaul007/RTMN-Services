@@ -67,6 +67,28 @@ export class WorkflowBuilder {
     return new NodeBuilder(this, id);
   }
 
+  /**
+   * Add a connector step to invoke external services
+   * @param {string} name - Step name
+   * @param {object} config - { connectorId, action, params }
+   */
+  connector(name, config = {}) {
+    const id = `connector_${++this.nodeCounter}`;
+    this.workflow.nodes.push({
+      id,
+      type: 'connector',
+      name,
+      connector: {
+        connectorId: config.connectorId,
+        action: config.action,
+        params: config.params || {},
+        idempotencyKey: config.idempotencyKey || null,
+      },
+      config,
+    });
+    return new NodeBuilder(this, id);
+  }
+
   parallel(name, config = {}) {
     const id = `parallel_${++this.nodeCounter}`;
     this.workflow.nodes.push({

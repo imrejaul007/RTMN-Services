@@ -239,7 +239,7 @@ app.get('/rez-intel-status', async (_req, res) => {
   res.json({ rezIntelEnabled: rezIntel.REZ_INTEL_ENABLED, rezIntelUrl: rezIntel.REZ_INTEL_URL, rezIntelHealthy: isHealthy });
 });
 
-app.post('/api/enrich', async (req, res) => {
+app.post('/api/enrich',requireAuth,  async (req, res) => {
   const { agentRole, userId, companyId, query, context } = req.body || {};
   const enriched = await rezIntel.enrichAgentContext({ agentRole, userId, companyId, query, context }).catch(() => null);
   res.json({ enriched, source: enriched ? 'rez-intel' : 'unavailable' });

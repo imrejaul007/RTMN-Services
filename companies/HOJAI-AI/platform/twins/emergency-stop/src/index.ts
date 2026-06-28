@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Emergency Stop Service - Port: 4763
  * Safety mechanism to halt all twin operations
@@ -16,7 +17,7 @@ const events: StopEvent[] = [];
 app.get('/health', (_r, res) => res.json({ status: globalStop ? 'degraded' : 'healthy', service: 'emergency-stop', globalStop }));
 app.get('/ready', (_r, res) => res.json({ ready: true }));
 
-app.post('/api/emergency/stop', (req: Request, res: Response) => {
+app.post('/api/emergency/stop',requireAuth,  (req: Request, res: Response) => {
   const { employeeId, reason } = req.body;
   globalStop = true;
   const event: StopEvent = { id: `e_${Date.now()}`, employeeId, reason: reason || 'Manual stop', triggeredAt: new Date().toISOString(), status: 'triggered' };
@@ -24,7 +25,7 @@ app.post('/api/emergency/stop', (req: Request, res: Response) => {
   res.json({ success: true, data: { stopped: true, eventId: event.id } });
 });
 
-app.post('/api/emergency/resume', (req: Request, res: Response) => {
+app.post('/api/emergency/resume',requireAuth,  (req: Request, res: Response) => {
   globalStop = false;
   res.json({ success: true, data: { resumed: true, timestamp: new Date().toISOString() } });
 });

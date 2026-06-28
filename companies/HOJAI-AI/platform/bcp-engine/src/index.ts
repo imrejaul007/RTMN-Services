@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -70,7 +71,7 @@ app.get('/api/v1/categories', asyncHandler(async (_req: Request, res: Response) 
 
 // Install a BCP
 const InstallSchema = z.object({ bcpId: z.string().min(1), companyId: z.string().min(1) });
-app.post('/api/v1/install', asyncHandler(async (req: Request, res: Response) => {
+app.post('/api/v1/install',requireAuth,  asyncHandler(async (req: Request, res: Response) => {
   const v = InstallSchema.safeParse(req.body);
   if (!v.success) { res.status(400).json(apiResponse(false, undefined, 'Validation: ' + zodErr(v.error))); return; }
   try {
@@ -87,7 +88,7 @@ app.get('/api/v1/installations/:companyId', asyncHandler(async (req: Request, re
 }));
 
 // Uninstall
-app.delete('/api/v1/installations/:companyId/:bcpId', asyncHandler(async (req: Request, res: Response) => {
+app.delete('/api/v1/installations/:companyId/:bcpId',requireAuth,  asyncHandler(async (req: Request, res: Response) => {
   try {
     bcpService.uninstall(req.params.bcpId, req.params.companyId);
     res.json(apiResponse(true, { message: 'Uninstalled successfully' }));
@@ -102,7 +103,7 @@ const StepSchema = z.object({
   status: z.enum(['pending', 'in-progress', 'done', 'skipped']),
   config: z.record(z.unknown()).optional()
 });
-app.patch('/api/v1/installations/:companyId/:bcpId/steps/:stepId', asyncHandler(async (req: Request, res: Response) => {
+app.patch('/api/v1/installations/:companyId/:bcpId/steps/:stepId',requireAuth,  asyncHandler(async (req: Request, res: Response) => {
   const v = StepSchema.safeParse(req.body);
   if (!v.success) { res.status(400).json(apiResponse(false, undefined, 'Validation: ' + zodErr(v.error))); return; }
   try {

@@ -13,6 +13,7 @@
  */
 
 import express from 'express';
+import { requireAuth } from '@rtmn/shared/auth';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -710,7 +711,7 @@ app.get('/ready', (req, res) => {
  * Create pixel configuration
  * POST /api/ads/pixel
  */
-app.post('/api/ads/pixel', (req, res) => {
+app.post('/api/ads/pixel',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       pixelId: z.string().min(1),
@@ -767,7 +768,7 @@ app.get('/api/ads/pixel/:configId', (req, res) => {
  * Update pixel configuration
  * PATCH /api/ads/pixel/:configId
  */
-app.patch('/api/ads/pixel/:configId', (req, res) => {
+app.patch('/api/ads/pixel/:configId',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       enabled: z.boolean().optional(),
@@ -799,7 +800,7 @@ app.patch('/api/ads/pixel/:configId', (req, res) => {
  * Track event
  * POST /api/ads/event
  */
-app.post('/api/ads/event', async (req, res) => {
+app.post('/api/ads/event',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       pixelConfigId: z.string().min(1),
@@ -835,7 +836,7 @@ app.post('/api/ads/event', async (req, res) => {
  * Send server-side CAPI event
  * POST /api/ads/capi/event
  */
-app.post('/api/ads/capi/event', async (req, res) => {
+app.post('/api/ads/capi/event',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       pixelId: z.string().min(1),
@@ -913,7 +914,7 @@ app.get('/api/ads/events/type/:eventName', (req, res) => {
  * Create audience
  * POST /api/ads/audience
  */
-app.post('/api/ads/audience', (req, res) => {
+app.post('/api/ads/audience',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       name: z.string().min(1),
@@ -951,7 +952,7 @@ app.get('/api/ads/audience/:audienceId', (req, res) => {
  * Add audience members
  * POST /api/ads/audience/:audienceId/members
  */
-app.post('/api/ads/audience/:audienceId/members', (req, res) => {
+app.post('/api/ads/audience/:audienceId/members',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       memberIds: z.array(z.string()).min(1),
@@ -1016,7 +1017,7 @@ app.get('/api/ads/audiences/purchasers', (req, res) => {
  * Track conversion
  * POST /api/ads/conversion
  */
-app.post('/api/ads/conversion', (req, res) => {
+app.post('/api/ads/conversion',requireAuth,  (req, res) => {
   try {
     const schema = z.object({
       visitorId: z.string().min(1),
@@ -1068,7 +1069,7 @@ app.get('/api/ads/roas', (req, res) => {
  * Send Google Enhanced Conversion
  * POST /api/ads/google/capi
  */
-app.post('/api/ads/google/capi', async (req, res) => {
+app.post('/api/ads/google/capi',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       configId: z.string().min(1),
@@ -1101,7 +1102,7 @@ app.post('/api/ads/google/capi', async (req, res) => {
  * Send TikTok Event
  * POST /api/ads/tiktok/event
  */
-app.post('/api/ads/tiktok/event', async (req, res) => {
+app.post('/api/ads/tiktok/event',requireAuth,  async (req, res) => {
   try {
     const schema = z.object({
       configId: z.string().min(1),

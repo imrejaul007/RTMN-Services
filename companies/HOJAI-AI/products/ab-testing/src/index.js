@@ -1,4 +1,5 @@
 const express = require('express');
+const { requireAuth } = require('@rtmn/shared/auth');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const app = express();
@@ -24,7 +25,7 @@ app.get('/ready', (req, res) => {
 });
 
 // POST /api/experiments - Create experiment
-app.post('/api/experiments', (req, res) => {
+app.post('/api/experiments',requireAuth,  (req, res) => {
   const { companyId, name, description, hypothesis, metric, variants: variantList, trafficAllocation, startDate, endDate, status } = req.body;
 
   if (!companyId || !name || !metric) {
@@ -137,7 +138,7 @@ app.get('/api/experiments/:experimentId', (req, res) => {
 });
 
 // PUT /api/experiments/:experimentId - Update experiment
-app.put('/api/experiments/:experimentId', (req, res) => {
+app.put('/api/experiments/:experimentId',requireAuth,  (req, res) => {
   const { experimentId } = req.params;
   const updates = req.body;
 
@@ -164,7 +165,7 @@ app.put('/api/experiments/:experimentId', (req, res) => {
 });
 
 // DELETE /api/experiments/:experimentId - Delete experiment
-app.delete('/api/experiments/:experimentId', (req, res) => {
+app.delete('/api/experiments/:experimentId',requireAuth,  (req, res) => {
   const { experimentId } = req.params;
 
   if (!experiments.has(experimentId)) {
@@ -185,7 +186,7 @@ app.delete('/api/experiments/:experimentId', (req, res) => {
 });
 
 // POST /api/experiments/:experimentId/start - Start experiment
-app.post('/api/experiments/:experimentId/start', (req, res) => {
+app.post('/api/experiments/:experimentId/start',requireAuth,  (req, res) => {
   const { experimentId } = req.params;
 
   const experiment = experiments.get(experimentId);
@@ -210,7 +211,7 @@ app.post('/api/experiments/:experimentId/start', (req, res) => {
 });
 
 // POST /api/experiments/:experimentId/stop - Stop experiment
-app.post('/api/experiments/:experimentId/stop', (req, res) => {
+app.post('/api/experiments/:experimentId/stop',requireAuth,  (req, res) => {
   const { experimentId } = req.params;
   const { winner } = req.body;
 
@@ -318,7 +319,7 @@ app.get('/api/experiments/:experimentId/assign', (req, res) => {
 });
 
 // POST /api/experiments/:experimentId/convert - Track conversion
-app.post('/api/experiments/:experimentId/convert', (req, res) => {
+app.post('/api/experiments/:experimentId/convert',requireAuth,  (req, res) => {
   const { experimentId } = req.params;
   const { userId, value, metadata } = req.body;
 
@@ -524,7 +525,7 @@ app.get('/api/experiments/:experimentId/significance', (req, res) => {
 });
 
 // GET /api/experiments/:experimentId/auto-winner - Auto-declare winner
-app.post('/api/experiments/:experimentId/auto-winner', (req, res) => {
+app.post('/api/experiments/:experimentId/auto-winner',requireAuth,  (req, res) => {
   const { experimentId } = req.params;
   const { confidenceThreshold, minSampleSize } = req.body;
 

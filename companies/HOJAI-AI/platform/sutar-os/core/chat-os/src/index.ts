@@ -1,3 +1,4 @@
+import { requireAuth } from '@rtmn/shared/auth';
 /**
  * Chat OS - Production Implementation
  * Team messaging, channels, threads, reactions
@@ -50,7 +51,7 @@ app.get('/api/channels/:id', (req, res) => {
   res.json({ ...channel, messageCount: msgs.length });
 });
 
-app.post('/api/channels', (req, res) => {
+app.post('/api/channels',requireAuth,  (req, res) => {
   const { name, description, type, members, topic, createdBy } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
   const id = uuidv4();
@@ -58,20 +59,20 @@ app.post('/api/channels', (req, res) => {
   res.status(201).json(channels.get(id));
 });
 
-app.put('/api/channels/:id', (req, res) => {
+app.put('/api/channels/:id',requireAuth,  (req, res) => {
   const channel = channels.get(req.params.id);
   if (!channel) return res.status(404).json({ error: 'Channel not found' });
   Object.assign(channel, req.body);
   res.json(channel);
 });
 
-app.delete('/api/channels/:id', (req, res) => {
+app.delete('/api/channels/:id',requireAuth,  (req, res) => {
   if (!channels.has(req.params.id)) return res.status(404).json({ error: 'Channel not found' });
   channels.delete(req.params.id);
   res.json({ success: true });
 });
 
-app.post('/api/channels/:id/members', (req, res) => {
+app.post('/api/channels/:id/members',requireAuth,  (req, res) => {
   const channel = channels.get(req.params.id);
   if (!channel) return res.status(404).json({ error: 'Channel not found' });
   const { userId } = req.body;
@@ -94,7 +95,7 @@ app.get('/api/messages/:channelId', (req, res) => {
   res.json({ total: msgs.length, messages: msgs });
 });
 
-app.post('/api/messages', (req, res) => {
+app.post('/api/messages',requireAuth,  (req, res) => {
   const { channelId, userId, userName, content, attachments } = req.body;
   if (!channelId || !userId || !content) return res.status(400).json({ error: 'channelId, userId, content required' });
 
@@ -107,7 +108,7 @@ app.post('/api/messages', (req, res) => {
   res.status(201).json(message);
 });
 
-app.put('/api/messages/:id', (req, res) => {
+app.put('/api/messages/:id',requireAuth,  (req, res) => {
   const message = messages.get(req.params.id);
   if (!message) return res.status(404).json({ error: 'Message not found' });
   if (message.deleted) return res.status(400).json({ error: 'Cannot edit deleted message' });
@@ -118,7 +119,7 @@ app.put('/api/messages/:id', (req, res) => {
   res.json(message);
 });
 
-app.delete('/api/messages/:id', (req, res) => {
+app.delete('/api/messages/:id',requireAuth,  (req, res) => {
   const message = messages.get(req.params.id);
   if (!message) return res.status(404).json({ error: 'Message not found' });
   message.deleted = true;
@@ -126,7 +127,7 @@ app.delete('/api/messages/:id', (req, res) => {
 });
 
 // ============ REACTIONS ============
-app.post('/api/messages/:id/reactions', (req, res) => {
+app.post('/api/messages/:id/reactions',requireAuth,  (req, res) => {
   const message = messages.get(req.params.id);
   if (!message) return res.status(404).json({ error: 'Message not found' });
   const { emoji, userId } = req.body;
@@ -136,7 +137,7 @@ app.post('/api/messages/:id/reactions', (req, res) => {
   res.json({ reactions: message.reactions });
 });
 
-app.delete('/api/messages/:id/reactions', (req, res) => {
+app.delete('/api/messages/:id/reactions',requireAuth,  (req, res) => {
   const message = messages.get(req.params.id);
   if (!message) return res.status(404).json({ error: 'Message not found' });
   const { emoji, userId } = req.body;
@@ -154,7 +155,7 @@ app.get('/api/threads/:parentId', (req, res) => {
   res.json(thread);
 });
 
-app.post('/api/threads/:parentId/reply', (req, res) => {
+app.post('/api/threads/:parentId/reply',requireAuth,  (req, res) => {
   const parent = messages.get(req.params.parentId);
   if (!parent) return res.status(404).json({ error: 'Parent message not found' });
 
@@ -185,7 +186,7 @@ app.get('/api/dm/:participant1/:participant2', (req, res) => {
   res.json(dm);
 });
 
-app.post('/api/dm/:participant1/:participant2/messages', (req, res) => {
+app.post('/api/dm/:participant1/:participant2/messages',requireAuth,  (req, res) => {
   const key = [req.params.participant1, req.params.participant2].sort().join(':');
   let dm = directMessages.get(key);
   if (!dm) {
