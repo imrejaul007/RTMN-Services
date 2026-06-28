@@ -25,15 +25,15 @@ setupSecurity(app, { serviceName: 'sutar-intent-bus' });
 const PORT = process.env.INTENT_BUS_PORT || 4154;
 
 // ---------- In-Memory Stores ----------
-const intents = [];           // published intents
-const subscriptions = new Map(); // id -> { pattern, subscriberId, callbackUrl, createdAt }
+const intents = [];
+const subscriptions = new Map();
 const MAX_INTENTS = 10000;
 const MAX_SUBSCRIPTIONS = 5000;
 
-// ---------- Intent Matching ----------
+// ---------- Pattern Matching ----------
 function matchPattern(intent, pattern) {
   const p = pattern.toLowerCase();
-  const i = intent.action.toLowerCase();
+  const i = (intent.action || '').toLowerCase();
   const source = (intent.source || '').toLowerCase();
   const target = (intent.target || '').toLowerCase();
   const tags = (intent.tags || []).map(t => t.toLowerCase());
@@ -69,25 +69,19 @@ function publishIntent(params) {
     action: params.action,
     source: params.source,
     target: params.target,
-    priority: params.priority || 'normal',  // low, normal, high, critical
+    priority: params.priority || 'normal',
     payload: params.payload || {},
     tags: params.tags || [],
     timestamp: new Date().toISOString(),
-    ttl: params.ttl || 3600, // seconds
+    ttl: params.ttl || 3600,
     correlationId: params.correlationId || null,
     replyTo: params.replyTo || null,
   };
 
   intents.push(intent);
+  while (intents.length > MAX_INTENTS) intents.shift();
 
-  // Evict oldest if over limit
-  while (intents.length > MAX_INTENTS) {
-    intents.shift();
-  }
-
-  // Deliver to matching subscribers
   const matched = findMatchingSubscriptions(intent);
-
   return { intent, delivered: matched.length };
 }
 
@@ -106,19 +100,16 @@ function createSubscription(params) {
     lastMatchedAt: null,
   };
   subscriptions.set(subId, sub);
-
   while (subscriptions.size > MAX_SUBSCRIPTIONS) {
     const oldest = Array.from(subscriptions.entries()).sort((a, b) => a[1].createdAt.localeCompare(b[1].createdAt))[0];
     subscriptions.delete(oldest[0]);
   }
-
   return sub;
 }
 
 function cancelSubscription(subId) {
   const sub = subscriptions.get(subId);
   if (!sub) return { error: 'Subscription not found' };
-  sub.active = false;
   subscriptions.delete(subId);
   return { id: subId, status: 'cancelled' };
 }
@@ -164,35 +155,20 @@ app.delete('/api/subscriptions/:id', requireAuth, (req, res) => {
 app.get('/api/bus/status', requireAuth, (_req, res) => {
   const now = Date.now();
   const recentIntents = intents.filter(i => now - new Date(i.timestamp).getTime() < 60000);
-  const highPriorityRecent = recentIntents.filter(i => i.priority === 'high' || i.priority === 'critical');
   res.json({
     service: 'sutar-intent-bus',
     status: 'healthy',
     totalIntents: intents.length,
     recentIntentsLastMin: recentIntents.length,
-    highPriorityLastMin: highPriorityRecent.length,
     totalSubscriptions: subscriptions.size,
     activeSubscriptions: Array.from(subscriptions.values()).filter(s => s.active).length,
-    patterns: Array.from(new Set(Array.from(subscriptions.values()).map(s => s.pattern))).slice(0, 20),
   });
 });
 
 app.get('/health', (_req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'sutar-intent-bus',
-    port: PORT,
-    layer: 'Intent + Network',
-    intents: intents.length,
-    subscriptions: subscriptions.size,
-    timestamp: new Date().toISOString(),
-  });
+  res.json({ status: 'ok', service: 'sutar-intent-bus', port: PORT, layer: 'Intent + Network', intents: intents.length, subscriptions: subscriptions.size, timestamp: new Date().toISOString() });
 });
 
-const server = app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[sutar-intent-bus] listening on :${PORT}`);
-});
-
+const server = app.listen(PORT, () => { console.log(`[sutar-intent-bus] listening on :${PORT}`); });
 process.on('SIGTERM', () => { server.close(); process.exit(0); });
 process.on('SIGINT', () => { server.close(); process.exit(0); });
