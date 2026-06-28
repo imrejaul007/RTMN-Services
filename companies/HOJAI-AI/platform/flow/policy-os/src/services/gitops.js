@@ -44,7 +44,7 @@ const MAX_RETRY_ATTEMPTS = 3;
 
 let _gitopsStores = null;   // { policies, relationships, ... }
 let _config = null;          // { repoUrl, branch, syncInterval, autoSync, ... }
-let _syncStatus = 'idle';   // idle | syncing | error | disabled
+let _syncStatus = 'disabled'; // idle | syncing | error | disabled
 let _lastSyncAt = null;
 let _lastError = null;
 let _webhookSecret = null;
