@@ -233,6 +233,29 @@ const REL_NODE_TYPES = {
   EVENT: 'event',           // CI-EVT- Business events
   LOCATION: 'location',     // CI-LOC- Physical/logical locations
 };
+
+// Entity type prefixes for CorpID
+const ENTITY_TYPE_PREFIXES = {
+  IND: 'CI-IND-',      // Individual/Human
+  BIZ: 'CI-BIZ-',      // Business
+  AGT: 'CI-AGT-',      // AI Agent
+  WRK: 'CI-WRK-',      // Workload
+  DEV: 'CI-DEV-',      // Device
+  API: 'CI-API-',      // API/Application
+  TWN: 'CI-TWN-',      // Digital Twin
+  AST: 'CI-AST-',      // Asset
+  ORG: 'CI-ORG-',      // Organization (detailed)
+  DEP: 'CI-DEP-',      // Department
+  TEAM: 'CI-TEAM-',    // Team
+  PROD: 'CI-PROD-',    // Product
+  CONTRACT: 'CI-CTR-', // Contract
+  POLICY: 'CI-POL-',   // Policy
+  CERT: 'CI-CERT-',    // Certificate
+  KPI: 'CI-KPI-',      // KPI/Metric
+  EVT: 'CI-EVT-',      // Event
+  LOC: 'CI-LOC-',      // Location
+  REL: 'CI-REL-',      // Relationship
+};
 const REL_EDGE_TYPES = {
   OWNS: 'owns', MEMBER_OF: 'member_of', MANAGES: 'manages', REPORTS_TO: 'reports_to',
   PARTNER_OF: 'partner_of', SUPPLIES_TO: 'supplies_to', PARENT_OF: 'parent_of',
