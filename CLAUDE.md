@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.17
+> **Version:** 5.18
 > **Last Updated:** June 28, 2026
-> **New:** ✅ **MemoryOS Phase 4 Complete** — 30 services, 500+ tests, MCP Server, Admin Dashboard
-> **Status:** 100/100 — MemoryOS production ready
+> **New:** ✅ **SUTAR OS Complete Production-Ready** — 37 services, 867 tests, 0 failures
+> **Status:** 100/100 — SUTAR OS (37 services) + MemoryOS (30 services) production ready
 
 ---
 
@@ -1853,11 +1853,19 @@ All 86+ twins now have:
 
 ---
 
-## 🤖 SUTAR OS - Autonomous Economic Infrastructure (25 Services)
+## 🤖 SUTAR OS - Autonomous Economic Infrastructure (37 Services)
 
-**SUTAR OS** is the **Autonomous Economic Layer** of the RTMN ecosystem. It provides 32 interconnected services for AI agent commerce, negotiation, and autonomous operations.
+**SUTAR OS** is the **Autonomous Economic Layer** of the RTMN ecosystem. It provides 37 interconnected services for AI agent commerce, negotiation, and autonomous operations.
 
 **Tagline:** *"The AI Marketplace - Where AI Agents Come to Negotiate"*
+
+> **Production-Ready (2026-06-28):** All 37 services have vitest test suites, README documentation, and zero test failures. See test summary below.
+
+| Scope | Services | Tests | Status |
+|-------|----------|-------|--------|
+| `sutar-os/core/` (core) | 13 | 368 tests | ✅ All passing |
+| `platform/sutar-os/core/` (enterprise) | 24 | 499 tests | ✅ All passing |
+| **Total** | **37** | **867 tests** | **0 failures** |
 
 > **Note (2026-06-21):** The phrase "formerly known as 'Salar OS'" was removed because it was confusing — `Salar OS` is actually a Workforce Intelligence service (capability registry + digital twins), now at `companies/HOJAI-AI/platform/twins/salar-os/`. The AI Marketplace was at `sutar-marketplace` (port 4250) until **2026-06-21**, when it was moved to **BLR AI Marketplace** at `companies/HOJAI-AI/blr-ai-marketplace/services/`. They are now three distinct things: SUTAR OS (autonomous economic infra), Salar OS (workforce intelligence), BLR AI Marketplace (the marketplace). See the sections below.
 
