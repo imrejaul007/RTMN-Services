@@ -1,8 +1,12 @@
 /**
  * Knowledge Extraction unit tests — vitest
  * Tests the 17 public routes + named exports + bypass behavior.
+ *
+ * Auth bypass env vars are set in setup.cjs (loaded before this ESM module links),
+ * so @rtmn/shared/auth createAuthMiddleware sees REQUIRE_AUTH='false' at link time.
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import http from 'http';
 import app from '../../src/index.js';
 

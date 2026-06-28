@@ -5,28 +5,44 @@
  * shortest path, components, PageRank) via the Express app exported by
  * src/index.js. Uses `supertest`-free HTTP-injection via http.createServer
  * to keep the test self-contained.
+ *
+ * SET env vars BEFORE importing app so NO_LISTEN and auth bypass are correct.
+ * graph-database src/index.js uses require() (CJS) so the env vars must be
+ * set before the import so the conditional checks in the IIFE are correct.
  */
-'use strict';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 
+// Must be set BEFORE importing the app (the IIFE in graph-database checks these
+// at module load time and will spawn the server if they aren't set correctly).
 process.env.GRAPH_DATABASE_NO_LISTEN = '1';
 process.env.GRAPH_DATABASE_REQUIRE_AUTH = 'false';
 process.env.NODE_ENV = 'test';
 
 const http = require('http');
-const { app, seedData, __test__ } = require('../../src/index');
+// graph-database exports everything as properties on the app function.
+// The default export IS the app, so we get it via module.default or by using
+// the app itself. Named exports (seedData, nodes, stats) are attached to app.
+const _mod = require('../../src/index.js');
+const app = _mod;
+const seedData = _mod.seedData;
+const nodes = _mod.nodes;
+const edges = _mod.edges;
+const nodeEdges = _mod.nodeEdges;
+const edgeIndex = _mod.edgeIndex;
+const labelIndex = _mod.labelIndex;
+const stats = _mod.stats;
 
 let server;
 let baseUrl;
 
 beforeAll(async () => {
   // Reset storage before tests
-  __test__.nodes.clear();
-  __test__.edges.clear();
-  __test__.nodeEdges.clear();
-  __test__.edgeIndex.clear();
-  __test__.labelIndex.clear();
-  __test__.auditLog.length = 0;
-  Object.assign(__test__.stats, {
+  nodes.clear();
+  edges.clear();
+  nodeEdges.clear();
+  edgeIndex.clear();
+  labelIndex.clear();
+  Object.assign(stats, {
     totalNodesCreated: 0, totalNodesDeleted: 0,
     totalEdgesCreated: 0, totalEdgesDeleted: 0,
     totalQueries: 0, totalTraversals: 0, totalShortestPaths: 0,
@@ -45,11 +61,11 @@ afterAll(async () => {
 
 afterEach(() => {
   // Reset storage between tests (so each test is independent)
-  __test__.nodes.clear();
-  __test__.edges.clear();
-  __test__.nodeEdges.clear();
-  __test__.edgeIndex.clear();
-  __test__.labelIndex.clear();
+  nodes.clear();
+  edges.clear();
+  nodeEdges.clear();
+  edgeIndex.clear();
+  labelIndex.clear();
   seedData();
 });
 
@@ -85,14 +101,14 @@ describe('config exports', () => {
   test('seedData is exported', () => {
     expect(typeof seedData).toBe('function');
   });
-  test('__test__ exposes internals', () => {
-    expect(__test__.nodes).toBeDefined();
-    expect(__test__.edges).toBeDefined();
-    expect(__test__.stats).toBeDefined();
+  test('nodes/edges/stats are exported directly', () => {
+    expect(nodes).toBeDefined();
+    expect(edges).toBeDefined();
+    expect(stats).toBeDefined();
   });
   test('seedData populates 7 nodes + 10 edges (6 people + 1 company)', () => {
-    expect(__test__.nodes.size).toBe(7);
-    expect(__test__.edges.size).toBe(10);
+    expect(nodes.size).toBe(7);
+    expect(edges.size).toBe(10);
   });
 });
 
@@ -302,8 +318,8 @@ describe('POST /api/clear', () => {
   test('wipes the graph with confirm: true', async () => {
     const res = await req('POST', '/api/clear', { confirm: true });
     expect(res.status).toBe(200);
-    expect(__test__.nodes.size).toBe(0);
-    expect(__test__.edges.size).toBe(0);
+    expect(nodes.size).toBe(0);
+    expect(edges.size).toBe(0);
   });
   test('rejects without confirm (400)', async () => {
     const res = await req('POST', '/api/clear', {});

@@ -215,7 +215,7 @@ export function registerAgentTrustRoutes(app, { auditLog, customAuth }) {
     agentRegistry.set(id, agent);
 
     if (auditLog) {
-      auditLog.write({ event: 'agent.register', userId: req.auth?.sub, tenantId, data: { id, name, type }, timestamp: agent.registeredAt });
+      auditLog({ event: 'agent.register', userId: req.auth?.sub, tenantId, data: { id, name, type }, timestamp: agent.registeredAt });
     }
 
     res.status(201).json({ ok: true, agent });
@@ -280,7 +280,7 @@ export function registerAgentTrustRoutes(app, { auditLog, customAuth }) {
     if (!result) return res.status(400).json({ error: 'Failed to score agent' });
 
     if (auditLog) {
-      auditLog.write({ event: 'agent.score', userId: req.auth?.sub, tenantId: req.auth?.tenantId, data: { agentId: req.params.id, dimension, score }, timestamp: new Date().toISOString() });
+      auditLog({ event: 'agent.score', userId: req.auth?.sub, tenantId: req.auth?.tenantId, data: { agentId: req.params.id, dimension, score }, timestamp: new Date().toISOString() });
     }
 
     res.json({ ok: true, ...result });

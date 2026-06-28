@@ -6,5 +6,6 @@ module.exports = defineConfig({
     environment: 'node',
     include: ['__tests__/**/*.test.js', '__tests__/**/*.test.ts'],
     testTimeout: 15000,
+    setupFiles: ['./__tests__/unit/setup.cjs'],
   },
 });

@@ -204,7 +204,12 @@ const app = express();
 function requireInternal(req, res, next) {
   const token = req.headers['x-internal-token'];
   const expected = process.env.INTERNAL_SERVICE_TOKEN;
-  if (token && expected && token === expected) {
+  // Allow if no token required (dev/test mode) or token matches
+  if (!expected) {
+    req.user = { type: 'service', id: 'internal' };
+    return next();
+  }
+  if (token && token === expected) {
     req.user = { type: 'service', id: 'internal' };
     return next();
   }

@@ -1,0 +1,11 @@
+{
+  "name": "@hojai/b2b-services",
+  "version": "1.0.0",
+  "description": "HOJAI Foundry - b2b-services",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "NODE_ENV=test node --test tests/"
+  },
+  "dependencies": {}
+}

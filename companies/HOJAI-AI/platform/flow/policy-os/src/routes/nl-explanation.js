@@ -266,7 +266,7 @@ export function registerNLExplanationRoutes(app, { auditLog, customAuth }) {
       pruneOldDecisions();
 
       if (auditLog) {
-        auditLog.write({
+        auditLog({
           event: 'policy.explain',
           userId: req.auth?.sub,
           tenantId: req.auth?.tenantId,
@@ -306,7 +306,7 @@ export function registerNLExplanationRoutes(app, { auditLog, customAuth }) {
     }
 
     if (auditLog) {
-      auditLog.write({
+      auditLog({
         event: 'policy.explain.fetch',
         userId: req.auth?.sub,
         tenantId: req.auth?.tenantId,

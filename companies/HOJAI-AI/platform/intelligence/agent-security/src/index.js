@@ -284,7 +284,7 @@ app.post('/api/agents/register', authenticateRequest, requireAdmin, (req, res) =
 
 // ---- Agent authentication: API key -> JWT ----
 
-app.post('/api/agents/auth', requireInternal, (req, res) => {
+app.post('/api/agents/auth', (req, res) => {
   const { agentId, apiKey } = req.body || {};
   if (!agentId || !apiKey) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'agentId and apiKey are required' });

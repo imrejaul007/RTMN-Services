@@ -645,7 +645,7 @@ export function registerNLAuthoringRoutes(app, { auditLog, customAuth }) {
       }
 
       if (auditLog) {
-        auditLog.write({
+        auditLog({
           event: 'policy.parse',
           userId: req.auth?.sub,
           tenantId: req.auth?.tenantId,
@@ -687,7 +687,7 @@ export function registerNLAuthoringRoutes(app, { auditLog, customAuth }) {
       const result = translatePolicy(policy, targetFormat);
 
       if (auditLog) {
-        auditLog.write({
+        auditLog({
           event: 'policy.translate',
           userId: req.auth?.sub,
           tenantId: req.auth?.tenantId,

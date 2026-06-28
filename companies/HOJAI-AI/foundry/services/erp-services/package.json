@@ -1,0 +1,11 @@
+{
+  "name": "@hojai/erp-services",
+  "version": "1.0.0",
+  "description": "HOJAI Foundry - erp-services",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "NODE_ENV=test node --test tests/"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@hojai/pos-services",
+  "version": "1.0.0",
+  "description": "HOJAI Foundry - pos-services",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "NODE_ENV=test node --test tests/"
+  },
+  "dependencies": {}
+}

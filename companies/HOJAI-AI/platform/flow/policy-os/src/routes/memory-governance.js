@@ -185,7 +185,7 @@ export function registerMemoryGovernanceRoutes(app, { auditLog, customAuth }) {
     memoryPolicies.set(id, policy);
 
     if (auditLog) {
-      auditLog.write({ event: 'memory.policy.create', userId: req.auth?.sub, tenantId, data: { id, name }, timestamp: policy.createdAt });
+      auditLog({ event: 'memory.policy.create', userId: req.auth?.sub, tenantId, data: { id, name }, timestamp: policy.createdAt });
     }
 
     res.status(201).json({ ok: true, policy });

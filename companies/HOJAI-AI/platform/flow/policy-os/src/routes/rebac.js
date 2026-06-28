@@ -300,7 +300,7 @@ export function registerReBACRoutes(app, { auditLog, customAuth }) {
     addToIndex(rel);
 
     if (auditLog) {
-      auditLog.write({
+      auditLog({
         event: 'relationship.create',
         userId: req.auth?.sub,
         tenantId,
@@ -356,7 +356,7 @@ export function registerReBACRoutes(app, { auditLog, customAuth }) {
     relationshipStore.delete(req.params.id);
 
     if (auditLog) {
-      auditLog.write({
+      auditLog({
         event: 'relationship.delete',
         userId: req.auth?.sub,
         tenantId: req.auth?.tenantId,

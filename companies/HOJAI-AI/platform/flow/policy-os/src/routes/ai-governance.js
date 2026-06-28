@@ -352,7 +352,7 @@ export function registerAIGovernanceRoutes(app, { auditLog, customAuth }) {
     modelRegistry.set(id, model);
 
     if (auditLog) {
-      auditLog.write({ event: 'ai.model.register', userId: req.auth?.sub, tenantId, data: { id, name, provider }, timestamp: model.registeredAt });
+      auditLog({ event: 'ai.model.register', userId: req.auth?.sub, tenantId, data: { id, name, provider }, timestamp: model.registeredAt });
     }
 
     res.status(201).json({ ok: true, model });
@@ -406,7 +406,7 @@ export function registerAIGovernanceRoutes(app, { auditLog, customAuth }) {
     const result = validateOutput(output, effectiveRules, context || {});
 
     if (auditLog) {
-      auditLog.write({
+      auditLog({
         event: 'ai.validate',
         userId: req.auth?.sub,
         tenantId: req.auth?.tenantId,
@@ -460,7 +460,7 @@ export function registerAIGovernanceRoutes(app, { auditLog, customAuth }) {
     constitutions.set(id, constitution);
 
     if (auditLog) {
-      auditLog.write({ event: 'ai.constitution.create', userId: req.auth?.sub, tenantId, data: { id, name, type }, timestamp: constitution.createdAt });
+      auditLog({ event: 'ai.constitution.create', userId: req.auth?.sub, tenantId, data: { id, name, type }, timestamp: constitution.createdAt });
     }
 
     res.status(201).json({ ok: true, constitution });
@@ -486,7 +486,7 @@ export function registerAIGovernanceRoutes(app, { auditLog, customAuth }) {
     const result = evaluateAgainstConstitution(text, constitution);
 
     if (auditLog) {
-      auditLog.write({
+      auditLog({
         event: 'ai.constitution.evaluate',
         userId: req.auth?.sub,
         tenantId: req.auth?.tenantId,

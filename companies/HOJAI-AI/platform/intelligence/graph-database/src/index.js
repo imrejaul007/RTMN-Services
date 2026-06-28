@@ -1134,7 +1134,7 @@ app.get('/api/audit', (req, res) => {
 // ---------------------------------------------------------------------------
 // Seed data: a small social-like graph for demos
 // ---------------------------------------------------------------------------
-(function seed() {
+function seedData() {
   const people = [
     { name: 'Alice',   age: 30, city: 'NYC' },
     { name: 'Bob',     age: 28, city: 'LA' },
@@ -1190,7 +1190,9 @@ app.get('/api/audit', (req, res) => {
   }
 
   console.log(`[${SERVICE_NAME}] seeded ${nodes.size} nodes, ${edges.size} edges (6 people, 1 company, 7 KNOWS, 3 WORKS_AT)`);
-})();
+}
+
+seedData();
 
 // ---------------------------------------------------------------------------
 // Readability probe
@@ -1238,6 +1240,7 @@ module.exports.bfs = bfs;
 module.exports.shortestPath = shortestPath;
 module.exports.connectedComponents = connectedComponents;
 module.exports.pageRank = pageRank;
+module.exports.seedData = seedData;
 module.exports.parsePattern = parsePattern;
 module.exports.matchesLabel = matchesLabel;
 module.exports.matchesProps = matchesProps;

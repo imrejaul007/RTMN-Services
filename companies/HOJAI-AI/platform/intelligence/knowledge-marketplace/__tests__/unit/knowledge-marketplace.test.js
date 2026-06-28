@@ -1,13 +1,13 @@
 /**
  * Knowledge Marketplace unit tests — vitest
  * Tests the 18 public routes + named exports + bypass behavior.
+ *
+ * Auth bypass env vars are set in setup.cjs (loaded before this ESM module links),
+ * so @rtmn/shared/auth createAuthMiddleware sees REQUIRE_AUTH='false' at link time.
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import http from 'http';
-
-// Disable auth for testing — must be before importing app
-process.env.KNOWLEDGE_MARKETPLACE_REQUIRE_AUTH = 'false';
-
 import app from '../../src/index.js';
 
 let server;
@@ -175,9 +175,8 @@ describe('Knowledge Marketplace — auth bypass behavior', () => {
     const res = await request('POST', `/api/knowledge/${firstId}/reviews`, {
       rating: 5,
       comment: 'Great!',
-      reviewer: 'r1',
+      author: 'r1',
     });
-    // With auth disabled, should succeed (200 or 201) or return proper error
     expect([200, 201, 400, 404]).toContain(res.status);
   });
 
@@ -191,7 +190,6 @@ describe('Knowledge Marketplace — auth bypass behavior', () => {
     const res = await request('PATCH', `/api/knowledge/${firstId}`, {
       price: 99,
     });
-    // With auth disabled, should succeed (200) or return proper error
     expect([200, 400, 404]).toContain(res.status);
   });
 });

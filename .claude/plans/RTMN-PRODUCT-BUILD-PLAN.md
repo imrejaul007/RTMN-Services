@@ -1,17 +1,17 @@
 # RTMN Product Build Plan — Master Blueprint
 
-**Version:** 1.0  
-**Date:** June 27, 2026  
-**Scope:** 14 Products → 4 Phases → 12 Months  
-**Total Investment:** ₹548L (~$6.6M)
+**Version:** 3.0  
+**Date:** June 28, 2026  
+**Scope:** 34 Products → 4 Phases → 18 Months  
+**Total Investment:** ₹1,083L (~$13M)
 
 ---
 
 ## Executive Summary
 
-The RTMN ecosystem has **150+ services** spanning Foundation, Department OS, Industry OS, and AI layers. This plan identifies **14 high-value products** that can be built on top of existing infrastructure, prioritized by market readiness, revenue potential, and build complexity.
+The RTMN ecosystem has **150+ services** spanning Foundation, Department OS, Industry OS, and AI layers. This plan identifies **34 high-value products** that can be built on top of existing infrastructure, prioritized by market readiness, revenue potential, and build complexity.
 
-### 14 Products Identified
+### 34 Products Total
 
 | # | Product | Priority | Complexity | Timeline | Investment | ARR Potential |
 |---|--------|----------|------------|---------|-----------|-------------|
@@ -29,6 +29,28 @@ The RTMN ecosystem has **150+ services** spanning Foundation, Department OS, Ind
 | 12 | MyTalent Pro (App) | P2 | Low | Month 1-3 | ₹15L | ₹0.6Cr |
 | 13 | QR Products Suite | P2 | Low | Month 1-2 | ₹18L | ₹0.9Cr |
 | 14 | BIZORA Agentic | P3 | High | Month 10-12 | ₹60L | ₹8.0Cr |
+| 15 | Employee Twin Platform | P0 | Medium | Month 1-2 | ₹40L | ₹5.0Cr |
+| 16 | Company Brain | P0 | Medium | Month 2-3 | ₹35L | ₹4.0Cr |
+| 17 | CreatorOS | P0 | High | Month 2-4 | ₹50L | ₹6.0Cr |
+| 18 | TradeOS | P0 | High | Month 3-5 | ₹60L | ₹8.0Cr |
+| 19 | FranchiseOS | P1 | Medium | Month 4-5 | ₹45L | ₹5.5Cr |
+| 20 | Merchant Intelligence | P0 | Medium | Month 1-2 | ₹35L | ₹4.5Cr |
+| 21 | ComplianceOS | P1 | High | Month 5-7 | ₹50L | ₹6.5Cr |
+| 22 | Certification Economy | P1 | Medium | Month 6-7 | ₹40L | ₹5.0Cr |
+| 23 | Family Health Twin | P1 | High | Month 6-8 | ₹55L | ₹7.0Cr |
+| 24 | Personal Wealth OS | P0 | High | Month 3-5 | ₹60L | ₹8.5Cr |
+| 25 | Government Procurement OS | P1 | High | Month 6-8 | ₹55L | ₹7.0Cr |
+| 26 | AI Lawyer | P0 | Medium | Month 2-4 | ₹50L | ₹6.5Cr |
+| 27 | SchoolOS | P0 | Medium | Month 2-4 | ₹45L | ₹5.5Cr |
+| 28 | AI Tutor | P0 | Medium | Month 3-4 | ₹40L | ₹5.0Cr |
+| 29 | InsuranceOS | P1 | Medium | Month 5-7 | ₹50L | ₹6.5Cr |
+| 30 | HospitalityOS | P1 | High | Month 6-8 | ₹55L | ₹7.0Cr |
+| 31 | AgriOS | P1 | Medium | Month 5-7 | ₹50L | ₹6.0Cr |
+| 32 | Real Estate OS | P0 | High | Month 3-5 | ₹55L | ₹7.5Cr |
+| 33 | Auto Repair OS | P1 | Medium | Month 4-5 | ₹40L | ₹5.0Cr |
+| 34 | SalonOS | P1 | Low | Month 3-4 | ₹35L | ₹4.5Cr |
+| 35 | ConstructionOS | P1 | High | Month 6-8 | ₹55L | ₹7.0Cr |
+| 36 | PetCareOS | P1 | Low | Month 3-4 | ₹35L | ₹4.5Cr |
 
 ---
 
@@ -336,25 +358,25 @@ The RTMN ecosystem has **150+ services** spanning Foundation, Department OS, Ind
 
 | Year | Products Live | MRR | ARR | Cumulative |
 |------|--------------|-----|-----|------------|
-| Y1 | 8 products | ₹15L | ₹1.8Cr | ₹1.8Cr |
-| Y2 | 14 products | ₹60L | ₹7.2Cr | ₹9.0Cr |
-| Y3 | 14 products | ₹180L | ₹21.6Cr | ₹30.6Cr |
+| Y1 | 18 products | ₹50L | ₹6.0Cr | ₹6.0Cr |
+| Y2 | 36 products | ₹200L | ₹24.0Cr | ₹30.0Cr |
+| Y3 | 36 products | ₹600L | ₹72.0Cr | ₹102.0Cr |
 
 ### Realistic Scenario
 
 | Year | Products Live | MRR | ARR | Cumulative |
 |------|--------------|-----|-----|------------|
-| Y1 | 8 products | ₹30L | ₹3.6Cr | ₹3.6Cr |
-| Y2 | 14 products | ₹120L | ₹14.4Cr | ₹18.0Cr |
-| Y3 | 14 products | ₹350L | ₹42.0Cr | ₹60.0Cr |
+| Y1 | 18 products | ₹100L | ₹12.0Cr | ₹12.0Cr |
+| Y2 | 36 products | ₹400L | ₹48.0Cr | ₹60.0Cr |
+| Y3 | 36 products | ₹1,200L | ₹144.0Cr | ₹204.0Cr |
 
 ### Optimistic Scenario
 
 | Year | Products Live | MRR | ARR | Cumulative |
 |------|--------------|-----|-----|------------|
-| Y1 | 8 products | ₹50L | ₹6.0Cr | ₹6.0Cr |
-| Y2 | 14 products | ₹200L | ₹24.0Cr | ₹30.0Cr |
-| Y3 | 14 products | ₹600L | ₹72.0Cr | ₹1.02Cr |
+| Y1 | 18 products | ₹150L | ₹18.0Cr | ₹18.0Cr |
+| Y2 | 36 products | ₹650L | ₹78.0Cr | ₹96.0Cr |
+| Y3 | 36 products | ₹2,000L | ₹240.0Cr | ₹336.0Cr |
 
 ---
 
@@ -427,9 +449,9 @@ The RTMN ecosystem has **150+ services** spanning Foundation, Department OS, Ind
 | Phase 2 | 4 months | 14 FTEs | ₹114L |
 | Phase 3 | 4 months | 18 FTEs | ₹160L |
 | Phase 4 | 4 months | 20 FTEs | ₹182L |
-| **Infrastructure & Tools** | 12 months | - | ₹30L |
-| **Miscellaneous** | 12 months | - | ₹12.5L |
-| **Total** | **12 months** | - | **₹548L** |
+| **Infrastructure & Tools** | 18 months | - | ₹45L |
+| **Miscellaneous** | 18 months | - | ₹20L |
+| **Total All Products** | **18 months** | **25-30 FTEs** | **₹1,083L** |
 
 ---
 
@@ -438,29 +460,33 @@ The RTMN ecosystem has **150+ services** spanning Foundation, Department OS, Ind
 ### Launch Sequence
 
 ```
-Month 1-2:    SMB Financial Twin (P0)
-              ├─ Soft launch with 5 pilot customers
+Month 1-2:    SMB Financial Twin + Merchant Intelligence + Employee Twin Platform
+              ├─ Soft launch with 5 pilot customers each
               ├─ Feedback collection
               └─ Iteration
 
-Month 2-3:    QR Products Suite (P2)
+Month 2-3:    QR Products Suite + Company Brain + FranchiseOS
               ├─ White-label launch
               ├─ Partner acquisition
               └─ MyTalent App beta
 
-Month 3-5:    Procurement Agent + Restaurant Command Center
+Month 3-5:    Procurement Agent + Restaurant Command Center + Personal Wealth OS + TradeOS
               ├─ Industry-specific launches
               ├─ Case studies
               └─ Referral program
 
-Month 4-6:    Recruitment Agent + Credit Scoring
+Month 4-6:    Recruitment Agent + Credit Scoring + CreatorOS
               ├─ B2B enterprise sales
               ├─ Partnership with job boards
               └─ Bank partnerships
 
-Month 6-12:   Industry products (Healthcare, Building, etc.)
+Month 6-8:    ComplianceOS + Certification Economy + Family Health Twin
               ├─ Vertical-specific GTM
               └─ Enterprise deals
+
+Month 9-12:   BIZORA Agentic + remaining industry products
+              ├─ Full product suite launch
+              └─ Scale
 ```
 
 ### Sales Channels
@@ -509,7 +535,7 @@ Month 6-12:   Industry products (Healthcare, Building, etc.)
 
 | Metric | Year 1 | Year 2 | Year 3 |
 |--------|--------|--------|--------|
-| ARR | ₹3.6Cr | ₹14.4Cr | ₹42Cr |
+| ARR | ₹7.2Cr | ₹30.0Cr | ₹90Cr |
 | Gross margin | 60% | 70% | 75% |
 | CAC payback | <18 months | <12 months | <9 months |
 | LTV:CAC ratio | 2:1 | 3:1 | 5:1 |
