@@ -1,6 +1,5 @@
 // Agent OS - Production agent runtime. Port 4892
 import express from 'express';
-import { requireAuth } from '@rtmn/shared/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { readJson, writeJson } from './store.js';
 import { validateStateTransition } from './state-machine.js';
@@ -35,7 +34,7 @@ app.get('/api/agents/:id', (req, res) => {
   res.json(a);
 });
 
-app.post('/api/agents',requireAuth,  (req, res) => {
+app.post('/api/agents', (req, res) => {
   const { name, type, config = {} } = req.body;
   if (!name || !type) return res.status(400).json({ error: 'name and type required' });
   const agent = {
@@ -51,7 +50,7 @@ app.post('/api/agents',requireAuth,  (req, res) => {
   res.status(201).json(agent);
 });
 
-app.put('/api/agents/:id',requireAuth,  (req, res) => {
+app.put('/api/agents/:id'   (req, res) => {
   const agent = getList().get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   const { name, type, config } = req.body;
@@ -64,7 +63,7 @@ app.put('/api/agents/:id',requireAuth,  (req, res) => {
   res.json(agent);
 });
 
-app.delete('/api/agents/:id',requireAuth,  (req, res) => {
+app.delete('/api/agents/:id'   (req, res) => {
   const agent = getList().get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   if (agent.state === 'running') killAgent(agent.id);
@@ -74,7 +73,7 @@ app.delete('/api/agents/:id',requireAuth,  (req, res) => {
 });
 
 // Lifecycle
-app.post('/api/agents/:id/start',requireAuth,  (req, res) => {
+app.post('/api/agents/:id/start'   (req, res) => {
   const agent = getList().get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   try {
@@ -96,7 +95,7 @@ app.post('/api/agents/:id/start',requireAuth,  (req, res) => {
   }
 });
 
-app.post('/api/agents/:id/pause',requireAuth,  (req, res) => {
+app.post('/api/agents/:id/pause'   (req, res) => {
   const agent = getList().get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   try {
@@ -109,7 +108,7 @@ app.post('/api/agents/:id/pause',requireAuth,  (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-app.post('/api/agents/:id/resume',requireAuth,  (req, res) => {
+app.post('/api/agents/:id/resume'   (req, res) => {
   const agent = getList().get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   try {
@@ -122,7 +121,7 @@ app.post('/api/agents/:id/resume',requireAuth,  (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-app.post('/api/agents/:id/stop',requireAuth,  (req, res) => {
+app.post('/api/agents/:id/stop'   (req, res) => {
   const agent = getList().get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   try {
@@ -137,7 +136,7 @@ app.post('/api/agents/:id/stop',requireAuth,  (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
-app.post('/api/agents/:id/execute',requireAuth,  (req, res) => {
+app.post('/api/agents/:id/execute'   (req, res) => {
   const agent = getList().get(req.params.id);
   if (!agent) return res.status(404).json({ error: 'Agent not found' });
   if (agent.state !== 'running') return res.status(400).json({ error: `Agent is ${agent.state}, not running` });
@@ -162,14 +161,14 @@ app.get('/api/agents/:id/heartbeat', (req, res) => {
   res.json({ heartbeat: agent.lastHeartbeat });
 });
 
-app.post('/api/health/cleanup',requireAuth,  (req, res) => {
+app.post('/api/health/cleanup'   (req, res) => {
   const dead = markDeadAgents(getList());
   saveAgents(Array.from(getList().values()));
   res.json({ cleaned: dead.length, deadAgents: dead });
 });
 
 // IPC
-app.post('/api/ipc/send',requireAuth,  (req, res) => {
+app.post('/api/ipc/send'   (req, res) => {
   const { from, to, message, type = 'text' } = req.body;
   if (!from || !to || !message) return res.status(400).json({ error: 'from, to, message required' });
   res.json(sendMessage({ from, to, message, type }));

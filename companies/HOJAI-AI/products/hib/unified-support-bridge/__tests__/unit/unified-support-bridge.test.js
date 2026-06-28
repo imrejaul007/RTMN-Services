@@ -219,11 +219,11 @@ describe('WhatsApp Payload Parsing', () => {
     assert.strictEqual(msgs[0].messageType, 'image');
   });
 
-  it('parses internal format', () => {
+  it('parses internal format with text field', () => {
     const body = {
       id: 'internal-msg-1',
       from: '+919876543210',
-      message: 'Test message',
+      text: 'Test message',
       contactName: 'Internal User',
       messageType: 'text',
     };
@@ -233,6 +233,20 @@ describe('WhatsApp Payload Parsing', () => {
     assert.strictEqual(msgs[0].messageId, 'internal-msg-1');
     assert.strictEqual(msgs[0].text, 'Test message');
     assert.strictEqual(msgs[0].contactName, 'Internal User');
+  });
+
+  it('parses internal format with nested message object', () => {
+    const body = {
+      id: 'internal-msg-2',
+      from: '+919876543210',
+      message: { text: 'Nested message' },
+      contactName: 'User',
+      messageType: 'text',
+    };
+
+    const msgs = parseWhatsAppPayload(body);
+    assert.strictEqual(msgs.length, 1);
+    assert.strictEqual(msgs[0].text, 'Nested message');
   });
 
   it('parses Twilio format', () => {
@@ -260,6 +274,7 @@ describe('Email Normalization', () => {
   it('normalizes SendGrid format', () => {
     const body = {
       from: 'John Doe <john@example.com>',
+      fromName: 'John Doe',
       subject: 'SendGrid Test',
       text: 'Email body',
       'Message-ID': '<sg-123@sendgrid>',
@@ -623,13 +638,14 @@ describe('Customer Identity Resolution Logic', () => {
   // These are standalone logic tests for the normalization steps
   // The full async resolution requires storage, tested above
 
-  it('phone normalization is consistent', () => {
+  it('phone normalization is consistent for common formats', () => {
     const formats = [
       '9876543210',
       '+919876543210',
       '919876543210',
       '+91 98765 43210',
-      '09876543210',
+      '98765-43210',
+      '(98765) 43210',
     ];
 
     const normalized = normalizePhone(formats[0]);
