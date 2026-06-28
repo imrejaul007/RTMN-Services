@@ -1,20 +1,20 @@
 [
   {
-    "id": "ffc432a7-851e-4018-9fc2-f209ab2bf501",
+    "id": "19f36672-50b0-4f1a-910a-d1bca04298d3",
     "from": "a",
     "to": "b",
     "message": "msg1",
     "type": "text",
-    "timestamp": "2026-06-28T21:50:29.620Z",
+    "timestamp": "2026-06-28T22:00:13.633Z",
     "read": false
   },
   {
-    "id": "6d2f3c37-f27d-4ae3-97fb-c40982329628",
+    "id": "57959931-2259-4f10-9da0-4adfe126e158",
     "from": "b",
     "to": "a",
     "message": "msg2",
     "type": "text",
-    "timestamp": "2026-06-28T21:50:29.620Z",
+    "timestamp": "2026-06-28T22:00:13.633Z",
     "read": false
   }
 ]
