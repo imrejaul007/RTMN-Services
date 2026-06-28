@@ -58,7 +58,7 @@ let _syncIdCounter = 0;
 export function _resetGitOpsState() {
   _gitopsStores = null;
   _config = null;
-  _syncStatus = 'idle';
+  _syncStatus = 'disabled';
   _lastSyncAt = null;
   _lastError = null;
   _webhookSecret = null;

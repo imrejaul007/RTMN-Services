@@ -145,7 +145,8 @@ describe('HMAC-SHA256 crypto', () => {
 // ── GitOps module state (stateful — each group re-imports cleanly) ──────────
 
 describe('GitOps — configureGitOps', async () => {
-  const { configureGitOps, getSyncStatus } = await import('../../src/services/gitops.js');
+  const { configureGitOps, getSyncStatus, _resetGitOpsState } = await import('../../src/services/gitops.js');
+  beforeEach(() => { _resetGitOpsState(); });
 
   it('sets disabled status when no repoUrl', () => {
     configureGitOps({ policies: new Map() });
