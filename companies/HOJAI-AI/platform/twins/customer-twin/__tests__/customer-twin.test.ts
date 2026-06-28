@@ -69,7 +69,8 @@ describe('Customer Twin', () => {
         gold: 200000,
         platinum: 1000000,
       };
-      return totalSpend >= thresholds[currentTier];
+      if (currentTier === 'platinum') return false;
+	      return totalSpend >= thresholds[currentTier];
     };
 
     it('should recommend upgrade for silver threshold', () => {
