@@ -113,13 +113,18 @@ function normalizeEmail(email) {
 
 /**
  * Resolve customerId from any identifier (phone, email, appUserId)
- * Returns existing customerId or creates a new one
+ * Returns existing customerId or creates a new one.
+ *
+ * Key insight: we first try exact channel lookups (fast path).
+ * If only appUserId is given, we also search customerIdentityMap
+ * to find an existing customer whose phone or email already maps
+ * to someone in our system — CRITICAL for cross-channel continuity.
  */
 async function resolveCustomerId({ phone, email, appUserId, name, metadata = {} } = {}) {
   const nPhone = normalizePhone(phone);
   const nEmail = normalizeEmail(email);
 
-  // Try existing mappings first
+  // Fast path: direct channel → customerId lookup
   if (nPhone) {
     const existing = channelToCustomerMap.get(`phone:${nPhone}`);
     if (existing) return existing;
@@ -133,15 +138,31 @@ async function resolveCustomerId({ phone, email, appUserId, name, metadata = {} 
     if (existing) return existing;
   }
 
+  // Slow path for appUserId: same person may already exist via phone/email.
+  // We need to find them even when we only know their appUserId.
+  // Example: WhatsApp created cust-xxx (phone: +91...), now app comes with
+  // appUserId: "usr_mc" — we need to link to the same cust-xxx.
+  if (appUserId && (nPhone || nEmail)) {
+    // Try to find existing customer by their OTHER identifiers
+    // and then add this appUserId to that customer
+    let foundCustomerId = null;
+    if (nPhone) foundCustomerId = channelToCustomerMap.get(`phone:${nPhone}`);
+    if (!foundCustomerId && nEmail) foundCustomerId = channelToCustomerMap.get(`email:${nEmail}`);
+
+    if (foundCustomerId) {
+      // Found existing customer — link this appUserId to them
+      registerCustomerChannel(foundCustomerId, { phone: nPhone, email: nEmail, appUserId });
+      return foundCustomerId;
+    }
+  }
+
   // ── Try CorpID for existing identity ──
-  let corpId = null;
   if (nEmail) {
     try {
       const res = await fetch(`${CORPID_URL}/api/identity/lookup?email=${encodeURIComponent(nEmail)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.customerId) {
-          // Found in CorpID — use it and update our maps
           registerCustomerChannel(data.customerId, { phone: nPhone, email: nEmail, appUserId });
           return data.customerId;
         }
