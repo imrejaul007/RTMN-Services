@@ -1015,9 +1015,15 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 | Memory Multimodal | 4802 | Image, audio, video, document memory processing | ✅ 16 |
 | Memory Federation | 4803 | Cross-company memory sharing with privacy boundaries | ✅ 14 |
 
-**Total: 473 tests across 26 services** (June 28, 2026)
+**Total: 500+ tests across 30 services** (June 28, 2026)
 
-**SDK:** `@hojai/memory-sdk` at `companies/HOJAI-AI/sdk/hojai-memory-sdk/` — Unified TypeScript SDK for all 26 memory services
+**New Services Added:**
+- Memory MCP Server (4890) — Universal AI memory access (Claude, ChatGPT)
+- Memory Lifecycle (4785) — Memory lifecycle management
+- Twin Working Memory (4785) — Twin ↔ working memory bridge
+- Memory Admin Dashboard (4895) — Enterprise department management
+
+**SDK:** `@hojai/memory-sdk` at `companies/HOJAI-AI/sdk/hojai-memory-sdk/` — Unified TypeScript SDK for all 30 memory services
 
 ```typescript
 import { MemoryOS } from '@hojai/memory-sdk';

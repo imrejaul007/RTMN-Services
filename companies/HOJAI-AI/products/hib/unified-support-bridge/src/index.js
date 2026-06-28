@@ -1,44 +1,20 @@
 /**
- * RTMN Unified Support Bridge
+ * RTMN Unified Support Bridge — PRODUCTION VERSION
  * =============================================================
  * Port: 4885
- * Purpose: The missing layer that connects Email, WhatsApp, and App
- *          channels to unified inbox — with customer identity resolution
- *          and conversation merging.
  *
- * THE PROBLEM WE SOLVE:
- * ----------------------
- * - WhatsApp messages come in keyed by phone number
- * - Email conversations come in keyed by email address
- * - App conversations come in keyed by appUserId
- * - Nobody links them to the same customer
- * - No way to merge a WhatsApp thread with an Email thread
+ * All the features of v1.0 PLUS:
+ * - Redis/MongoDB storage (production-ready persistence)
+ * - Real CorpID integration with retry + caching
+ * - Email inbound (SMTP receiver + webhook)
+ * - WhatsApp webhook verification (Meta/Twilio/360dialog)
+ * - Real-time SSE + WebSocket events
  *
- * THE SOLUTION:
- * -------------
- * 1. Customer Identity Resolver — maps (phone + email + appUserId)
- *    to a single canonical customerId using CorpID or local cache
- * 2. Channel Webhooks — receive messages from Email, WhatsApp, App
- *    and create/update conversations in unified-inbox
- * 3. Conversation Linking — every conversation tagged with customerId
- *    so all channels for same customer are grouped
- * 4. Merge API — merge multiple conversations into one unified thread
- *
- * API FLOW:
- * ---------
- * 1. WhatsApp webhook → identify customer by phone → create/update
- *    conversation in unified-inbox (channel=whatsapp)
- * 2. Email webhook → identify customer by email → same
- * 3. App webhook → identify customer by appUserId → same
- * 4. Agent can see all conversations for same customer across channels
- * 5. Agent can merge 2+ conversations into one unified thread
- *
- * INTEGRATION:
- * ------------
- * - Unified Inbox (4870) — creates conversations and messages
- * - Ticket Engine (4872) — creates tickets linked to conversations
- * - CorpID (4702) — resolves customer identity
- * - RTMN Hub (4399) — routes /api/support/* here
+ * Run:
+ *   npm start                # in-memory (dev)
+ *   USE_REDIS=true npm start # Redis-backed
+ *   USE_MONGODB=true npm start # MongoDB-backed
+ *   USE_REDIS=true USE_MONGODB=true npm start # full production
  */
 
 const express = require('express');
@@ -47,134 +23,182 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
 
-const app = express();
-const PORT = process.env.UNIFIED_SUPPORT_BRIDGE_PORT || 4885;
+// ─── Modules ────────────────────────────────────────────────
+const { createStorage } = require('./storage');
+const { normalizeEmail: normalizeEmailFormat, createSmtpReceiver, createImapPoller } = require('./emailHandler');
+const {
+  createWhatsAppWebhookMiddleware,
+  parseWhatsAppPayload,
+  normalizePhone: normalizeWpPhone,
+} = require('./whatsappWebhook');
+const {
+  attachEventRoutes,
+  emitMessageReceived,
+  emitConversationCreated,
+  emitConversationUpdated,
+  emitConversationMerged,
+  emitTicketCreated,
+  emitCustomerLinked,
+  emitEscalation,
+  EVENTS,
+} = require('./events');
 
-// ─── Middleware ───────────────────────────────────────────────
-app.use(helmet());
-app.use(cors());
-app.use(morgan('combined'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ─── App Setup ───────────────────────────────────────────────
+const app = express();
+const PORT = parseInt(process.env.PORT || '4885', 10);
+const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'dev-token';
 
 // ─── External Services ────────────────────────────────────────
 const UNIFIED_INBOX_URL = process.env.UNIFIED_INBOX_URL || 'http://localhost:4870';
 const TICKET_ENGINE_URL = process.env.TICKET_ENGINE_URL || 'http://localhost:4872';
 const CORPID_URL = process.env.CORPID_URL || 'http://localhost:4702';
-const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'dev-token';
 
-// ─── In-Memory Stores (Production: use Redis/MongoDB) ────────
+// ─── Middleware ─────────────────────────────────────────────
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors());
+app.use(morgan('combined'));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// customerId → { phone, email, appUserId, name, createdAt, channels[] }
-const customerIdentityMap = new Map();
+// Capture raw body for signature verification
+app.use((req, res, next) => {
+  req.rawBody = '';
+  req.on('data', (chunk) => { req.rawBody += chunk.toString(); });
+  next();
+});
 
-// channel + identifier → customerId (reverse index)
-const channelToCustomerMap = new Map(); // "phone:918123456789" → customerId
+// ─── Storage (Redis/MongoDB/in-memory) ──────────────────────
+const storage = createStorage();
 
-// unified-inbox uses conversationId; we track link here
-// conversationId → { customerId, channels[], linkedConversations[], mergedFrom[] }
-const conversationMeta = new Map();
+// ─── CorpID Client (with retry + caching) ────────────────────
+const coroidCache = new Map(); // email → { customerId, fetchedAt }
+const CORPID_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// Active sessions per customer (for continuous conversations)
-// customerId → { lastChannel, lastConversationId, lastMessageAt }
-const customerSessions = new Map();
+async function resolveCorpIdCustomer(email) {
+  const nEmail = (email || '').toLowerCase().trim();
+  if (!nEmail) return null;
 
-// ─── Helpers ─────────────────────────────────────────────────
-
-function internalAuth(req, res, next) {
-  const token = req.headers['x-internal-token'];
-  if (token && token === INTERNAL_TOKEN) {
-    req.user = { type: 'service' };
-    return next();
-  }
-  return res.status(401).json({ error: 'Unauthorized' });
-}
-
-/**
- * Normalize phone number to E.164 format
- * +91-8123456789 → +918123456789
- */
-function normalizePhone(phone) {
-  if (!phone) return null;
-  const cleaned = phone.replace(/[\s\-\(\)]/g, '').replace(/^0/, '');
-  if (cleaned.length === 10) return `+91${cleaned}`;
-  if (cleaned.length === 12 && cleaned.startsWith('91')) return `+${cleaned}`;
-  if (cleaned.startsWith('+')) return cleaned;
-  return `+${cleaned}`;
-}
-
-/**
- * Normalize email to lowercase
- */
-function normalizeEmail(email) {
-  if (!email) return null;
-  return email.toLowerCase().trim();
-}
-
-/**
- * Resolve customerId from any identifier (phone, email, appUserId)
- * Returns existing customerId or creates a new one.
- *
- * Key insight: we first try exact channel lookups (fast path).
- * If only appUserId is given, we also search customerIdentityMap
- * to find an existing customer whose phone or email already maps
- * to someone in our system — CRITICAL for cross-channel continuity.
- */
-async function resolveCustomerId({ phone, email, appUserId, name, metadata = {} } = {}) {
-  const nPhone = normalizePhone(phone);
-  const nEmail = normalizeEmail(email);
-
-  // Fast path: direct channel → customerId lookup
-  if (nPhone) {
-    const existing = channelToCustomerMap.get(`phone:${nPhone}`);
-    if (existing) return existing;
-  }
-  if (nEmail) {
-    const existing = channelToCustomerMap.get(`email:${nEmail}`);
-    if (existing) return existing;
-  }
-  if (appUserId) {
-    const existing = channelToCustomerMap.get(`app:${appUserId}`);
-    if (existing) return existing;
+  // Check cache first
+  const cached = coroidCache.get(nEmail);
+  if (cached && Date.now() - cached.fetchedAt < CORPID_CACHE_TTL) {
+    return cached.customerId;
   }
 
-  // Slow path for appUserId: same person may already exist via phone/email.
-  // We need to find them even when we only know their appUserId.
-  // Example: WhatsApp created cust-xxx (phone: +91...), now app comes with
-  // appUserId: "usr_mc" — we need to link to the same cust-xxx.
-  if (appUserId && (nPhone || nEmail)) {
-    // Try to find existing customer by their OTHER identifiers
-    // and then add this appUserId to that customer
-    let foundCustomerId = null;
-    if (nPhone) foundCustomerId = channelToCustomerMap.get(`phone:${nPhone}`);
-    if (!foundCustomerId && nEmail) foundCustomerId = channelToCustomerMap.get(`email:${nEmail}`);
+  const maxRetries = 3;
+  let lastError = null;
 
-    if (foundCustomerId) {
-      // Found existing customer — link this appUserId to them
-      registerCustomerChannel(foundCustomerId, { phone: nPhone, email: nEmail, appUserId });
-      return foundCustomerId;
-    }
-  }
-
-  // ── Try CorpID for existing identity ──
-  if (nEmail) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const res = await fetch(`${CORPID_URL}/api/identity/lookup?email=${encodeURIComponent(nEmail)}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+      const res = await fetch(`${CORPID_URL}/api/identity/lookup?email=${encodeURIComponent(nEmail)}`, {
+        signal: controller.signal,
+        headers: { 'x-internal-token': INTERNAL_TOKEN },
+      });
+
+      clearTimeout(timeout);
+
       if (res.ok) {
         const data = await res.json();
         if (data.customerId) {
-          registerCustomerChannel(data.customerId, { phone: nPhone, email: nEmail, appUserId });
+          coroidCache.set(nEmail, { customerId: data.customerId, fetchedAt: Date.now() });
           return data.customerId;
         }
       }
+
+      return null; // Not found, don't retry
     } catch (e) {
-      // CorpID not available, fall through
+      lastError = e;
+      if (e.name === 'AbortError') {
+        console.warn(`[corpid] timeout on attempt ${attempt} for ${nEmail}`);
+      } else {
+        console.warn(`[corpid] error on attempt ${attempt}: ${e.message}`);
+      }
+      if (attempt < maxRetries) {
+        await sleep(500 * attempt); // Exponential backoff
+      }
     }
   }
 
-  // ── Create new customer ──
+  console.error(`[corpid] all ${maxRetries} attempts failed for ${nEmail}:`, lastError?.message);
+  return null;
+}
+
+// ─── Phone/Email Normalization ──────────────────────────────
+function normalizePhone(phone) {
+  if (!phone) return null;
+  const cleaned = String(phone).replace(/[\s\-\(\)\.]/g, '');
+  if (cleaned.length === 10) return `+91${cleaned}`;
+  if (cleaned.length === 12 && cleaned.startsWith('91')) return `+${cleaned}`;
+  if (cleaned.startsWith('+')) return cleaned;
+  if (cleaned.length > 10) return `+${cleaned}`;
+  return null;
+}
+
+function normalizeEmailFormat2(email) {
+  if (!email) return null;
+  return email.toLowerCase().trim().replace(/\s+/g, '');
+}
+
+// ─── Customer Identity Resolution ────────────────────────────
+async function resolveCustomerId({ phone, email, appUserId, name, metadata = {} } = {}) {
+  const nPhone = normalizePhone(phone);
+  const nEmail = normalizeEmailFormat2(email);
+
+  // Fast path: direct channel lookups
+  if (nPhone) {
+    const existing = await storage.findCustomerByChannel('phone', nPhone);
+    if (existing) return existing;
+  }
+  if (nEmail) {
+    const existing = await storage.findCustomerByChannel('email', nEmail);
+    if (existing) return existing;
+  }
+  if (appUserId) {
+    const existing = await storage.findCustomerByChannel('app', appUserId);
+    if (existing) return existing;
+  }
+
+  // Cross-channel: appUserId given but customer already exists via phone/email
+  if (appUserId && (nPhone || nEmail)) {
+    let foundId = null;
+    if (nPhone) foundId = await storage.findCustomerByChannel('phone', nPhone);
+    if (!foundId && nEmail) foundId = await storage.findCustomerByChannel('email', nEmail);
+    if (foundId) {
+      // Link appUserId to existing customer
+      await storage.registerChannelLink(foundId, 'app', appUserId);
+      if (nPhone) await storage.registerChannelLink(foundId, 'phone', nPhone);
+      if (nEmail) await storage.registerChannelLink(foundId, 'email', nEmail);
+      return foundId;
+    }
+  }
+
+  // CorpID lookup
+  if (nEmail) {
+    const corpId = await resolveCorpIdCustomer(nEmail);
+    if (corpId) {
+      await storage.registerChannelLink(corpId, 'email', nEmail);
+      if (nPhone) await storage.registerChannelLink(corpId, 'phone', nPhone);
+      if (appUserId) await storage.registerChannelLink(corpId, 'app', appUserId);
+      await storage.upsertCustomer({
+        customerId: corpId,
+        phone: nPhone,
+        email: nEmail,
+        appUserId,
+        name: name || null,
+        channels: ['email', ...(nPhone ? ['phone'] : []), ...(appUserId ? ['app'] : [])],
+        metadata,
+        linkedFromCorpId: true,
+      });
+      emitCustomerLinked({ customerId: corpId, phone: nPhone, email: nEmail, appUserId, source: 'corpid' });
+      return corpId;
+    }
+  }
+
+  // Create new customer
   const customerId = `cust-${uuidv4().slice(0, 12)}`;
-  const customer = {
+  await storage.upsertCustomer({
     customerId,
     phone: nPhone,
     email: nEmail,
@@ -182,340 +206,190 @@ async function resolveCustomerId({ phone, email, appUserId, name, metadata = {} 
     name: name || null,
     channels: [],
     metadata,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  customerIdentityMap.set(customerId, customer);
-  registerCustomerChannel(customerId, { phone: nPhone, email: nEmail, appUserId });
+  });
+  if (nPhone) await storage.registerChannelLink(customerId, 'phone', nPhone);
+  if (nEmail) await storage.registerChannelLink(customerId, 'email', nEmail);
+  if (appUserId) await storage.registerChannelLink(customerId, 'app', appUserId);
+
   return customerId;
 }
 
-function registerCustomerChannel(customerId, { phone, email, appUserId }) {
-  const nPhone = normalizePhone(phone);
-  const nEmail = normalizeEmail(email);
-
-  if (nPhone) channelToCustomerMap.set(`phone:${nPhone}`, customerId);
-  if (nEmail) channelToCustomerMap.set(`email:${nEmail}`, customerId);
-  if (appUserId) channelToCustomerMap.set(`app:${appUserId}`, customerId);
-
-  const customer = customerIdentityMap.get(customerId);
-  if (customer) {
-    customer.updatedAt = new Date().toISOString();
-    if (nPhone && !customer.phone) customer.phone = nPhone;
-    if (nEmail && !customer.email) customer.email = nEmail;
-    if (appUserId && !customer.appUserId) customer.appUserId = appUserId;
-    if (!customer.channels.includes('whatsapp') && nPhone) customer.channels.push('whatsapp');
-    if (!customer.channels.includes('email') && nEmail) customer.channels.push('email');
-    if (!customer.channels.includes('app') && appUserId) customer.channels.push('app');
-  }
-}
-
-/**
- * Get or create conversation in unified-inbox, tagged with customerId
- */
+// ─── Conversation Management ────────────────────────────────
 async function getOrCreateConversation({ customerId, channel, subject, priority = 'medium', tags = [], externalRef = null }) {
-  const customer = customerIdentityMap.get(customerId);
+  const customer = await storage.getCustomer(customerId);
 
   // Check for existing open conversation for this customer + channel
-  // In production this would query unified-inbox; here we simulate
-  const sessionKey = `${customerId}:${channel}`;
-  const existingSession = customerSessions.get(sessionKey);
-
-  if (existingSession && existingSession.lastConversationId) {
-    // Continue existing conversation
-    return {
-      conversationId: existingSession.lastConversationId,
-      isNew: false,
-      customerId,
-      channel,
-      customer,
-    };
+  const session = await storage.getSession(customerId, channel);
+  if (session?.lastConversationId) {
+    return { conversationId: session.lastConversationId, isNew: false, customerId, channel, customer };
   }
 
-  // Create new conversation in unified-inbox
-  const conversationPayload = {
-    subject: subject || `Support request via ${channel}`,
-    customer: {
-      id: customerId,
-      name: customer?.name || null,
-      email: customer?.email || null,
-      phone: customer?.phone || null,
-    },
-    channel,
-    priority,
-    tags: [...tags, `source:${channel}`],
-  };
+  // Create new conversation
+  const conversationId = `conv-${uuidv4().slice(0, 12)}`;
 
-  let conversationId;
-  try {
-    const res = await fetch(`${UNIFIED_INBOX_URL}/api/conversations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-internal-token': INTERNAL_TOKEN },
-      body: JSON.stringify(conversationPayload),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      conversationId = data.conversation?.id;
-    } else {
-      // Unified inbox not available — use local tracking
-      conversationId = `local-${channel}-${Date.now()}`;
-    }
-  } catch (e) {
-    conversationId = `local-${channel}-${Date.now()}`;
-  }
-
-  // Track session
-  customerSessions.set(sessionKey, {
+  await storage.createConversation({
+    id: conversationId,
     customerId,
     channel,
+    subject: subject || `Support — ${channel}`,
+    priority,
+    status: 'open',
+    tags: [...tags, `source:${channel}`],
+    externalRef,
+  });
+
+  await storage.setSession(customerId, channel, {
     lastConversationId: conversationId,
     lastMessageAt: new Date().toISOString(),
     externalRef,
   });
 
-  // Track conversation metadata
-  conversationMeta.set(conversationId, {
-    customerId,
-    channels: [channel],
-    linkedConversations: [],
-    mergedFrom: [],
-    externalRef,
-    createdAt: new Date().toISOString(),
-  });
-
-  return {
+  emitConversationCreated({
     conversationId,
-    isNew: true,
     customerId,
     channel,
-    customer,
-  };
+    subject,
+    priority,
+  });
+
+  return { conversationId, isNew: true, customerId, channel, customer };
 }
 
-/**
- * Add message to conversation in unified-inbox
- */
+// ─── Message Handling ───────────────────────────────────
 async function addMessage({ conversationId, content, sender, channel, direction = 'inbound', metadata = {} }) {
-  const payload = {
+  const msg = await storage.createMessage({
+    conversationId,
     content,
-    sender: {
-      type: sender === 'customer' ? 'customer' : 'agent',
-      name: sender === 'customer' ? (metadata.customerName || 'Customer') : (metadata.agentName || 'Support'),
-      channel,
-    },
-    type: 'message',
-    attachments: metadata.attachments || [],
-  };
+    sender,
+    channel,
+    direction,
+    ...metadata,
+  });
 
+  emitMessageReceived({
+    messageId: msg.id,
+    conversationId,
+    channel,
+    direction,
+    sender,
+  });
+
+  // Also forward to unified-inbox
   try {
-    const res = await fetch(`${UNIFIED_INBOX_URL}/api/conversations/${conversationId}/messages`, {
+    await fetch(`${UNIFIED_INBOX_URL}/api/conversations/${conversationId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-internal-token': INTERNAL_TOKEN },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ content, sender, type: 'message' }),
     });
-    return res.ok;
   } catch (e) {
-    // Unified inbox not available — store locally
-    return true;
+    // Best effort
   }
+
+  return msg;
 }
 
-// ─── Routes ───────────────────────────────────────────────────
+// ─── WhatsApp Webhook Middleware ─────────────────────────
+const whatsappWebhook = createWhatsAppWebhookMiddleware({
+  verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'usb-verify-token-change-me',
+  appSecret: process.env.WHATSAPP_APP_SECRET || process.env.WHATSAPP_VERIFY_TOKEN || 'usb-verify-token-change-me',
+  authToken: process.env.TWILIO_AUTH_TOKEN,
+  provider: process.env.WHATSAPP_PROVIDER || 'meta',
+  onMessages: async (msg) => {
+    const customerId = await resolveCustomerId({
+      phone: msg.from,
+      name: msg.contactName,
+      metadata: { source: 'whatsapp', messageId: msg.messageId },
+    });
+
+    const { conversationId, isNew } = await getOrCreateConversation({
+      customerId,
+      channel: 'whatsapp',
+      subject: `WhatsApp — ${msg.contactName || msg.from}`,
+      externalRef: msg.messageId,
+    });
+
+    if (msg.text) {
+      await addMessage({
+        conversationId,
+        content: msg.text,
+        sender: 'customer',
+        channel: 'whatsapp',
+        direction: 'inbound',
+        metadata: { customerName: msg.contactName, messageId: msg.messageId, messageType: msg.messageType },
+      });
+    }
+
+    await storage.setSession(customerId, 'whatsapp', {
+      lastConversationId: conversationId,
+      lastMessageAt: new Date().toISOString(),
+    });
+  },
+});
+
+// ─── Routes ─────────────────────────────────────────────
 
 // Health
-app.get('/health', (_req, res) => {
+app.get('/health', async (_req, res) => {
+  const customers = await storage.getAllCustomers();
+  const conversations = await storage.getAllConversations();
+  const sessions = [];
+  for (const c of customers) {
+    const ss = await storage.getSessionsByCustomer(c.customerId);
+    sessions.push(...ss);
+  }
+
   res.json({
     status: 'healthy',
     service: 'unified-support-bridge',
-    version: '1.0.0',
+    version: '2.0.0',
     port: PORT,
-    counts: {
-      customers: customerIdentityMap.size,
-      conversations: conversationMeta.size,
-      sessions: customerSessions.size,
-    },
-    channels: ['email', 'whatsapp', 'app'],
-    features: ['identity-resolution', 'cross-channel-linking', 'conversation-merge', 'channel-webhooks'],
+    storage: process.env.USE_REDIS ? 'redis' : process.env.USE_MONGODB ? 'mongodb' : 'in-memory',
+    counts: { customers: customers.length, conversations: conversations.length, sessions: sessions.length },
+    channels: ['email', 'whatsapp', 'app', 'chat', 'phone', 'instagram', 'twitter', 'facebook'],
+    features: ['identity-resolution', 'cross-channel-linking', 'conversation-merge', 'channel-webhooks', 'sse-events', 'smtp-receiver', 'imap-polling'],
     timestamp: new Date().toISOString(),
   });
 });
 
-// ─── Customer Identity ────────────────────────────────────────
-
-// GET /api/customers — list all tracked customers
-app.get('/api/customers', (_req, res) => {
-  const customers = Array.from(customerIdentityMap.values()).map(c => ({
-    customerId: c.customerId,
-    name: c.name,
-    email: c.email,
-    phone: c.phone,
-    appUserId: c.appUserId,
-    channels: c.channels,
-    createdAt: c.createdAt,
-  }));
-  res.json({ success: true, count: customers.length, customers });
-});
-
-// GET /api/customers/:id — get customer with all conversations
-app.get('/api/customers/:id', async (req, res) => {
-  const customer = customerIdentityMap.get(req.params.id);
-  if (!customer) {
-    // Try to look up in unified-inbox
-    return res.status(404).json({ success: false, error: 'Customer not found' });
-  }
-
-  // Get all conversations for this customer across channels
-  const conversations = [];
-  for (const [convId, meta] of conversationMeta.entries()) {
-    if (meta.customerId === req.params.id) {
-      conversations.push({
-        conversationId: convId,
-        channels: meta.channels,
-        linkedConversations: meta.linkedConversations,
-        mergedFrom: meta.mergedFrom,
-        externalRef: meta.externalRef,
-        createdAt: meta.createdAt,
-      });
-    }
-  }
-
-  res.json({
-    success: true,
-    customer,
-    conversations,
-    session: customerSessions.get(`${req.params.id}:app`) || null,
-  });
-});
-
-// POST /api/customers/resolve — resolve customer identity from any identifier
-app.post('/api/customers/resolve', async (req, res) => {
-  const { phone, email, appUserId, name, metadata } = req.body;
-  if (!phone && !email && !appUserId) {
-    return res.status(400).json({ success: false, error: 'phone, email, or appUserId required' });
-  }
-
-  const customerId = await resolveCustomerId({ phone, email, appUserId, name, metadata });
-  const customer = customerIdentityMap.get(customerId);
-
-  res.json({ success: true, customerId, customer });
-});
-
-// POST /api/customers/link — link additional identifiers to existing customer
-app.post('/api/customers/link', async (req, res) => {
-  const { customerId, phone, email, appUserId } = req.body;
-  if (!customerId || (!phone && !email && !appUserId)) {
-    return res.status(400).json({ success: false, error: 'customerId and at least one identifier required' });
-  }
-
-  if (!customerIdentityMap.has(customerId)) {
-    return res.status(404).json({ success: false, error: 'Customer not found' });
-  }
-
-  registerCustomerChannel(customerId, { phone, email, appUserId });
-  const customer = customerIdentityMap.get(customerId);
-
-  res.json({ success: true, customer });
-});
-
-// ─── Channel Webhooks ─────────────────────────────────────────
-
-// ── WhatsApp Webhook ──────────────────────────────────────────
-// POST /api/webhooks/whatsapp
-// Receives inbound WhatsApp messages from whatsapp-os (4860) or directly from Meta/Twilio
-app.post('/api/webhooks/whatsapp', async (req, res) => {
-  // Accept from Meta WhatsApp webhook
-  const metaEntry = req.body?.entry?.[0]?.changes?.[0]?.value;
-  // Accept from our own whatsapp-os
-  const ourEntry = req.body;
-
-  const entry = metaEntry || ourEntry;
-  const messages = entry?.messages || [];
-  const from = entry?.contacts?.[0]?.wa_id || ourEntry?.from;
-  const contactName = entry?.contacts?.[0]?.profile?.name || ourEntry?.contactName;
-  const messageText = messages?.[0]?.text?.body || ourEntry?.text || ourEntry?.message?.text;
-  const messageId = messages?.[0]?.id || ourEntry?.id;
-  const timestamp = messages?.[0]?.timestamp || Math.floor(Date.now() / 1000);
-
-  const nFrom = normalizePhone(from);
-  if (!nFrom) {
-    return res.status(400).json({ error: 'phone_number_required' });
-  }
-
-  const customerId = await resolveCustomerId({
-    phone: nFrom,
-    name: contactName,
-    metadata: { source: 'whatsapp', messageId },
+// ── WhatsApp Webhook ──────────────────────────────────
+app.all('/api/webhooks/whatsapp', async (req, res) => {
+  req.rawBody = '';
+  await new Promise((resolve) => {
+    req.on('data', (c) => { req.rawBody += c.toString(); });
+    req.on('end', resolve);
   });
 
-  const { conversationId, isNew, customer } = await getOrCreateConversation({
-    customerId,
-    channel: 'whatsapp',
-    subject: `WhatsApp support — ${contactName || nFrom}`,
-    externalRef: messageId,
-  });
-
-  if (messageText) {
-    await addMessage({
-      conversationId,
-      content: messageText,
-      sender: 'customer',
-      channel: 'whatsapp',
-      direction: 'inbound',
-      metadata: { customerName: contactName, messageId },
-    });
-
-    // Update session
-    const sessionKey = `${customerId}:whatsapp`;
-    const session = customerSessions.get(sessionKey) || {};
-    customerSessions.set(sessionKey, { ...session, lastMessageAt: new Date().toISOString() });
-  }
-
-  res.status(200).json({
-    received: true,
-    customerId,
-    conversationId,
-    isNew,
-    customer: customer ? { name: customer.name, phone: customer.phone, email: customer.email } : null,
-    timestamp: new Date(timestamp * 1000).toISOString(),
-  });
+  await whatsappWebhook.handleRequest(req, res);
 });
 
-// ── Email Webhook ─────────────────────────────────────────────
-// POST /api/webhooks/email
-// Receives inbound emails (from SendGrid, AWS SES, etc.)
+// ── Email Webhook ──────────────────────────────────────
 app.post('/api/webhooks/email', async (req, res) => {
-  // SendGrid format
-  // AWS SES format
-  // Generic format
-  const from = req.body.from || req.body.sender_email || req.headers['from'];
-  const to = req.body.to || req.body.recipient_email || req.headers['to'];
-  const subject = req.body.subject || '(no subject)';
-  const bodyText = req.body.text || req.body.body || req.body.html_stripped || '';
-  const bodyHtml = req.body.html;
-  const messageId = req.body.message_id || req.body['Message-ID'] || `email-${Date.now()}`;
-  const inReplyTo = req.body.in_reply_to || req.body['In-Reply-To'];
-  const references = req.body.references || req.body['References'];
+  // Normalize from any provider format
+  const email = await normalizeEmailFormat(req.body, req.headers);
+  if (!email) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
 
-  const nFrom = normalizeEmail(from);
+  const nFrom = normalizeEmailFormat2(email.from?.email);
   if (!nFrom) {
     return res.status(400).json({ error: 'from_email_required' });
   }
 
   const customerId = await resolveCustomerId({
     email: nFrom,
-    name: req.body.fromName || req.body.sender_name || null,
-    metadata: { source: 'email', messageId, subject },
+    name: email.from?.name || null,
+    metadata: { source: 'email', messageId: email.messageId, subject: email.subject, provider: email.provider },
   });
 
-  // Check if this is a reply to existing conversation
+  // Thread detection via inReplyTo
   let conversationId;
   let isNew = true;
 
-  if (inReplyTo || references) {
-    // Try to find existing conversation by message ID reference
-    for (const [convId, meta] of conversationMeta.entries()) {
-      if (meta.externalRef === inReplyTo || (references && references.includes(meta.externalRef))) {
-        conversationId = convId;
+  if (email.inReplyTo) {
+    const convs = await storage.getConversationsByCustomer(customerId);
+    for (const conv of convs) {
+      if (conv.externalRef === email.inReplyTo) {
+        conversationId = conv.id;
         isNew = false;
         break;
       }
@@ -526,23 +400,23 @@ app.post('/api/webhooks/email', async (req, res) => {
     const result = await getOrCreateConversation({
       customerId,
       channel: 'email',
-      subject,
-      externalRef: messageId,
+      subject: email.subject,
+      externalRef: email.messageId,
     });
     conversationId = result.conversationId;
     isNew = result.isNew;
   }
 
-  const customer = customerIdentityMap.get(customerId);
+  const customer = await storage.getCustomer(customerId);
 
-  if (bodyText) {
+  if (email.text) {
     await addMessage({
       conversationId,
-      content: bodyText,
+      content: email.text,
       sender: 'customer',
       channel: 'email',
       direction: 'inbound',
-      metadata: { customerName: customer?.name, messageId, subject },
+      metadata: { customerName: customer?.name, messageId: email.messageId, subject: email.subject, provider: email.provider },
     });
   }
 
@@ -551,31 +425,16 @@ app.post('/api/webhooks/email', async (req, res) => {
     customerId,
     conversationId,
     isNew,
+    messageId: email.messageId,
     customer: customer ? { name: customer.name, email: customer.email, phone: customer.phone } : null,
-    subject,
-    inReplyTo,
   });
 });
 
-// ── App/Web Chat Webhook ──────────────────────────────────────
-// POST /api/webhooks/app
-// Receives in-app support messages (from Do App, Genie, etc.)
+// ── App Webhook ────────────────────────────────────────
 app.post('/api/webhooks/app', async (req, res) => {
-  const {
-    appUserId,
-    userId,
-    message,
-    messageId,
-    sessionId,
-    platform = 'do-app',
-    contactName,
-    customerName,
-  } = req.body;
-
+  const { appUserId, userId, message, sessionId, platform = 'do-app', contactName, customerName } = req.body;
   const uid = appUserId || userId;
-  if (!uid) {
-    return res.status(400).json({ error: 'appUserId or userId required' });
-  }
+  if (!uid) return res.status(400).json({ error: 'appUserId or userId required' });
 
   const customerId = await resolveCustomerId({
     appUserId: uid,
@@ -586,8 +445,8 @@ app.post('/api/webhooks/app', async (req, res) => {
   const { conversationId, isNew, customer } = await getOrCreateConversation({
     customerId,
     channel: 'chat',
-    subject: `In-app support — ${contactName || customerName || uid}`,
-    externalRef: messageId || sessionId,
+    subject: `In-app — ${contactName || customerName || uid}`,
+    externalRef: sessionId,
   });
 
   if (message) {
@@ -599,307 +458,152 @@ app.post('/api/webhooks/app', async (req, res) => {
       direction: 'inbound',
       metadata: { customerName: contactName || customerName, sessionId, platform },
     });
-
-    // Update session
-    const sessionKey = `${customerId}:chat`;
-    customerSessions.set(sessionKey, {
-      ...(customerSessions.get(sessionKey) || {}),
-      lastMessageAt: new Date().toISOString(),
-    });
+    await storage.setSession(customerId, 'chat', { lastConversationId: conversationId, lastMessageAt: new Date().toISOString() });
   }
 
-  res.status(200).json({
-    received: true,
-    customerId,
-    conversationId,
-    isNew,
-    sessionId: sessionId || conversationId,
-    customer: customer ? { name: customer.name, phone: customer.phone, email: customer.email } : null,
-  });
+  res.status(200).json({ received: true, customerId, conversationId, isNew, sessionId: sessionId || conversationId });
 });
 
-// ─── Cross-Channel Conversation API ──────────────────────────
+// ── Customer Identity ───────────────────────────────────
+app.post('/api/customers/resolve', async (req, res) => {
+  const { phone, email, appUserId, name, metadata } = req.body;
+  if (!phone && !email && !appUserId) {
+    return res.status(400).json({ success: false, error: 'phone, email, or appUserId required' });
+  }
+  const customerId = await resolveCustomerId({ phone, email, appUserId, name, metadata });
+  const customer = await storage.getCustomer(customerId);
+  res.json({ success: true, customerId, customer });
+});
 
-// GET /api/customers/:id/conversations — get ALL conversations for customer across channels
+app.post('/api/customers/link', async (req, res) => {
+  const { customerId, phone, email, appUserId } = req.body;
+  if (!customerId || (!phone && !email && !appUserId)) {
+    return res.status(400).json({ success: false, error: 'customerId and at least one identifier required' });
+  }
+  const existing = await storage.getCustomer(customerId);
+  if (!existing) return res.status(404).json({ success: false, error: 'Customer not found' });
+
+  const nPhone = normalizePhone(phone);
+  const nEmail = normalizeEmailFormat2(email);
+  if (nPhone) await storage.registerChannelLink(customerId, 'phone', nPhone);
+  if (nEmail) await storage.registerChannelLink(customerId, 'email', nEmail);
+  if (appUserId) await storage.registerChannelLink(customerId, 'app', appUserId);
+
+  const customer = await storage.getCustomer(customerId);
+  res.json({ success: true, customer });
+});
+
+app.get('/api/customers', async (_req, res) => {
+  const customers = await storage.getAllCustomers();
+  res.json({ success: true, count: customers.length, customers: customers.map(c => ({
+    customerId: c.customerId, name: c.name, email: c.email, phone: c.phone, channels: c.channels, createdAt: c.createdAt,
+  })) });
+});
+
+app.get('/api/customers/:id', async (req, res) => {
+  const customer = await storage.getCustomer(req.params.id);
+  if (!customer) return res.status(404).json({ success: false, error: 'Customer not found' });
+  const conversations = await storage.getConversationsByCustomer(req.params.id);
+  res.json({ success: true, customer, conversations });
+});
+
+// ── Cross-Channel Conversations ─────────────────────────
 app.get('/api/customers/:id/conversations', async (req, res) => {
-  const customerId = req.params.id;
-  const customer = customerIdentityMap.get(customerId);
-
-  if (!customer) {
-    return res.status(404).json({ success: false, error: 'Customer not found' });
-  }
-
-  // Collect all conversations for this customer
-  const allConversations = [];
-  for (const [convId, meta] of conversationMeta.entries()) {
-    if (meta.customerId === customerId) {
-      // Try to enrich from unified-inbox
-      let convData = { id: convId };
-      try {
-        const res = await fetch(`${UNIFIED_INBOX_URL}/api/conversations/${convId}`, {
-          headers: { 'x-internal-token': INTERNAL_TOKEN },
-        });
-        if (res.ok) {
-          convData = (await res.json()).conversation || convData;
-        }
-      } catch (e) {
-        // Use local data
-      }
-
-      allConversations.push({
-        ...convData,
-        channels: meta.channels,
-        linkedConversations: meta.linkedConversations,
-        mergedFrom: meta.mergedFrom,
-      });
-    }
-  }
-
-  // Sort by last activity
-  allConversations.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-
-  res.json({
-    success: true,
-    customerId,
-    customer: {
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-      channels: customer.channels,
-    },
-    conversations: allConversations,
-    totalConversations: allConversations.length,
-  });
+  const customer = await storage.getCustomer(req.params.id);
+  if (!customer) return res.status(404).json({ success: false, error: 'Customer not found' });
+  const conversations = await storage.getConversationsByCustomer(req.params.id);
+  conversations.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+  res.json({ success: true, customerId: req.params.id, customer: { name: customer.name, email: customer.email, channels: customer.channels }, conversations, totalConversations: conversations.length });
 });
 
-// GET /api/customers/:id/activity — timeline of all customer activity across channels
 app.get('/api/customers/:id/activity', async (req, res) => {
-  const customerId = req.params.id;
-  const customer = customerIdentityMap.get(customerId);
-
-  if (!customer) {
-    return res.status(404).json({ success: false, error: 'Customer not found' });
-  }
-
-  // Collect all messages across all conversations
-  const allMessages = [];
-  for (const [convId, meta] of conversationMeta.entries()) {
-    if (meta.customerId === customerId) {
-      try {
-        const res = await fetch(`${UNIFIED_INBOX_URL}/api/conversations/${convId}/messages`, {
-          headers: { 'x-internal-token': INTERNAL_TOKEN },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          for (const msg of (data.messages || [])) {
-            allMessages.push({
-              ...msg,
-              conversationId: convId,
-              channels: meta.channels,
-            });
-          }
-        }
-      } catch (e) {
-        // Skip
-      }
-    }
-  }
-
-  // Sort chronologically
-  allMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
+  const customer = await storage.getCustomer(req.params.id);
+  if (!customer) return res.status(404).json({ success: false, error: 'Customer not found' });
+  const messages = await storage.getMessagesByCustomer(req.params.id);
   res.json({
     success: true,
-    customerId,
-    customer: { name: customer.name, email: customer.email, phone: customer.phone },
-    totalMessages: allMessages.length,
-    activity: allMessages.map(m => ({
+    customerId: req.params.id,
+    totalMessages: messages.length,
+    activity: messages.map(m => ({
       messageId: m.id,
-      content: m.content?.substring?.(0, 100) || m.content,
-      channel: m.sender?.channel || (m.channels?.[0]),
-      direction: m.direction || (m.sender?.type === 'customer' ? 'inbound' : 'outbound'),
-      senderType: m.sender?.type,
-      conversationId: m.conversationId,
+      content: typeof m.content === 'string' ? m.content.substring(0, 100) : m.content,
+      channel: m.channel,
+      direction: m.direction,
       createdAt: m.createdAt,
     })),
   });
 });
 
-// ─── Conversation Merge API ────────────────────────────────────
-
-// POST /api/conversations/:id/merge — merge this conversation with others
-// Body: { mergeWith: ['conv-id-2', 'conv-id-3'], targetConversationId: 'conv-id-1' }
+// ── Conversation Merge ──────────────────────────────────
 app.post('/api/conversations/:id/merge', async (req, res) => {
   const primaryId = req.params.id;
   const { mergeWith = [], targetConversationId } = req.body;
-
   const toMerge = targetConversationId ? [targetConversationId, ...mergeWith] : [primaryId, ...mergeWith];
+  if (toMerge.length < 2) return res.status(400).json({ success: false, error: 'At least 2 conversations required' });
 
-  if (toMerge.length < 2) {
-    return res.status(400).json({ success: false, error: 'At least 2 conversations required to merge' });
-  }
-
-  // Verify all conversations exist and belong to same customer
   let customerId = null;
-  const conversations = [];
-
   for (const convId of toMerge) {
-    const meta = conversationMeta.get(convId);
-    if (!meta) {
-      return res.status(404).json({ success: false, error: `Conversation ${convId} not found` });
-    }
-    if (!customerId) {
-      customerId = meta.customerId;
-    } else if (meta.customerId !== customerId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Cannot merge conversations from different customers',
-      });
-    }
-    conversations.push(convId);
+    const conv = await storage.getConversation(convId);
+    if (!conv) return res.status(404).json({ success: false, error: `Conversation ${convId} not found` });
+    if (customerId && conv.customerId !== customerId) return res.status(400).json({ success: false, error: 'Cannot merge different customers' });
+    customerId = conv.customerId;
   }
 
-  const customer = customerIdentityMap.get(customerId);
-
-  // Determine primary (keep this one)
-  const primary = conversations[0];
-
-  // Merge metadata
-  const allChannels = new Set();
-  const allLinked = new Set();
-  const allMergedFrom = new Set();
-
-  for (const convId of conversations) {
-    const meta = conversationMeta.get(convId);
-    meta.channels.forEach(c => allChannels.add(c));
-    meta.linkedConversations.forEach(c => allLinked.add(c));
-    meta.mergedFrom.add(convId);
+  const primary = toMerge[0];
+  const allChannels = new Set([(await storage.getConversation(primary))?.channel]);
+  for (const convId of toMerge) {
+    const c = await storage.getConversation(convId);
+    if (c) allChannels.add(c.channel);
   }
 
-  // Update primary conversation metadata
-  conversationMeta.set(primary, {
-    customerId,
-    channels: [...allChannels],
-    linkedConversations: [...allLinked, ...conversations.filter(c => c !== primary)],
-    mergedFrom: [...allMergedFrom],
+  await storage.updateConversation(primary, {
+    tags: [...(toMerge.filter(id => id !== primary).map(id => `merged:${id}`)],
+    linkedConversations: toMerge.filter(id => id !== primary),
     mergedAt: new Date().toISOString(),
   });
 
-  // Update merged conversations to point to primary
-  for (const convId of conversations) {
+  for (const convId of toMerge) {
     if (convId !== primary) {
-      const meta = conversationMeta.get(convId);
-      conversationMeta.set(convId, {
-        ...meta,
-        mergedInto: primary,
-        mergedAt: new Date().toISOString(),
-      });
+      await storage.updateConversation(convId, { mergedInto: primary, status: 'merged', mergedAt: new Date().toISOString() });
     }
   }
 
-  // Optionally update unified-inbox (add tags, update subject)
-  try {
-    const subject = `Merged conversation — ${[...allChannels].join(', ')}`;
-    await fetch(`${UNIFIED_INBOX_URL}/api/conversations/${primary}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'x-internal-token': INTERNAL_TOKEN },
-      body: JSON.stringify({ tags: [...new Set([...conversationMeta.get(primary).mergedFrom.map(c => `merged:${c}`)])] }),
-    });
-  } catch (e) {
-    // Best effort
-  }
-
-  res.json({
-    success: true,
-    primaryConversationId: primary,
-    mergedFrom: conversations.filter(c => c !== primary),
-    customerId,
-    customer: { name: customer?.name, email: customer?.email, phone: customer?.phone },
-    channels: [...allChannels],
-    linkedConversations: conversationMeta.get(primary).linkedConversations,
-  });
+  emitConversationMerged({ primaryConversationId: primary, mergedFrom: toMerge.filter(id => id !== primary), customerId, channels: [...allChannels] });
+  const customer = await storage.getCustomer(customerId);
+  res.json({ success: true, primaryConversationId: primary, mergedFrom: toMerge.filter(id => id !== primary), customerId, channels: [...allChannels], customer: { name: customer?.name, email: customer?.email, phone: customer?.phone } });
 });
 
-// GET /api/conversations/:id/linked — get all linked conversations
-app.get('/api/conversations/:id/linked', (req, res) => {
-  const convId = req.params.id;
-  const meta = conversationMeta.get(convId);
-
-  if (!meta) {
-    return res.status(404).json({ success: false, error: 'Conversation not found' });
-  }
-
-  // Follow the chain
-  const linked = [];
-  const seen = new Set([convId]);
-
-  for (const linkedId of meta.linkedConversations) {
-    if (!seen.has(linkedId)) {
-      seen.add(linkedId);
-      const linkedMeta = conversationMeta.get(linkedId);
-      if (linkedMeta && !linkedMeta.mergedInto) {
-        linked.push({ conversationId: linkedId, channels: linkedMeta.channels });
-      }
-    }
-  }
-
-  res.json({
-    success: true,
-    conversationId: convId,
-    customerId: meta.customerId,
-    linked,
-    mergedFrom: meta.mergedFrom || [],
-    mergedInto: meta.mergedInto || null,
-  });
+app.get('/api/conversations/:id/linked', async (req, res) => {
+  const conv = await storage.getConversation(req.params.id);
+  if (!conv) return res.status(404).json({ success: false, error: 'Conversation not found' });
+  res.json({ success: true, conversationId: req.params.id, customerId: conv.customerId, linkedConversations: conv.linkedConversations || [], mergedFrom: conv.mergedFrom || [], mergedInto: conv.mergedInto || null });
 });
 
-// ─── Ticket Bridge ────────────────────────────────────────────
-
-// POST /api/conversations/:id/ticket — create ticket from conversation
+// ── Ticket Creation ────────────────────────────────────
 app.post('/api/conversations/:id/ticket', async (req, res) => {
-  const convId = req.params.id;
-  const meta = conversationMeta.get(convId);
-
-  if (!meta) {
-    return res.status(404).json({ success: false, error: 'Conversation not found' });
-  }
-
-  const customer = customerIdentityMap.get(meta.customerId);
-
-  // Get conversation from unified-inbox
-  let convData = {};
-  try {
-    const res = await fetch(`${UNIFIED_INBOX_URL}/api/conversations/${convId}`, {
-      headers: { 'x-internal-token': INTERNAL_TOKEN },
-    });
-    if (res.ok) convData = (await res.json()).conversation || {};
-  } catch (e) {
-    // Use local
-  }
-
-  const ticketPayload = {
-    subject: convData.subject || `Support ticket from ${meta.channels.join(', ')}`,
-    description: `Created from merged conversation ${convId} (channels: ${meta.channels.join(', ')})`,
-    customer: {
-      id: meta.customerId,
-      name: customer?.name || null,
-      email: customer?.email || null,
-    },
-    priority: convData.priority || 'medium',
-    category: req.body.category || 'general',
-    tags: [...(convData.tags || []), ...meta.channels.map(c => `source:${c}`)],
-    source: meta.channels[0] || 'unified',
-    conversationId: convId,
-  };
+  const conv = await storage.getConversation(req.params.id);
+  if (!conv) return res.status(404).json({ success: false, error: 'Conversation not found' });
+  const customer = await storage.getCustomer(conv.customerId);
 
   try {
-    const res = await fetch(`${TICKET_ENGINE_URL}/api/tickets`, {
+    const ticketRes = await fetch(`${TICKET_ENGINE_URL}/api/tickets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-internal-token': INTERNAL_TOKEN },
-      body: JSON.stringify(ticketPayload),
+      body: JSON.stringify({
+        subject: conv.subject,
+        description: `From ${conv.channel} conversation ${req.params.id}`,
+        customer: { id: conv.customerId, name: customer?.name, email: customer?.email },
+        priority: conv.priority || 'medium',
+        category: req.body.category || 'general',
+        tags: [...(conv.tags || []), `source:${conv.channel}`],
+        source: conv.channel,
+        conversationId: req.params.id,
+      }),
     });
-    if (res.ok) {
-      const data = await res.json();
+
+    if (ticketRes.ok) {
+      const data = await ticketRes.json();
+      emitTicketCreated({ ticketId: data.ticket?.id || data.id, conversationId: req.params.id, customerId: conv.customerId, channel: conv.channel });
       res.json({ success: true, ticketId: data.ticket?.id || data.id, ticket: data.ticket });
     } else {
       res.status(502).json({ success: false, error: 'Ticket engine unavailable' });
@@ -909,47 +613,159 @@ app.post('/api/conversations/:id/ticket', async (req, res) => {
   }
 });
 
-// ─── Stats ────────────────────────────────────────────────────
-
-app.get('/api/stats', (_req, res) => {
+// ── Stats ─────────────────────────────────────────────
+app.get('/api/stats', async (_req, res) => {
+  const customers = await storage.getAllCustomers();
+  const conversations = await storage.getAllConversations();
   const byChannel = {};
-  for (const [, meta] of conversationMeta) {
-    for (const ch of meta.channels) {
-      byChannel[ch] = (byChannel[ch] || 0) + 1;
-    }
+  for (const c of conversations) {
+    byChannel[c.channel] = (byChannel[c.channel] || 0) + 1;
   }
-
-  const mergedCount = [...conversationMeta.values()].filter(m => m.mergedFrom?.length > 0).length;
-  const customersWithMultipleChannels = [...customerIdentityMap.values()].filter(
-    c => c.channels.length > 1
-  ).length;
-
-  res.json({
-    success: true,
-    stats: {
-      totalCustomers: customerIdentityMap.size,
-      totalConversations: conversationMeta.size,
-      totalSessions: customerSessions.size,
-      byChannel,
-      mergedConversations: mergedCount,
-      multiChannelCustomers: customersWithMultipleChannels,
-    },
-  });
+  res.json({ success: true, stats: { totalCustomers: customers.length, totalConversations: conversations.length, byChannel, multiChannelCustomers: customers.filter(c => (c.channels?.length || 0) > 1).length } });
 });
 
-// ─── 404 ──────────────────────────────────────────────────────
+// ── Events ─────────────────────────────────────────────
+attachEventRoutes(app);
+
+// ── Email Inbound (SMTP) ────────────────────────────────
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '0', 10);
+if (SMTP_PORT > 0) {
+  const smtp = createSmtpReceiver(async (email) => {
+    // Forward to email webhook handler
+    const nFrom = normalizeEmailFormat2(email.from?.email);
+    if (!nFrom) return;
+
+    const customerId = await resolveCustomerId({
+      email: nFrom,
+      name: email.from?.name,
+      metadata: { source: 'email', messageId: email.messageId, provider: 'smtp' },
+    });
+
+    const convs = await storage.getConversationsByCustomer(customerId);
+    let conversationId;
+    let isNew = true;
+
+    if (email.inReplyTo) {
+      for (const c of convs) {
+        if (c.externalRef === email.inReplyTo) {
+          conversationId = c.id;
+          isNew = false;
+          break;
+        }
+      }
+    }
+
+    if (!conversationId) {
+      const result = await getOrCreateConversation({
+        customerId,
+        channel: 'email',
+        subject: email.subject,
+        externalRef: email.messageId,
+      });
+      conversationId = result.conversationId;
+      isNew = result.isNew;
+    }
+
+    if (email.text) {
+      await addMessage({
+        conversationId,
+        content: email.text,
+        sender: 'customer',
+        channel: 'email',
+        direction: 'inbound',
+        metadata: { messageId: email.messageId, subject: email.subject, provider: 'smtp' },
+      });
+    }
+
+    console.log(`[smtp] processed email from ${nFrom} → conv ${conversationId}`);
+  }, SMTP_PORT);
+
+  smtp.listen(SMTP_PORT, () => {
+    console.log(`[smtp] SMTP receiver listening on port ${SMTP_PORT}`);
+  });
+}
+
+// ── IMAP Polling ─────────────────────────────────────
+if (process.env.IMAP_USER && process.env.IMAP_PASSWORD) {
+  const imap = createImapPoller(async (email) => {
+    // Reuse same flow as SMTP
+    const nFrom = normalizeEmailFormat2(email.from?.email);
+    if (!nFrom) return;
+
+    const customerId = await resolveCustomerId({
+      email: nFrom,
+      name: email.from?.name,
+      metadata: { source: 'email', messageId: email.messageId, provider: 'imap' },
+    });
+
+    const convs = await storage.getConversationsByCustomer(customerId);
+    let conversationId;
+
+    if (email.inReplyTo) {
+      for (const c of convs) {
+        if (c.externalRef === email.inReplyTo) {
+          conversationId = c.id;
+          break;
+        }
+      }
+    }
+
+    if (!conversationId) {
+      const result = await getOrCreateConversation({
+        customerId,
+        channel: 'email',
+        subject: email.subject,
+        externalRef: email.messageId,
+      });
+      conversationId = result.conversationId;
+    }
+
+    if (email.text) {
+      await addMessage({
+        conversationId,
+        content: email.text,
+        sender: 'customer',
+        channel: 'email',
+        direction: 'inbound',
+        metadata: { messageId: email.messageId, provider: 'imap' },
+      });
+    }
+
+    console.log(`[imap] processed email from ${nFrom}`);
+  }, parseInt(process.env.IMAP_POLL_INTERVAL || '60000', 10));
+
+  imap.start();
+}
+
+// ── 404 ────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ error: 'not_found' }));
 
 // ─── Start ────────────────────────────────────────────────────
-// Export for testing (don't auto-start)
 if (require.main === module) {
   const server = app.listen(PORT, () => {
-    console.log(`[unified-support-bridge] listening on ${PORT}`);
+    console.log(`[unified-support-bridge] v2.0 listening on ${PORT}`);
+    console.log(`[unified-support-bridge] storage: ${process.env.USE_REDIS ? 'redis' : process.env.USE_MONGODB ? 'mongodb' : 'in-memory'}`);
+    console.log(`[unified-support-bridge] corpid: ${CORPID_URL}`);
     console.log(`[unified-support-bridge] unified-inbox: ${UNIFIED_INBOX_URL}`);
     console.log(`[unified-support-bridge] ticket-engine: ${TICKET_ENGINE_URL}`);
-    console.log(`[unified-support-bridge] corpid: ${CORPID_URL}`);
+    if (process.env.IMAP_USER) console.log(`[unified-support-bridge] imap: polling ${process.env.IMAP_HOST}`);
+    if (SMTP_PORT > 0) console.log(`[unified-support-bridge] smtp: listening on ${SMTP_PORT}`);
   });
+
+  // Attach WebSocket to same server
+  const http = require('http');
+  const { initWebSocket, initRedisPubSub } = require('./events');
+  initWebSocket(server);
+
+  if (process.env.REDIS_URL) {
+    initRedisPubSub(process.env.REDIS_URL);
+  }
+
   process.on('SIGTERM', () => { server.close(); process.exit(0); });
 } else {
   module.exports = { app };
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
