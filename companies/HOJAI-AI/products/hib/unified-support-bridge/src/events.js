@@ -1,8 +1,7 @@
 'use strict';
 
 const { EventEmitter } = require('events');
-const { v4: _uuidv4 } = require('uuid');
-const uuidv4 = _uuidv4;
+const { randomUUID } = require('crypto');
 
 const EVENTS = {
   MESSAGE_RECEIVED: 'message.received',

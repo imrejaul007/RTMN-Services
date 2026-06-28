@@ -124,7 +124,7 @@ Agent Layer (Orthogonal)
 
 | Service | Port | Lines | Tests | Features |
 |---------|------|-------|-------|---------|
-| `sutar-intent-bus` | 4154 | stub | ❌ | Intent pub/sub (not yet built) |
+| `sutar-intent-bus` | 4154 | 250 | ✅ 15 | Intent pub/sub bus: pattern matching, subscriptions, pub/sub |
 | `sutar-agent-network` | 4155 | 214 | ❌ | Agent registry, discovery, capability matching |
 
 ### Layer 4 — Decision + Execution (6 services)
@@ -132,9 +132,9 @@ Agent Layer (Orthogonal)
 | Service | Port | Lines | Tests | Features |
 |---------|------|-------|-------|---------|
 | `sutar-decision-engine` | 4290 | 704 | ✅ 43 | Policy evaluation, risk assessment, multi-option ranking, 10 decision types |
-| `sutar-simulation-os` | 4241 | stub | ❌ | What-if scenarios (not yet built) |
-| `sutar-goal-os` | 4242 | stub | ❌ | Goal decomposition (in genie-os) |
-| `sutar-network-learning` | 4243 | stub | ❌ | Learning from outcomes (not yet built) |
+| `sutar-simulation-os` | 4241 | 280 | ✅ 20 | What-if scenarios: Monte Carlo, stress testing, constraint evaluation, distribution sampling |
+| `sutar-goal-os` | 4242 | 260 | ✅ 15 | Goal decomposition: task trees, critical path, progress tracking |
+| `sutar-network-learning` | 4243 | 240 | ✅ 17 | Learning from outcomes: strategy ranking, pattern extraction, insights |
 | `sutar-flow-os` | 4244 | stub | ❌ | Workflow orchestration (not yet built) |
 | `sutar-founder-os` | 4260 | stub | ❌ | Founder decision support (not yet built) |
 
