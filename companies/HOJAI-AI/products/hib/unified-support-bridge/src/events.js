@@ -3,7 +3,6 @@
 const { EventEmitter } = require('events');
 const { v4: uuidv4 } = require('uuid');
 
-// Event type constants
 const EVENTS = {
   MESSAGE_RECEIVED: 'message.received',
   CONVERSATION_CREATED: 'conversation.created',
@@ -19,7 +18,6 @@ const EVENTS = {
   CHANNEL_DISCONNECTED: 'channel.disconnected',
 };
 
-// In-process event emitter
 class UnifiedEventEmitter extends EventEmitter {
   constructor() {
     super();
@@ -29,19 +27,13 @@ class UnifiedEventEmitter extends EventEmitter {
 
 const emitter = new UnifiedEventEmitter();
 
-// SSE helper
 function formatSseEvent(event) {
-  const data = JSON.stringify({
-    ...event,
-    timestamp: event.timestamp || new Date().toISOString(),
-  });
+  const data = JSON.stringify(Object.assign({}, event, { timestamp: event.timestamp || new Date().toISOString() }));
   return 'event: ' + (event.type || 'event') + '\ndata: ' + data + '\n\n';
 }
 
-// SSE endpoint creator
 function createSseEndpoint(req, res) {
-  const { customerId, conversationId, agentId, channel } = req.query;
-
+  const q = req.query || {};
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
@@ -49,27 +41,19 @@ function createSseEndpoint(req, res) {
   res.flushHeaders();
 
   const connectionId = uuidv4();
-  const keepAlive = setInterval(function() {
-    res.write(': keep-alive\n\n');
-  }, 30000);
+  const keepAlive = setInterval(function() { res.write(': keep-alive\n\n'); }, 30000);
 
   const handler = function(event) {
-    if (customerId && event.customerId && event.customerId !== customerId) return;
-    if (conversationId && event.conversationId && event.conversationId !== conversationId) return;
-    if (agentId && event.agentId && event.agentId !== agentId) return;
-    if (channel && event.channel && event.channel !== channel) return;
+    if (q.customerId && event.customerId && event.customerId !== q.customerId) return;
+    if (q.conversationId && event.conversationId && event.conversationId !== q.conversationId) return;
+    if (q.agentId && event.agentId && event.agentId !== q.agentId) return;
+    if (q.channel && event.channel && event.channel !== q.channel) return;
     res.write(formatSseEvent(event));
   };
 
-  // Subscribe to all event types
   Object.values(EVENTS).forEach(function(ev) { emitter.on(ev, handler); });
 
-  res.write(formatSseEvent({
-    type: 'connected',
-    connectionId,
-    filters: { customerId, conversationId, agentId, channel },
-    timestamp: new Date().toISOString(),
-  }));
+  res.write(formatSseEvent({ type: 'connected', connectionId: connectionId, filters: q, timestamp: new Date().toISOString() }));
 
   req.on('close', function() {
     clearInterval(keepAlive);
@@ -77,19 +61,18 @@ function createSseEndpoint(req, res) {
   });
 }
 
-// WebSocket server
 let wss = null;
-let WebSocketServer = null;
 
 function initWebSocket(server) {
+  let Ws;
   try {
-    ({ WebSocketServer } = require('ws'));
+    Ws = require('ws');
   } catch (e) {
-    console.log('[ws] ws module not available, WebSocket disabled');
+    console.log('[ws] ws not available, WebSocket disabled');
     return;
   }
 
-  wss = new WebSocketServer({ server: server, path: '/ws/events' });
+  wss = new Ws.Server({ server: server, path: '/ws/events' });
 
   wss.on('connection', function(ws, req) {
     const connectionId = uuidv4();
@@ -103,12 +86,11 @@ function initWebSocket(server) {
       ws.ping();
     }, 30000);
 
-    ws.send(JSON.stringify({ type: 'connected', connectionId, timestamp: new Date().toISOString() }));
+    ws.send(JSON.stringify({ type: 'connected', connectionId: connectionId, timestamp: new Date().toISOString() }));
 
     ws.on('message', function(data) {
       try {
-        const msg = JSON.parse(data.toString());
-        handleWebSocketMessage(ws, msg);
+        handleWsMessage(ws, JSON.parse(data.toString()));
       } catch (e) {
         ws.send(JSON.stringify({ type: 'error', message: 'Invalid JSON' }));
       }
@@ -117,40 +99,32 @@ function initWebSocket(server) {
     ws.on('close', function() {
       clearInterval(heartbeat);
       emitter.emit(EVENTS.CHANNEL_DISCONNECTED, {
-        type: 'channel.disconnected',
-        connectionId,
-        protocol: 'websocket',
-        timestamp: new Date().toISOString(),
+        type: 'channel.disconnected', connectionId: connectionId, protocol: 'websocket', timestamp: new Date().toISOString(),
       });
     });
 
-    ws.on('error', function(e) {
-      console.error('[ws] error ' + connectionId + ':', e.message);
-    });
-
+    ws.on('error', function(e) { console.error('[ws] error ' + connectionId + ':', e.message); });
     ws.on('pong', function() { ws.isAlive = true; });
-
-    console.log('[ws] client connected:', connectionId);
+    console.log('[ws] client connected: ' + connectionId);
   });
 
-  // Broadcast handler
+  wss.on('error', function(e) { console.error('[ws] server error:', e.message); });
+
   var broadcastHandler = function(event) {
-    var payload = JSON.stringify({
-      ...event,
-      timestamp: event.timestamp || new Date().toISOString(),
-    });
+    if (!wss) return;
+    var payload = JSON.stringify(Object.assign({}, event, { timestamp: event.timestamp || new Date().toISOString() }));
     wss.clients.forEach(function(client) {
-      if (client.readyState === 1 && matchesSubscriptions(client, event)) {
+      if (client.readyState === 1 && wsMatchesSubscriptions(client, event)) {
         client.send(payload);
       }
     });
   };
 
   Object.values(EVENTS).forEach(function(ev) { emitter.on(ev, broadcastHandler); });
-  console.log('[ws] WebSocket server initialized on /ws/events');
+  console.log('[ws] initialized on /ws/events');
 }
 
-function matchesSubscriptions(ws, event) {
+function wsMatchesSubscriptions(ws, event) {
   if (ws.subscriptions.size === 0) return true;
   if (event.customerId && ws.subscriptions.has('customer:' + event.customerId)) return true;
   if (event.conversationId && ws.subscriptions.has('conversation:' + event.conversationId)) return true;
@@ -158,37 +132,37 @@ function matchesSubscriptions(ws, event) {
   return false;
 }
 
-function handleWebSocketMessage(ws, msg) {
+function handleWsMessage(ws, msg) {
   switch (msg.type) {
     case 'subscribe':
       if (msg.channel) ws.subscriptions.add(msg.channel);
-      ws.send(JSON.stringify({ type: 'subscribed', channels: [...ws.subscriptions] }));
+      ws.send(JSON.stringify({ type: 'subscribed', channels: Array.from(ws.subscriptions) }));
       break;
     case 'unsubscribe':
       if (msg.channel) ws.subscriptions.delete(msg.channel);
-      ws.send(JSON.stringify({ type: 'unsubscribed', channels: [...ws.subscriptions] }));
+      ws.send(JSON.stringify({ type: 'unsubscribed', channels: Array.from(ws.subscriptions) }));
       break;
     case 'ping':
       ws.send(JSON.stringify({ type: 'pong', timestamp: new Date().toISOString() }));
       break;
     default:
-      ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type: ' + msg.type }));
+      ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type: ' + (msg.type || '') }));
   }
 }
 
-// Redis Pub/Sub
-let redisSub = null;
 let redisPub = null;
+let redisSub = null;
 
 async function initRedisPubSub(redisUrl) {
   try {
-    const { Redis } = require('ioredis');
+    var Redis = require('ioredis');
     redisPub = new Redis(redisUrl);
     redisSub = new Redis(redisUrl);
     await new Promise(function(resolve, reject) {
-      redisSub.on('connect', resolve);
+      redisSub.on('ready', resolve);
       redisSub.on('error', reject);
     });
+    await new Promise(function(resolve) { setTimeout(resolve, 100); }); // small delay
     await redisSub.subscribe('usb:event:*');
     redisSub.on('message', function(channel, message) {
       var eventName = channel.replace('usb:event:', '');
@@ -196,17 +170,14 @@ async function initRedisPubSub(redisUrl) {
     });
     console.log('[events] Redis pub/sub initialized');
   } catch (e) {
-    console.warn('[events] Redis pub/sub not available:', e.message);
+    console.warn('[events] Redis pub/sub not available: ' + e.message);
   }
 }
 
-// Emit helpers
 function emit(type, data) {
-  var event = { type: type, ...data, timestamp: new Date().toISOString() };
+  var event = Object.assign({ type: type }, data, { timestamp: new Date().toISOString() });
   emitter.emit(type, event);
-  if (redisPub) {
-    redisPub.publish('usb:event:' + type, JSON.stringify(event)).catch(function() {});
-  }
+  if (redisPub) redisPub.publish('usb:event:' + type, JSON.stringify(event)).catch(function() {});
   return event;
 }
 
@@ -220,10 +191,8 @@ function emitConversationAssigned(data) { return emit(EVENTS.CONVERSATION_ASSIGN
 function emitCustomerLinked(data) { return emit(EVENTS.CUSTOMER_LINKED, data); }
 function emitEscalation(data) { return emit(EVENTS.ESCALATION, data); }
 
-// Attach SSE routes to Express app
 function attachEventRoutes(app) {
   app.get('/api/events/stream', createSseEndpoint);
-
   app.get('/api/events/stats', function(req, res) {
     res.json({
       sseListeners: emitter.listenerCount(EVENTS.MESSAGE_RECEIVED),
@@ -231,7 +200,6 @@ function attachEventRoutes(app) {
       redisPubSub: redisPub ? 'active' : 'inactive',
     });
   });
-
   app.post('/api/events/emit', function(req, res) {
     if (!req.body || !req.body.type) return res.status(400).json({ error: 'type required' });
     var event = emit(req.body.type, req.body);

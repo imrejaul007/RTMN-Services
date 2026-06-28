@@ -319,41 +319,54 @@ Nexha A (Restaurant)    Nexha B (Delivery)    Nexha C (Payment)
 
 **Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
 
-### HOJAI SiteOS — 37 Services Built (June 2026)
+### HOJAI SiteOS — 46 Services Built (June 2026)
 
 **`companies/HOJAI-AI/products/`**
 
-| Port | Service | Phase | Purpose |
-|---|---|---|---|
+| Port | Service | Purpose |
+|---|---|---|
 | **Core Gateway (5450-5468)** |
-| 5450 | siteos-gateway | 0.5 | Unified API gateway |
-| 5451 | business-context-wrapper | 0.5 | CXO, Sales, Marketing context |
-| 5452 | channel-stitcher | 0.5 | CorpID, Customer Twin |
-| 5453 | event-tracker | 0.5 | Event tracking |
-| 5454 | heatmap-aggregator | 0.5 | Behavior analytics |
-| 5455 | vertical-templates | 0.5 | 26 Industry templates |
-| 5456 | review-scrapers | 0.5 | Review monitoring |
-| 5457 | lookalike-generator | 0.5 | Audience expansion |
-| 5458 | lead-scoring | 2 | Signal-based scoring |
-| 5459 | marketing-automation | 2 | Campaign automation |
-| 5460 | customer-twin-full | 2 | Customer digital twin |
-| 5461 | event-taxonomy | 2 | 100-event taxonomy |
-| 5462 | workflow-visual-builder | 2 | DAG workflow builder |
-| 5463 | voice-widget | 3 | Voice integration |
-| 5464 | ads | 3 | AdOS - Pixel, CAPI tracking |
-| 5465 | crm-connectors | 3 | HubSpot, Salesforce sync |
-| 5466 | knowledge-base | 3 | AI knowledge base |
-| 5467 | ab-testing | 3 | Experiment engine |
-| 5468 | product-federation | 4 | Nexha discovery |
-| **Commerce Module (siteos-commerce/)** |
-| 5476 | product-catalog | COMMERCE | Products, search, categories |
-| 5477 | cart-service | COMMERCE | Cart, coupons, discounts |
-| 5478 | checkout-service | COMMERCE | Orders, addresses, shipping |
-| 5479 | payment-gateway | COMMERCE | Razorpay, UPI, QR payments |
-| 5480 | review-collection | COMMERCE | Active reviews, sentiment |
-| 5481 | loyalty-connector | COMMERCE | Points, tiers, rewards |
-| 5482 | **support-widget** | COMMERCE | Tickets, live chat |
-| 5483 | **whatsapp-broadcast** | COMMERCE | Campaigns, sequences |
+| 5450 | siteos-gateway | Unified API gateway |
+| 5451 | business-context-wrapper | CXO, Sales, Marketing context |
+| 5452 | channel-stitcher | CorpID, Customer Twin |
+| 5453 | event-tracker | Event tracking |
+| 5454 | heatmap-aggregator | Behavior analytics |
+| 5455 | vertical-templates | 26 Industry templates |
+| 5456 | review-scrapers | Review monitoring |
+| 5457 | lookalike-generator | Audience expansion |
+| 5458 | lead-scoring | Signal-based scoring |
+| 5459 | marketing-automation | Campaign automation |
+| 5460 | customer-twin-full | Customer digital twin |
+| 5461 | event-taxonomy | 100-event taxonomy |
+| 5462 | workflow-visual-builder | DAG workflow builder |
+| 5463 | voice-widget | Voice integration |
+| 5464 | ads | AdOS - Pixel, CAPI tracking |
+| 5465 | crm-connectors | HubSpot, Salesforce sync |
+| 5466 | knowledge-base | AI knowledge base |
+| 5467 | ab-testing | Experiment engine |
+| 5468 | product-federation | Nexha discovery |
+| **Commerce Module (5476-5494)** |
+| 5476 | product-catalog | Products, search, categories |
+| 5477 | cart-service | Cart, coupons, discounts |
+| 5478 | checkout-service | Orders, addresses, shipping |
+| 5479 | payment-gateway | Razorpay, UPI, QR payments |
+| 5480 | review-collection | Active reviews, sentiment |
+| 5481 | loyalty-connector | Points, tiers, rewards |
+| 5482 | support-widget | Tickets, live chat |
+| 5483 | whatsapp-broadcast | Campaigns, sequences |
+| 5484 | native-crm | Contacts, deals, tasks |
+| 5485 | sales-pipeline | Kanban, quotes, commission |
+| **Communication (5486-5491)** |
+| 5486 | email-service | SMTP, templates, tracking |
+| 5487 | sms-service | Twilio, MSG91, DLT |
+| 5488 | push-service | Web push, FCM |
+| 5489 | analytics-api | Real-time metrics, funnels |
+| 5490 | multi-currency | 10+ currencies, RTL |
+| 5491 | i18n-service | 15+ locales, translations |
+| **Business (5492-5494)** |
+| 5492 | social-connector | Social media posting |
+| 5493 | affiliate-system | Partner tracking, payouts |
+| 5494 | subscription-billing | Plans, usage, invoices |mpaigns, sequences |
 | 5484 | **native-crm** | COMMERCE | Contacts, deals, tasks |
 | 5485 | **sales-pipeline** | COMMERCE | Kanban, quotes, commission |
 | **Agent & AI (5469-5475)** |
