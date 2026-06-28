@@ -7,8 +7,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "vitest --reporter=verbose",
-    "test:unit": "vitest __tests__/unit/*.test.js --reporter=verbose"
+    "test": "vitest --reporter=verbose"
   },
   "dependencies": {
     "express": "^4.21.2",

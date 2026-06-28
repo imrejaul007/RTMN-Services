@@ -237,10 +237,12 @@ export function createTaskTwinService() {
   return app;
 }
 
-// Start server if run directly
+// Start server if run directly (only when not in test mode)
 const PORT = parseInt(process.env.PORT || '4893', 10);
-const server = createTaskTwinService().listen(PORT, () => {
-  console.log(`Task Twin - Port ${PORT}`);
-});
-
+const server = createTaskTwinService();
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, () => {
+    console.log(`Task Twin - Port ${PORT}`);
+  });
+}
 export default server;

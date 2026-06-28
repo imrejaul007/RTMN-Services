@@ -1,5 +1,5 @@
 // Shared file-based JSON storage for Agent OS
-import { join, dirname } from 'path';
+import { join } from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
@@ -11,11 +11,8 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 export function readJson(name) {
   const path = join(DATA_DIR, name);
   if (!fs.existsSync(path)) return null;
-  try {
-    return JSON.parse(fs.readFileSync(path, 'utf-8'));
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(fs.readFileSync(path, 'utf-8')); }
+  catch { return null; }
 }
 
 export function writeJson(name, data) {
