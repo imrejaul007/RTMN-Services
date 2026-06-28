@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/multi-modal",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Multi-Modal OS - Image, audio, video processing, OCR, transcription, format conversion",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest --reporter=verbose"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

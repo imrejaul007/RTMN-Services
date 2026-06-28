@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/aiops",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AIOps OS - Production observability: metrics, alerts, incidents, dashboards, health monitoring",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest --reporter=verbose"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
