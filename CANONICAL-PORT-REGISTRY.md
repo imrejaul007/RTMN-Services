@@ -172,8 +172,7 @@ All 23 Genie services have unique, non-overlapping port assignments. The histori
 | 4730 | employee-twin | `services/employee-twin/` |
 | 4876 | voice-twin | `services/voice-twin/` |
 | 4881 | ai-intelligence | `services/ai-intelligence/` |
-| 4885 | customer-intelligence | `services/customer-intelligence/` |
-| 4885 | order-twin | `services/order-twin/` (collision) |
+| 4885 | unified-support-bridge | `companies/HOJAI-AI/products/hib/unified-support-bridge/` |
 | 4886 | payment-twin | `services/payment-twin/` |
 | 4887 | inventory-twin | `services/inventory-twin/` |
 | 4888 | merchant-twin | `services/merchant-twin/` |

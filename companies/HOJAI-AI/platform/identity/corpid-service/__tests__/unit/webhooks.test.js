@@ -51,6 +51,12 @@ const WEBHOOK_EVENTS = [
   'delegation.created', 'delegation.approved', 'delegation.revoked',
 ];
 
+const requireAuth = (req, res, next) => {
+  if (!req.headers.authorization) return res.status(401).json({ error: 'Unauthorized' });
+  req.user = { id: 'CI-IND-user1', role: 'admin' };
+  next();
+};
+
 function createApp() {
   const Webhook = makeModel('Webhook');
   const WebhookDelivery = makeModel('WebhookDelivery');
