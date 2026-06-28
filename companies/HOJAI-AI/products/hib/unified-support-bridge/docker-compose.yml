@@ -1,0 +1,87 @@
+version: '3.9'
+
+services:
+  unified-support-bridge:
+    build: .
+    container_name: unified-support-bridge
+    restart: unless-stopped
+    ports:
+      - '4885:4885'
+    environment:
+      # Storage mode
+      - USE_REDIS=${USE_REDIS:-false}
+      - USE_MONGODB=${USE_MONGODB:-false}
+      # Connections
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/unified-support-bridge}
+      # Upstream services
+      - UNIFIED_INBOX_URL=${UNIFIED_INBOX_URL:-http://unified-inbox:4870}
+      - TICKET_ENGINE_URL=${TICKET_ENGINE_URL:-http://ticket-engine:4872}
+      - CORPID_URL=${CORPID_URL:-http://corpid:4702}
+      # WhatsApp
+      - WHATSAPP_VERIFY_TOKEN=${WHATSAPP_VERIFY_TOKEN:-change-me-in-prod}
+      - WHATSAPP_APP_SECRET=${WHATSAPP_APP_SECRET:-}
+      - WHATSAPP_PROVIDER=${WHATSAPP_PROVIDER:-meta}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      # Public URL (for WhatsApp webhook registration)
+      - WEBHOOK_PUBLIC_URL=${WEBHOOK_PUBLIC_URL:-https://your-domain.com}
+      # Webhook API keys (comma-separated)
+      - WEBHOOK_API_KEYS=${WEBHOOK_API_KEYS:-}
+      # SMTP (optional)
+      - SMTP_PORT=${SMTP_PORT:-0}
+      # IMAP (optional)
+      - IMAP_USER=${IMAP_USER:-}
+      - IMAP_PASSWORD=${IMAP_PASSWORD:-}
+      - IMAP_HOST=${IMAP_HOST:-imap.gmail.com}
+      - IMAP_PORT=${IMAP_PORT:-993}
+      - IMAP_TLS=${IMAP_TLS:-true}
+      - IMAP_POLL_INTERVAL=${IMAP_POLL_INTERVAL:-60000}
+      # Rate limiting
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-1000}
+      # Security
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-change-me-in-prod}
+    volumes:
+      - ./data:/app/data
+    networks:
+      - rtmn-net
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+
+  redis:
+    image: redis:7-alpine
+    container_name: usb-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - rtmn-net
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:7
+    container_name: usb-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - rtmn-net
+
+networks:
+  rtmn-net:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mongo-data:
