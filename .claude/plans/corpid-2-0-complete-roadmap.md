@@ -1277,24 +1277,20 @@ Phase 6b (Future): Activate remaining services
 | Phase 6 | 18 | 144 | ACP Bridge + Federation |
 | **Total new** | **101** | **144** | |
 
-> **Actual test count (2026-06-27):** 120 vitest tests passing  
-> Test files: `agent.test.js` (26), `delegation-trust.test.js` (31), `users-trust.test.js` (26), `auth.test.js` (18), `security-mfa-workload.test.js` (19)  
-> **Security features added:** MFA enforcement on login (two-step flow), MFA persistence via PersistentStore (not in-memory), Session management (list/revoke), Workload Identity (CI-WRK-), Breach check via HaveIBeenPwned  
+> **Actual test count (2026-06-28):** 134 vitest tests passing  
+> Test files: `agent.test.js` (26), `delegation-trust.test.js` (31), `users-trust.test.js` (26), `auth.test.js` (18), `security-mfa-workload.test.js` (19), `federation-oidc-saml.test.js` (14)  
+> **All 6 phases complete** — Delegation chain traversal, Trust dimensions, ACP enrich, OIDC/SAML federation, MemoryOS events  
 > Run: `NODE_ENV=test npm test` from `corpID-service/`
 
-### Quick Wins (Day 1 — Completed June 27, 2026)
+### Quick Wins (Day 1 — Completed June 27-28, 2026)
 
-Five security hardening items implemented in one session:
+All 6 phases complete with 134 tests passing:
 
-| # | Feature | Change | File |
-|---|---------|--------|------|
-| 1 | **MFA enforcement on login** | Two-step flow: password → MFA challenge → full tokens | `src/index.persistent.js:840-861` |
-| 2 | **MFA persistence** | Replaced in-memory `mfaSecretStore` Map with `MfaSecret` PersistentStore model | `src/index.persistent.js:1042` |
-| 3 | **Session management** | `GET /api/auth/sessions`, `DELETE /api/auth/sessions/:id` | `src/index.persistent.js` |
-| 4 | **Workload identity** | `POST/GET /api/workloads`, `POST /api/workloads/:id/rotate`, `DELETE /api/workloads/:id` | `src/index.persistent.js` |
-| 5 | **Breach check** | HaveIBeenPwned k-anonymity check on `/auth/register` | `src/index.persistent.js` |
-
-**Tests:** 19 new tests in `security-mfa-workload.test.js` — all passing.
+| Phase | Features | Endpoints Added |
+|-------|----------|-----------------|
+| 3 | Delegation chain, issued/received lists, approve/reject, SUTAR check | 6 |
+| 5 | TrustDimension model, multi-dimensional trust, MemoryOS events | 4 |
+| 6 | ACP enrich, OIDC/SAML federation, SAML metadata | 10+ |
 
 **Additional test categories needed:**
 - Integration tests: CorpID ↔ AgentOS, CorpID ↔ SUTAR, CorpID ↔ MemoryOS (30 tests)
