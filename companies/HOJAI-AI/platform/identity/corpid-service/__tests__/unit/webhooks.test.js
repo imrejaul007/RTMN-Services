@@ -61,12 +61,6 @@ function createApp() {
   const Webhook = makeModel('Webhook');
   const WebhookDelivery = makeModel('WebhookDelivery');
 
-  const requireAuth = (req, res, next) => {
-    if (!req.headers.authorization) return res.status(401).json({ error: 'Unauthorized' });
-    req.user = { id: 'CI-IND-user1', role: 'admin' };
-    next();
-  };
-
   const app = express();
   app.use(express.json());
 
@@ -89,6 +83,11 @@ function createApp() {
     res.status(201).json({ success: true, webhook: { webhookId, url, events, active: true, secret } });
   }));
 
+  // GET /api/webhooks/event-types (before :id route)
+  app.get('/api/webhooks/event-types', (req, res) => {
+    res.json({ success: true, events: WEBHOOK_EVENTS });
+  });
+
   // GET /api/webhooks
   app.get('/api/webhooks', requireAuth, asyncHandler(async (req, res) => {
     const webhooks = await Webhook.find();
@@ -109,11 +108,6 @@ function createApp() {
     await Webhook.deleteOne(req.params.id);
     res.json({ success: true });
   }));
-
-  // GET /api/webhooks/events
-  app.get('/api/webhooks/events', (req, res) => {
-    res.json({ success: true, events: WEBHOOK_EVENTS });
-  });
 
   app.use((err, req, res, _next) => {
     res.status(err.status || 500).json({ error: err.message });
