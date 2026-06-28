@@ -24,7 +24,7 @@ describe('AI Economy OS', () => {
     mkdirSync('data', { recursive: true });
     writeFileSync('data/listings.json', '[]');
     writeFileSync('data/transactions.json', '[]');
-    writeFileSync('data/wallets.json', '{}');
+    writeFileSync('data/wallets.json', '[]');
     const mod = await import('../../src/index.js'); server = mod.default; await new Promise(r => setTimeout(r, 200));
   });
   afterAll(() => { if (server) server.close(); });

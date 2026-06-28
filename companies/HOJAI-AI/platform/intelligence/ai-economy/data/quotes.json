@@ -25,5 +25,23 @@
     "terms": {},
     "validUntil": "2026-06-28T22:50:36.172Z",
     "createdAt": "2026-06-28T22:35:36.172Z"
+  },
+  {
+    "id": "4b1d98eb-fc8d-4354-9e78-12e13c5b8eae",
+    "listingId": "e358f1b9-198a-40bf-b49b-6fc41b0692cf",
+    "buyerId": "buyer-1",
+    "basePrice": 50,
+    "terms": {},
+    "validUntil": "2026-06-28T22:54:08.221Z",
+    "createdAt": "2026-06-28T22:39:08.221Z"
+  },
+  {
+    "id": "cd586a7c-3002-4b55-bf6c-d2f662f8ec5f",
+    "listingId": "f1a3e164-af68-4f34-a6c0-ddb184532a17",
+    "buyerId": "buyer-1",
+    "basePrice": 50,
+    "terms": {},
+    "validUntil": "2026-06-28T22:55:10.379Z",
+    "createdAt": "2026-06-28T22:40:10.379Z"
   }
 ]

@@ -1,6 +1,6 @@
 [
   {
-    "id": "d086da74-39c1-4d56-8aec-5b5de2aaf26c",
+    "id": "c81dd81a-4522-4f4f-9b9e-eeafe2319200",
     "name": "Test Agent",
     "description": "desc",
     "category": "agents",
@@ -11,10 +11,10 @@
     "views": 0,
     "purchases": 0,
     "rating": null,
-    "createdAt": "2026-06-28T09:26:36.924Z"
+    "createdAt": "2026-06-28T22:40:10.365Z"
   },
   {
-    "id": "54436325-3410-48c9-8cbe-5e0ab9a6cd67",
+    "id": "3b5ea2f9-bc85-459f-9152-bb17856f16c9",
     "name": "Get Test",
     "category": "general",
     "price": 10,
@@ -23,10 +23,10 @@
     "views": 0,
     "purchases": 0,
     "rating": null,
-    "createdAt": "2026-06-28T09:26:36.930Z"
+    "createdAt": "2026-06-28T22:40:10.371Z"
   },
   {
-    "id": "7bb2412b-ec81-44ac-b7d8-3f33e33a328d",
+    "id": "8c044c86-35e9-43b0-8176-bff22a898121",
     "name": "Price Test",
     "category": "general",
     "price": 100,
@@ -35,10 +35,10 @@
     "views": 0,
     "purchases": 0,
     "rating": null,
-    "createdAt": "2026-06-28T09:26:36.936Z"
+    "createdAt": "2026-06-28T22:40:10.376Z"
   },
   {
-    "id": "60cfa980-5d6f-47c9-bbfa-d1dab09a38d4",
+    "id": "f1a3e164-af68-4f34-a6c0-ddb184532a17",
     "name": "Quote Test",
     "category": "general",
     "price": 50,
@@ -47,10 +47,10 @@
     "views": 0,
     "purchases": 0,
     "rating": null,
-    "createdAt": "2026-06-28T09:26:36.938Z"
+    "createdAt": "2026-06-28T22:40:10.378Z"
   },
   {
-    "id": "30812195-a293-467e-b724-a51533afa42b",
+    "id": "cb3cff8e-7c6f-4718-bd57-8a57f5d2797f",
     "name": "TX Test",
     "category": "general",
     "price": 25,
@@ -59,10 +59,10 @@
     "views": 0,
     "purchases": 1,
     "rating": null,
-    "createdAt": "2026-06-28T09:26:36.939Z"
+    "createdAt": "2026-06-28T22:40:10.380Z"
   },
   {
-    "id": "a5d181f5-2a86-4e12-97a4-7794f201054b",
+    "id": "0237f0f8-b302-4619-8d2a-62d42ce26ded",
     "name": "Complete Test",
     "category": "general",
     "price": 10,
@@ -71,154 +71,6 @@
     "views": 0,
     "purchases": 1,
     "rating": null,
-    "createdAt": "2026-06-28T09:26:36.943Z"
-  },
-  {
-    "id": "aa4ee701-ebe2-44ed-b14b-6e0029199a82",
-    "name": "Test Agent",
-    "description": "desc",
-    "category": "agents",
-    "price": 9.99,
-    "providerId": "prov-1",
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:34:10.385Z"
-  },
-  {
-    "id": "afbdc0d2-2ca3-4826-b7e7-3ccce16861aa",
-    "name": "Get Test",
-    "category": "general",
-    "price": 10,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:34:10.398Z"
-  },
-  {
-    "id": "e3f0a761-7fa5-4a54-8528-d37284a269b6",
-    "name": "Price Test",
-    "category": "general",
-    "price": 100,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:34:10.407Z"
-  },
-  {
-    "id": "29177ae2-f777-4a17-b581-2a6503d6b4a4",
-    "name": "Quote Test",
-    "category": "general",
-    "price": 50,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:34:10.410Z"
-  },
-  {
-    "id": "e56a3bec-b91d-4dcc-a086-f7f91ffd29c9",
-    "name": "TX Test",
-    "category": "general",
-    "price": 25,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 1,
-    "rating": null,
-    "createdAt": "2026-06-28T22:34:10.415Z"
-  },
-  {
-    "id": "b78ecd02-64a6-4c2d-aaca-64c127715751",
-    "name": "Complete Test",
-    "category": "general",
-    "price": 10,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 1,
-    "rating": null,
-    "createdAt": "2026-06-28T22:34:10.420Z"
-  },
-  {
-    "id": "b8f58507-bdb7-4453-a523-bd26d8cdc7cf",
-    "name": "Test Agent",
-    "description": "desc",
-    "category": "agents",
-    "price": 9.99,
-    "providerId": "prov-1",
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:35:36.159Z"
-  },
-  {
-    "id": "2aac945f-ca41-4f73-a552-945010519f95",
-    "name": "Get Test",
-    "category": "general",
-    "price": 10,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:35:36.165Z"
-  },
-  {
-    "id": "65a3aefe-b341-4066-af6c-4d029c00bbac",
-    "name": "Price Test",
-    "category": "general",
-    "price": 100,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:35:36.170Z"
-  },
-  {
-    "id": "5b1f131c-af87-46d2-9fce-40c5c9260a0c",
-    "name": "Quote Test",
-    "category": "general",
-    "price": 50,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 0,
-    "rating": null,
-    "createdAt": "2026-06-28T22:35:36.171Z"
-  },
-  {
-    "id": "76959293-ce42-48fe-9f54-19780154dd87",
-    "name": "TX Test",
-    "category": "general",
-    "price": 25,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 1,
-    "rating": null,
-    "createdAt": "2026-06-28T22:35:36.173Z"
-  },
-  {
-    "id": "1c4fe9e0-a166-4983-a1c5-5f686bc0e2d9",
-    "name": "Complete Test",
-    "category": "general",
-    "price": 10,
-    "capabilities": [],
-    "status": "active",
-    "views": 0,
-    "purchases": 1,
-    "rating": null,
-    "createdAt": "2026-06-28T22:35:36.176Z"
+    "createdAt": "2026-06-28T22:40:10.383Z"
   }
 ]

@@ -526,7 +526,7 @@ describe('Customer Intelligence Gateway', () => {
       expect(salesResult.premium_buyer).toBe(true);
       expect(['gold', 'platinum']).toContain(loyaltyResult.ltv_tier);
       expect(commResult.preferred_channel).toBe('whatsapp');
-      expect(segmentResult.value).toBe('high_value');
+      expect(segmentResult.value).toBe('vip');
     });
   });
 });

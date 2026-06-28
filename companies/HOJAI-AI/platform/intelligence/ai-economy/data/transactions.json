@@ -1,74 +1,26 @@
 [
   {
-    "id": "974d307b-3024-4fc3-81ac-6941cabd29cb",
-    "listingId": "30812195-a293-467e-b724-a51533afa42b",
+    "id": "8e6ffb41-73cc-4545-b481-08b9345b177f",
+    "listingId": "cb3cff8e-7c6f-4718-bd57-8a57f5d2797f",
     "buyerId": "buyer-x",
     "sellerId": "seller-y",
     "amount": 25,
     "type": "purchase",
     "status": "pending",
     "escrow": true,
-    "createdAt": "2026-06-28T09:26:36.940Z",
+    "createdAt": "2026-06-28T22:40:10.381Z",
     "completedAt": null
   },
   {
-    "id": "487319aa-d5b0-4e4b-b57d-e3a5a20a04b3",
-    "listingId": "a5d181f5-2a86-4e12-97a4-7794f201054b",
+    "id": "6c7298c3-c890-4738-bcb6-d817a02402c9",
+    "listingId": "0237f0f8-b302-4619-8d2a-62d42ce26ded",
     "buyerId": "b",
     "sellerId": null,
     "amount": 10,
     "type": "purchase",
     "status": "completed",
     "escrow": false,
-    "createdAt": "2026-06-28T09:26:36.944Z",
-    "completedAt": "2026-06-28T09:26:36.945Z"
-  },
-  {
-    "id": "67e30902-b985-4751-b326-f0f74a976a96",
-    "listingId": "e56a3bec-b91d-4dcc-a086-f7f91ffd29c9",
-    "buyerId": "buyer-x",
-    "sellerId": "seller-y",
-    "amount": 25,
-    "type": "purchase",
-    "status": "pending",
-    "escrow": true,
-    "createdAt": "2026-06-28T22:34:10.417Z",
-    "completedAt": null
-  },
-  {
-    "id": "7e74133e-79be-456f-b0b9-276c3d646a0e",
-    "listingId": "b78ecd02-64a6-4c2d-aaca-64c127715751",
-    "buyerId": "b",
-    "sellerId": null,
-    "amount": 10,
-    "type": "purchase",
-    "status": "completed",
-    "escrow": false,
-    "createdAt": "2026-06-28T22:34:10.421Z",
-    "completedAt": "2026-06-28T22:34:10.423Z"
-  },
-  {
-    "id": "7e4bbd9b-e14a-4893-85f9-ab33fa689819",
-    "listingId": "76959293-ce42-48fe-9f54-19780154dd87",
-    "buyerId": "buyer-x",
-    "sellerId": "seller-y",
-    "amount": 25,
-    "type": "purchase",
-    "status": "pending",
-    "escrow": true,
-    "createdAt": "2026-06-28T22:35:36.174Z",
-    "completedAt": null
-  },
-  {
-    "id": "a429e6a0-ca89-4550-9cc0-9d3ba1d6a8ea",
-    "listingId": "1c4fe9e0-a166-4983-a1c5-5f686bc0e2d9",
-    "buyerId": "b",
-    "sellerId": null,
-    "amount": 10,
-    "type": "purchase",
-    "status": "completed",
-    "escrow": false,
-    "createdAt": "2026-06-28T22:35:36.177Z",
-    "completedAt": "2026-06-28T22:35:36.177Z"
+    "createdAt": "2026-06-28T22:40:10.384Z",
+    "completedAt": "2026-06-28T22:40:10.385Z"
   }
 ]
