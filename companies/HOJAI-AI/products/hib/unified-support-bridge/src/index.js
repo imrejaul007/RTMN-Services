@@ -685,7 +685,7 @@ app.post('/api/conversations/:id/merge', async (req, res) => {
   }
 
   await storage.updateConversation(primary, {
-    tags: [...(toMerge.filter(id => id !== primary).map(id => `merged:${id}`)],
+    tags: [...(toMerge.filter(id => id !== primary).map(id => `merged:${id}`))],
     linkedConversations: toMerge.filter(id => id !== primary),
     mergedAt: new Date().toISOString(),
   });

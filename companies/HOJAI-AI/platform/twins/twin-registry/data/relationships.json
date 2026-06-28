@@ -1,0 +1,10 @@
+[
+  {
+    "id": "eb07ccb0-44dc-4d4f-bc67-e2c01b36725c",
+    "fromId": "efa4c46a-73c7-4d71-90b0-225efcf0cea9",
+    "toId": "b61a8636-197d-47e8-a6cd-63bb2fd7ae39",
+    "type": "references",
+    "metadata": {},
+    "createdAt": "2026-06-28T21:50:54.128Z"
+  }
+]

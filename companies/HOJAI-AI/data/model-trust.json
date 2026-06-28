@@ -1,0 +1,74 @@
+[
+  [
+    "model-gpt-finance",
+    {
+      "modelId": "model-gpt-finance",
+      "accuracy": 0.94,
+      "calibration": 0.91,
+      "sampleSize": 5000,
+      "lastUpdated": "2026-06-27T21:50:33.279Z",
+      "history": [
+        {
+          "accuracy": 0.9199999999999999,
+          "calibration": 0.89,
+          "sampleSize": 4000,
+          "timestamp": "2026-06-21T21:50:33.279Z"
+        },
+        {
+          "accuracy": 0.94,
+          "calibration": 0.91,
+          "sampleSize": 5000,
+          "timestamp": "2026-06-27T21:50:33.279Z"
+        }
+      ]
+    }
+  ],
+  [
+    "model-recommender",
+    {
+      "modelId": "model-recommender",
+      "accuracy": 0.87,
+      "calibration": 0.85,
+      "sampleSize": 12000,
+      "lastUpdated": "2026-06-27T21:50:33.279Z",
+      "history": [
+        {
+          "accuracy": 0.85,
+          "calibration": 0.83,
+          "sampleSize": 9600,
+          "timestamp": "2026-06-21T21:50:33.279Z"
+        },
+        {
+          "accuracy": 0.87,
+          "calibration": 0.85,
+          "sampleSize": 12000,
+          "timestamp": "2026-06-27T21:50:33.279Z"
+        }
+      ]
+    }
+  ],
+  [
+    "model-fraud-detect",
+    {
+      "modelId": "model-fraud-detect",
+      "accuracy": 0.96,
+      "calibration": 0.93,
+      "sampleSize": 8000,
+      "lastUpdated": "2026-06-27T21:50:33.279Z",
+      "history": [
+        {
+          "accuracy": 0.94,
+          "calibration": 0.91,
+          "sampleSize": 6400,
+          "timestamp": "2026-06-21T21:50:33.279Z"
+        },
+        {
+          "accuracy": 0.96,
+          "calibration": 0.93,
+          "sampleSize": 8000,
+          "timestamp": "2026-06-27T21:50:33.279Z"
+        }
+      ]
+    }
+  ]
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "id": "f09e45a9-a635-4e4e-85fb-138657e2673b",
+    "name": "user_event",
+    "version": 1,
+    "fields": [
+      "userId",
+      "action"
+    ],
+    "createdAt": "2026-06-28T21:50:55.482Z"
+  }
+]

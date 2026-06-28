@@ -1,0 +1,42 @@
+[
+  [
+    "a-genie",
+    []
+  ],
+  [
+    "a-sutar",
+    []
+  ],
+  [
+    "a-copilot",
+    []
+  ],
+  [
+    "a-restaurant-bot",
+    [
+      {
+        "id": "98dc63ce-ea61-4c67-90f4-57a8469c3972",
+        "severity": 2,
+        "reason": "Minor SLA breach",
+        "evidence": "2 late deliveries",
+        "status": "active",
+        "createdAt": "2026-06-28T14:38:33.279Z",
+        "clearedAt": null
+      }
+    ]
+  ],
+  [
+    "a-new-bot",
+    [
+      {
+        "id": "a6a3bd7a-21d0-4d8a-bda1-2cc58a0a0eca",
+        "severity": 4,
+        "reason": "Unusual transaction pattern",
+        "evidence": "3 chargebacks in 24h",
+        "status": "active",
+        "createdAt": "2026-06-28T17:02:33.279Z",
+        "clearedAt": null
+      }
+    ]
+  ]
+]
