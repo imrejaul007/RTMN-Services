@@ -1,0 +1,11 @@
+[
+  {
+    "id": "63af2319-54c6-4b5f-8abf-0b10ce905acd",
+    "name": "Click Watcher",
+    "type": "click",
+    "callback": "http://cb.example.com",
+    "filter": null,
+    "active": true,
+    "createdAt": "2026-06-28T22:21:05.612Z"
+  }
+]

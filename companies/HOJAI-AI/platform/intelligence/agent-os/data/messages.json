@@ -1,38 +1,20 @@
 [
   {
-    "id": "637522be-426e-4a7e-a7a6-25a33eea876c",
+    "id": "a93e2afb-e796-4f33-beab-0d2068264405",
     "from": "a",
     "to": "b",
     "message": "msg1",
     "type": "text",
-    "timestamp": "2026-06-28T09:25:35.431Z",
+    "timestamp": "2026-06-28T22:21:04.791Z",
     "read": false
   },
   {
-    "id": "2d8370c9-5f5c-46b4-89ac-1401732ece2b",
+    "id": "8919d5fb-2f9b-47a5-8c3a-4bbba80c0b28",
     "from": "b",
     "to": "a",
     "message": "msg2",
     "type": "text",
-    "timestamp": "2026-06-28T09:25:35.431Z",
-    "read": false
-  },
-  {
-    "id": "0511fd7e-d022-4deb-8a7f-c9b5c768bcde",
-    "from": "a1",
-    "to": "a2",
-    "message": "hi",
-    "type": "text",
-    "timestamp": "2026-06-28T09:25:35.905Z",
-    "read": false
-  },
-  {
-    "id": "6f2c0ab2-57fa-4ef4-aa59-bd43469ec928",
-    "from": "x",
-    "to": "inbox-test",
-    "message": "inbox msg",
-    "type": "text",
-    "timestamp": "2026-06-28T09:25:35.905Z",
+    "timestamp": "2026-06-28T22:21:04.791Z",
     "read": false
   }
 ]

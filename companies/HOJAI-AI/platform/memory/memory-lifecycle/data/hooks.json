@@ -1,0 +1,9 @@
+[
+  {
+    "id": "981a48db-8577-4059-b462-1b17dbd46acb",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-28T22:21:04.572Z"
+  }
+]

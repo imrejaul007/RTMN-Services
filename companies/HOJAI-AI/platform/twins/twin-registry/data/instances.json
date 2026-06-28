@@ -1,0 +1,94 @@
+[
+  {
+    "id": "2822bea5-b586-4753-86cb-0552ba7b11b7",
+    "typeId": "15e2218d-c414-43a2-949f-22aea5370806",
+    "name": "Test Instance",
+    "data": {
+      "x": 1
+    },
+    "tags": [
+      "test"
+    ],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T22:21:05.250Z",
+    "updatedAt": "2026-06-28T22:21:05.250Z"
+  },
+  {
+    "id": "34cb0c51-3943-4eb1-a8e6-1896e6dfd8fa",
+    "typeId": "dfb0c205-420c-4f02-99f8-15486a4ae5bc",
+    "name": "Get Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T22:21:05.258Z",
+    "updatedAt": "2026-06-28T22:21:05.258Z"
+  },
+  {
+    "id": "fc3e16c3-9177-4175-a0c7-8d18eecb7862",
+    "typeId": "c4406562-72ba-4f93-89c8-aa711d89d94b",
+    "name": "New Inst",
+    "data": {},
+    "tags": [],
+    "status": "archived",
+    "version": 1,
+    "createdAt": "2026-06-28T22:21:05.263Z",
+    "updatedAt": "2026-06-28T22:21:05.266Z"
+  },
+  {
+    "id": "2c992ca6-de67-4eda-9755-b0d042cde4af",
+    "typeId": "e6ef3536-629d-4c1c-9db0-9c43eb0f66e2",
+    "name": "Ver Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 2,
+    "createdAt": "2026-06-28T22:21:05.277Z",
+    "updatedAt": "2026-06-28T22:21:05.280Z"
+  },
+  {
+    "id": "804e5cf1-cac0-4ebf-a33f-9bfd1330c215",
+    "typeId": "2e4db44c-5725-4a3f-85af-b06735d08dc3",
+    "name": "I1",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T22:21:05.289Z",
+    "updatedAt": "2026-06-28T22:21:05.289Z"
+  },
+  {
+    "id": "b836e824-b39d-4b9d-8c5c-c948ee8d3053",
+    "typeId": "2e4db44c-5725-4a3f-85af-b06735d08dc3",
+    "name": "I2",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T22:21:05.290Z",
+    "updatedAt": "2026-06-28T22:21:05.290Z"
+  },
+  {
+    "id": "4abae2e2-20d0-4998-a01e-64cda43833df",
+    "typeId": "32d529ae-3320-4094-97e7-9cd1301d70d2",
+    "name": "Rel Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T22:21:05.297Z",
+    "updatedAt": "2026-06-28T22:21:05.297Z"
+  },
+  {
+    "id": "dec48645-9533-4384-a6e7-63af7e948f43",
+    "typeId": "236c4ea1-0ec5-4d76-93c3-761ba3e4581b",
+    "name": "DelRel",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T22:21:05.310Z",
+    "updatedAt": "2026-06-28T22:21:05.310Z"
+  }
+]

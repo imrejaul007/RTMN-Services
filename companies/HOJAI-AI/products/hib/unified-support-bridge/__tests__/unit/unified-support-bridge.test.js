@@ -21,9 +21,32 @@ const {
   fromSES,
   fromMailgun,
   fromPostmark,
-  stripHtml,
-  parseReferences,
 } = require('../../src/emailHandler');
+
+// Inline helper functions from emailHandler (not exported)
+function stripHtml(html) {
+  if (!html) return '';
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function parseReferences(refs) {
+  if (!refs) return [];
+  if (typeof refs === 'string') {
+    return refs.trim().split(/\s+/).filter(Boolean);
+  }
+  if (Array.isArray(refs)) return refs.filter(Boolean);
+  return [];
+}
 
 const {
   EVENTS,

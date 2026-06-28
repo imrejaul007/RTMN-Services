@@ -1,0 +1,44 @@
+[
+  {
+    "id": "14907aef-1208-442f-b02e-c72b46fa0011",
+    "owner": "user1",
+    "content": "Test fact",
+    "type": "fact",
+    "confidence": 0.9,
+    "tags": [],
+    "expiresAt": null,
+    "metadata": {},
+    "isArchived": false,
+    "compactCount": 0,
+    "createdAt": "2026-06-28T22:21:04.517Z",
+    "updatedAt": "2026-06-28T22:21:04.517Z"
+  },
+  {
+    "id": "9f03987d-3f5c-49a2-8592-dfe032ee762a",
+    "owner": "user2",
+    "content": "Find me",
+    "type": "fact",
+    "confidence": 1,
+    "tags": [],
+    "expiresAt": null,
+    "metadata": {},
+    "isArchived": false,
+    "compactCount": 0,
+    "createdAt": "2026-06-28T22:21:04.530Z",
+    "updatedAt": "2026-06-28T22:21:04.530Z"
+  },
+  {
+    "id": "c1c45e1c-d94b-46ff-8827-61653c15e222",
+    "owner": "u3",
+    "content": "Updated",
+    "type": "fact",
+    "confidence": 1,
+    "tags": [],
+    "expiresAt": null,
+    "metadata": {},
+    "isArchived": false,
+    "compactCount": 0,
+    "createdAt": "2026-06-28T22:21:04.537Z",
+    "updatedAt": "2026-06-28T22:21:04.539Z"
+  }
+]

@@ -2,7 +2,7 @@
   {
     "service": "baseline-svc",
     "suite": "unit",
-    "createdAt": "2026-06-28T04:08:10.344Z",
+    "createdAt": "2026-06-28T22:20:34.375Z",
     "metrics": {
       "tests": {
         "total": 10,
@@ -22,27 +22,27 @@
   {
     "service": "from-run",
     "suite": "unit",
-    "createdAt": "2026-06-28T04:08:10.453Z",
+    "createdAt": "2026-06-28T22:20:34.506Z",
     "metrics": {
       "tests": {
-        "total": 11,
-        "passed": 8,
-        "failed": 3,
-        "skipped": 0
+        "total": 25,
+        "passed": 18,
+        "failed": 7,
+        "skipped": 2
       },
       "latency": {
-        "p50": 245.06,
-        "p95": 285.2,
-        "p99": 806.1
+        "p50": 238.77,
+        "p95": 529.24,
+        "p99": 558.8
       },
-      "quality": 0.957,
-      "coverage": 0.818
+      "quality": 0.711,
+      "coverage": 0.903
     }
   },
   {
     "service": "get-test",
     "suite": "unit",
-    "createdAt": "2026-06-28T04:08:10.457Z",
+    "createdAt": "2026-06-28T22:20:34.521Z",
     "metrics": {
       "tests": {
         "total": 10,

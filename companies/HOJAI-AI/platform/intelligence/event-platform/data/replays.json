@@ -1,0 +1,22 @@
+[
+  {
+    "id": "758cd1ae-3fa7-4780-a5ff-e1bbf1491273",
+    "from": "2026-06-01T00:00:00Z",
+    "to": "2026-06-28T00:00:00Z",
+    "eventType": null,
+    "target": "analytics",
+    "status": "running",
+    "eventCount": 0,
+    "createdAt": "2026-06-28T22:21:05.634Z"
+  },
+  {
+    "id": "f59996f9-8c99-410f-bf29-02597f8c8510",
+    "from": "2026-06-01",
+    "to": "2026-06-28",
+    "eventType": null,
+    "target": "x",
+    "status": "running",
+    "eventCount": 0,
+    "createdAt": "2026-06-28T22:21:05.637Z"
+  }
+]
