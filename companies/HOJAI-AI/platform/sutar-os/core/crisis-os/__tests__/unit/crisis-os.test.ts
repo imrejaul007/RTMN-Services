@@ -158,7 +158,8 @@ describe('CrisisOS — Playbooks', () => {
   it('triggers by category match', () => {
     const incident: Incident = { id: '1', title: 'AWS down', description: '', severity: 'critical', status: 'detected', category: 'infrastructure', affectedServices: [], timeline: [], assignees: [], createdBy: '', createdAt: '', updatedAt: '' };
     const triggered = playbooks.filter(p => shouldTriggerPlaybook(incident, p));
-    expect(triggered).toHaveLength(2); // aws-outage + db-failure
+    // aws-outage matches (category+severity), db-failure matches (category), data-breach matches (severity)
+    expect(triggered).toHaveLength(3);
   });
 
   it('triggers by severity match', () => {

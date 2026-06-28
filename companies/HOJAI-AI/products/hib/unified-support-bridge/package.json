@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/unified-support-bridge",
+  "version": "1.0.0",
+  "description": "Unified Support Bridge — connects Email, WhatsApp, App channels to unified inbox with customer identity resolution and conversation merging",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0",
+    "@rtmn/shared": "workspace:*"
+  },
+  "devDependencies": {},
+  "keywords": ["support", "unified-inbox", "whatsapp", "email", "customer-identity"],
+  "license": "MIT"
+}

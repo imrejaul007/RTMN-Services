@@ -52,6 +52,21 @@ let _branchProtections = new Map(); // branch → { requireReviews, requireCI, a
 let _syncHistory = []; // last 100 sync events
 let _syncIdCounter = 0;
 
+/**
+ * Reset all GitOps state — for testing only.
+ */
+export function _resetGitOpsState() {
+  _gitopsStores = null;
+  _config = null;
+  _syncStatus = 'idle';
+  _lastSyncAt = null;
+  _lastError = null;
+  _webhookSecret = null;
+  _branchProtections = new Map();
+  _syncHistory = [];
+  _syncIdCounter = 0;
+}
+
 // ── Configuration ────────────────────────────────────────────────────────────────
 
 /**
@@ -205,92 +220,163 @@ export class PolicyFile {
 
 /**
  * Minimal YAML parser for policy files.
- * Supports: key-value, nested objects, lists, multiline strings, comments.
- * Does NOT support anchors, aliases, or complex YAML features.
+ * Handles the YAML subset used by Policy-as-Code files:
+ * key-value pairs, nested objects (indented), lists (dashes), comments.
  */
 function parseYAML(yaml) {
+  const result = {};
   const lines = yaml.split('\n');
-  const root = {};
-  const stack = [{ indent: -1, obj: root }];
-  let currentList = null;
 
-  for (let line of lines) {
-    // Strip comments
-    const commentIdx = line.indexOf('#');
-    if (commentIdx >= 0) line = line.slice(0, commentIdx);
-    line = line.replace(/\t/g, '  '); // tabs to spaces
-    const indent = line.search(/\S/);
-    if (indent < 0) continue; // blank line
+  function parseValue(val) {
+    val = val.trim();
+    if (!val) return undefined;
+    // Quoted strings
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      return val.slice(1, -1);
+    }
+    // Booleans
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    if (val === 'null' || val === '~') return null;
+    // Numbers
+    if (/^-?\d+(\.\d+)?$/.test(val)) return parseFloat(val);
+    return val;
+  }
 
-    // List item
-    if (line.trimStart().startsWith('- ')) {
-      const value = line.trimStart().slice(2).trim();
-      if (!Array.isArray(currentList)) {
-        currentList = [];
-        // Find parent and set it
-        for (let i = stack.length - 1; i >= 0; i--) {
-          if (!Array.isArray(stack[i].obj)) {
-            const key = stack[i].lastKey || '__root';
-            if (key !== '__root') stack[i].obj[key] = currentList;
-            break;
-          }
+  function buildNested(lines, startIndent) {
+    const obj = {};
+    let i = startIndent;
+
+    while (i < lines.length) {
+      const raw = lines[i];
+      // Strip trailing comments
+      const commentIdx = raw.indexOf('#');
+      const line = (commentIdx >= 0 ? raw.slice(0, commentIdx) : raw).replace(/\r$/, '');
+      i++;
+
+      if (!line.trim()) continue; // blank line
+
+      const leadingSpaces = line.match(/^ */)[0].length;
+      if (leadingSpaces < startIndent + 2) {
+        // Back at or above our level
+        i--; // re-process this line at parent level
+        break;
+      }
+
+      const content = line.slice(leadingSpaces);
+
+      // List item
+      if (content.startsWith('- ')) {
+        const value = content.slice(2).trim();
+        const keyEnd = value.indexOf(':');
+        if (keyEnd >= 0) {
+          const key = value.slice(0, keyEnd).trim();
+          const rest = value.slice(keyEnd + 1).trim();
+          if (!Array.isArray(obj._list)) obj._list = [];
+          const item = {};
+          obj._list.push(item);
+          item[key] = parseValue(rest);
+        } else {
+          if (!Array.isArray(obj._list)) obj._list = [];
+          obj._list.push(parseValue(value));
+        }
+      } else {
+        const colonIdx = content.indexOf(':');
+        if (colonIdx < 0) continue;
+        const key = content.slice(0, colonIdx).trim();
+        const rest = content.slice(colonIdx + 1).trim();
+
+        if (rest === '' || rest === '|' || rest === '>' || rest === '|-' || rest === '>-') {
+          // Nested block follows
+          const nested = buildNested(lines, leadingSpaces);
+          obj[key] = nested;
+        } else {
+          obj[key] = parseValue(rest);
         }
       }
-      if (value.includes(':')) {
-        // Inline object in list
-        const [k, v] = value.split(':').map(s => s.trim());
-        const obj = {};
-        currentList.push(obj);
-        stack.push({ indent, obj, lastKey: k });
-      } else if (value.startsWith('"') || value.startsWith("'")) {
-        currentList.push(unquote(value));
-      } else if (!isNaN(value)) {
-        currentList.push(Number(value));
-      } else if (value === 'true') currentList.push(true);
-      else if (value === 'false') currentList.push(false);
-      else if (value === 'null' || value === '~') currentList.push(null);
-      else currentList.push(value);
+    }
+
+    // Extract _list into proper array
+    if (obj._list) {
+      for (const [k, v] of Object.entries(obj)) {
+        if (Array.isArray(v) && v.some(item => typeof item === 'object')) {
+          // Merge list items with keyed objects
+        }
+      }
+    }
+    const final = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (k !== '_list') final[k] = v;
+    }
+    if (obj._list) {
+      // Collect all items (plain values + objects)
+      const arr = obj._list.filter(v => v !== undefined);
+      if (arr.length > 0) final._items = arr;
+    }
+    return final;
+  }
+
+  // First pass: top-level key-value + list items
+  const topLevelList = [];
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    const commentIdx = line.indexOf('#');
+    if (commentIdx >= 0) line = line.slice(0, commentIdx);
+    line = line.replace(/\r$/, '');
+    if (!line.trim()) continue;
+
+    const leadingSpaces = line.match(/^ */)[0].length;
+    if (leadingSpaces > 2) {
+      // Nested under top level — parse as nested object
+      const nested = buildNested(lines, leadingSpaces);
+      Object.assign(result, nested);
+      // Skip lines consumed by buildNested
       continue;
     }
 
-    // Pop stack to current indent
-    while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
-      stack.pop();
+    const content = line.trim();
+
+    if (content.startsWith('- ')) {
+      const value = content.slice(2).trim();
+      const keyEnd = value.indexOf(':');
+      if (keyEnd >= 0) {
+        const key = value.slice(0, keyEnd).trim();
+        const rest = value.slice(keyEnd + 1).trim();
+        const item = {};
+        item[key] = parseValue(rest);
+        topLevelList.push(item);
+      } else {
+        topLevelList.push(parseValue(value));
+      }
+    } else {
+      const colonIdx = content.indexOf(':');
+      if (colonIdx < 0) continue;
+      const key = content.slice(0, colonIdx).trim();
+      const rest = content.slice(colonIdx + 1).trim();
+      result[key] = parseValue(rest);
     }
-
-    const rest = line.slice(indent);
-    const colonIdx = rest.indexOf(':');
-    if (colonIdx < 0) continue;
-
-    const key = rest.slice(0, colonIdx).trim();
-    const value = rest.slice(colonIdx + 1).trim();
-    const parent = stack[stack.length - 1].obj;
-    currentList = null;
-
-    if (value === '' || value === '|' || value === '>') {
-      // Nested block
-      const nested = {};
-      parent[key] = nested;
-      stack[stack.length - 1].lastKey = key;
-      stack.push({ indent, obj: nested, lastKey: null });
-    } else if (value.startsWith('"') || value.startsWith("'")) {
-      parent[key] = unquote(value);
-    } else if (!isNaN(value) && value !== '') {
-      parent[key] = Number(value);
-    } else if (value === 'true') parent[key] = true;
-    else if (value === 'false') parent[key] = false;
-    else if (value === 'null' || value === '~') parent[key] = null;
-    else parent[key] = value;
   }
 
-  return root;
-}
-
-function unquote(s) {
-  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-    return s.slice(1, -1).replace(/\\"/g, '"').replace(/\\'/g, "'");
+  if (topLevelList.length > 0) {
+    // If all top-level items are objects with one key, return as object keyed by that field
+    if (topLevelList.every(item => item !== null && typeof item === 'object' && !Array.isArray(item) && Object.keys(item).length === 1)) {
+      const merged = {};
+      for (const item of topLevelList) {
+        const [k, v] = Object.entries(item)[0];
+        if (!merged[k]) merged[k] = [];
+        merged[k].push(v);
+      }
+      // If keys are unique, merge into result
+      for (const [k, v] of Object.entries(merged)) {
+        if (v.length === 1) result[k] = v[0];
+        else result[k] = v;
+      }
+    } else {
+      result._items = topLevelList;
+    }
   }
-  return s;
+
+  return result;
 }
 
 // ── Sync Engine ────────────────────────────────────────────────────────────────

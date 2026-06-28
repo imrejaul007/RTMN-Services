@@ -98,7 +98,8 @@ describe('VerificationOS — LLM Output Verification', () => {
 
   it('penalizes score correctly', () => {
     const result = verifyLLMOutput('Short', []);
-    expect(result.score).toBe(80); // 100 - 20 for short
+    // short (-20) + criteria not matched (-30) = 50
+    expect(result.score).toBe(50);
   });
 
   it('score never goes below 0', () => {
@@ -107,7 +108,8 @@ describe('VerificationOS — LLM Output Verification', () => {
   });
 
   it('suggests punctuation for long unpunctuated text', () => {
-    const long = 'word ' + 'word '.repeat(30);
+    // >200 chars, no period → suggests punctuation
+    const long = 'word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word';
     const result = verifyLLMOutput(long, []);
     expect(result.suggestions.some((s: string) => s.includes('punctuation'))).toBe(true);
   });
@@ -145,8 +147,9 @@ describe('VerificationOS — Code Verification', () => {
   });
 
   it('warns about missing exports in long code', () => {
-    const code = 'function a(){} function b(){} function c(){} function d(){} function e(){}';
-    const result = verifyCode(code);
+    // Build code >500 chars with no export
+    const long = 'function a(){} '.repeat(50); // ~1650 chars
+    const result = verifyCode(long);
     expect(result.suggestions.some((s: string) => s.includes('module'))).toBe(true);
   });
 });

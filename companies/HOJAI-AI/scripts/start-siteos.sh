@@ -14,7 +14,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# All 33 services with ports (27 existing + 6 commerce)
+# All 37 services with ports (27 existing + 10 commerce)
 declare -A SERVICES=(
   ["siteos-gateway"]="5450"
   ["business-context-wrapper"]="5451"
@@ -48,6 +48,10 @@ declare -A SERVICES=(
   ["siteos-commerce/payment-gateway"]="5479"
   ["siteos-commerce/review-collection"]="5480"
   ["siteos-commerce/loyalty-connector"]="5481"
+  ["siteos-commerce/support-widget"]="5482"
+  ["siteos-commerce/whatsapp-broadcast"]="5483"
+  ["siteos-commerce/native-crm"]="5484"
+  ["siteos-commerce/sales-pipeline"]="5485"
 )
 
 install_service() {

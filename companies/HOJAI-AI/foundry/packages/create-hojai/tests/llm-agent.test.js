@@ -24,7 +24,6 @@ describe('llm-agent.js', () => {
   });
 
   test('callLLM falls back to mock without API key', async () => {
-    const hasKey = process.env.OPENAI_API_KEY;
-    assert.ok(hasKey !== undefined || true);
+    assert.ok(true);
   });
 });

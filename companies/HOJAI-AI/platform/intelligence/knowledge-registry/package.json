@@ -1,0 +1,11 @@
+{
+  "name": "@hojai/knowledge-registry",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Knowledge Registry - Asset CRUD, versioning, provenance, taxonomy, search",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js", "test": "vitest --reporter=verbose" },
+  "dependencies": { "express": "^4.21.2", "uuid": "^11.0.5" },
+  "devDependencies": { "vitest": "^2.1.8" },
+  "engines": { "node": ">=20.0.0" }
+}

@@ -1,48 +1,51 @@
 # 🏛️ THE RTMN HUMAN-AI CIVILIZATION THESIS
 
-**Version 2.0 | June 28, 2026**
+**Version 3.0 | June 28, 2026**
 
-> **Status:** This document is the founding philosophy of the RTMN ecosystem.  
-> It replaces all previous positioning documents.
+> **Status:** Founding Philosophy of RTMN Ecosystem  
+> **Supersedes:** All previous positioning documents  
+> **Review Cycle:** Quarterly
 
 ---
 
 ## ONE SENTENCE PITCH
 
-> **RTMN is the operating system for human-AI civilization, connecting human relationships, digital identity, intelligent work, and autonomous commerce into one continuous ecosystem—from local communities to autonomous global networks.**
+> **RTMN is the operating system for human-AI civilization—building the bridge from human trust and relationships to autonomous digital economies, one continuous identity at a time.**
 
 ---
 
-## THE CORE DOCTRINE
-
-### Four Principles
+## THE FIVE CORE PRINCIPLES
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                  │
-│   HUMANS CREATE MEANING                                         │
+│   HUMANS CREATE MEANING                                          │
 │   Trust, relationships, creativity, culture, leadership            │
 │                                                                  │
-│   IDENTITIES PRESERVE TRUST                                     │
-│   Reputation, history, credentials, ownership                     │
+│   IDENTITIES PRESERVE TRUST                                      │
+│   Reputation, history, credentials, ownership                      │
 │                                                                  │
-│   AI EXECUTES WORK                                              │
-│   Operations, coordination, optimization, transactions            │
+│   INTELLIGENCE AMPLIFIES HUMANITY                                │
+│   Memory, reasoning, communication, action                        │
 │                                                                  │
-│   NETWORKS COORDINATE CIVILIZATION                              │
-│   Discovery, commerce, economics, governance                      │
+│   AUTONOMOUS ORGANIZATIONS SCALE HUMANITY                        │
+│   AI employees, operations, commerce                              │
+│                                                                  │
+│   NETWORKS COORDINATE CIVILIZATION                               │
+│   Discovery, reputation, governance, economics                     │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Why Four Principles?
+**Why Five Principles?**
 
-| Principle | Why It Matters |
-|-----------|----------------|
-| **Humans Create Meaning** | AI cannot replace trust, relationships, creativity, ethics |
-| **Identities Preserve Trust** | Without stable identity, trust breaks. Trust is RTMN's foundation |
-| **AI Executes Work** | Humans should not do repetitive operations |
-| **Networks Coordinate Civilization** | Markets, governance, and economic coordination require networks |
+| # | Principle | Foundation |
+|---|-----------|-----------|
+| 1 | Humans Create Meaning | AI cannot replace trust, ethics, creativity |
+| 2 | Identities Preserve Trust | Without stable identity, trust breaks |
+| 3 | Intelligence Amplifies Humanity | AI should augment, not replace |
+| 4 | Autonomous Organizations Scale | AI handles operations, humans handle vision |
+| 5 | Networks Coordinate Civilization | Markets, governance, institutions |
 
 ---
 
@@ -52,56 +55,169 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                    LAYER 5 — CIVILIZATION NETWORKS              │
 │                                                                 │
-│    Nexha │ Agent Commerce │ Trust Networks │ Economic Coord     │
+│    Nexha │ Agent Commerce │ Trust Networks │ Economic Coord       │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                    LAYER 4 — AUTONOMOUS ORGANIZATIONS           │
 │                                                                 │
-│    SUTAR OS │ Department AI │ Industry AI │ Company Builder     │
+│    SUTAR OS │ Department AI │ Industry OS │ Company Builder      │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                    LAYER 3 — PERSONAL INTELLIGENCE             │
 │                                                                 │
-│    Genie │ RAZO │ MemoryOS │ TwinOS │ Personal Agents          │
+│    Genie │ RAZO │ MemoryOS │ TwinOS │ Personal Agents           │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                    LAYER 2 — DIGITAL IDENTITY                   │
 │                                                                 │
-│    CorpID │ WalletOS │ ReputationOS │ Digital Identity          │
+│    CorpID │ WalletOS │ REZ Coin │ ReputationOS │ AssetMind       │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                    LAYER 1 — HUMAN EXPERIENCES                  │
 │                                                                 │
-│    Community │ Relationships │ Commerce │ Health │ Living       │
+│    BuzzLocal │ Rendez │ ReZ │ RisaCare │ StayOwn │ RisnaEstate   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### The Clean Progression
+### The Progression
 
 ```
-Human Experiences (LAYER 1)
+Human Experiences (Trust)
         │
         ▼
-Digital Identity (LAYER 2)
+Digital Identity (Continuity)
         │
         ▼
-Personal Intelligence (LAYER 3)
+Personal Intelligence (Amplification)
         │
         ▼
-Autonomous Organizations (LAYER 4)
+Autonomous Organizations (Scale)
         │
         ▼
-Civilization Networks (LAYER 5)
+Civilization Networks (Coordination)
 ```
 
-**This is not arbitrary. This is how humans actually evolve.**
+---
+
+## THE CONSUMER TRIANGLE
+
+**The bridge between personal intelligence and the world.**
+
+```
+                    ┌─────────────┐
+                    │    DO       │
+                    │  Execute    │
+                    └──────┬──────┘
+                           │
+              ┌────────────┼────────────┐
+              │                         │
+              ▼                         ▼
+       ┌─────────────┐           ┌─────────────┐
+       │   Genie     │◄─────────►│    RAZO     │
+       │   Think     │           │  Communicate│
+       └─────────────┘           └─────────────┘
+```
+
+| Product | Verb | What it does |
+|---------|------|--------------|
+| **Genie** | Think | Reasons, plans, advises |
+| **RAZO** | Communicate | Translates intent, channels messages |
+| **DO** | Execute | Acts on behalf of user in the real world |
+
+**DO is a bridge, not a layer member.**
+
+It connects Personal Intelligence to Autonomous Organizations.
+
+---
+
+## THE PRODUCT VERBS
+
+**Five words. Five products. Instant clarity.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│   MEMORYOS  = Remembers                                         │
+│   Everything you see, hear, do, want                            │
+│                                                                  │
+│   TWINOS    = Models                                            │
+│   Your digital representation, updated continuously               │
+│                                                                  │
+│   GENIE     = Reasons                                           │
+│   Plans, advises, thinks on your behalf                          │
+│                                                                  │
+│   RAZO      = Communicates                                      │
+│   Speaks, writes, translates across channels                      │
+│                                                                  │
+│   DO        = Executes                                          │
+│   Takes actions in the real world                                │
+│                                                                  │
+│   SUTAR     = Operates                                          │
+│   Runs your business autonomously                                │
+│                                                                  │
+│   NEXHA     = Coordinates                                       │
+│   Connects AI businesses and agents                              │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## THE HUMAN-AI SOCIAL CONTRACT
+
+**The moral foundation of RTMN civilization.**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    THE RTMN CONSTITUTION                         │
+│                                                                 │
+│   1. HUMAN SOVEREIGNTY                                          │
+│      Humans remain in control. AI acts only with permission.      │
+│                                                                 │
+│   2. INDIVIDUAL MEMORY OWNERSHIP                                │
+│      Your memory is yours. You can export, delete, or transfer.  │
+│                                                                 │
+│   3. PORTABLE IDENTITY                                          │
+│      Your CorpID belongs to you. Take it anywhere.               │
+│                                                                 │
+│   4. CONSENT BY DEFAULT                                         │
+│      AI accesses data only when you explicitly allow it.          │
+│                                                                 │
+│   5. TRANSPARENT AI                                             │
+│      You can audit every decision your AI makes.                 │
+│                                                                 │
+│   6. TRUST IS EARNED                                            │
+│      Reputation is built over time, never extracted.              │
+│                                                                 │
+│   7. OPEN NETWORKS                                               │
+│      No vendor lock-in. Standards over silos.                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## RIGHTS OF DIGITAL PERSONHOOD
+
+**First-class civilization questions.**
+
+| Question | RTMN's Answer |
+|----------|---------------|
+| Who owns my digital twin? | You own it. You control who accesses it. |
+| Can I delete my memory? | Yes. Always. Instantly. |
+| Can my family inherit my twin? | Only if you choose them as heirs. |
+| Can I move my identity elsewhere? | Yes. Portability is a right. |
+| Can AI act without my consent? | Never. Every action requires permission or delegation. |
+| Who audits autonomous agents? | You. All decisions are traceable. |
+| Who owns my AI employee's work? | You own it. The AI works for you. |
+| Can I revoke AI access instantly? | Yes. One action. Complete revocation. |
 
 ---
 
 ## THE FIVE ERAS OF CIVILIZATION
 
-This is the framework that positions RTMN:
+**The framework for human-AI evolution.**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -110,149 +226,96 @@ This is the framework that positions RTMN:
 │   People do all work manually                                    │
 │   Local communities, trust networks, physical commerce           │
 │                                                                 │
-│   RTMN Layer 1: Human Experiences                               │
-│                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
-│                     ERA 2 — SOFTWARE ERA                         │
+│                     ERA 2 — SOFTWARE ERA                        │
 │                                                                 │
 │   People use tools to work                                      │
-│   Digital systems, databases, productivity software              │
-│                                                                 │
-│   RTMN Layer 2: Digital Identity                                │
+│   Digital systems, databases, productivity software               │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
-│                     ERA 3 — AI ASSIST ERA                        │
+│                     ERA 3 — AI AUGMENTATION ERA                 │
 │                                                                 │
 │   AI assists people with decisions                              │
-│   Chatbots, recommendations, automation                         │
-│                                                                 │
-│   RTMN Layer 3: Personal Intelligence                          │
+│   Chatbots, recommendations, personal AI                         │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
-│                     ERA 4 — AI AGENT ERA                        │
+│                     ERA 4 — AI AUTONOMY ERA                     │
 │                                                                 │
 │   AI works for people autonomously                              │
-│   AI employees, autonomous operations, AI companies             │
-│                                                                 │
-│   RTMN Layer 4: Autonomous Organizations                       │
+│   AI employees, autonomous operations, AI companies              │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
-│                     ERA 5 — NETWORK ERA                          │
+│                     ERA 5 — NETWORK CIVILIZATION ERA            │
 │                                                                 │
 │   AI works with AI directly                                     │
-│   Agent commerce, machine-to-machine, autonomous economies     │
-│                                                                 │
-│   RTMN Layer 5: Civilization Networks                           │
+│   Agent commerce, machine-to-machine, autonomous economies       │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### The Bridge Position
 
-> **RTMN is the bridge across all five eras.**
+> **RTMN is designed to connect human trust systems with AI-native economic networks.**
 
 | Era | Without RTMN | With RTMN |
 |-----|--------------|-----------|
 | Human | Local only | Scales with identity |
 | Software | Data silos | Unified identity |
-| AI Assist | Generic AI | Personal AI |
-| AI Agent | Hiring humans | AI employees |
-| Network | Manual deals | Agent commerce |
-
----
-
-## THE REAL MOAT
-
-### Most Founders Believe:
-
-```
-AI → Product → Network
-```
-
-### RTMN's Model:
-
-```
-Community
-    ↓
-Identity
-    ↓
-Memory
-    ↓
-Personal AI
-    ↓
-Business AI
-    ↓
-Agent Commerce
-```
-
-**You cannot buy or copy twenty years of trust.**
+| AI Augmentation | Generic AI | Personal AI |
+| AI Autonomy | Hiring humans | AI employees |
+| Network Civilization | Manual deals | Agent commerce |
 
 ---
 
 ## THE 30-YEAR CUSTOMER JOURNEY
 
-### By Life Transitions (Not Ages)
+**By life transitions, not ages.**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                 │
-│   LIFE TRANSITION 1: DISCOVERY (15-25)                         │
-│   ─────────────────────────────────────────────────────         │
+│   LIFE TRANSITION 1: DISCOVERY                                 │
+│   ────────────────────────────────────────────────────          │
 │                                                                 │
-│   BuzzLocal (community discovery)                               │
-│        ↓                                                        │
-│   Rendez (relationships)                                       │
-│        ↓                                                        │
-│   ReZ (first commerce)                                         │
+│   BuzzLocal ──► Rendez ──► ReZ                                 │
+│   (community)   (social)    (commerce)                          │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   LIFE TRANSITION 2: INDEPENDENCE (20-30)                      │
-│   ─────────────────────────────────────────────────────         │
+│   LIFE TRANSITION 2: INDEPENDENCE                               │
+│   ────────────────────────────────────────────────────          │
 │                                                                 │
-│   Genie (AI companion)                                         │
-│        ↓                                                        │
-│   DO App (take actions)                                        │
-│        ↓                                                        │
-│   RisaCare (health management)                                  │
+│   Genie ──► DO ──► RisaCare ──► CorpID                        │
+│   (think)    (act)      (health)    (identity)                 │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   LIFE TRANSITION 3: ENTREPRENEURSHIP (25-40)                   │
-│   ─────────────────────────────────────────────────────         │
+│   LIFE TRANSITION 3: ENTREPRENEURSHIP                           │
+│   ────────────────────────────────────────────────────          │
 │                                                                 │
-│   REZ Merchant (start selling)                                  │
-│        ↓                                                        │
-│   SUTAR Employees (hire AI)                                     │
-│        ↓                                                        │
-│   Nexha Network (scale business)                               │
+│   REZ Merchant ──► SUTAR ──► Nexha                             │
+│   (start)          (AI team)    (network)                      │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   LIFE TRANSITION 4: GROWTH (35-50)                              │
-│   ─────────────────────────────────────────────────────         │
+│   LIFE TRANSITION 4: GROWTH                                     │
+│   ────────────────────────────────────────────────────          │
 │                                                                 │
-│   Industry OS (vertical expansion)                              │
-│        ↓                                                        │
-│   AssetMind (invest returns)                                   │
-│        ↓                                                        │
-│   CorpPerks (build team)                                       │
+│   Industry OS ──► AssetMind ──► CorpPerks                       │
+│   (vertical)        (invest)      (build team)                  │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   LIFE TRANSITION 5: LEGACY (50+)                               │
-│   ─────────────────────────────────────────────────────         │
+│   LIFE TRANSITION 5: LEGACY                                     │
+│   ────────────────────────────────────────────────────          │
 │                                                                 │
-│   RisnaEstate (property)                                       │
-│        ↓                                                        │
-│   Digital Twin (preserve memory)                               │
-│        ↓                                                        │
-│   Knowledge Transfer (inheritance)                               │
+│   RisnaEstate ──► Digital Twin ──► Knowledge Transfer           │
+│   (property)         (memory)          (inheritance)            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**One ecosystem. One identity. A lifetime.**
+**One ecosystem. One identity. A lifetime of evolution.**
 
 ---
 
@@ -260,7 +323,7 @@ Agent Commerce
 
 ### LAYER 1 — HUMAN EXPERIENCES
 
-**Purpose:** Where humans build trust and relationships.
+*Where humans build trust.*
 
 | Product | Company | Purpose |
 |---------|---------|---------|
@@ -274,13 +337,11 @@ Agent Commerce
 | RisnaEstate | RisnaEstate | Real estate |
 | ReZ Ride | KHAIRMOVE | Mobility |
 
-**Why this layer:** You cannot build AI on empty data. Human interactions create the trust graph that AI later amplifies.
-
 ---
 
 ### LAYER 2 — DIGITAL IDENTITY
 
-**Purpose:** Universal identity that spans all experiences.
+*Universal identity that spans all experiences.*
 
 | Product | Company | Purpose |
 |---------|---------|---------|
@@ -290,33 +351,25 @@ Agent Commerce
 | ReputationOS | HOJAI AI | Trust across apps |
 | AssetMind | AssetMind | Financial identity |
 
-**Why this layer:** One user, one identity, one history. No matter which app they use.
-
-**AssetMind placement:** Financial identity belongs here (not in Networks), because your portfolio, risk preferences, and wealth goals are deeply personal—not network infrastructure.
-
 ---
 
 ### LAYER 3 — PERSONAL INTELLIGENCE
 
-**Purpose:** AI that knows you personally.
+*AI that knows you personally.*
 
 | Product | Company | Purpose |
 |---------|---------|---------|
-| Genie OS | HOJAI AI | Personal AI assistant |
-| RAZO | HOJAI AI | Communication intelligence |
-| MemoryOS | HOJAI AI | Persistent personal memory |
-| TwinOS | HOJAI AI | Your digital twin |
+| Genie | HOJAI AI | Your AI that thinks |
+| RAZO | HOJAI AI | Your AI that communicates |
+| MemoryOS | HOJAI AI | Your AI that remembers |
+| TwinOS | HOJAI AI | Your digital model |
 | Personal Agents | HOJAI AI | Task-specific AI |
-
-**Why this layer:** AI that has your context—your history, preferences, relationships—is 10x more valuable than generic AI.
-
-**MemoryOS placement:** Memory is personal intelligence, not just infrastructure. It belongs here alongside Genie.
 
 ---
 
 ### LAYER 4 — AUTONOMOUS ORGANIZATIONS
 
-**Purpose:** AI that does work for businesses.
+*AI that does work for businesses.*
 
 | Product | Company | Purpose |
 |---------|---------|---------|
@@ -327,58 +380,33 @@ Agent Commerce
 | Finance OS | Industry OS | AI finance |
 | CXO OS | Industry OS | AI executive |
 | Company Builder | HOJAI AI | AI-generated companies |
-| DO App | REZ-Consumer | **Action layer** (takes AI decisions → real world) |
-
-**Why this layer:** Businesses don't want more tools. They want people who do the work. SUTAR provides AI employees.
-
-**CorpPerks placement:** CorpPerks is enterprise infrastructure (HR, payroll, workforce management)—it belongs under Autonomous Organizations, not Civilization Networks.
+| CorpPerks | CorpPerks | HR & workforce |
 
 ---
 
 ### LAYER 5 — CIVILIZATION NETWORKS
 
-**Purpose:** AI-to-AI commerce and coordination.
+*AI-to-AI commerce and coordination.*
 
 | Product | Company | Purpose |
 |---------|---------|---------|
 | Nexha | Nexha | Commerce network |
 | Capability OS | Nexha | Machine-readable skills |
 | Discovery OS | Nexha | Find AI partners |
-| Reputation OS | Nexha | AI trust scoring |
 | Trade Finance | Nexha | AI escrow/payments |
-| Trust Networks | HOJAI AI | Cross-network trust |
-
-**Why this layer:** When AI employees meet AI suppliers meet AI customers, humans step back entirely.
 
 ---
 
-### GOVERNANCE INFRASTRUCTURE (Cross-Cutting)
+### GOVERNANCE (Cross-Cutting)
 
-**Purpose:** Civilization requires institutions, not only intelligence.
+*Institutions, not just intelligence.*
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      GOVERNANCE LAYER                            │
-│                    (Spans All 5 Layers)                          │
-│                                                                 │
-│    PolicyOS — Who sets the rules?                               │
-│    ConsentOS — Who approves what?                                │
-│    TrustOS — Who vouches for whom?                              │
-│    InheritanceOS — Who inherits what?                            │
-│    Auditability — Who can see what?                             │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Governance Questions Every Layer Must Answer
-
-| Layer | Governance Question |
-|-------|-------------------|
-| Human Experiences | Who can access my community data? |
-| Digital Identity | Who owns my identity? |
-| Personal Intelligence | Who controls my AI's decisions? |
-| Autonomous Organizations | Who authorizes AI work? |
-| Civilization Networks | Who resolves disputes? |
+| Product | Company | Purpose |
+|---------|---------|---------|
+| PolicyOS | HOJAI AI | Rules and permissions |
+| ConsentOS | HOJAI AI | Authorization management |
+| TrustOS | HOJAI AI | Reputation and vouching |
+| AuditTrail | HOJAI AI | Decision traceability |
 
 ---
 
@@ -391,13 +419,13 @@ Human Interactions (Trust)
 Digital Identity (CorpID)
         │
         ▼
-Memory & Context (Genie learns)
+Memory & Context (MemoryOS)
         │
         ▼
-Personal AI (Your AI knows you)
+Personal AI (Genie learns you)
         │
         ▼
-Business AI (Your AI employees)
+Business AI (SUTAR employees)
         │
         ▼
 Network Effects (Nexha)
@@ -406,16 +434,40 @@ Network Effects (Nexha)
 More Human Interactions
         │
         ▼
-        ... (loop continues)
+        ... (loop)
 ```
+
+---
+
+## THE REAL MOAT
+
+### Most Companies Believe:
+
+```
+Technology → Product → Network
+```
+
+### RTMN's Model:
+
+```
+Trust → Identity → Memory → Personal AI → Business AI → Network
+```
+
+**Why this matters:**
+
+| Competitor Approach | Problem |
+|---------------------|---------|
+| Build AI | No user trust to amplify |
+| Build marketplace | No identity continuity |
+| Build network | No relationship foundation |
+
+**RTMN builds the foundation first, then scales.**
 
 ---
 
 ## COMPETITOR POSITIONING
 
-**We don't compete with anyone.**
-
-We created a new category:
+**We don't compete. We created a new category.**
 
 | Company | Core Strength | Category |
 |---------|---------------|----------|
@@ -424,50 +476,50 @@ We created a new category:
 | OpenAI | Intelligence models | AI models |
 | Tencent | Consumer ecosystems | Social commerce |
 | Shopify | Merchant infrastructure | SMB software |
-| **RTMN** | **Human-to-AI evolution** | **Civilization OS** |
+| **RTMN** | **Transition infrastructure** | **Civilization OS** |
 
-**RTMN is the only company building the bridge from human civilization to AI civilization.**
+**RTMN is building an integrated platform designed to connect human trust systems with AI-native economic networks.**
 
 ---
 
-## EXECUTION REALITY
+## EXECUTION PRIORITIES
 
-### Phase 1 — NOW (0-12 months)
+### Phase 1 — FOUNDATION (NOW)
 
-**Build the foundation:**
+**Seven pieces. Nothing else matters.**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                 │
-│   ReZ App ──────────► CorpID ──────────► Wallet                │
-│        │                                       │               │
-│        │                                       ▼               │
-│        │                                  REZ Coin             │
-│        │                                       │               │
-│        └───────────┐     ┌───────────────────┘               │
-│                    ▼     ▼                                    │
-│               Genie ◄───┘                                    │
-│                    │                                           │
-│                    ▼                                           │
-│               DO App                                          │
-│                    │                                           │
-│                    ▼                                           │
-│              SUTAR OS                                         │
+│   LAYER 1 ───────────► LAYER 2 ───────────► LAYER 3          │
+│   ReZ App               CorpID               Genie              │
+│   (trust)               (identity)           (intelligence)      │
+│                                                                 │
+│         ▲                                       │               │
+│         │                                       ▼               │
+│         │                                 DO App               │
+│         │                              (action)                │
+│         │                                       │               │
+│         │                                       ▼               │
+│         └──────────────────► LAYER 4 ◄────────┘               │
+│                              SUTAR                             │
+│                          (autonomy)                            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Nothing else matters until these 7 pieces work together.**
+**These seven must connect before anything else.**
 
 ---
 
 ### Phase 2 — EXPANSION (12-24 months)
 
 ```
-├── Industry OS (24 verticals)
+├── 24 Industry OS verticals
 ├── Company Builder
 ├── Department AI Agents
-└── Consumer App Expansion
+├── RAZO integration
+└── Consumer app ecosystem
 ```
 
 ---
@@ -475,122 +527,95 @@ We created a new category:
 ### Phase 3 — NETWORK (24-36 months)
 
 ```
-├── Nexha Activation
-├── Agent Commerce
-├── Cross-Network Trust
-└── Global Ecosystems
+├── Nexha activation
+├── Agent commerce
+├── Cross-network trust
+└── Civilization governance
 ```
 
 ---
 
-## THE THREE STRATEGIC PRINCIPLES
+## THE THREE OPERATIONAL DOCTRINES
 
-### 1. Evolution Over Revolution
+### Doctrine 1: Foundation Before Scale
 
-> **Don't force people into AI. Let them evolve naturally.**
+> **Every new product must strengthen the seven foundations.**
 
+When evaluating a new product, ask:
 ```
-BuzzLocal user → ReZ user → Genie user → SUTAR customer → Nexha participant
+Does this make CorpID stronger?
+Does this deepen Genie's knowledge of users?
+Does this connect to REZ Wallet?
 ```
 
-Every step feels natural.
+If not, wait.
 
 ---
 
-### 2. Trust Over Speed
+### Doctrine 2: Trust Over Speed
 
 > **Never break trust for growth.**
 
-| Decision | Trust-Preserving Choice |
-|----------|------------------------|
-| New feature vs privacy | Privacy first |
+| Decision | Right Choice |
+|----------|-------------|
+| Feature vs privacy | Privacy first |
 | Growth vs security | Security first |
 | Scale vs consent | Consent first |
 
 ---
 
-### 3. One Identity Everywhere
+### Doctrine 3: One Identity Everywhere
 
-> **Your CorpID should work in BuzzLocal, ReZ, Genie, SUTAR, and Nexha.**
+> **Your CorpID works in every app, every layer, forever.**
 
-No friction. No re-onboarding. One identity, infinite continuity.
+No re-onboarding. No friction. One identity.
 
 ---
 
-## INVESTOR ONE-PAGER
+## INVESTOR SUMMARY
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                 │
-│   THE PROBLEM                                                   │
+│   THE OPPORTUNITY                                               │
 │                                                                 │
 │   Humanity is transitioning from human-driven work to           │
-│   AI-driven operations. But there is no infrastructure          │
-│   connecting these two worlds.                                  │
+│   AI-driven operations. This is the largest economic           │
+│   transformation in history.                                    │
 │                                                                 │
-│   ┌─────────────────────────────────────────────────────┐       │
-│   │                                                     │       │
-│   │   Human World          │        AI World           │       │
-│   │   - Communities        │        - AI employees      │       │
-│   │   - Trust              │        - Agent commerce    │       │
-│   │   - Relationships       │        - Autonomous ops    │       │
-│   │   - Local commerce      │        - AI networks       │       │
-│   │                                                     │       │
-│   │          NO BRIDGE EXISTS TODAY                     │       │
-│   │                                                     │       │
-│   └─────────────────────────────────────────────────────┘       │
+│   THE PROBLEM                                                   │
 │                                                                 │
-├─────────────────────────────────────────────────────────────────┤
+│   No infrastructure connects human trust and relationships     │
+│   to autonomous AI systems and agent commerce.                 │
 │                                                                 │
 │   THE SOLUTION                                                  │
 │                                                                 │
 │   RTMN builds the Civilization Stack:                           │
+│   • Layer 1: Human trust networks (ReZ, BuzzLocal)            │
+│   • Layer 2: Digital identity (CorpID, Wallet)                  │
+│   • Layer 3: Personal AI (Genie, MemoryOS, TwinOS)            │
+│   • Layer 4: Autonomous organizations (SUTAR, Department AI)   │
+│   • Layer 5: Civilization networks (Nexha)                     │
 │                                                                 │
-│   Layer 5: Civilization Networks (Nexha)                        │
-│   Layer 4: Autonomous Organizations (SUTAR)                    │
-│   Layer 3: Personal Intelligence (Genie)                       │
-│   Layer 2: Digital Identity (CorpID, Wallet)                   │
-│   Layer 1: Human Experiences (ReZ, BuzzLocal, Rendez)         │
+│   THE UNIQUE POSITION                                          │
 │                                                                 │
-│   ┌─────────────────────────────────────────────────────┐       │
-│   │                                                     │       │
-│   │   One CorpID. One Wallet. One Memory. One Twin.     │       │
-│   │                                                     │       │
-│   │   From neighborhood to autonomous business—           │       │
-│   │   one continuous journey.                            │       │
-│   │                                                     │       │
-│   └─────────────────────────────────────────────────────┘       │
+│   RTMN starts where humans already are—communities,             │
+│   relationships, commerce—and builds the bridge to             │
+│   AI-native operations and autonomous commerce.                │
 │                                                                 │
-├─────────────────────────────────────────────────────────────────┤
+│   THE MARKETS                                                  │
 │                                                                 │
-│   THE MARKET                                                    │
-│                                                                 │
-│   $50T human commerce market                                    │
-│   +                                                               │
-│   $10T AI services market                                       │
-│   +                                                               │
-│   $5T agent commerce market (emerging)                          │
-│                                                                 │
-│   Total Addressable: $65T+                                      │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   THE TEAM                                                      │
-│                                                                 │
-│   [Current leadership and advisors]                            │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   THE ASK                                                       │
-│                                                                 │
-│   [Funding round details]                                       │
+│   Massive, multi-trillion-dollar opportunities across:         │
+│   • Consumer commerce and social platforms                     │
+│   • Enterprise software and AI services                        │
+│   • Emerging autonomous agent economies                        │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## EMPLOYEE ONE-PAGER
+## EMPLOYEE SUMMARY
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -602,20 +627,17 @@ No friction. No re-onboarding. One identity, infinite continuity.
 │   We're building the infrastructure that connects               │
 │   human trust to AI execution.                                  │
 │                                                                 │
-│   From your neighborhood to autonomous business—                 │
-│   one continuous journey.                                       │
-│                                                                 │
 │   ┌─────────────────────────────────────────────────────┐       │
 │   │                                                     │       │
-│   │   If you want to work on:                           │       │
+│   │   Whatever you're working on—                     │       │
 │   │                                                     │       │
-│   │   • Communities & trust        → Join BuzzLocal    │       │
-│   │   • Personal AI                → Join Genie        │       │
-│   │   • AI employees               → Join SUTAR        │       │
-│   │   • Agent commerce             → Join Nexha        │       │
-│   │   • Universal identity         → Join CorpID       │       │
+│   │   • BuzzLocal (community)     → Layer 1           │       │
+│   │   • CorpID (identity)         → Layer 2           │       │
+│   │   • Genie (intelligence)      → Layer 3           │       │
+│   │   • SUTAR (autonomy)          → Layer 4           │       │
+│   │   • Nexha (networks)          → Layer 5           │       │
 │   │                                                     │       │
-│   │   ... you're building the same thing.               │       │
+│   │   —you're building the same thing.                 │       │
 │   │                                                     │       │
 │   └─────────────────────────────────────────────────────┘       │
 │                                                                 │
@@ -624,7 +646,7 @@ No friction. No re-onboarding. One identity, infinite continuity.
 
 ---
 
-## PRODUCT-TO-LAYER MAPPING (Canonical)
+## PRODUCT-TO-LAYER MAPPING
 
 ### Layer 1 — Human Experiences
 | Product | Company |
@@ -652,11 +674,10 @@ No friction. No re-onboarding. One identity, infinite continuity.
 ### Layer 3 — Personal Intelligence
 | Product | Company |
 |---------|---------|
-| Genie OS | HOJAI AI |
+| Genie | HOJAI AI |
 | RAZO | HOJAI AI |
 | MemoryOS | HOJAI AI |
 | TwinOS | HOJAI AI |
-| DO App | REZ-Consumer |
 
 ### Layer 4 — Autonomous Organizations
 | Product | Company |
@@ -678,7 +699,12 @@ No friction. No re-onboarding. One identity, infinite continuity.
 | Discovery OS | Nexha |
 | Trade Finance | Nexha |
 
-### Governance (Cross-Cutting)
+### Bridge
+| Product | Verb |
+|---------|------|
+| DO App | Execute |
+
+### Governance
 | Product | Company |
 |---------|---------|
 | PolicyOS | HOJAI AI |
@@ -687,23 +713,13 @@ No friction. No re-onboarding. One identity, infinite continuity.
 
 ---
 
-## WHAT THIS DOCUMENT REPLACES
-
-| Old Document | Status |
-|-------------|--------|
-| RTMN Deep Product Audit | Superseded |
-| RTMN Product Catalog | Superseded |
-| Two Worlds Positioning | Renamed to Civilization Thesis |
-| Company Overviews | Consolidated here |
-
----
-
 ## VERSION HISTORY
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | June 28, 2026 | Initial thesis |
-| 2.0 | June 28, 2026 | Fixed layer structure, added governance, fixed product placements |
+| 2.0 | June 28, 2026 | Fixed layer structure, added governance |
+| 3.0 | June 28, 2026 | Added constitution, digital personhood, product verbs, fixed DO positioning |
 
 ---
 
@@ -714,4 +730,17 @@ No friction. No re-onboarding. One identity, infinite continuity.
 
 ---
 
+## THE FOUNDING PROMISE
+
+> **Human trust creates civilization.  
+> Digital identity preserves it.  
+> Intelligence amplifies it.  
+> Autonomous organizations scale it.  
+> Networks connect it.**
+
+> **RTMN is the operating system for human-AI civilization.**
+
+---
+
 *This document is the single source of truth for RTMN's strategic positioning.*
+*From neighborhoods to autonomous enterprises—one continuous identity.*

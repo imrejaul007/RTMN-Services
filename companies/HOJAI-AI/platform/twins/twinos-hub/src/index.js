@@ -168,6 +168,17 @@ const TWIN_DEFINITIONS = {
   'ai.goal': { service: 'goal-os', port: 4242, type: 'concept', category: 'ai' },
   'ai.simulation': { service: 'simulation-os', port: 4241, type: 'model', category: 'ai' },
 
+  // Intelligence Layer Twins (NEW - Living Autonomous Twins)
+  'intelligence.orchestrator': { service: 'twin-intelligence-orchestrator', port: 4715, type: 'intelligence', category: 'ai' },
+  'intelligence.behavior': { service: 'twin-behavior-model', port: 4718, type: 'intelligence', category: 'ai' },
+  'intelligence.learning': { service: 'twin-learning-os', port: 4735, type: 'intelligence', category: 'ai' },
+  'intelligence.execution': { service: 'twin-execution-os', port: 4737, type: 'intelligence', category: 'ai' },
+
+  // Memory Extensions (NEW)
+  'memory.working': { service: 'twin-working-memory', port: 4724, type: 'memory', category: 'foundation' },
+  'memory.procedural': { service: 'memory-procedural', port: 4725, type: 'memory', category: 'foundation' },
+  'memory.episodic': { service: 'memory-observation', port: 4785, type: 'memory', category: 'foundation' },
+
   // Hospitality Twins
   'hospitality.hotel': { service: 'hotel-os', port: 5025, type: 'resource', category: 'hospitality' },
   'hospitality.room': { service: 'hotel-os', port: 5025, type: 'resource', category: 'hospitality' },
@@ -1383,6 +1394,182 @@ app.get('/api/services', optionalAuth, asyncHandler(async (req, res) => {
       twins: twins.filter(t => t.service === svc).map(t => t.id)
     }))
   });
+}));
+
+// ============ v3.1 NEW: INTELLIGENCE LAYER ENDPOINTS ============
+
+const INTELLIGENCE_SERVICES = {
+  orchestrator: process.env.INTELLIGENCE_ORCHESTRATOR_URL || 'http://localhost:4715',
+  behavior: process.env.BEHAVIOR_MODEL_URL || 'http://localhost:4718',
+  learning: process.env.TWIN_LEARNING_URL || 'http://localhost:4735',
+  execution: process.env.TWIN_EXECUTION_URL || 'http://localhost:4737',
+  workingMemory: process.env.TWIN_WORKING_MEMORY_URL || 'http://localhost:4724',
+  proceduralMemory: process.env.MEMORY_PROCEDURAL_URL || 'http://localhost:4725',
+};
+
+/**
+ * GET /api/intelligence/services
+ * List available intelligence services
+ */
+app.get('/api/intelligence/services', optionalAuth, asyncHandler(async (req, res) => {
+  const services = Object.entries(INTELLIGENCE_SERVICES).map(([name, url]) => ({
+    name,
+    url,
+    status: 'configured'
+  }));
+
+  res.json({
+    success: true,
+    services,
+    count: services.length
+  });
+}));
+
+/**
+ * POST /api/intelligence/analyze/:twinId
+ * Full twin analysis via Intelligence Orchestrator
+ */
+app.post('/api/intelligence/analyze/:twinId', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+  const twin = twinRegistry.get(twinId);
+
+  if (!twin) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'TWIN_NOT_FOUND', message: 'Twin not found' }
+    });
+  }
+
+  // Call intelligence orchestrator
+  try {
+    const response = await fetch(`${INTELLIGENCE_SERVICES.orchestrator}/api/orchestrator/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ twinId, ...req.body })
+    });
+
+    if (response.ok) {
+      const analysis = await response.json();
+      res.json({
+        success: true,
+        twinId,
+        analysis
+      });
+    } else {
+      res.status(502).json({
+        success: false,
+        error: 'Intelligence service unavailable'
+      });
+    }
+  } catch (error) {
+    res.status(502).json({
+      success: false,
+      error: 'Failed to connect to intelligence orchestrator'
+    });
+  }
+}));
+
+/**
+ * GET /api/intelligence/behavior/:twinId
+ * Get behavior profile
+ */
+app.get('/api/intelligence/behavior/:twinId', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+
+  try {
+    const response = await fetch(`${INTELLIGENCE_SERVICES.behavior}/api/behavior/profile/${twinId}`);
+
+    if (response.ok) {
+      const profile = await response.json();
+      res.json({
+        success: true,
+        behavior: profile
+      });
+    } else {
+      res.json({
+        success: true,
+        behavior: { twinId, patterns: [], message: 'Behavior service pending' }
+      });
+    }
+  } catch (error) {
+    res.json({
+      success: true,
+      behavior: { twinId, patterns: [], message: 'Behavior service unavailable' }
+    });
+  }
+}));
+
+/**
+ * GET /api/intelligence/working-memory/:twinId
+ * Get working memory
+ */
+app.get('/api/intelligence/working-memory/:twinId', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+
+  try {
+    const response = await fetch(`${INTELLIGENCE_SERVICES.workingMemory}/api/working/${twinId}`);
+
+    if (response.ok) {
+      const memory = await response.json();
+      res.json({
+        success: true,
+        workingMemory: memory
+      });
+    } else {
+      res.json({
+        success: true,
+        workingMemory: { twinId, items: [], message: 'Working memory service pending' }
+      });
+    }
+  } catch (error) {
+    res.json({
+      success: true,
+      workingMemory: { twinId, items: [], message: 'Working memory service unavailable' }
+    });
+  }
+}));
+
+/**
+ * GET /api/intelligence/procedural/:twinId
+ * Get procedural memory (skills, workflows, habits)
+ */
+app.get('/api/intelligence/procedural/:twinId', optionalAuth, asyncHandler(async (req, res) => {
+  const { twinId } = req.params;
+
+  try {
+    const [skills, workflows, habits] = await Promise.all([
+      fetch(`${INTELLIGENCE_SERVICES.proceduralMemory}/api/procedural/${twinId}/skills`),
+      fetch(`${INTELLIGENCE_SERVICES.proceduralMemory}/api/procedural/${twinId}/workflows`),
+      fetch(`${INTELLIGENCE_SERVICES.proceduralMemory}/api/procedural/${twinId}/habits`)
+    ]);
+
+    const [skillsData, workflowsData, habitsData] = await Promise.all([
+      skills.ok ? skills.json() : { skills: [] },
+      workflows.ok ? workflows.json() : { workflows: [] },
+      habits.ok ? habits.json() : { habits: [] }
+    ]);
+
+    res.json({
+      success: true,
+      procedural: {
+        twinId,
+        skills: skillsData.skills || [],
+        workflows: workflowsData.workflows || [],
+        habits: habitsData.habits || []
+      }
+    });
+  } catch (error) {
+    res.json({
+      success: true,
+      procedural: {
+        twinId,
+        skills: [],
+        workflows: [],
+        habits: [],
+        message: 'Procedural memory service unavailable'
+      }
+    });
+  }
 }));
 
 // ============ v3.0 NEW: TWIN IDENTITY ENDPOINTS ============
