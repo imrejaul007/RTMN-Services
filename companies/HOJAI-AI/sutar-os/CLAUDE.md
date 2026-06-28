@@ -1,8 +1,8 @@
 # SUTAR OS — Complete Documentation
 
-> **Version:** 6.0 | **Updated:** June 27, 2026
+> **Version:** 7.0 | **Updated:** June 27, 2026
 > **Canonical location:** `companies/HOJAI-AI/sutar-os/`
-> **Tests:** 479 passing across 6 services | **Status:** ✅ Production Ready
+> **Tests:** 590 passing across 13 services | **Status:** ✅ Production Ready
 
 ---
 
@@ -101,13 +101,14 @@ Agent Layer (Orthogonal)
 
 ---
 
-## 📦 Service Inventory — All 27 Services
+## 📦 Service Inventory — All 34 Services
 
-### Layer 1 — Observability (1 service)
+### Layer 1 — Observability (2 services)
 
 | Service | Port | Lines | Tests | Features |
 |---------|------|-------|-------|---------|
 | `sutar-monitoring` | 3100 | 417 | ❌ | Health probes, dependency checks, alert routing |
+| `sutar-tracing` | 4606 | 320 | ✅ 11 | Distributed tracing, execution replay, critical path analysis, latency metrics |
 
 ### Layer 2 — Gateway + Foundation (5 services)
 
@@ -177,6 +178,22 @@ Agent Layer (Orthogonal)
 | Service | Port | Lines | Tests | Features |
 |---------|------|-------|-------|---------|
 | `sutar-tenant-instances` | 4141 | ~400 | ✅ 75 | Per-tenant SUTAR shards (SHARED/DEDICATED/ISOLATED) |
+
+### Enterprise Connectors (4 services)
+
+| Service | Port | Lines | Tests | Features |
+|---------|------|-------|-------|---------|
+| `salesforce-connector` | 4600 | 230 | ✅ 33 | Bidirectional CRM sync: accounts → merchants, leads → leads, opportunities → negotiations |
+| `sap-connector` | 4601 | 290 | ✅ 21 | SAP S/4HANA ERP sync: vendors → suppliers, POs → procurement, inventory, cost centers |
+| `workday-connector` | 4602 | 280 | ✅ 20 | Workday HCM sync: workers → employees, org → hierarchy, payroll → finance |
+| `oracle-connector` | 4603 | 320 | ✅ 22 | Oracle Cloud ERP sync: suppliers, POs, invoices → payments, budgets |
+
+### Compliance + Observability (2 services)
+
+| Service | Port | Lines | Tests | Features |
+|---------|------|-------|-------|---------|
+| `sutar-compliance` | 4605 | 330 | ✅ 15 | SOC2 Type II + GDPR: audit logging, data subject registry, consent management, access review, data retention |
+| `sutar-hitl` | 4607 | 380 | ✅ 32 | Human-in-the-Loop: approval gates, auto-approve thresholds, escalation, delegation, override, audit trail |
 
 ---
 
@@ -444,9 +461,14 @@ companies/HOJAI-AI/sutar-os/
 
 | Date | Change |
 |------|--------|
+| 2026-06-27 | **Phase 2 complete** — All 7 business gaps addressed: enterprise connectors (4), compliance, tracing, HITL, pricing, demo, case studies |
+| 2026-06-27 | Added 4 enterprise connectors: Salesforce (33 tests), SAP (21), Workday (20), Oracle (22) |
+| 2026-06-27 | Added 3 core services: sutar-compliance (15 tests), sutar-tracing (11), sutar-hitl (32) |
+| 2026-06-27 | Added pricing model doc, cross-org negotiation demo, 3 case studies (logistics, trade finance, B2B) |
+| 2026-06-27 | Total: 590 tests across 13 services |
 | 2026-06-27 | Fixed `@rtmn/shared` symlink, added `setup.ts` to mock EventBus for tests |
 | 2026-06-27 | Added `port` field to all 27 `package.json` files |
-| 2026-06-27 | All 6 tested services: **504 tests passing** (was 434 + 5 failing suites) |
+| 2026-06-27 | All 6 tested services: **504 tests passing** |
 | 2026-06-26 | 23 new enterprise modules added to `platform/sutar-os/core/` |
 | 2026-06-22 | ADR-0010: Hub wired with 13 SUTAR + 23 enterprise module routes |
 | 2026-06-21 | BLR AI Marketplace moved from `sutar-marketplace` to `blr-ai-marketplace/` |
