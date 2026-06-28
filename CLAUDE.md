@@ -319,47 +319,55 @@ Nexha A (Restaurant)    Nexha B (Delivery)    Nexha C (Payment)
 
 **Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
 
-### HOJAI SiteOS — 33 Services Built (June 2026)
+### HOJAI SiteOS — 37 Services Built (June 2026)
 
 **`companies/HOJAI-AI/products/`**
 
-| Port | Service | Phase | Reuses |
+| Port | Service | Phase | Purpose |
 |---|---|---|---|
-| 5450 | siteos-gateway | 0.5 | TwinOS, Genie |
-| 5451 | business-context-wrapper | 0.5 | CXO, Sales, Marketing |
+| **Core Gateway (5450-5468)** |
+| 5450 | siteos-gateway | 0.5 | Unified API gateway |
+| 5451 | business-context-wrapper | 0.5 | CXO, Sales, Marketing context |
 | 5452 | channel-stitcher | 0.5 | CorpID, Customer Twin |
-| 5453 | event-tracker | 0.5 | Analytics |
-| 5454 | heatmap-aggregator | 0.5 | Analytics |
-| 5455 | vertical-templates | 0.5 | 26 Industry OS |
-| 5456 | review-scrapers | 0.5 | — |
-| 5457 | lookalike-generator | 0.5 | Customer Twin, REZ Audience |
-| 5458 | lead-scoring | 2 | Customer Twin |
-| 5459 | marketing-automation | 2 | Marketing OS |
-| 5460 | customer-twin-full | 2 | Customer Twin |
-| 5461 | event-taxonomy | 2 | — |
-| 5462 | workflow-visual-builder | 2 | FlowOS |
-| 5463 | voice-widget | 3 | Voice Gateway |
-| 5464 | ads | 3 | — |
-| 5465 | crm-connectors | 3 | Sales OS, REZ CRM |
-| 5466 | knowledge-base | 3 | MemoryOS |
-| 5467 | ab-testing | 3 | Analytics |
-| 5468 | product-federation | 4 | Nexha Discovery |
+| 5453 | event-tracker | 0.5 | Event tracking |
+| 5454 | heatmap-aggregator | 0.5 | Behavior analytics |
+| 5455 | vertical-templates | 0.5 | 26 Industry templates |
+| 5456 | review-scrapers | 0.5 | Review monitoring |
+| 5457 | lookalike-generator | 0.5 | Audience expansion |
+| 5458 | lead-scoring | 2 | Signal-based scoring |
+| 5459 | marketing-automation | 2 | Campaign automation |
+| 5460 | customer-twin-full | 2 | Customer digital twin |
+| 5461 | event-taxonomy | 2 | 100-event taxonomy |
+| 5462 | workflow-visual-builder | 2 | DAG workflow builder |
+| 5463 | voice-widget | 3 | Voice integration |
+| 5464 | ads | 3 | AdOS - Pixel, CAPI tracking |
+| 5465 | crm-connectors | 3 | HubSpot, Salesforce sync |
+| 5466 | knowledge-base | 3 | AI knowledge base |
+| 5467 | ab-testing | 3 | Experiment engine |
+| 5468 | product-federation | 4 | Nexha discovery |
 | **Commerce Module (siteos-commerce/)** |
-| 5476 | product-catalog | COMMERCE | Products, categories |
-| 5477 | cart-service | COMMERCE | Cart, coupons |
-| 5478 | checkout-service | COMMERCE | Orders, addresses |
-| 5479 | payment-gateway | COMMERCE | Razorpay, UPI |
-| 5480 | review-collection | COMMERCE | Active reviews |
-| 5481 | loyalty-connector | COMMERCE | Points, rewards |
-| 5469 | agent-protocol | 4 | Nexha ACP |
-| 5470 | do-app-integration | 4 | DO App |
-| 5471 | agent-reputation | 4 | Nexha Reputation |
-| 5472 | ai-business-advisor | 5 | CXO, Sales, Marketing |
-| 5473 | campaign-auto-creation | 5 | Marketing OS |
-| 5474 | dynamic-pricing | 5 | — |
-| 5475 | benchmark-database | 5 | — |
+| 5476 | product-catalog | COMMERCE | Products, search, categories |
+| 5477 | cart-service | COMMERCE | Cart, coupons, discounts |
+| 5478 | checkout-service | COMMERCE | Orders, addresses, shipping |
+| 5479 | payment-gateway | COMMERCE | Razorpay, UPI, QR payments |
+| 5480 | review-collection | COMMERCE | Active reviews, sentiment |
+| 5481 | loyalty-connector | COMMERCE | Points, tiers, rewards |
+| 5482 | **support-widget** | COMMERCE | Tickets, live chat |
+| 5483 | **whatsapp-broadcast** | COMMERCE | Campaigns, sequences |
+| 5484 | **native-crm** | COMMERCE | Contacts, deals, tasks |
+| 5485 | **sales-pipeline** | COMMERCE | Kanban, quotes, commission |
+| **Agent & AI (5469-5475)** |
+| 5469 | agent-protocol | 4 | Nexha ACP protocol |
+| 5470 | do-app-integration | 4 | DO App connection |
+| 5471 | agent-reputation | 4 | Reputation scoring |
+| 5472 | ai-business-advisor | 5 | Natural language Q&A |
+| 5473 | campaign-auto-creation | 5 | Auto campaign builder |
+| 5474 | dynamic-pricing | 5 | AI pricing |
+| 5475 | benchmark-database | 5 | Competitor benchmarking |
 
-**Installers:** Shopify OAuth (13 files), WooCommerce, WordPress v2
+**React Components:** ProductCard, CartDrawer, CheckoutFlow, SupportChat, SalesPipeline
+
+**Installers:** Shopify OAuth, WooCommerce, WordPress v2
 **Admin Dashboard:** `products/siteos-admin/` — React UI
 **Startup:** `bash companies/HOJAI-AI/scripts/start-siteos.sh start`
 
