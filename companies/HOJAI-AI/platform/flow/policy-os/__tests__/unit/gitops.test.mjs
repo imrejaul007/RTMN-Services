@@ -46,8 +46,9 @@ describe('PolicyFile — pure class', async () => {
       const { data, parseError } = pf.parse();
       assert.strictEqual(parseError, null);
       assert.strictEqual(data.id, 'test');
-      assert.strictEqual(data.field, 'amount');
-      assert.strictEqual(data.operator, 'gt');
+      assert.strictEqual(data.conditions.field, 'amount');
+      assert.strictEqual(data.conditions.operator, 'gt');
+      assert.strictEqual(data.conditions.value, 100);
     });
   });
 

@@ -1831,5 +1831,31 @@
       "durationMs": 4,
       "timestamp": "2026-06-28T21:26:55.085Z"
     }
+  ],
+  [
+    "wh-1782682711295",
+    {
+      "id": "wh-1782682711295",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 36,
+      "timestamp": "2026-06-28T21:38:31.331Z"
+    }
+  ],
+  [
+    "wh-1782682711335",
+    {
+      "id": "wh-1782682711335",
+      "webhookId": "wh-1782069509328-7d30ed",
+      "event": "policy.evaluated",
+      "url": "http://localhost:9999/hook",
+      "status": "failed",
+      "error": "fetch failed",
+      "durationMs": 3,
+      "timestamp": "2026-06-28T21:38:31.338Z"
+    }
   ]
 ]

@@ -131,7 +131,8 @@ export function verifyWebhookSignature(payload, signature) {
     .update(payload, 'utf8')
     .digest('hex');
   const sig = signature.startsWith('sha256=') ? signature.slice(7) : signature;
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig));
+  // Decode hex strings to byte buffers (hex = 64 chars = 32 bytes)
+  return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(sig, 'hex'));
 }
 
 // ── Git Repository Operations (simulated for file-based repos) ──────────────────

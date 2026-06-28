@@ -56,7 +56,7 @@ describe('Employee Twin', () => {
 
     it('should calculate weighted performance score', () => {
       const score = calculatePerformanceScore(8, 10, 4, 5);
-      expect(score).toBe(84);
+      expect(score).toBe(82); // goal=48, peer=10, manager=24
     });
 
     it('should return max score for perfect performance', () => {

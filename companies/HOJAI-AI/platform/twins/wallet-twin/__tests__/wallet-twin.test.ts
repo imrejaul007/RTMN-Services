@@ -131,7 +131,7 @@ describe('Wallet Twin', () => {
 
     it('should calculate rewards for gold tier', () => {
       const rewards = calculateRewards(1000, 'credit', 'gold');
-      expect(rewards).toBe(4); // 2% * 2x gold multiplier
+      expect(rewards).toBe(40); // 2% * 2x gold multiplier = 4%
     });
 
     it('should give platinum highest rewards', () => {
