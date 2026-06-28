@@ -12,10 +12,20 @@
  *  - GET  /api/trust/leaderboard     — agent leaderboard
  */
 
-// ── Agent Identity Registry ───────────────────────────────────────────────────
+// ── Agent Identity Registry (persistent when provided) ─────────────────────────
 
-const agentRegistry = new Map();
+let agentRegistry = new Map();
 let agentIdCounter = 0;
+
+export function initAgentRegistryStore(store) {
+  agentRegistry = store;
+  let maxN = 0;
+  for (const a of store.values()) {
+    const idNum = parseInt(a.id.replace('agent-', ''));
+    if (!isNaN(idNum)) maxN = Math.max(maxN, idNum);
+  }
+  agentIdCounter = maxN;
+}
 
 export const AGENT_TYPES = {
   GENIE: 'genie',
@@ -182,7 +192,8 @@ export async function bridgeToTrustEngine(agentId, externalTrustEngineUrl) {
 
 // ── Route Registration ───────────────────────────────────────────────────────
 
-export function registerAgentTrustRoutes(app, { auditLog, customAuth }) {
+export function registerAgentTrustRoutes(app, { auditLog, customAuth, agentRegistry }) {
+  if (agentRegistry) initAgentRegistryStore(agentRegistry);
 
   // POST /api/agents/register — register an agent
   app.post('/api/agents/register', customAuth, (req, res) => {
