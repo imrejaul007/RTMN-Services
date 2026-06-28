@@ -543,7 +543,7 @@ registerTwinGovernanceRoutes(app, { auditLog, customAuth, twinPolicies });
 // Phase 8: Constitutional AI — Documents, review, harm categorization
 registerConstitutionalAIRoutes(app, { auditLog, customAuth, constitutions });
 // Phase 9: Lifecycle Automation — Automation engine, approval queue
-registerLifecycleAutomationRoutes(app, { auditLog, customAuth, automations, approvalQueue, execHistory });
+registerLifecycleAutomationRoutes(app, { auditLog, customAuth, automations, approvalQueue });
 // Phase 10: Developer Experience — OpenAPI, SDKs, sandbox, compliance reports
 registerDeveloperExperienceRoutes(app, { auditLog, customAuth });
 

@@ -1,0 +1,28 @@
+{
+  "name": "@hojai/flow-bpmn-engine",
+  "version": "1.0.0",
+  "description": "FlowOS BPMN Engine - BPMN 2.0 process execution",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "fast-xml-parser": "^4.3.4"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  },
+  "keywords": [
+    "flowos",
+    "bpmn",
+    "workflow",
+    "process"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

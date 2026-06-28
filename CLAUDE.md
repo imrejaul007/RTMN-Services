@@ -994,7 +994,7 @@ The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pa
 | Memory Forgetting | 4792 | Scheduled/manual forgetting, undo capabilities, forgetting policies | ✅ 27 |
 | Memory Import | 4780 | Multi-source ingestion, format conversion, validation, import jobs | ✅ 19 |
 | Memory Portability | 4793 | Export jobs, backup, migration, GDPR portability requests | ✅ 15 |
-| Memory Marketplace | 4781 | Template marketplace, subscriptions, reviews, categories | ✅ 14 |
+| Memory Marketplace | 4781 | Template marketplace → BLR BAM Memory Packs category, subscriptions, reviews | ✅ 14 |
 | **Network & Data** |
 | Memory Network | 4795 | Inter-service communication, pub/sub messaging, service registry | ✅ 27 |
 | Knowledge Network | 4796 | Cross-service knowledge graph connections, graph traversal | ✅ 22 |

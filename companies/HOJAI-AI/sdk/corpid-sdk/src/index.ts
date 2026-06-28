@@ -204,6 +204,10 @@ export interface TrustScore {
   lastUpdated: string;
 }
 
+export interface TrustLevels {
+  [key: string]: { min: number; max: number };
+}
+
 export interface TrustDimension {
   dimension: string;
   score: number;
@@ -751,8 +755,8 @@ export class CorpID {
   /**
    * Get trust levels
    */
-  async trustLevels(): Promise<Record<string, { min: number; max: number }>> {
-    const data = await this.request<{ levels: Record<string, { min: number; max: number } }>(
+  async trustLevels(): Promise<TrustLevels> {
+    const data = await this.request<{ levels: TrustLevels }>(
       'GET',
       '/api/trust/levels'
     );

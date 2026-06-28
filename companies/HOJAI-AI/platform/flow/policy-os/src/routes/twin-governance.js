@@ -12,10 +12,20 @@
  *  - POST /api/twins/bridge         — bridge to TwinOS
  */
 
-// ── Twin Access Policies ──────────────────────────────────────────────────────
+// ── Twin Access Policies (persistent when provided) ─────────────────────────────
 
-const twinPolicies = new Map();
+let twinPolicies = new Map();
 let twinPolicyIdCounter = 0;
+
+export function initTwinPoliciesStore(store) {
+  twinPolicies = store;
+  let maxN = 0;
+  for (const p of store.values()) {
+    const m = p.id.match(/twin-pol-(\d+)/);
+    if (m) maxN = Math.max(maxN, parseInt(m[1]));
+  }
+  twinPolicyIdCounter = maxN;
+}
 
 export const VERSION_STATES = {
   DRAFT: 'draft',
@@ -48,7 +58,8 @@ export function evaluateTwinAccess(policyId, { subject, twinType, action, twinId
 
 // ── Route Registration ───────────────────────────────────────────────────────
 
-export function registerTwinGovernanceRoutes(app, { auditLog, customAuth }) {
+export function registerTwinGovernanceRoutes(app, { auditLog, customAuth, twinPolicies }) {
+  if (twinPolicies) initTwinPoliciesStore(twinPolicies);
 
   // GET /api/twins/policies — list policies
   app.get('/api/twins/policies', customAuth, (req, res) => {

@@ -12,8 +12,20 @@
  *  - GET  /api/harm-categories        — list harm categories
  */
 
-const constitutions = new Map();
+let constitutions = new Map();
 let constitutionIdCounter = 0;
+
+export function initConstitutionalStore(store) {
+  constitutions = store;
+  let maxN = 0;
+  for (const c of store.values()) {
+    const m = c.id.match(/const-(\d+)/);
+    if (m) maxN = Math.max(maxN, parseInt(m[1]));
+  }
+  constitutionIdCounter = maxN;
+}
+
+// Reviews stay in-memory (secondary data)
 const reviews = new Map();
 let reviewIdCounter = 0;
 
@@ -89,7 +101,8 @@ function evaluateAgainstConstitution(text, constitution) {
   };
 }
 
-export function registerConstitutionalAIRoutes(app, { auditLog, customAuth }) {
+export function registerConstitutionalAIRoutes(app, { auditLog, customAuth, constitutions }) {
+  if (constitutions) initConstitutionalStore(constitutions);
 
   app.get('/api/constitutions', customAuth, (req, res) => {
     const { status, type, limit = 50 } = req.query;

@@ -1,0 +1,14 @@
+{
+  "name": "@hojai/visual-builder",
+  "version": "1.0.0",
+  "description": "Visual Builder - Drag-drop UI designer",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.1"
+  }
+}

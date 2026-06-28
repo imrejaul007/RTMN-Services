@@ -1,0 +1,27 @@
+{
+  "name": "@hojai/flow-policy-as-code",
+  "version": "1.0.0",
+  "description": "FlowOS Policy-as-Code - OPA/Rego policy engine",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  },
+  "keywords": [
+    "flowos",
+    "policy",
+    "opa",
+    "rego"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

@@ -1,1 +1,16 @@
-{"name": "@hojai/change-mgmt-os", "version": "1.0.0", "description": "ChangeManagementOS - Migrations, rollouts, adoption tracking", "main": "src/index.ts", "type": "module", "scripts": { "dev": "tsx watch src/index.ts" }, "dependencies": { "express": "^4.18.2", "uuid": "^9.0.0" }}
+{
+  "name": "@hojai/change-mgmt-os",
+  "version": "1.0.0",
+  "description": "ChangeManagementOS - Migrations, rollouts, adoption tracking",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  }
+}

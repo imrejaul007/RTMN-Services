@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/twin-behavior-model",
+  "version": "1.0.0",
+  "description": "TwinOS Behavior Model - Behavior learning and pattern detection for digital twins",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": ["twin", "behavior", "patterns", "machine-learning"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

@@ -59,7 +59,9 @@ const indexes = {
   service: new PersistentMap('index-services', { serviceName: 'discovery-engine' }),
   agent: new PersistentMap('index-agents', { serviceName: 'discovery-engine' }),
   twin: new PersistentMap('index-twins', { serviceName: 'discovery-engine' }),
-  intent: new PersistentMap('index-intents', { serviceName: 'discovery-engine' })
+  intent: new PersistentMap('index-intents', { serviceName: 'discovery-engine' }),
+  // NEW: Memory templates from memory-marketplace
+  memory: new PersistentMap('index-memory', { serviceName: 'discovery-engine' })
 };
 
 // ---------- Seed catalog ----------
@@ -110,6 +112,26 @@ function seed() {
   for (const t of twins) {
     const id = uuid();
     indexes.twin.set(id, { id, ...t, indexedAt: Date.now() });
+  }
+
+  // Seed memory templates from memory-marketplace
+  const memories = [
+    { name: 'Restaurant SOP Memory', description: 'Standard operating procedures for restaurant operations', tags: ['restaurant', 'sop', 'operations', 'food'] },
+    { name: 'Sales Playbook Memory', description: 'Proven sales strategies and objection handling', tags: ['sales', 'playbook', 'crm', 'revenue'] },
+    { name: 'HR Onboarding Memory', description: 'Employee onboarding best practices', tags: ['hr', 'onboarding', 'employee', 'workforce'] },
+    { name: 'Marketing Campaign Memory', description: 'Campaign planning and execution patterns', tags: ['marketing', 'campaign', 'analytics', 'roi'] },
+    { name: 'Engineering Decision Memory', description: 'Architecture decisions and technical choices', tags: ['engineering', 'architecture', 'decision', 'tech'] },
+    { name: 'Customer Support Memory', description: 'Support ticket resolution patterns', tags: ['support', 'crm', 'tickets', 'csat'] },
+    { name: 'Finance Approval Memory', description: 'Budget approval workflows', tags: ['finance', 'approval', 'budget', 'expense'] },
+    { name: 'Project Retrospective Memory', description: 'Sprint retrospective insights', tags: ['project', 'retrospective', 'agile', 'scrum'] },
+    { name: 'Incident Postmortem Memory', description: 'Incident analysis and prevention patterns', tags: ['incident', 'postmortem', 'ops', 'reliability'] },
+    { name: 'Legal Review Memory', description: 'Contract review patterns', tags: ['legal', 'contract', 'review', 'compliance'] },
+    { name: 'Startup Fundraising Memory', description: 'Pitch deck patterns and investor insights', tags: ['startup', 'fundraising', 'pitch', 'investor'] },
+    { name: 'Department Policy Memory', description: 'Company policies and guidelines', tags: ['policy', 'department', 'guidelines', 'compliance'] }
+  ];
+  for (const m of memories) {
+    const id = uuid();
+    indexes.memory.set(id, { id, ...m, indexedAt: Date.now(), category: 'memory-pack' });
   }
 }
 
@@ -205,7 +227,7 @@ app.post('/api/search',requireAuth,  (req, res) => {
   res.json({ query, tokens, count: all.length, results: all.slice(0, limit) });
 });
 
-for (const kind of ['services', 'agents', 'twins', 'intents']) {
+for (const kind of ['services', 'agents', 'twins', 'intents', 'memory']) {
   const singular = kind.replace(/s$/, '');
   app.post(`/api/search/${kind}`,requireAuth,  (req, res) => {
     const { query, limit = 10 } = req.body || {};

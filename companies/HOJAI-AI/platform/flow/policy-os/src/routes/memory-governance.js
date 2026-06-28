@@ -13,10 +13,20 @@
  *  - POST /api/memory/bridge           — bridge to MemoryOS
  */
 
-// ── Memory Access Policies ────────────────────────────────────────────────────
+// ── Memory Access Policies (persistent when provided) ──────────────────────────
 
-const memoryPolicies = new Map();
+let memoryPolicies = new Map();
 let policyIdCounter = 0;
+
+export function initMemoryPoliciesStore(store) {
+  memoryPolicies = store;
+  let maxN = 0;
+  for (const p of store.values()) {
+    const m = p.id.match(/mem-pol-(\d+)/);
+    if (m) maxN = Math.max(maxN, parseInt(m[1]));
+  }
+  policyIdCounter = maxN;
+}
 
 export const ACCESS_LEVELS = {
   FULL: 'full',
@@ -144,7 +154,8 @@ export function evaluateMemoryAccess(policyId, { subject, resource, action, cont
 
 // ── Route Registration ───────────────────────��───────────────────────────────
 
-export function registerMemoryGovernanceRoutes(app, { auditLog, customAuth }) {
+export function registerMemoryGovernanceRoutes(app, { auditLog, customAuth, memoryPolicies }) {
+  if (memoryPolicies) initMemoryPoliciesStore(memoryPolicies);
 
   // GET /api/memory/policies — list policies
   app.get('/api/memory/policies', customAuth, (req, res) => {

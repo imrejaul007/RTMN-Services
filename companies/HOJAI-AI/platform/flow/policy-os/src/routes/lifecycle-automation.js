@@ -12,11 +12,25 @@
  *  - GET  /api/automation/history       — execution history
  */
 
-const rules = new Map();
+let rules = new Map();
 let ruleIdCounter = 0;
-const approvals = new Map();
+let approvals = new Map();
 let approvalIdCounter = 0;
+// history stays in-memory (append-only execution log, capped at 1000)
 const history = [];
+
+export function initLifecycleStores({ automations, approvalQueue }) {
+  if (automations) {
+    rules = automations;
+    let maxN = 0;
+    for (const r of automations.values()) {
+      const m = r.id.match(/auto-(\d+)/);
+      if (m) maxN = Math.max(maxN, parseInt(m[1]));
+    }
+    ruleIdCounter = maxN;
+  }
+  if (approvalQueue) approvals = approvalQueue;
+}
 
 export const TRIGGER_TYPES = {
   POLICY_CREATED: 'policy_created',
@@ -73,7 +87,8 @@ export function triggerAutomationRule(ruleId, context) {
   return { success: true, ruleId, results, triggeredAt: new Date().toISOString() };
 }
 
-export function registerLifecycleAutomationRoutes(app, { auditLog, customAuth }) {
+export function registerLifecycleAutomationRoutes(app, { auditLog, customAuth, automations, approvalQueue }) {
+  initLifecycleStores({ automations, approvalQueue });
 
   app.get('/api/automation/rules', customAuth, (req, res) => {
     const { enabled, triggerType, limit = 50 } = req.query;
