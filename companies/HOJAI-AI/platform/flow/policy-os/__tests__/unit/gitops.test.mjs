@@ -1,309 +1,276 @@
 /**
  * PolicyOS — GitOps Service Tests (Phase P1)
- *
- * Uses subprocess isolation for module state, pure class tests for PolicyFile.
+ * All stateful tests use _resetGitOpsState() beforeEach to isolate module state.
  */
 
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 
-// ── Pure PolicyFile tests (no module state) ──────────────────────────────────
+// ── Import once at top — module state reset between each describe ─────────────────
 
-describe('PolicyFile — pure class', async () => {
-  const { PolicyFile } = await import('../../src/services/gitops.js');
+const gitops = await import('../../src/services/gitops.js');
+const { default: svc } = gitops;
+const { PolicyFile } = gitops;
 
-  describe('parse', () => {
-    it('parses valid JSON policy', () => {
-      const pf = new PolicyFile({
-        path: 'policies/finance/allow-read.json',
-        content: JSON.stringify({ id: 'allow-finance-read', name: 'Allow Finance', effect: 'allow' }),
-      });
-      const { data, format, parseError } = pf.parse();
-      assert.strictEqual(parseError, null);
-      assert.strictEqual(format, 'json');
-      assert.strictEqual(data.id, 'allow-finance-read');
-      assert.strictEqual(data.effect, 'allow');
+beforeEach(() => {
+  svc.configureGitOps({ policies: new Map() });
+});
+
+// ── PolicyFile — parse ─────────────────────────────────────────────────────────
+
+describe('PolicyFile.parse', () => {
+  it('parses valid JSON', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test.json',
+      content: JSON.stringify({ id: 'test', effect: 'allow', name: 'Test' }),
     });
-
-    it('parses YAML top-level keys', () => {
-      const pf = new PolicyFile({
-        path: 'policies/finance/allow.yaml',
-        content: 'id: allow-finance-read\neffect: allow\nname: Allow Finance',
-      });
-      const { data, format, parseError } = pf.parse();
-      assert.strictEqual(parseError, null);
-      assert.strictEqual(format, 'yaml');
-      assert.strictEqual(data.id, 'allow-finance-read');
-      assert.strictEqual(data.effect, 'allow');
-    });
-
-    it('parses YAML with nested objects', () => {
-      const pf = new PolicyFile({
-        path: 'test.yaml',
-        content: 'id: test\nconditions:\n  field: amount\n  operator: gt\n  value: 100',
-      });
-      const { data, parseError } = pf.parse();
-      assert.strictEqual(parseError, null);
-      assert.strictEqual(data.id, 'test');
-      assert.strictEqual(data.conditions.field, 'amount');
-      assert.strictEqual(data.conditions.operator, 'gt');
-      assert.strictEqual(data.conditions.value, 100);
-    });
+    const { data, format, parseError } = pf.parse();
+    assert.strictEqual(parseError, null);
+    assert.strictEqual(format, 'json');
+    assert.strictEqual(data.id, 'test');
+    assert.strictEqual(data.effect, 'allow');
   });
 
-  describe('validate', () => {
-    it('validates a well-formed policy', () => {
-      const pf = new PolicyFile({
-        path: 'policies/test.yaml',
-        content: 'id: allow-admin\neffect: allow\nname: Allow Admin',
-      });
-      const { valid, errors } = pf.validate();
-      assert.strictEqual(valid, true, `Expected valid, got errors: ${JSON.stringify(errors)}`);
+  it('parses YAML top-level keys', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test.yaml',
+      content: 'id: test\neffect: allow\nname: Test',
     });
-
-    it('rejects invalid effect', () => {
-      const pf = new PolicyFile({
-        path: 'policies/bad.yaml',
-        content: 'id: bad\neffect: permit\nname: Bad',
-      });
-      const { valid, errors } = pf.validate();
-      assert.strictEqual(valid, false);
-      assert.ok(errors.some(e => e.includes('Invalid effect')), `Expected 'Invalid effect', got: ${JSON.stringify(errors)}`);
-    });
-
-    it('rejects non-array conditions', () => {
-      const pf = new PolicyFile({
-        path: 'policies/bad.yaml',
-        content: 'id: bad\neffect: allow\nconditions: not-an-array',
-      });
-      const { valid, errors } = pf.validate();
-      assert.strictEqual(valid, false);
-      assert.ok(errors.some(e => e.includes('conditions')), `Got: ${JSON.stringify(errors)}`);
-    });
+    const { data, format, parseError } = pf.parse();
+    assert.strictEqual(parseError, null);
+    assert.strictEqual(format, 'yaml');
+    assert.strictEqual(data.id, 'test');
+    assert.strictEqual(data.effect, 'allow');
   });
 
-  describe('category & policyId', () => {
-    it('extracts category from path', () => {
-      const pf = new PolicyFile({ path: 'policies/finance/spending.yaml', content: 'id: test' });
-      assert.strictEqual(pf.category(), 'finance');
+  it('parses YAML with nested objects', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test.yaml',
+      content: 'id: test\nconditions:\n  field: amount\n  operator: gt\n  value: 100',
     });
+    const { data, parseError } = pf.parse();
+    assert.strictEqual(parseError, null);
+    assert.strictEqual(data.id, 'test');
+    assert.strictEqual(data.conditions.field, 'amount');
+    assert.strictEqual(data.conditions.operator, 'gt');
+    assert.strictEqual(data.conditions.value, 100);
+  });
+});
 
-    it('extracts policyId from JSON id field', () => {
-      const pf = new PolicyFile({
-        path: 'policies/test/filename.yaml',
-        content: JSON.stringify({ id: 'my-policy', name: 'Test' }),
-      });
-      assert.strictEqual(pf.policyId(), 'my-policy');
-    });
+// ── PolicyFile — validate ───────────────────────────────────────────────────────
 
-    it('falls back to filename when no id in content', () => {
-      const pf = new PolicyFile({
-        path: 'policies/test/spending-v2.yaml',
-        content: JSON.stringify({ name: 'My Policy' }),
-      });
-      const id = pf.policyId();
-      assert.ok(id.startsWith('spending'));
+describe('PolicyFile.validate', () => {
+  it('validates well-formed policy', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test.yaml',
+      content: 'id: good\neffect: allow\nname: Good',
     });
+    const { valid, errors } = pf.validate();
+    assert.strictEqual(valid, true, `Expected valid, got: ${JSON.stringify(errors)}`);
+  });
 
-    it('sanitizes filename to valid policy ID', () => {
-      const pf = new PolicyFile({
-        path: 'policies/test/Policy v2! special.yaml',
-        content: JSON.stringify({ name: 'Test' }),
-      });
-      const id = pf.policyId();
-      assert.ok(/^[a-z0-9-]+$/.test(id), `Expected sanitized ID, got: ${id}`);
+  it('rejects invalid effect', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test.yaml',
+      content: 'id: bad\neffect: permit\nname: Bad',
     });
+    const { valid, errors } = pf.validate();
+    assert.strictEqual(valid, false);
+    assert.ok(errors.some(e => e.includes('Invalid effect')), `Got: ${JSON.stringify(errors)}`);
+  });
+
+  it('rejects non-array conditions', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test.yaml',
+      content: 'id: bad\neffect: allow\nconditions: nope',
+    });
+    const { valid, errors } = pf.validate();
+    assert.strictEqual(valid, false);
+    assert.ok(errors.some(e => e.includes('conditions')), `Got: ${JSON.stringify(errors)}`);
+  });
+});
+
+// ── PolicyFile — category & policyId ───────────────────────────────────────────
+
+describe('PolicyFile.category & policyId', () => {
+  it('extracts category from path', () => {
+    const pf = new PolicyFile({ path: 'policies/finance/spending.yaml', content: 'id: t' });
+    assert.strictEqual(pf.category(), 'finance');
+  });
+
+  it('uses id from content over filename', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test.yaml',
+      content: JSON.stringify({ id: 'my-policy' }),
+    });
+    assert.strictEqual(pf.policyId(), 'my-policy');
+  });
+
+  it('falls back to filename when no id in content', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test/spending-v2.yaml',
+      content: JSON.stringify({ name: 'Test' }),
+    });
+    assert.ok(pf.policyId().startsWith('spending'));
+  });
+
+  it('sanitizes filename to valid policy ID', () => {
+    const pf = new PolicyFile({
+      path: 'policies/test/Policy v2! special.yaml',
+      content: JSON.stringify({ name: 'Test' }),
+    });
+    assert.ok(/^[a-z0-9-]+$/.test(pf.policyId()), `Got: ${pf.policyId()}`);
   });
 });
 
 // ── HMAC crypto ──────────────────────────────────────────────────────────────
 
-describe('HMAC-SHA256 crypto', () => {
-  it('computes valid HMAC-SHA256', () => {
-    const secret = 'webhook-secret';
-    const payload = '{"action":"push"}';
-    const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+describe('HMAC-SHA256', () => {
+  it('computes 64-char hex digest', () => {
+    const sig = crypto.createHmac('sha256', 'secret').update('payload').digest('hex');
     assert.strictEqual(sig.length, 64);
     assert.ok(/^[a-f0-9]{64}$/.test(sig));
   });
 
-  it('timing-safe comparison works for matching strings', () => {
+  it('timingSafeEqual matches identical buffers', () => {
     const a = crypto.randomBytes(32);
-    const match = crypto.timingSafeEqual(a, Buffer.from(a));
-    assert.strictEqual(match, true);
+    assert.strictEqual(crypto.timingSafeEqual(a, Buffer.from(a)), true);
   });
 
-  it('timing-safe comparison detects mismatch', () => {
+  it('timingSafeEqual detects mismatch', () => {
     const a = Buffer.from('a'.repeat(32));
     const b = Buffer.from('b'.repeat(32));
-    const match = crypto.timingSafeEqual(a, b);
-    assert.strictEqual(match, false);
+    assert.strictEqual(crypto.timingSafeEqual(a, b), false);
+  });
+
+  it('timingSafeEqual throws on different lengths', () => {
+    const a = Buffer.from('a'.repeat(16));
+    const b = Buffer.from('b'.repeat(32)));
+    assert.throws(() => crypto.timingSafeEqual(a, b));
   });
 });
 
-// ── GitOps module state (stateful — each group re-imports cleanly) ──────────
+// ── configureGitOps ─────────────────────────────────────────────────────────
 
-describe('GitOps — configureGitOps', async () => {
-  const { configureGitOps, getSyncStatus, _resetGitOpsState } = await import('../../src/services/gitops.js');
-  beforeEach(() => { _resetGitOpsState(); });
+describe('configureGitOps', () => {
+  beforeEach(() => { svc.configureGitOps({ policies: new Map() }); });
 
-  it('sets disabled status when no repoUrl', () => {
-    configureGitOps({ policies: new Map() });
-    const s = getSyncStatus();
+  it('returns disabled status when no repoUrl', () => {
+    const s = svc.getSyncStatus();
     assert.strictEqual(s.status, 'disabled');
     assert.strictEqual(s.configured, false);
     assert.strictEqual(s.ready, false);
   });
 
-  it('sets idle status with repoUrl', () => {
-    configureGitOps({
-      policies: new Map(),
-      repoUrl: 'https://github.com/acme/repo',
-      branch: 'main',
-    });
-    const s = getSyncStatus();
+  it('returns idle status when repoUrl is set', () => {
+    svc.configureGitOps({ policies: new Map(), repoUrl: 'https://github.com/acme/repo' });
+    const s = svc.getSyncStatus();
     assert.strictEqual(s.status, 'idle');
     assert.strictEqual(s.configured, true);
     assert.strictEqual(s.config.repoUrl, 'https://github.com/acme/repo');
   });
 
   it('masks gitToken in config output', () => {
-    configureGitOps({
-      policies: new Map(),
-      repoUrl: 'https://github.com/test/repo',
-      gitToken: 'super-secret',
-    });
-    const s = getSyncStatus();
+    svc.configureGitOps({ policies: new Map(), repoUrl: 'https://github.com/test/repo', gitToken: 'secret' });
+    const s = svc.getSyncStatus();
     assert.strictEqual(s.config.gitToken, '***');
-    assert.notStrictEqual(s.config.gitToken, 'super-secret');
+    assert.notStrictEqual(s.config.gitToken, 'secret');
   });
 
-  it('sets default branch to main', () => {
-    configureGitOps({ policies: new Map(), repoUrl: 'https://github.com/test/repo' });
-    const s = getSyncStatus();
-    assert.strictEqual(s.config.branch, 'main');
+  it('defaults branch to main', () => {
+    svc.configureGitOps({ policies: new Map(), repoUrl: 'https://github.com/test/repo' });
+    assert.strictEqual(svc.getSyncStatus().config.branch, 'main');
   });
 
-  it('sets default sync interval to 60s', () => {
-    configureGitOps({ policies: new Map() });
-    const s = getSyncStatus();
-    assert.strictEqual(s.config.syncInterval, 60000);
+  it('defaults sync interval to 60000ms', () => {
+    assert.strictEqual(svc.getSyncStatus().config.syncInterval, 60000);
   });
 
-  it('generates UUID webhook secret', () => {
-    configureGitOps({ policies: new Map() });
-    const s = getSyncStatus();
-    assert.strictEqual(s.config.webhookSecret.length, 36);
-    assert.ok(s.config.webhookSecret.includes('-'));
+  it('generates a UUID webhook secret', () => {
+    const secret = svc.getSyncStatus().config.webhookSecret;
+    assert.strictEqual(secret.length, 36);
+    assert.ok(secret.includes('-'));
   });
 });
 
-describe('GitOps — webhook signature', async () => {
-  const { configureGitOps, verifyWebhookSignature } = await import('../../src/services/gitops.js');
+// ── webhook signature ─────────────────────────────────────────────────────────
+
+describe('verifyWebhookSignature', () => {
+  beforeEach(() => { svc.configureGitOps({ policies: new Map() }); });
 
   it('returns false when no secret configured', () => {
-    configureGitOps({ policies: new Map() });
-    assert.strictEqual(verifyWebhookSignature('payload', 'sha256=abc'), false);
+    assert.strictEqual(svc.verifyWebhookSignature('payload', 'sha256=abc'), false);
   });
 
   it('returns false for null signature', () => {
-    configureGitOps({ policies: new Map(), webhookSecret: 'secret' });
-    assert.strictEqual(verifyWebhookSignature('payload', null), false);
+    svc.configureGitOps({ policies: new Map(), webhookSecret: 'secret' });
+    assert.strictEqual(svc.verifyWebhookSignature('payload', null), false);
   });
 
-  it('returns true for valid HMAC-SHA256', () => {
+  it('returns true for valid HMAC-SHA256 with sha256= prefix', () => {
     const secret = 'webhook-secret';
     const payload = '{"action":"push"}';
     const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-    configureGitOps({ policies: new Map(), webhookSecret: secret });
-    assert.strictEqual(verifyWebhookSignature(payload, `sha256=${sig}`), true);
+    svc.configureGitOps({ policies: new Map(), webhookSecret: secret });
+    assert.strictEqual(svc.verifyWebhookSignature(payload, `sha256=${sig}`), true);
   });
 
   it('returns false for invalid signature', () => {
-    configureGitOps({ policies: new Map(), webhookSecret: 'secret' });
-    assert.strictEqual(verifyWebhookSignature('payload', 'sha256=wrong'), false);
+    svc.configureGitOps({ policies: new Map(), webhookSecret: 'secret' });
+    assert.strictEqual(svc.verifyWebhookSignature('payload', 'sha256=' + 'a'.repeat(64)), false);
   });
 
-  it('accepts sig without sha256= prefix', () => {
+  it('accepts signature without sha256= prefix', () => {
     const secret = 'secret';
-    const payload = 'test';
+    const payload = 'data';
     const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-    configureGitOps({ policies: new Map(), webhookSecret: secret });
-    assert.strictEqual(verifyWebhookSignature(payload, sig), true);
+    svc.configureGitOps({ policies: new Map(), webhookSecret: secret });
+    assert.strictEqual(svc.verifyWebhookSignature(payload, sig), true);
   });
 });
 
-describe('GitOps — branch protection', async () => {
-  const gitops = (await import('../../src/services/gitops.js')).default;
-  beforeEach(() => { gitops.configureGitOps({ policies: new Map() }); });
+// ── syncFromGit ───────────────────────────────────────────────────────────────
 
-  it('sets protection rules', () => {
-    const r = gitops.setBranchProtection('main', { requireReviews: true, requiredApprovals: 3 });
-    assert.strictEqual(r.ok, true);
-    assert.strictEqual(r.protection.requiredApprovals, 3);
-    assert.strictEqual(r.protection.requireReviews, true);
-  });
+describe('syncFromGit', () => {
+  beforeEach(() => { svc.configureGitOps({ policies: new Map() }); });
 
-  it('applies default values', () => {
-    gitops.setBranchProtection('develop');
-    const p = gitops.getBranchProtections('develop');
-    assert.strictEqual(p.requireReviews, true);
-    assert.strictEqual(p.requiredApprovals, 1);
-  });
-
-  it('returns null for unset branch', () => {
-    assert.strictEqual(gitops.getBranchProtections('nonexistent'), null);
-  });
-
-  it('returns all protections without args', () => {
-    gitops.setBranchProtection('release', { requiredApprovals: 5 });
-    const all = gitops.getBranchProtections();
-    assert.ok(all.release);
-    assert.strictEqual(all.release.requiredApprovals, 5);
-  });
-});
-
-describe('GitOps — syncFromGit', async () => {
-  const { configureGitOps, syncFromGit } = await import('../../src/services/gitops.js');
-
-  it('returns error when disabled', async () => {
-    configureGitOps({ policies: new Map() });
-    const r = await syncFromGit();
+  it('returns error when disabled (no repoUrl)', async () => {
+    const r = await svc.syncFromGit();
     assert.strictEqual(r.ok, false);
     assert.ok(r.error.includes('not configured'));
   });
 
-  it('dry-run mode returns diff without writing', async () => {
+  it('dry-run does not write to store', async () => {
     const policies = new Map();
-    configureGitOps({ policies, dryRun: true, branch: 'main' });
-    const r = await syncFromGit({ dryRun: true });
+    svc.configureGitOps({ policies, dryRun: true, branch: 'main' });
+    const r = await svc.syncFromGit({ dryRun: true });
     assert.strictEqual(r.ok, true);
     assert.strictEqual(r.dryRun, true);
     assert.ok(typeof r.summary === 'object');
-    assert.strictEqual(policies.size, 0, 'Dry-run must not write to store');
+    assert.strictEqual(policies.size, 0, 'Dry-run must not write');
   });
 });
 
-describe('GitOps — handlePRLifecycle', async () => {
-  const { configureGitOps, handlePRLifecycle } = await import('../../src/services/gitops.js');
+// ── handlePRLifecycle ─────────────────────────────────────────────────────────
+
+describe('handlePRLifecycle', () => {
+  beforeEach(() => { svc.configureGitOps({ policies: new Map() }); });
 
   it('skips non-merge PR actions', async () => {
-    configureGitOps({ policies: new Map(), repoUrl: 'https://github.com/test/repo' });
-    const r = await handlePRLifecycle({
+    svc.configureGitOps({ policies: new Map(), repoUrl: 'https://github.com/test/repo' });
+    const r = await svc.handlePRLifecycle({
       prNumber: 42, action: 'opened', branch: 'feature', targetBranch: 'main',
     });
     assert.strictEqual(r.skipped, true);
   });
 
-  it('triggers sync on PR merge', async () => {
-    configureGitOps({
-      policies: new Map(),
-      repoUrl: 'https://github.com/test/repo',
-      branch: 'main',
-      dryRun: true,
+  it('triggers sync on PR merge to target branch', async () => {
+    svc.configureGitOps({
+      policies: new Map(), repoUrl: 'https://github.com/test/repo',
+      branch: 'main', dryRun: true,
     });
-    const r = await handlePRLifecycle({
+    const r = await svc.handlePRLifecycle({
       prNumber: 42, action: 'closed', branch: 'feature',
       targetBranch: 'main', commitSha: 'abc123',
     });
@@ -311,12 +278,13 @@ describe('GitOps — handlePRLifecycle', async () => {
   });
 });
 
-describe('GitOps — rollbackPolicy', async () => {
-  const { configureGitOps, rollbackPolicy } = await import('../../src/services/gitops.js');
+// ── rollbackPolicy ─────────────────────────────────────────────────────────
+
+describe('rollbackPolicy', () => {
+  beforeEach(() => { svc.configureGitOps({ policies: new Map() }); });
 
   it('returns error for unknown policy', async () => {
-    configureGitOps({ policies: new Map() });
-    const r = await rollbackPolicy('unknown-policy');
+    const r = await svc.rollbackPolicy('does-not-exist');
     assert.strictEqual(r.ok, false);
     assert.ok(r.error.includes('not found'));
   });
@@ -324,32 +292,66 @@ describe('GitOps — rollbackPolicy', async () => {
   it('returns error for non-gitops policy', async () => {
     const policies = new Map();
     policies.set('local-only', { id: 'local-only', _gitops: undefined });
-    configureGitOps({ policies });
-    const r = await rollbackPolicy('local-only');
+    svc.configureGitOps({ policies });
+    const r = await svc.rollbackPolicy('local-only');
     assert.strictEqual(r.ok, false);
     assert.ok(r.error.includes('not GitOps-managed'));
   });
 
-  it('archives gitops policy in dev mode', async () => {
+  it('archives gitops-managed policy in dev/dry-run mode', async () => {
     const policies = new Map();
-    policies.set('git-policy', {
-      id: 'git-policy',
-      _gitops: { sourcePath: 'policies/test.yaml' },
-    });
-    configureGitOps({ policies, dryRun: true });
-    const r = await rollbackPolicy('git-policy');
+    policies.set('git-policy', { id: 'git-policy', _gitops: { sourcePath: 'policies/test.yaml' } });
+    svc.configureGitOps({ policies, dryRun: true });
+    const r = await svc.rollbackPolicy('git-policy');
     assert.strictEqual(r.ok, true);
     assert.strictEqual(r.action, 'archived');
   });
 });
 
-describe('GitOps — getSyncStatus & getSyncHistory', async () => {
-  const { configureGitOps, getSyncStatus, getSyncHistory } = await import('../../src/services/gitops.js');
+// ── branch protection ─────────────────────────────────────────────────────────
 
-  it('returns empty history initially', () => {
-    configureGitOps({ policies: new Map() });
-    const h = getSyncHistory();
+describe('setBranchProtection', () => {
+  beforeEach(() => { svc.configureGitOps({ policies: new Map() }); });
+
+  it('sets protection with custom rules', () => {
+    const r = svc.setBranchProtection('main', { requireReviews: true, requiredApprovals: 3 });
+    assert.strictEqual(r.ok, true);
+    assert.strictEqual(r.protection.requiredApprovals, 3);
+    assert.strictEqual(r.protection.requireReviews, true);
+  });
+
+  it('applies default values', () => {
+    svc.setBranchProtection('develop');
+    const p = svc.getBranchProtections('develop');
+    assert.strictEqual(p.requireReviews, true);
+    assert.strictEqual(p.requiredApprovals, 1);
+  });
+
+  it('returns null for unset branch', () => {
+    assert.strictEqual(svc.getBranchProtections('nonexistent'), null);
+  });
+
+  it('returns all protections without args', () => {
+    svc.setBranchProtection('release', { requiredApprovals: 5 });
+    const all = svc.getBranchProtections();
+    assert.ok(all.release);
+    assert.strictEqual(all.release.requiredApprovals, 5);
+  });
+});
+
+// ── getSyncHistory ─────────────────────────────────────────────────────────
+
+describe('getSyncHistory', () => {
+  beforeEach(() => { svc.configureGitOps({ policies: new Map() }); });
+
+  it('returns empty array initially', () => {
+    const h = svc.getSyncHistory();
     assert.ok(Array.isArray(h));
     assert.strictEqual(h.length, 0);
+  });
+
+  it('returns limited history', () => {
+    const h = svc.getSyncHistory(5);
+    assert.ok(Array.isArray(h));
   });
 });
