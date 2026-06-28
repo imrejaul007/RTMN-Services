@@ -76,6 +76,7 @@ function helpText() {
   ${kleur.cyan('npx hojai domain')} add|remove <domain>
   ${kleur.cyan('npx hojai team')} add|remove|list <email>
   ${kleur.cyan('npx hojai audit')} [--project=<dir>]
+  ${kleur.cyan('npx hojai inspect')} [project-dir]
   ${kleur.cyan('npx hojai --help')}
   ${kleur.cyan('npx hojai --version')}
 
@@ -336,6 +337,12 @@ async function main() {
   if (cmd === 'audit') {
     const { runAudit } = await import('./audit.js');
     return runAudit({ flags: args.flags });
+  }
+
+  // v2.0: Project inspection
+  if (cmd === 'inspect') {
+    const { runInspect } = await import('./inspect.js');
+    return runInspect({ args: args._.slice(1), flags: args.flags });
   }
 
   console.log(kleur.red(`✖ unknown command: ${cmd}`));
