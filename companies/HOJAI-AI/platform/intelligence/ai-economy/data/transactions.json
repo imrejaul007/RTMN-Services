@@ -1,26 +1,26 @@
 [
   {
-    "id": "8e6ffb41-73cc-4545-b481-08b9345b177f",
-    "listingId": "cb3cff8e-7c6f-4718-bd57-8a57f5d2797f",
+    "id": "9db8981b-a980-4ff9-972d-a756763ad9b9",
+    "listingId": "0a50d517-44c0-47d1-9b40-d6b32cd98738",
     "buyerId": "buyer-x",
     "sellerId": "seller-y",
     "amount": 25,
     "type": "purchase",
     "status": "pending",
     "escrow": true,
-    "createdAt": "2026-06-28T22:40:10.381Z",
+    "createdAt": "2026-06-28T22:42:00.873Z",
     "completedAt": null
   },
   {
-    "id": "6c7298c3-c890-4738-bcb6-d817a02402c9",
-    "listingId": "0237f0f8-b302-4619-8d2a-62d42ce26ded",
+    "id": "d5684d02-be12-4a64-b18b-42db7a1162e9",
+    "listingId": "01eb6cf0-3c04-4647-8b6b-20260e6b1579",
     "buyerId": "b",
     "sellerId": null,
     "amount": 10,
     "type": "purchase",
     "status": "completed",
     "escrow": false,
-    "createdAt": "2026-06-28T22:40:10.384Z",
-    "completedAt": "2026-06-28T22:40:10.385Z"
+    "createdAt": "2026-06-28T22:42:00.876Z",
+    "completedAt": "2026-06-28T22:42:00.877Z"
   }
 ]
