@@ -1,5 +1,5 @@
 /**
- * RTMN Live Support OS (port 4868)
+ * RTMN Live Support OS (port 4884)
  *
  * Human-in-the-loop escalation layer for AI agents.
  *
@@ -39,7 +39,7 @@ function requireInternal(req, res, next) {
 
 // Validate required env at startup
 requireEnv(['PORT'], { allowDev: true });
-const PORT = process.env.PORT || 4868;
+const PORT = process.env.PORT || 4884;
 
 app.use(helmet());
 app.use(cors());

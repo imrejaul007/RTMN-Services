@@ -1,7 +1,7 @@
 # live-support-os
 
 > **Service:** Live Support OS
-> **Port:** 4868
+> **Port:** 4884 (was 4868, moved 2026-06-28 to resolve conflict with device-os)
 > **Layer:** 5 (Communication Cloud — Channel Services)
 > **Built:** June 20, 2026
 > **Status:** ✅ Production-ready v1.0

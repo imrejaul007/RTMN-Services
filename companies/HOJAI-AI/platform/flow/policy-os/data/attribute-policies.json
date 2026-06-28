@@ -1,0 +1,106 @@
+[
+  [
+    "user.trustScore",
+    {
+      "path": "user.trustScore",
+      "allowedSources": [
+        "reputation-os",
+        "agent-trust-os"
+      ],
+      "requireTamperProof": true,
+      "description": "Trust scores must come from reputation-os, not from request context"
+    }
+  ],
+  [
+    "user.department",
+    {
+      "path": "user.department",
+      "allowedSources": [
+        "workforce-os"
+      ],
+      "requireTamperProof": false,
+      "description": "Department must be set by workforce-os"
+    }
+  ],
+  [
+    "user.id",
+    {
+      "path": "user.id",
+      "allowedSources": [
+        "corpid"
+      ],
+      "requireTamperProof": true,
+      "description": "User ID must come from corpid"
+    }
+  ],
+  [
+    "context.amount",
+    {
+      "path": "context.amount",
+      "allowedSources": [
+        "commerce-os",
+        "payment-os"
+      ],
+      "requireTamperProof": true,
+      "description": "Transaction amounts must come from commerce-os"
+    }
+  ],
+  [
+    "context.currency",
+    {
+      "path": "context.currency",
+      "allowedSources": [
+        "commerce-os",
+        "payment-os"
+      ],
+      "requireTamperProof": false,
+      "description": "Currency must come from commerce-os"
+    }
+  ],
+  [
+    "environment.ip",
+    {
+      "path": "environment.ip",
+      "allowedSources": [
+        "gateway"
+      ],
+      "requireTamperProof": true,
+      "description": "IP address must be determined by gateway, not by caller"
+    }
+  ],
+  [
+    "environment.network.internal",
+    {
+      "path": "environment.network.internal",
+      "allowedSources": [
+        "gateway"
+      ],
+      "requireTamperProof": true,
+      "description": "Internal network flag must be set by gateway"
+    }
+  ],
+  [
+    "resource.owner",
+    {
+      "path": "resource.owner",
+      "allowedSources": [
+        "industry-os",
+        "storage-os"
+      ],
+      "requireTamperProof": true,
+      "description": "Resource owner must come from the resource's owning service"
+    }
+  ],
+  [
+    "user.attributes.vip",
+    {
+      "path": "user.attributes.vip",
+      "allowedSources": [
+        "crm",
+        "sales-os"
+      ],
+      "requireTamperProof": false,
+      "description": "VIP flag must come from CRM or sales-os"
+    }
+  ]
+]

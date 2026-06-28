@@ -22,6 +22,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 // ─── Modules ────────────────────────────────────────────────
 const { createStorage } = require('./storage');
@@ -30,6 +31,9 @@ const {
   createWhatsAppWebhookMiddleware,
   parseWhatsAppPayload,
   normalizePhone: normalizeWpPhone,
+  registerMetaWebhook,
+  register360dialogWebhook,
+  registerTwilioWebhook,
 } = require('./whatsappWebhook');
 const {
   attachEventRoutes,
@@ -47,6 +51,67 @@ const {
 const app = express();
 const PORT = parseInt(process.env.PORT || '4885', 10);
 const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'dev-token';
+
+// ─── Webhook API Keys ─────────────────────────────────────────
+// Allowlist of API keys for webhook endpoints (Email, App).
+// WhatsApp uses HMAC signature verification instead.
+// Generate keys with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+const WEBHOOK_API_KEYS = new Set(
+  (process.env.WEBHOOK_API_KEYS || '').split(',').filter(Boolean)
+);
+
+// ─── Rate Limiting (simple in-memory) ──────────────────────
+// For production, use Redis-backed rate limiting.
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
+const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000', 10);
+
+function rateLimit(req, res, next) {
+  const key = req.ip || req.connection.remoteAddress || 'unknown';
+  const now = Date.now();
+  const entry = rateLimitMap.get(key) || { count: 0, windowStart: now };
+
+  if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    entry.count = 0;
+    entry.windowStart = now;
+  }
+
+  entry.count++;
+  rateLimitMap.set(key, entry);
+
+  if (entry.count > RATE_LIMIT_MAX_REQUESTS) {
+    return res.status(429).json({
+      error: 'rate_limit_exceeded',
+      retryAfter: Math.ceil((entry.windowStart + RATE_LIMIT_WINDOW_MS - now) / 1000),
+    });
+  }
+  next();
+}
+
+// ─── Webhook API Key Auth ──────────────────────────────────────
+function webhookApiKeyAuth(req, res, next) {
+  // Skip if no API keys configured (open in dev)
+  if (WEBHOOK_API_KEYS.size === 0) return next();
+
+  const key = req.headers['x-api-key'] || req.headers['authorization']?.replace(/^Bearer\s+/i, '');
+  if (!key || !WEBHOOK_API_KEYS.has(key)) {
+    return res.status(401).json({ error: 'unauthorized', message: 'Invalid or missing API key' });
+  }
+  next();
+}
+
+// ─── HMAC Signature for Email/Webhook ─────────────────────────
+function verifyWebhookSignature(req, secret) {
+  const signature = req.headers['x-signature'] || req.headers['x-webhook-signature'];
+  if (!signature || !secret) return false;
+  const expected = crypto.createHmac('sha256', secret).update(req.rawBody || '').digest('hex');
+  const sig = signature.replace(/^sha256=/, '');
+  try {
+    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig));
+  } catch {
+    return false;
+  }
+}
 
 // ─── External Services ────────────────────────────────────────
 const UNIFIED_INBOX_URL = process.env.UNIFIED_INBOX_URL || 'http://localhost:4870';
@@ -349,15 +414,42 @@ app.get('/health', async (_req, res) => {
     sessions.push(...ss);
   }
 
+  // Check external service connectivity
+  const upstreamHealth = {};
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 2000);
+    const r = await fetch(`${UNIFIED_INBOX_URL}/health`, { signal: controller.signal });
+    clearTimeout(t);
+    upstreamHealth.unifiedInbox = r.ok ? 'healthy' : 'degraded';
+  } catch (e) { upstreamHealth.unifiedInbox = 'unreachable'; }
+
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 2000);
+    const r = await fetch(`${TICKET_ENGINE_URL}/health`, { signal: controller.signal });
+    clearTimeout(t);
+    upstreamHealth.ticketEngine = r.ok ? 'healthy' : 'degraded';
+  } catch (e) { upstreamHealth.ticketEngine = 'unreachable'; }
+
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 2000);
+    const r = await fetch(`${CORPID_URL}/health`, { signal: controller.signal });
+    clearTimeout(t);
+    upstreamHealth.corpid = r.ok ? 'healthy' : 'degraded';
+  } catch (e) { upstreamHealth.corpid = 'unreachable'; }
+
   res.json({
     status: 'healthy',
     service: 'unified-support-bridge',
     version: '2.0.0',
     port: PORT,
     storage: process.env.USE_REDIS ? 'redis' : process.env.USE_MONGODB ? 'mongodb' : 'in-memory',
+    upstream: upstreamHealth,
     counts: { customers: customers.length, conversations: conversations.length, sessions: sessions.length },
     channels: ['email', 'whatsapp', 'app', 'chat', 'phone', 'instagram', 'twitter', 'facebook'],
-    features: ['identity-resolution', 'cross-channel-linking', 'conversation-merge', 'channel-webhooks', 'sse-events', 'smtp-receiver', 'imap-polling'],
+    features: ['identity-resolution', 'cross-channel-linking', 'conversation-merge', 'channel-webhooks', 'sse-events', 'smtp-receiver', 'imap-polling', 'rate-limiting', 'webhook-auth'],
     timestamp: new Date().toISOString(),
   });
 });
