@@ -1,8 +1,8 @@
 # SUTAR OS — Complete Documentation
 
-> **Version:** 7.0 | **Updated:** June 27, 2026
+> **Version:** 8.0 | **Updated:** June 28, 2026
 > **Canonical location:** `companies/HOJAI-AI/sutar-os/`
-> **Tests:** 590 passing across 13 services | **Status:** ✅ Production Ready
+> **Tests:** 620 passing across 20 services | **Status:** ✅ Production Ready
 
 ---
 
@@ -453,7 +453,7 @@ companies/HOJAI-AI/sutar-os/
 
 2. **No tests for agent services** — 12 agent services have no vitest tests. Priority: `agent-teaming`, `merchant-agents`, `acp-protocol`.
 
-3. **6 stub services** — `sutar-intent-bus`, `sutar-simulation-os`, `sutar-goal-os`, `sutar-network-learning`, `sutar-flow-os`, `sutar-founder-os` are not yet built.
+3. **6 stub services** — `sutar-flow-os` (4244) is the only remaining stub; all others built.
 
 ---
 
@@ -461,6 +461,7 @@ companies/HOJAI-AI/sutar-os/
 
 | Date | Change |
 |------|--------|
+| 2026-06-28 | **All 8 stub services built** — intent-bus, simulation, goal, network-learning, usage-tracker, policy-os, founder-os + negotiation-ai had code |
 | 2026-06-27 | **Phase 2 complete** — All 7 business gaps addressed: enterprise connectors (4), compliance, tracing, HITL, pricing, demo, case studies |
 | 2026-06-27 | Added 4 enterprise connectors: Salesforce (33 tests), SAP (21), Workday (20), Oracle (22) |
 | 2026-06-27 | Added 3 core services: sutar-compliance (15 tests), sutar-tracing (11), sutar-hitl (32) |

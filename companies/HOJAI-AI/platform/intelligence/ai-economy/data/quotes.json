@@ -7,5 +7,14 @@
     "terms": {},
     "validUntil": "2026-06-28T09:41:36.939Z",
     "createdAt": "2026-06-28T09:26:36.939Z"
+  },
+  {
+    "id": "dfa713b9-112c-4b95-8448-89c331127578",
+    "listingId": "29177ae2-f777-4a17-b581-2a6503d6b4a4",
+    "buyerId": "buyer-1",
+    "basePrice": 50,
+    "terms": {},
+    "validUntil": "2026-06-28T22:49:10.413Z",
+    "createdAt": "2026-06-28T22:34:10.413Z"
   }
 ]

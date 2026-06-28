@@ -22,5 +22,29 @@
     "escrow": false,
     "createdAt": "2026-06-28T09:26:36.944Z",
     "completedAt": "2026-06-28T09:26:36.945Z"
+  },
+  {
+    "id": "67e30902-b985-4751-b326-f0f74a976a96",
+    "listingId": "e56a3bec-b91d-4dcc-a086-f7f91ffd29c9",
+    "buyerId": "buyer-x",
+    "sellerId": "seller-y",
+    "amount": 25,
+    "type": "purchase",
+    "status": "pending",
+    "escrow": true,
+    "createdAt": "2026-06-28T22:34:10.417Z",
+    "completedAt": null
+  },
+  {
+    "id": "7e74133e-79be-456f-b0b9-276c3d646a0e",
+    "listingId": "b78ecd02-64a6-4c2d-aaca-64c127715751",
+    "buyerId": "b",
+    "sellerId": null,
+    "amount": 10,
+    "type": "purchase",
+    "status": "completed",
+    "escrow": false,
+    "createdAt": "2026-06-28T22:34:10.421Z",
+    "completedAt": "2026-06-28T22:34:10.423Z"
   }
 ]
