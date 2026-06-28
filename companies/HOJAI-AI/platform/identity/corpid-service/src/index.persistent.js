@@ -2687,6 +2687,259 @@ app.get('/api/timeline/:entityId/related', requireAuth, asyncHandler(async (req,
   res.json({ success: true, entityId, relatedCount: related.size, related: Object.fromEntries(related) });
 }));
 
+// ============ WEBHOOKS ============
+// Webhook management for real-time event notifications
+
+const Webhook = createModel('Webhook', { key: 'webhookId' });
+const WebhookDelivery = createModel('WebhookDelivery', { key: 'deliveryId' });
+
+const WEBHOOK_EVENTS = [
+  'user.created', 'user.updated', 'user.deleted',
+  'user.login', 'user.login_failed',
+  'agent.created', 'agent.updated', 'agent.suspended', 'agent.revoked',
+  'delegation.created', 'delegation.approved', 'delegation.revoked',
+  'trust.changed', 'trust.elevated', 'trust.degraded',
+  'workload.registered', 'workload.credential_rotated',
+  'session.started', 'session.ended',
+  'risk.alert', 'policy.violated',
+];
+
+// Generate webhook secret
+function generateWebhookSecret() {
+  return `whsec_${crypto.randomBytes(32).toString('hex')}`;
+}
+
+// Sign webhook payload
+function signWebhookPayload(payload, secret) {
+  const signature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  return `sha256=${signature}`;
+}
+
+// Deliver webhook (non-blocking)
+async function deliverWebhook(webhookId, eventType, data) {
+  try {
+    const webhook = await Webhook.findOne(webhookId);
+    if (!webhook || !webhook.active) return;
+
+    const payload = {
+      id: `evt_${uuidv4()}`,
+      type: eventType,
+      timestamp: new Date().toISOString(),
+      data,
+    };
+
+    const signature = signWebhookPayload(payload, webhook.secret);
+    const deliveryId = `DEL_${uuidv4().replace(/-/g, '').slice(0, 12)}`;
+
+    // Record delivery attempt
+    await WebhookDelivery.create({
+      deliveryId,
+      webhookId,
+      eventType,
+      payload,
+      status: 'pending',
+      attempts: 0,
+      createdAt: new Date().toISOString(),
+    });
+
+    // Fire and forget the actual HTTP request
+    fetch(webhook.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CorpID-Signature': signature,
+        'X-CorpID-Event': eventType,
+        'X-CorpID-Delivery': deliveryId,
+      },
+      body: JSON.stringify(payload),
+    }).then(async res => {
+      const status = res.ok ? 'success' : 'failed';
+      await WebhookDelivery.updateOne({ deliveryId }, { status, statusCode: res.status, deliveredAt: new Date().toISOString() });
+    }).catch(async () => {
+      await WebhookDelivery.updateOne({ deliveryId }, { status: 'failed', attempts: (await WebhookDelivery.findOne(deliveryId))?.attempts + 1 || 1 });
+    });
+
+    logger.debug({ webhookId, eventType }, 'Webhook delivery queued');
+  } catch (err) {
+    logger.warn({ err, webhookId, eventType }, 'Webhook delivery failed');
+  }
+}
+
+// POST /api/webhooks — Create webhook
+app.post('/api/webhooks', [
+  requireAuth,
+  body('url').trim().isURL().withMessage('Valid URL required'),
+  body('events').isArray({ min: 1 }).withMessage('At least one event required'),
+  body('events.*').isIn(WEBHOOK_EVENTS).withMessage('Invalid event type'),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { url, events, description } = sanitizeInput(req.body);
+  const webhookId = `WHK_${uuidv4().replace(/-/g, '').slice(0, 12)}`;
+  const secret = generateWebhookSecret();
+
+  const webhook = await Webhook.create({
+    webhookId,
+    url,
+    events,
+    description,
+    secret,
+    active: true,
+    ownerId: req.user.id,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+
+  logger.info({ webhookId, url, events }, 'Webhook created');
+  res.status(201).json({
+    success: true,
+    webhook: {
+      webhookId: webhook.webhookId,
+      url: webhook.url,
+      events: webhook.events,
+      active: webhook.active,
+      createdAt: webhook.createdAt,
+      // Only return secret on creation
+      secret: webhook.secret,
+    },
+  });
+}));
+
+// GET /api/webhooks — List webhooks
+app.get('/api/webhooks', requireAuth, asyncHandler(async (req, res) => {
+  const webhooks = await Webhook.find();
+  const myWebhooks = webhooks.filter(w => w.ownerId === req.user.id || req.user.role === 'admin');
+  res.json({
+    success: true,
+    count: myWebhooks.length,
+    webhooks: myWebhooks.map(w => ({
+      webhookId: w.webhookId,
+      url: w.url,
+      events: w.events,
+      active: w.active,
+      createdAt: w.createdAt,
+    })),
+  });
+}));
+
+// GET /api/webhooks/:id — Get webhook
+app.get('/api/webhooks/:id', requireAuth, asyncHandler(async (req, res) => {
+  const webhook = await Webhook.findOne(req.params.id);
+  if (!webhook) throw new NotFoundError('Webhook not found');
+  if (webhook.ownerId !== req.user.id && req.user.role !== 'admin') throw new ForbiddenError();
+  res.json({ success: true, webhook });
+}));
+
+// PUT /api/webhooks/:id — Update webhook
+app.put('/api/webhooks/:id', [
+  requireAuth,
+  body('url').optional().trim().isURL(),
+  body('events').optional().isArray({ min: 1 }),
+  body('active').optional().isBoolean(),
+  validate,
+], asyncHandler(async (req, res) => {
+  const webhook = await Webhook.findOne(req.params.id);
+  if (!webhook) throw new NotFoundError('Webhook not found');
+  if (webhook.ownerId !== req.user.id && req.user.role !== 'admin') throw new ForbiddenError();
+
+  const { url, events, active, description } = sanitizeInput(req.body);
+  await Webhook.updateOne({ webhookId: req.params.id }, {
+    ...(url && { url }),
+    ...(events && { events }),
+    ...(typeof active === 'boolean' && { active }),
+    ...(description !== undefined && { description }),
+    updatedAt: new Date().toISOString(),
+  });
+
+  const updated = await Webhook.findOne(req.params.id);
+  logger.info({ webhookId: req.params.id }, 'Webhook updated');
+  res.json({ success: true, webhook: updated });
+}));
+
+// DELETE /api/webhooks/:id — Delete webhook
+app.delete('/api/webhooks/:id', requireAuth, asyncHandler(async (req, res) => {
+  const webhook = await Webhook.findOne(req.params.id);
+  if (!webhook) throw new NotFoundError('Webhook not found');
+  if (webhook.ownerId !== req.user.id && req.user.role !== 'admin') throw new ForbiddenError();
+  await Webhook.deleteOne(req.params.id);
+  logger.info({ webhookId: req.params.id }, 'Webhook deleted');
+  res.json({ success: true });
+}));
+
+// POST /api/webhooks/:id/test — Test webhook
+app.post('/api/webhooks/:id/test', requireAuth, asyncHandler(async (req, res) => {
+  const webhook = await Webhook.findOne(req.params.id);
+  if (!webhook) throw new NotFoundError('Webhook not found');
+  if (webhook.ownerId !== req.user.id && req.user.role !== 'admin') throw new ForbiddenError();
+
+  const payload = {
+    id: `evt_test_${Date.now()}`,
+    type: 'webhook.test',
+    timestamp: new Date().toISOString(),
+    data: { message: 'This is a test webhook delivery' },
+  };
+
+  const signature = signWebhookPayload(payload, webhook.secret);
+  let statusCode = 0;
+  let success = false;
+
+  try {
+    const response = await fetch(webhook.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CorpID-Signature': signature,
+        'X-CorpID-Event': 'webhook.test',
+      },
+      body: JSON.stringify(payload),
+    });
+    statusCode = response.status;
+    success = response.ok;
+  } catch {
+    success = false;
+  }
+
+  res.json({
+    success,
+    statusCode,
+    message: success ? 'Webhook delivered successfully' : `Webhook delivery failed (${statusCode})`,
+  });
+}));
+
+// GET /api/webhooks/:id/deliveries — Get delivery history
+app.get('/api/webhooks/:id/deliveries', requireAuth, asyncHandler(async (req, res) => {
+  const webhook = await Webhook.findOne(req.params.id);
+  if (!webhook) throw new NotFoundError('Webhook not found');
+  if (webhook.ownerId !== req.user.id && req.user.role !== 'admin') throw new ForbiddenError();
+
+  const deliveries = await WebhookDelivery.find();
+  const webhookDeliveries = deliveries
+    .filter(d => d.webhookId === req.params.id)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 50);
+
+  res.json({
+    success: true,
+    count: webhookDeliveries.length,
+    deliveries: webhookDeliveries.map(d => ({
+      deliveryId: d.deliveryId,
+      eventType: d.eventType,
+      status: d.status,
+      statusCode: d.statusCode,
+      attempts: d.attempts,
+      createdAt: d.createdAt,
+      deliveredAt: d.deliveredAt,
+    })),
+  });
+}));
+
+// GET /api/webhooks/events — List available events
+app.get('/api/webhooks/events', (req, res) => {
+  res.json({ success: true, events: WEBHOOK_EVENTS });
+});
+
 // ============ NAMESPACES ============
 
 app.post('/api/namespaces', requireAuth, asyncHandler(async (req, res) => {

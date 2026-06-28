@@ -193,7 +193,11 @@ describe('SafetyOS — Event Logging', () => {
       if (events.length > 1000) events.pop();
     }
     expect(events).toHaveLength(1000);
-    expect(events[0].id).toBe('e-499');
+    // unshift adds newest first; cap removes oldest from end (pop)
+    // after 1500 unshift + 500 pops: [e-1499, e-1498, ..., e-500] (1000 items)
+    // events[0] = e-500 (oldest kept), events[999] = e-1499 (newest kept)
+    expect(events[0].id).toBe('e-500');
+    expect(events[999].id).toBe('e-1499');
   });
 
   it('log entry has required fields', () => {

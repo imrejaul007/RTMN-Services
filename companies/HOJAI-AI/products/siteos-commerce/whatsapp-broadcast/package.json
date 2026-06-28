@@ -1,0 +1,25 @@
+{
+  "name": "@hojai/siteos-whatsapp-broadcast",
+  "version": "1.0.0",
+  "description": "HOJAI SiteOS WhatsApp Broadcast - Campaign builder, audiences, sequences",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

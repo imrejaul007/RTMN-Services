@@ -222,3 +222,110 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
+// Sales Pipeline Types
+export type PipelineStage = 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';
+export type QuoteStatus = 'draft' | 'sent' | 'viewed' | 'accepted' | 'rejected' | 'expired';
+
+export interface PipelineStageConfig {
+  id: PipelineStage;
+  name: string;
+  probability: number;
+  color: string;
+}
+
+export interface DealProduct {
+  productId: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+}
+
+export interface Activity {
+  type: string;
+  description: string;
+  timestamp: string;
+}
+
+export interface Deal {
+  dealId: string;
+  title: string;
+  description: string;
+  value: number;
+  currency: 'INR' | 'USD';
+  stage: PipelineStage;
+  probability: number;
+  contactId?: string;
+  contactName: string;
+  contactEmail?: string;
+  owner: string;
+  products: DealProduct[];
+  expectedCloseDate?: string;
+  actualCloseDate?: string;
+  lostReason?: string;
+  notes: string[];
+  activities: Activity[];
+  createdAt: string;
+  updatedAt: string;
+  commission?: number;
+}
+
+export interface QuoteItem {
+  productId?: string;
+  name: string;
+  description?: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  tax: number;
+  total: number;
+}
+
+export interface Quote {
+  quoteId: string;
+  quoteNumber: string;
+  dealId?: string;
+  contactId?: string;
+  contactName: string;
+  contactEmail?: string;
+  items: QuoteItem[];
+  subtotal: number;
+  taxTotal: number;
+  discountTotal: number;
+  total: number;
+  validUntil: string;
+  terms: string;
+  status: QuoteStatus;
+  sentAt?: string;
+  respondedAt?: string;
+  createdAt: string;
+}
+
+export interface Product {
+  productId: string;
+  name: string;
+  description: string;
+  sku: string;
+  unitPrice: number;
+  currency: 'INR' | 'USD';
+  taxRate: number;
+  category: string;
+  active: boolean;
+}
+
+export interface PipelineSummary {
+  totalValue: number;
+  totalWeightedValue: number;
+  dealCount: number;
+  avgDealSize: number;
+}
+
+export interface PipelineData {
+  stages: Record<PipelineStage, PipelineStageData>;
+  summary: PipelineSummary;
+}
+
+export interface PipelineStageData extends PipelineStageConfig {
+  deals: Deal[];
+}

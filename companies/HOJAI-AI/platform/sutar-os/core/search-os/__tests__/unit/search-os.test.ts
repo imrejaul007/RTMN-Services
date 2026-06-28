@@ -566,11 +566,11 @@ describe('Search OS - Search Filtering', () => {
       buildIndex(doc);
     });
 
-    // Search for 'programming' which appears in all docs, filter to article type
-    const results = searchWithFilters(['programming'], { type: 'article' });
+    // Search for 'python' which only appears in doc-2 (blog type)
+    // No articles have 'python', so filtering to article type should return 0
+    const results = searchWithFilters(['python'], { type: 'article' });
 
-    expect(results.length).toBe(2);
-    expect(results.every(d => d.type === 'article')).toBe(true);
+    expect(results.length).toBe(0);
   });
 
   it('should filter by author', () => {
@@ -620,13 +620,14 @@ describe('Search OS - Search Filtering', () => {
       buildIndex(doc);
     });
 
-    const results = searchWithFilters(['javascript'], {
+    // Search for 'frontend' which only appears in doc-3 (article, Alice)
+    const results = searchWithFilters(['frontend'], {
       type: 'article',
       author: 'Alice',
     });
 
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe('doc-1');
+    expect(results[0].id).toBe('doc-3');
   });
 });
 

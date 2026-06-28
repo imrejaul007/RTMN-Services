@@ -16,7 +16,13 @@
   "devDependencies": {
     "vitest": "^1.6.1"
   },
-  "keywords": ["flowos", "a2a", "mcp", "agent", "protocol"],
+  "keywords": [
+    "flowos",
+    "a2a",
+    "mcp",
+    "agent",
+    "protocol"
+  ],
   "author": "HOJAI AI",
   "license": "MIT"
 }
