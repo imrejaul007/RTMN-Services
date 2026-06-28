@@ -46,7 +46,7 @@ function createApp() {
 
   app.get('/api/lifecycle/:entityId/state', requireAuth, asyncHandler(async (req, res) => {
     const { entityId } = req.params;
-    if (!entityId.startsWith('CI-')) throw new NotFoundError('Entity not found');
+    if (!entityId || entityId.length < 3) throw new NotFoundError('Entity not found');
     res.json({ success: true, entityId, state: 'active', allowedTransitions: ['suspended', 'offboarding'] });
   }));
 

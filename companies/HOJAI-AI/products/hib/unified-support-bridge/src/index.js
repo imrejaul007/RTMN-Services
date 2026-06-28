@@ -461,7 +461,7 @@ app.all('/api/webhooks/whatsapp', async (req, res) => {
 });
 
 // ── Email Webhook ──────────────────────────────────────
-app.post('/api/webhooks/email', async (req, res) => {
+app.post('/api/webhooks/email', webhookApiKeyAuth, rateLimit, async (req, res) => {
   // Normalize from any provider format
   const email = await normalizeEmailFormat(req.body, req.headers);
   if (!email) {
