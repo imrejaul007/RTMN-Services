@@ -144,7 +144,7 @@ Agent Layer (Orthogonal)
 |---------|------|-------|-------|---------|
 | `blr-ai-marketplace` | 4255 | — | — | Lives in `companies/HOJAI-AI/blr-ai-marketplace/` |
 | `sutar-economy-os` | 4294 | ~600 | ✅ 120 | Credits, escrow, rewards, billing, Karma integration, wallet |
-| `sutar-usage-tracker` | 4252 | stub | ❌ | AI usage metering (not yet built) |
+| `sutar-usage-tracker` | 4252 | 290 | ✅ 18 | AI usage metering: token/call/compute tracking, cost calculation, quota enforcement |
 | `sutar-policy-os` | 4254 | stub | ❌ | Business policy registry (not yet built) |
 
 ### Layer 6 — Trust + Contracts + Negotiation (3 services)
