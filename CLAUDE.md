@@ -1,6 +1,6 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.14
+> **Version:** 5.15
 > **Last Updated:** June 28, 2026
 > **New:** ✅ **SUTAR OS Complete** — All 24 enterprise OS services production-ready (200-450+ lines each)
 > **Status:** ✅ **SUTAR OS All Services Built** — negotiation-os, organization-os, presence-os, crisis-os, media-os, calendar-os, physical-world-os, brand-os, chat-os, culture-os, device-os all expanded to production-ready
@@ -227,7 +227,7 @@ Nexha A (Restaurant)    Nexha B (Delivery)    Nexha C (Payment)
 
 **Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
 
-### HOJAI SiteOS — 27 Services Built (June 2026)
+### HOJAI SiteOS — 33 Services Built (June 2026)
 
 **`companies/HOJAI-AI/products/`**
 
@@ -252,6 +252,13 @@ Nexha A (Restaurant)    Nexha B (Delivery)    Nexha C (Payment)
 | 5466 | knowledge-base | 3 | MemoryOS |
 | 5467 | ab-testing | 3 | Analytics |
 | 5468 | product-federation | 4 | Nexha Discovery |
+| **Commerce Module (siteos-commerce/)** |
+| 5476 | product-catalog | COMMERCE | Products, categories |
+| 5477 | cart-service | COMMERCE | Cart, coupons |
+| 5478 | checkout-service | COMMERCE | Orders, addresses |
+| 5479 | payment-gateway | COMMERCE | Razorpay, UPI |
+| 5480 | review-collection | COMMERCE | Active reviews |
+| 5481 | loyalty-connector | COMMERCE | Points, rewards |
 | 5469 | agent-protocol | 4 | Nexha ACP |
 | 5470 | do-app-integration | 4 | DO App |
 | 5471 | agent-reputation | 4 | Nexha Reputation |
