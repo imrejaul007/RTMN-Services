@@ -1,0 +1,32 @@
+{
+  "name": "@hojai/checkout-service",
+  "version": "1.0.0",
+  "description": "HOJAI SiteOS Checkout Service - REST API for managing checkout and orders",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "checkout",
+    "orders",
+    "ecommerce",
+    "siteos",
+    "hojai"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.4.0",
+    "supertest": "^6.3.4"
+  }
+}

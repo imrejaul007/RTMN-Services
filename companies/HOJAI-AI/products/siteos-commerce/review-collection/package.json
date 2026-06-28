@@ -1,0 +1,31 @@
+{
+  "name": "@hojai/siteos-review-collection",
+  "version": "1.0.0",
+  "description": "Review Collection Service for HOJAI SiteOS - Actively collect and manage product reviews",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "reviews",
+    "siteos",
+    "hojai",
+    "ecommerce"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "supertest": "^6.3.3",
+    "vitest": "^1.2.0"
+  }
+}

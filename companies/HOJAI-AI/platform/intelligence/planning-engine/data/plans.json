@@ -1,0 +1,1451 @@
+[
+  {
+    "id": "188a5f23-ddb4-4a79-8ef1-7ce54c8aac06",
+    "name": "Test Plan",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Research and write report",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Gather information and data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Analyze and synthesize findings",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Collect relevant data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "task",
+        "description": "Format and write report",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 3,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n5",
+        "type": "task",
+        "description": "Review and finalize",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 4,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n6",
+        "type": "output",
+        "description": "Output: Research and write report",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n0",
+        "to": "n4"
+      },
+      {
+        "from": "n0",
+        "to": "n5"
+      },
+      {
+        "from": "n1",
+        "to": "n6"
+      },
+      {
+        "from": "n2",
+        "to": "n6"
+      },
+      {
+        "from": "n3",
+        "to": "n6"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "staged_pipeline",
+    "version": 1,
+    "createdAt": "2026-06-28T09:59:06.069Z",
+    "updatedAt": "2026-06-28T09:59:06.069Z",
+    "metadata": {}
+  },
+  {
+    "id": "9835368b-5b78-4089-8107-70267ed1b9c8",
+    "name": "Manual",
+    "nodes": [
+      {
+        "id": "a",
+        "type": "task",
+        "description": "A"
+      }
+    ],
+    "edges": [],
+    "rootId": null,
+    "status": "draft",
+    "strategy": "sequential",
+    "version": 1,
+    "createdAt": "2026-06-28T09:59:06.071Z",
+    "updatedAt": "2026-06-28T09:59:06.071Z",
+    "metadata": {}
+  },
+  {
+    "id": "aaa3c3c7-1056-4bbd-901e-96ad4140167b",
+    "name": "Get Test",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Do something",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Prepare and plan",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Execute core action",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Verify and complete",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "output",
+        "description": "Output: Do something",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n1",
+        "to": "n4"
+      },
+      {
+        "from": "n2",
+        "to": "n4"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "sequential",
+    "version": 1,
+    "createdAt": "2026-06-28T09:59:06.076Z",
+    "updatedAt": "2026-06-28T09:59:06.076Z",
+    "metadata": {}
+  },
+  {
+    "id": "ffb2777e-78de-4d0f-b8aa-cedd3211cc00",
+    "name": "Exec Test",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Research and build",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Gather information and data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Analyze and synthesize findings",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Plan implementation approach",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "task",
+        "description": "Execute build steps",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 3,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n5",
+        "type": "task",
+        "description": "Validate output",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 4,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n6",
+        "type": "output",
+        "description": "Output: Research and build",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n0",
+        "to": "n4"
+      },
+      {
+        "from": "n0",
+        "to": "n5"
+      },
+      {
+        "from": "n1",
+        "to": "n6"
+      },
+      {
+        "from": "n2",
+        "to": "n6"
+      },
+      {
+        "from": "n3",
+        "to": "n6"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ],
+    "rootId": "n0",
+    "status": "completed",
+    "strategy": "staged_pipeline",
+    "version": 1,
+    "createdAt": "2026-06-28T09:59:06.086Z",
+    "updatedAt": "2026-06-28T09:59:06.215Z",
+    "metadata": {}
+  },
+  {
+    "id": "d92b5118-a61c-4eef-bd7f-50e4f5e22eac",
+    "name": "Validate",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "x",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Prepare and plan",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Execute core action",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Verify and complete",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "output",
+        "description": "Output: x",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n1",
+        "to": "n4"
+      },
+      {
+        "from": "n2",
+        "to": "n4"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "sequential",
+    "version": 1,
+    "createdAt": "2026-06-28T09:59:06.243Z",
+    "updatedAt": "2026-06-28T09:59:06.243Z",
+    "metadata": {}
+  },
+  {
+    "id": "a886fc0a-891d-4bd2-a8f2-7fe4638f1bb2",
+    "name": "Test Plan",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Research and write report",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Gather information and data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Analyze and synthesize findings",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Collect relevant data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "task",
+        "description": "Format and write report",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 3,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n5",
+        "type": "task",
+        "description": "Review and finalize",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 4,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n6",
+        "type": "output",
+        "description": "Output: Research and write report",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n0",
+        "to": "n4"
+      },
+      {
+        "from": "n0",
+        "to": "n5"
+      },
+      {
+        "from": "n1",
+        "to": "n6"
+      },
+      {
+        "from": "n2",
+        "to": "n6"
+      },
+      {
+        "from": "n3",
+        "to": "n6"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:04:56.419Z",
+    "updatedAt": "2026-06-28T10:04:56.419Z",
+    "metadata": {}
+  },
+  {
+    "id": "19ca3cf5-7dd5-4f4e-8d52-fcbaaa0aa69a",
+    "name": "Manual",
+    "nodes": [
+      {
+        "id": "a",
+        "type": "task",
+        "description": "A"
+      }
+    ],
+    "edges": [],
+    "rootId": null,
+    "status": "draft",
+    "strategy": "sequential",
+    "version": 1,
+    "createdAt": "2026-06-28T10:04:56.422Z",
+    "updatedAt": "2026-06-28T10:04:56.422Z",
+    "metadata": {}
+  },
+  {
+    "id": "f592ef20-1165-4051-8c5a-9f1d161c3eb1",
+    "name": "Get Test",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Do something",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Prepare and plan",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Execute core action",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Verify and complete",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "output",
+        "description": "Output: Do something",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n1",
+        "to": "n4"
+      },
+      {
+        "from": "n2",
+        "to": "n4"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:04:56.427Z",
+    "updatedAt": "2026-06-28T10:04:56.427Z",
+    "metadata": {}
+  },
+  {
+    "id": "1b3fa0d0-ec13-4e6e-b493-0ad979953101",
+    "name": "Exec Test",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Research and build",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Gather information and data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Analyze and synthesize findings",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Plan implementation approach",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "task",
+        "description": "Execute build steps",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 3,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n5",
+        "type": "task",
+        "description": "Validate output",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 4,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n6",
+        "type": "output",
+        "description": "Output: Research and build",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n0",
+        "to": "n4"
+      },
+      {
+        "from": "n0",
+        "to": "n5"
+      },
+      {
+        "from": "n1",
+        "to": "n6"
+      },
+      {
+        "from": "n2",
+        "to": "n6"
+      },
+      {
+        "from": "n3",
+        "to": "n6"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ],
+    "rootId": "n0",
+    "status": "completed",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:04:56.441Z",
+    "updatedAt": "2026-06-28T10:04:56.573Z",
+    "metadata": {}
+  },
+  {
+    "id": "7caaaac0-ca5c-4004-ab5f-78683321d115",
+    "name": "Validate",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "x",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Prepare and plan",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Execute core action",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Verify and complete",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "output",
+        "description": "Output: x",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n1",
+        "to": "n4"
+      },
+      {
+        "from": "n2",
+        "to": "n4"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:04:56.604Z",
+    "updatedAt": "2026-06-28T10:04:56.604Z",
+    "metadata": {}
+  },
+  {
+    "id": "827ba9a3-f51b-4d5e-8053-f853ea292c0e",
+    "name": "Test Plan",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Research and write report",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Gather information and data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Analyze and synthesize findings",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Collect relevant data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "task",
+        "description": "Format and write report",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 3,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n5",
+        "type": "task",
+        "description": "Review and finalize",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 4,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n6",
+        "type": "output",
+        "description": "Output: Research and write report",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n0",
+        "to": "n4"
+      },
+      {
+        "from": "n0",
+        "to": "n5"
+      },
+      {
+        "from": "n1",
+        "to": "n6"
+      },
+      {
+        "from": "n2",
+        "to": "n6"
+      },
+      {
+        "from": "n3",
+        "to": "n6"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:06:37.190Z",
+    "updatedAt": "2026-06-28T10:06:37.190Z",
+    "metadata": {}
+  },
+  {
+    "id": "ce889126-701d-4c10-b31a-6421dffb41cb",
+    "name": "Manual",
+    "nodes": [
+      {
+        "id": "a",
+        "type": "task",
+        "description": "A"
+      }
+    ],
+    "edges": [],
+    "rootId": null,
+    "status": "draft",
+    "strategy": "sequential",
+    "version": 1,
+    "createdAt": "2026-06-28T10:06:37.193Z",
+    "updatedAt": "2026-06-28T10:06:37.193Z",
+    "metadata": {}
+  },
+  {
+    "id": "a953f42b-9c56-41eb-987b-adacd0bae479",
+    "name": "Get Test",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Do something",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Prepare and plan",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Execute core action",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Verify and complete",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "output",
+        "description": "Output: Do something",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n1",
+        "to": "n4"
+      },
+      {
+        "from": "n2",
+        "to": "n4"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:06:37.199Z",
+    "updatedAt": "2026-06-28T10:06:37.199Z",
+    "metadata": {}
+  },
+  {
+    "id": "2a952075-9378-46be-aabf-035b11f74318",
+    "name": "Exec Test",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "Research and build",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Gather information and data",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Analyze and synthesize findings",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Plan implementation approach",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "task",
+        "description": "Execute build steps",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 3,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n5",
+        "type": "task",
+        "description": "Validate output",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 4,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n6",
+        "type": "output",
+        "description": "Output: Research and build",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n0",
+        "to": "n4"
+      },
+      {
+        "from": "n0",
+        "to": "n5"
+      },
+      {
+        "from": "n1",
+        "to": "n6"
+      },
+      {
+        "from": "n2",
+        "to": "n6"
+      },
+      {
+        "from": "n3",
+        "to": "n6"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ],
+    "rootId": "n0",
+    "status": "completed",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:06:37.212Z",
+    "updatedAt": "2026-06-28T10:06:37.344Z",
+    "metadata": {}
+  },
+  {
+    "id": "456c5833-6c5f-446b-a827-a9ca1dc08104",
+    "name": "Validate",
+    "nodes": [
+      {
+        "id": "n0",
+        "type": "task",
+        "description": "x",
+        "metadata": {
+          "isRoot": true,
+          "depth": 0
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n1",
+        "type": "task",
+        "description": "Prepare and plan",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 0,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n2",
+        "type": "task",
+        "description": "Execute core action",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 1,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n3",
+        "type": "task",
+        "description": "Verify and complete",
+        "metadata": {
+          "depth": 1,
+          "stepIndex": 2,
+          "parentId": "n0"
+        },
+        "status": "pending",
+        "result": null
+      },
+      {
+        "id": "n4",
+        "type": "output",
+        "description": "Output: x",
+        "metadata": {
+          "isOutput": true
+        },
+        "status": "pending",
+        "result": null
+      }
+    ],
+    "edges": [
+      {
+        "from": "n0",
+        "to": "n1"
+      },
+      {
+        "from": "n0",
+        "to": "n2"
+      },
+      {
+        "from": "n0",
+        "to": "n3"
+      },
+      {
+        "from": "n1",
+        "to": "n4"
+      },
+      {
+        "from": "n2",
+        "to": "n4"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      }
+    ],
+    "rootId": "n0",
+    "status": "draft",
+    "strategy": "parallel_fan_out",
+    "version": 1,
+    "createdAt": "2026-06-28T10:06:37.374Z",
+    "updatedAt": "2026-06-28T10:06:37.374Z",
+    "metadata": {}
+  }
+]

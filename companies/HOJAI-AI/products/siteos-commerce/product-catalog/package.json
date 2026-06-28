@@ -1,0 +1,30 @@
+{
+  "name": "@hojai/siteos-product-catalog",
+  "version": "1.0.0",
+  "description": "HOJAI SiteOS Product Catalog Service - REST API for managing product catalogs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "keywords": [
+    "siteos",
+    "product-catalog",
+    "ecommerce",
+    "hojai"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "supertest": "^6.3.3",
+    "vitest": "^1.2.0"
+  }
+}

@@ -1,0 +1,275 @@
+[
+  {
+    "executionId": "exec-1782640746215",
+    "planId": "ffb2777e-78de-4d0f-b8aa-cedd3211cc00",
+    "order": [
+      "n0",
+      "n1",
+      "n2",
+      "n3",
+      "n4",
+      "n5",
+      "n6"
+    ],
+    "results": {
+      "n0": {
+        "description": "Research and build",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n1": {
+        "description": "Gather information and data",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n2": {
+        "description": "Analyze and synthesize findings",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n3": {
+        "description": "Plan implementation approach",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n4": {
+        "description": "Execute build steps",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n5": {
+        "description": "Validate output",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n6": {
+        "description": "Output: Research and build",
+        "status": "output_generated",
+        "data": {
+          "dependencies": [
+            {
+              "id": "n1",
+              "result": {
+                "description": "Gather information and data",
+                "status": "executed",
+                "context": {
+                  "input": null
+                }
+              }
+            },
+            {
+              "id": "n2",
+              "result": {
+                "description": "Analyze and synthesize findings",
+                "status": "executed",
+                "context": {
+                  "input": null
+                }
+              }
+            },
+            {
+              "id": "n3",
+              "result": {
+                "description": "Plan implementation approach",
+                "status": "executed",
+                "context": {
+                  "input": null
+                }
+              }
+            },
+            {
+              "id": "n4",
+              "result": {
+                "description": "Execute build steps",
+                "status": "executed",
+                "context": {
+                  "input": null
+                }
+              }
+            },
+            {
+              "id": "n5",
+              "result": {
+                "description": "Validate output",
+                "status": "executed",
+                "context": {
+                  "input": null
+                }
+              }
+            }
+          ],
+          "level": 6
+        }
+      }
+    },
+    "completedAt": "2026-06-28T09:59:06.215Z",
+    "durationMs": 76,
+    "summary": {
+      "total": 7,
+      "done": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "planName": "Exec Test"
+  },
+  {
+    "executionId": "exec-1782641096572",
+    "planId": "1b3fa0d0-ec13-4e6e-b493-0ad979953101",
+    "order": [
+      "n0",
+      "n1",
+      "n2",
+      "n3",
+      "n4",
+      "n5",
+      "n6"
+    ],
+    "results": {
+      "n0": {
+        "description": "Research and build",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n1": {
+        "description": "Gather information and data",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n2": {
+        "description": "Analyze and synthesize findings",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n3": {
+        "description": "Plan implementation approach",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n4": {
+        "description": "Execute build steps",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n5": {
+        "description": "Validate output",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n6": {
+        "description": "Output: Research and build",
+        "status": "output_generated",
+        "data": {
+          "dependencies": [],
+          "level": 6
+        }
+      }
+    },
+    "completedAt": "2026-06-28T10:04:56.572Z",
+    "durationMs": 77,
+    "summary": {
+      "total": 7,
+      "done": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    "planName": "Exec Test"
+  },
+  {
+    "executionId": "exec-1782641197344",
+    "planId": "2a952075-9378-46be-aabf-035b11f74318",
+    "order": [
+      "n0",
+      "n1",
+      "n2",
+      "n3",
+      "n4",
+      "n5",
+      "n6"
+    ],
+    "results": {
+      "n0": {
+        "description": "Research and build",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n1": {
+        "description": "Gather information and data",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n2": {
+        "description": "Analyze and synthesize findings",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n3": {
+        "description": "Plan implementation approach",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n4": {
+        "description": "Execute build steps",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n5": {
+        "description": "Validate output",
+        "status": "executed",
+        "context": {
+          "input": null
+        }
+      },
+      "n6": {
+        "description": "Output: Research and build",
+        "status": "output_generated",
+        "data": {
+          "dependencies": [],
+          "level": 6
+        }
+      }
+    },
+    "completedAt": "2026-06-28T10:06:37.344Z",
+    "durationMs": 78,
+    "summary": {
+      "total": 7,
+      "done": 7,
+      "failed": 0,
+      "skipped": 0
+    },
+    "planName": "Exec Test"
+  }
+]
