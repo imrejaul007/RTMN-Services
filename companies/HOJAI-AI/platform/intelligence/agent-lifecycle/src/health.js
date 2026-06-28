@@ -107,7 +107,7 @@ export function calculateHealthStatus(metrics) {
 
   // Determine status
   let status = 'healthy';
-  if (overallScore < 30 || score.errorRate === 0) {
+  if (overallScore < 30 || score.errorRate === 0 || score.latency === 0) {
     status = 'critical';
   } else if (overallScore < 60 || score.errorRate < 50) {
     status = 'unhealthy';

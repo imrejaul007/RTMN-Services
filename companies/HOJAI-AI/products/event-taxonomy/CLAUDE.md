@@ -1,26 +1,26 @@
 # Event Taxonomy
 
 **Port:** 5461
-**Purpose:** 100+ standardized event types organized by category
+**Phase:** 2
+**Purpose:** 100+ standardized event types
 
 ## Categories
 
 | Category | Events |
 |---|---|
-| website | page_view, product_view, search, add_to_cart, checkout_start, etc. |
-| user | sign_up, login, email_subscribe, profile_update |
-| engagement | widget_open, chat_start, cta_click, exit_intent |
-| commerce | cart_abandon, purchase_complete, refund_request |
-| marketing | email_open, email_click, sms_sent, push_sent |
-| support | ticket_create, ticket_resolve |
-| funnel | pricing_view, wishlist_add, back_to_cart |
-| mobile | app_install, app_open, push_enable |
-| attribution | utm_seen, paid_ad_click, organic_search |
-
-## Total: 100+ event types
+| website | page_view, product_view, search, add_to_cart... |
+| commerce | cart_abandon, purchase_complete, refund... |
+| marketing | email_open, email_click, sms_sent... |
+| mobile | app_install, app_open, push_enable... |
 
 ## API
 
-- GET /api/events/types — List all event types
-- GET /api/events/categories — List categories
-- POST /api/events/validate — Validate an event type
+- `GET /api/events/types` — List all event types
+- `POST /api/events/validate` — Validate event
+- `GET /api/events/categories` — List categories
+
+## Startup
+
+```bash
+cd products/event-taxonomy && npm install && npm start
+```

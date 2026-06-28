@@ -1,16 +1,21 @@
-# voice-widget
+# Voice Widget
 
-**Port:** TBD
-**Purpose:** Voice - TTS, STT, IVR
-**Phase:** 3/4/5
+**Port:** 5463
+**Phase:** 3
+**Purpose:** TTS, STT, phone IVR
 
-## What It Does
+## Features
 
-[Documentation]
+- Text-to-Speech with 6 Indian languages
+- Speech-to-Text
+- IVR menu builder
+- Voice sessions
 
 ## API
 
-[Endpoints]
+- `POST /api/voice/synthesize` — TTS
+- `POST /api/voice/transcribe` — STT
+- `POST /api/voice/ivr/start` — Start IVR
 
 ## Startup
 

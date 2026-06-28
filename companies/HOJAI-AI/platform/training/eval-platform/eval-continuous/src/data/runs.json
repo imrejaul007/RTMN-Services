@@ -1,0 +1,314 @@
+[
+  {
+    "id": "fd142a35-7937-4586-b1ac-3454d0d1346a",
+    "service": "test-svc",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:09.607Z",
+    "completedAt": "2026-06-28T04:08:09.708Z",
+    "metrics": {
+      "tests": {
+        "total": 29,
+        "passed": 23,
+        "failed": 6,
+        "skipped": 0
+      },
+      "latency": {
+        "p50": 193.44,
+        "p95": 219,
+        "p99": 605.52
+      },
+      "quality": 0.954,
+      "coverage": 0.748
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "c6d6ab07-89c6-49fd-9bfd-fd0362f2dedc",
+    "service": "test-svc",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:09.720Z",
+    "completedAt": "2026-06-28T04:08:10.321Z",
+    "metrics": {
+      "tests": {
+        "total": 28,
+        "passed": 23,
+        "failed": 5,
+        "skipped": 2
+      },
+      "latency": {
+        "p50": 90.24,
+        "p95": 221.79,
+        "p99": 984.87
+      },
+      "quality": 0.928,
+      "coverage": 0.827
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "12b744b7-0cf6-42b8-8f39-87b7f6a0e14f",
+    "service": "svc-a",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:09.727Z",
+    "completedAt": "2026-06-28T04:08:09.837Z",
+    "metrics": {
+      "tests": {
+        "total": 19,
+        "passed": 17,
+        "failed": 2,
+        "skipped": 2
+      },
+      "latency": {
+        "p50": 125.81,
+        "p95": 536.59,
+        "p99": 829.42
+      },
+      "quality": 0.943,
+      "coverage": 0.88
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "611f0ed2-71a8-4ecd-9d32-ddc01182a249",
+    "service": "svc-b",
+    "suite": "e2e",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:09.843Z",
+    "completedAt": "2026-06-28T04:08:09.945Z",
+    "metrics": {
+      "tests": {
+        "total": 13,
+        "passed": 10,
+        "failed": 3,
+        "skipped": 2
+      },
+      "latency": {
+        "p50": 211.43,
+        "p95": 390.99,
+        "p99": 422.76
+      },
+      "quality": 0.773,
+      "coverage": 0.807
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "a3c0aa9f-7988-4778-8f21-f4c0704b5a39",
+    "service": "filter-test",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:09.960Z",
+    "completedAt": "2026-06-28T04:08:10.083Z",
+    "metrics": {
+      "tests": {
+        "total": 10,
+        "passed": 8,
+        "failed": 2,
+        "skipped": 0
+      },
+      "latency": {
+        "p50": 84.32,
+        "p95": 290.3,
+        "p99": 844.23
+      },
+      "quality": 0.789,
+      "coverage": 0.859
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "b643bb09-56bc-4d92-ae7d-7f154ca37870",
+    "service": "other",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.117Z",
+    "completedAt": "2026-06-28T04:08:10.218Z",
+    "metrics": {
+      "tests": {
+        "total": 13,
+        "passed": 9,
+        "failed": 4,
+        "skipped": 0
+      },
+      "latency": {
+        "p50": 229.96,
+        "p95": 246.92,
+        "p99": 516.92
+      },
+      "quality": 0.99,
+      "coverage": 0.803
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "09f65887-32b5-4a10-b3aa-72d01c9bd4c0",
+    "service": "lookup-test",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.230Z",
+    "completedAt": "2026-06-28T04:08:10.332Z",
+    "metrics": {
+      "tests": {
+        "total": 27,
+        "passed": 21,
+        "failed": 6,
+        "skipped": 1
+      },
+      "latency": {
+        "p50": 155.65,
+        "p95": 586.54,
+        "p99": 427.88
+      },
+      "quality": 0.845,
+      "coverage": 0.646
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "88936ded-7bb2-4ec1-b7e5-dce56304f843",
+    "service": "from-run",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.348Z",
+    "completedAt": "2026-06-28T04:08:10.449Z",
+    "metrics": {
+      "tests": {
+        "total": 11,
+        "passed": 8,
+        "failed": 3,
+        "skipped": 0
+      },
+      "latency": {
+        "p50": 245.06,
+        "p95": 285.2,
+        "p99": 806.1
+      },
+      "quality": 0.957,
+      "coverage": 0.818
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "af90abd6-e387-49b5-abff-a21983ead157",
+    "service": "metrics-test",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.462Z",
+    "completedAt": "2026-06-28T04:08:10.564Z",
+    "metrics": {
+      "tests": {
+        "total": 25,
+        "passed": 19,
+        "failed": 6,
+        "skipped": 1
+      },
+      "latency": {
+        "p50": 95.87,
+        "p95": 204.9,
+        "p99": 460.04
+      },
+      "quality": 0.813,
+      "coverage": 0.766
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "401ab27a-9bad-4563-9d3d-80577612f601",
+    "service": "trend-test",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.568Z",
+    "completedAt": "2026-06-28T04:08:10.670Z",
+    "metrics": {
+      "tests": {
+        "total": 17,
+        "passed": 12,
+        "failed": 5,
+        "skipped": 0
+      },
+      "latency": {
+        "p50": 247.08,
+        "p95": 444.37,
+        "p99": 465.01
+      },
+      "quality": 0.748,
+      "coverage": 0.603
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "471251c0-4c72-4a68-806e-722d7ec053c5",
+    "service": "gate-test",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.674Z",
+    "completedAt": "2026-06-28T04:08:10.776Z",
+    "metrics": {
+      "tests": {
+        "total": 26,
+        "passed": 18,
+        "failed": 8,
+        "skipped": 0
+      },
+      "latency": {
+        "p50": 90.48,
+        "p95": 359.07,
+        "p99": 973.83
+      },
+      "quality": 0.74,
+      "coverage": 0.803
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "fe0a12c7-5cb6-4a0b-9ad5-8dd2630cbd47",
+    "service": "multi-1",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.780Z",
+    "completedAt": "2026-06-28T04:08:10.882Z",
+    "metrics": {
+      "tests": {
+        "total": 24,
+        "passed": 20,
+        "failed": 4,
+        "skipped": 1
+      },
+      "latency": {
+        "p50": 65.6,
+        "p95": 262.78,
+        "p99": 970.39
+      },
+      "quality": 0.935,
+      "coverage": 0.651
+    },
+    "verdict": "fail"
+  },
+  {
+    "id": "08229f3c-b01c-46b5-b7df-0bdf5c3a7845",
+    "service": "multi-2",
+    "suite": "unit",
+    "status": "completed",
+    "startedAt": "2026-06-28T04:08:10.884Z",
+    "completedAt": "2026-06-28T04:08:10.985Z",
+    "metrics": {
+      "tests": {
+        "total": 25,
+        "passed": 24,
+        "failed": 1,
+        "skipped": 2
+      },
+      "latency": {
+        "p50": 108.63,
+        "p95": 522.01,
+        "p99": 942.58
+      },
+      "quality": 0.97,
+      "coverage": 0.94
+    },
+    "verdict": "fail"
+  }
+]

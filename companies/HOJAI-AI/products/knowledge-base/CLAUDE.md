@@ -1,16 +1,21 @@
 # knowledge-base
 
-**Port:** TBD
-**Purpose:** Knowledge Base - RAG, FAQ, document Q&A
-**Phase:** 3/4/5
+**Port:** 5466
+**Phase:** 3
+**Purpose:** RAG-powered Q&A, FAQ, document management
 
-## What It Does
+## Features
 
-[Documentation]
+- PDF/URL/FAQ import
+- Semantic search
+- MemoryOS integration
+- Auto-answers
 
 ## API
 
-[Endpoints]
+- `POST /api/kb/add` — Add document
+- `GET /api/kb/search` — Search
+- `POST /api/kb/ask` — Q&A
 
 ## Startup
 

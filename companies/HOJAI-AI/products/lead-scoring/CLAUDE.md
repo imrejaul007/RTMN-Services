@@ -1,23 +1,18 @@
 # Lead Scoring Engine
 
 **Port:** 5458
-**Purpose:** Lead scoring with weighted signals, velocity, recency decay
-
-## What It Does
-
-Scores website visitors (0-100) based on behavioral signals, velocity, and recency.
+**Phase:** 2
+**Purpose:** Score leads 0-100 with weighted signals, velocity, recency
 
 ## Scoring Model
 
 | Signal | Weight |
 |---|---|
-| Pricing page visit | +15 |
-| Add to cart | +20 |
-| Checkout started | +30 |
 | Payment complete | +50 |
-| Exit intent | +5 |
+| Checkout started | +30 |
+| Add to cart | +20 |
+| Pricing page visit | +15 |
 | Bounce | -20 |
-| Unsubscribe | -30 |
 
 ## Intent Levels
 
@@ -31,5 +26,11 @@ Scores website visitors (0-100) based on behavioral signals, velocity, and recen
 
 ## API
 
-- POST /api/lead/score — Score a lead
-- GET /api/lead/intent-levels — Get level definitions
+- `POST /api/lead/score` — Score a lead
+- `GET /api/lead/intent-levels` — Get level definitions
+
+## Startup
+
+```bash
+cd products/lead-scoring && npm install && npm start
+```

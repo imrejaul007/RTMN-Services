@@ -11,6 +11,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import kleur from 'kleur';
+import { generateAgentFromPrompt, writeAgentStrategy, generateAgentStrategy } from './llm-agent.js';
 
 async function loadManifest(projectDir) {
   const p = path.join(projectDir, '.hojai', 'manifest.json');
@@ -89,10 +90,45 @@ function baseAgentTemplate(name, description) {
 
 async function addAgent({ projectDir, name, description, flags = {} }) {
   if (!name) {
-    const msg = 'usage: npx hojai add agent <name> [--desc="..."]';
+    const msg = 'usage: npx hojai add agent <name> [--desc="..."] [--from-llm]';
     console.log(kleur.red('✖ ') + msg);
     throw new Error(msg);
   }
+
+  // Check for --from-llm flag
+  const fromLLM = flags['from-llm'] || flags.llm || false;
+
+  // If --from-llm flag is set, generate agent from LLM
+  if (fromLLM) {
+    console.log(kleur.cyan('▸ Generating agent with LLM…'));
+    console.log(kleur.gray('  Prompt: ' + name));
+
+    try {
+      const agentData = await generateAgentFromPrompt(name, flags);
+      const strategy = generateAgentStrategy(agentData, agentData.name);
+
+      // Write the LLM-generated strategy
+      const fileName = agentData.name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '.strategy.js';
+      const strategyDir = path.join(projectDir, 'apps', 'backend', 'src', 'agents', 'strategies');
+      await fs.mkdir(strategyDir, { recursive: true });
+      const filePath = path.join(strategyDir, fileName);
+      await fs.writeFile(filePath, strategy, 'utf8');
+
+      console.log(kleur.green('✔ Generated LLM agent strategy: ') + kleur.bold(agentData.name));
+      console.log(kleur.gray('  File: ' + filePath));
+      console.log(kleur.gray('  Capabilities: ' + (agentData.capabilities?.length || 0)));
+      console.log(kleur.gray('  Confidence: ' + ((agentData.confidence || 0.75) * 100).toFixed(0) + '%'));
+
+      // Also add to registry
+      const title = titleCase(agentData.name);
+      await addAgentToRegistry({ projectDir, name: agentData.name, description: agentData.description, flags, isLLM: true, fileName });
+
+      return { added: true, agent: agentData.name, llm: true, file: filePath };
+    } catch (error) {
+      console.log(kleur.yellow('⚠ LLM generation failed, falling back to stub: ' + error.message));
+    }
+  }
+
   const manifest = await loadManifest(projectDir);
   if (!manifest) {
     const msg = 'no .hojai/manifest.json — run from inside a scaffolded project';
@@ -212,6 +248,76 @@ async function addAgent({ projectDir, name, description, flags = {} }) {
   console.log(kleur.gray('  function: ') + kleur.cyan('apps/backend/src/agents/index.js → ' + fnName));
   console.log(kleur.gray('  api:      ') + kleur.cyan('POST /api/agents/' + camel));
   console.log(kleur.gray('  list:     ') + kleur.cyan('GET /api/agents (now includes ' + title + ')'));
+  return { added: true, agent: title, key: camel };
+}
+
+/**
+ * Add agent to registry (helper for LLM-generated agents)
+ */
+async function addAgentToRegistry({ projectDir, name, description, flags = {}, isLLM = false, fileName = null }) {
+  const manifest = await loadManifest(projectDir);
+  if (!manifest) {
+    throw new Error('no .hojai/manifest.json — run from inside a scaffolded project');
+  }
+
+  const title = titleCase(name);
+  const camel = camelCase(name);
+  const agentsFile = path.join(projectDir, 'apps', 'backend', 'src', 'agents', 'index.js');
+  let src = '';
+  try { src = await fs.readFile(agentsFile, 'utf8'); }
+  catch { throw new Error('cannot read ' + agentsFile); }
+
+  // Idempotency check
+  if (src.includes(`name: ${JSON.stringify(title)},`) || src.includes(`name:"${title}",`)) {
+    console.log(kleur.yellow(`  ⚠ agent "${title}" already registered — skipping`));
+    return { added: false, reason: 'already-exists' };
+  }
+
+  const registryMatch = src.match(/(?:^|\n)const\s+registry\s*=\s*createAgentRegistry\s*\(\s*\)\s*;/);
+
+  if (registryMatch) {
+    // BaseAgent registry path
+    const btpl = baseAgentTemplate(name, description);
+
+    // If LLM-generated, import the strategy file
+    if (isLLM && fileName) {
+      const importLine = `import { ${camel}Strategy } from './strategies/${fileName.replace('.js', '')}';\n`;
+      const insertAt = registryMatch.index;
+      src = src.slice(0, insertAt) + importLine + src.slice(insertAt);
+    }
+
+    // Append registry entry
+    const afterMatch = src.match(/\n\n\/\/ ─── Public API|\nexport function listAgents/);
+    const insertAt = afterMatch ? afterMatch.index : src.length;
+    src = src.slice(0, insertAt) + '\n' + (isLLM ? btpl.registryEntry.replace('strategy: ${camel}Strategy', `strategy: ${camel}Strategy`) : btpl.registryEntry) + '\n' + src.slice(insertAt);
+  }
+
+  await fs.writeFile(agentsFile, src);
+
+  // Update manifest
+  manifest.agents = Array.from(new Set([...(manifest.agents || []), title]));
+  await fs.writeFile(
+    path.join(projectDir, '.hojai', 'manifest.json'),
+    JSON.stringify(manifest, null, 2) + '\n'
+  );
+
+  // Update capability.json
+  try {
+    const capPath = path.join(projectDir, '.hojai', 'capability.json');
+    const cap = JSON.parse(await fs.readFile(capPath, 'utf8'));
+    if (!cap.capabilities) cap.capabilities = [];
+    const capEntry = {
+      id: 'hojai.' + camel,
+      name: title,
+      tier: 'business'
+    };
+    if (!cap.capabilities.some(c => c.id === capEntry.id)) {
+      cap.capabilities.push(capEntry);
+    }
+    await fs.writeFile(capPath, JSON.stringify(cap, null, 2) + '\n');
+  } catch {}
+
+  console.log(kleur.green('✔ registered agent ') + kleur.bold(title));
   return { added: true, agent: title, key: camel };
 }
 

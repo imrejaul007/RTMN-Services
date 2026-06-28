@@ -1,16 +1,22 @@
 # ab-testing
 
-**Port:** TBD
-**Purpose:** A/B Testing - traffic split, statistical significance
-**Phase:** 3/4/5
+**Port:** 5467
+**Phase:** 3
+**Purpose:** Traffic split, significance, auto-winner
 
-## What It Does
+## Features
 
-[Documentation]
+- Create experiments
+- Traffic split (weighted)
+- Track conversions
+- Statistical significance (Z-test)
+- Auto-winner declaration
 
 ## API
 
-[Endpoints]
+- `POST /api/experiments` — Create experiment
+- `GET /api/experiments/:id` — Get results
+- `POST /api/experiments/:id/conversions` — Track
 
 ## Startup
 

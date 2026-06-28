@@ -227,6 +227,43 @@ Nexha A (Restaurant)    Nexha B (Delivery)    Nexha C (Payment)
 
 **Startup:** `bash companies/HOJAI-AI/scripts/start-hojai-cloud-phase1.sh start`
 
+### HOJAI SiteOS — 27 Services Built (June 2026)
+
+**`companies/HOJAI-AI/products/`**
+
+| Port | Service | Phase | Reuses |
+|---|---|---|---|
+| 5450 | siteos-gateway | 0.5 | TwinOS, Genie |
+| 5451 | business-context-wrapper | 0.5 | CXO, Sales, Marketing |
+| 5452 | channel-stitcher | 0.5 | CorpID, Customer Twin |
+| 5453 | event-tracker | 0.5 | Analytics |
+| 5454 | heatmap-aggregator | 0.5 | Analytics |
+| 5455 | vertical-templates | 0.5 | 26 Industry OS |
+| 5456 | review-scrapers | 0.5 | — |
+| 5457 | lookalike-generator | 0.5 | Customer Twin, REZ Audience |
+| 5458 | lead-scoring | 2 | Customer Twin |
+| 5459 | marketing-automation | 2 | Marketing OS |
+| 5460 | customer-twin-full | 2 | Customer Twin |
+| 5461 | event-taxonomy | 2 | — |
+| 5462 | workflow-visual-builder | 2 | FlowOS |
+| 5463 | voice-widget | 3 | Voice Gateway |
+| 5464 | ads | 3 | — |
+| 5465 | crm-connectors | 3 | Sales OS, REZ CRM |
+| 5466 | knowledge-base | 3 | MemoryOS |
+| 5467 | ab-testing | 3 | Analytics |
+| 5468 | product-federation | 4 | Nexha Discovery |
+| 5469 | agent-protocol | 4 | Nexha ACP |
+| 5470 | do-app-integration | 4 | DO App |
+| 5471 | agent-reputation | 4 | Nexha Reputation |
+| 5472 | ai-business-advisor | 5 | CXO, Sales, Marketing |
+| 5473 | campaign-auto-creation | 5 | Marketing OS |
+| 5474 | dynamic-pricing | 5 | — |
+| 5475 | benchmark-database | 5 | — |
+
+**Installers:** Shopify OAuth (13 files), WooCommerce, WordPress v2
+**Admin Dashboard:** `products/siteos-admin/` — React UI
+**Startup:** `bash companies/HOJAI-AI/scripts/start-siteos.sh start`
+
 ### Foundry Starters (15 Templates)
 
 | Starter | Sector | Use Case |

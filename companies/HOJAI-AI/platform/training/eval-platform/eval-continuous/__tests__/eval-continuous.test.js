@@ -19,7 +19,8 @@ function makeRequest(method, reqPath, body = null) {
   return new Promise((resolve, reject) => {
     const server = APP.listen(0, () => {
       const { port } = server.address();
-      const options = { hostname: 'localhost', port, path: reqPath, method };
+      const options = { hostname: 'localhost', port, path: reqPath, method, headers: {} };
+    if (body) options.headers['Content-Type'] = 'application/json';
       const req = http.request(options, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);

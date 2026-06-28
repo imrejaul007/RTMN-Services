@@ -67,8 +67,15 @@ function helpText() {
   return `${kleur.bold('Usage:')}
   ${kleur.cyan('npx hojai create')} [project-name] [flags]
   ${kleur.cyan('npx hojai deploy')} [--mode=local|preview|remote] [flags]
-  ${kleur.cyan('npx hojai add agent')} <name> [--desc="..."]
+  ${kleur.cyan('npx hojai add agent')} <name> [--desc="..."] [--from-llm]
   ${kleur.cyan('npx hojai add integration')} <name>
+  ${kleur.cyan('npx hojai generate starter')} [--spec=<file.md>]
+  ${kleur.cyan('npx hojai evolve')} [--project=<dir>] [--auto]
+  ${kleur.cyan('npx hojai rollback')} [--deployment=<id>]
+  ${kleur.cyan('npx hojai preview')} [--branch=<name>]
+  ${kleur.cyan('npx hojai domain')} add|remove <domain>
+  ${kleur.cyan('npx hojai team')} add|remove|list <email>
+  ${kleur.cyan('npx hojai audit')} [--project=<dir>]
   ${kleur.cyan('npx hojai --help')}
   ${kleur.cyan('npx hojai --version')}
 
@@ -79,6 +86,7 @@ ${kleur.bold('Flags:')}
   --lang <a,b,...>     Comma-separated language codes
   --name <n>           Project folder name (lowercase, hyphens)
   --mode <m>           Deploy mode (local | preview | remote)
+  --from-llm           Generate agent strategy using LLM
   --no-install         Skip ${kleur.gray('npm install')}
   --no-git             Skip ${kleur.gray('git init')}
   --yes                Accept all defaults (non-interactive)
@@ -88,7 +96,14 @@ ${kleur.bold('Examples:')}
   ${kleur.gray('$ npx hojai create tradeflow --template=b2b --region=me --lang=en,ar --yes')}
   ${kleur.gray('$ cd tradeflow && npx hojai deploy --mode=preview')}
   ${kleur.gray('$ cd tradeflow && npx hojai add agent "Quality Assurance" --desc="Reviews all deliveries."')}
-  ${kleur.gray('$ cd tradeflow && npx hojai add integration payments')}
+  ${kleur.gray('$ cd tradeflow && npx hojai add agent "Social Media Manager" --from-llm')}
+  ${kleur.gray('$ npx hojai generate starter --spec=my-app.md')}
+  ${kleur.gray('$ npx hojai evolve --project=tradeflow --auto')}
+  ${kleur.gray('$ npx hojai rollback --deployment=abc123')}
+  ${kleur.gray('$ npx hojai preview --branch=feature-new-ui')}
+  ${kleur.gray('$ npx hojai domain add myapp.com')}
+  ${kleur.gray('$ npx hojai team add team@myapp.com --role=developer')}
+  ${kleur.gray('$ npx hojai audit --project=tradeflow')}
   ${kleur.gray('$ npx hojai --version')}
 `;
 }
@@ -281,7 +296,48 @@ async function main() {
   if (args.flags.version || args.flags.v || cmd === 'version') { console.log(PKG.version); return; }
   if (!cmd || cmd === 'create') { return runCreate({ ...args.flags, _: args._ }); }
   if (cmd === 'deploy') { return runDeploy({ flags: args.flags }); }
-  if (cmd === 'add') { return runAdd({ args: args._.slice(1) }); }
+  if (cmd === 'add') { return runAdd({ args: args._.slice(1), flags: args.flags }); }
+
+  // v1.5: LLM-powered commands
+  if (cmd === 'generate') {
+    const { runGenerate } = await import('./generate.js');
+    return runGenerate({ args: args._.slice(1), flags: args.flags });
+  }
+  if (cmd === 'evolve') {
+    const { runEvolve } = await import('./evolve.js');
+    return runEvolve({ args: args._.slice(1), flags: args.flags });
+  }
+
+  // v1.5: Rollback
+  if (cmd === 'rollback') {
+    const { runRollback } = await import('./rollback.js');
+    return runRollback({ flags: args.flags });
+  }
+
+  // v1.5: Preview environments
+  if (cmd === 'preview') {
+    const { runPreview } = await import('./preview.js');
+    return runPreview({ args: args._.slice(1), flags: args.flags });
+  }
+
+  // v1.5: Custom domains
+  if (cmd === 'domain') {
+    const { runDomain } = await import('./domain.js');
+    return runDomain({ args: args._.slice(1), flags: args.flags });
+  }
+
+  // v1.5: Team management
+  if (cmd === 'team') {
+    const { runTeam } = await import('./team.js');
+    return runTeam({ args: args._.slice(1), flags: args.flags });
+  }
+
+  // v1.5: Audit logs
+  if (cmd === 'audit') {
+    const { runAudit } = await import('./audit.js');
+    return runAudit({ flags: args.flags });
+  }
+
   console.log(kleur.red(`✖ unknown command: ${cmd}`));
   console.log(helpText());
   process.exit(1);

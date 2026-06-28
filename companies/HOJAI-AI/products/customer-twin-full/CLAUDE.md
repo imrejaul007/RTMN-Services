@@ -1,20 +1,26 @@
 # Customer Twin Full
 
 **Port:** 5460
-**Purpose:** Unified customer profile with identity, behavior, predictive scores
+**Phase:** 2
+**Purpose:** Unified customer profile
 
 ## Profile Sections
 
-- **identity** — name, email, phone, company, location
-- **behavior** — pageViews, purchases, cartAdds, searches
-- **signals** — event history, counts, segments
+- **identity** — name, email, phone, company
+- **behavior** — pageViews, purchases, searches
+- **signals** — event history, counts
 - **predictive** — LTV, churnRisk, purchaseProbability
 - **consent** — email, sms, whatsapp, tracking
 
 ## API
 
-- GET /api/twin/:id — Get profile
-- PUT /api/twin/:id — Update profile
-- POST /api/twin/:id/events — Add event
-- POST /api/twin/:id/consent — Update consent
-- GET /api/twin/search — Search profiles by segment
+- `GET /api/twin/:id` — Get profile
+- `PUT /api/twin/:id` — Update profile
+- `POST /api/twin/:id/events` — Add event
+- `GET /api/twin/search` — Search by segment
+
+## Startup
+
+```bash
+cd products/customer-twin-full && npm install && npm start
+```

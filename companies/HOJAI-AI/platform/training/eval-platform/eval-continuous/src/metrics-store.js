@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 const __dirname = fileURLToPath(import.meta.url);
-const DATA_DIR = join(__dirname, '..', '..', 'data');
+const DATA_DIR = join(__dirname, '..', 'data');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 

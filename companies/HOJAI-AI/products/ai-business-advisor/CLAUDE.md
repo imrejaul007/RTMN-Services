@@ -1,16 +1,20 @@
 # ai-business-advisor
 
-**Port:** TBD
-**Purpose:** AI Advisor - natural language Q&A for owners
-**Phase:** 3/4/5
+**Port:** 5472
+**Phase:** 5
+**Purpose:** Natural language Q&A for business owners
 
-## What It Does
+## Features
 
-[Documentation]
+- Ask any business question
+- Revenue, customer, conversion insights
+- Recommendations with impact
+- CXO/Sales/Marketing integration
 
 ## API
 
-[Endpoints]
+- `POST /api/advisor/ask` — Ask question
+- `GET /api/advisor/insights/:companyId` — Get insights
 
 ## Startup
 

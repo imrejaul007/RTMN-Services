@@ -29,6 +29,10 @@ export type {
 } from '@hojai/widget-core';
 export { HojaiWidget };
 
+// New full-featured chat widget
+export { default as HojaiChat } from './HojaiChat.js';
+export type { HojaiMessage, HojaiAttachment, HojaiAction, HojaiChatProps } from './HojaiChat.js';
+
 export interface HojaiChatProps extends HojaiWidgetConfig {
   className?: string;
   style?: React.CSSProperties;

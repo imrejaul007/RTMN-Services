@@ -1,16 +1,23 @@
 # benchmark-database
 
-**Port:** TBD
-**Purpose:** Benchmark Database - industry comparisons
-**Phase:** 3/4/5
+**Port:** 5475
+**Phase:** 5
+**Purpose:** Industry comparisons
 
-## What It Does
+## Industries
 
-[Documentation]
+| Industry | Metrics |
+|---|---|---|
+| E-Commerce | conversion, cartAbandonment, roas |
+| Restaurant | avgOrderValue, repeatRate |
+| Hotel | occupancyRate, revpar |
+| Healthcare | showRate, avgWaitTime |
+| Real Estate | inquiryToVisit, visitToClose |
 
 ## API
 
-[Endpoints]
+- `GET /api/benchmark/:industry` — Get benchmarks
+- `POST /api/benchmark/compare` — Compare vs industry
 
 ## Startup
 

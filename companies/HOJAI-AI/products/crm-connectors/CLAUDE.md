@@ -1,16 +1,20 @@
 # crm-connectors
 
-**Port:** TBD
-**Purpose:** CRM connectors - HubSpot, Salesforce, Zoho
-**Phase:** 3/4/5
+**Port:** 5465
+**Phase:** 3
+**Purpose:** HubSpot, Salesforce, Zoho integration
 
-## What It Does
+## Features
 
-[Documentation]
+- Unified API for all CRMs
+- Contact sync
+- Deal tracking
+- Activity logging
 
 ## API
 
-[Endpoints]
+- `POST /api/crm/:type/sync` — Sync contacts
+- `GET /api/crm/:type/contacts` — Get contacts
 
 ## Startup
 

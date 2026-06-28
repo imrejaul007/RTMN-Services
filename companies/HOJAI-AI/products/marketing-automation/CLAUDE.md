@@ -1,25 +1,30 @@
 # Marketing Automation
 
 **Port:** 5459
+**Phase:** 2
 **Purpose:** 8 automation rules for customer lifecycle
 
 ## Rules
 
-| Rule | Trigger | Actions |
+| Rule | Trigger | Impact |
 |---|---|---|
-| Abandoned Cart | cart_abandon | WhatsApp@15m → Email@6h → SMS@24h |
-| Welcome Series | sign_up | 3-email over 7 days |
-| Win-Back | inactive 60d | Email → WhatsApp → SMS |
-| Post-Purchase | purchase_complete | Thank you → Review → Loyalty |
-| Birthday | birthday | WhatsApp + Email with coupon |
-| Low Stock Alert | low_stock | Notify sales |
-| Price Drop | price_reduction | Notify watchers |
-| Replenishment | replenishment_time | Remind to reorder |
+| Abandoned Cart | cart_abandon | Rs 50K/mo |
+| Welcome Series | sign_up | Rs 20K/mo |
+| Win-Back | inactive_60d | Rs 30K/mo |
+| Post-Purchase | purchase_complete | Rs 15K/mo |
+| Birthday | birthday | Rs 10K/mo |
+| Lead Nurture | form_submit | Rs 25K/mo |
+| Low Stock Alert | low_stock | Prevent losses |
+| Replenishment | replenishment_time | Rs 20K/mo |
 
 ## API
 
-- GET /api/rules — List all rules
-- GET /api/rules/:id — Get rule details
-- PUT /api/rules/:id — Update rule
-- POST /api/rules/:id/execute — Execute rule
-- GET /api/executions/:companyId — View executions
+- `GET /api/rules` — List rules
+- `POST /api/rules/:id/execute` — Execute rule
+- `GET /api/executions/:companyId` — View executions
+
+## Startup
+
+```bash
+cd products/marketing-automation && npm install && npm start
+```
