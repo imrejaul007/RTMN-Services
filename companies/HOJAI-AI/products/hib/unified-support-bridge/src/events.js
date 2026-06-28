@@ -162,7 +162,7 @@ async function initRedisPubSub(redisUrl) {
       redisSub.on('ready', resolve);
       redisSub.on('error', reject);
     });
-    await new Promise(function(resolve) { setTimeout(resolve, 100); }); // small delay
+    await new Promise(function(r) { setTimeout(r, 100); });
     await redisSub.subscribe('usb:event:*');
     redisSub.on('message', function(channel, message) {
       var eventName = channel.replace('usb:event:', '');
