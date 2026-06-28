@@ -61,22 +61,22 @@ Layer 2: GATEWAY + FOUNDATION
   └── sutar-agent-id (4145) — Agent identity registration & verification
 
 Layer 3: INTENT + NETWORK
-  ├── sutar-intent-bus (4154) — Intent pub/sub bus (stub)
+  ├── sutar-intent-bus (4154) — Intent pub/sub bus ✅
   └── sutar-agent-network (4155) — Agent registry and discovery
 
 Layer 4: DECISION + EXECUTION
   ├── sutar-decision-engine (4290) — Policy decisions, risk assessment
-  ├── sutar-simulation-os (4241) — What-if scenarios (stub)
-  ├── sutar-goal-os (4242) — Goal decomposition (stub)
-  ├── sutar-network-learning (4243) — Learning from outcomes (stub)
+  ├── sutar-simulation-os (4241) — What-if scenarios ✅
+  ├── sutar-goal-os (4242) — Goal decomposition ✅
+  ├── sutar-network-learning (4243) — Learning from outcomes ✅
   ├── sutar-flow-os (4244) — Workflow orchestration (stub)
-  └── sutar-founder-os (4260) — Founder decision support (stub)
+  └── sutar-founder-os (4260) — Founder decision support ✅
 
 Layer 5: MARKETPLACE + ECONOMY
   ├── blr-ai-marketplace (4255) — Agent/service listings, reviews
   ├── sutar-economy-os (4294) — Credits, escrow, rewards, billing
-  ├── sutar-usage-tracker (4252) — AI usage metering (stub)
-  └── sutar-policy-os (4254) — Business policy registry (stub)
+  ├── sutar-usage-tracker (4252) — AI usage metering ✅
+  └── sutar-policy-os (4254) — Business policy registry ✅
 
 Layer 6: TRUST + CONTRACTS + NEGOTIATION
   ├── sutar-trust-engine (4291) — Trust scores, SADA federation

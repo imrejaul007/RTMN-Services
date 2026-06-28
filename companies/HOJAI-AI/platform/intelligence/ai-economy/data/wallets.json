@@ -7,7 +7,7 @@
   },
   {
     "ownerId": "topup-owner",
-    "balance": 1000,
+    "balance": 1500,
     "currency": "credits",
     "transactions": [
       {
@@ -19,6 +19,11 @@
         "type": "credit",
         "amount": 500,
         "timestamp": "2026-06-28T22:34:10.428Z"
+      },
+      {
+        "type": "credit",
+        "amount": 500,
+        "timestamp": "2026-06-28T22:35:36.179Z"
       }
     ]
   }

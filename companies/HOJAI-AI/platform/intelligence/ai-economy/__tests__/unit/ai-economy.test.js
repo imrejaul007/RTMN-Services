@@ -1,6 +1,7 @@
 // AI Economy OS tests
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import http from 'http';
+import { writeFileSync, mkdirSync } from 'fs';
 
 function httpReq(method, path, body) {
   return new Promise((resolve, reject) => {
@@ -19,7 +20,13 @@ function httpReq(method, path, body) {
 
 let server;
 describe('AI Economy OS', () => {
-  beforeAll(async () => { const mod = await import('../../src/index.js'); server = mod.default; await new Promise(r => setTimeout(r, 200)); });
+  beforeAll(async () => {
+    mkdirSync('data', { recursive: true });
+    writeFileSync('data/listings.json', '[]');
+    writeFileSync('data/transactions.json', '[]');
+    writeFileSync('data/wallets.json', '{}');
+    const mod = await import('../../src/index.js'); server = mod.default; await new Promise(r => setTimeout(r, 200));
+  });
   afterAll(() => { if (server) server.close(); });
 
   it('GET /health', async () => { const res = await httpReq('GET', '/health'); expect(res.status).toBe(200); expect(res.body.status).toBe('healthy'); });
