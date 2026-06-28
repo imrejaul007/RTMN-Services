@@ -1,7 +1,7 @@
 {
-  "name": "create-hojai",
-  "version": "1.0.0",
-  "description": "HOJAI Foundry CLI — `npx hojai create` scaffolds an AI-native company in 30 minutes from one of 9 starter kits. Mirrors create-react-app / create-next-app conventions.",
+  "name": "@hojai/create-hojai",
+  "version": "2.0.0",
+  "description": "HOJAI Foundry CLI v2.0 — `npx hojai create` scaffolds an AI-native company in 30 minutes from one of 18 starter kits. 14 commands including LLM agent generation, Blueprint Engine, Auto-Improvement, Deploy, Rollback, Preview, Domain, Team, Audit, Inspect.",
   "type": "module",
   "main": "src/index.js",
   "bin": {

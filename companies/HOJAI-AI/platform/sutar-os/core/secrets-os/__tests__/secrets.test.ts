@@ -162,6 +162,10 @@ describe('SecretsOS', () => {
   });
 
   describe('Access Logging', () => {
+    beforeEach(() => {
+      accessLogs.length = 0;
+    });
+
     it('should log secret access', () => {
       const log = {
         id: 'log-1',

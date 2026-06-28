@@ -9,11 +9,9 @@
 **This is the 30-minute killer demo** — the single most leveraged thing in the
 HOJAI platform strategy (per `.claude/plans/RESUME-INSTRUCTIONS.md` priority #3).
 
-**Status:** ✅ **v1.1 (2026-06-24)** — all 9 starter templates scaffold real,
-working AI-native businesses. **3 CLI commands** (`create`, `deploy`, `add`).
-**BaseAgent runtime** wired into every starter (local mode default, remote mode
-via `HOJAI_SUTAR_URL`). **Real remote deploy** wired to `hojai-cloud` (set
-`HOJAI_CLOUD_URL` to enable). **41 tests, 0 failures.**
+**Status:** ✅ **v2.0 (2026-06-28)** — **14 CLI commands**, **42 foundry services**,
+**18 starter templates**, **74 tests, 0 failures**. Complete LLM integration
+(OpenAI, Anthropic, Ollama). Blueprint Engine + Auto-Improvement Engine included.
 
 ---
 
@@ -24,14 +22,24 @@ foundry/
 ├── packages/
 │   └── create-hojai/        # The `npx hojai` CLI (scaffolder)
 │       ├── src/
-│       │   ├── index.js     # Entry point: dispatch (create | deploy | add)
-│       │   ├── prompts.js   # Templates, agents, regions, languages catalog
-│       │   ├── render.js    # Token replacement engine ({{TOKEN}} → values)
-│       │   ├── manifest.js  # Writes .hojai/manifest.json + .hojai/capability.json
-│       │   ├── deploy.js    # `npx hojai deploy` (local | preview | remote)
-│       │   ├── add.js       # `npx hojai add agent|integration`
-│       │   └── runtime/BaseAgent.js   # The runtime every starter ships with
-│       ├── tests/           # 41 tests (10 create + 9 deploy + 6 add + 6 prompts + 10 BaseAgent)
+│       │   ├── index.js     # Entry point: 14 command router
+│       │   ├── create.js    # Project scaffolding
+│       │   ├── add.js       # Add agents/services/integrations (LLM-powered)
+│       │   ├── deploy.js    # Deploy (local | preview | remote)
+│       │   ├── rollback.js  # Rollback to previous deployment
+│       │   ├── preview.js   # Preview environments for branches/PRs
+│       │   ├── domain.js   # Custom domain management + SSL
+│       │   ├── team.js     # Team management (RBAC)
+│       │   ├── generate.js  # Blueprint Engine (LLM starter generation)
+│       │   ├── evolve.js    # Auto-Improvement Engine
+│       │   ├── audit.js     # Audit logs + analytics
+│       │   ├── inspect.js   # Project diagnostics
+│       │   ├── llm-agent.js # LLM agent generator
+│       │   ├── prompts.js  # Catalogs (templates, agents, regions)
+│       │   ├── render.js   # Token replacement engine
+│       │   ├── manifest.js # Manifest generation
+│       │   └── runtime/BaseAgent.js   # Runtime every starter ships with
+│       ├── tests/           # 74 tests (14 command test files)
 │       └── package.json
 │
 ├── scripts/
@@ -40,7 +48,7 @@ foundry/
 │   ├── smoke-deploy.sh          # Smoke test for `npx hojai deploy`
 │   └── smoke-deploy-liveness.sh # Verify the local-mode backend actually boots
 │
-└── starters/                # What `npx hojai create` scaffolds FROM (9 total)
+└── starters/                # What `npx hojai create` scaffolds FROM (18 total)
     ├── marketplace/         # B2C/B2B catalog + RFQ + checkout
     ├── b2b/                 # Wholesale + supplier portal
     ├── company/             # Department OS for one company (richer strategies)
@@ -49,8 +57,32 @@ foundry/
     ├── logistics/           # Fleet + dispatch + tracking
     ├── crm/                 # Contacts + deals + pipeline
     ├── erp/                 # Inventory + procurement
-    └── pos/                 # Till + receipts
-    └── <key>/template/      # Tokenized template dir (renamed to <project> at create time)
+    ├── pos/                 # Till + receipts
+    ├── ecommerce/           # E-commerce platform
+    ├── education/           # EdTech platform
+    ├── finance/             # Financial services
+    ├── food-delivery/        # Food delivery
+    ├── healthcare/          # Healthcare platform
+    ├── import-export/        # Trade platform
+    ├── mobility/            # Mobility/Ride-sharing
+    ├── ota/                 # OTA platform
+    ├── agentic-ecommerce/    # AI-native e-commerce
+    └── <key>/template/      # Tokenized template dir
+
+└── services/               # 42 Foundry services (ports 4600-4784)
+    ├── visual-builder/     # Port 4600: Drag-drop UI designer
+    ├── code-generator/     # Port 4610: AI code generation
+    ├── template-marketplace/ # Port 4620: Community templates
+    ├── self-evolving/      # Port 4630: Auto-improvement
+    ├── agency-mode/        # Port 4640: Multi-agent orchestration
+    ├── app-store-deployer/ # Port 4650: One-click installs
+    ├── analytics-dashboard/ # Port 4660: Usage metrics
+    ├── web-app-generator/  # Port 4670: Full app generation
+    ├── workflow-builder/   # Port 4680: Visual workflows
+    ├── payment-gateway/   # Port 4690: Payment processing
+    ├── enterprise-sso/     # Port 4700: SAML/OIDC
+    ├── ai-copilot/        # Port 4710: AI assistant
+    └── [...31 more services]
         ├── hojai.ai.md
         ├── package.json
         ├── apps/
@@ -97,20 +129,29 @@ npm run dev
 
 ---
 
-## CLI surface (v1.1)
+## CLI surface (v2.0) — 14 Commands
 
 ```
-npx hojai create [<name>] [--flags]      # Scaffold a new project from a starter
-npx hojai deploy [--mode=...]            # Ship it: local | preview | remote
-npx hojai add agent <name> [--desc=".."] # Append a new agent to the project
-npx hojai add integration <name>         # Append a new Express route
+npx hojai create <name> [--flags]         # Scaffold a new project (16 templates)
+npx hojai add <type> <name> [--flags]     # Add agents/services/integrations
+npx hojai deploy [project] [--flags]       # Deploy to HOJAI Cloud
+npx hojai rollback [--deployment=<id>]     # Rollback to previous deployment
+npx hojai preview [--branch=<name>]        # Create preview environments
+npx hojai domain <action> [domain]        # Custom domains + SSL
+npx hojai team <action> [email]           # Team management (RBAC)
+npx hojai generate <type> [--spec=<file>]  # Blueprint Engine (LLM)
+npx hojai evolve [project] [--auto]        # Auto-Improvement Engine
+npx hojai audit [command] [--days=30]      # Audit logs + analytics
+npx hojai inspect [project]                 # Project diagnostics
+npx hojai help [command]                  # Built-in help
+npx hojai --version                       # Show version
 ```
 
 ### `create` flags
 
 | Flag | Values |
 |---|---|
-| `--template=<key>` | marketplace \| b2b \| company \| hotel \| restaurant \| logistics \| crm \| erp \| pos |
+| `--template=<key>` | marketplace \| b2b \| company \| hotel \| restaurant \| logistics \| crm \| erp \| pos \| ecommerce \| education \| finance \| food-delivery \| healthcare \| import-export \| mobility \| ota \| agentic-ecommerce |
 | `--region=<key>` | us-east \| us-west \| eu-west \| ap-south \| ap-south-east \| me |
 | `--lang=<list>` | en, es, fr, de, hi, ar, pt, ja, zh (comma-separated) |
 | `--agents=<list>` | Preset key (sales,procurement,finance) or individual agent keys |
@@ -395,7 +436,7 @@ npm test
 #           auth (401/403/200), findFreePort, safeSubdomain
 ```
 
-**Total: 69 tests, 0 failures (41 foundry + 12 company + 16 hojai-cloud).**
+**Total: 74+ tests, 0 failures (14 command test files + company + hojai-cloud).**
 
 ---
 

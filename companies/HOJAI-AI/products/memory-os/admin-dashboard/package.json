@@ -1,0 +1,24 @@
+{
+  "name": "@hojai/memory-admin-dashboard",
+  "version": "1.0.0",
+  "description": "MemoryOS Department Admin Dashboard - Enterprise memory management and analytics",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test __tests__/**/*.test.js"
+  },
+  "keywords": ["memory", "admin", "dashboard", "enterprise", "departments"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

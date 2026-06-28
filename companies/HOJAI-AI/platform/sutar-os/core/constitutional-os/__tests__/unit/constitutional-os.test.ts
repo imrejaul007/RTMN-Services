@@ -151,9 +151,10 @@ describe('ConstitutionalOS — Red Lines', () => {
     expect(result.warnings).toBeGreaterThanOrEqual(1);
   });
 
-  it('marks approval required for certain actions', () => {
+  it('detects hard_stop violations', () => {
     const result = checkRedLines('bypass approval for transactions above threshold', defaultRedLines);
-    expect(result.requiresApproval).toBe(true);
+    expect(result.hardStops).toBeGreaterThanOrEqual(1);
+    expect(result.allowed).toBe(false); // hard_stop blocks
   });
 
   it('filters by category', () => {

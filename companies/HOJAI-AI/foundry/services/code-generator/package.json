@@ -1,18 +1,9 @@
 {
   "name": "@hojai/code-generator",
   "version": "1.0.0",
-  "description": "Generates real code from templates - React Native apps, backend APIs, deployment configs",
+  "description": "Code Generator - AI-powered code generation",
   "main": "src/index.js",
   "type": "module",
-  "scripts": {
-    "start": "node src/index.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.6",
-    "express": "^4.22.2",
-    "uuid": "^9.0.1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": { "express": "^4.18.2", "uuid": "^9.0.1" }
 }

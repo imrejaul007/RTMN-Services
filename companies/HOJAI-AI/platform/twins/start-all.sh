@@ -1,14 +1,17 @@
 #!/bin/bash
 
 # ============================================================
-# Employee Twin Ecosystem - Startup Script
+# TwinOS Ecosystem - Startup Script
 # ============================================================
 #
-# This script starts all 4 twin services:
-# 1. Twin Learning OS (4735)
-# 2. Twin Feedback OS (4736)
-# 3. Twin Execution OS (4737)
-# 4. Employee Twin Facade (4739)
+# This script starts all TwinOS services:
+# Core: TwinOS Hub, MemoryOS
+# Intelligence: Orchestrator, Behavior Model
+# Employee: Employee Twin, Learning, Feedback, Execution, Facade
+# Commerce: Customer, Order, Wallet Twins
+# Memory: Working Memory, Procedural Memory
+#
+# Total: 15 services
 #
 # Usage:
 #   ./start-all.sh start   - Start all services
@@ -27,12 +30,31 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Service definitions
+# Service definitions: name:directory:port
 SERVICES=(
-  "twin-learning-os:4735"
-  "twin-feedback-os:4736"
-  "twin-execution-os:4737"
-  "employee-twin-facade:4739"
+  # Core TwinOS
+  "twinos-hub:twinos-hub:4705"
+  "memory-os:memory-os:4703"
+
+  # Intelligence Layer (NEW)
+  "intelligence-orchestrator:twin-intelligence-orchestrator:4715"
+  "behavior-model:twin-behavior-model:4718"
+
+  # Employee Twins
+  "employee-twin:employee-twin:4730"
+  "twin-learning-os:twin-learning-os:4735"
+  "twin-feedback-os:twin-feedback-os:4736"
+  "twin-execution-os:twin-execution-os:4737"
+  "employee-facade:employee-twin-facade:4739"
+
+  # Additional Twins
+  "customer-twin:customer-twin:4895"
+  "order-twin:order-twin:4885"
+  "wallet-twin:wallet-twin:4896"
+
+  # Memory Extensions (NEW)
+  "working-memory:twin-working-memory:4724"
+  "memory-procedural:memory-procedural:4725"
 )
 
 # Base directory
@@ -84,8 +106,8 @@ save_pids() {
 
 # Start a single service
 start_service() {
-  local service_dir=$1
-  local service_name=$2
+  local service_name=$1
+  local service_dir=$2
   local port=$3
 
   if is_running "$service_name"; then
@@ -167,12 +189,12 @@ check_status() {
 
 # Start all services
 start_all() {
-  log_info "Starting Employee Twin Ecosystem..."
+  log_info "Starting TwinOS Ecosystem..."
   echo ""
 
   # Check if any service is already running
   for service in "${SERVICES[@]}"; do
-    IFS=':' read -r name port <<< "$service"
+    IFS=':' read -r name dir port <<< "$service"
     if is_running "$name"; then
       log_warning "${name} is already running"
     fi
@@ -182,8 +204,8 @@ start_all() {
   log_info "Starting services..."
 
   for service in "${SERVICES[@]}"; do
-    IFS=':' read -r name port <<< "$service"
-    start_service "$name" "$name" "$port" || true
+    IFS=':' read -r name dir port <<< "$service"
+    start_service "$name" "$dir" "$port" || true
   done
 
   echo ""
@@ -196,11 +218,11 @@ start_all() {
 
 # Stop all services
 stop_all() {
-  log_info "Stopping Employee Twin Ecosystem..."
+  log_info "Stopping TwinOS Ecosystem..."
   echo ""
 
   for service in "${SERVICES[@]}"; do
-    IFS=':' read -r name port <<< "$service"
+    IFS=':' read -r name dir port <<< "$service"
     stop_service "$name"
   done
 
@@ -223,12 +245,12 @@ restart_all() {
 # Show status of all services
 status_all() {
   echo "============================================"
-  echo "       Employee Twin Ecosystem Status"
+  echo "       TwinOS Ecosystem Status"
   echo "============================================"
   echo ""
 
   for service in "${SERVICES[@]}"; do
-    IFS=':' read -r name port <<< "$service"
+    IFS=':' read -r name dir port <<< "$service"
     check_status "$name" "$port"
   done
 
@@ -248,7 +270,7 @@ show_logs() {
     fi
   else
     for service in "${SERVICES[@]}"; do
-      IFS=':' read -r name port <<< "$service"
+      IFS=':' read -r name dir port <<< "$service"
       echo ""
       echo "============================================"
       echo "       ${name} logs"

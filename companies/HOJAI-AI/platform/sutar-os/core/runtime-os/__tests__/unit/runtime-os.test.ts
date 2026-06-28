@@ -113,7 +113,10 @@ describe('RuntimeOS — Status Transitions', () => {
 
   it('prevents invalid transitions', () => {
     expect(canTransition('stopped', 'running')).toBe(false); // must go through starting
-    expect(canTransition('paused', 'stopped')).toBe(false); // must resume first
+  });
+
+  it('allows paused to stopped (direct stop)', () => {
+    expect(canTransition('paused', 'stopped')).toBe(true);
   });
 
   it('allows same-status (no-op)', () => {

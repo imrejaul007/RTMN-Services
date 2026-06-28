@@ -238,9 +238,8 @@ export function validateOutput(output, rules = [], context = {}) {
   };
 }
 
-// ── Constitutional AI ─────────────────────────────────────────────────────────
+// ── Constitutional AI (uses the constitutions Map from initConstitutionsStore) ──
 
-const constitutions = new Map();
 let constitutionIdCounter = 0;
 
 export const CONSTITUTION_TYPES = {
