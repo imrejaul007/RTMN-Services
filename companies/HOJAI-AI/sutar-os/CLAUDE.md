@@ -136,7 +136,7 @@ Agent Layer (Orthogonal)
 | `sutar-goal-os` | 4242 | 260 | ✅ 15 | Goal decomposition: task trees, critical path, progress tracking |
 | `sutar-network-learning` | 4243 | 240 | ✅ 17 | Learning from outcomes: strategy ranking, pattern extraction, insights |
 | `sutar-flow-os` | 4244 | stub | ❌ | Workflow orchestration (not yet built) |
-| `sutar-founder-os` | 4260 | stub | ❌ | Founder decision support (not yet built) |
+| `sutar-founder-os` | 4260 | 250 | ✅ 15 | Founder decision support: decision analysis, strategy generation, competitive intel, frameworks |
 
 ### Layer 5 — Marketplace + Economy (4 services)
 
@@ -145,7 +145,7 @@ Agent Layer (Orthogonal)
 | `blr-ai-marketplace` | 4255 | — | — | Lives in `companies/HOJAI-AI/blr-ai-marketplace/` |
 | `sutar-economy-os` | 4294 | ~600 | ✅ 120 | Credits, escrow, rewards, billing, Karma integration, wallet |
 | `sutar-usage-tracker` | 4252 | 290 | ✅ 18 | AI usage metering: token/call/compute tracking, cost calculation, quota enforcement |
-| `sutar-policy-os` | 4254 | stub | ❌ | Business policy registry (not yet built) |
+| `sutar-policy-os` | 4254 | 230 | ✅ 16 | Business policy registry: rule evaluation, scope matching, condition evaluation |
 
 ### Layer 6 — Trust + Contracts + Negotiation (3 services)
 
@@ -171,7 +171,7 @@ Agent Layer (Orthogonal)
 | `agent-teaming` | 4853 | 924 | ⚠️ custom | Team formation, leader election, task DAG |
 | `agent-twin` | 5324 | 548 | ❌ | Agent digital twin |
 | `merchant-agents` | 4737 | 1213 | ❌ | Merchant AI agents |
-| `negotiation-ai` | 4850 | stub | ❌ | ML negotiation strategies |
+| `negotiation-ai` | 4850 | 543 | ✅ | ML negotiation strategies: multi-strategy, BATNA, counter-offer generation, personality adaptation |
 
 ### Tenant Management (1 service)
 

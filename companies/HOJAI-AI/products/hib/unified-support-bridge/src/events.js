@@ -40,7 +40,7 @@ function createSseEndpoint(req, res) {
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
-  const connectionId = uuidv4();
+  const connectionId = randomUUID();
   const keepAlive = setInterval(function() { res.write(': keep-alive\n\n'); }, 30000);
 
   const handler = function(event) {
@@ -75,7 +75,7 @@ function initWebSocket(server) {
   wss = new Ws.Server({ server: server, path: '/ws/events' });
 
   wss.on('connection', function(ws, req) {
-    const connectionId = uuidv4();
+    const connectionId = randomUUID();
     ws.subscriptions = new Set();
     ws.isAlive = true;
     ws.connectionId = connectionId;

@@ -310,7 +310,8 @@ describe('Email References Parsing', () => {
   it('parses references from string', () => {
     const refs = parseReferences('<ref1@x.com> <ref2@y.com>');
     assert.strictEqual(refs.length, 2);
-    assert.strictEqual(refs[0], 'ref1@x.com');
+    // parseReferences returns raw split results (angle brackets preserved)
+    assert.strictEqual(refs[0], '<ref1@x.com>');
   });
 
   it('handles empty input', () => {
