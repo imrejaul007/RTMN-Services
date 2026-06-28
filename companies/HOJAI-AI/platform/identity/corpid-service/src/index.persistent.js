@@ -256,6 +256,38 @@ const ENTITY_TYPE_PREFIXES = {
   LOC: 'CI-LOC-',      // Location
   REL: 'CI-REL-',      // Relationship
 };
+
+// Lifecycle states (P0 Lifecycle Extension)
+const LIFECYCLE_STATES = {
+  INVITED: 'invited',           // Account created, not accepted
+  ONBOARDING: 'onboarding',     // In onboarding process
+  ACTIVE: 'active',             // Fully operational
+  PROBATION: 'probation',       // Trial period
+  SUSPENDED: 'suspended',       // Temporarily paused
+  TRANSFERRED: 'transferred',    // Moved to another org/dept
+  OFFBOARDING: 'offboarding',    // Leaving organization
+  ARCHIVED: 'archived',         // Retained, no access
+  DELETED: 'deleted',          // Removed
+};
+
+const LIFECYCLE_TRANSITIONS = {
+  invited: ['onboarding'],
+  onboarding: ['active', 'probation'],
+  active: ['suspended', 'offboarding', 'transferred'],
+  probation: ['active', 'suspended', 'offboarding'],
+  suspended: ['active', 'offboarding'],
+  transferred: ['active'],
+  offboarding: ['archived'],
+  archived: ['active'],
+  deleted: [],
+};
+
+// Trigger types for lifecycle events
+const LIFECYCLE_TRIGGERS = {
+  MANUAL: 'manual',
+  AUTOMATIC: 'automatic',
+  TIME: 'time',
+};
 const REL_EDGE_TYPES = {
   OWNS: 'owns', MEMBER_OF: 'member_of', MANAGES: 'manages', REPORTS_TO: 'reports_to',
   PARTNER_OF: 'partner_of', SUPPLIES_TO: 'supplies_to', PARENT_OF: 'parent_of',
@@ -3001,6 +3033,130 @@ app.delete('/api/namespaces/:name', requireAuth, asyncHandler(async (req, res) =
   if (!ns) throw new NotFoundError('namespace not found');
   await Namespace.deleteOne({ name: req.params.name });
   res.json({ success: true, deleted: req.params.name });
+}));
+
+// ============ LIFECYCLE (P0) ============
+// Enterprise lifecycle management for entities
+
+// GET /api/lifecycle/states — List lifecycle states
+app.get('/api/lifecycle/states', (req, res) => {
+  res.json({
+    success: true,
+    states: LIFECYCLE_STATES,
+    transitions: LIFECYCLE_TRANSITIONS,
+    triggers: LIFECYCLE_TRIGGERS,
+  });
+});
+
+// POST /api/lifecycle/:entityId/transition — Trigger lifecycle transition
+app.post('/api/lifecycle/:entityId/transition', [
+  requireAuth,
+  body('toState').isIn(Object.values(LIFECYCLE_STATES)).withMessage('Invalid state'),
+  body('reason').optional().trim().isLength({ max: 500 }),
+  body('metadata').optional().isObject(),
+  validate,
+], asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+  const { toState, reason, metadata } = sanitizeInput(req.body);
+
+  // Find entity (check all models)
+  let entity = null;
+  let entityType = null;
+
+  if (entityId.startsWith('CI-IND-')) {
+    entity = await User.findOne(entityId);
+    entityType = 'user';
+  } else if (entityId.startsWith('CI-AGT-')) {
+    entity = await Agent.findOne(entityId);
+    entityType = 'agent';
+  }
+
+  if (!entity) throw new NotFoundError('Entity not found');
+
+  // Validate transition
+  const fromState = entity.status || 'active';
+  const allowedTransitions = LIFECYCLE_TRANSITIONS[fromState] || [];
+  if (!allowedTransitions.includes(toState)) {
+    throw new ValidationError(`Invalid transition: ${fromState} → ${toState}. Allowed: ${allowedTransitions.join(', ') || 'none'}`);
+  }
+
+  // Update entity status
+  if (entityType === 'user') {
+    await User.updateOne({ email: entity.email }, { status: toState, updatedAt: new Date().toISOString() });
+  } else if (entityType === 'agent') {
+    await Agent.updateOne({ agentId: entity.agentId }, { status: toState, updatedAt: new Date().toISOString() });
+  }
+
+  // Log lifecycle event
+  await IdentityEvent.create({
+    eventId: `EVT-${uuidv4()}`,
+    corpId: entityId,
+    type: `lifecycle.${fromState}_to_${toState}`,
+    category: 'lifecycle',
+    actor: req.user.id,
+    data: { fromState, toState, reason, metadata, entityType },
+    timestamp: new Date().toISOString(),
+  });
+
+  logger.info({ entityId, fromState, toState, triggeredBy: req.user.id }, 'Lifecycle transition');
+
+  res.json({
+    success: true,
+    entityId,
+    fromState,
+    toState,
+    transitionedAt: new Date().toISOString(),
+  });
+}));
+
+// GET /api/lifecycle/:entityId/state — Get current state
+app.get('/api/lifecycle/:entityId/state', requireAuth, asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+
+  let entity = null;
+  let entityType = null;
+
+  if (entityId.startsWith('CI-IND-')) {
+    entity = await User.findOne(entityId);
+    entityType = 'user';
+  } else if (entityId.startsWith('CI-AGT-')) {
+    entity = await Agent.findOne(entityId);
+    entityType = 'agent';
+  }
+
+  if (!entity) throw new NotFoundError('Entity not found');
+
+  const currentState = entity.status || 'active';
+  const allowedTransitions = LIFECYCLE_TRANSITIONS[currentState] || [];
+
+  res.json({
+    success: true,
+    entityId,
+    entityType,
+    state: currentState,
+    allowedTransitions,
+  });
+}));
+
+// GET /api/lifecycle/:entityId/history — Get state history
+app.get('/api/lifecycle/:entityId/history', requireAuth, asyncHandler(async (req, res) => {
+  const { entityId } = req.params;
+
+  let events = await IdentityEvent.find();
+  events = events
+    .filter(e => e.corpId === entityId && e.type.startsWith('lifecycle.'))
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  res.json({
+    success: true,
+    entityId,
+    transitions: events.map(e => ({
+      type: e.type.replace('lifecycle.', ''),
+      timestamp: e.timestamp,
+      actor: e.actor,
+      reason: e.data?.reason,
+    })),
+  });
 }));
 
 // ============ API KEYS ============
