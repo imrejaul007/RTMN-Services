@@ -119,5 +119,126 @@
     },
     "errors": [],
     "triggeredAt": "2026-06-28T04:43:50.035Z"
+  },
+  {
+    "id": "de53ef95-0b8b-42aa-89e4-2188d000d8cd",
+    "workflowId": "8ffd5ba6-67e9-4efb-98d2-0f224a75baa8",
+    "workflowName": "Exec Test",
+    "executionId": "8ffd5ba6-67e9-4efb-98d2-0f224a75baa8",
+    "status": "completed",
+    "startedAt": "2026-06-28T22:16:54.074Z",
+    "completedAt": "2026-06-28T22:16:54.074Z",
+    "totalSteps": 2,
+    "results": {
+      "n1": {
+        "triggered": true,
+        "event": "manual",
+        "timestamp": "2026-06-28T22:16:54.074Z"
+      },
+      "n2": {
+        "type": "output",
+        "format": "json",
+        "output": {
+          "triggered": true,
+          "event": "manual",
+          "timestamp": "2026-06-28T22:16:54.074Z"
+        }
+      }
+    },
+    "errors": [],
+    "triggeredAt": "2026-06-28T22:16:54.074Z"
+  },
+  {
+    "id": "872a702f-9e4c-42d3-9241-790e1f8d7ada",
+    "workflowId": "48569d4b-b3d7-41c3-a7f3-0a44b16186ad",
+    "workflowName": "Ex",
+    "executionId": "48569d4b-b3d7-41c3-a7f3-0a44b16186ad",
+    "status": "completed",
+    "startedAt": "2026-06-28T22:16:54.082Z",
+    "completedAt": "2026-06-28T22:16:54.082Z",
+    "totalSteps": 2,
+    "results": {
+      "n1": {
+        "triggered": true,
+        "event": "manual",
+        "timestamp": "2026-06-28T22:16:54.082Z"
+      },
+      "n2": {
+        "type": "output",
+        "format": "json",
+        "output": {
+          "triggered": true,
+          "event": "manual",
+          "timestamp": "2026-06-28T22:16:54.082Z"
+        }
+      }
+    },
+    "errors": [],
+    "triggeredAt": "2026-06-28T22:16:54.082Z"
+  },
+  {
+    "id": "4dc183e8-ada1-44d4-be99-3af7d8c6eaa7",
+    "workflowId": "f961749d-dbb8-4be6-8d06-da2c989bc03d",
+    "workflowName": "Hist",
+    "executionId": "f961749d-dbb8-4be6-8d06-da2c989bc03d",
+    "status": "completed",
+    "startedAt": "2026-06-28T22:16:54.226Z",
+    "completedAt": "2026-06-28T22:16:54.226Z",
+    "totalSteps": 2,
+    "results": {
+      "n1": {
+        "triggered": true,
+        "event": "manual",
+        "timestamp": "2026-06-28T22:16:54.226Z"
+      },
+      "n2": {
+        "type": "output",
+        "format": "json",
+        "output": {
+          "triggered": true,
+          "event": "manual",
+          "timestamp": "2026-06-28T22:16:54.226Z"
+        }
+      }
+    },
+    "errors": [],
+    "triggeredAt": "2026-06-28T22:16:54.226Z"
+  },
+  {
+    "id": "59a269eb-f3a7-4e42-ae9d-aeb6ba3ae28a",
+    "workflowId": "5c45fff1-8661-4076-95df-bb04d7e676eb",
+    "workflowName": "LLM Test",
+    "executionId": "5c45fff1-8661-4076-95df-bb04d7e676eb",
+    "status": "completed",
+    "startedAt": "2026-06-28T22:16:54.262Z",
+    "completedAt": "2026-06-28T22:16:54.262Z",
+    "totalSteps": 3,
+    "results": {
+      "n1": {
+        "triggered": true,
+        "event": "manual",
+        "timestamp": "2026-06-28T22:16:54.262Z"
+      },
+      "n2": {
+        "type": "llm-call",
+        "model": "claude-3-5-sonnet",
+        "prompt": "Hello",
+        "response": "[Mock LLM response to: Hello...]",
+        "simulated": true
+      },
+      "n3": {
+        "type": "output",
+        "format": "json",
+        "output": {
+          "type": "llm-call",
+          "model": "claude-3-5-sonnet",
+          "prompt": "Hello",
+          "response": "[Mock LLM response to: Hello...]",
+          "simulated": true
+        }
+      }
+    },
+    "errors": [],
+    "triggeredAt": "2026-06-28T22:16:54.262Z"
   }
 ]
