@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.18
-> **Last Updated:** June 28, 2026
-> **New:** ✅ **SUTAR OS Complete Production-Ready** — 37 services, 867 tests, 0 failures
-> **Status:** 100/100 — SUTAR OS (37 services) + MemoryOS (30 services) production ready
+> **Version:** 5.19
+> **Last Updated:** June 29, 2026
+> **New:** ✅ **Customer Intelligence SDK** — 12 modules, unified SDK, production ready
+> **Status:** ✅ **Customer Intelligence SDK** (12 modules) + SUTAR OS (37 services) + MemoryOS (30 services)
 
 ---
 
@@ -943,6 +943,46 @@ bash demos/full-stack-demo.sh
 ---
 
 ## 📊 Complete Service Registry
+
+### Customer Intelligence SDK (12 modules) — Privacy-Safe Signals for D2C Brands
+
+The Customer Intelligence SDK provides D2C brands with trust scores, COD recommendations, return risk, support intelligence, and more. **Privacy-safe signals only** — never expose raw data, only scores and recommendations.
+
+> **Product Name:** `@hojai/customer-intelligence-sdk`
+> **Documentation:** [docs/customer-intelligence-sdk/README.md](docs/customer-intelligence-sdk/README.md)
+
+| Module | Port | Purpose | Status |
+|--------|------|---------|--------|
+| **Customer Intelligence Gateway** | 4896 | Unified API entry point, orchestrates all modules | ✅ NEW |
+| **Trust Score Service** | 4897 | Customer trust scoring for commerce | ✅ NEW |
+| **COD Intelligence** | 4898 | Cash on Delivery recommendations ⭐ | ✅ NEW |
+| **Return Risk Engine** | 4899 | Return abuse detection | ✅ NEW |
+| **Support Intelligence** | 4900 | Support behavior profiling | ✅ NEW |
+| **Sales Intelligence** | 4901 | Selling preferences and recommendations | ✅ NEW |
+| **Recommendation Engine** | 4902 | Next best action engine | ✅ NEW |
+| **Customer Graph API** | 4903 | Graph-based customer relationships | ✅ NEW |
+| **Loyalty Intelligence** | 4904 | LTV, churn, retention | ✅ NEW |
+| **Communication Preference** | 4905 | Channel and tone preferences | ✅ NEW |
+| **Customer Twin** | 4895 | Digital twin (existing) | ✅ Existing |
+| **Risk Engine** | 4755 | Fraud/churn scoring (existing) | ✅ Existing |
+
+**SDK Package:** `companies/HOJAI-AI/sdk/hojai-customer-intelligence-sdk/`
+
+```typescript
+import { CustomerIntelligenceSDK } from '@hojai/customer-intelligence-sdk';
+
+const sdk = new CustomerIntelligenceSDK({ gatewayUrl: 'http://localhost:4896' });
+
+// Full analysis
+const result = await sdk.analyze({ phone: '+91XXXXXXXXXX' });
+// Returns: trust_score, cod_recommendation, return_risk, support_profile,
+//          selling_preferences, loyalty, communication, risk, segments
+```
+
+**Pricing Tiers:**
+- Starter: ₹5,000/mo (identity, basic trust)
+- Growth: ₹25,000/mo (+ COD, returns, support, sales)
+- Enterprise: ₹1L+/mo (+ custom models, shared trust network)
 
 ### TwinOS Services (11) - Digital Twin Platform
 
