@@ -1,0 +1,20 @@
+[
+  {
+    "ownerId": "new-owner",
+    "balance": 0,
+    "currency": "credits",
+    "transactions": []
+  },
+  {
+    "ownerId": "topup-owner",
+    "balance": 500,
+    "currency": "credits",
+    "transactions": [
+      {
+        "type": "credit",
+        "amount": 500,
+        "timestamp": "2026-06-28T09:26:36.947Z"
+      }
+    ]
+  }
+]

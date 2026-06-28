@@ -70,16 +70,16 @@ describe('State Machine', () => {
   });
 
   it('should NOT allow idle → paused', () => {
-    expect(validateStateTransition('idle', 'paused')).toBe(false);
+    expect(() => validateStateTransition('idle', 'paused')).toThrow();
   });
 
   it('should NOT allow paused → idle', () => {
-    expect(validateStateTransition('paused', 'idle')).toBe(false);
+    expect(() => validateStateTransition('paused', 'idle')).toThrow();
   });
 
   it('should NOT allow dead → anything (terminal)', () => {
-    expect(validateStateTransition('dead', 'idle')).toBe(false);
-    expect(validateStateTransition('dead', 'running')).toBe(false);
+    expect(() => validateStateTransition('dead', 'idle')).toThrow();
+    expect(() => validateStateTransition('dead', 'running')).toThrow();
     expect(isTerminalState('dead')).toBe(true);
   });
 

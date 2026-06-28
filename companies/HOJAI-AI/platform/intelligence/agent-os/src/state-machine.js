@@ -17,7 +17,8 @@ export const STATES = VALID_STATES;
 export function validateStateTransition(from, to, rules = TRANSITIONS) {
   if (!VALID_STATES.includes(from)) throw new Error(`Unknown state: ${from}`);
   if (!VALID_STATES.includes(to)) throw new Error(`Unknown state: ${to}`);
-  return (rules[from] || []).includes(to);
+  if (!(rules[from] || []).includes(to)) throw new Error(`Invalid transition: ${from} → ${to}`);
+  return true;
 }
 
 export function getValidTransitions(state) {

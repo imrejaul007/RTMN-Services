@@ -1,0 +1,68 @@
+[
+  {
+    "userId": "user-1",
+    "name": "John",
+    "preferences": {},
+    "traits": {},
+    "affinityScores": {},
+    "interactionCount": 0,
+    "createdAt": "2026-06-28T09:26:29.325Z",
+    "updatedAt": "2026-06-28T09:26:29.325Z"
+  },
+  {
+    "userId": "dup",
+    "name": "X",
+    "preferences": {},
+    "traits": {},
+    "affinityScores": {},
+    "interactionCount": 0,
+    "createdAt": "2026-06-28T09:26:29.327Z",
+    "updatedAt": "2026-06-28T09:26:29.327Z"
+  },
+  {
+    "userId": "get-one",
+    "name": "Test",
+    "preferences": {},
+    "traits": {},
+    "affinityScores": {},
+    "interactionCount": 0,
+    "createdAt": "2026-06-28T09:26:29.333Z",
+    "updatedAt": "2026-06-28T09:26:29.333Z"
+  },
+  {
+    "userId": "put-test",
+    "name": "New",
+    "preferences": {
+      "lang": "en"
+    },
+    "traits": {},
+    "affinityScores": {},
+    "interactionCount": 0,
+    "createdAt": "2026-06-28T09:26:29.337Z",
+    "updatedAt": "2026-06-28T09:26:29.338Z"
+  },
+  {
+    "userId": "track-test",
+    "name": "Track",
+    "preferences": {},
+    "traits": {},
+    "affinityScores": {
+      "food": 0.1
+    },
+    "interactionCount": 1,
+    "createdAt": "2026-06-28T09:26:29.339Z",
+    "updatedAt": "2026-06-28T09:26:29.341Z"
+  },
+  {
+    "userId": "rec-test",
+    "name": "Rec",
+    "preferences": {},
+    "traits": {},
+    "affinityScores": {
+      "food": 0.30000000000000004
+    },
+    "interactionCount": 3,
+    "createdAt": "2026-06-28T09:26:29.344Z",
+    "updatedAt": "2026-06-28T09:26:29.347Z"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "974d307b-3024-4fc3-81ac-6941cabd29cb",
+    "listingId": "30812195-a293-467e-b724-a51533afa42b",
+    "buyerId": "buyer-x",
+    "sellerId": "seller-y",
+    "amount": 25,
+    "type": "purchase",
+    "status": "pending",
+    "escrow": true,
+    "createdAt": "2026-06-28T09:26:36.940Z",
+    "completedAt": null
+  },
+  {
+    "id": "487319aa-d5b0-4e4b-b57d-e3a5a20a04b3",
+    "listingId": "a5d181f5-2a86-4e12-97a4-7794f201054b",
+    "buyerId": "b",
+    "sellerId": null,
+    "amount": 10,
+    "type": "purchase",
+    "status": "completed",
+    "escrow": false,
+    "createdAt": "2026-06-28T09:26:36.944Z",
+    "completedAt": "2026-06-28T09:26:36.945Z"
+  }
+]

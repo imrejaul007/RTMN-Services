@@ -8,7 +8,7 @@ export function getAgentHealth(agent) {
   const lastBeat = heartbeats.get(agent.id);
   const now = Date.now();
   const elapsed = lastBeat ? now - lastBeat : null;
-  const isStale = elapsed !== null && elapsed > HEARTBEAT_TIMEOUT_MS;
+  const isStale = agent.state === 'running' && (!lastBeat || elapsed > HEARTBEAT_TIMEOUT_MS);
   const isRunning = agent.state === 'running';
   return {
     agentId: agent.id,

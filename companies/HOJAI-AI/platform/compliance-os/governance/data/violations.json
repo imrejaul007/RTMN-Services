@@ -1,0 +1,22 @@
+[
+  {
+    "policyId": "19ffcd8b-388c-432e-b128-9333702e983c",
+    "action": "delete_all",
+    "actor": "user-1",
+    "decision": "deny",
+    "reason": "Policy rule violated",
+    "evaluatedAt": "2026-06-28T09:26:44.299Z",
+    "policyName": "Deny Test",
+    "severity": "medium"
+  },
+  {
+    "policyId": "d5cc1794-55da-405e-97b3-e39ec3947ee8",
+    "action": "steal",
+    "actor": "bad",
+    "decision": "deny",
+    "reason": "Policy rule violated",
+    "evaluatedAt": "2026-06-28T09:26:44.301Z",
+    "policyName": "Violate Test",
+    "severity": "medium"
+  }
+]

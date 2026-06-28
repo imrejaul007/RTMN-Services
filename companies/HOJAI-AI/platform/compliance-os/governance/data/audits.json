@@ -1,0 +1,19 @@
+[
+  {
+    "id": "a61fa5b4-6434-4bf5-8758-c38fff58bea2",
+    "actor": "user-1",
+    "action": "login",
+    "resource": "/api/auth",
+    "outcome": "success",
+    "metadata": {},
+    "timestamp": "2026-06-28T09:26:44.304Z"
+  },
+  {
+    "id": "910d07f5-3b0c-47a9-81f3-9c284126c858",
+    "actor": "a",
+    "action": "b",
+    "outcome": "success",
+    "metadata": {},
+    "timestamp": "2026-06-28T09:26:44.307Z"
+  }
+]

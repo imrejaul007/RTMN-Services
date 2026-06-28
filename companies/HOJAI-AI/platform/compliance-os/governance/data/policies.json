@@ -1,0 +1,94 @@
+[
+  {
+    "id": "abe1cd52-dea5-466a-b034-3c329714f2da",
+    "name": "No Exfil",
+    "description": "Block data exfil",
+    "type": "security",
+    "rules": [
+      {
+        "type": "deny",
+        "action": "export_data"
+      }
+    ],
+    "severity": "high",
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T09:26:44.289Z",
+    "updatedAt": "2026-06-28T09:26:44.289Z"
+  },
+  {
+    "id": "b5a90d95-d488-435b-8894-a4448e533b27",
+    "name": "Get Test",
+    "type": "privacy",
+    "rules": [
+      {
+        "type": "allow",
+        "action": "read"
+      }
+    ],
+    "severity": "medium",
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T09:26:44.294Z",
+    "updatedAt": "2026-06-28T09:26:44.294Z"
+  },
+  {
+    "id": "2c658645-220a-4340-998e-430c2aa590e8",
+    "name": "Eval Test",
+    "type": "data",
+    "rules": [
+      {
+        "type": "deny",
+        "action": "delete_all"
+      }
+    ],
+    "severity": "medium",
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T09:26:44.296Z",
+    "updatedAt": "2026-06-28T09:26:44.296Z"
+  },
+  {
+    "id": "19ffcd8b-388c-432e-b128-9333702e983c",
+    "name": "Deny Test",
+    "type": "data",
+    "rules": [
+      {
+        "type": "deny",
+        "action": "delete_all"
+      }
+    ],
+    "severity": "medium",
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T09:26:44.298Z",
+    "updatedAt": "2026-06-28T09:26:44.298Z"
+  },
+  {
+    "id": "d5cc1794-55da-405e-97b3-e39ec3947ee8",
+    "name": "Violate Test",
+    "type": "data",
+    "rules": [
+      {
+        "type": "deny",
+        "action": "steal"
+      }
+    ],
+    "severity": "medium",
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T09:26:44.300Z",
+    "updatedAt": "2026-06-28T09:26:44.300Z"
+  },
+  {
+    "id": "c0ae4512-8f94-446b-87f5-3d0584e189d2",
+    "name": "No Actor",
+    "type": "test",
+    "rules": [],
+    "severity": "medium",
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-28T09:26:44.302Z",
+    "updatedAt": "2026-06-28T09:26:44.302Z"
+  }
+]
