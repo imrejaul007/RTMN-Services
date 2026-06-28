@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.12
+> **Version:** 5.13
 > **Last Updated:** June 28, 2026
-> **New:** MemoryOS Audit Complete — 26 services, 473 tests, all passing
-> **Status:** ✅ **Memory Layer Complete** — 12/12 competitive capabilities, 473 tests verified
+> **New:** HOJAI Studio v2.0 — Complete CLI with 14 commands, LLM agent generation, Blueprint Engine, Auto-Improvement, Team/Rollback/Preview/Domain/Audit
+> **Status:** ✅ **HOJAI Studio Complete** — All CLI commands built, documented, and committed
 
 ---
 
@@ -452,9 +452,32 @@ All planning for Global Nexha + HOJAI Platform-as-an-Economy lives in these docu
 
 ---
 
-## 🎯 HOJAI Studio — Build Any Company in 30 Minutes (2026-06-26)
+## 🎯 HOJAI Studio v2.0 — Build Any Company in 30 Minutes (2026-06-28)
 
 **HOJAI Studio** is the **Platform-as-an-Economy** — any founder can build any AI-powered company in 30 minutes.
+
+### Complete CLI Commands (14 Total)
+
+```bash
+# Core
+npx hojai create <name> --template=<type>   # Scaffold new project
+npx hojai add agent <name> --from-llm        # Add AI agent (LLM-powered)
+npx hojai deploy [project]                   # Deploy to HOJAI Cloud
+npx hojai inspect [project]                  # Project diagnostics
+
+# Deployment
+npx hojai rollback --deployment=<id>         # Rollback to previous version
+npx hojai preview --branch=<name>            # Create preview environment
+npx hojai domain add|verify|list|remove      # Custom domains with SSL
+
+# Team & Enterprise
+npx hojai team add|remove|list|update        # Team management (RBAC)
+npx hojai audit report|export|keys           # Audit logs & analytics
+
+# AI-Powered Features
+npx hojai generate starter --spec=<file>     # Blueprint Engine (LLM)
+npx hojai evolve --project=<dir> --auto      # Auto-Improvement Engine
+```
 
 ### The Problem
 
