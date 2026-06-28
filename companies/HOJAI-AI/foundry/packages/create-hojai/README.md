@@ -3,7 +3,7 @@
 > **The `npx hojai` CLI.** Scaffolds HOJAI Foundry starters into working
 > projects. Mirrors `create-react-app` / `create-next-app` conventions.
 
-**Status:** v1.0.0 (2026-06-24) — 16 tests, 0 failures.
+**Status:** v2.0.0 (2026-06-28) — Complete HOJAI Studio CLI with 14 commands, 16 tests, 0 failures.
 
 ## Install / run
 
@@ -20,17 +20,120 @@ npx hojai create mystartup
 ```
 hojai create [<name>] [flags]
 
+hojai add <resource> [name] [flags]
+
+hojai deploy [project] [flags]
+
+hojai rollback [deployment] [flags]
+
+hojai preview [project] [flags]
+
+hojai domain <action> [domain] [flags]
+
+hojai team <action> [email] [flags]
+
+hojai generate <type> [name] [flags]
+
+hojai evolve [project] [flags]
+
+hojai audit [command] [flags]
+
+hojai inspect [project]
+
+hojai help [command]
+```
+
+### Core Commands
+
+#### create — Scaffold a new project
+```bash
+npx hojai create mystartup --template=marketplace --agents=default
+```
 Flags:
-  --template=<key>    marketplace | b2b | company | hotel | restaurant |
-                      logistics | crm | erp | pos
-  --region=<key>      us-east | us-west | eu-west | ap-south |
-                      ap-south-east | me
-  --lang=<list>       Comma-separated: en, es, fr, de, hi, ar, pt, ja, zh
-  --agents=<list>     Comma-separated preset OR individual agent keys
-  --name=<name>       Project name (lowercase, kebab-case, 2-40 chars)
-  --no-install        Skip `npm install`
-  --no-git            Skip `git init`
-  --yes               Skip prompts, use defaults
+- `--template=<key>` — marketplace | b2b | company | hotel | restaurant | logistics | crm | erp | pos
+- `--region=<key>` — us-east | us-west | eu-west | ap-south | ap-south-east | me
+- `--lang=<list>` — Comma-separated: en, es, fr, de, hi, ar, pt, ja, zh
+- `--agents=<list>` — Comma-separated preset OR individual agent keys
+- `--name=<name>` — Project name (lowercase, kebab-case, 2-40 chars)
+- `--no-install` — Skip `npm install`
+- `--no-git` — Skip `git init`
+- `--yes` — Skip prompts, use defaults
+
+#### add — Add agents, services, or integrations
+```bash
+npx hojai add agent checkout --from-llm "create an AI agent for payment processing"
+npx hojai add service auth --template=jwt
+npx hojai add integration stripe
+```
+Flags:
+- `--from-llm` — Generate agent using LLM (OpenAI, Anthropic, or Ollama)
+- `--template=<name>` — Use a specific template
+- `--provider=<name>` — LLM provider: openai | anthropic | ollama
+
+#### deploy — Deploy to HOJAI Cloud
+```bash
+npx hojai deploy mystartup
+npx hojai deploy mystartup --branch=feature-checkout
+npx hojai deploy --env=staging
+```
+Flags:
+- `--branch=<name>` — Deploy specific branch
+- `--env=<name>` — Target environment (production | staging)
+- `--no-restart` — Skip service restart
+
+#### rollback — Rollback to previous deployment
+```bash
+npx hojai rollback
+npx hojai rollback --deployment=dep_abc123
+npx hojai rollback --list
+```
+
+#### preview — Create preview environments
+```bash
+npx hojai preview --branch=feature-checkout
+npx hojai preview --branch=pr-42 --ttl=24h
+npx hojai preview --list
+npx hojai preview --open=prv_xyz789
+npx hojai preview --delete=prv_xyz789
+```
+
+#### domain — Manage custom domains
+```bash
+npx hojai domain add myapp.com
+npx hojai domain verify myapp.com
+npx hojai domain list
+npx hojai domain remove myapp.com
+```
+
+#### team — Manage team members
+```bash
+npx hojai team add member@example.com --role=developer
+npx hojai team remove member@example.com
+npx hojai team list
+npx hojai team update member@example.com --role=admin
+```
+
+#### generate — Blueprint Engine (LLM-powered starter generation)
+```bash
+npx hojai generate starter --spec=mycompany.ai.md
+npx hojai generate starter "food delivery app like swiggy"
+```
+Flags:
+- `--spec=<file>` — Path to .ai.md specification file
+- `--provider=<name>` — LLM provider for generation
+
+#### evolve — Auto-Improvement Engine
+```bash
+npx hojai evolve
+npx hojai evolve --project=mystartup --auto
+npx hojai evolve --project=mystartup --check
+```
+
+#### audit — Audit logs and analytics
+```bash
+npx hojai audit report --days=30
+npx hojai audit export --format=json --days=7
+npx hojai audit keys --project=mystartup
 ```
 
 ## What it does
@@ -47,10 +150,42 @@ Flags:
 
 ```
 src/
-├── index.js       # CLI entry: prompt → render → writeManifest → git/install
+├── index.js       # CLI entry: command routing, help system
+├── create.js      # Project scaffolding: prompt → render → writeManifest → git/install
+├── add.js         # Add agents, services, integrations (with LLM support)
+├── deploy.js      # Deploy to HOJAI Cloud
+├── rollback.js    # Rollback to previous deployment
+├── preview.js     # Preview environments for branches/PRs
+├── domain.js      # Custom domain management with SSL
+├── team.js        # Team management (add, remove, roles)
+├── generate.js    # Blueprint Engine: LLM-powered starter generation
+├── evolve.js      # Auto-Improvement Engine: continuous evolution
+├── audit.js       # Audit logs, usage analytics, reports
+├── inspect.js     # Project inspection and diagnostics
 ├── prompts.js     # Templates, agents, regions, languages catalog + helpers
 ├── render.js      # Token replacement engine (renderTemplate, buildVars)
 └── manifest.js    # Writes .hojai/manifest.json + .hojai/capability.json
+```
+
+### LLM Integration
+
+The CLI supports LLM-powered agent generation via:
+- **OpenAI** — `OPENAI_API_KEY` environment variable
+- **Anthropic** — `ANTHROPIC_API_KEY` environment variable
+- **Ollama** — Local LLM via `OLLAMA_ENDPOINT` (default: `http://localhost:11434`)
+
+```bash
+# Using OpenAI
+export OPENAI_API_KEY=sk-...
+npx hojai add agent checkout --from-llm "payment processing agent"
+
+# Using Anthropic Claude
+export ANTHROPIC_API_KEY=sk-ant-...
+npx hojai add agent checkout --from-llm "payment processing agent" --provider=anthropic
+
+# Using local Ollama
+export OLLAMA_ENDPOINT=http://localhost:11434
+npx hojai add agent checkout --from-llm "payment processing agent" --provider=ollama
 ```
 
 See [../../CLAUDE.md](../../CLAUDE.md) for the full architecture, including
