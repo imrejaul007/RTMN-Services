@@ -920,11 +920,15 @@ app.get('/api/stats', (_req, res) => {
 app.use((_req, res) => res.status(404).json({ error: 'not_found' }));
 
 // ─── Start ────────────────────────────────────────────────────
-const server = app.listen(PORT, () => {
-  console.log(`[unified-support-bridge] listening on ${PORT}`);
-  console.log(`[unified-support-bridge] unified-inbox: ${UNIFIED_INBOX_URL}`);
-  console.log(`[unified-support-bridge] ticket-engine: ${TICKET_ENGINE_URL}`);
-  console.log(`[unified-support-bridge] corpid: ${CORPID_URL}`);
-});
-
-process.on('SIGTERM', () => { server.close(); process.exit(0); });
+// Export for testing (don't auto-start)
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`[unified-support-bridge] listening on ${PORT}`);
+    console.log(`[unified-support-bridge] unified-inbox: ${UNIFIED_INBOX_URL}`);
+    console.log(`[unified-support-bridge] ticket-engine: ${TICKET_ENGINE_URL}`);
+    console.log(`[unified-support-bridge] corpid: ${CORPID_URL}`);
+  });
+  process.on('SIGTERM', () => { server.close(); process.exit(0); });
+} else {
+  module.exports = { app };
+}

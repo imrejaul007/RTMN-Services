@@ -6,15 +6,14 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node --test src/**/*.test.js"
+    "test": "node --test __tests__/**/*.test.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
-    "uuid": "^9.0.0",
-    "@rtmn/shared": "workspace:*"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {},
   "keywords": ["support", "unified-inbox", "whatsapp", "email", "customer-identity"],

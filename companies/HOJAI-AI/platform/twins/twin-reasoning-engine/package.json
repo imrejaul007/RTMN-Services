@@ -1,0 +1,14 @@
+{
+  "name": "@hojai/twin-reasoning-engine",
+  "version": "1.0.0",
+  "description": "TwinOS Reasoning Engine - Active cross-twin reasoning and explanation",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": ["twin", "reasoning", "explanation", "graph"],
+  "license": "MIT"
+}
