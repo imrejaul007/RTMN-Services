@@ -1,0 +1,29 @@
+{
+  "name": "@hojai/intelligence-sdk",
+  "version": "1.0.0",
+  "description": "Unified SDK for HOJAI Intelligence services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "publish": "npm publish --access public"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "hojai",
+    "intelligence",
+    "ai",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "PROPRIETARY"
+}

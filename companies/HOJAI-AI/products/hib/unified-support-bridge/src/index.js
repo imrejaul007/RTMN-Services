@@ -460,6 +460,36 @@ app.all('/api/webhooks/whatsapp', async (req, res) => {
   await whatsappWebhook.handleRequest(req, res);
 });
 
+// ── WhatsApp Webhook Registration ────────────────────────
+// Register this service's webhook URL with Meta/Twilio/360dialog
+// POST /api/admin/webhooks/whatsapp/register
+app.post('/api/admin/webhooks/whatsapp/register', rateLimit, async (req, res) => {
+  const { provider, accessToken, phoneNumberId, apiKey, accountSid, authToken } = req.body;
+  const baseUrl = process.env.WEBHOOK_PUBLIC_URL || `http://localhost:${PORT}`;
+  const webhookUrl = `${baseUrl}/api/webhooks/whatsapp`;
+  const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || 'usb-verify-token-change-me';
+
+  let result;
+  if (provider === 'meta') {
+    if (!accessToken || !phoneNumberId) return res.status(400).json({ error: 'accessToken and phoneNumberId required' });
+    result = await registerMetaWebhook(accessToken, phoneNumberId, webhookUrl, verifyToken);
+  } else if (provider === '360dialog') {
+    if (!apiKey) return res.status(400).json({ error: 'apiKey required' });
+    result = await register360dialogWebhook(apiKey, webhookUrl, verifyToken);
+  } else if (provider === 'twilio') {
+    if (!accountSid || !authToken) return res.status(400).json({ error: 'accountSid and authToken required' });
+    result = await registerTwilioWebhook(accountSid, authToken, req.body.whatsappNumber || '', webhookUrl);
+  } else {
+    return res.status(400).json({ error: 'Unknown provider. Use: meta, 360dialog, twilio' });
+  }
+
+  if (result.success) {
+    console.log(`[webhook] Registered ${provider} webhook → ${webhookUrl}`);
+  }
+
+  res.json(result);
+});
+
 // ── Email Webhook ──────────────────────────────────────
 app.post('/api/webhooks/email', webhookApiKeyAuth, rateLimit, async (req, res) => {
   // Normalize from any provider format
@@ -529,7 +559,7 @@ app.post('/api/webhooks/email', webhookApiKeyAuth, rateLimit, async (req, res) =
 });
 
 // ── App Webhook ────────────────────────────────────────
-app.post('/api/webhooks/app', async (req, res) => {
+app.post('/api/webhooks/app', webhookApiKeyAuth, rateLimit, async (req, res) => {
   const { appUserId, userId, message, sessionId, platform = 'do-app', contactName, customerName } = req.body;
   const uid = appUserId || userId;
   if (!uid) return res.status(400).json({ error: 'appUserId or userId required' });
