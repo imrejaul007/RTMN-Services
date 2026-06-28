@@ -152,7 +152,6 @@ app.get('/dashboard', (_req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log(`ObservationOS - Port ${PORT}`));
-process.on('SIGTERM', () => server.close());
 const server = app.listen(PORT, () => console.log(`ObservationOS - Port ${PORT}`));
+process.on('SIGTERM', () => server.close());
 export default app;

@@ -13,10 +13,28 @@
  *  - POST   /api/ai/constitutions/:id/evaluate — evaluate against constitution
  */
 
-// ── Model Registry ────────────────────────────────────────────────────────────
+// ── Model Registry (persistent when provided) ─────────────────────────────────
 
-const modelRegistry = new Map();
+let modelRegistry = new Map();
 let modelIdCounter = 0;
+
+export function initAIModelsStore(store) {
+  modelRegistry = store;
+  let maxN = 0;
+  for (const m of store.values()) {
+    const idNum = parseInt(m.id.replace('model-', ''));
+    if (!isNaN(idNum)) maxN = Math.max(maxN, idNum);
+  }
+  modelIdCounter = maxN;
+}
+
+// ── Constitutions (persistent when provided) ─────────────────────────────────
+
+let constitutions = new Map();
+
+export function initConstitutionsStore(store) {
+  constitutions = store;
+}
 
 export const MODEL_STATUSES = {
   ACTIVE: 'active',
@@ -306,7 +324,9 @@ function evaluateAgainstConstitution(text, constitution) {
 
 // ── Route Registration ───────────────────────────────────────────────────────
 
-export function registerAIGovernanceRoutes(app, { auditLog, customAuth }) {
+export function registerAIGovernanceRoutes(app, { auditLog, customAuth, aiModels, constitutions }) {
+  if (aiModels) initAIModelsStore(aiModels);
+  if (constitutions) initConstitutionsStore(constitutions);
 
   // GET /api/ai/models — list models
   app.get('/api/ai/models', customAuth, (req, res) => {

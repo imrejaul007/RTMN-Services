@@ -162,8 +162,8 @@ app.get('/api/events', (req, res) => {
   const { type, limit = 100 } = req.query;
   let filtered = events;
   if (type) filtered = filtered.filter(e => e.type === type);
-  res.json({ success: true, data: { events: filtered.slice(0, Number(limit) } });
-}
+  res.json({ success: true, data: { events: filtered.slice(0, Number(limit)) } });
+});
 
 app.listen(PORT, () => console.log(`SafetyOS - Port ${PORT}`));
 process.on('SIGTERM', () => process.exit(0));

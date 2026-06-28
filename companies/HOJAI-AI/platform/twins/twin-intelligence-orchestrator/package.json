@@ -1,0 +1,17 @@
+{
+  "name": "@hojai/twin-intelligence-orchestrator",
+  "version": "1.0.0",
+  "description": "TwinOS Intelligence Orchestrator - Unified AI orchestration for digital twins",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": ["twin", "intelligence", "orchestration", "ai", "twinos"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

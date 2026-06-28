@@ -1,0 +1,35 @@
+{
+  "name": "@hojai/corpid-sdk",
+  "version": "1.0.0",
+  "description": "Official SDK for CorpID Universal Identity OS",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "identity",
+    "authentication",
+    "auth",
+    "mfa",
+    "rbac",
+    "delegation",
+    "trust",
+    "agent-identity",
+    "workload-identity"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

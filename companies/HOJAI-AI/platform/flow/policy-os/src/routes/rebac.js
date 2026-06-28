@@ -38,16 +38,45 @@ export const RELATIONSHIP_TYPES = {
 // ── Graph Store ──────────────────────────────────────────────────────────────
 
 // Map<id, { id, from, type, to, metadata, createdAt, createdBy, tenantId }>
-const relationshipStore = new Map();
+// Can be overridden by persistent store via initRelationshipsStore()
+let relationshipStore = new Map();
 let relationshipIdCounter = 0;
 
-// Inverted index for fast lookups
+// Inverted index for fast lookups (rebuilt from persistent store on boot)
 // outEdges: Map<from, Set<id>>  — what edges start from a node
 // inEdges: Map<to, Set<id>>      — what edges end at a node
 // typeIndex: Map<type, Set<id>> — edges of a given type
-const outEdges = new Map();
-const inEdges = new Map();
-const typeIndex = new Map();
+let outEdges = new Map();
+let inEdges = new Map();
+let typeIndex = new Map();
+
+/**
+ * Rebuild all in-memory indexes from persisted relationships.
+ * Call once at boot if using PersistentStore.
+ */
+function rebuildIndexes(pStore) {
+  outEdges = new Map();
+  inEdges = new Map();
+  typeIndex = new Map();
+  relationshipStore = pStore;
+  for (const rel of pStore.values()) {
+    addToIndex(rel);
+  }
+}
+
+/**
+ * Replace the graph store with a PersistentStore.
+ * Rebuilds indexes and initializes id counter from existing keys.
+ */
+export function initRelationshipsStore(pStore) {
+  rebuildIndexes(pStore);
+  let maxN = 0;
+  for (const key of pStore.keys()) {
+    const m = key.match(/rel-(\d+)/);
+    if (m) maxN = Math.max(maxN, parseInt(m[1]));
+  }
+  relationshipIdCounter = maxN;
+}
 
 function addToIndex(rel) {
   // outEdges
@@ -262,7 +291,12 @@ export function evaluateWithReBAC(policy, context, relationships) {
 
 // ── Route Registration ───────────────────────────────────────────────────────
 
-export function registerReBACRoutes(app, { auditLog, customAuth }) {
+export function registerReBACRoutes(app, { auditLog, customAuth, relationships }) {
+
+  // Use persistent store if provided, otherwise in-memory Map
+  if (relationships) {
+    initRelationshipsStore(relationships);
+  }
 
   // POST /api/relationships — create relationship
   app.post('/api/relationships', customAuth, (req, res) => {

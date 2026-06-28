@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/flow-simulation-first",
+  "version": "1.0.0",
+  "description": "FlowOS Simulation-First Execution - Pre-execution gates and risk scoring",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  },
+  "keywords": ["flowos", "simulation", "risk", "approval"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

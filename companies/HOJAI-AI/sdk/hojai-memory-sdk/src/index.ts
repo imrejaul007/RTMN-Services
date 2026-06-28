@@ -101,6 +101,17 @@ export class MemoryOSClient extends BaseClient {
     content: string;
     type?: string;
     metadata?: Record<string, unknown>;
+    // NEW: Organizational context
+    department?: string;
+    team?: string;
+    project?: string;
+    approvers?: string[];
+    alternatives?: string[];
+    reason?: string;
+    outcome?: string;
+    stakeholders?: string[];
+    importance?: string;
+    visibility?: string;
   }): Promise<MemoryResponse<{ id: string }>> {
     return this.post('/api/memories', options);
   }
@@ -109,6 +120,7 @@ export class MemoryOSClient extends BaseClient {
     query: string;
     userId?: string;
     limit?: number;
+    mode?: 'keyword' | 'semantic' | 'hybrid' | 'timeline' | 'similarity';
   }): Promise<MemoryResponse<{ memories: unknown[] }>> {
     return this.get('/api/memories/search', options);
   }
@@ -123,6 +135,100 @@ export class MemoryOSClient extends BaseClient {
 
   async list(userId: string, options?: { limit?: number; offset?: number }): Promise<MemoryResponse<{ memories: unknown[] }>> {
     return this.get(`/api/memories/user/${userId}`, options);
+  }
+
+  // NEW: Working Memory Hierarchy
+  async setUserWorkingMemory(twinId: string, context: {
+    context?: Record<string, unknown>;
+    currentTask?: string;
+    currentConversation?: string;
+    currentWorkflow?: string;
+  }): Promise<MemoryResponse<unknown>> {
+    return this.post(`/api/memory/working/user/${twinId}`, context);
+  }
+
+  async getUserWorkingMemory(twinId: string): Promise<MemoryResponse<unknown>> {
+    return this.get(`/api/memory/working/user/${twinId}`);
+  }
+
+  async setDepartmentWorkingMemory(deptId: string, data: {
+    name: string;
+    context?: Record<string, unknown>;
+    currentGoals?: string[];
+    activeProjects?: string[];
+    teamMembers?: string[];
+  }): Promise<MemoryResponse<unknown>> {
+    return this.post(`/api/memory/working/department/${deptId}`, data);
+  }
+
+  async getDepartmentWorkingMemory(deptId: string): Promise<MemoryResponse<unknown>> {
+    return this.get(`/api/memory/working/department/${deptId}`);
+  }
+
+  async listDepartments(): Promise<MemoryResponse<{ departments: unknown[] }>> {
+    return this.get('/api/memory/working/departments');
+  }
+
+  async setProjectWorkingMemory(projectId: string, data: {
+    name: string;
+    department?: string;
+    phase?: string;
+    teamMembers?: string[];
+    recentDecisions?: string[];
+    currentBlockers?: string[];
+  }): Promise<MemoryResponse<unknown>> {
+    return this.post(`/api/memory/working/project/${projectId}`, data);
+  }
+
+  async getProjectWorkingMemory(projectId: string): Promise<MemoryResponse<unknown>> {
+    return this.get(`/api/memory/working/project/${projectId}`);
+  }
+
+  async listProjects(department?: string): Promise<MemoryResponse<{ projects: unknown[] }>> {
+    return this.get('/api/memory/working/projects', department ? { department } : undefined);
+  }
+
+  async setTeamWorkingMemory(teamId: string, data: {
+    name: string;
+    department?: string;
+    goals?: string[];
+    culture?: Record<string, unknown>;
+    members?: string[];
+  }): Promise<MemoryResponse<unknown>> {
+    return this.post(`/api/memory/working/team/${teamId}`, data);
+  }
+
+  async getTeamWorkingMemory(teamId: string): Promise<MemoryResponse<unknown>> {
+    return this.get(`/api/memory/working/team/${teamId}`);
+  }
+
+  async listTeams(): Promise<MemoryResponse<{ teams: unknown[] }>> {
+    return this.get('/api/memory/working/teams');
+  }
+
+  async setCompanyWorkingMemory(companyId: string, data: {
+    name: string;
+    mission?: Record<string, unknown>;
+    values?: string[];
+    strategy?: Record<string, unknown>;
+    news?: string[];
+    metrics?: Record<string, unknown>;
+  }): Promise<MemoryResponse<unknown>> {
+    return this.post(`/api/memory/working/company/${companyId}`, data);
+  }
+
+  async getCompanyWorkingMemory(companyId: string): Promise<MemoryResponse<unknown>> {
+    return this.get(`/api/memory/working/company/${companyId}`);
+  }
+
+  async getUnifiedContext(options: {
+    twinId?: string;
+    deptId?: string;
+    projectId?: string;
+    teamId?: string;
+    companyId?: string;
+  }): Promise<MemoryResponse<unknown>> {
+    return this.get('/api/memory/context', options);
   }
 }
 
@@ -470,6 +576,62 @@ export class MemoryOS {
       })
     );
     return results;
+  }
+}
+
+// ============ MCP CLIENT (for Claude/ChatGPT integration) ============
+
+export class MemoryMCPClient extends BaseClient {
+  constructor(config: MemoryConfig = {}) {
+    super({ ...config, baseUrl: config.baseUrl || 'http://localhost:4890' });
+  }
+
+  async listTools(): Promise<MemoryResponse<{ tools: unknown[] }>> {
+    return this.post('/api/mcp/tools/list', {});
+  }
+
+  async executeTool(name: string, args: Record<string, unknown>): Promise<MemoryResponse<unknown>> {
+    return this.post('/api/mcp/tools/execute', { name, arguments: args });
+  }
+
+  async batchExecute(calls: Array<{ name: string; arguments: Record<string, unknown> }>): Promise<MemoryResponse<{ results: unknown[] }>> {
+    return this.post('/api/mcp/tools/batch', { calls });
+  }
+
+  // Convenience methods for common operations
+  async searchMemories(twinId: string, query: string, mode?: string): Promise<MemoryResponse<unknown>> {
+    return this.executeTool('memory_search', { twinId, query, mode });
+  }
+
+  async storeMemory(options: {
+    twinId: string;
+    content: string;
+    type?: string;
+    importance?: string;
+    tags?: string[];
+    department?: string;
+  }): Promise<MemoryResponse<unknown>> {
+    return this.executeTool('memory_store', options);
+  }
+
+  async getContext(options: {
+    twinId: string;
+    department?: string;
+    project?: string;
+  }): Promise<MemoryResponse<unknown>> {
+    return this.executeTool('memory_context', options);
+  }
+
+  async forgetMemory(twinId: string, memoryId: string, reason?: string): Promise<MemoryResponse<unknown>> {
+    return this.executeTool('memory_forget', { twinId, memoryId, reason });
+  }
+
+  async queryKnowledge(entity: string, depth?: number): Promise<MemoryResponse<unknown>> {
+    return this.executeTool('knowledge_query', { entity, depth });
+  }
+
+  async linkKnowledge(from: string, to: string, relationship: string): Promise<MemoryResponse<unknown>> {
+    return this.executeTool('knowledge_link', { from, to, relationship });
   }
 }
 
