@@ -289,6 +289,7 @@ async function addMessage({ conversationId, content, sender, channel, direction 
 }
 
 // ─── WhatsApp Webhook Middleware ─────────────────────────
+const WHATSAPP_VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'usb-verify-token-change-me';
 const whatsappWebhook = createWhatsAppWebhookMiddleware({
   verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'usb-verify-token-change-me',
   appSecret: process.env.WHATSAPP_APP_SECRET || process.env.WHATSAPP_VERIFY_TOKEN || 'usb-verify-token-change-me',
