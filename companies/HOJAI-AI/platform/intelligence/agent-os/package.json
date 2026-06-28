@@ -1,0 +1,23 @@
+{
+  "name": "@hojai/agent-os",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Agent OS - Production agent runtime with process management, state machine, health monitoring, IPC, and sandboxing",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest --reporter=verbose",
+    "test:unit": "vitest __tests__/unit/*.test.js --reporter=verbose"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
