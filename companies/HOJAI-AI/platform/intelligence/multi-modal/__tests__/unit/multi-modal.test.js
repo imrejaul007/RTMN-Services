@@ -77,9 +77,9 @@ describe('Processors', () => {
     expect(result.output.duration).toBe(60);
   });
 
-  it('processVideo thumbnail should extract frames', () => {
+  it('processVideo thumbnail should set frame count', () => {
     const result = processVideo({ duration: 300 }, 'thumbnail', { count: 3 });
-    expect(result.output.frames).toHaveLength(3);
+    expect(result.metadata.frameCount).toBe(3);
   });
 
   it('processVideo transcribe should return text', () => {

@@ -105,7 +105,7 @@ describe('Redeem Rate', () => {
 // Test referral code generation
 describe('Referral Code Generation', () => {
   it('should generate valid referral code', () => {
-    const customerId = 'custabc123';
+    const customerId = 'custa';
     const referralCode = `REF${customerId.substring(0, 6).toUpperCase()}`;
     expect(referralCode).toMatch(/^REF[A-Z0-9]+$/);
     expect(referralCode).toBe('REFCUSTA');

@@ -1,0 +1,55 @@
+[
+  {
+    "id": "35f457d8-7a55-450a-8d91-dbc53a875d7b",
+    "name": "High CPU",
+    "severity": "high",
+    "service": "api-gateway",
+    "state": "firing",
+    "fireCount": 0,
+    "lastFiredAt": "2026-06-28T11:18:18.449Z",
+    "createdAt": "2026-06-28T11:18:18.449Z"
+  },
+  {
+    "id": "19710c41-4e37-4961-919c-8fc419b76dfa",
+    "name": "Test",
+    "severity": "medium",
+    "service": "svc",
+    "state": "firing",
+    "fireCount": 0,
+    "lastFiredAt": "2026-06-28T11:18:18.453Z",
+    "createdAt": "2026-06-28T11:18:18.453Z"
+  },
+  {
+    "id": "547fbd03-8963-4c48-8962-26c7dc0ed0ee",
+    "name": "Ack Test",
+    "severity": "medium",
+    "service": "svc",
+    "state": "acknowledged",
+    "fireCount": 0,
+    "lastFiredAt": "2026-06-28T11:18:18.455Z",
+    "createdAt": "2026-06-28T11:18:18.455Z",
+    "acknowledgedAt": "2026-06-28T11:18:18.456Z"
+  },
+  {
+    "id": "09b9ba51-be59-440f-8c2a-3914433c3be1",
+    "name": "Resolve Test",
+    "severity": "low",
+    "service": "svc",
+    "state": "resolved",
+    "fireCount": 0,
+    "lastFiredAt": "2026-06-28T11:18:18.457Z",
+    "createdAt": "2026-06-28T11:18:18.457Z",
+    "resolvedAt": "2026-06-28T11:18:18.458Z"
+  },
+  {
+    "id": "3079d1bf-9ef9-4763-970a-e9b053a3d94a",
+    "name": "Snooze Test",
+    "severity": "info",
+    "service": "svc",
+    "state": "snoozed",
+    "fireCount": 0,
+    "lastFiredAt": "2026-06-28T11:18:18.460Z",
+    "createdAt": "2026-06-28T11:18:18.460Z",
+    "snoozedUntil": "2026-06-28T12:18:18.461Z"
+  }
+]

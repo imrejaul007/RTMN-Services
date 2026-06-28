@@ -1,0 +1,564 @@
+[
+  {
+    "id": "003718b4-77a0-4e02-a708-a0029e368c40",
+    "type": "image",
+    "filename": "img.jpg",
+    "operation": "resize",
+    "status": "completed",
+    "result": {
+      "operation": "resize",
+      "original": {
+        "size": 1024,
+        "format": "png",
+        "width": 1920,
+        "height": 1080
+      },
+      "output": {
+        "width": 800,
+        "height": 600,
+        "size": 1406
+      },
+      "metadata": {
+        "aspectRatio": 1.3333333333333333
+      },
+      "processedAt": "2026-06-28T11:17:17.105Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.105Z"
+  },
+  {
+    "id": "2c0acaa3-8e4a-40cd-9ae2-ebed24f99037",
+    "type": "image",
+    "filename": "img.jpg",
+    "operation": "thumbnail",
+    "status": "completed",
+    "result": {
+      "operation": "thumbnail",
+      "original": {
+        "size": 1024,
+        "format": "png",
+        "width": 1920,
+        "height": 1080
+      },
+      "output": {
+        "width": 150,
+        "height": 150,
+        "size": 66
+      },
+      "metadata": {
+        "thumbnail": true
+      },
+      "processedAt": "2026-06-28T11:17:17.108Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.108Z"
+  },
+  {
+    "id": "7d81f817-99c2-4884-b24e-70a4e1fca4d9",
+    "type": "audio",
+    "filename": "audio.mp3",
+    "operation": "transcribe",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 60,
+        "format": "mp3",
+        "sampleRate": 44100
+      },
+      "output": {
+        "text": "[Simulated transcription of 60s audio]",
+        "duration": 60
+      },
+      "metadata": {
+        "wordCount": 150,
+        "language": "en"
+      },
+      "processedAt": "2026-06-28T11:17:17.110Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.110Z"
+  },
+  {
+    "id": "60b665b0-85db-497e-8fc0-1a6667bfc9f6",
+    "type": "video",
+    "filename": "video.mp4",
+    "operation": "transcribe",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 300,
+        "format": "mp4",
+        "fps": 30
+      },
+      "output": {
+        "text": "[Simulated video transcription of 300s video]",
+        "duration": 300
+      },
+      "metadata": {
+        "wordCount": 750
+      },
+      "processedAt": "2026-06-28T11:17:17.114Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.114Z"
+  },
+  {
+    "id": "6aa61c1e-12a3-4573-8ea2-e4f3e476a74a",
+    "type": "video",
+    "filename": "video.mp4",
+    "operation": "extract_frames",
+    "status": "completed",
+    "result": {
+      "operation": "extract_frames",
+      "original": {
+        "duration": 300,
+        "format": "mp4",
+        "fps": 30
+      },
+      "output": {
+        "frameCount": 5,
+        "frames": [
+          {
+            "frameNumber": 1,
+            "timestamp": 0
+          },
+          {
+            "frameNumber": 2,
+            "timestamp": 60
+          },
+          {
+            "frameNumber": 3,
+            "timestamp": 120
+          },
+          {
+            "frameNumber": 4,
+            "timestamp": 180
+          },
+          {
+            "frameNumber": 5,
+            "timestamp": 240
+          }
+        ]
+      },
+      "metadata": {},
+      "processedAt": "2026-06-28T11:17:17.115Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.115Z"
+  },
+  {
+    "id": "9df6b3f8-28cd-400c-b8e9-c7793bc46ae0",
+    "type": "ocr",
+    "filename": "doc.png",
+    "status": "completed",
+    "result": {
+      "text": "[Simulated OCR text from 1920x1080 image, 207 words]",
+      "wordCount": 207,
+      "confidence": 0.92,
+      "language": "en",
+      "lines": 41,
+      "boundingBoxes": [
+        {
+          "text": "[text-1]",
+          "x": 10,
+          "y": 10,
+          "width": 100,
+          "height": 20,
+          "confidence": 0.95
+        },
+        {
+          "text": "[text-2]",
+          "x": 10,
+          "y": 40,
+          "width": 150,
+          "height": 20,
+          "confidence": 0.88
+        }
+      ],
+      "processedAt": "2026-06-28T11:17:17.117Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.117Z"
+  },
+  {
+    "id": "7e271b5c-67d0-41d2-b399-d1e16eb2412c",
+    "type": "transcription",
+    "filename": "audio.mp3",
+    "mediaType": "audio",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 60,
+        "format": "mp3",
+        "sampleRate": 44100
+      },
+      "output": {
+        "text": "[Simulated transcription of 60s audio]",
+        "duration": 60
+      },
+      "metadata": {
+        "wordCount": 150,
+        "language": "en"
+      },
+      "processedAt": "2026-06-28T11:17:17.118Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.118Z"
+  },
+  {
+    "id": "f26df5d6-5ef0-4ac6-acb6-047207f3a59c",
+    "type": "transcription",
+    "filename": "video.mp4",
+    "mediaType": "video",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 300,
+        "format": "mp4",
+        "fps": 30
+      },
+      "output": {
+        "text": "[Simulated video transcription of 300s video]",
+        "duration": 300
+      },
+      "metadata": {
+        "wordCount": 750
+      },
+      "processedAt": "2026-06-28T11:17:17.119Z"
+    },
+    "createdAt": "2026-06-28T11:17:17.119Z"
+  },
+  {
+    "id": "3045f9f7-d79c-44d6-9cf7-005bc4ba3461",
+    "type": "batch",
+    "taskCount": 2,
+    "results": [
+      {
+        "type": "image",
+        "filename": "a.jpg",
+        "operation": "thumbnail",
+        "status": "completed",
+        "result": {
+          "operation": "thumbnail",
+          "original": {
+            "size": 1024,
+            "format": "png",
+            "width": 1920,
+            "height": 1080
+          },
+          "output": {
+            "width": 150,
+            "height": 150,
+            "size": 66
+          },
+          "metadata": {
+            "thumbnail": true
+          },
+          "processedAt": "2026-06-28T11:17:17.123Z"
+        }
+      },
+      {
+        "type": "audio",
+        "filename": "b.mp3",
+        "operation": "transcribe",
+        "status": "completed",
+        "result": {
+          "operation": "transcribe",
+          "original": {
+            "duration": 60,
+            "format": "mp3",
+            "sampleRate": 44100
+          },
+          "output": {
+            "text": "[Simulated transcription of 60s audio]",
+            "duration": 60
+          },
+          "metadata": {
+            "wordCount": 150,
+            "language": "en"
+          },
+          "processedAt": "2026-06-28T11:17:17.123Z"
+        }
+      }
+    ],
+    "createdAt": "2026-06-28T11:17:17.123Z"
+  },
+  {
+    "id": "069bc1ba-09c0-4c0d-b030-c0468d5cb3a3",
+    "type": "image",
+    "filename": "img.jpg",
+    "operation": "resize",
+    "status": "completed",
+    "result": {
+      "operation": "resize",
+      "original": {
+        "size": 1024,
+        "format": "png",
+        "width": 1920,
+        "height": 1080
+      },
+      "output": {
+        "width": 800,
+        "height": 600,
+        "size": 1406
+      },
+      "metadata": {
+        "aspectRatio": 1.3333333333333333
+      },
+      "processedAt": "2026-06-28T11:20:08.302Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.302Z"
+  },
+  {
+    "id": "1b2f917c-cbf0-4e3b-bbad-df72332655bb",
+    "type": "image",
+    "filename": "img.jpg",
+    "operation": "thumbnail",
+    "status": "completed",
+    "result": {
+      "operation": "thumbnail",
+      "original": {
+        "size": 1024,
+        "format": "png",
+        "width": 1920,
+        "height": 1080
+      },
+      "output": {
+        "width": 150,
+        "height": 150,
+        "size": 66
+      },
+      "metadata": {
+        "thumbnail": true
+      },
+      "processedAt": "2026-06-28T11:20:08.306Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.306Z"
+  },
+  {
+    "id": "dd24e242-2ccf-4934-86f5-2fe916a2b332",
+    "type": "audio",
+    "filename": "audio.mp3",
+    "operation": "transcribe",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 60,
+        "format": "mp3",
+        "sampleRate": 44100
+      },
+      "output": {
+        "text": "[Simulated transcription of 60s audio]",
+        "duration": 60
+      },
+      "metadata": {
+        "wordCount": 150,
+        "language": "en"
+      },
+      "processedAt": "2026-06-28T11:20:08.307Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.307Z"
+  },
+  {
+    "id": "cfe1ed38-342a-482d-9915-6fd0835676f1",
+    "type": "video",
+    "filename": "video.mp4",
+    "operation": "transcribe",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 300,
+        "format": "mp4",
+        "fps": 30
+      },
+      "output": {
+        "text": "[Simulated video transcription of 300s video]",
+        "duration": 300
+      },
+      "metadata": {
+        "wordCount": 750
+      },
+      "processedAt": "2026-06-28T11:20:08.310Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.310Z"
+  },
+  {
+    "id": "5abaa0d2-8531-4ee9-bdd2-cacc164f2d71",
+    "type": "video",
+    "filename": "video.mp4",
+    "operation": "extract_frames",
+    "status": "completed",
+    "result": {
+      "operation": "extract_frames",
+      "original": {
+        "duration": 300,
+        "format": "mp4",
+        "fps": 30
+      },
+      "output": {
+        "frameCount": 5,
+        "frames": [
+          {
+            "frameNumber": 1,
+            "timestamp": 0
+          },
+          {
+            "frameNumber": 2,
+            "timestamp": 60
+          },
+          {
+            "frameNumber": 3,
+            "timestamp": 120
+          },
+          {
+            "frameNumber": 4,
+            "timestamp": 180
+          },
+          {
+            "frameNumber": 5,
+            "timestamp": 240
+          }
+        ]
+      },
+      "metadata": {},
+      "processedAt": "2026-06-28T11:20:08.311Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.311Z"
+  },
+  {
+    "id": "2a7a8fa7-b368-4477-96a5-195e43e15b39",
+    "type": "ocr",
+    "filename": "doc.png",
+    "status": "completed",
+    "result": {
+      "text": "[Simulated OCR text from 1920x1080 image, 207 words]",
+      "wordCount": 207,
+      "confidence": 0.92,
+      "language": "en",
+      "lines": 41,
+      "boundingBoxes": [
+        {
+          "text": "[text-1]",
+          "x": 10,
+          "y": 10,
+          "width": 100,
+          "height": 20,
+          "confidence": 0.95
+        },
+        {
+          "text": "[text-2]",
+          "x": 10,
+          "y": 40,
+          "width": 150,
+          "height": 20,
+          "confidence": 0.88
+        }
+      ],
+      "processedAt": "2026-06-28T11:20:08.312Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.312Z"
+  },
+  {
+    "id": "2a8cf2c2-c1d5-4f86-a02a-b507be1be654",
+    "type": "transcription",
+    "filename": "audio.mp3",
+    "mediaType": "audio",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 60,
+        "format": "mp3",
+        "sampleRate": 44100
+      },
+      "output": {
+        "text": "[Simulated transcription of 60s audio]",
+        "duration": 60
+      },
+      "metadata": {
+        "wordCount": 150,
+        "language": "en"
+      },
+      "processedAt": "2026-06-28T11:20:08.314Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.314Z"
+  },
+  {
+    "id": "9398cf6f-d9b8-4e53-b59a-a3fe690598d9",
+    "type": "transcription",
+    "filename": "video.mp4",
+    "mediaType": "video",
+    "status": "completed",
+    "result": {
+      "operation": "transcribe",
+      "original": {
+        "duration": 300,
+        "format": "mp4",
+        "fps": 30
+      },
+      "output": {
+        "text": "[Simulated video transcription of 300s video]",
+        "duration": 300
+      },
+      "metadata": {
+        "wordCount": 750
+      },
+      "processedAt": "2026-06-28T11:20:08.315Z"
+    },
+    "createdAt": "2026-06-28T11:20:08.316Z"
+  },
+  {
+    "id": "b989474d-6707-4d8f-8758-bf19e5f4aa61",
+    "type": "batch",
+    "taskCount": 2,
+    "results": [
+      {
+        "type": "image",
+        "filename": "a.jpg",
+        "operation": "thumbnail",
+        "status": "completed",
+        "result": {
+          "operation": "thumbnail",
+          "original": {
+            "size": 1024,
+            "format": "png",
+            "width": 1920,
+            "height": 1080
+          },
+          "output": {
+            "width": 150,
+            "height": 150,
+            "size": 66
+          },
+          "metadata": {
+            "thumbnail": true
+          },
+          "processedAt": "2026-06-28T11:20:08.322Z"
+        }
+      },
+      {
+        "type": "audio",
+        "filename": "b.mp3",
+        "operation": "transcribe",
+        "status": "completed",
+        "result": {
+          "operation": "transcribe",
+          "original": {
+            "duration": 60,
+            "format": "mp3",
+            "sampleRate": 44100
+          },
+          "output": {
+            "text": "[Simulated transcription of 60s audio]",
+            "duration": 60
+          },
+          "metadata": {
+            "wordCount": 150,
+            "language": "en"
+          },
+          "processedAt": "2026-06-28T11:20:08.322Z"
+        }
+      }
+    ],
+    "createdAt": "2026-06-28T11:20:08.322Z"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "bff3bb08-59b4-4ada-9305-928accc96756",
+    "name": "Ops Dashboard",
+    "description": "Main ops view",
+    "widgets": [
+      {
+        "type": "metric",
+        "metric": "request_count"
+      }
+    ],
+    "filters": {},
+    "createdAt": "2026-06-28T11:18:18.471Z"
+  },
+  {
+    "id": "ec853784-c50a-4c3c-a23f-e057140a74eb",
+    "name": "Get Dash",
+    "widgets": [],
+    "filters": {},
+    "createdAt": "2026-06-28T11:18:18.472Z"
+  }
+]

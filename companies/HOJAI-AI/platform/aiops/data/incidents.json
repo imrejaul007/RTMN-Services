@@ -1,0 +1,91 @@
+[
+  {
+    "id": "ee11586d-41ab-4680-8317-cc387bc44347",
+    "title": "API Down",
+    "severity": "critical",
+    "service": "api-gateway",
+    "alertIds": [],
+    "state": "open",
+    "timeline": [
+      {
+        "event": "created",
+        "timestamp": "2026-06-28T11:18:18.462Z"
+      }
+    ],
+    "createdAt": "2026-06-28T11:18:18.462Z",
+    "updatedAt": "2026-06-28T11:18:18.462Z"
+  },
+  {
+    "id": "5c712ae5-90f4-4e84-8e09-6bc4fea5bf2d",
+    "title": "Get Test",
+    "severity": "medium",
+    "service": "svc",
+    "alertIds": [],
+    "state": "open",
+    "timeline": [
+      {
+        "event": "created",
+        "timestamp": "2026-06-28T11:18:18.465Z"
+      }
+    ],
+    "createdAt": "2026-06-28T11:18:18.465Z",
+    "updatedAt": "2026-06-28T11:18:18.465Z"
+  },
+  {
+    "id": "ff9f58c4-21c9-4d7d-9e76-9ac9e16be8f8",
+    "title": "Timeline Test",
+    "severity": "medium",
+    "service": "svc",
+    "alertIds": [],
+    "state": "open",
+    "timeline": [
+      {
+        "event": "created",
+        "timestamp": "2026-06-28T11:18:18.466Z"
+      },
+      {
+        "event": "investigating",
+        "note": "Looking into it",
+        "timestamp": "2026-06-28T11:18:18.467Z"
+      }
+    ],
+    "createdAt": "2026-06-28T11:18:18.466Z",
+    "updatedAt": "2026-06-28T11:18:18.467Z"
+  },
+  {
+    "id": "ec5e6f5f-fa38-4912-b52f-5a2516275d6b",
+    "title": "Trans Test",
+    "severity": "medium",
+    "service": "svc",
+    "alertIds": [],
+    "state": "investigating",
+    "timeline": [
+      {
+        "event": "created",
+        "timestamp": "2026-06-28T11:18:18.468Z"
+      },
+      {
+        "event": "transitioned_to_investigating",
+        "timestamp": "2026-06-28T11:18:18.469Z"
+      }
+    ],
+    "createdAt": "2026-06-28T11:18:18.468Z",
+    "updatedAt": "2026-06-28T11:18:18.469Z"
+  },
+  {
+    "id": "11e750de-1df6-4d2d-8a2e-b0671bd29821",
+    "title": "Invalid",
+    "severity": "medium",
+    "service": "svc",
+    "alertIds": [],
+    "state": "open",
+    "timeline": [
+      {
+        "event": "created",
+        "timestamp": "2026-06-28T11:18:18.470Z"
+      }
+    ],
+    "createdAt": "2026-06-28T11:18:18.470Z",
+    "updatedAt": "2026-06-28T11:18:18.470Z"
+  }
+]
