@@ -219,164 +219,106 @@ export class PolicyFile {
 // ── Simple YAML Parser ─────────────────────────────────────────────────────────
 
 /**
- * Minimal YAML parser for policy files.
- * Handles the YAML subset used by Policy-as-Code files:
- * key-value pairs, nested objects (indented), lists (dashes), comments.
+ * Minimal YAML parser for Policy-as-Code files.
+ * Handles the YAML subset used by policy files:
+ * - Top-level key: value pairs
+ * - Nested objects with 2-space indentation
+ * - Lists of objects: - key: value
+ * - Lists of scalars: - value
+ * - Comments (#)
+ * - Booleans, numbers, strings
  */
 function parseYAML(yaml) {
-  const result = {};
   const lines = yaml.split('\n');
+  let pos = 0;
 
-  function parseValue(val) {
-    val = val.trim();
-    if (!val) return undefined;
-    // Quoted strings
-    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-      return val.slice(1, -1);
-    }
-    // Booleans
-    if (val === 'true') return true;
-    if (val === 'false') return false;
-    if (val === 'null' || val === '~') return null;
-    // Numbers
-    if (/^-?\d+(\.\d+)?$/.test(val)) return parseFloat(val);
-    return val;
+  function scalar(s) {
+    s = (s || '').trim();
+    if (s === 'true') return true;
+    if (s === 'false') return false;
+    if (s === 'null' || s === '~') return null;
+    const n = parseFloat(s);
+    if (!isNaN(n) && s === String(n)) return n;
+    return s;
   }
 
-  function buildNested(lines, startIndent) {
+  // Parse nested object starting at current position
+  // Returns { value, consumed } where consumed = number of lines consumed
+  function parseNested(baseIndent) {
     const obj = {};
-    let i = startIndent;
+    let start = pos;
+    const list = [];
 
-    while (i < lines.length) {
-      const raw = lines[i];
-      // Strip trailing comments
-      const commentIdx = raw.indexOf('#');
-      const line = (commentIdx >= 0 ? raw.slice(0, commentIdx) : raw).replace(/\r$/, '');
-      i++;
+    while (pos < lines.length) {
+      const raw = lines[pos];
+      const hash = raw.indexOf('#');
+      const line = hash >= 0 ? raw.slice(0, hash) : raw;
+      if (!line.trim()) { pos++; continue; }
+      const indent = raw.search(/\S/);
+      if (indent < baseIndent) break; // Done with this block
 
-      if (!line.trim()) continue; // blank line
-
-      const leadingSpaces = line.match(/^ */)[0].length;
-      if (leadingSpaces < startIndent + 2) {
-        // Back at or above our level
-        i--; // re-process this line at parent level
-        break;
-      }
-
-      const content = line.slice(leadingSpaces);
+      const content = line.trim();
 
       // List item
       if (content.startsWith('- ')) {
-        const value = content.slice(2).trim();
-        const keyEnd = value.indexOf(':');
-        if (keyEnd >= 0) {
-          const key = value.slice(0, keyEnd).trim();
-          const rest = value.slice(keyEnd + 1).trim();
-          if (!Array.isArray(obj._list)) obj._list = [];
-          const item = {};
-          obj._list.push(item);
-          item[key] = parseValue(rest);
+        const rest = content.slice(2).trim();
+        const colon = rest.indexOf(':');
+        if (colon >= 0) {
+          const key = rest.slice(0, colon).trim();
+          const val = rest.slice(colon + 1).trim();
+          if (val === '') {
+            pos++;
+            const nested = parseNested(indent + 2);
+            list.push({ [key]: nested.value });
+            pos += nested.consumed;
+          } else {
+            list.push({ [key]: scalar(val) });
+            pos++;
+          }
         } else {
-          if (!Array.isArray(obj._list)) obj._list = [];
-          obj._list.push(parseValue(value));
+          list.push(scalar(rest));
+          pos++;
         }
       } else {
-        const colonIdx = content.indexOf(':');
-        if (colonIdx < 0) continue;
-        const key = content.slice(0, colonIdx).trim();
-        const rest = content.slice(colonIdx + 1).trim();
-
-        if (rest === '' || rest === '|' || rest === '>' || rest === '|-' || rest === '>-') {
-          // Nested block follows
-          const nested = buildNested(lines, leadingSpaces);
-          obj[key] = nested;
+        // Key-value
+        const colon = content.indexOf(':');
+        if (colon < 0) { pos++; continue; }
+        const key = content.slice(0, colon).trim();
+        const val = content.slice(colon + 1).trim();
+        if (val === '' || val === '|' || val === '>' || val === '|-' || val === '>-') {
+          pos++;
+          const nested = parseNested(indent + 2);
+          obj[key] = nested.value;
+          pos += nested.consumed;
         } else {
-          obj[key] = parseValue(rest);
+          obj[key] = scalar(val);
+          pos++;
         }
       }
     }
 
-    // Extract _list into proper array
-    if (obj._list) {
-      for (const [k, v] of Object.entries(obj)) {
-        if (Array.isArray(v) && v.some(item => typeof item === 'object')) {
-          // Merge list items with keyed objects
+    const consumed = pos - start;
+    if (list.length > 0) {
+      // If all items are single-key objects, check if we can merge by key
+      if (list.every(item => item !== null && typeof item === 'object' && !Array.isArray(item) && Object.keys(item).length === 1)) {
+        const merged = {};
+        for (const item of list) {
+          const [k, v] = Object.entries(item)[0];
+          if (!merged[k]) merged[k] = [];
+          merged[k].push(v);
         }
-      }
-    }
-    const final = {};
-    for (const [k, v] of Object.entries(obj)) {
-      if (k !== '_list') final[k] = v;
-    }
-    if (obj._list) {
-      // Collect all items (plain values + objects)
-      const arr = obj._list.filter(v => v !== undefined);
-      if (arr.length > 0) final._items = arr;
-    }
-    return final;
-  }
-
-  // First pass: top-level key-value + list items
-  const topLevelList = [];
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
-    const commentIdx = line.indexOf('#');
-    if (commentIdx >= 0) line = line.slice(0, commentIdx);
-    line = line.replace(/\r$/, '');
-    if (!line.trim()) continue;
-
-    const leadingSpaces = line.match(/^ */)[0].length;
-    if (leadingSpaces > 2) {
-      // Nested under top level — parse as nested object
-      const nested = buildNested(lines, leadingSpaces);
-      Object.assign(result, nested);
-      // Skip lines consumed by buildNested
-      continue;
-    }
-
-    const content = line.trim();
-
-    if (content.startsWith('- ')) {
-      const value = content.slice(2).trim();
-      const keyEnd = value.indexOf(':');
-      if (keyEnd >= 0) {
-        const key = value.slice(0, keyEnd).trim();
-        const rest = value.slice(keyEnd + 1).trim();
-        const item = {};
-        item[key] = parseValue(rest);
-        topLevelList.push(item);
+        for (const [k, arr] of Object.entries(merged)) {
+          obj[k] = arr.length === 1 ? arr[0] : arr;
+        }
       } else {
-        topLevelList.push(parseValue(value));
+        obj._items = list;
       }
-    } else {
-      const colonIdx = content.indexOf(':');
-      if (colonIdx < 0) continue;
-      const key = content.slice(0, colonIdx).trim();
-      const rest = content.slice(colonIdx + 1).trim();
-      result[key] = parseValue(rest);
     }
+    return { value: obj, consumed };
   }
 
-  if (topLevelList.length > 0) {
-    // If all top-level items are objects with one key, return as object keyed by that field
-    if (topLevelList.every(item => item !== null && typeof item === 'object' && !Array.isArray(item) && Object.keys(item).length === 1)) {
-      const merged = {};
-      for (const item of topLevelList) {
-        const [k, v] = Object.entries(item)[0];
-        if (!merged[k]) merged[k] = [];
-        merged[k].push(v);
-      }
-      // If keys are unique, merge into result
-      for (const [k, v] of Object.entries(merged)) {
-        if (v.length === 1) result[k] = v[0];
-        else result[k] = v;
-      }
-    } else {
-      result._items = topLevelList;
-    }
-  }
-
-  return result;
+  const { value } = parseNested(-1);
+  return value;
 }
 
 // ── Sync Engine ────────────────────────────────────────────────────────────────
