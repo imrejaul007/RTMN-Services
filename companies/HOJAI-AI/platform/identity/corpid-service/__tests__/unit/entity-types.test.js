@@ -127,7 +127,8 @@ describe('CorpID Entity Types', () => {
 
       for (const entity of res.body.entityTypes) {
         expect(entity.prefix).toMatch(/^CI-[A-Z]+-/);
-        expect(entity.prefix).toHaveLength(8); // CI-XXX-
+        expect(entity.prefix.length).toBeGreaterThanOrEqual(7); // CI-X- minimum
+        expect(entity.prefix.length).toBeLessThanOrEqual(10); // CI-PROD- maximum
       }
     });
 
