@@ -1076,6 +1076,17 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 |---------|------|--------|---------|
 | **RAZO Keyboard** | 4299 | ✅ | Communication OS — "The keyboard that thinks" — transforms natural language into actionable intents (order-food, book-hotel, make-payment, ask-genie, etc.) connecting Genie AI, DO App, SUTAR OS, Copilots, and all 24 Industry OS. Integrated with Do App backend (`razoClient.ts` + `routes/razo.ts` + real webhook routing) and RTMN Hub at `/api/foundation/razo-keyboard/*`. Mobile: `useRazo.ts` hook + RAZO intent detection in Autopilot tab. Dev stack: `scripts/dev-stack.sh` starts RAZO on port 4299. 100 vitest tests covering IntentRouter (24), ContextEngine (27), ActionEngine (20), ChannelBridge (29). |
 
+### Customer Support Services (6)
+
+| Service | Port | Status | Purpose |
+|---------|------|--------|---------|
+| **unified-support-bridge** | 4885 | ✅ NEW | Cross-channel support bridge — resolves customer identity from phone/email/appUserId, receives webhooks from WhatsApp/Email/App, links conversations across channels, provides merge API. RTMN Hub: `/api/support/*` |
+| **unified-inbox** | 4870 | ✅ | 8-channel inbox (Email, Chat, Phone, WhatsApp, Instagram, Twitter, Facebook, Telegram) with agent routing and macros |
+| **ticket-engine** | 4872 | ✅ | Ticket lifecycle management (new→open→pending→resolved→closed), SLA, categories, comments |
+| **live-support-os** | 4884 | ✅ | Human-in-the-loop escalation router — AI confidence routing, skill-matched agent selection, handoff context |
+| **whatsapp-os** | 4860 | ✅ | WhatsApp Business API orchestration (360dialog, Twilio, Meta) with multi-provider abstraction |
+| **support-copilot** | — | ✅ | AI assistance for support agents |
+
 ### REZ Services (4)
 
 | Service | Port | Status | Purpose |
