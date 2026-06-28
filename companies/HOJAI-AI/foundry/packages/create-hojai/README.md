@@ -3,7 +3,7 @@
 > **The `npx hojai` CLI.** Scaffolds HOJAI Foundry starters into working
 > projects. Mirrors `create-react-app` / `create-next-app` conventions.
 
-**Status:** v2.0.0 (2026-06-28) — Complete HOJAI Studio CLI with 14 commands, 16 tests, 0 failures.
+**Status:** v2.0.0 (2026-06-28) — Complete HOJAI Studio CLI with 14 commands, 71 tests, 0 failures.
 
 ## Install / run
 
@@ -194,17 +194,24 @@ the token table, file rename rule, and agent catalog.
 ## Tests
 
 ```bash
-node --test tests/prompts.test.js
-# 16 tests, all pass
+node --test tests/*.test.js
+# 71 tests, 0 failures
 ```
 
 Coverage:
-- Templates/agents/regions/languages catalogs (8 tests)
-- Lookup helpers (2 tests)
-- Name validation (1 test)
-- `buildVars` token map (2 tests)
-- `renderTemplate` (4 tests: walk + replace, unknown tokens, skip dirs, _-rename)
-- `writeManifest` (1 test)
+- prompts.test.js (16): Templates, agents, regions, languages catalogs
+- deploy.test.js (9): Local/preview/remote deploy modes
+- add.test.js (6): Agents, services, integrations
+- base-agent.test.js (10): Local/remote agent execution
+- audit.test.js (5): Audit logging
+- domain.test.js (4): Custom domain management
+- evolve.test.js (4): Auto-improvement
+- generate.test.js (4): Blueprint engine
+- inspect.test.js (4): Project diagnostics
+- llm-agent.test.js (5): LLM agent generation
+- preview.test.js (4): Preview environments
+- rollback.test.js (3): Deployment rollback
+- team.test.js (5): Team management
 
 ## License
 

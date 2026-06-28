@@ -436,7 +436,7 @@ npm test
 #           auth (401/403/200), findFreePort, safeSubdomain
 ```
 
-**Total: 74+ tests, 0 failures (14 command test files + company + hojai-cloud).**
+**Total: 71 tests, 0 failures (13 command test files).**
 
 ---
 

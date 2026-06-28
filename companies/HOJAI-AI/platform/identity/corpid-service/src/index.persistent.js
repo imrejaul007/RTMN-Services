@@ -2807,6 +2807,11 @@ app.post('/api/webhooks', [
   });
 }));
 
+// GET /api/webhooks/event-types — List available event types (before :id route)
+app.get('/api/webhooks/event-types', (req, res) => {
+  res.json({ success: true, events: WEBHOOK_EVENTS });
+});
+
 // GET /api/webhooks — List webhooks
 app.get('/api/webhooks', requireAuth, asyncHandler(async (req, res) => {
   const webhooks = await Webhook.find();
@@ -2934,11 +2939,6 @@ app.get('/api/webhooks/:id/deliveries', requireAuth, asyncHandler(async (req, re
     })),
   });
 }));
-
-// GET /api/webhooks/events — List available events
-app.get('/api/webhooks/events', (req, res) => {
-  res.json({ success: true, events: WEBHOOK_EVENTS });
-});
 
 // ============ NAMESPACES ============
 
