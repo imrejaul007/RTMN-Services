@@ -707,6 +707,11 @@ start_all() {
   start_service "agent-observability"     "$AGENT_OBSERVABILITY_CMD"      4814
   # HOJAI Voice Gateway (port 4880)
   start_service "voice-gateway"           "$VOICE_GATEWAY_CMD"           4880
+	  # VoiceOS Phase 1 (June 29, 2026) — 4 services completing 12-layer VoiceOS
+	  start_service "conversation-physics"   "$CONVERSATION_PHYSICS_CMD"   4881
+	  start_service "voice-director"          "$VOICE_DIRECTOR_CMD"          4882
+	  start_service "life-timeline"         "$LIFE_TIMELINE_CMD"         4883
+	  start_service "voice-identity"         "$VOICE_IDENTITY_CMD"         4884
   # HOJAI App Store API (port 4400)
   start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
