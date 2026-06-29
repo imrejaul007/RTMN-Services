@@ -1,0 +1,184 @@
+# Finance Department Pack
+# Phase 2 - Tenant-aware Finance Department Service
+
+id: finance
+name: Finance Department
+version: 1.0.0
+description: Complete finance and accounting department with tenant isolation
+
+provider:
+  name: RTMN
+  contact: company-os@rtmn.dev
+
+port: 4801
+
+capabilities:
+  - Accounting
+  - Treasury Management
+  - Tax Compliance
+  - Budgeting
+  - Financial Reporting
+  - Payment Processing
+  - Invoice Management
+  - Expense Tracking
+
+modules:
+  - id: accounting
+    name: Core Accounting
+    endpoints:
+      - GET /api/accounting/chart-of-accounts
+      - POST /api/accounting/entries
+      - GET /api/accounting/trial-balance
+
+  - id: treasury
+    name: Treasury Management
+    endpoints:
+      - GET /api/treasury/balances
+      - POST /api/treasury/transfers
+      - GET /api/treasury/cash-flow
+
+  - id: invoicing
+    name: Invoice Management
+    endpoints:
+      - POST /api/invoices
+      - GET /api/invoices/:id
+      - PUT /api/invoices/:id/status
+      - GET /api/invoices
+
+  - id: payments
+    name: Payment Processing
+    endpoints:
+      - POST /api/payments
+      - GET /api/payments/:id
+      - POST /api/payments/:id/refund
+
+  - id: expenses
+    name: Expense Management
+    endpoints:
+      - POST /api/expenses
+      - GET /api/expenses
+      - PUT /api/expenses/:id/approve
+
+  - id: budgets
+    name: Budget Management
+    endpoints:
+      - POST /api/budgets
+      - GET /api/budgets
+      - PUT /api/budgets/:id
+
+  - id: reports
+    name: Financial Reports
+    endpoints:
+      - GET /api/reports/balance-sheet
+      - GET /api/reports/p&l
+      - GET /api/reports/cash-flow
+
+aiWorkers:
+  - id: ai-cfo
+    name: AI Chief Financial Officer
+    level: senior
+    description: Leads finance department, reports to CEO
+    skills:
+      - financial_analysis
+      - cash_flow_management
+      - risk_assessment
+      - investor_relations
+      - board_presentations
+    policies:
+      - spending-limits
+      - approval-matrix
+    memory:
+      enabled: true
+      retention: 90d
+      sources:
+        - erp_system
+        - bank_statements
+        - invoices
+    twin:
+      type: department:finance
+      updateFrequency: realtime
+
+  - id: ai-accountant
+    name: AI Accountant
+    level: senior
+    description: Handles day-to-day accounting operations
+    skills:
+      - bookkeeping
+      - invoice_processing
+      - reconciliation
+      - tax_calculation
+    policies:
+      - invoice-validation
+    twin:
+      type: worker:ai-accountant
+
+  - id: ai-treasury-manager
+    name: AI Treasury Manager
+    level: senior
+    description: Manages cash and liquidity
+    skills:
+      - cash_flow_forecasting
+      - investment_management
+      - bank_relationship
+    policies:
+      - treasury-limits
+    twin:
+      type: worker:ai-treasury-manager
+
+dependencies:
+  required:
+    - identity  # CorpID for tenant identification
+  optional: []
+
+conflicts: []
+
+configSchema:
+  currency:
+    type: string
+    default: INR
+    enum: [INR, USD, EUR, GBP, AED, SGD]
+
+  timezone:
+    type: string
+    default: Asia/Kolkata
+
+  fiscalYearStart:
+    type: string
+    default: "04-01"  # April 1st for India
+
+  gstEnabled:
+    type: boolean
+    default: true
+
+  tdsEnabled:
+    type: boolean
+    default: true
+
+  multiCurrency:
+    type: boolean
+    default: false
+
+twinConfig:
+  type: department:finance
+  relationships:
+    - type: reports_to
+      target: company
+    - type: has_worker
+      target: ai-cfo
+    - type: has_worker
+      target: ai-accountant
+    - type: has_worker
+      target: ai-treasury-manager
+
+healthChecks:
+  - type: endpoint
+    path: /health
+    interval: 60s
+  - type: database
+    target: finance_db
+    interval: 300s
+
+migration:
+  fromLegacy: finance-os
+  adapterRequired: false
+  dataMapping: {}

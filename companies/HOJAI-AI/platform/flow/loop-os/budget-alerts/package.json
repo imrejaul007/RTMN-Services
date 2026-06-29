@@ -1,0 +1,20 @@
+{
+  "name": "@hojai/loopos-budget-alerts",
+  "version": "1.0.0",
+  "description": "LoopOS Budget Alerts - Real-time budget notifications and webhooks",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test __tests__/*.test.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.11.0"
+  }
+}
