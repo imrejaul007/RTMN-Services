@@ -449,6 +449,136 @@ function initRegistry() {
     lastSync: new Date().toISOString(),
   });
 
+  // ============================================================
+  // LOOPOS - Persistent Autonomous Execution
+  // ============================================================
+
+  registerService({
+    id: 'loop-scheduler',
+    name: 'Loop Scheduler',
+    port: 4731,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['loops', 'executions', 'schedules'],
+    features: ['cron-scheduling', 'persistent-execution', 'manual-trigger'],
+    description: 'Persistent autonomous execution engine',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'loop-state',
+    name: 'Loop State Manager',
+    port: 4732,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['states', 'checkpoints', 'approvals'],
+    features: ['state-persistence', 'checkpoint-restore', 'human-gates'],
+    description: 'State persistence between loop executions',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'verification-engine',
+    name: 'Verification Engine',
+    port: 4733,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['maker', 'checker', 'guardian', 'policies'],
+    features: ['maker-checker-guardian', 'risk-scoring', 'human-approval'],
+    description: 'Maker→Checker→Guardian verification pattern',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'budget-engine',
+    name: 'Budget Engine',
+    port: 4734,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['tokens', 'spend', 'allocations'],
+    features: ['token-limits', 'spend-caps', 'tool-limits'],
+    description: 'Token, cost, and tool limits per AI agent',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'fleet-os',
+    name: 'Fleet Manager',
+    port: 4735,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['fleets', 'agents', 'capabilities', 'health'],
+    features: ['agent-registry', 'hierarchy', 'escalation'],
+    description: 'AI employee organization management',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'trust-profile',
+    name: 'Trust Profile',
+    port: 4736,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['profiles', 'autonomy', 'certifications', 'violations'],
+    features: ['trust-scoring', 'progressive-autonomy', 'policy-violations'],
+    description: 'Progressive autonomy and trust scoring',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'outcome-tracker',
+    name: 'Outcome Tracker',
+    port: 4737,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['outcomes', 'skills', 'patterns', 'analytics'],
+    features: ['outcome-tracking', 'skill-evolution', 'pattern-detection'],
+    description: 'Track agent outcomes for learning',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'knowledge-graph',
+    name: 'Knowledge Graph',
+    port: 4738,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['entities', 'relations', 'ontologies', 'causality'],
+    features: ['entity-relationships', 'causal-reasoning', 'semantic-search'],
+    description: 'Entity relationships and causal reasoning',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
+  registerService({
+    id: 'certification-pipeline',
+    name: 'Certification Pipeline',
+    port: 4739,
+    type: 'platform',
+    category: 'loopos',
+    version: '1.0.0',
+    modules: ['simulation', 'evaluation', 'certification', 'badges'],
+    features: ['sim-to-cert', 'test-suites', 'certification', 'badges'],
+    description: 'Simulation → Trust → Certification flow',
+    health: 'healthy',
+    lastSync: new Date().toISOString(),
+  });
+
   console.log(`Sync Hub: ${registry.services.size} services registered`);
 }
 
