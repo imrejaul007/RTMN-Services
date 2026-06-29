@@ -1,0 +1,19 @@
+# Education Extension
+id: education
+name: Education Extension
+version: 1.0.0
+port: 5060
+industry: education
+verticalModules:
+  - id: students
+    name: Student Management
+    routes: [GET/POST /api/students]
+  - id: courses
+    name: Course Management
+    routes: [GET/POST /api/courses]
+  - id: enrollment
+    name: Enrollment
+    routes: [GET/POST /api/enrollments]
+  - id: certificates
+    name: Certificates
+    routes: [GET/POST /api/certificates]

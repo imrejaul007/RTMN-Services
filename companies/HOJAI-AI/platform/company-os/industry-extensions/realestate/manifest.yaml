@@ -1,0 +1,20 @@
+# realestate Extension
+id: realestate
+name: Realestate Extension
+version: 1.0.0
+port: 5230
+industry: realestate
+verticalityScore: 0.80
+verticalModules:
+  - id: properties
+    name: Properties
+    routes: [GET/POST /api/properties, GET /api/properties/:id]
+  - id: listings
+    name: Listings
+    routes: [GET/POST /api/listings, GET /api/listings/:id]
+  - id: leads
+    name: Leads
+    routes: [GET/POST /api/leads, GET /api/leads/:id]
+  - id: viewings
+    name: Viewings
+    routes: [GET/POST /api/viewings, GET /api/viewings/:id]
