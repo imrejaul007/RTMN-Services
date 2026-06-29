@@ -1,0 +1,12 @@
+{
+  "name": "@hojai/loopos-tests",
+  "version": "1.0.0",
+  "description": "LoopOS Vitest Test Suite",
+  "scripts": {
+    "test": "node --test **/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage **/*.test.js"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  }
+}
