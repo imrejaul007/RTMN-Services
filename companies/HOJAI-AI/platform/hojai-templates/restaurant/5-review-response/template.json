@@ -1,0 +1,33 @@
+{
+  "id": "restaurant-review-response",
+  "name": "AI Review Response",
+  "category": "restaurant",
+  "description": "Monitor and respond to reviews across Google, Zomato, Swiggy",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 */2 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "actor", "name": "Monitor Reviews", "config": {"actors": ["google_places", "zomato"], "filter": "new_reviews"}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Review", "config": {"agent": "support_agent", "prompt": "Analyze review: sentiment, key points, urgency, response tone needed."}},
+    {"id": "3", "type": "condition", "name": "Sentiment Check", "config": {"field": "review.sentiment"}},
+    {"id": "4a", "type": "ai_agent", "name": "Generate Positive Response", "config": {"agent": "support_agent", "prompt": "Generate thank you response for positive review."}},
+    {"id": "4b", "type": "ai_agent", "name": "Generate Negative Response", "config": {"agent": "support_agent", "prompt": "Generate empathetic response for negative review. Apologize and offer to make it right."}},
+    {"id": "5", "type": "approval", "name": "Manager Review", "config": {"condition": "rating <= 2", "approvers": ["restaurant_manager"]}},
+    {"id": "6", "type": "action", "name": "Post Response", "config": {"platform": "{{review.platform}}"}},
+    {"id": "7", "type": "crm", "name": "Log Response", "config": {"action": "add_note", "type": "review_response"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "sentiment == positive"},
+    {"from": "3", "to": "4b", "condition": "sentiment == negative"},
+    {"from": "4a", "to": "5"},
+    {"from": "4b", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["support_agent"],
+  "integrations": ["google_places", "zomato", "swiggy"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["restaurant", "reviews", "automation", "reputation"]
+}

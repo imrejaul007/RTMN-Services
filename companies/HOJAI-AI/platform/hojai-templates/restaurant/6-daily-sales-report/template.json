@@ -1,0 +1,26 @@
+{
+  "id": "restaurant-daily-sales-report",
+  "name": "Daily Sales Report",
+  "category": "restaurant",
+  "description": "Automated daily sales, cost, and profit reporting",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 23 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "pos", "name": "Get Sales Data", "config": {"action": "get_daily_sales"}},
+    {"id": "2", "type": "inventory", "name": "Get Food Cost", "config": {"action": "get_food_cost", "date": "today"}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Report", "config": {"agent": "report_agent", "prompt": "Generate daily sales report with revenue, food cost, labor cost, and profit."}},
+    {"id": "4", "type": "slack", "name": "Send to Manager", "config": {"channel": "restaurant-management", "template": "daily_report"}},
+    {"id": "5", "type": "twin", "name": "Update Sales Twin", "config": {"twin": "restaurant_twin", "action": "update_daily"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "3"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"}
+  ],
+  "agents": ["report_agent"],
+  "integrations": ["pos", "inventory", "slack"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 799, "currency": "INR", "period": "month"},
+  "tags": ["restaurant", "reporting", "automation"]
+}
