@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.22
+> **Version:** 5.27
 > **Last Updated:** June 29, 2026
-> **New:** ✅ **LoopOS** — Persistent Autonomous Execution Layer (9 services: Scheduler, State, Verification, Budget, Fleet, Trust, Outcomes, Knowledge, Certification)
-> **Status:** ✅ **LoopOS** (9 services) + SUTAR OS (37 services) + MemoryOS (30 services) + Human Intelligence OS (10 services)
+> **New:** ✅ **SimulationOS** — Test agents in sandbox before production (scenarios, worlds, synthetic entities)
+> **Status:** ✅ **LoopOS** (17 services) + **SUTAR OS** (37 services) + **MemoryOS** (30 services)
 
 ---
 
@@ -1205,30 +1205,35 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 
 **Source:** `companies/HOJAI-AI/services/` and `companies/HOJAI-AI/products/`
 
-### LoopOS — Persistent Autonomous Execution Layer (2026-06-29) — 5 NEW Services
+### LoopOS — Persistent Autonomous Execution Layer (2026-06-29) — 17 SERVICES
 
 **LoopOS** implements Loop Engineering for HOJAI — converting AI agents from task-based to persistent autonomous execution. Source: [`platform/flow/loop-os/`](companies/HOJAI-AI/platform/flow/loop-os/)
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| **loop-scheduler** | 4731 | Cron-based persistent autonomous execution engine |
-| **loop-state** | 4732 | State persistence + checkpoints between loop executions |
-| **verification-engine** | 4733 | Maker→Checker→Guardian verification pattern |
-| **budget-engine** | 4734 | Token, cost, and tool limits per AI agent |
-| **fleet-os** | 4735 | AI employee organization management |
-| **trust-profile** | 4736 | Progressive autonomy + trust scoring for AI agents |
-| **outcome-tracker** | 4737 | Outcome tracking + skill evolution |
-| **knowledge-graph** | 4738 | Entity relationships + causal reasoning |
-| **certification-pipeline** | 4739 | Simulation → Trust → Certification flow |
+| **Core Runtime** |
+| loop-scheduler | 4731 | Cron-based persistent autonomous execution engine |
+| loop-state | 4732 | State persistence + checkpoints between loop executions |
+| verification-engine | 4733 | Maker→Checker→Guardian verification pattern |
+| budget-engine | 4734 | Token, cost, and tool limits per AI agent |
+| fleet-os | 4735 | AI employee organization management |
+| **Intelligence** |
+| trust-profile | 4736 | Progressive autonomy + trust scoring for AI agents |
+| outcome-tracker | 4737 | Outcome tracking + skill evolution |
+| knowledge-graph | 4738 | Entity relationships + causal reasoning |
+| certification-pipeline | 4739 | Simulation → Trust → Certification flow |
+| **Integration & Ops** |
+| twinos-integration | 4740 | Tie loops to Employee Twins |
+| memoryos-integration | 4741 | Persist loop state to MemoryOS |
+| observability-dashboard | 4742 | Visual monitoring for loops, budgets, trust |
+| retry-engine | 4743 | Circuit breaker + exponential backoff |
+| worktrees | 4744 | Parallel execution (fan-out/fan-in) |
+| agent-bus | 4745 | Inter-agent communication + messaging |
+| **Tools & Simulation** |
+| mcp-connectors | 4746 | Model Context Protocol - 20+ pre-built tools |
+| simulation-os | 4747 | Test agents in sandbox before production |
 
-**Key Features:**
-- **Persistent Loops:** AI agents that continuously discover work, execute, verify, and improve
-- **Maker-Checker-Guardian:** Never trust single AI output — enterprise verification pipeline
-- **Budget Enforcement:** Token/spend/tool limits prevent runaway costs
-- **Fleet Management:** AI employee registry, hierarchy, health monitoring
-- **Progressive Autonomy:** New agents start restricted, earn more trust over time
-
-**Startup:** See [`platform/flow/loop-os/CLAUDE.md`](companies/HOJAI-AI/platform/flow/loop-os/CLAUDE.md)
+**Startup:** `bash platform/flow/loop-os/start-loopos.sh start`
 
 ### AgentOS (12 services) - ✅ RUNNING
 
@@ -2187,6 +2192,98 @@ Given a capability (e.g. "negotiate SaaS contracts") and a context (industry, ur
 | Bronze | 50-69 | 🥉 |
 | Iron | 30-49 | ⚙️ |
 | Restricted | 0-29 | ⚠️ |
+
+---
+
+## Human Intelligence OS (40+ services)
+
+Enterprise-grade human intelligence infrastructure: EmotionOS, TrustOS, KnowledgeOS, BehaviorOS, VoiceOS Pipeline, Task Engine.
+
+### VoiceOS Pipeline (10 services)
+
+Voice fingerprinting infrastructure connecting voice to identity, twins, memory, relationships, and actions.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| Voice Identity | 4884 | Speaker identification, consent, trust |
+| voice-identity-bridge | 4885 | Voice → CorpID linking |
+| voice-twin-retriever | 4886 | Auto-fetch twin on voice |
+| voice-memory-router | 4887 | Route voice to memory namespace |
+| voice-relationship-graph | 4888 | Voice interaction relationships |
+| voice-action-router | 4889 | Voice → Action systems |
+| meeting-intelligence | 4890 | Meeting transcription, summarization |
+| voice-analytics-dashboard | 4891 | Voice interaction analytics |
+| company-voice-profiles | 4892 | Enterprise voice profiles |
+| brand-voice-templates | 4893 | Brand voice templates |
+
+**Pipeline:** Voice → Voice Identity → CorpID → TwinOS → MemoryOS → Relationship Graph → Action Systems
+
+### EmotionOS (8 services)
+
+Real-time emotion detection, analytics, and empathetic responses.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| voice-emotion-detection | 4760 | Voice-tone emotion analysis |
+| emotional-memory | 4761 | Emotional timeline storage |
+| empathy-response-engine | 4762 | Agent-assist empathetic responses |
+| emotion-analytics | 4763 | Emotion dashboards |
+| emotional-journey | 4764 | Post-call journey analysis |
+| emotion-alerts | 4765 | Real-time emotion alerts |
+| cross-modal-emotion | 4766 | Text + voice fusion |
+| tone-analysis | 4767 | Sales tone analytics |
+
+### TrustOS (10 services)
+
+AI output trust, fact-checking, and risk assessment.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| confidence-scorer | 4990 | AI confidence scoring |
+| source-tracker | 4991 | Citation verification |
+| evidence-collector | 4992 | Evidence retrieval |
+| verification-engine | 4993 | Fact-checking |
+| hallucination-detector | 4994 | AI consistency |
+| risk-scorer | 4995 | Risk assessment |
+| trust-semantic-cache | 4996 | Trusted answer caching |
+| trust-audit-trail | 4997 | Trust decision logging |
+| trust-policy-engine | 4998 | Trust policies |
+| federated-trust | 4999 | Cross-org trust |
+
+### KnowledgeOS (4 services)
+
+Knowledge graph, reasoning, and entity resolution.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| persistent-graph-store | 4750 | Graph + vector storage |
+| ontology-engine | 4751 | Schema validation |
+| entity-resolution | 4752 | Entity deduplication |
+| reasoning-engine | 4753 | Rule engine, path queries |
+
+### BehaviorOS (3 services)
+
+Behavioral patterns and habit tracking.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| habit-engine | 4731 | Habit tracking, patterns |
+| behavior-intelligence | 4788 | Behavior analysis |
+| behavioral-twin | 4746 | Behavioral profiles |
+
+### Task Engine (7 services)
+
+Smarter task extraction, assignment, and execution.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| task-extraction-engine | 4291 | Extract tasks from text |
+| task-assignment-engine | 4290 | Route tasks to owners |
+| action-orchestrator | 4292 | Execute actions |
+| goal-task-linker | 4293 | Link tasks to OKRs |
+| deadline-tracker | 4294 | Deadline tracking |
+| task-reminders | 4295 | Task notifications |
+| escalation-engine | 4296 | Auto-escalation |
 
 ### Total ACN Statistics
 

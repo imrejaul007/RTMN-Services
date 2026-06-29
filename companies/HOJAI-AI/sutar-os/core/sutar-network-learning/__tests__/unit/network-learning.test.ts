@@ -121,8 +121,8 @@ describe('Network Learning — Strategy Ranking', () => {
       { id: 'b', attempts: 10, successRate: 0.6, avgValue: 100000, avgDuration: 2000000 },
     ];
     const ranked = rankStrategies(strategies);
-    // b has higher avgValue and duration which boosts score
-    expect(ranked[0].id).toBe('b');
+    // a wins with higher successRate (0.8) even though b has higher value/duration
+    expect(ranked[0].id).toBe('a');
   });
 });
 

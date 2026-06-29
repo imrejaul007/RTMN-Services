@@ -1,0 +1,33 @@
+{
+  "id": "commerce-purchase-request",
+  "name": "Purchase Request Automation",
+  "category": "commerce",
+  "description": "Automate purchase requests from departments to procurement",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "erp", "event": "purchase_request.created"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "New PR", "config": {"source": "erp"}},
+    {"id": "2", "type": "ai_agent", "name": "Validate Request", "config": {"agent": "procurement_agent", "prompt": "Validate: budget available, compliance, specifications complete."}},
+    {"id": "3", "type": "condition", "name": "Auto Approve?", "config": {"field": "request.amount", "operator": "<=", "value": 5000}},
+    {"id": "4a", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["department_head"], "timeout": 24}},
+    {"id": "4b", "type": "action", "name": "Auto-Approve", "config": {"action": "approve", "reason": "below_threshold"}},
+    {"id": "5", "type": "approval", "name": "Finance Approval", "config": {"condition": "amount > 50000", "approvers": ["finance_manager"]}},
+    {"id": "6", "type": "erp", "name": "Convert to PO", "config": {"action": "create_po"}},
+    {"id": "7", "type": "email", "name": "Notify Requester", "config": {"template": "pr_approved"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "amount > 5000"},
+    {"from": "3", "to": "4b", "condition": "amount <= 5000"},
+    {"from": "4a", "to": "5", "condition": "approved && amount > 50000"},
+    {"from": "4b", "to": "6"},
+    {"from": "5", "to": "6", "condition": "approved"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["procurement_agent"],
+  "integrations": ["erp", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "procurement", "automation", "approval"]
+}

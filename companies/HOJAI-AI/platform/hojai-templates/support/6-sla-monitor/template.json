@@ -1,0 +1,29 @@
+{
+  "id": "support-sla-monitor",
+  "name": "SLA Breach Monitor",
+  "category": "support",
+  "description": "Monitor SLA compliance and escalate tickets approaching breach",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 */30 * * * *"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Get At-Risk Tickets", "config": {"action": "get_tickets", "filter": {"sla_breach_risk": "high"}}},
+    {"id": "2", "type": "ai_agent", "name": "Assess Situation", "config": {"agent": "support_agent", "prompt": "Assess: reason for delay, solution available, escalation needed."}},
+    {"id": "3", "type": "condition", "name": "Can Resolve?", "config": {"field": "ticket.can_resolve_quickly"}},
+    {"id": "4a", "type": "action", "name": "Auto-Resolve", "config": {"action": "send_solution", "if": "resolution_available"}},
+    {"id": "4b", "type": "slack", "name": "Escalate", "config": {"channel": "support-urgent", "template": "sla_escalation"}},
+    {"id": "5", "type": "crm", "name": "Update Ticket", "config": {"action": "update_priority", "priority": "urgent"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "can_resolve == true"},
+    {"from": "3", "to": "4b", "condition": "can_resolve == false"},
+    {"from": "4a", "to": "5"},
+    {"from": "4b", "to": "5"}
+  ],
+  "agents": ["support_agent"],
+  "integrations": ["crm", "slack"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["support", "sla", "automation", "escalation"]
+}

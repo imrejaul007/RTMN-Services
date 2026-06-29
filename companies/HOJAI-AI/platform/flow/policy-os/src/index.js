@@ -72,6 +72,8 @@ import { registerLifecycleAutomationRoutes } from './routes/lifecycle-automation
 import { registerDeveloperExperienceRoutes } from './routes/developer-experience.js';
 import { registerGitOpsRoutes } from './routes/gitops.js';
 import { registerFormalVerificationRoutes } from './routes/formal-verification.js';
+import { registerCacheRoutes } from './routes/cache.js';
+import { warmCache } from './services/cache.js';
 import { validatePolicyBody, CATEGORIES, POLICY_STATUSES } from './lib/validation.js';
 import { prototypePollutionMiddleware, sanitizePolicyId, sanitizeExpression, sanitizeName, validateWebhookUrl } from './lib/sanitization.js';
 import {
@@ -148,6 +150,13 @@ const AUDIT_FILE_PATH = `${process.env.HOJAI_DATA_DIR || './data/'}/policy-os/au
 
 // Inject crypto into app locals for webhook route use
 app.locals.crypto = crypto;
+
+// ── Distributed Cache (Phase P2) — warm cache on boot ───────────────────────
+setImmediate(() => {
+  warmCache(policies).catch(err => {
+    console.warn('[policy-os] Cache warm failed:', err.message);
+  });
+});
 
 // =================================================================
 // Auth middleware factory
@@ -558,7 +567,8 @@ registerConstitutionalAIRoutes(app, { auditLog, customAuth, constitutions });
 registerLifecycleAutomationRoutes(app, { auditLog, customAuth, automations, approvalQueue });
 // Phase 10: Developer Experience — OpenAPI, SDKs, sandbox, compliance reports
 registerDeveloperExperienceRoutes(app, { auditLog, customAuth });
-
+// Phase P2: Distributed Cache — Redis-backed caching with circuit breaker
+registerCacheRoutes(app, { policies, customAuth });
 // =================================================================
 // Error handlers
 // =================================================================

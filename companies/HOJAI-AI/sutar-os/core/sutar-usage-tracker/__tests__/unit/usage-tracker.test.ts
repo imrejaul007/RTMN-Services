@@ -4,6 +4,7 @@
 import { describe, it, expect } from 'vitest';
 
 describe('Usage Tracker — Cost Calculation', () => {
+  // PRICING in dollars per unit
   const PRICING = {
     token: 0.00003,
     outputToken: 0.00009,
@@ -27,13 +28,13 @@ describe('Usage Tracker — Cost Calculation', () => {
   }
 
   it('calculates input token cost', () => {
-    // 1M tokens * $0.00003 = $0.03
-    expect(calculateCost({ type: 'input_token', quantity: 1000000 })).toBeCloseTo(0.03, 4);
+    // 1M tokens * $0.00003 = $30
+    expect(calculateCost({ type: 'input_token', quantity: 1000000 })).toBeCloseTo(30, 4);
   });
 
   it('calculates output token cost', () => {
-    // 1M tokens * $0.00009 = $0.09
-    expect(calculateCost({ type: 'output_token', quantity: 1000000 })).toBeCloseTo(0.09, 4);
+    // 1M tokens * $0.00009 = $90
+    expect(calculateCost({ type: 'output_token', quantity: 1000000 })).toBeCloseTo(90, 4);
   });
 
   it('calculates API call cost', () => {

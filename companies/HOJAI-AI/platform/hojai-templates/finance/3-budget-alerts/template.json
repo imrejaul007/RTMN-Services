@@ -1,0 +1,31 @@
+{
+  "id": "finance-budget-alerts",
+  "name": "Budget Alerts & Monitoring",
+  "category": "finance",
+  "description": "Real-time budget monitoring with automated alerts when thresholds are exceeded",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 0 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "finance", "name": "Get Budget Status", "config": {"action": "get_budget_status"}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Spending", "config": {"agent": "finance_agent", "prompt": "Analyze spending vs budget. Identify: categories over limit, trends, projections."}},
+    {"id": "3", "type": "condition", "name": "Over Budget?", "config": {"field": "spending.pct", "operator": ">=", "value": 90}},
+    {"id": "4a", "type": "slack", "name": "Critical Alert", "config": {"channel": "finance-alerts", "template": "budget_critical", "condition": "pct >= 100"}},
+    {"id": "4b", "type": "slack", "name": "Warning Alert", "config": {"channel": "department-heads", "template": "budget_warning", "condition": "pct >= 90"}},
+    {"id": "5", "type": "email", "name": "Weekly Report", "config": {"to": "finance_team@company.com", "template": "budget_report"}},
+    {"id": "6", "type": "twin", "name": "Update Budget Twin", "config": {"twin": "budget_twin", "action": "update", "fields": ["spending", "remaining", "projections"]}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "pct >= 100"},
+    {"from": "3", "to": "4b", "condition": "pct >= 90"},
+    {"from": "4a", "to": "5"},
+    {"from": "4b", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["finance_agent"],
+  "integrations": ["finance", "slack", "email"],
+  "estimated_setup_time": "20 minutes",
+  "price": {"subscription": 799, "currency": "INR", "period": "month"},
+  "tags": ["finance", "budget", "monitoring", "alerts"]
+}

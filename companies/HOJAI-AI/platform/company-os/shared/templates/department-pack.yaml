@@ -1,0 +1,60 @@
+# Department Pack Template
+
+id: "{{pack_id}}"
+name: "{{pack_name}}"
+version: "1.0.0"
+description: "{{pack_description}}"
+
+provider:
+  name: RTMN
+  contact: company-os@rtmn.dev
+
+capabilities:
+  - "{{capability_1}}"
+  - "{{capability_2}}"
+
+aiWorkers:
+  - id: "{{worker_id}}"
+    name: "{{worker_name}}"
+    level: senior
+    description: "{{worker_description}}"
+    skills: []
+    policies: []
+    memory:
+      enabled: true
+      retention: 90d
+    twin:
+      type: worker:{{worker_id}}
+      updateFrequency: realtime
+
+dependencies:
+  required:
+    - identity
+  optional: []
+
+conflicts: []
+
+configSchema:
+  currency:
+    type: string
+    default: INR
+  timezone:
+    type: string
+    default: Asia/Kolkata
+
+endpoints:
+  - path: /api/{{pack_id}}
+    description: "{{pack_name}} API gateway"
+
+twinConfig:
+  type: department:{{pack_id}}
+  relationships: []
+
+healthChecks:
+  - type: endpoint
+    path: /health
+    interval: 60s
+
+migration:
+  fromLegacy: {{pack_id}}-os
+  adapterRequired: true

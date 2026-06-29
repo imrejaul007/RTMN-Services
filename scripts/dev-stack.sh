@@ -196,6 +196,8 @@ CONVERSATION_PHYSICS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/cor
 VOICE_DIRECTOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-director && PORT=4892 npm start"
 LIFE_TIMELINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/life-timeline && PORT=4893 npm start"
 VOICE_IDENTITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-identity && PORT=4894 npm start"
+HUMAN_GROWTH_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-growth && PORT=4895 npm start"
+HUMAN_PRESENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-presence && PORT=4896 npm start"
 
 # HOJAI App Store API (4400) — Catalog for skills, agents, workflows, templates
 APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PORT=4400 npm start"
@@ -712,6 +714,9 @@ start_all() {
 	  start_service "voice-director"          "$VOICE_DIRECTOR_CMD"          4892
 	  start_service "life-timeline"         "$LIFE_TIMELINE_CMD"         4893
 	  start_service "voice-identity"         "$VOICE_IDENTITY_CMD"         4894
+	  # Human Growth & Presence Engines (Layer 11-12)
+	  start_service "human-growth"         "$HUMAN_GROWTH_CMD"         4895
+	  start_service "human-presence"        "$HUMAN_PRESENCE_CMD"        4896
   # HOJAI App Store API (port 4400)
   start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
@@ -848,6 +853,12 @@ stop_all() {
   stop_port 4814 "agent-observability"
   # HOJAI Voice Gateway
   stop_port 4880 "voice-gateway"
+  stop_port 4891 "conversation-physics"
+  stop_port 4892 "voice-director"
+  stop_port 4893 "life-timeline"
+  stop_port 4894 "voice-identity"
+  stop_port 4895 "human-growth"
+  stop_port 4896 "human-presence"
   stop_port 4400 "app-store-api"
   stop_port 4299 "razo-keyboard"
   # BLR AI Marketplace

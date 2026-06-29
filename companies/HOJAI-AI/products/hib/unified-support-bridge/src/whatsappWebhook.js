@@ -1,148 +1,89 @@
-/**
- * WhatsApp Webhook Manager
- * =========================
- * Handles WhatsApp webhook verification and routing for Meta, Twilio, and 360dialog.
- *
- * WhatsApp requires you to verify a webhook endpoint with a challenge token
- * before it will send you messages. This module handles:
- *
- * 1. Webhook verification (GET challenge response)
- * 2. Message signing verification (X-Hub-Signature-256)
- * 3. Multi-provider abstraction (Meta, Twilio, 360dialog)
- * 4. Webhook registration via provider APIs
- *
- * Supported providers:
- * - Meta WhatsApp Cloud API
- * - Twilio WhatsApp
- * - 360dialog
- */
+'use strict';
 
-const crypto = require('crypto');
+var crypto = require('crypto');
 
-/**
- * Verify WhatsApp Cloud API webhook
- * GET /webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=<token>&hub.challenge=<challenge>
- */
 function verifyWhatsAppChallenge(query, expectedToken) {
-  const mode = query['hub.mode'];
-  const token = query['hub.verify_token'];
-  const challenge = query['hub.challenge'];
-
-  if (mode !== 'subscribe') {
-    return { verified: false, challenge: null, error: 'unknown_mode' };
-  }
-
-  if (token !== expectedToken) {
-    return { verified: false, challenge: null, error: 'token_mismatch' };
-  }
-
-  return { verified: true, challenge, error: null };
+  var mode = query['hub.mode'];
+  var token = query['hub.verify_token'];
+  var challenge = query['hub.challenge'];
+  if (mode !== 'subscribe') return { verified: false, challenge: null, error: 'unknown_mode' };
+  if (token !== expectedToken) return { verified: false, challenge: null, error: 'token_mismatch' };
+  return { verified: true, challenge: challenge, error: null };
 }
 
-/**
- * Verify Meta WhatsApp message signature
- * X-Hub-Signature-256: sha256=<signature>
- *
- * The signature is HMAC-SHA256 of the raw request body, using the webhook verify token
- * as the key (or the app secret for production).
- */
 function verifyMetaSignature(rawBody, signature, appSecret) {
   if (!signature || !rawBody) return false;
-
-  const expected = signature.startsWith('sha256=') ? signature.slice(7) : signature;
-  const hmac = crypto.createHmac('sha256', appSecret);
+  var expected = signature.startsWith('sha256=') ? signature.slice(7) : signature;
+  var hmac = crypto.createHmac('sha256', appSecret);
   hmac.update(rawBody);
-  const computed = hmac.digest('hex');
-
-  return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(expected));
+  var computed = hmac.digest('hex');
+  try { return Buffer.compare(Buffer.from(computed), Buffer.from(expected)) === 0; }
+  catch (e) { return false; }
 }
 
-/**
- * Verify Twilio WhatsApp signature
- * Uses Twilio's auth token as the signing key.
- */
 function verifyTwilioSignature(rawBody, signature, authToken) {
   if (!signature || !rawBody) return false;
-
-  const expected = signature.startsWith('sha256=') ? signature.slice(7) : signature;
-  const hmac = crypto.createHmac('sha256', authToken);
+  var expected = signature.startsWith('sha256=') ? signature.slice(7) : signature;
+  var hmac = crypto.createHmac('sha256', authToken);
   hmac.update(rawBody);
-  const computed = hmac.digest('hex');
-
-  return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(expected));
+  var computed = hmac.digest('hex');
+  try { return Buffer.compare(Buffer.from(computed), Buffer.from(expected)) === 0; }
+  catch (e) { return false; }
 }
 
-/**
- * Parse WhatsApp Cloud API webhook payload
- * Normalizes Meta's format to our internal WhatsAppMessage format.
- */
-function parseWhatsAppPayload(body, rawBody = null) {
-  // Meta WhatsApp Cloud API format
-  if (body.entry) {
-    const entry = body.entry[0];
-    const changes = entry?.changes?.[0];
-    const value = changes?.value;
-    const messages = value?.messages || [];
+function normalizePhone(phone) {
+  if (!phone) return null;
+  var cleaned = String(phone).replace(/[^\d+]/g, '');
+  if (cleaned.length === 10) return '+91' + cleaned;
+  if (cleaned.length === 12 && cleaned.startsWith('91')) return '+' + cleaned;
+  if (cleaned.startsWith('+')) return cleaned;
+  if (cleaned.length > 10) return '+' + cleaned;
+  return null;
+}
 
-    return messages.map((msg) => ({
-      messageId: msg.id,
-      from: normalizePhone(msg.from),
-      contactName: value?.contacts?.find(c => c.wa_id === msg.from)?.profile?.name || null,
-      messageType: msg.type,
-      text: msg.text?.body || null,
-      image: msg.image ? {
-        id: msg.image.id,
-        mimeType: msg.image.mime_type,
-        sha256: msg.image.sha256,
-        caption: msg.image.caption,
-      } : null,
-      audio: msg.audio ? {
-        id: msg.audio.id,
-        mimeType: msg.audio.mime_type,
-        voice: msg.audio.voice,
-      } : null,
-      video: msg.video ? {
-        id: msg.video.id,
-        mimeType: msg.video.mime_type,
-        caption: msg.video.caption,
-      } : null,
-      document: msg.document ? {
-        id: msg.document.id,
-        mimeType: msg.document.mime_type,
-        filename: msg.document.filename,
-        caption: msg.document.caption,
-      } : null,
-      location: msg.location ? {
-        latitude: msg.location.latitude,
-        longitude: msg.location.longitude,
-        name: msg.location.name,
-        address: msg.location.address,
-      } : null,
-      sticker: msg.sticker ? { id: msg.sticker.id } : null,
-      reaction: msg.reaction ? { emoji: msg.reaction.emoji, messageId: msg.reaction.message_id } : null,
-      timestamp: parseInt(msg.timestamp, 10) ? new Date(parseInt(msg.timestamp, 10) * 1000) : new Date(),
-      raw: msg,
-    }));
+function parseWhatsAppPayload(body) {
+  if (body && body.entry) {
+    var entry = body.entry[0];
+    var changes = entry && entry.changes && entry.changes[0];
+    var value = changes && changes.value;
+    var messages = value && value.messages ? value.messages : [];
+    return messages.map(function(msg) {
+      var result = {
+        messageId: msg.id,
+        from: normalizePhone(msg.from),
+        contactName: null,
+        messageType: msg.type,
+        text: msg.text ? msg.text.body : null,
+        timestamp: parseInt(msg.timestamp, 10) ? new Date(parseInt(msg.timestamp, 10) * 1000) : new Date(),
+        raw: msg,
+      };
+      var contact = value.contacts && value.contacts.find(function(c) { return c.wa_id === msg.from; });
+      if (contact && contact.profile) result.contactName = contact.profile.name;
+      if (msg.image) result.image = { id: msg.image.id, mimeType: msg.image.mime_type, caption: msg.image.caption };
+      if (msg.audio) result.audio = { id: msg.audio.id, mimeType: msg.audio.mime_type, voice: msg.audio.voice };
+      if (msg.video) result.video = { id: msg.video.id, mimeType: msg.video.mime_type, caption: msg.video.caption };
+      if (msg.document) result.document = { id: msg.document.id, mimeType: msg.document.mime_type, filename: msg.document.filename };
+      if (msg.location) result.location = { latitude: msg.location.latitude, longitude: msg.location.longitude, name: msg.location.name };
+      if (msg.sticker) result.sticker = { id: msg.sticker.id };
+      if (msg.reaction) result.reaction = { emoji: msg.reaction.emoji, messageId: msg.reaction.message_id };
+      return result;
+    });
   }
-
-  // Our own whatsapp-os format
-  if (body.from && body.message) {
+  if (body && body.from && body.message) {
     return [{
-      messageId: body.id || body.messageId || `wa-${Date.now()}`,
+      messageId: body.id || body.messageId || 'wa-' + Date.now(),
       from: normalizePhone(body.from),
-      contactName: body.contactName || body.profile?.name || null,
+      contactName: body.contactName || null,
       messageType: body.messageType || 'text',
-      text: body.text || body.message?.text || null,
-      timestamp: body.timestamp ? new Date(parseInt(body.timestamp, 10) * 1000) : new Date(),
+      text: body.text || body.message.text || null,
+      timestamp: body.timestamp ? (parseInt(body.timestamp, 10) ? new Date(parseInt(body.timestamp, 10) * 1000) : new Date(body.timestamp)) : new Date(),
       raw: body,
     }];
   }
-
-  // Twilio format (x-www-form-urlencoded)
-  if (body.From && body.Body) {
+  if (body && body.From && body.Body) {
     return [{
-      messageId: body.MessageSid || `tw-${Date.now()}`,
-      from: normalizePhone(body.From?.replace('whatsapp:', '')),
+      messageId: body.MessageSid || 'tw-' + Date.now(),
+      from: normalizePhone(body.From ? body.From.replace('whatsapp:', '') : body.from),
       contactName: null,
       messageType: 'text',
       text: body.Body,
@@ -150,162 +91,85 @@ function parseWhatsAppPayload(body, rawBody = null) {
       raw: body,
     }];
   }
-
   return [];
 }
 
-/**
- * Normalize WhatsApp phone number to E.164
- */
-function normalizePhone(phone) {
-  if (!phone) return null;
-  const cleaned = phone.replace(/[^\d+]/g, '');
-  if (cleaned.startsWith('91') && cleaned.length === 13) return `+${cleaned}`;
-  if (cleaned.length === 10) return `+91${cleaned}`;
-  if (cleaned.startsWith('+')) return cleaned;
-  if (cleaned.length > 10) return `+${cleaned}`;
-  return null;
-}
-
-/**
- * Webhook Registration via Provider APIs
- * These functions register your webhook URL with the provider so they start sending events.
- */
-
-// Register with Meta WhatsApp Cloud API
 async function registerMetaWebhook(accessToken, phoneNumberId, webhookUrl, verifyToken) {
-  const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/whatsapp_business_webhooks`;
-
+  var url = 'https://graph.facebook.com/v18.0/' + phoneNumberId + '/whatsapp_business_webhooks';
+  var params = 'access_token=' + encodeURIComponent(accessToken);
   try {
-    const params = new URLSearchParams({
-      access_token: accessToken,
-    });
-
-    const res = await fetch(`${url}?${params}`, {
+    var res = await fetch(url + '?' + params, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        config: {
-          webhook_url: webhookUrl,
-          webhook_verify_token: verifyToken,
-        },
-      }),
+      body: JSON.stringify({ config: { webhook_url: webhookUrl, webhook_verify_token: verifyToken } }),
     });
-
-    const data = await res.json();
-    if (res.ok) {
-      return { success: true, data };
-    } else {
-      return { success: false, error: data.error?.message || 'Unknown error', data };
-    }
-  } catch (e) {
-    return { success: false, error: e.message };
-  }
+    var data = await res.json();
+    if (res.ok) return { success: true, data: data };
+    return { success: false, error: (data.error && data.error.message) || 'Unknown error', data: data };
+  } catch (e) { return { success: false, error: e.message }; }
 }
 
-// Register with 360dialog
 async function register360dialogWebhook(apiKey, webhookUrl, verifyToken) {
   try {
-    const res = await fetch('https://waba.360dialog.io/v1/configs/webhook', {
+    var res = await fetch('https://waba.360dialog.io/v1/configs/webhook', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'D360-API-Key': apiKey,
-      },
-      body: JSON.stringify({
-        webhook_url: webhookUrl,
-        webhook_verify_token: verifyToken,
-      }),
+      headers: { 'Content-Type': 'application/json', 'D360-API-Key': apiKey },
+      body: JSON.stringify({ webhook_url: webhookUrl, webhook_verify_token: verifyToken }),
     });
-
-    const data = await res.json();
-    if (res.ok) {
-      return { success: true, data };
-    } else {
-      return { success: false, error: data.error || 'Unknown error', data };
-    }
-  } catch (e) {
-    return { success: false, error: e.message };
-  }
+    var data = await res.json();
+    if (res.ok) return { success: true, data: data };
+    return { success: false, error: data.error || 'Unknown error', data: data };
+  } catch (e) { return { success: false, error: e.message }; }
 }
 
-// Register with Twilio (via Twilio's webhook configuration API)
 async function registerTwilioWebhook(accountSid, authToken, whatsappNumber, webhookUrl) {
   try {
-    // Twilio uses a separate WhatsApp sandbox/config endpoint
-    const res = await fetch(
-      `https://flex-api.twilio.com/v1/Channels/WA${whatsappNumber.replace(/[^0-9]/g, '')}`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString('base64')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messaging_service_sid: '',
-          inbound_url: webhookUrl,
-          target: whatsappNumber,
-        }),
-      }
-    );
-
-    const data = await res.json();
-    if (res.ok) {
-      return { success: true, data };
-    } else {
-      return { success: false, error: data.message || 'Unknown error', data };
-    }
-  } catch (e) {
-    return { success: false, error: e.message };
-  }
+    var num = whatsappNumber ? whatsappNumber.replace(/[^0-9]/g, '') : '';
+    var res = await fetch('https://flex-api.twilio.com/v1/Channels/WA' + num, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(accountSid + ':' + authToken).toString('base64'),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messaging_service_sid: '', inbound_url: webhookUrl, target: whatsappNumber }),
+    });
+    var data = await res.json();
+    if (res.ok) return { success: true, data: data };
+    return { success: false, error: data.message || 'Unknown error', data: data };
+  } catch (e) { return { success: false, error: e.message }; }
 }
 
-/**
- * WhatsApp Webhook Router
- * Middleware that:
- * 1. Verifies challenge (GET) or signature (POST)
- * 2. Parses messages
- * 3. Calls your handler for each message
- */
 function createWhatsAppWebhookMiddleware(options) {
   options = options || {};
   var verifyToken = options.verifyToken || process.env.WHATSAPP_VERIFY_TOKEN || 'change-me';
-  // Only verify signatures if appSecret is EXPLICITLY set (not the default placeholder)
-  var appSecret = options.appSecret || (process.env.WHATSAPP_APP_SECRET && process.env.WHATSAPP_APP_SECRET !== verifyToken ? process.env.WHATSAPP_APP_SECRET : null);
+  var appSecret = options.appSecret || (process.env.WHATSAPP_APP_SECRET ? process.env.WHATSAPP_APP_SECRET : null);
   var authToken = options.authToken || process.env.TWILIO_AUTH_TOKEN;
   var provider = options.provider || process.env.WHATSAPP_PROVIDER || 'meta';
   var onMessages = options.onMessages || function() {};
   var onDeliveryStatus = options.onDeliveryStatus || function() {};
   var onReadReceipt = options.onReadReceipt || function() {};
-    onReadReceipt = async (receipt) => {},
-  } = options;
 
   async function handleRequest(req, res) {
-    const rawBody = req.rawBody || JSON.stringify(req.body);
+    var rawBody = req.rawBody || (req.body ? JSON.stringify(req.body) : '');
 
-    // ── GET = webhook verification ──
+    // GET = webhook verification
     if (req.method === 'GET') {
-      const result = verifyWhatsAppChallenge(req.query, verifyToken);
+      var result = verifyWhatsAppChallenge(req.query, verifyToken);
       if (result.verified) {
-        console.log('[whatsapp-webhook] Verified! challenge:', result.challenge);
         res.set('Content-Type', 'text/plain');
         res.send(result.challenge);
       } else {
-        console.warn('[whatsapp-webhook] Verification failed:', result.error);
         res.status(403).send('Forbidden');
       }
       return { handled: true };
     }
 
-    // ── POST = incoming messages ──
-    if (req.method !== 'POST') {
-      return { handled: false };
-    }
+    if (req.method !== 'POST') return { handled: false };
 
-    // Verify signature based on provider
+    // Verify signature
     var signature = req.headers['x-hub-signature-256'] || req.headers['x-twilio-signature'] || '';
-
     var signatureValid = true;
+
     if (provider === 'twilio' && authToken) {
       signatureValid = verifyTwilioSignature(rawBody, signature, authToken);
     } else if (provider === 'meta' && appSecret) {
@@ -313,76 +177,73 @@ function createWhatsAppWebhookMiddleware(options) {
     }
 
     if (!signatureValid) {
-      console.warn('[whatsapp-webhook] Invalid signature provider=' + provider + ' appSecret=' + (appSecret ? 'SET' : 'null') + ' sig=' + signature.slice(0, 20));
+      console.warn('[whatsapp-webhook] Invalid signature provider=' + provider + ' appSecret=' + (appSecret ? 'SET' : 'null'));
       res.status(403).send('Forbidden');
       return { handled: true };
     }
 
-    // Acknowledge immediately (Meta requires this within 20s)
+    // Acknowledge immediately (Meta requires within 20s)
     res.status(200).send('OK');
 
-    // Parse and handle messages
-    const messages = parseWhatsAppPayload(req.body, rawBody);
-    const meta = {
-      provider,
-      raw: req.body,
-      timestamp: new Date(),
-    };
+    var messages = parseWhatsAppPayload(req.body);
+    var meta = { provider: provider, raw: req.body, timestamp: new Date() };
 
-    // Handle message statuses (delivered, read, failed)
-    if (req.body.entry?.[0]?.changes?.[0]?.value?.statuses) {
-      for (const status of req.body.entry[0].changes[0].value.statuses) {
-        await onDeliveryStatus({
-          messageId: status.id,
-          status: status.status, // sent | delivered | read | failed
-          timestamp: new Date(parseInt(status.timestamp, 10) * 1000),
-          recipient: normalizePhone(status.recipient_id),
-          metadata: status,
-        }).catch(e => console.error('[whatsapp-webhook] status handler error:', e));
+    // Handle delivery statuses
+    if (req.body && req.body.entry && req.body.entry[0] && req.body.entry[0].changes && req.body.entry[0].changes[0] && req.body.entry[0].changes[0].value && req.body.entry[0].changes[0].value.statuses) {
+      var statuses = req.body.entry[0].changes[0].value.statuses;
+      for (var si = 0; si < statuses.length; si++) {
+        var st = statuses[si];
+        onDeliveryStatus({
+          messageId: st.id,
+          status: st.status,
+          timestamp: parseInt(st.timestamp, 10) ? new Date(parseInt(st.timestamp, 10) * 1000) : new Date(),
+          recipient: normalizePhone(st.recipient_id),
+          metadata: st,
+        }).catch(function(e) { console.error('[whatsapp-webhook] status handler error:', e); });
       }
       return { handled: true };
     }
 
     // Handle read receipts
-    if (req.body.entry?.[0]?.changes?.[0]?.value?.reads) {
-      for (const read of req.body.entry[0].changes[0].value.reads) {
-        await onReadReceipt({
-          messageId: read.message_id,
-          timestamp: new Date(parseInt(read.timestamp, 10) * 1000),
-          recipient: normalizePhone(read.actor_id),
-        }).catch(e => console.error('[whatsapp-webhook] read handler error:', e));
+    if (req.body && req.body.entry && req.body.entry[0] && req.body.entry[0].changes && req.body.entry[0].changes[0] && req.body.entry[0].changes[0].value && req.body.entry[0].changes[0].value.reads) {
+      var reads = req.body.entry[0].changes[0].value.reads;
+      for (var ri = 0; ri < reads.length; ri++) {
+        var rd = reads[ri];
+        onReadReceipt({
+          messageId: rd.message_id,
+          timestamp: parseInt(rd.timestamp, 10) ? new Date(parseInt(rd.timestamp, 10) * 1000) : new Date(),
+          recipient: normalizePhone(rd.actor_id),
+        }).catch(function(e) { console.error('[whatsapp-webhook] read handler error:', e); });
       }
       return { handled: true };
     }
 
-    // Handle actual messages
-    for (const msg of messages) {
-      await onMessages(msg, meta).catch(e =>
-        console.error('[whatsapp-webhook] message handler error:', e)
-      );
+    // Handle messages
+    for (var mi = 0; mi < messages.length; mi++) {
+      onMessages(messages[mi], meta).catch(function(e) { console.error('[whatsapp-webhook] message handler error:', e); });
     }
 
     return { handled: true };
   }
 
   return {
-    handleRequest,
-    verifyWhatsAppChallenge: (q) => verifyWhatsAppChallenge(q, verifyToken),
-    verifyMetaSignature: (body, sig) => verifyMetaSignature(body, sig, appSecret),
-    verifyTwilioSignature: (body, sig) => verifyTwilioSignature(body, sig, authToken),
-    parseWhatsAppPayload,
-    normalizePhone,
+    handleRequest: handleRequest,
+    verifyWhatsAppChallenge: function(q) { return verifyWhatsAppChallenge(q, verifyToken); },
+    verifyMetaSignature: function(body, sig) { return verifyMetaSignature(body, sig, appSecret); },
+    verifyTwilioSignature: function(body, sig) { return verifyTwilioSignature(body, sig, authToken); },
+    parseWhatsAppPayload: parseWhatsAppPayload,
+    normalizePhone: normalizePhone,
   };
 }
 
 module.exports = {
-  verifyWhatsAppChallenge,
-  verifyMetaSignature,
-  verifyTwilioSignature,
-  parseWhatsAppPayload,
-  normalizePhone,
-  createWhatsAppWebhookMiddleware,
-  registerMetaWebhook,
-  register360dialogWebhook,
-  registerTwilioWebhook,
+  verifyWhatsAppChallenge: verifyWhatsAppChallenge,
+  verifyMetaSignature: verifyMetaSignature,
+  verifyTwilioSignature: verifyTwilioSignature,
+  parseWhatsAppPayload: parseWhatsAppPayload,
+  normalizePhone: normalizePhone,
+  createWhatsAppWebhookMiddleware: createWhatsAppWebhookMiddleware,
+  registerMetaWebhook: registerMetaWebhook,
+  register360dialogWebhook: register360dialogWebhook,
+  registerTwilioWebhook: registerTwilioWebhook,
 };

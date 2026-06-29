@@ -25,11 +25,26 @@ LoopOS provides the **autonomous execution infrastructure** that turns individua
 ```
 LoopOS (Platform/flow/loop-os/)
 │
-├── loop-scheduler/        (Port 4721) — Cron-based persistent execution
-├── loop-state/            (Port 4722) — State persistence + checkpoints
-├── verification-engine/    (Port 4723) — Maker→Checker→Guardian pattern
-├── budget-engine/         (Port 4724) — Token/spend/tool limits
-└── fleet-os/             (Port 4725) — AI employee organization
+├── Core Runtime
+│   ├── loop-scheduler/        (Port 4731) — Cron-based persistent execution
+│   ├── loop-state/            (Port 4732) — State persistence + checkpoints
+│   ├── verification-engine/    (Port 4733) — Maker→Checker→Guardian pattern
+│   ├── budget-engine/         (Port 4734) — Token/spend/tool limits
+│   └── fleet-os/              (Port 4735) — AI employee organization
+│
+├── Intelligence
+│   ├── trust-profile/         (Port 4736) — Progressive autonomy + trust scoring
+│   ├── outcome-tracker/       (Port 4737) — Outcome tracking + skill evolution
+│   ├── knowledge-graph/       (Port 4738) — Entity relationships + causal reasoning
+│   └── certification-pipeline/ (Port 4739) — Simulation → Trust → Certification
+│
+└── Integration & Operations
+    ├── twinos-integration/    (Port 4740) — Tie loops to Employee Twins
+    ├── memoryos-integration/  (Port 4741) — Persist loop state to MemoryOS
+    ├── observability-dashboard/ (Port 4742) — Visual monitoring
+    ├── retry-engine/         (Port 4743) — Circuit breaker + backoff
+    ├── worktrees/            (Port 4744) — Parallel execution
+    └── agent-bus/           (Port 4745) — Inter-agent messaging
 ```
 
 ### How They Connect

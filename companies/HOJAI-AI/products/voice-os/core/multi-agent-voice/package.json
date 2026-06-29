@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/voice-multi-agent",
+  "version": "1.0.0",
+  "description": "Voice Multi-Agent Network - Orchestrate agents via voice",
+  "type": "module",
+  "main": "src/index.ts"
+}

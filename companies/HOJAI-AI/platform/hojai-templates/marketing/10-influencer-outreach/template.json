@@ -1,0 +1,30 @@
+{
+  "id": "marketing-influencer-outreach",
+  "name": "AI Influencer Outreach",
+  "category": "marketing",
+  "description": "Discover influencers, analyze profiles, and automate outreach campaigns",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 10 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "actor", "name": "Instagram Search", "config": {"actor": "instagram_actor", "niche": "{{niche}}", "min_followers": 10000}},
+    {"id": "2", "type": "ai_agent", "name": "Profile Analysis", "config": {"agent": "analytics_agent", "prompt": "Analyze influencer: engagement rate, audience quality, brand alignment, fake follower %."}},
+    {"id": "3", "type": "filter", "name": "Quality Filter", "config": {"conditions": [{"field": "engagement_rate", "operator": ">=", "value": 3}, {"field": "fake_followers", "operator": "<", "value": 10}]}},
+    {"id": "4", "type": "ai_agent", "name": "Generate Outreach", "config": {"agent": "outreach_agent", "prompt": "Generate personalized outreach message for influencer."}},
+    {"id": "5", "type": "email", "name": "Send Outreach", "config": {"provider": "smtp"}},
+    {"id": "6", "type": "crm", "name": "Create Contact", "config": {"action": "create_contact", "type": "influencer"}},
+    {"id": "7", "type": "memory", "name": "Track Outreach", "config": {"action": "save", "memory_type": "influencer_outreach"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["analytics_agent", "outreach_agent"],
+  "integrations": ["instagram", "email", "crm"],
+  "estimated_setup_time": "45 minutes",
+  "price": {"subscription": 2499, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "influencer", "automation", "outreach"]
+}

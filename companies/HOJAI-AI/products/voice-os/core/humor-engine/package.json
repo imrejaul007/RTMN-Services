@@ -1,0 +1,12 @@
+{
+  "name": "@hojai/voice-humor-engine",
+  "version": "1.0.0",
+  "description": "Voice Humor Engine - Relationship-driven humor for VoiceOS",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "vitest run"
+  }
+}

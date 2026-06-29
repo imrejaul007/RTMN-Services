@@ -1,0 +1,22 @@
+{
+  "name": "@hojai/company-os-composition-engine",
+  "version": "0.1.0",
+  "description": "Composition Engine for CompanyOS",
+  "main": "src/engine.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.5",
+    "@types/uuid": "^9.0.2",
+    "@types/node": "^20.4.0",
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.0"
+  }
+}

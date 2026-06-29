@@ -1,0 +1,28 @@
+{
+  "id": "founder-board-deck-generator",
+  "name": "Board Deck Generator",
+  "category": "founder",
+  "description": "Generate quarterly board meeting presentations automatically",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 8 1 */3 *"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Sales Data", "config": {"action": "get_quarterly_metrics"}},
+    {"id": "2", "type": "finance", "name": "Financial Data", "config": {"action": "get_quarterly_pnl"}},
+    {"id": "3", "type": "hris", "name": "Team Data", "config": {"action": "get_headcount_changes"}},
+    {"id": "4", "type": "ai_agent", "name": "Generate Narrative", "config": {"agent": "report_agent", "prompt": "Generate board narrative: highlights, challenges, projections, asks."}},
+    {"id": "5", "type": "document", "name": "Create Deck", "config": {"format": "pptx", "template": "board_deck"}},
+    {"id": "6", "type": "approval", "name": "Founder Review", "config": {"approvers": ["founder"]}}
+  ],
+  "connections": [
+    {"from": "1", "to": "4"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["report_agent"],
+  "integrations": ["crm", "finance", "hris", "document"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 2999, "currency": "INR", "period": "month"},
+  "tags": ["founder", "board", "reporting", "automation"]
+}

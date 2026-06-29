@@ -1,0 +1,28 @@
+{
+  "id": "finance-cashflow-forecast",
+  "name": "Cash Flow Forecasting",
+  "category": "finance",
+  "description": "AI-powered cash flow prediction with scenario modeling",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 8 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "finance", "name": "Current Position", "config": {"action": "get_cash_position"}},
+    {"id": "2", "type": "finance", "name": "Receivables", "config": {"action": "get_receivables"}},
+    {"id": "3", "type": "finance", "name": "Payables", "config": {"action": "get_payables"}},
+    {"id": "4", "type": "ai_agent", "name": "Forecast", "config": {"agent": "forecast_agent", "prompt": "Generate 13-week cash flow forecast with best/worst/expected scenarios."}},
+    {"id": "5", "type": "twin", "name": "Update Finance Twin", "config": {"twin": "finance_twin", "action": "update_forecast"}},
+    {"id": "6", "type": "email", "name": "Send to CFO", "config": {"to": "cfo@company.com", "template": "cashflow_forecast"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "4"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["forecast_agent"],
+  "integrations": ["finance", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 2499, "currency": "INR", "period": "month"},
+  "tags": ["finance", "cashflow", "forecast", "automation"]
+}

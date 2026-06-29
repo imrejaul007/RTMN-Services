@@ -7,6 +7,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { validatePolicyBody } from '../lib/validation.js';
 import { sanitizePolicyId, sanitizeExpression, sanitizeName } from '../lib/sanitization.js';
+import { getCachedEval, setCachedEval, invalidateEvalCache, invalidatePolicy } from '../services/cache.js';
 
 // =================================================================
 // Policy CRUD
@@ -75,6 +76,7 @@ export function registerPolicyRoutes(app, {
       updatedAt: now,
     };
     policies.set(id, policy);
+    invalidateEvalCache().catch(() => {});
     auditLog({
       type: 'policy.created',
       policyId: id,
@@ -134,6 +136,8 @@ export function registerPolicyRoutes(app, {
     }
     policy.version = (policy.version || 1) + 1;
     policy.updatedAt = new Date().toISOString();
+    policies.set(policy.id, policy);
+    invalidateEvalCache().catch(() => {});
     if (changes.length > 0) {
       const list = policyChanges.get(policy.id) || [];
       list.push({ version: policy.version, timestamp: policy.updatedAt, changes });
@@ -155,6 +159,7 @@ export function registerPolicyRoutes(app, {
     const hard = req.query.hard === 'true' || req.query.hard === '1';
     if (hard) {
       await policies.delete(req.params.id);
+      invalidatePolicy(req.params.id).catch(() => {});
       auditLog({
         type: 'policy.deleted',
         policyId: policy.id,
@@ -254,8 +259,19 @@ export function registerPolicyRoutes(app, {
       return res.json(final);
     }
 
+    // Cache hit for single-policy evaluation (context-sensitive TTL)
+    const cacheKey = [policyId || 'anon'];
+    const cached = await getCachedEval(context, cacheKey).catch(() => null);
+    if (cached) {
+      return res.json({ ...cached, cached: true });
+    }
+
     const result = evaluatePolicy(policy, context);
     const final = applyExceptions(policy || {}, context, result);
+
+    // Cache the result (short TTL for policy eval — context may vary)
+    setCachedEval(context, cacheKey, final, 10000).catch(() => {});
+
     auditLog({
       type: 'policy.evaluated',
       policyId: final.policyUsed,

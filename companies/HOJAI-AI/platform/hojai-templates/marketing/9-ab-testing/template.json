@@ -1,0 +1,33 @@
+{
+  "id": "marketing-ab-test-analyzer",
+  "name": "A/B Test Analyzer",
+  "category": "marketing",
+  "description": "Automatically analyze A/B test results and recommend winning variants",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "analytics", "name": "Get A/B Data", "config": {"sources": ["google_optimize", "analytics"]}},
+    {"id": "2", "type": "ai_agent", "name": "Statistical Analysis", "config": {"agent": "analytics_agent", "prompt": "Run statistical analysis on A/B test results. Calculate significance, confidence intervals, and effect size."}},
+    {"id": "3", "type": "condition", "name": "Significant?", "config": {"field": "result.significant", "operator": "==", "value": true}},
+    {"id": "4a", "type": "ai_agent", "name": "Generate Recommendations", "config": {"agent": "analytics_agent", "prompt": "Generate recommendations for scaling winning variant."}},
+    {"id": "4b", "type": "ai_agent", "name": "Generate Recommendations", "config": {"agent": "analytics_agent", "prompt": "Generate recommendations for extending test duration."}},
+    {"id": "5", "type": "action", "name": "Update Variants", "config": {"action": "update_variant_status", "winner": "{{winner}}"}},
+    {"id": "6", "type": "email", "name": "Send Report", "config": {"to": "marketing@company.com", "template": "ab_test_report"}},
+    {"id": "7", "type": "slack", "name": "Notify Team", "config": {"channel": "marketing", "template": "ab_test_complete"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "significant == true"},
+    {"from": "3", "to": "4b", "condition": "significant == false"},
+    {"from": "4a", "to": "5"},
+    {"from": "4b", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["analytics_agent"],
+  "integrations": ["google_optimize", "analytics", "email", "slack"],
+  "estimated_setup_time": "20 minutes",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "analytics", "ab-testing", "optimization"]
+}

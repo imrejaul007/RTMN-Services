@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/voice-social-intelligence",
+  "version": "1.0.0",
+  "description": "Voice Social Intelligence - Relationship-aware communication",
+  "type": "module",
+  "main": "src/index.ts"
+}

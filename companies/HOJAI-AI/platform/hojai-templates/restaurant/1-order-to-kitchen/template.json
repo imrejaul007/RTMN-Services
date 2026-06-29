@@ -1,0 +1,31 @@
+{
+  "id": "restaurant-order-to-kitchen",
+  "name": "Order → Kitchen Flow",
+  "category": "restaurant",
+  "description": "Streamline order flow from WhatsApp/counter to kitchen display",
+  "version": "1.0.0",
+  "triggers": [
+    {"type": "whatsapp", "source": "wa_business", "event": "order_received"},
+    {"type": "pos", "source": "pos_system", "event": "order_placed"}
+  ],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "New Order", "config": {"source": ["whatsapp", "pos"]}},
+    {"id": "2", "type": "ai_agent", "name": "Parse Order", "config": {"agent": "restaurant_agent", "prompt": "Parse order items, special instructions, and customer details."}},
+    {"id": "3", "type": "action", "name": "Print KDS", "config": {"action": "print_kitchen_ticket", "format": "kds"}},
+    {"id": "4", "type": "action", "name": "Update POS", "config": {"action": "update_order_status", "status": "in_progress"}},
+    {"id": "5", "type": "slack", "name": "Notify Kitchen", "config": {"channel": "kitchen", "template": "new_order"}},
+    {"id": "6", "type": "email", "name": "Confirm to Customer", "config": {"template": "order_confirmed", "to": "{{customer.phone}}"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "5"},
+    {"from": "4", "to": "6"}
+  ],
+  "agents": ["restaurant_agent"],
+  "integrations": ["whatsapp", "pos", "kds", "slack"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 2999, "currency": "INR", "period": "month"},
+  "tags": ["restaurant", "operations", "kitchen", "automation"]
+}

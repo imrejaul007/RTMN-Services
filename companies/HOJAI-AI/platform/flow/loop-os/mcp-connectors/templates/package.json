@@ -1,0 +1,6 @@
+{
+  "name": "@hojai/loopos-mcp-templates",
+  "version": "1.0.0",
+  "description": "LoopOS MCP Connector Templates - Pre-built tools for common integrations",
+  "type": "module"
+}

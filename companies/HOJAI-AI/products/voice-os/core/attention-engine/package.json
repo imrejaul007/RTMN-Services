@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/voice-attention-engine",
+  "version": "1.0.0",
+  "description": "Voice Attention Engine - Track user attention and engagement",
+  "type": "module",
+  "main": "src/index.ts"
+}

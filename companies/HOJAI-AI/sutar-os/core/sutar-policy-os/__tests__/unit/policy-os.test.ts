@@ -58,7 +58,7 @@ describe('Policy OS — Condition Evaluation', () => {
   });
 
   it('evaluates contains operator', () => {
-    expect(evaluateCondition({ field: 'name', operator: 'contains', value: 'admin' }, { name: 'Super Admin' })).toBe(true);
+    expect(evaluateCondition({ field: 'name', operator: 'contains', value: 'Admin' }, { name: 'Super Admin' })).toBe(true);
     expect(evaluateCondition({ field: 'name', operator: 'contains', value: 'admin' }, { name: 'User' })).toBe(false);
   });
 

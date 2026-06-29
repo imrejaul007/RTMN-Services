@@ -1,0 +1,32 @@
+{
+  "id": "founder-investor-update",
+  "name": "Investor Update Generator",
+  "category": "founder",
+  "description": "Generate monthly investor updates with metrics, highlights, and asks",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 10 1 * *"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Sales Data", "config": {"action": "get_monthly_metrics"}},
+    {"id": "2", "type": "analytics", "name": "Marketing Data", "config": {"action": "get_monthly_metrics"}},
+    {"id": "3", "type": "finance", "name": "Financial Data", "config": {"action": "get_monthly_pnl"}},
+    {"id": "4", "type": "hris", "name": "Team Data", "config": {"action": "get_headcount"}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Update", "config": {"agent": "report_agent", "prompt": "Generate investor update with: highlights, metrics, challenges, asks, and narrative."}},
+    {"id": "6", "type": "approval", "name": "Founder Review", "config": {"approvers": ["founder"]}},
+    {"id": "7", "type": "document", "name": "Create PDF", "config": {"format": "pdf", "template": "investor_update"}},
+    {"id": "8", "type": "email", "name": "Send to Investors", "config": {"to": "{{investor_emails}}", "template": "investor_update", "attach_pdf": true}}
+  ],
+  "connections": [
+    {"from": "1", "to": "5"},
+    {"from": "2", "to": "5"},
+    {"from": "3", "to": "5"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7", "condition": "approved"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["report_agent"],
+  "integrations": ["crm", "analytics", "finance", "hris", "document", "email"],
+  "estimated_setup_time": "45 minutes",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["founder", "investor", "reporting", "automation"]
+}

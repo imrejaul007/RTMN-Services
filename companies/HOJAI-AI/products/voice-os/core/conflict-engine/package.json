@@ -1,0 +1,7 @@
+{
+  "name": "@hojai/voice-conflict-engine",
+  "version": "1.0.0",
+  "description": "Voice Conflict Engine - Respectful disagreement for VoiceOS",
+  "type": "module",
+  "main": "src/index.ts"
+}

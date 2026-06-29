@@ -1,0 +1,34 @@
+{
+  "id": "healthcare-patient-followup",
+  "name": "Patient Follow-up Automation",
+  "category": "healthcare",
+  "description": "Automated post-visit follow-ups with care instructions and satisfaction surveys",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "emr", "event": "visit.completed"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Visit Complete", "config": {"source": "emr"}},
+    {"id": "2", "type": "emr", "name": "Get Visit Details", "config": {"action": "get_visit_summary"}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Instructions", "config": {"agent": "healthcare_agent", "prompt": "Generate personalized care instructions based on visit."}},
+    {"id": "4", "type": "whatsapp", "name": "Send Care Plan", "config": {"template": "care_instructions"}},
+    {"id": "5", "type": "schedule", "name": "Day 3", "config": {"delay_days": 3}},
+    {"id": "6", "type": "whatsapp", "name": "How Are You Feeling?", "config": {"template": "wellness_check"}},
+    {"id": "7", "type": "schedule", "name": "Day 7", "config": {"delay_days": 7}},
+    {"id": "8", "type": "email", "name": "Send Survey", "config": {"template": "csat_survey"}},
+    {"id": "9", "type": "twin", "name": "Update Patient Twin", "config": {"twin": "patient_twin", "action": "update_followup"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"},
+    {"from": "8", "to": "9"}
+  ],
+  "agents": ["healthcare_agent"],
+  "integrations": ["emr", "whatsapp", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["healthcare", "followup", "automation", "patient-care"]
+}

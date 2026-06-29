@@ -1,0 +1,35 @@
+{
+  "id": "healthcare-appointment-reminder",
+  "name": "AI Appointment Reminder",
+  "category": "healthcare",
+  "description": "Automated appointment reminders via WhatsApp/SMS with confirmation",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "emr", "name": "Get Tomorrow's Appointments", "config": {"action": "get_appointments", "date": "tomorrow"}},
+    {"id": "2", "type": "filter", "name": "Confirmed Only", "config": {"conditions": [{"field": "status", "operator": "==", "value": "confirmed"}]}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Reminder", "config": {"agent": "healthcare_agent", "prompt": "Generate personalized reminder message with appointment details."}},
+    {"id": "4", "type": "whatsapp", "name": "Send Reminder", "config": {"channel": "whatsapp", "template": "appointment_reminder"}},
+    {"id": "5", "type": "wait", "name": "Wait 2 Hours", "config": {"delay_hours": 2}},
+    {"id": "6", "type": "condition", "name": "Confirmed?", "config": {"field": "patient.confirmed"}},
+    {"id": "7a", "type": "emr", "name": "Mark Confirmed", "config": {"action": "update_appointment", "status": "confirmed"}},
+    {"id": "7b", "type": "email", "name": "Send Reschedule Link", "config": {"template": "reschedule_link"}},
+    {"id": "8", "type": "twin", "name": "Update Patient Twin", "config": {"twin": "patient_twin", "action": "update_reminder"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7a", "condition": "confirmed == true"},
+    {"from": "6", "to": "7b", "condition": "confirmed == false"},
+    {"from": "7a", "to": "8"},
+    {"from": "7b", "to": "8"}
+  ],
+  "agents": ["healthcare_agent"],
+  "integrations": ["emr", "whatsapp", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["healthcare", "appointments", "reminders", "automation"]
+}

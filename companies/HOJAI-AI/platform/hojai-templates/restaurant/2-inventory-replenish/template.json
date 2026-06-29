@@ -1,0 +1,30 @@
+{
+  "id": "restaurant-inventory-replenish",
+  "name": "Inventory Replenishment",
+  "category": "restaurant",
+  "description": "Automatically track inventory and create purchase orders when stock is low",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 6 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "inventory", "name": "Check Stock Levels", "config": {"action": "get_levels"}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Needs", "config": {"agent": "restaurant_agent", "prompt": "Calculate required quantities based on consumption rate and lead time."}},
+    {"id": "3", "type": "filter", "name": "Low Stock Only", "config": {"conditions": [{"field": "stock_level", "operator": "<=", "value": "reorder_point"}]}},
+    {"id": "4", "type": "ai_agent", "name": "Generate PO", "config": {"agent": "procurement_agent", "prompt": "Generate purchase order with optimal supplier and quantities."}},
+    {"id": "5", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["restaurant_manager"], "amount_threshold": 50000}},
+    {"id": "6", "type": "email", "name": "Send to Supplier", "config": {"to": "{{supplier.email}}", "template": "purchase_order"}},
+    {"id": "7", "type": "inventory", "name": "Update Records", "config": {"action": "create_po", "status": "ordered"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6", "condition": "approved"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["restaurant_agent", "procurement_agent"],
+  "integrations": ["inventory", "procurement", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["restaurant", "inventory", "procurement", "automation"]
+}

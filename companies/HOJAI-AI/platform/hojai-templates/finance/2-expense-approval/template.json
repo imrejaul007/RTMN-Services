@@ -1,0 +1,35 @@
+{
+  "id": "finance-expense-approval",
+  "name": "AI Expense Approval",
+  "category": "finance",
+  "description": "Automate expense approval with policy compliance checking",
+  "version": "1.0.0",
+  "triggers": [{"type": "email", "source": "inbox", "filter": "receipt|expense"}],
+  "nodes": [
+    {"id": "1", "type": "email", "name": "Receive Expense", "config": {"source": "inbox", "filter": "receipt_attachment"}},
+    {"id": "2", "type": "ocr", "name": "Extract Data", "config": {"fields": ["vendor", "amount", "date", "category", "purpose"]}},
+    {"id": "3", "type": "ai_agent", "name": "Validate Policy", "config": {"agent": "finance_agent", "prompt": "Check expense against company policy: limits, categories, receipts required, approval needed."}},
+    {"id": "4", "type": "condition", "name": "Policy Compliant?", "config": {"field": "policy.compliant", "operator": "==", "value": true}},
+    {"id": "5a", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["{{employee.manager}}"], "amount_threshold": 5000}},
+    {"id": "5b", "type": "approval", "name": "Finance Approval", "config": {"approvers": ["finance_manager"], "amount_threshold": 50000}},
+    {"id": "6", "type": "erp", "name": "Post to ERP", "config": {"action": "create_expense", "category": "{{category}}"}},
+    {"id": "7", "type": "email", "name": "Notify Employee", "config": {"template": "expense_status"}},
+    {"id": "8", "type": "twin", "name": "Update Employee Twin", "config": {"twin": "employee_twin", "action": "update_expense"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5a", "condition": "compliant == true && amount < 50000"},
+    {"from": "4", "to": "5b", "condition": "compliant == true && amount >= 50000"},
+    {"from": "5a", "to": "6", "condition": "approved"},
+    {"from": "5b", "to": "6", "condition": "approved"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["finance_agent"],
+  "integrations": ["email", "ocr", "erp"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["finance", "expense", "approval", "automation"]
+}

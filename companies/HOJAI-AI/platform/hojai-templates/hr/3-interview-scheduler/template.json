@@ -1,0 +1,32 @@
+{
+  "id": "hr-interview-scheduler",
+  "name": "AI Interview Scheduler",
+  "category": "hr",
+  "description": "Automatically schedule interviews based on interviewer availability and candidate preferences",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "hris", "event": "candidate.shortlisted"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Candidate Shortlisted", "config": {"source": "hris"}},
+    {"id": "2", "type": "calendar", "name": "Get Availability", "config": {"action": "get_availability", "attendees": ["{{interviewers}}"]}},
+    {"id": "3", "type": "email", "name": "Send Slots", "config": {"template": "interview_slots", "options": "{{available_slots}}"}},
+    {"id": "4", "type": "wait", "name": "Wait for Response", "config": {"timeout_hours": 48}},
+    {"id": "5", "type": "condition", "name": "Slot Selected?", "config": {"field": "candidate.selected_slot"}},
+    {"id": "6", "type": "calendar", "name": "Book Interview", "config": {"action": "create_event", "attendees": ["{{candidate}}", "{{interviewers}}"]}},
+    {"id": "7", "type": "email", "name": "Send Confirmation", "config": {"template": "interview_confirmed", "include_calendar": true}},
+    {"id": "8", "type": "crm", "name": "Update Candidate", "config": {"action": "update_candidate", "field": "interview_scheduled"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6", "condition": "selected == true"},
+    {"from": "5", "to": "7", "condition": "selected == false"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"}
+  ],
+  "integrations": ["calendar", "email", "hris"],
+  "estimated_setup_time": "20 minutes",
+  "price": {"subscription": 799, "currency": "INR", "period": "month"},
+  "tags": ["hr", "recruitment", "scheduling", "automation"]
+}

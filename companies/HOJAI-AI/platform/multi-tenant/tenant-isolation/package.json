@@ -1,0 +1,11 @@
+{
+  "name": "@hojai/tenant-isolation",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Tenant Isolation OS — Multi-region tenant isolation, data residency, failover, geo-DNS routing",
+  "main": "src/index.js",
+  "scripts": { "start": "node src/index.js", "test": "vitest --reporter=verbose" },
+  "dependencies": { "express": "^4.21.2", "uuid": "^11.0.5" },
+  "devDependencies": { "vitest": "^2.1.8" },
+  "engines": { "node": ">=20.0.0" }
+}

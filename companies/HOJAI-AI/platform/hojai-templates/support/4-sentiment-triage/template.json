@@ -1,0 +1,33 @@
+{
+  "id": "support-sentiment-triage",
+  "name": "Sentiment Triage",
+  "category": "support",
+  "description": "Real-time sentiment analysis of incoming tickets for priority routing",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "helpdesk", "event": "ticket.created"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "New Ticket", "config": {"source": "helpdesk"}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Sentiment", "config": {"agent": "support_agent", "prompt": "Analyze ticket sentiment: score (-100 to +100), tone, urgency indicators."}},
+    {"id": "3", "type": "condition", "name": "Sentiment Check", "config": {"field": "sentiment.score", "operator": "<", "value": -50}},
+    {"id": "4a", "type": "action", "name": "VIP Queue", "config": {"queue": "vip_support", "priority": "high", "sla": "1h"}},
+    {"id": "4b", "type": "action", "name": "Standard Queue", "config": {"queue": "standard", "priority": "normal", "sla": "24h"}},
+    {"id": "5", "type": "slack", "name": "Alert VIP", "config": {"channel": "support-alerts", "condition": "sentiment < -50"}},
+    {"id": "6", "type": "crm", "name": "Update Customer", "config": {"action": "update_sentiment", "field": "sentiment_score"}},
+    {"id": "7", "type": "twin", "name": "Update Customer Twin", "config": {"twin": "customer_twin", "action": "update_sentiment"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "sentiment < -50"},
+    {"from": "3", "to": "4b", "condition": "sentiment >= -50"},
+    {"from": "4a", "to": "5"},
+    {"from": "4a", "to": "6"},
+    {"from": "4b", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["support_agent"],
+  "integrations": ["helpdesk", "slack", "crm"],
+  "estimated_setup_time": "15 minutes",
+  "price": {"subscription": 799, "currency": "INR", "period": "month"},
+  "tags": ["support", "sentiment", "triage", "automation"]
+}

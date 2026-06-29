@@ -1,0 +1,454 @@
+/**
+ * HOJAI Flow Builder - Styles
+ */
+
+.flow-builder {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: #f8fafc;
+}
+
+.flow-builder-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Toolbar */
+.flow-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 16px;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.flow-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flow-name input {
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.flow-status {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.toolbar-center {
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar-btn {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: #f1f5f9;
+}
+
+.toolbar-btn.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.toolbar-btn.primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.toolbar-btn.primary:hover {
+  background: #2563eb;
+}
+
+.toolbar-btn.secondary {
+  background: #f1f5f9;
+}
+
+.toolbar-btn.success {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: white;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+.zoom-controls button {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.zoom-controls span {
+  font-size: 12px;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Palette */
+.flow-builder-palette {
+  width: 280px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  overflow-y: auto;
+}
+
+.node-palette {
+  padding: 16px;
+}
+
+.palette-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.palette-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.palette-header .hint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.palette-category {
+  margin-bottom: 16px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.category-icon {
+  font-size: 14px;
+}
+
+.category-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.palette-node {
+  padding: 8px 10px;
+  background: white;
+  border: 1px solid;
+  border-radius: 6px;
+  cursor: grab;
+  transition: all 0.2s;
+}
+
+.palette-node:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.palette-node:active {
+  cursor: grabbing;
+}
+
+.palette-node .node-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.palette-node .node-description {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Canvas */
+.flow-builder-canvas {
+  flex: 1;
+  background: #f8fafc;
+}
+
+/* Properties Panel */
+.flow-builder-properties {
+  width: 320px;
+  background: white;
+  border-left: 1px solid #e5e7eb;
+  overflow-y: auto;
+}
+
+.properties-panel {
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.node-type-badge {
+  padding: 2px 8px;
+  background: #eff6ff;
+  color: #3b82f6;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.property-section {
+  margin-bottom: 20px;
+}
+
+.property-section h4 {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.property-group {
+  margin-bottom: 12px;
+}
+
+.property-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #374151;
+}
+
+.property-group input,
+.property-group select,
+.property-group textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.property-group input:focus,
+.property-group select:focus,
+.property-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.property-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.property-group input[type="checkbox"] {
+  width: auto;
+}
+
+.panel-empty {
+  padding: 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.property-section.actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.property-section.actions button {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.property-section.actions .btn-primary {
+  background: #3b82f6;
+  border: 1px solid #3b82f6;
+  color: white;
+}
+
+.property-section.actions .btn-danger {
+  background: white;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+/* Flow Nodes */
+.flow-node {
+  min-width: 180px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.flow-node .node-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.flow-node .node-icon {
+  font-size: 14px;
+}
+
+.flow-node .node-type {
+  font-size: 10px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.flow-node .node-label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.flow-node .node-description {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.flow-node .node-config,
+.flow-node .node-agent,
+.flow-node .node-model {
+  font-size: 10px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.flow-node .node-condition {
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+.condition-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 10px;
+}
+
+.condition-labels .yes-label {
+  color: #22c55e;
+}
+
+.condition-labels .no-label {
+  color: #ef4444;
+}
+
+/* React Flow overrides */
+.react-flow__node {
+  cursor: pointer;
+}
+
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #64748b;
+}
+
+.react-flow__edge-path {
+  stroke: #94a3b8;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #3b82f6;
+}
+
+.react-flow__minimap {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.react-flow__controls {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__controls button {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.react-flow__controls button:hover {
+  background: #f1f5f9;
+}

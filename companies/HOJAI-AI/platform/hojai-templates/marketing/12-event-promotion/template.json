@@ -1,0 +1,34 @@
+{
+  "id": "marketing-event-promotion",
+  "name": "Event Promotion Automation",
+  "category": "marketing",
+  "description": "Automate event promotion across all channels with personalized outreach",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * 1", "config": {"event_date": "{{event_date}}"}}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Event Trigger", "config": {"type": "event_promotion", "event": "{{event}}"}},
+    {"id": "2", "type": "crm", "name": "Get Target Audience", "config": {"action": "get_segment", "segment": "{{audience}}"}},
+    {"id": "3", "type": "ai_agent", "name": "Personalize Messages", "config": {"agent": "outreach_agent", "prompt": "Generate personalized event invite for each contact based on their interests."}},
+    {"id": "4", "type": "email", "name": "Send Invites", "config": {"provider": "sendgrid", "track": true}},
+    {"id": "5", "type": "social", "name": "LinkedIn Post", "config": {"platform": "linkedin", "template": "event_invite"}},
+    {"id": "6", "type": "social", "name": "Twitter Post", "config": {"platform": "twitter", "template": "event_tweet"}},
+    {"id": "7", "type": "sms", "name": "SMS Reminder", "config": {"provider": "twilio", "condition": "event_date.within_7_days"}},
+    {"id": "8", "type": "analytics", "name": "Track RSVP", "config": {"event": "{{event}}", "metrics": ["rsvp", "attendance"]}},
+    {"id": "9", "type": "twin", "name": "Update Audience Twin", "config": {"twin": "audience_twin", "action": "update_rsvp"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "4", "to": "6"},
+    {"from": "4", "to": "7"},
+    {"from": "7", "to": "8"},
+    {"from": "8", "to": "9"}
+  ],
+  "agents": ["outreach_agent"],
+  "integrations": ["email", "social", "sms", "crm"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "event", "automation", "promotion"]
+}

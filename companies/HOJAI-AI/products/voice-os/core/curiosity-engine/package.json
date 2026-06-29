@@ -1,0 +1,11 @@
+{
+  "name": "@hojai/voice-curiosity-engine",
+  "version": "1.0.0",
+  "description": "Voice Curiosity Engine - Intelligent follow-up questions for VoiceOS",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc"
+  }
+}

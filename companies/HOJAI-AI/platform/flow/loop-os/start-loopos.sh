@@ -24,6 +24,12 @@ SERVICES=(
   "outcome-tracker:4737"
   "knowledge-graph:4738"
   "certification-pipeline:4739"
+  "twinos-integration:4740"
+  "memoryos-integration:4741"
+  "observability-dashboard:4742"
+  "retry-engine:4743"
+  "worktrees:4744"
+  "agent-bus:4745"
 )
 
 show_status() {

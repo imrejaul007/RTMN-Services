@@ -150,8 +150,9 @@ describe('Simulation — Monte Carlo Results', () => {
 
   it('handles multiple variables', () => {
     const result = runMonteCarlo([{ min: 0, max: 100 }, { min: 50, max: 150 }], 1000);
-    expect(result.mean).toBeGreaterThan(95);
-    expect(result.mean).toBeLessThan(105);
+    // Expected mean: (0+100)/2 + (50+150)/2 = 50 + 100 = 150
+    expect(result.mean).toBeGreaterThan(140);
+    expect(result.mean).toBeLessThan(160);
   });
 });
 

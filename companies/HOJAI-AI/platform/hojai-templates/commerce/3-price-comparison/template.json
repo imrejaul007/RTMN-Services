@@ -1,0 +1,28 @@
+{
+  "id": "commerce-price-comparison",
+  "name": "Supplier Price Comparison",
+  "category": "commerce",
+  "description": "Compare quotes from multiple suppliers and recommend best option",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "erp", "event": "quotes.received"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Quotes Received", "config": {"source": "erp"}},
+    {"id": "2", "type": "ai_agent", "name": "Compare Options", "config": {"agent": "procurement_agent", "prompt": "Compare quotes: price, lead time, quality, payment terms, supplier rating."}},
+    {"id": "3", "type": "approval", "name": "PO Approval", "config": {"approvers": ["procurement_manager"], "timeout": 24}},
+    {"id": "4", "type": "erp", "name": "Create PO", "config": {"action": "create_purchase_order", "supplier": "{{best_supplier}}"}},
+    {"id": "5", "type": "email", "name": "Notify Winner", "config": {"to": "{{winner.email}}", "template": "po_confirmed"}},
+    {"id": "6", "type": "email", "name": "Notify Others", "config": {"to": "{{losers}}", "template": "quote_rejected"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4", "condition": "approved"},
+    {"from": "4", "to": "5"},
+    {"from": "4", "to": "6"}
+  ],
+  "agents": ["procurement_agent"],
+  "integrations": ["erp", "email"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "procurement", "comparison", "automation"]
+}

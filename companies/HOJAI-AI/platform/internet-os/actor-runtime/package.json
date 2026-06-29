@@ -1,0 +1,11 @@
+{
+  "name": "@hojai/actor-runtime",
+  "version": "1.0.0",
+  "description": "HOJAI Actor Runtime - Standardized web data extraction",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest"
+  }
+}

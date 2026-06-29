@@ -1,0 +1,10 @@
+{
+  "name": "@hojai/flows",
+  "version": "1.0.0",
+  "description": "HOJAI Flows SDK - Workflow automation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@hojai/core": "^1.0.0"
+  }
+}

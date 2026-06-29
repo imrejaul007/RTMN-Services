@@ -625,6 +625,52 @@ app.delete('/api/v1/training/samples',requireAuth,  asyncRoute(async (_req, res)
   res.json(apiResponse(true, { cleared: count, message: 'Training samples cleared. Benchmark results retained.' }));
 }));
 
+// ── VoiceOS Pipeline ────────────────────────────────────────────────────────────
+
+import { executePipeline, checkPipelineHealth } from './services/voice-pipeline.js';
+
+app.post('/api/v1/pipeline/voice', requireAuth, asyncRoute(async (req, res) => {
+  const validation = z.object({
+    userId: z.string().min(1),
+    audio: z.string(), // base64 audio
+    mimeType: z.string().default('audio/webm'),
+    context: z.object({
+      relationship: z.string().optional(),
+      conversationId: z.string().optional(),
+      mode: z.enum(['casual', 'formal', 'intimate']).optional(),
+    }).optional(),
+  }).safeParse(req.body);
+
+  if (!validation.success) {
+    res.status(400).json(apiResponse(false, undefined, `Validation: ${validation.error.message}`));
+    return;
+  }
+
+  const { userId, audio, mimeType, context } = validation.data;
+
+  try {
+    const result = await executePipeline({
+      userId,
+      audioBase64: audio,
+      mimeType,
+      context,
+    });
+
+    res.json(apiResponse(true, result));
+  } catch (error) {
+    console.error('[voice-pipeline]', error);
+    res.status(500).json(apiResponse(false, undefined, 'Pipeline execution failed'));
+  }
+}));
+
+app.get('/api/v1/pipeline/health', async (_req, res) => {
+  const health = await checkPipelineHealth();
+  res.json({
+    ...apiResponse(true, health),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // ── Cost ────────────────────────────────────────────────────────────────────────
 
 app.get('/api/v1/cost/daily', (req, res) => {

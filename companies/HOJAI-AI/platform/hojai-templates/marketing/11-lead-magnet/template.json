@@ -1,0 +1,36 @@
+{
+  "id": "marketing-lead-magnet-delivery",
+  "name": "Lead Magnet Delivery",
+  "category": "marketing",
+  "description": "Deliver lead magnets automatically and nurture leads with sequences",
+  "version": "1.0.0",
+  "triggers": [{"type": "webhook", "source": "landing_page", "event": "form_submitted"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Form Submit", "config": {"source": "landing_page"}},
+    {"id": "2", "type": "crm", "name": "Create Contact", "config": {"action": "create_contact", "source": "lead_magnet"}},
+    {"id": "3", "type": "email", "name": "Deliver Magnet", "config": {"template": "lead_magnet_delivery", "attach_pdf": true}},
+    {"id": "4", "type": "schedule", "name": "Day 3", "config": {"delay_days": 3}},
+    {"id": "5", "type": "email", "name": "Follow Up 1", "config": {"template": "follow_up_1"}},
+    {"id": "6", "type": "schedule", "name": "Day 7", "config": {"delay_days": 7}},
+    {"id": "7", "type": "condition", "name": "Opened?", "config": {"field": "email.opened"}},
+    {"id": "8a", "type": "email", "name": "Follow Up 2", "config": {"template": "follow_up_2"}},
+    {"id": "8b", "type": "crm", "name": "Add to Nurture", "config": {"action": "add_to_sequence", "sequence": "long_nurture"}},
+    {"id": "9", "type": "twin", "name": "Update Lead Twin", "config": {"twin": "lead_twin", "action": "update"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8a", "condition": "opened == false"},
+    {"from": "7", "to": "8b", "condition": "opened == true"},
+    {"from": "8a", "to": "9"},
+    {"from": "8b", "to": "9"}
+  ],
+  "integrations": ["email", "crm"],
+  "estimated_setup_time": "15 minutes",
+  "price": {"subscription": 799, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "lead-capture", "automation", "email"]
+}
