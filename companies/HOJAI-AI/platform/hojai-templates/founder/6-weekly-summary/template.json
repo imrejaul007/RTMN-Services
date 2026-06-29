@@ -1,0 +1,30 @@
+{
+  "id": "founder-weekly-summary",
+  "name": "Weekly Summary",
+  "category": "founder",
+  "description": "Automated weekly company summary for founders",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 18 * * 5"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Sales Data", "config": {"action": "get_weekly_summary"}},
+    {"id": "2", "type": "hris", "name": "Team Data", "config": {"action": "get_weekly_hiring"}},
+    {"id": "3", "type": "finance", "name": "Finance Data", "config": {"action": "get_weekly_burn"}},
+    {"id": "4", "type": "support", "name": "Support Data", "config": {"action": "get_weekly_tickets"}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Summary", "config": {"agent": "report_agent", "prompt": "Generate weekly summary: wins, challenges, priorities."}},
+    {"id": "6", "type": "email", "name": "Send to Founder", "config": {"to": "founder@company.com", "template": "weekly_summary"}},
+    {"id": "7", "type": "twin", "name": "Update Twin", "config": {"twin": "company_twin", "action": "update_weekly"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "5"},
+    {"from": "2", "to": "5"},
+    {"from": "3", "to": "5"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["report_agent"],
+  "integrations": ["crm", "hris", "finance", "support", "email"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 499, "currency": "INR", "period": "month"},
+  "tags": ["founder", "reporting", "weekly"]
+}

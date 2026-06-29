@@ -1,0 +1,28 @@
+{
+  "id": "founder-decision-journal",
+  "name": "Decision Journal",
+  "category": "founder",
+  "description": "Track key decisions with context, rationale, and outcomes",
+  "version": "1.0.0",
+  "triggers": [{"type": "api", "source": "founder_app", "event": "decision.made"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Decision Made", "config": {"source": "founder_app"}},
+    {"id": "2", "type": "ai_agent", "name": "Capture Context", "config": {"agent": "founder_agent", "prompt": "Extract: decision details, alternatives considered, expected outcome."}},
+    {"id": "3", "type": "memory", "name": "Save to Journal", "config": {"action": "save", "memory_type": "decision_journal"}},
+    {"id": "4", "type": "schedule", "name": "Follow Up", "config": {"delay_days": 90}},
+    {"id": "5", "type": "action", "name": "Request Outcome", "config": {"action": "prompt_outcome_review"}},
+    {"id": "6", "type": "twin", "name": "Update Company Twin", "config": {"twin": "company_twin", "action": "log_decision"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["founder_agent"],
+  "integrations": ["api", "memory"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 499, "currency": "INR", "period": "month"},
+  "tags": ["founder", "decisions", "tracking", "journal"]
+}
