@@ -25,51 +25,44 @@ async function getRedis() {
   if (_redis) return _redis;
   if (_connecting) return _connectionPromise;
 
-  // Try to load ioredis (static import — non-blocking if unavailable)
   if (!_Redis) {
-    try {
-      _Redis = (await import('ioredis')).default;
-    } catch {
-      _Redis = null;
-    }
+    try { _Redis = (await import('ioredis')).default; } catch { _Redis = null; }
   }
   if (!_Redis) return null;
 
   _connecting = true;
   const url = process.env.POLICYOS_REDIS_URL || 'redis://localhost:6379';
-  _connectionPromise = new Promise((resolve) => {
-    try {
-      const client = new _Redis(url, {
-        maxRetriesPerRequest: 1,
-        retryStrategy: (tries) => {
-          if (tries > 2) return null;
-          return Math.min(tries * 100, 1000);
-        },
-        enableOfflineQueue: false,
-        lazyConnect: true,
-      });
-      client.connect().then(() => {
-        _redis = client;
-        _connecting = false;
-        client.on('error', (err) => console.error('[policy-os] Redis error:', err.message));
-        console.log('[policy-os] Redis connected:', url);
-        resolve(client);
-      }).catch((err) => {
-        console.warn('[policy-os] Redis connect failed:', err.message, '— using in-memory');
-        _redis = null;
-        _connecting = false;
-        _connectionPromise = null;
-        resolve(null);
-      });
-    } catch (err) {
-      console.warn('[policy-os] Redis init failed:', err.message);
+
+  return new Promise((resolve) => {
+    const client = new _Redis(url, {
+      maxRetriesPerRequest: 1,
+      retryStrategy: () => null,
+      enableOfflineQueue: false,
+      connectTimeout: 2000,
+    });
+    // Set a timeout — if no connection within 2s, fall back to memory
+    const timeout = setTimeout(() => {
+      client.disconnect(false);
       _redis = null;
       _connecting = false;
       _connectionPromise = null;
       resolve(null);
-    }
+    }, 2000);
+    client.on('ready', () => {
+      clearTimeout(timeout);
+      _redis = client;
+      _connecting = false;
+      _connectionPromise = null;
+      client.on('error', (err) => console.error('[policy-os] Redis error:', err.message));
+      resolve(client);
+    });
+    client.on('error', (err) => {
+      // Connection failed — resolve null immediately
+    });
+    client.on('close', () => {
+      _redis = null;
+    });
   });
-  return _connectionPromise;
 }
 
 // ── In-Memory Fallback Cache ────────────────────────────────────────────────────

@@ -488,6 +488,51 @@ app.get('/api/customers/:id', async function(req, res) {
   res.json({ success: true, customer: customer, conversations: conversations });
 });
 
+// Notify customer via RAZO Keyboard
+// POST /api/support/notify
+// Sends a message back to the customer through their active session
+var RAZO_URL = process.env.RAZO_URL || 'http://localhost:4299';
+
+app.post('/api/support/notify', async function(req, res) {
+  var body = req.body;
+  if (!body.customerId && !body.phone && !body.email) {
+    return res.status(400).json({ success: false, error: 'customerId, phone, or email required' });
+  }
+  var customerId = body.customerId;
+  if (!customerId && body.phone) {
+    var found = await storage.findCustomerByChannel('phone', normalizePhone(body.phone));
+    if (found) customerId = found;
+  }
+  if (!customerId && body.email) {
+    var found = await storage.findCustomerByChannel('email', normalizeEmailStr(body.email));
+    if (found) customerId = found;
+  }
+  if (!customerId) return res.status(404).json({ success: false, error: 'Customer not found' });
+  var session = await storage.getSession(customerId, 'chat');
+  if (!session) return res.status(404).json({ success: false, error: 'No active session for customer' });
+  try {
+    var razoRes = await fetch(RAZO_URL + '/api/message/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-internal-token': INTERNAL_TOKEN },
+      body: JSON.stringify({
+        sessionId: session.sessionId,
+        message: body.message,
+        sender: body.sender || 'agent',
+        type: body.type || 'text',
+        metadata: body.metadata || {},
+      }),
+    });
+    if (razoRes.ok) {
+      var data = await razoRes.json();
+      res.json({ success: true, messageId: data.messageId || data.id, sent: true });
+    } else {
+      res.status(502).json({ success: false, error: 'RAZO delivery failed' });
+    }
+  } catch(e) {
+    res.status(502).json({ success: false, error: 'RAZO unreachable: ' + e.message });
+  }
+});
+
 // Get Customer Conversations
 app.get('/api/customers/:id/conversations', async function(req, res) {
   var customer = await storage.getCustomer(req.params.id);

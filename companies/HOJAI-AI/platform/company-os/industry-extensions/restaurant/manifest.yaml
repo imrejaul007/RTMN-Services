@@ -1,0 +1,250 @@
+# Restaurant Industry Extension
+# Vertical-specific services for restaurants
+
+id: restaurant
+name: Restaurant Extension
+version: 1.0.0
+description: Vertical services for restaurant industry - menus, kitchen, POS, reservations
+
+provider:
+  name: RTMN
+  contact: company-os@rtmn.dev
+
+port: 5010
+
+industry: restaurant
+
+verticalityScore: 0.85  # 85% vertical-specific code
+
+# ============================================
+# VERTICAL MODULES (Restaurant-specific)
+# ============================================
+
+verticalModules:
+  - id: menu
+    name: Menu Management
+    description: Restaurant menu with categories, items, modifiers, pricing
+    routes:
+      - GET /api/menu
+      - POST /api/menu
+      - GET /api/menu/:id
+      - PUT /api/menu/:id
+      - DELETE /api/menu/:id
+      - GET /api/menu/:id/items
+      - POST /api/menu/:id/items
+    capabilities:
+      - category_management
+      - item_management
+      - modifier_groups
+      - dynamic_pricing
+      - tax_configuration
+      - allergen_tracking
+    dataModel:
+      - Menu
+      - Category
+      - MenuItem
+      - ModifierGroup
+      - Modifier
+      - ItemPricing
+
+  - id: kitchen
+    name: Kitchen Display System
+    description: Order management for kitchen display, ticket tracking
+    routes:
+      - GET /api/kitchen
+      - GET /api/kitchen/tickets
+      - PATCH /api/kitchen/:orderId
+      - POST /api/kitchen/:orderId/complete
+      - POST /api/kitchen/:orderId/bump
+    capabilities:
+      - order_tickets
+      - course_management
+      - priority_queue
+      - timer_tracking
+      - station_routing
+      - bump_bar_integration
+    dataModel:
+      - KitchenTicket
+      - KitchenOrder
+      - Station
+      - Course
+
+  - id: pos
+    name: Point of Sale
+    description: Restaurant POS with table ordering, split checks
+    routes:
+      - GET /api/pos/tables
+      - POST /api/pos/tables/:id/order
+      - POST /api/pos/tables/:id/split
+      - POST /api/pos/tables/:id/merge
+      - POST /api/pos/order/:id/pay
+    capabilities:
+      - table_management
+      - order_entry
+      - split_checks
+      - table_transfer
+      - tip_management
+      - discount_application
+    dataModel:
+      - Table
+      - POSOrder
+      - SplitCheck
+      - Payment
+
+  - id: reservations
+    name: Reservation System
+    description: Table reservations with waitlist and seating
+    routes:
+      - GET /api/reservations
+      - POST /api/reservations
+      - GET /api/reservations/:id
+      - PUT /api/reservations/:id
+      - DELETE /api/reservations/:id
+      - POST /api/reservations/:id/seat
+      - GET /api/reservations/waitlist
+      - POST /api/reservations/waitlist
+    capabilities:
+      - table_availability
+      - booking_management
+      - waitlist_management
+      - seating_optimization
+      - sms_notifications
+      - deposit_handling
+    dataModel:
+      - Reservation
+      - WaitlistEntry
+      - SeatingAssignment
+      - BookingPolicy
+
+  - id: orders
+    name: Order Management
+    description: Order lifecycle management
+    routes:
+      - GET /api/orders
+      - POST /api/orders
+      - GET /api/orders/:id
+      - PATCH /api/orders/:id/status
+      - POST /api/orders/:id/cancel
+      - POST /api/orders/:id/modify
+    capabilities:
+      - order_creation
+      - order_modification
+      - status_tracking
+      - fulfillment_routing
+      - delivery_integration
+    dataModel:
+      - Order
+      - OrderItem
+      - OrderStatus
+      - FulfillmentRoute
+
+# ============================================
+# UNIVERSAL MODULES (Delegated to DepartmentOS)
+# ============================================
+
+universalModules:
+  - department: sales
+    adapter: /api/sales
+    routesMapped:
+      - /api/customers → /api/sales/customers
+      - /api/loyalty/points → /api/sales/loyalty
+
+  - department: finance
+    adapter: /api/finance
+    routesMapped:
+      - /api/finance/accounting → /api/finance/accounting
+      - /api/finance/wallet → /api/finance/wallet
+
+  - department: marketing
+    adapter: /api/marketing
+    routesMapped:
+      - /api/ads → /api/marketing/ads
+      - /api/loyalty → /api/marketing/loyalty
+
+  - department: hr
+    adapter: /api/hr
+    routesMapped:
+      - /api/staff → /api/hr/staff
+
+# ============================================
+# DEPENDENCIES
+# ============================================
+
+dependencies:
+  required:
+    - finance-department-pack  # For billing
+    - sales-department-pack    # For CRM
+  optional:
+    - marketing-department-pack
+    - hr-department-pack
+
+# ============================================
+# TWIN CONFIGURATION
+# ============================================
+
+twinConfig:
+  companyTwin:
+    type: industry:restaurant
+    extensions:
+      - restaurant:menu
+      - restaurant:kitchen
+      - restaurant:pos
+
+  departmentTwins:
+    - type: department:restaurant-operations
+      manages: [menu, kitchen, pos, reservations, orders]
+
+# ============================================
+# CONFIGURATION
+# ============================================
+
+configSchema:
+  restaurantName:
+    type: string
+    required: true
+
+  cuisineType:
+    type: string
+    enum: [fine_dining, casual, fast_casual, fast_food, cafe, bar]
+
+  operatingHours:
+    type: object
+    properties:
+      open: string
+      close: string
+      days: array
+
+  tableCount:
+    type: number
+    default: 20
+
+  maxPartySize:
+    type: number
+    default: 10
+
+  reservationDuration:
+    type: number
+    default: 90  # minutes
+
+  allowWaitlist:
+    type: boolean
+    default: true
+
+  taxRate:
+    type: number
+    default: 18  # GST percentage
+
+# ============================================
+# MIGRATION
+# ============================================
+
+migration:
+  fromLegacy: restaurant-os
+  legacyPort: 5010
+  adapterRequired: true
+  backwardCompatibility: true
+  dataMapping:
+    customers: sales.customers
+    orders: orders.orders
+    menu: menu.categories
+    kitchen: kitchen.tickets
