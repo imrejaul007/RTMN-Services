@@ -1,0 +1,33 @@
+{
+  "id": "healthcare-lab-results",
+  "name": "Lab Results Notification",
+  "category": "healthcare",
+  "description": "Automated lab result notifications with AI explanation",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "lis", "event": "results.ready"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Results Ready", "config": {"source": "lis"}},
+    {"id": "2", "type": "emr", "name": "Get Patient", "config": {"action": "get_patient"}},
+    {"id": "3", "type": "ai_agent", "name": "Explain Results", "config": {"agent": "healthcare_agent", "prompt": "Generate patient-friendly explanation of lab results. Highlight normal/abnormal values."}},
+    {"id": "4", "type": "whatsapp", "name": "Send Results", "config": {"template": "lab_results", "include_explanation": true}},
+    {"id": "5", "type": "condition", "name": "Abnormal?", "config": {"field": "results.has_abnormal"}},
+    {"id": "6a", "type": "email", "name": "Alert Doctor", "config": {"template": "abnormal_results", "to": "{{doctor.email}}", "condition": "critical"}},
+    {"id": "6b", "type": "emr", "name": "Flag Review", "config": {"action": "flag_for_doctor_review", "priority": "high"}},
+    {"id": "7", "type": "twin", "name": "Update Patient Twin", "config": {"twin": "patient_twin", "action": "update_lab_results"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6a", "condition": "critical == true"},
+    {"from": "5", "to": "6b", "condition": "has_abnormal == true"},
+    {"from": "6a", "to": "7"},
+    {"from": "6b", "to": "7"}
+  ],
+  "agents": ["healthcare_agent"],
+  "integrations": ["lis", "emr", "whatsapp", "email"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["healthcare", "lab", "automation", "patient-care"]
+}

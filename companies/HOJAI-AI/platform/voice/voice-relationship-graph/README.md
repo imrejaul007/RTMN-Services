@@ -1,12 +1,20 @@
 # Voice Relationship Graph
 
 **Port:** 4888  
-Track voice interaction relationships.
+**Package:** `@hojai/voice-relationship-graph`
+
+Track relationships between voice-interacting entities.
 
 ## API
 
 ```bash
-POST /relationships {"fromCorpId": "user_1", "toCorpId": "user_2", "type": "colleague"}
+POST /relationships
+POST /interactions
 GET /relationships/:corpId
-POST /interactions {"fromCorpId": "user_1", "toCorpId": "user_2"}
+```
+
+## Testing
+
+```bash
+npm test
 ```

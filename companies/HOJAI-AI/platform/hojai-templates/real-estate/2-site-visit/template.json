@@ -1,0 +1,34 @@
+{
+  "id": "realestate-site-visit",
+  "name": "Site Visit Scheduler",
+  "category": "real-estate",
+  "description": "Automated site visit scheduling with confirmation and reminders",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "crm", "event": "lead.interested"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Lead Interested", "config": {"source": "crm"}},
+    {"id": "2", "type": "emr", "name": "Get Available Slots", "config": {"action": "get_site_visit_slots"}},
+    {"id": "3", "type": "whatsapp", "name": "Send Options", "config": {"template": "visit_slots"}},
+    {"id": "4", "type": "wait", "name": "Wait 2 Hours", "config": {"timeout_hours": 2}},
+    {"id": "5", "type": "condition", "name": "Slot Selected?", "config": {"field": "lead.selected_slot"}},
+    {"id": "6", "type": "calendar", "name": "Book Visit", "config": {"action": "create_event", "attendees": ["lead", "agent"]}},
+    {"id": "7", "type": "whatsapp", "name": "Confirm Visit", "config": {"template": "visit_confirmed"}},
+    {"id": "8", "type": "schedule", "name": "Day Before Reminder", "config": {"delay_days": -1}},
+    {"id": "9", "type": "whatsapp", "name": "Send Reminder", "config": {"template": "visit_reminder"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6", "condition": "selected == true"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"},
+    {"from": "8", "to": "9"}
+  ],
+  "agents": [],
+  "integrations": ["crm", "calendar", "whatsapp"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["real-estate", "scheduling", "automation"]
+}

@@ -1,8 +1,18 @@
 # Voice Memory Router
 
 **Port:** 4887  
-Route voice to memory namespace.
+**Package:** `@hojai/voice-memory-router`
+
+Route voice interactions to correct memory namespace.
+
+## API
 
 ```bash
-POST /route {"voiceFingerprint": "abc", "entityType": "employee", "context": {"companyId": "xyz"}}
+POST /route {"voiceFingerprint": "abc", "entityType": "employee"}
+```
+
+## Testing
+
+```bash
+npm test
 ```

@@ -19,41 +19,56 @@ import { EventEmitter } from 'events';
 let _redis = null;
 let _connecting = false;
 let _connectionPromise = null;
+let _Redis = null;
 
-function getRedis() {
-  if (_redis) return Promise.resolve(_redis);
+async function getRedis() {
+  if (_redis) return _redis;
   if (_connecting) return _connectionPromise;
 
-  _connecting = true;
-  _connectionPromise = (async () => {
-    const url = process.env.POLICYOS_REDIS_URL || 'redis://localhost:6379';
+  // Try to load ioredis (static import — non-blocking if unavailable)
+  if (!_Redis) {
     try {
-      const { default: Redis } = await import('ioredis');
-      _redis = new Redis(url, {
-        maxRetriesPerRequest: 3,
+      _Redis = (await import('ioredis')).default;
+    } catch {
+      _Redis = null;
+    }
+  }
+  if (!_Redis) return null;
+
+  _connecting = true;
+  const url = process.env.POLICYOS_REDIS_URL || 'redis://localhost:6379';
+  _connectionPromise = new Promise((resolve) => {
+    try {
+      const client = new _Redis(url, {
+        maxRetriesPerRequest: 1,
         retryStrategy: (tries) => {
-          if (tries > 3) return null;
-          return Math.min(tries * 200, 2000);
+          if (tries > 2) return null;
+          return Math.min(tries * 100, 1000);
         },
         enableOfflineQueue: false,
         lazyConnect: true,
       });
-      await _redis.connect();
-      _redis.on('error', (err) => {
-        console.error('[policy-os] Redis error:', err.message);
-        emit('cache:error', err);
+      client.connect().then(() => {
+        _redis = client;
+        _connecting = false;
+        client.on('error', (err) => console.error('[policy-os] Redis error:', err.message));
+        console.log('[policy-os] Redis connected:', url);
+        resolve(client);
+      }).catch((err) => {
+        console.warn('[policy-os] Redis connect failed:', err.message, '— using in-memory');
+        _redis = null;
+        _connecting = false;
+        _connectionPromise = null;
+        resolve(null);
       });
-      _redis.on('reconnecting', () => console.log('[policy-os] Redis reconnecting...'));
-      console.log('[policy-os] Redis connected:', url);
-      return _redis;
     } catch (err) {
-      console.warn('[policy-os] Redis unavailable:', err.message, '— using in-memory fallback');
+      console.warn('[policy-os] Redis init failed:', err.message);
       _redis = null;
       _connecting = false;
       _connectionPromise = null;
-      return null;
+      resolve(null);
     }
-  })();
+  });
   return _connectionPromise;
 }
 
@@ -406,18 +421,6 @@ export async function getCacheStats() {
  */
 export function onInvalidate(handler) {
   events.on('cache:invalidate', handler);
-  // If Redis is available, also subscribe via Redis pub/sub
-  getRedis().then(redis => {
-    if (redis) {
-      const sub = redis.duplicate();
-      sub.subscribe(`${KEY_PREFIX}invalidate`);
-      sub.on('message', (ch, msg) => {
-        if (ch === `${KEY_PREFIX}invalidate`) {
-          events.emit('cache:invalidate', msg);
-        }
-      });
-    }
-  }).catch(() => {});
   return () => events.off('cache:invalidate', handler);
 }
 

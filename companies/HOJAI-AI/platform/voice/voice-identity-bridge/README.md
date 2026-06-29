@@ -1,7 +1,9 @@
 # Voice Identity Bridge
 
 **Port:** 4885  
-Link voice fingerprints to CorpID.
+**Package:** `@hojai/voice-identity-bridge`
+
+Link voice fingerprints to CorpID for personalized voice experiences.
 
 ## Architecture
 
@@ -9,21 +11,47 @@ Link voice fingerprints to CorpID.
 Voice Fingerprint → Voice Identity Bridge → CorpID
 ```
 
-## API
+## Features
+
+- Voice fingerprint to CorpID registration
+- Bidirectional mapping
+- Trust score tracking
+- Verification level management
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/register` | Register voice with CorpID |
+| POST | `/lookup` | Lookup CorpID from voice |
+| GET | `/corp/:corpId/voices` | Get all voices for CorpID |
+| PUT | `/trust` | Update trust score |
+| DELETE | `/unregister` | Remove voice link |
+| GET | `/health` | Health check |
+
+## Quick Start
 
 ```bash
-# Register voice with CorpID
-POST /register
-{"voiceFingerprint": "abc123", "corpId": "user_123", "trustScore": 80}
+npm install
+npm start
+```
 
-# Lookup CorpID from voice
-POST /lookup
-{"voiceFingerprint": "abc123"}
+## Example
 
-# Get all voices for CorpID
-GET /corp/:corpId/voices
+```bash
+# Register voice
+curl -X POST http://localhost:4885/register \
+  -H "Content-Type: application/json" \
+  -d '{"voiceFingerprint": "abc123", "corpId": "user_001", "trustScore": 80}'
 
-# Update trust score
-PUT /trust
-{"voiceFingerprint": "abc123", "delta": 10}
+# Lookup
+curl -X POST http://localhost:4885/lookup \
+  -H "Content-Type: application/json" \
+  -d '{"voiceFingerprint": "abc123"}'
+```
+
+## Testing
+
+```bash
+npm test
 ```

@@ -199,6 +199,7 @@ VOICE_IDENTITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voic
 HUMAN_GROWTH_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-growth && PORT=4895 npm start"
 HUMAN_PRESENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-presence && PORT=4896 npm start"
 RELATIONSHIP_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/relationship-os && PORT=4897 npm start"
+VOICE_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-orchestrator && PORT=4898 npm start"
 
 # HOJAI App Store API (4400) — Catalog for skills, agents, workflows, templates
 APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PORT=4400 npm start"
@@ -719,6 +720,7 @@ start_all() {
 	  start_service "human-growth"         "$HUMAN_GROWTH_CMD"         4895
 	  start_service "human-presence"        "$HUMAN_PRESENCE_CMD"        4896
 	  start_service "relationship-os"      "$RELATIONSHIP_OS_CMD"      4897
+	  start_service "voice-orchestrator"   "$VOICE_ORCHESTRATOR_CMD"   4898
   # HOJAI App Store API (port 4400)
   start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
