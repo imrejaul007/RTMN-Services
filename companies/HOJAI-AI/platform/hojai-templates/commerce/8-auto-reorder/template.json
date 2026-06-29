@@ -1,0 +1,33 @@
+{
+  "id": "commerce-auto-reorder",
+  "name": "Auto-Reorder for Fast Movers",
+  "category": "commerce",
+  "description": "Automatically reorder fast-moving items when stock hits minimum",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "inventory", "event": "stock.minimum"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Stock Minimum", "config": {"source": "inventory"}},
+    {"id": "2", "type": "inventory", "name": "Get Item Details", "config": {"action": "get_item"}},
+    {"id": "3", "type": "crm", "name": "Get Preferred Vendor", "config": {"action": "get_preferred_vendor"}},
+    {"id": "4", "type": "ai_agent", "name": "Calculate Quantity", "config": {"agent": "procurement_agent", "prompt": "Calculate optimal reorder quantity based on consumption rate and lead time."}},
+    {"id": "5", "type": "condition", "name": "Within Budget?", "config": {"field": "po.amount", "operator": "<=", "value": 50000}},
+    {"id": "6a", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["procurement_manager"]}},
+    {"id": "6b", "type": "erp", "name": "Create PO", "config": {"action": "create_po"}},
+    {"id": "7", "type": "email", "name": "Confirm to Vendor", "config": {"template": "repeat_order"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6a", "condition": "amount > 50000"},
+    {"from": "5", "to": "6b", "condition": "amount <= 50000"},
+    {"from": "6a", "to": "6b", "condition": "approved"},
+    {"from": "6b", "to": "7"}
+  ],
+  "agents": ["procurement_agent"],
+  "integrations": ["inventory", "crm", "erp"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "inventory", "automation", "procurement"]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "commerce-inventory-forecast",
+  "name": "Inventory Forecasting",
+  "category": "commerce",
+  "description": "AI-powered inventory forecasting and reorder automation",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 6 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "inventory", "name": "Get Stock Levels", "config": {"action": "get_all_stock_levels"}},
+    {"id": "2", "type": "analytics", "name": "Get Sales Data", "config": {"action": "get_sales_velocity", "period": "90d"}},
+    {"id": "3", "type": "ai_agent", "name": "Forecast Demand", "config": {"agent": "forecast_agent", "prompt": "Calculate reorder dates and quantities based on sales velocity and lead times."}},
+    {"id": "4", "type": "filter", "name": "Items to Reorder", "config": {"conditions": [{"field": "reorder_needed", "operator": "==", "value": true}]}},
+    {"id": "5", "type": "ai_agent", "name": "Generate POs", "config": {"agent": "procurement_agent", "prompt": "Generate purchase orders for items needing reorder."}},
+    {"id": "6", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["procurement_manager"], "total_amount_threshold": 500000}},
+    {"id": "7", "type": "erp", "name": "Create POs", "config": {"action": "create_purchase_orders"}},
+    {"id": "8", "type": "twin", "name": "Update Inventory Twin", "config": {"twin": "inventory_twin", "action": "update_forecast"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "3"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7", "condition": "approved"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["forecast_agent", "procurement_agent"],
+  "integrations": ["inventory", "analytics", "erp"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 2499, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "inventory", "forecasting", "automation"]
+}

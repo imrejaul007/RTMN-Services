@@ -281,8 +281,8 @@ export class StateManager {
   /**
    * Delete state (decomposition)
    */
-  static delete(companyId: string): boolean {
-    return stateStore.delete(companyId);
+  static delete(companyId: string): void {
+    stateStore.delete(companyId);
   }
 
   /**

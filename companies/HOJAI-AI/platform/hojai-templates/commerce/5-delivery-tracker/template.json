@@ -1,0 +1,29 @@
+{
+  "id": "commerce-delivery-tracker",
+  "name": "Delivery Tracker",
+  "category": "commerce",
+  "description": "Track supplier deliveries and alert on delays",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 */6 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "erp", "name": "Get Active Deliveries", "config": {"action": "get_active_deliveries"}},
+    {"id": "2", "type": "condition", "name": "Delayed?", "config": {"field": "delivery.expected_date", "operator": "<", "value": "today"}},
+    {"id": "3a", "type": "email", "name": "Alert Buyer", "config": {"template": "delivery_delayed", "to": "{{buyer.email}}"}},
+    {"id": "3b", "type": "email", "name": "Track ETA", "config": {"template": "delivery_on_track"}},
+    {"id": "4", "type": "slack", "name": "Notify Warehouse", "config": {"condition": "delay > 2", "channel": "warehouse"}},
+    {"id": "5", "type": "erp", "name": "Update Status", "config": {"action": "update_delivery_status"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3a", "condition": "delayed == true"},
+    {"from": "2", "to": "3b", "condition": "delayed == false"},
+    {"from": "3a", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "3b", "to": "5"}
+  ],
+  "agents": [],
+  "integrations": ["erp", "email", "slack"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "delivery", "automation", "logistics"]
+}

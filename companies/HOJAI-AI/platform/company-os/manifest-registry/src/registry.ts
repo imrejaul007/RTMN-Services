@@ -10,7 +10,6 @@ import crypto from 'crypto';
 import yaml from 'js-yaml';
 import {
   CompanyManifest,
-  CompanyComposition,
   ManifestSnapshot,
   ManifestVersion,
 } from './types';

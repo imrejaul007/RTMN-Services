@@ -1,0 +1,30 @@
+{
+  "id": "commerce-vendor-scorecard",
+  "name": "Vendor Performance Scorecard",
+  "category": "commerce",
+  "description": "Track and score vendor performance on delivery, quality, and pricing",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 8 1 * *"}],
+  "nodes": [
+    {"id": "1", "type": "erp", "name": "Get Delivery Data", "config": {"action": "get_vendor_deliveries", "period": "30d"}},
+    {"id": "2", "type": "analytics", "name": "Get Quality Data", "config": {"action": "get_quality_issues", "by_vendor": true}},
+    {"id": "3", "type": "ai_agent", "name": "Calculate Scores", "config": {"agent": "analytics_agent", "prompt": "Calculate vendor scores: on_time %, quality %, price_competitiveness, responsiveness."}},
+    {"id": "4", "type": "crm", "name": "Update Vendor Records", "config": {"action": "update_vendor_scores"}},
+    {"id": "5", "type": "condition", "name": "Low Score?", "config": {"field": "score.total", "operator": "<", "value": 60}},
+    {"id": "6", "type": "email", "name": "Alert Vendor", "config": {"template": "performance_concern", "condition": "score < 60"}},
+    {"id": "7", "type": "slack", "name": "Notify Procurement", "config": {"channel": "procurement", "condition": "score < 50"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "3"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6", "condition": "score < 60"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["analytics_agent"],
+  "integrations": ["erp", "crm", "email", "slack"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "vendor", "performance", "automation"]
+}
