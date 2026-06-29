@@ -32,7 +32,7 @@ git branch  # ALWAYS check first!
 |------|------------|--------|
 | RTMN-Services | `/RTMN/` | `docs/genie-phase-a-complete` |
 | HOJAI-AI | `/RTMN/companies/HOJAI-AI/` | `main` |
-| Nexha | `/RTMN/companies/Nexha/` | `feat/killer-30min-demo` |
+| Nexha | `/RTMN/companies/Nexha/` | `main` |
 
 **Push sequence:**
 ```bash
@@ -40,9 +40,9 @@ git branch  # ALWAYS check first!
 cd /RTMN/companies/HOJAI-AI
 git push origin main
 
-# 2. Push Nexha
+# 2. Push Nexha (standalone company)
 cd /RTMN/companies/Nexha
-git push origin HEAD
+git push origin main
 
 # 3. Push RTMN
 cd /RTMN
