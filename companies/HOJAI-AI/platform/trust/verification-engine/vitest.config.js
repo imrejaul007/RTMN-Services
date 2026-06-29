@@ -10,7 +10,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.js', 'src/**/*.ts'],
-      exclude: ['**/*.d.ts', '**/*.config.*']
+      exclude: ['**/*.d.ts', '**/*.config.*', 'node_modules/**']
     },
     reporters: ['default', 'verbose'],
     pool: 'forks',
@@ -18,6 +18,16 @@ export default defineConfig({
       forks: {
         singleFork: true
       }
+    },
+    setupFiles: [],
+    sequence: {
+      shuffle: false,
+      concurrent: false
+    }
+  },
+  resolve: {
+    alias: {
+      '@': './src'
     }
   }
 });

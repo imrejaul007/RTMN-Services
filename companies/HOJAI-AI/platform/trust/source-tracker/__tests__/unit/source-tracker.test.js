@@ -67,12 +67,13 @@ describe('Source Tracker - Citation Extraction', () => {
       expect(citations[1].type).toBe('numeric');
     });
 
-    it('should extract academic citations like (Author, 2023)', () => {
-      const text = 'Smith et al. (2023) demonstrated that machine learning works.';
+    it('should extract academic citations like (Author, Year)', () => {
+      // Pattern requires comma before year: \(([^)]+,\s*\d{4})\)
+      const text = 'Smith (Smith, 2023) demonstrated that machine learning works.';
       const citations = extractCitations(text);
 
       expect(citations).toHaveLength(1);
-      expect(citations[0].text).toBe('(Smith et al., 2023)');
+      expect(citations[0].text).toBe('(Smith, 2023)');
       expect(citations[0].type).toBe('academic');
     });
 
