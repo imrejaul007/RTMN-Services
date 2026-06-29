@@ -1152,7 +1152,7 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 
 | Service | Port | Status | Purpose |
 |---------|------|--------|---------|
-| **unified-support-bridge** | 4885 | ✅ NEW | Cross-channel support bridge — resolves customer identity from phone/email/appUserId, receives webhooks from WhatsApp/Email/App, links conversations across channels, provides merge API. RTMN Hub: `/api/support/*` |
+| **unified-support-bridge** | 4885 | ✅ LIVE | Cross-channel support bridge v2.0 — WhatsApp ✅ Email ✅ App ✅ SSE ✅ WebSocket ✅ Cross-channel linking ✅. RTMN Hub: `/api/support/*`. Start: `cd companies/HOJAI-AI/products/hib/unified-support-bridge && npm start` |
 | **unified-inbox** | 4870 | ✅ | 8-channel inbox (Email, Chat, Phone, WhatsApp, Instagram, Twitter, Facebook, Telegram) with agent routing and macros |
 | **ticket-engine** | 4872 | ✅ | Ticket lifecycle management (new→open→pending→resolved→closed), SLA, categories, comments |
 | **live-support-os** | 4884 | ✅ | Human-in-the-loop escalation router — AI confidence routing, skill-matched agent selection, handoff context |
@@ -1235,6 +1235,7 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 | learning-distribution | 4748 | Share learnings across agents/orgs |
 | escalation-manager | 4749 | Human escalation + approval workflows |
 | budget-alerts | 4750 | Real-time budget notifications + webhooks |
+| trust-graph | 4751 | Visual trust relationships between agents |
 
 **Startup:** `bash platform/flow/loop-os/start-loopos.sh start`
 
