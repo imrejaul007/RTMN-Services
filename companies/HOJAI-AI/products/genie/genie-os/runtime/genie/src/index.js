@@ -1337,11 +1337,169 @@ async function parallelFetch(specs) {
   return out;
 }
 
+// === SHAPERS — normalize each specialist's native response into a stable per-key schema ===
+// Each shaper takes the raw data from downstream and returns a normalized object with:
+//   { kind, count, ... } where kind is the domain (memories|people|courses|plans|activity|raw)
+// and the remaining fields are the specialist-specific items in a predictable shape.
+//
+// Goal: clients can iterate `Object.entries(specialists)` and access `entry.data.kind` + `entry.data.count`
+// without inspecting each specialist's native response format. Raw payload is preserved under
+// `raw` so clients that need the full downstream response can still reach it.
+const SHAPERS = {
+  // Memory layer: shape into {kind:'memories', items, count}
+  memoryGraph:    (raw) => normalizeList(raw, ['nodes', 'edges', 'items', 'memories'], 'memories'),
+  memoryInbox:    (raw) => normalizeList(raw, ['items', 'memories', 'recent'], 'memories'),
+  serendipity:    (raw) => normalizeList(raw, ['items', 'memories', 'picks'], 'memories'),
+
+  // People layer
+  relationships:    (raw) => normalizeList(raw, ['people', 'contacts', 'items'], 'people', 'people'),
+  relationshipHealth: (raw) => ({
+    kind: 'people',
+    count: Array.isArray(raw?.people) ? raw.people.length : (typeof raw?.total === 'number' ? raw.total : 0),
+    health: raw?.health || raw?.overview || raw?.summary || null,
+    raw,
+  }),
+
+  // Learning layer
+  learning:     (raw) => normalizeList(raw, ['courses', 'items', 'progress'], 'courses', 'courses'),
+  university:   (raw) => normalizeList(raw, ['courses', 'enrollments', 'items'], 'courses', 'courses'),
+
+  // Planning layer
+  lifeGps:      (raw) => ({
+    kind: 'plans',
+    count: Array.isArray(raw?.steps) ? raw.steps.length : (Array.isArray(raw?.nextSteps) ? raw.nextSteps.length : 0),
+    nextSteps: raw?.steps || raw?.nextSteps || [],
+    raw,
+  }),
+  lifeGoals:    (raw) => normalizeList(raw, ['goals', 'items'], 'plans', 'goals'),
+  thinking:     (raw) => ({
+    kind: 'plans',
+    count: Array.isArray(raw?.options) ? raw.options.length : (Array.isArray(raw?.pros) ? raw.pros.length : 0),
+    decision: raw?.decision || raw?.recommendation || null,
+    options: raw?.options || raw?.pros || [],
+    raw,
+  }),
+
+  // Activity layer
+  companion:    (raw) => normalizeList(raw, ['entries', 'items', 'milestones', 'story'], 'activity', 'entries'),
+  execution:    (raw) => normalizeList(raw, ['tasks', 'items', 'routines'], 'activity', 'tasks'),
+  consultant:   (raw) => normalizeList(raw, ['sessions', 'history', 'items'], 'activity', 'sessions'),
+  creation:     (raw) => normalizeList(raw, ['projects', 'items', 'videos'], 'activity', 'projects'),
+  forgetting:   (raw) => ({
+    kind: 'activity',
+    count: Array.isArray(raw?.presets) ? raw.presets.length : 0,
+    presets: raw?.presets || [],
+    raw,
+  }),
+};
+
+// normalizeList: find the first array field from `candidates` and return {kind, count, items, raw}.
+// `itemsKey` is what we name the items field in the normalized output.
+function normalizeList(raw, candidates, kind, itemsKey = 'items') {
+  const list = (candidates.find((k) => Array.isArray(raw?.[k])) ? raw[candidates.find((k) => Array.isArray(raw?.[k]))] : null) || [];
+  return {
+    kind,
+    count: list.length,
+    [itemsKey]: list,
+    raw,
+  };
+}
+
+// normalizeSpecialistData: apply the SHAPERS map to a parallelFetch result.
+// Returns the same {ok, data|error} envelope but with `data` reshaped into a stable schema.
+function normalizeSpecialistData(key, value) {
+  if (!value.ok) return value; // {ok:false, error} passes through unchanged
+  const shaper = SHAPERS[key];
+  if (!shaper) {
+    // Unknown specialist — fall back to a generic envelope so clients still get kind/count/raw
+    return {
+      ...value,
+      data: {
+        kind: 'raw',
+        count: 0,
+        raw: value.data,
+      },
+    };
+  }
+  try {
+    return { ...value, data: shaper(value.data) };
+  } catch (e) {
+    // Shaper threw — fall back to generic envelope with the error attached
+    return {
+      ok: false,
+      error: 'shape_failed',
+      shapeError: e.message,
+      raw: value.data,
+    };
+  }
+}
+
+// =====================================================================================
+// PHASE 13: AGGREGATOR CACHE — 5s TTL on userId so power users don't re-fanout
+// 15 services every 30 seconds. Simple in-memory Map keyed by userId; clients can
+// bypass with ?fresh=true. Cache hit/miss surfaced in the response so callers can
+// see what they're getting.
+// =====================================================================================
+const AGGREGATOR_CACHE_TTL_MS = parseInt(process.env.AGGREGATOR_CACHE_TTL_MS || '5000', 10);
+const AGGREGATOR_CACHE_ENABLED = process.env.AGGREGATOR_CACHE_ENABLED !== 'false';
+const aggregatorCache = new Map(); // userId -> { expiresAt, payload }
+
+// pruneAggregatorCache: lazy cleanup. Called before each read so stale entries
+// don't pile up forever. O(n) over the cache — fine for tens of thousands of users.
+function pruneAggregatorCache(now = Date.now()) {
+  for (const [k, v] of aggregatorCache) {
+    if (v.expiresAt <= now) aggregatorCache.delete(k);
+  }
+}
+
+function getCachedAggregator(userId, now = Date.now()) {
+  if (!AGGREGATOR_CACHE_ENABLED) return null;
+  pruneAggregatorCache(now);
+  const entry = aggregatorCache.get(userId);
+  if (!entry) return null;
+  if (entry.expiresAt <= now) {
+    aggregatorCache.delete(userId);
+    return null;
+  }
+  return { payload: entry.payload, ageMs: now - (entry.expiresAt - AGGREGATOR_CACHE_TTL_MS) };
+}
+
+function setCachedAggregator(userId, payload, now = Date.now()) {
+  if (!AGGREGATOR_CACHE_ENABLED) return;
+  aggregatorCache.set(userId, { expiresAt: now + AGGREGATOR_CACHE_TTL_MS, payload });
+}
+
+function invalidateAggregatorCache(userId) {
+  if (userId === undefined) aggregatorCache.clear();
+  else aggregatorCache.delete(userId);
+}
+
+// Export for tests + ops
+function _aggregatorCacheStats() {
+  const now = Date.now();
+  let live = 0, expired = 0;
+  for (const [, v] of aggregatorCache) {
+    if (v.expiresAt > now) live++; else expired++;
+  }
+  return { size: aggregatorCache.size, live, expired, ttlMs: AGGREGATOR_CACHE_TTL_MS, enabled: AGGREGATOR_CACHE_ENABLED };
+}
+
 // === Aggregator: personal snapshot for a user ===
 app.get('/api/genie/personal/:userId', authMiddleware, async (req, res, next) => {
   try {
     const { userId } = req.params;
-    const results = await parallelFetch([
+    // Phase 13: cache lookup. ?fresh=true bypasses the cache.
+    const forceFresh = req.query.fresh === 'true' || req.query.fresh === '1';
+    if (!forceFresh) {
+      const cached = getCachedAggregator(userId);
+      if (cached) {
+        return res.json({
+          ...cached.payload,
+          meta: { ...cached.payload.meta, cached: true, cacheAgeMs: cached.ageMs, timestamp: new Date().toISOString() },
+        });
+      }
+    }
+    const raw = await parallelFetch([
       { key: 'memoryGraph',      url: `${GENIE_MEMORY_GRAPH_URL}/api/user/${userId}/graph` },
       { key: 'memoryInbox',      url: `${GENIE_MEMORY_INBOX_URL}/api/recent?userId=${userId}&limit=5` },
       { key: 'serendipity',      url: `${GENIE_SERENDIPITY_URL}/api/serendipity?userId=${userId}` },
@@ -1358,20 +1516,50 @@ app.get('/api/genie/personal/:userId', authMiddleware, async (req, res, next) =>
       { key: 'creation',         url: `${GENIE_CREATION_OS_URL}/video/projects/${userId}` },
       { key: 'forgetting',       url: `${GENIE_SMART_FORGETTING_URL}/api/config` },
     ]);
+    // Phase 12: normalize each specialist's data into a stable {kind, count, ...} envelope
+    const results = {};
+    const kindCounts = { memories: 0, people: 0, courses: 0, plans: 0, activity: 0, raw: 0, errors: 0 };
+    for (const [key, value] of Object.entries(raw)) {
+      results[key] = normalizeSpecialistData(key, value);
+      if (results[key].ok) {
+        kindCounts[results[key].data.kind] = (kindCounts[results[key].data.kind] || 0) + 1;
+      } else {
+        kindCounts.errors++;
+      }
+    }
     const upCount = Object.values(results).filter((r) => r.ok).length;
-    res.json({
+    const payload = {
       success: true,
       data: {
         userId,
         up: upCount,
         total: Object.keys(results).length,
+        // kindCounts: how many specialists returned each kind — gives clients an at-a-glance
+        // view of which domains are populated for this user
+        kindCounts,
         specialists: results,
       },
-      meta: { timestamp: new Date().toISOString() },
-    });
+      meta: { cached: false, timestamp: new Date().toISOString() },
+    };
+    // Phase 13: cache the fresh payload
+    setCachedAggregator(userId, payload);
+    res.json(payload);
   } catch (e) {
     next(e);
   }
+});
+
+// === Phase 13: cache management endpoints (ops + tests) ===
+// GET /api/genie/personal/_cache — view cache stats (live/expired/ttl)
+app.get('/api/genie/personal/_cache', authMiddleware, async (req, res) => {
+  res.json({ success: true, data: _aggregatorCacheStats(), meta: { timestamp: new Date().toISOString() } });
+});
+
+// DELETE /api/genie/personal/_cache — invalidate all entries (or one userId if provided)
+app.delete('/api/genie/personal/_cache', authMiddleware, async (req, res) => {
+  const userId = req.query.userId || req.body?.userId;
+  invalidateAggregatorCache(userId);
+  res.json({ success: true, data: { invalidated: userId || 'all' }, meta: { timestamp: new Date().toISOString() } });
 });
 
 // === Intent engine integration: when keyword routing can't decide, ask intent-engine ===
@@ -2378,4 +2566,4 @@ app.post('/api/admin/orgs/:orgId/services', requireRole('org_admin'), async (req
 });
 
 start();
-export { app };
+export { app, SHAPERS, normalizeSpecialistData, normalizeList, aggregatorCache, getCachedAggregator, setCachedAggregator, invalidateAggregatorCache, _aggregatorCacheStats, AGGREGATOR_CACHE_TTL_MS, AGGREGATOR_CACHE_ENABLED };

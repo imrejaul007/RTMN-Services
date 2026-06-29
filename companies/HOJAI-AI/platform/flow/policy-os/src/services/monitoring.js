@@ -88,6 +88,15 @@ class MetricsCollector {
     return null;
   }
 
+  reset() {
+    this._counters = new Map();
+    this._gauges = new Map();
+    this._histograms = new Map();
+    this._timers = new Map();
+    this._windows = { '1m': new Map(), '5m': new Map(), '1h': new Map(), '24h': new Map() };
+    this._startTime = Date.now();
+  }
+
   // ── Predefined Metrics ──────────────────────────────────────────────────
 
   recordEval(durationMs, allowed, cached, policyId) {
