@@ -1,0 +1,35 @@
+{
+  "id": "sales-win-loss-analysis",
+  "name": "Win/Loss Analysis",
+  "category": "sales",
+  "description": "Automatically analyze won and lost deals to improve future win rates",
+  "version": "1.0.0",
+  "triggers": [
+    {"type": "event", "source": "crm", "event": "deal.closed"}
+  ],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Deal Closed", "config": {"source": "crm"}},
+    {"id": "2", "type": "condition", "name": "Won or Lost?", "config": {"field": "deal.stage"}},
+    {"id": "3a", "type": "ai_agent", "name": "Analyze Win", "config": {"agent": "analyst_agent", "prompt": "Analyze why we won this deal. Identify: pricing, timing, competition, product fit."}},
+    {"id": "3b", "type": "ai_agent", "name": "Analyze Loss", "config": {"agent": "analyst_agent", "prompt": "Analyze why we lost this deal. Identify: pricing, competition, missing features, timing."}},
+    {"id": "4", "type": "twin", "name": "Update Win/Loss Twin", "config": {"twin": "win_loss_twin", "action": "create", "fields": ["reason", "competitor", "factors"]}},
+    {"id": "5", "type": "memory", "name": "Learn", "config": {"action": "save", "memory_type": "deal_analysis"}},
+    {"id": "6", "type": "crm", "name": "Log Analysis", "config": {"action": "add_note", "note_type": "win_loss_analysis"}},
+    {"id": "7", "type": "slack", "name": "Notify Sales", "config": {"channel": "sales-team", "template": "deal_closed"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3a", "condition": "stage == won"},
+    {"from": "2", "to": "3b", "condition": "stage == lost"},
+    {"from": "3a", "to": "4"},
+    {"from": "3b", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["analyst_agent"],
+  "integrations": ["crm", "slack", "twin", "memory"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["sales", "analytics", "win-loss", "improvement"]
+}

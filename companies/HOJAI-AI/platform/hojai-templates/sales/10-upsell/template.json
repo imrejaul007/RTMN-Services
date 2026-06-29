@@ -1,0 +1,28 @@
+{
+  "id": "sales-upsell-detection",
+  "name": "Upsell Opportunity Detection",
+  "category": "sales",
+  "description": "Identify upsell opportunities in existing customers and trigger proactive outreach",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Load Active Customers", "config": {"action": "get_customers", "filter": {"status": "active"}}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Usage", "config": {"agent": "analyst_agent", "prompt": "Analyze usage patterns to identify upsell signals: high usage, feature gaps, growth indicators."}},
+    {"id": "3", "type": "filter", "name": "Filter Opportunities", "config": {"conditions": [{"field": "upsell_score", "operator": ">=", "value": 70}]}},
+    {"id": "4", "type": "ai_agent", "name": "Generate Offer", "config": {"agent": "outreach_agent", "prompt": "Generate personalized upsell offer based on customer profile."}},
+    {"id": "5", "type": "email", "name": "Send Offer", "config": {"provider": "smtp", "template": "upsell_offer"}},
+    {"id": "6", "type": "crm", "name": "Log Activity", "config": {"action": "add_activity", "activity_type": "upsell_outreach"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["analyst_agent", "outreach_agent"],
+  "integrations": ["crm", "email"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["sales", "upsell", "automation", "customer-growth"]
+}

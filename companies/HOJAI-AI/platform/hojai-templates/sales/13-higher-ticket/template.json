@@ -1,0 +1,28 @@
+{
+  "id": "sales-higher-ticket",
+  "name": "Higher Ticket Targeting",
+  "category": "sales",
+  "description": "Identify and target high-value prospects with premium offerings",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 10 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "actor", "name": "LinkedIn Search", "config": {"actor": "linkedin_actor", "filters": ["company_size > 500", "industry == tech"]}},
+    {"id": "2", "type": "ai_agent", "name": "Identify Decision Makers", "config": {"agent": "research_agent", "prompt": "Find C-suite and VP-level contacts at target companies."}},
+    {"id": "3", "type": "ai_agent", "name": "Research Company", "config": {"agent": "research_agent", "prompt": "Research company for personalization: funding, growth, pain points."}},
+    {"id": "4", "type": "ai_agent", "name": "Generate Personalized Campaign", "config": {"agent": "outreach_agent", "prompt": "Create personalized outreach campaign for enterprise target."}},
+    {"id": "5", "type": "email", "name": "Send Campaign", "config": {"provider": "smtp", "track": true}},
+    {"id": "6", "type": "crm", "name": "Create/Update CRM", "config": {"action": "create_lead", "source": "higher_ticket"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["research_agent", "outreach_agent"],
+  "integrations": ["linkedin", "email", "crm"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 2999, "currency": "INR", "period": "month"},
+  "tags": ["sales", "enterprise", "high-ticket", "targeting"]
+}

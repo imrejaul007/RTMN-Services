@@ -1,0 +1,30 @@
+{
+  "id": "sales-daily-dashboard",
+  "name": "Daily Sales Dashboard",
+  "category": "sales",
+  "description": "AI-powered daily sales summary with KPIs, pipeline changes, and action items",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 8 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Load Metrics", "config": {"action": "get_daily_metrics"}},
+    {"id": "2", "type": "crm", "name": "Load Pipeline", "config": {"action": "get_pipeline_changes"}},
+    {"id": "3", "type": "crm", "name": "Load Activities", "config": {"action": "get_yesterday_activities"}},
+    {"id": "4", "type": "ai_agent", "name": "Generate Summary", "config": {"agent": "report_agent", "prompt": "Generate daily sales summary with key metrics, pipeline changes, and recommended actions."}},
+    {"id": "5", "type": "twin", "name": "Update Sales Twin", "config": {"twin": "sales_twin", "action": "update_daily"}},
+    {"id": "6", "type": "slack", "name": "Post to Slack", "config": {"channel": "sales-team", "template": "daily_dashboard"}},
+    {"id": "7", "type": "email", "name": "Email Summary", "config": {"to": "sales_team@company.com", "template": "daily_summary"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "4"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["report_agent"],
+  "integrations": ["crm", "slack", "email", "twin"],
+  "estimated_setup_time": "15 minutes",
+  "price": {"subscription": 499, "currency": "INR", "period": "month"},
+  "tags": ["sales", "dashboard", "reporting", "automation"]
+}
