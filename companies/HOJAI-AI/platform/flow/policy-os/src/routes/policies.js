@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { validatePolicyBody } from '../lib/validation.js';
 import { sanitizePolicyId, sanitizeExpression, sanitizeName } from '../lib/sanitization.js';
 import { getCachedEval, setCachedEval, invalidateEvalCache, invalidatePolicy } from '../services/cache.js';
-import { metrics } from '../services/monitoring.js';
+import { metrics, slaTracker } from '../services/monitoring.js';
 
 // =================================================================
 // Policy CRUD
@@ -78,6 +78,8 @@ export function registerPolicyRoutes(app, {
     };
     policies.set(id, policy);
     invalidateEvalCache().catch(() => {});
+    metrics.recordPolicyChange('created', body.category, req.auth?.tenantId);
+    slaTracker.recordResult(true, 0, true);
     auditLog({
       type: 'policy.created',
       policyId: id,

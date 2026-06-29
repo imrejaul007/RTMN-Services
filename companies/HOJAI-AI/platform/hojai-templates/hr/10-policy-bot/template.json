@@ -1,0 +1,33 @@
+{
+  "id": "hr-policy-bot",
+  "name": "Policy Bot",
+  "category": "hr",
+  "description": "AI chatbot for employee policy questions",
+  "version": "1.0.0",
+  "triggers": [{"type": "whatsapp", "source": "wa_business", "event": "message_received"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Employee Question", "config": {"source": "whatsapp"}},
+    {"id": "2", "type": "ai_agent", "name": "Understand Intent", "config": {"agent": "hr_agent", "prompt": "Understand employee question about policies."}},
+    {"id": "3", "type": "memory", "name": "Search Policies", "config": {"action": "search", "memory_type": "hr_policies"}},
+    {"id": "4", "type": "ai_agent", "name": "Generate Answer", "config": {"agent": "hr_agent", "prompt": "Generate policy-based answer in friendly language."}},
+    {"id": "5", "type": "condition", "name": "Can Answer?", "config": {"field": "confidence", "operator": ">=", "value": 80}},
+    {"id": "6a", "type": "whatsapp", "name": "Send Answer", "config": {"reply": true}},
+    {"id": "6b", "type": "email", "name": "Escalate to HR", "config": {"template": "policy_question_escalation", "to": "hr@company.com"}},
+    {"id": "7", "type": "memory", "name": "Log Interaction", "config": {"action": "save", "memory_type": "policy_questions"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6a", "condition": "confidence >= 80"},
+    {"from": "5", "to": "6b", "condition": "confidence < 80"},
+    {"from": "6a", "to": "7"},
+    {"from": "6b", "to": "7"}
+  ],
+  "agents": ["hr_agent"],
+  "integrations": ["whatsapp", "memory"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["hr", "chatbot", "policy", "automation"]
+}
