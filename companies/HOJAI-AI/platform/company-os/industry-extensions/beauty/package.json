@@ -19,6 +19,8 @@
     "@types/uuid": "^9.0.2",
     "typescript": "^5.1.6",
     "ts-node": "^10.9.1",
-    "vitest": "^0.34.0"
+    "vitest": "^0.34.0",
+    "supertest": "^6.3.3",
+    "@types/supertest": "^6.0.2"
   }
 }

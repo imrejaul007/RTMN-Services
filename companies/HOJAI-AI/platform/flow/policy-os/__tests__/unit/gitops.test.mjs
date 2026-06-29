@@ -146,7 +146,7 @@ describe('HMAC-SHA256', () => {
 
   it('timingSafeEqual throws on different lengths', () => {
     const a = Buffer.from('a'.repeat(16));
-    const b = Buffer.from('b'.repeat(32)));
+    const b = Buffer.from('b'.repeat(32));
     assert.throws(() => crypto.timingSafeEqual(a, b));
   });
 });

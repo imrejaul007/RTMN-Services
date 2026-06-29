@@ -156,8 +156,20 @@ function policyIndexKey() {
 }
 
 function hashContext(ctx) {
-  const str = JSON.stringify(ctx, null, 0);
-  return crypto.createHash('sha256').update(str).digest('hex').slice(0, 16);
+  // Sort keys at all levels for deterministic hashing
+  const sorted = JSON.stringify(sortKeysDeep(ctx));
+  return crypto.createHash('sha256').update(sorted).digest('hex').slice(0, 16);
+}
+
+function sortKeysDeep(obj) {
+  if (Array.isArray(obj)) return obj.map(sortKeysDeep);
+  if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj).sort().reduce((acc, k) => {
+      acc[k] = sortKeysDeep(obj[k]);
+      return acc;
+    }, {});
+  }
+  return obj;
 }
 
 // ── Cache API ──────────────────────────────────────────────────────────────────
