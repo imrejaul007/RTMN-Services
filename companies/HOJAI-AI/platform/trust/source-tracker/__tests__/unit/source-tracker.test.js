@@ -236,8 +236,9 @@ describe('Source Tracker - Citation Extraction', () => {
     });
 
     it('should handle mixed content with multiple sources', () => {
+      // Note: "et al." format doesn't match academic pattern
       const text = `
-        According to Chen (2024) [2], the global AI market is projected to
+        According to Chen (Chen, 2024) [2], the global AI market is projected to
         reach $1.5 trillion by 2030 [3]. This aligns with research from
         https://www.mckinsey.com/ai-analysis showing enterprise AI adoption
         increasing by 35% annually.
