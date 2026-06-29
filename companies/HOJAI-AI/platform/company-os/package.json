@@ -12,7 +12,6 @@
     "start": "./scripts/start-company-os.sh start",
     "test": "./scripts/start-company-os.sh test",
     "dev": "./scripts/start-company-os.sh dev",
-    "install": "npm run install --workspaces",
     "build": "npm run build --workspaces"
   },
   "engines": {
