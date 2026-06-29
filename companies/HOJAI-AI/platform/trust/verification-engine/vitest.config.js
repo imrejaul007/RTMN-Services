@@ -13,12 +13,6 @@ export default defineConfig({
       exclude: ['**/*.d.ts', '**/*.config.*', 'node_modules/**']
     },
     reporters: ['default', 'verbose'],
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true
-      }
-    },
     setupFiles: [],
     sequence: {
       shuffle: false,
