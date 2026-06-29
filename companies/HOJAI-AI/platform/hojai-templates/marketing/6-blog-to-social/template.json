@@ -1,0 +1,35 @@
+{
+  "id": "marketing-blog-to-social",
+  "name": "Blog → Social Automation",
+  "category": "marketing",
+  "description": "Automatically repurpose blog content to all social platforms",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "cms", "event": "blog.published"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Blog Published", "config": {"source": "cms"}},
+    {"id": "2", "type": "ai_agent", "name": "Extract Key Points", "config": {"agent": "content_agent", "prompt": "Extract 5 key points from blog that work as social posts."}},
+    {"id": "3", "type": "ai_agent", "name": "Create LinkedIn Post", "config": {"agent": "content_agent", "prompt": "Create professional LinkedIn post from blog content."}},
+    {"id": "4", "type": "ai_agent", "name": "Create Twitter Thread", "config": {"agent": "content_agent", "prompt": "Create engaging Twitter thread from blog."}},
+    {"id": "5", "type": "ai_agent", "name": "Create Instagram Carousel", "config": {"agent": "design_agent", "prompt": "Create Instagram carousel content from blog."}},
+    {"id": "6", "type": "ai_agent", "name": "Create YouTube Short", "config": {"agent": "content_agent", "prompt": "Create YouTube Short script from blog."}},
+    {"id": "7", "type": "schedule", "name": "Stagger Posts", "config": {"schedule": {"linkedin": "now", "twitter": "+2h", "instagram": "+4h", "youtube": "+24h"}}},
+    {"id": "8", "type": "social", "name": "Publish All", "config": {"platforms": ["linkedin", "twitter", "instagram", "youtube"]}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "2", "to": "4"},
+    {"from": "2", "to": "5"},
+    {"from": "2", "to": "6"},
+    {"from": "3", "to": "7"},
+    {"from": "4", "to": "7"},
+    {"from": "5", "to": "7"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["content_agent", "design_agent"],
+  "integrations": ["cms", "linkedin", "twitter", "instagram", "youtube"],
+  "estimated_setup_time": "20 minutes",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "content", "automation", "social"]
+}

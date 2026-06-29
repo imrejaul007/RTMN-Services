@@ -1,0 +1,41 @@
+{
+  "id": "support-ticket-classifier",
+  "name": "AI Ticket Classifier",
+  "category": "support",
+  "description": "Automatically classify and route support tickets with AI",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "helpdesk", "event": "ticket.created"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Ticket Received", "config": {"source": "helpdesk"}},
+    {"id": "2", "type": "ai_agent", "name": "Classify Ticket", "config": {"agent": "support_agent", "prompt": "Classify ticket: category, priority (P1-P4), sentiment, intent."}},
+    {"id": "3", "type": "condition", "name": "Priority?", "config": {"field": "ticket.priority"}},
+    {"id": "4a", "type": "action", "name": "Route P1", "config": {"queue": "urgent", "sla": "1h"}},
+    {"id": "4b", "type": "action", "name": "Route P2", "config": {"queue": "high", "sla": "4h"}},
+    {"id": "4c", "type": "action", "name": "Route P3", "config": {"queue": "normal", "sla": "24h"}},
+    {"id": "4d", "type": "action", "name": "Route P4", "config": {"queue": "low", "sla": "72h"}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Response Draft", "config": {"agent": "support_agent", "prompt": "Draft initial response based on ticket content and knowledge base."}},
+    {"id": "6", "type": "action", "name": "Assign Agent", "config": {"logic": "round_robin", "pool": "{{queue}}"}},
+    {"id": "7", "type": "crm", "name": "Update CRM", "config": {"action": "log_ticket", "fields": ["category", "priority", "sentiment"]}},
+    {"id": "8", "type": "slack", "name": "Alert High Priority", "config": {"channel": "support-alerts", "condition": "priority <= P2"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "priority == P1"},
+    {"from": "3", "to": "4b", "condition": "priority == P2"},
+    {"from": "3", "to": "4c", "condition": "priority == P3"},
+    {"from": "3", "to": "4d", "condition": "priority == P4"},
+    {"from": "4a", "to": "5"},
+    {"from": "4b", "to": "5"},
+    {"from": "4c", "to": "5"},
+    {"from": "4d", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8", "condition": "priority <= P2"}
+  ],
+  "agents": ["support_agent"],
+  "integrations": ["helpdesk", "crm", "slack", "knowledge_base"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["support", "automation", "classification", "routing"]
+}

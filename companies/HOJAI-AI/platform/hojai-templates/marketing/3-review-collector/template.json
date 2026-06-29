@@ -1,0 +1,40 @@
+{
+  "id": "marketing-review-collector",
+  "name": "Review Collection Automation",
+  "category": "marketing",
+  "description": "Automatically collect and respond to reviews across platforms",
+  "version": "1.0.0",
+  "triggers": [
+    {"type": "event", "source": "crm", "event": "order.completed"},
+    {"type": "schedule", "cron": "0 10 * * *"}
+  ],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Order Complete", "config": {"source": "crm"}},
+    {"id": "2", "type": "wait", "name": "Wait 3 Days", "config": {"delay_days": 3}},
+    {"id": "3", "type": "condition", "name": "Check Platform", "config": {"field": "order.platform"}},
+    {"id": "4a", "type": "email", "name": "Send Google Review Request", "config": {"provider": "smtp", "template": "review_request", "platform": "google"}},
+    {"id": "4b", "type": "email", "name": "Send Trustpilot Request", "config": {"provider": "smtp", "template": "review_request", "platform": "trustpilot"}},
+    {"id": "4c", "type": "sms", "name": "Send SMS Request", "config": {"provider": "twilio", "template": "review_request"}},
+    {"id": "5", "type": "actor", "name": "Monitor Reviews", "config": {"actor": "review_monitor", "platforms": ["google", "trustpilot", "zomato"]}},
+    {"id": "6", "type": "ai_agent", "name": "Generate Response", "config": {"agent": "support_agent", "prompt": "Generate personalized response to review."}},
+    {"id": "7", "type": "approval", "name": "Manager Review", "config": {"condition": "rating <= 3"}},
+    {"id": "8", "type": "action", "name": "Post Response", "config": {"platform": "{{review.platform}}"}},
+    {"id": "9", "type": "twin", "name": "Update Brand Twin", "config": {"twin": "brand_twin", "action": "update", "fields": ["rating", "review_count", "sentiment"]}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "platform == google"},
+    {"from": "3", "to": "4b", "condition": "platform == trustpilot"},
+    {"from": "3", "to": "4c", "condition": "platform == sms"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"},
+    {"from": "8", "to": "9"}
+  ],
+  "agents": ["support_agent"],
+  "integrations": ["email", "sms", "google", "trustpilot", "zomato", "twin"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "reviews", "automation", "reputation"]
+}

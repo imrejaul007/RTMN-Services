@@ -1,0 +1,32 @@
+{
+  "id": "marketing-competitor-ad-tracker",
+  "name": "Competitor Ad Intelligence",
+  "category": "marketing",
+  "description": "Track competitor ads across Meta, Google, LinkedIn automatically",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 */6 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "actor", "name": "Meta Ad Library", "config": {"actor": "meta_ads_actor", "competitors": ["{{competitor_list}}"]}},
+    {"id": "2", "type": "actor", "name": "Google Ads", "config": {"actor": "google_ads_actor", "competitors": ["{{competitor_list}}"]}},
+    {"id": "3", "type": "actor", "name": "LinkedIn Ads", "config": {"actor": "linkedin_ads_actor", "competitors": ["{{competitor_list}}"]}},
+    {"id": "4", "type": "ai_agent", "name": "Analyze Ads", "config": {"agent": "analytics_agent", "prompt": "Analyze competitor ads: messaging, offers, creative themes, targeting."}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Insights", "config": {"agent": "analytics_agent", "prompt": "Generate actionable insights: what's working, gaps to exploit."}},
+    {"id": "6", "type": "twin", "name": "Update Competitor Twin", "config": {"twin": "competitor_marketing_twin", "action": "update", "fields": ["ads", "insights"]}},
+    {"id": "7", "type": "condition", "name": "Major Shift?", "config": {"field": "insight.significance", "operator": ">=", "value": "high"}},
+    {"id": "8", "type": "slack", "name": "Alert Marketing", "config": {"channel": "marketing-team", "template": "competitor_ad_alert"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "4"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8", "condition": "significant == true"}
+  ],
+  "agents": ["analytics_agent"],
+  "integrations": ["meta", "google_ads", "linkedin_ads", "slack", "twin"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "intelligence", "competitor", "ads"]
+}

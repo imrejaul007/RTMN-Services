@@ -1,0 +1,32 @@
+{
+  "id": "marketing-newsletter-automation",
+  "name": "Newsletter Generator",
+  "category": "marketing",
+  "description": "Automatically generate and send personalized newsletters",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 10 * * 5"}],
+  "nodes": [
+    {"id": "1", "type": "actor", "name": "Gather Content", "config": {"sources": ["blog", "social", "news"]}},
+    {"id": "2", "type": "ai_agent", "name": "Curate Content", "config": {"agent": "content_agent", "prompt": "Select best content for newsletter based on engagement and relevance."}},
+    {"id": "3", "type": "ai_agent", "name": "Write Newsletter", "config": {"agent": "content_agent", "prompt": "Write engaging newsletter from curated content. Include: intro, highlights, CTA."}},
+    {"id": "4", "type": "ai_agent", "name": "Design Layout", "config": {"agent": "design_agent", "prompt": "Generate HTML email template based on content."}},
+    {"id": "5", "type": "approval", "name": "Marketing Review", "config": {"approvers": ["marketing_manager"]}},
+    {"id": "6", "type": "email", "name": "Send Newsletter", "config": {"provider": "sendgrid", "list": "subscribers"}},
+    {"id": "7", "type": "analytics", "name": "Track Performance", "config": {"metrics": ["opens", "clicks", "unsubscribes"]}},
+    {"id": "8", "type": "twin", "name": "Update Audience Twin", "config": {"twin": "audience_twin", "action": "update_engagement"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6", "condition": "approved"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["content_agent", "design_agent"],
+  "integrations": ["sendgrid", "analytics", "twin"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "email", "automation", "newsletter"]
+}

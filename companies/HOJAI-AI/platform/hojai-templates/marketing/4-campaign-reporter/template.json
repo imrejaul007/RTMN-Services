@@ -1,0 +1,32 @@
+{
+  "id": "marketing-campaign-reporter",
+  "name": "Campaign Performance Reporter",
+  "category": "marketing",
+  "description": "Automated multi-channel campaign analytics and reporting",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "analytics", "name": "Get Ad Metrics", "config": {"sources": ["google_ads", "meta_ads", "linkedin_ads"]}},
+    {"id": "2", "type": "analytics", "name": "Get Email Metrics", "config": {"source": "email_platform", "metrics": ["opens", "clicks", "conversions"]}},
+    {"id": "3", "type": "analytics", "name": "Get Social Metrics", "config": {"platforms": ["linkedin", "twitter", "instagram"]}},
+    {"id": "4", "type": "ai_agent", "name": "Analyze Performance", "config": {"agent": "analytics_agent", "prompt": "Analyze campaign performance across all channels. Identify: winners, losers, anomalies."}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Recommendations", "config": {"agent": "analytics_agent", "prompt": "Generate actionable recommendations for next week."}},
+    {"id": "6", "type": "document", "name": "Create Report", "config": {"format": "pdf", "template": "campaign_report"}},
+    {"id": "7", "type": "slack", "name": "Share Summary", "config": {"channel": "marketing-team", "message": "Weekly Campaign Report"}},
+    {"id": "8", "type": "email", "name": "Email Full Report", "config": {"to": " CMO@company.com", "template": "campaign_report"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "4"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "6", "to": "8"}
+  ],
+  "agents": ["analytics_agent"],
+  "integrations": ["google_ads", "meta_ads", "linkedin_ads", "email", "slack"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "analytics", "reporting", "automation"]
+}
