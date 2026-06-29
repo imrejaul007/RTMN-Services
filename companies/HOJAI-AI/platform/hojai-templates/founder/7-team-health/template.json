@@ -1,0 +1,28 @@
+{
+  "id": "founder-team-health",
+  "name": "Team Health Score",
+  "category": "founder",
+  "description": "Track team health metrics and identify concerns early",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 10 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "hris", "name": "Get People Data", "config": {"action": "get_people_metrics"}},
+    {"id": "2", "type": "analytics", "name": "Get Engagement Data", "config": {"action": "get_engagement_scores"}},
+    {"id": "3", "type": "ai_agent", "name": "Calculate Health", "config": {"agent": "analytics_agent", "prompt": "Calculate team health: attrition risk, engagement, productivity, burnout signals."}},
+    {"id": "4", "type": "condition", "name": "Red Flags?", "config": {"field": "health.score", "operator": "<", "value": 60}},
+    {"id": "5", "type": "slack", "name": "Alert HR", "config": {"channel": "hr-leadership", "template": "team_health_concern", "condition": "score < 60"}},
+    {"id": "6", "type": "twin", "name": "Update Team Twin", "config": {"twin": "team_twin", "action": "update_health"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "3"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5", "condition": "score < 60"},
+    {"from": "3", "to": "6"}
+  ],
+  "agents": ["analytics_agent"],
+  "integrations": ["hris", "engagement_tools", "slack"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["founder", "hr", "analytics", "health"]
+}
