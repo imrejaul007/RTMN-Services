@@ -156,7 +156,7 @@ function policyIndexKey() {
 }
 
 function hashContext(ctx) {
-  const str = JSON.stringify(ctx, Object.keys(ctx).sort());
+  const str = JSON.stringify(ctx, null, 0);
   return crypto.createHash('sha256').update(str).digest('hex').slice(0, 16);
 }
 

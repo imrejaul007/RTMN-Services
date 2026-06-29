@@ -7,11 +7,11 @@ const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert');
 const http = require('http');
 
-const BASE = 'http://localhost:4886';
+const BASE = 'http://localhost:4887';
 let baseUrl;
 
 before(async () => {
-  process.env.PORT = '4886';
+  process.env.PORT = '4887';
   process.env.USE_REDIS = 'false';
   process.env.USE_MONGODB = 'false';
   process.env.UNIFIED_INBOX_URL = BASE;
@@ -21,7 +21,7 @@ before(async () => {
   process.env.SMTP_PORT = '0';
   process.env.IMAP_USER = '';
   const { app } = require('../../src/index.js');
-  await new Promise((resolve) => app.listen(4886, resolve));
+  await new Promise((resolve) => app.listen(4887, resolve));
   baseUrl = BASE;
 });
 
