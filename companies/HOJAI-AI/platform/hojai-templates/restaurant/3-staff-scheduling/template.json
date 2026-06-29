@@ -1,0 +1,28 @@
+{
+  "id": "restaurant-staff-scheduling",
+  "name": "AI Staff Scheduling",
+  "category": "restaurant",
+  "description": "Intelligent staff scheduling based on footfall predictions",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 0 * * 0"}],
+  "nodes": [
+    {"id": "1", "type": "analytics", "name": "Get Historical Data", "config": {"action": "get_footfall_data", "days": 30}},
+    {"id": "2", "type": "ai_agent", "name": "Predict Footfall", "config": {"agent": "forecast_agent", "prompt": "Predict next week's footfall based on historical patterns, weather, events, holidays."}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Schedule", "config": {"agent": "restaurant_agent", "prompt": "Generate optimal staff schedule based on predicted footfall and staff availability."}},
+    {"id": "4", "type": "approval", "name": "Manager Review", "config": {"approvers": ["restaurant_manager"]}},
+    {"id": "5", "type": "slack", "name": "Notify Staff", "config": {"channel": "restaurant-team", "template": "new_schedule"}},
+    {"id": "6", "type": "hris", "name": "Update Schedule", "config": {"action": "publish_schedule"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5", "condition": "approved"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["forecast_agent", "restaurant_agent"],
+  "integrations": ["analytics", "hris", "slack"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["restaurant", "hr", "scheduling", "automation"]
+}
