@@ -54,32 +54,32 @@ function parseWhatsAppPayload(body) {
         contactName: null,
         messageType: msg.type,
         text: msg.text ? msg.text.body : null,
-        timestamp: parseInt(msg.timestamp, 10) ? new Date(parseInt(msg.timestamp, 10) * 1000) : new Date(),
+        timestamp: new Date(),
         raw: msg,
       };
-      var contact = value.contacts && value.contacts.find(function(c) { return c.wa_id === msg.from; });
-      if (contact && contact.profile) result.contactName = contact.profile.name;
-      if (msg.image) result.image = { id: msg.image.id, mimeType: msg.image.mime_type, caption: msg.image.caption };
-      if (msg.audio) result.audio = { id: msg.audio.id, mimeType: msg.audio.mime_type, voice: msg.audio.voice };
-      if (msg.video) result.video = { id: msg.video.id, mimeType: msg.video.mime_type, caption: msg.video.caption };
-      if (msg.document) result.document = { id: msg.document.id, mimeType: msg.document.mime_type, filename: msg.document.filename };
-      if (msg.location) result.location = { latitude: msg.location.latitude, longitude: msg.location.longitude, name: msg.location.name };
-      if (msg.sticker) result.sticker = { id: msg.sticker.id };
-      if (msg.reaction) result.reaction = { emoji: msg.reaction.emoji, messageId: msg.reaction.message_id };
+      var contacts = value.contacts || [];
+      for (var ci = 0; ci < contacts.length; ci++) {
+        if (contacts[ci].wa_id === msg.from) {
+          result.contactName = contacts[ci].profile ? contacts[ci].profile.name : null;
+          break;
+        }
+      }
       return result;
     });
   }
-  if (body && body.from && body.message) {
+  // Simple dev/test format: { from, text, contactName }
+  if (body && body.from && (body.text || body.message)) {
     return [{
       messageId: body.id || body.messageId || 'wa-' + Date.now(),
       from: normalizePhone(body.from),
       contactName: body.contactName || null,
-      messageType: body.messageType || 'text',
-      text: body.text || body.message.text || null,
-      timestamp: body.timestamp ? (parseInt(body.timestamp, 10) ? new Date(parseInt(body.timestamp, 10) * 1000) : new Date(body.timestamp)) : new Date(),
+      messageType: 'text',
+      text: body.text || body.message,
+      timestamp: new Date(),
       raw: body,
     }];
   }
+  // Twilio WhatsApp format
   if (body && body.From && body.Body) {
     return [{
       messageId: body.MessageSid || 'tw-' + Date.now(),
@@ -87,7 +87,7 @@ function parseWhatsAppPayload(body) {
       contactName: null,
       messageType: 'text',
       text: body.Body,
-      timestamp: body.Timestamp ? new Date(body.Timestamp) : new Date(),
+      timestamp: new Date(),
       raw: body,
     }];
   }
@@ -196,10 +196,10 @@ function createWhatsAppWebhookMiddleware(options) {
         onDeliveryStatus({
           messageId: st.id,
           status: st.status,
-          timestamp: parseInt(st.timestamp, 10) ? new Date(parseInt(st.timestamp, 10) * 1000) : new Date(),
+          timestamp: new Date(parseInt(st.timestamp, 10) * 1000),
           recipient: normalizePhone(st.recipient_id),
           metadata: st,
-        }).catch(function(e) { console.error('[whatsapp-webhook] status handler error:', e); });
+        }).catch(function(e) { console.error('[whatsapp-webhook] status error:', e); });
       }
       return { handled: true };
     }
@@ -211,16 +211,16 @@ function createWhatsAppWebhookMiddleware(options) {
         var rd = reads[ri];
         onReadReceipt({
           messageId: rd.message_id,
-          timestamp: parseInt(rd.timestamp, 10) ? new Date(parseInt(rd.timestamp, 10) * 1000) : new Date(),
+          timestamp: new Date(parseInt(rd.timestamp, 10) * 1000),
           recipient: normalizePhone(rd.actor_id),
-        }).catch(function(e) { console.error('[whatsapp-webhook] read handler error:', e); });
+        }).catch(function(e) { console.error('[whatsapp-webhook] read error:', e); });
       }
       return { handled: true };
     }
 
     // Handle messages
     for (var mi = 0; mi < messages.length; mi++) {
-      onMessages(messages[mi], meta).catch(function(e) { console.error('[whatsapp-webhook] message handler error:', e); });
+      onMessages(messages[mi], meta).catch(function(e) { console.error('[whatsapp-webhook] message error:', e); });
     }
 
     return { handled: true };
