@@ -1,0 +1,31 @@
+{
+  "id": "founder-runway-calculator",
+  "name": "Runway Calculator",
+  "category": "founder",
+  "description": "Track runway and alert when cash position changes",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "finance", "name": "Get Cash Position", "config": {"action": "get_cash_balance"}},
+    {"id": "2", "type": "analytics", "name": "Get Burn Rate", "config": {"action": "get_burn_rate", "period": "90d"}},
+    {"id": "3", "type": "ai_agent", "name": "Calculate Runway", "config": {"agent": "forecast_agent", "prompt": "Calculate runway in months. Factor in: current burn, projected revenue, upcoming payments."}},
+    {"id": "4", "type": "condition", "name": "Runway Check", "config": {"field": "runway.months", "operator": "<=", "value": 6}},
+    {"id": "5a", "type": "slack", "name": "Critical Alert", "config": {"channel": "founder", "template": "runway_critical"}},
+    {"id": "5b", "type": "email", "name": "Weekly Update", "config": {"to": "founder@company.com", "template": "runway_update"}},
+    {"id": "6", "type": "twin", "name": "Update Finance Twin", "config": {"twin": "finance_twin", "action": "update_runway"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "3"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5a", "condition": "months <= 6"},
+    {"from": "4", "to": "5b", "condition": "months > 6"},
+    {"from": "5a", "to": "6"},
+    {"from": "5b", "to": "6"}
+  ],
+  "agents": ["forecast_agent"],
+  "integrations": ["finance", "slack", "email"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 499, "currency": "INR", "period": "month"},
+  "tags": ["founder", "finance", "runway", "cash"]
+}
