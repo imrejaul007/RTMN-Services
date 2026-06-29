@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/service-connectors",
+  "version": "1.0.0",
+  "description": "Service Connectors - Unified API for REZ-Merchant services",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.4.0",
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.0"
+  }
+}

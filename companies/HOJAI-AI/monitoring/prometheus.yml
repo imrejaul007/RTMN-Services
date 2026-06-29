@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'hojai-platform'
+    static_configs:
+      - targets:
+        - agent-os:4892
+        - personalization:4893
+        - ai-economy:4894
+        - governance:4895
+        - planning-engine:4896
+        - multi-modal:4897
+        - aiops:4898
+        - memory-lifecycle:4899
+        - knowledge-registry:4900
+        - event-platform:4901
+        - workflow-registry:4902
+        - twin-registry:4903
+        - tenant-isolation:4904
+        - fine-tuning:4610
+        - eval-continuous:4888
+        - ai-studio:4890
+    metrics_path: /health

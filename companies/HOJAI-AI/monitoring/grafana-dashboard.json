@@ -1,0 +1,13 @@
+{
+  "dashboard": {
+    "title": "HOJAI AI Platform",
+    "tags": ["hojai", "platform"],
+    "timezone": "browser",
+    "panels": [
+      {"title": "Services Online", "type": "stat", "targets": [{"expr": "up{job=\"hojai-platform\"}"}]},
+      {"title": "Response Time (ms)", "type": "graph", "targets": [{"expr": "histogram_quantile(0.95, rate(http_request_duration_seconds[5m])) * 1000"}]},
+      {"title": "Error Rate", "type": "graph", "targets": [{"expr": "rate(http_requests_total{status=~\"5..\"}[5m])"}]},
+      {"title": "Request Rate", "type": "graph", "targets": [{"expr": "rate(http_requests_total[5m])"}]}
+    ]
+  }
+}

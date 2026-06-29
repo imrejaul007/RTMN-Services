@@ -74,6 +74,7 @@ import { registerGitOpsRoutes } from './routes/gitops.js';
 import { registerFormalVerificationRoutes } from './routes/formal-verification.js';
 import { registerCacheRoutes } from './routes/cache.js';
 import { registerMonitoringRoutes } from './routes/monitoring.js';
+import { registerIncidentResponseRoutes } from './routes/incident-response.js';
 import { warmCache } from './services/cache.js';
 import { validatePolicyBody, CATEGORIES, POLICY_STATUSES } from './lib/validation.js';
 import { prototypePollutionMiddleware, sanitizePolicyId, sanitizeExpression, sanitizeName, validateWebhookUrl } from './lib/sanitization.js';
@@ -572,6 +573,8 @@ registerDeveloperExperienceRoutes(app, { auditLog, customAuth });
 registerCacheRoutes(app, { policies, customAuth });
 // Phase P3: Real-time Monitoring — metrics, SLA, health, alerts
 registerMonitoringRoutes(app, { policies, customAuth });
+// Phase P4: Incident Response Automation
+registerIncidentResponseRoutes(app, { policies, customAuth, writeLimiter });
 // =================================================================
 // Error handlers
 // =================================================================
