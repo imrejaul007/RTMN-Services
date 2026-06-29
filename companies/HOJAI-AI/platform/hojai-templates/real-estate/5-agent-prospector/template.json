@@ -1,0 +1,30 @@
+{
+  "id": "realestate-agent-prospector",
+  "name": "Agent Prospector",
+  "category": "real-estate",
+  "description": "Find and research potential seller leads automatically",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 8 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "actor", "name": "Find Properties", "config": {"actor": "google_maps", "query": "homes for sale"}},
+    {"id": "2", "type": "actor", "name": "Research Owners", "config": {"actor": "property_records", "source": "county_assessor"}},
+    {"id": "3", "type": "ai_agent", "name": "Score Leads", "config": {"agent": "research_agent", "prompt": "Score leads: motivated seller signals, property value, days on market."}},
+    {"id": "4", "type": "filter", "name": "Filter High Score", "config": {"conditions": [{"field": "score", "operator": ">=", "value": 70}]}},
+    {"id": "5", "type": "crm", "name": "Create Leads", "config": {"action": "create_leads"}},
+    {"id": "6", "type": "ai_agent", "name": "Generate Outreach", "config": {"agent": "outreach_agent", "prompt": "Generate personalized outreach based on property details."}},
+    {"id": "7", "type": "crm", "name": "Log Activity", "config": {"action": "log_prospect"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["research_agent", "outreach_agent"],
+  "integrations": ["actor_runtime", "crm"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 2999, "currency": "INR", "period": "month"},
+  "tags": ["real-estate", "prospecting", "lead-gen", "automation"]
+}

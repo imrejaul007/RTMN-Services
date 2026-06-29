@@ -1,0 +1,30 @@
+{
+  "id": "commerce-contract-generator",
+  "name": "Smart Contract Generator",
+  "category": "commerce",
+  "description": "Generate procurement contracts from vendor data and templates",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "erp", "event": "po.approved"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "PO Approved", "config": {"source": "erp"}},
+    {"id": "2", "type": "erp", "name": "Get PO Details", "config": {"action": "get_po", "fields": ["vendor", "items", "terms"]}},
+    {"id": "3", "type": "crm", "name": "Get Vendor Info", "config": {"action": "get_vendor", "fields": ["legal_name", "address", "contacts"]}},
+    {"id": "4", "type": "ai_agent", "name": "Generate Contract", "config": {"agent": "document_agent", "prompt": "Generate contract from template with vendor and PO details."}},
+    {"id": "5", "type": "approval", "name": "Legal Review", "config": {"approvers": ["legal_team"], "condition": "amount > 500000"}},
+    {"id": "6", "type": "document", "name": "Create PDF", "config": {"format": "pdf", "template": "procurement_contract"}},
+    {"id": "7", "type": "email", "name": "Send to Vendor", "config": {"to": "{{vendor.email}}", "template": "contract_for_signature", "attach_pdf": true}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6", "condition": "approved || amount < 500000"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["document_agent"],
+  "integrations": ["erp", "crm", "document"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "procurement", "contracts", "automation"]
+}
