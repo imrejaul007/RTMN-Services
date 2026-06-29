@@ -1,0 +1,32 @@
+{
+  "id": "commerce-vendor-payment",
+  "name": "Automated Vendor Payments",
+  "category": "commerce",
+  "description": "Schedule and process vendor payments on due dates",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "erp", "name": "Get Due Payments", "config": {"action": "get_due_payments", "date": "today"}},
+    {"id": "2", "type": "ai_agent", "name": "Validate Payments", "config": {"agent": "finance_agent", "prompt": "Validate: PO match, invoice approved, within budget."}},
+    {"id": "3", "type": "filter", "name": "Ready to Pay", "config": {"conditions": [{"field": "validated", "operator": "==", "value": true}]}},
+    {"id": "4", "type": "approval", "name": "Batch Approval", "config": {"approvers": ["finance_manager"], "condition": "total > 1000000"}},
+    {"id": "5", "type": "payment", "name": "Process Payments", "config": {"method": "bank_transfer", "batch": true}},
+    {"id": "6", "type": "email", "name": "Payment Receipts", "config": {"to": "{{vendors}}", "template": "payment_receipt"}},
+    {"id": "7", "type": "erp", "name": "Update Records", "config": {"action": "mark_paid"}},
+    {"id": "8", "type": "twin", "name": "Update Vendor Twins", "config": {"twin": "vendor_twin", "action": "update_payment"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5", "condition": "approved || total < 1000000"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["finance_agent"],
+  "integrations": ["erp", "banking", "email"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "payments", "automation", "finance"]
+}
