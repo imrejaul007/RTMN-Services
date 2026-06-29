@@ -11,10 +11,10 @@ app.use(express.json());
 
 const voiceStats = new Map();
 
-// Track voice interaction
-function trackInteraction(corpId, metadata = {}) {
+function trackInteraction(corpId, metadata) {
+  metadata = metadata || {};
   const stats = voiceStats.get(corpId) || {
-    corpId,
+    corpId: corpId,
     totalCalls: 0,
     totalDuration: 0,
     avgConfidence: 0,
@@ -38,7 +38,6 @@ function trackInteraction(corpId, metadata = {}) {
   return stats;
 }
 
-// Get dashboard data
 function getDashboard(corpId) {
   const stats = voiceStats.get(corpId);
   if (!stats) return null;
@@ -50,18 +49,16 @@ function getDashboard(corpId) {
   return {
     ...stats,
     avgDuration: stats.totalCalls > 0 ? stats.totalDuration / stats.totalCalls : 0,
-    emotionRanking,
-    sentiment: emotionRanking[0]?.emotion || 'neutral'
+    emotionRanking: emotionRanking,
+    sentiment: emotionRanking.length > 0 ? emotionRanking[0].emotion : 'neutral'
   };
 }
 
 app.post('/track', (req, res) => {
   const { corpId, duration, emotion, sentiment } = req.body;
-
   if (!corpId) {
     return res.status(400).json({ error: 'corpId required' });
   }
-
   const stats = trackInteraction(corpId, { duration, emotion, sentiment });
   res.json({ success: true, stats });
 });
@@ -69,31 +66,26 @@ app.post('/track', (req, res) => {
 app.get('/dashboard/:corpId', (req, res) => {
   const { corpId } = req.params;
   const dashboard = getDashboard(corpId);
-
   if (!dashboard) {
     return res.json({ corpId, stats: null, message: 'No data yet' });
   }
-
   res.json({ corpId, dashboard });
 });
 
 app.get('/analytics/overview', (req, res) => {
-  const overview = {
-    totalUsers: voiceStats.size,
-    totalInteractions: 0,
-    avgConfidence: 0
-  };
-
+  let totalInteractions = 0;
   for (const stats of voiceStats.values()) {
-    overview.totalInteractions += stats.totalCalls;
+    totalInteractions += stats.totalCalls;
   }
-
-  res.json(overview);
+  res.json({
+    totalUsers: voiceStats.size,
+    totalInteractions: totalInteractions
+  });
 });
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'voice-analytics-dashboard', port: PORT });
 });
 
-app.listen(PORT, () => console.log(`Voice Analytics Dashboard running on port ${PORT}`));
+app.listen(PORT, () => console.log('Voice Analytics Dashboard running on port ' + PORT));
 export default app;

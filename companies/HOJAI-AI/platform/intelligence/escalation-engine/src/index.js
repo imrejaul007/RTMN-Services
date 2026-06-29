@@ -28,20 +28,22 @@ function checkEscalation(task) {
 
 app.post('/escalate', (req, res) => {
   const { taskId, task } = req.body;
-  if (!taskId) return res.status(400).json({ error: 'taskId required' });
-
-  const rule = checkEscalation(task || {});
+  if (!taskId) {
+    return res.status(400).json({ error: 'taskId required' });
+  }
+  task = task || {};
+  const rule = checkEscalation(task);
   const escalation = {
-    id: `esc_${Date.now()}`,
-    taskId,
-    rule: rule || null,
-    level: rule?.level || 0,
-    action: rule?.action || null,
+    id: 'esc_' + Date.now(),
+    taskId: taskId,
+    rule: rule,
+    level: rule ? rule.level : 0,
+    action: rule ? rule.action : null,
     status: 'pending',
     createdAt: new Date().toISOString()
   };
   escalations.set(taskId, escalation);
-  res.json({ success: true, escalation });
+  res.json({ success: true, escalation: escalation });
 });
 
 app.get('/escalations', (req, res) => {
@@ -53,5 +55,5 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'escalation-engine', port: PORT });
 });
 
-app.listen(PORT, () => console.log(`Escalation Engine running on port ${PORT}`));
+app.listen(PORT, () => console.log('Escalation Engine running on port ' + PORT));
 export default app;

@@ -1,0 +1,36 @@
+{
+  "id": "healthcare-clinic-receptionist",
+  "name": "AI Clinic Receptionist",
+  "category": "healthcare",
+  "description": "AI-powered WhatsApp receptionist for appointment booking and queries",
+  "version": "1.0.0",
+  "triggers": [{"type": "whatsapp", "source": "wa_business", "event": "message_received"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "WhatsApp Message", "config": {"source": "whatsapp"}},
+    {"id": "2", "type": "ai_agent", "name": "Understand Intent", "config": {"agent": "healthcare_agent", "prompt": "Detect intent: book_appointment, reschedule, check_availability, general_query."}},
+    {"id": "3", "type": "condition", "name": "Intent?", "config": {"field": "intent.type"}},
+    {"id": "4a", "type": "emr", "name": "Get Slots", "config": {"action": "get_available_slots"}},
+    {"id": "4b", "type": "emr", "name": "Check Appointment", "config": {"action": "get_appointment"}},
+    {"id": "4c", "type": "action", "name": "Get Info", "config": {"action": "get_clinic_info"}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Response", "config": {"agent": "healthcare_agent", "prompt": "Generate helpful WhatsApp response."}},
+    {"id": "6", "type": "whatsapp", "name": "Send Reply", "config": {"channel": "whatsapp"}},
+    {"id": "7", "type": "twin", "name": "Update Patient Twin", "config": {"twin": "patient_twin", "action": "log_interaction"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "intent == book"},
+    {"from": "3", "to": "4b", "condition": "intent == reschedule"},
+    {"from": "3", "to": "4c", "condition": "intent == query"},
+    {"from": "4a", "to": "5"},
+    {"from": "4b", "to": "5"},
+    {"from": "4c", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["healthcare_agent"],
+  "integrations": ["whatsapp", "emr"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 2999, "currency": "INR", "period": "month"},
+  "tags": ["healthcare", "receptionist", "automation", "whatsapp"]
+}

@@ -10,17 +10,17 @@ app.use(cors());
 app.use(express.json());
 
 const reminders = new Map();
-const notifications = [];
 
 app.post('/reminders', (req, res) => {
   const { taskId, assignee, message, remindAt, channel } = req.body;
-  if (!taskId) return res.status(400).json({ error: 'taskId required' });
-
+  if (!taskId) {
+    return res.status(400).json({ error: 'taskId required' });
+  }
   const reminder = {
-    id: `rem_${Date.now()}`,
-    taskId,
-    assignee,
-    message,
+    id: 'rem_' + Date.now(),
+    taskId: taskId,
+    assignee: assignee,
+    message: message || 'Task reminder',
     remindAt: remindAt || new Date().toISOString(),
     channel: channel || 'app',
     status: 'pending',
@@ -33,7 +33,9 @@ app.post('/reminders', (req, res) => {
 app.get('/reminders', (req, res) => {
   const { assignee } = req.query;
   let list = Array.from(reminders.values());
-  if (assignee) list = list.filter(r => r.assignee === assignee);
+  if (assignee) {
+    list = list.filter(r => r.assignee === assignee);
+  }
   res.json({ reminders: list });
 });
 
@@ -46,5 +48,5 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'task-reminders', port: PORT });
 });
 
-app.listen(PORT, () => console.log(`Task Reminders running on port ${PORT}`));
+app.listen(PORT, () => console.log('Task Reminders running on port ' + PORT));
 export default app;

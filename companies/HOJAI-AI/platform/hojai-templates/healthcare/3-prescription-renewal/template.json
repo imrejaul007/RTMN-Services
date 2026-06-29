@@ -1,0 +1,34 @@
+{
+  "id": "healthcare-prescription-renewal",
+  "name": "Prescription Renewal Reminder",
+  "category": "healthcare",
+  "description": "Automated prescription renewal reminders to patients",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "emr", "name": "Get Renewals Due", "config": {"action": "get_prescriptions", "filter": {"renewal_due": true}}},
+    {"id": "2", "type": "filter", "name": "Filter Active", "config": {"conditions": [{"field": "status", "operator": "==", "value": "active"}]}},
+    {"id": "3", "type": "ai_agent", "name": "Personalize Message", "config": {"agent": "healthcare_agent", "prompt": "Generate reminder message with prescription details and renewal instructions."}},
+    {"id": "4", "type": "whatsapp", "name": "Send Reminder", "config": {"channel": "whatsapp", "template": "prescription_reminder"}},
+    {"id": "5", "type": "wait", "name": "Wait 3 Days", "config": {"delay_days": 3}},
+    {"id": "6", "type": "condition", "name": "Renewed?", "config": {"field": "prescription.renewed"}},
+    {"id": "7a", "type": "email", "name": "Final Reminder", "config": {"template": "prescription_final", "condition": "not_renewed && days_until_expiry < 7"}},
+    {"id": "7b", "type": "action", "name": "Flag Provider", "config": {"condition": "not_renewed && days_until_expiry < 3", "action": "notify_provider"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7a", "condition": "renewed == false"},
+    {"from": "6", "to": "7b", "condition": "renewed == false"},
+    {"from": "7a", "to": "end"},
+    {"from": "7b", "to": "end"}
+  ],
+  "agents": ["healthcare_agent"],
+  "integrations": ["emr", "whatsapp", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["healthcare", "prescription", "automation", "patient-care"]
+}
