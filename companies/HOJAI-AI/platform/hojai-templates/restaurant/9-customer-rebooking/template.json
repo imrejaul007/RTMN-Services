@@ -1,0 +1,30 @@
+{
+  "id": "restaurant-customer-rebooking",
+  "name": "Smart Rebooking",
+  "category": "restaurant",
+  "description": "Win back customers who haven't visited recently",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 10 * * 1"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Get Lapsed Customers", "config": {"action": "get_customers", "filter": {"days_since_visit": 30}}},
+    {"id": "2", "type": "ai_agent", "name": "Segment & Personalize", "config": {"agent": "marketing_agent", "prompt": "Segment by visit frequency, avg order value, favorite dishes."}},
+    {"id": "3", "type": "whatsapp", "name": "Send Offer", "config": {"template": "come_back_offer", "personalized": true}},
+    {"id": "4", "type": "wait", "name": "Wait 3 Days", "config": {"delay_days": 3}},
+    {"id": "5", "type": "condition", "name": "Visited?", "config": {"field": "customer.returned"}},
+    {"id": "6a", "type": "crm", "name": "Update Status", "config": {"action": "mark_reengaged"}},
+    {"id": "6b", "type": "whatsapp", "name": "Final Offer", "config": {"template": "last_chance", "condition": "days > 60"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6a", "condition": "returned == true"},
+    {"from": "5", "to": "6b", "condition": "returned == false"}
+  ],
+  "agents": ["marketing_agent"],
+  "integrations": ["whatsapp", "crm"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["restaurant", "re-engagement", "automation"]
+}
