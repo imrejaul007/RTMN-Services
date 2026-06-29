@@ -36,14 +36,14 @@ describe('metrics — counters', () => {
 
 describe('metrics — gauges', () => {
   it('sets and gets gauge', () => {
-    metrics.gauge('test.memory', 42);
-    assert.strictEqual(metrics.getGauge('test.memory'), 42);
+    metrics.gauge('test.memory.free', 42);
+    assert.strictEqual(metrics.getGauge('test.memory.free'), 42);
   });
 
   it('overwrites previous gauge', () => {
-    metrics.gauge('test.gauge', 10);
-    metrics.gauge('test.gauge', 20);
-    assert.strictEqual(metrics.getGauge('test.gauge'), 20);
+    metrics.gauge('test.gauge.current', 10);
+    metrics.gauge('test.gauge.current', 20);
+    assert.strictEqual(metrics.getGauge('test.gauge.current'), 20);
   });
 });
 

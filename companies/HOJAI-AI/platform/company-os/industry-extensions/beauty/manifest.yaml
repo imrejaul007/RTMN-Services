@@ -1,0 +1,78 @@
+# Beauty Industry Extension
+# Industry-specific services for beauty & salon businesses
+
+id: beauty
+name: Beauty Extension
+version: 1.0.0
+description: Vertical services for beauty & salon - appointments, stylists, services, memberships
+
+provider:
+  name: RTMN
+  contact: company-os@rtmn.dev
+
+port: 5090
+
+industry: beauty
+
+verticalityScore: 0.85
+
+verticalModules:
+  - id: appointments
+    name: Appointment System
+    description: Schedule and manage appointments
+    routes:
+      - GET /api/appointments
+      - POST /api/appointments
+      - GET /api/appointments/:id
+      - PUT /api/appointments/:id
+      - PATCH /api/appointments/:id/status
+
+  - id: stylists
+    name: Stylist Management
+    description: Manage stylists and their schedules
+    routes:
+      - GET /api/stylists
+      - POST /api/stylists
+      - GET /api/stylists/:id
+      - PUT /api/stylists/:id
+
+  - id: services
+    name: Service Catalog
+    description: Beauty services and pricing
+    routes:
+      - GET /api/services
+      - POST /api/services
+      - GET /api/services/:id
+      - PUT /api/services/:id
+
+  - id: memberships
+    name: Membership & Loyalty
+    description: Membership plans and rewards
+    routes:
+      - GET /api/memberships
+      - POST /api/memberships
+      - PUT /api/memberships/:id
+      - POST /api/memberships/:id/visit
+
+universalModules:
+  - department: sales
+    adapter: /api/sales
+  - department: finance
+    adapter: /api/finance
+  - department: marketing
+    adapter: /api/marketing
+
+dependencies:
+  required:
+    - finance-department-pack
+    - sales-department-pack
+
+configSchema:
+  businessName:
+    type: string
+    required: true
+  industryType:
+    type: string
+    enum: [salon, spa, clinic, grooming]
+  operatingHours:
+    type: object

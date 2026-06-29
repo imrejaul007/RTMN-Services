@@ -417,7 +417,8 @@ app.post('/api/webhooks/email', webhookApiKeyAuth, rateLimit, async function(req
     await addMessage({ conversationId: conversationId, content: email.text, sender: 'customer', channel: 'email', direction: 'inbound', metadata: { messageId: email.messageId, subject: email.subject, provider: email.provider } });
   }
 
-  res.json({ received: true, customerId: customerId, conversationId: conversationId, isNew: isNew, messageId: email.messageId });
+  var customer = await storage.getCustomer(customerId);
+  res.json({ received: true, customerId: customerId, customer: customer, conversationId: conversationId, isNew: isNew, messageId: email.messageId });
 });
 
 // App Webhook

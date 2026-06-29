@@ -73,7 +73,7 @@ describe('Health', () => {
 // ─── WhatsApp Webhook ───────────────────────────────────
 describe('WhatsApp Webhook', () => {
   it('GET challenge returns plain text with correct token', async () => {
-    const r = await get('/api/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=test-verify&hub.challenge=ABC123');
+    const r = await get('/api/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=usb-verify-token-change-me&hub.challenge=ABC123');
     assert.strictEqual(r.status, 200);
     assert.strictEqual(r.raw, 'ABC123');
   });
