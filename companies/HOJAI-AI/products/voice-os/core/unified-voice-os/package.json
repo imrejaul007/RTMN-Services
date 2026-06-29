@@ -1,0 +1,16 @@
+{
+  "name": "@hojai/unified-voice-os",
+  "version": "1.0.0",
+  "description": "Unified Voice OS Gateway - All 12 engines connected",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "keywords": ["voice", "voiceos", "unified", "hojai"],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

@@ -1,0 +1,416 @@
+openapi: 3.0.0
+info:
+  title: LoopOS API
+  description: Persistent Autonomous Execution Layer for AI Agents
+  version: 1.0.0
+  contact:
+    name: HOJAI AI
+    url: https://hojai.ai
+
+servers:
+  - url: http://localhost:4731
+    description: Loop Scheduler
+  - url: http://localhost:4732
+    description: Loop State
+  - url: http://localhost:4733
+    description: Verification Engine
+  - url: http://localhost:4734
+    description: Budget Engine
+  - url: http://localhost:4735
+    description: Fleet OS
+
+tags:
+  - name: Loops
+    description: Loop scheduling and execution
+  - name: State
+    description: Loop state management
+  - name: Verification
+    description: Maker-Checker-Guardian patterns
+  - name: Budget
+    description: Budget limits and tracking
+  - name: Fleet
+    description: Agent fleet management
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+
+  /api/loops:
+    get:
+      tags: [Loops]
+      summary: List all loops
+      responses:
+        '200':
+          description: List of loops
+    post:
+      tags: [Loops]
+      summary: Create a loop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, frequency]
+              properties:
+                name:
+                  type: string
+                frequency:
+                  type: string
+                  description: Cron expression
+                twinId:
+                  type: string
+                enabled:
+                  type: boolean
+      responses:
+        '201':
+          description: Loop created
+
+  /api/loops/{id}:
+    get:
+      tags: [Loops]
+      summary: Get loop by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Loop details
+        '404':
+          description: Loop not found
+
+  /api/loops/{id}/trigger:
+    post:
+      tags: [Loops]
+      summary: Trigger loop execution
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Loop triggered
+
+  /api/states:
+    post:
+      tags: [State]
+      summary: Create state
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                loopId:
+                  type: string
+                goal:
+                  type: string
+      responses:
+        '201':
+          description: State created
+
+  /api/states/{id}:
+    get:
+      tags: [State]
+      summary: Get state by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: State details
+
+    put:
+      tags: [State]
+      summary: Update state
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: State updated
+
+  /api/states/{id}/checkpoints:
+    post:
+      tags: [State]
+      summary: Create checkpoint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '201':
+          description: Checkpoint created
+
+  /api/verify:
+    post:
+      tags: [Verification]
+      summary: Submit for verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [makerAgentId, content]
+              properties:
+                makerAgentId:
+                  type: string
+                content:
+                  type: string
+                riskLevel:
+                  type: string
+                  enum: [low, medium, high, critical]
+      responses:
+        '201':
+          description: Verification created
+
+  /api/verification/{id}/approve:
+    post:
+      tags: [Verification]
+      summary: Approve verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approver:
+                  type: string
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Approved
+
+  /api/verification/{id}/reject:
+    post:
+      tags: [Verification]
+      summary: Reject verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approver:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Rejected
+
+  /api/budgets:
+    get:
+      tags: [Budget]
+      summary: List all budgets
+      responses:
+        '200':
+          description: List of budgets
+    post:
+      tags: [Budget]
+      summary: Create budget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [twinId]
+              properties:
+                twinId:
+                  type: string
+                dailyTokens:
+                  type: number
+                monthlyTokens:
+                  type: number
+                dailySpend:
+                  type: number
+                monthlySpend:
+                  type: number
+      responses:
+        '201':
+          description: Budget created
+
+  /api/budgets/{twinId}:
+    get:
+      tags: [Budget]
+      summary: Get budget for twin
+      parameters:
+        - name: twinId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Budget details
+
+  /api/budgets/{twinId}/check:
+    post:
+      tags: [Budget]
+      summary: Check budget availability
+      parameters:
+        - name: twinId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tokens:
+                  type: number
+                spend:
+                  type: number
+      responses:
+        '200':
+          description: Budget check result
+
+  /api/budgets/{twinId}/deduct:
+    post:
+      tags: [Budget]
+      summary: Deduct from budget
+      parameters:
+        - name: twinId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tokens:
+                  type: number
+                spend:
+                  type: number
+      responses:
+        '200':
+          description: Deduction recorded
+
+  /api/fleets:
+    get:
+      tags: [Fleet]
+      summary: List all fleets
+      responses:
+        '200':
+          description: List of fleets
+    post:
+      tags: [Fleet]
+      summary: Create fleet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                department:
+                  type: string
+      responses:
+        '201':
+          description: Fleet created
+
+  /api/fleets/{id}/agents:
+    post:
+      tags: [Fleet]
+      summary: Add agent to fleet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [twinId]
+              properties:
+                twinId:
+                  type: string
+                role:
+                  type: string
+                capabilities:
+                  type: array
+      responses:
+        '201':
+          description: Agent added
+
+  /api/fleets/{id}/health:
+    get:
+      tags: [Fleet]
+      summary: Get fleet health
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fleet health metrics
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Bearer token
+
+security:
+  - ApiKeyAuth: []

@@ -1,0 +1,12 @@
+{
+  "name": "@hojai/loopos-dashboard",
+  "version": "1.0.0",
+  "description": "LoopOS Admin Dashboard - Visual monitoring and management",
+  "scripts": {
+    "dev": "npx serve -p 3000",
+    "start": "npx serve -p 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}

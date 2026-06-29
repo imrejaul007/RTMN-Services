@@ -212,14 +212,16 @@ class MetricsCollector {
 }
 
 function percentile(sorted, p) {
-  if (sorted.length === 0) return null;
+  if (!sorted || sorted.length === 0) return null;
   const idx = Math.ceil(sorted.length * p) - 1;
-  return sorted[Math.max(0, idx)];
+  const safeIdx = Math.max(0, Math.min(idx, sorted.length - 1));
+  return sorted[safeIdx];
 }
 
 function metricKey(name, labels) {
-  const labelStr = Object.entries(labels).sort().map(([k, v]) => `${k}=${v}`).join(',');
-  return labelStr ? `${name}{${labelStr}}` : name;
+  if (!labels || Object.keys(labels).length === 0) return name;
+  const pairs = Object.entries(labels).sort().map(function(e) { return e[0] + '=' + e[1]; });
+  return name + '{' + pairs.join(',') + '}';
 }
 
 function parseKey(key) {

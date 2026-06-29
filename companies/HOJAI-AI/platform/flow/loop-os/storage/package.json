@@ -1,0 +1,15 @@
+{
+  "name": "@hojai/loopos-storage",
+  "version": "1.0.0",
+  "description": "LoopOS MongoDB Storage Layer - Persistent storage for all services",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test __tests__/*.test.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.3.0",
+    "uuid": "^9.0.0"
+  }
+}

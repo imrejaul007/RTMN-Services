@@ -1,0 +1,18 @@
+{
+  "name": "@hojai/loopos-event-bus",
+  "version": "1.0.0",
+  "description": "LoopOS Event Bus - Service-to-service communication",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test __tests__/*.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.11.0"
+  }
+}

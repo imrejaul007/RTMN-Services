@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoopOS Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+    .header { background: #1e293b; padding: 1rem 2rem; border-bottom: 1px solid #334155; }
+    .header h1 { font-size: 1.5rem; color: #38bdf8; }
+    .header .status { font-size: 0.875rem; color: #94a3b8; }
+    .nav { background: #1e293b; padding: 0.5rem 2rem; display: flex; gap: 1rem; border-bottom: 1px solid #334155; }
+    .nav button { background: transparent; border: none; color: #94a3b8; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
+    .nav button:hover { background: #334155; color: #fff; }
+    .nav button.active { background: #38bdf8; color: #0f172a; }
+    .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+    .card { background: #1e293b; border-radius: 8px; padding: 1.5rem; border: 1px solid #334155; }
+    .card h3 { font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; }
+    .metric { font-size: 2rem; font-weight: bold; color: #38bdf8; }
+    .metric.warning { color: #fbbf24; }
+    .metric.success { color: #22c55e; }
+    .metric.error { color: #ef4444; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #334155; }
+    th { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; }
+    .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .badge.success { background: #22c55e20; color: #22c55e; }
+    .badge.warning { background: #fbbf2420; color: #fbbf24; }
+    .badge.error { background: #ef444420; color: #ef4444; }
+    .badge.info { background: #38bdf820; color: #38bdf8; }
+    .progress-bar { height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #38bdf8; transition: width 0.3s; }
+    .progress-fill.warning { background: #fbbf24; }
+    .progress-fill.error { background: #ef4444; }
+    .section { margin-bottom: 2rem; }
+    .section h2 { font-size: 1.25rem; margin-bottom: 1rem; color: #fff; }
+    input, select { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 0.5rem 1rem; border-radius: 4px; width: 100%; margin-bottom: 0.5rem; }
+    button.btn { background: #38bdf8; color: #0f172a; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 500; }
+    button.btn:hover { background: #0ea5e9; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .tab { padding: 0.5rem 1rem; background: #334155; border: none; color: #94a3b8; cursor: pointer; border-radius: 4px 4px 0 0; }
+    .tab.active { background: #1e293b; color: #38bdf8; }
+    .refresh { font-size: 0.75rem; color: #94a3b8; margin-left: auto; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔄 LoopOS Dashboard</h1>
+    <div class="status">
+      <span id="timestamp"></span> |
+      <span id="serviceCount">0</span> services |
+      <button onclick="refreshAll()" style="background:none;border:none;color:#38bdf8;cursor:pointer;">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="active" onclick="showSection('overview')">Overview</button>
+    <button onclick="showSection('loops')">Loops</button>
+    <button onclick="showSection('budgets')">Budgets</button>
+    <button onclick="showSection('fleets')">Fleets</button>
+    <button onclick="showSection('trust')">Trust</button>
+    <button onclick="showSection('alerts')">Alerts</button>
+    <button onclick="showSection('agents')">Agents</button>
+  </div>
+
+  <div class="container">
+    <!-- Overview -->
+    <div id="section-overview" class="section">
+      <h2>System Overview</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Active Loops</h3>
+          <div class="metric" id="activeLoops">-</div>
+        </div>
+        <div class="card">
+          <h3>Running Simulations</h3>
+          <div class="metric" id="activeSims">-</div>
+        </div>
+        <div class="card">
+          <h3>Pending Escalations</h3>
+          <div class="metric warning" id="pendingEsc">-</div>
+        </div>
+        <div class="card">
+          <h3>Active Budgets</h3>
+          <div class="metric" id="activeBudgets">-</div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:2rem;">Service Health</h2>
+      <div class="card">
+        <div id="serviceHealth" class="grid"></div>
+      </div>
+    </div>
+
+    <!-- Loops -->
+    <div id="section-loops" class="section" style="display:none;">
+      <h2>Loop Management</h2>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Frequency</th>
+              <th>Status</th>
+              <th>Last Run</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="loopTable"></tbody>
+        </table>
+      </div>
+      <div class="card" style="margin-top:1rem;">
+        <h3>Create Loop</h3>
+        <input type="text" id="loopName" placeholder="Loop Name">
+        <input type="text" id="loopFrequency" placeholder="Cron (e.g., */5 * * * *)">
+        <input type="text" id="loopTwinId" placeholder="Twin ID">
+        <button class="btn" onclick="createLoop()">Create Loop</button>
+      </div>
+    </div>
+
+    <!-- Budgets -->
+    <div id="section-budgets" class="section" style="display:none;">
+      <h2>Budget Management</h2>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Agent/Twin</th>
+              <th>Daily Spend</th>
+              <th>Usage</th>
+              <th>Tokens</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="budgetTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fleets -->
+    <div id="section-fleets" class="section" style="display:none;">
+      <h2>Fleet Management</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Fleets</h3>
+          <table>
+            <thead><tr><th>Name</th><th>Agents</th><th>Health</th></tr></thead>
+            <tbody id="fleetTable"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Fleet Health</h3>
+          <div id="fleetHealth"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust -->
+    <div id="section-trust" class="section" style="display:none;">
+      <h2>Trust & Autonomy</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Trust Summary</h3>
+          <div id="trustSummary"></div>
+        </div>
+        <div class="card">
+          <h3>Top Agents by Trust</h3>
+          <div id="topTrust"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div id="section-alerts" class="section" style="display:none;">
+      <h2>Alerts & Notifications</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Active Alerts</h3>
+          <div id="activeAlerts"></div>
+        </div>
+        <div class="card">
+          <h3>Recent Alerts</h3>
+          <div id="recentAlerts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agents -->
+    <div id="section-agents" class="section" style="display:none;">
+      <h2>Agent Registry</h2>
+      <div class="card">
+        <table>
+          <thead>
+            <tr><th>Agent ID</th><th>Capabilities</th><th>Status</th><th>Trust Score</th></tr>
+          </thead>
+          <tbody id="agentTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:4731'; // Default scheduler port
+
+    function showSection(name) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('section-' + name).style.display = 'block';
+      event.target.classList.add('active');
+      refreshAll();
+    }
+
+    async function refreshAll() {
+      document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+      await Promise.all([
+        refreshOverview(),
+        refreshLoops(),
+        refreshBudgets(),
+        refreshFleets(),
+        refreshTrust(),
+        refreshAlerts(),
+        refreshAgents()
+      ]);
+    }
+
+    async function refreshOverview() {
+      try {
+        const res = await fetch('http://localhost:4742/api/dashboard');
+        const data = await res.json();
+        document.getElementById('activeLoops').textContent = data.overview?.loops || 0;
+        document.getElementById('activeBudgets').textContent = data.overview?.budgets || 0;
+        document.getElementById('serviceCount').textContent = data.overview?.loops + data.overview?.budgets || 0;
+      } catch (e) { console.log('Overview API not available'); }
+    }
+
+    async function refreshLoops() {
+      try {
+        const res = await fetch(`${API}/api/loops`);
+        const data = await res.json();
+        const loops = data.loops || [];
+        document.getElementById('activeLoops').textContent = loops.filter(l => l.enabled).length;
+
+        const tbody = document.getElementById('loopTable');
+        tbody.innerHTML = loops.slice(0, 20).map(l => `
+          <tr>
+            <td>${l.name || l.id}</td>
+            <td>${l.frequency}</td>
+            <td><span class="badge ${l.enabled ? 'success' : 'warning'}">${l.enabled ? 'Active' : 'Paused'}</span></td>
+            <td>${l.lastRun ? new Date(l.lastRun).toLocaleString() : 'Never'}</td>
+            <td>
+              <button class="btn" style="padding:0.25rem 0.5rem;font-size:0.75rem" onclick="triggerLoop('${l.id}')">Run</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) { console.log('Loops API not available'); }
+    }
+
+    async function refreshBudgets() {
+      try {
+        const res = await fetch('http://localhost:4734/api/budgets');
+        const data = await res.json();
+        const budgets = data.budgets || [];
+
+        const tbody = document.getElementById('budgetTable');
+        tbody.innerHTML = budgets.slice(0, 20).map(b => {
+          const used = ((b.usage?.daily?.spend || 0) / (b.limits?.dailySpend || 1) * 100).toFixed(0);
+          const status = used > 90 ? 'error' : used > 70 ? 'warning' : 'success';
+          return `
+            <tr>
+              <td>${b.twinId}</td>
+              <td>$${b.usage?.daily?.spend?.toFixed(2) || 0} / $${b.limits?.dailySpend || 0}</td>
+              <td>
+                <div class="progress-bar">
+                  <div class="progress-fill ${status}" style="width:${used}%"></div>
+                </div>
+              </td>
+              <td>${(b.usage?.daily?.tokens || 0).toLocaleString()}</td>
+              <td><span class="badge ${status}">${status}</span></td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) { console.log('Budgets API not available'); }
+    }
+
+    async function refreshFleets() {
+      try {
+        const res = await fetch('http://localhost:4735/api/fleets');
+        const data = await res.json();
+        const fleets = data.fleets || [];
+
+        const tbody = document.getElementById('fleetTable');
+        tbody.innerHTML = fleets.slice(0, 10).map(f => `
+          <tr>
+            <td>${f.name}</td>
+            <td>${f.agentCount || 0}</td>
+            <td><span class="badge ${f.health === 'healthy' ? 'success' : 'warning'}">${f.health || 'unknown'}</span></td>
+          </tr>
+        `).join('');
+      } catch (e) { console.log('Fleets API not available'); }
+    }
+
+    async function refreshTrust() {
+      try {
+        const res = await fetch('http://localhost:4736/api/trust/summary');
+        const data = await res.json();
+
+        document.getElementById('trustSummary').innerHTML = `
+          <p>Total Profiles: <strong>${data.totalProfiles || 0}</strong></p>
+          <p>Avg Trust Score: <strong>${data.avgTrustScore?.toFixed(1) || 0}</strong></p>
+        `;
+      } catch (e) { console.log('Trust API not available'); }
+    }
+
+    async function refreshAlerts() {
+      try {
+        const res = await fetch('http://localhost:4750/api/alerts?limit=10');
+        const data = await res.json();
+        const alerts = data.alerts || [];
+        document.getElementById('pendingEsc').textContent = alerts.filter(a => a.status === 'pending').length;
+
+        document.getElementById('recentAlerts').innerHTML = alerts.slice(0, 5).map(a => `
+          <div style="padding:0.5rem;border-bottom:1px solid #334155;">
+            <span class="badge ${a.severity === 'critical' ? 'error' : a.severity === 'high' ? 'warning' : 'info'}">${a.severity}</span>
+            <span style="margin-left:0.5rem">${a.title}</span>
+          </div>
+        `).join('') || '<p style="color:#94a3b8">No alerts</p>';
+      } catch (e) { console.log('Alerts API not available'); }
+    }
+
+    async function refreshAgents() {
+      try {
+        const res = await fetch('http://localhost:4745/api/agents');
+        const data = await res.json();
+        const agents = data.agents || [];
+
+        const tbody = document.getElementById('agentTable');
+        tbody.innerHTML = agents.slice(0, 20).map(a => `
+          <tr>
+            <td>${a.id}</td>
+            <td>${(a.capabilities || []).slice(0, 3).join(', ')}</td>
+            <td><span class="badge ${a.status === 'online' ? 'success' : 'warning'}">${a.status}</span></td>
+            <td>-</td>
+          </tr>
+        `).join('') || '<tr><td colspan="4">No agents registered</td></tr>';
+      } catch (e) { console.log('Agents API not available'); }
+    }
+
+    async function createLoop() {
+      const name = document.getElementById('loopName').value;
+      const frequency = document.getElementById('loopFrequency').value;
+      const twinId = document.getElementById('loopTwinId').value;
+
+      if (!name || !frequency) return alert('Name and frequency required');
+
+      await fetch(`${API}/api/loops`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, frequency, twinId, enabled: true })
+      });
+
+      refreshLoops();
+    }
+
+    async function triggerLoop(id) {
+      await fetch(`${API}/api/loops/${id}/trigger`, { method: 'POST' });
+    }
+
+    // Initial load
+    refreshAll();
+    setInterval(refreshAll, 30000); // Auto-refresh every 30s
+  </script>
+</body>
+</html>

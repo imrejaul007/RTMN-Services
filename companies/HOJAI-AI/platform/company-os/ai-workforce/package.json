@@ -1,0 +1,19 @@
+{
+  "name": "@hojai/ai-workforce",
+  "version": "1.0.0",
+  "description": "AI Workforce Deployer - Deploys AI workers to company tenants",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.2",
+    "@types/node": "^20.4.0",
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.0"
+  }
+}

@@ -1,17 +1,40 @@
 {
   "name": "@hojai/loopos-sdk",
   "version": "1.0.0",
-  "description": "LoopOS SDK - Easy integration with LoopOS services",
-  "main": "src/index.js",
+  "description": "LoopOS Unified SDK - One SDK for all LoopOS services",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node --test __tests__/*.test.js"
+    "dev": "node scripts/build.js",
+    "test": "node --test __tests__/*.test.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "axios": "^1.6.0"
   },
   "peerDependencies": {
     "express": "^4.18.0"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./scheduler": "./dist/services/scheduler.js",
+    "./state": "./dist/services/state.js",
+    "./verification": "./dist/services/verification.js",
+    "./budget": "./dist/services/budget.js",
+    "./fleet": "./dist/services/fleet.js",
+    "./trust": "./dist/services/trust.js",
+    "./outcomes": "./dist/services/outcomes.js",
+    "./knowledge": "./dist/services/knowledge.js",
+    "./certification": "./dist/services/certification.js",
+    "./simulation": "./dist/services/simulation.js",
+    "./learning": "./dist/services/learning.js",
+    "./escalation": "./dist/services/escalation.js",
+    "./alerts": "./dist/services/alerts.js",
+    "./graph": "./dist/services/graph.js",
+    "./mcp": "./dist/services/mcp.js",
+    "./worktrees": "./dist/services/worktrees.js"
   }
 }
