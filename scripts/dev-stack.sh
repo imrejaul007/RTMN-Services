@@ -35,7 +35,7 @@ RTMN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # (procurement-os, distribution-os, trade-finance) were removed in
 # Phase 0 — their functionality is now in nexha-supplier-network,
 # nexha-distribution-network, nexha-trade-finance-network.
-HUB_CMD="cd $RTMN_ROOT/companies/RABTUL-Technologies/REZ-ecosystem-connector && PORT=4399 node dist/index.js"
+HUB_CMD="cd $RTMN_ROOT/services/rtmn-unified-hub && npm run build && PORT=4399 npm start"
 
 # SUTAR Gateway (port 4140) — HTTP entry point exposing /api/sutar/* routes to all SUTAR services
 SUTAR_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/sutar-os/core/sutar-gateway && PORT=4140 npm start"
@@ -211,6 +211,33 @@ APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PO
 # "The keyboard that thinks" — intent detection + multi-channel messaging
 # DO_APP_URL is used by RAZO's Action Engine to call back into DO App orders/hotel-booking/etc.
 RAZO_KEYBOARD_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/razo/razo-keyboard && PORT=4299 DO_APP_URL=http://localhost:3001 REQUIRE_AUTH=false npm start"
+
+# Genie OS Runtime (7100) — Personal AI Brain with 14 services wired
+# Genie OS Runtime routes all 14 services at /api/genie/*
+GENIE_RUNTIME_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-os/runtime/genie && GENIE_PORT=7100 REQUIRE_AUTH=false node src/index.js"
+
+# Genie Wish Fulfillment (4001) — Pre-existing "AI Wish Fulfillment Engine"
+GENIE_WISHES_CMD="cd $RTMN_ROOT/companies/REZ-Workspace/industries/genie-os && PORT=4001 node src/index.js"
+
+# 14 Genie Services (4740-4755) — Personal Intelligence OS
+# P0 Services
+GENIE_DECISION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-decision-intelligence && npm run build && PORT=4740 npm start"
+GENIE_LEARNING_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-learning-loop && npm run build && PORT=4742 npm start"
+GENIE_ANTICIPATION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-anticipation && npm run build && PORT=4745 npm start"
+# P1 Services
+GENIE_AMBIENT_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-ambient && npm run build && PORT=4746 npm start"
+GENIE_CONSTITUTION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-constitution && npm run build && PORT=4743 npm start"
+GENIE_FINANCIAL_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-financial-life && npm run build && PORT=4747 npm start"
+GENIE_HEALTH_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-health-intelligence && npm run build && PORT=4748 npm start"
+GENIE_HOUSEHOLD_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-household && npm run build && PORT=4749 npm start"
+# P2 Services
+GENIE_TRAVEL_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-travel && npm run build && PORT=4750 npm start"
+GENIE_SPIRITUAL_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-spiritual && npm run build && PORT=4751 npm start"
+GENIE_SIMULATION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-life-simulation && npm run build && PORT=4752 npm start"
+# P3 Services
+GENIE_FOCUS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-focus && npm run build && PORT=4753 npm start"
+GENIE_DREAMS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-dreams && npm run build && PORT=4754 npm start"
+GENIE_LEGACY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/genie/genie-legacy && npm run build && PORT=4755 npm start"
 
 # BLR AI Marketplace (BAM) — 245 catalog entries
 # Moved from 4250 (conflicted with Nexha stub agent-marketplace)
