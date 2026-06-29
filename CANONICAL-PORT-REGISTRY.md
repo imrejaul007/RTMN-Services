@@ -89,6 +89,16 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | 4768 | genie-listening-modes | `companies/HOJAI-AI/products/genie/genie-listening-modes/` |
 | 4769 | genie-device-integration | `companies/HOJAI-AI/products/genie/genie-device-integration/` |
 
+### ✅ LoopOS — Persistent Autonomous Execution Layer (Added 2026-06-29)
+
+| Port | Service | Path | Status |
+|------|---------|------|--------|
+| **4731** | **loop-scheduler** | `platform/flow/loop-os/loop-scheduler/` | ✅ NEW |
+| **4732** | **loop-state** | `platform/flow/loop-os/loop-state/` | ✅ NEW |
+| **4733** | **verification-engine** | `platform/flow/loop-os/verification-engine/` | ✅ NEW |
+| **4734** | **budget-engine** | `platform/flow/loop-os/budget-engine/` | ✅ NEW |
+| **4735** | **fleet-os** | `platform/flow/loop-os/fleet-os/` | ✅ NEW |
+
 ### ✅ Genie Port Status (Verified 2026-06-21)
 All 23 Genie services have unique, non-overlapping port assignments. The historical 4716 conflict has been resolved: `genie-shopping-agent` was relocated to 4728. No cross-service collisions remain.
 

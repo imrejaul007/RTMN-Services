@@ -1211,11 +1211,11 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| **loop-scheduler** | 4721 | Cron-based persistent autonomous execution engine |
-| **loop-state** | 4722 | State persistence + checkpoints between loop executions |
-| **verification-engine** | 4723 | Maker→Checker→Guardian verification pattern |
-| **budget-engine** | 4724 | Token, cost, and tool limits per AI agent |
-| **fleet-os** | 4725 | AI employee organization management |
+| **loop-scheduler** | 4731 | Cron-based persistent autonomous execution engine |
+| **loop-state** | 4732 | State persistence + checkpoints between loop executions |
+| **verification-engine** | 4733 | Maker→Checker→Guardian verification pattern |
+| **budget-engine** | 4734 | Token, cost, and tool limits per AI agent |
+| **fleet-os** | 4735 | AI employee organization management |
 
 **Key Features:**
 - **Persistent Loops:** AI agents that continuously discover work, execute, verify, and improve
