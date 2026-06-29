@@ -21,8 +21,6 @@ const {
 // ── MemoryCache unit tests ────────────────────────────────────────────────────
 
 describe('MemoryCache', async () => {
-  const { default: { default: cacheModule } } = await import('../../src/services/cache.js');
-  const MemoryCache = cacheModule ? null : null; // tested indirectly
 
   // Direct cache API tests (use in-memory fallback)
   describe('eval cache', () => {

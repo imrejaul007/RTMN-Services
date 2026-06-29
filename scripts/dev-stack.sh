@@ -198,6 +198,7 @@ LIFE_TIMELINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/life-
 VOICE_IDENTITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-identity && PORT=4894 npm start"
 HUMAN_GROWTH_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-growth && PORT=4895 npm start"
 HUMAN_PRESENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-presence && PORT=4896 npm start"
+RELATIONSHIP_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/relationship-os && PORT=4897 npm start"
 
 # HOJAI App Store API (4400) — Catalog for skills, agents, workflows, templates
 APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PORT=4400 npm start"

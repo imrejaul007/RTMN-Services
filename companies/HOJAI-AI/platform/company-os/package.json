@@ -1,0 +1,28 @@
+{
+  "name": "@hojai/company-os",
+  "version": "0.1.0",
+  "description": "CompanyOS - Composition platform for RTMN",
+  "private": true,
+  "workspaces": [
+    "control-plane",
+    "composition-engine",
+    "manifest-registry"
+  ],
+  "scripts": {
+    "start": "./scripts/start-company-os.sh start",
+    "test": "./scripts/start-company-os.sh test",
+    "dev": "./scripts/start-company-os.sh dev",
+    "install": "npm run install --workspaces",
+    "build": "npm run build --workspaces"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "company-os",
+    "composition",
+    "company-creation",
+    "rtmn"
+  ],
+  "license": "MIT"
+}
