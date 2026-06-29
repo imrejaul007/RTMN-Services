@@ -27,7 +27,7 @@ Return as JSON:
     {
       "what": "string",
       "why": "string",
-      "who": ["name1", "name2"],
+      "who": ["Name1", "Name2"],
       "alternatives": [
         {"name": "string", "rejected": true, "reason": "string"}
       ],
@@ -41,7 +41,7 @@ Return as JSON:
 If no decisions found, return {"decisions": []}.
 
 Text:
-"""
+`;
 
 export async function extractDecisions(
   text: string,
@@ -90,85 +90,38 @@ export async function extractDecisions(
 
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
-      return {
-        decisions: parsed.decisions || [],
-        rawResponse: parsed,
-      };
+      return { decisions: parsed.decisions || [], rawResponse: content };
     }
 
-    return { decisions: [], rawResponse: null };
-  } catch (error) {
-    console.error('[decision-extractor] LLM call failed:', error);
+    return { decisions: [], rawResponse: content };
+  } catch (error: any) {
+    console.error('Decision extraction failed:', error.message);
     return { decisions: [], rawResponse: null };
   }
 }
 
-/**
- * Fallback: Pattern-based extraction (no LLM needed)
- */
-export function extractDecisionsPattern(text: string): Array<{
-  what: string;
-  why: string;
-  who: string[];
-  confidence: number;
-  tags: string[];
-}> {
-  const decisions: Array<{
-    what: string;
-    why: string;
-    who: string[];
-    confidence: number;
-    tags: string[];
-  }> = [];
+// Pattern-based extraction (fallback when LLM unavailable)
+export const extractDecisionsPattern = (
+  text: string
+): Array<{ what: string; why: string; confidence: number }> => {
+  const decisions: Array<{ what: string; why: string; confidence: number }> = [];
 
-  // Pattern 1: "We'll launch X next month"
-  const willPattern = /(?:we'?ll|let'?s|going to)\s+([^\.]+?)(?:\s+(?:next|this)\s+(week|month|quarter|year))/gi;
-  let match;
-  while ((match = willPattern.exec(text)) !== null) {
-    decisions.push({
-      what: match[1].trim(),
-      why: 'Inferred from context',
-      who: [],
-      confidence: 0.6,
-      tags: ['forward-looking'],
-    });
-  }
+  // Decision patterns
+  const patterns = [
+    /(?:we decided|decided|decision|made a call to|going to|will|should|must|need to)[\s\S]{1,200}/gi,
+    /(?:because|since|given that)[\s\S]{1,100}/gi,
+  ];
 
-  // Pattern 2: "We decided to X"
-  const decidedPattern = /(?:we\s+)?decided\s+to\s+([^\.]+)/gi;
-  while ((match = decidedPattern.exec(text)) !== null) {
-    decisions.push({
-      what: match[1].trim(),
-      why: 'Explicit decision statement',
-      who: [],
-      confidence: 0.85,
-      tags: ['decision'],
-    });
-  }
-
-  // Pattern 3: "We chose X over Y because..."
-  const chosePattern = /(?:we\s+)?chose\s+([^\.]+?)\s+over\s+([^\.]+?)\s+because\s+([^\.]+)/gi;
-  while ((match = chosePattern.exec(text)) !== null) {
-    decisions.push({
-      what: `Choose ${match[1].trim()}`,
-      why: match[3].trim(),
-      who: [],
-      confidence: 0.9,
-      tags: ['choice', 'comparison'],
-    });
-  }
-
-  // Pattern 4: "I should/will X"
-  const iWillPattern = /i\s+(?:should|will|need to)\s+([^\.]+)/gi;
-  while ((match = iWillPattern.exec(text)) !== null) {
-    decisions.push({
-      what: match[1].trim(),
-      why: 'Personal commitment',
-      who: ['I'],
-      confidence: 0.7,
-      tags: ['personal'],
-    });
-  }
+  const matches = text.match(patterns[0]) || [];
+  matches.slice(0, 10).forEach((match) => {
+    if (match.length > 10) {
+      decisions.push({
+        what: match.substring(0, 100),
+        why: '',
+        confidence: 0.3,
+      });
+    }
+  });
 
   return decisions;
-}
+};

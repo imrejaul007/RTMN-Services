@@ -1,0 +1,1 @@
+{"name": "@hojai/network-builder", "version": "1.0.0", "description": "Network Builder - Create Nexha networks", "main": "src/index.ts", "scripts": {"test": "vitest"}, "dependencies": {"uuid": "^9.0.0"}, "devDependencies": {"@types/uuid": "^9.0.2", "typescript": "^5.1.6", "vitest": "^0.34.0"}}

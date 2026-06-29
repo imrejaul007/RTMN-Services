@@ -59,7 +59,18 @@ app.post('/api/decisions/extract', async (req, res, next) => {
     // Fallback to pattern matching if LLM fails
     if (extracted.decisions.length === 0) {
       const patternResults = extractDecisionsPattern(data.text);
-      extracted = { decisions: patternResults, rawResponse: null };
+      extracted = {
+        decisions: patternResults.map(p => ({
+          what: p.what,
+          why: p.why,
+          who: data.attendees || [],
+          alternatives: [],
+          confidence: p.confidence,
+          impact: 'low' as const,
+          tags: [],
+        })),
+        rawResponse: null
+      };
     }
 
     // Save each decision
