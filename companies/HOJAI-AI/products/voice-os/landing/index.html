@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOJAI VoiceOS - Voice Intelligence That Remembers</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(15, 15, 35, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav a {
+      color: #94a3b8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav a:hover {
+      color: white;
+    }
+
+    .cta-btn {
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 24px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 160px 0 80px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, white, #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 24px;
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0 auto 48px;
+    }
+
+    /* Demo Box */
+    .demo-box {
+      background: rgba(30, 30, 50, 0.8);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 700px;
+      margin: 0 auto 64px;
+      backdrop-filter: blur(10px);
+    }
+
+    .demo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .demo-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #8b5cf6;
+      font-weight: 600;
+    }
+
+    .demo-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .mic-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      border: none;
+      cursor: pointer;
+      margin: 32px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .mic-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .mic-btn svg {
+      width: 32px;
+      height: 32px;
+      fill: white;
+    }
+
+    .demo-hint {
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+
+    /* Comparison */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin: 64px 0;
+    }
+
+    .compare-box {
+      background: rgba(30, 30, 50, 0.6);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .compare-box.wispr {
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .compare-box.hojai {
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .compare-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .compare-title.wispr { color: #ef4444; }
+    .compare-title.hojai { color: #22c55e; }
+
+    .compare-list {
+      list-style: none;
+    }
+
+    .compare-list li {
+      padding: 8px 0;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .compare-list li::before {
+      content: '✓ ';
+      margin-right: 8px;
+    }
+
+    .compare-list.wispr li::before {
+      content: '✗ ';
+      color: #ef4444;
+    }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: 64px 0;
+    }
+
+    .feature {
+      background: rgba(30, 30, 50, 0.6);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 24px;
+    }
+
+    .feature h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .feature p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta-section h2 {
+      font-size: 40px;
+      margin-bottom: 24px;
+    }
+
+    .cta-section p {
+      color: #94a3b8;
+      margin-bottom: 32px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 32px 0;
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <div class="logo-icon">🎤</div>
+        <span>VoiceOS</span>
+      </div>
+      <nav class="nav">
+        <a href="#features">Features</a>
+        <a href="#compare">vs Wispr Flow</a>
+        <a href="https://github.com" target="_blank">GitHub</a>
+        <a href="#" class="cta-btn">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <h1>Voice That Remembers</h1>
+      <p>The first voice assistant with memory, relationships, and emotional intelligence. Built on RTMN.</p>
+
+      <!-- Demo Box -->
+      <div class="demo-box">
+        <div class="demo-header">
+          <div class="demo-title">
+            <span>🎤</span>
+            VoiceOS Demo
+          </div>
+          <div class="demo-status">
+            <div class="status-dot"></div>
+            <span>Ready</span>
+          </div>
+        </div>
+
+        <div style="text-align: center;">
+          <button class="mic-btn" onclick="startDemo()">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3s-3 1.34-3 3v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.26 14.2 14.47 16 12 16s-4.26-1.8-4.93-4.15-.08-.49-.49-.85h-.09v5c0 2.76 2.24 5 5 5s5-2.24 5-5v-5h-.09zM17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="demo-hint">Press Alt+Space or click to speak</div>
+
+        <div id="transcript" style="margin-top: 24px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: monospace; min-height: 60px;">
+          <span style="color: #64748b; font-style: italic;">Your voice will appear here...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison -->
+    <section id="compare" class="container">
+      <h2 style="text-align: center; margin-bottom: 32px;">Why VoiceOS Beats Wispr Flow</h2>
+      <div class="comparison">
+        <div class="compare-box wispr">
+          <div class="compare-title wispr">⚠️ Wispr Flow</div>
+          <ul class="compare-list wispr">
+            <li>Voice dictation only</li>
+            <li>No memory</li>
+            <li>No relationships</li>
+            <li>No emotional intelligence</li>
+            <li>Mac only</li>
+            <li>$15/month</li>
+            <li>Generic responses</li>
+          </ul>
+        </div>
+        <div class="compare-box hojai">
+          <div class="compare-title hojai">🎤 VoiceOS</div>
+          <ul class="compare-list hojai">
+            <li>Voice + Intelligence</li>
+            <li>Remembers everything</li>
+            <li>Knows your relationships</li>
+            <li>Emotional awareness</li>
+            <li>Mac + Win + Linux + Mobile</li>
+            <li>Free & Open Source</li>
+            <li>Personalized responses</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="container">
+      <h2 style="text-align: center; margin-bottom: 32px;">The Intelligence Stack</h2>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">🧠</div>
+          <h3>Memory</h3>
+          <p>Hot, warm, cold memory. Remembers your preferences, conversations, and context across sessions.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">👥</div>
+          <h3>Relationships</h3>
+          <p>Knows your mom vs boss vs friend. Adapts tone automatically.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">💜</div>
+          <h3>Emotions</h3>
+          <p>Detects stress, happiness, fatigue. Responds with empathy.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⏰</div>
+          <h3>Life Timeline</h3>
+          <p>Tracks milestones, habits, and growth over time.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🌐</div>
+          <h3>Genie AI</h3>
+          <p>Powered by Genie - the most intelligent voice AI available.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔒</div>
+          <h3>Privacy First</h3>
+          <p>On-device Whisper STT. Your voice never leaves your device.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section container">
+      <h2>Try VoiceOS Today</h2>
+      <p>Download the desktop app and start speaking with intelligence.</p>
+      <div class="cta-buttons">
+        <a href="#" class="cta-btn">Download for Mac</a>
+        <a href="#" class="btn-secondary">View on GitHub</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Built with 🤖 by <strong>Rejaul Karim</strong> and <strong>RTMN</strong></p>
+      <p style="margin-top: 8px;">The autonomous economy infrastructure</p>
+    </div>
+  </footer>
+
+  <script>
+    function startDemo() {
+      // Check for Web Speech API
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          document.getElementById('transcript').innerHTML = `<strong>You:</strong> ${transcript}`;
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+        };
+
+        recognition.start();
+      } else {
+        document.getElementById('transcript').innerHTML = '<em>Web Speech API not available. Download the desktop app for full experience.</em>';
+      }
+    }
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      if (e.altKey && e.code === 'Space') {
+        e.preventDefault();
+        startDemo();
+      }
+    });
+  </script>
+</body>
+</html>

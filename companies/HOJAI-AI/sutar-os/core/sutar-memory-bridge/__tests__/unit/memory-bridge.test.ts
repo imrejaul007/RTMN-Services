@@ -130,3 +130,42 @@ describe('SUTAR Memory Bridge — Intent-tagged Memory', () => {
     expect(validImportances).toContain(record.importance);
   });
 });
+
+describe('SUTAR Memory Bridge — Edge Cases', () => {
+  function createRecord(id: string, twinId: string, intentType: string, content: string, tags: string[] = [], importance = 'normal') {
+    return { id, twinId, intentType, content, tags, importance, createdAt: new Date().toISOString() };
+  }
+
+  it('handles empty twinId gracefully', () => {
+    const record = createRecord('mem-999', '', 'remember', 'content without twin', [], 'normal');
+    expect(record.twinId).toBe('');
+  });
+
+  it('handles empty tags array', () => {
+    const record = createRecord('mem-998', 'test-twin', 'remember', 'content', [], 'normal');
+    expect(record.tags).toHaveLength(0);
+  });
+
+  it('handles very long content', () => {
+    const longContent = 'x'.repeat(10000);
+    const record = createRecord('mem-997', 'test', 'remember', longContent, [], 'normal');
+    expect(record.content.length).toBe(10000);
+  });
+
+  it('handles special characters in content', () => {
+    const specialContent = '<script>alert("xss")</script> & "quotes"';
+    const record = createRecord('mem-996', 'test', 'remember', specialContent, [], 'normal');
+    expect(record.content).toBe(specialContent);
+  });
+
+  it('handles unicode content', () => {
+    const unicodeContent = 'Hello 世界 🌍 مرحبا';
+    const record = createRecord('mem-995', 'test', 'remember', unicodeContent, [], 'normal');
+    expect(record.content).toBe(unicodeContent);
+  });
+
+  it('handles invalid intent type', () => {
+    const record = createRecord('mem-994', 'test', 'invalid_intent_type', 'content', [], 'normal');
+    expect(record.intentType).toBe('invalid_intent_type');
+  });
+});

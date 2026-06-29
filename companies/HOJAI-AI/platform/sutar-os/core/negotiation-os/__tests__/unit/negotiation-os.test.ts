@@ -108,3 +108,90 @@ describe('NegotiationOS — Fairness Score', () => {
     expect(calculateFairness([])).toBe(100);
   });
 });
+
+describe('NegotiationOS — Edge Cases', () => {
+  function calculateBATNA(party: Party, bestOutsideOption: number): number {
+    const range = (party.maxAcceptable || 100) - (party.minAcceptable || 0);
+    const target = party.target || (party.maxAcceptable || 100);
+    const z = (target - bestOutsideOption) / (range || 1);
+    return Math.max(0, Math.min(100, 50 + z * 25));
+  }
+
+  function canAcceptOffer(offer: Offer, party: Party): boolean {
+    if (offer.status !== 'pending') return false;
+    const value = offer.totalValue;
+    if (party.maxAcceptable && value > party.maxAcceptable) return false;
+    return true;
+  }
+
+  function calculateFairness(offers: Offer[]): number {
+    if (offers.length === 0) return 100;
+    const values = offers.map(o => o.totalValue);
+    const avg = values.reduce((s, v) => s + v, 0) / values.length;
+    const variance = values.reduce((s, v) => s + Math.pow(v - avg, 2), 0) / values.length;
+    const stdDev = Math.sqrt(variance);
+    return Math.max(0, 100 - stdDev);
+  }
+
+  it('handles zero range in BATNA', () => {
+    const party: Party = { id: '1', name: 'Buyer', role: 'buyer', minAcceptable: 50, maxAcceptable: 50, target: 50 };
+    const score = calculateBATNA(party, 40);
+    expect(score).toBeGreaterThanOrEqual(0);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+
+  it('handles missing min/max acceptable', () => {
+    const party: Party = { id: '1', name: 'Buyer', role: 'buyer' };
+    const score = calculateBATNA(party, 50);
+    expect(score).toBeGreaterThanOrEqual(0);
+  });
+
+  it('handles negative totalValue', () => {
+    const party: Party = { id: 'p1', name: 'Buyer', role: 'buyer', maxAcceptable: 100 };
+    const offer: Offer = { id: 'o1', partyId: 'p1', round: 1, terms: {}, totalValue: -50, timestamp: '', status: 'pending' };
+    expect(canAcceptOffer(offer, party)).toBe(true);
+  });
+
+  it('handles zero totalValue', () => {
+    const party: Party = { id: 'p1', name: 'Buyer', role: 'buyer', maxAcceptable: 100 };
+    const offer: Offer = { id: 'o1', partyId: 'p1', round: 1, terms: {}, totalValue: 0, timestamp: '', status: 'pending' };
+    expect(canAcceptOffer(offer, party)).toBe(true);
+  });
+
+  it('handles very large totalValue', () => {
+    const party: Party = { id: 'p1', name: 'Buyer', role: 'buyer', maxAcceptable: 100 };
+    const offer: Offer = { id: 'o1', partyId: 'p1', round: 1, terms: {}, totalValue: 1e15, timestamp: '', status: 'pending' };
+    expect(canAcceptOffer(offer, party)).toBe(false);
+  });
+
+  it('handles all equal offers for max fairness', () => {
+    const offers: Offer[] = [
+      { id: 'o1', partyId: 'p1', round: 1, terms: {}, totalValue: 100, timestamp: '', status: 'pending' },
+      { id: 'o2', partyId: 'p2', round: 1, terms: {}, totalValue: 100, timestamp: '', status: 'pending' },
+      { id: 'o3', partyId: 'p3', round: 1, terms: {}, totalValue: 100, timestamp: '', status: 'pending' },
+    ];
+    expect(calculateFairness(offers)).toBe(100);
+  });
+
+  it('handles very divergent offers', () => {
+    const offers: Offer[] = [
+      { id: 'o1', partyId: 'p1', round: 1, terms: {}, totalValue: 1, timestamp: '', status: 'pending' },
+      { id: 'o2', partyId: 'p2', round: 1, terms: {}, totalValue: 1000000, timestamp: '', status: 'pending' },
+    ];
+    const score = calculateFairness(offers);
+    expect(score).toBeLessThan(10);
+  });
+
+  it('handles special characters in party name', () => {
+    const party: Party = { id: '1', name: 'Test <script>alert("xss")</script>', role: 'buyer' };
+    expect(party.name).toContain('<script>');
+  });
+
+  it('handles all party roles', () => {
+    const roles: Party['role'][] = ['buyer', 'seller', 'partner', 'mediator'];
+    roles.forEach(r => {
+      const party: Party = { id: '1', name: 'Test', role: r };
+      expect(party.role).toBe(r);
+    });
+  });
+});

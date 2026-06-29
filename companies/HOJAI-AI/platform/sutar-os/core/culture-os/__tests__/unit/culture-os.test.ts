@@ -68,3 +68,122 @@ describe('CultureOS — Alignment Scores', () => {
     expect(Object.keys(result.byValue)).toHaveLength(0);
   });
 });
+
+describe('CultureOS — Edge Cases', () => {
+  function calculateAlignment(scores: AlignmentScore[]): { average: number; byValue: Record<string, number> } {
+    const byValue: Record<string, number> = {};
+    const values = new Set<string>();
+    for (const s of scores) values.add(s.valueId);
+    for (const v of values) {
+      const valueScores = scores.filter(s => s.valueId === v);
+      byValue[v] = valueScores.reduce((sum, s) => sum + s.score, 0) / valueScores.length;
+    }
+    const average = scores.length > 0 ? scores.reduce((sum, s) => sum + s.score, 0) / scores.length : 0;
+    return { average, byValue };
+  }
+
+  it('handles zero score values', () => {
+    const scores: AlignmentScore[] = [
+      { userId: 'u1', valueId: 'v1', score: 0, date: '' },
+      { userId: 'u2', valueId: 'v1', score: 0, date: '' },
+    ];
+    const result = calculateAlignment(scores);
+    expect(result.average).toBe(0);
+    expect(result.byValue['v1']).toBe(0);
+  });
+
+  it('handles max score values', () => {
+    const scores: AlignmentScore[] = [
+      { userId: 'u1', valueId: 'v1', score: 100, date: '' },
+      { userId: 'u2', valueId: 'v1', score: 100, date: '' },
+    ];
+    const result = calculateAlignment(scores);
+    expect(result.average).toBe(100);
+  });
+
+  it('handles negative scores', () => {
+    const scores: AlignmentScore[] = [
+      { userId: 'u1', valueId: 'v1', score: -10, date: '' },
+      { userId: 'u2', valueId: 'v1', score: 50, date: '' },
+    ];
+    const result = calculateAlignment(scores);
+    expect(result.byValue['v1']).toBe(20);
+  });
+
+  it('handles single score', () => {
+    const scores: AlignmentScore[] = [
+      { userId: 'u1', valueId: 'v1', score: 75, date: '' },
+    ];
+    const result = calculateAlignment(scores);
+    expect(result.average).toBe(75);
+    expect(result.byValue['v1']).toBe(75);
+  });
+
+  it('handles very large number of scores', () => {
+    const scores: AlignmentScore[] = Array.from({ length: 1000 }, (_, i) => ({
+      userId: 'u' + i, valueId: 'v1', score: 50, date: ''
+    }));
+    const result = calculateAlignment(scores);
+    expect(result.average).toBe(50);
+    expect(result.byValue['v1']).toBe(50);
+  });
+
+  it('handles empty valueId', () => {
+    const scores: AlignmentScore[] = [
+      { userId: 'u1', valueId: '', score: 80, date: '' },
+      { userId: 'u2', valueId: '', score: 90, date: '' },
+    ];
+    const result = calculateAlignment(scores);
+    expect(result.byValue['']).toBe(85);
+  });
+
+  it('handles special characters in evidence', () => {
+    const scores: AlignmentScore[] = [
+      { userId: 'u1', valueId: 'v1', score: 80, date: '', evidence: 'Test <script>alert("xss")</script>' },
+    ];
+    expect(scores[0].evidence).toContain('<script>');
+  });
+
+  it('handles empty userId', () => {
+    const scores: AlignmentScore[] = [
+      { userId: '', valueId: 'v1', score: 80, date: '' },
+    ];
+    const result = calculateAlignment(scores);
+    expect(result.average).toBe(80);
+  });
+
+  it('handles undefined evidence', () => {
+    const scores: AlignmentScore[] = [
+      { userId: 'u1', valueId: 'v1', score: 80, date: '', evidence: undefined },
+    ];
+    expect(scores[0].evidence).toBeUndefined();
+  });
+
+  it('handles unicode characters in value name', () => {
+    const values: Value[] = [
+      { id: 'v1', name: 'Hello 世界 🌍', description: 'Test', priority: 1, active: true, examples: [], color: '#0066FF', createdAt: '' },
+    ];
+    expect(values[0].name).toBe('Hello 世界 🌍');
+  });
+
+  it('handles empty examples array', () => {
+    const values: Value[] = [
+      { id: 'v1', name: 'Test', description: 'Test', priority: 1, active: true, examples: [], color: '#0066FF', createdAt: '' },
+    ];
+    expect(values[0].examples).toHaveLength(0);
+  });
+
+  it('handles negative priority values', () => {
+    const values: Value[] = [
+      { id: 'v1', name: 'Test', description: 'Test', priority: -1, active: true, examples: [], color: '#0066FF', createdAt: '' },
+    ];
+    expect(values[0].priority).toBe(-1);
+  });
+
+  it('handles invalid color format', () => {
+    const values: Value[] = [
+      { id: 'v1', name: 'Test', description: 'Test', priority: 1, active: true, examples: [], color: 'not-a-color', createdAt: '' },
+    ];
+    expect(values[0].color).toBe('not-a-color');
+  });
+});

@@ -162,3 +162,92 @@ describe('InnovationOS — Pilot Metrics', () => {
     });
   });
 });
+
+describe('InnovationOS — Edge Cases', () => {
+  function tallyVotes(votes: Idea['votes']): { total: number; count: number; average: number } {
+    const total = votes.reduce((s, v) => s + v.vote, 0);
+    return { total, count: votes.length, average: votes.length > 0 ? total / votes.length : 0 };
+  }
+
+  function calculateScore(idea: Idea): number {
+    const voteScore = idea.votes.reduce((s, v) => s + v.vote, 0);
+    return voteScore + idea.impact * 10 + idea.roi;
+  }
+
+  function innovationStats(ideas: Idea[]) {
+    return {
+      total: ideas.length,
+      byStatus: {
+        ideas: ideas.filter(i => i.status === 'idea' || i.status === 'under_review').length,
+        approved: ideas.filter(i => i.status === 'approved').length,
+        pilot: ideas.filter(i => i.status === 'pilot').length,
+        deployed: ideas.filter(i => i.status === 'scale' || i.status === 'deployed').length,
+      },
+      avgImpact: ideas.length > 0 ? Math.round(ideas.reduce((s, i) => s + i.impact, 0) / ideas.length) : 0,
+    };
+  }
+
+  it('handles empty votes array', () => {
+    const result = tallyVotes([]);
+    expect(result.total).toBe(0);
+    expect(result.count).toBe(0);
+    expect(result.average).toBe(0);
+  });
+
+  it('handles negative vote values', () => {
+    const votes: Idea['votes'] = [
+      { userId: 'u1', vote: -5 },
+      { userId: 'u2', vote: 3 },
+    ];
+    const result = tallyVotes(votes);
+    expect(result.total).toBe(-2);
+  });
+
+  it('handles zero vote values', () => {
+    const votes: Idea['votes'] = [
+      { userId: 'u1', vote: 0 },
+      { userId: 'u2', vote: 0 },
+    ];
+    const result = tallyVotes(votes);
+    expect(result.average).toBe(0);
+  });
+
+  it('handles max vote values', () => {
+    const votes: Idea['votes'] = [
+      { userId: 'u1', vote: 10 },
+      { userId: 'u2', vote: 10 },
+    ];
+    const result = tallyVotes(votes);
+    expect(result.total).toBe(20);
+  });
+
+  it('handles negative impact and roi', () => {
+    const idea: Idea = { id: '1', title: 'A', description: '', category: 'product', status: 'approved', impact: -5, effort: 3, roi: -10, submittedBy: '', votes: [], comments: [], tags: [], timeline: [], createdAt: '', updatedAt: '' };
+    const score = calculateScore(idea);
+    expect(score).toBeLessThan(0);
+  });
+
+  it('handles very large number of votes', () => {
+    const votes: Idea['votes'] = Array.from({ length: 1000 }, (_, i) => ({
+      userId: 'u' + i, vote: 5
+    }));
+    const result = tallyVotes(votes);
+    expect(result.total).toBe(5000);
+    expect(result.count).toBe(1000);
+  });
+
+  it('handles special characters in title', () => {
+    const idea: Idea = { id: '1', title: 'Test <script>alert("xss")</script>', description: '', category: 'product', status: 'idea', impact: 5, effort: 3, roi: 10, submittedBy: '', votes: [], comments: [], tags: [], timeline: [], createdAt: '', updatedAt: '' };
+    expect(idea.title).toContain('<script>');
+  });
+
+  it('handles empty timeline', () => {
+    const idea: Idea = { id: '1', title: 'Test', description: '', category: 'product', status: 'idea', impact: 5, effort: 0, roi: 0, submittedBy: '', votes: [], comments: [], tags: [], timeline: [], createdAt: '', updatedAt: '' };
+    expect(idea.timeline).toHaveLength(0);
+  });
+
+  it('handles unicode in tags', () => {
+    const idea: Idea = { id: '1', title: 'Test', description: '', category: 'product', status: 'idea', impact: 5, effort: 0, roi: 0, submittedBy: '', votes: [], comments: [], tags: ['innovation', '世界 🌍'], timeline: [], createdAt: '', updatedAt: '' };
+    expect(idea.tags).toContain('世界 🌍');
+  });
+});

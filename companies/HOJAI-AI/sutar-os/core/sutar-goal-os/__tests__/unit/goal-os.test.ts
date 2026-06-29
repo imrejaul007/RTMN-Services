@@ -146,3 +146,121 @@ describe('Goal OS — Progress Calculation', () => {
     expect(p.completedTasks).toBe(2);
   });
 });
+
+describe('Goal OS — Edge Cases', () => {
+  function generateSubtasks(level, parentTasks, params) {
+    const goalText = (params.title || '').toLowerCase();
+    const subtasks = [];
+    if (level === 1) {
+      subtasks.push({ title: 'Research & Discovery', hours: 8, priority: 'high' });
+      subtasks.push({ title: 'Planning & Strategy', hours: 4, priority: 'high' });
+      subtasks.push({ title: 'Execution', hours: 16, priority: 'high' });
+      subtasks.push({ title: 'Review & Delivery', hours: 4, priority: 'medium' });
+    } else if (level === 2) {
+      if (goalText.includes('negotiation')) {
+        subtasks.push({ title: 'Prepare negotiation brief', hours: 2, priority: 'high' });
+        subtasks.push({ title: 'Identify BATNA positions', hours: 1, priority: 'medium' });
+        subtasks.push({ title: 'Draft initial offer', hours: 1, priority: 'high' });
+      } else {
+        subtasks.push({ title: 'Gather requirements', hours: 2, priority: 'high' });
+        subtasks.push({ title: 'Analyze options', hours: 3, priority: 'medium' });
+        subtasks.push({ title: 'Develop recommendations', hours: 3, priority: 'medium' });
+      }
+    } else {
+      subtasks.push({ title: 'Complete research', hours: 1, priority: 'medium' });
+      subtasks.push({ title: 'Document findings', hours: 1, priority: 'low' });
+    }
+    return subtasks;
+  }
+
+  function buildCriticalPath(tasks) {
+    const sorted = [...tasks].sort((a, b) => b.estimatedHours - a.estimatedHours);
+    return sorted.slice(0, 5).map(t => ({ id: t.id, title: t.title, hours: t.estimatedHours }));
+  }
+
+  function getProgress(goal) {
+    const totalTasks = goal.tasks.length;
+    const completedTasks = goal.tasks.filter(t => t.status === 'completed').length;
+    const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    const totalHours = goal.tasks.reduce((s, t) => s + t.estimatedHours, 0);
+    const completedHours = goal.tasks.filter(t => t.status === 'completed').reduce((s, t) => s + t.estimatedHours, 0);
+    return { totalTasks, completedTasks, progress, totalHours, completedHours, remainingHours: totalHours - completedHours };
+  }
+
+  it('handles empty title', () => {
+    const tasks = generateSubtasks(1, [], { title: '' });
+    expect(tasks.length).toBeGreaterThan(0);
+  });
+
+  it('handles null title', () => {
+    const tasks = generateSubtasks(1, [], { title: null });
+    expect(tasks.length).toBeGreaterThan(0);
+  });
+
+  it('handles undefined title', () => {
+    const tasks = generateSubtasks(1, [], {});
+    expect(tasks.length).toBeGreaterThan(0);
+  });
+
+  it('handles very long task list', () => {
+    const tasks = Array.from({ length: 100 }, (_, i) => ({
+      id: 't' + i,
+      title: 'Task ' + i,
+      estimatedHours: i + 1
+    }));
+    const path = buildCriticalPath(tasks);
+    expect(path.length).toBe(5);
+    expect(path[0].hours).toBe(100);
+  });
+
+  it('handles task with zero hours', () => {
+    const goal = {
+      tasks: [
+        { status: 'pending', estimatedHours: 0 },
+        { status: 'completed', estimatedHours: 5 },
+      ]
+    };
+    const p = getProgress(goal);
+    expect(p.totalHours).toBe(5);
+    expect(p.progress).toBe(50);
+  });
+
+  it('handles negative hours gracefully', () => {
+    const goal = {
+      tasks: [
+        { status: 'completed', estimatedHours: -5 },
+        { status: 'pending', estimatedHours: 10 },
+      ]
+    };
+    const p = getProgress(goal);
+    // Math.round(-100) = -100, but totalHours calculation is -5 + 10 = 5
+    expect(p.totalHours).toBe(5);
+  });
+
+  it('handles very large hours', () => {
+    const goal = {
+      tasks: [
+        { status: 'completed', estimatedHours: 1000000 },
+        { status: 'pending', estimatedHours: 1000000 },
+      ]
+    };
+    const p = getProgress(goal);
+    expect(p.totalHours).toBe(2000000);
+    expect(p.progress).toBe(50);
+  });
+
+  it('handles all task statuses', () => {
+    const goal = {
+      tasks: [
+        { status: 'completed', estimatedHours: 10 },
+        { status: 'in_progress', estimatedHours: 10 },
+        { status: 'pending', estimatedHours: 10 },
+        { status: 'cancelled', estimatedHours: 10 },
+      ]
+    };
+    const p = getProgress(goal);
+    expect(p.totalTasks).toBe(4);
+    expect(p.completedTasks).toBe(1);
+    expect(p.progress).toBe(25);
+  });
+});

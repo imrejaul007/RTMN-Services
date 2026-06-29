@@ -1,0 +1,101 @@
+# CompanyOS Docker Compose
+# Run the full CompanyOS stack
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # CompanyOS Control Plane
+  # ==========================================
+  company-os:
+    build:
+      context: ./control-plane
+      dockerfile: Dockerfile
+    container_name: company-os
+    ports:
+      - "4010:4010"
+    environment:
+      - NODE_ENV=production
+      - PORT=4010
+      - BASE_URL=http://company-os:4010
+    depends_on:
+      - redis
+    networks:
+      - company-os-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # Department Packs
+  # ==========================================
+  finance-pack:
+    build:
+      context: ./department-packs/finance
+      dockerfile: Dockerfile
+    container_name: finance-pack
+    ports:
+      - "4801:4801"
+    environment:
+      - NODE_ENV=production
+      - PORT=4801
+    networks:
+      - company-os-network
+    restart: unless-stopped
+
+  # ==========================================
+  # Industry Extensions
+  # ==========================================
+  restaurant-extension:
+    build:
+      context: ./industry-extensions/restaurant
+      dockerfile: Dockerfile
+    container_name: restaurant-extension
+    ports:
+      - "5010:5010"
+    environment:
+      - NODE_ENV=production
+      - PORT=5010
+    networks:
+      - company-os-network
+    restart: unless-stopped
+
+  # ==========================================
+  # Studio UI
+  # ==========================================
+  studio:
+    build:
+      context: ./studio
+      dockerfile: Dockerfile
+    container_name: company-os-studio
+    ports:
+      - "3001:80"
+    depends_on:
+      - company-os
+    networks:
+      - company-os-network
+    restart: unless-stopped
+
+  # ==========================================
+  # Infrastructure
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: company-os-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - company-os-network
+    restart: unless-stopped
+
+networks:
+  company-os-network:
+    driver: bridge
+
+volumes:
+  redis-data:

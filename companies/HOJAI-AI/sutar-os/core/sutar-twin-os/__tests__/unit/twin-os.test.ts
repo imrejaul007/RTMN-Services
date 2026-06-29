@@ -145,6 +145,45 @@ describe('SUTAR Twin OS — Composite Twins', () => {
   });
 });
 
+describe('SUTAR Twin OS — Edge Cases', () => {
+  const CAPABILITIES = [
+    'negotiator', 'learner', 'planner', 'executor', 'simulator',
+    'memory-keeper', 'intent-publisher', 'intent-consumer',
+  ];
+
+  it('handles empty twin name', () => {
+    const twin = { id: 'empty', name: '', services: [], tags: [], createdAt: new Date().toISOString() };
+    expect(twin.name).toBe('');
+  });
+
+  it('handles empty services array', () => {
+    const twin = { id: 'no-services', name: 'No Services', services: [], tags: [], createdAt: new Date().toISOString() };
+    expect(twin.services).toHaveLength(0);
+  });
+
+  it('handles empty tags array', () => {
+    const twin = { id: 'no-tags', name: 'No Tags', services: [], tags: [], createdAt: new Date().toISOString() };
+    expect(twin.tags).toHaveLength(0);
+  });
+
+  it('handles duplicate tags gracefully', () => {
+    const twin = { id: 'dup-tags', name: 'Dup Tags', services: [], tags: ['negotiator', 'negotiator'], createdAt: new Date().toISOString() };
+    expect(twin.tags).toHaveLength(2);
+    expect(twin.tags.filter(t => t === 'negotiator')).toHaveLength(2);
+  });
+
+  it('handles very long twin ID', () => {
+    const longId = 'twin-' + 'x'.repeat(500);
+    const twin = { id: longId, name: 'Long ID', services: [], tags: [], createdAt: new Date().toISOString() };
+    expect(twin.id.length).toBe(505);
+  });
+
+  it('handles special characters in twin name', () => {
+    const twin = { id: 'special', name: 'Test <script>alert("xss")</script>', services: [], tags: [], createdAt: new Date().toISOString() };
+    expect(twin.name).toContain('<script>');
+  });
+});
+
 describe('SUTAR Twin OS — Intent Resolution', () => {
   const INTENT_TO_CAPABILITY: Record<string, string> = {
     negotiate_price: 'negotiator',

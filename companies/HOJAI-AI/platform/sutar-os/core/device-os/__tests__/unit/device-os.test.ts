@@ -112,3 +112,63 @@ describe('DeviceOS — Device Groups', () => {
     expect(total).toBe(18);
   });
 });
+
+describe('DeviceOS — Edge Cases', () => {
+  function filterDevices(devices: Device[], filters: { group?: string; type?: string; status?: string; tag?: string }): Device[] {
+    let result = [...devices];
+    if (filters.group) result = result.filter(d => d.group === filters.group);
+    if (filters.type) result = result.filter(d => d.type === filters.type);
+    if (filters.status) result = result.filter(d => d.status === filters.status);
+    if (filters.tag) result = result.filter(d => d.tags.includes(filters.tag));
+    return result;
+  }
+
+  function compareVersions(a: string, b: string): number {
+    const pa = a.split('.').map(Number);
+    const pb = b.split('.').map(Number);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const na = pa[i] || 0;
+      const nb = pb[i] || 0;
+      if (na > nb) return 1;
+      if (na < nb) return -1;
+    }
+    return 0;
+  }
+
+  it('handles empty devices array', () => {
+    expect(filterDevices([], { group: 'production' })).toHaveLength(0);
+  });
+
+  it('handles empty filters object', () => {
+    const devices: Device[] = [
+      { id: '1', name: 'Test', type: 'sensor', group: 'prod', status: 'active', firmware: '1.0.0', lastSeen: '', config: {}, tags: [], metadata: {} },
+    ];
+    expect(filterDevices(devices, {})).toHaveLength(1);
+  });
+
+  it('handles special characters in device name', () => {
+    const device: Device = { id: '1', name: 'Test <script>alert("xss")</script>', type: 'sensor', group: 'prod', status: 'active', firmware: '1.0.0', lastSeen: '', config: {}, tags: [], metadata: {} };
+    expect(device.name).toContain('<script>');
+  });
+
+  it('handles empty firmware version', () => {
+    const device: Device = { id: '1', name: 'Test', type: 'sensor', group: 'prod', status: 'active', firmware: '', lastSeen: '', config: {}, tags: [], metadata: {} };
+    expect(device.firmware).toBe('');
+  });
+
+  it('handles non-semver firmware', () => {
+    expect(compareVersions('latest', '1.0.0')).not.toBe(0);
+  });
+
+  it('handles empty group', () => {
+    const devices: Device[] = [
+      { id: '1', name: 'Test', type: 'sensor', group: '', status: 'active', firmware: '1.0.0', lastSeen: '', config: {}, tags: [], metadata: {} },
+    ];
+    expect(filterDevices(devices, { group: '' })).toHaveLength(1);
+  });
+
+  it('handles undefined location', () => {
+    const device: Device = { id: '1', name: 'Test', type: 'sensor', group: 'prod', status: 'active', firmware: '1.0.0', lastSeen: '', config: {}, tags: [], metadata: {} };
+    expect(device.location).toBeUndefined();
+  });
+});

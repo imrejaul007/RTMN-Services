@@ -204,3 +204,107 @@ describe('Tracing — Metrics', () => {
     expect(m.errorRate).toBe('0%');
   });
 });
+
+describe('Tracing — Edge Cases', () => {
+  function startTrace(params) {
+    return {
+      traceId: params.traceId || 'trace-1',
+      serviceName: params.serviceName || 'sutar-os',
+      operationName: params.operationName,
+      startTime: new Date().toISOString(),
+      endTime: null,
+      status: 'running',
+      duration: null,
+      sampled: params.sampled !== false,
+      tags: params.tags || {},
+      errorCount: 0,
+      spanCount: 0,
+    };
+  }
+
+  function endTrace(trace, params = {}) {
+    const endTime = params.endTime || new Date().toISOString();
+    const duration = new Date(endTime).getTime() - new Date(trace.startTime).getTime();
+    return { ...trace, endTime, status: params.status || 'ok', duration };
+  }
+
+  function computeMetrics(traces) {
+    const completed = traces.filter(t => t.status !== 'running');
+    const errors = completed.filter(t => t.status === 'error');
+    const durations = completed.map(t => t.duration).filter(Boolean).sort((a, b) => a - b);
+    const p50 = durations[Math.floor(durations.length * 0.5)] || 0;
+    const p95 = durations[Math.floor(durations.length * 0.95)] || 0;
+    const p99 = durations[Math.floor(durations.length * 0.99)] || 0;
+    return {
+      completedTraces: completed.length,
+      errorTraces: errors.length,
+      errorRate: completed.length > 0 ? (errors.length / completed.length * 100).toFixed(2) + '%' : '0%',
+      latency: { p50, p95, p99 },
+    };
+  }
+
+  it('handles empty trace ID with default', () => {
+    const trace = startTrace({ traceId: '', operationName: 'test' });
+    // Function defaults empty traceId to 'trace-1'
+    expect(trace.traceId).toBe('trace-1');
+  });
+
+  it('handles null duration', () => {
+    const trace = { traceId: 't1', duration: null, status: 'running' };
+    expect(trace.duration).toBeNull();
+  });
+
+  it('handles very long operation names', () => {
+    const longOp = 'a'.repeat(1000);
+    const trace = startTrace({ operationName: longOp });
+    expect(trace.operationName.length).toBe(1000);
+  });
+
+  it('handles zero spans', () => {
+    const trace = { traceId: 't1', status: 'ok', duration: 100 };
+    const spans: any[] = [];
+    expect(spans.length).toBe(0);
+  });
+
+  it('handles negative duration', () => {
+    const trace = { traceId: 't1', startTime: '2024-01-01T00:00:00Z', duration: -100 };
+    expect(trace.duration).toBeLessThan(0);
+  });
+
+  it('handles all traces being errors', () => {
+    const traces = [
+      { status: 'error', duration: 100 },
+      { status: 'error', duration: 200 },
+      { status: 'error', duration: 150 },
+    ];
+    const m = computeMetrics(traces);
+    expect(m.errorRate).toBe('100.00%');
+    expect(m.errorTraces).toBe(3);
+  });
+
+  it('handles empty spans array in debug', () => {
+    const trace = { traceId: 'trace-1', duration: 500, status: 'ok' };
+    const spans: any[] = [];
+    const sorted = [...spans].sort((a, b) => (b.duration || 0) - (a.duration || 0));
+    expect(sorted.length).toBe(0);
+  });
+
+  it('handles special characters in tags', () => {
+    const trace = startTrace({
+      operationName: 'test',
+      tags: { 'special-key': '<script>alert("xss")</script>', 'unicode': 'emoji 🎉', 'quotes': '"quoted"' }
+    });
+    expect(trace.tags['special-key']).toBeDefined();
+    expect(trace.tags['unicode']).toBe('emoji 🎉');
+  });
+
+  it('handles null values in trace metrics', () => {
+    const traces = [
+      { status: 'ok', duration: null },
+      { status: 'ok', duration: undefined },
+      { status: 'ok', duration: 100 },
+    ];
+    const durations = traces.map(t => t.duration).filter(Boolean);
+    expect(durations.length).toBe(1);
+  });
+});

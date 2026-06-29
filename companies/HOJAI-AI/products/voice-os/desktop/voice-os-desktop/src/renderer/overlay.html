@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOJAI VoiceOS</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: transparent;
+      color: white;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 16px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #a78bfa;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .close-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .close-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Voice indicator */
+    .voice-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 0;
+    }
+
+    .mic-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .mic-icon:hover {
+      transform: scale(1.05);
+    }
+
+    .mic-icon.listening {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(139, 92, 246, 0); }
+    }
+
+    .mic-icon svg {
+      width: 32px;
+      height: 32px;
+      fill: white;
+    }
+
+    .status-text {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .status-text.listening {
+      color: #a78bfa;
+    }
+
+    .shortcut-hint {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* Transcript area */
+    .transcript-area {
+      flex: 1;
+      background: rgba(30, 30, 40, 0.8);
+      border-radius: 12px;
+      padding: 16px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .transcript {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e2e8f0;
+    }
+
+    .transcript .command {
+      color: #a78bfa;
+      background: rgba(139, 92, 246, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .transcript .partial {
+      opacity: 0.6;
+    }
+
+    /* Quick actions */
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .quick-action {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      color: #a78bfa;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-action:hover {
+      background: rgba(139, 92, 246, 0.3);
+    }
+
+    /* Memory indicator */
+    .memory-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .memory-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .memory-dot.offline {
+      background: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">🎤</div>
+        <span>HOJAI VoiceOS</span>
+      </div>
+      <button class="close-btn" onclick="window.voiceOS.hide()">✕</button>
+    </div>
+
+    <!-- Voice Indicator -->
+    <div class="voice-indicator">
+      <div class="mic-icon" id="micIcon" onclick="toggleListening()">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v2c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.26 14.2 14.47 16 12 16s-4.26-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85h-.09v5c0 2.76 2.24 5 5 5s5-2.24 5-5v-5h-.09z"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+      </div>
+      <div class="status-text" id="statusText">Press to speak or type</div>
+      <div class="shortcut-hint">Alt+Space to toggle</div>
+    </div>
+
+    <!-- Transcript -->
+    <div class="transcript-area">
+      <div class="transcript" id="transcript">
+        <span style="color: #64748b; font-style: italic;">
+          Your voice commands will appear here...
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button class="quick-action" onclick="doCommand('order food')">🍕 Order Food</button>
+      <button class="quick-action" onclick="doCommand('book meeting')">📅 Meeting</button>
+      <button class="quick-action" onclick="doCommand('remind me')">⏰ Reminder</button>
+      <button class="quick-action" onclick="doCommand('search')">🔍 Search</button>
+    </div>
+
+    <!-- Memory indicator -->
+    <div class="memory-indicator">
+      <div class="memory-dot" id="memoryDot"></div>
+      <span id="memoryStatus">Memory connected</span>
+    </div>
+  </div>
+
+  <script>
+    let isListening = false;
+
+    // Toggle listening
+    async function toggleListening() {
+      isListening = !isListening;
+      const micIcon = document.getElementById('micIcon');
+      const statusText = document.getElementById('statusText');
+
+      if (isListening) {
+        micIcon.classList.add('listening');
+        statusText.textContent = 'Listening...';
+        statusText.classList.add('listening');
+        startRecording();
+      } else {
+        micIcon.classList.remove('listening');
+        statusText.textContent = 'Press to speak or type';
+        statusText.classList.remove('listening');
+        stopRecording();
+      }
+    }
+
+    // Simulated recording (would use Web Speech API in production)
+    async function startRecording() {
+      // Check for Web Speech API
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+          const result = event.results[event.results.length - 1];
+          const transcript = result[0].transcript;
+          updateTranscript(transcript, !result.isFinal);
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+        };
+
+        recognition.start();
+        window.recognition = recognition;
+      }
+    }
+
+    function stopRecording() {
+      if (window.recognition) {
+        window.recognition.stop();
+        window.recognition = null;
+      }
+    }
+
+    // Update transcript display
+    function updateTranscript(text, isPartial) {
+      const transcriptEl = document.getElementById('transcript');
+      const cleanText = text.replace(/new line/gi, ' <span class="command">↵</span> ')
+                          .replace(/period/gi, '<span class="command">.</span>')
+                          .replace(/comma/gi, '<span class="command">,</span>')
+                          .replace(/question mark/gi, '<span class="command">?</span>')
+                          .replace(/delete that/gi, '<span class="command">⌫</span>');
+
+      transcriptEl.innerHTML = isPartial
+        ? `<span class="partial">${cleanText}</span><span style="animation: blink">|</span>`
+        : `<span>${cleanText}</span>`;
+    }
+
+    // Execute voice command
+    async function doCommand(command) {
+      updateTranscript(command, false);
+
+      // Call voice orchestrator
+      try {
+        const result = await window.voiceOS.speak(command);
+        if (result.response) {
+          updateTranscript(result.response, false);
+        }
+      } catch (e) {
+        console.error('Command failed:', e);
+        updateTranscript('Sorry, something went wrong', false);
+      }
+    }
+
+    // Check memory connection
+    async function checkMemory() {
+      try {
+        const response = await fetch('http://localhost:4703/health');
+        const dot = document.getElementById('memoryDot');
+        const status = document.getElementById('memoryStatus');
+        if (response.ok) {
+          dot.classList.remove('offline');
+          status.textContent = 'Memory connected';
+        } else {
+          dot.classList.add('offline');
+          status.textContent = 'Memory offline';
+        }
+      } catch {
+        document.getElementById('memoryDot').classList.add('offline');
+        document.getElementById('memoryStatus').textContent = 'Memory offline';
+      }
+    }
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.voiceOS.hide();
+      }
+    });
+
+    // Check memory on load
+    checkMemory();
+    setInterval(checkMemory, 30000);
+  </script>
+</body>
+</html>

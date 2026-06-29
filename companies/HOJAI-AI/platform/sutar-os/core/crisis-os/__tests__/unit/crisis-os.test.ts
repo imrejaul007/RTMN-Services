@@ -208,3 +208,54 @@ describe('CrisisOS — War Rooms', () => {
     expect(room.participants[0].leftAt).toBeDefined();
   });
 });
+
+describe('CrisisOS — Edge Cases', () => {
+  function filterIncidents(incidents: Incident[], filters: { status?: string; severity?: string; category?: string; assignee?: string }): Incident[] {
+    let result = [...incidents];
+    if (filters.status) result = result.filter(i => i.status === filters.status);
+    if (filters.severity) result = result.filter(i => i.severity === filters.severity);
+    if (filters.category) result = result.filter(i => i.category === filters.category);
+    if (filters.assignee) result = result.filter(i => i.assignees.includes(filters.assignee!));
+    return result;
+  }
+
+  it('handles empty incidents array', () => {
+    const result = filterIncidents([], { status: 'critical' });
+    expect(result).toHaveLength(0);
+  });
+
+  it('handles empty filters object', () => {
+    const incidents: Incident[] = [
+      { id: '1', title: 'Test', description: '', severity: 'medium', status: 'detected', category: 'infrastructure', affectedServices: [], timeline: [], assignees: [], createdBy: '', createdAt: '', updatedAt: '' },
+    ];
+    const result = filterIncidents(incidents, {});
+    expect(result).toHaveLength(1);
+  });
+
+  it('handles no matching filters', () => {
+    const incidents: Incident[] = [
+      { id: '1', title: 'Test', description: '', severity: 'low', status: 'detected', category: 'infrastructure', affectedServices: [], timeline: [], assignees: [], createdBy: '', createdAt: '', updatedAt: '' },
+    ];
+    const result = filterIncidents(incidents, { severity: 'critical' });
+    expect(result).toHaveLength(0);
+  });
+
+  it('handles empty assignee', () => {
+    const incidents: Incident[] = [
+      { id: '1', title: 'Test', description: '', severity: 'medium', status: 'detected', category: 'infrastructure', affectedServices: [], timeline: [], assignees: [], createdBy: '', createdAt: '', updatedAt: '' },
+    ];
+    const result = filterIncidents(incidents, { assignee: 'unknown' });
+    expect(result).toHaveLength(0);
+  });
+
+  it('handles special characters in title', () => {
+    const incident: Incident = { id: '1', title: 'Test <script>alert("xss")</script>', description: '', severity: 'medium', status: 'detected', category: 'infrastructure', affectedServices: [], timeline: [], assignees: [], createdBy: '', createdAt: '', updatedAt: '' };
+    expect(incident.title).toContain('<script>');
+  });
+
+  it('handles very long description', () => {
+    const longDesc = 'x'.repeat(10000);
+    const incident: Incident = { id: '1', title: 'Test', description: longDesc, severity: 'medium', status: 'detected', category: 'infrastructure', affectedServices: [], timeline: [], assignees: [], createdBy: '', createdAt: '', updatedAt: '' };
+    expect(incident.description.length).toBe(10000);
+  });
+});

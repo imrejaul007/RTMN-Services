@@ -286,6 +286,7 @@ var whatsapp = whatsappWebhook.createWhatsAppWebhookMiddleware({
       });
     }
     await storage.setSession(customerId, 'whatsapp', { lastConversationId: result.conversationId, lastMessageAt: new Date().toISOString() });
+    return { customerId: customerId, conversationId: result.conversationId, customer: result.customer, isNew: result.isNew };
   }
 });
 
@@ -335,6 +336,7 @@ app.get('/health', async function(req, res) {
 // WhatsApp Webhook
 app.all('/api/webhooks/whatsapp', async function(req, res) {
   await whatsapp.handleRequest(req, res);
+  // WhatsApp handler sends its own response
 });
 
 // WhatsApp Registration

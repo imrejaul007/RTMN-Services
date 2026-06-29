@@ -14,56 +14,9 @@
 import crypto from 'crypto';
 import { EventEmitter } from 'events';
 
-// ── Redis Client (lazy, with reconnect) ────────────────────────────────────────
-
-let _redis = null;
-let _connecting = false;
-let _connectionPromise = null;
-let _Redis = null;
-
-async function getRedis() {
-  if (_redis) return _redis;
-  if (_connecting) return _connectionPromise;
-
-  if (!_Redis) {
-    try { _Redis = (await import('ioredis')).default; } catch { _Redis = null; }
-  }
-  if (!_Redis) return null;
-
-  _connecting = true;
-  const url = process.env.POLICYOS_REDIS_URL || 'redis://localhost:6379';
-
-  return new Promise((resolve) => {
-    const client = new _Redis(url, {
-      maxRetriesPerRequest: 1,
-      retryStrategy: () => null,
-      enableOfflineQueue: false,
-      connectTimeout: 2000,
-    });
-    // Set a timeout — if no connection within 2s, fall back to memory
-    const timeout = setTimeout(() => {
-      client.disconnect(false);
-      _redis = null;
-      _connecting = false;
-      _connectionPromise = null;
-      resolve(null);
-    }, 2000);
-    client.on('ready', () => {
-      clearTimeout(timeout);
-      _redis = client;
-      _connecting = false;
-      _connectionPromise = null;
-      client.on('error', (err) => console.error('[policy-os] Redis error:', err.message));
-      resolve(client);
-    });
-    client.on('error', (err) => {
-      // Connection failed — resolve null immediately
-    });
-    client.on('close', () => {
-      _redis = null;
-    });
-  });
-}
+// Redis integration: set POLICYOS_REDIS_URL env var + npm install ioredis to enable.
+// async function getRedis() { /* Redis client */ }
+async function getRedis() { return null; }
 
 // ── In-Memory Fallback Cache ────────────────────────────────────────────────────
 

@@ -172,3 +172,80 @@ describe('ObservationOS — Dashboard', () => {
     expect(result.critical).toBe(0);
   });
 });
+
+describe('ObservationOS — Edge Cases', () => {
+  function aggregateMetrics(metrics: Metric[], windowMs: number): { avg: number; count: number; min: number; max: number } {
+    const cutoff = new Date(Date.now() - windowMs);
+    const filtered = metrics.filter(m => new Date(m.timestamp) >= cutoff);
+    if (filtered.length === 0) return { avg: 0, count: 0, min: 0, max: 0 };
+    const sum = filtered.reduce((s, m) => s + m.value, 0);
+    const min = Math.min(...filtered.map(m => m.value));
+    const max = Math.max(...filtered.map(m => m.value));
+    return { avg: sum / filtered.length, count: filtered.length, min, max };
+  }
+
+  function dashboardMetrics(alerts: Alert[], traces: Trace[]): { firing: number; critical: number; avgDuration: number } {
+    const firing = alerts.filter(a => a.status === 'firing').length;
+    const critical = alerts.filter(a => a.severity === 'critical').length;
+    const avgDuration = traces.length > 0 ? traces.reduce((s, t) => s + t.totalDuration, 0) / traces.length : 0;
+    return { firing, critical, avgDuration: Math.round(avgDuration) };
+  }
+
+  it('handles zero window time', () => {
+    const now = new Date().toISOString();
+    const metrics: Metric[] = [
+      { id: '1', agentId: 'a1', metric: 'cpu', value: 50, unit: '%', timestamp: now },
+    ];
+    const result = aggregateMetrics(metrics, 0);
+    expect(result.count).toBe(1);
+  });
+
+  it('handles very large window time', () => {
+    const metrics: Metric[] = [];
+    const result = aggregateMetrics(metrics, 100 * 365 * 24 * 3600 * 1000);
+    expect(result.count).toBe(0);
+  });
+
+  it('handles negative metric values', () => {
+    const now = new Date().toISOString();
+    const metrics: Metric[] = [
+      { id: '1', agentId: 'a1', metric: 'temperature', value: -10, unit: 'celsius', timestamp: now },
+    ];
+    const result = aggregateMetrics(metrics, 3600000);
+    expect(result.avg).toBe(-10);
+    expect(result.min).toBe(-10);
+    expect(result.max).toBe(-10);
+  });
+
+  it('handles very large metric values', () => {
+    const now = new Date().toISOString();
+    const metrics: Metric[] = [
+      { id: '1', agentId: 'a1', metric: 'large', value: 1e15, unit: 'count', timestamp: now },
+    ];
+    const result = aggregateMetrics(metrics, 3600000);
+    expect(result.avg).toBe(1e15);
+  });
+
+  it('handles empty agentId', () => {
+    const now = new Date().toISOString();
+    const metrics: Metric[] = [
+      { id: '1', agentId: '', metric: 'cpu', value: 50, unit: '%', timestamp: now },
+    ];
+    const result = aggregateMetrics(metrics, 3600000);
+    expect(result.count).toBe(1);
+  });
+
+  it('handles empty metric name', () => {
+    const now = new Date().toISOString();
+    const metrics: Metric[] = [
+      { id: '1', agentId: 'a1', metric: '', value: 50, unit: '%', timestamp: now },
+    ];
+    const result = aggregateMetrics(metrics, 3600000);
+    expect(result.count).toBe(1);
+  });
+
+  it('handles special characters in alert message', () => {
+    const alert: Alert = { id: '1', agentId: 'a1', severity: 'high', metric: 'cpu', threshold: 80, actual: 95, message: 'Alert <script>alert("xss")</script>', status: 'firing', createdAt: '' };
+    expect(alert.message).toContain('<script>');
+  });
+});

@@ -129,3 +129,100 @@ describe('PhysicalWorldOS — Telemetry', () => {
     expect(result.avg['temp']).toBe(20);
   });
 });
+
+describe('PhysicalWorldOS — Edge Cases', () => {
+  function aggregateTelemetry(telemetry: Telemetry[], windowMs: number): { avg: Record<string, number>; count: number } {
+    const cutoff = new Date(Date.now() - windowMs);
+    const filtered = telemetry.filter(t => new Date(t.timestamp) >= cutoff);
+    const avg: Record<string, number> = {};
+    const metricNames = new Set<string>();
+    for (const t of filtered) {
+      for (const k of Object.keys(t.metrics)) {
+        metricNames.add(k);
+      }
+    }
+    for (const metric of metricNames) {
+      const values: number[] = [];
+      for (const t of filtered) {
+        if (t.metrics[metric] !== undefined) {
+          values.push(t.metrics[metric]);
+        }
+      }
+      avg[metric] = values.length > 0 ? values.reduce((s, v) => s + v, 0) / values.length : 0;
+    }
+    return { avg, count: filtered.length };
+  }
+
+  it('handles empty metrics object', () => {
+    const now = new Date().toISOString();
+    const data: Telemetry[] = [
+      { deviceId: 'd1', timestamp: now, metrics: {} },
+    ];
+    const result = aggregateTelemetry(data, 3600000);
+    expect(result.count).toBe(1);
+    expect(Object.keys(result.avg)).toHaveLength(0);
+  });
+
+  it('handles undefined metric value', () => {
+    const now = new Date().toISOString();
+    const data: Telemetry[] = [
+      { deviceId: 'd1', timestamp: now, metrics: { temp: undefined } },
+    ];
+    const result = aggregateTelemetry(data, 3600000);
+    expect(result.avg['temp']).toBe(0);
+  });
+
+  it('handles negative metric values', () => {
+    const now = new Date().toISOString();
+    const data: Telemetry[] = [
+      { deviceId: 'd1', timestamp: now, metrics: { temperature: -40 } },
+    ];
+    const result = aggregateTelemetry(data, 3600000);
+    expect(result.avg['temperature']).toBe(-40);
+  });
+
+  it('handles zero window time', () => {
+    const now = new Date().toISOString();
+    const data: Telemetry[] = [
+      { deviceId: 'd1', timestamp: now, metrics: { temp: 25 } },
+    ];
+    const result = aggregateTelemetry(data, 0);
+    expect(result.count).toBe(1);
+  });
+
+  it('handles empty deviceId', () => {
+    const now = new Date().toISOString();
+    const data: Telemetry[] = [
+      { deviceId: '', timestamp: now, metrics: { temp: 25 } },
+    ];
+    const result = aggregateTelemetry(data, 3600000);
+    expect(result.count).toBe(1);
+  });
+
+  it('handles invalid timestamp', () => {
+    const data: Telemetry[] = [
+      { deviceId: 'd1', timestamp: 'invalid-date', metrics: { temp: 25 } },
+    ];
+    const result = aggregateTelemetry(data, 3600000);
+    expect(result.count).toBe(0);
+  });
+
+  it('handles null location', () => {
+    const now = new Date().toISOString();
+    const data: Telemetry[] = [
+      { deviceId: 'd1', timestamp: now, metrics: {}, location: null },
+    ];
+    const result = aggregateTelemetry(data, 3600000);
+    expect(result.count).toBe(1);
+  });
+
+  it('handles special characters in device name', () => {
+    const device: Device = { id: '1', name: 'Test <script>alert("xss")</script>', type: 'sensor', status: 'online', location: '', metadata: {}, lastSeen: '', firmware: '1.0.0' };
+    expect(device.name).toContain('<script>');
+  });
+
+  it('handles empty metadata', () => {
+    const device: Device = { id: '1', name: 'Test', type: 'sensor', status: 'online', location: '', metadata: {}, lastSeen: '', firmware: '1.0.0' };
+    expect(Object.keys(device.metadata)).toHaveLength(0);
+  });
+});

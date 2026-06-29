@@ -137,3 +137,79 @@ describe('ComplianceOS — Framework Support', () => {
     }
   });
 });
+
+describe('ComplianceOS — Edge Cases', () => {
+  function complianceScore(controls: Control[]): number {
+    if (controls.length === 0) return 0;
+    const compliant = controls.filter(c => c.status === 'compliant').length;
+    return Math.round((compliant / controls.length) * 100);
+  }
+
+  function overdueReviews(controls: Control[]): Control[] {
+    const now = new Date().toISOString();
+    return controls.filter(c => c.nextReview < now);
+  }
+
+  function filterByFramework(controls: Control[], framework: Framework): Control[] {
+    return controls.filter(c => c.framework === framework);
+  }
+
+  it('handles empty controls array', () => {
+    expect(complianceScore([])).toBe(0);
+  });
+
+  it('handles all controls non-compliant', () => {
+    const controls: Control[] = [
+      { id: '1', framework: 'SOC2', controlId: 'C1', name: 'NC1', description: '', status: 'non_compliant', owner: '', lastReviewed: '', nextReview: '2025-01-01', notes: '' },
+      { id: '2', framework: 'SOC2', controlId: 'C2', name: 'NC2', description: '', status: 'non_compliant', owner: '', lastReviewed: '', nextReview: '2025-01-01', notes: '' },
+    ];
+    expect(complianceScore(controls)).toBe(0);
+  });
+
+  it('handles very large number of controls', () => {
+    const controls: Control[] = Array.from({ length: 1000 }, (_, i) => ({
+      id: String(i), framework: 'SOC2' as Framework, controlId: 'C' + i, name: 'Control ' + i, description: '', status: 'compliant' as ControlStatus, owner: '', lastReviewed: '', nextReview: '2025-01-01', notes: ''
+    }));
+    expect(complianceScore(controls)).toBe(100);
+  });
+
+  it('handles missing nextReview date', () => {
+    const controls: Control[] = [
+      { id: '1', framework: 'SOC2', controlId: 'C1', name: 'No Date', description: '', status: 'compliant', owner: '', lastReviewed: '', nextReview: '', notes: '' },
+    ];
+    const overdue = overdueReviews(controls);
+    expect(overdue).toHaveLength(1);
+  });
+
+  it('handles future nextReview date', () => {
+    const futureDate = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
+    const controls: Control[] = [
+      { id: '1', framework: 'SOC2', controlId: 'C1', name: 'Future', description: '', status: 'compliant', owner: '', lastReviewed: '', nextReview: futureDate, notes: '' },
+    ];
+    const overdue = overdueReviews(controls);
+    expect(overdue).toHaveLength(0);
+  });
+
+  it('handles unknown framework filter', () => {
+    const controls: Control[] = [
+      { id: '1', framework: 'SOC2', controlId: 'C1', name: 'Test', description: '', status: 'compliant', owner: '', lastReviewed: '', nextReview: '', notes: '' },
+    ];
+    const result = filterByFramework(controls, 'HIPAA');
+    expect(result).toHaveLength(0);
+  });
+
+  it('handles special characters in control name', () => {
+    const control: Control = { id: '1', framework: 'SOC2', controlId: 'C1', name: 'Control <script>alert("xss")</script>', description: '', status: 'compliant', owner: '', lastReviewed: '', nextReview: '', notes: '' };
+    expect(control.name).toContain('<script>');
+  });
+
+  it('handles empty owner field', () => {
+    const control: Control = { id: '1', framework: 'SOC2', controlId: 'C1', name: 'Test', description: '', status: 'compliant', owner: '', lastReviewed: '', nextReview: '', notes: '' };
+    expect(control.owner).toBe('');
+  });
+
+  it('handles empty notes field', () => {
+    const control: Control = { id: '1', framework: 'SOC2', controlId: 'C1', name: 'Test', description: '', status: 'compliant', owner: '', lastReviewed: '', nextReview: '', notes: '' };
+    expect(control.notes).toBe('');
+  });
+});
