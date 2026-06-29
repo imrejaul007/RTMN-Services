@@ -1,0 +1,20 @@
+# Media Extension
+id: media
+name: Media Extension
+version: 1.0.0
+port: 5600
+industry: media
+verticalityScore: 0.80
+verticalModules:
+  - id: content
+    name: Content
+    routes: [GET/POST /api/content, GET /api/content/:id]
+  - id: creators
+    name: Creators
+    routes: [GET/POST /api/creators, GET /api/creators/:id]
+  - id: campaigns
+    name: Campaigns
+    routes: [GET/POST /api/campaigns, GET /api/campaigns/:id]
+  - id: analytics
+    name: Analytics
+    routes: [GET/POST /api/analytics, GET /api/analytics/:id]

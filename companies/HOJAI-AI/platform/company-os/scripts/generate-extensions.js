@@ -31,58 +31,69 @@ const EXTENSIONS = [
   { name: 'exhibitions', port: 5040, modules: ['exhibitions', 'stalls', 'exhibitors', 'visitors'] },
 ];
 
+function generateId(prefix) {
+  return prefix + '_' + Math.random().toString(36).substring(2, 10);
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function generateExtension(ext) {
   const dir = path.join(BASE, ext.name);
   fs.mkdirSync(dir, { recursive: true });
   fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
 
   // manifest.yaml
-  fs.writeFileSync(path.join(dir, 'manifest.yaml'), `# ${ext.name} Extension
+  const modulesYaml = ext.modules.map(m => `  - id: ${m}\n    name: ${capitalize(m)}\n    routes: [GET/POST /api/${m}, GET /api/${m}/:id]`).join('\n');
+  fs.writeFileSync(path.join(dir, 'manifest.yaml'), `# ${capitalize(ext.name)} Extension
 id: ${ext.name}
-name: ${ext.name.charAt(0).toUpperCase() + ext.name.slice(1)} Extension
+name: ${capitalize(ext.name)} Extension
 version: 1.0.0
 port: ${ext.port}
 industry: ${ext.name}
 verticalityScore: 0.80
 verticalModules:
-${ext.modules.map(m => `  - id: ${m}
-    name: ${m.charAt(0).toUpperCase() + m.slice(1)}
-    routes: [GET/POST /api/${m}, GET /api/${m}/:id]`).join('\n')}
+${modulesYaml}
 `);
 
   // src/index.ts
-  const storeName = ext.name.replace('_', '');
-  fs.writeFileSync(path.join(dir, 'src/index.ts'), `/**
- * ${ext.name.charAt(0).toUpperCase() + ext.name.slice(1)} Extension
- */
-import express from 'express';
-import { v4 as uuidv4 } from 'uuid';
-const app = express();
-app.use(express.json());
-const PORT = process.env.PORT || ${ext.port};
+  const modulesInterfaces = ext.modules.map(m => `${m}: Map<string,any>`).join('; ');
+  const modulesInit = ext.modules.map(m => `${m}: new Map()`).join(', ');
 
-interface Store { ${ext.modules.map(m => `${m}: Map<string,any>`).join('; ')}; }
-const stores = new Map<string, Store>();
-const getStore = (tid: string) => {
-  if (!stores.has(tid)) stores.set(tid, { ${ext.modules.map(m => `${m}: new Map()`).join(', ')} });
-  return stores.get(tid)!;
-};
-
-${ext.modules.map(m => `app.get('/api/${m}', (req, res) => {
-  const tid = req.headers['x-tenant-id'] as string;
+  const routes = ext.modules.map(m => {
+    const prefix = m.substring(0, 4);
+    return `
+app.get('/api/${m}', (req, res) => {
+  const tid = req.headers['x-tenant-id'];
   if (!tid) return res.status(401).json({ error: 'Missing X-Tenant-ID' });
   res.json({ ${m}: Array.from(getStore(tid).${m}.values()) });
 });
 app.post('/api/${m}', (req, res) => {
-  const tid = req.headers['x-tenant-id'] as string;
+  const tid = req.headers['x-tenant-id'];
   if (!tid) return res.status(401).json({ error: 'Missing X-Tenant-ID' });
-  const item = { id: \`${m.slice(0,4)}_${uuidv4().slice(0,8)}\`, tenantId: tid, ...req.body };
+  const item = { id: generateId('${prefix}'), tenantId: tid, ...req.body };
   getStore(tid).${m}.set(item.id, item);
   res.status(201).json(item);
-});`).join('\n\n')}
+});`;
+  }).join('\n');
 
+  fs.writeFileSync(path.join(dir, 'src/index.ts'), `/**
+ * ${capitalize(ext.name)} Extension
+ */
+import express from 'express';
+const app = express();
+app.use(express.json());
+const PORT = process.env.PORT || ${ext.port};
+interface Store { ${modulesInterfaces} }
+const stores = new Map();
+const getStore = (tid) => {
+  if (!stores.has(tid)) stores.set(tid, { ${modulesInit} });
+  return stores.get(tid);
+};
+${routes}
 app.get('/health', (_req, res) => res.json({ status: 'healthy', service: '${ext.name}-extension', port: PORT }));
-app.listen(PORT, () => console.log(\`${ext.name.charAt(0).toUpperCase() + ext.name.slice(1)} Extension running on port \${PORT}\`));
+app.listen(PORT, () => console.log('${capitalize(ext.name)} Extension running on port', PORT));
 export default app;
 `);
 
@@ -92,7 +103,7 @@ export default app;
     version: '1.0.0',
     main: 'src/index.ts',
     scripts: { start: 'ts-node src/index.ts' },
-    dependencies: { express: '^4.18.2', uuid: '^9.0.0' },
+    dependencies: { express: '^4.18.2' },
     devDependencies: { typescript: '^5.1.6', 'ts-node': '^10.9.1' }
   }, null, 2));
 

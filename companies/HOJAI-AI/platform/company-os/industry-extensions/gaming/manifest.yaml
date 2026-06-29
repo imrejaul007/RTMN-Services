@@ -1,0 +1,20 @@
+# Gaming Extension
+id: gaming
+name: Gaming Extension
+version: 1.0.0
+port: 5120
+industry: gaming
+verticalityScore: 0.80
+verticalModules:
+  - id: players
+    name: Players
+    routes: [GET/POST /api/players, GET /api/players/:id]
+  - id: matches
+    name: Matches
+    routes: [GET/POST /api/matches, GET /api/matches/:id]
+  - id: tournaments
+    name: Tournaments
+    routes: [GET/POST /api/tournaments, GET /api/tournaments/:id]
+  - id: leaderboards
+    name: Leaderboards
+    routes: [GET/POST /api/leaderboards, GET /api/leaderboards/:id]

@@ -1,0 +1,20 @@
+# Logistics Extension
+id: logistics
+name: Logistics Extension
+version: 1.0.0
+port: 5240
+industry: logistics
+verticalityScore: 0.80
+verticalModules:
+  - id: shipments
+    name: Shipments
+    routes: [GET/POST /api/shipments, GET /api/shipments/:id]
+  - id: routes
+    name: Routes
+    routes: [GET/POST /api/routes, GET /api/routes/:id]
+  - id: drivers
+    name: Drivers
+    routes: [GET/POST /api/drivers, GET /api/drivers/:id]
+  - id: warehouses
+    name: Warehouses
+    routes: [GET/POST /api/warehouses, GET /api/warehouses/:id]

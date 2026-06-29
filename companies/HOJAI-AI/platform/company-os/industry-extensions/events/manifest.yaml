@@ -1,0 +1,20 @@
+# Events Extension
+id: events
+name: Events Extension
+version: 1.0.0
+port: 4751
+industry: events
+verticalityScore: 0.80
+verticalModules:
+  - id: events
+    name: Events
+    routes: [GET/POST /api/events, GET /api/events/:id]
+  - id: venues
+    name: Venues
+    routes: [GET/POST /api/venues, GET /api/venues/:id]
+  - id: tickets
+    name: Tickets
+    routes: [GET/POST /api/tickets, GET /api/tickets/:id]
+  - id: attendees
+    name: Attendees
+    routes: [GET/POST /api/attendees, GET /api/attendees/:id]

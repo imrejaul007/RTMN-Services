@@ -1,0 +1,20 @@
+# Home_services Extension
+id: home_services
+name: Home_services Extension
+version: 1.0.0
+port: 5140
+industry: home_services
+verticalityScore: 0.80
+verticalModules:
+  - id: bookings
+    name: Bookings
+    routes: [GET/POST /api/bookings, GET /api/bookings/:id]
+  - id: technicians
+    name: Technicians
+    routes: [GET/POST /api/technicians, GET /api/technicians/:id]
+  - id: services
+    name: Services
+    routes: [GET/POST /api/services, GET /api/services/:id]
+  - id: customers
+    name: Customers
+    routes: [GET/POST /api/customers, GET /api/customers/:id]

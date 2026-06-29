@@ -1,0 +1,20 @@
+# Entertainment Extension
+id: entertainment
+name: Entertainment Extension
+version: 1.0.0
+port: 5200
+industry: entertainment
+verticalityScore: 0.80
+verticalModules:
+  - id: events
+    name: Events
+    routes: [GET/POST /api/events, GET /api/events/:id]
+  - id: tickets
+    name: Tickets
+    routes: [GET/POST /api/tickets, GET /api/tickets/:id]
+  - id: venues
+    name: Venues
+    routes: [GET/POST /api/venues, GET /api/venues/:id]
+  - id: bookings
+    name: Bookings
+    routes: [GET/POST /api/bookings, GET /api/bookings/:id]

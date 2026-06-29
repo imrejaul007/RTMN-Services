@@ -1,0 +1,20 @@
+# Nonprofit Extension
+id: nonprofit
+name: Nonprofit Extension
+version: 1.0.0
+port: 5160
+industry: nonprofit
+verticalityScore: 0.80
+verticalModules:
+  - id: donors
+    name: Donors
+    routes: [GET/POST /api/donors, GET /api/donors/:id]
+  - id: campaigns
+    name: Campaigns
+    routes: [GET/POST /api/campaigns, GET /api/campaigns/:id]
+  - id: beneficiaries
+    name: Beneficiaries
+    routes: [GET/POST /api/beneficiaries, GET /api/beneficiaries/:id]
+  - id: volunteers
+    name: Volunteers
+    routes: [GET/POST /api/volunteers, GET /api/volunteers/:id]

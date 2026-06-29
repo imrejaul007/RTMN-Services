@@ -1,0 +1,20 @@
+# Manufacturing Extension
+id: manufacturing
+name: Manufacturing Extension
+version: 1.0.0
+port: 5150
+industry: manufacturing
+verticalityScore: 0.80
+verticalModules:
+  - id: production
+    name: Production
+    routes: [GET/POST /api/production, GET /api/production/:id]
+  - id: inventory
+    name: Inventory
+    routes: [GET/POST /api/inventory, GET /api/inventory/:id]
+  - id: quality
+    name: Quality
+    routes: [GET/POST /api/quality, GET /api/quality/:id]
+  - id: compliance
+    name: Compliance
+    routes: [GET/POST /api/compliance, GET /api/compliance/:id]

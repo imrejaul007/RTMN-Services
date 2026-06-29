@@ -1,0 +1,20 @@
+# Professional Extension
+id: professional
+name: Professional Extension
+version: 1.0.0
+port: 5170
+industry: professional
+verticalityScore: 0.80
+verticalModules:
+  - id: clients
+    name: Clients
+    routes: [GET/POST /api/clients, GET /api/clients/:id]
+  - id: projects
+    name: Projects
+    routes: [GET/POST /api/projects, GET /api/projects/:id]
+  - id: invoices
+    name: Invoices
+    routes: [GET/POST /api/invoices, GET /api/invoices/:id]
+  - id: tasks
+    name: Tasks
+    routes: [GET/POST /api/tasks, GET /api/tasks/:id]

@@ -1,0 +1,20 @@
+# Agriculture Extension
+id: agriculture
+name: Agriculture Extension
+version: 1.0.0
+port: 5070
+industry: agriculture
+verticalityScore: 0.80
+verticalModules:
+  - id: farms
+    name: Farms
+    routes: [GET/POST /api/farms, GET /api/farms/:id]
+  - id: crops
+    name: Crops
+    routes: [GET/POST /api/crops, GET /api/crops/:id]
+  - id: inventory
+    name: Inventory
+    routes: [GET/POST /api/inventory, GET /api/inventory/:id]
+  - id: sales
+    name: Sales
+    routes: [GET/POST /api/sales, GET /api/sales/:id]

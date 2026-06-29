@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.28
+> **Version:** 5.29
 > **Last Updated:** June 29, 2026
-> **New:** ✅ **RTMN v5.0 Complete** — 17 strategic products, GTM ready, 98/100 score
+> **New:** ✅ **SUTAR OS Complete** — 43 services, 1,116 tests, 100% coverage
 > **Status:** ✅ **STOP BUILDING. PACKAGE WHAT EXISTS. SELL.**
 
 ---
@@ -10,23 +10,44 @@
 ## ⚠️ MANDATORY RULES
 
 ### 1. HOJAI AI is Standalone Company
-- HOJAI AI is a **separate company** with its own repo
+- HOJAI AI is a **separate company** with its own repo at `github.com/imrejaul007/hojai-ai`
 - Local path: `/RTMN/companies/HOJAI-AI/`
-- Always remember: when referring to HOJAI AI products, they exist in that folder
+- **Push SEPARATELY from RTMN**
 - Example: `companies/HOJAI-AI/platform/identity/corpid-service/`
 
 ### 2. Always Create MD Files for Context
-- Create `.md` files for all planning/audit work
-- Store in `.claude/plans/` or `docs/`
-- Never lose context in conversation — document everything
-- Each significant finding → one MD file
+- Create `.md` files for all significant work
+- Store in `docs/` or project folders
+- Never lose context — document everything
+- Each feature/fix → one MD file
 
 ### 3. Git Branch & Push Rules
-| Repo | Local Path | Branch | Notes |
-|------|-----------|--------|-------|
-| RTMN-Services | `/RTMN/` | `main` or `docs/genie-phase-a-complete` | Docs branch for planning |
-| HOJAI-AI | `/RTMN/companies/HOJAI-AI/` | `main` | Submodule, separate push |
-| Nexha | `/RTMN/companies/Nexha/` | `main` | Submodule, separate push |
+
+**Always check branch before pushing:**
+```bash
+git branch  # ALWAYS check first!
+```
+
+| Repo | Local Path | Branch |
+|------|------------|--------|
+| RTMN-Services | `/RTMN/` | `docs/genie-phase-a-complete` |
+| HOJAI-AI | `/RTMN/companies/HOJAI-AI/` | `main` |
+| Nexha | `/RTMN/companies/Nexha/` | `feat/killer-30min-demo` |
+
+**Push sequence:**
+```bash
+# 1. Push HOJAI-AI (standalone company)
+cd /RTMN/companies/HOJAI-AI
+git push origin main
+
+# 2. Push Nexha
+cd /RTMN/companies/Nexha
+git push origin HEAD
+
+# 3. Push RTMN
+cd /RTMN
+git push origin HEAD
+```
 
 **Push sequence:**
 ```bash

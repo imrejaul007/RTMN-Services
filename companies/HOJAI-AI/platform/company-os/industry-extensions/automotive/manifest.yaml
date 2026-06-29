@@ -1,0 +1,20 @@
+# Automotive Extension
+id: automotive
+name: Automotive Extension
+version: 1.0.0
+port: 5080
+industry: automotive
+verticalityScore: 0.80
+verticalModules:
+  - id: vehicles
+    name: Vehicles
+    routes: [GET/POST /api/vehicles, GET /api/vehicles/:id]
+  - id: service
+    name: Service
+    routes: [GET/POST /api/service, GET /api/service/:id]
+  - id: inventory
+    name: Inventory
+    routes: [GET/POST /api/inventory, GET /api/inventory/:id]
+  - id: customers
+    name: Customers
+    routes: [GET/POST /api/customers, GET /api/customers/:id]

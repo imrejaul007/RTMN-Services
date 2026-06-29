@@ -1,0 +1,20 @@
+# Government Extension
+id: government
+name: Government Extension
+version: 1.0.0
+port: 5130
+industry: government
+verticalityScore: 0.80
+verticalModules:
+  - id: citizens
+    name: Citizens
+    routes: [GET/POST /api/citizens, GET /api/citizens/:id]
+  - id: services
+    name: Services
+    routes: [GET/POST /api/services, GET /api/services/:id]
+  - id: permits
+    name: Permits
+    routes: [GET/POST /api/permits, GET /api/permits/:id]
+  - id: complaints
+    name: Complaints
+    routes: [GET/POST /api/complaints, GET /api/complaints/:id]

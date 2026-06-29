@@ -1,0 +1,20 @@
+# Exhibitions Extension
+id: exhibitions
+name: Exhibitions Extension
+version: 1.0.0
+port: 5040
+industry: exhibitions
+verticalityScore: 0.80
+verticalModules:
+  - id: exhibitions
+    name: Exhibitions
+    routes: [GET/POST /api/exhibitions, GET /api/exhibitions/:id]
+  - id: stalls
+    name: Stalls
+    routes: [GET/POST /api/stalls, GET /api/stalls/:id]
+  - id: exhibitors
+    name: Exhibitors
+    routes: [GET/POST /api/exhibitors, GET /api/exhibitors/:id]
+  - id: visitors
+    name: Visitors
+    routes: [GET/POST /api/visitors, GET /api/visitors/:id]

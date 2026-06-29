@@ -1,0 +1,20 @@
+# Sports Extension
+id: sports
+name: Sports Extension
+version: 1.0.0
+port: 5180
+industry: sports
+verticalityScore: 0.80
+verticalModules:
+  - id: teams
+    name: Teams
+    routes: [GET/POST /api/teams, GET /api/teams/:id]
+  - id: matches
+    name: Matches
+    routes: [GET/POST /api/matches, GET /api/matches/:id]
+  - id: players
+    name: Players
+    routes: [GET/POST /api/players, GET /api/players/:id]
+  - id: tickets
+    name: Tickets
+    routes: [GET/POST /api/tickets, GET /api/tickets/:id]
