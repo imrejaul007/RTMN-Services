@@ -157,13 +157,13 @@ describe('SilenceIntelligence', () => {
   it('should generate mother-relationship response', () => {
     const result = SilenceIntelligence.analyze(5000, { relationship: 'mother' });
 
-    expect(result.response).toContain('beta');
+    expect(result.response).toContain('Beta');
   });
 
   it('should generate friend-relationship response', () => {
     const result = SilenceIntelligence.analyze(15000, { relationship: 'friend' });
 
-    expect(result.response).toContain('bro');
+    expect(result.response).toContain('Bro');
   });
 });
 
