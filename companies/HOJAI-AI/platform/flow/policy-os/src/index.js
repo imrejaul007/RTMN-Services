@@ -75,6 +75,7 @@ import { registerFormalVerificationRoutes } from './routes/formal-verification.j
 import { registerCacheRoutes } from './routes/cache.js';
 import { registerMonitoringRoutes } from './routes/monitoring.js';
 import { registerIncidentResponseRoutes } from './routes/incident-response.js';
+import { registerExtensionsRoutes } from './routes/compliance-dr-analytics.js';
 import { warmCache } from './services/cache.js';
 import { validatePolicyBody, CATEGORIES, POLICY_STATUSES } from './lib/validation.js';
 import { prototypePollutionMiddleware, sanitizePolicyId, sanitizeExpression, sanitizeName, validateWebhookUrl } from './lib/sanitization.js';
@@ -575,6 +576,8 @@ registerCacheRoutes(app, { policies, customAuth });
 registerMonitoringRoutes(app, { policies, customAuth });
 // Phase P4: Incident Response Automation
 registerIncidentResponseRoutes(app, { policies, customAuth, writeLimiter });
+// Phases P5–P9: Extensions, Compliance, DR, Analytics, Multi-tenant
+registerExtensionsRoutes(app, { customAuth });
 // =================================================================
 // Error handlers
 // =================================================================

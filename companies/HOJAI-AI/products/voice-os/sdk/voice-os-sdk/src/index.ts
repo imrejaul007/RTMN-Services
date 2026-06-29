@@ -181,7 +181,7 @@ export class VoiceOS {
   }
 
   // Presence - update state
-  async updatePresence(updates: { state?: string; energy?: Partial<PresenceResult['energy'] }): Promise<void> {
+  async updatePresence(updates: { state?: string; energy?: Record<string, string> }): Promise<void> {
     await axios.post(`${SERVICES.humanPresence}/api/presence`, {
       userId: this.userId,
       ...updates,

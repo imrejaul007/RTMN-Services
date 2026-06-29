@@ -182,15 +182,13 @@ function createWhatsAppWebhookMiddleware(options) {
       return { handled: true };
     }
 
-    // Acknowledge immediately (Meta requires within 20s)
-    res.status(200).send('OK');
-
     var messages = parseWhatsAppPayload(req.body);
     var meta = { provider: provider, raw: req.body, timestamp: new Date() };
 
     // Handle delivery statuses
     if (req.body && req.body.entry && req.body.entry[0] && req.body.entry[0].changes && req.body.entry[0].changes[0] && req.body.entry[0].changes[0].value && req.body.entry[0].changes[0].value.statuses) {
       var statuses = req.body.entry[0].changes[0].value.statuses;
+      res.status(200).send('OK');
       for (var si = 0; si < statuses.length; si++) {
         var st = statuses[si];
         onDeliveryStatus({
@@ -207,6 +205,7 @@ function createWhatsAppWebhookMiddleware(options) {
     // Handle read receipts
     if (req.body && req.body.entry && req.body.entry[0] && req.body.entry[0].changes && req.body.entry[0].changes[0] && req.body.entry[0].changes[0].value && req.body.entry[0].changes[0].value.reads) {
       var reads = req.body.entry[0].changes[0].value.reads;
+      res.status(200).send('OK');
       for (var ri = 0; ri < reads.length; ri++) {
         var rd = reads[ri];
         onReadReceipt({
@@ -218,9 +217,20 @@ function createWhatsAppWebhookMiddleware(options) {
       return { handled: true };
     }
 
-    // Handle messages
-    for (var mi = 0; mi < messages.length; mi++) {
-      onMessages(messages[mi], meta).catch(function(e) { console.error('[whatsapp-webhook] message error:', e); });
+    // Handle messages - await for each so we can capture result
+    if (messages.length > 0) {
+      var results = [];
+      for (var mi = 0; mi < messages.length; mi++) {
+        try {
+          var r = await onMessages(messages[mi], meta);
+          results.push(r);
+        } catch(e) {
+          console.error('[whatsapp-webhook] message error:', e);
+        }
+      }
+      res.status(200).json({ received: true, processed: messages.length, results: results });
+    } else {
+      res.status(200).json({ received: true, processed: 0 });
     }
 
     return { handled: true };
