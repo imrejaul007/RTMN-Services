@@ -522,6 +522,22 @@ status() {
     "voice-gateway:4880" \
     "app-store-api:4400" \
     "razo-keyboard:4299" \
+    "genie-runtime:7100" \
+    "genie-decision:4740" \
+    "genie-learning:4742" \
+    "genie-anticipation:4745" \
+    "genie-ambient:4746" \
+    "genie-constitution:4743" \
+    "genie-financial:4747" \
+    "genie-health:4748" \
+    "genie-household:4749" \
+    "genie-travel:4750" \
+    "genie-spiritual:4751" \
+    "genie-simulation:4752" \
+    "genie-focus:4753" \
+    "genie-dreams:4754" \
+    "genie-legacy:4755" \
+    "genie-wishes:4001" \
     "bam-marketplace-listings:4255" \
     "blr-exploration:4261" \
     "blr-discovery-engine:4256" \
