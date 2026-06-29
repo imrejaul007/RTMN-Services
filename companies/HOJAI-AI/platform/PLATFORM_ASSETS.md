@@ -145,19 +145,29 @@ restaurant-os, hotel-os, healthcare-os, beauty-os, retail-os, etc.
 - platforms/services/websocket-server (use flow/event-streaming)
 - platforms/services/cron-scheduler (use agent-os/scheduler)
 
-## GENUINE GAPS (to build next)
+## GENUINE GAPS (all filled June 29, 2026)
+
+All 10 gaps have been built:
 
 | # | Gap | Location |
 |---|-----|----------|
-| 1 | Twilio Voice Connector | `platform/connectors/twilio-voice/` |
-| 2 | Twilio SMS Connector | `platform/connectors/twilio-sms/` |
-| 3 | WhatsApp Business | `platform/connectors/whatsapp-business/` |
-| 4 | Background Check | `platform/connectors/background-check/` |
-| 5 | Meeting Recording | `platform/connectors/meeting-recording/` |
-| 6 | Voice-to-Task | `platform/connectors/voice-to-task/` |
-| 7 | Reply Drafting AI | `platform/intelligence/reply-drafting/` |
-| 8 | Refund Approval | `platform/flow/refund-approval/` |
-| 9 | Root Cause Analysis | `platform/intelligence/root-cause/` |
-| 10 | ROI Calculator | `platform/analytics/roi-calculator/` |
+| 1 | Twilio Voice Connector | `connectors/twilio-voice-connector/` ✅ |
+| 2 | Twilio SMS Connector | `connectors/twilio-sms-connector/` ✅ |
+| 3 | WhatsApp Business | `connectors/whatsapp-business-connector/` ✅ |
+| 4 | Background Check | `connectors/background-check-connector/` ✅ |
+| 5 | Meeting Recording | `connectors/meeting-recording-connector/` ✅ |
+| 6 | Voice-to-Task | `connectors/voice-to-task-connector/` ✅ |
+| 7 | Reply Drafting AI | `services/reply-drafting-service/` ✅ |
+| 8 | Refund Approval | `services/refund-approval-service/` ✅ |
+| 9 | Root Cause Analysis | `services/root-cause-service/` ✅ |
+| 10 | ROI Calculator | `services/roi-calculator-service/` ✅ |
 
-**Total genuine gaps: 10 items**
+## NEW - API Gateway
+
+| Component | Location |
+|-----------|----------|
+| API Gateway | `services/hojai-api/` (port 4500) |
+| Dashboard | `studio/hojai-dashboard/` (port 3001) |
+| Setup Script | `hojai-cli/setup.sh` |
+
+**All gaps filled. Platform 100% complete.**

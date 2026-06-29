@@ -218,7 +218,27 @@ npx vitest run
 
 ---
 
+## Dashboard
+
+React + Tailwind admin dashboard at `studio/hojai-dashboard/`
+
+```bash
+cd studio/hojai-dashboard
+npm install
+npm run dev  # http://localhost:3001
+```
+
+Pages:
+- Dashboard - Stats, quick actions
+- Connectors - Twilio, WhatsApp, Background Check
+- Services - Reply Drafting, Refund, RCA, ROI
+- Integrations - CRM, Email, Slack
+- Analytics - Performance metrics
+- Settings - API keys
+
+---
+
 ## Built By
 
 - Date: June 29, 2026
-- Phase 2 Complete
+- Phase 3 Complete
