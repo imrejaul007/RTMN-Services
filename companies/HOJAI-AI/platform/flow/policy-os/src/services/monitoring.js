@@ -223,12 +223,14 @@ function metricKey(name, labels) {
 }
 
 function parseKey(key) {
-  const match = key.match(/^([^,{]+)(?:{(.*)})?$/);
+  const match = key.match(/^([^,{]+)(?:\{(.*)})?$/);
   if (!match) return { name: key, labels: {} };
   const labels = {};
   if (match[2]) {
     for (const pair of match[2].split(',')) {
-      const [k, v] = pair.split('=');
+      const parts = pair.split('=');
+      const k = parts[0];
+      const v = parts[1];
       if (k) labels[k] = v;
     }
   }
