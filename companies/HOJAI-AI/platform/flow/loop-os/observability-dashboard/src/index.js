@@ -401,9 +401,64 @@ function calculateDistribution(byLevel) {
   }, {});
 }
 
+// ── Prometheus Metrics ─────────────────────────────────
+
+/**
+ * Prometheus metrics endpoint
+ * GET /metrics
+ */
+app.get('/metrics', async (_req, res) => {
+  const lines = [
+    '# HELP loopos_up LoopOS service is up',
+    '# TYPE loopos_up gauge'
+  ];
+
+  // Service status
+  const serviceStatuses = await Promise.allSettled(
+    Object.entries(SERVICES).map(async ([name, url]) => {
+      try {
+        await axios.get(`${url}/health`, { timeout: 2000 });
+        return { name, status: 1 };
+      } catch { return { name, status: 0 }; }
+    })
+  );
+
+  for (const result of serviceStatuses) {
+    if (result.status === 'fulfilled') {
+      lines.push(`loopos_up{name="${result.value.name}"} ${result.value.status}`);
+    }
+  }
+
+  // Loop counts
+  try {
+    const loopsRes = await axios.get(`${SERVICES.scheduler}/api/loops`);
+    const loops = loopsRes.data?.loops || [];
+    const active = loops.filter(l => l.enabled).length;
+    lines.push('loopos_loops_total ' + loops.length);
+    lines.push('loopos_loops_active ' + active);
+  } catch {}
+
+  // Budget counts
+  try {
+    const budgetsRes = await axios.get(`${SERVICES.budget}/api/budgets`);
+    lines.push('loopos_budgets_total ' + (budgetsRes.data?.budgets?.length || 0));
+  } catch {}
+
+  // Fleet counts
+  try {
+    const fleetsRes = await axios.get(`${SERVICES.fleet}/api/fleets`);
+    lines.push('loopos_fleets_total ' + (fleetsRes.data?.fleets?.length || 0));
+  } catch {}
+
+  lines.push('loopos_exporter_timestamp ' + Math.floor(Date.now() / 1000));
+  res.set('Content-Type', 'text/plain; charset=utf-8');
+  res.send(lines.join('\n'));
+});
+
 // ── Start Server ────────────────────────────────────────
 const server = app.listen(PORT, () => {
   logger.info(`LoopOS Observability Dashboard listening on port ${PORT}`);
+  logger.info(`Prometheus metrics: http://localhost:${PORT}/metrics`);
   logger.info(`Monitoring services: ${Object.keys(SERVICES).join(', ')}`);
 });
 

@@ -19,7 +19,7 @@ class ActionEngine {
       channel: null, // Uses ChannelBridge
       'financial-twin': serviceUrls.financialTwin || 'http://localhost:4715',
       discovery: serviceUrls.discovery || 'http://localhost:4500',
-      support: serviceUrls.support || 'http://localhost:4601',
+      support: serviceUrls.support || 'http://localhost:4885', // unified-support-bridge
       'insurance-os': serviceUrls.insurance || 'http://localhost:5105',
       'industry-os': serviceUrls.industryOs || 'http://localhost:4399'
     };

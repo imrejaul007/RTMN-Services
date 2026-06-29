@@ -1,6 +1,6 @@
 #!/bin/bash
 # LoopOS Startup Script
-# Starts all 21 LoopOS services
+# Starts all 22 LoopOS services
 
 set -e
 
@@ -14,7 +14,7 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# All 21 services
+# All 22 services
 SERVICES=(
   "loop-scheduler:4731"
   "loop-state:4732"
@@ -28,6 +28,7 @@ SERVICES=(
   "twinos-integration:4740"
   "memoryos-integration:4741"
   "observability-dashboard:4742"
+  "event-bus:4752"
   "retry-engine:4743"
   "worktrees:4744"
   "agent-bus:4745"
