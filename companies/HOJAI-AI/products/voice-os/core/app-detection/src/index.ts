@@ -1,48 +1,19 @@
 /**
  * App Detection Service — v1.0.0
  * ==============================
- * Detects active app and provides context-aware voice commands:
- * - App detection and registry
- * - Context-aware actions
- * - Inline text commands (make shorter, formal, etc.)
- * - Cross-app voice commands
+ * Detects active app and provides context-aware voice commands
  *
  * Port: 4899
  */
 
 import express from 'express';
 import { z } from 'zod';
-
 import { AppDetector } from './services/appDetector.js';
-
-// ── App Setup ────────────────────────────────────────────────────────────────
 
 const app = express();
 app.use(express.json());
 
-// ── Service ─────────────────────────────────────────────────────────────────
-
 const appDetector = new AppDetector();
-
-// ── Request Schemas ───────────────────────────────────────────────────────────
-
-const DetectAppSchema = z.object({
-  windowTitle: z.string().optional(),
-  url: z.string().optional(),
-  selectedText: z.string().optional(),
-});
-
-const ProcessVoiceSchema = z.object({
-  input: z.string().min(1),
-  appId: z.string().min(1),
-  selectedText: z.string().optional(),
-});
-
-const GetContextSchema = z.object({
-  appId: z.string().min(1),
-  windowTitle: z.string().optional(),
-  focusedElement: z.string().optional(),
-});
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
@@ -52,7 +23,17 @@ const GetContextSchema = z.object({
  */
 app.post('/api/app/detect', async (req, res) => {
   try {
-    const { windowTitle, url, selectedText } = DetectAppSchema.parse(req.body);
+    const validation = z.object({
+      windowTitle: z.string().optional(),
+      url: z.string().optional(),
+      selectedText: z.string().optional(),
+    }).safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({ success: false, errors: validation.error.errors });
+    }
+
+    const { windowTitle, url, selectedText } = validation.data;
 
     let detectedAppId = 'browser';
 
@@ -75,9 +56,6 @@ app.post('/api/app/detect', async (req, res) => {
       context,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, errors: error.errors });
-    }
     console.error('[app-detection]', error);
     res.status(500).json({ success: false, error: 'Internal error' });
   }
@@ -89,14 +67,18 @@ app.post('/api/app/detect', async (req, res) => {
  */
 app.post('/api/app/context', async (req, res) => {
   try {
-    const { appId, windowTitle, focusedElement } = GetContextSchema.parse(req.body);
+    const validation = z.object({
+      appId: z.string().min(1),
+      windowTitle: z.string().optional(),
+      focusedElement: z.string().optional(),
+    }).safeParse(req.body);
 
-    const context = appDetector.getAppContext(appId, {
-      windowTitle,
-      focusedElement,
-    });
+    if (!validation.success) {
+      return res.status(400).json({ success: false, errors: validation.error.errors });
+    }
 
-    // Get inline commands for this app category
+    const { appId, windowTitle, focusedElement } = validation.data;
+    const context = appDetector.getAppContext(appId, { windowTitle, focusedElement });
     const inlineCommands = appDetector.getInlineCommands(context.appCategory);
 
     res.json({
@@ -105,9 +87,6 @@ app.post('/api/app/context', async (req, res) => {
       inlineCommands,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, errors: error.errors });
-    }
     console.error('[app-detection]', error);
     res.status(500).json({ success: false, error: 'Internal error' });
   }
@@ -119,11 +98,18 @@ app.post('/api/app/context', async (req, res) => {
  */
 app.post('/api/app/voice', async (req, res) => {
   try {
-    const { input, appId, selectedText } = ProcessVoiceSchema.parse(req.body);
+    const validation = z.object({
+      input: z.string().min(1),
+      appId: z.string().min(1),
+      selectedText: z.string().optional(),
+    }).safeParse(req.body);
 
+    if (!validation.success) {
+      return res.status(400).json({ success: false, errors: validation.error.errors });
+    }
+
+    const { input, appId, selectedText } = validation.data;
     const result = appDetector.processVoiceInput(input, appId, selectedText);
-
-    // Get context for response
     const context = appDetector.getAppContext(appId);
 
     res.json({
@@ -137,37 +123,9 @@ app.post('/api/app/voice', async (req, res) => {
       suggestion: getSuggestion(result, selectedText),
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, errors: error.errors });
-    }
     console.error('[app-detection]', error);
     res.status(500).json({ success: false, error: 'Internal error' });
   }
-});
-
-/**
- * GET /api/app/inline-commands/:category
- * Get all inline commands for a category
- */
-app.get('/api/app/inline-commands/:category', (req, res) => {
-  const { category } = req.params;
-
-  const validCategories = ['communication', 'productivity', 'social', 'development', 'commerce', 'health', 'finance', 'travel', 'food', 'unknown'];
-
-  if (!validCategories.includes(category)) {
-    return res.status(400).json({
-      success: false,
-      error: `Invalid category. Valid: ${validCategories.join(', ')}`,
-    });
-  }
-
-  const commands = appDetector.getInlineCommands(category as any);
-
-  res.json({
-    success: true,
-    category,
-    commands,
-  });
 });
 
 /**
@@ -175,13 +133,6 @@ app.get('/api/app/inline-commands/:category', (req, res) => {
  * Get all inline commands
  */
 app.get('/api/app/inline-commands', (_req, res) => {
-  const categories = ['communication', 'productivity', 'social', 'development', 'commerce'] as const;
-
-  const allCommands: Record<string, typeof categories[number]> = {};
-  for (const cat of categories) {
-    allCommands[cat] = cat;
-  }
-
   res.json({
     success: true,
     commands: {
@@ -199,7 +150,6 @@ app.get('/api/app/inline-commands', (_req, res) => {
  */
 app.get('/api/app/apps', (_req, res) => {
   const apps = appDetector.getSupportedApps();
-
   res.json({
     success: true,
     apps,
@@ -222,7 +172,6 @@ app.get('/api/app/recommendations', (req, res) => {
   }
 
   const recommendations = appDetector.getRecommendations(context);
-
   res.json({
     success: true,
     recommendations,
@@ -235,7 +184,7 @@ app.get('/api/app/recommendations', (req, res) => {
  */
 app.post('/api/app/execute-inline', async (req, res) => {
   try {
-    const { commandId, text, language } = req.body;
+    const { commandId, text } = req.body;
 
     if (!commandId || !text) {
       return res.status(400).json({
@@ -244,9 +193,7 @@ app.post('/api/app/execute-inline', async (req, res) => {
       });
     }
 
-    // In production, this would call Genie or a transformation service
-    // For now, return mock transformation
-    const transformed = transformText(commandId, text, language);
+    const transformed = transformText(commandId, text);
 
     res.json({
       success: true,
@@ -263,7 +210,7 @@ app.post('/api/app/execute-inline', async (req, res) => {
 /**
  * GET /health
  */
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     service: 'app-detection',
@@ -283,21 +230,19 @@ app.get('/health', (req, res) => {
 /**
  * GET /ready
  */
-app.get('/ready', (req, res) => {
+app.get('/ready', (_req, res) => {
   res.json({
     ready: true,
-    services: {
-      appDetector: true,
-    },
+    services: { appDetector: true },
     supportedApps: appDetector.getSupportedApps().length,
     timestamp: new Date().toISOString(),
   });
 });
 
-// ── Helper Functions ──────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
 function getSuggestion(
-  result: ReturnType<AppDetector['processVoiceInput']>,
+  result: ReturnType<typeof appDetector.processVoiceInput>,
   selectedText?: string
 ): string {
   if (result.type === 'inline_command') {
@@ -306,16 +251,13 @@ function getSuggestion(
     }
     return `Say "${result.inlineCommand?.aliases[0]}" to transform selected text`;
   }
-
   if (result.type === 'app_action') {
     return `Say "${result.action?.voiceCommands[0]}" to ${result.action?.name}`;
   }
-
   return 'Try saying "make this shorter" or "send message"';
 }
 
-function transformText(commandId: string, text: string, language?: string): string {
-  // Mock transformations - in production would use Genie/AI
+function transformText(commandId: string, text: string): string {
   switch (commandId) {
     case 'shorter':
       return text.split(' ').slice(0, Math.ceil(text.split(' ').length / 2)).join(' ') + '...';
@@ -326,10 +268,7 @@ function transformText(commandId: string, text: string, language?: string): stri
     case 'casual':
       return text.replace(/Hello/gi, 'Hey').replace(/going to/gi, 'gonna').replace(/want to/gi, 'wanna');
     case 'grammar':
-      return text // Would use grammar API
-        .replace(/\bi\b/g, 'I')
-        .replace(/\bi'm\b/gi, "I'm")
-        .replace(/\bdont\b/gi, "don't");
+      return text.replace(/\bi\b/g, 'I').replace(/\bid\b/gi, "I'd");
     case 'emoji':
       return text + ' 😊';
     case 'summarize':
@@ -339,7 +278,7 @@ function transformText(commandId: string, text: string, language?: string): stri
   }
 }
 
-// ── Start Server ─────────────────────────────────────────────────────────────
+// ── Start ─────────────────────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 4899;
 
@@ -347,26 +286,14 @@ const server = app.listen(PORT, () => {
   console.log(`
 ╔════════════════════════════════════════════════════════════════╗
 ║              APP DETECTION SERVICE v1.0.0              ║
-║                                                                ║
 ║  📱  App Context & Voice Commands                       ║
-║                                                                ║
 ║  Port: ${PORT}                                                  ║
-║  Status: RUNNING                                               ║
-║                                                                ║
-║  Supported Apps: ${appDetector.getSupportedApps().length}                                   ║
-║                                                                ║
-║  Features:                                                    ║
-║  • App detection from window title                         ║
-║  • Context-aware voice commands                             ║
-║  • Inline text transformations                            ║
-║  • Cross-app voice commands                                ║
-║                                                                ║
+║  Supported Apps: ${appDetector.getSupportedApps().length}                                    ║
 ╚════════════════════════════════════════════════════════════════╝
   `);
 });
 
 process.on('SIGTERM', () => {
-  console.log('[app-detection] Shutting down...');
   server.close(() => process.exit(0));
 });
 
