@@ -1,0 +1,32 @@
+{
+  "id": "sales-crm-cleanup",
+  "name": "CRM Data Quality Automation",
+  "category": "sales",
+  "description": "Automatically clean and enrich CRM data with deduplication and enrichment",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 2 * * 0"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Export Contacts", "config": {"action": "get_all_contacts"}},
+    {"id": "2", "type": "ai_agent", "name": "Find Duplicates", "config": {"agent": "analyst_agent", "prompt": "Identify duplicate contacts based on: email, phone, company name similarity."}},
+    {"id": "3", "type": "ai_agent", "name": "Merge Duplicates", "config": {"agent": "cleanup_agent", "prompt": "Merge duplicate records, keeping most complete data."}},
+    {"id": "4", "type": "ai_agent", "name": "Enrich Data", "config": {"agent": "enrichment_agent", "prompt": "Enrich contact records with: company info, LinkedIn, social profiles."}},
+    {"id": "5", "type": "crm", "name": "Update Records", "config": {"action": "bulk_update", "fields": ["enrichment_data", "merged"]}},
+    {"id": "6", "type": "filter", "name": "Flag Stale", "config": {"conditions": [{"field": "days_since_contact", "operator": ">", "value": 90}]}},
+    {"id": "7", "type": "crm", "name": "Archive Stale", "config": {"action": "archive_records", "tag": "stale"}},
+    {"id": "8", "type": "twin", "name": "Update Customer Twin", "config": {"twin": "customer_twin", "action": "refresh"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["analyst_agent", "cleanup_agent", "enrichment_agent"],
+  "integrations": ["crm", "twin"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["sales", "crm", "data-quality", "automation"]
+}

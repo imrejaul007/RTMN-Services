@@ -1,0 +1,36 @@
+{
+  "id": "sales-objection-handler",
+  "name": "AI Objection Handler",
+  "category": "sales",
+  "description": "Real-time objection handling with AI-generated responses and escalation",
+  "version": "1.0.0",
+  "triggers": [
+    {"type": "event", "source": "email", "event": "reply_received"},
+    {"type": "event", "source": "call", "event": "objection_raised"}
+  ],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Objection Received", "config": {"source": ["email", "call", "chat"]}},
+    {"id": "2", "type": "ai_agent", "name": "Classify Objection", "config": {"agent": "analyst_agent", "prompt": "Classify the objection: pricing, timing, competition, features, trust, other."}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Response", "config": {"agent": "outreach_agent", "prompt": "Generate response to objection based on: objection type, customer profile, best practices."}},
+    {"id": "4", "type": "condition", "name": "Complex?", "config": {"field": "objection.complexity", "operator": ">=", "value": "medium"}},
+    {"id": "5a", "type": "approval", "name": "Manager Review", "config": {"approvers": ["sales_manager"], "timeout_minutes": 30}},
+    {"id": "5b", "type": "action", "name": "Auto-Respond", "config": {"action": "send_response", "channel": "{{trigger.channel}}"}},
+    {"id": "6", "type": "memory", "name": "Save to Playbook", "config": {"action": "save", "memory_type": "objection_playbook"}},
+    {"id": "7", "type": "crm", "name": "Log Response", "config": {"action": "add_note", "note_type": "objection_handled"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5a", "condition": "complexity >= medium"},
+    {"from": "4", "to": "5b", "condition": "complexity < medium"},
+    {"from": "5a", "to": "5b", "condition": "approved"},
+    {"from": "5b", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["analyst_agent", "outreach_agent"],
+  "integrations": ["email", "crm", "memory", "call"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["sales", "automation", "objection-handling", "ai-response"]
+}

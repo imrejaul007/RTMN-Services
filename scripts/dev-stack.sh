@@ -192,10 +192,10 @@ AGENT_OBSERVABILITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agen
 VOICE_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-gateway && PORT=4880 REDIS_URL=redis://localhost:6379 npm start"
 
 # VoiceOS Phase 1 (June 29, 2026) — 4 new services completing the 12-layer VoiceOS architecture
-CONVERSATION_PHYSICS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/conversation-physics && PORT=4861 npm start&& PORT=4861 npm start PORT=4891 npm start"
-VOICE_DIRECTOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-director && PORT=4862 npm start&& PORT=4862 npm start PORT=4892 npm start"
-LIFE_TIMELINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/life-timeline && PORT=4863 npm start&& PORT=4863 npm start PORT=4893 npm start"
-VOICE_IDENTITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-identity && PORT=4864 npm start&& PORT=4864 npm start PORT=4894 npm start"
+CONVERSATION_PHYSICS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/conversation-physics && PORT=4891 npm start"
+VOICE_DIRECTOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-director && PORT=4892 npm start"
+LIFE_TIMELINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/life-timeline && PORT=4893 npm start"
+VOICE_IDENTITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-identity && PORT=4894 npm start"
 
 # HOJAI App Store API (4400) — Catalog for skills, agents, workflows, templates
 APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PORT=4400 npm start"
@@ -710,8 +710,8 @@ start_all() {
 	  # VoiceOS Phase 1 (June 29, 2026) — 4 services completing 12-layer VoiceOS
 	  start_service "conversation-physics"   "$CONVERSATION_PHYSICS_CMD"   4891
 	  start_service "voice-director"          "$VOICE_DIRECTOR_CMD"          4892
-	  start_service "life-timeline"          "$LIFE_TIMELINE_CMD"          4893
-	  start_service "voice-identity"          "$VOICE_IDENTITY_CMD"          4894
+	  start_service "life-timeline"         "$LIFE_TIMELINE_CMD"         4893
+	  start_service "voice-identity"         "$VOICE_IDENTITY_CMD"         4894
   # HOJAI App Store API (port 4400)
   start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
