@@ -1,0 +1,116 @@
+{
+  "id": "sales-lead-qualification",
+  "name": "Lead Qualification Pipeline",
+  "category": "sales",
+  "description": "Automatically qualify leads from website forms, enrich data, score them, and route to SDR",
+  "version": "1.0.0",
+  "triggers": [
+    {
+      "type": "webhook",
+      "source": "website_form",
+      "event": "lead.created"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "1",
+      "type": "trigger",
+      "name": "Lead Created",
+      "config": {
+        "source": "website"
+      }
+    },
+    {
+      "id": "2",
+      "type": "enrichment",
+      "name": "Enrich Lead Data",
+      "config": {
+        "provider": "clearbit",
+        "fields": ["company", "role", "linkedin", "funding"]
+      }
+    },
+    {
+      "id": "3",
+      "type": "ai_agent",
+      "name": "Qualify Lead",
+      "config": {
+        "agent": "sdr_agent",
+        "model": "claude-3-5-sonnet",
+        "prompt": "Qualify this lead based on: company size, budget indicators, decision authority, timeline. Return: score (1-100), grade (A/B/C/D), recommendation."
+      }
+    },
+    {
+      "id": "4",
+      "type": "condition",
+      "name": "Score Check",
+      "config": {
+        "field": "lead.score",
+        "operator": ">=",
+        "value": 70
+      }
+    },
+    {
+      "id": "5a",
+      "type": "action",
+      "name": "Route to SDR",
+      "config": {
+        "action": "assign_sdr",
+        "priority": "high"
+      }
+    },
+    {
+      "id": "5b",
+      "type": "action",
+      "name": "Add to Nurture",
+      "config": {
+        "action": "add_to_sequence",
+        "sequence": "default_nurture"
+      }
+    },
+    {
+      "id": "6",
+      "type": "crm",
+      "name": "Update CRM",
+      "config": {
+        "action": "create_contact",
+        "fields": ["name", "email", "company", "score", "grade"]
+      }
+    },
+    {
+      "id": "7",
+      "type": "notification",
+      "name": "Notify SDR",
+      "config": {
+        "channel": "slack",
+        "template": "new_lead_alert"
+      }
+    }
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5a", "condition": "score >= 70"},
+    {"from": "4", "to": "5b", "condition": "score < 70"},
+    {"from": "5a", "to": "6"},
+    {"from": "5b", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "memory": {
+    "required": ["lead_history", "interaction_memory"],
+    "update_on": ["qualification_complete", "contact_created"]
+  },
+  "twins": {
+    "creates": ["lead_twin"],
+    "updates": ["customer_twin"]
+  },
+  "agents": ["sdr_agent"],
+  "integrations": ["crm", "slack", "clearbit"],
+  "estimated_setup_time": "30 minutes",
+  "price": {
+    "subscription": 999,
+    "currency": "INR",
+    "period": "month"
+  },
+  "tags": ["sales", "automation", "lead-scoring", "crm"]
+}

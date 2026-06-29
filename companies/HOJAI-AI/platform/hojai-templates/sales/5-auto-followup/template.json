@@ -1,0 +1,38 @@
+{
+  "id": "sales-auto-followup",
+  "name": "Automated Follow-up Sequences",
+  "category": "sales",
+  "description": "Never miss a follow-up with intelligent, multi-channel follow-up sequences",
+  "version": "1.0.0",
+  "triggers": [
+    {"type": "event", "source": "crm", "event": "deal.stage_changed"}
+  ],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Stage Changed", "config": {"source": "crm"}},
+    {"id": "2", "type": "condition", "name": "Last Contact?", "config": {"field": "days_since_contact", "operator": ">=", "value": 7}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Touchpoint", "config": {"agent": "outreach_agent", "prompt": "Determine best next touchpoint: email, call, LinkedIn, or SMS based on previous interactions."}},
+    {"id": "4", "type": "condition", "name": "Channel?", "config": {"field": "recommended_channel"}},
+    {"id": "5a", "type": "email", "name": "Send Email", "config": {"provider": "smtp", "template": "follow_up_email"}},
+    {"id": "5b", "type": "action", "name": "Log Call Task", "config": {"action": "create_task", "type": "call"}},
+    {"id": "5c", "type": "action", "name": "Send SMS", "config": {"provider": "twilio"}},
+    {"id": "6", "type": "crm", "name": "Log Activity", "config": {"action": "add_activity", "activity_type": "follow_up"}},
+    {"id": "7", "type": "schedule", "name": "Schedule Next", "config": {"delay_days": 7, "trigger": "sales-auto-followup"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3", "condition": "days >= 7"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5a", "condition": "channel == email"},
+    {"from": "4", "to": "5b", "condition": "channel == call"},
+    {"from": "4", "to": "5c", "condition": "channel == sms"},
+    {"from": "5a", "to": "6"},
+    {"from": "5b", "to": "6"},
+    {"from": "5c", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["outreach_agent"],
+  "integrations": ["crm", "email", "twilio", "calendar"],
+  "estimated_setup_time": "30 minutes",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["sales", "automation", "follow-up", "sequence"]
+}

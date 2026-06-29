@@ -1,0 +1,32 @@
+{
+  "id": "sales-pipeline-forecast",
+  "name": "Pipeline Forecasting",
+  "category": "sales",
+  "description": "AI-powered pipeline analysis with revenue forecasting and risk detection",
+  "version": "1.0.0",
+  "triggers": [
+    {"type": "schedule", "cron": "0 8 * * 1"}
+  ],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Load Pipeline", "config": {"action": "get_all_deals", "fields": ["value", "stage", "close_date", "probability"]}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Pipeline", "config": {"agent": "forecast_agent", "prompt": "Analyze pipeline health, identify at-risk deals, calculate weighted forecast."}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Report", "config": {"agent": "report_agent", "prompt": "Generate executive summary with key metrics and recommendations."}},
+    {"id": "4", "type": "crm", "name": "Flag Risks", "config": {"action": "update_deals", "updates": [{"field": "at_risk", "value": true}]}},
+    {"id": "5", "type": "twin", "name": "Update Sales Twin", "config": {"twin": "sales_twin", "action": "update", "fields": ["forecast", "pipeline_health"]}},
+    {"id": "6", "type": "email", "name": "Send Report", "config": {"to": "sales_manager@company.com", "template": "pipeline_forecast"}},
+    {"id": "7", "type": "slack", "name": "Post Summary", "config": {"channel": "sales-leadership", "template": "forecast_summary"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["forecast_agent", "report_agent"],
+  "integrations": ["crm", "email", "slack", "twin"],
+  "estimated_setup_time": "45 minutes",
+  "price": {"subscription": 2499, "currency": "INR", "period": "month"},
+  "tags": ["sales", "analytics", "forecasting", "reporting"]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "sales-email-campaign",
+  "name": "AI Cold Email Campaign",
+  "category": "sales",
+  "description": "Personalize cold emails at scale with AI, track opens/clicks, and follow up automatically",
+  "version": "1.0.0",
+  "triggers": [
+    {
+      "type": "schedule",
+      "cron": "0 10 * * *"
+    }
+  ],
+  "nodes": [
+    {"id": "1", "type": "source", "name": "Load Prospects", "config": {"source": "crm", "filter": {"grade": ["A", "B"]}}},
+    {"id": "2", "type": "ai_agent", "name": "Personalize Email", "config": {"agent": "email_writer", "prompt": "Write personalized cold email based on prospect data and company context."}},
+    {"id": "3", "type": "email", "name": "Send Email", "config": {"provider": "smtp", "track_opens": true, "track_clicks": true}},
+    {"id": "4", "type": "condition", "name": "Opened?", "config": {"field": "email.opened", "operator": "==", "value": true}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Follow-up", "config": {"agent": "email_writer", "prompt": "Write follow-up email referencing the original open."}},
+    {"id": "6", "type": "email", "name": "Send Follow-up", "config": {"provider": "smtp"}},
+    {"id": "7", "type": "crm", "name": "Update CRM", "config": {"action": "log_email", "fields": ["sent", "opened", "clicked", "replied"]}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5", "condition": "opened == true"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "4", "to": "7", "condition": "opened == false"}
+  ],
+  "agents": ["email_writer"],
+  "integrations": ["smtp", "crm"],
+  "estimated_setup_time": "45 minutes",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["sales", "email", "automation", "cold-outreach"]
+}

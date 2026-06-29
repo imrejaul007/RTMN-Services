@@ -1,0 +1,32 @@
+{
+  "id": "sales-meeting-booking",
+  "name": "AI Meeting Booking",
+  "category": "sales",
+  "description": "Automatically book meetings via Calendly integration with AI-powered scheduling",
+  "version": "1.0.0",
+  "triggers": [
+    {"type": "event", "source": "crm", "event": "lead.interested"}
+  ],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Lead Interested", "config": {"source": "crm"}},
+    {"id": "2", "type": "ai_agent", "name": "Generate Intro", "config": {"agent": "email_writer", "prompt": "Write brief intro email with Calendly link."}},
+    {"id": "3", "type": "email", "name": "Send Invite", "config": {"provider": "smtp", "include_calendly": true}},
+    {"id": "4", "type": "webhook", "name": "Wait for Booking", "config": {"source": "calendly", "event": "booking_confirmed"}},
+    {"id": "5", "type": "crm", "name": "Update CRM", "config": {"action": "log_meeting", "fields": ["date", "type", "attendees"]}},
+    {"id": "6", "type": "calendar", "name": "Add to Calendar", "config": {"provider": "google_calendar", "add_guests": true}},
+    {"id": "7", "type": "slack", "name": "Notify Team", "config": {"channel": "sales-team", "message": "New meeting booked with {{lead.name}}"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "4", "to": "6"},
+    {"from": "5", "to": "7"}
+  ],
+  "agents": ["email_writer"],
+  "integrations": ["crm", "email", "calendly", "google_calendar", "slack"],
+  "estimated_setup_time": "20 minutes",
+  "price": {"subscription": 799, "currency": "INR", "period": "month"},
+  "tags": ["sales", "automation", "scheduling", "calendar"]
+}
