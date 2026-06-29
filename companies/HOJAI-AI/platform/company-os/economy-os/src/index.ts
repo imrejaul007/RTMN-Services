@@ -7,6 +7,7 @@
  * - Trust/Reputation
  * - Treasury Management
  * - Rewards/Loyalty
+ * - Wallet Adapters (connects to existing implementations)
  */
 
 export * from './types';
@@ -14,9 +15,14 @@ export * from './wallets';
 export * from './transactions';
 export * from './trust';
 
+// Wallet Adapters - connect to existing implementations
+export * from './wallet-adapters';
+export { UnifiedWalletManager, unifiedWalletManager } from './wallet-adapters/unified-wallet-manager';
+
 import { walletService } from './wallets';
 import { transactionService } from './transactions';
 import { trustOS } from './trust';
+import { UnifiedWalletManager, unifiedWalletManager } from './wallet-adapters/unified-wallet-manager';
 
 /**
  * Setup Company Economy
@@ -74,3 +80,6 @@ export async function setupAgentEconomy(agentId: string, companyId: string, appr
 
   return wallet.id;
 }
+
+// Re-export UnifiedWalletManager for direct access to existing wallets
+export { UnifiedWalletManager };

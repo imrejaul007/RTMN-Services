@@ -1,6 +1,6 @@
 # CompanyOS - Phase Status
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Updated:** June 30, 2026
 
 ---
@@ -26,6 +26,17 @@
 - **Auto-approval** within agent limits
 - **Manual approval** queue for large transactions
 
+### ✅ Wallet Adapters (Phase 15) - NEW
+Connects to existing wallet implementations:
+
+| Adapter | Connects To | Location |
+|---------|------------|----------|
+| REZWalletAdapter | REZ Wallet Service | `rez-wallet-service` |
+| AgentWalletAdapter | Agent Wallet | `agentfin/agent-wallet` |
+| HOJAIWalletAdapter | HOJAI Agent Wallet | `hojai-agent-wallet` |
+| CrossWalletAdapter | Cross-Wallet Identity | `REZ-cross-wallet-identity` |
+| UnifiedWalletManager | All wallets | Single interface |
+
 ### ✅ Distribution Layer (Phase 13)
 - **Consumer Apps**: DO, REZ, Nuqta, BuzzLocal, StayOwn
 - **Super Apps**: Airzy
@@ -44,35 +55,99 @@
 
 ---
 
-## Three Wallet Types
+## Existing Wallet Infrastructure (Audit)
+
+These already exist and we connected to them:
+
+| Wallet | Location | Type |
+|--------|----------|------|
+| `rez-wallet-service` | RABTUL-Technologies | Consumer/Merchant |
+| `agent-wallet` | agentfin/ | AI Agent |
+| `hojai-agent-wallet` | REZ-Workspace/hojai | HOJAI Agent |
+| `REZ-cross-wallet-identity` | RABTUL-Technologies | Multi-provider |
+| `careCredits.ts` | rez-wallet-service | Healthcare Credits |
+| `corporate wallet` | rtmnFinanceRoutes.ts | Corporate |
+
+---
+
+## Wallet Adapter Architecture
 
 ```
-┌────────────────────────────────────────────────────────┐
-│ ECONOMYOS                                              │
-├────────────────────────────────────────────────────────┤
-│                                                        │
-│  Corporate Wallet                                      │
-│  ├── Company-level funds                              │
-│  ├── ₹1 crore/day limit                               │
-│  └── Used for: operations, bulk purchases              │
-│                                                        │
-│  User Wallet                                           │
-│  ├── Employee + Customer                              │
-│  ├── ₹50k/day limit                                   │
-│  └── Used for: salary, purchases                      │
-│                                                        │
-│  Agent Wallet                                          │
-│  ├── AI Workers                                        │
-│  ├── ₹1 lakh/day limit                                │
-│  ├── Auto-approve up to ₹25k                          │
-│  └── Requires approval above                          │
-│                                                        │
-│  TrustOS                                               │
-│  ├── Reputation scoring (0-100)                       │
-│  ├── Trust levels: New → Bronze → Silver → Gold → Plat│
-│  └── For: companies, users, agents, suppliers         │
-│                                                        │
-└────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                     CompanyOS EconomyOS                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  UnifiedWalletManager                                        │
+│  ├── createCorporateWallet() → REZWalletAdapter            │
+│  ├── createUserWallet() → REZWalletAdapter                │
+│  ├── createAgentWallet() → AgentWalletAdapter             │
+│  └── getAggregatedBalance() → CrossWalletAdapter          │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │              Wallet Adapters                         │  │
+│  ├─────────────────────────────────────────────────────┤  │
+│  │  REZWalletAdapter      → rez-wallet-service:4004     │  │
+│  │  AgentWalletAdapter   → agentfin/agent-wallet        │  │
+│  │  HOJAIWalletAdapter  → hojai-agent-wallet:4891      │  │
+│  │  CrossWalletAdapter  → REZ-cross-wallet-identity    │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Existing Wallets                           │
+├─────────────────────────────────────────────────────────────┤
+│  REZ Wallet Service (4004)                                  │
+│  ├── Consumer Wallet                                       │
+│  ├── Merchant Wallet                                       │
+│  └── Corporate Wallet                                      │
+│                                                             │
+│  Agent Wallet                                              │
+│  ├── AI Agent wallets                                      │
+│  └── Budget management                                     │
+│                                                             │
+│  HOJAI Agent Wallet                                        │
+│  ├── HOJAI AI worker wallets                              │
+│  └── SUTAR integration                                    │
+│                                                             │
+│  Cross-Wallet Identity                                      │
+│  ├── Multi-wallet linking                                  │
+│  ├── Balance aggregation                                   │
+│  └── Cross-provider transfers                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Three Wallet Types (CompanyOS View)
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  CompanyOS EconomyOS                                        │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  Corporate Wallet                                          │
+│  ├── Source: REZ Wallet Service                           │
+│  ├── Used by: Company finance                            │
+│  └── Limits: ₹1 crore/day                                 │
+│                                                            │
+│  User Wallet                                              │
+│  ├── Source: REZ Wallet Service                           │
+│  ├── Used by: Employees, Customers                       │
+│  └── Limits: ₹50k/day                                    │
+│                                                            │
+│  Agent Wallet                                             │
+│  ├── Source: Agent Wallet + HOJAI Wallet                 │
+│  ├── Used by: AI workers (SUTAR)                         │
+│  └── Limits: ₹1 lakh/day, auto-approve ₹25k             │
+│                                                            │
+│  UnifiedManager                                            │
+│  ├── Connects all wallet types                           │
+│  ├── Aggregates balances                                  │
+│  └── Enables cross-wallet transfers                      │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -96,104 +171,7 @@
 
 ## Company Factory Templates (26)
 
-All 26 industries have complete factory templates:
-
-1. Restaurant — POS, KDS, online ordering
-2. Beauty — Appointments, stylists, memberships
-3. Hotel — PMS, housekeeping, channel manager
-4. Retail — POS, inventory, loyalty
-5. Healthcare — EMR, appointments, prescriptions
-6. Education — LMS, enrollments, certificates
-7. Real Estate — Listings, leads, viewings
-8. Manufacturing — Production, quality, compliance
-9. Fitness — Members, classes, trainers
-10. Legal — Cases, clients, documents
-11. Construction — Projects, contractors, materials
-12. Automotive — Vehicles, service, parts
-13. Logistics — Shipments, routes, warehouses
-14. Fashion — Catalog, orders, collections
-15. Sports — Teams, matches, tickets
-16. Entertainment — Events, tickets, venues
-17. Travel — Bookings, destinations, packages
-18. Government — Citizens, services, permits
-19. Agriculture — Farms, crops, inventory
-20. Nonprofit — Donors, campaigns, volunteers
-21. Professional — Clients, projects, invoices
-22. Home Services — Bookings, technicians
-23. Gaming — Players, matches, tournaments
-24. Media — Content, creators, campaigns
-25. Events — Events, venues, tickets
-26. Exhibitions — Exhibitions, stalls, exhibitors
-
----
-
-## Company Evolution Stages
-
-Every template supports 4 stages:
-
-| Stage | Capabilities |
-|-------|---------------|
-| **Startup** | Basic features, single location |
-| **Growth** | Multi-location, advanced analytics |
-| **Enterprise** | Multi-brand, global operations |
-| **Franchise** | Brand licensing, partner network |
-
----
-
-## Tests
-
-| Module | Tests |
-|--------|-------|
-| Composition Engine | 46 |
-| Manifest Registry | 24 |
-| Finance Pack | 9 |
-| AI Workforce | 23 |
-| Restaurant Extension | 15 |
-| Beauty Extension | 10 |
-| **EconomyOS** | **20+** |
-| **Distribution Layer** | **15+** |
-| **Company Factory** | **15+** |
-| **Total** | **175+** |
-
----
-
-## File Structure
-
-```
-platform/company-os/
-├── README.md
-├── PHASE-STATUS.md
-├── CLAUDE.md
-├── docker-compose.yml
-│
-├── composition-engine/      ✅
-├── manifest-registry/       ✅
-├── control-plane/          ✅
-├── department-packs/        ✅
-├── industry-extensions/    ✅ 26 extensions
-├── service-connectors/      ✅
-├── ai-workforce/          ✅
-├── studio/                ✅
-├── cli/                   ✅
-│
-├── economy-os/            ✅ Phase 12 (Wallets + Trust)
-│   ├── wallets.ts        (3 wallet types)
-│   ├── transactions.ts   (Authority limits)
-│   ├── trust.ts          (Reputation)
-│   └── __tests__/
-│
-├── distribution-layer/     ✅ Phase 13 (Consumer Apps, B2B, Nexus)
-│   ├── channels.ts       (10+ channels)
-│   ├── orchestrator.ts   (Sync logic)
-│   └── __tests__/
-│
-├── company-factory/        ✅ Phase 14 (26 templates)
-│   ├── templates.ts       (All 26 industries)
-│   ├── factory.ts         (One-click deploy)
-│   └── __tests__/
-│
-└── scripts/
-```
+All 26 industries have complete factory templates with distribution channels.
 
 ---
 
@@ -213,5 +191,6 @@ platform/company-os/
 - Phase 12: EconomyOS (3 Wallets + Trust) ✅
 - Phase 13: Distribution Layer ✅
 - Phase 14: Company Factory (26 Templates) ✅
+- **Phase 15: Wallet Adapters (Connect to Existing) ✅**
 
-**14 phases complete.**
+**15 phases complete.**
