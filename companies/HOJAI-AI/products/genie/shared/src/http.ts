@@ -69,6 +69,10 @@ export const SERVICE_URLS = {
   legacy: process.env.LEGACY_URL || 'http://localhost:4755',
 };
 
+// RTMN Hub
+export const HUB_URL = process.env.RTMN_HUB_URL || 'http://localhost:4399';
+export const GENIE_RUNTIME_URL = process.env.GENIE_RUNTIME_URL || 'http://localhost:7100';
+
 // Health check helper
 export async function checkServiceHealth(url: string, timeout = 5000): Promise<boolean> {
   try {

@@ -1,122 +1,224 @@
-# HOJAI Platform
+# HOJAI Platform - Production Ready
 
-> AI Workforce Platform - Build agents, workflows, integrations in minutes.
+> **Version:** 3.0
+> **Date:** June 29, 2026
+> **Status:** Production Ready
+
+---
 
 ## Quick Start
 
 ```bash
-cd docker && docker-compose up -d
+# 1. Run setup
+cd platform && chmod +x hojai-cli/setup.sh && ./hojai-cli/setup.sh
+
+# 2. Add API keys to .env
+
+# 3. Test
+curl http://localhost:4500/health
 ```
 
-## Services
-
-| Service | Port | Description |
-|---------|------|-------------|
-| API Gateway | 3000 | REST API |
-| Auth Service | 4000 | JWT + RBAC |
-| Webhook Server | 4002 | External triggers |
-| WebSocket | 4001 | Real-time |
-| BAM | 4400 | Marketplace |
+---
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                    HOJAI Platform                    │
-├─────────────────────────────────────────────────┤
-│  Agent Runtime   │  Flow Runtime   │  Webhook Server │
-│  Slack          │  CRM          │  Email        │
-│  Calendar       │  Calendar     │  Knowledge    │
-│  Analytics      │  Auth         │  Notifications│
-└─────────────────────────────────────────────────┘
-         │            │              │
-         ▼            ▼              ▼
-    ┌────────┐  ┌──────────┐  ┌──────────┐
-    │ Studio │  │  Studio  │  │  BAM     │
-    │  UI   │  │  Visual  │  │ Marketplace│
-    └────────┘  │ Builder  │  └──────────┘
-                  └──────────┘
+│                   HOJAI API Gateway                   │
+│                  (port 4500)                          │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  ┌─────────────────────────────────────────────┐  │
+│  │              6 Real Connectors                │  │
+│  ├─────────────────────────────────────────────┤  │
+│  │ Twilio SMS    │ Twilio Voice  │ WhatsApp    │  │
+│  │ Background Check │ Meeting │ Voice-to-Task │  │
+│  └─────────────────────────────────────────────┘  │
+│                                                     │
+│  ┌─────────────────────────────────────────────┐  │
+│  │            4 Production Services             │  │
+│  ├─────────────────────────────────────────────┤  │
+│  │ Reply Drafting │ Refund Approval │ RCA │ ROI│  │
+│  └─────────────────────────────────────────────┘  │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+         │                │                │
+         ▼                ▼                ▼
+  ┌──────────┐     ┌──────────┐     ┌──────────┐
+  │ Database │     │  Redis   │     │   LLM    │
+  │ Postgres │     │          │     │ Claude   │
+  └──────────┘     └──────────┘     └──────────┘
 ```
 
-## Agents
+---
 
-### Built-in Agents
+## API Endpoints
 
-| Agent | Description |
-|--------|-------------|
-| SDR Agent | Lead qualification |
-| Support Agent | Ticket handling |
-| Finance Agent | Invoice processing |
-| Marketing Agent | Content creation |
-| HR Agent | Recruitment |
-| Brief Agent | Executive reports |
+### Twilio SMS
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/sms/send` | Send SMS |
+| POST | `/api/sms/otp` | Send OTP |
+| POST | `/api/sms/bulk` | Bulk SMS |
+| GET | `/api/sms/balance` | Account balance |
+| POST | `/api/sms/validate` | Validate phone |
 
-### Agent Capabilities
+### Twilio Voice
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/voice/call` |
+| GET | `/api/voice/call/:sid` |
+| GET | `/api/voice/recordings/:sid` |
 
-```typescript
-agent.instructions = 'You are an expert SDR...';
-agent.tools = ['crm', 'email', 'calendar'];
-agent.llm = { provider: 'anthropic', model: 'claude-3-5-sonnet' };
+### WhatsApp Business
+| Method | Endpoint |
+|--------|----------|
+| GET | `/webhooks/whatsapp` |
+| POST | `/webhooks/whatsapp` |
+| POST | `/api/whatsapp/send` |
+| POST | `/api/whatsapp/template` |
+| POST | `/api/whatsapp/buttons` |
+
+### Background Check
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/background-check` |
+| GET | `/api/background-check/:id` |
+| POST | `/api/background-check/webhook` |
+
+### Meeting Recording
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/meeting/process` |
+| GET | `/api/meeting/zoom/:userId` |
+
+### Voice-to-Task
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/voice/transcribe` |
+| POST | `/api/voice/to-tasks` |
+| POST | `/api/voice/process` |
+
+### Reply Drafting
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/reply/draft` |
+| POST | `/api/reply/refine` |
+
+### Refund Approval
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/refund/process` |
+| POST | `/api/refund/approve` |
+
+### Root Cause Analysis
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/incidents/analyze` |
+
+### ROI Calculator
+| Method | Endpoint |
+|--------|----------|
+| POST | `/api/roi/calculate` |
+| POST | `/api/roi/department` |
+
+---
+
+## Connectors Built
+
+| Connector | Purpose | Real API |
+|-----------|---------|----------|
+| twilio-sms-connector | SMS, OTP, Bulk | ✅ Twilio |
+| twilio-voice-connector | Voice, AI Answer | ✅ Twilio |
+| whatsapp-business-connector | WhatsApp Cloud API | ✅ Meta |
+| background-check-connector | KYC, Verification | ✅ Checkr |
+| meeting-recording-connector | Zoom/Teams + AI | ✅ Zoom |
+| voice-to-task-connector | Whisper transcription | ✅ OpenAI |
+
+## Services Built
+
+| Service | Purpose | Real APIs |
+|---------|---------|-----------|
+| reply-drafting-service | LLM reply generation | ✅ GPT-4o |
+| refund-approval-service | Workflow-based approval | - |
+| root-cause-service | Incident analysis | ✅ LLM |
+| roi-calculator-service | AI workforce ROI | - |
+
+---
+
+## Environment Variables
+
+```env
+# Twilio
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_NUMBER=
+AI_CALLBACK_URL=
+
+# WhatsApp
+WA_PHONE_ID=
+WA_ACCESS_TOKEN=
+WA_BUSINESS_ID=
+WA_VERIFY_TOKEN=
+WA_APP_SECRET=
+
+# Background Check
+BACKGROUND_CHECK_API_KEY=
+
+# Zoom
+ZOOM_CLIENT_ID=
+ZOOM_CLIENT_SECRET=
+ZOOM_ACCOUNT_ID=
+ZOOM_WEBHOOK_SECRET=
+
+# LLMs
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+
+# Internal Services
+AI_AGENT_URL=http://localhost:4004
+KB_SERVICE_URL=http://localhost:4500/api/knowledge
 ```
 
-## Workflows
+---
 
-Pre-built templates: 100+.
+## Deployment
 
-```typescript
-flow.trigger = { type: 'webhook' };
-flow.nodes = [trigger, agent, condition, action, notification];
-```
-
-## Integrations
-
-| Integration | Status |
-|-------------|--------|
-| Slack | ✅ Messages, channels, DMs |
-| CRM (HubSpot) | ✅ Contacts, deals, pipelines |
-| Email (SendGrid) | ✅ Templates, batch send |
-| Calendar (Google) | ✅ Events, availability |
-
-## Database
-
-PostgreSQL with Drizzle ORM.
-
-```typescript
-tenants, users, workflows, executions, agents, conversations, integrations, audit_logs
-```
-
-## Security
-
-- JWT tokens (7d expiry)
-- RBAC (owner/admin/manager/member/viewer)
-- Multi-tenant isolation
-- API keys for external access
-
-## Development
+### Docker
 
 ```bash
-# All services
+cd platform/docker
 docker-compose up -d
-
-# Individual service
-cd services/auth-service && npm start
-
-# Tests
-npm test
 ```
 
-## Environment
+### Manual
 
-```
-DATABASE_URL=postgresql://hojai:xxx@localhost:5432/hojai
-JWT_SECRET=change-me
-OPENAI_API_KEY=sk-xxx
-ANTHROPIC_API_KEY=sk-ant-xxx
-SLACK_BOT_TOKEN=xoxb-xxx
-HUBSPOT_ACCESS_TOKEN=pat-xxx
-SENDGRID_API_KEY=SG.xxx
+```bash
+# Each service
+cd platform/services/hojai-api && node src/index.js
+cd platform/connectors/twilio-sms && node src/index.js
+# ...
 ```
 
-## License
+---
 
-MIT
+## Tests
+
+```bash
+cd platform/services/hojai-api
+npx vitest run
+```
+
+---
+
+## Architecture Documents
+
+- [PLATFORM_ASSETS.md](PLATFORM_ASSETS.md) - All assets inventory
+- [Docker Compose](docker/docker-compose.yml) - Full deployment
+
+---
+
+## Built By
+
+- Date: June 29, 2026
+- Phase 2 Complete

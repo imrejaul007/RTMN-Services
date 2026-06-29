@@ -1,26 +1,24 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
+  # ===== DATA LAYER =====
   postgres:
     image: postgres:16-alpine
-    container_name: hojai-db
+    container_name: hojai-postgres
     environment:
       POSTGRES_USER: hojai
-      POSTGRES_PASSWORD: hojai_secure_password_change_me
-      POSTGRES_DB: hojai_production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hojai_secure_change_me}
+      POSTGRES_DB: hojai
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/migrations:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hojai"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Redis (for sessions, cache)
   redis:
     image: redis:7-alpine
     container_name: hojai-redis
@@ -28,106 +26,56 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # HOJAI API Gateway
+  # ===== API LAYER =====
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: hojai-api
     ports:
-      - "3000:3000"
+      - "4500:4500"
     environment:
-      DATABASE_URL: postgresql://hojai:hojai_secure_password_change_me@postgres:5432/hojai_production
-      REDIS_URL: redis://redis:6379
-      JWT_SECRET: ${JWT_SECRET}
+      PORT: 4500
       NODE_ENV: production
+      # Twilio
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER}
+      AI_CALLBACK_URL: ${AI_CALLBACK_URL}
+      # WhatsApp
+      WA_PHONE_ID: ${WA_PHONE_ID}
+      WA_ACCESS_TOKEN: ${WA_ACCESS_TOKEN}
+      WA_BUSINESS_ID: ${WA_BUSINESS_ID}
+      WA_VERIFY_TOKEN: ${WA_VERIFY_TOKEN}
+      WA_APP_SECRET: ${WA_APP_SECRET}
+      # Background Check
+      BACKGROUND_CHECK_API_KEY: ${BACKGROUND_CHECK_API_KEY}
+      # Meeting Recording
+      MEETING_PROVIDER: zoom
+      ZOOM_CLIENT_ID: ${ZOOM_CLIENT_ID}
+      ZOOM_CLIENT_SECRET: ${ZOOM_CLIENT_SECRET}
+      ZOOM_ACCOUNT_ID: ${ZOOM_ACCOUNT_ID}
+      ZOOM_WEBHOOK_SECRET: ${ZOOM_WEBHOOK_SECRET}
+      # LLM APIs
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      AI_AGENT_URL: ${AI_AGENT_URL}
+      AI_ENGINE_URL: ${AI_ENGINE_URL}
+      KB_SERVICE_URL: ${KB_SERVICE_URL}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
 
-  # Flow Runtime (worker)
-  flow-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
-    container_name: hojai-flow-worker
-    command: node dist/workers/flow-worker.js
-    environment:
-      DATABASE_URL: postgresql://hojai:hojai_secure_password_change_me@postgres:5432/hojai_production
-      REDIS_URL: redis://redis:6379
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  # Agent Runtime (worker)
-  agent-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
-    container_name: hojai-agent-worker
-    command: node dist/workers/agent-worker.js
-    environment:
-      DATABASE_URL: postgresql://hojai:hojai_secure_password_change_me@postgres:5432/hojai_production
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  # Cron Scheduler
-  scheduler:
-    image: node:20-alpine
-    container_name: hojai-scheduler
-    command: node scripts/scheduler.js
-    volumes:
-      - ./:/app
-    environment:
-      DATABASE_URL: postgresql://hojai:hojai_secure_password_change_me@postgres:5432/hojai_production
-      TZ: Asia/Kolkata
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  # Nginx Reverse Proxy
-  nginx:
+  # ===== FRONTEND =====
+  studio:
     image: nginx:alpine
-    container_name: hojai-nginx
+    container_name: hojai-studio
     ports:
-      - "80:80"
-      - "443:443"
+      - "3001:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./certs:/etc/nginx/certs
-    depends_on:
-      - api
-
-  # Prometheus Metrics
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: hojai-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-
-  # Grafana Dashboard
-  grafana:
-    image: grafana/grafana
-    container_name: hojai-grafana
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
+      - ./nginx.conf:/etc/nginx/nginx.conf
 
 volumes:
   postgres_data:
