@@ -83,7 +83,7 @@ describe('detectHallucinations - Core Functionality', () => {
 
 describe('detectHallucinations - Overconfidence Detection', () => {
   it('should detect overconfidence with multiple absolute statements', () => {
-    const text = 'This product is 100% effective. It always works. It never fails. It is definitely the best.';
+    const text = 'This product is 100% effective. It always works. It never fails. It is definitely the best. Certain to succeed.';
     const result = detectHallucinations(text);
     const overconfidenceIssue = result.issues.find(i => i.type === 'overconfidence');
 

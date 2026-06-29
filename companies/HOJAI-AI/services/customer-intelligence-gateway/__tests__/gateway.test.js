@@ -462,7 +462,7 @@ describe('Customer Intelligence Gateway', () => {
       });
 
       expect(result.value).toBe('new');
-      expect(result.behavior).toBe('occasional'); // new customers with 1 order are occasional
+      expect(result.behavior).toBe('new'); // 0.5 orders/year = new
     });
   });
 

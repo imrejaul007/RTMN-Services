@@ -36,13 +36,14 @@ const DIMENSIONS = ['valence', 'arousal', 'dominance'];
 // ============================================
 
 function extractProsodicFeatures(audioData = {}) {
+  const data = audioData || {};
   return {
-    pitch: audioData.pitch ?? Math.random() * 100,
-    energy: audioData.energy ?? Math.random() * 100,
-    speechRate: audioData.speechRate ?? 150 + Math.random() * 50,
-    pauseFrequency: audioData.pauseFrequency ?? Math.random() * 10,
-    jitter: audioData.jitter ?? Math.random() * 5,
-    shimmer: audioData.shimmer ?? Math.random() * 5
+    pitch: data.pitch ?? Math.random() * 100,
+    energy: data.energy ?? Math.random() * 100,
+    speechRate: data.speechRate ?? 150 + Math.random() * 50,
+    pauseFrequency: data.pauseFrequency ?? Math.random() * 10,
+    jitter: data.jitter ?? Math.random() * 5,
+    shimmer: data.shimmer ?? Math.random() * 5
   };
 }
 
