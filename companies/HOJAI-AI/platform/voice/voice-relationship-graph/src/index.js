@@ -9,11 +9,9 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Relationship graph
 const relationships = new Map();
 const interactionHistory = [];
 
-// Add relationship
 function addRelationship(fromCorpId, toCorpId, type, metadata = {}) {
   const key = `${fromCorpId}:${toCorpId}`;
   const rel = {
@@ -28,7 +26,6 @@ function addRelationship(fromCorpId, toCorpId, type, metadata = {}) {
   return rel;
 }
 
-// Get relationships for entity
 function getRelationships(corpId) {
   const result = [];
   for (const [key, rel] of relationships) {
@@ -39,7 +36,6 @@ function getRelationships(corpId) {
   return result;
 }
 
-// Record interaction
 function recordInteraction(fromCorpId, toCorpId, metadata = {}) {
   const interaction = {
     id: `int-${Date.now()}`,

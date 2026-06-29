@@ -1,0 +1,50 @@
+{
+  "name": "@hojai/dept-sales",
+  "version": "1.0.0",
+  "description": "HOJAI Sales Department Pack - Complete AI sales team",
+  "main": "src/index.ts",
+  "agents": [
+    {
+      "id": "sdr-agent",
+      "name": "Sales Development Rep",
+      "role": "sdr",
+      "skills": ["lead_qualification", "company_research", "email_outreach", "meeting_booking"],
+      "workflows": ["lead-qualification-pipeline", "linkedin-outreach", "email-campaign"]
+    },
+    {
+      "id": "account-executive",
+      "name": "Account Executive",
+      "role": "ae",
+      "skills": ["discovery", "demo", "proposal", "negotiation", "closing"],
+      "workflows": ["discovery-call", "demo-scheduler", "proposal-generator"]
+    },
+    {
+      "id": "sales-ops-agent",
+      "name": "Sales Operations",
+      "role": "sales_ops",
+      "skills": ["pipeline_analytics", "forecast", "territory_management", "commission_calc"],
+      "workflows": ["pipeline-forecast", "crm-cleanup", "territory-balancing"]
+    },
+    {
+      "id": "outreach-agent",
+      "name": "Outreach Specialist",
+      "role": "outreach",
+      "skills": ["cold_email", "linkedin_outreach", "follow_up", "sequence_management"],
+      "workflows": ["cold-email-campaign", "linkedin-sequence", "auto-followup"]
+    },
+    {
+      "id": "proposal-agent",
+      "name": "Proposal Specialist",
+      "role": "proposal",
+      "skills": ["document_generation", "pricing_optimization", "competitive_analysis"],
+      "workflows": ["proposal-generator", "pricing-optimization", "competitor-monitor"]
+    }
+  ],
+  "department": {
+    "name": "Sales Department",
+    "type": "sales",
+    "headcount": 5,
+    "estimated_monthly_cost": 45000,
+    "currency": "INR"
+  }
+}

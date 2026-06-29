@@ -1205,7 +1205,7 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 
 **Source:** `companies/HOJAI-AI/services/` and `companies/HOJAI-AI/products/`
 
-### LoopOS — Persistent Autonomous Execution Layer (2026-06-29) — 17 SERVICES
+### LoopOS — Persistent Autonomous Execution Layer (2026-06-29) — 18 SERVICES
 
 **LoopOS** implements Loop Engineering for HOJAI — converting AI agents from task-based to persistent autonomous execution. Source: [`platform/flow/loop-os/`](companies/HOJAI-AI/platform/flow/loop-os/)
 
@@ -1229,9 +1229,10 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 | retry-engine | 4743 | Circuit breaker + exponential backoff |
 | worktrees | 4744 | Parallel execution (fan-out/fan-in) |
 | agent-bus | 4745 | Inter-agent communication + messaging |
-| **Tools & Simulation** |
+| **Tools & Learning** |
 | mcp-connectors | 4746 | Model Context Protocol - 20+ pre-built tools |
 | simulation-os | 4747 | Test agents in sandbox before production |
+| learning-distribution | 4748 | Share learnings across agents/orgs |
 
 **Startup:** `bash platform/flow/loop-os/start-loopos.sh start`
 

@@ -9,20 +9,18 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Action system routes
 const actionRoutes = {
-  task: 'http://localhost:4297',      // GoalOS
-  flow: 'http://localhost:4298',      // FlowOS
-  genie: 'http://localhost:4701',      // Genie
-  company: 'http://localhost:4705',   // TwinOS Company
-  payment: 'http://localhost:4301',    // Payment
-  calendar: 'http://localhost:4709',  // Calendar
-  email: 'http://localhost:4710',      // Email
-  crm: 'http://localhost:4800',      // CRM
-  support: 'http://localhost:4885'    // Support
+  task: 'http://localhost:4297',
+  flow: 'http://localhost:4298',
+  genie: 'http://localhost:4701',
+  company: 'http://localhost:4705',
+  payment: 'http://localhost:4301',
+  calendar: 'http://localhost:4709',
+  email: 'http://localhost:4710',
+  crm: 'http://localhost:4800',
+  support: 'http://localhost:4885'
 };
 
-// Intent classification
 const intentPatterns = {
   task: ['task', 'remind', 'todo', 'schedule', 'assign', 'deadline'],
   flow: ['workflow', 'automate', 'process', 'routine'],
@@ -37,25 +35,20 @@ const intentPatterns = {
 function classifyIntent(text) {
   const lower = text.toLowerCase();
   const scores = {};
-
   for (const [intent, patterns] of Object.entries(intentPatterns)) {
     scores[intent] = patterns.filter(p => lower.includes(p)).length;
   }
-
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   return sorted[0][1] > 0 ? sorted[0][0] : 'genie';
 }
 
 app.post('/route', (req, res) => {
   const { voiceText, corpId, context } = req.body;
-
   if (!voiceText) {
     return res.status(400).json({ error: 'voiceText required' });
   }
-
   const intent = classifyIntent(voiceText);
   const actionEndpoint = actionRoutes[intent];
-
   res.json({
     voiceText,
     corpId,

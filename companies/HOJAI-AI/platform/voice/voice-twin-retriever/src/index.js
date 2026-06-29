@@ -9,18 +9,14 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Twin cache
 const twinCache = new Map();
 const voiceToTwin = new Map();
 
-// Retrieve twin from CorpID
 function retrieveTwin(corpId, twinType = 'user') {
   const key = `${corpId}:${twinType}`;
   if (twinCache.has(key)) {
     return twinCache.get(key);
   }
-
-  // In production, this would call TwinOS (port 4705)
   const twin = {
     corpId,
     twinType,
@@ -30,12 +26,10 @@ function retrieveTwin(corpId, twinType = 'user') {
     preferences: {},
     loadedAt: new Date().toISOString()
   };
-
   twinCache.set(key, twin);
   return twin;
 }
 
-// Cache twin for voice
 function cacheTwinForVoice(voiceFingerprint, twin) {
   voiceToTwin.set(voiceFingerprint, {
     twin,
@@ -43,61 +37,44 @@ function cacheTwinForVoice(voiceFingerprint, twin) {
   });
 }
 
-// Get cached twin for voice
 function getCachedTwin(voiceFingerprint) {
   return voiceToTwin.get(voiceFingerprint);
 }
 
-// POST /retrieve - Retrieve twin for voice/CorpID
 app.post('/retrieve', (req, res) => {
   const { voiceFingerprint, corpId, twinType } = req.body;
-
   if (!corpId && !voiceFingerprint) {
     return res.status(400).json({ error: 'voiceFingerprint or corpId required' });
   }
-
-  // Lookup CorpID from voice if needed
   let resolvedCorpId = corpId;
   if (!resolvedCorpId && voiceFingerprint) {
-    // In production, call voice-identity-bridge
     resolvedCorpId = `corp_${voiceFingerprint.substring(0, 8)}`;
   }
-
   const twin = retrieveTwin(resolvedCorpId, twinType || 'user');
-
-  // Cache for quick access
   if (voiceFingerprint) {
     cacheTwinForVoice(voiceFingerprint, twin);
   }
-
   res.json({ twin });
 });
 
-// GET /twin/:corpId - Get twin by CorpID
 app.get('/twin/:corpId', (req, res) => {
   const { corpId } = req.params;
   const { type } = req.query;
-
   const twin = retrieveTwin(corpId, type);
   res.json({ twin });
 });
 
-// GET /voice/:fingerprint/twin - Get cached twin
 app.get('/voice/:fingerprint/twin', (req, res) => {
   const { fingerprint } = req.params;
-
   const cached = getCachedTwin(fingerprint);
   if (!cached) {
     return res.status(404).json({ error: 'No twin cached for this voice' });
   }
-
   res.json({ twin: cached.twin, cachedAt: cached.cachedAt });
 });
 
-// DELETE /cache - Clear twin cache
 app.delete('/cache', (req, res) => {
   const { voiceFingerprint, corpId } = req.query;
-
   if (voiceFingerprint) {
     voiceToTwin.delete(voiceFingerprint);
   }
@@ -108,11 +85,9 @@ app.delete('/cache', (req, res) => {
       }
     }
   }
-
   res.json({ success: true });
 });
 
-// GET /health
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'voice-twin-retriever', port: PORT, cachedTwins: twinCache.size });
 });
