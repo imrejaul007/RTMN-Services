@@ -368,13 +368,23 @@ class ActionEngine {
    * Call Support
    */
   async callSupport(intent, entities, context) {
+    // Call unified-support-bridge at /api/webhooks/app
+    const message = [
+      entities.description,
+      entities.issue_type ? 'Issue: ' + entities.issue_type : null,
+      entities.order_id ? 'Order: ' + entities.order_id : null,
+    ].filter(Boolean).join('. ');
+
     const response = await axios.post(
-      `${this.services.support}${intent.endpoint}`,
+      `${this.services.support}/api/webhooks/app`,
       {
-        orderId: entities.order_id,
-        issueType: entities.issue_type,
-        description: entities.description,
-        userId: context.userId
+        appUserId: context.userId || context.phone || context.email || 'razouser-' + (context.sessionId || '').slice(-8),
+        message: message || ('Support request: ' + intent.intent),
+        platform: 'razo-keyboard',
+        contactName: context.userName || null,
+        sessionId: context.sessionId || null,
+        intent: intent.intent,
+        intentConfidence: intent.confidence,
       },
       { timeout: 15000 }
     );
