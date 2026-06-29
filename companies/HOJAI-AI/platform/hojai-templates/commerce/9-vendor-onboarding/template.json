@@ -1,0 +1,36 @@
+{
+  "id": "commerce-vendor-onboarding",
+  "name": "Vendor Onboarding",
+  "category": "commerce",
+  "description": "Automated vendor onboarding with document collection and compliance check",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "crm", "event": "vendor.created"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "New Vendor", "config": {"source": "crm"}},
+    {"id": "2", "type": "ai_agent", "name": "Determine Requirements", "config": {"agent": "procurement_agent", "prompt": "Determine required documents based on vendor category and transaction value."}},
+    {"id": "3", "type": "email", "name": "Send Welcome Kit", "config": {"template": "vendor_welcome", "include": ["checklist", "forms"]}},
+    {"id": "4", "type": "wait", "name": "Wait 7 Days", "config": {"delay_days": 7}},
+    {"id": "5", "type": "crm", "name": "Check Docs Received", "config": {"action": "get_received_documents"}},
+    {"id": "6", "type": "condition", "name": "Docs Complete?", "config": {"field": "documents.complete"}},
+    {"id": "7a", "type": "approval", "name": "Finance Approval", "config": {"approvers": ["finance_team"]}},
+    {"id": "7b", "type": "email", "name": "Reminder", "config": {"template": "documents_reminder"}},
+    {"id": "8", "type": "crm", "name": "Activate Vendor", "config": {"action": "set_active", "condition": "approved"}},
+    {"id": "9", "type": "twin", "name": "Create Vendor Twin", "config": {"twin": "vendor_twin", "action": "create"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7a", "condition": "complete == true"},
+    {"from": "6", "to": "7b", "condition": "complete == false"},
+    {"from": "7a", "to": "8", "condition": "approved"},
+    {"from": "8", "to": "9"}
+  ],
+  "agents": ["procurement_agent"],
+  "integrations": ["crm", "email", "document_management"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["commerce", "vendor", "onboarding", "automation"]
+}
