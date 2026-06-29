@@ -2,18 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 
-const app = express();
 const PORT = process.env.PORT || 4993;
 
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-
-// Knowledge graph for verification
-const knowledgeGraph = new Map();
+// Knowledge graph for verification (shared state)
+export const knowledgeGraph = new Map();
 
 // Add fact to knowledge graph
-function addFact(subject, predicate, object, source, reliability = 0.8) {
+export function addFact(subject, predicate, object, source, reliability = 0.8) {
   const key = `${subject}|${predicate}`;
   const facts = knowledgeGraph.get(key) || [];
   facts.push({
@@ -26,7 +21,7 @@ function addFact(subject, predicate, object, source, reliability = 0.8) {
 }
 
 // Check fact against knowledge graph
-function verifyFact(statement) {
+export function verifyFact(statement) {
   const results = {
     statement,
     verified: false,
@@ -87,20 +82,20 @@ function verifyFact(statement) {
   return results;
 }
 
-function parseStatement(statement) {
+export function parseStatement(statement) {
   // Simple parsing: "X is Y", "X has Y", "X equals Y"
   const patterns = [
-    /^([^.!?]+)\s+is\s+(.+)$/i,
-    /^([^.!?]+)\s+has\s+(.+)$/i,
-    /^([^.!?]+)\s+equals\s+(.+)$/i
+    { regex: /^([^.!?]+)\s+is\s+(.+)$/i, predicate: 'is' },
+    { regex: /^([^.!?]+)\s+has\s+(.+)$/i, predicate: 'has' },
+    { regex: /^([^.!?]+)\s+equals\s+(.+)$/i, predicate: 'equals' }
   ];
 
-  for (const pattern of patterns) {
-    const match = statement.match(pattern);
+  for (const { regex, predicate } of patterns) {
+    const match = statement.match(regex);
     if (match) {
       return {
         subject: match[1].trim(),
-        predicate: pattern.source.match(/\s+(\w+)\s+/)?.[1] || 'related_to',
+        predicate: predicate,
         object: match[2].trim()
       };
     }
@@ -109,7 +104,7 @@ function parseStatement(statement) {
   return null;
 }
 
-function isContradiction(obj1, obj2) {
+export function isContradiction(obj1, obj2) {
   // Simple contradiction detection
   if (obj1 === obj2) return false;
 
@@ -132,86 +127,117 @@ function isContradiction(obj1, obj2) {
   return false;
 }
 
-// POST /fact - Add fact to knowledge graph
-app.post('/fact', (req, res) => {
-  const { subject, predicate, object, source, reliability } = req.body;
+export function createApp() {
+  const app = express();
+  app.use(helmet());
+  app.use(cors());
+  app.use(express.json());
 
-  if (!subject || !predicate || !object) {
-    return res.status(400).json({ error: 'subject, predicate, and object are required' });
-  }
+  // POST /fact - Add fact to knowledge graph
+  app.post('/fact', (req, res) => {
+    const { subject, predicate, object, source, reliability } = req.body;
 
-  addFact(subject, predicate, object, source || 'unknown', reliability || 0.8);
-
-  res.json({ success: true });
-});
-
-// POST /verify - Verify statement
-app.post('/verify', (req, res) => {
-  const { statement, source } = req.body;
-
-  if (!statement) {
-    return res.status(400).json({ error: 'Statement is required' });
-  }
-
-  // Add statement itself as a potential fact
-  if (source) {
-    const parsed = parseStatement(statement);
-    if (parsed) {
-      addFact(parsed.subject, parsed.predicate, parsed.object, source, 0.9);
+    if (!subject || !predicate || !object) {
+      return res.status(400).json({ error: 'subject, predicate, and object are required' });
     }
-  }
 
-  const result = verifyFact(statement);
+    addFact(subject, predicate, object, source || 'unknown', reliability || 0.8);
 
-  res.json(result);
-});
-
-// POST /verify/batch - Batch verify
-app.post('/verify/batch', (req, res) => {
-  const { statements } = req.body;
-
-  if (!statements || !Array.isArray(statements)) {
-    return res.status(400).json({ error: 'Statements array is required' });
-  }
-
-  const results = statements.map(s => verifyFact(s));
-
-  res.json({
-    results,
-    summary: {
-      verified: results.filter(r => r.verified).length,
-      disputed: results.filter(r => r.verdict === 'disputed').length,
-      unverified: results.filter(r => r.verdict === 'unverified').length
-    }
+    res.json({ success: true });
   });
-});
 
-// GET /graph - Query knowledge graph
-app.get('/graph', (req, res) => {
-  const { subject, predicate } = req.query;
+  // POST /verify - Verify statement
+  app.post('/verify', (req, res) => {
+    const { statement, source } = req.body;
 
-  if (subject && predicate) {
-    const key = `${subject}|${predicate}`;
-    const facts = knowledgeGraph.get(key) || [];
-    return res.json({ facts });
+    if (!statement) {
+      return res.status(400).json({ error: 'Statement is required' });
+    }
+
+    // Add statement itself as a potential fact
+    if (source) {
+      const parsed = parseStatement(statement);
+      if (parsed) {
+        addFact(parsed.subject, parsed.predicate, parsed.object, source, 0.9);
+      }
+    }
+
+    const result = verifyFact(statement);
+
+    res.json(result);
+  });
+
+  // POST /verify/batch - Batch verify
+  app.post('/verify/batch', (req, res) => {
+    const { statements } = req.body;
+
+    if (!statements || !Array.isArray(statements)) {
+      return res.status(400).json({ error: 'Statements array is required' });
+    }
+
+    const results = statements.map(s => verifyFact(s));
+
+    res.json({
+      results,
+      summary: {
+        verified: results.filter(r => r.verified).length,
+        disputed: results.filter(r => r.verdict === 'disputed').length,
+        unverified: results.filter(r => r.verdict === 'unverified').length
+      }
+    });
+  });
+
+  // GET /graph - Query knowledge graph
+  app.get('/graph', (req, res) => {
+    const { subject, predicate } = req.query;
+
+    if (subject && predicate) {
+      const key = `${subject}|${predicate}`;
+      const facts = knowledgeGraph.get(key) || [];
+      return res.json({ facts });
+    }
+
+    const facts = [];
+    for (const [key, value] of knowledgeGraph) {
+      const [subject, predicate] = key.split('|');
+      facts.push({ subject, predicate, facts: value });
+    }
+
+    res.json({ graph: facts, count: facts.length });
+  });
+
+  // GET /health
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok', service: 'verification-engine', port: PORT, facts: knowledgeGraph.size });
+  });
+
+  return app;
+}
+
+// Start server if this is the main module (only when not being imported for tests)
+let server = null;
+
+export function startServer() {
+  if (!server) {
+    const app = createApp();
+    server = app.listen(PORT, () => {
+      console.log(`Verification Engine running on port ${PORT}`);
+    });
   }
+  return server;
+}
 
-  const facts = [];
-  for (const [key, value] of knowledgeGraph) {
-    const [subject, predicate] = key.split('|');
-    facts.push({ subject, predicate, facts: value });
+export function stopServer() {
+  if (server) {
+    server.close();
+    server = null;
   }
+}
 
-  res.json({ graph: facts, count: facts.length });
-});
+// Auto-start if running directly
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+if (isMainModule) {
+  startServer();
+}
 
-// GET /health
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'verification-engine', port: PORT, facts: knowledgeGraph.size });
-});
-
-app.listen(PORT, () => {
-  console.log(`Verification Engine running on port ${PORT}`);
-});
-
-export default app;
+export default createApp;
