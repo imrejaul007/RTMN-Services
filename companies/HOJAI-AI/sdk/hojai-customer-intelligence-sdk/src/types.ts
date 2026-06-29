@@ -205,7 +205,7 @@ export interface ReturnRiskAssessment {
 export interface ReturnAbuseIndicators {
   sameDayReturns: number;
   highValueReturns: number;
-  repeatedSize Exchanges: number;
+  repeatedSizeExchanges: number;
   abusivePatterns: string[];
 }
 
