@@ -969,6 +969,25 @@ stop_all() {
   stop_port 3001 "do-app"
   # Phase 5: Autonomy Layer
   stop_port 5412 "widget-command"
+  # Genie OS Runtime (7100)
+  stop_port 7100 "genie-runtime"
+  # 14 Genie Services (4740-4755)
+  stop_port 4740 "genie-decision"
+  stop_port 4742 "genie-learning"
+  stop_port 4745 "genie-anticipation"
+  stop_port 4746 "genie-ambient"
+  stop_port 4743 "genie-constitution"
+  stop_port 4747 "genie-financial"
+  stop_port 4748 "genie-health"
+  stop_port 4749 "genie-household"
+  stop_port 4750 "genie-travel"
+  stop_port 4751 "genie-spiritual"
+  stop_port 4752 "genie-simulation"
+  stop_port 4753 "genie-focus"
+  stop_port 4754 "genie-dreams"
+  stop_port 4755 "genie-legacy"
+  # Genie Wish Fulfillment (4001)
+  stop_port 4001 "genie-wishes"
 }
 
 case "${1:-start}" in
