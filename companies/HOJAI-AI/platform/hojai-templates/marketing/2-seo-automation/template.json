@@ -1,0 +1,28 @@
+{
+  "id": "marketing-seo-automation",
+  "name": "SEO Article Generator",
+  "category": "marketing",
+  "description": "Automatically generate SEO-optimized articles with keyword research",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 6 * * 3"}],
+  "nodes": [
+    {"id": "1", "type": "actor", "name": "Keyword Research", "config": {"actor": "google_trends", "filter": ["industry_keywords", "question_keywords"]}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Competitors", "config": {"agent": "seo_agent", "prompt": "Analyze top-ranking articles for target keywords."}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Article", "config": {"agent": "content_agent", "prompt": "Write SEO-optimized article with: title, meta, headers, content, internal links."}},
+    {"id": "4", "type": "approval", "name": "Editor Review", "config": {"approvers": ["content_editor"]}},
+    {"id": "5", "type": "cms", "name": "Publish to CMS", "config": {"provider": "wordpress", "publish": true}},
+    {"id": "6", "type": "social", "name": "Create Social Posts", "config": {"platforms": ["linkedin", "twitter"], "content": "article_summary"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5", "condition": "approved"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["seo_agent", "content_agent"],
+  "integrations": ["google_search", "wordpress", "linkedin", "twitter"],
+  "estimated_setup_time": "45 minutes",
+  "price": {"subscription": 2499, "currency": "INR", "period": "month"},
+  "tags": ["marketing", "seo", "content", "automation"]
+}
