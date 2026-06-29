@@ -200,6 +200,7 @@ HUMAN_GROWTH_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-
 HUMAN_PRESENCE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/human-presence && PORT=4896 npm start"
 RELATIONSHIP_OS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/relationship-os && PORT=4897 npm start"
 VOICE_ORCHESTRATOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-orchestrator && PORT=4898 npm start"
+APP_DETECTION_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/app-detection && PORT=4899 npm start"
 
 # HOJAI App Store API (4400) — Catalog for skills, agents, workflows, templates
 APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PORT=4400 npm start"
@@ -721,6 +722,7 @@ start_all() {
 	  start_service "human-presence"        "$HUMAN_PRESENCE_CMD"        4896
 	  start_service "relationship-os"      "$RELATIONSHIP_OS_CMD"      4897
 	  start_service "voice-orchestrator"   "$VOICE_ORCHESTRATOR_CMD"   4898
+	  start_service "app-detection"        "$APP_DETECTION_CMD"       4899
   # HOJAI App Store API (port 4400)
   start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
@@ -865,6 +867,7 @@ stop_all() {
   stop_port 4896 "human-presence"
   stop_port 4897 "relationship-os"
   stop_port 4898 "voice-orchestrator"
+  stop_port 4899 "app-detection"
   stop_port 4400 "app-store-api"
   stop_port 4299 "razo-keyboard"
   # BLR AI Marketplace
