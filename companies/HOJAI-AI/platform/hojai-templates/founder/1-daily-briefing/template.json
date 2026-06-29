@@ -1,0 +1,39 @@
+{
+  "id": "founder-daily-briefing",
+  "name": "AI Daily Founder Briefing",
+  "category": "founder",
+  "description": "AI-powered daily briefing with sales, marketing, operations, and finance highlights",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 7 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "crm", "name": "Sales Data", "config": {"action": "get_daily_metrics", "metrics": ["new_leads", "deals_won", "deals_lost", "pipeline_value"]}},
+    {"id": "2", "type": "analytics", "name": "Marketing Data", "config": {"action": "get_metrics", "sources": ["google_analytics", "ads", "email"]}},
+    {"id": "3", "type": "finance", "name": "Finance Data", "config": {"action": "get_daily", "metrics": ["revenue", "burn", "cash_flow"]}},
+    {"id": "4", "type": "ops", "name": "Operations Data", "config": {"action": "get_metrics", "metrics": ["tickets", "csat", "support_load"]}},
+    {"id": "5", "type": "ai_agent", "name": "Generate Briefing", "config": {"agent": "founder_briefing_agent", "prompt": "Generate concise morning briefing: wins, concerns, priorities, AI recommendations."}},
+    {"id": "6", "type": "ai_agent", "name": "Risk Analysis", "config": {"agent": "risk_agent", "prompt": "Identify top 3 risks from yesterday's data."}},
+    {"id": "7", "type": "ai_agent", "name": "Opportunity Detection", "config": {"agent": "opportunity_agent", "prompt": "Identify top 3 opportunities from yesterday's data."}},
+    {"id": "8", "type": "twin", "name": "Update Company Twin", "config": {"twin": "company_twin", "action": "update_daily", "fields": ["metrics", "risks", "opportunities"]}},
+    {"id": "9", "type": "memory", "name": "Learn", "config": {"action": "save", "memory_type": "daily_briefing_history"}},
+    {"id": "10", "type": "slack", "name": "Send to Founder", "config": {"channel": "founder", "template": "daily_briefing"}},
+    {"id": "11", "type": "email", "name": "Email Briefing", "config": {"to": "founder@company.com", "template": "daily_briefing"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "5"},
+    {"from": "2", "to": "5"},
+    {"from": "3", "to": "5"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "5", "to": "7"},
+    {"from": "6", "to": "8"},
+    {"from": "7", "to": "8"},
+    {"from": "8", "to": "9"},
+    {"from": "9", "to": "10"},
+    {"from": "10", "to": "11"}
+  ],
+  "agents": ["founder_briefing_agent", "risk_agent", "opportunity_agent"],
+  "integrations": ["crm", "analytics", "finance", "slack", "email", "twin"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 2999, "currency": "INR", "period": "month"},
+  "tags": ["founder", "automation", "reporting", "ai-briefing"]
+}

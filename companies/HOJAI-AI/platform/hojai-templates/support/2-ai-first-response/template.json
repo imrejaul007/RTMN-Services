@@ -1,0 +1,39 @@
+{
+  "id": "support-ai-first-response",
+  "name": "AI First Response",
+  "category": "support",
+  "description": "Instant AI-powered first responses to support tickets",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "helpdesk", "event": "ticket.created"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "New Ticket", "config": {"source": "helpdesk"}},
+    {"id": "2", "type": "ai_agent", "name": "Understand Issue", "config": {"agent": "support_agent", "prompt": "Understand the support issue and customer context."}},
+    {"id": "3", "type": "knowledge", "name": "Search KB", "config": {"action": "search", "query": "{{ticket.subject}}"}},
+    {"id": "4", "type": "ai_agent", "name": "Draft Response", "config": {"agent": "support_agent", "prompt": "Draft helpful first response using knowledge base articles."}},
+    {"id": "5", "type": "condition", "name": "Auto-Reply?", "config": {"field": "confidence", "operator": ">=", "value": 80}},
+    {"id": "6a", "type": "action", "name": "Send Auto-Reply", "config": {"channel": "{{ticket.channel}}", "response": "{{draft}}"}},
+    {"id": "6b", "type": "action", "name": "Flag for Review", "config": {"flag": "ai_review"}},
+    {"id": "7", "type": "crm", "name": "Log Activity", "config": {"action": "add_note", "type": "ai_first_response"}},
+    {"id": "8", "type": "wait", "name": "Monitor Replies", "config": {"timeout_hours": 24}},
+    {"id": "9", "type": "ai_agent", "name": "Analyze Satisfaction", "config": {"agent": "support_agent", "prompt": "Analyze if AI response was helpful."}},
+    {"id": "10", "type": "memory", "name": "Learn", "config": {"action": "save", "memory_type": "response_feedback"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6a", "condition": "confidence >= 80"},
+    {"from": "5", "to": "6b", "condition": "confidence < 80"},
+    {"from": "6a", "to": "7"},
+    {"from": "6b", "to": "7"},
+    {"from": "7", "to": "8"},
+    {"from": "8", "to": "9"},
+    {"from": "9", "to": "10"}
+  ],
+  "agents": ["support_agent"],
+  "integrations": ["helpdesk", "knowledge_base", "crm"],
+  "estimated_setup_time": "20 minutes",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["support", "automation", "ai-response", "customer-experience"]
+}

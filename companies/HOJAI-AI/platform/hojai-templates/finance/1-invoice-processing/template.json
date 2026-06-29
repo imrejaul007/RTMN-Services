@@ -1,0 +1,37 @@
+{
+  "id": "finance-invoice-processing",
+  "name": "AI Invoice Processing",
+  "category": "finance",
+  "description": "Automatically process, validate, and route invoices for approval",
+  "version": "1.0.0",
+  "triggers": [{"type": "email", "source": "inbox", "filter": "invoice|receipt|bill"}],
+  "nodes": [
+    {"id": "1", "type": "email", "name": "Receive Invoice", "config": {"source": "inbox", "filter": "invoice_attachment"}},
+    {"id": "2", "type": "ocr", "name": "Extract Data", "config": {"fields": ["vendor", "amount", "date", "line_items", "tax"]}},
+    {"id": "3", "type": "ai_agent", "name": "Validate Invoice", "config": {"agent": "finance_agent", "prompt": "Validate invoice: match PO, check pricing, verify vendor."}},
+    {"id": "4", "type": "condition", "name": "Valid?", "config": {"field": "validation.status"}},
+    {"id": "5a", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["finance_manager"], "amount_threshold": "{{approval_threshold}}"} },
+    {"id": "5b", "type": "action", "name": "Auto-Approve", "config": {"condition": "amount < 10000"}},
+    {"id": "6", "type": "erp", "name": "Create in ERP", "config": {"action": "create_invoice", "system": "tally|quickbooks|zingg"}},
+    {"id": "7", "type": "payment", "name": "Schedule Payment", "config": {"method": "{{vendor.preferred_method}}", "date": "{{payment_terms}}"}},
+    {"id": "8", "type": "crm", "name": "Notify Vendor", "config": {"action": "send_receipt", "to": "{{vendor.email}}"}},
+    {"id": "9", "type": "twin", "name": "Update Vendor Twin", "config": {"twin": "vendor_twin", "action": "update", "fields": ["last_invoice", "payment_history"]}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5a", "condition": "valid == true && amount >= threshold"},
+    {"from": "4", "to": "5b", "condition": "valid == true && amount < threshold"},
+    {"from": "5a", "to": "6", "condition": "approved"},
+    {"from": "5b", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"},
+    {"from": "8", "to": "9"}
+  ],
+  "agents": ["finance_agent"],
+  "integrations": ["email", "ocr", "erp", "payment", "crm", "twin"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 2499, "currency": "INR", "period": "month"},
+  "tags": ["finance", "automation", "invoice", "accounts-payable"]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@hojai/cli",
+  "version": "1.0.0",
+  "description": "HOJAI CLI - Build AI companies in minutes",
+  "main": "dist/index.js",
+  "bin": {
+    "hojai": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest"
+  },
+  "keywords": ["hojai", "cli", "ai", "automation"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "inquirer": "^8.2.5",
+    "axios": "^1.6.2",
+    "fs-extra": "^11.2.0",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/fs-extra": "^11.0.4",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
