@@ -75,9 +75,13 @@ export class ManifestRegistry {
       fs.mkdirSync(snapshotsDir, { recursive: true });
     }
 
+    // Recalculate checksum before saving
+    const checksum = this.calculateChecksum(manifest);
+    const manifestToSave = { ...manifest, checksum };
+
     // Write current manifest
     const currentPath = path.join(companyDir, 'current.yaml');
-    const manifestYaml = yaml.dump(manifest, { indent: 2 });
+    const manifestYaml = yaml.dump(manifestToSave, { indent: 2 });
     fs.writeFileSync(currentPath, manifestYaml);
 
     // Write versioned manifest
@@ -85,7 +89,7 @@ export class ManifestRegistry {
     fs.writeFileSync(versionedPath, manifestYaml);
 
     // Update index
-    await this.updateIndex(manifest);
+    await this.updateIndex(manifestToSave);
 
     console.log(`[ManifestRegistry] Created manifest for ${manifest.companyId}`);
   }
