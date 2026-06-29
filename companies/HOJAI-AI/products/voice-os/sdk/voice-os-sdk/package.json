@@ -1,0 +1,36 @@
+{
+  "name": "@hojai/voice-os-sdk",
+  "version": "1.0.0",
+  "description": "HOJAI VoiceOS SDK - Unified SDK for all VoiceOS services",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.3",
+    "vitest": "^1.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "voice",
+    "voice-os",
+    "genie",
+    "stt",
+    "tts",
+    "wispr-flow",
+    "ai-assistant"
+  ],
+  "license": "MIT"
+}

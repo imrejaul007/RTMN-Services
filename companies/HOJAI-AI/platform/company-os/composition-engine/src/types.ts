@@ -111,6 +111,23 @@ export interface InstalledExtension {
   installedAt: string;
   config: Record<string, unknown>;
   migratedFrom?: string;
+  // REZ Connector references
+  connectors?: REZConnectorConfig;
+}
+
+export interface REZConnectorConfig {
+  // REZ-Merchant service paths for this extension
+  services: {
+    name: string;
+    path: string;      // Path in REZ-Merchant repo
+    url: string;      // Runtime URL (e.g., http://localhost:3002)
+    purpose: string;  // What it does
+  }[];
+  // Legacy routes that need adapter
+  legacyRoutes?: {
+    from: string;
+    to: string;
+  }[];
 }
 
 export interface InstalledWorker {
