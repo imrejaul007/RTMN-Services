@@ -32,11 +32,9 @@ export function verifyFact(statement) {
     verdict: 'unknown'
   };
 
-  // Parse statement
   const parsed = parseStatement(statement);
   if (!parsed) return results;
 
-  // Look up facts
   const key = `${parsed.subject}|${parsed.predicate}`;
   const facts = knowledgeGraph.get(key) || [];
 
@@ -46,7 +44,6 @@ export function verifyFact(statement) {
     return results;
   }
 
-  // Aggregate facts
   for (const fact of facts) {
     if (fact.object === parsed.object) {
       results.supportingFacts.push(fact);
@@ -56,7 +53,6 @@ export function verifyFact(statement) {
     }
   }
 
-  // Calculate confidence
   const supportingCount = results.supportingFacts.length;
   const contradictingCount = results.contradictingFacts.length;
   const totalCount = supportingCount + contradictingCount;
@@ -65,12 +61,10 @@ export function verifyFact(statement) {
     results.confidence = supportingCount / totalCount;
     results.verified = results.confidence >= 0.7;
   } else {
-    // Use reliability of sources
     const avgReliability = facts.reduce((sum, f) => sum + f.reliability, 0) / facts.length;
     results.confidence = avgReliability;
   }
 
-  // Determine verdict
   if (results.confidence >= 0.8) {
     results.verdict = results.contradictingFacts.length > 0 ? 'disputed' : 'verified';
   } else if (results.confidence >= 0.5) {
@@ -83,7 +77,6 @@ export function verifyFact(statement) {
 }
 
 export function parseStatement(statement) {
-  // Simple parsing: "X is Y", "X has Y", "X equals Y"
   const patterns = [
     { regex: /^([^.!?]+)\s+is\s+(.+)$/i, predicate: 'is' },
     { regex: /^([^.!?]+)\s+has\s+(.+)$/i, predicate: 'has' },
@@ -105,13 +98,11 @@ export function parseStatement(statement) {
 }
 
 export function isContradiction(obj1, obj2) {
-  // Simple contradiction detection
   if (obj1 === obj2) return false;
 
   const obj1Lower = obj1.toLowerCase();
   const obj2Lower = obj2.toLowerCase();
 
-  // Direct opposites
   const opposites = [
     ['true', 'false'], ['yes', 'no'], ['hot', 'cold'],
     ['big', 'small'], ['tall', 'short'], ['fast', 'slow']
@@ -133,7 +124,6 @@ export function createApp() {
   app.use(cors());
   app.use(express.json());
 
-  // POST /fact - Add fact to knowledge graph
   app.post('/fact', (req, res) => {
     const { subject, predicate, object, source, reliability } = req.body;
 
@@ -146,7 +136,6 @@ export function createApp() {
     res.json({ success: true });
   });
 
-  // POST /verify - Verify statement
   app.post('/verify', (req, res) => {
     const { statement, source } = req.body;
 
@@ -154,7 +143,6 @@ export function createApp() {
       return res.status(400).json({ error: 'Statement is required' });
     }
 
-    // Add statement itself as a potential fact
     if (source) {
       const parsed = parseStatement(statement);
       if (parsed) {
@@ -167,7 +155,6 @@ export function createApp() {
     res.json(result);
   });
 
-  // POST /verify/batch - Batch verify
   app.post('/verify/batch', (req, res) => {
     const { statements } = req.body;
 
@@ -187,7 +174,6 @@ export function createApp() {
     });
   });
 
-  // GET /graph - Query knowledge graph
   app.get('/graph', (req, res) => {
     const { subject, predicate } = req.query;
 
@@ -206,7 +192,6 @@ export function createApp() {
     res.json({ graph: facts, count: facts.length });
   });
 
-  // GET /health
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', service: 'verification-engine', port: PORT, facts: knowledgeGraph.size });
   });
@@ -214,30 +199,13 @@ export function createApp() {
   return app;
 }
 
-// Start server if this is the main module (only when not being imported for tests)
-let server = null;
-
-export function startServer() {
-  if (!server) {
-    const app = createApp();
-    server = app.listen(PORT, () => {
-      console.log(`Verification Engine running on port ${PORT}`);
-    });
-  }
-  return server;
-}
-
-export function stopServer() {
-  if (server) {
-    server.close();
-    server = null;
-  }
-}
-
-// Auto-start if running directly
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+// Start server only when run directly
+const isMainModule = process.argv[1]?.includes('index.js');
 if (isMainModule) {
-  startServer();
+  const app = createApp();
+  app.listen(PORT, () => {
+    console.log(`Verification Engine running on port ${PORT}`);
+  });
 }
 
 export default createApp;

@@ -89,9 +89,7 @@ describe('Source Tracker - Citation Extraction', () => {
     });
 
     it('should extract multiple citation types from same text', () => {
-      // Note: (Smith, 2023) format requires "Author, Year" in parentheses
-      // "According to Smith (2023)" has no comma, so it's not academic format
-      const text = 'According to Smith (Smith, 2023) [1], see https://example.com for details.';
+      const text = 'According to Smith (2023) [1], see https://example.com for details.';
       const citations = extractCitations(text);
 
       expect(citations).toHaveLength(3);
@@ -112,7 +110,7 @@ describe('Source Tracker - Citation Extraction', () => {
       const citations = extractCitations(text);
 
       expect(citations[0].position).toBe(6);
-      expect(citations[1].position).toBe(17);
+      expect(citations[1].position).toBe(14);
     });
 
     it('should assign default confidence of 0.8 to all citations', () => {
@@ -139,8 +137,7 @@ describe('Source Tracker - Citation Extraction', () => {
 
     it('should return "academic" for (Author, Year) format', () => {
       expect(getCitationType('(Smith, 2023)')).toBe('academic');
-      // Note: "et al." has space and period, so it doesn't match \w+ pattern
-      expect(getCitationType('(Johnson, 2025)')).toBe('academic');
+      expect(getCitationType('(Johnson et al., 2025)')).toBe('academic');
     });
 
     it('should return "general" for unknown formats', () => {
@@ -220,10 +217,9 @@ describe('Source Tracker - Citation Extraction', () => {
 
   describe('Integration Scenarios', () => {
     it('should handle real-world academic paper reference', () => {
-      // Note: "et al." format doesn't match academic pattern due to \w+ limitation
       const text = `
-        Recent advances in transformer models (Vaswani, 2017) have
-        revolutionized NLP [1]. The BERT model (Devlin, 2018) achieved
+        Recent advances in transformer models (Vaswani et al., 2017) have
+        revolutionized NLP [1]. The BERT model (Devlin et al., 2018) achieved
         state-of-the-art results on multiple benchmarks. See
         https://arxiv.org/abs/1706.03762 for the original paper.
       `;
@@ -236,9 +232,8 @@ describe('Source Tracker - Citation Extraction', () => {
     });
 
     it('should handle mixed content with multiple sources', () => {
-      // Note: "et al." format doesn't match academic pattern
       const text = `
-        According to Chen (Chen, 2024) [2], the global AI market is projected to
+        According to Chen (2024) [2], the global AI market is projected to
         reach $1.5 trillion by 2030 [3]. This aligns with research from
         https://www.mckinsey.com/ai-analysis showing enterprise AI adoption
         increasing by 35% annually.

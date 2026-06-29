@@ -98,6 +98,10 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | **4733** | **verification-engine** | `platform/flow/loop-os/verification-engine/` | ✅ NEW |
 | **4734** | **budget-engine** | `platform/flow/loop-os/budget-engine/` | ✅ NEW |
 | **4735** | **fleet-os** | `platform/flow/loop-os/fleet-os/` | ✅ NEW |
+| **4736** | **trust-profile** | `platform/flow/loop-os/trust-profile/` | ✅ NEW |
+| **4737** | **outcome-tracker** | `platform/flow/loop-os/outcome-tracker/` | ✅ NEW |
+| **4738** | **knowledge-graph** | `platform/flow/loop-os/knowledge-graph/` | ✅ NEW |
+| **4739** | **certification-pipeline** | `platform/flow/loop-os/certification-pipeline/` | ✅ NEW |
 
 ### ✅ Genie Port Status (Verified 2026-06-21)
 All 23 Genie services have unique, non-overlapping port assignments. The historical 4716 conflict has been resolved: `genie-shopping-agent` was relocated to 4728. No cross-service collisions remain.

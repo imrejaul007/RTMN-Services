@@ -29,7 +29,11 @@ LoopOS (Platform/flow/loop-os/)
 ├── loop-state/            (Port 4732) — State persistence + checkpoints
 ├── verification-engine/    (Port 4733) — Maker→Checker→Guardian pattern
 ├── budget-engine/         (Port 4734) — Token/spend/tool limits
-└── fleet-os/             (Port 4735) — AI employee organization
+├── fleet-os/              (Port 4735) — AI employee organization
+├── trust-profile/         (Port 4736) — Progressive autonomy + trust scoring
+├── outcome-tracker/       (Port 4737) — Outcome tracking + skill evolution
+├── knowledge-graph/        (Port 4738) — Entity relationships + causal reasoning
+└── certification-pipeline/ (Port 4739) — Simulation → Trust → Certification
 ```
 
 ### How They Connect
@@ -478,13 +482,95 @@ Risk thresholds:   Auto-escalate above 80% budget
 
 ## Status
 
-| Service | Port | Status | Tests |
-|---------|------|--------|-------|
-| Loop Scheduler | 4721 | ✅ Built | ✅ |
-| Loop State | 4722 | ✅ Built | ✅ |
-| Verification Engine | 4723 | ✅ Built | ✅ |
-| Budget Engine | 4724 | ✅ Built | ✅ |
-| Fleet Manager | 4725 | ✅ Built | ✅ |
+| Service | Port | Status |
+|---------|------|--------|
+| Loop Scheduler | 4731 | ✅ Built |
+| Loop State | 4732 | ✅ Built |
+| Verification Engine | 4733 | ✅ Built |
+| Budget Engine | 4734 | ✅ Built |
+| Fleet Manager | 4735 | ✅ Built |
+| Trust Profile | 4736 | ✅ Built |
+| Outcome Tracker | 4737 | ✅ Built |
+| Knowledge Graph | 4738 | ✅ Built |
+| Certification Pipeline | 4739 | ✅ Built |
+
+---
+
+## Additional Services
+
+### 6. Trust Profile (4736)
+
+**Purpose:** Progressive autonomy and trust scoring for AI agents
+
+```javascript
+// Create trust profile
+POST /api/profiles
+{ "twinId": "sales-agent-001", "initialScore": 50 }
+
+// Promote autonomy level
+POST /api/profiles/sales-agent-001/autonomy/promote
+
+// Record violation
+POST /api/profiles/sales-agent-001/violations
+{ "type": "policy_breach", "severity": "high" }
+```
+
+**Autonomy Levels:** 1 (Restricted) → 5 (Fully Autonomous)
+**Trust Dimensions:** execution, policy, customer, financial, security, collaboration
+
+### 7. Outcome Tracker (4737)
+
+**Purpose:** Track agent outcomes for learning and skill evolution
+
+```javascript
+// Record outcome
+POST /api/outcomes
+{ "twinId": "sales-agent-001", "taskType": "negotiation", "success": true, "score": 0.9 }
+
+// Get skill profile
+GET /api/skills/sales-agent-001
+
+// Evolve skill
+POST /api/skills/sales-agent-001/evolve
+{ "skill": "customer_support", "improvement": 0.05 }
+```
+
+### 8. Knowledge Graph (4738)
+
+**Purpose:** Entity relationships, ontology, and causal reasoning
+
+```javascript
+// Create entity
+POST /api/entities
+{ "type": "customer", "name": "Acme Corp" }
+
+// Create relation
+POST /api/relations
+{ "from": "customer-1", "to": "order-1", "type": "placed" }
+
+// Find connections
+GET /api/entities/customer-1/connections?depth=2
+
+// Semantic search
+GET /api/search?q=enterprise+customer
+```
+
+### 9. Certification Pipeline (4739)
+
+**Purpose:** Simulation → Trust → Certification flow for AI agents
+
+```javascript
+// Run certification pipeline
+POST /api/certification/run
+{ "twinId": "sales-agent-001", "suiteId": "sales-cert-suite" }
+
+// Grant certification manually
+POST /api/certification/sales-agent-001/grant
+{ "certType": "sales_expert", "issuer": "sales_manager" }
+
+// Get certification status
+GET /api/certification/sales-agent-001/status
+```
 
 ---
 

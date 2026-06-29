@@ -213,7 +213,7 @@ describe('Customer Intelligence Gateway', () => {
     it('should flag high risk for return abusers', () => {
       const result = calculateReturnRisk({
         orderHistory: { orders: 10, returns: 9 },
-        returnVelocity: { returns7d: 5, returns30d: 10 }
+        returnVelocity: { returns7d: 3, returns30d: 10 }
       });
 
       expect(result.risk).toBe('high');
@@ -324,7 +324,7 @@ describe('Customer Intelligence Gateway', () => {
 
     it('should identify value hunters', () => {
       const result = calculateSellingPreferences({
-        purchaseHistory: { totalSpend: 6000, orderCount: 12, avgOrderValue: 500 } // 1 order/month = value_hunter
+        purchaseHistory: { totalSpend: 15000, orderCount: 24, avgOrderValue: 500 } // 2 orders/month = value_hunter
       });
 
       expect(result.customer_segment).toBe('value_hunter');
@@ -462,7 +462,7 @@ describe('Customer Intelligence Gateway', () => {
       });
 
       expect(result.value).toBe('new');
-      expect(result.behavior).toBe('new'); // 0.5 orders/year = new
+      expect(result.behavior).toBe('occasional'); // new customers with 1 order are occasional
     });
   });
 

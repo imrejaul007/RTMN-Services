@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.21
+> **Version:** 5.22
 > **Last Updated:** June 29, 2026
-> **New:** ✅ **LoopOS** — Persistent Autonomous Execution Layer (5 services: Scheduler, State, Verification, Budget, Fleet)
-> **Status:** ✅ **LoopOS** (5 services) + SUTAR OS (37 services) + MemoryOS (30 services) + Human Intelligence OS (10 services)
+> **New:** ✅ **LoopOS** — Persistent Autonomous Execution Layer (9 services: Scheduler, State, Verification, Budget, Fleet, Trust, Outcomes, Knowledge, Certification)
+> **Status:** ✅ **LoopOS** (9 services) + SUTAR OS (37 services) + MemoryOS (30 services) + Human Intelligence OS (10 services)
 
 ---
 
@@ -1216,6 +1216,10 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 | **verification-engine** | 4733 | Maker→Checker→Guardian verification pattern |
 | **budget-engine** | 4734 | Token, cost, and tool limits per AI agent |
 | **fleet-os** | 4735 | AI employee organization management |
+| **trust-profile** | 4736 | Progressive autonomy + trust scoring for AI agents |
+| **outcome-tracker** | 4737 | Outcome tracking + skill evolution |
+| **knowledge-graph** | 4738 | Entity relationships + causal reasoning |
+| **certification-pipeline** | 4739 | Simulation → Trust → Certification flow |
 
 **Key Features:**
 - **Persistent Loops:** AI agents that continuously discover work, execute, verify, and improve
