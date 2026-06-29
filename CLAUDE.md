@@ -915,6 +915,31 @@ Department OS services run horizontally across ALL Industry OS, providing unifie
   - Connects to Sales OS, Finance OS, Marketing OS, Operations OS for real-time data
   - Real-time alerts and anomaly detection (94% accuracy)
 
+### Service Management (NEW - June 29, 2026)
+- **Location:** `companies/HOJAI-AI/platform/services/service-management/`
+- **Port:** 4510
+- **Module:** CompanyOS Service Management
+- **Features:**
+  - Unified ticketing (Customer + IT + HR)
+  - SLA tracking and monitoring
+  - Approval workflows
+  - AI resolution agent
+  - Dashboard and analytics
+- **Status:** ✅ COMPLETE
+
+### Workforce Capacity Planning (NEW - June 29, 2026)
+- **Location:** `companies/CorpPerks/workforce-planning/`
+- **Port:** 4511
+- **Module:** PeopleOS Workforce Planning
+- **Features:**
+  - Demand forecasting
+  - Human + AI worker mix optimization
+  - Shift planning
+  - Capacity optimization
+  - Utilization tracking
+  - Cost analysis
+- **Status:** ✅ COMPLETE
+
 ---
 
 ## 📁 RTMN Root Sales Integrations (`services/`)

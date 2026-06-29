@@ -1,173 +1,283 @@
 # HOJAI Platform Asset Inventory
 
 > **Authoritative reference** for what exists. Use this for audits, not file scanning.
+> **Updated:** June 29, 2026
 
-## Connectors - `platform/connectors/`
+---
 
-| # | Connector | Notes |
-|---|-----------|-------|
-| 1 | asana-connector | |
-| 2 | calendar-connector | Calendar |
-| 3 | connector-hub | Hub for all |
-| 4 | connector-marketplace | |
-| 5 | connector-registry | |
-| 6 | freshdesk-connector | |
-| 7 | freshworks-connector | |
-| 8 | github-connector | GitHub + PR reviews |
-| 9 | gmail-connector | Gmail + email |
-| 10 | hubspot-connector | |
-| 11 | intercom-connector | |
-| 12 | jira-connector | |
-| 13 | linear-connector | |
-| 14 | notion-connector | |
-| 15 | oracle-connector | |
-| 16 | quickbooks-connector | |
-| 17 | salesforce-connector | |
-| 18 | sap-connector | |
-| 19 | shopify-connector | |
-| 20 | slack-connector | |
-| 21 | stripe-connector | |
-| 22 | teams-connector | |
-| 23 | workday-connector | |
-| 24 | zoho-connector | |
-| 25 | zoom-connector | |
+## Connectors - `platform/connectors/` (27 total)
 
-**MISSING:** twilio-connector, whatsapp-business-connector
+| # | Connector | Status |
+|---|---------|--------|
+| 1 | asana-connector | ✅ |
+| 2 | calendar-connector | ✅ |
+| 3 | connector-hub | ✅ |
+| 4 | connector-marketplace | ✅ |
+| 5 | connector-registry | ✅ |
+| 6 | freshdesk-connector | ✅ |
+| 7 | freshworks-connector | ✅ |
+| 8 | github-connector | ✅ |
+| 9 | gmail-connector | ✅ |
+| 10 | hubspot-connector | ✅ |
+| 11 | intercom-connector | ✅ |
+| 12 | jira-connector | ✅ |
+| 13 | linear-connector | ✅ |
+| 14 | notion-connector | ✅ |
+| 15 | oracle-connector | ✅ |
+| 16 | quickbooks-connector | ✅ |
+| 17 | salesforce-connector | ✅ |
+| 18 | sap-connector | ✅ |
+| 19 | shopify-connector | ✅ |
+| 20 | slack-connector | ✅ |
+| 21 | stripe-connector | ✅ |
+| 22 | teams-connector | ✅ |
+| 23 | workday-connector | ✅ |
+| 24 | zoho-connector | ✅ |
+| 25 | zoom-connector | ✅ |
+| 26 | twilio-sms-connector | ✅ NEW |
+| 27 | twilio-voice-connector | ✅ NEW |
 
-## Agent OS - `platform/agent-os/`
+## NEW Connectors - Built June 29, 2026
 
-12 services, 637 tests:
-1. agent-platform-api (36 tests)
-2. agent-registry (54)
-3. capability-store (69)
-4. tool-registry (59)
-5. skill-library (73)
-6. message-bus (59)
-7. scheduler (89)
-8. context-store (64)
-9. agent-memory-bridge (64)
-10. agent-orchestrator (63)
-11. agent-execution-engine (61)
-12. agent-observability (46)
+| # | Connector | Purpose |
+|---|---------|---------|
+| 28 | whatsapp-business-connector | WhatsApp Cloud API |
+| 29 | background-check-connector | Checkr API |
+| 30 | meeting-recording-connector | Zoom + AI |
+| 31 | voice-to-task-connector | Whisper |
 
-## Multi-Agent Runtime - `platform/intelligence/multi-agent-runtime/`
+---
 
-**NOT duplicates:** This is the existing implementation
-- Use this one, NOT create new runtime/agent-runtime
+## Agent OS - `platform/agent-os/` (12 services)
 
-## Voice OS - `products/voice-os/`
+| # | Service | Tests |
+|---|---------|-------|
+| 1 | agent-platform-api | 36 |
+| 2 | agent-registry | 54 |
+| 3 | capability-store | 69 |
+| 4 | tool-registry | 59 |
+| 5 | skill-library | 73 |
+| 6 | message-bus | 59 |
+| 7 | scheduler | 89 |
+| 8 | context-store | 64 |
+| 9 | agent-memory-bridge | 64 |
+| 10 | agent-orchestrator | 63 |
+| 11 | agent-execution-engine | 61 |
+| 12 | agent-observability | 46 |
 
-17 services:
-- attention-engine
-- conversation-physics
-- curiosity-engine
-- humor-engine
-- life-timeline
-- multi-agent-voice
-- social-intelligence
-- voice-director
-- voice-gateway
-- voice-hotkey
-- voice-identity
-- voice-os-core
+---
 
-## Memory OS - `platform/memory/`
+## Production Services - `services/` (5)
 
-22 services (CONFIRMED):
-- memory-os, memory-substrate, memory-confidence
-- memory-context-engine, memory-intelligence-service
-- memory-learning-engine, memory-observation
-- memory-forgetting, memory-governance
-- memory-import, memory-portability
-- memory-compiler, memory-marketplace
-- memory-relationships, memory-truth-engine
-- memory-multimodal, memory-network
-- twin-working-memory
+| # | Service | Purpose | Port |
+|---|---------|---------|------|
+| 1 | service-management | Ticket/Incident/SLA | 4510 |
+| 2 | reply-drafting-service | LLM reply generation | - |
+| 3 | refund-approval-service | Refund workflow | - |
+| 4 | root-cause-service | Incident analysis | - |
+| 5 | roi-calculator-service | AI ROI | - |
 
-## Twin OS - `platform/twins/`
+---
 
-86+ twins confirmed
+## API Gateway - `services/hojai-api/`
 
-## Genie Products - `products/genie/`
+- **Port:** 4500
+- **Wires:** All connectors + services
+- **Dashboard:** `studio/hojai-dashboard/` (port 3001)
 
-14 products:
-- genie-ambient
-- genie-anticipation
-- genie-constitution
-- genie-decision-intelligence
-- genie-dreams
-- genie-financial-life
-- genie-focus
-- genie-health-intelligence
-- genie-household
-- genie-learning-loop
-- genie-legacy
-- genie-life-simulation
-- genie-spiritual
-- genie-travel
+---
 
-## Flow OS - `platform/flow/`
+## Voice OS - `products/voice-os/` (17 services)
 
-30+ services including:
-- flow-orchestrator
-- execution-engine
-- decision-engine
-- policy-os
-- simulation-os
-- goal-os, loop-os
+| Service | Purpose |
+|---------|---------|
+| attention-engine | Voice attention |
+| conversation-physics | Voice physics |
+| curiosity-engine | Voice curiosity |
+| humor-engine | Voice humor |
+| life-timeline | Voice timeline |
+| multi-agent-voice | Multi-agent |
+| social-intelligence | Social |
+| voice-director | Voice direction |
+| voice-gateway | STT/TTS |
+
+---
+
+## Memory OS - `platform/memory/` (22 services)
+
+| Service | Purpose |
+|---------|---------|
+| memory-os | Core memory |
+| memory-substrate | PostgreSQL |
+| memory-confidence | Confidence scoring |
+| memory-context-engine | Context |
+| memory-intelligence | Intelligence |
+| memory-learning-engine | Learning |
+| memory-observation | Observation |
+| memory-forgetting | Forgetting |
+| memory-governance | GDPR/CCPA |
+| memory-import | Import |
+| memory-portability | Export |
+| memory-compiler | Compile |
+| memory-marketplace | Marketplace |
+| memory-relationships | Relationships |
+| memory-truth-engine | Truth |
+| memory-multimodal | Multimodal |
+| memory-network | Network |
+| twin-working-memory | Twin bridge |
+
+---
+
+## Twin OS - `platform/twins/` (86+ twins)
+
+| Twin | Purpose |
+|------|---------|
+| employee-twin | Employee |
+| organization-twin | Organization |
+| customer-twin | Customer |
+| meeting-intelligence | Meeting |
+| [80+ more] | Various |
+
+---
+
+## Genie Products - `products/genie/` (14)
+
+| Product | Purpose |
+|---------|---------|
+| genie-ambient | Ambient |
+| genie-anticipation | Anticipation |
+| genie-constitution | Constitution |
+| genie-decision-intelligence | Decisions |
+| genie-dreams | Dreams |
+| genie-financial-life | Finance |
+| genie-focus | Focus |
+| genie-health-intelligence | Health |
+| genie-household | Household |
+| genie-learning-loop | Learning |
+| genie-legacy | Legacy |
+| genie-life-simulation | Simulation |
+| genie-spiritual | Spiritual |
+| genie-travel | Travel |
+
+---
 
 ## Skills Platform - `platform/skills/`
 
-- skill-os, translation-os
-- skill-marketplace
-- prompt-manager, prompt-marketplace
-- skill-creator-studio
-- skill-certification
-- skill-analytics
-- enterprise-skill-portal
+| Service | Purpose |
+|---------|---------|
+| skill-os | Core skills |
+| translation-os | Translation |
+| skill-marketplace | Marketplace |
+| prompt-manager | Prompts |
+| prompt-marketplace | Prompt store |
+| skill-creator-studio | Create skills |
+| skill-certification | Certify |
+| skill-analytics | Analytics |
+| enterprise-skill-portal | Enterprise |
 
-## Industry OS - `industry-os/services/`
+---
 
-26 directories including:
-restaurant-os, hotel-os, healthcare-os, beauty-os, retail-os, etc.
+## Templates - `hojai-templates/` (100+)
 
-## Templates - `platform/hojai-templates/`
+| Category | Count |
+|----------|-------|
+| sales | 15 |
+| marketing | 15 |
+| support | 10 |
+| hr | 10 |
+| finance | 10 |
+| founder | 10 |
+| restaurant | 10 |
+| healthcare | 5 |
+| real-estate | 5 |
+| commerce | 10 |
 
-100 templates across 11 categories
+---
 
-## NOT TO CREATE (Already exists)
+## CompanyOS - Modules
 
-- platforms/runtime/agent-runtime (use multi-agent-runtime/)
-- platforms/runtime/flow-runtime (use flow/flow-orchestrator)
-- platforms/services/auth-service (use existing)
-- platforms/integrations/* (use connectors/)
-- platforms/services/webhook-server (use github-connector)
-- platforms/services/websocket-server (use flow/event-streaming)
-- platforms/services/cron-scheduler (use agent-os/scheduler)
+| Module | Location | Status |
+|--------|----------|--------|
+| Identity | CorpID | ✅ |
+| People | PeopleOS (CorpPerks) | ✅ |
+| Customers | CRM + Twins | ✅ |
+| Finance | Treasury + Wallets | ✅ |
+| Operations | Inventory + Procurement | ✅ |
+| Communications | Voice + Email + WhatsApp | ✅ |
+| **Service Management** | `services/service-management/` | ✅ NEW |
+| Intelligence | HIB + Analytics | ✅ |
+| Governance | Policy + Trust | ✅ |
 
-## GENUINE GAPS (all filled June 29, 2026)
+---
 
-All 10 gaps have been built:
+## PeopleOS - Modules (CorpPerks)
 
-| # | Gap | Location |
-|---|-----|----------|
-| 1 | Twilio Voice Connector | `connectors/twilio-voice-connector/` ✅ |
-| 2 | Twilio SMS Connector | `connectors/twilio-sms-connector/` ✅ |
-| 3 | WhatsApp Business | `connectors/whatsapp-business-connector/` ✅ |
-| 4 | Background Check | `connectors/background-check-connector/` ✅ |
-| 5 | Meeting Recording | `connectors/meeting-recording-connector/` ✅ |
-| 6 | Voice-to-Task | `connectors/voice-to-task-connector/` ✅ |
-| 7 | Reply Drafting AI | `services/reply-drafting-service/` ✅ |
-| 8 | Refund Approval | `services/refund-approval-service/` ✅ |
-| 9 | Root Cause Analysis | `services/root-cause-service/` ✅ |
-| 10 | ROI Calculator | `services/roi-calculator-service/` ✅ |
+| Module | Location | Status |
+|--------|----------|--------|
+| People Core | `people/`, `peopleos/` | ✅ |
+| Talent | `talentai/`, `ai-agents/` | ✅ |
+| Learning | `lms-service/` | ✅ |
+| Performance | `performance-service/` | ✅ |
+| Finance | `payroll/`, `compensation/` | ✅ |
+| **Workforce Planning** | `workforce-planning/` | ✅ NEW |
+| Shifts | `shift-service/` | ✅ |
+| Collaboration | `team-collab/` | ✅ |
+| Calendar | `calendar-service/` | ✅ |
+| Meeting | `meeting-service/` | ✅ |
 
-## NEW - API Gateway
+---
 
-| Component | Location |
-|-----------|----------|
-| API Gateway | `services/hojai-api/` (port 4500) |
-| Dashboard | `studio/hojai-dashboard/` (port 3001) |
-| Setup Script | `hojai-cli/setup.sh` |
+## Industry OS - `industry-os/services/` (26)
 
-**All gaps filled. Platform 100% complete.**
+| Industry | OS |
+|----------|-----|
+| Restaurant | restaurant-os |
+| Hotel | hotel-os |
+| Healthcare | healthcare-os |
+| Retail | retail-os |
+| Beauty | beauty-os |
+| [21 more] | ... |
+
+---
+
+## Architecture Summary
+
+```
+HOJAI Platform
+├── Connectors (31)
+├── Agent OS (12)
+├── Production Services (5)
+├── API Gateway (4500)
+├── Dashboard (3001)
+├── Voice OS (17)
+├── Memory OS (22)
+├── Twin OS (86+)
+├── Genie (14)
+├── Skills (9)
+├── Templates (100+)
+├── CompanyOS (10 modules)
+├── PeopleOS (30+ modules)
+└── Industry OS (26)
+```
+
+---
+
+## Quick Start
+
+```bash
+# Start all
+cd platform/docker && docker-compose up -d
+
+# Or individual
+cd services/service-management && npm start
+cd services/hojai-api && npm start
+
+# Dashboard
+cd studio/hojai-dashboard && npm run dev
+```
+
+---
+
+## Status: COMPLETE ✅
+
+All gaps filled as of June 29, 2026.
