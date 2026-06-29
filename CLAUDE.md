@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.20
+> **Version:** 5.21
 > **Last Updated:** June 29, 2026
-> **New:** ✅ **Human Intelligence OS** — EmotionOS, BehaviorOS, KnowledgeOS, TrustOS Phase 20 complete
-> **Status:** ✅ **Human Intelligence OS** (10 new services) + SUTAR OS (37 services) + MemoryOS (30 services)
+> **New:** ✅ **LoopOS** — Persistent Autonomous Execution Layer (5 services: Scheduler, State, Verification, Budget, Fleet)
+> **Status:** ✅ **LoopOS** (5 services) + SUTAR OS (37 services) + MemoryOS (30 services) + Human Intelligence OS (10 services)
 
 ---
 
@@ -1204,6 +1204,27 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 **RTMN Hub:** All services wired at `/api/app-store/*`, `/api/cost/*`, `/api/secrets/*`, `/api/voice/*`, `/api/workflows/*`
 
 **Source:** `companies/HOJAI-AI/services/` and `companies/HOJAI-AI/products/`
+
+### LoopOS — Persistent Autonomous Execution Layer (2026-06-29) — 5 NEW Services
+
+**LoopOS** implements Loop Engineering for HOJAI — converting AI agents from task-based to persistent autonomous execution. Source: [`platform/flow/loop-os/`](companies/HOJAI-AI/platform/flow/loop-os/)
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **loop-scheduler** | 4721 | Cron-based persistent autonomous execution engine |
+| **loop-state** | 4722 | State persistence + checkpoints between loop executions |
+| **verification-engine** | 4723 | Maker→Checker→Guardian verification pattern |
+| **budget-engine** | 4724 | Token, cost, and tool limits per AI agent |
+| **fleet-os** | 4725 | AI employee organization management |
+
+**Key Features:**
+- **Persistent Loops:** AI agents that continuously discover work, execute, verify, and improve
+- **Maker-Checker-Guardian:** Never trust single AI output — enterprise verification pipeline
+- **Budget Enforcement:** Token/spend/tool limits prevent runaway costs
+- **Fleet Management:** AI employee registry, hierarchy, health monitoring
+- **Progressive Autonomy:** New agents start restricted, earn more trust over time
+
+**Startup:** See [`platform/flow/loop-os/CLAUDE.md`](companies/HOJAI-AI/platform/flow/loop-os/CLAUDE.md)
 
 ### AgentOS (12 services) - ✅ RUNNING
 
