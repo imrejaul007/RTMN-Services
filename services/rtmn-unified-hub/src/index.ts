@@ -16,7 +16,7 @@ import {
   summarizeHealth,
   getCachedHealth,
 } from './services/healthChecker.js';
-import { SERVICE_REGISTRY } from './services/serviceRegistry.js';
+import { SERVICE_REGISTRY, ServiceEntry } from './services/serviceRegistry.js';
 
 const PORT = parseInt(process.env.PORT || '4399', 10);
 const SERVICE_NAME = 'rtmn-unified-hub';
@@ -103,52 +103,67 @@ app.get('/api/health/:serviceName', async (req, res, next) => {
 // Aggregates data from all 14 Genie services for a unified user view
 app.get('/api/genie/dashboard/:userId', async (req, res) => {
   const userId = req.params.userId;
-  const timeout = 5000;
+  const timeout = 8000;
 
-  // Fetch from each service in parallel
-  const axios = (await import('axios')).default;
-
-  const fetchSafe = async (url: string) => {
-    try {
-      const response = await axios.get(url, { timeout, validateStatus: () => true });
-      return response.data?.data || response.data || null;
-    } catch {
-      return null;
-    }
+  // Direct service URLs for dashboard aggregation
+  const SERVICE_DIRECT_URLS: Record<string, string> = {
+    decisions: process.env.DECISION_INTELLIGENCE_URL || 'http://localhost:4740',
+    learning: process.env.LEARNING_LOOP_URL || 'http://localhost:4742',
+    anticipation: process.env.ANTICIPATION_URL || 'http://localhost:4745',
+    ambient: process.env.AMBIENT_URL || 'http://localhost:4746',
+    constitution: process.env.CONSTITUTION_URL || 'http://localhost:4743',
+    financial: process.env.FINANCIAL_LIFE_URL || 'http://localhost:4747',
+    health: process.env.HEALTH_URL || 'http://localhost:4748',
+    household: process.env.HOUSEHOLD_URL || 'http://localhost:4749',
+    travel: process.env.TRAVEL_URL || 'http://localhost:4750',
+    spiritual: process.env.SPIRITUAL_URL || 'http://localhost:4751',
+    simulation: process.env.LIFE_SIMULATION_URL || 'http://localhost:4752',
+    focus: process.env.FOCUS_URL || 'http://localhost:4753',
+    dreams: process.env.DREAMS_URL || 'http://localhost:4754',
+    legacy: process.env.LEGACY_URL || 'http://localhost:4755',
   };
 
-  const fetchPost = async (url: string, body: any) => {
+  const fetchDirect = async (baseUrl: string, path: string): Promise<any> => {
     try {
-      const response = await axios.post(url, body, { timeout, validateStatus: () => true });
+      const axios = (await import('axios')).default;
+      const response = await axios.get(`${baseUrl}${path}`, { timeout, validateStatus: () => true });
       return response.data?.data || response.data || null;
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   };
 
-  const services = {
-    decisions: fetchGet(`/api/services/decision/${userId}`),
-    preferences: fetchGet(`/api/services/learning/${userId}`),
-    patterns: fetchGet(`/api/services/learning/${userId}/behavior?minConfidence=0.5`),
-    anticipation: fetchGet(`/api/services/anticipation/active/${userId}`),
-    constitution: fetchGet(`/api/services/constitution/${userId}`),
-    constitutionValues: fetchGet(`/api/services/constitution/${userId}/values`),
-    financials: fetchGet(`/api/services/financial/${userId}`),
-    financialBurn: fetchGet(`/api/services/financial/${userId}/burn?period=month`),
-    health: fetchGet(`/api/services/health/${userId}`),
-    burnout: fetchGet(`/api/services/health/${userId}/burnout`),
-    sleep: fetchGet(`/api/services/health/${userId}/sleep?days=30`),
-    gastric: fetchGet(`/api/services/health/${userId}/gastric?days=60`),
-    household: fetchGet(`/api/services/household/${userId}/dashboard`),
-    focusStats: fetchGet(`/api/services/focus/${userId}`),
-    focusInsights: fetchGet(`/api/services/focus/${userId}/insights`),
-    prayer: fetchPost(`/api/services/spiritual/prayer`, { lat: 12.97, lng: 77.59 }),
-    ramadan: fetchGet(`/api/services/spiritual/${userId}`),
-    charity: fetchGet(`/api/services/spiritual/charity`),
-    legacy: fetchGet(`/api/services/legacy/${userId}`),
-    legacyStats: fetchGet(`/api/services/legacy/${userId}`),
-    dreams: fetchGet(`/api/services/dreams/${userId}?limit=10`),
-    dreamPatterns: fetchGet(`/api/services/dreams/patterns/${userId}`),
+  const fetchDirectPost = async (baseUrl: string, path: string, body: any): Promise<any> => {
+    try {
+      const axios = (await import('axios')).default;
+      const response = await axios.post(`${baseUrl}${path}`, body, { timeout, validateStatus: () => true });
+      return response.data?.data || response.data || null;
+    } catch { return null; }
+  };
+
+  const d = SERVICE_DIRECT_URLS;
+
+  const services: Record<string, Promise<any>> = {
+    decisions: fetchDirect(d.decisions, `/api/decision/${userId}`),
+    preferences: fetchDirect(d.learning, `/api/learning/${userId}`),
+    patterns: fetchDirect(d.learning, `/api/learning/${userId}/behavior?minConfidence=0.5`),
+    anticipation: fetchDirect(d.anticipation, `/api/anticipation/active/${userId}`),
+    constitution: fetchDirect(d.constitution, `/api/constitution/${userId}`),
+    constitutionValues: fetchDirect(d.constitution, `/api/constitution/${userId}/values`),
+    financials: fetchDirect(d.financial, `/api/financial/${userId}`),
+    financialBurn: fetchDirect(d.financial, `/api/financial/${userId}/burn?period=month`),
+    health: fetchDirect(d.health, `/api/health/${userId}`),
+    burnout: fetchDirect(d.health, `/api/health/${userId}/burnout`),
+    sleep: fetchDirect(d.health, `/api/health/${userId}/sleep?days=30`),
+    gastric: fetchDirect(d.health, `/api/health/${userId}/gastric?days=60`),
+    household: fetchDirect(d.household, `/api/household/${userId}/dashboard`),
+    focusStats: fetchDirect(d.focus, `/api/focus/${userId}`),
+    focusInsights: fetchDirect(d.focus, `/api/focus/${userId}/insights`),
+    prayer: fetchDirectPost(d.spiritual, `/api/spiritual/prayer`, { lat: 12.97, lng: 77.59 }),
+    ramadan: fetchDirect(d.spiritual, `/api/spiritual/${userId}`),
+    charity: fetchDirect(d.spiritual, `/api/spiritual/charity`),
+    legacy: fetchDirect(d.legacy, `/api/legacy/${userId}`),
+    legacyStats: fetchDirect(d.legacy, `/api/legacy/${userId}`),
+    dreams: fetchDirect(d.dreams, `/api/dreams/${userId}?limit=10`),
+    dreamPatterns: fetchDirect(d.dreams, `/api/dreams/patterns/${userId}`),
   };
 
   const results = await Promise.all(Object.values(services));
@@ -182,16 +197,6 @@ app.get('/api/genie/dashboard/:userId', async (req, res) => {
     },
   });
 });
-
-async function fetchGet(url: string): Promise<any> {
-  const axios = (await import('axios')).default;
-  try {
-    const response = await axios.get(url, { timeout: 5000, validateStatus: () => true });
-    return response.data?.data || response.data || null;
-  } catch {
-    return null;
-  }
-}
 
 // === Gateway routes — proxy all /api/* requests ===
 app.use('/api', proxyRequest);

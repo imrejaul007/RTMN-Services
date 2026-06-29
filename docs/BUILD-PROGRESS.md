@@ -100,18 +100,19 @@ curl http://localhost:4399/health
 
 ---
 
-## 🟡 DEFERRED: PHANTOM AUDIT
+## ✅ PHANTOM AUDIT: COMPLETE
 
-These directories still exist for audit:
-- `companies/razo-keyboard/` (only docs)
-- `companies/do-app/` (only docs)
-- `REZ-Workspace/industries/genie-os/` (43 LOC ghost)
+Audited all 3 phantom directories. Results:
 
-**To investigate:**
-1. Why are they empty?
-2. What was their purpose?
-3. Are there dependencies?
-4. Can they be safely removed?
+| Directory | Verdict |
+|-----------|---------|
+| `companies/razo-keyboard/` | ⚠️ Docs-only (intentional, links to real code) |
+| `companies/do-app/` | ❌ Doesn't exist (already removed) |
+| `REZ-Workspace/industries/genie-os/` | ✅ REAL (different Genie — Wish Fulfillment) |
+
+**All phantoms RESOLVED.** The third one turned out to be a real service that we now wired to RTMN Hub at port 4399.
+
+See [docs/PHANTOM-DIRECTORY-AUDIT.md](docs/PHANTOM-DIRECTORY-AUDIT.md) for full details.
 
 ---
 

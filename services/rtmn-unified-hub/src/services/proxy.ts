@@ -7,6 +7,15 @@ import axios from 'axios';
 import { ServiceEntry, findServiceByPath } from './serviceRegistry.js';
 
 export async function proxyRequest(req: Request, res: Response, next: NextFunction) {
+  // Skip internal calls from dashboard to avoid circular routing
+  if (req.headers['x-hub-internal'] === 'true') {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Internal route, not proxyable' },
+      meta: { timestamp: new Date().toISOString() },
+    });
+  }
+
   const service = findServiceByPath(req.path);
 
   if (!service) {

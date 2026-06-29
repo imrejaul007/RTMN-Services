@@ -731,6 +731,25 @@ start_all() {
   start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
   start_service "razo-keyboard"          "$RAZO_KEYBOARD_CMD"           4299
+  # Genie OS Runtime — Personal AI Brain (port 7100) — 14 Genie services wired
+  start_service "genie-runtime"         "$GENIE_RUNTIME_CMD"           7100
+  # 14 Genie Services (4740-4755) — Personal Intelligence OS
+  start_service "genie-decision"        "$GENIE_DECISION_CMD"          4740
+  start_service "genie-learning"         "$GENIE_LEARNING_CMD"          4742
+  start_service "genie-anticipation"     "$GENIE_ANTICIPATION_CMD"      4745
+  start_service "genie-ambient"         "$GENIE_AMBIENT_CMD"           4746
+  start_service "genie-constitution"     "$GENIE_CONSTITUTION_CMD"      4743
+  start_service "genie-financial"        "$GENIE_FINANCIAL_CMD"         4747
+  start_service "genie-health"           "$GENIE_HEALTH_CMD"            4748
+  start_service "genie-household"        "$GENIE_HOUSEHOLD_CMD"         4749
+  start_service "genie-travel"           "$GENIE_TRAVEL_CMD"            4750
+  start_service "genie-spiritual"        "$GENIE_SPIRITUAL_CMD"         4751
+  start_service "genie-simulation"       "$GENIE_SIMULATION_CMD"        4752
+  start_service "genie-focus"            "$GENIE_FOCUS_CMD"             4753
+  start_service "genie-dreams"           "$GENIE_DREAMS_CMD"            4754
+  start_service "genie-legacy"           "$GENIE_LEGACY_CMD"            4755
+  # Genie Wish Fulfillment (pre-existing, port 4001)
+  start_service "genie-wishes"           "$GENIE_WISHES_CMD"            4001
   # BLR AI Marketplace — all services
   start_service "bam-marketplace-listings" "$MARKETPLACE_LISTINGS_CMD"   4255
   start_service "blr-exploration"         "$BLR_EXPLORATION_CMD"        4261
