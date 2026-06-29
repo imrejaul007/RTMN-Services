@@ -718,6 +718,7 @@ start_all() {
 	  # Human Growth & Presence Engines (Layer 11-12)
 	  start_service "human-growth"         "$HUMAN_GROWTH_CMD"         4895
 	  start_service "human-presence"        "$HUMAN_PRESENCE_CMD"        4896
+	  start_service "relationship-os"      "$RELATIONSHIP_OS_CMD"      4897
   # HOJAI App Store API (port 4400)
   start_service "app-store-api"          "$APP_STORE_API_CMD"          4400
   # RAZO Keyboard — Communication OS (port 4299)
