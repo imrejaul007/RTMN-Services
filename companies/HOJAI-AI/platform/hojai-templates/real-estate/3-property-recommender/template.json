@@ -1,0 +1,33 @@
+{
+  "id": "realestate-property-recommender",
+  "name": "AI Property Recommender",
+  "category": "real-estate",
+  "description": "Match properties to leads based on preferences and behavior",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "crm", "event": "lead.updated"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Lead Update", "config": {"source": "crm"}},
+    {"id": "2", "type": "crm", "name": "Get Preferences", "config": {"action": "get_lead_preferences"}},
+    {"id": "3", "type": "inventory", "name": "Get Matching Properties", "config": {"action": "search_properties", "match": "preferences"}},
+    {"id": "4", "type": "ai_agent", "name": "Rank Properties", "config": {"agent": "analyst_agent", "prompt": "Rank properties by match score, urgency, and commission."}},
+    {"id": "5", "type": "condition", "name": "Hot Match?", "config": {"field": "top_match.score", "operator": ">=", "value": 80}},
+    {"id": "6a", "type": "whatsapp", "name": "Send Top 3", "config": {"template": "property_matches"}},
+    {"id": "6b", "type": "crm", "name": "Save for Nurture", "config": {"action": "add_to_nurture"}},
+    {"id": "7", "type": "twin", "name": "Update Lead Twin", "config": {"twin": "lead_twin", "action": "update_recommendations"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6a", "condition": "score >= 80"},
+    {"from": "5", "to": "6b", "condition": "score < 80"},
+    {"from": "6a", "to": "7"},
+    {"from": "6b", "to": "7"}
+  ],
+  "agents": ["analyst_agent"],
+  "integrations": ["crm", "inventory", "whatsapp"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 2499, "currency": "INR", "period": "month"},
+  "tags": ["real-estate", "ai", "recommendation", "automation"]
+}

@@ -864,6 +864,7 @@ stop_all() {
   stop_port 4895 "human-growth"
   stop_port 4896 "human-presence"
   stop_port 4897 "relationship-os"
+  stop_port 4898 "voice-orchestrator"
   stop_port 4400 "app-store-api"
   stop_port 4299 "razo-keyboard"
   # BLR AI Marketplace

@@ -1,0 +1,35 @@
+{
+  "id": "realestate-document-collector",
+  "name": "Document Collection",
+  "category": "real-estate",
+  "description": "Automate document collection for property transactions",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "crm", "event": "deal.stage_changed"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Deal Stage Change", "config": {"source": "crm"}},
+    {"id": "2", "type": "ai_agent", "name": "Determine Required Docs", "config": {"agent": "document_agent", "prompt": "Determine required documents based on deal stage and transaction type."}},
+    {"id": "3", "type": "crm", "name": "Get Missing Docs", "config": {"action": "get_missing_documents"}},
+    {"id": "4", "type": "email", "name": "Request Documents", "config": {"template": "document_request", "to": "{{buyer.email}}"}},
+    {"id": "5", "type": "wait", "name": "Wait 3 Days", "config": {"delay_days": 3}},
+    {"id": "6", "type": "condition", "name": "Docs Received?", "config": {"field": "documents.received"}},
+    {"id": "7a", "type": "action", "name": "Update Deal", "config": {"action": "move_to_next_stage"}},
+    {"id": "7b", "type": "email", "name": "Reminder", "config": {"template": "document_reminder"}},
+    {"id": "8", "type": "twin", "name": "Update Deal Twin", "config": {"twin": "deal_twin", "action": "update_documents"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"},
+    {"from": "6", "to": "7a", "condition": "received == true"},
+    {"from": "6", "to": "7b", "condition": "received == false"},
+    {"from": "7a", "to": "8"},
+    {"from": "7b", "to": "8"}
+  ],
+  "agents": ["document_agent"],
+  "integrations": ["crm", "email", "document_management"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 1499, "currency": "INR", "period": "month"},
+  "tags": ["real-estate", "documents", "automation", "transactions"]
+}

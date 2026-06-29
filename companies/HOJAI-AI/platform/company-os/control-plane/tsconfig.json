@@ -4,7 +4,6 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,8 +11,13 @@
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {
+      "@hojai/company-os-composition-engine": ["../composition-engine/src"],
+      "@hojai/company-os-manifest-registry": ["../manifest-registry/src"]
+    },
+    "baseUrl": "."
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../composition-engine/src/**/*", "../manifest-registry/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
