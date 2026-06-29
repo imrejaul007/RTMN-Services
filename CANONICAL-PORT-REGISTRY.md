@@ -113,6 +113,7 @@ This registry is **machine-verified** against the codebase. Where `PORT-REGISTRY
 | **4748** | **learning-distribution** | `platform/flow/loop-os/learning-distribution/` | ✅ NEW |
 | **4749** | **escalation-manager** | `platform/flow/loop-os/escalation-manager/` | ✅ NEW |
 | **4750** | **budget-alerts** | `platform/flow/loop-os/budget-alerts/` | ✅ NEW |
+| **4751** | **trust-graph** | `platform/flow/loop-os/trust-graph/` | ✅ NEW |
 
 ### ✅ Genie Port Status (Verified 2026-06-21)
 All 23 Genie services have unique, non-overlapping port assignments. The historical 4716 conflict has been resolved: `genie-shopping-agent` was relocated to 4728. No cross-service collisions remain.

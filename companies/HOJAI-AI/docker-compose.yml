@@ -1,0 +1,136 @@
+version: '3.9'
+
+services:
+  # Phase 11: Agent OS
+  agent-os:
+    build: ./platform/intelligence/agent-os
+    ports: ['4892:4892']
+    environment:
+      - NODE_ENV=production
+      - DATA_DIR=/app/data
+    volumes: ['./platform/intelligence/agent-os/data:/app/data']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4892/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Phase 21: Personalization
+  personalization:
+    build: ./platform/intelligence/personalization
+    ports: ['4893:4893']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4893/health']
+      interval: 30s
+
+  # Phase 22: AI Economy
+  ai-economy:
+    build: ./platform/intelligence/ai-economy
+    ports: ['4894:4894']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4894/health']
+      interval: 30s
+
+  # Phase 23: Governance
+  governance:
+    build: ./platform/compliance-os/governance
+    ports: ['4895:4895']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4895/health']
+      interval: 30s
+
+  # Phase 14: Planning Engine
+  planning-engine:
+    build: ./platform/intelligence/planning-engine
+    ports: ['4896:4896']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4896/health']
+      interval: 30s
+
+  # Phase 27: Multi-Modal
+  multi-modal:
+    build: ./platform/intelligence/multi-modal
+    ports: ['4897:4897']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4897/health']
+      interval: 30s
+
+  # Phase 26: AIOps
+  aiops:
+    build: ./platform/aiops
+    ports: ['4898:4898']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4898/health']
+      interval: 30s
+
+  # Phase 39: Memory Lifecycle
+  memory-lifecycle:
+    build: ./platform/memory/memory-lifecycle
+    ports: ['4899:4899']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4899/health']
+      interval: 30s
+
+  # Phase 36: Knowledge Registry
+  knowledge-registry:
+    build: ./platform/intelligence/knowledge-registry
+    ports: ['4900:4900']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4900/health']
+      interval: 30s
+
+  # Phase 37: Event Platform
+  event-platform:
+    build: ./platform/intelligence/event-platform
+    ports: ['4901:4901']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4901/health']
+      interval: 30s
+
+  # Phase 34: Workflow Registry
+  workflow-registry:
+    build: ./platform/studio/workflow-registry
+    ports: ['4902:4902']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4902/health']
+      interval: 30s
+
+  # Phase 35: Twin Registry
+  twin-registry:
+    build: ./platform/twins/twin-registry
+    ports: ['4903:4903']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4903/health']
+      interval: 30s
+
+  # Phase 24: Tenant Isolation
+  tenant-isolation:
+    build: ./platform/multi-tenant/tenant-isolation
+    ports: ['4904:4904']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4904/health']
+      interval: 30s
+
+  # Phase 30: Fine-Tuning
+  fine-tuning:
+    build: ./platform/training/fine-tuning
+    ports: ['4610:4610']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4610/health']
+      interval: 30s
+
+  # Phase 31: Eval Continuous
+  eval-continuous:
+    build: ./platform/training/eval-platform/eval-continuous
+    ports: ['4888:4888']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4888/health']
+      interval: 30s
+
+  # Phase 38: AI Studio
+  ai-studio:
+    build: ./platform/studio/ai-studio
+    ports: ['4890:4890']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4890/health']
+      interval: 30s

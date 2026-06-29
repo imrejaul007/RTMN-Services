@@ -1,0 +1,50 @@
+# Marketing Department Pack
+id: marketing
+name: Marketing Department
+version: 1.0.0
+description: Complete marketing department with tenant isolation
+
+port: 5500
+
+capabilities:
+  - Campaign Management
+  - Content Creation
+  - SEO
+  - Social Media
+  - Email Marketing
+  - Analytics
+  - Lead Generation
+  - Brand Management
+
+aiWorkers:
+  - id: ai-cmo
+    name: AI Chief Marketing Officer
+    level: senior
+    skills:
+      - campaign_strategy
+      - budget_optimization
+      - brand_management
+    policies:
+      - campaign-limits
+  - id: ai-content-manager
+    name: AI Content Manager
+    level: senior
+    skills:
+      - content_creation
+      - seo_optimization
+      - social_posting
+    policies:
+      - content-approval
+
+dependencies:
+  required:
+    - identity
+  optional: []
+
+configSchema:
+  defaultChannel:
+    type: string
+    default: whatsapp
+  timezone:
+    type: string
+    default: Asia/Kolkata

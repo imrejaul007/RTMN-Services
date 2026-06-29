@@ -1,0 +1,40 @@
+# Legal Department Pack
+id: legal
+name: Legal Department
+version: 1.0.0
+description: Complete legal department with tenant isolation
+
+port: 5035
+
+capabilities:
+  - Contract Management
+  - Compliance
+  - Policy Management
+  - Risk Assessment
+  - IP Management
+  - Document Review
+  - Legal Research
+
+aiWorkers:
+  - id: ai-legal-counsel
+    name: AI Legal Counsel
+    level: senior
+    skills:
+      - contract_review
+      - compliance_check
+      - risk_assessment
+    policies:
+      - legal-review
+
+dependencies:
+  required:
+    - identity
+  optional: []
+
+configSchema:
+  jurisdiction:
+    type: string
+    default: India
+  complianceFramework:
+    type: string
+    default: "GDPR, SOC2"

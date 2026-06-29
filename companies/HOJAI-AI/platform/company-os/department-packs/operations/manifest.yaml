@@ -1,0 +1,41 @@
+# Operations Department Pack
+id: operations
+name: Operations Department
+version: 1.0.0
+description: Complete operations department with tenant isolation
+
+port: 5250
+
+capabilities:
+  - Scheduling
+  - Inventory Management
+  - Quality Control
+  - SOP Management
+  - Procurement
+  - Vendor Management
+  - Project Tracking
+  - Resource Allocation
+
+aiWorkers:
+  - id: ai-ops-manager
+    name: AI Operations Manager
+    level: senior
+    skills:
+      - process_optimization
+      - resource_allocation
+      - risk_management
+    policies:
+      - ops-approval
+
+dependencies:
+  required:
+    - identity
+  optional: []
+
+configSchema:
+  timezone:
+    type: string
+    default: Asia/Kolkata
+  workingHours:
+    type: string
+    default: "09:00-18:00"

@@ -1,0 +1,49 @@
+# Sales Department Pack
+id: sales
+name: Sales Department
+version: 1.0.0
+description: Complete sales department with tenant isolation
+
+port: 5055
+
+capabilities:
+  - CRM
+  - Pipeline Management
+  - Quotes & Proposals
+  - Lead Management
+  - Customer Success
+  - Commission Tracking
+  - Territory Management
+
+aiWorkers:
+  - id: ai-sdr
+    name: AI Sales Development Rep
+    level: senior
+    skills:
+      - lead_qualification
+      - cold_outreach
+      - meeting_scheduling
+    policies:
+      - outreach-limits
+  - id: ai-closer
+    name: AI Sales Closer
+    level: senior
+    skills:
+      - deal_negotiation
+      - proposal_creation
+      - pricing_optimization
+    policies:
+      - discount-limits
+
+dependencies:
+  required:
+    - identity
+  optional: []
+
+configSchema:
+  currency:
+    type: string
+    default: INR
+  commissionRate:
+    type: number
+    default: 5

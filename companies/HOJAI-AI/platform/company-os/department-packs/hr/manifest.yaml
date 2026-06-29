@@ -1,0 +1,57 @@
+# HR Department Pack
+id: hr
+name: HR Department
+version: 1.0.0
+description: Complete human resources department with tenant isolation
+
+port: 5077
+
+capabilities:
+  - Recruitment
+  - Onboarding
+  - Payroll
+  - Performance
+  - Benefits
+  - Training
+  - Attendance
+  - Employee Management
+
+aiWorkers:
+  - id: ai-recruiter
+    name: AI Recruiter
+    level: senior
+    skills:
+      - resume_screening
+      - interview_scheduling
+      - candidate_matching
+    policies:
+      - hiring-approval
+  - id: ai-payroll-manager
+    name: AI Payroll Manager
+    level: senior
+    skills:
+      - payroll_processing
+      - compliance
+      - tax_calculation
+    policies:
+      - payroll-validation
+
+dependencies:
+  required:
+    - identity
+  optional: []
+
+configSchema:
+  payrollCurrency:
+    type: string
+    default: INR
+  payCycle:
+    type: string
+    default: monthly
+    enum: [monthly, bi-weekly, weekly]
+  pfRate:
+    type: number
+    default: 12
+  esiRate:
+    type: number
+    default: 0.75
