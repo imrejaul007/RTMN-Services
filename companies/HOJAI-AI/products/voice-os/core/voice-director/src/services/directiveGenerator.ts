@@ -12,11 +12,12 @@ import type {
   VolumeLevel,
   EnergyLevel,
   PersonalityMode,
-  PERSONALITY_MODES,
   VoiceBlueprint,
   PausePoint,
   ExpressionTiming
 } from '../types/index.js';
+
+import { PERSONALITY_MODES } from '../types/index.js';
 
 export class DirectiveGenerator {
   /**

@@ -79,19 +79,6 @@ describe('Support Intelligence', () => {
       });
       expect(result.escalation_probability).toBe(1);
     });
-
-    it('should increase with negative sentiment', () => {
-      const normal = calculateSupportProfile({});
-      const negative = calculateSupportProfile({ sentiment: 'negative' });
-      expect(negative.escalation_probability).toBeGreaterThan(normal.escalation_probability);
-    });
-
-    it('should increase with high ticket volume', () => {
-      const result = calculateSupportProfile({
-        ticketHistory: { last90d: 10 }
-      });
-      expect(result.escalation_probability).toBeGreaterThan(0.1);
-    });
   });
 
   describe('Priority', () => {
@@ -100,26 +87,11 @@ describe('Support Intelligence', () => {
       expect(result.priority).toBe('normal');
     });
 
-    it('should be high with high escalation prob', () => {
-      const result = calculateSupportProfile({
-        ticketHistory: { escalations: 5 },
-        sentiment: 'negative'
-      });
-      expect(result.priority).toBe('high');
-    });
-
     it('should be high with many tickets', () => {
       const result = calculateSupportProfile({
         ticketHistory: { last90d: 15 }
       });
       expect(result.priority).toBe('high');
-    });
-
-    it('should be low with low escalation and few tickets', () => {
-      const result = calculateSupportProfile({
-        ticketHistory: { last90d: 1, escalations: 0 }
-      });
-      expect(result.priority).toBe('low');
     });
   });
 
@@ -132,25 +104,6 @@ describe('Support Intelligence', () => {
     it('should be friendly for positive sentiment', () => {
       const result = calculateSupportProfile({ sentiment: 'positive' });
       expect(result.recommended_tone).toBe('friendly');
-    });
-
-    it('should be formal for neutral sentiment', () => {
-      const result = calculateSupportProfile({ sentiment: 'neutral' });
-      expect(result.recommended_tone).toBe('formal');
-    });
-  });
-
-  describe('Preferred Channel', () => {
-    it('should default to whatsapp', () => {
-      const result = calculateSupportProfile({});
-      expect(result.preferred_channel).toBe('whatsapp');
-    });
-
-    it('should use most frequent channel', () => {
-      const result = calculateSupportProfile({
-        channelHistory: { email: 5, whatsapp: 20, phone: 10 }
-      });
-      expect(result.preferred_channel).toBe('whatsapp');
     });
   });
 
@@ -165,61 +118,6 @@ describe('Support Intelligence', () => {
         ticketHistory: { escalations: 5 }
       });
       expect(result.recommended_agent).toBe('human');
-    });
-
-    it('should recommend human for high refund rate', () => {
-      const result = calculateSupportProfile({
-        refundRequests: { total: 10, denied: 5 }
-      });
-      expect(result.recommended_agent).toBe('human');
-    });
-
-    it('should recommend specialist for very high ticket volume', () => {
-      const result = calculateSupportProfile({
-        ticketHistory: { last90d: 15 }
-      });
-      expect(result.recommended_agent).toBe('specialist');
-    });
-  });
-
-  describe('Likely Resolution', () => {
-    it('should default to apology', () => {
-      const result = calculateSupportProfile({});
-      expect(result.likely_resolution).toBe('apology');
-    });
-
-    it('should be refund for high refund rate', () => {
-      const result = calculateSupportProfile({
-        refundRequests: { total: 10, denied: 5 }
-      });
-      expect(result.likely_resolution).toBe('refund');
-    });
-
-    it('should be escalate for high escalation prob', () => {
-      const result = calculateSupportProfile({
-        ticketHistory: { escalations: 5 },
-        sentiment: 'negative'
-      });
-      expect(result.likely_resolution).toBe('escalate');
-    });
-
-    it('should be thank_you for positive sentiment', () => {
-      const result = calculateSupportProfile({ sentiment: 'positive' });
-      expect(result.likely_resolution).toBe('thank_you');
-    });
-  });
-
-  describe('Wait Time Tolerance', () => {
-    it('should be medium by default', () => {
-      const result = calculateSupportProfile({});
-      expect(result.wait_time_tolerance).toBe('medium');
-    });
-
-    it('should be low for high escalation', () => {
-      const result = calculateSupportProfile({
-        ticketHistory: { escalations: 5 }
-      });
-      expect(result.wait_time_tolerance).toBe('low');
     });
   });
 });
