@@ -92,10 +92,10 @@ FOUNDATION(10) → INTELLIGENCE(12) → ECONOMY(10) → NETWORK(10)
 
 ### See Also
 
-- [docs/RTMN-DEEP-PRODUCT-AUDIT.md](docs/RTMN-DEEP-PRODUCT-AUDIT.md) — Full product audit (v5.0 FINAL, 98/100)
-- [.claude/plans/rtmn-strategic-analysis-v5.md](.claude/plans/rtmn-strategic-analysis-v5.md) — Analysis vs solutions
+- [docs/RTMN-V50-COMPLETE-STATUS.md](docs/RTMN-V50-COMPLETE-STATUS.md) — **START HERE** — Everything in one doc
+- [docs/RTMN-DEEP-PRODUCT-AUDIT.md](docs/RTMN-DEEP-PRODUCT-AUDIT.md) — Full product audit (98/100)
+- [.claude/plans/RTMN-100PERCENT-READY-AUDIT.md](.claude/plans/RTMN-100PERCENT-READY-AUDIT.md) — Gap analysis
 - [.claude/plans/rtmn-execution-plan-v5.md](.claude/plans/rtmn-execution-plan-v5.md) — Week 1-24 roadmap
-- [.claude/plans/rtmn-codebase-audit-duplicates.md](.claude/plans/rtmn-codebase-audit-duplicates.md) — Duplicate detection
 
 ---
 
