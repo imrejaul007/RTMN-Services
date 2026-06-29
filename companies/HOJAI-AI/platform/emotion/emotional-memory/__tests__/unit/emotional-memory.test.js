@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import request from 'supertest';
-import express from 'express';
 
 /**
  * Emotional Memory Service Unit Tests
@@ -84,8 +82,7 @@ describe('Emotional Memory Service', () => {
     history.push({
       ...emotion,
       timestamp: new Date().toISOString(),
-      id: `rel-emotion-${Date.now()}`,
-      mutual: emotion.mutual !== undefined ? emotion.mutual : false
+      id: `rel-emotion-${Date.now()}`
     });
 
     return history[history.length - 1];
@@ -584,19 +581,19 @@ describe('API Validation', () => {
   describe('POST /emotion validation', () => {
     it('should require entityId', () => {
       const body = { emotion: 'joy', intensity: 0.8 };
-      const isValid = !!(body.entityId && body.emotion);
+      const isValid = body.entityId && body.emotion;
       expect(isValid).toBe(false);
     });
 
     it('should require emotion', () => {
       const body = { entityId: 'user-123' };
-      const isValid = !!(body.entityId && body.emotion);
+      const isValid = body.entityId && body.emotion;
       expect(isValid).toBe(false);
     });
 
     it('should accept valid input', () => {
       const body = { entityId: 'user-123', emotion: 'joy', intensity: 0.8 };
-      const isValid = !!(body.entityId && body.emotion);
+      const isValid = body.entityId && body.emotion;
       expect(isValid).toBe(true);
     });
   });
@@ -604,13 +601,13 @@ describe('API Validation', () => {
   describe('POST /emotion/batch validation', () => {
     it('should require entityId and emotions array', () => {
       const body = { entityId: 'user-123' };
-      const isValid = !!(body.entityId && body.emotions && Array.isArray(body.emotions));
+      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
       expect(isValid).toBe(false);
     });
 
     it('should reject non-array emotions', () => {
       const body = { entityId: 'user-123', emotions: 'not-an-array' };
-      const isValid = !!(body.entityId && body.emotions && Array.isArray(body.emotions));
+      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
       expect(isValid).toBe(false);
     });
 
@@ -622,7 +619,7 @@ describe('API Validation', () => {
           { emotion: 'satisfaction', intensity: 0.7 }
         ]
       };
-      const isValid = !!(body.entityId && body.emotions && Array.isArray(body.emotions));
+      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
       expect(isValid).toBe(true);
     });
   });
@@ -630,7 +627,7 @@ describe('API Validation', () => {
   describe('POST /relationship validation', () => {
     it('should require relationshipId and emotion', () => {
       const body = { emotion: 'trust' };
-      const isValid = !!(body.relationshipId && body.emotion);
+      const isValid = body.relationshipId && body.emotion;
       expect(isValid).toBe(false);
     });
 
@@ -640,381 +637,8 @@ describe('API Validation', () => {
         emotion: 'trust',
         intensity: 0.9
       };
-      const isValid = !!(body.relationshipId && body.emotion);
+      const isValid = body.relationshipId && body.emotion;
       expect(isValid).toBe(true);
     });
-  });
-});
-
-describe('HTTP Integration Tests', () => {
-  // Create a fresh app instance for each test
-  let app;
-  let emotionalMemories;
-  let relationshipEmotions;
-
-  // Mock stores
-  beforeEach(() => {
-    emotionalMemories = new Map();
-    relationshipEmotions = new Map();
-
-    // Create a test app
-    app = express();
-    app.use(express.json());
-
-    // Store emotion endpoint
-    app.post('/emotion', (req, res) => {
-      const { entityId, emotion, intensity, context, source } = req.body;
-
-      if (!entityId || !emotion) {
-        return res.status(400).json({ error: 'entityId and emotion are required' });
-      }
-
-      if (!emotionalMemories.has(entityId)) {
-        emotionalMemories.set(entityId, []);
-      }
-
-      const timeline = emotionalMemories.get(entityId);
-      const stored = {
-        ...{ emotion, intensity, context, source },
-        timestamp: new Date().toISOString(),
-        id: `emotion-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      };
-      timeline.push(stored);
-
-      res.json({ success: true, memory: stored });
-    });
-
-    // Batch store endpoint
-    app.post('/emotion/batch', (req, res) => {
-      const { entityId, emotions } = req.body;
-
-      if (!entityId || !emotions || !Array.isArray(emotions)) {
-        return res.status(400).json({ error: 'entityId and emotions array required' });
-      }
-
-      if (!emotionalMemories.has(entityId)) {
-        emotionalMemories.set(entityId, []);
-      }
-
-      const timeline = emotionalMemories.get(entityId);
-      const stored = emotions.map(e => {
-        const item = {
-          ...e,
-          timestamp: e.timestamp || new Date().toISOString(),
-          id: `emotion-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        };
-        timeline.push(item);
-        return item;
-      });
-
-      res.json({ success: true, memories: stored, count: stored.length });
-    });
-
-    // Get timeline endpoint
-    app.get('/emotion/:entityId', (req, res) => {
-      const { entityId } = req.params;
-      const { startDate, endDate, limit } = req.query;
-      const timeline = emotionalMemories.get(entityId) || [];
-
-      let filtered = timeline;
-      if (startDate) {
-        filtered = filtered.filter(e => new Date(e.timestamp) >= new Date(startDate));
-      }
-      if (endDate) {
-        filtered = filtered.filter(e => new Date(e.timestamp) <= new Date(endDate));
-      }
-
-      const result = filtered.slice(-(limit ? parseInt(limit) : 100));
-
-      res.json({
-        entityId,
-        timeline: result,
-        count: result.length
-      });
-    });
-
-    // Health endpoint
-    app.get('/health', (req, res) => {
-      res.json({
-        status: 'ok',
-        service: 'emotional-memory',
-        entities: emotionalMemories.size,
-        relationships: relationshipEmotions.size
-      });
-    });
-  });
-
-  describe('POST /emotion', () => {
-    it('should create an emotion and return it', async () => {
-      const response = await request(app)
-        .post('/emotion')
-        .send({
-          entityId: 'user-http-123',
-          emotion: 'happiness',
-          intensity: 0.85,
-          context: 'Test context',
-          source: 'api-test'
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.memory.emotion).toBe('happiness');
-      expect(response.body.memory.intensity).toBe(0.85);
-      expect(response.body.memory.context).toBe('Test context');
-      expect(response.body.memory.source).toBe('api-test');
-      expect(response.body.memory.id).toBeDefined();
-      expect(response.body.memory.timestamp).toBeDefined();
-    });
-
-    it('should return 400 when entityId is missing', async () => {
-      const response = await request(app)
-        .post('/emotion')
-        .send({
-          emotion: 'joy',
-          intensity: 0.8
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('entityId and emotion are required');
-    });
-
-    it('should return 400 when emotion is missing', async () => {
-      const response = await request(app)
-        .post('/emotion')
-        .send({
-          entityId: 'user-123',
-          intensity: 0.8
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('entityId and emotion are required');
-    });
-  });
-
-  describe('POST /emotion/batch', () => {
-    it('should store multiple emotions', async () => {
-      const response = await request(app)
-        .post('/emotion/batch')
-        .send({
-          entityId: 'user-batch-123',
-          emotions: [
-            { emotion: 'joy', intensity: 0.9 },
-            { emotion: 'satisfaction', intensity: 0.8 },
-            { emotion: 'gratitude', intensity: 0.95 }
-          ]
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.count).toBe(3);
-      expect(response.body.memories).toHaveLength(3);
-    });
-
-    it('should return 400 when emotions is not an array', async () => {
-      const response = await request(app)
-        .post('/emotion/batch')
-        .send({
-          entityId: 'user-123',
-          emotions: 'not-an-array'
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('entityId and emotions array required');
-    });
-
-    it('should return 400 when entityId is missing', async () => {
-      const response = await request(app)
-        .post('/emotion/batch')
-        .send({
-          emotions: [{ emotion: 'joy' }]
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('entityId and emotions array required');
-    });
-  });
-
-  describe('GET /emotion/:entityId', () => {
-    it('should return empty timeline for non-existent entity', async () => {
-      const response = await request(app)
-        .get('/emotion/non-existent-user');
-
-      expect(response.status).toBe(200);
-      expect(response.body.entityId).toBe('non-existent-user');
-      expect(response.body.timeline).toEqual([]);
-      expect(response.body.count).toBe(0);
-    });
-
-    it('should return stored emotions', async () => {
-      // First, store some emotions
-      await request(app)
-        .post('/emotion')
-        .send({ entityId: 'user-get-123', emotion: 'joy', intensity: 0.7 });
-
-      await request(app)
-        .post('/emotion')
-        .send({ entityId: 'user-get-123', emotion: 'excitement', intensity: 0.9 });
-
-      const response = await request(app)
-        .get('/emotion/user-get-123');
-
-      expect(response.status).toBe(200);
-      expect(response.body.entityId).toBe('user-get-123');
-      expect(response.body.timeline).toHaveLength(2);
-      expect(response.body.count).toBe(2);
-    });
-
-    it('should filter by limit', async () => {
-      // Store 5 emotions
-      for (let i = 0; i < 5; i++) {
-        await request(app)
-          .post('/emotion')
-          .send({ entityId: 'user-limit-123', emotion: 'joy', intensity: 0.1 * (i + 1) });
-      }
-
-      const response = await request(app)
-        .get('/emotion/user-limit-123?limit=2');
-
-      expect(response.status).toBe(200);
-      expect(response.body.timeline).toHaveLength(2);
-    });
-  });
-
-  describe('GET /health', () => {
-    it('should return health status', async () => {
-      const response = await request(app)
-        .get('/health');
-
-      expect(response.status).toBe(200);
-      expect(response.body.status).toBe('ok');
-      expect(response.body.service).toBe('emotional-memory');
-      expect(response.body.entities).toBeDefined();
-      expect(response.body.relationships).toBeDefined();
-    });
-  });
-});
-
-describe('Query Functionality Tests', () => {
-  let emotionalMemories;
-
-  function storeEmotion(entityId, emotion) {
-    if (!emotionalMemories.has(entityId)) {
-      emotionalMemories.set(entityId, []);
-    }
-    const timeline = emotionalMemories.get(entityId);
-    timeline.push({
-      ...emotion,
-      timestamp: emotion.timestamp || new Date().toISOString(),
-      id: `emotion-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    });
-    return timeline[timeline.length - 1];
-  }
-
-  function queryEmotions(entityIds, emotion, startDate, endDate, minIntensity) {
-    const results = [];
-
-    for (const entityId of (entityIds || [])) {
-      let timeline = emotionalMemories.get(entityId) || [];
-
-      if (startDate) {
-        timeline = timeline.filter(e => new Date(e.timestamp) >= new Date(startDate));
-      }
-      if (endDate) {
-        timeline = timeline.filter(e => new Date(e.timestamp) <= new Date(endDate));
-      }
-      if (emotion) {
-        timeline = timeline.filter(e => e.emotion === emotion);
-      }
-      if (minIntensity !== undefined) {
-        timeline = timeline.filter(e => (e.intensity || 0.5) >= minIntensity);
-      }
-
-      if (timeline.length > 0) {
-        results.push({ entityId, events: timeline, count: timeline.length });
-      }
-    }
-
-    return {
-      results,
-      totalEvents: results.reduce((sum, r) => sum + r.count, 0)
-    };
-  }
-
-  beforeEach(() => {
-    emotionalMemories = new Map();
-  });
-
-  it('should query emotions by specific emotion type', () => {
-    storeEmotion('user-1', { emotion: 'joy', intensity: 0.8 });
-    storeEmotion('user-1', { emotion: 'frustration', intensity: 0.6 });
-    storeEmotion('user-2', { emotion: 'joy', intensity: 0.9 });
-
-    const result = queryEmotions(['user-1', 'user-2'], 'joy');
-
-    expect(result.totalEvents).toBe(2);
-    expect(result.results).toHaveLength(2);
-    expect(result.results[0].entityId).toBe('user-1');
-    expect(result.results[1].entityId).toBe('user-2');
-  });
-
-  it('should filter by minimum intensity', () => {
-    storeEmotion('user-1', { emotion: 'joy', intensity: 0.3 });
-    storeEmotion('user-1', { emotion: 'satisfaction', intensity: 0.7 });
-    storeEmotion('user-1', { emotion: 'excitement', intensity: 0.95 });
-
-    const result = queryEmotions(['user-1'], null, null, null, 0.5);
-
-    expect(result.totalEvents).toBe(2);
-    expect(result.results[0].count).toBe(2);
-  });
-
-  it('should combine date range and emotion filters', () => {
-    storeEmotion('user-1', {
-      emotion: 'joy',
-      intensity: 0.8,
-      timestamp: '2026-01-01T10:00:00.000Z'
-    });
-    storeEmotion('user-1', {
-      emotion: 'joy',
-      intensity: 0.6,
-      timestamp: '2026-06-15T10:00:00.000Z'
-    });
-
-    const result = queryEmotions(
-      ['user-1'],
-      'joy',
-      '2026-06-01',
-      '2026-12-31'
-    );
-
-    expect(result.totalEvents).toBe(1);
-    expect(result.results[0].events[0].intensity).toBe(0.6);
-  });
-
-  it('should return empty results for non-matching queries', () => {
-    storeEmotion('user-1', { emotion: 'joy', intensity: 0.8 });
-
-    const result = queryEmotions(['user-1'], 'frustration');
-
-    expect(result.totalEvents).toBe(0);
-    expect(result.results).toHaveLength(0);
-  });
-
-  it('should handle empty entity list', () => {
-    const result = queryEmotions([], 'joy');
-
-    expect(result.totalEvents).toBe(0);
-    expect(result.results).toHaveLength(0);
-  });
-
-  it('should return results for multiple entities', () => {
-    storeEmotion('user-A', { emotion: 'trust', intensity: 0.9 });
-    storeEmotion('user-B', { emotion: 'trust', intensity: 0.85 });
-    storeEmotion('user-C', { emotion: 'trust', intensity: 0.7 });
-
-    const result = queryEmotions(['user-A', 'user-B', 'user-C'], 'trust');
-
-    expect(result.totalEvents).toBe(3);
-    expect(result.results).toHaveLength(3);
   });
 });

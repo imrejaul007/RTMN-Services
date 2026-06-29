@@ -137,13 +137,13 @@ describe('COD Intelligence Service', () => {
       expect(result.recommendation).toBe('review');
     });
 
-    it('should include confidence in response', () => {
+    it('should include factors in response', () => {
       const result = calculateCodScore({
         orderHistory: { total: 10, completed: 10 }
       });
 
-      expect(result).toHaveProperty('confidence');
-      expect(typeof result.confidence).toBe('number');
+      expect(result).toHaveProperty('factors');
+      expect(Array.isArray(result.factors)).toBe(true);
     });
 
     it('should add reasons for high-value orders', () => {

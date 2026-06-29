@@ -1,0 +1,47 @@
+name: Incident Monitor Loop
+description: Monitor systems and auto-escalate incidents
+category: operations
+frequency: "*/5 * * * *"  # Every 5 minutes
+
+budget:
+  dailyTokens: 200000
+  dailySpend: 10
+  maxToolCalls: 200
+
+actions:
+  - name: check_system_health
+    description: Check health endpoints for all services
+    timeout: 30s
+
+  - name: analyze_metrics
+    description: Check error rates, latency
+    timeout: 45s
+
+  - name: detect_incident
+    description: Identify if incident is occurring
+    verify: true
+    timeout: 30s
+
+  - name: create_incident_ticket
+    description: Create incident ticket
+    timeout: 30s
+
+  - name: notify_team
+    description: Alert on-call team
+    requiresApproval: severity_high
+    timeout: 30s
+
+verification:
+  level: maker_checker
+  checker: error_pattern_detection
+
+notifications:
+  onIncident: pagerduty
+  onCritical: sms
+  onResolved: slack
+
+tags:
+  - operations
+  - monitoring
+  - incidents
+  - reliability

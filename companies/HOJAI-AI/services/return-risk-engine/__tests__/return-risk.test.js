@@ -64,21 +64,22 @@ describe('Return Risk Engine', () => {
 
     it('should flag high risk for return abusers', () => {
       const result = calculateReturnRisk({
-        orderHistory: { orders: 10, returns: 9 },
-        returnVelocity: { returns7d: 3, returns30d: 10 }
+        orderHistory: { orders: 10, returns: 8 },
+        returnVelocity: { returns7d: 3, returns30d: 8 }
       });
 
       expect(result.risk).toBe('high');
       expect(result.policy_recommendation).toBe('manual_review');
     });
 
-    it('should return a valid risk level', () => {
+    it('should recommend standard policy for medium risk', () => {
       const result = calculateReturnRisk({
         orderHistory: { orders: 10, returns: 5 },
         returnVelocity: { returns7d: 1, returns30d: 4 }
       });
 
-      expect(['low', 'medium', 'high']).toContain(result.risk);
+      expect(result.risk).toBe('medium');
+      expect(result.policy_recommendation).toBe('standard');
     });
 
     it('should detect high-value return patterns', () => {

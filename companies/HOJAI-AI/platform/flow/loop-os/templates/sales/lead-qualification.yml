@@ -1,0 +1,44 @@
+name: Lead Qualification Loop
+description: Automatically qualify and route new leads based on BANT criteria
+category: sales
+frequency: "*/15 * * * *"  # Every 15 minutes
+
+budget:
+  dailyTokens: 500000
+  dailySpend: 25
+  maxToolCalls: 500
+
+actions:
+  - name: fetch_new_leads
+    description: Get leads from CRM created in last 15 minutes
+    timeout: 30s
+
+  - name: enrich_lead
+    description: Enrich lead data with company info
+    verify: true
+    timeout: 60s
+
+  - name: score_lead
+    description: Score lead based on BANT criteria
+    verify: true
+    timeout: 30s
+
+  - name: route_lead
+    description: Route to appropriate sales rep based on territory/score
+    requiresApproval: score_below_30
+    timeout: 30s
+
+verification:
+  level: maker_checker_guardian
+  guardians:
+    - compliance
+    - data_quality
+
+notifications:
+  onHighValue: slack #score > 70
+  onError: email
+
+tags:
+  - sales
+  - lead-management
+  - automation

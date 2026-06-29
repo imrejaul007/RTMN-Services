@@ -1,0 +1,44 @@
+name: Campaign Performance Monitor
+description: Monitor campaign metrics and alert on anomalies
+category: marketing
+frequency: "*/30 * * * *"  # Every 30 minutes
+
+budget:
+  dailyTokens: 400000
+  dailySpend: 20
+  maxToolCalls: 400
+
+actions:
+  - name: fetch_campaign_metrics
+    description: Get latest metrics from ad platforms
+    timeout: 60s
+
+  - name: analyze_performance
+    description: Compare against targets and historical
+    timeout: 45s
+
+  - name: detect_anomalies
+    description: Flag unusual patterns (CTR drop, spend spike)
+    verify: true
+    timeout: 30s
+
+  - name: generate_alert
+    description: Create alert if threshold exceeded
+    requiresApproval: critical_anomaly
+    timeout: 30s
+
+verification:
+  level: maker_guardian
+  guardians:
+    - brand
+    - compliance
+
+notifications:
+  onAnomaly: slack
+  onCritical: sms
+  onDailySummary: email
+
+tags:
+  - marketing
+  - analytics
+  - monitoring

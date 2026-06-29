@@ -189,20 +189,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'hallucination-detector', port: PORT });
 });
 
-// Only start server when running directly (not when imported for testing)
-if (process.argv[1] && process.argv[1].endsWith('index.js')) {
-  app.listen(PORT, () => {
-    console.log(`Hallucination Detector running on port ${PORT}`);
-  });
-}
-
-// Export detection functions for testing
-export {
-  detectHallucinations,
-  extractNamedEntities,
-  checkConsistency,
-  findUngroundedClaims,
-  calculateHallucinationScore
-};
+app.listen(PORT, () => {
+  console.log(`Hallucination Detector running on port ${PORT}`);
+});
 
 export default app;

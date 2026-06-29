@@ -1,0 +1,45 @@
+name: Customer Health Check Loop
+description: Monitor customer health scores and trigger interventions
+category: customer-success
+frequency: "0 8 * * *"  # Daily at 8 AM
+
+budget:
+  dailyTokens: 600000
+  dailySpend: 30
+  maxToolCalls: 600
+
+actions:
+  - name: calculate_health_scores
+    description: Recalculate health scores for all customers
+    timeout: 120s
+
+  - name: identify_at_risk
+    description: Flag customers with declining health
+    verify: true
+    timeout: 60s
+
+  - name: create_checkin_task
+    description: Create check-in task for CS rep
+    requiresApproval: health_below_40
+    timeout: 30s
+
+  - name: trigger_intervention
+    description: Auto-send help content for low engagement
+    verify: true
+    timeout: 45s
+
+verification:
+  level: maker_checker_guardian
+  guardians:
+    - compliance
+    - privacy
+
+notifications:
+  onAtRisk: slack
+  onChurnRisk: sms
+  onWeeklySummary: email
+
+tags:
+  - customer-success
+  - health-monitoring
+  - retention

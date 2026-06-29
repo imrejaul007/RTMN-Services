@@ -1,0 +1,54 @@
+name: Expense Audit Loop
+description: Audit expenses for policy compliance
+category: finance
+frequency: "0 6 * * *"  # Daily at 6 AM
+
+budget:
+  dailyTokens: 400000
+  dailySpend: 25
+  maxToolCalls: 400
+
+actions:
+  - name: fetch_pending_expenses
+    description: Get expenses pending approval
+    timeout: 60s
+
+  - name: validate_receipts
+    description: Verify receipt images/attachments
+    verify: true
+    timeout: 90s
+
+  - name: check_policy_compliance
+    description: Validate against expense policy
+    verify: true
+    verifyLevel: guardian
+    guardians:
+      - compliance
+      - policy
+    timeout: 45s
+
+  - name: flag_outliers
+    description: Flag unusually high expenses
+    requiresApproval: amount_above_10000
+    timeout: 30s
+
+  - name: auto_approve
+    description: Auto-approve compliant expenses
+    timeout: 30s
+
+verification:
+  level: maker_checker_guardian
+  guardians:
+    - compliance
+    - finance_policy
+    - fraud_detection
+
+notifications:
+  onFlagged: slack
+  onFraudSuspected: sms
+  onWeeklySummary: email
+
+tags:
+  - finance
+  - compliance
+  - expense-management

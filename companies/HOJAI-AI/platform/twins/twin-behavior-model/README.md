@@ -1,11 +1,9 @@
-# Twin Behavior Model
+# TwinOS Behavior Model
+**Port: 4718**
 
-**Port:** 4718
-
-Behavior learning and pattern detection for digital twins.
+> Behavior learning and pattern detection for digital twins.
 
 ## Features
-
 - Pattern capture and detection
 - Preference learning
 - Anomaly detection
@@ -16,28 +14,17 @@ Behavior learning and pattern detection for digital twins.
 ## API
 
 ```bash
-# Observe behavior event
-curl -X POST localhost:4718/api/behavior/observe \
-  -d '{"twinId": "emp-123", "eventType": "task_complete"}'
+# Observe event
+curl -X POST :4718/api/behavior/observe -d '{"twinId":"emp-1","eventType":"meeting"}'
 
-# Get behavior profile
-curl localhost:4718/api/behavior/profile/emp-123
+# Get profile
+curl :4718/api/behavior/profile/emp-1
 
 # Detect patterns
-curl -X POST localhost:4718/api/behavior/patterns \
-  -d '{"twinId": "emp-123"}'
-
-# Learn preferences
-curl -X POST localhost:4718/api/behavior/learn \
-  -d '{"twinId": "emp-123", "preference": {"category": "channel", "value": "slack"}}'
+curl -X POST :4718/api/behavior/patterns -d '{"twinId":"emp-1"}'
 ```
 
 ## Tests
-
 ```bash
-npm test  # 40 tests
+npm test
 ```
-
-## Status
-
-✅ Production Ready - 40 tests passing

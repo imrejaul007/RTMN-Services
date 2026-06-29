@@ -1,0 +1,40 @@
+name: Prospect Follow-Up Loop
+description: Follow up with prospects at optimal times based on engagement patterns
+category: sales
+frequency: "0 9,14,18 * * 1-5"  # 9 AM, 2 PM, 6 PM on weekdays
+
+budget:
+  dailyTokens: 300000
+  dailySpend: 15
+  maxToolCalls: 300
+
+actions:
+  - name: get_pending_followups
+    description: Get leads with pending follow-ups
+    timeout: 30s
+
+  - name: analyze_engagement
+    description: Analyze recent engagement patterns
+    timeout: 45s
+
+  - name: generate_personalized_message
+    description: Generate personalized follow-up message
+    verify: true
+    timeout: 60s
+
+  - name: send_followup
+    description: Send follow-up via email/WhatsApp
+    requiresApproval: first_contact
+    timeout: 30s
+
+verification:
+  level: maker_checker
+  checker: grammar_and_tone
+
+notifications:
+  onError: email
+
+tags:
+  - sales
+  - engagement
+  - follow-up
