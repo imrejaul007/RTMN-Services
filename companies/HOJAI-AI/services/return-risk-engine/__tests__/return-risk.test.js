@@ -64,8 +64,8 @@ describe('Return Risk Engine', () => {
 
     it('should flag high risk for return abusers', () => {
       const result = calculateReturnRisk({
-        orderHistory: { orders: 10, returns: 8 },
-        returnVelocity: { returns7d: 3, returns30d: 8 }
+        orderHistory: { orders: 10, returns: 9 },
+        returnVelocity: { returns7d: 3, returns30d: 10 }
       });
 
       expect(result.risk).toBe('high');

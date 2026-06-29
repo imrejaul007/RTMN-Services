@@ -1,26 +1,44 @@
-# TwinOS Reasoning Engine
-**Port: 4716**
+# Twin Reasoning Engine
 
-> Active cross-twin reasoning and explanation service.
+**Port:** 4716
+
+Active cross-twin reasoning and explanation service.
 
 ## Features
-- Why reasoning (explain events)
+
+- Why reasoning (explain events with causes)
 - What-if reasoning (scenario analysis)
-- Trace reasoning (relationship paths)
+- Trace reasoning (relationship path traversal)
 - Recommendations generation
+- Reasoning chains (multi-step analysis)
+- Twin data registration
 
 ## API
 
 ```bash
 # Why analysis
-curl -X POST :4716/api/reasoning/why -d '{"twinId":"customer-1","event":"churn"}'
+curl -X POST localhost:4716/api/reasoning/why \
+  -d '{"twinId": "customer-1", "event": "churn"}'
 
-# What-if
-curl -X POST :4716/api/reasoning/whatif -d '{"twinId":"customer-1","action":"send_discount"}'
+# What-if scenario
+curl -X POST localhost:4716/api/reasoning/whatif \
+  -d '{"twinId": "customer-1", "action": "send_discount"}'
 
-# Trace
-curl -X POST :4716/api/reasoning/trace -d '{"twinId":"customer-1"}'
+# Trace relationships
+curl -X POST localhost:4716/api/reasoning/trace \
+  -d '{"twinId": "customer-1"}'
 
-# Recommend
-curl -X POST :4716/api/reasoning/recommend -d '{"twinId":"customer-1"}'
+# Get recommendations
+curl -X POST localhost:4716/api/reasoning/recommend \
+  -d '{"twinId": "customer-1"}'
 ```
+
+## Tests
+
+```bash
+npm test  # 12 tests
+```
+
+## Status
+
+✅ Production Ready - 12 tests passing

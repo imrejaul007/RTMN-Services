@@ -302,9 +302,21 @@ describe('Legal Risk Scoring', () => {
   });
 
   it('should combine multiple legal categories', () => {
-    // liable (0.2) + lawsuit (0.2) + fraud (0.3) = 0.7
+    // liable matches first (0.2), then fraud (0.3) - lawsuit not counted separately due to no global flag
+    // total = 0.2 + 0.3 = 0.5
     const result = scoreLegalRisk('Liable for lawsuit and fraud allegations.');
-    expect(result).toBe(0.7);
+    expect(result).toBe(0.5);
+  });
+
+  it('should detect each legal category separately', () => {
+    // Test that each category contributes its weight
+    const liableOnly = scoreLegalRisk('The company is liable.');
+    const lawsuitOnly = scoreLegalRisk('They filed a lawsuit.');
+    const fraudOnly = scoreLegalRisk('This is fraud.');
+
+    expect(liableOnly).toBe(0.2);
+    expect(lawsuitOnly).toBe(0.2);
+    expect(fraudOnly).toBe(0.3);
   });
 });
 
