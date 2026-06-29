@@ -1,0 +1,27 @@
+{
+  "id": "restaurant-waste-tracking",
+  "name": "Waste Tracking & Reduction",
+  "category": "restaurant",
+  "description": "Track food waste and generate reduction insights",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 22 * * *"}],
+  "nodes": [
+    {"id": "1", "type": "inventory", "name": "Get Waste Data", "config": {"action": "get_waste_log", "date": "today"}},
+    {"id": "2", "type": "ai_agent", "name": "Analyze Waste", "config": {"agent": "analytics_agent", "prompt": "Analyze waste by category, identify patterns, and suggest reductions."}},
+    {"id": "3", "type": "action", "name": "Alert Kitchen", "config": {"condition": "waste > 5%", "action": "notify", "channel": "kitchen"}},
+    {"id": "4", "type": "email", "name": "Weekly Report", "config": {"template": "waste_report", "schedule": "weekly"}},
+    {"id": "5", "type": "twin", "name": "Update Twin", "config": {"twin": "restaurant_twin", "action": "update_waste"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "2", "to": "4"},
+    {"from": "3", "to": "5"},
+    {"from": "4", "to": "5"}
+  ],
+  "agents": ["analytics_agent"],
+  "integrations": ["inventory", "slack", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["restaurant", "operations", "cost-reduction"]
+}
