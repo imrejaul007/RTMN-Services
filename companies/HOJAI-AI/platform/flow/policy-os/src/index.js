@@ -71,6 +71,7 @@ import { registerConstitutionalAIRoutes } from './routes/constitutional-ai.js';
 import { registerLifecycleAutomationRoutes } from './routes/lifecycle-automation.js';
 import { registerDeveloperExperienceRoutes } from './routes/developer-experience.js';
 import { registerGitOpsRoutes } from './routes/gitops.js';
+import { registerFormalVerificationRoutes } from './routes/formal-verification.js';
 import { validatePolicyBody, CATEGORIES, POLICY_STATUSES } from './lib/validation.js';
 import { prototypePollutionMiddleware, sanitizePolicyId, sanitizeExpression, sanitizeName, validateWebhookUrl } from './lib/sanitization.js';
 import {
@@ -528,6 +529,10 @@ registerGitOpsRoutes(app, {
   policies, relationships, conditionTemplates, attributePolicies,
   aiModels, constitutions, agentRegistry, memoryPolicies, twinPolicies, automations,
   customAuth, writeLimiter,
+});
+// Phase P1: Formal Verification — conflict/dead/escalation/cycle detection
+registerFormalVerificationRoutes(app, {
+  policies, roles, customAuth, writeLimiter,
 });
 // Phase 2: ABAC v2 routes
 registerAttributeRoutes(app, { customAuth });

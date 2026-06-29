@@ -267,14 +267,16 @@ async function registerTwilioWebhook(accountSid, authToken, whatsappNumber, webh
  * 2. Parses messages
  * 3. Calls your handler for each message
  */
-function createWhatsAppWebhookMiddleware(options = {}) {
-  const {
-    verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || 'change-me',
-    appSecret = process.env.WHATSAPP_APP_SECRET || process.env.WHATSAPP_VERIFY_TOKEN || 'change-me',
-    authToken = process.env.TWILIO_AUTH_TOKEN,
-    provider = process.env.WHATSAPP_PROVIDER || 'meta', // 'meta' | 'twilio' | '360dialog'
-    onMessages = async (messages, meta) => {},
-    onDeliveryStatus = async (status) => {},
+function createWhatsAppWebhookMiddleware(options) {
+  options = options || {};
+  var verifyToken = options.verifyToken || process.env.WHATSAPP_VERIFY_TOKEN || 'change-me';
+  // Only verify signatures if appSecret is EXPLICITLY set (not the default placeholder)
+  var appSecret = options.appSecret || (process.env.WHATSAPP_APP_SECRET && process.env.WHATSAPP_APP_SECRET !== verifyToken ? process.env.WHATSAPP_APP_SECRET : null);
+  var authToken = options.authToken || process.env.TWILIO_AUTH_TOKEN;
+  var provider = options.provider || process.env.WHATSAPP_PROVIDER || 'meta';
+  var onMessages = options.onMessages || function() {};
+  var onDeliveryStatus = options.onDeliveryStatus || function() {};
+  var onReadReceipt = options.onReadReceipt || function() {};
     onReadReceipt = async (receipt) => {},
   } = options;
 

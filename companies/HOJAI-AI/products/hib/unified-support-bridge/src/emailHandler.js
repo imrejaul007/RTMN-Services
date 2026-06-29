@@ -156,32 +156,35 @@ async function fromRawMime(raw, headers = {}) {
 }
 
 // Detect provider and normalize
-async function normalizeEmail(body, headers = {}, rawMime = null) {
+async function normalizeEmail(body, headers, rawMime) {
+  if (!body) return null;
   // Try to detect provider
-  if (body && body._category) return fromSendGrid(body, headers);
-  if (body && body.mail && body.mail.messageId) return fromSES(body, headers);
-  if (body && body.signature) return fromMailgun(body, headers);
-  if (body && body.MessageID) return fromPostmark(body);
-  if (body && body.entry) return null; // This is WhatsApp, not email
-  if (rawMime) return await fromRawMime(rawMime, headers);
+  if (body._category) return fromSendGrid(body, headers);
+  if (body.mail && body.mail.messageId) return fromSES(body, headers);
+  if (body.signature) return fromMailgun(body, headers);
+  if (body.MessageID) return fromPostmark(body);
+  if (body.entry) return null; // This is WhatsApp, not email
+  if (rawMime) return fromRawMime(rawMime, headers);
 
-  // Generic format
-  const from = body.from || headers.from || '';
+  // Simple JSON format: { from, subject, text, to, messageId, inReplyTo }
+  var fromField = body.from || headers && headers.from || '';
+  var fromEmail = fromField.replace(/.*<(.+?)>.*/, '$1').trim() || fromField;
+  var fromName = null;
+  var nameMatch = fromField.match(/^"(.+?)"/);
+  if (nameMatch) fromName = nameMatch[1];
+
   return {
-    messageId: body['Message-ID'] || body.message_id || `gen-${uuidv4().slice(0, 8)}`,
-    from: {
-      email: from.replace(/.*<(.+?)>.*/, '$1').trim() || from,
-      name: from.match(/^"(.+?)"/)?.[1] || null,
-    },
-    to: [body.to || headers.to || ''].filter(Boolean),
+    messageId: body['Message-ID'] || body.message_id || ('gen-' + require('crypto').randomUUID().slice(0, 8)),
+    from: { email: fromEmail, name: fromName },
+    to: Array.isArray(body.to) ? body.to : [body.to || ''].filter(Boolean),
     subject: body.subject || '(no subject)',
     text: body.text || body.body || body.content || '',
     html: body.html || null,
     inReplyTo: body['In-Reply-To'] || body.in_reply_to || null,
-    references: parseReferences(body.References || body.references || headers.references || ''),
+    references: parseReferences(body.References || body.references || (headers && headers.references) || ''),
     date: new Date(body.date || Date.now()),
     attachments: [],
-    rawHeaders: headers,
+    rawHeaders: headers || {},
     provider: 'generic',
     raw: body,
   };
