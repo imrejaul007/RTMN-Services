@@ -1,0 +1,36 @@
+{
+  "name": "@hojai/knowledge-graph-persistent",
+  "version": "1.0.0",
+  "description": "KnowledgeOS Persistent Graph Store — PostgreSQL/pgvector-backed property graph with traversal and vector similarity",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:setup": "node src/db/setup.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1",
+    "dotenv": "^16.3.1",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "knowledge-graph",
+    "pgvector",
+    "graph-database",
+    "vector-search",
+    "hojai"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}
