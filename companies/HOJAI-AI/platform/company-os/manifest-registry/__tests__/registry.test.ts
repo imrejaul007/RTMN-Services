@@ -227,11 +227,14 @@ describe('ManifestRegistry', () => {
       await registry.create(manifest);
       await registry.update('test_company_001', { name: 'Updated Name' });
 
+      // Snapshot captures current state (v1.0.1 with 'Updated Name')
       const snapshot = await registry.snapshot('test_company_001', 'manual');
 
+      // Restore should create a new version (v1.0.2) from snapshot content
       const restored = await registry.restore('test_company_001', snapshot.id.split('_')[1]);
 
-      expect(restored.name).toBe('Test Company'); // Original name
+      // The restored manifest should have the snapshot content with a new version
+      expect(restored.name).toBe('Updated Name'); // Snapshot content
       expect(restored.version).toBe('1.0.2'); // New version from restore
     });
   });

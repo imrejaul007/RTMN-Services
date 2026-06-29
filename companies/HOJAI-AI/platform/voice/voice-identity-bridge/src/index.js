@@ -94,5 +94,5 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'voice-identity-bridge', port: PORT, registeredVoices: voiceToCorpId.size, registeredCorpIds: corpIdToVoice.size });
 });
 
-app.listen(PORT, () => console.log(`Voice Identity Bridge running on port ${PORT}`));
+app.listen(PORT, () => console.log('Voice Identity Bridge running on port ' + PORT));
 export default app;

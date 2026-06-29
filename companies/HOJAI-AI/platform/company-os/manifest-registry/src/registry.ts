@@ -243,15 +243,16 @@ export class ManifestRegistry {
     const snapshot = yaml.load(content) as ManifestSnapshot;
 
     // Create new version from snapshot
-    const restored = await this.create({
+    const newManifest: CompanyManifest = {
       ...snapshot.content,
       version: this.bumpVersion(snapshot.content.version),
       updatedAt: new Date().toISOString(),
-    });
+    };
+    await this.create(newManifest);
 
     console.log(`[ManifestRegistry] Restored ${companyId} from snapshot ${snapshotId}`);
 
-    return restored;
+    return newManifest;
   }
 
   /**
