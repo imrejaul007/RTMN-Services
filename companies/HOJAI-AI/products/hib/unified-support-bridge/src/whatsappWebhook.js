@@ -303,10 +303,9 @@ function createWhatsAppWebhookMiddleware(options) {
     }
 
     // Verify signature based on provider
-    const signature = req.headers['x-hub-signature-256'] ||
-                      req.headers['x-twilio-signature'] || '';
+    var signature = req.headers['x-hub-signature-256'] || req.headers['x-twilio-signature'] || '';
 
-    let signatureValid = true;
+    var signatureValid = true;
     if (provider === 'twilio' && authToken) {
       signatureValid = verifyTwilioSignature(rawBody, signature, authToken);
     } else if (provider === 'meta' && appSecret) {
@@ -314,7 +313,7 @@ function createWhatsAppWebhookMiddleware(options) {
     }
 
     if (!signatureValid) {
-      console.warn('[whatsapp-webhook] Invalid signature from provider:', provider);
+      console.warn('[whatsapp-webhook] Invalid signature provider=' + provider + ' appSecret=' + (appSecret ? 'SET' : 'null') + ' sig=' + signature.slice(0, 20));
       res.status(403).send('Forbidden');
       return { handled: true };
     }

@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.19
+> **Version:** 5.20
 > **Last Updated:** June 29, 2026
-> **New:** ✅ **Customer Intelligence SDK** — 12 modules, unified SDK, production ready
-> **Status:** ✅ **Customer Intelligence SDK** (12 modules) + SUTAR OS (37 services) + MemoryOS (30 services)
+> **New:** ✅ **Human Intelligence OS** — EmotionOS, BehaviorOS, KnowledgeOS, TrustOS Phase 20 complete
+> **Status:** ✅ **Human Intelligence OS** (10 new services) + SUTAR OS (37 services) + MemoryOS (30 services)
 
 ---
 
@@ -1030,6 +1030,12 @@ const result = await sdk.analyze({ phone: '+91XXXXXXXXXX' });
 The Memory Layer provides enterprise-grade AI memory with temporal reasoning, pattern detection, knowledge compilation, and self-improvement capabilities. Inspired by Mem0, Zep, LangMem, and Pinecone Nexus.
 
 > **12/12 Competitive Capabilities Complete** — HOJAI MemoryOS now has full coverage that no competitor matches (Mem0, Zep, Glean, OpenAI).
+
+**New Services Added (June 29, 2026):**
+- KnowledgeOS: Persistent Graph Store (4750), Ontology Engine (4751), Entity Resolution (4752), Reasoning Engine (4753)
+- TrustOS Phase 20: Confidence Scorer (4990), Source Tracker (4991), Evidence Collector (4992), Verification Engine (4993), Hallucination Detector (4994), Risk Scorer (4995)
+- EmotionOS: Voice Emotion Detection (4760), Emotional Memory (4761)
+- BehaviorOS: Habit Engine (4731), Fixed behavior-intelligence tests, Fixed behavioral-twin tests
 
 | Service | Port | Purpose | Tests |
 |---------|------|---------|-------|
