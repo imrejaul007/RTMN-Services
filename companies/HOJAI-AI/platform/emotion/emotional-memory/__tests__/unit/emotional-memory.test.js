@@ -82,7 +82,8 @@ describe('Emotional Memory Service', () => {
     history.push({
       ...emotion,
       timestamp: new Date().toISOString(),
-      id: `rel-emotion-${Date.now()}`
+      id: `rel-emotion-${Date.now()}`,
+      mutual: emotion.mutual !== undefined ? emotion.mutual : false
     });
 
     return history[history.length - 1];
@@ -581,19 +582,19 @@ describe('API Validation', () => {
   describe('POST /emotion validation', () => {
     it('should require entityId', () => {
       const body = { emotion: 'joy', intensity: 0.8 };
-      const isValid = body.entityId && body.emotion;
+      const isValid = !!(body.entityId && body.emotion);
       expect(isValid).toBe(false);
     });
 
     it('should require emotion', () => {
       const body = { entityId: 'user-123' };
-      const isValid = body.entityId && body.emotion;
+      const isValid = !!(body.entityId && body.emotion);
       expect(isValid).toBe(false);
     });
 
     it('should accept valid input', () => {
       const body = { entityId: 'user-123', emotion: 'joy', intensity: 0.8 };
-      const isValid = body.entityId && body.emotion;
+      const isValid = !!(body.entityId && body.emotion);
       expect(isValid).toBe(true);
     });
   });
@@ -601,13 +602,13 @@ describe('API Validation', () => {
   describe('POST /emotion/batch validation', () => {
     it('should require entityId and emotions array', () => {
       const body = { entityId: 'user-123' };
-      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
+      const isValid = !!(body.entityId && body.emotions && Array.isArray(body.emotions));
       expect(isValid).toBe(false);
     });
 
     it('should reject non-array emotions', () => {
       const body = { entityId: 'user-123', emotions: 'not-an-array' };
-      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
+      const isValid = !!(body.entityId && body.emotions && Array.isArray(body.emotions));
       expect(isValid).toBe(false);
     });
 
@@ -619,7 +620,7 @@ describe('API Validation', () => {
           { emotion: 'satisfaction', intensity: 0.7 }
         ]
       };
-      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
+      const isValid = !!(body.entityId && body.emotions && Array.isArray(body.emotions));
       expect(isValid).toBe(true);
     });
   });
@@ -627,7 +628,7 @@ describe('API Validation', () => {
   describe('POST /relationship validation', () => {
     it('should require relationshipId and emotion', () => {
       const body = { emotion: 'trust' };
-      const isValid = body.relationshipId && body.emotion;
+      const isValid = !!(body.relationshipId && body.emotion);
       expect(isValid).toBe(false);
     });
 
@@ -637,7 +638,7 @@ describe('API Validation', () => {
         emotion: 'trust',
         intensity: 0.9
       };
-      const isValid = body.relationshipId && body.emotion;
+      const isValid = !!(body.relationshipId && body.emotion);
       expect(isValid).toBe(true);
     });
   });

@@ -193,4 +193,13 @@ app.listen(PORT, () => {
   console.log(`Hallucination Detector running on port ${PORT}`);
 });
 
+// Export detection functions for testing
+export {
+  detectHallucinations,
+  extractNamedEntities,
+  checkConsistency,
+  findUngroundedClaims,
+  calculateHallucinationScore
+};
+
 export default app;
