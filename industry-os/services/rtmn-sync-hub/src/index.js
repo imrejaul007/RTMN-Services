@@ -76,6 +76,42 @@ for (const [name, port] of Object.entries(BAM_SERVICES)) {
   app.use(`/api/marketplace/${name}`, proxyToBAM(port));
 }
 
+// ============================================================
+// LOOPOS PROXY - Loop Engineering services
+// ============================================================
+
+const LOOPOS_SERVICES = {
+  'loop-scheduler': 4731,
+  'loop-state': 4732,
+  'verification-engine': 4733,
+  'budget-engine': 4734,
+  'fleet-os': 4735,
+  'trust-profile': 4736,
+  'outcome-tracker': 4737,
+  'knowledge-graph': 4738,
+  'certification-pipeline': 4739,
+};
+
+// Register LoopOS service proxy routes
+for (const [name, port] of Object.entries(LOOPOS_SERVICES)) {
+  app.use(`/api/loopos/${name}`, proxyToBAM(port));
+}
+
+// LoopOS health check endpoint
+app.get('/api/loopos/health', (req, res) => {
+  const looposServices = Object.entries(LOOPOS_SERVICES).map(([name, port]) => ({
+    name,
+    port,
+    status: 'unknown',
+  }));
+  res.json({
+    service: 'LoopOS Integration',
+    tagline: 'Persistent Autonomous Execution Layer',
+    services: looposServices,
+    note: 'LoopOS services run at ports 4731-4739',
+  });
+});
+
 // BAM health check endpoint
 app.get('/api/bam/health', (req, res) => {
   const bamServices = Object.entries(BAM_SERVICES).map(([name, url]) => ({

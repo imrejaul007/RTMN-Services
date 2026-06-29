@@ -120,6 +120,7 @@ export class DirectiveGenerator {
       'proud': 'confident',
       'content': 'calm',
       'peaceful': 'calm',
+      'warm': 'warm',
 
       // Sadness
       'sad': 'concerned',
@@ -152,6 +153,7 @@ export class DirectiveGenerator {
 
       // Celebration
       'celebrate': 'celebratory',
+      'celebratory': 'celebratory',
       'congratulations': 'celebratory',
 
       // Motivation
