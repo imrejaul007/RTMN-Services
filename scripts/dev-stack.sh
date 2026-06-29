@@ -191,6 +191,12 @@ AGENT_OBSERVABILITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/platform/agent-os/agen
 # HOJAI Voice Gateway (Phase F, 2026-06-24) — Training-aware STT/TTS router on port 4880
 VOICE_GATEWAY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-gateway && PORT=4880 REDIS_URL=redis://localhost:6379 npm start"
 
+# VoiceOS Phase 1 (June 29, 2026) — 4 new services completing the 12-layer VoiceOS architecture
+CONVERSATION_PHYSICS_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/conversation-physics && PORT=4881 npm start"
+VOICE_DIRECTOR_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-director && PORT=4882 npm start"
+LIFE_TIMELINE_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/life-timeline && PORT=4883 npm start"
+VOICE_IDENTITY_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/voice-os/core/voice-identity && PORT=4884 npm start"
+
 # HOJAI App Store API (4400) — Catalog for skills, agents, workflows, templates
 APP_STORE_API_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/services/app-store-api && PORT=4400 npm start"
 
