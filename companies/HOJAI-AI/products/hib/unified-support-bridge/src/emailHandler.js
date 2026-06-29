@@ -1,196 +1,7 @@
-/**
- * Email Inbound Handler
- * ======================
- * Receives inbound emails via three methods:
- *
- * 1. HTTP Webhook  — from SendGrid, AWS SES, Mailgun, Postmark, etc.
- * 2. SMTP MX Record — receive emails directly via this service as an MX server
- *    (using a simple SMTP receiver on a dedicated port)
- * 3. IMAP/POP3 Polling — poll external mailboxes (Gmail, Outlook)
- *
- * All three methods normalize to a common EmailMessage format:
- * {
- *   messageId: string,
- *   from: { email, name },
- *   to: string[],
- *   subject: string,
- *   text: string,
- *   html: string,
- *   inReplyTo: string | null,
- *   references: string[],
- *   date: Date,
- *   attachments: Attachment[],
- *   rawHeaders: Record<string, string>
- * }
- */
+'use strict';
 
-const { v4: uuidv4 } = require('uuid');
-const { simpleParser } = require('mailparser');
+var crypto = require('crypto');
 
-/**
- * Normalize email from any provider format to our internal EmailMessage
- */
-
-// SendGrid Inbound Parse Webhook
-function fromSendGrid(body, headers = {}) {
-  return {
-    messageId: body.headers?.['Message-ID'] || body['Message-ID'] || body.message_id || `sg-${uuidv4().slice(0, 8)}`,
-    from: {
-      email: (body.from || '').replace(/.*<(.+?)>.*/, '$1').trim() || body.from_email,
-      name: body.from?.match(/^"(.+?)"/)?.[1] || body.fromName || null,
-    },
-    to: Array.isArray(body.to) ? body.to : [body.to || body.recipient || ''].filter(Boolean),
-    subject: body.subject || '(no subject)',
-    text: body.text || body.content || body.body || stripHtml(body.html || body.html_stripped || ''),
-    html: body.html || null,
-    inReplyTo: body['In-Reply-To'] || body.in_reply_to || null,
-    references: parseReferences(body.References || body.references || ''),
-    date: new Date(body.date || Date.now()),
-    attachments: parseAttachments(body.attachments),
-    rawHeaders: body.headers || {},
-    provider: 'sendgrid',
-    raw: body,
-  };
-}
-
-// AWS SES format
-function fromSES(body, headers = {}) {
-  const mail = body.mail || {};
-  const content = body.content || body.message || '';
-  return {
-    messageId: mail.messageId || `ses-${uuidv4().slice(0, 8)}`,
-    from: {
-      email: mail.source || body.from || '',
-      name: null,
-    },
-    to: (mail.destination || mail.to || []).map(d => typeof d === 'string' ? d : d.email),
-    subject: mail.subject || '(no subject)',
-    text: body.text || content,
-    html: body.html || null,
-    inReplyTo: mail.inReplyTo || body['In-Reply-To'] || null,
-    references: parseReferences(mail.references || body.References || ''),
-    date: new Date(mail.timestamp || Date.now()),
-    attachments: [],
-    rawHeaders: headers,
-    provider: 'ses',
-    raw: body,
-  };
-}
-
-// Mailgun format
-function fromMailgun(body, headers = {}) {
-  return {
-    messageId: body['Message-ID'] || body['Message-Id'] || `mg-${uuidv4().slice(0, 8)}`,
-    from: {
-      email: body.from || '',
-      name: null,
-    },
-    to: [body.To || body.to].filter(Boolean),
-    subject: body.subject || '(no subject)',
-    text: body['body-plain'] || body.text || '',
-    html: body['body-html'] || null,
-    inReplyTo: body['In-Reply-To'] || null,
-    references: parseReferences(body.References || ''),
-    date: new Date(body['Date'] || Date.now()),
-    attachments: [],
-    rawHeaders: headers,
-    provider: 'mailgun',
-    raw: body,
-  };
-}
-
-// Postmark format
-function fromPostmark(body) {
-  return {
-    messageId: body.MessageID || `pm-${uuidv4().slice(0, 8)}`,
-    from: {
-      email: body.From || '',
-      name: body.FromName || null,
-    },
-    to: (body.To || []).map(t => typeof t === 'string' ? t : t.Email || t),
-    subject: body.Subject || '(no subject)',
-    text: body.TextBody || '',
-    html: body.HtmlBody || null,
-    inReplyTo: body.InReplyTo || null,
-    references: parseReferences(body.References || ''),
-    date: new Date(body.Date || Date.now()),
-    attachments: body.Attachments || [],
-    rawHeaders: {},
-    provider: 'postmark',
-    raw: body,
-  };
-}
-
-// Generic / raw MIME format (from SMTP receiver)
-async function fromRawMime(raw, headers = {}) {
-  try {
-    const parsed = await simpleParser(raw);
-    return {
-      messageId: parsed.messageId || `mime-${uuidv4().slice(0, 8)}`,
-      from: {
-        email: parsed.from?.text || parsed.from?.value?.[0]?.address || '',
-        name: parsed.from?.value?.[0]?.name || null,
-      },
-      to: parsed.to?.text ? [parsed.to.text] : (parsed.to?.value || []).map(a => a.address || a.text || ''),
-      subject: parsed.subject || '(no subject)',
-      text: parsed.text || '',
-      html: parsed.html || null,
-      inReplyTo: parsed.headers.get('in-reply-to') || null,
-      references: parseReferences(parsed.headers.get('references') || ''),
-      date: parsed.date || new Date(),
-      attachments: (parsed.attachments || []).map(a => ({
-        filename: a.filename,
-        contentType: a.contentType,
-        size: a.size,
-        content: a.content.toString('base64'),
-      })),
-      rawHeaders: Object.fromEntries(
-        [...parsed.headers.entries()].map(([k, v]) => [k.toLowerCase(), typeof v === 'object' ? v.text : String(v)])
-      ),
-      provider: 'smtp',
-      raw: raw,
-    };
-  } catch (e) {
-    return null;
-  }
-}
-
-// Detect provider and normalize
-async function normalizeEmail(body, headers, rawMime) {
-  if (!body) return null;
-  // Try to detect provider
-  if (body._category) return fromSendGrid(body, headers);
-  if (body.mail && body.mail.messageId) return fromSES(body, headers);
-  if (body.signature) return fromMailgun(body, headers);
-  if (body.MessageID) return fromPostmark(body);
-  if (body.entry) return null; // This is WhatsApp, not email
-  if (rawMime) return fromRawMime(rawMime, headers);
-
-  // Simple JSON format: { from, subject, text, to, messageId, inReplyTo }
-  var fromField = body.from || headers && headers.from || '';
-  var fromEmail = fromField.replace(/.*<(.+?)>.*/, '$1').trim() || fromField;
-  var fromName = null;
-  var nameMatch = fromField.match(/^"(.+?)"/);
-  if (nameMatch) fromName = nameMatch[1];
-
-  return {
-    messageId: body['Message-ID'] || body.message_id || ('gen-' + require('crypto').randomUUID().slice(0, 8)),
-    from: { email: fromEmail, name: fromName },
-    to: Array.isArray(body.to) ? body.to : [body.to || ''].filter(Boolean),
-    subject: body.subject || '(no subject)',
-    text: body.text || body.body || body.content || '',
-    html: body.html || null,
-    inReplyTo: body['In-Reply-To'] || body.in_reply_to || null,
-    references: parseReferences(body.References || body.references || (headers && headers.references) || ''),
-    date: new Date(body.date || Date.now()),
-    attachments: [],
-    rawHeaders: headers || {},
-    provider: 'generic',
-    raw: body,
-  };
-}
-
-// ─── Helpers ──────────────────────────────────────────────────
 function stripHtml(html) {
   if (!html) return '';
   return html
@@ -215,208 +26,272 @@ function parseReferences(refs) {
   return [];
 }
 
-function parseAttachments(attachments) {
-  if (!attachments) return [];
-  if (typeof attachments === 'string') {
-    try { attachments = JSON.parse(attachments); } catch { return []; }
-  }
-  if (!Array.isArray(attachments)) return [];
-  return attachments.map(a => ({
-    filename: a.filename || a.name || 'attachment',
-    contentType: a.type || 'application/octet-stream',
-    size: a.size || 0,
-    content: a.content || a.data || '',
-  }));
+function fromSendGrid(body, headers) {
+  var from = body.from || {};
+  var fromEmail = from.email || '';
+  var fromName = from.name || null;
+  var text = body.text || '';
+  if (body.html && !text) text = stripHtml(body.html);
+  return {
+    messageId: body.headers && body.headers['Message-ID'] || body.email_id || 'sg-' + Date.now(),
+    from: { email: fromEmail.toLowerCase(), name: fromName },
+    to: Array.isArray(body.to) ? body.to.map(function(t) { return t.email || t; }) : [(body.to && body.to.email) || body.to || ''],
+    subject: body.subject || '(no subject)',
+    text: text,
+    html: body.html || null,
+    inReplyTo: body.headers && body.headers['In-Reply-To'] || null,
+    references: parseReferences(body.headers && body.headers['References'] || ''),
+    date: new Date(body.timestamp || Date.now()),
+    attachments: body.attachments || [],
+    rawHeaders: body.headers || {},
+    provider: 'sendgrid',
+    raw: body,
+  };
 }
 
-// ─── SMTP Receiver ────────────────────────────────────────────
-// Simple SMTP server using Node.js net module
-// Run this alongside the main Express app on port 25 or 1025 (dev)
-function createSmtpReceiver(onEmail, port = 1025) {
-  const net = require('net');
+function fromSES(body, headers) {
+  var mail = body.mail || {};
+  var fromEmail = mail.commonHeaders && mail.commonHeaders.from && mail.commonHeaders.from[0] || '';
+  fromEmail = fromEmail.replace(/.*<(.+?)>.*/, '$1').trim() || fromEmail;
+  var receipt = body.receipt || {};
+  var content = receipt.action && receipt.action.data || '';
+  return {
+    messageId: mail.messageId || 'ses-' + Date.now(),
+    from: { email: fromEmail.toLowerCase(), name: null },
+    to: mail.commonHeaders && mail.commonHeaders.to || [],
+    subject: mail.commonHeaders && mail.commonHeaders.subject || '(no subject)',
+    text: content,
+    html: null,
+    inReplyTo: mail.commonHeaders && mail.commonHeaders.inReplyTo || null,
+    references: parseReferences(mail.commonHeaders && mail.commonHeaders.references || ''),
+    date: new Date(body.receipt && body.receipt.timestamp || Date.now()),
+    attachments: [],
+    rawHeaders: {},
+    provider: 'ses',
+    raw: body,
+  };
+}
 
-  const server = net.createServer((socket) => {
-    let state = { phase: 'greeting', data: '', from: null, to: [], headers: {} };
+function fromMailgun(body, headers) {
+  var fromEmail = body.sender && body.sender.email || body.from || '';
+  fromEmail = fromEmail.replace(/.*<(.+?)>.*/, '$1').trim() || fromEmail;
+  var text = body['body-plain'] || body['stripped-text'] || '';
+  var html = body['body-html'] || '';
+  return {
+    messageId: body['Message-ID'] || body['Message-Id'] || 'mg-' + Date.now(),
+    from: { email: fromEmail.toLowerCase(), name: body['sender-name'] || null },
+    to: [body.recipient || ''],
+    subject: body.subject || '(no subject)',
+    text: text,
+    html: html || null,
+    inReplyTo: body['In-Reply-To'] || null,
+    references: parseReferences(body.References || ''),
+    date: new Date(body.timestamp ? parseInt(body.timestamp, 10) * 1000 : Date.now()),
+    attachments: [],
+    rawHeaders: {},
+    provider: 'mailgun',
+    raw: body,
+  };
+}
 
-    const send = (code, msg) => {
-      socket.write(`${code} ${msg}\r\n`);
-    };
+function fromPostmark(body) {
+  var fromEmail = body.From || '';
+  fromEmail = fromEmail.replace(/.*<(.+?)>.*/, '$1').trim() || fromEmail;
+  return {
+    messageId: body.MessageID || body.MessageId || 'pm-' + Date.now(),
+    from: { email: fromEmail.toLowerCase(), name: null },
+    to: [body.To || ''],
+    subject: body.Subject || '(no subject)',
+    text: body.TextBody || '',
+    html: body.HtmlBody || null,
+    inReplyTo: body.InReplyTo || null,
+    references: parseReferences(body.References || ''),
+    date: new Date(body.Date || Date.now()),
+    attachments: [],
+    rawHeaders: {},
+    provider: 'postmark',
+    raw: body,
+  };
+}
 
-    const reset = () => {
-      state = { phase: 'greeting', data: '', from: null, to: [], headers: {} };
-    };
-
-    socket.on('data', async (chunk) => {
-      const lines = chunk.toString().split('\r\n');
-
-      for (const line of lines) {
-        if (line === '') {
-          // End of command or end of data
-          if (state.phase === 'data') {
-            // End of email data — process it
-            state.data += '\r\n';
-            try {
-              const email = await fromRawMime(state.data, state.headers);
-              if (email) {
-                onEmail(email).catch(e => console.error('[smtp] email handler error:', e));
-              }
-            } catch (e) {
-              console.error('[smtp] parse error:', e.message);
-            }
-            state.phase = 'command';
-            state.data = '';
-          }
-          continue;
-        }
-
-        if (state.phase === 'greeting') {
-          if (line.startsWith('EHLO') || line.startsWith('HELO')) {
-            send(250, 'OK');
-            state.phase = 'command';
-          } else if (line.startsWith('QUIT')) {
-            send(221, 'Bye');
-            socket.end();
-          }
-        } else if (state.phase === 'command') {
-          const cmd = line.toUpperCase();
-          const rest = line.substring(line.indexOf(' ') + 1);
-
-          if (cmd === 'QUIT') {
-            send(221, 'Bye');
-            socket.end();
-          } else if (cmd === 'NOOP') {
-            send(250, 'OK');
-          } else if (cmd === 'RSET') {
-            reset();
-            send(250, 'OK');
-          } else if (cmd === 'MAIL FROM') {
-            state.from = rest.replace(/FROM:<(.+?)>/i, '$1').trim();
-            send(250, 'OK');
-          } else if (cmd === 'RCPT TO') {
-            state.to.push(rest.replace(/TO:<(.+?)>/i, '$1').trim());
-            send(250, 'OK');
-          } else if (cmd === 'DATA') {
-            state.phase = 'data';
-            state.data = '';
-            send(354, 'End data with <CR><LF>.<CR><LF>');
-          } else if (cmd.startsWith('X-') || cmd.startsWith('AUTH')) {
-            send(250, 'OK');
-          }
-        } else if (state.phase === 'data') {
-          // Collect headers and body
-          const colonIdx = line.indexOf(':');
-          if (colonIdx > 0 && !line.startsWith(' ') && !line.startsWith('\t')) {
-            const key = line.substring(0, colonIdx).toLowerCase();
-            const value = line.substring(colonIdx + 1).trim();
-            state.headers[key] = value;
-          }
-          state.data += line + '\r\n';
+function fromRawMime(raw, headers) {
+  var lines = raw.split(/\r?\n/);
+  var state = { phase: 'header', from: null, to: [], subject: null, messageId: null, inReplyTo: null, contentType: null, body: '', headers: {} };
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    if (state.phase === 'header') {
+      if (line.trim() === '') {
+        state.phase = 'body';
+      } else {
+        var colonIdx = line.indexOf(':');
+        if (colonIdx > 0) {
+          var key = line.substring(0, colonIdx).trim().toLowerCase();
+          var val = line.substring(colonIdx + 1).trim();
+          state.headers[key] = val;
+          if (key === 'from') state.from = val;
+          if (key === 'to') state.to = val.split(',').map(function(s) { return s.trim(); });
+          if (key === 'subject') state.subject = val;
+          if (key === 'message-id') state.messageId = val.replace(/[<>]/g, '');
+          if (key === 'in-reply-to') state.inReplyTo = val.replace(/[<>]/g, '');
         }
       }
-    });
-
-    socket.on('error', (e) => {
-      if (e.code !== 'ECONNRESET') {
-        console.error('[smtp] socket error:', e.message);
-      }
-    });
-
-    send(220, process.env.SMTP_BANNER || 'Unified Support Bridge SMTP');
-  });
-
-  server.on('error', (e) => {
-    if (e.code === 'EADDRINUSE') {
-      console.warn(`[smtp] port ${port} in use — SMTP receiver disabled. Set SMTP_PORT env to change.`);
     } else {
-      console.error('[smtp] server error:', e.message);
+      state.body += line + '\n';
     }
-  });
+  }
+  var fromEmail = '';
+  if (state.from) {
+    fromEmail = state.from.replace(/.*<(.+?)>.*/, '$1').trim() || state.from;
+  }
+  var text = state.body.trim();
+  return {
+    messageId: state.messageId || 'mime-' + Date.now(),
+    from: { email: fromEmail.toLowerCase(), name: null },
+    to: state.to,
+    subject: state.subject || '(no subject)',
+    text: text,
+    html: null,
+    inReplyTo: state.inReplyTo,
+    references: [],
+    date: new Date(),
+    attachments: [],
+    rawHeaders: state.headers,
+    provider: 'smtp',
+    raw: raw,
+  };
+}
 
+function normalizeEmail(body, headers, rawMime) {
+  if (!body) return null;
+  if (body._category) return fromSendGrid(body, headers);
+  if (body.mail && body.mail.messageId) return fromSES(body, headers);
+  if (body.signature) return fromMailgun(body, headers);
+  if (body.MessageID) return fromPostmark(body);
+  if (body.entry) return null;
+  if (rawMime) return fromRawMime(rawMime, headers);
+  // Simple JSON format: { from, subject, text }
+  var fromField = body.from || '';
+  var emailAddr = fromField.replace(/.*<(.+?)>.*/, '$1').trim() || fromField;
+  var nameMatch = fromField.match(/^"(.+?)"/);
+  return {
+    messageId: body['Message-ID'] || body.message_id || 'gen-' + crypto.randomUUID().slice(0, 8),
+    from: { email: emailAddr.toLowerCase(), name: nameMatch ? nameMatch[1] : null },
+    to: Array.isArray(body.to) ? body.to : [body.to || ''],
+    subject: body.subject || '(no subject)',
+    text: body.text || body.body || body.content || '',
+    html: body.html || null,
+    inReplyTo: body['In-Reply-To'] || body.in_reply_to || null,
+    references: parseReferences(body.References || body.references || ''),
+    date: new Date(body.date || Date.now()),
+    attachments: [],
+    rawHeaders: headers || {},
+    provider: 'generic',
+    raw: body,
+  };
+}
+
+function createSmtpReceiver(onEmail, port) {
+  var net = require('net');
+  var server = net.createServer();
+  var clients = [];
+  server.on('connection', function(socket) {
+    clients.push(socket);
+    socket.setEncoding('utf8');
+    var state = { step: 'greeting', from: null, to: [], data: '', headers: {} };
+    socket.write('220 USB SMTP Server Ready\r\n');
+    socket.on('data', function(chunk) {
+      var lines = chunk.split(/\r?\n/);
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (state.step === 'greeting') {
+          socket.write('220 USB SMTP Server Ready\r\n');
+          state.step = 'command';
+        } else if (state.step === 'command') {
+          if (line.toUpperCase().startsWith('QUIT')) {
+            socket.write('221 Bye\r\n');
+            socket.end();
+          } else if (line.toUpperCase().startsWith('HELO') || line.toUpperCase().startsWith('EHLO')) {
+            socket.write('250 USB OK\r\n');
+          } else if (line.toUpperCase().startsWith('MAIL FROM:')) {
+            state.from = line.substring(10).trim().replace(/[<>]/g, '');
+            socket.write('250 OK\r\n');
+          } else if (line.toUpperCase().startsWith('RCPT TO:')) {
+            state.to.push(line.substring(9).trim().replace(/[<>]/g, ''));
+            socket.write('250 OK\r\n');
+          } else if (line.toUpperCase() === 'DATA') {
+            state.step = 'data';
+            socket.write('354 Start mail input\r\n');
+          } else {
+            socket.write('250 OK\r\n');
+          }
+        } else if (state.step === 'data') {
+          if (line === '.') {
+            state.step = 'command';
+            var email = fromRawMime(state.data, state.headers);
+            email.from = { email: state.from, name: null };
+            onEmail(email).catch(function(e) { console.error('[smtp] handler error:', e); });
+            socket.write('250 OK Message accepted\r\n');
+            state.data = '';
+            state.headers = {};
+            state.from = null;
+            state.to = [];
+          } else {
+            state.data += line + '\n';
+          }
+        }
+      }
+    });
+    socket.on('error', function() {});
+  });
+  server.on('error', function(e) { console.error('[smtp] server error:', e.message); });
   return server;
 }
 
-// ─── IMAP Polling ─────────────────────────────────────────────
-// Poll external mailboxes (Gmail, Outlook, etc.) for new emails
-function createImapPoller(onEmail, intervalMs = 60000) {
-  let intervalId = null;
-
-  async function poll() {
-    const imapConfig = {
-      user: process.env.IMAP_USER,
-      password: process.env.IMAP_PASSWORD,
-      host: process.env.IMAP_HOST || 'imap.gmail.com',
-      port: parseInt(process.env.IMAP_PORT || '993', 10),
-      tls: process.env.IMAP_TLS !== 'false',
-      tlsOptions: { rejectUnauthorized: false },
-    };
-
-    if (!imapConfig.user || !imapConfig.password) {
-      return; // IMAP not configured
-    }
-
-    try {
-      // Dynamic import to avoid requiring imap when not used
-      const { ImapFlow } = require('imapflow');
-      const client = new ImapFlow(imapConfig);
-
-      try {
-        await client.connect();
-
-        // Lock the INBOX
-        const lock = await client.getMailboxLock();
-        try {
-          // Fetch unseen messages since last check
-          const lastUid = parseInt(process.env.IMAP_LAST_UID || '0', 10);
-          const query = lastUid > 0 ? { uid: { gt: lastUid } } : { unseen: true };
-          const messages = await client.fetch(query, { envelope: true, source: true, uid: true });
-
-          for (const msg of messages) {
-            const email = await fromRawMime(msg.source.toString(), {});
-            if (email) {
-              email.imapUid = msg.uid;
-              await onEmail(email);
-              if (msg.uid > lastUid) {
-                process.env.IMAP_LAST_UID = String(msg.uid);
-              }
-            }
-          }
-        } finally {
-          lock.release();
-        }
-      } finally {
-        await client.logout();
-      }
-    } catch (e) {
-      if (!e.message?.includes('AUTHENTICATIONFAILED') && !e.message?.includes('ECONNREFUSED')) {
-        console.error('[imap] poll error:', e.message);
-      }
-    }
+function createImapPoller(onEmail, pollInterval) {
+  pollInterval = pollInterval || 60000;
+  var pollTimer = null;
+  var seenIds = {};
+  function poll() {
+    var ImapFlow = null;
+    try { ImapFlow = require('imapflow'); } catch(e) { return; }
+    var user = process.env.IMAP_USER;
+    var password = process.env.IMAP_PASSWORD;
+    var host = process.env.IMAP_HOST || 'imap.gmail.com';
+    var port = parseInt(process.env.IMAP_PORT || '993', 10);
+    var tls = process.env.IMAP_TLS !== 'false';
+    var client = new ImapFlow({ host: host, port: port, tls: tls, auth: { user: user, pass: password } });
+    client.connect().then(function() {
+      return client.mailboxOpen('INBOX');
+    }).then(function(mailbox) {
+      return client.fetch({ seen: false, uid: { $gt: 0 } }, { envelope: true, source: true });
+    }).then(function(messages) {
+      var promises = [];
+      messages.forEach(function(msg) {
+        var uid = String(msg.uid);
+        if (seenIds[uid]) return;
+        seenIds[uid] = true;
+        var email = fromRawMime(msg.source.toString(), {});
+        promises.push(onEmail(email).then(function() {
+          return client.messageSeen(uid);
+        }).catch(function(e) { console.error('[imap] error:', e); }));
+      });
+      return Promise.all(promises).then(function() { return client.mailboxClose(); }).then(function() { return client.logout(); });
+    }).catch(function(e) { console.error('[imap] poll error:', e.message); }).finally(function() {
+      pollTimer = setTimeout(poll, pollInterval);
+    });
   }
-
-  function start() {
-    poll(); // immediate
-    intervalId = setInterval(poll, intervalMs);
-    console.log(`[imap] polling started every ${intervalMs}ms`);
-  }
-
-  function stop() {
-    if (intervalId) {
-      clearInterval(intervalId);
-      intervalId = null;
-      console.log('[imap] polling stopped');
-    }
-  }
-
-  return { start, stop, poll };
+  return {
+    start: function() { poll(); },
+    stop: function() { if (pollTimer) clearTimeout(pollTimer); },
+  };
 }
 
 module.exports = {
-  normalizeEmail,
-  fromSendGrid,
-  fromSES,
-  fromMailgun,
-  fromPostmark,
-  fromRawMime,
-  createSmtpReceiver,
-  createImapPoller,
+  normalizeEmail: normalizeEmail,
+  fromSendGrid: fromSendGrid,
+  fromSES: fromSES,
+  fromMailgun: fromMailgun,
+  fromPostmark: fromPostmark,
+  createSmtpReceiver: createSmtpReceiver,
+  createImapPoller: createImapPoller,
 };
