@@ -2686,3 +2686,57 @@ These are **NOT standalone products**—they're features inside larger products:
 
 Nexha is **infrastructure for AI commerce** — Stripe for AI agents, SWIFT for the agentic internet.
 
+
+---
+
+## 🎤 VoiceOS - Wispr Flow Competitor
+
+**Path:** `companies/HOJAI-AI/products/voice-os/`
+
+### Products
+
+| Product | Path | Status |
+|---------|------|--------|
+| Desktop App | `desktop/voice-os-desktop/` | Dev |
+| Mobile App | `mobile/VoiceOSApp.ts` | Dev |
+| Landing Page | `landing/` | Dev |
+| Voice Gateway | `core/voice-gateway/` | Production |
+| Voice Commands | `core/voice-commands/` | Production |
+| Voice Orchestrator | `core/voice-orchestrator/` | Production |
+
+### Services (17 Total)
+
+| Port | Service |
+|------|---------|
+| 4880 | voice-gateway |
+| 4885 | voice-commands |
+| 4886 | voice-hotkey |
+| 4891-4899 | 9 VoiceOS services |
+| 4701 | genie-gateway |
+| 4703 | memory-os |
+
+### Quick Start
+
+```bash
+# Start all services
+bash scripts/dev-stack.sh start
+
+# Desktop app
+cd companies/HOJAI-AI/products/voice-os/desktop/voice-os-desktop
+npm install && npm run dev
+
+# Mobile
+cp companies/HOJAI-AI/products/voice-os/mobile/VoiceOSApp.ts your-expo-app/
+cd your-expo-app && npx expo start
+```
+
+### Wispr Flow Comparison
+
+| Feature | Wispr Flow | HOJAI VoiceOS |
+|---------|-----------|---------------|
+| Price | $15/mo | Free |
+| Platform | Mac only | All platforms |
+| Memory | ❌ | ✅ |
+| Emotions | ❌ | ✅ Genie AI |
+| Relationships | ❌ | ✅ |
+
