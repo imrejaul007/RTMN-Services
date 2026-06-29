@@ -37,7 +37,7 @@ describe('Goal OS — Task Generation', () => {
   });
 
   it('generates negotiation-specific tasks', () => {
-    const tasks = generateSubtasks(2, [], { title: 'Negotiate contract' });
+    const tasks = generateSubtasks(2, [], { title: 'Contract negotiation' });
     expect(tasks.some(t => t.title.includes('BATNA'))).toBe(true);
     expect(tasks.some(t => t.title.includes('brief'))).toBe(true);
   });
