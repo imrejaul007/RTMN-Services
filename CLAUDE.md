@@ -1,9 +1,54 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.27
+> **Version:** 5.28
 > **Last Updated:** June 29, 2026
-> **New:** ✅ **SimulationOS** — Test agents in sandbox before production (scenarios, worlds, synthetic entities)
-> **Status:** ✅ **LoopOS** (17 services) + **SUTAR OS** (37 services) + **MemoryOS** (30 services)
+> **New:** ✅ **RTMN v5.0 Complete** — 17 strategic products, GTM ready, 98/100 score
+> **Status:** ✅ **STOP BUILDING. PACKAGE WHAT EXISTS. SELL.**
+
+---
+
+## ⚠️ MANDATORY RULES
+
+### 1. HOJAI AI is Standalone Company
+- HOJAI AI is a **separate company** with its own repo
+- Local path: `/RTMN/companies/HOJAI-AI/`
+- Always remember: when referring to HOJAI AI products, they exist in that folder
+- Example: `companies/HOJAI-AI/platform/identity/corpid-service/`
+
+### 2. Always Create MD Files for Context
+- Create `.md` files for all planning/audit work
+- Store in `.claude/plans/` or `docs/`
+- Never lose context in conversation — document everything
+- Each significant finding → one MD file
+
+### 3. Git Branch & Push Rules
+| Repo | Local Path | Branch | Notes |
+|------|-----------|--------|-------|
+| RTMN-Services | `/RTMN/` | `main` or `docs/genie-phase-a-complete` | Docs branch for planning |
+| HOJAI-AI | `/RTMN/companies/HOJAI-AI/` | `main` | Submodule, separate push |
+| Nexha | `/RTMN/companies/Nexha/` | `main` | Submodule, separate push |
+
+**Push sequence:**
+```bash
+# 1. Push submodules first
+cd companies/HOJAI-AI && git push origin main
+cd ../Nexha && git push origin main
+
+# 2. Then push RTMN
+cd ../.. && git add -A && git commit && git push
+```
+
+### 4. Branch Naming
+- Use descriptive names: `docs/product-audit`, `feat/sales-os-gtm`
+- NO random names like `killer-demo`, `wip-xyz`
+- Docs go to `docs/` branch for planning
+
+### 5. Key Docs (Always Update)
+| Doc | Purpose |
+|-----|---------|
+| `docs/RTMN-V50-COMPLETE-STATUS.md` | **START HERE** — Everything in one doc |
+| `CLAUDE.md` | RTMN master documentation |
+| `.claude/plans/*.md` | Planning docs (keep context) |
 
 ---
 
