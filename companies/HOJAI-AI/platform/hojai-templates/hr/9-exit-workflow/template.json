@@ -1,0 +1,32 @@
+{
+  "id": "hr-exit-workflow",
+  "name": "Employee Exit Workflow",
+  "category": "hr",
+  "description": "Automated offboarding with asset collection and knowledge transfer",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "hris", "event": "employee.exit_initiated"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Exit Initiated", "config": {"source": "hris"}},
+    {"id": "2", "type": "ai_agent", "name": "Create Checklist", "config": {"agent": "hr_agent", "prompt": "Generate offboarding checklist: assets, access, knowledge transfer."}},
+    {"id": "3", "type": "it", "name": "Revoke Access", "config": {"action": "schedule_access_revocation", "date": "{{last_day}}"}},
+    {"id": "4", "type": "email", "name": "Knowledge Transfer Request", "config": {"to": "{{employee.email}}", "template": "knowledge_transfer"}},
+    {"id": "5", "type": "calendar", "name": "Exit Interview", "config": {"action": "schedule_exit_interview"}},
+    {"id": "6", "type": "finance", "name": "Calculate Final Settlement", "config": {"action": "calculate_settlement"}},
+    {"id": "7", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["hr_manager"]}},
+    {"id": "8", "type": "hris", "name": "Complete Offboarding", "config": {"action": "complete_exit"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "2", "to": "4"},
+    {"from": "2", "to": "5"},
+    {"from": "2", "to": "6"},
+    {"from": "6", "to": "7"},
+    {"from": "7", "to": "8"}
+  ],
+  "agents": ["hr_agent"],
+  "integrations": ["hris", "it", "email", "calendar", "finance"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["hr", "offboarding", "automation"]
+}

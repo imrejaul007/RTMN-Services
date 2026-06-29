@@ -1,0 +1,30 @@
+{
+  "id": "hr-performance-review",
+  "name": "Performance Review Automation",
+  "category": "hr",
+  "description": "Automated performance review cycle with AI-generated feedback",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 9 1 */3 *"}],
+  "nodes": [
+    {"id": "1", "type": "hris", "name": "Get Review Cycle", "config": {"action": "get_pending_reviews"}},
+    {"id": "2", "type": "crm", "name": "Get Peer Feedback", "config": {"action": "get_peer_feedback"}},
+    {"id": "3", "type": "ai_agent", "name": "Generate Review", "config": {"agent": "hr_agent", "prompt": "Generate performance review from goals, feedback, and metrics."}},
+    {"id": "4", "type": "email", "name": "Send to Manager", "config": {"template": "review_draft", "to": "{{manager}}"}},
+    {"id": "5", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["manager"]}},
+    {"id": "6", "type": "email", "name": "Deliver to Employee", "config": {"template": "performance_review", "to": "{{employee}}"}},
+    {"id": "7", "type": "hris", "name": "Update Records", "config": {"action": "record_review"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "3"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6", "condition": "approved"},
+    {"from": "6", "to": "7"}
+  ],
+  "agents": ["hr_agent"],
+  "integrations": ["hris", "email"],
+  "estimated_setup_time": "3 hours",
+  "price": {"subscription": 1999, "currency": "INR", "period": "month"},
+  "tags": ["hr", "performance", "automation", "reviews"]
+}

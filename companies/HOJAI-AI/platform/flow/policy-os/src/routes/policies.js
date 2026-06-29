@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { validatePolicyBody } from '../lib/validation.js';
 import { sanitizePolicyId, sanitizeExpression, sanitizeName } from '../lib/sanitization.js';
 import { getCachedEval, setCachedEval, invalidateEvalCache, invalidatePolicy } from '../services/cache.js';
+import { metrics } from '../services/monitoring.js';
 
 // =================================================================
 // Policy CRUD
@@ -263,14 +264,18 @@ export function registerPolicyRoutes(app, {
     const cacheKey = [policyId || 'anon'];
     const cached = await getCachedEval(context, cacheKey).catch(() => null);
     if (cached) {
+      metrics.recordEval(0, cached.allowed, true, policyId);
       return res.json({ ...cached, cached: true });
     }
 
+    const t0 = Date.now();
     const result = evaluatePolicy(policy, context);
     const final = applyExceptions(policy || {}, context, result);
+    const duration = Date.now() - t0;
 
     // Cache the result (short TTL for policy eval — context may vary)
     setCachedEval(context, cacheKey, final, 10000).catch(() => {});
+    metrics.recordEval(duration, final.allowed, false, policyId);
 
     auditLog({
       type: 'policy.evaluated',

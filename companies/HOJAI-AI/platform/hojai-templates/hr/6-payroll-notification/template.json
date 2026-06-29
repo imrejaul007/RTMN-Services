@@ -1,0 +1,28 @@
+{
+  "id": "hr-payroll-notification",
+  "name": "Payroll Notification",
+  "category": "hr",
+  "description": "Automated payroll processing and notifications",
+  "version": "1.0.0",
+  "triggers": [{"type": "schedule", "cron": "0 0 28 * *"}],
+  "nodes": [
+    {"id": "1", "type": "hris", "name": "Get Payroll Data", "config": {"action": "get_payroll_data"}},
+    {"id": "2", "type": "ai_agent", "name": "Calculate Payroll", "config": {"agent": "payroll_agent", "prompt": "Calculate: salary, deductions, taxes, bonuses."}},
+    {"id": "3", "type": "approval", "name": "Finance Approval", "config": {"approvers": ["finance_manager"]}},
+    {"id": "4", "type": "banking", "name": "Process Payment", "config": {"action": "bulk_payment"}},
+    {"id": "5", "type": "email", "name": "Send Payslips", "config": {"template": "payslip", "to": "{{employees}}"}},
+    {"id": "6", "type": "hris", "name": "Update Records", "config": {"action": "mark_processed"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4", "condition": "approved"},
+    {"from": "4", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["payroll_agent"],
+  "integrations": ["hris", "banking", "email"],
+  "estimated_setup_time": "2 hours",
+  "price": {"subscription": 999, "currency": "INR", "period": "month"},
+  "tags": ["hr", "payroll", "automation"]
+}

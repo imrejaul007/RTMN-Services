@@ -1,0 +1,31 @@
+{
+  "id": "hr-leave-approval",
+  "name": "Leave Approval Workflow",
+  "category": "hr",
+  "description": "Automated leave request processing with policy compliance",
+  "version": "1.0.0",
+  "triggers": [{"type": "event", "source": "hris", "event": "leave.requested"}],
+  "nodes": [
+    {"id": "1", "type": "trigger", "name": "Leave Request", "config": {"source": "hris"}},
+    {"id": "2", "type": "ai_agent", "name": "Validate Request", "config": {"agent": "hr_agent", "prompt": "Check: leave balance, policy compliance, blackout dates, team coverage."}},
+    {"id": "3", "type": "condition", "name": "Auto Approve?", "config": {"field": "request.auto_approvable"}},
+    {"id": "4a", "type": "hris", "name": "Auto Approve", "config": {"action": "approve"}},
+    {"id": "4b", "type": "approval", "name": "Manager Approval", "config": {"approvers": ["{{employee.manager}}"]}},
+    {"id": "5", "type": "slack", "name": "Notify Employee", "config": {"channel": "{{employee.slack}}", "template": "leave_decision"}},
+    {"id": "6", "type": "calendar", "name": "Update Calendar", "config": {"action": "block_leave"}}
+  ],
+  "connections": [
+    {"from": "1", "to": "2"},
+    {"from": "2", "to": "3"},
+    {"from": "3", "to": "4a", "condition": "auto == true"},
+    {"from": "3", "to": "4b", "condition": "auto == false"},
+    {"from": "4a", "to": "5"},
+    {"from": "4b", "to": "5"},
+    {"from": "5", "to": "6"}
+  ],
+  "agents": ["hr_agent"],
+  "integrations": ["hris", "slack", "calendar"],
+  "estimated_setup_time": "1 hour",
+  "price": {"subscription": 499, "currency": "INR", "period": "month"},
+  "tags": ["hr", "leave", "automation", "approval"]
+}
