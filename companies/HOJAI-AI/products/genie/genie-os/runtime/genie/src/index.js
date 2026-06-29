@@ -114,6 +114,17 @@ function requireInternal(req, res, next) {
 // Validate required env at startup
 requireEnv(['GENIE_PORT'], { allowDev: true });
 app.use(helmet()); app.use(cors()); app.use(compression()); app.use(express.json({ limit: '2mb' }));
+
+// Mount 14 Genie services at /api/genie/*
+import('./integration/genieServices.js').then(({ mountGenieServices }) => {
+  try {
+    mountGenieServices(app);
+    console.log('[genie] All 14 services mounted');
+  } catch (e) {
+    console.error('[genie] Failed to mount services:', e.message);
+  }
+});
+
 const send = (res, s, d) => res.status(s).json({ success: true, data: d, meta: { timestamp: new Date().toISOString() } });
 const err = (res, s, c, m) => res.status(s).json({ success: false, error: { code: c, message: m }, meta: { timestamp: new Date().toISOString() } });
 

@@ -1,0 +1,334 @@
+{
+  "info": {
+    "name": "Nexha Agent Gateway",
+    "description": "Complete API collection for Nexha Agent Gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "Authorization",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "NexhaKey demo-key-1234567890",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4443",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/health"
+        }
+      }
+    },
+    {
+      "name": "Readiness check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/ready"
+        }
+      }
+    },
+    {
+      "name": "Service registry status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/services/status"
+        }
+      }
+    },
+    {
+      "name": "Search suppliers",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"product\":\"Coffee Beans\",\"location\":\"Dubai\",\"min_trust\":90,\"limit\":5}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/discover/suppliers"
+        }
+      }
+    },
+    {
+      "name": "List categories",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/discover/categories"
+        }
+      }
+    },
+    {
+      "name": "Get trust score",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/trust/did:nexha:supplier:gulf-coffee-importer"
+        }
+      }
+    },
+    {
+      "name": "Start negotiation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"supplier_id\":\"did:nexha:supplier:gulf-coffee\",\"product\":\"Coffee Beans\",\"quantity\":1000,\"target_price\":25}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/negotiate/start"
+        }
+      }
+    },
+    {
+      "name": "Counter offer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"negotiation_id\":\"neg_abc12345\",\"target_price\":23.5}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/negotiate/counter"
+        }
+      }
+    },
+    {
+      "name": "Accept negotiation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"negotiation_id\":\"neg_abc12345\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/negotiate/accept"
+        }
+      }
+    },
+    {
+      "name": "Reject negotiation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"negotiation_id\":\"neg_abc12345\",\"reason\":\"Price too high\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/negotiate/reject"
+        }
+      }
+    },
+    {
+      "name": "Get negotiation",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/negotiate/neg_abc12345"
+        }
+      }
+    },
+    {
+      "name": "Create contract",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"negotiation_id\":\"neg_abc12345\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/contracts/create"
+        }
+      }
+    },
+    {
+      "name": "Get contract",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/contracts/con_xyz789"
+        }
+      }
+    },
+    {
+      "name": "Sign contract",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/v1/contracts/con_xyz789/sign"
+        }
+      }
+    },
+    {
+      "name": "Initiate escrow payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"contract_id\":\"con_xyz789\",\"amount\":25000,\"currency\":\"USD\",\"escrow\":true}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/payments/initiate"
+        }
+      }
+    },
+    {
+      "name": "Get payment",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/payments/pay_abc12345"
+        }
+      }
+    },
+    {
+      "name": "Release payment",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/v1/payments/pay_abc12345/release"
+        }
+      }
+    },
+    {
+      "name": "Refund payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"reason\":\"Buyer cancelled\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/payments/pay_abc12345/refund"
+        }
+      }
+    },
+    {
+      "name": "Track shipment",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/shipments/ship_xyz789"
+        }
+      }
+    },
+    {
+      "name": "Register webhook",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"url\":\"https://myapp.com/webhooks/nexha\",\"events\":[\"negotiation.accepted\",\"payment.released\"]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/webhooks"
+        }
+      }
+    },
+    {
+      "name": "List webhooks",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/v1/webhooks"
+        }
+      }
+    },
+    {
+      "name": "Delete webhook",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/v1/webhooks/wh_abc123"
+        }
+      }
+    },
+    {
+      "name": "Test webhook",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/v1/webhooks/wh_abc123/test"
+        }
+      }
+    }
+  ]
+}

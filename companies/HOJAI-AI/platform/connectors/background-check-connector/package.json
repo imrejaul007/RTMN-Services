@@ -1,0 +1,10 @@
+{
+  "name": "background-check-connector",
+  "version": "1.0.0",
+  "description": "Background Check Service (Checkr API)",
+  "main": "src/index.js",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "express": "^4.18.2"
+  }
+}
