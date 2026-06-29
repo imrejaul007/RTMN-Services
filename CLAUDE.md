@@ -1205,7 +1205,7 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 
 **Source:** `companies/HOJAI-AI/services/` and `companies/HOJAI-AI/products/`
 
-### LoopOS — Persistent Autonomous Execution Layer (2026-06-29) — 21 SERVICES
+### LoopOS — Persistent Autonomous Execution Layer (2026-06-29) — 22 SERVICES
 
 **LoopOS** implements Loop Engineering for HOJAI — converting AI agents from task-based to persistent autonomous execution. Source: [`platform/flow/loop-os/`](companies/HOJAI-AI/platform/flow/loop-os/)
 
@@ -1225,7 +1225,7 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 | **Integration & Ops** |
 | twinos-integration | 4740 | Tie loops to Employee Twins |
 | memoryos-integration | 4741 | Persist loop state to MemoryOS |
-| observability-dashboard | 4742 | Visual monitoring for loops, budgets, trust |
+| observability-dashboard | 4742 | Visual monitoring + Prometheus metrics |
 | retry-engine | 4743 | Circuit breaker + exponential backoff |
 | worktrees | 4744 | Parallel execution (fan-out/fan-in) |
 | agent-bus | 4745 | Inter-agent communication + messaging |
@@ -1236,7 +1236,14 @@ HOJAI Cloud = AWS for AI-native businesses. Phase 1 ships the core cloud platfor
 | escalation-manager | 4749 | Human escalation + approval workflows |
 | budget-alerts | 4750 | Real-time budget notifications + webhooks |
 | trust-graph | 4751 | Visual trust relationships between agents |
+| **Infrastructure** |
+| event-bus | 4752 | Service-to-service event communication |
 
+**SDK:** `import LoopOS from '@hojai/loopos-sdk'` (21 services unified)
+**Dashboard:** `http://localhost:3000`
+**API Docs:** `platform/flow/loop-os/docs/swagger.yaml`
+**Prometheus:** `http://localhost:4742/metrics`
+**Tests:** `bash platform/flow/loop-os/tests/run.sh`
 **Startup:** `bash platform/flow/loop-os/start-loopos.sh start`
 
 ### AgentOS (12 services) - ✅ RUNNING

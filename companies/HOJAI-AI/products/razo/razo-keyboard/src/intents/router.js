@@ -253,6 +253,39 @@ class IntentRouter {
         action: 'support',
         endpoint: '/api/complaints'
       },
+      get_support: {
+        keywords: ['help', 'support', 'talk', 'speak', 'contact', 'agent', 'representative', 'human', 'real person', 'customer care', 'customer service', 'assistant', 'assist'],
+        patterns: [
+          /talk\s+to\s+(a\s+)?support/i,
+          /speak\s+to\s+(a\s+)?human/i,
+          /contact\s+support/i,
+          /customer\s+service/i,
+          /i\s+need\s+help/i,
+          /can\s+i\s+talk/i,
+          /connect\s+me\s+to/i,
+          /real\s+person/i,
+          /human\s+agent/i,
+          /(can|could)\s+you\s+help/i,
+        ],
+        entities: ['topic', 'order_id'],
+        confidence: 0.85,
+        action: 'support',
+        endpoint: '/api/chat'
+      },
+      track_order_support: {
+        keywords: ['where is', 'track', 'delivery', 'order status', 'when will', 'shipping', 'shipped', 'delivered'],
+        patterns: [
+          /where('s| is)\s+my\s+order/i,
+          /track\s+(my\s+)?order/i,
+          /order\s+status/i,
+          /when\s+(will|do)\s+i\s+(get|receive)/i,
+          /delivery\s+update/i,
+        ],
+        entities: ['order_id'],
+        confidence: 0.88,
+        action: 'support',
+        endpoint: '/api/chat'
+      },
       update_profile: {
         keywords: ['update', 'change', 'edit', 'profile', 'information', 'details'],
         patterns: [
