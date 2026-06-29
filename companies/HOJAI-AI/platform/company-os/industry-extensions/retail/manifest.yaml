@@ -1,0 +1,17 @@
+# Retail Extension
+id: retail
+name: Retail Extension
+version: 1.0.0
+port: 5030
+industry: retail
+
+verticalModules:
+  - id: products
+    name: Product Catalog
+    routes: [GET/POST /api/products]
+  - id: inventory
+    name: Inventory
+    routes: [GET /api/inventory, PATCH /api/inventory/:id]
+  - id: pos
+    name: Point of Sale
+    routes: [POST /api/sales, GET /api/sales]

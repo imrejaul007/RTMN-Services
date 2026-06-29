@@ -1,0 +1,8 @@
+{
+  "name": "@hojai/retail-extension",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": { "start": "ts-node src/index.ts" },
+  "dependencies": { "express": "^4.18.2", "uuid": "^9.0.0" },
+  "devDependencies": { "typescript": "^5.1.6", "ts-node": "^10.9.1" }
+}

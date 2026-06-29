@@ -1,0 +1,20 @@
+# Healthcare Extension
+id: healthcare
+name: Healthcare Extension
+version: 1.0.0
+port: 5020
+industry: healthcare
+
+verticalModules:
+  - id: patients
+    name: Patient Records
+    routes: [GET/POST /api/patients]
+  - id: appointments
+    name: Appointments
+    routes: [GET/POST /api/appointments]
+  - id: prescriptions
+    name: Prescriptions
+    routes: [GET/POST /api/prescriptions]
+  - id: billing
+    name: Billing
+    routes: [GET/POST /api/invoices]

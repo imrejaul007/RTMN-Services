@@ -1,0 +1,28 @@
+# Hotel Industry Extension
+id: hotel
+name: Hotel Extension
+version: 1.0.0
+port: 5025
+industry: hotel
+verticalityScore: 0.85
+
+verticalModules:
+  - id: rooms
+    name: Room Management
+    routes: [GET/POST /api/rooms, GET/PUT /api/rooms/:id, PATCH /api/rooms/:id/status]
+  - id: guests
+    name: Guest Management
+    routes: [GET/POST /api/guests, GET/PUT /api/guests/:id]
+  - id: housekeeping
+    name: Housekeeping
+    routes: [GET/POST /api/tasks, PATCH /api/tasks/:id/status]
+  - id: channel
+    name: Channel Manager
+    routes: [POST /api/channels/sync, GET /api/channels/bookings]
+
+universalModules:
+  - department: finance
+  - department: sales
+
+dependencies:
+  required: [finance-department-pack]
