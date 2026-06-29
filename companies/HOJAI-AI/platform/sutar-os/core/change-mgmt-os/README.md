@@ -1,53 +1,245 @@
 # ChangeMgmtOS
 
-## Purpose
-Change requests, approvals, rollout tracking, and rollback management for SUTAR OS deployments. Think: GitHub PRs for AI agent changes.
+> **Change requests, approvals, rollout tracking, and rollback management for SUTAR OS deployments**
 
-## Key Features
+**Port:** 4864
+**Package:** `@hojai/change-mgmt-os`
+
+## Overview
+
+ChangeMgmtOS provides GitHub PR-like capabilities for AI agent changes:
 - **Change Lifecycle** — Draft → Submit → Approve → Test → Roll Out → Complete
 - **Templates** — Pre-built change templates (Feature Release, Hotfix, Security Patch)
 - **Phases** — Multi-phase rollout with progress tracking
 - **Rollback** — One-click rollback with metrics tracking
 - **Audit Logs** — Complete audit trail of all change actions
-- **Multi-dimensional Filtering** — Filter by status, priority, type, owner
 
-## API Endpoints
+## Quick Start
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | /health | Health check |
-| GET | /ready | Readiness probe |
-| GET | /api/changes | List changes (filter by status/priority/type/owner) |
-| GET | /api/changes/:id | Get change details |
-| POST | /api/changes | Create change |
-| PUT | /api/changes/:id | Update change |
-| POST | /api/changes/:id/submit | Submit for approval |
-| POST | /api/changes/:id/approve | Approve change |
-| POST | /api/changes/:id/reject | Reject change |
-| POST | /api/changes/:id/start | Start rollout |
-| POST | /api/changes/:id/phases/:phaseId/complete | Complete phase |
-| POST | /api/changes/:id/complete | Complete change |
-| POST | /api/changes/:id/rollback | Trigger rollback |
-| GET | /api/templates | List templates |
-| GET | /api/audit | Audit logs |
-| GET | /api/stats | Change statistics |
+```bash
+cd platform/sutar-os/core/change-mgmt-os
+npm install
+npm run dev
+# Service runs on http://localhost:4864
+```
+
+---
+
+## API Examples
+
+### Health Check
+
+```bash
+curl http://localhost:4864/health
+```
+
+Response:
+```json
+{
+  "status": "ok",
+  "service": "change-mgmt-os",
+  "port": 4864,
+  "counts": {
+    "changes": 15,
+    "pending": 3
+  }
+}
+```
+
+### Create Change
+
+```bash
+curl -X POST http://localhost:4864/api/changes \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <jwt_token>" \
+  -d '{
+    "title": "Update Negotiation BATNA Logic",
+    "description": "Improve BATNA calculation for high-value deals",
+    "type": "feature",
+    "priority": "high",
+    "owner": "ml_team",
+    "phases": ["test", "staging", "production"]
+  }'
+```
+
+Response:
+```json
+{
+  "id": "change_abc123",
+  "title": "Update Negotiation BATNA Logic",
+  "status": "draft",
+  "priority": "high",
+  "createdAt": "2026-06-28T12:00:00.000Z"
+}
+```
+
+### List Changes
+
+```bash
+curl "http://localhost:4864/api/changes?status=pending&priority=high"
+```
+
+Response:
+```json
+{
+  "count": 3,
+  "changes": [
+    { "id": "change_abc123", "title": "Update Negotiation BATNA Logic", "status": "draft", "priority": "high" }
+  ]
+}
+```
+
+### Submit Change for Approval
+
+```bash
+curl -X POST http://localhost:4864/api/changes/change_abc123/submit \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+Response:
+```json
+{
+  "id": "change_abc123",
+  "status": "pending_approval",
+  "submittedAt": "2026-06-28T12:00:00.000Z"
+}
+```
+
+### Approve Change
+
+```bash
+curl -X POST http://localhost:4864/api/changes/change_abc123/approve \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <jwt_token>" \
+  -d '{"approver": "engineering_manager", "notes": "LGTM"}'
+```
+
+Response:
+```json
+{
+  "id": "change_abc123",
+  "status": "approved",
+  "approvedBy": "engineering_manager",
+  "approvedAt": "2026-06-28T12:00:00.000Z"
+}
+```
+
+### Start Rollout
+
+```bash
+curl -X POST http://localhost:4864/api/changes/change_abc123/start \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+Response:
+```json
+{
+  "id": "change_abc123",
+  "status": "rolling_out",
+  "currentPhase": "test",
+  "startedAt": "2026-06-28T12:00:00.000Z"
+}
+```
+
+### Complete Phase
+
+```bash
+curl -X POST http://localhost:4864/api/changes/change_abc123/phases/test/complete \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <jwt_token>" \
+  -d '{"metrics": {"errorRate": 0.01, "latency": 120}}'
+```
+
+Response:
+```json
+{
+  "changeId": "change_abc123",
+  "phase": "test",
+  "status": "completed",
+  "completedAt": "2026-06-28T12:30:00.000Z"
+}
+```
+
+### Complete Change
+
+```bash
+curl -X POST http://localhost:4864/api/changes/change_abc123/complete \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+Response:
+```json
+{
+  "id": "change_abc123",
+  "status": "completed",
+  "completedAt": "2026-06-28T14:00:00.000Z"
+}
+```
+
+### Trigger Rollback
+
+```bash
+curl -X POST http://localhost:4864/api/changes/change_abc123/rollback \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <jwt_token>" \
+  -d '{"reason": "Unexpected error rate spike in production"}'
+```
+
+Response:
+```json
+{
+  "id": "change_abc123",
+  "status": "rolled_back",
+  "rollbackReason": "Unexpected error rate spike in production",
+  "rolledBackAt": "2026-06-28T14:30:00.000Z"
+}
+```
+
+### Get Change Statistics
+
+```bash
+curl http://localhost:4864/api/stats
+```
+
+Response:
+```json
+{
+  "totalChanges": 45,
+  "completed": 38,
+  "rolledBack": 3,
+  "avgCompletionTime": 86400,
+  "byPriority": {
+    "critical": 5,
+    "high": 15,
+    "medium": 20,
+    "low": 5
+  },
+  "byType": {
+    "feature": 25,
+    "hotfix": 12,
+    "security": 8
+  }
+}
+```
+
+---
+
+## Change Lifecycle
+
+```
+draft → pending_approval → approved → rolling_out → completed
+                         ↘ rejected   ↘           ↘ rolled_back
+```
+
+---
 
 ## Environment Variables
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| PORT | Yes | 4864 | Service port |
+| `PORT` | Yes | 4864 | Service port |
+| `NODE_ENV` | No | development | Environment |
 
-## Dependencies
-- express
-- @rtmn/shared
-- uuid
-- zod
-- cors
-- helmet
+---
 
-## Commands
-- `npm run dev` — Development mode
-- `npm run build` — Build TypeScript
-- `npm start` — Production start
-- `npm test` — Run tests
+**Last Updated:** 2026-06-28
