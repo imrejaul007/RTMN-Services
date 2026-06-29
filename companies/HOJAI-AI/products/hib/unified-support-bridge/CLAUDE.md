@@ -3,7 +3,8 @@
 > **Service:** Unified Support Bridge
 > **Port:** 4885
 > **Version:** 2.0.0 (production-ready)
-> **Built:** June 28, 2026
+> **Built:** June 28–29, 2026
+> **Tested:** WhatsApp ✅ Email ✅ App ✅ SSE ✅ WebSocket ✅ Cross-channel linking ✅
 > **RTMN Hub:** `/api/support/*` → `http://localhost:4885`
 > **Source:** [src/](src/) — `index.js` + `storage.js` + `emailHandler.js` + `whatsappWebhook.js` + `events.js`
 
