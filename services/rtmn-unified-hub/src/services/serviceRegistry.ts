@@ -12,7 +12,7 @@ export interface ServiceEntry {
   prefix: string;            // URL prefix to route
   healthPath: string;        // health check path
   timeout: number;
-  category: 'genie' | 'rtmn' | 'integration';
+  category: 'genie' | 'rtmn' | 'integration' | 'rabtul';
 }
 
 export const SERVICE_REGISTRY: ServiceEntry[] = [
@@ -185,7 +185,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
   {
     name: 'Genie Templates',
     url: process.env.GENIE_WISHES_URL || 'http://localhost:4001',
-    prefix: '/api/templates',
+    prefix: '/api/genie-templates',
     healthPath: '/health',
     timeout: 5000,
     category: 'genie',
@@ -330,6 +330,566 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     timeout: 5000,
     category: 'genie',
   },
+
+  // ====== RABTUL Financial Services (Phase 0: Week 1) ======
+  {
+    name: 'REZ Wallet',
+    url: process.env.REZ_WALLET_URL || 'http://localhost:4004',
+    prefix: '/api/wallet',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'REZ Payment',
+    url: process.env.REZ_PAYMENT_URL || 'http://localhost:4001',
+    prefix: '/api/payment',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'RABTUL Trust Engine',
+    url: process.env.RABTUL_TRUST_URL || 'http://localhost:4180',
+    prefix: '/api/trust',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'REZ Treasury',
+    url: process.env.REZ_TREASURY_URL || 'http://localhost:4055',
+    prefix: '/api/treasury',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'REZ Trust Scorer',
+    url: process.env.REZ_TRUST_SCORER_URL || 'http://localhost:4180',
+    prefix: '/api/trust/score',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'REZ Procurement Payment',
+    url: process.env.REZ_PROCUREMENT_PAYMENT_URL || 'http://localhost:4007',
+    prefix: '/api/procurement-payment',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+
+  // ====== RABTUL BNPL & Capital (Phase 0: Week 1) ======
+  {
+    name: 'REZ BNPL',
+    url: process.env.REZ_BNPL_URL || 'http://localhost:4052',
+    prefix: '/api/bnpl',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'REZ Capital',
+    url: process.env.REZ_CAPITAL_URL || 'http://localhost:4053',
+    prefix: '/api/capital',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'REZ Escrow',
+    url: process.env.REZ_ESCROW_URL || 'http://localhost:4051',
+    prefix: '/api/escrow',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+  {
+    name: 'REZ Bill Payments',
+    url: process.env.REZ_BILL_PAYMENTS_URL || 'http://localhost:4054',
+    prefix: '/api/bill-payments',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rabtul',
+  },
+
+  // ====== SiteOS Commerce Services (Phase 0: Week 2) ======
+  {
+    name: 'SiteOS Product Catalog',
+    url: process.env.SITEOS_CATALOG_URL || 'http://localhost:5476',
+    prefix: '/api/catalog',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Product Catalog (Alt)',
+    url: process.env.SITEOS_CATALOG_URL || 'http://localhost:5476',
+    prefix: '/api/products-alt',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Cart',
+    url: process.env.SITEOS_CART_URL || 'http://localhost:5477',
+    prefix: '/api/cart',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Checkout',
+    url: process.env.SITEOS_CHECKOUT_URL || 'http://localhost:5478',
+    prefix: '/api/checkout',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Orders',
+    url: process.env.SITEOS_CHECKOUT_URL || 'http://localhost:5478',
+    prefix: '/api/orders',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Payment Gateway',
+    url: process.env.SITEOS_PAYMENT_URL || 'http://localhost:5479',
+    prefix: '/api/gateway',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Loyalty',
+    url: process.env.SITEOS_LOYALTY_URL || 'http://localhost:5481',
+    prefix: '/api/loyalty',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Reviews',
+    url: process.env.SITEOS_REVIEWS_URL || 'http://localhost:5480',
+    prefix: '/api/reviews',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Subscription',
+    url: process.env.SITEOS_SUBSCRIPTION_URL || 'http://localhost:5494',
+    prefix: '/api/subscription',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS CRM',
+    url: process.env.SITEOS_CRM_URL || 'http://localhost:5484',
+    prefix: '/api/crm',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Sales Pipeline',
+    url: process.env.SITEOS_PIPELINE_URL || 'http://localhost:5485',
+    prefix: '/api/pipeline',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Support',
+    url: process.env.SITEOS_SUPPORT_URL || 'http://localhost:5482',
+    prefix: '/api/support',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS WhatsApp',
+    url: process.env.SITEOS_WHATSAPP_URL || 'http://localhost:5483',
+    prefix: '/api/whatsapp',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Analytics',
+    url: process.env.SITEOS_ANALYTICS_URL || 'http://localhost:5489',
+    prefix: '/api/analytics',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SiteOS Multi-Currency',
+    url: process.env.SITEOS_CURRENCY_URL || 'http://localhost:5490',
+    prefix: '/api/currency',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+
+  // ====== Federation Services (Phase 0: Week 3) ======
+  {
+    name: 'Nexha Capability OS',
+    url: process.env.NEXHA_CAPABILITY_URL || 'http://localhost:4270',
+    prefix: '/api/capability',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Nexha Reputation OS',
+    url: process.env.NEXHA_REPUTATION_URL || 'http://localhost:4271',
+    prefix: '/api/reputation',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Nexha Reputation OS (ACI)',
+    url: process.env.NEXHA_REPUTATION_URL || 'http://localhost:4271',
+    prefix: '/api/aci',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Nexha Discovery OS',
+    url: process.env.NEXHA_DISCOVERY_URL || 'http://localhost:4272',
+    prefix: '/api/discovery',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Nexha ACP Messaging',
+    url: process.env.NEXHA_ACP_URL || 'http://localhost:4340',
+    prefix: '/api/acp',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Nexha ACP Messaging (Negotiate)',
+    url: process.env.NEXHA_ACP_URL || 'http://localhost:4340',
+    prefix: '/api/negotiate',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SUTAR Negotiation Engine',
+    url: process.env.SUTAR_NEGOTIATION_URL || 'http://localhost:4293',
+    prefix: '/api/negotiation',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SUTAR Contract OS',
+    url: process.env.SUTAR_CONTRACT_URL || 'http://localhost:4292',
+    prefix: '/api/contract',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Nexha Commerce Runtime',
+    url: process.env.NEXHA_COMMERCE_URL || 'http://localhost:4364',
+    prefix: '/api/commerce',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Nexha Business Directory',
+    url: process.env.NEXHA_DIRECTORY_URL || 'http://localhost:4360',
+    prefix: '/api/directory',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+
+  // ====== Industry OS Services (Phase 0: Week 4) ======
+  {
+    name: 'Restaurant OS',
+    url: process.env.RESTAURANT_OS_URL || 'http://localhost:5010',
+    prefix: '/api/restaurant',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Hotel OS',
+    url: process.env.HOTEL_OS_URL || 'http://localhost:5025',
+    prefix: '/api/hotel',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Healthcare OS',
+    url: process.env.HEALTHCARE_OS_URL || 'http://localhost:5020',
+    prefix: '/api/healthcare',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Retail OS',
+    url: process.env.RETAIL_OS_URL || 'http://localhost:5030',
+    prefix: '/api/retail',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Legal OS',
+    url: process.env.LEGAL_OS_URL || 'http://localhost:5035',
+    prefix: '/api/legal',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Education OS',
+    url: process.env.EDUCATION_OS_URL || 'http://localhost:5060',
+    prefix: '/api/education',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Agriculture OS',
+    url: process.env.AGRICULTURE_OS_URL || 'http://localhost:5070',
+    prefix: '/api/agriculture',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Automotive OS',
+    url: process.env.AUTOMOTIVE_OS_URL || 'http://localhost:5080',
+    prefix: '/api/automotive',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Beauty OS',
+    url: process.env.BEAUTY_OS_URL || 'http://localhost:5090',
+    prefix: '/api/beauty',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Fashion OS',
+    url: process.env.FASHION_OS_URL || 'http://localhost:5095',
+    prefix: '/api/fashion',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+
+  // ====== CompanyOS Services (Phase 0: Week 4) ======
+  {
+    name: 'Company OS',
+    url: process.env.COMPANY_OS_URL || 'http://localhost:4010',
+    prefix: '/api/company',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Company Factory',
+    url: process.env.COMPANY_FACTORY_URL || 'http://localhost:4010',
+    prefix: '/api/factory',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SUTAR Gateway',
+    url: process.env.SUTAR_GATEWAY_URL || 'http://localhost:4140',
+    prefix: '/api/sutar-gateway',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SUTAR Decision Engine',
+    url: process.env.SUTAR_DECISION_URL || 'http://localhost:4290',
+    prefix: '/api/sutar/decision',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'SUTAR Trust Engine',
+    url: process.env.SUTAR_TRUST_URL || 'http://localhost:4291',
+    prefix: '/api/sutar/trust',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+
+  // ====== Unified CommerceOS Gateway (Phase 1) ======
+  {
+    name: 'CommerceOS Gateway',
+    url: process.env.COMMERCE_OS_URL || 'http://localhost:5400',
+    prefix: '/api/commerce-os',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+
+  // ====== BAM Gateway + Workers (Phase 2) ======
+  {
+    name: 'BAM Gateway',
+    url: process.env.BAM_GATEWAY_URL || 'http://localhost:5550',
+    prefix: '/api/bam',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Vendor Acquisition Worker',
+    url: process.env.VENDOR_ACQUISITION_URL || 'http://localhost:5551',
+    prefix: '/api/bam/vendor-acquisition',
+    healthPath: '/health',
+    timeout: 30000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Catalog Normalization Worker',
+    url: process.env.CATALOG_NORMALIZATION_URL || 'http://localhost:5552',
+    prefix: '/api/bam/catalog-normalization',
+    healthPath: '/health',
+    timeout: 30000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Recommendation Worker',
+    url: process.env.RECOMMENDATION_WORKER_URL || 'http://localhost:5553',
+    prefix: '/api/bam/recommendation',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+
+  // ====== Template Engine + Vendor Pools (Phase 3) ======
+  {
+    name: 'Template Engine',
+    url: process.env.TEMPLATE_ENGINE_URL || 'http://localhost:5670',
+    prefix: '/api/templates',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Vendor Liquidity Pools',
+    url: process.env.VENDOR_POOLS_URL || 'http://localhost:5680',
+    prefix: '/api/pools',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+
+  // ====== Commerce Studio (Phase 4) ======
+  {
+    name: 'Commerce Studio Backend',
+    url: process.env.STUDIO_BACKEND_URL || 'http://localhost:5750',
+    prefix: '/api/studio',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+
+  // ====== Phase 5: Advanced Commerce Services ======
+  {
+    name: 'Product Graph',
+    url: process.env.PRODUCT_GRAPH_URL || 'http://localhost:5800',
+    prefix: '/api/products',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Trade Finance',
+    url: process.env.TRADE_FINANCE_URL || 'http://localhost:5810',
+    prefix: '/api/trade-finance',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Cross-Border Commerce',
+    url: process.env.CROSS_BORDER_URL || 'http://localhost:5820',
+    prefix: '/api/cross-border',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Universal Distribution',
+    url: process.env.UNIVERSAL_DISTRIBUTION_URL || 'http://localhost:5830',
+    prefix: '/api/distribution',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+
+  // ====== HOJAI InternetOS (Web Intelligence Platform) ======
+  {
+    name: 'InternetOS API',
+    url: process.env.INTERNETOS_URL || 'http://localhost:4595',
+    prefix: '/api/internet-os',
+    healthPath: '/health',
+    timeout: 30000, // Scraping can take longer
+    category: 'integration',
+  },
+  {
+    name: 'InternetOS Watchers',
+    url: process.env.INTERNETOS_URL || 'http://localhost:4595',
+    prefix: '/api/watchers',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'integration',
+  },
+  {
+    name: 'InternetOS Research Agents',
+    url: process.env.INTERNETOS_URL || 'http://localhost:4595',
+    prefix: '/api/research',
+    healthPath: '/health',
+    timeout: 60000, // Research can take longer
+    category: 'integration',
+  },
+  {
+    name: 'InternetOS Scheduler',
+    url: process.env.INTERNETOS_URL || 'http://localhost:4595',
+    prefix: '/api/scheduler',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'integration',
+  },
+  {
+    name: 'InternetOS History',
+    url: process.env.INTERNETOS_URL || 'http://localhost:4595',
+    prefix: '/api/history',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'integration',
+  },
 ];
 
 export function findService(prefix: string): ServiceEntry | undefined {
@@ -337,7 +897,15 @@ export function findService(prefix: string): ServiceEntry | undefined {
 }
 
 export function findServiceByPath(path: string): ServiceEntry | undefined {
-  return SERVICE_REGISTRY
-    .filter(s => path.startsWith(s.prefix))
-    .sort((a, b) => b.prefix.length - a.prefix.length)[0];
+  const candidates = SERVICE_REGISTRY.filter(s => path.startsWith(s.prefix));
+
+  if (candidates.length === 0) return undefined;
+  if (candidates.length === 1) return candidates[0];
+
+  // Multiple matches — pick the longest prefix (most specific).
+  // Use reduce (not sort) to avoid mutating the registry array and to be deterministic
+  // when two prefixes have the same length (first registered wins).
+  return candidates.reduce((best, current) =>
+    current.prefix.length > best.prefix.length ? current : best
+  );
 }
