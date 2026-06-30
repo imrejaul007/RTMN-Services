@@ -3,7 +3,7 @@
  * Property and hospitality data extraction
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
 import type { CheerioAPI } from 'cheerio';
 
 export class AirbnbActor extends Actor {
@@ -56,17 +56,17 @@ export class AirbnbActor extends Actor {
     const html = await fetchUrl(searchUrl, { timeout: 30000 });
 
     const properties: any[] = [];
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     // Parse search results (Airbnb uses dynamic rendering, so this is a simplified version)
-    const cards = doc.querySelectorAll('[itemprop="url"], .listing-card');
+    const cards = $('[itemprop="url"], .listing-card');
 
-    cards.slice(0, limit).forEach((card) => {
-      const name = card.querySelector('[itemprop="name"], .listing-title')?.textContent?.trim();
-      const priceEl = card.querySelector('[data-testid="price-item"], .price');
-      const priceMatch = priceEl?.textContent?.match(/₹([\d,]+)/);
-      const rating = card.querySelector('[aria-label*="stars"]')?.textContent?.trim();
-      const locationText = card.querySelector('.location-text, [itemprop="address"]')?.textContent?.trim();
+    cards.slice(0, limit).each((_, card) => {
+      const name = $(card).find('[itemprop="name"], .listing-title').first().text().trim();
+      const priceEl = $(card).find('[data-testid="price-item"], .price').first();
+      const priceMatch = priceEl.text().match(/₹([\d,]+)/);
+      const rating = $(card).find('[aria-label*="stars"]').text().trim();
+      const locationText = $(card).find('.location-text, [itemprop="address"]').first().text().trim();
 
       if (name) {
         properties.push({
@@ -74,7 +74,7 @@ export class AirbnbActor extends Actor {
           price: priceMatch ? parseInt(priceMatch[1].replace(/,/g, '')) : null,
           rating: rating ? parseFloat(rating.match(/(\d+\.?\d*)/)?.[1] || '0') : null,
           location: locationText,
-          url: card.querySelector('a')?.getAttribute('href'),
+          url: $(card).find('a').attr('href'),
         });
       }
     });
@@ -92,20 +92,20 @@ export class AirbnbActor extends Actor {
 
   private async getPropertyDetails(propertyUrl: string): Promise<ActorOutput> {
     const html = await fetchUrl(propertyUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const details = {
-      name: doc.querySelector('h1, [itemprop="name"]')?.textContent?.trim(),
-      description: doc.querySelector('[itemprop="description"]')?.textContent?.trim(),
-      price: this.extractPrice(doc),
-      rating: this.extractRating(doc),
-      reviewCount: this.extractReviewCount(doc),
-      amenities: this.extractAmenities(doc),
-      location: this.extractLocation(doc),
-      images: this.extractImages(doc),
-      host: this.extractHost(doc),
-      houseRules: this.extractHouseRules(doc),
-      cancellationPolicy: this.extractCancellationPolicy(doc),
+      name: $('h1, [itemprop="name"]').first().text().trim(),
+      description: $('[itemprop="description"]').first().text().trim(),
+      price: this.extractPrice($),
+      rating: this.extractRating($),
+      reviewCount: this.extractReviewCount($),
+      amenities: this.extractAmenities($),
+      location: this.extractLocation($),
+      images: this.extractImages($),
+      host: this.extractHost($),
+      houseRules: this.extractHouseRules($),
+      cancellationPolicy: this.extractCancellationPolicy($),
     };
 
     return {
@@ -114,83 +114,83 @@ export class AirbnbActor extends Actor {
     };
   }
 
-  private extractPrice(doc: CheerioAPI): number | null {
-    const priceEl = doc.querySelector('[data-testid="price"]');
-    const match = priceEl?.textContent?.match(/₹([\d,]+)/);
+  private extractPrice($: CheerioAPI): number | null {
+    const priceEl = $('[data-testid="price"]');
+    const match = priceEl.text().match(/₹([\d,]+)/);
     return match ? parseInt(match[1].replace(/,/g, '')) : null;
   }
 
-  private extractRating(doc: CheerioAPI): number | null {
-    const ratingEl = doc.querySelector('[aria-label*="rating"]');
-    const match = ratingEl?.getAttribute('aria-label')?.match(/(\d+\.?\d*)/);
+  private extractRating($: CheerioAPI): number | null {
+    const ratingEl = $('[aria-label*="rating"]');
+    const match = ratingEl.attr('aria-label')?.match(/(\d+\.?\d*)/);
     return match ? parseFloat(match[1]) : null;
   }
 
-  private extractReviewCount(doc: CheerioAPI): number | null {
-    const countEl = doc.querySelector('[aria-label*="reviews"]');
-    const match = countEl?.textContent?.match(/(\d+,?\d*)/);
+  private extractReviewCount($: CheerioAPI): number | null {
+    const countEl = $('[aria-label*="reviews"]');
+    const match = countEl.text().match(/(\d+,?\d*)/);
     return match ? parseInt(match[1].replace(/,/g, '')) : null;
   }
 
-  private extractAmenities(doc: CheerioAPI): string[] {
+  private extractAmenities($: CheerioAPI): string[] {
     const amenities: string[] = [];
-    const amenityEls = doc.querySelectorAll('[data-testid="amenity-item"], .amenity-item');
-    amenityEls.forEach((el) => {
-      amenities.push(el.textContent?.trim() || '');
+    const amenityEls = $('[data-testid="amenity-item"], .amenity-item');
+    amenityEls.each((_, el) => {
+      amenities.push($(el).text().trim());
     });
     return amenities;
   }
 
-  private extractLocation(doc: CheerioAPI): string {
-    return doc.querySelector('[data-testid="location-description"]')?.textContent?.trim() || '';
+  private extractLocation($: CheerioAPI): string {
+    return $('[data-testid="location-description"]').text().trim() || '';
   }
 
-  private extractImages(doc: CheerioAPI): string[] {
+  private extractImages($: CheerioAPI): string[] {
     const images: string[] = [];
-    const imgEls = doc.querySelectorAll('[data-testid="photo"] img, .photo img');
-    imgEls.slice(0, 10).forEach((el) => {
-      const src = el.getAttribute('src') || el.getAttribute('data-src');
+    const imgEls = $('[data-testid="photo"] img, .photo img');
+    imgEls.slice(0, 10).each((_, el) => {
+      const src = $(el).attr('src') || $(el).attr('data-src');
       if (src) images.push(src);
     });
     return images;
   }
 
-  private extractHost(doc: Document): any {
+  private extractHost($: CheerioAPI): any {
     return {
-      name: doc.querySelector('.host-name')?.textContent?.trim(),
-      since: doc.querySelector('.host-since')?.textContent?.trim(),
-      responseRate: doc.querySelector('.response-rate')?.textContent?.trim(),
-      responseTime: doc.querySelector('.response-time')?.textContent?.trim(),
-      isSuperhost: doc.querySelector('.superhost-badge') !== null,
+      name: $('.host-name').text().trim(),
+      since: $('.host-since').text().trim(),
+      responseRate: $('.response-rate').text().trim(),
+      responseTime: $('.response-time').text().trim(),
+      isSuperhost: $('.superhost-badge').length > 0,
     };
   }
 
-  private extractHouseRules(doc: CheerioAPI): string[] {
+  private extractHouseRules($: CheerioAPI): string[] {
     const rules: string[] = [];
-    const ruleEls = doc.querySelectorAll('.house-rules-item, .cancellation-policy-item');
-    ruleEls.forEach((el) => {
-      rules.push(el.textContent?.trim() || '');
+    const ruleEls = $('.house-rules-item, .cancellation-policy-item');
+    ruleEls.each((_, el) => {
+      rules.push($(el).text().trim());
     });
     return rules;
   }
 
-  private extractCancellationPolicy(doc: CheerioAPI): string {
-    return doc.querySelector('.cancellation-policy')?.textContent?.trim() || '';
+  private extractCancellationPolicy($: CheerioAPI): string {
+    return $('.cancellation-policy').text().trim() || '';
   }
 
   private async getReviews(propertyUrl: string, limit: number): Promise<ActorOutput> {
     const reviewsUrl = `${propertyUrl}?section_index=0`;
     const html = await fetchUrl(reviewsUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const reviews: any[] = [];
-    const reviewEls = doc.querySelectorAll('.review-item, [itemprop="review"]');
+    const reviewEls = $('.review-item, [itemprop="review"]');
 
-    reviewEls.slice(0, limit).forEach((el) => {
-      const author = el.querySelector('.author-name')?.textContent?.trim();
-      const rating = el.querySelector('.rating')?.textContent?.trim();
-      const date = el.querySelector('.date')?.textContent?.trim();
-      const text = el.querySelector('.review-text, [itemprop="reviewBody"]')?.textContent?.trim();
+    reviewEls.slice(0, limit).each((_, el) => {
+      const author = $(el).find('.author-name').text().trim();
+      const rating = $(el).find('.rating').text().trim();
+      const date = $(el).find('.date').text().trim();
+      const text = $(el).find('.review-text, [itemprop="reviewBody"]').text().trim();
 
       if (author && text) {
         reviews.push({
@@ -215,7 +215,8 @@ export class AirbnbActor extends Actor {
     const html = await fetchUrl(propertyUrl, { timeout: 30000 });
 
     // Analyze pricing patterns
-    const nightlyRate = this.extractPrice(parseHtml(html));
+    const $ = parseHtml(html);
+    const nightlyRate = this.extractPrice($);
     const monthlyRate = nightlyRate ? nightlyRate * 30 * 0.7 : null; // 30% discount for monthly
     const weeklyRate = nightlyRate ? nightlyRate * 7 * 0.85 : null; // 15% discount for weekly
 

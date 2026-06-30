@@ -3,7 +3,7 @@
  * Extract company and professional information from LinkedIn
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
 import type { CheerioAPI } from 'cheerio';
 
 export class LinkedInActor extends Actor {
@@ -48,18 +48,18 @@ export class LinkedInActor extends Actor {
 
   private async scrapeCompany(companyUrl: string): Promise<ActorOutput> {
     const html = await fetchUrl(companyUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     // Extract company data from JSON-LD or page content
     const companyData = {
-      name: doc.querySelector('h1')?.textContent?.trim(),
-      tagline: doc.querySelector('.org-top-card-summary__tagline')?.textContent?.trim(),
-      industry: doc.querySelector('[data-test-id="about-us__industry"]')?.textContent?.trim(),
-      size: doc.querySelector('[data-test-id="about-us__size"]')?.textContent?.trim(),
-      headquarters: doc.querySelector('[data-test-id="about-us__headquarters"]')?.textContent?.trim(),
-      founded: doc.querySelector('[data-test-id="about-us__founded"]')?.textContent?.trim(),
-      description: doc.querySelector('.org-about-us-organization-description__text')?.textContent?.trim(),
-      website: doc.querySelector('.org-about-us-organization-description__website a')?.getAttribute('href'),
+      name: $('h1').first().text().trim(),
+      tagline: $('.org-top-card-summary__tagline').text().trim(),
+      industry: $('[data-test-id="about-us__industry"]').text().trim(),
+      size: $('[data-test-id="about-us__size"]').text().trim(),
+      headquarters: $('[data-test-id="about-us__headquarters"]').text().trim(),
+      founded: $('[data-test-id="about-us__founded"]').text().trim(),
+      description: $('.org-about-us-organization-description__text').text().trim(),
+      website: $('.org-about-us-organization-description__website a').attr('href'),
       linkedinUrl: companyUrl,
     };
 
@@ -71,16 +71,16 @@ export class LinkedInActor extends Actor {
 
   private async scrapeProfile(profileUrl: string): Promise<ActorOutput> {
     const html = await fetchUrl(profileUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const profileData = {
-      name: doc.querySelector('.pv-top-card-section__name')?.textContent?.trim(),
-      headline: doc.querySelector('.pv-top-card-section__headline')?.textContent?.trim(),
-      location: doc.querySelector('.pv-top-card-section__location')?.textContent?.trim(),
-      currentPosition: doc.querySelector('.pv-top-card-section__current-position')?.textContent?.trim(),
-      education: this.parseEducation(doc),
-      experience: this.parseExperience(doc),
-      connections: doc.querySelector('.pv-top-card-section__connections')?.textContent?.trim(),
+      name: $('.pv-top-card-section__name').text().trim(),
+      headline: $('.pv-top-card-section__headline').text().trim(),
+      location: $('.pv-top-card-section__location').text().trim(),
+      currentPosition: $('.pv-top-card-section__current-position').text().trim(),
+      education: this.parseEducation($),
+      experience: this.parseExperience($),
+      connections: $('.pv-top-card-section__connections').text().trim(),
     };
 
     return {
@@ -89,33 +89,33 @@ export class LinkedInActor extends Actor {
     };
   }
 
-  private parseEducation(doc: CheerioAPI): any[] {
+  private parseEducation($: CheerioAPI): any[] {
     const education: any[] = [];
-    const eduSection = doc.querySelectorAll('.education-section .pv-profile-section__list-item');
+    const eduSection = $('.education-section .pv-profile-section__list-item');
 
-    eduSection.forEach((item) => {
+    eduSection.each((_, item) => {
       education.push({
-        school: item.querySelector('.pv-entity__school-name')?.textContent?.trim(),
-        degree: item.querySelector('.pv-entity__degree-name')?.textContent?.trim(),
-        field: item.querySelector('.pv-entity__fos')?.textContent?.trim(),
-        duration: item.querySelector('.pv-entity__date-range span:last-child')?.textContent?.trim(),
+        school: $(item).find('.pv-entity__school-name').text().trim(),
+        degree: $(item).find('.pv-entity__degree-name').text().trim(),
+        field: $(item).find('.pv-entity__fos').text().trim(),
+        duration: $(item).find('.pv-entity__date-range span:last-child').text().trim(),
       });
     });
 
     return education;
   }
 
-  private parseExperience(doc: CheerioAPI): any[] {
+  private parseExperience($: CheerioAPI): any[] {
     const experience: any[] = [];
-    const expSection = doc.querySelectorAll('.experience-section .pv-profile-section__list-item');
+    const expSection = $('.experience-section .pv-profile-section__list-item');
 
-    expSection.forEach((item) => {
+    expSection.each((_, item) => {
       experience.push({
-        title: item.querySelector('h3')?.textContent?.trim(),
-        company: item.querySelector('.pv-entity__subtitle')?.textContent?.trim(),
-        duration: item.querySelector('.pv-entity__date-range span:last-child')?.textContent?.trim(),
-        location: item.querySelector('.pv-entity__location')?.textContent?.trim(),
-        description: item.querySelector('.pv-entity__description')?.textContent?.trim(),
+        title: $(item).find('h3').text().trim(),
+        company: $(item).find('.pv-entity__subtitle').text().trim(),
+        duration: $(item).find('.pv-entity__date-range span:last-child').text().trim(),
+        location: $(item).find('.pv-entity__location').text().trim(),
+        description: $(item).find('.pv-entity__description').text().trim(),
       });
     });
 
@@ -125,18 +125,18 @@ export class LinkedInActor extends Actor {
   private async searchJobs(query: string, limit: number): Promise<ActorOutput> {
     const searchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(query)}`;
     const html = await fetchUrl(searchUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const jobs: any[] = [];
-    const jobCards = doc.querySelectorAll('.jobs-search-results__list-item');
+    const jobCards = $('.jobs-search-results__list-item');
 
-    jobCards.slice(0, limit).forEach((card) => {
+    jobCards.slice(0, limit).each((_, card) => {
       jobs.push({
-        title: card.querySelector('.job-card-container__link')?.textContent?.trim(),
-        company: card.querySelector('.job-card-container__company-name')?.textContent?.trim(),
-        location: card.querySelector('.job-card-container__metadata-item')?.textContent?.trim(),
-        posted: card.querySelector('.job-card-container__listed-time')?.textContent?.trim(),
-        url: card.querySelector('.job-card-container__link')?.getAttribute('href'),
+        title: $(card).find('.job-card-container__link').text().trim(),
+        company: $(card).find('.job-card-container__company-name').text().trim(),
+        location: $(card).find('.job-card-container__metadata-item').text().trim(),
+        posted: $(card).find('.job-card-container__listed-time').text().trim(),
+        url: $(card).find('.job-card-container__link').attr('href'),
       });
     });
 
@@ -153,18 +153,18 @@ export class LinkedInActor extends Actor {
   private async search(query: string, limit: number): Promise<ActorOutput> {
     const searchUrl = `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(query)}`;
     const html = await fetchUrl(searchUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const results: any[] = [];
-    const cards = doc.querySelectorAll('.search-result');
+    const cards = $('.search-result');
 
-    cards.slice(0, limit).forEach((card) => {
-      const type = card.querySelector('.search-result-type')?.textContent?.trim();
+    cards.slice(0, limit).each((_, card) => {
+      const type = $(card).find('.search-result-type').text().trim();
       results.push({
         type,
-        title: card.querySelector('.search-result__title')?.textContent?.trim(),
-        subtitle: card.querySelector('.search-result__subtitle')?.textContent?.trim(),
-        url: card.querySelector('.search-result__a')?.getAttribute('href'),
+        title: $(card).find('.search-result__title').text().trim(),
+        subtitle: $(card).find('.search-result__subtitle').text().trim(),
+        url: $(card).find('.search-result__a').attr('href'),
       });
     });
 
