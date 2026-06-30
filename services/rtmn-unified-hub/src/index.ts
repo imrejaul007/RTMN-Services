@@ -19,6 +19,7 @@ import {
 import { SERVICE_REGISTRY, ServiceEntry } from './services/serviceRegistry.js';
 import { requireHubAuth } from './middleware/auth.js';
 import { addCorrelationId } from './middleware/tracing.js';
+import { rateLimit } from './middleware/rateLimit.js';
 
 const PORT = parseInt(process.env.PORT || '4399', 10);
 const SERVICE_NAME = 'rtmn-unified-hub';
@@ -36,6 +37,9 @@ app.use(requireHubAuth);
 
 // Correlation IDs — must be after auth so unauthenticated health probes still get an ID
 app.use(addCorrelationId);
+
+// Rate limiting — after correlation so logs include the ID
+app.use(rateLimit);
 
 // === Health endpoints (no auth) ===
 app.get('/health', (req, res) => {
