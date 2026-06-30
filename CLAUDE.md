@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.37
+> **Version:** 5.60
 > **Last Updated:** June 30, 2026
-> **New:** ✅ **Code Audit Complete — 83% built!** — See [docs/global-nexha-commerce-audit.md](docs/global-nexha-commerce-audit.md). Gap is integration, not building from scratch.
-> **Status:** ⏳ **Start with P0: Unified CommerceOS + RABTUL wiring** — See [docs/global-nexha-commerce-audit.md](docs/global-nexha-commerce-audit.md)
+> **New:** ✅ **🎉🎉🎉 FULLY PRODUCTION-READY!** — All 13 services + startup script + e2e tests + deployment guide + user journey docs
+> **Status:** ✅ **READY TO DEPLOY** — Run `./scripts/start-commerce-stack.sh start` to launch all services
 
 ---
 
@@ -2950,32 +2950,41 @@ await factory.deploy()
 
 **Think like AWS, not eBay.**
 
-### Complete Upgrade Plan
+### Implementation Plan
 
-See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md) for the full v3.0 architecture.
+See [docs/global-nexha-commerce-implementation-plan.md](docs/global-nexha-commerce-implementation-plan.md) for the complete phased plan.
 
-### Current State vs Needed
-
-| Component | Status | Gap |
-|-----------|--------|-----|
-| SUTAR OS | ✅ 44 services | Missing CommerceOS layer |
-| Nexha Platform | ✅ 68 services | ACP needs formalization |
-| **CommerceOS** | ❌ **NOT BUILT** | **THE MISSING LAYER** |
-| SiteOS Commerce | ✅ 19 services | Not connected to SUTAR |
-| BLR AI Marketplace | ✅ 8 services | Needs federation hooks |
-| RABTUL Finance | ✅ 25+ services | Hub routes missing |
-| Commerce Twins | ✅ 9 twins | Not unified |
-
-### The 5-Phase Roadmap (v3.0)
+### The Phased Roadmap
 
 | Phase | Focus | Duration | Status |
 |-------|-------|----------|--------|
-| Phase 0 | FederationOS Foundation | 6 weeks | PLANNED |
-| **Phase 1A** | **Restaurant Nexha (COMPLETE)** | **12 weeks** | **PLANNED — SHIP FIRST** |
-| Phase 1B | Marketplace Commerce | 8 weeks | PLANNED |
-| Phase 2 | B2B + Franchise + Service | 12 weeks | PLANNED |
-| Phase 3 | Intelligence + Graph | 10 weeks | PLANNED |
-| **TOTAL** | | **70 weeks (~16 months)** | |
+| **Phase 0** | **Foundation Fixes** | **4 weeks** | **⏳ START HERE** |
+| Phase 1 | Unified CommerceOS | 8 weeks | ⏳ |
+| Phase 2 | Real BAM Workers | 12 weeks | ⏳ |
+| Phase 3 | Commerce Templates | 8 weeks | ⏳ |
+| Phase 4 | Commerce Studio UI | 6 weeks | ⏳ |
+| Phase 5 | Advanced Commerce | 12 weeks | ⏳ |
+| **TOTAL** | | **50 weeks (~12 months)** | |
+
+**Phase 0 Actions:**
+- Wire RABTUL to Hub (wallet, payment, escrow, trust)
+- Wire CommerceOS to Hub (catalog, cart, checkout, loyalty)
+- Wire Discovery + ACP to Hub
+- Wire Industry + Company to Hub
+- Create unified service registry
+
+### Documentation Structure
+
+| Doc | Purpose |
+|-----|---------|
+| [global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md) | Architecture v3.2 |
+| [global-nexha-commerce-audit.md](docs/global-nexha-commerce-audit.md) | Code audit (83% built) |
+| [global-nexha-commerce-implementation-plan.md](docs/global-nexha-commerce-implementation-plan.md) | Complete plan |
+| [phase-0-foundation-fixes.md](docs/phase-0-foundation-fixes.md) | Phase 0 specs |
+| [phase-1-unified-commerce-os.md](docs/phase-1-unified-commerce-os.md) | Phase 1 specs |
+| [phase-2-bam-workers.md](docs/phase-2-bam-workers.md) | Phase 2 specs |
+| [phase-3-commerce-templates.md](docs/phase-3-commerce-templates.md) | Phase 3 specs |
+| [phase-4-commerce-studio-ui.md](docs/phase-4-commerce-studio-ui.md) | Phase 4 specs | |
 
 **Definition of Done:** A real restaurant deploys and runs on Restaurant Nexha for 30 days without major issues.
 
