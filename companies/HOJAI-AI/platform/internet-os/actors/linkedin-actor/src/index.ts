@@ -3,7 +3,8 @@
  * Extract company and professional information from LinkedIn
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../actor-runtime';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import type { CheerioAPI } from 'cheerio';
 
 export class LinkedInActor extends Actor {
   constructor() {
@@ -88,7 +89,7 @@ export class LinkedInActor extends Actor {
     };
   }
 
-  private parseEducation(doc: Document): any[] {
+  private parseEducation(doc: CheerioAPI): any[] {
     const education: any[] = [];
     const eduSection = doc.querySelectorAll('.education-section .pv-profile-section__list-item');
 
@@ -104,7 +105,7 @@ export class LinkedInActor extends Actor {
     return education;
   }
 
-  private parseExperience(doc: Document): any[] {
+  private parseExperience(doc: CheerioAPI): any[] {
     const experience: any[] = [];
     const expSection = doc.querySelectorAll('.experience-section .pv-profile-section__list-item');
 

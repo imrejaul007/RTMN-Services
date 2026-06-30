@@ -125,58 +125,108 @@ Corrected Stack:
 | 13 | **Creator Commerce** | Influencer-driven commerce | Merch, sponsorships, memberships |
 | 14 | **Machine Commerce (M2M)** | IoT autonomous procurement | Smart factories, connected devices |
 
-### The Canonical Architecture (v2.1)
+### The Canonical Architecture (v3.2)
 
 ```
+GENIE (Human Interface)
+        │
+        ▼
+HOJAI STUDIO (Creation Layer)
+        │
+HOJAI FOUNDRY (Compilation Layer)
+        │
+        ▼
 GLOBAL NEXHA
 │
-├── FederationOS
-│   ├── ACP (Open protocol — RFCs)
-│   ├── DiscoveryOS
-│   │   ├── Capability Graph
-│   │   ├── Product Graph
-│   │   ├── Vendor Graph
-│   │   ├── Marketplace Graph
-│   │   ├── Geographic Graph
-│   │   └── Matching Engine
-│   ├── ReputationOS (ACI scoring)
-│   └── Commerce Graph (Google Maps of economic relationships)
+├── CompanyOS (Organization Runtime)
 │
-├── TrustOS (Verified identity + compliance)
+├── BAM Platform (AI Workers)
+│   ├── Vendor Acquisition Worker
+│   ├── Catalog Worker
+│   ├── Fraud Worker
+│   ├── Recommendation Worker
+│   ├── Customer Support Worker
+│   ├── Pricing Worker
+│   ├── Growth Worker
+│   ├── Trust Worker
+│   └── Logistics Worker
 │
-├── CommerceOS (Universal commerce runtime)
+├── SUTAR OS (AI Departments & Coordination)
+│   ├── Vendor Department
+│   ├── Operations Department
+│   ├── Customer Department
+│   ├── Marketing Department
+│   └── Finance Department
+│
+├── CommerceOS (Commerce Primitives)
 │   ├── Catalog Engine
 │   ├── Inventory Engine
 │   ├── Pricing Engine
-│   ├── Promotion Engine
 │   ├── Order Engine
 │   ├── Checkout Engine
+│   ├── Promotion Engine
 │   ├── Loyalty Engine
 │   ├── Recommendation Engine
 │   └── Subscription Engine
 │
-├── VendorOS (Shopify for vendors)
+├── VendorOS (Vendor Business Model)
 │   ├── Catalog Management
 │   ├── Global Publishing
-│   ├── AI Sales Agent
 │   ├── Inventory Planning
-│   ├── Marketplace Distribution
-│   ├── Supplier Intelligence
-│   └── Analytics
+│   └── Supplier Intelligence
 │
-├── MarketplaceOS (Shopify for marketplaces)
+├── MarketplaceOS (Marketplace Business Model)
 │   ├── Vendor Onboarding
 │   ├── KYB
-│   ├── Commission Engine
 │   ├── Cart Aggregation
+│   ├── Commission Engine
 │   ├── Split Payments
-│   ├── Fulfillment
-│   ├── Marketplace Agents
-│   └── Fraud Detection
+│   └── Fulfillment
 │
-├── SUTAR OS (AI workforce orchestration)
+├── FederationOS (Federation Layer)
+│   ├── ACP (Open protocol)
+│   ├── DiscoveryOS
+│   ├── ReputationOS (ACI)
+│   └── Commerce Graph
 │
-├── RABTUL (Financial settlement layer)
+└── TrustOS (Verified identity + compliance)
+        │
+        ▼
+RABTUL (Financial Infrastructure)
+```
+
+---
+
+### The Four-Layer Model
+
+These are **four distinct layers** with clear responsibilities:
+
+| Layer | Responsibility | Examples |
+|-------|---------------|-----------|
+| **CommerceOS** | What the business CAN do | Catalog, Orders, Checkout, Inventory |
+| **BAM** | Who does the work | Procurement Worker, Fraud Worker, Support Worker |
+| **SUTAR** | How work is coordinated | Departments, Teams, Hierarchies |
+| **RABTUL** | How money moves | Payments, Escrow, Trade Finance |
+
+**This separation is fundamental. Do not blur these boundaries.**
+
+---
+
+### The Permanent Doctrine
+
+These statements are **frozen:**
+
+1. **CommerceOS defines capabilities** — What the business can do
+2. **BAM provides workers** — Who does the work
+3. **SUTAR organizes departments** — How work is coordinated
+4. **VendorOS defines vendor model** — D2C, wholesale
+5. **MarketplaceOS defines marketplace model** — Multi-vendor aggregation
+6. **Global Nexha connects actors** — Discovery, federation, trust
+7. **RABTUL settles value** — Payments, escrow, finance
+
+And:
+
+> **HOJAI Studio creates businesses. HOJAI Foundry compiles businesses. CompanyOS runs businesses. BAM provides workers. SUTAR coordinates departments. Global Nexha connects networks. RABTUL settles commerce.**
 │
 └── Commerce Templates
     ├── Restaurant Template

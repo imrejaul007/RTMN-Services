@@ -3,7 +3,8 @@
  * Extract business information from Google Maps
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../actor-runtime';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import type { CheerioAPI } from 'cheerio';
 
 export interface GoogleMapsConfig {
   id: 'google_maps';
@@ -209,7 +210,7 @@ export class GoogleMapsActor extends Actor {
     return hours;
   }
 
-  private parseReviews(doc: Document): Review[] {
+  private parseReviews(doc: CheerioAPI): Review[] {
     const reviews: Review[] = [];
 
     const reviewCards = doc.querySelectorAll('.review-dialog-list [data-review-id]');

@@ -3,7 +3,8 @@
  * Property and hospitality data extraction
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../actor-runtime';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import type { CheerioAPI } from 'cheerio';
 
 export class AirbnbActor extends Actor {
   constructor() {
@@ -113,25 +114,25 @@ export class AirbnbActor extends Actor {
     };
   }
 
-  private extractPrice(doc: Document): number | null {
+  private extractPrice(doc: CheerioAPI): number | null {
     const priceEl = doc.querySelector('[data-testid="price"]');
     const match = priceEl?.textContent?.match(/₹([\d,]+)/);
     return match ? parseInt(match[1].replace(/,/g, '')) : null;
   }
 
-  private extractRating(doc: Document): number | null {
+  private extractRating(doc: CheerioAPI): number | null {
     const ratingEl = doc.querySelector('[aria-label*="rating"]');
     const match = ratingEl?.getAttribute('aria-label')?.match(/(\d+\.?\d*)/);
     return match ? parseFloat(match[1]) : null;
   }
 
-  private extractReviewCount(doc: Document): number | null {
+  private extractReviewCount(doc: CheerioAPI): number | null {
     const countEl = doc.querySelector('[aria-label*="reviews"]');
     const match = countEl?.textContent?.match(/(\d+,?\d*)/);
     return match ? parseInt(match[1].replace(/,/g, '')) : null;
   }
 
-  private extractAmenities(doc: Document): string[] {
+  private extractAmenities(doc: CheerioAPI): string[] {
     const amenities: string[] = [];
     const amenityEls = doc.querySelectorAll('[data-testid="amenity-item"], .amenity-item');
     amenityEls.forEach((el) => {
@@ -140,11 +141,11 @@ export class AirbnbActor extends Actor {
     return amenities;
   }
 
-  private extractLocation(doc: Document): string {
+  private extractLocation(doc: CheerioAPI): string {
     return doc.querySelector('[data-testid="location-description"]')?.textContent?.trim() || '';
   }
 
-  private extractImages(doc: Document): string[] {
+  private extractImages(doc: CheerioAPI): string[] {
     const images: string[] = [];
     const imgEls = doc.querySelectorAll('[data-testid="photo"] img, .photo img');
     imgEls.slice(0, 10).forEach((el) => {
@@ -164,7 +165,7 @@ export class AirbnbActor extends Actor {
     };
   }
 
-  private extractHouseRules(doc: Document): string[] {
+  private extractHouseRules(doc: CheerioAPI): string[] {
     const rules: string[] = [];
     const ruleEls = doc.querySelectorAll('.house-rules-item, .cancellation-policy-item');
     ruleEls.forEach((el) => {
@@ -173,7 +174,7 @@ export class AirbnbActor extends Actor {
     return rules;
   }
 
-  private extractCancellationPolicy(doc: Document): string {
+  private extractCancellationPolicy(doc: CheerioAPI): string {
     return doc.querySelector('.cancellation-policy')?.textContent?.trim() || '';
   }
 

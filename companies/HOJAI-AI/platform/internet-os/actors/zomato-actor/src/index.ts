@@ -3,7 +3,8 @@
  * Restaurant data extraction from Zomato
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../actor-runtime';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import type { CheerioAPI } from 'cheerio';
 
 export class ZomatoActor extends Actor {
   constructor() {
@@ -111,7 +112,7 @@ export class ZomatoActor extends Actor {
     };
   }
 
-  private parseCuisine(doc: Document): string[] {
+  private parseCuisine(doc: CheerioAPI): string[] {
     const cuisines: string[] = [];
     const cuisineEls = doc.querySelectorAll('.cuisine a');
     cuisineEls.forEach((el) => {
@@ -120,7 +121,7 @@ export class ZomatoActor extends Actor {
     return cuisines;
   }
 
-  private extractPhotos(doc: Document): string[] {
+  private extractPhotos(doc: CheerioAPI): string[] {
     const photos: string[] = [];
     const photoEls = doc.querySelectorAll('.photo-gallery img');
     photoEls.slice(0, 10).forEach((el) => {
@@ -130,7 +131,7 @@ export class ZomatoActor extends Actor {
     return photos;
   }
 
-  private extractFeatures(doc: Document): string[] {
+  private extractFeatures(doc: CheerioAPI): string[] {
     const features: string[] = [];
     const featureEls = doc.querySelectorAll('.facility-badge, .feature-tag');
     featureEls.forEach((el) => {

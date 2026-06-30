@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.35
+> **Version:** 5.36
 > **Last Updated:** June 30, 2026
-> **New:** ✅ **Global Nexha Commerce Stack v3.2 (COMPLETE)** — HOJAI Studio + BAM (AI Workers) + Foundry + 9 OS layers + 26 Industry OS (built) + 26 BAM Worker sets + Marketplace Launch Stack
+> **New:** ✅ **Global Nexha Commerce Stack v3.2 (FROZEN)** — Four-layer model (CommerceOS/BAM/SUTAR/RABTUL), BAM as standalone platform, 26 Industry OS → Templates, Studio creates + Foundry compiles + Nexha connects + RABTUL settles
 > **Status:** ⏳ **Start with Phase 0** — See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md)
 
 ---
@@ -2823,55 +2823,71 @@ Nexha is **infrastructure for AI commerce** — Stripe for AI agents, SWIFT for 
 ### The Canonical Architecture (v3.0)
 
 ```
+GENIE (Human Interface)
+        │
+        ▼
+HOJAI STUDIO (Creation)
+        │
+HOJAI FOUNDRY (Compilation)
+        │
+        ▼
 GLOBAL NEXHA
 │
-├── FederationOS
-│   ├── ACP (Open protocol — like HTTP/SMTP)
-│   ├── DiscoveryOS (6 graphs + matching engine)
-│   ├── ReputationOS (ACI trust scoring)
-│   └── Commerce Graph (Google Maps of economic relationships)
+├── CompanyOS (Organization Runtime)
 │
-├── TrustOS
+├── BAM Platform (AI Workers)
+│   ├── Vendor Acquisition Worker
+│   ├── Catalog Worker
+│   ├── Fraud Worker
+│   ├── Recommendation Worker
+│   ├── Customer Support Worker
+│   ├── Pricing Worker
+│   ├── Growth Worker
+│   ├── Trust Worker
+│   └── Logistics Worker
+│
+├── SUTAR OS (AI Departments)
+│   ├── Vendor Department
+│   ├── Operations Department
+│   ├── Customer Department
+│   ├── Marketing Department
+│   └── Finance Department
 │
 ├── CommerceOS (9 modules — MISSING, BUILD THIS)
-│   ├── Catalog Engine
-│   ├── Inventory Engine
-│   ├── Pricing Engine
-│   ├── Promotion Engine
-│   ├── Order Engine
-│   ├── Checkout Engine
-│   ├── Loyalty Engine
-│   ├── Recommendation Engine
-│   └── Subscription Engine
+│   ├── Catalog Engine │ Inventory Engine │ Pricing Engine
+│   ├── Order Engine │ Checkout Engine │ Promotion Engine
+│   ├── Loyalty Engine │ Recommendation Engine │ Subscription Engine
 │
 ├── VendorOS (Shopify for vendors)
 │
 ├── MarketplaceOS (Shopify for marketplaces)
 │
-├── SUTAR OS (Workforce orchestration ONLY)
+├── FederationOS (ACP + DiscoveryOS + ReputationOS + Commerce Graph)
 │
-├── RABTUL (Financial settlement)
+├── TrustOS
 │
-└── Commerce Templates (NOT IndustryOS)
-    ├── Restaurant Template
-    ├── Healthcare Template
-    ├── Hospitality Template
-    ├── Retail Template
-    └── Manufacturing Template
+└── Commerce Templates
+    └── 26 Industry Templates
 ```
+
+### The Four-Layer Model (FROZEN)
+
+| Layer | Responsibility | Examples |
+|-------|---------------|-----------|
+| **CommerceOS** | What the business CAN do | Catalog, Orders, Checkout |
+| **BAM** | Who does the work | Procurement Worker, Fraud Worker |
+| **SUTAR** | How work is coordinated | Departments, Teams |
+| **RABTUL** | How money moves | Payments, Escrow, Finance |
+
+**Permanent Doctrine:**
+> CommerceOS defines capabilities. BAM provides workers. SUTAR organizes departments. Studio creates businesses. Foundry compiles businesses. Nexha connects networks. RABTUL settles commerce.
 
 ### Critical Rules (FROZEN)
 
-1. **SUTAR = Workforce ONLY.** No "Marketplace SUTAR." Marketplace uses MarketplaceOS + SUTAR Agents.
-2. **Templates, not IndustryOS.** Industry-specific are TEMPLATES built ON TOP of core OS.
-3. **Ship one complete vertical first.** Restaurant Nexha must work before anything else.
-
-### What Global Nexha Is NOT
-- ❌ NOT a marketplace competing with Amazon/Flipkart
-- ❌ NOT dependent on transaction volume
-- ❌ NOT "Marketplace SUTAR"
-
-### What Global Nexha IS
+1. **BAM = AI Workers.** Individual workers with skills/capabilities.
+2. **SUTAR = Departments.** Organization of workers into teams.
+3. **CommerceOS = Primitives.** What the business can do.
+4. **Templates, not IndustryOS.** 26 Industry OS → Templates via Studio.
 - ✅ Open federation protocol — like HTTP/SMTP for commerce
 - ✅ Infrastructure — like Visa for payments, Stripe for internet payments
 - ✅ Every business keeps their own brand, customers, pricing
