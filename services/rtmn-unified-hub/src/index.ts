@@ -18,6 +18,7 @@ import {
 } from './services/healthChecker.js';
 import { SERVICE_REGISTRY, ServiceEntry } from './services/serviceRegistry.js';
 import { requireHubAuth } from './middleware/auth.js';
+import { addCorrelationId } from './middleware/tracing.js';
 
 const PORT = parseInt(process.env.PORT || '4399', 10);
 const SERVICE_NAME = 'rtmn-unified-hub';
@@ -32,6 +33,9 @@ app.use(express.json({ limit: '2mb' }));
 // Auth — applies to all routes except /health and /ready (handled inside the middleware).
 // In dev with no HUB_API_KEY, this is a no-op. In prod, set HUB_API_KEY.
 app.use(requireHubAuth);
+
+// Correlation IDs — must be after auth so unauthenticated health probes still get an ID
+app.use(addCorrelationId);
 
 // === Health endpoints (no auth) ===
 app.get('/health', (req, res) => {

@@ -6,6 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import { ServiceEntry, findServiceByPath } from './serviceRegistry.js';
 import { buildProxyTargetUrl } from './proxyUtils.js';
+import { downstreamHeaders, CORRELATION_HEADER } from '../middleware/tracing.js';
 
 export async function proxyRequest(req: Request, res: Response, next: NextFunction) {
   // Skip internal calls from dashboard to avoid circular routing
@@ -38,6 +39,7 @@ export async function proxyToService(req: Request, res: Response, service: Servi
     // Forward the full original path (with /api/<prefix>) to the downstream service.
     // See proxyUtils.ts for why we intentionally do NOT strip the prefix.
     const targetUrl = buildProxyTargetUrl(service, req.originalUrl);
+    const correlationId = (req as any).correlationId;
 
     const response = await axios({
       method: req.method as any,
@@ -45,9 +47,9 @@ export async function proxyToService(req: Request, res: Response, service: Servi
       data: req.body,
       params: req.query,
       headers: {
-        'x-internal-token': process.env.INTERNAL_SERVICE_TOKEN || '',
         'content-type': 'application/json',
-        'x-forwarded-by': 'rtmn-hub',
+        'x-internal-token': process.env.INTERNAL_SERVICE_TOKEN || '',
+        ...downstreamHeaders(correlationId),
       },
       timeout: service.timeout,
       validateStatus: () => true,
@@ -55,13 +57,15 @@ export async function proxyToService(req: Request, res: Response, service: Servi
 
     res.status(response.status).json(response.data);
   } catch (error: any) {
-    console.error(`[Hub] ${req.method} ${req.path} → ${service.url} failed: ${error.message}`);
+    const correlationId = (req as any).correlationId;
+    console.error(`[Hub] ${req.method} ${req.path} → ${service.url} failed [${correlationId}]: ${error.message}`);
     res.status(502).json({
       success: false,
       error: {
         code: 'DOWNSTREAM',
         message: 'Service unavailable',
         service: service.name,
+        correlationId,
       },
       meta: { timestamp: new Date().toISOString() },
     });
