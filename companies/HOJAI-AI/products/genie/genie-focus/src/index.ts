@@ -43,7 +43,7 @@ const StartSchema = z.object({
 
 const EndSchema = z.object({
   quality: z.enum(['excellent', 'good', 'fair', 'poor']),
-  interruptions: z.number().min(0).default(0),
+  interruptions: z.number().min(0).optional().default(0),
 });
 
 // GET /api/focus/:userId — Dashboard
@@ -84,7 +84,7 @@ app.post('/api/focus/start', async (req, res, next) => {
 app.post('/api/focus/:sessionId/end', async (req, res, next) => {
   try {
     const data = EndSchema.parse(req.body);
-    const session = await DeepWorkTracker.end(req.params.sessionId, data.quality, data.interruptions);
+    const session = await DeepWorkTracker.end(req.params.sessionId, data.quality, data.interruptions || 0);
     if (!session) {
       return res.status(404).json({
         success: false,
@@ -131,7 +131,7 @@ app.get('/api/focus/:userId/insights', async (req, res, next) => {
 
 // Error handler
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(`[${SERVICE_NAME}] Error:`, err);
+  console.error(`[${SERVICE_NAME}] Error:`, err.message);
   res.status(500).json({
     success: false,
     error: { code: 'INTERNAL', message: err.message },
@@ -139,21 +139,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║      ${SERVICE_NAME.toUpperCase()} v1.0.0                 ║
-║      FocusOS — Deep work intelligence                      ║
-╠══════════════════════════════════════════════════════════════╣
-║  Port:        ${PORT}                                       ║
-║  Status:      RUNNING                                       ║
-║  Features:                                                 ║
-║    ✓ Focus session tracking                               ║
-║    ✓ Quality scoring                                       ║
-║    ✓ Optimal time recommendations                          ║
-║    ✓ Productivity insights                                  ║
-║    ✓ Interruption analysis                                  ║
-╚══════════════════════════════════════════════════════════════╝
-  `);
+  console.log(`[${SERVICE_NAME}] Running on port ${PORT}`);
 });
 
 process.on('SIGTERM', () => {

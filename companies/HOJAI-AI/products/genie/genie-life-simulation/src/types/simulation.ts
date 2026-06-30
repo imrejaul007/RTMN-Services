@@ -5,7 +5,7 @@
 export interface SimulationRequest {
   userId: string;
   scenario: string;
-  parameters: Record<string, any>;
+  parameters?: Record<string, any>;
   horizonMonths?: number;
 }
 

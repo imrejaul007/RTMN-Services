@@ -41,16 +41,10 @@ function extractProsodicFeatures(audioData) {
 function classifyEmotion(features) {
   const scores = {};
 
-  // Rule-based emotion classification (simplified)
-  // High energy + positive pitch = excitement
-  if (features.energy > 70 && features.pitch > 70) {
-    scores.happy = 0.8 + Math.random() * 0.2;
-    scores.excited = 0.7 + Math.random() * 0.2;
-  }
-
-  // Low energy + slow speech = sadness
-  if (features.energy < 40 && features.speechRate < 130) {
-    scores.sad = 0.7 + Math.random() * 0.2;
+  // Rule-based emotion classification with priority ordering
+  // Check anger FIRST (high energy + fast speech is most distinctive for anger)
+  if (features.energy > 80 && features.speechRate > 190) {
+    scores.angry = 0.9 + Math.random() * 0.1;
   }
 
   // High pitch + fast speech + pauses = anxiety
@@ -59,9 +53,16 @@ function classifyEmotion(features) {
     scores.anxious = 0.7 + Math.random() * 0.2;
   }
 
-  // Loud + fast = anger
-  if (features.energy > 80 && features.speechRate > 190) {
-    scores.angry = 0.75 + Math.random() * 0.2;
+  // Low energy + slow speech = sadness
+  if (features.energy < 40 && features.speechRate < 130) {
+    scores.sad = 0.7 + Math.random() * 0.2;
+  }
+
+  // High energy + positive pitch = excitement (only if not angry)
+  // Anger takes priority - excited/happy is lower arousal than angry
+  if (features.energy > 70 && features.pitch > 70 && !scores.angry) {
+    scores.happy = 0.8 + Math.random() * 0.2;
+    scores.excited = 0.7 + Math.random() * 0.2;
   }
 
   // Normal features = neutral

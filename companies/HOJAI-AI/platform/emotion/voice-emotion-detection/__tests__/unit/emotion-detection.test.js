@@ -22,26 +22,30 @@ function extractProsodicFeatures(audioData) {
   };
 }
 
-// Helper: Simulate emotion classification
+// Helper: Simulate emotion classification (same logic as src/index.js)
 function classifyEmotion(features) {
   const scores = {};
 
-  if (features.energy > 70 && features.pitch > 70) {
-    scores.happy = 0.8 + Math.random() * 0.2;
-    scores.excited = 0.7 + Math.random() * 0.2;
+  // Check anger FIRST (high energy + fast speech is most distinctive for anger)
+  if (features.energy > 80 && features.speechRate > 190) {
+    scores.angry = 0.9 + Math.random() * 0.1;
   }
 
-  if (features.energy < 40 && features.speechRate < 130) {
-    scores.sad = 0.7 + Math.random() * 0.2;
-  }
-
+  // High pitch + fast speech + pauses = anxiety
   if (features.pitch > 80 && features.speechRate > 180 && features.pauseFrequency > 5) {
     scores.fearful = 0.75 + Math.random() * 0.2;
     scores.anxious = 0.7 + Math.random() * 0.2;
   }
 
-  if (features.energy > 80 && features.speechRate > 190) {
-    scores.angry = 0.75 + Math.random() * 0.2;
+  // Low energy + slow speech = sadness
+  if (features.energy < 40 && features.speechRate < 130) {
+    scores.sad = 0.7 + Math.random() * 0.2;
+  }
+
+  // High energy + positive pitch = excitement (only if not angry)
+  if (features.energy > 70 && features.pitch > 70 && !scores.angry) {
+    scores.happy = 0.8 + Math.random() * 0.2;
+    scores.excited = 0.7 + Math.random() * 0.2;
   }
 
   scores.neutral = 0.5 + Math.random() * 0.3;

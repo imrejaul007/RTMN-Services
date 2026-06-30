@@ -1,7 +1,7 @@
 {
-  "name": "@hojai/emotional-memory",
+  "name": "@hojai/emotion-os-gateway",
   "version": "1.0.0",
-  "description": "EmotionOS Emotional Memory - Emotional timeline storage and retrieval",
+  "description": "EmotionOS Unified Gateway - Single entry point for all emotion intelligence services",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -13,6 +13,7 @@
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
+    "axios": "^1.6.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
