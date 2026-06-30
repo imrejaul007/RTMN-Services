@@ -1,407 +1,530 @@
 /**
- * Human Intelligence SDK
- * ======================
- * Unified TypeScript/JavaScript SDK for EmotionOS, BehaviorOS, TrustOS, and VoiceOS.
+ * Human Intelligence SDK - Complete
+ * ==================================
+ * Unified SDK for all Human Intelligence services.
  *
  * Usage:
  * import { HumanIntelligence } from '@hojai/human-intelligence-sdk';
  *
- * const hi = new HumanIntelligence({
- *   emotionGateway: 'http://localhost:4760',
- *   behaviorService: 'http://localhost:4731',
- *   trustService: 'http://localhost:4190',
- *   voiceService: 'http://localhost:4880',
- *   presenceService: 'http://localhost:4896',
- *   socialService: 'http://localhost:4897',
- *   simulationService: 'http://localhost:4874',
- *   agentService: 'http://localhost:4850'
- * });
+ * const hi = new HumanIntelligence();
  *
+ * // Emotion Analysis
  * await hi.emotion.analyze({ text: 'I am happy!' });
- * await hi.presence.detect({ userId: 'user_123' });
- * await hi.simulation.simulate({ scenario: 'pricing_change' });
+ *
+ * // Behavior Tracking
+ * await hi.behavior.assessBurnout({ entityId: 'user_1', sleepHours: 5 });
+ *
+ * // Trust Passport
+ * await hi.trust.createPassport({ entityId: 'merchant_1', entityType: 'merchant' });
+ *
+ * // Company Emotion
+ * await hi.company.getMorale('company_1');
+ *
+ * // Simulation
+ * await hi.simulation.simulatePricing({ currentPrice: 99, discount: 0.1 });
+ *
+ * // Agent Trust Economy
+ * await hi.agentEconomy.transfer({ from: 'agent_1', to: 'agent_2', amount: 100 });
  */
 
 import axios from 'axios';
 
 // Default service URLs
 const DEFAULTS = {
+  // EmotionOS
   emotionGateway: process.env.EMOTION_GATEWAY_URL || 'http://localhost:4760',
-  behaviorService: process.env.BEHAVIOR_SERVICE_URL || 'http://localhost:4731',
+  emotionalMemory: process.env.EMOTIONAL_MEMORY_URL || 'http://localhost:4761',
+  empathyEngine: process.env.EMPATHY_URL || 'http://localhost:4762',
+  emotionAnalytics: process.env.EMOTION_ANALYTICS_URL || 'http://localhost:4763',
+  toneAnalysis: process.env.TONE_URL || 'http://localhost:4767',
+  communicationDNA: process.env.COMM_DNA_URL || 'http://localhost:4722',
+
+  // BehaviorOS
+  habitEngine: process.env.HABIT_URL || 'http://localhost:4731',
+  burnoutPrediction: process.env.BURNOUT_URL || 'http://localhost:4732',
+  triggerIntelligence: process.env.TRIGGER_URL || 'http://localhost:4735',
+
+  // Company Emotion
+  companyEmotion: process.env.COMPANY_EMOTION_URL || 'http://localhost:4780',
+
+  // TrustOS
+  trustPassport: process.env.TRUST_PASSPORT_URL || 'http://localhost:4980',
+  agentTrustEconomy: process.env.AGENT_ECONOMY_URL || 'http://localhost:4985',
   trustService: process.env.TRUST_SERVICE_URL || 'http://localhost:4190',
-  voiceService: process.env.VOICE_SERVICE_URL || 'http://localhost:4880',
-  presenceService: process.env.PRESENCE_SERVICE_URL || 'http://localhost:4896',
-  socialService: process.env.SOCIAL_SERVICE_URL || 'http://localhost:4897',
-  simulationService: process.env.SIMULATION_SERVICE_URL || 'http://localhost:4874',
-  agentService: process.env.AGENT_SERVICE_URL || 'http://localhost:4850'
+
+  // VoiceOS
+  voiceGateway: process.env.VOICE_URL || 'http://localhost:4880',
+  conversationPhysics: process.env.CONVERSATION_URL || 'http://localhost:4881',
+  voiceDirector: process.env.VOICE_DIRECTOR_URL || 'http://localhost:4882',
+  lifeTimeline: process.env.LIFETIME_URL || 'http://localhost:4883',
+  humanPresence: process.env.PRESENCE_URL || 'http://localhost:4896',
+  relationshipOS: process.env.RELATIONSHIP_URL || 'http://localhost:4897',
+
+  // SimulationOS
+  simulationOS: process.env.SIMULATION_URL || 'http://localhost:4874'
 };
 
 /**
- * Human Intelligence SDK Client
+ * Human Intelligence SDK - Main Client
  */
 export class HumanIntelligence {
   constructor(options = {}) {
-    this.config = {
-      ...DEFAULTS,
-      ...options
-    };
+    this.config = { ...DEFAULTS, ...options };
 
+    // EmotionOS
     this.emotion = new EmotionClient(this.config);
+    this.emotionalMemory = new EmotionalMemoryClient(this.config);
+    this.empathy = new EmpathyClient(this.config);
+    this.tone = new ToneClient(this.config);
+    this.communication = new CommunicationClient(this.config);
+
+    // BehaviorOS
     this.behavior = new BehaviorClient(this.config);
+    this.habits = new HabitClient(this.config);
+    this.burnout = new BurnoutClient(this.config);
+
+    // Company Emotion
+    this.company = new CompanyEmotionClient(this.config);
+
+    // TrustOS
     this.trust = new TrustClient(this.config);
+    this.trustPassport = new TrustPassportClient(this.config);
+    this.agentEconomy = new AgentEconomyClient(this.config);
+
+    // VoiceOS
     this.voice = new VoiceClient(this.config);
     this.presence = new PresenceClient(this.config);
-    this.social = new SocialClient(this.config);
+    this.conversation = new ConversationClient(this.config);
+
+    // SimulationOS
     this.simulation = new SimulationClient(this.config);
-    this.agent = new AgentClient(this.config);
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Emotion Client - EmotionOS Gateway
+// EMOTIONOS CLIENTS
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class EmotionClient {
-  constructor(config) {
-    this.baseUrl = config.emotionGateway;
-  }
+  constructor(config) { this.baseUrl = config.emotionGateway; }
 
   async analyze({ text, voice, context, entityId }) {
-    const response = await axios.post(`${this.baseUrl}/analyze`, { text, voice, context, entityId });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/analyze`, { text, voice, context, entityId })).data;
   }
 
   async getTimeline(entityId, { days } = {}) {
-    const response = await axios.get(`${this.baseUrl}/timeline/${entityId}`, { params: { days } });
-    return response.data;
+    return (await axios.get(`${this.baseUrl}/timeline/${entityId}`, { params: { days } })).data;
   }
 
   async generateEmpathyResponse(emotion, { tone, severity } = {}) {
-    const response = await axios.post(`${this.baseUrl}/empathy`, { emotion, tone: tone || 'professional', severity: severity || 'medium' });
-    return response.data;
-  }
-
-  async calculateTrust({ sourceId, targetId, trustHistory }) {
-    const response = await axios.post(`${this.baseUrl}/trust`, { sourceId, targetId, trustHistory });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/empathy`, { emotion, tone: tone || 'professional', severity: severity || 'medium' })).data;
   }
 
   async analyzeTone(text) {
-    const response = await axios.post(`${this.baseUrl}/tone`, { text });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/tone`, { text })).data;
   }
 
   async getAnalytics(entityId) {
-    const response = await axios.get(`${this.baseUrl}/analytics/${entityId}`);
-    return response.data;
+    return (await axios.get(`${this.baseUrl}/analytics/${entityId}`)).data;
+  }
+}
+
+export class EmotionalMemoryClient {
+  constructor(config) { this.baseUrl = config.emotionalMemory; }
+
+  async addMemory({ entityId, emotion, intensity, context }) {
+    return (await axios.post(`${this.baseUrl}/memory`, { entityId, emotion, intensity, context })).data;
+  }
+
+  async getTimeline(entityId, { days } = {}) {
+    return (await axios.get(`${this.baseUrl}/timeline/${entityId}`, { params: { days } })).data;
+  }
+
+  async getPatterns(entityId) {
+    return (await axios.get(`${this.baseUrl}/patterns/${entityId}`)).data;
+  }
+
+  async detectEmotionalShift(entityId) {
+    return (await axios.get(`${this.baseUrl}/shift/${entityId}`)).data;
+  }
+}
+
+export class EmpathyClient {
+  constructor(config) { this.baseUrl = config.empathyEngine; }
+
+  async generateResponse({ emotion, tone, severity }) {
+    return (await axios.post(`${this.baseUrl}/generate`, { emotion, tone, severity })).data;
+  }
+
+  async getSuggestions({ context }) {
+    return (await axios.post(`${this.baseUrl}/suggestions`, { context })).data;
+  }
+}
+
+export class ToneClient {
+  constructor(config) { this.baseUrl = config.toneAnalysis; }
+
+  async analyze(conversation) {
+    return (await axios.post(`${this.baseUrl}/analyze`, { conversation })).data;
+  }
+
+  async getSalesTone(conversation) {
+    return (await axios.post(`${this.baseUrl}/sales`, { conversation })).data;
+  }
+
+  async getCoachingTips(speakerId) {
+    return (await axios.get(`${this.baseUrl}/coaching/${speakerId}`)).data;
+  }
+}
+
+export class CommunicationClient {
+  constructor(config) { this.baseUrl = config.communicationDNA; }
+
+  async analyze({ personId, text }) {
+    return (await axios.post(`${this.baseUrl}/profile`, { personId, text })).data;
+  }
+
+  async getProfile(personId) {
+    return (await axios.get(`${this.baseUrl}/profile/${personId}`)).data;
+  }
+
+  async adapt({ sourceId, targetId }) {
+    return (await axios.post(`${this.baseUrl}/adapt`, { sourceId, targetId })).data;
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Behavior Client - Habit Engine, Trigger Intelligence, Burnout Prediction
+// BEHAVIOROS CLIENTS
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class BehaviorClient {
   constructor(config) {
-    this.habitUrl = config.behaviorService;
-    this.triggerUrl = config.behaviorService.replace(':4731', ':4735');
-    this.burnoutUrl = config.behaviorService.replace(':4731', ':4732');
+    this.habitUrl = config.habitEngine;
+    this.triggerUrl = config.triggerIntelligence;
+    this.burnoutUrl = config.burnoutPrediction;
   }
 
-  // Habit tracking
+  // Habit methods
   async createHabit({ entityId, name, frequency, target, impact }) {
-    const response = await axios.post(this.habitUrl, { entityId, name, frequency, target, impact });
-    return response.data;
+    return (await axios.post(this.habitUrl, { entityId, name, frequency, target, impact })).data;
   }
 
   async trackHabit(habitId, { action, metadata } = {}) {
-    const response = await axios.post(`${this.habitUrl}/${habitId}/log`, { action, metadata });
-    return response.data;
+    return (await axios.post(`${this.habitUrl}/${habitId}/log`, { action, metadata })).data;
   }
 
-  async getHabitConsistency(habitId, { days } = {}) {
-    const response = await axios.get(`${this.habitUrl}/${habitId}/consistency`, { params: { days } });
-    return response.data;
+  async getConsistency(habitId, { days } = {}) {
+    return (await axios.get(`${this.habitUrl}/${habitId}/consistency`, { params: { days } })).data;
   }
 
-  // Trigger tracking
+  // Trigger methods
   async recordBehavior({ entityId, trigger, emotion, action, outcome }) {
-    const response = await axios.post(`${this.triggerUrl}/behavior`, { entityId, trigger, emotion, action, outcome });
-    return response.data;
+    return (await axios.post(`${this.triggerUrl}/behavior`, { entityId, trigger, emotion, action, outcome })).data;
   }
 
   async predictBehavior({ entityId, trigger }) {
-    const response = await axios.post(`${this.triggerUrl}/predict`, { entityId, trigger });
-    return response.data;
+    return (await axios.post(`${this.triggerUrl}/predict`, { entityId, trigger })).data;
   }
 
   async getTriggerAnalytics(entityId) {
-    const response = await axios.get(`${this.triggerUrl}/analytics/${entityId}`);
-    return response.data;
+    return (await axios.get(`${this.triggerUrl}/analytics/${entityId}`)).data;
+  }
+}
+
+export class HabitClient {
+  constructor(config) { this.baseUrl = config.habitEngine; }
+
+  async create({ entityId, name, frequency, target, impact }) {
+    return (await axios.post(this.baseUrl, { entityId, name, frequency, target, impact })).data;
   }
 
-  // Burnout prediction
-  async assessBurnout({ entityId, sleepHours, workHours, stress, exerciseDays }) {
-    const response = await axios.post(`${this.burnoutUrl}/assess`, { entityId, sleepHours, workHours, stress, exerciseDays });
-    return response.data;
+  async log(habitId, { action, metadata } = {}) {
+    return (await axios.post(`${this.baseUrl}/${habitId}/log`, { action, metadata })).data;
   }
 
-  async getBurnoutProfile(entityId) {
-    const response = await axios.get(`${this.burnoutUrl}/profile/${entityId}`);
-    return response.data;
+  async getConsistency(habitId, { days } = {}) {
+    return (await axios.get(`${this.baseUrl}/${habitId}/consistency`, { params: { days } })).data;
   }
 
-  async quickBurnoutCheck({ sleepHours, workHours, stress, exerciseDays }) {
-    const response = await axios.post(`${this.burnoutUrl}/quick-check`, { sleepHours, workHours, stress, exerciseDays });
-    return response.data;
+  async getStreak(habitId) {
+    return (await axios.get(`${this.baseUrl}/${habitId}/streak`)).data;
+  }
+}
+
+export class BurnoutClient {
+  constructor(config) { this.baseUrl = config.burnoutPrediction; }
+
+  async assess({ entityId, sleepHours, workHours, stress, exerciseDays }) {
+    return (await axios.post(`${this.baseUrl}/assess`, { entityId, sleepHours, workHours, stress, exerciseDays })).data;
   }
 
-  async getTeamBurnout(companyId) {
-    const response = await axios.get(`${this.burnoutUrl}/team/${companyId}`);
-    return response.data;
+  async getProfile(entityId) {
+    return (await axios.get(`${this.baseUrl}/profile/${entityId}`)).data;
+  }
+
+  async quickCheck({ sleepHours, workHours, stress, exerciseDays }) {
+    return (await axios.post(`${this.baseUrl}/quick-check`, { sleepHours, workHours, stress, exerciseDays })).data;
+  }
+
+  async getTeamRisk(companyId) {
+    return (await axios.get(`${this.baseUrl}/team/${companyId}`)).data;
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Trust Client - Trust scores and relationships
+// COMPANY EMOTION CLIENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+export class CompanyEmotionClient {
+  constructor(config) { this.baseUrl = config.companyEmotion; }
+
+  async createCompany({ companyId, name, industry, size }) {
+    return (await axios.post(`${this.baseUrl}/company`, { companyId, name, industry, size })).data;
+  }
+
+  async getCompany(companyId) {
+    return (await axios.get(`${this.baseUrl}/company/${companyId}`)).data;
+  }
+
+  async getAnalytics(companyId) {
+    return (await axios.get(`${this.baseUrl}/company/${companyId}/analytics`)).data;
+  }
+
+  async getTrends(companyId, { days } = {}) {
+    return (await axios.get(`${this.baseUrl}/company/${companyId}/trends`, { params: { days } })).data;
+  }
+
+  async recordEmployeeEmotion({ employeeId, companyId, departmentId, emotion, intensity }) {
+    return (await axios.post(`${this.baseUrl}/employee/emotion`, { employeeId, companyId, departmentId, emotion, intensity })).data;
+  }
+
+  async createDepartment({ companyId, departmentId, name, managerId }) {
+    return (await axios.post(`${this.baseUrl}/department`, { companyId, departmentId, name, managerId })).data;
+  }
+
+  async getDepartments(companyId) {
+    return (await axios.get(`${this.baseUrl}/company/${companyId}/departments`)).data;
+  }
+
+  async takeSnapshot(companyId, { metrics } = {}) {
+    return (await axios.post(`${this.baseUrl}/snapshot`, { companyId, metrics })).data;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TRUSTOS CLIENTS
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class TrustClient {
-  constructor(config) {
-    this.baseUrl = config.trustService;
-  }
+  constructor(config) { this.baseUrl = config.trustService; }
 
   async getTrustScore(entityId) {
-    const response = await axios.get(`${this.baseUrl}/trust/${entityId}`);
-    return response.data;
+    return (await axios.get(`${this.baseUrl}/trust/${entityId}`)).data;
   }
 
   async getRelationshipTrust({ sourceId, targetId }) {
-    const response = await axios.get(`${this.baseUrl}/trust/relationship/${sourceId}/${targetId}`);
-    return response.data;
+    return (await axios.get(`${this.baseUrl}/trust/relationship/${sourceId}/${targetId}`)).data;
   }
 
   async recordInteraction({ sourceId, targetId, type, outcome }) {
-    const response = await axios.post(`${this.baseUrl}/trust/interaction`, { sourceId, targetId, type, outcome });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/trust/interaction`, { sourceId, targetId, type, outcome })).data;
+  }
+}
+
+export class TrustPassportClient {
+  constructor(config) { this.baseUrl = config.trustPassport; }
+
+  async createPassport({ entityId, entityType, network, dimensions }) {
+    return (await axios.post(`${this.baseUrl}/passport`, { entityId, entityType, network, dimensions })).data;
   }
 
-  async getTrustHistory(entityId) {
-    const response = await axios.get(`${this.baseUrl}/trust/history/${entityId}`);
-    return response.data;
+  async getPassport(passportId) {
+    return (await axios.get(`${this.baseUrl}/passport/${passportId}`)).data;
+  }
+
+  async updatePassport(passportId, { dimensions }) {
+    return (await axios.put(`${this.baseUrl}/passport/${passportId}`, { dimensions })).data;
+  }
+
+  async awardBadge({ passportId, badgeType, issuer, reason }) {
+    return (await axios.post(`${this.baseUrl}/badge`, { passportId, badgeType, issuer, reason })).data;
+  }
+
+  async verifyPassport({ passportId, verifierId, purpose }) {
+    return (await axios.post(`${this.baseUrl}/verify`, { passportId, verifierId, purpose })).data;
+  }
+
+  async getBenefits(passportId) {
+    return (await axios.get(`${this.baseUrl}/passport/${passportId}/benefits`)).data;
+  }
+
+  async transferToNetwork({ passportId, targetNetwork }) {
+    return (await axios.post(`${this.baseUrl}/transfer`, { passportId, targetNetwork })).data;
+  }
+}
+
+export class AgentEconomyClient {
+  constructor(config) { this.baseUrl = config.agentTrustEconomy; }
+
+  async createAccount(agentId) {
+    return (await axios.post(`${this.baseUrl}/account`, { agentId })).data;
+  }
+
+  async getAccount(agentId) {
+    return (await axios.get(`${this.baseUrl}/account/${agentId}`)).data;
+  }
+
+  async transfer({ fromAgentId, toAgentId, amount, reason }) {
+    return (await axios.post(`${this.baseUrl}/transfer`, { fromAgentId, toAgentId, amount, reason })).data;
+  }
+
+  async stake({ agentId, amount, duration, purpose }) {
+    return (await axios.post(`${this.baseUrl}/stake`, { agentId, amount, duration, purpose })).data;
+  }
+
+  async unstake({ agentId, stakeId }) {
+    return (await axios.post(`${this.baseUrl}/unstake`, { agentId, stakeId })).data;
+  }
+
+  async claimIncentive({ agentId, incentiveId }) {
+    return (await axios.post(`${this.baseUrl}/claim`, { agentId, incentiveId })).data;
+  }
+
+  async getIncentives(agentId) {
+    return (await axios.get(`${this.baseUrl}/incentives`, { params: { agentId } })).data;
+  }
+
+  async getLeaderboard({ limit, sortBy } = {}) {
+    return (await axios.get(`${this.baseUrl}/leaderboard`, { params: { limit, sortBy } })).data;
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Voice Client - Voice emotion detection and synthesis
+// VOICEOS CLIENTS
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class VoiceClient {
-  constructor(config) {
-    this.baseUrl = config.voiceService;
-  }
+  constructor(config) { this.baseUrl = config.voiceGateway; }
 
   async detectEmotion({ audioData, transcription }) {
-    const response = await axios.post(`${this.baseUrl}/analyze`, { audioData, transcription });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/analyze`, { audioData, transcription })).data;
   }
 
   async streamEmotion({ segments }) {
-    const response = await axios.post(`${this.baseUrl}/analyze/stream`, { segments });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/analyze/stream`, { segments })).data;
   }
 
-  async getVoicePresets() {
-    const response = await axios.get(`${this.baseUrl}/presets`);
-    return response.data;
-  }
-
-  async getConversationPhysics(sessionId) {
-    const response = await axios.get(`${this.baseUrl}/physics/${sessionId}`);
-    return response.data;
-  }
-
-  async getLifeTimeline(userId) {
-    const response = await axios.get(`${this.baseUrl}/timeline/${userId}`);
-    return response.data;
+  async getPresets() {
+    return (await axios.get(`${this.baseUrl}/presets`)).data;
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Presence Client - Human Presence Engine
-// ─────────────────────────────────────────────────────────────────────────────
-
 export class PresenceClient {
-  constructor(config) {
-    this.baseUrl = config.presenceService;
-  }
+  constructor(config) { this.baseUrl = config.humanPresence; }
 
   async detectPresence({ userId, deviceType, activity }) {
-    const response = await axios.post(`${this.baseUrl}/presence/detect`, { userId, deviceType, activity });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/presence/detect`, { userId, deviceType, activity })).data;
   }
 
   async getPresenceState(userId) {
-    const response = await axios.get(`${this.baseUrl}/presence/${userId}`);
-    return response.data;
+    return (await axios.get(`${this.baseUrl}/presence/${userId}`)).data;
   }
 
   async analyzeEnergy({ userId, voiceData }) {
-    const response = await axios.post(`${this.baseUrl}/energy/analyze`, { userId, voiceData });
-    return response.data;
-  }
-
-  async trackAttention({ userId, task, duration }) {
-    const response = await axios.post(`${this.baseUrl}/attention/track`, { userId, task, duration });
-    return response.data;
-  }
-
-  async getContextAdaptation({ userId, context }) {
-    const response = await axios.post(`${this.baseUrl}/adaptation/context`, { userId, context });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/energy/analyze`, { userId, voiceData })).data;
   }
 
   async detectMultiPerson({ sessionId, participants }) {
-    const response = await axios.post(`${this.baseUrl}/multiperson/detect`, { sessionId, participants });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/multiperson/detect`, { sessionId, participants })).data;
   }
 
   async getGroupDynamics(sessionId) {
-    const response = await axios.get(`${this.baseUrl}/multiperson/${sessionId}/dynamics`);
-    return response.data;
+    return (await axios.get(`${this.baseUrl}/multiperson/${sessionId}/dynamics`)).data;
+  }
+}
+
+export class ConversationClient {
+  constructor(config) { this.baseUrl = config.conversationPhysics; }
+
+  async analyzePhysics({ sessionId, segments }) {
+    return (await axios.post(`${this.baseUrl}/physics/analyze`, { sessionId, segments })).data;
+  }
+
+  async handleInterruption({ sessionId, speaker }) {
+    return (await axios.post(`${this.baseUrl}/physics/interruption`, { sessionId, speaker })).data;
+  }
+
+  async handleSilence({ sessionId, duration }) {
+    return (await axios.post(`${this.baseUrl}/physics/silence`, { sessionId, duration })).data;
+  }
+
+  async generateBackchannel({ context }) {
+    return (await axios.post(`${this.baseUrl}/physics/backchannel`, { context })).data;
+  }
+
+  async getVoiceBlueprint({ emotion, context }) {
+    return (await axios.post(`${this.baseUrl}/director/blueprint`, { emotion, context })).data;
+  }
+
+  async getLifeTimeline(userId) {
+    return (await axios.get(`${this.baseUrl}/timeline/${userId}`)).data;
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Social Client - Social Intelligence
-// ─────────────────────────────────────────────────────────────────────────────
-
-export class SocialClient {
-  constructor(config) {
-    this.baseUrl = config.socialService;
-  }
-
-  async getRelationshipProfile({ personA, personB }) {
-    const response = await axios.get(`${this.baseUrl}/relationship/${personA}/${personB}`);
-    return response.data;
-  }
-
-  async classifyRelationship(conversationHistory) {
-    const response = await axios.post(`${this.baseUrl}/relationship/classify`, { conversationHistory });
-    return response.data;
-  }
-
-  async getCommunicationStyle(relationshipType) {
-    const response = await axios.get(`${this.baseUrl}/style/${relationshipType}`);
-    return response.data;
-  }
-
-  async adaptCommunication({ sourceType, targetType, message }) {
-    const response = await axios.post(`${this.baseUrl}/adapt`, { sourceType, targetType, message });
-    return response.data;
-  }
-
-  async getSharedMemories({ personA, personB }) {
-    const response = await axios.get(`${this.baseUrl}/shared/${personA}/${personB}`);
-    return response.data;
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Simulation Client - What-if scenarios, market/company simulation
+// SIMULATIONOS CLIENT
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class SimulationClient {
-  constructor(config) {
-    this.baseUrl = config.simulationService;
-  }
+  constructor(config) { this.baseUrl = config.simulationOS; }
 
-  async createScenario({ type, parameters }) {
-    const response = await axios.post(`${this.baseUrl}/scenario`, { type, parameters });
-    return response.data;
+  async createScenario({ name, type, model }) {
+    return (await axios.post(`${this.baseUrl}/scenario`, { name, type, model })).data;
   }
 
   async runSimulation({ scenarioId, iterations }) {
-    const response = await axios.post(`${this.baseUrl}/simulate/${scenarioId}`, { iterations });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/simulate/${scenarioId}`, { iterations })).data;
   }
 
-  async simulatePricing({ productId, discount, iterations }) {
-    const response = await axios.post(`${this.baseUrl}/pricing`, { productId, discount, iterations });
-    return response.data;
+  async simulatePricing({ currentPrice, currentDemand, elasticity, discount }) {
+    return (await axios.post(`${this.baseUrl}/pricing`, { currentPrice, currentDemand, elasticity, discount })).data;
   }
 
-  async simulateMarket({ marketParams, scenarios }) {
-    const response = await axios.post(`${this.baseUrl}/market`, { marketParams, scenarios });
-    return response.data;
+  async simulateMarket({ marketSize, yourMarketShare, scenarios }) {
+    return (await axios.post(`${this.baseUrl}/market`, { marketSize, yourMarketShare, scenarios })).data;
   }
 
-  async simulateCompany({ companyId, decisions }) {
-    const response = await axios.post(`${this.baseUrl}/company`, { companyId, decisions });
-    return response.data;
+  async simulateCompany({ companyId, currentRevenue, currentCosts, decisions }) {
+    return (await axios.post(`${this.baseUrl}/company`, { companyId, currentRevenue, currentCosts, decisions })).data;
   }
 
   async compareScenarios({ scenarioIds }) {
-    const response = await axios.post(`${this.baseUrl}/compare`, { scenarioIds });
-    return response.data;
+    return (await axios.post(`${this.baseUrl}/compare`, { scenarioIds })).data;
   }
 
-  async getMonteCarloResults(scenarioId) {
-    const response = await axios.get(`${this.baseUrl}/results/${scenarioId}/monte-carlo`);
-    return response.data;
+  async whatIf({ question, context }) {
+    return (await axios.post(`${this.baseUrl}/whatif`, { question, context })).data;
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Agent Client - Agent emotional context for SUTAR negotiations
-// ─────────────────────────────────────────────────────────────────────────────
-
-export class AgentClient {
-  constructor(config) {
-    this.baseUrl = config.agentService;
-  }
-
-  async analyzeAgentState({ agentId, conversationContext }) {
-    const response = await axios.post(`${this.baseUrl}/agent/state`, { agentId, conversationContext });
-    return response.data;
-  }
-
-  async getAgentEmotionalContext({ agentId, negotiationType }) {
-    const response = await axios.post(`${this.baseUrl}/agent/emotional-context`, { agentId, negotiationType });
-    return response.data;
-  }
-
-  async recordAgentInteraction({ agentId, interaction, outcome, trustImpact }) {
-    const response = await axios.post(`${this.baseUrl}/agent/interaction`, { agentId, interaction, outcome, trustImpact });
-    return response.data;
-  }
-
-  async getAgentTrustHistory(agentId) {
-    const response = await axios.get(`${this.baseUrl}/agent/trust/${agentId}`);
-    return response.data;
-  }
-
-  async predictAgentBehavior({ agentId, situation }) {
-    const response = await axios.post(`${this.baseUrl}/agent/predict`, { agentId, situation });
-    return response.data;
-  }
-
-  async getNegotiationStrategy({ agentId, counterpartId, negotiationType }) {
-    const response = await axios.post(`${this.baseUrl}/agent/strategy`, { agentId, counterpartId, negotiationType });
-    return response.data;
-  }
-}
-
-// Named exports for convenience
+// Named exports
 export {
   EmotionClient,
+  EmotionalMemoryClient,
+  EmpathyClient,
+  ToneClient,
+  CommunicationClient,
   BehaviorClient,
+  HabitClient,
+  BurnoutClient,
+  CompanyEmotionClient,
   TrustClient,
+  TrustPassportClient,
+  AgentEconomyClient,
   VoiceClient,
   PresenceClient,
-  SocialClient,
-  SimulationClient,
-  AgentClient
+  ConversationClient,
+  SimulationClient
 };
 
 export default HumanIntelligence;

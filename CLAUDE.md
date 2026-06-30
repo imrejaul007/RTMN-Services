@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.30
+> **Version:** 5.31
 > **Last Updated:** June 30, 2026
-> **New:** ✅ **VoiceOS Complete** — Wispr Flow competitor, 17 services, Mobile + Desktop + Landing
-> **Status:** ✅ **VoiceOS + SUTAR OS Complete. PACKAGE WHAT EXISTS. SELL.**
+> **New:** ✅ **Human Intelligence OS Complete** — EmotionOS, BehaviorOS, TrustOS, SimulationOS, 58+ services, 200+ tests
+> **Status:** ✅ **STOP BUILDING. PACKAGE WHAT EXISTS. SELL.**
 
 ---
 
@@ -2389,9 +2389,43 @@ Given a capability (e.g. "negotiate SaaS contracts") and a context (industry, ur
 
 ---
 
-## Human Intelligence OS (40+ services)
+## Human Intelligence OS (58+ services)
+
+> **Version:** 1.0.0
+> **Status:** ✅ COMPLETE — All services built and tested
 
 Enterprise-grade human intelligence infrastructure: EmotionOS, TrustOS, KnowledgeOS, BehaviorOS, VoiceOS Pipeline, Task Engine.
+
+### Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [docs/HUMAN-INTELLIGENCE-COMPLETE.md](docs/HUMAN-INTELLIGENCE-COMPLETE.md) | Complete architecture & API reference |
+| [docs/HUMAN-INTELLIGENCE-INTEGRATIONS.md](docs/HUMAN-INTELLIGENCE-INTEGRATIONS.md) | Quick integration examples |
+| [docs/SUTAR-HUMAN-INTELLIGENCE-INTEGRATION.md](docs/SUTAR-HUMAN-INTELLIGENCE-INTEGRATION.md) | SUTAR + Trust Passport |
+| [docs/CORPPERKS-HUMAN-INTELLIGENCE-INTEGRATION.md](docs/CORPPERKS-HUMAN-INTELLIGENCE-INTEGRATION.md) | CorpPerks + Company Emotion |
+| [docs/GENIE-HUMAN-INTELLIGENCE-INTEGRATION.md](docs/GENIE-HUMAN-INTELLIGENCE-INTEGRATION.md) | Genie + EmotionOS |
+
+### SDKs
+
+| SDK | Purpose |
+|-----|---------|
+| `@hojai/human-intelligence-sdk` | Unified SDK for all services |
+| `@hojai/knowledge-sdk` | Knowledge + Ontology + Reasoning |
+
+### Architecture
+
+```
+HUMAN INTELLIGENCE OS
+    │
+    ├── EmotionOS (10) ────── Emotion detection, empathy, tone
+    ├── BehaviorOS (5) ─────── Habits, triggers, burnout
+    ├── TrustOS (15+) ─────── Passport, economy, verification
+    ├── VoiceOS (21) ─────── Physics, presence, timeline
+    └── SimulationOS (5) ───── What-if, market, company
+```
+
+### Test Coverage: 200+ tests ✅
 
 ### VoiceOS Pipeline (10 services)
 
@@ -2431,12 +2465,14 @@ Real-time emotion detection, analytics, and empathetic responses.
 
 **SDK:** `@hojai/human-intelligence-sdk` at `sdk/hojai-human-intelligence-sdk/`
 
-### TrustOS (10 services)
+### TrustOS (15+ services)
 
-AI output trust, fact-checking, and risk assessment.
+Trust scoring, passports, economic incentives, and AI fact-checking.
 
 | Service | Port | Purpose |
 |---------|------|---------|
+| **trust-passport** | 4980 | Portable trust credentials |
+| **agent-trust-economy** | 4985 | Trust tokens and credits |
 | confidence-scorer | 4990 | AI confidence scoring |
 | source-tracker | 4991 | Citation verification |
 | evidence-collector | 4992 | Evidence retrieval |
@@ -2447,6 +2483,8 @@ AI output trust, fact-checking, and risk assessment.
 | trust-audit-trail | 4997 | Trust decision logging |
 | trust-policy-engine | 4998 | Trust policies |
 | federated-trust | 4999 | Cross-org trust |
+
+**SDKs:** `@hojai/human-intelligence-sdk` + `@hojai/knowledge-sdk`
 
 ### KnowledgeOS (4 services)
 
@@ -2466,10 +2504,12 @@ Behavioral patterns, habit tracking, and burnout prediction.
 | Service | Port | Purpose |
 |---------|------|---------|
 | habit-engine | 4731 | Habit tracking, patterns |
-| **trigger-intelligence** | 4735 | Behavior trigger mapping |
-| **burnout-prediction** | 4732 | Stress and burnout risk |
+| trigger-intelligence | 4735 | Behavior trigger mapping |
+| burnout-prediction | 4732 | Stress and burnout risk |
 | behavior-intelligence | 4788 | Behavior analysis |
 | behavioral-twin | 4746 | Behavioral profiles |
+
+**NEW:** Company Emotion (4780) — Organization morale and team well-being
 
 ### Task Engine (7 services)
 
@@ -2794,19 +2834,21 @@ Nexha is **infrastructure for AI commerce** — Stripe for AI agents, SWIFT for 
 
 ### Services (21 Total)
 
-| Port | Service |
-|------|---------|
-| 4880 | voice-gateway |
-| 4881 | **conversation-physics** ✅ | Turn management, silence, backchannels |
-| 4882 | **voice-director** ✅ | Emotion-based voice performance |
-| 4883 | **life-timeline** ✅ | Life chapters, milestones |
-| 4896 | **human-presence** ✅ | Presence detection, multi-person |
-| 4897 | **relationship-os** ✅ | Relationship graph, trust |
-| 4884 | voice-identity |
-| 4885 | voice-commands |
-| 4886 | voice-hotkey |
-| 4701 | genie-gateway |
-| 4703 | memory-os |
+| Port | Service | Purpose |
+|------|---------|---------|
+| 4880 | voice-gateway | Voice processing hub |
+| 4881 | conversation-physics | Turn management, silence, backchannels |
+| 4882 | voice-director | Emotion-based voice performance |
+| 4883 | life-timeline | Life chapters, milestones |
+| 4884 | voice-identity | Voiceprints |
+| 4885 | voice-commands | Voice commands |
+| 4886 | voice-hotkey | Hotkey activation |
+| 4896 | human-presence | Presence detection, multi-person |
+| 4897 | relationship-os | Relationship graph, trust |
+| 4701 | genie-gateway | Genie AI |
+| 4703 | memory-os | Memory storage |
+
+**VoiceOS SDK:** `@hojai/voice-sdk` at `sdk/hojai-voice-sdk/`
 
 ### Quick Start
 

@@ -1,8 +1,8 @@
 # HOJAI-AI — Complete AI Platform
 
-> **Version:** 5.0
+> **Version:** 5.1
 > **Updated:** June 30, 2026
-> **Status:** ✅ **FULLY OPERATIONAL** — 500+ services, 47+ AI agents, 86+ digital twins
+> **Status:** ✅ **FULLY OPERATIONAL** — 500+ services, 47+ AI agents, 86+ digital twins, 80 tests passing
 
 ---
 
@@ -292,14 +292,29 @@ node src/index.js
 | Studio Workflow | `platform/ai-studio/studio-workflow/` | Workflow design |
 | Studio Twin | `platform/ai-studio/studio-twin/` | Twin integration |
 
-### Visual Builder (Partially Built)
+### Visual Builder (Port 4600) ✅ COMPLETE
 
-**Canvas drag-drop workflow editor.**
+**Drag-drop workflow canvas with React UI.**
 
 ```bash
+# Start API server
 cd foundry/services/visual-builder
-# TODO: Build canvas UI component
+npm start
+
+# Start React UI
+cd ui && npm install && npm run dev
+# Opens: http://localhost:5173
 ```
+
+**Features:**
+- 12 node types (Trigger, Memory, Twin, AI Agent, Intelligence, SUTAR, Condition, Action, Human, Integration, Notification, CRM)
+- Undo/redo with 50-state history
+- Zoom/pan controls
+- Node palette + properties panel
+- Export workflows as JSON templates
+- 54 vitest tests passing
+
+**SDK:** `@hojai/visual-builder-sdk`
 
 ---
 
@@ -384,6 +399,28 @@ const skills = library.listSkills({ category: 'sales' });
 
 ---
 
+## 💰 Creator Economy (Port 4514) ✅ NEW
+
+**Partner ecosystem with revenue sharing.**
+
+```bash
+cd platform/company-os/creator-economy
+npm start
+# Opens: http://localhost:4514
+```
+
+**Features:**
+- Partner tiers (Bronze → Platinum)
+- Revenue sharing (20% company creation, 10% subscription, 2% transaction)
+- Payout requests with validation
+- Bank transfer & UPI support
+- Webhook notifications
+- 26 vitest tests passing
+
+**SDK:** `@hojai/creator-economy-sdk`
+
+---
+
 ## 🌐 Connectors (35+)
 
 **At `platform/connectors/`**
@@ -413,6 +450,8 @@ const skills = library.listSkills({ category: 'sales' });
 | `@hojai/sutar` | SUTAR commerce |
 | `@hojai/skills` | Skills library |
 | `@hojai/skillos` | Skill orchestration |
+| `@hojai/visual-builder-sdk` | Workflow builder |
+| `@hojai/creator-economy-sdk` | Partner ecosystem |
 
 ---
 
@@ -475,7 +514,7 @@ companies/HOJAI-AI/
 │   ├── services/           # 70+ foundry services
 │   │   ├── template-marketplace/
 │   │   ├── workflow-builder/
-│   │   ├── visual-builder/    # Needs canvas UI
+│   │   ├── visual-builder/    # ✅ Complete (React UI)
 │   │   └── connector-os/
 │   └── starters/          # 15 industry starters
 ├── sdk/                    # 38+ SDK packages
