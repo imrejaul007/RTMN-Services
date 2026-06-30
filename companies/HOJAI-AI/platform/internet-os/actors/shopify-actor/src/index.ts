@@ -319,7 +319,7 @@ export class ShopifyActor extends Actor {
     // Fallback: Parse from HTML
     const productCards = $('[data-product-id], .product-item, .product-card, .grid__item');
 
-    productCards.each((_, card) => {
+    productCards.each((_index: number, card: any) => {
       if (products.length >= maxProducts) return false;
 
       const product = this.extractProductFromCard($, card, baseUrl);
@@ -338,7 +338,7 @@ export class ShopifyActor extends Actor {
     const $ = parseHtml(html);
     const products: Product[] = [];
 
-    $('script[type="application/ld+json"]').each((_, el) => {
+    $('script[type="application/ld+json"]').each((_index: number, el: any) => {
       try {
         const content = $(el).html();
         if (!content) return;
@@ -720,7 +720,7 @@ export class ShopifyActor extends Actor {
     const $ = parseHtml(html);
     const collections: Collection[] = [];
 
-    $('[data-collection-id], .collection-item, .collection-card, .grid__item').each((_, item) => {
+    $('[data-collection-id], .collection-item, .collection-card, .grid__item').each((_index: number, item: any) => {
       const $item = $(item);
       const linkEl = $item.find('a').first();
       const titleEl = $item.find('h3, h2, .title').first();
