@@ -274,5 +274,97 @@
     "version": 1,
     "createdAt": "2026-06-30T13:58:20.079Z",
     "updatedAt": "2026-06-30T13:58:20.079Z"
+  },
+  {
+    "id": "6767f65f-fdca-4e9a-b160-85b4de4e3246",
+    "typeId": "100399b4-d96f-464a-8b76-4d91c45db380",
+    "name": "Test Instance",
+    "data": {
+      "x": 1
+    },
+    "tags": [
+      "test"
+    ],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:15.208Z",
+    "updatedAt": "2026-06-30T21:15:15.208Z"
+  },
+  {
+    "id": "128c9893-c26b-4397-a933-7d03fc068fa0",
+    "typeId": "10390810-0639-484e-aa5a-c1ce7a9acb42",
+    "name": "Get Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:15.225Z",
+    "updatedAt": "2026-06-30T21:15:15.225Z"
+  },
+  {
+    "id": "2634df89-04c8-43fa-a2dd-feea388926f1",
+    "typeId": "42a272df-8ce5-4958-b841-59f71d7472fa",
+    "name": "New Inst",
+    "data": {},
+    "tags": [],
+    "status": "archived",
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:15.245Z",
+    "updatedAt": "2026-06-30T21:15:15.250Z"
+  },
+  {
+    "id": "91dcdc76-a5fc-417c-92e6-a6a811e20fe1",
+    "typeId": "ba31d5ac-e130-4668-a4d2-a8e8469019cf",
+    "name": "Ver Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 2,
+    "createdAt": "2026-06-30T21:15:15.300Z",
+    "updatedAt": "2026-06-30T21:15:15.306Z"
+  },
+  {
+    "id": "9f4fe4e0-1b38-4f99-8df5-5c79642b6882",
+    "typeId": "20326062-f46d-4762-9935-ad8a72c45c4f",
+    "name": "I1",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:15.318Z",
+    "updatedAt": "2026-06-30T21:15:15.318Z"
+  },
+  {
+    "id": "30c53af9-ab53-4e69-b4f5-660809dbafe0",
+    "typeId": "20326062-f46d-4762-9935-ad8a72c45c4f",
+    "name": "I2",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:15.323Z",
+    "updatedAt": "2026-06-30T21:15:15.323Z"
+  },
+  {
+    "id": "0be0b58e-d4de-4960-8793-194218242428",
+    "typeId": "799466e2-4198-4f26-95a5-b4d57ecb1df8",
+    "name": "Rel Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:15.340Z",
+    "updatedAt": "2026-06-30T21:15:15.340Z"
+  },
+  {
+    "id": "5e81a0a7-d9d6-4098-96cd-c158a805b600",
+    "typeId": "2a0811c3-f856-4c9d-a3b2-de0e80a5d6a9",
+    "name": "DelRel",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:15.356Z",
+    "updatedAt": "2026-06-30T21:15:15.356Z"
   }
 ]

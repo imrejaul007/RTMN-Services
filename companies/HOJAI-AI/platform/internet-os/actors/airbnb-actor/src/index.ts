@@ -1,10 +1,11 @@
 /**
- * Airbnb Actor
- * Property and hospitality data extraction
+ * Airbnb Actor - Browser Engine Version
+ * Uses Playwright/Puppeteer via @hojai/browser-engine for JS rendering
  */
 
-// @ts-ignore - Using local actor-runtime
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
+import { Actor, ActorOutput } from '@hojai/actor-runtime';
+import { browserEngine } from '@hojai/browser-engine';
+import * as cheerio from 'cheerio';
 import type { CheerioAPI } from 'cheerio';
 
 export class AirbnbActor extends Actor {
@@ -12,8 +13,8 @@ export class AirbnbActor extends Actor {
     super({
       id: 'airbnb',
       name: 'Airbnb Scraper',
-      description: 'Extract property listings, reviews, pricing, and availability from Airbnb',
-      version: '1.0.0',
+      description: 'Extract property listings, reviews, pricing, and availability from Airbnb via headless browser',
+      version: '2.0.0',
       capabilities: ['property_search', 'pricing_analysis', 'review_scrape', 'availability'],
       rateLimit: { requests: 5, window: 60000 },
     });
@@ -54,65 +55,90 @@ export class AirbnbActor extends Actor {
 
   private async searchProperties(query: string, location: string, limit: number): Promise<ActorOutput> {
     const searchUrl = `https://www.airbnb.com/s/${encodeURIComponent(location)}/homes?query=${encodeURIComponent(query)}`;
-    const html = await fetchUrl(searchUrl, { timeout: 30000 });
 
-    const properties: any[] = [];
-    const $ = parseHtml(html);
+    try {
+      const result = await browserEngine.browse({
+        url: searchUrl,
+        waitUntil: 'networkidle',
+        delay: 3000, // Wait for Airbnb's React app to render
+        timeout: 60000,
+      });
 
-    // Parse search results (Airbnb uses dynamic rendering, so this is a simplified version)
-    const cards = $('[itemprop="url"], .listing-card');
+      const $ = cheerio.load(result.html);
+      const properties: any[] = [];
 
-    cards.slice(0, limit).each((_, card) => {
-      const name = $(card).find('[itemprop="name"], .listing-title').first().text().trim();
-      const priceEl = $(card).find('[data-testid="price-item"], .price').first();
-      const priceMatch = priceEl.text().match(/₹([\d,]+)/);
-      const rating = $(card).find('[aria-label*="stars"]').text().trim();
-      const locationText = $(card).find('.location-text, [itemprop="address"]').first().text().trim();
+      // Airbnb uses various selectors - try multiple
+      $('[itemprop="url"], .listing-card, a[href*="/rooms/"]').slice(0, limit).each((_, card) => {
+        const $el = $(card);
+        const name = $el.find('[itemprop="name"], .listing-title, [data-testid="listing-card-title"]').first().text().trim();
+        const priceEl = $el.find('[data-testid="price-item"], .price, [data-testid="price"]').first();
+        const priceText = priceEl.text();
+        const priceMatch = priceText.match(/(?:₹|\$|€|£)\s*([\d,]+)/);
+        const ratingText = $el.find('[aria-label*="stars"], [aria-label*="rating"]').first().text();
+        const locationText = $el.find('.location-text, [itemprop="address"], [data-testid="listing-card-subtitle"]').first().text().trim();
+        const href = $el.attr('href') || $el.find('a').attr('href');
 
-      if (name) {
-        properties.push({
-          name,
-          price: priceMatch ? parseInt(priceMatch[1].replace(/,/g, '')) : null,
-          rating: rating ? parseFloat(rating.match(/(\d+\.?\d*)/)?.[1] || '0') : null,
-          location: locationText,
-          url: $(card).find('a').attr('href'),
-        });
-      }
-    });
+        if (name) {
+          properties.push({
+            name,
+            price: priceMatch ? parseInt(priceMatch[1].replace(/,/g, '')) : null,
+            rating: ratingText ? parseFloat(ratingText.match(/(\d+\.?\d*)/)?.[1] || '0') : null,
+            location: locationText,
+            url: href ? (href.startsWith('http') ? href : `https://www.airbnb.com${href}`) : null,
+          });
+        }
+      });
 
-    return {
-      success: true,
-      data: {
-        query,
-        location,
-        properties,
-        totalFound: properties.length,
-      },
-    };
+      return {
+        success: true,
+        data: {
+          query,
+          location,
+          properties,
+          totalFound: properties.length,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Browser engine failed: ${(error as Error).message}`,
+      };
+    }
   }
 
   private async getPropertyDetails(propertyUrl: string): Promise<ActorOutput> {
-    const html = await fetchUrl(propertyUrl, { timeout: 30000 });
-    const $ = parseHtml(html);
+    try {
+      const result = await browserEngine.browse({
+        url: propertyUrl,
+        waitUntil: 'networkidle',
+        delay: 3000,
+        timeout: 60000,
+      });
 
-    const details = {
-      name: $('h1, [itemprop="name"]').first().text().trim(),
-      description: $('[itemprop="description"]').first().text().trim(),
-      price: this.extractPrice($),
-      rating: this.extractRating($),
-      reviewCount: this.extractReviewCount($),
-      amenities: this.extractAmenities($),
-      location: this.extractLocation($),
-      images: this.extractImages($),
-      host: this.extractHost($),
-      houseRules: this.extractHouseRules($),
-      cancellationPolicy: this.extractCancellationPolicy($),
-    };
+      const $ = cheerio.load(result.html);
 
-    return {
-      success: true,
-      data: details,
-    };
+      const details = {
+        name: $('h1, [itemprop="name"]').first().text().trim(),
+        description: $('[itemprop="description"]').first().text().trim(),
+        price: this.extractPrice($),
+        rating: this.extractRating($),
+        reviewCount: this.extractReviewCount($),
+        amenities: this.extractAmenities($),
+        location: this.extractLocation($),
+        images: this.extractImages($),
+        host: this.extractHost($),
+      };
+
+      return {
+        success: true,
+        data: details,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Browser engine failed: ${(error as Error).message}`,
+      };
+    }
   }
 
   private extractPrice($: CheerioAPI): number | null {
@@ -181,8 +207,14 @@ export class AirbnbActor extends Actor {
 
   private async getReviews(propertyUrl: string, limit: number): Promise<ActorOutput> {
     const reviewsUrl = `${propertyUrl}?section_index=0`;
-    const html = await fetchUrl(reviewsUrl, { timeout: 30000 });
-    const $ = parseHtml(html);
+    const result = await browserEngine.browse({
+      url: reviewsUrl,
+      waitUntil: 'networkidle',
+      delay: 3000,
+      timeout: 60000,
+    });
+
+    const $ = cheerio.load(result.html);
 
     const reviews: any[] = [];
     const reviewEls = $('.review-item, [itemprop="review"]');
@@ -213,10 +245,17 @@ export class AirbnbActor extends Actor {
   }
 
   private async analyzePricing(propertyUrl: string): Promise<ActorOutput> {
-    const html = await fetchUrl(propertyUrl, { timeout: 30000 });
+    const result = await browserEngine.browse({
+      url: propertyUrl,
+      waitUntil: 'networkidle',
+      delay: 3000,
+      timeout: 60000,
+    });
+
+    const html = result.html;
 
     // Analyze pricing patterns
-    const $ = parseHtml(html);
+    const $ = cheerio.load(html);
     const nightlyRate = this.extractPrice($);
     const monthlyRate = nightlyRate ? nightlyRate * 30 * 0.7 : null; // 30% discount for monthly
     const weeklyRate = nightlyRate ? nightlyRate * 7 * 0.85 : null; // 15% discount for weekly

@@ -1,0 +1,40 @@
+{
+  "name": "@hojai/google-trends-actor",
+  "version": "1.0.0",
+  "description": "Google Trends Actor for HOJAI InternetOS - Scrape trending searches, topics, and regional data",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "hojai",
+    "actor",
+    "google-trends",
+    "trending",
+    "internetos"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

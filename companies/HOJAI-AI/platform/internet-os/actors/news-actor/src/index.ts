@@ -54,11 +54,12 @@ export class NewsActor extends Actor {
   ): Promise<ActorOutput> {
     const { sources, dateRange = '7d', limit = 20 } = options;
 
-    // Try Google News
-    const googleNewsUrl = `https://news.google.com/search?q=${encodeURIComponent(query)}&hl=en-IN&gl=IN&ceid=IN:en`;
-    const html = await fetchUrl(googleNewsUrl, { timeout: 30000 });
+    // Use Google News RSS (much more stable than HTML scraping)
+    // RSS structure doesn't change like CSS selectors do
+    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-IN&gl=IN&ceid=IN:en`;
+    const xml = await fetchUrl(rssUrl, { timeout: 30000 });
 
-    const articles = this.parseNewsArticles(html, limit);
+    const articles = this.parseRssArticles(xml, limit);
 
     // Filter by sources if specified
     let filteredArticles = articles;
@@ -177,6 +178,58 @@ export class NewsActor extends Actor {
         });
       }
     });
+
+    return articles;
+  }
+
+  /**
+   * Parse Google News RSS feed - more stable than HTML
+   * RSS doesn't change its structure like CSS selectors do
+   */
+  private parseRssArticles(xml: string, limit: number): any[] {
+    const articles: any[] = [];
+
+    // Simple regex-based XML parsing for RSS items
+    // <item>...</item> tags with <title>, <link>, <pubDate>, <source>
+    const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+    const titleRegex = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/;
+    const linkRegex = /<link>([\s\S]*?)<\/link>/;
+    const pubDateRegex = /<pubDate>([\s\S]*?)<\/pubDate>/;
+    const sourceRegex = /<source[^>]*>([\s\S]*?)<\/source>/;
+    const descriptionRegex = /<description>([\s\S]*?)<\/description>/;
+
+    let match;
+    while ((match = itemRegex.exec(xml)) !== null && articles.length < limit) {
+      const itemXml = match[1];
+      const titleMatch = titleRegex.exec(itemXml);
+      const linkMatch = linkRegex.exec(itemXml);
+      const pubDateMatch = pubDateRegex.exec(itemXml);
+      const sourceMatch = sourceRegex.exec(itemXml);
+      const descriptionMatch = descriptionRegex.exec(itemXml);
+
+      if (titleMatch) {
+        const title = titleMatch[1].trim();
+        const url = linkMatch ? linkMatch[1].trim() : null;
+        const pubDate = pubDateMatch ? new Date(pubDateMatch[1].trim()).toISOString() : null;
+        const source = sourceMatch ? sourceMatch[1].trim() : '';
+        const summary = descriptionMatch
+          ? descriptionMatch[1]
+              .replace(/<!\[CDATA\[/g, '')
+              .replace(/\]\]>/g, '')
+              .replace(/<[^>]*>/g, '')
+              .trim()
+              .substring(0, 200)
+          : '';
+
+        articles.push({
+          title,
+          url,
+          source,
+          publishedAt: pubDate,
+          summary,
+        });
+      }
+    }
 
     return articles;
   }

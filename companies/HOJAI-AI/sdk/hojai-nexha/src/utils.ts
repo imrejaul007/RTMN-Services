@@ -1,95 +1,145 @@
 /**
- * Internal utilities for HOJAI SDKs (shared with @hojai/foundation + @hojai/sutar)
+ * HOJAI Nexha SDK — HTTP Client with Retry + Circuit Breaker
+ * QW2: retry + circuit breaker wired into every request.
  */
 
-import type { HojaiConfig } from './foundation-config.js';
+import type { HojaiConfig } from "./foundation-config.js";
 
-/**
- * Sleep utility
- */
-export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+// ─── Errors ────────────────────────────────────────────────────────────
+export class NexhaTimeoutError extends Error {
+  constructor(ms: number) {
+    super("Timeout after " + ms + "ms");
+    this.name = "NexhaTimeoutError";
+  }
+}
+export class NexhaConnError extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = "NexhaConnError";
+  }
 }
 
-/**
- * Build a URL with query parameters
- */
-export function buildUrl(base: string, path: string, params?: Record<string, unknown>): string {
-  const url = new URL(path, base);
-  if (params) {
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          for (const v of value) url.searchParams.append(key, String(v));
-        } else {
-          url.searchParams.set(key, String(value));
-        }
+// ─── Circuit Breaker ────────────────────────────────────────────────
+export class CircuitBreaker {
+  private state: "CLOSED" | "OPEN" | "HALF_OPEN" = "CLOSED";
+  private fails = 0;
+  private okays = 0;
+  private lastFailure = 0;
+  constructor(
+    private name: string,
+    private threshold = 5,
+    private resetMs = 30000
+  ) {}
+  getState() { this.tick(); return this.state; }
+  isOpen() { this.tick(); return this.state === "OPEN"; }
+  async exec<T>(fn: () => Promise<T>): Promise<T> {
+    this.tick();
+    if (this.state === "OPEN") throw new Error("Circuit OPEN for " + this.name);
+    try { return await fn(); }
+    catch (e) { this.fail(); throw e; }
+    finally { this.ok(); }
+  }
+  fail() {
+    this.okays = 0;
+    this.fails++;
+    this.lastFailure = Date.now();
+    this.state = this.fails >= this.threshold ? "OPEN" : this.state;
+  }
+  ok() {
+    this.fails = 0;
+    if (this.state === "HALF_OPEN") {
+      this.okays++;
+      if (this.okays >= 2) this.state = "CLOSED";
+    }
+  }
+  tick() {
+    if (this.state === "OPEN" && Date.now() - this.lastFailure >= this.resetMs) {
+      this.state = "HALF_OPEN";
+      this.okays = 0;
+    }
+  }
+}
+
+// ─── Retry ────────────────────────────────────────────────────────
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 3,
+  baseMs = 200
+): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i < maxRetries; i++) {
+    try { return await fn(); }
+    catch (e) {
+      last = e;
+      if (i < maxRetries - 1) {
+        const delay = Math.min(baseMs * Math.pow(2, i), 5000);
+        await new Promise((r) => setTimeout(r, delay));
       }
     }
   }
-  return url.toString();
+  throw last;
 }
 
-/**
- * Sleep with exponential backoff
- */
-export function backoff(attempt: number, base: number = 300): number {
-  return Math.min(base * Math.pow(2, attempt), 30000);
-}
-
-/**
- * Make an HTTP request with retries and timeout
- */
+// ─── HTTP Client ────────────────────────────────────────────────
 export async function request<T = unknown>(
   config: HojaiConfig,
   method: string,
   path: string,
   body?: unknown,
-  options: { timeout?: number; maxRetries?: number; headers?: Record<string, string> } = {}
+  opts: { timeout?: number; maxRetries?: number } = {}
 ): Promise<T> {
-  const fetchImpl = config.fetchImpl || globalThis.fetch;
-  const timeout = options.timeout ?? config.timeout ?? 10000;
-  const maxRetries = options.maxRetries ?? config.maxRetries ?? 3;
-  const url = new URL(path, config.baseUrl).toString();
-
-  let lastError: Error | undefined;
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
-    try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
-        ...options.headers
-      };
-      const res = await fetchImpl(url, {
-        method,
-        headers,
-        body: body !== undefined ? JSON.stringify(body) : undefined,
-        signal: controller.signal
-      });
-      clearTimeout(timer);
-      if (!res.ok) {
-        if (res.status >= 500 && attempt < maxRetries) {
-          await sleep(backoff(attempt));
-          continue;
+  const cb = new CircuitBreaker("nexha:" + path);
+  return withRetry(
+    () => cb.exec(async () => {
+      const timeout = opts.timeout ?? config.timeout ?? 10000;
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), timeout);
+      try {
+        const res = await fetch(new URL(path, config.baseUrl).toString(), {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            ...(config.apiKey ? { Authorization: "Bearer " + config.apiKey } : {}),
+          },
+          body: body != null ? JSON.stringify(body) : undefined,
+          signal: ctrl.signal as AbortSignal,
+        });
+        if (!res.ok) {
+          if (res.status === 401) throw new Error("HTTP 401: Unauthorized");
+          if (res.status >= 500) throw new Error("HTTP " + res.status + ": Server error");
+          if (res.status === 404) throw new Error("HTTP 404: Not Found");
+          throw new Error("HTTP " + res.status + ": Client error");
         }
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
+        const data = await res.json() as { data?: T; error?: { message?: string } };
+        if (data.error) throw new NexhaConnError(data.error.message || "API error");
+        return data.data as T;
       }
-      const contentType = res.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        return (await res.json()) as T;
+      catch (e) {
+        if (e instanceof Error && e.message.startsWith("HTTP 401")) throw e;
+        if (e instanceof Error && e.message.startsWith("Circuit")) throw e;
+        if ((e as any)?.name === "AbortError") throw new NexhaTimeoutError(timeout);
+        if (e instanceof TypeError) throw new NexhaConnError((e as Error).message);
+        throw e;
       }
-      return (await res.text()) as unknown as T;
-    } catch (err) {
-      clearTimeout(timer);
-      lastError = err instanceof Error ? err : new Error(String(err));
-      if (attempt < maxRetries) {
-        await sleep(backoff(attempt));
-        continue;
-      }
+      finally { clearTimeout(tid); }
+    }),
+    opts.maxRetries ?? config.maxRetries ?? 3,
+    200
+  );
+}
+
+export function sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)); }
+
+export function buildUrl(base: string, path: string, params?: Record<string, unknown>): string {
+  const u = new URL(path, base);
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v != null) u.searchParams.set(k, String(v));
     }
   }
-  throw lastError || new Error('Request failed');
+  return u.toString();
+}
+
+export function backoff(attempt: number, base = 300): number {
+  return Math.min(base * Math.pow(2, attempt), 30000);
 }

@@ -19,5 +19,40 @@
     "event": "on-forget",
     "callback": "console.log",
     "createdAt": "2026-06-30T14:00:00.360Z"
+  },
+  {
+    "id": "af8b27de-5819-4043-871c-2072fe0b268a",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-30T20:08:22.744Z"
+  },
+  {
+    "id": "5bd9fc31-81b5-4916-b4e7-f79d4fb49a35",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-30T20:49:38.879Z"
+  },
+  {
+    "id": "ea06921e-718b-4091-84d4-ccd471c0c5b9",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-30T21:01:41.861Z"
+  },
+  {
+    "id": "880874ee-6124-4fd7-ac56-3f0e2d02e662",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-30T21:14:48.773Z"
+  },
+  {
+    "id": "3904905d-644a-4803-b359-33267ffcb714",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-30T21:20:37.225Z"
   }
 ]

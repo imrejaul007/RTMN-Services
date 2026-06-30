@@ -168,7 +168,7 @@ export class TwinIntegration {
         rating: data.rating,
         reviewCount: data.reviews,
         lastScraped: new Date().toISOString(),
-        source,
+        source: data.source,
         sourceUrl: data.url,
       },
       identity: {
@@ -199,7 +199,7 @@ export class TwinIntegration {
         rating: data.rating,
         priceRange: data.priceRange,
         lastScraped: new Date().toISOString(),
-        source,
+        source: data.source,
         sourceUrl: data.url,
       },
     });

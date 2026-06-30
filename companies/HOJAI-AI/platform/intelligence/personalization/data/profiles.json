@@ -39,7 +39,7 @@
     "affinityScores": {},
     "interactionCount": 0,
     "createdAt": "2026-06-28T22:31:34.070Z",
-    "updatedAt": "2026-06-30T14:00:01.451Z"
+    "updatedAt": "2026-06-30T21:20:37.690Z"
   },
   {
     "userId": "track-test",
@@ -47,11 +47,11 @@
     "preferences": {},
     "traits": {},
     "affinityScores": {
-      "food": 0.30000000000000004
+      "food": 0.7999999999999999
     },
-    "interactionCount": 3,
+    "interactionCount": 8,
     "createdAt": "2026-06-28T22:31:34.072Z",
-    "updatedAt": "2026-06-30T14:00:01.456Z"
+    "updatedAt": "2026-06-30T21:20:37.700Z"
   },
   {
     "userId": "rec-test",
@@ -59,10 +59,10 @@
     "preferences": {},
     "traits": {},
     "affinityScores": {
-      "food": 0.8999999999999999
+      "food": 2.400000000000001
     },
-    "interactionCount": 9,
+    "interactionCount": 24,
     "createdAt": "2026-06-28T22:31:34.078Z",
-    "updatedAt": "2026-06-30T14:00:01.467Z"
+    "updatedAt": "2026-06-30T21:20:37.721Z"
   }
 ]

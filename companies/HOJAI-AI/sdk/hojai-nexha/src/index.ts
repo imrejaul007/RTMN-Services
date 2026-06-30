@@ -183,3 +183,8 @@ export type { RetryOptions } from './retry.js';
 export { withRetry, calculateDelay, retryConfig } from './retry.js';
 export { CircuitBreaker } from './circuit-breaker.js';
 export { isRetryable, isAuthError, getErrorMessage, parseRetryAfter } from './errors.js';
+
+// ── Webhook Verification Exports ─────────────────────────────────────
+
+export { verifyWebhook, signWebhook, computeSignature, WebhookSignatureError } from './webhook-verify.js';
+export type { VerifyInput as WebhookVerifyInput, VerifyResult as WebhookVerifyResult } from './webhook-verify.js';

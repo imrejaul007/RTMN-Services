@@ -106,5 +106,185 @@
     "itemType": "food",
     "context": {},
     "timestamp": "2026-06-30T14:00:01.467Z"
+  },
+  {
+    "id": "702b9b34-cff4-4748-bee1-86a9f1fe87d1",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:49:38.771Z"
+  },
+  {
+    "id": "9b97bade-fe36-4207-8177-bc3abc8a67e2",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:49:38.785Z"
+  },
+  {
+    "id": "ba9f6784-dd6c-4312-ac51-474c63fa3950",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:49:38.788Z"
+  },
+  {
+    "id": "7fbf2755-370c-4f62-bcb4-cd3cbe2320eb",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:49:38.790Z"
+  },
+  {
+    "id": "7aeb38aa-44d8-4755-930f-9d88d8c70ce1",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:57:02.327Z"
+  },
+  {
+    "id": "57d9cc67-cb5a-4f2f-9c68-3ab953b9eee5",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:57:02.382Z"
+  },
+  {
+    "id": "36bfff00-06f5-4cf0-8990-db613ff10598",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:57:02.412Z"
+  },
+  {
+    "id": "ab32c591-2568-4e12-8f55-d8b38765a425",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T20:57:02.421Z"
+  },
+  {
+    "id": "dbace81d-9c8e-43fe-b56d-1371666af0c3",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:08:04.264Z"
+  },
+  {
+    "id": "9667bea9-3d98-43b6-a0b5-d2c62a333367",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:08:04.291Z"
+  },
+  {
+    "id": "9b333ebe-be1f-408b-a8be-ee590894a39f",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:08:04.296Z"
+  },
+  {
+    "id": "d7e5ac87-d4be-4d77-bab5-7e584731838b",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:08:04.301Z"
+  },
+  {
+    "id": "868fad18-ab89-49ab-8998-3f9d6f381d35",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:14:48.709Z"
+  },
+  {
+    "id": "8b815db2-e1d4-47ca-9fea-0f39472799e7",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:14:48.732Z"
+  },
+  {
+    "id": "9da6f8d2-b979-4f26-aded-1681d2085227",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:14:48.742Z"
+  },
+  {
+    "id": "c2d10bbd-64c9-4bd4-8283-b0005e21eca1",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:14:48.747Z"
+  },
+  {
+    "id": "ec26891c-c879-47df-88dd-8b733b4129fb",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:20:37.700Z"
+  },
+  {
+    "id": "d3c27b1c-b979-4387-9c5e-2ecda0c430c7",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:20:37.712Z"
+  },
+  {
+    "id": "f2baafd3-51ac-46c8-bb62-1ceb0c9fbc11",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:20:37.717Z"
+  },
+  {
+    "id": "1990becf-ae50-49c6-a0ae-fa22f9c5c0fe",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T21:20:37.721Z"
   }
 ]

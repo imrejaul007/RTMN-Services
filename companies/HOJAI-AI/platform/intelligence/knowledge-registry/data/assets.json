@@ -274,5 +274,97 @@
     "version": 1,
     "createdAt": "2026-06-30T14:00:00.327Z",
     "updatedAt": "2026-06-30T14:00:00.327Z"
+  },
+  {
+    "id": "e2aa2b69-0ba8-443b-bfaf-067573f75547",
+    "name": "Test Knowledge",
+    "type": "article",
+    "content": "Test content",
+    "tags": [
+      "test"
+    ],
+    "taxonomy": "tech",
+    "confidence": 0.95,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:16.611Z",
+    "updatedAt": "2026-06-30T21:15:16.611Z"
+  },
+  {
+    "id": "3dcbb6f3-8773-407b-afde-2efe79e31227",
+    "name": "Get Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:16.640Z",
+    "updatedAt": "2026-06-30T21:15:16.640Z"
+  },
+  {
+    "id": "9b719e5a-f196-4aa2-b55e-93bcd87a94a4",
+    "name": "New Name",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:16.662Z",
+    "updatedAt": "2026-06-30T21:15:16.674Z"
+  },
+  {
+    "id": "0794e1e9-3629-48be-8317-077b6da2acd3",
+    "name": "Version Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 2,
+    "createdAt": "2026-06-30T21:15:16.693Z",
+    "updatedAt": "2026-06-30T21:15:16.699Z"
+  },
+  {
+    "id": "c28379b7-4a33-4eda-8ec4-2aa7bad2e039",
+    "name": "VList",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:16.705Z",
+    "updatedAt": "2026-06-30T21:15:16.705Z"
+  },
+  {
+    "id": "79e7f6e5-6b31-4175-9c62-43e799e163f6",
+    "name": "A1",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:16.743Z",
+    "updatedAt": "2026-06-30T21:15:16.743Z"
+  },
+  {
+    "id": "b828e812-a46a-447a-be42-2a13108bac00",
+    "name": "A2",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:16.748Z",
+    "updatedAt": "2026-06-30T21:15:16.748Z"
+  },
+  {
+    "id": "8a862fc4-e458-42a4-9db6-10538b6ca935",
+    "name": "Dep Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T21:15:16.759Z",
+    "updatedAt": "2026-06-30T21:15:16.759Z"
   }
 ]

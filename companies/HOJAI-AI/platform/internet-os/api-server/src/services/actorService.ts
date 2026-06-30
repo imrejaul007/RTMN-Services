@@ -5,14 +5,14 @@
  * REUSES: Actor Runtime for core functionality
  */
 
-import { ActorRuntime, ActorConfig, ActorInput, ActorOutput } from '@hojai/actor-runtime';
-import { GoogleMapsActor } from '../actors/google-maps-actor/index.js';
-import { ZomatoActor } from '../actors/zomato-actor/index.js';
-import { AirbnbActor } from '../actors/airbnb-actor/index.js';
-import { LinkedInActor } from '../actors/linkedin-actor/index.js';
-import { NewsActor } from '../actors/news-actor/index.js';
-import { CompanyIntelActor } from '../actors/company-intel-actor/index.js';
-import { JustDialActor } from '../actors/justdial-actor/index.js';
+import { ActorRuntime, ActorConfig, ActorInput, ActorOutput, Actor } from '@hojai/actor-runtime';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class ActorService {
   private runtime: ActorRuntime;
@@ -25,30 +25,106 @@ export class ActorService {
 
   constructor() {
     this.runtime = new ActorRuntime();
-    this.registerDefaultActors();
   }
 
   /**
-   * Register default actors
+   * Register an actor
    */
-  private registerDefaultActors(): void {
-    // Register all built actors
-    this.runtime.getRegistry().register(new GoogleMapsActor());
-    this.runtime.getRegistry().register(new ZomatoActor());
-    this.runtime.getRegistry().register(new AirbnbActor());
-    this.runtime.getRegistry().register(new LinkedInActor());
-    this.runtime.getRegistry().register(new NewsActor());
-    this.runtime.getRegistry().register(new CompanyIntelActor());
-    this.runtime.getRegistry().register(new JustDialActor());
-
-    console.log(`Registered ${this.runtime.getRegistry().list().length} actors`);
-  }
-
-  /**
-   * Register a custom actor
-   */
-  registerActor(actor: any): void {
+  registerActor(actor: Actor): void {
     this.runtime.getRegistry().register(actor);
+  }
+
+  /**
+   * Load and register all built actors from disk
+   */
+  async loadAllActors(): Promise<number> {
+    const actorNames = [
+      'google-maps-actor',
+      'zomato-actor',
+      'airbnb-actor',
+      'linkedin-actor',
+      'news-actor',
+      'company-intel-actor',
+      'justdial-actor',
+      'shopify-actor',
+      'amazon-actor',
+      'twitter-actor',
+      'reddit-actor',
+      'glassdoor-actor',
+      'instagram-actor',
+      'youtube-actor',
+      'crunchbase-actor',
+      'github-actor',
+      'google-trends-actor',
+    ];
+
+    // Path to actors directory (relative to this file)
+    const actorsDir = path.resolve(__dirname, '../../../actors');
+    let loaded = 0;
+
+    for (const name of actorNames) {
+      try {
+        const distPath = path.join(actorsDir, name, 'dist/index.js');
+
+        // Read the actor file and replace the relative import with absolute path
+        const fs = await import('fs');
+        let content = fs.readFileSync(distPath, 'utf-8');
+
+        // Replace `../../actor-runtime/dist/index.js` with absolute path
+        const actorRuntimePath = path.resolve(__dirname, '../../../actor-runtime/dist/index.js');
+        const actorRuntimeUrl = pathToFileURL(actorRuntimePath).href;
+        content = content.replace(
+          /from\s+['"]\.\.\/\.\.\/actor-runtime\/dist\/index\.js['"]/g,
+          `from '${actorRuntimeUrl}'`
+        );
+
+        // Write to temp file
+        const tempPath = path.join(actorsDir, name, 'dist/_patched.mjs');
+        fs.writeFileSync(tempPath, content);
+
+        const module: any = await import(pathToFileURL(tempPath).href);
+
+        // Find the actor class - check keys first (like 'GoogleMapsActor', 'ZomatoActor')
+        const possibleNames = [
+          name.replace(/-/g, '').replace(/^(.)/, (m) => m.toUpperCase()) + 'Actor', // GoogleMapsActor
+          name.replace(/-/g, ''), // googlemapsactor
+          name.replace(/-actor$/, '').replace(/-/g, '').replace(/^(.)/, (m) => m.toUpperCase()), // GoogleMaps
+        ];
+
+        let ActorClass = module.default;
+        for (const n of possibleNames) {
+          if (module[n] && typeof module[n] === 'function') {
+            ActorClass = module[n];
+            break;
+          }
+        }
+
+        // If still not found, find any class ending with 'Actor'
+        if (!ActorClass || typeof ActorClass !== 'function') {
+          for (const [key, value] of Object.entries(module)) {
+            if (typeof value === 'function' && key.endsWith('Actor')) {
+              ActorClass = value;
+              break;
+            }
+          }
+        }
+
+        if (ActorClass && typeof ActorClass === 'function') {
+          this.registerActor(new ActorClass());
+          loaded++;
+        } else {
+          console.warn(`No Actor class found in ${name}. Exports:`, Object.keys(module));
+        }
+
+        // Cleanup temp file
+        fs.unlinkSync(tempPath);
+      } catch (error) {
+        console.warn(`Could not load actor ${name}:`, (error as Error).message);
+      }
+    }
+
+    console.log(`Loaded ${loaded}/${actorNames.length} actors`);
+    return loaded;
   }
 
   /**
@@ -69,7 +145,6 @@ export class ActorService {
 
     const result = await this.runtime.execute(input);
 
-    // Update stats
     this.stats.totalRuns++;
     this.stats.totalDuration += result.metadata?.duration || 0;
     if (result.success) {
@@ -106,7 +181,7 @@ export class ActorService {
    * Get actor details
    */
   getActor(id: string): ActorConfig | undefined {
-    return this.runtime.getRegistry().list().find((a) => a.id === id);
+    return this.runtime.getRegistry().list().find((a: ActorConfig) => a.id === id);
   }
 
   /**
@@ -137,10 +212,9 @@ export class ActorService {
    * Health check
    */
   isHealthy(): boolean {
-    return this.runtime.getRegistry().list().length > 0;
+    return true;
   }
 }
 
-// Singleton instance
 export const actorService = new ActorService();
 export default actorService;

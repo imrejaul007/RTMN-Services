@@ -1,0 +1,31 @@
+{
+  "name": "@hojai/actor-instagram",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Instagram scraper for profiles, posts, hashtags, and trending content",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": ["hojai", "actor", "instagram", "social-media", "posts", "influencers"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "@hojai/actor-runtime": "file:../../actor-runtime",
+    "cheerio": "^1.0.0",
+    "typescript": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "vitest": "^1.3.0"
+  }
+}

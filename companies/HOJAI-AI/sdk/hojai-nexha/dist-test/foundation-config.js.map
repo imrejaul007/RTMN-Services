@@ -1,0 +1,1 @@
+{"version":3,"file":"foundation-config.js","sourceRoot":"","sources":["../src/foundation-config.ts"],"names":[],"mappings":"AAAA;;GAEG;AAiBH,MAAM,CAAC,MAAM,cAAc,GAAmE;IAC5F,OAAO,EAAE,sBAAsB;IAC/B,OAAO,EAAE,KAAK;IACd,UAAU,EAAE,CAAC;CACd,CAAC;AAEF,MAAM,UAAU,aAAa,CAAC,KAAkB;IAC9C,OAAO,EAAE,GAAG,cAAc,EAAE,GAAG,KAAK,EAAE,CAAC;AACzC,CAAC"}

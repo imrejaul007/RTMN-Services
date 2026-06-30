@@ -1,20 +1,14 @@
 /**
- * Google Maps Actor
- * Extract business information from Google Maps
+ * Google Maps Actor - Browser Engine Version
+ * Uses Playwright/Puppeteer via @hojai/browser-engine for JS rendering
+ *
+ * Replaces fragile HTML scraping with proper headless browser automation
  */
 
-// @ts-ignore - Using compiled output
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
+import { Actor, ActorOutput } from '@hojai/actor-runtime';
+import { browserEngine } from '@hojai/browser-engine';
 import type { CheerioAPI } from 'cheerio';
-
-export interface GoogleMapsConfig {
-  id: 'google_maps';
-  name: 'Google Maps Scraper';
-  description: 'Extract business information, reviews, and locations from Google Maps';
-  version: '1.0.0';
-  capabilities: ['business_search', 'reviews', 'directions', 'places'];
-  rateLimit: { requests: number; window: number };
-}
+import * as cheerio from 'cheerio';
 
 export interface BusinessInfo {
   name: string;
@@ -46,201 +40,242 @@ export class GoogleMapsActor extends Actor {
     super({
       id: 'google_maps',
       name: 'Google Maps Scraper',
-      description: 'Extract business information from Google Maps',
-      version: '1.0.0',
+      description: 'Extract business information from Google Maps via headless browser',
+      version: '2.0.0',
       capabilities: ['business_search', 'reviews', 'directions', 'places'],
       rateLimit: { requests: 10, window: 60000 },
     });
   }
 
-  async scrape(input: {
-    query: string;
-    location?: string;
-    maxResults?: number;
-    includeReviews?: boolean;
-  }): Promise<ActorOutput> {
-    const { query, location = 'India', maxResults = 10, includeReviews = true } = input;
+  async scrape(input: any): Promise<ActorOutput> {
+    try {
+      const action = input.action || 'search';
+      const params = input.params || {};
+
+      switch (action) {
+        case 'search':
+          return await this.searchBusinesses(params);
+        case 'get_details':
+          return await this.getBusinessDetails(params);
+        case 'get_reviews':
+          return await this.getReviews(params);
+        default:
+          return { success: false, error: `Unknown action: ${action}` };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  private async searchBusinesses(params: { keyword: string; city?: string; limit?: number }): Promise<ActorOutput> {
+    if (!params.keyword) {
+      return { success: false, error: 'keyword is required' };
+    }
+
+    const query = `${params.keyword} ${params.city || ''}`.trim();
+    const url = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
 
     try {
-      // Search for businesses
-      const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(query + ' ' + location)}`;
-      const html = await fetchUrl(searchUrl, { timeout: 30000 });
+      const result = await browserEngine.browse({
+        url,
+        waitForSelector: '[role="feed"], .section-result',
+        waitUntil: 'networkidle',
+        delay: 2000, // Allow JS to render cards
+        timeout: 60000,
+      });
 
-      // Parse results
-      const businesses = this.parseSearchResults(html, maxResults);
+      const $ = cheerio.load(result.html);
+      const businesses: BusinessInfo[] = [];
 
-      // Get detailed info for each business
-      const detailedBusinesses: BusinessInfo[] = [];
+      // Google Maps modern selectors
+      $('.section-result, .Nv2PK, .THOPZb').each((_, el) => {
+        const $el = $(el);
+        const name = $el.find('.section-result-title, .qBF1Pd, .fontHeadlineSmall').text().trim();
+        const ratingText = $el.find('.section-result-rating, .MW4etd, .ZkP5Je').text().trim();
+        const reviewsText = $el.find('.section-result-num-ratings, .UY7F9, .WOKKOe').text().trim();
 
-      for (const business of businesses.slice(0, maxResults)) {
-        try {
-          const details = await this.getBusinessDetails(business.placeId, includeReviews);
-          detailedBusinesses.push({ ...business, ...details } as BusinessInfo);
-        } catch {
-          detailedBusinesses.push(business as BusinessInfo);
+        if (name) {
+          const rating = this.parseRating(ratingText);
+          const reviews = this.parseReviewCount(reviewsText);
+
+          businesses.push({
+            name,
+            rating,
+            reviews,
+            address: $el.find('.section-result-location, .W4Efsd, .Rog68').text().trim(),
+            category: $el.find('.section-result-details, .W4Efsd').text().trim(),
+          });
         }
-      }
+      });
 
+      const limit = params.limit || 20;
       return {
         success: true,
-        data: {
-          query,
-          location,
-          results: detailedBusinesses,
-          totalResults: detailedBusinesses.length,
+        data: businesses.slice(0, limit),
+        metadata: {
+          scrapedAt: new Date().toISOString(),
+          source: 'google_maps',
+          itemsFound: businesses.length,
+          duration: 0,
         },
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Scraping failed',
+        error: `Browser engine failed: ${(error as Error).message}. Make sure playwright/puppeteer is installed.`,
       };
     }
   }
 
-  private parseSearchResults(html: string, maxResults: number): BusinessInfo[] {
-    const results: BusinessInfo[] = [];
-
-    // Parse JSON data from the page
-    const jsonMatch = html.match(/"resultRenderer":{"jobMap":{[^}]+}/);
-    if (jsonMatch) {
-      try {
-        // Extract business data from JSON
-        const dataMatch = html.match(/\[{"entityId":"[^"]+","title":"([^"]+)"/g);
-        if (dataMatch) {
-          for (const match of dataMatch.slice(0, maxResults)) {
-            const titleMatch = match.match(/"title":"([^"]+)"/);
-            const idMatch = html.match(new RegExp(`"entityId":"([^"]+).*?"title":"${titleMatch?.[1]}"`));
-
-            if (titleMatch) {
-              results.push({
-                name: titleMatch[1],
-                placeId: idMatch?.[1],
-              });
-            }
-          }
-        }
-      } catch {
-        // Fallback parsing
-      }
+  private async getBusinessDetails(params: { name: string; city?: string }): Promise<ActorOutput> {
+    if (!params.name) {
+      return { success: false, error: 'name is required' };
     }
 
-    // Alternative: Parse from visible text
-    if (results.length === 0) {
-      const $ = parseHtml(html);
-      const cards = $('[data-result-id]');
-
-      cards.slice(0, maxResults).each((_, card) => {
-        const name = $(card).find('div[data-result-title]').text().trim();
-        const rating = $(card).find('[aria-label*="stars"]').attr('aria-label');
-
-        if (name) {
-          results.push({
-            name,
-            placeId: $(card).attr('data-result-id') || undefined,
-            rating: rating ? parseFloat(rating.match(/(\d+\.?\d*)/)?.[1] || '0') : undefined,
-          });
-        }
-      });
-    }
-
-    return results;
-  }
-
-  private async getBusinessDetails(placeId?: string, includeReviews?: boolean): Promise<Partial<BusinessInfo>> {
-    if (!placeId) return {};
-
-    const details: Partial<BusinessInfo> = {};
+    const query = `${params.name} ${params.city || ''}`.trim();
+    const url = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
 
     try {
-      const url = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-      const html = await fetchUrl(url, { timeout: 30000 });
+      const result = await browserEngine.browse({
+        url,
+        waitForSelector: '.section-result',
+        waitUntil: 'networkidle',
+        delay: 3000,
+        timeout: 60000,
+      });
 
-      const $ = parseHtml(html);
+      // Click first result to get details
+      const $ = cheerio.load(result.html);
+      const firstResult = $('.section-result, .Nv2PK').first();
+      const detailUrl = firstResult.attr('href') || url;
 
-      // Extract address
-      const addressEl = $('[data-item-id="address"]');
-      details.address = addressEl.text().trim();
+      const detailResult = await browserEngine.browse({
+        url: detailUrl,
+        waitForSelector: '.section-info, .m6QErb',
+        waitUntil: 'networkidle',
+        delay: 3000,
+        timeout: 60000,
+      });
 
-      // Extract phone
-      const phoneEl = $('[data-item-id="phone"]');
-      details.phone = phoneEl.text().trim();
+      const $detail = cheerio.load(detailResult.html);
 
-      // Extract website
-      const websiteEl = $('[data-item-id="authority"]');
-      details.website = websiteEl.attr('href');
+      // Try multiple selectors (Google changes these)
+      const name = $detail('h1.section-hero-header-title, .DUwDvf, .lMbq3e').text().trim() || params.name;
+      const rating = this.parseRating(
+        $detail('.section-hero-header-rating, .F7nice, .LBgpqf').text()
+      );
+      const reviews = this.parseReviewCount(
+        $detail('.section-hero-header-num-ratings, .F7nice span:last-child, .UY7F9').text()
+      );
+      const address = $detail('[data-section-id="ad"], .rogA2c .Io6YTe, .CsEnBe').text().trim();
+      const phone = $detail('[data-section-id="pn0"], .QsXRxf, .UsdlK').text().trim();
+      const website = $detail('[data-section-id="iw"], .CsEnBe a, .kno-vb-tl a').attr('href');
 
-      // Extract category
-      const categoryEl = $('[data-item-id="category"]');
-      details.category = categoryEl.text().trim();
+      return {
+        success: true,
+        data: {
+          name,
+          rating,
+          reviews,
+          address,
+          phone,
+          website,
+        },
+        metadata: {
+          scrapedAt: new Date().toISOString(),
+          source: 'google_maps',
+          itemsFound: 1,
+          duration: 0,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Browser engine failed: ${(error as Error).message}`,
+      };
+    }
+  }
 
-      // Extract hours
-      const hoursEl = $('[data-item-id="hours"]');
-      if (hoursEl.length > 0) {
-        details.hours = this.parseHours(hoursEl.text() || '');
-      }
-
-      // Extract reviews if requested
-      if (includeReviews) {
-        details.reviewsList = this.parseReviews($);
-      }
-
-      // Extract coordinates from URL
-      const coordMatch = html.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (coordMatch) {
-        details.latitude = parseFloat(coordMatch[1]);
-        details.longitude = parseFloat(coordMatch[2]);
-      }
-    } catch {
-      // Ignore errors for individual fields
+  private async getReviews(params: { name: string; city?: string; limit?: number }): Promise<ActorOutput> {
+    if (!params.name) {
+      return { success: false, error: 'name is required' };
     }
 
-    return details;
+    const query = `${params.name} ${params.city || ''}`.trim();
+    const url = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+
+    try {
+      const result = await browserEngine.browse({
+        url,
+        waitForSelector: '.section-result',
+        waitUntil: 'networkidle',
+        delay: 3000,
+        timeout: 60000,
+      });
+
+      const $ = cheerio.load(result.html);
+      const detailUrl = $('.section-result').first().attr('href') || url;
+
+      const detailResult = await browserEngine.browse({
+        url: detailUrl,
+        waitForSelector: '.section-review, .wiI7pd',
+        waitUntil: 'networkidle',
+        delay: 3000,
+        timeout: 60000,
+      });
+
+      const $detail = cheerio.load(detailResult.html);
+      const reviews: Review[] = [];
+
+      $('.section-review, .jftiEf').each((_, el) => {
+        const $el = $(el);
+        const author = $el.find('.section-review-name, .d4r55').text().trim();
+        const rating = this.parseRating($el.find('.section-review-rating, .kvMYJc').text()) || 0;
+        const text = $el.find('.section-review-text, .MyEned').text().trim();
+        const date = $el.find('.section-review-publish-date, .rsqaWe').text().trim();
+
+        if (author || text) {
+          reviews.push({ author, rating, date, text });
+        }
+      });
+
+      const limit = params.limit || 10;
+      return {
+        success: true,
+        data: reviews.slice(0, limit),
+        metadata: {
+          scrapedAt: new Date().toISOString(),
+          source: 'google_maps',
+          itemsFound: reviews.length,
+          duration: 0,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Browser engine failed: ${(error as Error).message}`,
+      };
+    }
   }
 
-  private parseHours(hoursText: string): Record<string, string> {
-    const hours: Record<string, string> = {};
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-    days.forEach((day) => {
-      const match = hoursText.match(new RegExp(`${day}\\s*:?\\s*([^,\n]+)`));
-      if (match) {
-        hours[day.toLowerCase()] = match[1].trim();
-      }
-    });
-
-    return hours;
+  private parseRating(text: string): number | undefined {
+    const match = text.match(/([0-9]\.[0-9])/);
+    return match ? parseFloat(match[1]) : undefined;
   }
 
-  private parseReviews($: CheerioAPI): Review[] {
-    const reviews: Review[] = [];
-
-    const reviewCards = $('.review-dialog-list [data-review-id]');
-
-    reviewCards.each((_, card) => {
-      const author = $(card).find('.section-review-title').text().trim();
-      const ratingEl = $(card).find('[aria-label]');
-      const ratingMatch = ratingEl.attr('aria-label')?.match(/(\d)/);
-      const rating = ratingMatch ? parseInt(ratingMatch[1]) : 0;
-      const date = $(card).find('.section-review-publish-date').text().trim();
-      const text = $(card).find('.section-review-text').text().trim();
-
-      if (author && text) {
-        reviews.push({
-          author,
-          rating,
-          date: date || '',
-          text,
-        });
-      }
-    });
-
-    return reviews;
+  private parseReviewCount(text: string): number | undefined {
+    const match = text.match(/\(([0-9,]+)\)|([0-9,]+)/);
+    if (!match) return undefined;
+    const numStr = (match[1] || match[2]).replace(/,/g, '');
+    return parseInt(numStr);
   }
 
   async validate(input: any): Promise<boolean> {
-    return !!(input && typeof input.query === 'string' && input.query.length > 0);
+    return !!input?.params?.keyword || !!input?.params?.name;
   }
 }
 
-export default new GoogleMapsActor();
+export default GoogleMapsActor;

@@ -1,0 +1,25 @@
+# HOJAI InternetOS Docker Ignore
+node_modules/
+**/node_modules/
+**/dist/
+**/.git/
+**/coverage/
+**/.cache/
+**/.tmp/
+**/.DS_Store
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Test files
+**/__tests__/
+**/*.test.ts
+**/vitest.config.ts
+
+# Docs
+**/docs/
+**/*.md
+
+# Editor
+.vscode/
+.idea/

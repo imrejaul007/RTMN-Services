@@ -129,7 +129,7 @@ export class WatcherService {
     let paused = 0;
     let totalChanges = 0;
 
-    states.forEach((state) => {
+    states.forEach((state: any) => {
       if (state.status === 'active') active++;
       else if (state.status === 'paused') paused++;
       totalChanges += state.changes.length;

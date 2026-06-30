@@ -1,7 +1,7 @@
 {
   "name": "@rtmn/razo-keyboard",
-  "version": "1.0.0",
-  "description": "RAZO Keyboard - Communication OS for RTMN ecosystem",
+  "version": "2.0.0",
+  "description": "RAZO Keyboard - Communication OS v2.0 (Mass Adoption Ready)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

@@ -25,5 +25,14 @@
     "filter": null,
     "active": true,
     "createdAt": "2026-06-30T14:00:01.415Z"
+  },
+  {
+    "id": "fb3c6080-8723-47e2-bbdd-94615a3623cb",
+    "name": "Click Watcher",
+    "type": "click",
+    "callback": "http://cb.example.com",
+    "filter": null,
+    "active": true,
+    "createdAt": "2026-06-30T21:15:15.192Z"
   }
 ]

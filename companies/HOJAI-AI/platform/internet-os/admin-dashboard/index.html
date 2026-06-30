@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOJAI InternetOS Admin Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <h1>🌐 HOJAI InternetOS</h1>
+        <p class="subtitle">Web Intelligence Admin Dashboard</p>
+      </div>
+      <div class="status">
+        <div id="health-indicator" class="health-indicator">●</div>
+        <span id="health-text">Checking...</span>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-view="overview">Overview</button>
+      <button class="nav-btn" data-view="actors">Actors</button>
+      <button class="nav-btn" data-view="research">Research</button>
+      <button class="nav-btn" data-view="scheduler">Scheduler</button>
+      <button class="nav-btn" data-view="watchers">Watchers</button>
+      <button class="nav-btn" data-view="docs">API Docs</button>
+    </nav>
+
+    <main class="main">
+      <!-- Overview -->
+      <section id="view-overview" class="view active">
+        <h2>System Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-actors">-</div>
+            <div class="stat-label">Actors</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-skills">-</div>
+            <div class="stat-label">Skills</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-agents">-</div>
+            <div class="stat-label">Research Agents</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-schedules">-</div>
+            <div class="stat-label">Schedules</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-watchers">-</div>
+            <div class="stat-label">Watchers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-runs">-</div>
+            <div class="stat-label">Total Runs</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="card">
+            <h3>Service Health</h3>
+            <div id="health-list" class="health-list">
+              <p>Loading...</p>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Recent Activity</h3>
+            <div id="activity-list" class="activity-list">
+              <p>Loading...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actors -->
+      <section id="view-actors" class="view">
+        <h2>Actors</h2>
+        <p class="hint">17 web data extraction actors. Click "Run" to test.</p>
+        <div class="toolbar">
+          <input type="text" id="actor-search" placeholder="Search actors..." />
+          <button class="btn-secondary" id="refresh-actors">Refresh</button>
+        </div>
+        <div id="actors-list" class="actors-grid">
+          <p>Loading...</p>
+        </div>
+      </section>
+
+      <!-- Research -->
+      <section id="view-research" class="view">
+        <h2>Research Agents</h2>
+        <p class="hint">Autonomous research agents that run continuously.</p>
+
+        <div class="research-tabs">
+          <button class="tab-btn active" data-research="market">Market</button>
+          <button class="tab-btn" data-research="competitor">Competitor</button>
+          <button class="tab-btn" data-research="procurement">Procurement</button>
+        </div>
+
+        <div class="research-form">
+          <label>Industry/Topic <input type="text" id="research-input-1" placeholder="e.g. restaurants" /></label>
+          <label>City/Region (optional) <input type="text" id="research-input-2" placeholder="e.g. Dubai" /></label>
+          <button id="run-research" class="btn-primary">Run Research</button>
+        </div>
+
+        <div id="research-result" class="research-result">
+          <p class="hint">Run a research agent to see results here.</p>
+        </div>
+      </section>
+
+      <!-- Scheduler -->
+      <section id="view-scheduler" class="view">
+        <h2>Scheduler</h2>
+        <p class="hint">Cron-based schedules for research agents.</p>
+        <div class="toolbar">
+          <button id="scheduler-start" class="btn-primary">Start All</button>
+          <button id="scheduler-stop" class="btn-secondary">Stop All</button>
+        </div>
+        <div id="schedules-list" class="schedules-list">
+          <p>Loading...</p>
+        </div>
+      </section>
+
+      <!-- Watchers -->
+      <section id="view-watchers" class="view">
+        <h2>Watchers</h2>
+        <p class="hint">Continuous monitoring for content/price/competitor changes.</p>
+        <div class="watcher-form">
+          <label>URL <input type="text" id="watcher-url" placeholder="https://example.com" /></label>
+          <label>Type
+            <select id="watcher-type">
+              <option value="price">Price</option>
+              <option value="review">Review</option>
+              <option value="competitor">Competitor</option>
+              <option value="job">Job</option>
+              <option value="news">News</option>
+            </select>
+          </label>
+          <label>CSS Selector (optional) <input type="text" id="watcher-selector" placeholder=".price" /></label>
+          <label>Interval (ms) <input type="number" id="watcher-interval" value="3600000" /></label>
+          <button id="create-watcher" class="btn-primary">Create Watcher</button>
+        </div>
+        <div id="watchers-list" class="watchers-list">
+          <p>Loading...</p>
+        </div>
+      </section>
+
+      <!-- API Docs -->
+      <section id="view-docs" class="view">
+        <h2>API Documentation</h2>
+        <div class="docs">
+          <h3>Base URL</h3>
+          <code>http://localhost:4595</code>
+
+          <h3>Endpoints</h3>
+
+          <h4>Health</h4>
+          <ul>
+            <li><code>GET /health</code> - Service health</li>
+            <li><code>GET /ready</code> - Readiness check</li>
+            <li><code>GET /api/stats</code> - Statistics</li>
+          </ul>
+
+          <h4>Actors</h4>
+          <ul>
+            <li><code>GET /api/actors</code> - List all 17 actors</li>
+            <li><code>GET /api/actors/:id</code> - Get actor info</li>
+            <li><code>POST /api/actors/:id/run</code> - Run actor (body: action, params)</li>
+            <li><code>POST /api/actors/batch</code> - Batch run (body: inputs array)</li>
+            <li><code>GET /api/actors/search/:query</code> - Search actors</li>
+          </ul>
+
+          <h4>Watchers</h4>
+          <ul>
+            <li><code>GET /api/watchers</code> - List watchers</li>
+            <li><code>POST /api/watchers</code> - Create watcher</li>
+            <li><code>GET /api/watchers/:id</code> - Get watcher</li>
+            <li><code>GET /api/watchers/:id/state</code> - Get state</li>
+            <li><code>GET /api/watchers/:id/changes</code> - Get changes</li>
+            <li><code>POST /api/watchers/:id/start</code> - Start</li>
+            <li><code>POST /api/watchers/:id/stop</code> - Stop</li>
+            <li><code>DELETE /api/watchers/:id</code> - Delete</li>
+          </ul>
+
+          <h4>Research</h4>
+          <ul>
+            <li><code>GET /api/research/agents</code> - List agents</li>
+            <li><code>POST /api/research/market</code> - Market research</li>
+            <li><code>POST /api/research/competitor</code> - Competitor research</li>
+            <li><code>POST /api/research/procurement</code> - Procurement research</li>
+            <li><code>POST /api/research/run-all</code> - Run all</li>
+            <li><code>GET /api/research/reports</code> - List reports</li>
+            <li><code>GET /api/research/stats</code> - Stats</li>
+          </ul>
+
+          <h4>Scheduler</h4>
+          <ul>
+            <li><code>GET /api/scheduler/</code> - List schedules</li>
+            <li><code>POST /api/scheduler/</code> - Create schedule</li>
+            <li><code>POST /api/scheduler/:id/run</code> - Run now</li>
+            <li><code>POST /api/scheduler/:id/enable</code> - Enable</li>
+            <li><code>POST /api/scheduler/:id/disable</code> - Disable</li>
+            <li><code>POST /api/scheduler/start</code> - Start all</li>
+            <li><code>POST /api/scheduler/stop</code> - Stop all</li>
+            <li><code>GET /api/scheduler/stats</code> - Stats</li>
+          </ul>
+
+          <h4>History</h4>
+          <ul>
+            <li><code>GET /api/history</code> - Search history</li>
+            <li><code>GET /api/history/entity/:id</code> - Entity history</li>
+            <li><code>GET /api/history/stats</code> - Stats</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>HOJAI InternetOS v1.0</span>
+      <span id="last-refresh">Last refresh: never</span>
+    </footer>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

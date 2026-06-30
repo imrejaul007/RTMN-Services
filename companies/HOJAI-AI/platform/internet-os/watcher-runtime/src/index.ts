@@ -11,8 +11,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { fetchUrl } from '@hojai/actor-runtime';
-import { parseHtml } from '@hojai/actor-runtime/utils/parseHtml.js';
+import { fetchUrl, parseHtml } from '@hojai/actor-runtime';
 import { MemoryBridge, getMemoryBridge } from './bridges/memoryBridge.js';
 
 export interface WatcherConfig {
@@ -228,7 +227,7 @@ export class WatcherRuntime extends EventEmitter {
       this.states.set(id, state);
 
       // Clear error state on successful check
-      if (state.status === 'error') {
+      if ((state.status as string) === 'error') {
         state.status = 'active';
         state.error = undefined;
       }

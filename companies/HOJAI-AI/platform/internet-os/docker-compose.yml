@@ -1,0 +1,151 @@
+# HOJAI InternetOS Docker Compose
+# Runs InternetOS API server + all required HOJAI services
+#
+# Usage:
+#   docker-compose up
+#   docker-compose up -d  # detached
+#   docker-compose logs -f internet-os
+#   docker-compose down
+
+version: '3.8'
+
+services:
+  # ============ HOJAI Services (dependencies) ============
+
+  memory-os:
+    image: hojai/memory-os:latest
+    ports:
+      - "4703:4703"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  twin-os:
+    image: hojai/twin-os:latest
+    ports:
+      - "4705:4705"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  knowledge-extraction:
+    image: hojai/knowledge-extraction:latest
+    ports:
+      - "4784:4784"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  webhook-bus:
+    image: hojai/webhook-bus:latest
+    ports:
+      - "4110:4110"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  skill-os:
+    image: hojai/skill-os:latest
+    ports:
+      - "4743:4743"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  ai-intelligence:
+    image: hojai/ai-intelligence:latest
+    ports:
+      - "4881:4881"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  # ============ InternetOS API Server ============
+
+  internet-os:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hojai/internet-os:latest
+    container_name: internet-os
+    ports:
+      - "4595:4595"
+    environment:
+      # Server config
+      - INTERNET_OS_PORT=4595
+      - NODE_ENV=production
+
+      # Service URLs (internal network)
+      - MEMORY_OS_URL=http://memory-os:4703
+      - TWIN_OS_URL=http://twin-os:4705
+      - KNOWLEDGE_EXTRACTION_URL=http://knowledge-extraction:4784
+      - WEBHOOK_BUS_URL=http://webhook-bus:4110
+      - SKILL_OS_URL=http://skill-os:4743
+      - AI_INTELLIGENCE_URL=http://ai-intelligence:4881
+
+      # Auth
+      - JWT_SECRET=change-this-in-production-please
+      - INTERNAL_SERVICE_TOKEN=internal-service-token-change-me
+
+      # Rate limiting
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX=100
+
+      # API keys for paid actors (optional)
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
+      - TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN:-}
+      - AMAZON_ACCESS_KEY=${AMAZON_ACCESS_KEY:-}
+      - AMAZON_SECRET_KEY=${AMAZON_SECRET_KEY:-}
+      - AMAZON_ASSOCIATE_TAG=${AMAZON_ASSOCIATE_TAG:-}
+      - AMAZON_REGION=${AMAZON_REGION:-us-east-1}
+
+    depends_on:
+      - memory-os
+      - twin-os
+      - knowledge-extraction
+      - webhook-bus
+      - skill-os
+      - ai-intelligence
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  # ============ Optional: Redis for caching ============
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+  # ============ Optional: MongoDB for persistence ============
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    networks:
+      - hojai-net
+
+networks:
+  hojai-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
