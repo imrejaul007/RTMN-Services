@@ -1,0 +1,233 @@
+# Genie + VoiceOS Meeting Intelligence Pipeline
+# Docker Compose Configuration
+# ========================================
+# Services: Speaker Diarization, Voice Embedding, Meeting Intelligence,
+#           Decision Twin, Voice Cloning, Meeting Storage
+
+version: '3.8'
+
+services:
+  # ============================================
+  # INFRASTRUCTURE
+  # ============================================
+
+  redis:
+    image: redis:7-alpine
+    container_name: genie-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - genie-redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    container_name: genie-mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - genie-mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+  # ============================================
+  # VOICE INTELLIGENCE
+  # ============================================
+
+  speaker-diarization:
+    build:
+      context: ./companies/HOJAI-AI/platform/voice/speaker-diarization
+      dockerfile: Dockerfile
+    container_name: genie-speaker-diarization
+    ports:
+      - "4894:4894"
+    environment:
+      - NODE_ENV=production
+      - PORT=4894
+      - AZURE_SPEECH_KEY=${AZURE_SPEECH_KEY:-}
+      - AZURE_SPEECH_REGION=${AZURE_SPEECH_REGION:-eastus}
+      - MOCK_MODE=true
+      - SPEAKER_MATCH_THRESHOLD=0.85
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4894/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+  voice-embedding:
+    build:
+      context: ./companies/HOJAI-AI/platform/voice/voice-embedding
+      dockerfile: Dockerfile
+    container_name: genie-voice-embedding
+    ports:
+      - "4895:4895"
+    environment:
+      - NODE_ENV=production
+      - PORT=4895
+      - VERIFICATION_THRESHOLD=0.85
+      - MODEL_TYPE=enhanced-local
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4895/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+  meeting-intelligence:
+    build:
+      context: ./companies/HOJAI-AI/platform/voice/meeting-intelligence
+      dockerfile: Dockerfile
+    container_name: genie-meeting-intelligence
+    ports:
+      - "4890:4890"
+    environment:
+      - NODE_ENV=production
+      - PORT=4890
+      - VOICE_GATEWAY_URL=http://voice-gateway:4880
+      - SPEAKER_DIARIZATION_URL=http://speaker-diarization:4894
+      - VOICE_EMBEDDING_URL=http://voice-embedding:4895
+      - EMOTION_GATEWAY_URL=http://emotion-os-gateway:4760
+      - MEMORY_OS_URL=http://memory-os:4703
+      - GENIE_GATEWAY_URL=http://genie-gateway:4701
+      - MEETING_STORAGE_URL=http://meeting-storage:4896
+      - DECISION_TWIN_URL=http://decision-twin:4741
+    depends_on:
+      redis:
+        condition: service_healthy
+      speaker-diarization:
+        condition: service_healthy
+      voice-embedding:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4890/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+  # ============================================
+  # DECISION & STORAGE
+  # ============================================
+
+  decision-twin:
+    build:
+      context: ./companies/HOJAI-AI/products/genie/genie-decision-twin
+      dockerfile: Dockerfile
+    container_name: genie-decision-twin
+    ports:
+      - "4741:4741"
+    environment:
+      - NODE_ENV=production
+      - PORT=4741
+      - DECISION_STORE_TYPE=memory
+      - MONGODB_URL=mongodb://mongodb:27017
+      - DB_NAME=genie_decisions
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4741/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+  meeting-storage:
+    build:
+      context: ./companies/HOJAI-AI/platform/storage/meeting-storage
+      dockerfile: Dockerfile
+    container_name: genie-meeting-storage
+    ports:
+      - "4896:4896"
+    environment:
+      - NODE_ENV=production
+      - PORT=4896
+      - MONGO_URI=mongodb://mongodb:27017
+      - DB_NAME=genie_meetings
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4896/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+  # ============================================
+  # VOICE CLONING
+  # ============================================
+
+  voice-cloning:
+    build:
+      context: ./companies/HOJAI-AI/platform/voice/voice-cloning
+      dockerfile: Dockerfile
+    container_name: genie-voice-cloning
+    ports:
+      - "4897:4897"
+    environment:
+      - NODE_ENV=production
+      - PORT=4897
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:-}
+      - VOICE_EMBEDDING_URL=http://voice-embedding:4895
+      - CACHE_ENABLED=true
+      - CACHE_TTL_MS=86400000
+    depends_on:
+      redis:
+        condition: service_healthy
+      voice-embedding:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4897/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - genie-network
+    restart: unless-stopped
+
+# ============================================
+# NETWORKS & VOLUMES
+# ============================================
+
+networks:
+  genie-network:
+    driver: bridge
+    name: genie-voiceos-network
+
+volumes:
+  genie-redis-data:
+    name: genie-redis-data
+  genie-mongodb-data:
+    name: genie-mongodb-data

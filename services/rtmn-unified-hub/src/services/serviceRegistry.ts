@@ -280,6 +280,56 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     timeout: 5000,
     category: 'rtmn',
   },
+
+  // ====== Genie VoiceOS Services (June 2026) ======
+  {
+    name: 'Meeting Intelligence',
+    url: process.env.MEETING_INTELLIGENCE_URL || 'http://localhost:4890',
+    prefix: '/api/meeting',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'genie',
+  },
+  {
+    name: 'Speaker Diarization',
+    url: process.env.SPEAKER_DIARIZATION_URL || 'http://localhost:4894',
+    prefix: '/api/diarization',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'genie',
+  },
+  {
+    name: 'Voice Embedding',
+    url: process.env.VOICE_EMBEDDING_URL || 'http://localhost:4895',
+    prefix: '/api/voice-embedding',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'genie',
+  },
+  {
+    name: 'Meeting Storage',
+    url: process.env.MEETING_STORAGE_URL || 'http://localhost:4896',
+    prefix: '/api/meeting-storage',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'genie',
+  },
+  {
+    name: 'Voice Cloning',
+    url: process.env.VOICE_CLONING_URL || 'http://localhost:4897',
+    prefix: '/api/voice-cloning',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'genie',
+  },
+  {
+    name: 'Decision Twin',
+    url: process.env.DECISION_TWIN_URL || 'http://localhost:4741',
+    prefix: '/api/decision-twin',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'genie',
+  },
 ];
 
 export function findService(prefix: string): ServiceEntry | undefined {
