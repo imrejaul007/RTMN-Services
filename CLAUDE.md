@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.32
+> **Version:** 5.35
 > **Last Updated:** June 30, 2026
-> **New:** ✅ **Global Nexha Commerce Stack v2** — Corrected architecture, 14 commerce types, CommerceOS missing layer identified, Federation SDK spec, 24-week roadmap
-> **Status:** ⏳ **CommerceOS needs building** — See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md)
+> **New:** ✅ **Global Nexha Commerce Stack v3.2 (COMPLETE)** — HOJAI Studio + BAM (AI Workers) + Foundry + 9 OS layers + 26 Industry OS (built) + 26 BAM Worker sets + Marketplace Launch Stack
+> **Status:** ⏳ **Start with Phase 0** — See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md)
 
 ---
 
@@ -2816,23 +2816,24 @@ Nexha is **infrastructure for AI commerce** — Stripe for AI agents, SWIFT for 
 
 ---
 
-## 🌐 Global Nexha Commerce Stack v2.0 (CORRECTED — June 30, 2026)
+## 🌐 Global Nexha Commerce Stack v3.0 (FROZEN — June 30, 2026)
 
 > **IMPORTANT:** Global Nexha is NOT a marketplace. It is a **Federation Protocol** connecting every kind of commerce network.
 
-### The Corrected Architecture
+### The Canonical Architecture (v3.0)
 
 ```
-Global Nexha Federation
+GLOBAL NEXHA
 │
-├── Discovery OS (4272) — Find capabilities across network
-├── Reputation OS (4271) — ACI trust scoring
-├── Trust Passport — Verified identity + compliance
-├── ACP Protocol (4340) — Standardized negotiation
+├── FederationOS
+│   ├── ACP (Open protocol — like HTTP/SMTP)
+│   ├── DiscoveryOS (6 graphs + matching engine)
+│   ├── ReputationOS (ACI trust scoring)
+│   └── Commerce Graph (Google Maps of economic relationships)
 │
-├── Federation SDK — Build a Nexha in minutes
+├── TrustOS
 │
-├── CommerceOS (MISSING — BUILD THIS) — Universal commerce runtime
+├── CommerceOS (9 modules — MISSING, BUILD THIS)
 │   ├── Catalog Engine
 │   ├── Inventory Engine
 │   ├── Pricing Engine
@@ -2843,78 +2844,71 @@ Global Nexha Federation
 │   ├── Recommendation Engine
 │   └── Subscription Engine
 │
-├── SUTAR OS — AI Workforce Orchestration
+├── VendorOS (Shopify for vendors)
 │
-├── RABTUL — Financial Settlement Layer
+├── MarketplaceOS (Shopify for marketplaces)
 │
-└── 14 Commerce Types
-    ├── Human Commerce (Amazon, Walmart)
-    ├── Agentic Commerce (A2A — AI→AI)
-    ├── Hybrid Commerce (Human + AI)
-    ├── Single Company Commerce (Apple Network)
-    ├── Multi-Vendor Commerce (Amazon Marketplace)
-    ├── Supermarket Commerce (Walmart Agent Network)
-    ├── Franchise Commerce (McDonald's, Domino's)
-    ├── D2C Commerce (Nike direct)
-    ├── B2B Commerce (ONDC, IndiaMART)
-    ├── Industry Commerce (Healthcare Nexha)
-    ├── Country Commerce (India Nexha, UAE Nexha)
-    ├── Cross-Border Commerce (Import/Export)
-    ├── Creator Commerce (Influencer networks)
-    └── Machine Commerce (M2M — IoT autonomous)
+├── SUTAR OS (Workforce orchestration ONLY)
+│
+├── RABTUL (Financial settlement)
+│
+└── Commerce Templates (NOT IndustryOS)
+    ├── Restaurant Template
+    ├── Healthcare Template
+    ├── Hospitality Template
+    ├── Retail Template
+    └── Manufacturing Template
 ```
+
+### Critical Rules (FROZEN)
+
+1. **SUTAR = Workforce ONLY.** No "Marketplace SUTAR." Marketplace uses MarketplaceOS + SUTAR Agents.
+2. **Templates, not IndustryOS.** Industry-specific are TEMPLATES built ON TOP of core OS.
+3. **Ship one complete vertical first.** Restaurant Nexha must work before anything else.
 
 ### What Global Nexha Is NOT
 - ❌ NOT a marketplace competing with Amazon/Flipkart
-- ❌ NOT a single platform dominating commerce
 - ❌ NOT dependent on transaction volume
+- ❌ NOT "Marketplace SUTAR"
 
 ### What Global Nexha IS
-- ✅ Federation Protocol — connects all commerce networks
-- ✅ Infrastructure layer — like Visa for payments
-- ✅ Trust + Identity + Negotiation + Settlement
+- ✅ Open federation protocol — like HTTP/SMTP for commerce
+- ✅ Infrastructure — like Visa for payments, Stripe for internet payments
 - ✅ Every business keeps their own brand, customers, pricing
 
-### Commerce Bootstrapping Engine (Key Moat)
-
-Every new marketplace faces the bootstrapping problem:
-```
-No vendors → No products → No buyers → No transactions → Dies
-```
-
-**Global Nexha solves this with Vendor Liquidity Pools:**
-
-```typescript
-// Launch a fashion marketplace in UAE in 7 days
-const market = new NexhaCommerce({
-  type: "marketplace",
-  industry: "fashion",
-  country: "UAE"
-})
-
-// Import 500+ pre-verified vendors instantly
-await market.importVendorPools({
-  pools: ["fashion-vendor-pool", "accessories-vendor-pool"]
-})
-
-// Launch with liquidity, not empty platform
-```
-
-### Commerce Federation SDK (Killer Product)
+### The Killer Product: Commerce Federation SDK
 
 ```typescript
 import { NexhaCommerce } from "@nexha/federation-sdk"
 
-// Vendor Commerce
-const restaurant = new NexhaCommerce({ type: "vendor", industry: "restaurant" })
-restaurant.enableCommerceOS({ catalog: true, orders: true, inventory: true })
-restaurant.enableSUTAR({ agents: ["chef", "procurement", "marketing", "finance"] })
-await restaurant.deploy()
+// Deploy a Restaurant Nexha
+const restaurant = new NexhaCommerce({
+  type: "vendor",
+  industry: "restaurant",
+  country: "IN"
+})
 
-// Marketplace Commerce
-const marketplace = new NexhaCommerce({ type: "marketplace", industry: "general" })
-marketplace.enableVendorOnboarding({ kyb: true, commission: 0.1 })
-marketplace.enableSplitPayments({ enabled: true })
+restaurant.enableCommerceOS({
+  catalog: true,
+  orders: true,
+  inventory: true,
+  pricing: "dynamic",
+  promotions: true,
+  checkout: true
+})
+
+restaurant.enableSUTAR({
+  agents: ["chef", "procurement", "marketing", "finance", "customer"]
+})
+
+restaurant.enableTrust({
+  kyb: true,
+  compliance: ["FSSAI", "GST"]
+})
+
+await restaurant.deploy()
+// Now discoverable on Global Nexha
+```
 await marketplace.deploy()
 
 // Machine Commerce (IoT)
@@ -2942,14 +2936,7 @@ await factory.deploy()
 
 ### Complete Upgrade Plan
 
-See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md) for the full:
-- Architecture audit (what exists vs missing)
-- CommerceOS specification (9 modules)
-- ACP Protocol primitives
-- Federation SDK design
-- VendorOS product spec
-- 24-week roadmap
-- 14 commerce types deep dive
+See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md) for the full v3.0 architecture.
 
 ### Current State vs Needed
 
@@ -2963,12 +2950,85 @@ See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2
 | RABTUL Finance | ✅ 25+ services | Hub routes missing |
 | Commerce Twins | ✅ 9 twins | Not unified |
 
-### Immediate Actions (This Week)
+### The 5-Phase Roadmap (v3.0)
 
-1. **Create `commerce-os` directory** in `HOJAI-AI/platform/commerce-os/`
-2. **Audit existing commerce services** — unify `nexha-catalog-os` + `product-catalog`
-3. **Draft CommerceOS API spec** — 9 modules
-4. **Wire RABTUL to Hub** — `/api/wallet/*`, `/api/payment/*`, `/api/escrow/*`
+| Phase | Focus | Duration | Status |
+|-------|-------|----------|--------|
+| Phase 0 | FederationOS Foundation | 6 weeks | PLANNED |
+| **Phase 1A** | **Restaurant Nexha (COMPLETE)** | **12 weeks** | **PLANNED — SHIP FIRST** |
+| Phase 1B | Marketplace Commerce | 8 weeks | PLANNED |
+| Phase 2 | B2B + Franchise + Service | 12 weeks | PLANNED |
+| Phase 3 | Intelligence + Graph | 10 weeks | PLANNED |
+| **TOTAL** | | **70 weeks (~16 months)** | |
+
+**Definition of Done:** A real restaurant deploys and runs on Restaurant Nexha for 30 days without major issues.
+
+### Industry Blueprint Library (26 Industries — Already Built)
+
+**RTMN has 26 Industry OS already built.** These blueprints convert them into commerce-enabled Nexha templates.
+
+See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md) — Part 15.
+
+| Priority | Industries | Ports | Primary Commerce |
+|----------|------------|-------|-----------------|
+| **P0 — Ship First** | Restaurant, Hotel | 5010, 5025 | Vendor + Service |
+| **P1 — Next** | Healthcare, Events, Exhibitions, Travel | 5020, 4751, 5040, 5190 | Service + Vendor |
+| **P2 — Core Commerce** | Retail, Fashion, Automotive, Beauty | 5030, 5095, 5080, 5090 | Vendor + Marketplace |
+| **P3 — Enterprise** | Manufacturing, Construction, Legal, Professional | 5150, 5210, 5035, 5170 | B2B + Service |
+| **P4 — Vertical SaaS** | Fitness, Gaming, Entertainment, Education | 5110, 5120, 5200, 5060 | Subscription + Service |
+| **P5 — Long Tail** | Government, Non-Profit, Beauty, HomeServices, Agriculture, Sports, Transport, Financial, Real Estate | 5130-5240 | B2B + Service |
+
+**Strategy:** Convert Restaurant + Hotel OS to Nexha templates first. Clone to remaining 24.
+
+### HOJAI Studio — The Creation Layer
+
+> **BAM provides workers. SUTAR coordinates departments. Studio creates commerce. Foundry compiles commerce. Nexha runs commerce. RABTUL settles commerce.**
+
+```
+GENIE (Human Interface)
+        │
+        ▼
+HOJAI STUDIO (Creation Layer)
+        │
+        ├── Template Marketplace (26 Industry Templates)
+        ├── AI Company Builder
+        ├── BAM Builder (AI Workers)
+        ├── SUTAR Builder (Departments)
+        ├── Marketplace Builder (7-day launch)
+        ├── Industry Builder
+        └── Federation Builder
+                │
+                ▼
+HOJAI FOUNDRY (Compilation Layer)
+        │
+        ├── Generates CommerceOS
+        ├── Generates BAM Workers
+        ├── Generates SUTAR Departments
+        ├── Generates MarketplaceOS
+        └── Generates ACP Contracts
+                │
+                ▼
+GLOBAL NEXHA (Execution Layer)
+        │
+        └── BAM + SUTAR + CommerceOS + MarketplaceOS + RABTUL
+```
+
+**BAM Workers across 26 Industries:**
+
+| Layer | What It Does |
+|-------|-------------|
+| **BAM** | Individual AI workers (Chef, Procurement, Booking, etc.) |
+| **SUTAR** | Department organization (Team, coordination, hierarchy) |
+| **MarketplaceOS** | Commerce operations (onboarding, payments) |
+
+**The Marketplace Launch Stack:**
+
+```
+MarketplaceOS + BAM Workers + SUTAR Departments + RABTUL + DiscoveryOS + TrustOS
+= Launch a marketplace in 7 days
+```
+
+See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md) — Part 16 for full Studio spec including BAM workers.
 
 ---
 

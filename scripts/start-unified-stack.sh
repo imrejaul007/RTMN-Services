@@ -337,7 +337,7 @@ main() {
             # =================================================================
             log_info ""
             log_info "=========================================="
-            log_info "PHASE 7: CompanyOS (Control Plane)"
+            log_info "PHASE 7: CompanyOS (Control Plane + Pipeline)"
             log_info "=========================================="
 
             # CompanyOS Control Plane
@@ -348,7 +348,39 @@ main() {
                 echo $! >> "$PID_FILE"
             fi
 
-            sleep 2
+            # Intent Engine (NLP → Goals → Workers)
+            if [ -d "$HOJAI_DIR/platform/company-os/intent-engine" ]; then
+                cd "$HOJAI_DIR/platform/company-os/intent-engine"
+                log_info "Starting Intent Engine (port 4011)..."
+                PORT=4011 node src/index.js &
+                echo $! >> "$PID_FILE"
+            fi
+
+            # Worker Registry (Unified Human/AI)
+            if [ -d "$HOJAI_DIR/platform/company-os/worker-registry" ]; then
+                cd "$HOJAI_DIR/platform/company-os/worker-registry"
+                log_info "Starting Worker Registry (port 4012)..."
+                PORT=4012 node src/index.js &
+                echo $! >> "$PID_FILE"
+            fi
+
+            # Department Runtime
+            if [ -d "$HOJAI_DIR/platform/company-os/department-runtime" ]; then
+                cd "$HOJAI_DIR/platform/company-os/department-runtime"
+                log_info "Starting Department Runtime (port 4013)..."
+                PORT=4013 node src/index.js &
+                echo $! >> "$PID_FILE"
+            fi
+
+            # ITSM Suite (Tickets, Problems, Changes)
+            if [ -d "$HOJAI_DIR/platform/services/itsm" ]; then
+                cd "$HOJAI_DIR/platform/services/itsm"
+                log_info "Starting ITSM Suite (port 4014)..."
+                PORT=4014 node src/index.js &
+                echo $! >> "$PID_FILE"
+            fi
+
+            sleep 3
 
             # =================================================================
             # COMPLETE

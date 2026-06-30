@@ -1,7 +1,7 @@
 {
-  "name": "@hojai/actor-runtime",
+  "name": "@hojai/watcher-runtime",
   "version": "1.0.0",
-  "description": "HOJAI Actor Runtime - Standardized web data extraction",
+  "description": "HOJAI Watcher Runtime - Continuous web monitoring",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,10 +17,11 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "keywords": ["hojai", "actor", "web-scraping", "data-extraction"],
+  "keywords": ["hojai", "watcher", "web-monitoring", "change-detection"],
   "author": "HOJAI AI",
   "license": "MIT",
   "dependencies": {
+    "@hojai/actor-runtime": "^1.0.0",
     "cheerio": "^1.0.0",
     "typescript": "^5.4.0"
   },

@@ -1,9 +1,33 @@
 /**
  * HOJAI Actor Runtime
  * Standardized web data extraction framework
+ *
+ * Uses Cheerio for HTML parsing (works in Node.js)
+ * Integrates with existing HOJAI services:
+ * - MemoryOS (4703) - Store scraped data
+ * - TwinOS Hub (4705) - Register entities
+ * - Knowledge Extraction (4784) - NER, entity linking
+ * - Webhook Bus (4110) - Notifications
  */
 
 import { EventEmitter } from 'events';
+
+// Re-export utilities
+export {
+  parseHtml,
+  extractText,
+  extractAllText,
+  extractAttribute,
+  extractLinks,
+  extractImages,
+  extractJsonLd,
+  extractMetaTags,
+  extractTable,
+  extractList,
+  elementExists,
+  countElements,
+  extractHtmlSnippet,
+} from './utils/parseHtml.js';
 
 // Actor types
 export interface ActorConfig {
@@ -122,8 +146,8 @@ export class ActorRuntime extends EventEmitter {
         throw new Error('Invalid input for actor');
       }
 
-      // Apply rate limiting
-      await actor.rateLimit();
+      // Apply rate limiting (use any to access protected method)
+      await (actor as any).rateLimit();
 
       // Execute actor
       const output = await actor.scrape(input.params);
@@ -219,8 +243,9 @@ export async function fetchUrl(
       };
 
       if (proxy) {
-        // Use proxy if configured
-        fetchOptions.duplex = 'half';
+        // Use proxy agent if configured - requires https-proxy-agent package
+        // For now, we skip proxy in basic implementation
+        console.warn('Proxy support requires https-proxy-agent package');
       }
 
       clearTimeout(timeoutId);
@@ -239,26 +264,6 @@ export async function fetchUrl(
   }
 
   throw new Error('Should not reach here');
-}
-
-// Parse HTML utility
-export function parseHtml(html: string): Document {
-  const parser = new DOMParser();
-  return parser.parseFromString(html, 'text/html');
-}
-
-// Extract JSON from page
-export function extractJson(html: string, selector: string): any[] {
-  const doc = parseHtml(html);
-  const elements = doc.querySelectorAll(selector);
-
-  return Array.from(elements).map((el) => {
-    try {
-      return JSON.parse(el.textContent || '');
-    } catch {
-      return null;
-    }
-  }).filter(Boolean);
 }
 
 // Singleton runtime

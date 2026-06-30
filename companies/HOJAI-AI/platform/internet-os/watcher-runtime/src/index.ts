@@ -1,10 +1,19 @@
 /**
  * HOJAI Watcher Runtime
  * Continuous monitoring of web resources for changes
+ *
+ * Integrates with:
+ * - Actor Runtime - For fetching URLs
+ * - MemoryOS (4703) - For storing state and changes (via memoryBridge)
+ * - Webhook Bus (4110) - For notifications (via alertRouter)
+ *
+ * REUSES: DO NOT build new storage, use MemoryOS bridge
  */
 
 import { EventEmitter } from 'events';
-import { fetchUrl } from '../actor-runtime';
+import { fetchUrl } from '@hojai/actor-runtime';
+import { parseHtml } from '@hojai/actor-runtime/utils/parseHtml.js';
+import { MemoryBridge, getMemoryBridge } from './bridges/memoryBridge.js';
 
 export interface WatcherConfig {
   id: string;
@@ -15,6 +24,7 @@ export interface WatcherConfig {
   selector?: string; // CSS selector to watch
   transform?: (data: any) => any;
   onChange?: (newValue: any, oldValue: any) => void;
+  storeInMemory?: boolean; // Store state in MemoryOS
 }
 
 export interface WatcherState {
@@ -39,13 +49,28 @@ export class WatcherRuntime extends EventEmitter {
   private states = new Map<string, WatcherState>();
   private intervals = new Map<string, NodeJS.Timeout>();
   private isRunning = false;
+  private memoryBridge: MemoryBridge;
+
+  constructor(memoryBridge?: MemoryBridge) {
+    super();
+    this.memoryBridge = memoryBridge || getMemoryBridge();
+  }
+
+  /**
+   * Set custom memory bridge
+   */
+  setMemoryBridge(bridge: MemoryBridge): void {
+    this.memoryBridge = bridge;
+  }
 
   // Add a watcher
   addWatcher(config: WatcherConfig): void {
-    this.watchers.set(config.id, config);
+    // Set default for storing in MemoryOS
+    const finalConfig = { ...config, storeInMemory: config.storeInMemory ?? true };
+    this.watchers.set(finalConfig.id, finalConfig);
 
-    this.states.set(config.id, {
-      id: config.id,
+    this.states.set(finalConfig.id, {
+      id: finalConfig.id,
       currentValue: null,
       previousValue: null,
       lastChecked: new Date().toISOString(),
@@ -53,11 +78,11 @@ export class WatcherRuntime extends EventEmitter {
       status: 'paused',
     });
 
-    this.emit('watcher:added', { id: config.id, config });
+    this.emit('watcher:added', { id: finalConfig.id, config: finalConfig });
   }
 
   // Remove a watcher
-  removeWatcher(id: string): void {
+  async removeWatcher(id: string): Promise<void> {
     this.stopWatcher(id);
     this.watchers.delete(id);
     this.states.delete(id);
@@ -69,7 +94,7 @@ export class WatcherRuntime extends EventEmitter {
     if (this.isRunning) return;
     this.isRunning = true;
 
-    for (const [id, config] of this.watchers) {
+    for (const [id] of this.watchers) {
       this.startWatcher(id);
     }
 
@@ -143,19 +168,17 @@ export class WatcherRuntime extends EventEmitter {
       // Fetch the page
       const html = await fetchUrl(config.url, { timeout: 30000 });
 
-      // Extract data
+      // Extract data using Cheerio (works in Node.js)
       let newValue: any;
 
       if (config.selector) {
-        // Parse selector
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const element = doc.querySelector(config.selector);
+        const $ = parseHtml(html);
+        const element = $(config.selector).first();
 
-        if (element) {
+        if (element.length > 0) {
           newValue = {
-            text: element.textContent?.trim(),
-            html: element.innerHTML,
+            text: element.text().trim(),
+            html: element.html() || '',
           };
         }
       } else {
@@ -186,6 +209,7 @@ export class WatcherRuntime extends EventEmitter {
           state.changes = state.changes.slice(-100);
         }
 
+        // Emit change events
         this.emit('watcher:change', { id, change });
         this.emit(`change:${id}`, change);
 
@@ -193,16 +217,45 @@ export class WatcherRuntime extends EventEmitter {
         if (config.onChange) {
           config.onChange(newValue, state.previousValue);
         }
+
+        // Store in MemoryOS if enabled
+        if (config.storeInMemory) {
+          await this.storeInMemory(id, change);
+        }
       }
 
-      // Update last checked
+      // Update state
       this.states.set(id, state);
+
+      // Clear error state on successful check
+      if (state.status === 'error') {
+        state.status = 'active';
+        state.error = undefined;
+      }
 
     } catch (error) {
       state.status = 'error';
       state.error = error instanceof Error ? error.message : 'Unknown error';
 
       this.emit('watcher:error', { id, error: state.error });
+    }
+  }
+
+  /**
+   * Store change in MemoryOS via bridge
+   */
+  private async storeInMemory(id: string, change: ChangeRecord): Promise<void> {
+    try {
+      await this.memoryBridge.storeChange({
+        id: `change-${id}-${Date.now()}`,
+        watcherId: id,
+        changeType: change.changeType,
+        oldValue: change.oldValue,
+        newValue: change.newValue,
+        detectedAt: change.timestamp,
+      });
+    } catch (error) {
+      console.error(`Failed to store change in MemoryOS:`, error);
     }
   }
 
@@ -274,6 +327,13 @@ export class WatcherRuntime extends EventEmitter {
       state.changes = [];
     }
   }
+
+  // Get changes for a watcher
+  getChanges(id: string, limit = 100): ChangeRecord[] {
+    const state = this.states.get(id);
+    if (!state) return [];
+    return state.changes.slice(-limit);
+  }
 }
 
 // Pre-built watcher types
@@ -289,11 +349,37 @@ export class PriceWatcher {
       interval,
       selector: priceSelector,
       transform: (data) => {
-        // Extract price from text
-        const priceMatch = data.text?.match(/[\d,]+\.?\d*/);
-        return priceMatch ? parseFloat(priceMatch[0].replace(/,/g, '')) : null;
+        // Extract price from text - supports multiple currencies
+        const pricePatterns = [
+          /₹([\d,]+\.?\d*)/,    // INR
+          /\$([\d,]+\.?\d*)/,    // USD
+          /€([\d,]+\.?\d*)/,     // EUR
+          /AED\s*([\d,]+\.?\d*)/, // AED
+          /([\d,]+\.?\d*)\s*(?:INR|USD|EUR|AED)/i,
+          /([\d,]+\.?\d*)/,       // Generic
+        ];
+
+        for (const pattern of pricePatterns) {
+          const match = data.text?.match(pattern);
+          if (match) {
+            return {
+              price: parseFloat(match[1].replace(/,/g, '')),
+              currency: this.detectCurrency(data.text || ''),
+              raw: data.text,
+            };
+          }
+        }
+        return { price: null, currency: null, raw: data.text };
       },
     });
+  }
+
+  private detectCurrency(text: string): string {
+    if (text.includes('₹')) return 'INR';
+    if (text.includes('$')) return 'USD';
+    if (text.includes('€')) return 'EUR';
+    if (text.includes('AED')) return 'AED';
+    return 'UNKNOWN';
   }
 }
 
@@ -310,13 +396,39 @@ export class ReviewWatcher {
       selector: reviewSelector,
       transform: (data) => {
         // Extract rating and count
-        const ratingMatch = data.text?.match(/(\d+\.?\d*)\s*(?:stars?|★)/i);
-        const countMatch = data.text?.match(/(\d+,?\d*)\s*(?:reviews?|ratings?)/i);
-        return {
-          rating: ratingMatch ? parseFloat(ratingMatch[1]) : null,
-          count: countMatch ? parseInt(countMatch[1].replace(/,/g, '')) : null,
-          raw: data.text,
-        };
+        const ratingPatterns = [
+          /([\d.]+)\s*(?:stars?|★|out of 5|out of 10)/i,
+          /rating[:\s]*([\d.]+)/i,
+          /([\d.]+)\s*\/\s*5/i,
+          /([\d.]+)\s*\/\s*10/i,
+        ];
+
+        const countPatterns = [
+          /([\d,]+)\s*(?:reviews?|ratings?|customers?)/i,
+          /([\d,]+)\s*(?:total\s+)?ratings?/i,
+          /\(([\d,]+)\)/,
+        ];
+
+        let rating = null;
+        let count = null;
+
+        for (const pattern of ratingPatterns) {
+          const match = data.text?.match(pattern);
+          if (match) {
+            rating = parseFloat(match[1]);
+            break;
+          }
+        }
+
+        for (const pattern of countPatterns) {
+          const match = data.text?.match(pattern);
+          if (match) {
+            count = parseInt(match[1].replace(/,/g, ''));
+            break;
+          }
+        }
+
+        return { rating, count, raw: data.text };
       },
     });
   }
