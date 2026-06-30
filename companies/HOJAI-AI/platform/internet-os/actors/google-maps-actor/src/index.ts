@@ -3,8 +3,8 @@
  * Extract business information from Google Maps
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
-import type { CheerioAPI, CheerioElement } from 'cheerio';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
+import type { CheerioAPI } from 'cheerio';
 
 export interface GoogleMapsConfig {
   id: 'google_maps';

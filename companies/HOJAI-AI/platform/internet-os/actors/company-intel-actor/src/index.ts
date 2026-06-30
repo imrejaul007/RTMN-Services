@@ -3,7 +3,7 @@
  * Comprehensive company research and competitor analysis
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
 
 export interface CompanyProfile {
   name: string;
@@ -107,16 +107,16 @@ export class CompanyIntelActor extends Actor {
     if (domain) {
       try {
         const html = await fetchUrl(`https://${domain}`, { timeout: 15000 });
-        const doc = parseHtml(html);
+        const $ = parseHtml(html);
 
         // Extract meta info
-        profile.description = doc.querySelector('meta[name="description"]')?.getAttribute('content') || undefined;
+        profile.description = $('meta[name="description"]').attr('content') || undefined;
         profile.website = domain;
 
         // Try to find social links
-        const socialLinks = doc.querySelectorAll('a[href*="linkedin.com"], a[href*="twitter.com"], a[href*="facebook.com"]');
-        socialLinks.forEach((link) => {
-          const href = link.getAttribute('href') || '';
+        const socialLinks = $('a[href*="linkedin.com"], a[href*="twitter.com"], a[href*="facebook.com"]');
+        socialLinks.each((_, link) => {
+          const href = $(link).attr('href') || '';
           if (href.includes('linkedin.com')) profile.linkedin = href;
           if (href.includes('twitter.com')) profile.twitter = href;
           if (href.includes('facebook.com')) profile.facebook = href;
@@ -134,11 +134,11 @@ export class CompanyIntelActor extends Actor {
       const linkedinHtml = await fetchUrl(`https://www.linkedin.com/company/${company.toLowerCase().replace(/\s+/g, '-')}`, {
         timeout: 15000,
       });
-      const linkedinDoc = parseHtml(linkedinHtml);
+      const $ = parseHtml(linkedinHtml);
 
-      profile.industry = linkedinDoc.querySelector('[data-test-id="about-us__industry"]')?.textContent?.trim() || undefined;
-      profile.size = linkedinDoc.querySelector('[data-test-id="about-us__size"]')?.textContent?.trim() || undefined;
-      profile.headquarters = linkedinDoc.querySelector('[data-test-id="about-us__headquarters"]')?.textContent?.trim() || undefined;
+      profile.industry = $('[data-test-id="about-us__industry"]').text().trim() || undefined;
+      profile.size = $('[data-test-id="about-us__size"]').text().trim() || undefined;
+      profile.headquarters = $('[data-test-id="about-us__headquarters"]').text().trim() || undefined;
     } catch {
       // LinkedIn scraping failed
     }
@@ -156,12 +156,12 @@ export class CompanyIntelActor extends Actor {
     if (domain) {
       try {
         const html = await fetchUrl(`https://www.similarweb.com/website/${domain}`, { timeout: 15000 });
-        const doc = parseHtml(html);
+        const $ = parseHtml(html);
 
         // Extract competitor domains
-        const competitorLinks = doc.querySelectorAll('.competitor-link, .similar-item');
-        competitorLinks.forEach((link) => {
-          const text = link.textContent?.trim();
+        const competitorLinks = $('.competitor-link, .similar-item');
+        competitorLinks.each((_, link) => {
+          const text = $(link).text().trim();
           if (text && text.length < 50) {
             competitors.push(text);
           }
@@ -195,11 +195,11 @@ export class CompanyIntelActor extends Actor {
         timeout: 15000,
       });
 
-      const doc = parseHtml(html);
-      const rounds = doc.querySelectorAll('.funding-round, .card');
+      const $ = parseHtml(html);
+      const rounds = $('.funding-round, .card');
 
-      rounds.forEach((round) => {
-        const roundText = round.textContent || '';
+      rounds.each((_, round) => {
+        const roundText = $(round).text() || '';
         if (roundText.match(/series|seed|angel|pre-|ipo/i)) {
           const amountMatch = roundText.match(/\$[\d,]+(?:\s*(?:million|billion|k|m|b))?/i);
           const dateMatch = roundText.match(/(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[\s,]*\d{4}/i);
@@ -237,13 +237,13 @@ export class CompanyIntelActor extends Actor {
         timeout: 15000,
       });
 
-      const doc = parseHtml(html);
-      const jobCards = doc.querySelectorAll('.job-card-container, .job-card');
+      const $ = parseHtml(html);
+      const jobCards = $('.job-card-container, .job-card');
 
-      jobCards.slice(0, limit).forEach((card) => {
-        const title = card.querySelector('.job-card-container__link')?.textContent?.trim();
-        const url = card.querySelector('.job-card-container__link')?.getAttribute('href');
-        const location = card.querySelector('.job-card-container__metadata-item')?.textContent?.trim();
+      jobCards.slice(0, limit).each((_, card) => {
+        const title = $(card).find('.job-card-container__link').text().trim();
+        const url = $(card).find('.job-card-container__link').attr('href');
+        const location = $(card).find('.job-card-container__metadata-item').text().trim();
 
         if (title) {
           jobs.push({

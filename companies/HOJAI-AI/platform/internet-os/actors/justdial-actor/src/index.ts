@@ -3,7 +3,7 @@
  * Local business search for India
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
 
 export class JustdialActor extends Actor {
   constructor() {
@@ -49,16 +49,16 @@ export class JustdialActor extends Actor {
 
   private parseSearchResults(html: string, limit: number): any[] {
     const businesses: any[] = [];
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
-    const cards = doc.querySelectorAll('.store-list, .srch_bx, .jdl');
+    const cards = $('.store-list, .srch_bx, .jdl');
 
-    cards.slice(0, limit).forEach((card) => {
-      const name = card.querySelector('.store-name, .lng_cont_name')?.textContent?.trim();
-      const address = card.querySelector('.address, .cont_fl_addr')?.textContent?.trim();
-      const phone = card.querySelector('.telnum')?.textContent?.trim();
-      const rating = card.querySelector('.green-box, .rating')?.textContent?.trim();
-      const votes = card.querySelector('.votes')?.textContent?.trim();
+    cards.slice(0, limit).each((_, card) => {
+      const name = $(card).find('.store-name, .lng_cont_name').text().trim();
+      const address = $(card).find('.address, .cont_fl_addr').text().trim();
+      const phone = $(card).find('.telnum').text().trim();
+      const rating = $(card).find('.green-box, .rating').text().trim();
+      const votes = $(card).find('.votes').text().trim();
 
       if (name) {
         businesses.push({
@@ -67,7 +67,7 @@ export class JustdialActor extends Actor {
           phone: phone?.replace(/[^0-9]/g, ''),
           rating: rating ? parseFloat(rating) : null,
           votes: votes ? parseInt(votes.replace(/[^0-9]/g, '')) : 0,
-          url: card.querySelector('a')?.getAttribute('href'),
+          url: $(card).find('a').attr('href'),
         });
       }
     });

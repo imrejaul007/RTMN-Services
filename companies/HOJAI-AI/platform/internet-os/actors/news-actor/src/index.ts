@@ -3,7 +3,7 @@
  * News extraction and monitoring
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
 
 export class NewsActor extends Actor {
   constructor() {
@@ -155,16 +155,16 @@ export class NewsActor extends Actor {
 
   private parseNewsArticles(html: string, limit: number): any[] {
     const articles: any[] = [];
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
-    const articleEls = doc.querySelectorAll('article');
+    const articleEls = $('article');
 
-    articleEls.slice(0, limit).forEach((el) => {
-      const title = el.querySelector('h3, h4')?.textContent?.trim();
-      const link = el.querySelector('a')?.getAttribute('href');
-      const source = el.querySelector('.wEwyRc, .VNVAW, .source')?.textContent?.trim();
-      const time = el.querySelector('.UBbYof, .WW6dff, time')?.textContent?.trim();
-      const image = el.querySelector('img')?.getAttribute('src');
+    articleEls.slice(0, limit).each((_, el) => {
+      const title = $(el).find('h3, h4').first().text().trim();
+      const link = $(el).find('a').attr('href');
+      const source = $(el).find('.wEwyRc, .VNVAW, .source').text().trim();
+      const time = $(el).find('.UBbYof, .WW6dff, time').text().trim();
+      const image = $(el).find('img').attr('src');
 
       if (title) {
         articles.push({
