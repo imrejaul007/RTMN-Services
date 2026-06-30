@@ -77,7 +77,7 @@ export class JustdialActor extends Actor {
   }
 
   async validate(input: any): Promise<boolean> {
-    return !!(input && typeof input.query === 'string');
+    return !!(input && typeof input.query === 'string' && input.query.length > 0);
   }
 }
 

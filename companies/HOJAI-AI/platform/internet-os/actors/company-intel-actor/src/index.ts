@@ -313,7 +313,7 @@ export class CompanyIntelActor extends Actor {
   }
 
   async validate(input: any): Promise<boolean> {
-    return !!(input && typeof input.company === 'string');
+    return !!(input && typeof input.company === 'string' && input.company.length > 0);
   }
 }
 
