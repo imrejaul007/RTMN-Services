@@ -90,5 +90,189 @@
     "version": 1,
     "createdAt": "2026-06-28T22:21:05.310Z",
     "updatedAt": "2026-06-28T22:21:05.310Z"
+  },
+  {
+    "id": "feb2ea00-0d7b-46ea-a906-1e3f4b94d419",
+    "typeId": "b86788bd-3223-4661-8914-c9c479eae051",
+    "name": "Test Instance",
+    "data": {
+      "x": 1
+    },
+    "tags": [
+      "test"
+    ],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:49.861Z",
+    "updatedAt": "2026-06-30T13:54:49.861Z"
+  },
+  {
+    "id": "7d120345-97c3-4f1f-bdd6-c2babc5438c0",
+    "typeId": "f890775d-5e48-4528-b5f9-58e67c86e867",
+    "name": "Get Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:49.870Z",
+    "updatedAt": "2026-06-30T13:54:49.870Z"
+  },
+  {
+    "id": "d58bc9ac-315a-4934-8967-ad3a5316be43",
+    "typeId": "a2d7e74c-7fa3-41c9-acb7-0fcc62b84a69",
+    "name": "New Inst",
+    "data": {},
+    "tags": [],
+    "status": "archived",
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:49.875Z",
+    "updatedAt": "2026-06-30T13:54:49.877Z"
+  },
+  {
+    "id": "c1ddd94b-b4ef-46bd-8259-6691035708fe",
+    "typeId": "595c516f-b7a0-40f1-9f14-bcc19cef81b5",
+    "name": "Ver Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 2,
+    "createdAt": "2026-06-30T13:54:49.887Z",
+    "updatedAt": "2026-06-30T13:54:49.889Z"
+  },
+  {
+    "id": "c527097a-8d9c-4faf-b33e-c98a8a4ebb88",
+    "typeId": "749a19c6-157e-41a3-9ccf-51cad4076172",
+    "name": "I1",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:49.892Z",
+    "updatedAt": "2026-06-30T13:54:49.892Z"
+  },
+  {
+    "id": "b14a37bd-2a04-4e8e-a37b-4d31235e4296",
+    "typeId": "749a19c6-157e-41a3-9ccf-51cad4076172",
+    "name": "I2",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:49.893Z",
+    "updatedAt": "2026-06-30T13:54:49.893Z"
+  },
+  {
+    "id": "f508f521-42e0-4e83-bed5-a50d117cac51",
+    "typeId": "d3bae65a-3ea9-4123-a0fa-28ac336eec47",
+    "name": "Rel Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:49.897Z",
+    "updatedAt": "2026-06-30T13:54:49.897Z"
+  },
+  {
+    "id": "17ab607e-986d-4e2d-9a4a-de1a88c8b5c0",
+    "typeId": "26ccd96c-72ce-4881-9d78-b4a3c982070f",
+    "name": "DelRel",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:49.902Z",
+    "updatedAt": "2026-06-30T13:54:49.902Z"
+  },
+  {
+    "id": "c31e7592-4d4f-4dd4-9791-8adfb25d1786",
+    "typeId": "54b64be8-568c-4527-af3a-871c538f946d",
+    "name": "Test Instance",
+    "data": {
+      "x": 1
+    },
+    "tags": [
+      "test"
+    ],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:58:20.030Z",
+    "updatedAt": "2026-06-30T13:58:20.030Z"
+  },
+  {
+    "id": "8a4eb4fc-28ba-4721-b0b0-5d0903b25992",
+    "typeId": "cc226bc6-3c36-4668-ac2c-a502d9ddea2d",
+    "name": "Get Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:58:20.039Z",
+    "updatedAt": "2026-06-30T13:58:20.039Z"
+  },
+  {
+    "id": "a4370333-2af3-48b1-a72a-afbf08d46947",
+    "typeId": "45806a63-4883-4921-954c-563555f19c92",
+    "name": "New Inst",
+    "data": {},
+    "tags": [],
+    "status": "archived",
+    "version": 1,
+    "createdAt": "2026-06-30T13:58:20.046Z",
+    "updatedAt": "2026-06-30T13:58:20.048Z"
+  },
+  {
+    "id": "a7bafbce-4308-4348-b57b-b0a01576c53c",
+    "typeId": "3b7b3efa-b5f8-408f-87f4-db4b85ca926f",
+    "name": "Ver Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 2,
+    "createdAt": "2026-06-30T13:58:20.057Z",
+    "updatedAt": "2026-06-30T13:58:20.060Z"
+  },
+  {
+    "id": "75d26d11-ec7d-471b-bc03-eb135dba48e7",
+    "typeId": "20d6df8b-5092-4223-89f0-2b8d556b3e61",
+    "name": "I1",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:58:20.066Z",
+    "updatedAt": "2026-06-30T13:58:20.066Z"
+  },
+  {
+    "id": "981ef220-622d-4e37-8815-548d4708252c",
+    "typeId": "20d6df8b-5092-4223-89f0-2b8d556b3e61",
+    "name": "I2",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:58:20.067Z",
+    "updatedAt": "2026-06-30T13:58:20.067Z"
+  },
+  {
+    "id": "6e5e283d-2141-4a9a-be60-5c479fbf4b82",
+    "typeId": "4f650620-b042-4089-b692-07cd77aa79de",
+    "name": "Rel Inst",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:58:20.072Z",
+    "updatedAt": "2026-06-30T13:58:20.072Z"
+  },
+  {
+    "id": "17fc83a6-7dc0-4dec-a052-05e54cf1255e",
+    "typeId": "4cca6d22-28ef-4599-8881-6a2be9a09d97",
+    "name": "DelRel",
+    "data": {},
+    "tags": [],
+    "status": "active",
+    "version": 1,
+    "createdAt": "2026-06-30T13:58:20.079Z",
+    "updatedAt": "2026-06-30T13:58:20.079Z"
   }
 ]

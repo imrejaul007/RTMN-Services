@@ -84,6 +84,7 @@ app.post('/api/household/grocery', async (req, res, next) => {
   try {
     const data = GrocerySchema.parse(req.body);
     const item = await HouseholdManager.addGrocery(data.householdId, {
+      householdId: data.householdId,
       item: data.item,
       quantity: data.quantity,
       unit: data.unit,
@@ -130,6 +131,7 @@ app.post('/api/household/bills', async (req, res, next) => {
   try {
     const data = BillSchema.parse(req.body);
     const bill = await HouseholdManager.addBill(data.householdId, {
+      householdId: data.householdId,
       name: data.name,
       amount: data.amount,
       dueDate: new Date(data.dueDate),
@@ -181,6 +183,7 @@ app.post('/api/household/medicines', async (req, res, next) => {
   try {
     const data = MedicineSchema.parse(req.body);
     const medicine = await HouseholdManager.addMedicine(data.householdId, {
+      householdId: data.householdId,
       memberId: data.memberId,
       memberName: data.memberName,
       name: data.name,

@@ -5,5 +5,19 @@
     "parentId": null,
     "description": "Tech category",
     "createdAt": "2026-06-28T22:21:05.404Z"
+  },
+  {
+    "id": "650b58a5-725d-48fd-8077-727984956fe5",
+    "name": "Technology",
+    "parentId": null,
+    "description": "Tech category",
+    "createdAt": "2026-06-30T13:54:50.337Z"
+  },
+  {
+    "id": "692b0ef8-f3f7-43b7-a92e-4c7d53e9cc15",
+    "name": "Technology",
+    "parentId": null,
+    "description": "Tech category",
+    "createdAt": "2026-06-30T14:00:00.309Z"
   }
 ]

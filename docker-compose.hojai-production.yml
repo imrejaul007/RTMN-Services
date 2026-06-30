@@ -1,0 +1,258 @@
+version: '3.8'
+
+# ============================================
+# HOJAI Production Stack
+# Docker Compose for all HOJAI services
+# ============================================
+
+services:
+  # ==========================================
+  # HOJAI Foundry - Visual Builder
+  # ==========================================
+  visual-builder:
+    build:
+      context: ./companies/HOJAI-AI/foundry/services/visual-builder
+      dockerfile: Dockerfile
+    container_name: hojai-visual-builder
+    ports:
+      - "4600:4600"
+    environment:
+      - NODE_ENV=production
+      - PORT=4600
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4600/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hojai-network
+
+  visual-builder-ui:
+    build:
+      context: ./companies/HOJAI-AI/foundry/services/visual-builder/ui
+      dockerfile: Dockerfile
+    container_name: hojai-visual-builder-ui
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+    depends_on:
+      - visual-builder
+    networks:
+      - hojai-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.visual-builder.rule=Host(`hojai.local`)"
+      - "traefik.http.services.visual-builder.loadbalancer.server.port=80"
+
+  # ==========================================
+  # HOJAI Company OS - Creator Economy
+  # ==========================================
+  creator-economy:
+    build:
+      context: ./companies/HOJAI-AI/platform/company-os/creator-economy
+      dockerfile: Dockerfile
+    container_name: hojai-creator-economy
+    ports:
+      - "4514:4514"
+    environment:
+      - NODE_ENV=production
+      - PORT=4514
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4514/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # HOJAI Internet OS - Web Intelligence
+  # ==========================================
+  actor-runtime:
+    build:
+      context: ./companies/HOJAI-AI/platform/internet-os/actor-runtime
+      dockerfile: Dockerfile
+    container_name: hojai-actor-runtime
+    ports:
+      - "4440:4440"
+    environment:
+      - NODE_ENV=production
+      - PORT=4440
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+  watcher-runtime:
+    build:
+      context: ./companies/HOJAI-AI/platform/internet-os/watcher-runtime
+      dockerfile: Dockerfile
+    container_name: hojai-watcher-runtime
+    ports:
+      - "4441:4441"
+    environment:
+      - NODE_ENV=production
+      - PORT=4441
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # HOJAI Agent OS
+  # ==========================================
+  agent-platform:
+    build:
+      context: ./companies/HOJAI-AI/platform/agent-os/agent-platform-api
+      dockerfile: Dockerfile
+    container_name: hojai-agent-platform
+    ports:
+      - "4802:4802"
+    environment:
+      - NODE_ENV=production
+      - PORT=4802
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4802/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # HOJAI Loop OS - Autonomous Execution
+  # ==========================================
+  loop-scheduler:
+    build:
+      context: ./companies/HOJAI-AI/platform/flow/loop-os/services/loop-scheduler
+      dockerfile: Dockerfile
+    container_name: hojai-loop-scheduler
+    ports:
+      - "4731:4731"
+    environment:
+      - NODE_ENV=production
+      - PORT=4731
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # HOJAI BrandPulse - Brand Intelligence
+  # ==========================================
+  brandpulse:
+    build:
+      context: ./companies/HOJAI-AI/products/brandpulse
+      dockerfile: Dockerfile
+    container_name: hojai-brandpulse
+    ports:
+      - "4899:4899"
+    environment:
+      - NODE_ENV=production
+      - PORT=4899
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # RTMN Hub - Unified Gateway
+  # ==========================================
+  rtmn-hub:
+    build:
+      context: ./services/rtmn-unified-hub
+      dockerfile: Dockerfile
+    container_name: rtmn-unified-hub
+    ports:
+      - "4399:4399"
+    environment:
+      - NODE_ENV=production
+      - PORT=4399
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4399/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # PostgreSQL Database (for services that need it)
+  # ==========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: hojai-postgres
+    environment:
+      - POSTGRES_USER=hojai
+      - POSTGRES_PASSWORD=hojai_secret
+      - POSTGRES_DB=hojai_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # Redis Cache
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: hojai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # MongoDB (for services that need it)
+  # ==========================================
+  mongodb:
+    image: mongo:6
+    container_name: hojai-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=hojai
+      - MONGO_INITDB_ROOT_PASSWORD=hojai_secret
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+  # ==========================================
+  # Nginx Reverse Proxy
+  # ==========================================
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: hojai-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - visual-builder
+      - visual-builder-ui
+      - creator-economy
+      - rtmn-hub
+    restart: unless-stopped
+    networks:
+      - hojai-network
+
+networks:
+  hojai-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  mongodb_data:

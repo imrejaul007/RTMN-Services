@@ -90,5 +90,189 @@
     "version": 1,
     "createdAt": "2026-06-28T22:21:05.421Z",
     "updatedAt": "2026-06-28T22:21:05.421Z"
+  },
+  {
+    "id": "32134bd3-a3da-4304-8a85-3600ab9f3d9e",
+    "name": "Test Knowledge",
+    "type": "article",
+    "content": "Test content",
+    "tags": [
+      "test"
+    ],
+    "taxonomy": "tech",
+    "confidence": 0.95,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:50.308Z",
+    "updatedAt": "2026-06-30T13:54:50.308Z"
+  },
+  {
+    "id": "9540f846-72c3-494f-90ff-eeff710de7a4",
+    "name": "Get Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:50.318Z",
+    "updatedAt": "2026-06-30T13:54:50.318Z"
+  },
+  {
+    "id": "430526ca-5a34-4e43-9751-50c6c2ba61f9",
+    "name": "New Name",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:50.322Z",
+    "updatedAt": "2026-06-30T13:54:50.324Z"
+  },
+  {
+    "id": "ab3ad763-2971-434b-b891-4475f728f963",
+    "name": "Version Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 2,
+    "createdAt": "2026-06-30T13:54:50.330Z",
+    "updatedAt": "2026-06-30T13:54:50.332Z"
+  },
+  {
+    "id": "ac11cb88-269c-4074-91ef-db65ffa99a2c",
+    "name": "VList",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:50.334Z",
+    "updatedAt": "2026-06-30T13:54:50.334Z"
+  },
+  {
+    "id": "f189ea91-841b-4b0c-9ec3-6f17784355e2",
+    "name": "A1",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:50.345Z",
+    "updatedAt": "2026-06-30T13:54:50.345Z"
+  },
+  {
+    "id": "f36c3c5e-e699-48b5-83cb-76381f1a0f65",
+    "name": "A2",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:50.347Z",
+    "updatedAt": "2026-06-30T13:54:50.347Z"
+  },
+  {
+    "id": "b810b6a6-d11b-4944-a81a-e54f1ef5d1b1",
+    "name": "Dep Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T13:54:50.350Z",
+    "updatedAt": "2026-06-30T13:54:50.350Z"
+  },
+  {
+    "id": "b66e1876-972a-42bb-9c40-e7cbc0a56ef6",
+    "name": "Test Knowledge",
+    "type": "article",
+    "content": "Test content",
+    "tags": [
+      "test"
+    ],
+    "taxonomy": "tech",
+    "confidence": 0.95,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T14:00:00.268Z",
+    "updatedAt": "2026-06-30T14:00:00.268Z"
+  },
+  {
+    "id": "c26776e8-4a43-4480-b26d-e91c3437c7b0",
+    "name": "Get Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T14:00:00.279Z",
+    "updatedAt": "2026-06-30T14:00:00.279Z"
+  },
+  {
+    "id": "e7f2196a-9d55-4678-8e27-0663c1ae520e",
+    "name": "New Name",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T14:00:00.291Z",
+    "updatedAt": "2026-06-30T14:00:00.294Z"
+  },
+  {
+    "id": "44d56920-845f-4380-b786-cc49898cce45",
+    "name": "Version Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 2,
+    "createdAt": "2026-06-30T14:00:00.300Z",
+    "updatedAt": "2026-06-30T14:00:00.303Z"
+  },
+  {
+    "id": "b8987d91-f214-4361-bf73-f72e92991757",
+    "name": "VList",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T14:00:00.305Z",
+    "updatedAt": "2026-06-30T14:00:00.305Z"
+  },
+  {
+    "id": "ecf5ac4d-d32b-447e-a802-65b454a47f7d",
+    "name": "A1",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T14:00:00.317Z",
+    "updatedAt": "2026-06-30T14:00:00.317Z"
+  },
+  {
+    "id": "d094c271-b0a1-40d9-bb2c-d923053dcef1",
+    "name": "A2",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T14:00:00.320Z",
+    "updatedAt": "2026-06-30T14:00:00.320Z"
+  },
+  {
+    "id": "84f12f9f-f974-4370-a177-da45d751fae0",
+    "name": "Dep Test",
+    "type": "fact",
+    "tags": [],
+    "confidence": 1,
+    "metadata": {},
+    "version": 1,
+    "createdAt": "2026-06-30T14:00:00.327Z",
+    "updatedAt": "2026-06-30T14:00:00.327Z"
   }
 ]

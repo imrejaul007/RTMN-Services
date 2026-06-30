@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-28T22:18:02.682Z",
-  "sdkCount": 26,
+  "generatedAt": "2026-06-30T13:57:43.176Z",
+  "sdkCount": 30,
   "sdks": [
     {
       "name": "@hojai/foundation",
@@ -64,6 +64,27 @@
       "version": "1.0.0",
       "methods": 56,
       "docsUrl": "/sdks/copilots.html"
+    },
+    {
+      "name": "@hojai/core-sdk",
+      "description": "Unified TypeScript SDK for HOJAI AI — all 15 platform services in one SDK",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/core-sdk.html"
+    },
+    {
+      "name": "@hojai/creator-economy",
+      "description": "SDK for HOJAI Creator Economy - Partner ecosystem with revenue sharing",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/creator-economy.html"
+    },
+    {
+      "name": "@hojai/customer-intelligence-sdk",
+      "description": "Unified SDK for HOJAI Customer Intelligence - Trust scores, COD recommendations, return risk, support intelligence, and more",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/customer-intelligence-sdk.html"
     },
     {
       "name": "@hojai/department",
@@ -162,6 +183,13 @@
       "version": "1.0.0",
       "methods": null,
       "docsUrl": "/sdks/twin.html"
+    },
+    {
+      "name": "@hojai/visual-builder",
+      "description": "SDK for HOJAI Visual Workflow Builder",
+      "version": "1.0.0",
+      "methods": null,
+      "docsUrl": "/sdks/visual-builder.html"
     },
     {
       "name": "@hojai/whatsapp",

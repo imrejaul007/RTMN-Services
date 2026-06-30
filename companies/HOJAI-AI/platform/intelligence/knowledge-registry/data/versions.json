@@ -5,5 +5,19 @@
     "name": "Version Test",
     "type": "fact",
     "createdAt": "2026-06-28T22:21:05.390Z"
+  },
+  {
+    "assetId": "ab3ad763-2971-434b-b891-4475f728f963",
+    "version": 1,
+    "name": "Version Test",
+    "type": "fact",
+    "createdAt": "2026-06-30T13:54:50.332Z"
+  },
+  {
+    "assetId": "44d56920-845f-4380-b786-cc49898cce45",
+    "version": 1,
+    "name": "Version Test",
+    "type": "fact",
+    "createdAt": "2026-06-30T14:00:00.302Z"
   }
 ]

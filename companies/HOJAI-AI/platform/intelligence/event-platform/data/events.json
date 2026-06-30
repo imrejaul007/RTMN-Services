@@ -8,5 +8,25 @@
     },
     "timestamp": "2026-06-28T22:21:05.576Z",
     "deliveredTo": []
+  },
+  {
+    "id": "a4e7ec65-177f-4286-b9c3-40335f0c914a",
+    "type": "click",
+    "source": "web",
+    "data": {
+      "x": 1
+    },
+    "timestamp": "2026-06-30T13:54:18.832Z",
+    "deliveredTo": []
+  },
+  {
+    "id": "bc60218a-7fa1-4d43-ad5c-2c2e3241a73a",
+    "type": "click",
+    "source": "web",
+    "data": {
+      "x": 1
+    },
+    "timestamp": "2026-06-30T14:00:01.404Z",
+    "deliveredTo": []
   }
 ]

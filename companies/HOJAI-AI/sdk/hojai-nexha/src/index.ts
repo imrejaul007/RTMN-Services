@@ -175,3 +175,11 @@ export class Nexha {
 }
 
 export default Nexha;
+
+// ── Resilience Exports ───────────────────────────────────────────────
+
+export { NexhaError, NexhaAuthError, NexhaInvalidKeyError, NexhaInsufficientScopeError, NexhaRateLimitError, NexhaNotFoundError, NexhaValidationError, NexhaServerError, NexhaTimeoutError, NexhaConnectionError, NexhaCircuitOpenError, NexhaConfigError, NexhaAbortError } from './errors.js';
+export type { RetryOptions } from './retry.js';
+export { withRetry, calculateDelay, retryConfig } from './retry.js';
+export { CircuitBreaker } from './circuit-breaker.js';
+export { isRetryable, isAuthError, getErrorMessage, parseRetryAfter } from './errors.js';

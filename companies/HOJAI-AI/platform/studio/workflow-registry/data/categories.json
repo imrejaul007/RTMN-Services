@@ -5,5 +5,19 @@
     "type": "use-case",
     "description": "Marketing workflows",
     "createdAt": "2026-06-28T22:21:05.735Z"
+  },
+  {
+    "id": "5474358d-e3cc-4b21-9845-0a78b40ac7ba",
+    "name": "Marketing",
+    "type": "use-case",
+    "description": "Marketing workflows",
+    "createdAt": "2026-06-30T13:54:50.811Z"
+  },
+  {
+    "id": "5ca15d3f-e6c9-4ad8-b8a3-a9677cd07966",
+    "name": "Marketing",
+    "type": "use-case",
+    "description": "Marketing workflows",
+    "createdAt": "2026-06-30T13:59:59.803Z"
   }
 ]

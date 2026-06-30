@@ -8,6 +8,17 @@
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
+// Import AI Agent integration
+import {
+  AI_AGENTS,
+  executeAgent,
+  registerAgent,
+  unregisterAgent,
+  getAgent,
+  listAgents,
+  getAgentCategories,
+} from './agent-integration.js';
+
 const app = express();
 const PORT = process.env.PORT || 4600;
 
@@ -495,6 +506,112 @@ app.get('/api/workflows/:id/export', (req, res) => {
 app.delete('/api/workflows/:id', (req, res) => {
   workflows.delete(req.params.id);
   res.json({ success: true });
+});
+
+// =============================================================================
+// AI AGENT INTEGRATION
+// =============================================================================
+
+// Get all agents
+app.get('/api/agents', (req, res) => {
+  const { category } = req.query;
+  const agents = category ? listAgents(category) : listAgents();
+  res.json({ agents, categories: getAgentCategories() });
+});
+
+// Get agent by ID
+app.get('/api/agents/:id', (req, res) => {
+  const agent = getAgent(req.params.id);
+  if (!agent) return res.status(404).json({ error: 'Agent not found' });
+  res.json(agent);
+});
+
+// Get agents by category
+app.get('/api/agents/category/:category', (req, res) => {
+  const agents = listAgents(req.params.category);
+  res.json({ agents, category: req.params.category });
+});
+
+// Execute agent
+app.post('/api/agents/:id/execute', async (req, res) => {
+  const { task, data, workflowId, nodeId } = req.body;
+
+  if (!task) {
+    return res.status(400).json({ error: 'task is required' });
+  }
+
+  try {
+    const result = await executeAgent(req.params.id, { task, data }, workflowId, nodeId);
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Execute agent with full context
+app.post('/api/agents/execute', async (req, res) => {
+  const { agentId, context, workflowId, nodeId } = req.body;
+
+  if (!agentId || !context) {
+    return res.status(400).json({ error: 'agentId and context are required' });
+  }
+
+  try {
+    const result = await executeAgent(agentId, context, workflowId, nodeId);
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Register custom agent
+app.post('/api/agents', (req, res) => {
+  const { id, name, category, description, skills, config, memory, twins } = req.body;
+
+  if (!id || !name || !category) {
+    return res.status(400).json({ error: 'id, name, and category are required' });
+  }
+
+  try {
+    const agent = registerAgent({ id, name, category, description, skills, config, memory, twins });
+    res.json(agent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Unregister agent
+app.delete('/api/agents/:id', (req, res) => {
+  const success = unregisterAgent(req.params.id);
+  if (!success) return res.status(404).json({ error: 'Agent not found' });
+  res.json({ success: true });
+});
+
+// Execute workflow node (connects workflow to agent)
+app.post('/api/workflows/:id/nodes/:nodeId/execute', async (req, res) => {
+  const workflow = workflows.get(req.params.id);
+  if (!workflow) return res.status(404).json({ error: 'Workflow not found' });
+
+  const node = workflow.nodes.find(n => n.id === req.params.nodeId);
+  if (!node) return res.status(404).json({ error: 'Node not found' });
+
+  if (node.type !== 'ai_agent') {
+    return res.status(400).json({ error: 'Node is not an AI agent' });
+  }
+
+  const { agentId, task, data } = req.body;
+  const targetAgent = agentId || node.config?.agent;
+
+  if (!targetAgent) {
+    return res.status(400).json({ error: 'No agent specified' });
+  }
+
+  try {
+    const result = await executeAgent(targetAgent, { task, data }, req.params.id, req.params.nodeId);
+    res.json({ success: true, result, nodeId: node.id, agentId: targetAgent });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // =============================================================================

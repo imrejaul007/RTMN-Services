@@ -15,7 +15,7 @@ const SALES_TONES = {
   qualification: ['need', 'looking for', 'budget', 'timeline', 'decision'],
   objection: ['but', 'however', 'concern', 'worry', 'expensive', 'too much'],
   negotiation: ['discount', 'price', 'deal', 'offer', 'compromise'],
-  closing: ['great', 'perfect', 'deal', 'let's do it', 'sign'],
+  closing: ['great', 'perfect', 'deal', 'lets do it', 'sign'],
   rapport: ['understand', 'appreciate', 'helpful', 'great talking', 'enjoyed']
 };
 

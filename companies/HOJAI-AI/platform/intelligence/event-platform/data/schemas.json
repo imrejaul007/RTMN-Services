@@ -8,5 +8,25 @@
       "action"
     ],
     "createdAt": "2026-06-28T22:21:05.559Z"
+  },
+  {
+    "id": "1b3b3cfd-7da8-47ed-b484-b14b590926ea",
+    "name": "user_event",
+    "version": 1,
+    "fields": [
+      "userId",
+      "action"
+    ],
+    "createdAt": "2026-06-30T13:54:18.823Z"
+  },
+  {
+    "id": "9b1d7778-9a17-4661-a99e-1f84473e9931",
+    "name": "user_event",
+    "version": 1,
+    "fields": [
+      "userId",
+      "action"
+    ],
+    "createdAt": "2026-06-30T14:00:01.393Z"
   }
 ]
