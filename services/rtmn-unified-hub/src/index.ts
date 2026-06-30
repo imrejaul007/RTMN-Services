@@ -89,6 +89,41 @@ app.get('/api/health/cached', (req, res) => {
   });
 });
 
+// === OpenAPI spec ===
+import { readFileSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname_ = dirname(fileURLToPath(import.meta.url));
+const OPENAPI_PATH = join(__dirname_, '..', 'docs', 'openapi.yaml');
+
+app.get('/api/openapi.yaml', (req, res) => {
+  if (!existsSync(OPENAPI_PATH)) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'openapi.yaml not found' },
+    });
+  }
+  res.type('application/yaml').send(readFileSync(OPENAPI_PATH, 'utf-8'));
+});
+
+app.get('/api/openapi.json', (req, res) => {
+  if (!existsSync(OPENAPI_PATH)) {
+    return res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'openapi.yaml not found' },
+    });
+  }
+  // Best-effort YAML→JSON: send raw YAML and let the client convert.
+  // A full conversion would require a YAML parser dependency.
+  res.json({
+    success: true,
+    message: 'YAML spec available at /api/openapi.yaml. Convert with js-yaml or swagger-cli.',
+    yamlUrl: '/api/openapi.yaml',
+    meta: { timestamp: new Date().toISOString() },
+  });
+});
+
 app.get('/api/health/:serviceName', async (req, res, next) => {
   try {
     const service = SERVICE_REGISTRY.find(s => s.name === req.params.serviceName);

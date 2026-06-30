@@ -1,0 +1,272 @@
+openapi: 3.1.0
+info:
+  title: RTMN Unified Hub API
+  version: 1.0.0
+  description: |
+    Single entry point for all RTMN services. The Hub at port 4399 routes
+    requests to the appropriate downstream service based on URL prefix.
+
+    ## Authentication
+
+    All endpoints except `/health` and `/ready` require a bearer token.
+    Set `HUB_API_KEY` in the Hub's environment to enable auth, then pass
+    `Authorization: Bearer <HUB_API_KEY>` to all requests.
+
+    When `HUB_API_KEY` is unset (dev mode), all routes pass through without
+    auth and a warning is logged at startup.
+
+    ## Path Conventions
+
+    The Hub forwards the full original path (including `/api/<prefix>`) to
+    downstream services. Services must register routes with the full prefix
+    in their own app (e.g. `app.get('/api/templates', ...)`).
+  contact:
+    name: RTMN Team
+    url: https://github.com/imrejaul007/RTMN-Services
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:4399
+    description: Local development
+
+tags:
+  - name: hub
+    description: Hub-internal endpoints (registry, health)
+  - name: proxied
+    description: Proxied to downstream services (all other /api/* paths)
+
+paths:
+  /health:
+    get:
+      tags: [hub]
+      summary: Hub health check
+      description: Returns Hub health and count of registered services. Always public.
+      security: []
+      responses:
+        '200':
+          description: Hub is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: healthy }
+                  service: { type: string, example: rtmn-unified-hub }
+                  port: { type: integer, example: 4399 }
+                  version: { type: string, example: 1.0.0 }
+                  registeredServices: { type: integer, example: 105 }
+                  timestamp: { type: string, format: date-time }
+
+  /ready:
+    get:
+      tags: [hub]
+      summary: Hub readiness check
+      description: |
+        Returns 200 if all registered services are healthy, 503 otherwise.
+        Always public. Used by load balancers.
+      security: []
+      responses:
+        '200':
+          description: All services healthy
+        '503':
+          description: One or more services unhealthy
+
+  /api/services:
+    get:
+      tags: [hub]
+      summary: List all registered services
+      description: Returns the full service registry — every downstream service the Hub can route to.
+      responses:
+        '200':
+          description: Service registry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Service'
+                  meta:
+                    type: object
+                    properties:
+                      timestamp: { type: string, format: date-time }
+
+  /api/health/all:
+    get:
+      tags: [hub]
+      summary: Check health of all registered services
+      description: Probes every service's /health endpoint. Slow (waits for slowest service).
+      responses:
+        '200':
+          description: Health check results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary:
+                    type: object
+                    properties:
+                      total: { type: integer }
+                      healthy: { type: integer }
+                      unhealthy: { type: integer }
+                      allHealthy: { type: boolean }
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HealthCheck'
+
+  /api/health/cached:
+    get:
+      tags: [hub]
+      summary: Get cached health check results
+      description: Returns results from the last periodic health check (every 30s). Fast.
+      responses:
+        '200':
+          description: Cached health results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary: { type: object }
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HealthCheck'
+
+  /api/health/{serviceName}:
+    get:
+      tags: [hub]
+      summary: Check health of a specific service
+      parameters:
+        - in: path
+          name: serviceName
+          required: true
+          schema: { type: string }
+          description: Exact name as returned by /api/services
+      responses:
+        '200':
+          description: Health check for the service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+        '404':
+          description: Service not found
+
+  /api/genie/dashboard/{userId}:
+    get:
+      tags: [proxied]
+      summary: Aggregated Genie dashboard for a user
+      description: |
+        Hub-internal aggregation endpoint that calls 14 Genie services
+        in parallel and merges the results. Useful for the Genie UI.
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Aggregated dashboard data
+
+  /api/{path}:
+    parameters:
+      - in: path
+        name: path
+        required: true
+        schema: { type: string }
+        description: |
+          Any other /api/* path is proxied to the matching registered service.
+          The Hub forwards the full path unchanged.
+    get:
+      tags: [proxied]
+      summary: Proxy GET to downstream service
+      responses:
+        '200': { description: Response from downstream service }
+        '401': { description: Missing or invalid bearer token }
+        '404': { description: No service registered for this path }
+        '502': { description: Downstream service unavailable }
+    post:
+      tags: [proxied]
+      summary: Proxy POST to downstream service
+      responses:
+        '200': { description: Response from downstream service }
+        '401': { description: Missing or invalid bearer token }
+        '404': { description: No service registered for this path }
+        '502': { description: Downstream service unavailable }
+    put:
+      tags: [proxied]
+      summary: Proxy PUT to downstream service
+      responses:
+        '200': { description: Response from downstream service }
+        '401': { description: Missing or invalid bearer token }
+        '404': { description: No service registered for this path }
+        '502': { description: Downstream service unavailable }
+    patch:
+      tags: [proxied]
+      summary: Proxy PATCH to downstream service
+      responses:
+        '200': { description: Response from downstream service }
+        '401': { description: Missing or invalid bearer token }
+        '404': { description: No service registered for this path }
+        '502': { description: Downstream service unavailable }
+    delete:
+      tags: [proxied]
+      summary: Proxy DELETE to downstream service
+      responses:
+        '200': { description: Response from downstream service }
+        '401': { description: Missing or invalid bearer token }
+        '404': { description: No service registered for this path }
+        '502': { description: Downstream service unavailable }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Set HUB_API_KEY on the Hub to enable. Pass as `Authorization: Bearer <key>`.
+        For service-to-service calls, use x-internal-token: <INTERNAL_SERVICE_TOKEN> instead.
+  schemas:
+    Service:
+      type: object
+      properties:
+        name: { type: string, example: Template Engine }
+        url: { type: string, example: http://localhost:5670 }
+        prefix: { type: string, example: /api/templates }
+        category:
+          type: string
+          enum: [genie, rtmn, integration, rabtul]
+    HealthCheck:
+      type: object
+      properties:
+        name: { type: string }
+        url: { type: string }
+        healthy: { type: boolean }
+        latencyMs: { type: integer, description: 'Last health check latency in ms' }
+        error:
+          type: string
+          description: Present only when healthy=false
+        lastCheck: { type: string, format: date-time }
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        error:
+          type: object
+          properties:
+            code: { type: string, example: NOT_FOUND }
+            message: { type: string }
+            hint: { type: string }
+        meta:
+          type: object
+          properties:
+            timestamp: { type: string, format: date-time }
+
+security:
+  - bearerAuth: []

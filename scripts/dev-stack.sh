@@ -346,6 +346,14 @@ IND_ENERGY_OS_CMD="cd $RTMN_ROOT/industry-os/services/energy-os && npm start"
 # Do App backend — built with tsc, entry is dist/src/index.js
 DO_APP_BACKEND_CMD="cd $RTMN_ROOT/companies/do-app/backend && PORT=3001 node dist/src/index.js"
 
+# Phase 0-5: Commerce Stack
+TEMPLATE_ENGINE_CMD="cd $RTMN_ROOT/companies/Nexha/services/template-engine && PORT=5670 npm start"
+VENDOR_POOLS_CMD="cd $RTMN_ROOT/companies/Nexha/services/vendor-pools && PORT=5680 npm start"
+COMMERCE_STUDIO_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/commerce-studio/studio-backend && PORT=5750 npm start"
+PRODUCT_GRAPH_CMD="cd $RTMN_ROOT/companies/Nexha/services/product-graph && PORT=5800 npm start"
+TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/trade-finance && PORT=5810 npm start"
+CROSS_BORDER_CMD="cd $RTMN_ROOT/companies/Nexha/services/cross-border && PORT=5820 npm start"
+
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
 
@@ -807,6 +815,14 @@ start_all() {
   BAM_SEED_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/blr-ai-marketplace/services/marketplace-listings && node src/seed-data.js"
   echo "  bam-seed: seeding 245 catalog entries..."
   bash -c "$BAM_SEED_CMD" && echo "  bam-seed: done" || echo "  bam-seed: skipped (mongo unavailable or seed failed)"
+  # Phase 0-5: Commerce Stack (Nexha)
+  start_service "template-engine"      "$TEMPLATE_ENGINE_CMD"       5670
+  start_service "vendor-pools"         "$VENDOR_POOLS_CMD"          5680
+  start_service "commerce-studio"      "$COMMERCE_STUDIO_CMD"       5750
+  start_service "product-graph"        "$PRODUCT_GRAPH_CMD"         5800
+  start_service "trade-finance"        "$TRADE_FINANCE_CMD"         5810
+  start_service "cross-border"         "$CROSS_BORDER_CMD"          5820
+
   # Hub (must be last so all services are up)
   start_service "hub"                      "$HUB_CMD"                 4399
   sleep 3
@@ -814,6 +830,10 @@ start_all() {
   echo ""
   echo "Logs: $LOG_DIR/*.log"
   echo "Run the demo: bash demos/full-stack-demo.sh"
+  echo ""
+  echo "Try the Hub:"
+  echo "  curl http://localhost:4399/api/services | jq"
+  echo "  curl http://localhost:4399/api/templates | jq"
 }
 
 stop_all() {
