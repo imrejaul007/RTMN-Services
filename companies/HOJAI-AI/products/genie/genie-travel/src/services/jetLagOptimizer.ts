@@ -6,7 +6,6 @@
 import { JetLagPlan } from '../types/travel.js';
 
 const TIMEZONE_OFFSETS: Record<string, number> = {
-  // Simplified — in production use full timezone database
   'Dubai': 4,
   'London': 0,
   'New York': -5,
@@ -18,7 +17,6 @@ const TIMEZONE_OFFSETS: Record<string, number> = {
   'Paris': 1,
   'Bangalore': 5.5,
   'Mumbai': 5.5,
-  'Singapore': 8,
 };
 
 export function createJetLagPlan(destination: string, departureDate: Date): JetLagPlan {
