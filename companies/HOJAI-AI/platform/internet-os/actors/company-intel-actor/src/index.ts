@@ -3,7 +3,7 @@
  * Comprehensive company research and competitor analysis
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 
 export interface CompanyProfile {
   name: string;

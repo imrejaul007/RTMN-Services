@@ -3,7 +3,7 @@
  * Restaurant data extraction from Zomato
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 import type { CheerioAPI } from 'cheerio';
 
 export class ZomatoActor extends Actor {

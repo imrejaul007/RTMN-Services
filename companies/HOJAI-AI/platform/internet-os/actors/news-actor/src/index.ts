@@ -3,7 +3,7 @@
  * News extraction and monitoring
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 
 export class NewsActor extends Actor {
   constructor() {

@@ -3,6 +3,7 @@
  * Extract business information from Google Maps
  */
 
+// @ts-ignore - Using compiled output
 import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 import type { CheerioAPI } from 'cheerio';
 
