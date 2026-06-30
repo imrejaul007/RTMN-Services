@@ -1,0 +1,127 @@
+# Prometheus configuration for Global Nexha Commerce Stack
+# Monitors 13 services + databases
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alertmanager (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+# Load rules
+rule_files:
+  - 'alerts/*.yml'
+
+# Scrape configs
+scrape_configs:
+  # ============================================
+  # COMMERCE STACK SERVICES
+  # ============================================
+  - job_name: 'rtmn-hub'
+    static_configs:
+      - targets: ['rtmn-hub:4399']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'commerceos-gateway'
+    static_configs:
+      - targets: ['commerceos-gateway:5400']
+
+  - job_name: 'bam-gateway'
+    static_configs:
+      - targets: ['bam-gateway:5550']
+
+  - job_name: 'vendor-acquisition'
+    static_configs:
+      - targets: ['vendor-acquisition:5551']
+
+  - job_name: 'catalog-normalization'
+    static_configs:
+      - targets: ['catalog-normalization:5552']
+
+  - job_name: 'recommendation'
+    static_configs:
+      - targets: ['recommendation:5553']
+
+  - job_name: 'template-engine'
+    static_configs:
+      - targets: ['template-engine:5670']
+
+  - job_name: 'vendor-pools'
+    static_configs:
+      - targets: ['vendor-pools:5680']
+
+  - job_name: 'studio-backend'
+    static_configs:
+      - targets: ['studio-backend:5750']
+
+  - job_name: 'product-graph'
+    static_configs:
+      - targets: ['product-graph:5800']
+
+  - job_name: 'trade-finance'
+    static_configs:
+      - targets: ['trade-finance:5810']
+
+  - job_name: 'cross-border'
+    static_configs:
+      - targets: ['cross-border:5820']
+
+  - job_name: 'universal-distribution'
+    static_configs:
+      - targets: ['universal-distribution:5830']
+
+  # ============================================
+  # DATABASES
+  # ============================================
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb:27017']
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  # ============================================
+  # PROMETHEUS ITSELF
+  # ============================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+
+# Alert rules (file: alerts/services.yml)
+groups:
+  - name: nexha-alerts
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~"rtmn-hub|commerceos-gateway|bam-gateway|.*-engine|.*-worker|studio.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Service {{ $labels.instance }} is down'
+          description: 'Service has been down for more than 1 minute'
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High error rate on {{ $labels.instance }}'
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, http_request_duration_seconds_bucket) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High latency (>2s p95) on {{ $labels.instance }}'

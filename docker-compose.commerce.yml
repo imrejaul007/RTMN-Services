@@ -1,0 +1,375 @@
+# ============================================================================
+# Global Nexha Commerce Stack - Docker Compose
+# Phase 0-5 Services with Databases and Monitoring
+# ============================================================================
+# Usage:
+#   docker compose -f docker-compose.commerce.yml up -d
+#   docker compose -f docker-compose.commerce.yml logs -f hub
+#   docker compose -f docker-compose.commerce.yml down
+# ============================================================================
+
+version: '3.9'
+
+x-service-common: &service-common
+  restart: unless-stopped
+  env_file:
+    - .env
+  networks:
+    - nexha-network
+
+x-node-service: &node-service
+  <<: *service-common
+  build:
+    context: .
+    dockerfile: docker/Dockerfile.node
+  environment: &node-env
+    NODE_ENV: ${NODE_ENV:-production}
+
+services:
+  # ============================================
+  # DATABASES
+  # ============================================
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - nexha-network
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: nexha_commerce
+      POSTGRES_USER: nexha_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nexha-network
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - nexha-network
+
+  # ============================================
+  # PHASE 0: FOUNDATION - RTMN HUB (4399)
+  # ============================================
+  rtmn-hub:
+    <<: [*service-common, *node-env]
+    container_name: rtmn-hub
+    ports:
+      - "4399:4399"
+    volumes:
+      - ./services/rtmn-unified-hub:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+    depends_on:
+      - mongodb
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4399/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # PHASE 1: UNIFIED COMMERCEOS (5400)
+  # ============================================
+  commerceos-gateway:
+    <<: [*service-common, *node-env]
+    container_name: commerceos-gateway
+    ports:
+      - "5400:5400"
+    volumes:
+      - ./companies/HOJAI-AI/platform/commerce-os/commerce-os-gateway:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+    depends_on:
+      - rtmn-hub
+
+  # ============================================
+  # PHASE 2: BAM PLATFORM (5550-5553)
+  # ============================================
+  bam-gateway:
+    <<: [*service-common, *node-env]
+    container_name: bam-gateway
+    ports:
+      - "5550:5550"
+    volumes:
+      - ./companies/HOJAI-AI/platform/bam/bam-gateway:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+    depends_on:
+      - rtmn-hub
+
+  vendor-acquisition:
+    <<: [*service-common, *node-env]
+    container_name: vendor-acquisition
+    ports:
+      - "5551:5551"
+    volumes:
+      - ./companies/HOJAI-AI/platform/bam/vendor-acquisition-worker:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+
+  catalog-normalization:
+    <<: [*service-common, *node-env]
+    container_name: catalog-normalization
+    ports:
+      - "5552:5552"
+    volumes:
+      - ./companies/HOJAI-AI/platform/bam/catalog-normalization-worker:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+
+  recommendation:
+    <<: [*service-common, *node-env]
+    container_name: recommendation
+    ports:
+      - "5553:5553"
+    volumes:
+      - ./companies/HOJAI-AI/platform/bam/recommendation-worker:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+
+  # ============================================
+  # PHASE 3: TEMPLATE ENGINE & VENDOR POOLS (5670, 5680)
+  # ============================================
+  template-engine:
+    <<: [*service-common, *node-env]
+    container_name: template-engine
+    ports:
+      - "5670:5670"
+    volumes:
+      - ./companies/Nexha/services/template-engine:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+    depends_on:
+      - redis
+
+  vendor-pools:
+    <<: [*service-common, *node-env]
+    container_name: vendor-pools
+    ports:
+      - "5680:5680"
+    volumes:
+      - ./companies/Nexha/services/vendor-liquidity-pools:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+
+  # ============================================
+  # PHASE 4: COMMERCE STUDIO (5750 + 3001)
+  # ============================================
+  studio-backend:
+    <<: [*service-common, *node-env]
+    container_name: studio-backend
+    ports:
+      - "5750:5750"
+    volumes:
+      - ./companies/HOJAI-AI/products/commerce-studio/studio-backend:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+    depends_on:
+      - rtmn-hub
+      - template-engine
+      - vendor-pools
+
+  studio-web:
+    <<: *service-common
+    container_name: studio-web
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./companies/HOJAI-AI/products/commerce-studio/studio-web:/app
+      - /app/node_modules
+      - /app/.next
+    working_dir: /app
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      NEXT_PUBLIC_STUDIO_API_URL: http://studio-backend:5750
+      NEXT_PUBLIC_HUB_URL: http://rtmn-hub:4399
+    command: sh -c "npm install && npm run build && npm start"
+    depends_on:
+      - studio-backend
+
+  # ============================================
+  # PHASE 5: ADVANCED COMMERCE (5800-5830)
+  # ============================================
+  product-graph:
+    <<: [*service-common, *node-env]
+    container_name: product-graph
+    ports:
+      - "5800:5800"
+    volumes:
+      - ./companies/Nexha/services/product-graph:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+
+  trade-finance:
+    <<: [*service-common, *node-env]
+    container_name: trade-finance
+    ports:
+      - "5810:5810"
+    volumes:
+      - ./companies/Nexha/services/trade-finance:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+
+  cross-border:
+    <<: [*service-common, *node-env]
+    container_name: cross-border
+    ports:
+      - "5820:5820"
+    volumes:
+      - ./companies/Nexha/services/cross-border:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+    environment:
+      FX_PROVIDER: ${FX_PROVIDER:-openexchangerates}
+      OPENEXCHANGERATES_API_KEY: ${OPENEXCHANGERATES_API_KEY:-replace_me}
+
+  universal-distribution:
+    <<: [*service-common, *node-env]
+    container_name: universal-distribution
+    ports:
+      - "5830:5830"
+    volumes:
+      - ./companies/Nexha/services/universal-distribution:/app
+      - /app/node_modules
+      - /app/dist
+    working_dir: /app
+    command: sh -c "npm install && npm run build && node dist/index.js"
+
+# ============================================
+# MONITORING (Optional)
+# ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - nexha-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - nexha-network
+    profiles:
+      - monitoring
+
+# ============================================
+# NGINX REVERSE PROXY (Production)
+# ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - rtmn-hub
+      - studio-web
+    networks:
+      - nexha-network
+    profiles:
+      - production
+
+# ============================================
+# NETWORKS & VOLUMES
+# ============================================
+networks:
+  nexha-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ============================================================================
+# Usage Examples
+# ============================================================================
+#
+# Start all services (development):
+#   docker compose -f docker-compose.commerce.yml --profile=development up -d
+#
+# Start with monitoring:
+#   docker compose -f docker-compose.commerce.yml --profile=monitoring up -d
+#
+# Start full production stack:
+#   docker compose -f docker-compose.commerce.yml --profile=production up -d
+#
+# View logs:
+#   docker compose -f docker-compose.commerce.yml logs -f rtmn-hub
+#
+# Scale specific service:
+#   docker compose -f docker-compose.commerce.yml up --scale commerceos-gateway=3 -d
+#
+# Stop all services:
+#   docker compose -f docker-compose.commerce.yml down
+#
+# Stop and remove volumes:
+#   docker compose -f docker-compose.commerce.yml down -v
+# ============================================================================
