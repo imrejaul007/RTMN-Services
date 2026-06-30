@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.36
+> **Version:** 5.37
 > **Last Updated:** June 30, 2026
-> **New:** ✅ **Global Nexha Commerce Stack v3.2 (FROZEN)** — Four-layer model (CommerceOS/BAM/SUTAR/RABTUL), BAM as standalone platform, 26 Industry OS → Templates, Studio creates + Foundry compiles + Nexha connects + RABTUL settles
-> **Status:** ⏳ **Start with Phase 0** — See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md)
+> **New:** ✅ **Code Audit Complete — 83% built!** — See [docs/global-nexha-commerce-audit.md](docs/global-nexha-commerce-audit.md). Gap is integration, not building from scratch.
+> **Status:** ⏳ **Start with P0: Unified CommerceOS + RABTUL wiring** — See [docs/global-nexha-commerce-audit.md](docs/global-nexha-commerce-audit.md)
 
 ---
 
