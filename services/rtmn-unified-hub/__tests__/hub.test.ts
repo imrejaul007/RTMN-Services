@@ -68,6 +68,16 @@ describe('RTMN Unified Hub', () => {
       const service = findServiceByPath('/unknown/path');
       expect(service).toBeUndefined();
     });
+
+    it('should be deterministic when called repeatedly (no array mutation)', () => {
+      // Regression: prior implementation used .sort() which mutates in place and is
+      // stable in modern V8 but not guaranteed. Calling twice with the same input must
+      // give the same result.
+      const a = findServiceByPath('/api/genie/ask');
+      const b = findServiceByPath('/api/genie/ask');
+      expect(a?.name).toBe(b?.name);
+      expect(a?.name).toBe('Genie Runtime');
+    });
   });
 
   describe('Proxy URL building', () => {
