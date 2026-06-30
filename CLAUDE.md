@@ -1,9 +1,9 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.31
+> **Version:** 5.32
 > **Last Updated:** June 30, 2026
-> **New:** ✅ **Human Intelligence OS Complete** — EmotionOS, BehaviorOS, TrustOS, SimulationOS, 58+ services, 200+ tests
-> **Status:** ✅ **STOP BUILDING. PACKAGE WHAT EXISTS. SELL.**
+> **New:** ✅ **Global Nexha Commerce Stack v2** — Corrected architecture, 14 commerce types, CommerceOS missing layer identified, Federation SDK spec, 24-week roadmap
+> **Status:** ⏳ **CommerceOS needs building** — See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md)
 
 ---
 
@@ -2814,6 +2814,161 @@ These are **NOT standalone products**—they're features inside larger products:
 
 Nexha is **infrastructure for AI commerce** — Stripe for AI agents, SWIFT for the agentic internet.
 
+---
+
+## 🌐 Global Nexha Commerce Stack v2.0 (CORRECTED — June 30, 2026)
+
+> **IMPORTANT:** Global Nexha is NOT a marketplace. It is a **Federation Protocol** connecting every kind of commerce network.
+
+### The Corrected Architecture
+
+```
+Global Nexha Federation
+│
+├── Discovery OS (4272) — Find capabilities across network
+├── Reputation OS (4271) — ACI trust scoring
+├── Trust Passport — Verified identity + compliance
+├── ACP Protocol (4340) — Standardized negotiation
+│
+├── Federation SDK — Build a Nexha in minutes
+│
+├── CommerceOS (MISSING — BUILD THIS) — Universal commerce runtime
+│   ├── Catalog Engine
+│   ├── Inventory Engine
+│   ├── Pricing Engine
+│   ├── Promotion Engine
+│   ├── Order Engine
+│   ├── Checkout Engine
+│   ├── Loyalty Engine
+│   ├── Recommendation Engine
+│   └── Subscription Engine
+│
+├── SUTAR OS — AI Workforce Orchestration
+│
+├── RABTUL — Financial Settlement Layer
+│
+└── 14 Commerce Types
+    ├── Human Commerce (Amazon, Walmart)
+    ├── Agentic Commerce (A2A — AI→AI)
+    ├── Hybrid Commerce (Human + AI)
+    ├── Single Company Commerce (Apple Network)
+    ├── Multi-Vendor Commerce (Amazon Marketplace)
+    ├── Supermarket Commerce (Walmart Agent Network)
+    ├── Franchise Commerce (McDonald's, Domino's)
+    ├── D2C Commerce (Nike direct)
+    ├── B2B Commerce (ONDC, IndiaMART)
+    ├── Industry Commerce (Healthcare Nexha)
+    ├── Country Commerce (India Nexha, UAE Nexha)
+    ├── Cross-Border Commerce (Import/Export)
+    ├── Creator Commerce (Influencer networks)
+    └── Machine Commerce (M2M — IoT autonomous)
+```
+
+### What Global Nexha Is NOT
+- ❌ NOT a marketplace competing with Amazon/Flipkart
+- ❌ NOT a single platform dominating commerce
+- ❌ NOT dependent on transaction volume
+
+### What Global Nexha IS
+- ✅ Federation Protocol — connects all commerce networks
+- ✅ Infrastructure layer — like Visa for payments
+- ✅ Trust + Identity + Negotiation + Settlement
+- ✅ Every business keeps their own brand, customers, pricing
+
+### Commerce Bootstrapping Engine (Key Moat)
+
+Every new marketplace faces the bootstrapping problem:
+```
+No vendors → No products → No buyers → No transactions → Dies
+```
+
+**Global Nexha solves this with Vendor Liquidity Pools:**
+
+```typescript
+// Launch a fashion marketplace in UAE in 7 days
+const market = new NexhaCommerce({
+  type: "marketplace",
+  industry: "fashion",
+  country: "UAE"
+})
+
+// Import 500+ pre-verified vendors instantly
+await market.importVendorPools({
+  pools: ["fashion-vendor-pool", "accessories-vendor-pool"]
+})
+
+// Launch with liquidity, not empty platform
+```
+
+### Commerce Federation SDK (Killer Product)
+
+```typescript
+import { NexhaCommerce } from "@nexha/federation-sdk"
+
+// Vendor Commerce
+const restaurant = new NexhaCommerce({ type: "vendor", industry: "restaurant" })
+restaurant.enableCommerceOS({ catalog: true, orders: true, inventory: true })
+restaurant.enableSUTAR({ agents: ["chef", "procurement", "marketing", "finance"] })
+await restaurant.deploy()
+
+// Marketplace Commerce
+const marketplace = new NexhaCommerce({ type: "marketplace", industry: "general" })
+marketplace.enableVendorOnboarding({ kyb: true, commission: 0.1 })
+marketplace.enableSplitPayments({ enabled: true })
+await marketplace.deploy()
+
+// Machine Commerce (IoT)
+const factory = new NexhaCommerce({ type: "machine", industry: "manufacturing" })
+factory.enableIoTIntegration({ sensors: ["inventory", "quality", "maintenance"] })
+factory.enableAutonomousProcurement({ reorderAuto: true })
+await factory.deploy()
+```
+
+### Monetization Model (9 Layers)
+
+| Layer | Type | Model | Margin |
+|-------|------|-------|--------|
+| Federation Subscription | SaaS | Monthly | High |
+| VendorOS Subscription | SaaS | Monthly | High |
+| AI Agent Subscriptions | SaaS | Per-agent/mo | High |
+| Marketplace Fees | Transaction | 0.3–1% | Low |
+| **Trade Finance (RABTUL)** | Financial | Interest | **Very High** |
+| Distribution Fees | Platform | Monthly | High |
+| Trust Services | Premium | Annual | Medium |
+| Intelligence Products | Data | Subscription | **Very High** |
+| Commerce APIs | Platform | Usage-based | High |
+
+**Think like AWS, not eBay.**
+
+### Complete Upgrade Plan
+
+See [docs/global-nexha-commerce-stack-v2.md](docs/global-nexha-commerce-stack-v2.md) for the full:
+- Architecture audit (what exists vs missing)
+- CommerceOS specification (9 modules)
+- ACP Protocol primitives
+- Federation SDK design
+- VendorOS product spec
+- 24-week roadmap
+- 14 commerce types deep dive
+
+### Current State vs Needed
+
+| Component | Status | Gap |
+|-----------|--------|-----|
+| SUTAR OS | ✅ 44 services | Missing CommerceOS layer |
+| Nexha Platform | ✅ 68 services | ACP needs formalization |
+| **CommerceOS** | ❌ **NOT BUILT** | **THE MISSING LAYER** |
+| SiteOS Commerce | ✅ 19 services | Not connected to SUTAR |
+| BLR AI Marketplace | ✅ 8 services | Needs federation hooks |
+| RABTUL Finance | ✅ 25+ services | Hub routes missing |
+| Commerce Twins | ✅ 9 twins | Not unified |
+
+### Immediate Actions (This Week)
+
+1. **Create `commerce-os` directory** in `HOJAI-AI/platform/commerce-os/`
+2. **Audit existing commerce services** — unify `nexha-catalog-os` + `product-catalog`
+3. **Draft CommerceOS API spec** — 9 modules
+4. **Wire RABTUL to Hub** — `/api/wallet/*`, `/api/payment/*`, `/api/escrow/*`
 
 ---
 
@@ -2874,4 +3029,30 @@ cd your-expo-app && npx expo start
 | Memory | ❌ | ✅ |
 | Emotions | ❌ | ✅ Genie AI |
 | Relationships | ❌ | ✅ |
+
+---
+
+## Global Nexha — Status (2026-06-30)
+
+**Phase 1, 2, 3 COMPLETE. All deliverables committed.**
+
+| What | Status | Location |
+|------|---------|----------|
+| Gateway wired (6 services) | ✅ | Nexha/services/nexha-agent-gateway/ |
+| OpenAPI 3.1 spec | ✅ | nexha-agent-gateway/openapi.yaml |
+| E2E demo script | ✅ | demos/nexha-e2e-demo.sh |
+| Developer portal (Next.js 14, 13 routes) | ✅ | Nexha/developer-portal/ |
+| Gemini + Llama adapters | ✅ | Nexha/sdk/hojai-nexha/src/tools/ |
+| Foundation charter (Swiss Verein) | ✅ | .claude/plans/nexha-foundation/charter.md |
+| 6 partnership briefs | ✅ | .claude/plans/nexha-partnerships/ |
+| W3C DID resolver | ✅ | Nexha/services/nexha-did-resolver/ |
+| SDK resilience (18 errors, retry, circuit breaker) | ✅ | HOJAI-AI/sdk/hojai-nexha/src/ |
+| MCP server (Zod, auth, vitest) | ✅ | Nexha/services/nexha-mcp-server/ |
+| Postman collection (23 requests) | ✅ | postman/Nexha-Agent-Gateway.postman_collection.json |
+
+**Tests:** 44 passing | **TypeScript:** 0 errors | **Commits:** 4 (RTMN + Nexha + HOJAI-AI + MCP)
+
+**Open (Year 2):** Python SDK, Go SDK, packages.nexha.io, AgentFin MCP tools, governance dashboard.
+
+**Recommended next:** Incorporate Global Nexha Foundation in Zug, send partnership briefs (Anthropic → Shopify → Meta → OpenAI → Google → SAP). Run: `bash Nexha/demos/nexha-e2e-demo.sh`
 
