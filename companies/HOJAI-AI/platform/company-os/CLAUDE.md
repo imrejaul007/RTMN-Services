@@ -4,191 +4,112 @@
 **Platform:** RTMN CompanyOS
 **Status:** 23 Phases Complete ✅
 
+---
+
 ## Quick Start
 
 ```bash
 cd /Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/platform/company-os
 
-# Start platform
+# Start
 bash scripts/start-company-os.sh start
 
 # CLI
 cd cli && npm install && npm link
 company-os create "My Restaurant" --industry restaurant
 
-# Run tests
-cd ../composition-engine && npm test
+# Tests
+cd composition-engine && npm test
+cd economy-os && npm test
 ```
 
 ---
 
-## Platform Overview
+## Modules (23)
 
-CompanyOS is a **23-phase platform** for building companies.
-
-### Phases 1-11: Core Platform
-- Composition Engine (46 tests)
-- Manifest Registry (24 tests)
-- 6 Department Packs
-- 26 Industry Extensions
-- 10 AI Workers
-- Studio UI + CLI
-
-### Phases 12-15: EconomyOS
-- 3 Wallet Types (Corporate/User/Agent)
-- 10+ Distribution Channels
-- 26 Company Factory Templates
-- Wallet Adapters (REZ, Agent, HOJAI)
-
-### Phases 16-19: Intelligence
-- LearningOS (collective insights)
-- Evolution Engine (startup→franchise)
-- GovernanceOS (policies, authority)
-- Company Intelligence (AI CEO layer)
-
-### Phases 20-23: Ecosystem
-- Creator Economy (partner revenue sharing)
-- Industry Builder (partners create industries)
-- Network Builder (Nexha networks)
-- Federation Layer (global commerce)
+| Module | Path | Purpose |
+|--------|------|---------|
+| composition-engine | `composition-engine/` | Core composer |
+| manifest-registry | `manifest-registry/` | YAML persistence |
+| control-plane | `control-plane/` | HTTP API (4010) |
+| department-packs | `department-packs/` | Finance, HR, Marketing, Sales |
+| industry-extensions | `industry-extensions/` | 26 industries |
+| service-connectors | `service-connectors/` | REZ integration |
+| ai-workforce | `ai-workforce/` | 10 AI workers |
+| studio | `studio/` | React UI |
+| cli | `cli/` | 7 commands |
+| economy-os | `economy-os/` | 3 wallet types + Trust |
+| distribution-layer | `distribution-layer/` | 10+ channels |
+| company-factory | `company-factory/` | 26 templates |
+| learning-os | `learning-os/` | Collective intel |
+| evolution-engine | `evolution-engine/` | Lifecycle stages |
+| governance-os | `governance-os/` | Policies + Authority |
+| company-intelligence | `company-intelligence/` | AI CEO layer |
+| creator-economy | `creator-economy/` | Partner ecosystem |
+| industry-builder | `industry-builder/` | Create industries |
+| network-builder | `network-builder/` | Nexha networks |
+| federation-layer | `federation-layer/` | Global commerce |
 
 ---
 
-## Key Files
+## Connected Infrastructure
 
-| Module | Purpose |
-|--------|---------|
-| `composition-engine/` | Core company composer |
-| `department-packs/` | Finance, HR, Marketing, Sales, Operations, Legal |
-| `industry-extensions/` | 26 industry services |
-| `economy-os/` | Wallets, Trust, Transactions |
-| `learning-os/` | Industry insights |
-| `evolution-engine/` | Company lifecycle |
-| `governance-os/` | Policies, Authority |
-| `creator-economy/` | Partner ecosystem |
-| `network-builder/` | Nexha networks |
-| `federation-layer/` | Global commerce |
+| Service | Location | Connected Via |
+|---------|----------|--------------|
+| REZ Wallet | RABTUL-Technologies/rez-wallet-service | wallet-adapters/ |
+| Agent Wallet | agentfin/agent-wallet | wallet-adapters/ |
+| HOJAI Wallet | REZ-Workspace/hojai-agent-wallet | wallet-adapters/ |
+| Cross-Wallet | RABTUL-Technologies/REZ-cross-wallet-identity | wallet-adapters/ |
+| Nexha | companies/Nexha | distribution-layer/ |
+| REZ Services | REZ-Merchant/* | service-connectors/ |
 
 ---
 
-## Tests
-
-| Module | Count |
-|--------|-------|
-| composition-engine | 46 |
-| manifest-registry | 24 |
-| department-packs/finance | 9 |
-| ai-workforce | 23 |
-| restaurant extension | 15 |
-| beauty extension | 10 |
-| economy-os | 20 |
-| All other modules | ~100+ |
-| **Total** | **250+** |
-
----
-
-## Distribution Channels (Phase 13)
-
-| Channel | Type | Industries |
-|---------|------|------------|
-| DO | Consumer App | Restaurant, Beauty |
-| REZ | Rewards | All |
-| Nuqta | Loyalty | Restaurant |
-| BuzzLocal | Discovery | Beauty |
-| StayOwn | Hospitality | Hotel |
-| Nexha | Agentic | All |
-| Global Nexus | Federation | All |
-
----
-
-## Connected Services
-
-| Service | Location |
-|---------|----------|
-| REZ Wallet | RABTUL-Technologies/rez-wallet-service |
-| Agent Wallet | agentfin/agent-wallet |
-| HOJAI Wallet | HOJAI Wallet |
-| Cross-Wallet | REZ-cross-wallet-identity |
-| Nexha | companies/Nexha |
-| REZ Services | REZ-Merchant/* |
-
----
-
-## Evolution Stages
-
-| Stage | Revenue | Employees | Features |
-|-------|---------|-----------|----------|
-| Startup | 0-5L | 1-10 | Basic CRM |
-| Growth | 5L-50L | 5-50 | Multi-location |
-| Enterprise | 50L-5Cr | 25-500 | Full suite |
-| Franchise | 1Cr+ | 50+ | Brand mgmt |
-
----
-
-## AI Workers
-
-| Department | Workers |
-|------------|---------|
-| Finance | AI CFO, AI Accountant |
-| HR | AI Recroller, AI Payroll |
-| Marketing | AI CMO, AI Content |
-| Sales | AI SDR, AI Closer |
-| Operations | AI Ops Manager |
-| Legal | AI Legal Counsel |
-
----
-
-## Wallet Adapters
+## Key Types
 
 ```typescript
-import { unifiedWalletManager } from '@hojai/economy-os';
+// Company stages
+type CompanyStage = 'startup' | 'growth' | 'enterprise' | 'franchise';
 
-const wallet = await unifiedWalletManager.createCorporateWallet(companyId);
-const balance = await wallet.getBalance(walletId);
+// Wallet types
+type WalletType = 'corporate' | 'user' | 'agent';
+
+// Partner types
+type PartnerType = 'developer' | 'agency' | 'integrator' | 'consultant';
+
+// Network types
+type NetworkType = 'industry' | 'regional' | 'supply_chain' | 'franchise';
 ```
 
 ---
 
-## Company Factory
+## Environment Variables
 
 ```bash
-# CLI
-company-os create "My Restaurant" --industry restaurant
-
-# API
-POST /api/company/create
+COMPANY_OS_API=http://localhost:4010
+REDIS_URL=redis://localhost:6379
+REZ_WALLET_URL=http://localhost:4004
+AGENT_WALLET_URL=http://localhost:4040
 ```
 
 ---
 
-## Architecture
+## Tests Location
 
 ```
-CompanyOS Control Plane (4010)
-    │
-    ├── Composition Engine
-    ├── Department Packs
-    ├── Industry Extensions
-    ├── EconomyOS (Wallets + Trust)
-    ├── LearningOS (Insights)
-    ├── Evolution Engine (Stages)
-    ├── GovernanceOS (Policies)
-    ├── Creator Economy (Partners)
-    ├── Network Builder (Networks)
-    └── Federation (Global Commerce)
+**/*.test.ts
+**/__tests__/**/*.test.ts
 ```
 
----
+## Scripts
 
-## Ports
+```bash
+# Start platform
+bash scripts/start-company-os.sh start
 
-| Service | Port |
-|---------|------|
-| Control Plane | 4010 |
-| Finance | 4801 |
-| Restaurant | 5010 |
-| Beauty | 5090 |
-| Studio UI | 5173 |
-| REZ Wallet | 4004 |
-| Agent Wallet | 4040 |
-| HOJAI Wallet | 4891 |
+# Generate extensions
+bash scripts/generate-extensions.js
+
+# Discover REZ services
+bash scripts/discover-rez-services.sh
+```

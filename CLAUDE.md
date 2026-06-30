@@ -1239,40 +1239,30 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 |---------|------|--------|---------|
 | **RAZO Keyboard** | 4299 | ✅ | Communication OS — "The keyboard that thinks" — transforms natural language into actionable intents (order-food, book-hotel, make-payment, ask-genie, etc.) connecting Genie AI, DO App, SUTAR OS, Copilots, and all 24 Industry OS. Integrated with Do App backend (`razoClient.ts` + `routes/razo.ts` + real webhook routing) and RTMN Hub at `/api/foundation/razo-keyboard/*`. Mobile: `useRazo.ts` hook + RAZO intent detection in Autopilot tab. Dev stack: `scripts/dev-stack.sh` starts RAZO on port 4299. 100 vitest tests covering IntentRouter (24), ContextEngine (27), ActionEngine (20), ChannelBridge (29). |
 
-### Genie Personal Intelligence OS (14 services) - ✅ NEW (June 29, 2026)
+### Genie Personal Intelligence OS (14 services) - ✅ CODE WRITTEN
 
 **Genie = Think** — Personal AI Brain that learns, anticipates, and adapts to each user's life.
 
-| # | Service | Port | Priority | Purpose |
-|---|---------|------|----------|---------|
-| **P0 — Critical Moat** |
-| 1 | Decision Intelligence | 4740 | P0 | "Why did we choose Dubai?" — stores WHY/WHO/WHAT/WHEN of every decision |
-| 2 | Continuous Learning Loop | 4742 | P0 | Learns preferences from feedback, auto-adapts calendar/meetings |
-| 3 | Anticipation Engine | 4745 | P0 | "Flight tomorrow, pack tonight" — predicts needs before you ask |
-| **P1 — High Value** |
-| 4 | Ambient Intelligence | 4746 | P1 | "You look tired" — wellness signals from behavior |
-| 5 | Personal Constitution | 4743 | P1 | "What would I never do?" — enforced life rules |
-| 6 | Financial LifeOS | 4747 | P1 | "Can I afford Dubai?" — burn rate, spending, financial health |
-| 7 | Health Intelligence | 4748 | P1 | Sleep, food logs, gastric triggers, burnout detection |
-| 8 | Household OS | 4749 | P1 | Family groceries, bills, medicines, chores |
-| **P2 — Differentiators** |
-| 9 | TravelOS | 4750 | P2 | Packing lists, document expiry, jet lag plans |
-| 10 | SpiritualOS | 4751 | P2 | Prayer times, Ramadan schedule, Zakat calculator |
-| 11 | Life Simulation | 4752 | P2 | "What if I move to Dubai for 3 years?" |
-| **P3 — Long-term** |
-| 12 | FocusOS | 4753 | P3 | Deep work tracking, optimal focus time recommendations |
-| 13 | Dream Journal | 4754 | P3 | Dream capture, interpretation, pattern detection |
-| 14 | Digital Legacy | 4755 | P3 | Archive for future generations |
+| # | Service | Port | Code | Build |
+|---|---------|------|------|-------|
+| 1 | Decision Intelligence | 4740 | ✅ | ✅ |
+| 2 | Continuous Learning Loop | 4742 | ✅ | ✅ |
+| 3 | Anticipation Engine | 4745 | ✅ | ✅ |
+| 4 | Ambient Intelligence | 4746 | ✅ | ✅ |
+| 5 | Personal Constitution | 4743 | ✅ | 🔧 |
+| 6 | Financial LifeOS | 4747 | ✅ | 🔧 |
+| 7 | Health Intelligence | 4748 | ✅ | 🔧 |
+| 8 | Household OS | 4749 | ✅ | 🔧 |
+| 9 | TravelOS | 4750 | ✅ | 🔧 |
+| 10 | SpiritualOS | 4751 | ✅ | 🔧 |
+| 11 | Life Simulation | 4752 | ✅ | 🔧 |
+| 12 | FocusOS | 4753 | ✅ | 🔧 |
+| 13 | Dream Journal | 4754 | ✅ | 🔧 |
+| 14 | Digital Legacy | 4755 | ✅ | 🔧 |
 
-**Genie Runtime (7100):** Unified entry point routing all 14 services at `/api/genie/*` via `integration/genieServices.js`
-
-**Genie Wish Fulfillment (4001):** Pre-existing "AI Wish Fulfillment Engine" — wired to Hub at `/api/wishes/*`
-
-**RTMN Unified Hub (4399):** Single public gateway at `services/rtmn-unified-hub/` with unified dashboard `/api/genie/dashboard/:userId`
-
-**Startup:** `bash scripts/start-genie-services.sh` or `bash scripts/dev-stack.sh start`
-
-**Docs:** `docs/FINAL-COMPLETE-AUDIT-2026-06-29.md`, `docs/INTEGRATION-MAP.md`
+**RTMN Hub (4399):** Unified gateway + dashboard
+**Genie Runtime (7100):** Routes 14 services at `/api/genie/*`
+**Startup:** `bash scripts/dev-stack.sh start`
 
 ### Customer Support Services (6)
 
