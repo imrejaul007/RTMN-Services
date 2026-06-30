@@ -3,8 +3,8 @@
  * Extract business information from Google Maps
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
-import type { CheerioAPI } from 'cheerio';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
+import type { CheerioAPI, CheerioElement } from 'cheerio';
 
 export interface GoogleMapsConfig {
   id: 'google_maps';
@@ -12,11 +12,12 @@ export interface GoogleMapsConfig {
   description: 'Extract business information, reviews, and locations from Google Maps';
   version: '1.0.0';
   capabilities: ['business_search', 'reviews', 'directions', 'places'];
-  rateLimit: { requests: 10; window: 60000 };
+  rateLimit: { requests: number; window: number };
 }
 
 export interface BusinessInfo {
   name: string;
+  placeId?: string;
   address?: string;
   phone?: string;
   website?: string;
@@ -73,9 +74,9 @@ export class GoogleMapsActor extends Actor {
       for (const business of businesses.slice(0, maxResults)) {
         try {
           const details = await this.getBusinessDetails(business.placeId, includeReviews);
-          detailedBusinesses.push({ ...business, ...details });
+          detailedBusinesses.push({ ...business, ...details } as BusinessInfo);
         } catch {
-          detailedBusinesses.push(business);
+          detailedBusinesses.push(business as BusinessInfo);
         }
       }
 
@@ -96,8 +97,8 @@ export class GoogleMapsActor extends Actor {
     }
   }
 
-  private parseSearchResults(html: string, maxResults: number): Partial<BusinessInfo>[] {
-    const results: Partial<BusinessInfo>[] = [];
+  private parseSearchResults(html: string, maxResults: number): BusinessInfo[] {
+    const results: BusinessInfo[] = [];
 
     // Parse JSON data from the page
     const jsonMatch = html.match(/"resultRenderer":{"jobMap":{[^}]+}/);
@@ -125,17 +126,17 @@ export class GoogleMapsActor extends Actor {
 
     // Alternative: Parse from visible text
     if (results.length === 0) {
-      const doc = parseHtml(html);
-      const cards = doc.querySelectorAll('[data-result-id]');
+      const $ = parseHtml(html);
+      const cards = $('[data-result-id]');
 
-      cards.slice(0, maxResults).forEach((card) => {
-        const name = card.querySelector('div[data-result-title]')?.textContent?.trim();
-        const rating = card.querySelector('[aria-label*="stars"]')?.getAttribute('aria-label');
+      cards.slice(0, maxResults).each((_, card) => {
+        const name = $(card).find('div[data-result-title]').text().trim();
+        const rating = $(card).find('[aria-label*="stars"]').attr('aria-label');
 
         if (name) {
           results.push({
             name,
-            placeId: card.getAttribute('data-result-id') || undefined,
+            placeId: $(card).attr('data-result-id') || undefined,
             rating: rating ? parseFloat(rating.match(/(\d+\.?\d*)/)?.[1] || '0') : undefined,
           });
         }
@@ -154,33 +155,33 @@ export class GoogleMapsActor extends Actor {
       const url = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
       const html = await fetchUrl(url, { timeout: 30000 });
 
-      const doc = parseHtml(html);
+      const $ = parseHtml(html);
 
       // Extract address
-      const addressEl = doc.querySelector('[data-item-id="address"]');
-      details.address = addressEl?.textContent?.trim();
+      const addressEl = $('[data-item-id="address"]');
+      details.address = addressEl.text().trim();
 
       // Extract phone
-      const phoneEl = doc.querySelector('[data-item-id="phone"]');
-      details.phone = phoneEl?.textContent?.trim();
+      const phoneEl = $('[data-item-id="phone"]');
+      details.phone = phoneEl.text().trim();
 
       // Extract website
-      const websiteEl = doc.querySelector('[data-item-id="authority"]');
-      details.website = websiteEl?.getAttribute('href');
+      const websiteEl = $('[data-item-id="authority"]');
+      details.website = websiteEl.attr('href');
 
       // Extract category
-      const categoryEl = doc.querySelector('[data-item-id="category"]');
-      details.category = categoryEl?.textContent?.trim();
+      const categoryEl = $('[data-item-id="category"]');
+      details.category = categoryEl.text().trim();
 
       // Extract hours
-      const hoursEl = doc.querySelector('[data-item-id="hours"]');
-      if (hoursEl) {
-        details.hours = this.parseHours(hoursEl.textContent || '');
+      const hoursEl = $('[data-item-id="hours"]');
+      if (hoursEl.length > 0) {
+        details.hours = this.parseHours(hoursEl.text() || '');
       }
 
       // Extract reviews if requested
       if (includeReviews) {
-        details.reviewsList = this.parseReviews(doc);
+        details.reviewsList = this.parseReviews($);
       }
 
       // Extract coordinates from URL
@@ -210,18 +211,18 @@ export class GoogleMapsActor extends Actor {
     return hours;
   }
 
-  private parseReviews(doc: CheerioAPI): Review[] {
+  private parseReviews($: CheerioAPI): Review[] {
     const reviews: Review[] = [];
 
-    const reviewCards = doc.querySelectorAll('.review-dialog-list [data-review-id]');
+    const reviewCards = $('.review-dialog-list [data-review-id]');
 
-    reviewCards.forEach((card) => {
-      const author = card.querySelector('.section-review-title')?.textContent?.trim();
-      const ratingEl = card.querySelector('[aria-label]');
-      const ratingMatch = ratingEl?.getAttribute('aria-label')?.match(/(\d)/);
+    reviewCards.each((_, card) => {
+      const author = $(card).find('.section-review-title').text().trim();
+      const ratingEl = $(card).find('[aria-label]');
+      const ratingMatch = ratingEl.attr('aria-label')?.match(/(\d)/);
       const rating = ratingMatch ? parseInt(ratingMatch[1]) : 0;
-      const date = card.querySelector('.section-review-publish-date')?.textContent?.trim();
-      const text = card.querySelector('.section-review-text')?.textContent?.trim();
+      const date = $(card).find('.section-review-publish-date').text().trim();
+      const text = $(card).find('.section-review-text').text().trim();
 
       if (author && text) {
         reviews.push({

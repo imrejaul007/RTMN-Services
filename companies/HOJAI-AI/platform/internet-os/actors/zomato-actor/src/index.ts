@@ -3,7 +3,7 @@
  * Restaurant data extraction from Zomato
  */
 
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index.js';
+import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/src/index';
 import type { CheerioAPI } from 'cheerio';
 
 export class ZomatoActor extends Actor {
@@ -51,18 +51,18 @@ export class ZomatoActor extends Actor {
   private async searchRestaurants(query: string, location: string, limit: number): Promise<ActorOutput> {
     const searchUrl = `https://www.zomato.com/${location}/search?q=${encodeURIComponent(query)}`;
     const html = await fetchUrl(searchUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const restaurants: any[] = [];
-    const cards = doc.querySelectorAll('.restaurant-card, .search-result');
+    const cards = $('.restaurant-card, .search-result');
 
-    cards.slice(0, limit).forEach((card) => {
-      const name = card.querySelector('.result-title')?.textContent?.trim();
-      const cuisine = card.querySelector('.cuisine')?.textContent?.trim();
-      const rating = card.querySelector('[aria-label*="rated"]')?.textContent?.trim();
-      const priceRange = card.querySelector('.price-range')?.textContent?.trim();
-      const deliveryTime = card.querySelector('.delivery-time')?.textContent?.trim();
-      const address = card.querySelector('.address')?.textContent?.trim();
+    cards.slice(0, limit).each((_, card) => {
+      const name = $(card).find('.result-title').text().trim();
+      const cuisine = $(card).find('.cuisine').text().trim();
+      const rating = $(card).find('[aria-label*="rated"]').text().trim();
+      const priceRange = $(card).find('.price-range').text().trim();
+      const deliveryTime = $(card).find('.delivery-time').text().trim();
+      const address = $(card).find('.address').text().trim();
 
       if (name) {
         restaurants.push({
@@ -72,7 +72,7 @@ export class ZomatoActor extends Actor {
           priceRange,
           deliveryTime,
           address,
-          url: card.querySelector('a')?.getAttribute('href'),
+          url: $(card).find('a').attr('href'),
         });
       }
     });
@@ -90,20 +90,20 @@ export class ZomatoActor extends Actor {
 
   private async getRestaurantDetails(restaurantUrl: string): Promise<ActorOutput> {
     const html = await fetchUrl(restaurantUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const details = {
-      name: doc.querySelector('h1')?.textContent?.trim(),
-      rating: doc.querySelector('[aria-label*="rating"]')?.textContent?.trim(),
-      reviews: doc.querySelector('.reviews-count')?.textContent?.trim(),
-      cuisine: this.parseCuisine(doc),
-      address: doc.querySelector('[data-testid="address"]')?.textContent?.trim(),
-      hours: doc.querySelector('[data-testid="timing"]')?.textContent?.trim(),
-      costForTwo: doc.querySelector('.cost-for-two')?.textContent?.trim(),
-      delivery: doc.querySelector('.delivery-time')?.textContent?.trim(),
-      menuUrl: doc.querySelector('[data-testid="menu"]')?.getAttribute('href'),
-      photos: this.extractPhotos(doc),
-      features: this.extractFeatures(doc),
+      name: $('h1').first().text().trim(),
+      rating: $('[aria-label*="rating"]').first().text().trim(),
+      reviews: $('.reviews-count').first().text().trim(),
+      cuisine: this.parseCuisine($),
+      address: $('[data-testid="address"]').first().text().trim(),
+      hours: $('[data-testid="timing"]').first().text().trim(),
+      costForTwo: $('.cost-for-two').first().text().trim(),
+      delivery: $('.delivery-time').first().text().trim(),
+      menuUrl: $('[data-testid="menu"]').attr('href'),
+      photos: this.extractPhotos($),
+      features: this.extractFeatures($),
     };
 
     return {
@@ -112,30 +112,30 @@ export class ZomatoActor extends Actor {
     };
   }
 
-  private parseCuisine(doc: CheerioAPI): string[] {
+  private parseCuisine($: CheerioAPI): string[] {
     const cuisines: string[] = [];
-    const cuisineEls = doc.querySelectorAll('.cuisine a');
-    cuisineEls.forEach((el) => {
-      cuisines.push(el.textContent?.trim() || '');
+    const cuisineEls = $('.cuisine a');
+    cuisineEls.each((_, el) => {
+      cuisines.push($(el).text().trim());
     });
     return cuisines;
   }
 
-  private extractPhotos(doc: CheerioAPI): string[] {
+  private extractPhotos($: CheerioAPI): string[] {
     const photos: string[] = [];
-    const photoEls = doc.querySelectorAll('.photo-gallery img');
-    photoEls.slice(0, 10).forEach((el) => {
-      const src = el.getAttribute('data-src') || el.getAttribute('src');
+    const photoEls = $('.photo-gallery img');
+    photoEls.slice(0, 10).each((_, el) => {
+      const src = $(el).attr('data-src') || $(el).attr('src');
       if (src) photos.push(src);
     });
     return photos;
   }
 
-  private extractFeatures(doc: CheerioAPI): string[] {
+  private extractFeatures($: CheerioAPI): string[] {
     const features: string[] = [];
-    const featureEls = doc.querySelectorAll('.facility-badge, .feature-tag');
-    featureEls.forEach((el) => {
-      features.push(el.textContent?.trim() || '');
+    const featureEls = $('.facility-badge, .feature-tag');
+    featureEls.each((_, el) => {
+      features.push($(el).text().trim());
     });
     return features;
   }
@@ -143,17 +143,17 @@ export class ZomatoActor extends Actor {
   private async getReviews(restaurantUrl: string, limit: number): Promise<ActorOutput> {
     const reviewsUrl = `${restaurantUrl}/reviews`;
     const html = await fetchUrl(reviewsUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const reviews: any[] = [];
-    const reviewCards = doc.querySelectorAll('.review-card, .review-item');
+    const reviewCards = $('.review-card, .review-item');
 
-    reviewCards.slice(0, limit).forEach((card) => {
-      const author = card.querySelector('.author-name')?.textContent?.trim();
-      const rating = card.querySelector('.rating')?.textContent?.trim();
-      const date = card.querySelector('.date')?.textContent?.trim();
-      const text = card.querySelector('.review-text')?.textContent?.trim();
-      const likes = card.querySelector('.helpful-count')?.textContent?.trim();
+    reviewCards.slice(0, limit).each((_, card) => {
+      const author = $(card).find('.author-name').text().trim();
+      const rating = $(card).find('.rating').text().trim();
+      const date = $(card).find('.date').text().trim();
+      const text = $(card).find('.review-text').text().trim();
+      const likes = $(card).find('.helpful-count').text().trim();
 
       if (author && text) {
         reviews.push({
@@ -178,22 +178,22 @@ export class ZomatoActor extends Actor {
   private async getMenu(restaurantUrl: string): Promise<ActorOutput> {
     const menuUrl = `${restaurantUrl}/order`;
     const html = await fetchUrl(menuUrl, { timeout: 30000 });
-    const doc = parseHtml(html);
+    const $ = parseHtml(html);
 
     const categories: any[] = [];
-    const categoryEls = doc.querySelectorAll('.menu-category, .category-section');
+    const categoryEls = $('.menu-category, .category-section');
 
-    categoryEls.forEach((catEl) => {
-      const categoryName = catEl.querySelector('h2, h3')?.textContent?.trim();
+    categoryEls.each((_, catEl) => {
+      const categoryName = $(catEl).find('h2, h3').first().text().trim();
       const items: any[] = [];
 
-      const itemEls = catEl.querySelectorAll('.menu-item, .item-card');
-      itemEls.forEach((itemEl) => {
-        const name = itemEl.querySelector('.item-name')?.textContent?.trim();
-        const description = itemEl.querySelector('.item-description')?.textContent?.trim();
-        const price = itemEl.querySelector('.price')?.textContent?.trim();
-        const image = itemEl.querySelector('img')?.getAttribute('src');
-        const veg = itemEl.querySelector('.veg-indicator') !== null;
+      const itemEls = $(catEl).find('.menu-item, .item-card');
+      itemEls.each((_, itemEl) => {
+        const name = $(itemEl).find('.item-name').text().trim();
+        const description = $(itemEl).find('.item-description').text().trim();
+        const price = $(itemEl).find('.price').text().trim();
+        const image = $(itemEl).find('img').attr('src');
+        const veg = $(itemEl).find('.veg-indicator').length > 0;
 
         if (name) {
           items.push({
