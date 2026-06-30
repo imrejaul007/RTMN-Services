@@ -4,6 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { SERVICE_REGISTRY, findServiceByPath } from '../src/services/serviceRegistry.js';
+import { buildProxyTargetUrl } from '../src/services/proxyUtils.js';
 
 describe('RTMN Unified Hub', () => {
   describe('Service Registry', () => {
@@ -66,6 +67,39 @@ describe('RTMN Unified Hub', () => {
     it('should return undefined for unknown path', () => {
       const service = findServiceByPath('/unknown/path');
       expect(service).toBeUndefined();
+    });
+  });
+
+  describe('Proxy URL building', () => {
+    const fakeService = {
+      name: 'Template Engine',
+      url: 'http://localhost:5670',
+      prefix: '/api/templates',
+      healthPath: '/health',
+      timeout: 10000,
+      category: 'rtmn' as const,
+    };
+
+    it('forwards the FULL path including /api/<prefix>', () => {
+      // Critical: downstream registers `app.get('/api/templates', ...)`, so Hub must
+      // forward '/api/templates' — not strip the prefix.
+      const url = buildProxyTargetUrl(fakeService, '/api/templates');
+      expect(url).toBe('http://localhost:5670/api/templates');
+    });
+
+    it('preserves query string', () => {
+      const url = buildProxyTargetUrl(fakeService, '/api/templates?category=food&industry=retail');
+      expect(url).toBe('http://localhost:5670/api/templates?category=food&industry=retail');
+    });
+
+    it('handles subpaths (e.g. /:id)', () => {
+      const url = buildProxyTargetUrl(fakeService, '/api/templates/restaurant-001');
+      expect(url).toBe('http://localhost:5670/api/templates/restaurant-001');
+    });
+
+    it('handles empty path edge case', () => {
+      const url = buildProxyTargetUrl(fakeService, '');
+      expect(url).toBe('http://localhost:5670/');
     });
   });
 });
