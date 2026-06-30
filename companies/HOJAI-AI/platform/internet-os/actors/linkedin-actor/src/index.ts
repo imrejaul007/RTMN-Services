@@ -3,6 +3,7 @@
  * Extract company and professional information from LinkedIn
  */
 
+// @ts-ignore - Using local actor-runtime
 import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 import type { CheerioAPI } from 'cheerio';
 

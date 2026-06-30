@@ -3,6 +3,7 @@
  * Local business search for India
  */
 
+// @ts-ignore - Using local actor-runtime
 import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 
 export class JustdialActor extends Actor {

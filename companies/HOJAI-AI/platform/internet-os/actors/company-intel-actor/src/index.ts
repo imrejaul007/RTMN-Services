@@ -3,6 +3,7 @@
  * Comprehensive company research and competitor analysis
  */
 
+// @ts-ignore - Using local actor-runtime
 import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 
 export interface CompanyProfile {

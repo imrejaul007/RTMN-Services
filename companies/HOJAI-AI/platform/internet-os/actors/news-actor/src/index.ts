@@ -3,6 +3,7 @@
  * News extraction and monitoring
  */
 
+// @ts-ignore - Using local actor-runtime
 import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
 
 export class NewsActor extends Actor {
