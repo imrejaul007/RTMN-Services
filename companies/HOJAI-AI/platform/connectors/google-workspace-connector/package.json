@@ -1,0 +1,6 @@
+{
+  "name": "google-workspace-connector",
+  "version": "1.0.0",
+  "description": "Google Workspace integration (Gmail, Calendar, Drive, Meet)",
+  "main": "src/index.js"
+}

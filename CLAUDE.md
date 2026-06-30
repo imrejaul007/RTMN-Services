@@ -774,6 +774,73 @@ curl -X POST localhost:4540/deploy \
   -d '{"companyName": "TradeGlobal", "template": "import-export"}'
 ```
 
+### Visual Workflow Builder (Port 4600) ✅ NEW
+
+Visual drag-drop editor for workflow templates.
+
+```bash
+cd companies/HOJAI-AI/foundry/services/visual-builder
+npm install && npm start
+# Open: http://localhost:4600
+```
+
+**Features:**
+- 12 node types (Trigger, Memory, Twin, AI Agent, Intelligence, SUTAR, Condition, Action, Human, Integration, Notification, CRM)
+- Undo/Redo with 50-state history
+- Export workflows as JSON templates
+- Integration with 100+ HOJAI templates
+
+**SDK:** `@hojai/visual-builder-sdk`
+
+### Creator Economy (Port 4514) ✅ NEW
+
+Partner ecosystem with revenue sharing and payouts.
+
+```bash
+cd platform/company-os/creator-economy
+npm install && npm start
+# Server runs on http://localhost:4514
+```
+
+**Features:**
+- Partner tiers (Bronze → Platinum)
+- Revenue sharing (20% company, 10% subscription, 2% transaction)
+- Payout requests with validation
+- Bank transfer & UPI support
+- Webhook notifications
+
+**SDK:** `@hojai/creator-economy-sdk`
+
+**RTMN Hub:** Wired at `/api/creator-economy`
+
+### InternetOS (Web Intelligence) ✅ NEW
+
+Web scraping and monitoring platform — HOJAI's Apify equivalent.
+
+```bash
+cd platform/internet-os/actor-runtime && npm start
+cd platform/internet-os/watcher-runtime && npm start
+```
+
+**7 Web Actors:**
+- Google Maps, Zomato, Airbnb, LinkedIn, News, Company Intel, JustDial
+
+**2 Runtimes:**
+- Actor Runtime (scraping framework)
+- Watcher Runtime (continuous monitoring)
+
+**Documentation:** `companies/HOJAI-AI/docs/INTERNETOS.md`
+
+### SDK Packages ✅ NEW
+
+| Package | Purpose |
+|---------|---------|
+| `@hojai/creator-economy-sdk` | Partner ecosystem SDK |
+| `@hojai/visual-builder-sdk` | Workflow builder SDK |
+| `@hojai/memory-sdk` | MemoryOS integration |
+| `@hojai/twin-sdk` | TwinOS integration |
+| `@hojai/sutar-sdk` | SUTAR commerce SDK |
+
 ### 510 Companies Supported
 
 Agent Generator knows how to build agents for:
@@ -2345,12 +2412,13 @@ Voice fingerprinting infrastructure connecting voice to identity, twins, memory,
 
 **Pipeline:** Voice → Voice Identity → CorpID → TwinOS → MemoryOS → Relationship Graph → Action Systems
 
-### EmotionOS (8 services)
+### EmotionOS (10 services)
 
 Real-time emotion detection, analytics, and empathetic responses.
 
 | Service | Port | Purpose |
 |---------|------|---------|
+| **emotion-os-gateway** | 4760 | **Unified gateway** - single entry point |
 | voice-emotion-detection | 4760 | Voice-tone emotion analysis |
 | emotional-memory | 4761 | Emotional timeline storage |
 | empathy-response-engine | 4762 | Agent-assist empathetic responses |
@@ -2359,6 +2427,9 @@ Real-time emotion detection, analytics, and empathetic responses.
 | emotion-alerts | 4765 | Real-time emotion alerts |
 | cross-modal-emotion | 4766 | Text + voice fusion |
 | tone-analysis | 4767 | Sales tone analytics |
+| **communication-dna** | 4722 | Communication style profiling |
+
+**SDK:** `@hojai/human-intelligence-sdk` at `sdk/hojai-human-intelligence-sdk/`
 
 ### TrustOS (10 services)
 
@@ -2388,13 +2459,15 @@ Knowledge graph, reasoning, and entity resolution.
 | entity-resolution | 4752 | Entity deduplication |
 | reasoning-engine | 4753 | Rule engine, path queries |
 
-### BehaviorOS (3 services)
+### BehaviorOS (5 services)
 
-Behavioral patterns and habit tracking.
+Behavioral patterns, habit tracking, and burnout prediction.
 
 | Service | Port | Purpose |
 |---------|------|---------|
 | habit-engine | 4731 | Habit tracking, patterns |
+| **trigger-intelligence** | 4735 | Behavior trigger mapping |
+| **burnout-prediction** | 4732 | Stress and burnout risk |
 | behavior-intelligence | 4788 | Behavior analysis |
 | behavioral-twin | 4746 | Behavioral profiles |
 
@@ -2719,14 +2792,19 @@ Nexha is **infrastructure for AI commerce** — Stripe for AI agents, SWIFT for 
 | Voice Commands | `core/voice-commands/` | Production |
 | Voice Orchestrator | `core/voice-orchestrator/` | Production |
 
-### Services (17 Total)
+### Services (21 Total)
 
 | Port | Service |
 |------|---------|
 | 4880 | voice-gateway |
+| 4881 | **conversation-physics** ✅ | Turn management, silence, backchannels |
+| 4882 | **voice-director** ✅ | Emotion-based voice performance |
+| 4883 | **life-timeline** ✅ | Life chapters, milestones |
+| 4896 | **human-presence** ✅ | Presence detection, multi-person |
+| 4897 | **relationship-os** ✅ | Relationship graph, trust |
+| 4884 | voice-identity |
 | 4885 | voice-commands |
 | 4886 | voice-hotkey |
-| 4891-4899 | 9 VoiceOS services |
 | 4701 | genie-gateway |
 | 4703 | memory-os |
 

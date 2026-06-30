@@ -1,0 +1,29 @@
+{
+  "name": "@hojai/genie-decision-twin",
+  "version": "1.0.0",
+  "description": "Decision Twin Service — Permanent decision memory that stores WHY decisions were made",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "decision-twin",
+    "institutional-memory",
+    "decision-tracking",
+    "genie"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

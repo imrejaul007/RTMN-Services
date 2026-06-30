@@ -96,7 +96,7 @@ router.post('/bridge/workforce-decision', async (req: Request, res: Response) =>
         entityScores.set(mapping.entityId, {
           entityId: mapping.entityId,
           entityType: mapping.entityType,
-          capabilities: [],
+          capabilities: [] as any[],
           totalConfidence: 0,
         });
       }
@@ -110,7 +110,7 @@ router.post('/bridge/workforce-decision', async (req: Request, res: Response) =>
     }
 
     // Get detailed entity info
-    const candidates = [];
+    const candidates: any[] = [];
     for (const [entityId, entry] of entityScores) {
       if (entry.entityType === 'AGENT') {
         const agent = await AgentTwin.findOne({ agentId: entityId }).lean();
@@ -139,7 +139,7 @@ router.post('/bridge/workforce-decision', async (req: Request, res: Response) =>
             capabilities: entry.capabilities,
             cost: 0, // Humans have salary, not per-task
             trust: 0.9, // Default high trust for humans
-            capacity: human.capacity?.availableHours / 40 || 1.0,
+            capacity: (human.capacity?.availableHours || 40) / 40 || 1.0,
           });
         }
       }
@@ -149,7 +149,12 @@ router.post('/bridge/workforce-decision', async (req: Request, res: Response) =>
     candidates.sort((a, b) => b.matchScore - a.matchScore);
 
     // Determine capability coverage
-    const coveredCapabilities = new Set(entry.capabilities.map((c: any) => c.capabilityId) for (const [, entry] of entityScores));
+    const coveredCapabilities = new Set<string>();
+    for (const [, entry] of entityScores) {
+      for (const c of entry.capabilities) {
+        coveredCapabilities.add(c.capabilityId);
+      }
+    }
     const capabilityCoverage = (coveredCapabilities.size / (requiredCapabilities?.length || 1)) * 100;
 
     // Build response
@@ -212,7 +217,7 @@ router.post('/bridge/assignment-execute', async (req: Request, res: Response) =>
     const { HumanTwin } = await import('./hybridTwin.js');
 
     // Record assignment for each workforce entity
-    const workforceResults = [];
+    const workforceResults: any[] = [];
     for (const w of workforce || []) {
       if (w.type === 'AGENT' || w.type === 'agent') {
         // Update agent capacity
@@ -355,13 +360,8 @@ router.post('/bridge/outcome', async (req: Request, res: Response) => {
               await CapabilityMapping.updateOne(
                 { entityId: w.corpId, capabilityId: cap.capabilityId },
                 {
-                  $inc: {
-                    'metrics.evidenceCount': 1,
-                    'metrics.successfulOutcomes': isSuccess ? 1 : 0,
-                  },
-                  $set: {
-                    'metrics.lastVerified': new Date(),
-                  },
+                  $inc: { 'metrics.evidenceCount': 1 },
+                  $set: { 'metrics.lastVerified': new Date() },
                 }
               );
 
@@ -369,9 +369,7 @@ router.post('/bridge/outcome', async (req: Request, res: Response) => {
               const adjustment = isSuccess ? 0.05 : -0.1;
               await CapabilityMapping.updateOne(
                 { entityId: w.corpId, capabilityId: cap.capabilityId },
-                {
-                  $inc: { 'metrics.confidence': adjustment },
-                }
+                { $inc: { 'metrics.confidence': adjustment } }
               );
             }
           }
@@ -384,16 +382,13 @@ router.post('/bridge/outcome', async (req: Request, res: Response) => {
             human.performance.successfulTasks = (human.performance.successfulTasks || 0) + 1;
           }
           human.performance.efficiency = (
-            (human.performance.efficiency * (human.performance.totalTasks - 1) + (quality || 0.8))
+            ((human.performance.efficiency || 0.8) * (human.performance.totalTasks - 1) + (quality || 0.8)
           ) / human.performance.totalTasks;
           human.capacity.currentTasks = Math.max(0, (human.capacity.currentTasks || 0) - 1);
           await human.save();
         }
       }
     }
-
-    // Record outcome for ML training pipeline
-    // (Could also push to mlTrainingPipeline)
 
     res.json({
       success: true,
@@ -427,7 +422,7 @@ router.post('/bridge/capability-check', async (req: Request, res: Response) => {
 
     const { CapabilityMapping } = await import('./capabilityRegistry.js');
 
-    const coverage = [];
+    const coverage: any[] = [];
     for (const cap of capabilities || []) {
       const mappings = await CapabilityMapping.find({
         capabilityId: cap,
@@ -508,7 +503,7 @@ router.post('/bridge/capacity-check', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        currentUtilization: (currentUtilization * 100).toFixed(1) + '%',
+        currentUtilization: `${(currentUtilization * 100).toFixed(1)}%`,
         additionalWorkload,
         canAccept,
         recommendations: !canAccept
@@ -517,8 +512,8 @@ router.post('/bridge/capacity-check', async (req: Request, res: Response) => {
         details: {
           agentCount: agents.length,
           humanCount: humans.length,
-          avgAgentCapacity: (agentCapacity * 100).toFixed(1) + '%',
-          avgHumanCapacity: (humanCapacity * 100).toFixed(1) + '%',
+          avgAgentCapacity: `${(agentCapacity * 100).toFixed(1)}%`,
+          avgHumanCapacity: `${(humanCapacity * 100).toFixed(1)}%`,
         },
       },
     });
@@ -627,12 +622,12 @@ router.post('/bridge/simulation', async (req: Request, res: Response) => {
         scenario,
         current: {
           agentCount: currentAgents.length,
-          avgCapacity: (currentCapacity * 100).toFixed(1) + '%',
+          avgCapacity: `${(currentCapacity * 100).toFixed(1)}%`,
         },
         impact: {
-          capacityChange: ((currentCapacity + capacityChange) * 100).toFixed(1) + '%',
-          costChange: (costChange * 100).toFixed(1) + '%',
-          performanceChange: (performanceChange * 100).toFixed(1) + '%',
+          capacityChange: `${((currentCapacity + capacityChange) * 100).toFixed(1)}%`,
+          costChange: `${(costChange * 100).toFixed(1)}%`,
+          performanceChange: `${(performanceChange * 100).toFixed(1)}%`,
         },
         recommendations: [
           capacityChange < 0 ? 'Warning: Reducing capacity' : 'Capacity looks good',
@@ -665,7 +660,7 @@ router.post('/bridge/workflow-state', async (req: Request, res: Response) => {
     const { AgentTwin } = await import('./agentTwin.js');
     const { HumanTwin } = await import('./hybridTwin.js');
 
-    const states = [];
+    const states: any[] = [];
 
     for (const id of workforceIds || []) {
       const agent = await AgentTwin.findOne({ agentId: id }).lean();
@@ -772,9 +767,10 @@ router.post('/bridge/register-callback', async (req: Request, res: Response) => 
  */
 router.get('/bridge/health', async (req: Request, res: Response) => {
   try {
+    const corpidUrl = process.env.CORPID_SERVICE_URL || 'http://localhost:4702';
     const [sutarHealth, corpidHealth] = await Promise.all([
       callSutar(`${SUTAR_DECISION_URL}/health`, 'GET'),
-      callSutar(`${process.env.CORPID_SERVICE_URL || 'http://localhost:4702'}/health`, 'GET'),
+      callSutar(`${corpidUrl}/health`, 'GET'),
     ]);
 
     res.json({

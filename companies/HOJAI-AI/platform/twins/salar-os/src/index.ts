@@ -45,6 +45,7 @@ import { capabilityRouter, Capability, CapabilityMapping } from './modules/capab
 import { agentTwinRouter, AgentTwin, InteractionLog } from './modules/agentTwin.js';
 import { hybridTwinRouter, HybridTeamTwin, HumanTwin } from './modules/hybridTwin.js';
 import { salarSutarBridgeRouter } from './modules/salarSutarBridge.js';
+import { salarBLRBridgeRouter } from './modules/salarBLRBridge.js';
 import { seederRouter } from './modules/aiEmployeeSeeder.js';
 import { integrationRouter } from './modules/integrationScripts.js';
 import { aiEmployeeLLMRouter } from './modules/aiEmployeeLLM.js';
@@ -262,6 +263,7 @@ app.use('/human-twin', authMiddleware, hybridTwinRouter);
 app.use('/hybrid-team', authMiddleware, hybridTwinRouter);
 app.use('/hybrid-twin', authMiddleware, hybridTwinRouter);
 app.use('/sutar', authMiddleware, salarSutarBridgeRouter);
+app.use('/salar-bridge', authMiddleware, salarBLRBridgeRouter);
 app.use('/seed', authMiddleware, seederRouter);
 app.use('/integrations', authMiddleware, integrationRouter);
 app.use('/ai-employee-llm', authMiddleware, aiEmployeeLLMRouter);

@@ -262,6 +262,24 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     timeout: 5000,
     category: 'integration',
   },
+
+  // ====== HOJAI Foundry Services ======
+  {
+    name: 'Creator Economy',
+    url: process.env.CREATOR_ECONOMY_URL || 'http://localhost:4514',
+    prefix: '/api/creator-economy',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Visual Builder',
+    url: process.env.VISUAL_BUILDER_URL || 'http://localhost:4600',
+    prefix: '/api/visual-builder',
+    healthPath: '/health',
+    timeout: 5000,
+    category: 'rtmn',
+  },
 ];
 
 export function findService(prefix: string): ServiceEntry | undefined {

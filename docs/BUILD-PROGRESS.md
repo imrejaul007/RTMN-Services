@@ -1,54 +1,48 @@
-# 🏗️ GENIE BUILD PROGRESS
+# GENIE BUILD PROGRESS
 **Date:** June 30, 2026
-**Status:** ✅ CODE COMPLETE — BUILD PENDING npm install
 
----
+## Status: ✅ CODE COMPLETE — npm install needed for 9 services
 
-## ✅ ALL 14 SERVICES BUILT
+### Services Built
 
-| # | Service | Port | Status |
-|---|---------|------|--------|
-| 1 | Decision Intelligence | 4740 | ✅ Built |
-| 2 | Continuous Learning Loop | 4742 | ✅ Built |
-| 3 | Anticipation Engine | 4745 | ✅ Built |
-| 4 | Ambient Intelligence | 4746 | ✅ Built |
-| 5 | Personal Constitution | 4743 | ✅ Built |
-| 6 | Financial LifeOS | 4747 | ✅ Built |
-| 7 | Health Intelligence | 4748 | ✅ Built |
-| 8 | Household OS | 4749 | ✅ Built |
-| 9 | TravelOS | 4750 | ✅ Built |
-| 10 | SpiritualOS | 4751 | ✅ Built |
-| 11 | Life Simulation | 4752 | ✅ Built |
-| 12 | FocusOS | 4753 | ✅ Built |
-| 13 | Dream Journal | 4754 | ✅ Built |
-| 14 | Digital Legacy | 4755 | ✅ Built |
+| # | Service | Port | Built |
+|---|---------|------|-------|
+| 1 | Decision Intelligence | 4740 | ✅ |
+| 2 | Learning Loop | 4742 | ✅ |
+| 3 | Anticipation | 4745 | ✅ |
+| 4 | Ambient | 4746 | ✅ |
+| 5 | Constitution | 4743 | 🔧 |
+| 6 | Financial Life | 4747 | 🔧 |
+| 7 | Health Intelligence | 4748 | 🔧 |
+| 8 | Household | 4749 | 🔧 |
+| 9 | TravelOS | 4750 | 🔧 |
+| 10 | SpiritualOS | 4751 | 🔧 |
+| 11 | Life Simulation | 4752 | 🔧 |
+| 12 | FocusOS | 4753 | 🔧 |
+| 13 | Dream Journal | 4754 | 🔧 |
+| 14 | Digital Legacy | 4755 | 🔧 |
 
-**+ Integration:** RTMN Hub (4399), Genie Runtime (7100), Shared Library, dev-stack.sh
+**Legend:** ✅ = ready | 🔧 = need `npm install && npx tsc`
 
----
+### Integration Complete
 
-## 🔧 npm install + build REQUIRED
+- RTMN Hub (4399) — built, 8/8 tests
+- Genie Runtime (7100) — wired
+- dev-stack.sh — updated
 
-For 9 services missing node_modules:
+### npm install needed
+
 ```bash
-cd companies/HOJAI-AI/products/genie
-for svc in constitution financial-life health-intelligence household travel spiritual life-simulation focus dreams legacy; do
-    cd $svc
-    npm install --legacy-peer-deps
-    npm run build || npx tsc
-    cd ..
+cd /Users/rejaulkarim/Documents/RTMN/companies/HOJAI-AI/products/genie
+
+for svc in genie-constitution genie-financial-life genie-health-intelligence genie-household genie-travel genie-spiritual genie-life-simulation genie-focus genie-dreams genie-legacy; do
+    cd $svc && npm install && npx tsc && cd ..
 done
 ```
 
----
+### Startup
 
-## ✅ INTEGRATION COMPLETE
-
-- [docs/INTEGRATION-MAP.md](docs/INTEGRATION-MAP.md)
-- [docs/PHANTOM-DIRECTORY-AUDIT.md](docs/PHANTOM-DIRECTORY-AUDIT.md)
-- scripts/dev-stack.sh — All 17 services added
-- CLAUDE.md — Genie section updated
-
----
-
-*Build progress: Code complete. npm install pending.*
+```bash
+bash scripts/dev-stack.sh start
+curl http://localhost:4399/health
+```

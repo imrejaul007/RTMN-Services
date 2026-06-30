@@ -1,0 +1,32 @@
+{
+  "name": "@hojai/speaker-diarization",
+  "version": "1.0.0",
+  "description": "Speaker Diarization Service — Real-time speaker detection and identification for meeting intelligence",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run",
+    "smoke": "node tests/smoke.test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.1",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "speaker-diarization",
+    "voice-recognition",
+    "meeting-intelligence",
+    "speaker-identification",
+    "voice-embedding"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

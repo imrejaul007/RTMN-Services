@@ -2,7 +2,7 @@
  * EmotionOS Gateway - Unified Entry Point
  * =======================================
  * Single entry point for all emotion intelligence services:
- * - Voice Emotion Detection (4760)
+ * - Voice Emotion Detection (4768) ← MOVED from 4760
  * - Emotional Memory (4761)
  * - Empathy Response Engine (4762)
  * - Emotion Analytics (4763)
@@ -39,7 +39,7 @@ const GATEWAY_PORT = process.env.GATEWAY_PORT || 4760;
 
 // Service URLs (can be overridden via env)
 const SERVICES = {
-  voiceEmotion: process.env.VOICE_EMOTION_URL || 'http://localhost:4760',
+  voiceEmotion: process.env.VOICE_EMOTION_URL || 'http://localhost:4768',
   emotionalMemory: process.env.EMOTIONAL_MEMORY_URL || 'http://localhost:4761',
   empathyResponse: process.env.EMPATHY_RESPONSE_URL || 'http://localhost:4762',
   emotionAnalytics: process.env.EMOTION_ANALYTICS_URL || 'http://localhost:4763',

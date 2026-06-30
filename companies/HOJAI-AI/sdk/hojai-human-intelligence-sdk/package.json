@@ -1,0 +1,23 @@
+{
+  "name": "@hojai/human-intelligence-sdk",
+  "version": "1.0.0",
+  "description": "Unified SDK for Human Intelligence - EmotionOS, BehaviorOS, TrustOS",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./emotion": "./src/emotion.js",
+    "./behavior": "./src/behavior.js",
+    "./trust": "./src/trust.js",
+    "./voice": "./src/voice.js"
+  }
+}

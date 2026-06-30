@@ -1,0 +1,27 @@
+{
+  "name": "@hojai/voice-cloning",
+  "version": "1.0.0",
+  "description": "Voice cloning and synthesis for Genie RAZO — ElevenLabs integration",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "uuid": "^9.0.1",
+    "axios": "^1.6.0"
+  },
+  "keywords": [
+    "voice-cloning",
+    "elevenlabs",
+    "text-to-speech",
+    "tts",
+    "voice-synthesis"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

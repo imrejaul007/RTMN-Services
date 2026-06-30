@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOJAI Visual Workflow Builder</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 16px;
+      color: #64748b;
+    ">
+      <div style="font-size: 48px; animation: spin 2s linear infinite;">⚙️</div>
+      <div style="font-size: 18px; font-weight: 500;">Loading Visual Builder...</div>
+      <div style="font-size: 13px; color: #94a3b8;">
+        <a href="/api/node-types" style="color: #3b82f6;">API Ready</a> •
+        <a href="/api/templates" style="color: #3b82f6;">Templates Available</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import React, { useState, useEffect, useCallback, useRef } from 'react';
+    import { createRoot } from 'react-dom/client';
+
+    // Node types
+    const NODE_TYPES = {
+      trigger: { name: 'Trigger', icon: '⚡', color: '#10b981', description: 'Starts the workflow' },
+      memory: { name: 'Memory', icon: '🧠', color: '#8b5cf6', description: 'Load or save memory' },
+      twin: { name: 'Twin', icon: '👥', color: '#06b6d4', description: 'Digital twin operations' },
+      ai_agent: { name: 'AI Agent', icon: '🤖', color: '#3b82f6', description: 'AI worker that performs tasks' },
+      intelligence: { name: 'Intelligence', icon: '📊', color: '#f59e0b', description: 'Analytics and scoring' },
+      sutar: { name: 'SUTAR', icon: '🤝', color: '#ec4899', description: 'Commerce and negotiation' },
+      condition: { name: 'Condition', icon: '🔀', color: '#6366f1', description: 'Branch based on condition' },
+      action: { name: 'Action', icon: '⚙️', color: '#64748b', description: 'Perform an action' },
+      human: { name: 'Human', icon: '👤', color: '#f97316', description: 'Human approval or input' },
+      integration: { name: 'Integration', icon: '🔌', color: '#84cc16', description: 'Connect to external service' },
+      notification: { name: 'Notification', icon: '📧', color: '#14b8a6', description: 'Send notification' },
+      crm: { name: 'CRM', icon: '📋', color: '#a855f7', description: 'CRM operations' },
+    };
+
+    // Initial nodes
+    const INITIAL_NODES = [
+      { id: 'trigger-1', type: 'trigger', name: 'Lead Created', x: 100, y: 200, config: { type: 'webhook', source: 'website', event: 'lead.created' } },
+      { id: 'agent-1', type: 'ai_agent', name: 'Qualify Lead', x: 350, y: 200, config: { agent: 'sdr_agent', task: 'qualify' } },
+      { id: 'condition-1', type: 'condition', name: 'Score >= 70?', x: 600, y: 200, config: { field: 'score', operator: '>=', value: 70 } },
+      { id: 'action-1', type: 'action', name: 'Route to SDR', x: 850, y: 100, config: { action: 'assign_sdr' } },
+      { id: 'action-2', type: 'action', name: 'Add to Nurture', x: 850, y: 300, config: { action: 'add_to_sequence' } },
+    ];
+
+    const INITIAL_CONNECTIONS = [
+      { from: 'trigger-1', to: 'agent-1' },
+      { from: 'agent-1', to: 'condition-1' },
+      { from: 'condition-1', to: 'action-1', label: 'Yes' },
+      { from: 'condition-1', to: 'action-2', label: 'No' },
+    ];
+
+    // Icons
+    const getCategoryIcon = (category) => {
+      const icons = { sales: '💰', marketing: '📢', hr: '👥', finance: '💳', support: '🎧', founder: '🚀', restaurant: '🍽️', healthcare: '🏥', real_estate: '🏠', commerce: '🛒' };
+      return icons[category] || '⚙️';
+    };
+
+    // Workflow Canvas Component
+    function WorkflowCanvas({ workflow, onSave }) {
+      const [nodes, setNodes] = useState(INITIAL_NODES);
+      const [connections, setConnections] = useState(INITIAL_CONNECTIONS);
+      const [selectedNode, setSelectedNode] = useState(null);
+      const [dragging, setDragging] = useState(null);
+      const [connecting, setConnecting] = useState(null);
+      const canvasRef = useRef(null);
+
+      const handleNodeMouseDown = useCallback((e, nodeId) => {
+        e.stopPropagation();
+        const node = nodes.find(n => n.id === nodeId);
+        setDragging({ nodeId, offsetX: e.clientX - node.x, offsetY: e.clientY - node.y });
+        setSelectedNode(nodeId);
+      }, [nodes]);
+
+      const handleCanvasMouseMove = useCallback((e) => {
+        if (dragging) {
+          setNodes(prev => prev.map(n =>
+            n.id === dragging.nodeId
+              ? { ...n, x: e.clientX - dragging.offsetX, y: e.clientY - dragging.offsetY }
+              : n
+          ));
+        }
+      }, [dragging]);
+
+      const handleCanvasMouseUp = useCallback(() => {
+        setDragging(null);
+        setConnecting(null);
+      }, []);
+
+      const handleConnectionStart = useCallback((nodeId) => {
+        setConnecting({ from: nodeId });
+      }, []);
+
+      const handleConnectionEnd = useCallback((nodeId) => {
+        if (connecting && connecting.from !== nodeId) {
+          setConnections(prev => [...prev, { from: connecting.from, to: nodeId }]);
+        }
+        setConnecting(null);
+      }, [connecting]);
+
+      const addNode = useCallback((type) => {
+        const newNode = {
+          id: `${type}-${Date.now()}`,
+          type,
+          name: `${NODE_TYPES[type].name} Node`,
+          x: 200 + Math.random() * 200,
+          y: 200 + Math.random() * 200,
+          config: {},
+        };
+        setNodes(prev => [...prev, newNode]);
+      }, []);
+
+      const deleteNode = useCallback(() => {
+        if (selectedNode) {
+          setNodes(prev => prev.filter(n => n.id !== selectedNode));
+          setConnections(prev => prev.filter(c => c.from !== selectedNode && c.to !== selectedNode));
+          setSelectedNode(null);
+        }
+      }, [selectedNode]);
+
+      const updateNodeConfig = useCallback((nodeId, config) => {
+        setNodes(prev => prev.map(n =>
+          n.id === nodeId ? { ...n, config: { ...n.config, ...config } } : n
+        ));
+      }, []);
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if ((e.key === 'Delete' || e.key === 'Backspace') {
+            if (selectedNode && !e.target.matches('input, textarea')) {
+              deleteNode();
+            }
+          }
+          if (e.key === 'Escape') {
+            setSelectedNode(null);
+            setConnecting(null);
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [selectedNode, deleteNode]);
+
+      const getConnectionPath = (conn) => {
+        const fromNode = nodes.find(n => n.id === conn.from);
+        const toNode = nodes.find(n => n.id === conn.to);
+        if (!fromNode || !toNode) return '';
+        const x1 = fromNode.x + 120, y1 = fromNode.y + 30;
+        const x2 = toNode.x, y2 = toNode.y + 30;
+        return `M ${x1} ${y1} C ${x1 + 50} ${y1}, ${x2 - 50} ${y2}, ${x2} ${y2}`;
+      };
+
+      const handleSave = () => {
+        onSave?.({ nodes, connections });
+        alert('Workflow saved!');
+      };
+
+      const handleExport = async () => {
+        const res = await fetch(`/api/workflows/${workflow?.id || 'new'}/export`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nodes, connections, category: 'custom' }),
+        });
+        const template = await res.json();
+        const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${workflow?.name || 'workflow'}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
+      return (
+        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', height: '100vh' } },
+          // Toolbar
+          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', background: 'white', borderBottom: '1px solid #e2e8f0' } },
+            React.createElement('div', { style: { fontSize: '16px', fontWeight: '600', color: '#1e293b' } }, '🎨 Workflow Canvas'),
+            React.createElement('div', { style: { display: 'flex', gap: '8px' } },
+              React.createElement('button', { onClick: handleSave, style: { padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' } }, '💾 Save'),
+              React.createElement('button', { onClick: handleExport, style: { padding: '8px 16px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' } }, '📤 Export')
+          ),
+          // Workspace
+          React.createElement('div', { style: { display: 'flex', flex: 1, overflow: 'hidden' } },
+            // Palette
+            React.createElement('div', { style: { width: '200px', background: 'white', borderRight: '1px solid #e2e8f0', padding: '16px', overflowY: 'auto' } },
+              React.createElement('div', { style: { fontSize: '12px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', marginBottom: '12px' } }, 'Node Types'),
+              ...Object.entries(NODE_TYPES).map(([type, info]) =>
+                React.createElement('div', {
+                  key: type,
+                  onClick: () => addNode(type),
+                  style: { display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', marginBottom: '4px', background: '#f8fafc', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }
+                },
+                  React.createElement('span', { style: { fontSize: '16px' } }, info.icon),
+                  React.createElement('span', null, info.name)
+                )
+              )
+            ),
+            // Canvas
+            React.createElement('div', {
+              ref: canvasRef,
+              style: { flex: 1, position: 'relative', overflow: 'auto', background: '#f1f5f9', backgroundImage: 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)', backgroundSize: '20px 20px' },
+              onMouseMove: handleCanvasMouseMove,
+              onMouseUp: handleCanvasMouseUp,
+              onClick: () => setSelectedNode(null)
+            },
+              // SVG for connections
+              React.createElement('svg', { style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' } },
+                React.createElement('defs', null,
+                  React.createElement('marker', { id: 'arrowhead', markerWidth: '10', markerHeight: '7', refX: '9', refY: '3.5', orient: 'auto' },
+                    React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#64748b' })
+                  )
+                ),
+                ...connections.map((conn, i) =>
+                  React.createElement('path', {
+                    key: i,
+                    d: getConnectionPath(conn),
+                    stroke: conn.label ? '#10b981' : '#64748b',
+                    strokeWidth: 2,
+                    fill: 'none',
+                    markerEnd: 'url(#arrowhead)'
+                  })
+                )
+              ),
+              // Nodes
+              ...nodes.map(node =>
+                React.createElement('div', {
+                  key: node.id,
+                  style: {
+                    position: 'absolute',
+                    left: node.x,
+                    top: node.y,
+                    width: '120px',
+                    background: 'white',
+                    borderRadius: '8px',
+                    border: `2px solid ${selectedNode === node.id ? '#3b82f6' : NODE_TYPES[node.type]?.color}`,
+                    boxShadow: selectedNode === node.id ? '0 0 0 2px #3b82f6' : '0 2px 8px rgba(0,0,0,0.1)',
+                    padding: '10px',
+                    cursor: 'move',
+                  },
+                  onClick: (e) => { e.stopPropagation(); setSelectedNode(node.id); },
+                  onMouseDown: (e) => handleNodeMouseDown(e, node.id)
+                },
+                  React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' } },
+                    React.createElement('span', { style: { fontSize: '14px' } }, NODE_TYPES[node.type]?.icon),
+                    React.createElement('span', { style: { fontSize: '10px', color: '#64748b', textTransform: 'uppercase' } }, NODE_TYPES[node.type]?.name)
+                  ),
+                  React.createElement('div', { style: { fontSize: '13px', fontWeight: '500', color: '#1e293b', marginBottom: '6px' } }, node.name),
+                  // Connection handles
+                  React.createElement('div', {
+                    style: { position: 'absolute', left: '-6px', top: '50%', width: '12px', height: '12px', background: '#64748b', borderRadius: '50%', cursor: 'crosshair' },
+                    onMouseDown: (e) => { e.stopPropagation(); handleConnectionStart(node.id); },
+                    onMouseUp: (e) => { e.stopPropagation(); handleConnectionEnd(node.id); }
+                  }),
+                  React.createElement('div', {
+                    style: { position: 'absolute', right: '-6px', top: '50%', width: '12px', height: '12px', background: '#64748b', borderRadius: '50%', cursor: 'crosshair' },
+                    onMouseDown: (e) => { e.stopPropagation(); handleConnectionStart(node.id); },
+                    onMouseUp: (e) => { e.stopPropagation(); handleConnectionEnd(node.id); }
+                  })
+                )
+              )
+            ),
+            // Properties Panel
+            selectedNode && nodes.find(n => n.id === selectedNode) &&
+              React.createElement('div', { style: { width: '280px', background: 'white', borderLeft: '1px solid #e2e8f0', padding: '16px', overflowY: 'auto' } },
+                React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontWeight: '600' } },
+                  'Properties',
+                  React.createElement('button', { onClick: deleteNode, style: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' } }, '🗑️')
+                ),
+                React.createElement('div', { style: { marginBottom: '16px' } },
+                  React.createElement('label', { style: { display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '6px' } }, 'Name'),
+                  React.createElement('input', {
+                    value: nodes.find(n => n.id === selectedNode)?.name || '',
+                    onChange: (e) => updateNodeConfig(selectedNode, { name: e.target.value }),
+                    style: { width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '14px' }
+                  })
+                ),
+                React.createElement('div', { style: { marginBottom: '16px' } },
+                  React.createElement('label', { style: { display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '6px' } }, 'Config JSON'),
+                  React.createElement('pre', { style: { fontSize: '11px', background: '#f8fafc', padding: '8px', borderRadius: '4px', maxHeight: '200px', overflow: 'auto' } },
+                    JSON.stringify(nodes.find(n => n.id === selectedNode)?.config || {}, null, 2)
+                  )
+                )
+              )
+          )
+      );
+    }
+
+    // Main App
+    function App() {
+      const [workflows, setWorkflows] = useState([]);
+      const [templates, setTemplates] = useState([]);
+      const [currentWorkflow, setCurrentWorkflow] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        async function fetchData() {
+          try {
+            const [workflowsRes, templatesRes] = await Promise.all([
+              fetch('/api/workflows'),
+              fetch('/api/templates')
+            ]);
+            const workflowsData = await workflowsRes.json();
+            const templatesData = await templatesRes.json();
+            setWorkflows(workflowsData.workflows || []);
+            setTemplates(templatesData.templates || []);
+          } catch (error) {
+            console.error('Failed to fetch data:', error);
+          } finally {
+            setLoading(false);
+          }
+        }
+        fetchData();
+      }, []);
+
+      const createWorkflow = async (templateId) => {
+        try {
+          const res = await fetch('/api/workflows', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ templateId, name: 'New Workflow' }),
+          });
+          const workflow = await res.json();
+          setCurrentWorkflow(workflow);
+        } catch (error) {
+          console.error('Failed to create workflow:', error);
+        }
+      };
+
+      if (loading) {
+        return React.createElement('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '16px', color: '#64748b' } },
+          React.createElement('div', { style: { fontSize: '48px', animation: 'spin 2s linear infinite' } }, '⚙️'),
+          React.createElement('div', { style: { fontSize: '18px', fontWeight: '500' } }, 'Loading Visual Builder...')
+        );
+      }
+
+      if (currentWorkflow) {
+        return React.createElement(WorkflowCanvas, {
+          workflow: currentWorkflow,
+          onSave: async (data) => {
+            await fetch(`/api/workflows/${currentWorkflow.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+          },
+          onBack: () => setCurrentWorkflow(null)
+        });
+      }
+
+      return React.createElement('div', { style: { maxWidth: '1200px', margin: '0 auto', padding: '32px' } },
+        React.createElement('h2', { style: { fontSize: '18px', fontWeight: '600', marginBottom: '16px', marginTop: '32px' } }, 'Start from Template'),
+        React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginBottom: '32px' } },
+          ...templates.map(template =>
+            React.createElement('div', {
+              key: template.id,
+              onClick: () => createWorkflow(template.id),
+              style: { background: 'white', borderRadius: '12px', padding: '20px', cursor: 'pointer', border: '1px solid #e2e8f0' }
+            },
+              React.createElement('div', { style: { fontSize: '32px', marginBottom: '12px' } }, getCategoryIcon(template.category)),
+              React.createElement('div', { style: { fontSize: '16px', fontWeight: '600', color: '#1e293b', marginBottom: '4px' } }, template.name),
+              React.createElement('div', { style: { fontSize: '12px', color: '#3b82f6', textTransform: 'uppercase', marginBottom: '8px' } }, template.category),
+              React.createElement('div', { style: { fontSize: '13px', color: '#64748b' } }, template.description)
+            )
+          )
+        ),
+        React.createElement('h2', { style: { fontSize: '18px', fontWeight: '600', marginBottom: '16px' } }, 'Your Workflows'),
+        workflows.length === 0
+          ? React.createElement('div', { style: { textAlign: 'center', padding: '48px', color: '#64748b', background: 'white', borderRadius: '12px', border: '2px dashed #e2e8f0' } },
+              React.createElement('div', { style: { fontSize: '48px', marginBottom: '16px' } }, '📋'),
+              React.createElement('div', null, 'No workflows yet. Start from a template above.')
+            )
+          : React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } },
+              ...workflows.map(workflow =>
+                React.createElement('div', {
+                  key: workflow.id,
+                  onClick: () => setCurrentWorkflow(workflow),
+                  style: { background: 'white', padding: '16px 20px', borderRadius: '8px', cursor: 'pointer', border: '1px solid #e2e8f0' }
+                },
+                  React.createElement('div', { style: { fontSize: '14px', fontWeight: '500', color: '#1e293b', marginBottom: '4px' } }, workflow.name),
+                  React.createElement('div', { style: { fontSize: '12px', color: '#64748b' } },
+                    `${workflow.nodes?.length || 0} nodes • ${new Date(workflow.updatedAt).toLocaleDateString()}`
+                  )
+                )
+              )
+            )
+      );
+    }
+
+    createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>

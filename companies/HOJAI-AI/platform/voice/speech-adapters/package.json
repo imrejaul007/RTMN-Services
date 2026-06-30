@@ -1,0 +1,28 @@
+{
+  "name": "@hojai/speech-adapters",
+  "version": "1.0.0",
+  "description": "Multi-provider STT adapter library — Azure Speech, OpenAI Whisper, Google Cloud Speech, Local Whisper",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "vitest"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "speech-to-text",
+    "azure-speech",
+    "openai-whisper",
+    "google-speech",
+    "stt",
+    "transcription"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}

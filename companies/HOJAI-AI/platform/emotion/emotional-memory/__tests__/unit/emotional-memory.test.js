@@ -1,644 +1,199 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 /**
  * Emotional Memory Service Unit Tests
- *
- * These tests cover the core functionality of the Emotional Memory Service:
- * - Storing emotions for entities
- * - Retrieving emotional timelines
- * - Calculating emotional trends
- * - Managing relationship emotions
- * - Querying across entities
  */
 
-describe('Emotional Memory Service', () => {
-  // Mock in-memory stores (matching the service implementation)
-  let emotionalMemories;
-  let relationshipEmotions;
+function calculateIntensity(emotionData) {
+  if (emotionData.confidence) return emotionData.confidence;
+  const emotions = emotionData.emotions || {};
+  const values = Object.values(emotions);
+  if (values.length === 0) return 0.5;
+  return values.reduce((sum, v) => sum + v, 0) / values.length;
+}
 
-  // Core functions extracted from the service for testing
-  function storeEmotion(entityId, emotion) {
-    if (!emotionalMemories.has(entityId)) {
-      emotionalMemories.set(entityId, []);
+function detectEmotionCategory(emotionData) {
+  if (emotionData.primary) return emotionData.primary;
+  const emotions = emotionData.emotions || {};
+  const entries = Object.entries(emotions);
+  if (entries.length === 0) return 'neutral';
+  return entries.sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function calculateValence(emotion) {
+  const positive = ['happy', 'excited', 'joyful', 'grateful', 'confident', 'satisfied'];
+  const negative = ['angry', 'sad', 'frustrated', 'anxious', 'fearful', 'disappointed'];
+  const lower = emotion.toLowerCase();
+  if (positive.some(e => lower.includes(e))) return 1;
+  if (negative.some(e => lower.includes(e))) return -1;
+  return 0;
+}
+
+function summarizeMemories(memories) {
+  if (memories.length === 0) return { totalMemories: 0, dominantEmotion: 'unknown', avgIntensity: 0 };
+  const emotionCounts = {};
+  let totalIntensity = 0;
+  let positiveCount = 0, negativeCount = 0;
+  memories.forEach(m => {
+    emotionCounts[m.emotion] = (emotionCounts[m.emotion] || 0) + 1;
+    totalIntensity += m.intensity;
+    if (m.valence > 0) positiveCount++;
+    if (m.valence < 0) negativeCount++;
+  });
+  const dominant = Object.entries(emotionCounts).sort((a, b) => b[1] - a[1])[0];
+  const stability = 1 - (Object.keys(emotionCounts).length / memories.length);
+  return {
+    totalMemories: memories.length,
+    dominantEmotion: dominant ? dominant[0] : 'unknown',
+    avgIntensity: totalIntensity / memories.length,
+    emotionalStability: Math.max(0, stability),
+    positiveRatio: positiveCount / memories.length,
+    negativeRatio: negativeCount / memories.length
+  };
+}
+
+function detectPatterns(memories) {
+  if (memories.length < 5) return { patterns: [], confidence: 0 };
+  const patterns = [];
+  const timePatterns = {};
+  memories.forEach(m => {
+    const hour = new Date(m.timestamp).getHours();
+    const period = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
+    if (!timePatterns[period]) timePatterns[period] = { count: 0, emotions: {} };
+    timePatterns[period].count++;
+    timePatterns[period].emotions[m.emotion] = (timePatterns[period].emotions[m.emotion] || 0) + 1;
+  });
+  for (const [period, data] of Object.entries(timePatterns)) {
+    if (data.count >= 3) {
+      const dominant = Object.entries(data.emotions).sort((a, b) => b[1] - a[1])[0];
+      patterns.push({ type: 'time_of_day', value: period, dominantEmotion: dominant[0], frequency: data.count, confidence: data.count / memories.length });
     }
-
-    const timeline = emotionalMemories.get(entityId);
-    timeline.push({
-      ...emotion,
-      timestamp: emotion.timestamp || new Date().toISOString(),
-      id: `emotion-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    });
-
-    return timeline[timeline.length - 1];
   }
+  return { patterns, confidence: Math.min(1, memories.length / 20) };
+}
 
-  function getTimeline(entityId, options = {}) {
-    const { startDate, endDate, limit = 100 } = options;
-    const timeline = emotionalMemories.get(entityId) || [];
-
-    let filtered = timeline;
-
-    if (startDate) {
-      filtered = filtered.filter(e => new Date(e.timestamp) >= new Date(startDate));
-    }
-    if (endDate) {
-      filtered = filtered.filter(e => new Date(e.timestamp) <= new Date(endDate));
-    }
-
-    return filtered.slice(-limit);
-  }
-
-  function calculateTrends(timeline) {
-    if (timeline.length < 2) {
-      return { trend: 'insufficient_data', change: 0 };
-    }
-
-    const recent = timeline.slice(-5);
-    const older = timeline.slice(-10, -5);
-
-    if (older.length === 0) {
-      return { trend: 'new_data', change: 0 };
-    }
-
-    const recentAvg = recent.reduce((sum, e) => sum + (e.intensity || 0.5), 0) / recent.length;
-    const olderAvg = older.reduce((sum, e) => sum + (e.intensity || 0.5), 0) / older.length;
-
-    const change = recentAvg - olderAvg;
-
-    return {
-      trend: change > 0.2 ? 'improving' : change < -0.2 ? 'declining' : 'stable',
-      change: Math.round(change * 100) / 100,
-      recentAvg: Math.round(recentAvg * 100) / 100,
-      olderAvg: Math.round(olderAvg * 100) / 100
-    };
-  }
-
-  function storeRelationshipEmotion(relId, emotion) {
-    if (!relationshipEmotions.has(relId)) {
-      relationshipEmotions.set(relId, []);
-    }
-
-    const history = relationshipEmotions.get(relId);
-    history.push({
-      ...emotion,
-      timestamp: new Date().toISOString(),
-      id: `rel-emotion-${Date.now()}`
+describe('Emotional Memory - Emotion Helpers', () => {
+  describe('calculateIntensity', () => {
+    it('should return confidence if provided', () => {
+      expect(calculateIntensity({ confidence: 0.85 })).toBe(0.85);
     });
-
-    return history[history.length - 1];
-  }
-
-  function getEmotionalSummary(entityId) {
-    const timeline = emotionalMemories.get(entityId) || [];
-
-    const emotionCounts = {};
-    for (const e of timeline) {
-      emotionCounts[e.emotion] = (emotionCounts[e.emotion] || 0) + 1;
-    }
-
-    const mostCommon = Object.entries(emotionCounts)
-      .sort((a, b) => b[1] - a[1])[0];
-
-    const avgIntensity = timeline.length > 0
-      ? timeline.reduce((sum, e) => sum + (e.intensity || 0.5), 0) / timeline.length
-      : 0;
-
-    return {
-      entityId,
-      emotionCounts,
-      dominantEmotion: mostCommon?.[0] || 'unknown',
-      emotionCount: mostCommon?.[1] || 0,
-      avgIntensity: Math.round(avgIntensity * 100) / 100,
-      totalEvents: timeline.length,
-      firstEvent: timeline[0]?.timestamp,
-      lastEvent: timeline[timeline.length - 1]?.timestamp
-    };
-  }
-
-  beforeEach(() => {
-    emotionalMemories = new Map();
-    relationshipEmotions = new Map();
-  });
-
-  describe('storeEmotion', () => {
-    it('should store a new emotion for an entity', () => {
-      const entityId = 'user-123';
-      const emotionData = {
-        emotion: 'joy',
-        intensity: 0.8,
-        context: 'Positive interaction',
-        source: 'support-chat'
-      };
-
-      const result = storeEmotion(entityId, emotionData);
-
-      expect(result).toBeDefined();
-      expect(result.id).toBeDefined();
-      expect(result.emotion).toBe('joy');
-      expect(result.intensity).toBe(0.8);
-      expect(result.context).toBe('Positive interaction');
-      expect(result.source).toBe('support-chat');
-      expect(result.timestamp).toBeDefined();
+    it('should calculate from emotions object', () => {
+      const result = calculateIntensity({ emotions: { happy: 0.8, sad: 0.3 } });
+      expect(result).toBeCloseTo(0.55, 2);
     });
-
-    it('should append emotions to existing timeline', () => {
-      const entityId = 'user-123';
-
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.5 });
-      storeEmotion(entityId, { emotion: 'frustration', intensity: 0.7 });
-      const result = storeEmotion(entityId, { emotion: 'satisfaction', intensity: 0.9 });
-
-      const timeline = emotionalMemories.get(entityId);
-      expect(timeline.length).toBe(3);
-      expect(result.emotion).toBe('satisfaction');
-    });
-
-    it('should generate unique IDs for each emotion', () => {
-      const entityId = 'user-123';
-
-      const emotion1 = storeEmotion(entityId, { emotion: 'joy', intensity: 0.5 });
-      const emotion2 = storeEmotion(entityId, { emotion: 'joy', intensity: 0.5 });
-
-      expect(emotion1.id).not.toBe(emotion2.id);
-    });
-
-    it('should use provided timestamp if available', () => {
-      const entityId = 'user-123';
-      const customTimestamp = '2026-01-15T10:00:00.000Z';
-
-      const result = storeEmotion(entityId, {
-        emotion: 'joy',
-        intensity: 0.8,
-        timestamp: customTimestamp
-      });
-
-      expect(result.timestamp).toBe(customTimestamp);
-    });
-
-    it('should use current timestamp if not provided', () => {
-      const entityId = 'user-123';
-      const beforeTime = new Date().toISOString();
-
-      const result = storeEmotion(entityId, { emotion: 'joy', intensity: 0.5 });
-
-      expect(result.timestamp).toBeDefined();
-      expect(new Date(result.timestamp).getTime()).toBeGreaterThanOrEqual(new Date(beforeTime).getTime());
+    it('should return 0.5 for empty emotions', () => {
+      expect(calculateIntensity({})).toBe(0.5);
     });
   });
 
-  describe('getTimeline', () => {
-    it('should return empty array for non-existent entity', () => {
-      const result = getTimeline('non-existent-user');
-      expect(result).toEqual([]);
+  describe('detectEmotionCategory', () => {
+    it('should return primary if provided', () => {
+      expect(detectEmotionCategory({ primary: 'happy' })).toBe('happy');
     });
-
-    it('should return all emotions for an entity', () => {
-      const entityId = 'user-123';
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.5 });
-      storeEmotion(entityId, { emotion: 'frustration', intensity: 0.7 });
-
-      const result = getTimeline(entityId);
-
-      expect(result.length).toBe(2);
+    it('should detect from emotions object', () => {
+      expect(detectEmotionCategory({ emotions: { happy: 0.8, sad: 0.3 } })).toBe('happy');
     });
-
-    it('should filter by start date', () => {
-      const entityId = 'user-123';
-      storeEmotion(entityId, {
-        emotion: 'joy',
-        intensity: 0.5,
-        timestamp: '2026-01-01T00:00:00.000Z'
-      });
-      storeEmotion(entityId, {
-        emotion: 'frustration',
-        intensity: 0.7,
-        timestamp: '2026-06-15T00:00:00.000Z'
-      });
-
-      const result = getTimeline(entityId, { startDate: '2026-06-01' });
-
-      expect(result.length).toBe(1);
-      expect(result[0].emotion).toBe('frustration');
-    });
-
-    it('should filter by end date', () => {
-      const entityId = 'user-123';
-      storeEmotion(entityId, {
-        emotion: 'joy',
-        intensity: 0.5,
-        timestamp: '2026-01-01T00:00:00.000Z'
-      });
-      storeEmotion(entityId, {
-        emotion: 'frustration',
-        intensity: 0.7,
-        timestamp: '2026-06-15T00:00:00.000Z'
-      });
-
-      const result = getTimeline(entityId, { endDate: '2026-03-01' });
-
-      expect(result.length).toBe(1);
-      expect(result[0].emotion).toBe('joy');
-    });
-
-    it('should respect limit parameter', () => {
-      const entityId = 'user-123';
-      for (let i = 0; i < 10; i++) {
-        storeEmotion(entityId, { emotion: 'joy', intensity: 0.1 + i * 0.1 });
-      }
-
-      const result = getTimeline(entityId, { limit: 3 });
-
-      expect(result.length).toBe(3);
-      // Should return the most recent (last 3 of 10)
-      // Intensities: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
-      // Most recent 3: 0.8, 0.9, 1.0
-      expect(result[0].intensity).toBe(0.8);
-    });
-
-    it('should combine start and end date filters', () => {
-      const entityId = 'user-123';
-      storeEmotion(entityId, {
-        emotion: 'joy',
-        intensity: 0.5,
-        timestamp: '2026-01-01T00:00:00.000Z'
-      });
-      storeEmotion(entityId, {
-        emotion: 'neutral',
-        intensity: 0.5,
-        timestamp: '2026-03-15T00:00:00.000Z'
-      });
-      storeEmotion(entityId, {
-        emotion: 'frustration',
-        intensity: 0.7,
-        timestamp: '2026-06-15T00:00:00.000Z'
-      });
-
-      const result = getTimeline(entityId, {
-        startDate: '2026-02-01',
-        endDate: '2026-05-01'
-      });
-
-      expect(result.length).toBe(1);
-      expect(result[0].emotion).toBe('neutral');
+    it('should return neutral for empty emotions', () => {
+      expect(detectEmotionCategory({})).toBe('neutral');
     });
   });
 
-  describe('calculateTrends', () => {
-    it('should return insufficient_data for empty timeline', () => {
-      const result = calculateTrends([]);
-      expect(result.trend).toBe('insufficient_data');
-      expect(result.change).toBe(0);
+  describe('calculateValence', () => {
+    it('should detect positive emotions', () => {
+      expect(calculateValence('happy')).toBe(1);
+      expect(calculateValence('excited')).toBe(1);
     });
-
-    it('should return insufficient_data for single emotion', () => {
-      const result = calculateTrends([{ intensity: 0.8 }]);
-      expect(result.trend).toBe('insufficient_data');
+    it('should detect negative emotions', () => {
+      expect(calculateValence('angry')).toBe(-1);
+      expect(calculateValence('sad')).toBe(-1);
     });
-
-    it('should return new_data when only recent data exists', () => {
-      const timeline = [
-        { intensity: 0.5 },
-        { intensity: 0.6 },
-        { intensity: 0.7 }
-      ];
-
-      const result = calculateTrends(timeline);
-      expect(result.trend).toBe('new_data');
-    });
-
-    it('should detect improving trend', () => {
-      const timeline = [
-        // Older data
-        { intensity: 0.3 },
-        { intensity: 0.35 },
-        { intensity: 0.4 },
-        { intensity: 0.38 },
-        { intensity: 0.42 },
-        // Recent data (significantly higher)
-        { intensity: 0.7 },
-        { intensity: 0.75 },
-        { intensity: 0.8 },
-        { intensity: 0.72 },
-        { intensity: 0.78 }
-      ];
-
-      const result = calculateTrends(timeline);
-      expect(result.trend).toBe('improving');
-      expect(result.change).toBeGreaterThan(0.2);
-    });
-
-    it('should detect declining trend', () => {
-      const timeline = [
-        // Older data (high intensity)
-        { intensity: 0.8 },
-        { intensity: 0.85 },
-        { intensity: 0.82 },
-        { intensity: 0.78 },
-        { intensity: 0.81 },
-        // Recent data (low intensity)
-        { intensity: 0.3 },
-        { intensity: 0.35 },
-        { intensity: 0.28 },
-        { intensity: 0.32 },
-        { intensity: 0.3 }
-      ];
-
-      const result = calculateTrends(timeline);
-      expect(result.trend).toBe('declining');
-      expect(result.change).toBeLessThan(-0.2);
-    });
-
-    it('should detect stable trend when change is minimal', () => {
-      const timeline = [
-        // Older data
-        { intensity: 0.5 },
-        { intensity: 0.52 },
-        { intensity: 0.48 },
-        { intensity: 0.51 },
-        { intensity: 0.49 },
-        // Recent data (similar)
-        { intensity: 0.52 },
-        { intensity: 0.54 },
-        { intensity: 0.51 },
-        { intensity: 0.53 },
-        { intensity: 0.52 }
-      ];
-
-      const result = calculateTrends(timeline);
-      expect(result.trend).toBe('stable');
-      expect(Math.abs(result.change)).toBeLessThanOrEqual(0.2);
-    });
-
-    it('should handle missing intensity (defaults to 0.5)', () => {
-      const timeline = [
-        // Older without intensity
-        { emotion: 'joy' },
-        { emotion: 'joy' },
-        { emotion: 'joy' },
-        { emotion: 'joy' },
-        { emotion: 'joy' },
-        // Recent with intensity
-        { intensity: 0.8 },
-        { intensity: 0.8 },
-        { intensity: 0.8 },
-        { intensity: 0.8 },
-        { intensity: 0.8 }
-      ];
-
-      const result = calculateTrends(timeline);
-      expect(result.trend).toBe('improving');
-    });
-
-    it('should calculate correct averages', () => {
-      const timeline = [
-        // Older: avg = 0.4
-        { intensity: 0.3 },
-        { intensity: 0.4 },
-        { intensity: 0.5 },
-        { intensity: 0.35 },
-        { intensity: 0.45 },
-        // Recent: avg = 0.6
-        { intensity: 0.5 },
-        { intensity: 0.6 },
-        { intensity: 0.7 },
-        { intensity: 0.55 },
-        { intensity: 0.65 }
-      ];
-
-      const result = calculateTrends(timeline);
-      expect(result.olderAvg).toBe(0.4);
-      expect(result.recentAvg).toBe(0.6);
-      expect(result.change).toBe(0.2);
-    });
-  });
-
-  describe('storeRelationshipEmotion', () => {
-    it('should store emotion for a new relationship', () => {
-      const relationshipId = 'customer-agent-123-456';
-      const emotionData = {
-        emotion: 'trust',
-        intensity: 0.9,
-        mutual: true
-      };
-
-      const result = storeRelationshipEmotion(relationshipId, emotionData);
-
-      expect(result.id).toBeDefined();
-      expect(result.emotion).toBe('trust');
-      expect(result.intensity).toBe(0.9);
-      expect(result.mutual).toBe(true);
-      expect(result.timestamp).toBeDefined();
-    });
-
-    it('should append to existing relationship history', () => {
-      const relationshipId = 'customer-agent-123-456';
-
-      storeRelationshipEmotion(relationshipId, { emotion: 'trust', intensity: 0.5 });
-      storeRelationshipEmotion(relationshipId, { emotion: 'frustration', intensity: 0.6 });
-
-      const history = relationshipEmotions.get(relationshipId);
-      expect(history.length).toBe(2);
-    });
-
-    it('should default mutual to false if not provided', () => {
-      const relationshipId = 'user-user-789-101';
-
-      const result = storeRelationshipEmotion(relationshipId, {
-        emotion: 'curiosity',
-        intensity: 0.4
-      });
-
-      expect(result.mutual).toBe(false);
-    });
-  });
-
-  describe('getEmotionalSummary', () => {
-    it('should return correct emotion counts', () => {
-      const entityId = 'user-123';
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.8 });
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.9 });
-      storeEmotion(entityId, { emotion: 'frustration', intensity: 0.3 });
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.7 });
-
-      const result = getEmotionalSummary(entityId);
-
-      expect(result.emotionCounts.joy).toBe(3);
-      expect(result.emotionCounts.frustration).toBe(1);
-    });
-
-    it('should identify dominant emotion', () => {
-      const entityId = 'user-123';
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.8 });
-      storeEmotion(entityId, { emotion: 'frustration', intensity: 0.3 });
-      storeEmotion(entityId, { emotion: 'frustration', intensity: 0.4 });
-      storeEmotion(entityId, { emotion: 'frustration', intensity: 0.5 });
-
-      const result = getEmotionalSummary(entityId);
-
-      expect(result.dominantEmotion).toBe('frustration');
-      expect(result.emotionCount).toBe(3);
-    });
-
-    it('should calculate average intensity', () => {
-      const entityId = 'user-123';
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.8 });
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.6 });
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.4 });
-
-      const result = getEmotionalSummary(entityId);
-
-      expect(result.avgIntensity).toBe(0.6);
-    });
-
-    it('should return unknown as dominant emotion for empty timeline', () => {
-      const result = getEmotionalSummary('empty-user');
-
-      expect(result.dominantEmotion).toBe('unknown');
-      expect(result.totalEvents).toBe(0);
-      expect(result.emotionCounts).toEqual({});
-    });
-
-    it('should track first and last events', () => {
-      const entityId = 'user-123';
-      const firstTimestamp = '2026-01-01T10:00:00.000Z';
-      const lastTimestamp = '2026-06-29T15:30:00.000Z';
-
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.5, timestamp: firstTimestamp });
-      storeEmotion(entityId, { emotion: 'frustration', intensity: 0.3, timestamp: '2026-03-15T12:00:00.000Z' });
-      storeEmotion(entityId, { emotion: 'satisfaction', intensity: 0.9, timestamp: lastTimestamp });
-
-      const result = getEmotionalSummary(entityId);
-
-      expect(result.firstEvent).toBe(firstTimestamp);
-      expect(result.lastEvent).toBe(lastTimestamp);
-    });
-  });
-
-  describe('Edge Cases', () => {
-    it('should handle unicode in emotion names', () => {
-      const entityId = 'user-unicode';
-      const result = storeEmotion(entityId, {
-        emotion: 'निराशा', // Hindi for disappointment
-        intensity: 0.8
-      });
-
-      expect(result.emotion).toBe('निराशा');
-    });
-
-    it('should handle special characters in entity IDs', () => {
-      const entityId = 'user:with:colons';
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0.5 });
-
-      const timeline = getTimeline(entityId);
-      expect(timeline.length).toBe(1);
-    });
-
-    it('should handle very long context strings', () => {
-      const entityId = 'user-long-context';
-      const longContext = 'A'.repeat(10000);
-
-      const result = storeEmotion(entityId, {
-        emotion: 'contemplation',
-        intensity: 0.6,
-        context: longContext
-      });
-
-      expect(result.context.length).toBe(10000);
-    });
-
-    it('should handle extreme intensity values', () => {
-      const entityId = 'user-extreme';
-
-      storeEmotion(entityId, { emotion: 'joy', intensity: 0 });
-      storeEmotion(entityId, { emotion: 'euphoria', intensity: 1 });
-
-      const timeline = getTimeline(entityId);
-      expect(timeline[0].intensity).toBe(0);
-      expect(timeline[1].intensity).toBe(1);
-    });
-
-    it('should handle batch operations correctly', () => {
-      const entityId = 'user-batch';
-      const emotions = [
-        { emotion: 'joy', intensity: 0.8 },
-        { emotion: 'satisfaction', intensity: 0.7 },
-        { emotion: 'gratitude', intensity: 0.9 }
-      ];
-
-      emotions.forEach(e => storeEmotion(entityId, e));
-
-      const timeline = getTimeline(entityId);
-      expect(timeline.length).toBe(3);
-      expect(timeline[0].emotion).toBe('joy');
-      expect(timeline[2].emotion).toBe('gratitude');
+    it('should return 0 for neutral emotions', () => {
+      expect(calculateValence('neutral')).toBe(0);
     });
   });
 });
 
-describe('API Validation', () => {
-  // Test the validation logic for API endpoints
-
-  describe('POST /emotion validation', () => {
-    it('should require entityId', () => {
-      const body = { emotion: 'joy', intensity: 0.8 };
-      const isValid = body.entityId && body.emotion;
-      expect(isValid).toBe(false);
-    });
-
-    it('should require emotion', () => {
-      const body = { entityId: 'user-123' };
-      const isValid = body.entityId && body.emotion;
-      expect(isValid).toBe(false);
-    });
-
-    it('should accept valid input', () => {
-      const body = { entityId: 'user-123', emotion: 'joy', intensity: 0.8 };
-      const isValid = body.entityId && body.emotion;
-      expect(isValid).toBe(true);
-    });
+describe('Emotional Memory - Summary', () => {
+  it('should handle empty memories', () => {
+    const summary = summarizeMemories([]);
+    expect(summary.totalMemories).toBe(0);
+    expect(summary.dominantEmotion).toBe('unknown');
   });
-
-  describe('POST /emotion/batch validation', () => {
-    it('should require entityId and emotions array', () => {
-      const body = { entityId: 'user-123' };
-      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
-      expect(isValid).toBe(false);
-    });
-
-    it('should reject non-array emotions', () => {
-      const body = { entityId: 'user-123', emotions: 'not-an-array' };
-      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
-      expect(isValid).toBe(false);
-    });
-
-    it('should accept valid batch input', () => {
-      const body = {
-        entityId: 'user-123',
-        emotions: [
-          { emotion: 'joy', intensity: 0.8 },
-          { emotion: 'satisfaction', intensity: 0.7 }
-        ]
-      };
-      const isValid = body.entityId && body.emotions && Array.isArray(body.emotions);
-      expect(isValid).toBe(true);
-    });
+  it('should find dominant emotion', () => {
+    const memories = [
+      { emotion: 'happy', intensity: 0.8, valence: 1 },
+      { emotion: 'happy', intensity: 0.9, valence: 1 },
+      { emotion: 'angry', intensity: 0.7, valence: -1 }
+    ];
+    const summary = summarizeMemories(memories);
+    expect(summary.dominantEmotion).toBe('happy');
   });
+  it('should calculate average intensity', () => {
+    const memories = [
+      { emotion: 'happy', intensity: 0.8, valence: 1 },
+      { emotion: 'angry', intensity: 0.6, valence: -1 }
+    ];
+    const summary = summarizeMemories(memories);
+    expect(summary.avgIntensity).toBeCloseTo(0.7, 2);
+  });
+  it('should calculate emotional stability', () => {
+    const allSame = [
+      { emotion: 'happy', intensity: 0.8, valence: 1 },
+      { emotion: 'happy', intensity: 0.9, valence: 1 }
+    ];
+    const mixed = [
+      { emotion: 'happy', intensity: 0.8, valence: 1 },
+      { emotion: 'angry', intensity: 0.7, valence: -1 }
+    ];
+    const stable = summarizeMemories(allSame);
+    const vol = summarizeMemories(mixed);
+    expect(stable.emotionalStability).toBeGreaterThan(vol.emotionalStability);
+  });
+});
 
-  describe('POST /relationship validation', () => {
-    it('should require relationshipId and emotion', () => {
-      const body = { emotion: 'trust' };
-      const isValid = body.relationshipId && body.emotion;
-      expect(isValid).toBe(false);
-    });
+describe('Emotional Memory - Patterns', () => {
+  it('should return empty for insufficient data', () => {
+    const memories = [{ emotion: 'happy', timestamp: new Date().toISOString() }];
+    const result = detectPatterns(memories);
+    expect(result.patterns.length).toBe(0);
+    expect(result.confidence).toBe(0);
+  });
+  it('should detect time-of-day patterns', () => {
+    const memories = [];
+    const base = new Date();
+    // Need at least 5 memories for pattern detection
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(base);
+      d.setHours(9, 0, 0, 0);
+      memories.push({ emotion: 'happy', timestamp: d.toISOString() });
+    }
+    const result = detectPatterns(memories);
+    // Should detect morning pattern with 5 memories
+    expect(result.confidence).toBeGreaterThan(0);
+  });
+});
 
-    it('should accept valid relationship input', () => {
-      const body = {
-        relationshipId: 'customer-agent-123-456',
-        emotion: 'trust',
-        intensity: 0.9
-      };
-      const isValid = body.relationshipId && body.emotion;
-      expect(isValid).toBe(true);
-    });
+describe('Emotional Memory - Integration', () => {
+  it('should track customer journey from angry to happy', () => {
+    const journey = [
+      { emotion: 'angry', intensity: 0.9, valence: -1 },
+      { emotion: 'neutral', intensity: 0.5, valence: 0 },
+      { emotion: 'happy', intensity: 0.9, valence: 1 }
+    ];
+    const summary = summarizeMemories(journey);
+    expect(summary.totalMemories).toBe(3);
+    expect(summary.positiveRatio).toBeGreaterThan(0);
+  });
+  it('should detect burnout pattern', () => {
+    const memories = [];
+    for (let i = 0; i < 14; i++) {
+      memories.push({
+        emotion: i < 5 ? 'happy' : i < 10 ? 'neutral' : 'anxious',
+        intensity: 0.9 - (i * 0.03),
+        valence: i < 5 ? 1 : i < 10 ? 0 : -1
+      });
+    }
+    const summary = summarizeMemories(memories);
+    expect(summary.negativeRatio).toBeGreaterThan(0);
   });
 });

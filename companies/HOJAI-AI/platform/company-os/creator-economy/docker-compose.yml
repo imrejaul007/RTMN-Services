@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  creator-economy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hojai-creator-economy
+    ports:
+      - "4514:4514"
+    environment:
+      - NODE_ENV=production
+      - PORT=4514
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4514/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hojai-network
+
+networks:
+  hojai-network:
+    driver: bridge

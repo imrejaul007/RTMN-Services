@@ -1,0 +1,6 @@
+{
+  "name": "microsoft-365-connector",
+  "version": "1.0.0",
+  "description": "Microsoft 365 integration (Teams, Outlook, SharePoint)",
+  "main": "src/index.js"
+}

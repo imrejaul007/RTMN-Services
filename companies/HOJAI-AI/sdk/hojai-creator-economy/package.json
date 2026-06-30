@@ -1,0 +1,28 @@
+{
+  "name": "@hojai/creator-economy-sdk",
+  "version": "1.0.0",
+  "description": "SDK for HOJAI Creator Economy - Partner ecosystem with revenue sharing",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest"
+  },
+  "keywords": [
+    "hojai",
+    "creator-economy",
+    "partner",
+    "revenue-sharing",
+    "sdk"
+  ],
+  "author": "HOJAI AI",
+  "license": "MIT"
+}
