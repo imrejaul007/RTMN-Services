@@ -1,0 +1,178 @@
+# Docker Compose for RTMN Phase 0-5 Commerce Stack
+# Usage: docker compose -f services/rtmn-unified-hub/docker-compose.yml up
+# Or:   docker compose up (from repo root with merged compose)
+#
+# Ports:
+#   4399 — RTMN Unified Hub
+#   5670 — Template Engine
+#   5680 — Vendor Pools
+#   5750 — Commerce Studio
+#   5800 — Product Graph
+#   5810 — Trade Finance
+#   5820 — Cross Border
+#   5830 — Universal Distribution
+
+services:
+  hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4399:4399"
+    environment:
+      - NODE_ENV=production
+      - PORT=4399
+      - HUB_API_KEY=${HUB_API_KEY:-}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    depends_on:
+      - template-engine
+      - vendor-pools
+      - commerce-studio
+      - product-graph
+      - trade-finance
+      - cross-border
+      - universal-distribution
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4399/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  template-engine:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    volumes:
+      - ../companies/Nexha/services/template-engine:/app
+    ports:
+      - "5670:5670"
+    environment:
+      - NODE_ENV=production
+      - PORT=5670
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5670/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  vendor-pools:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    volumes:
+      - ../companies/Nexha/services/vendor-liquidity-pools:/app
+    ports:
+      - "5680:5680"
+    environment:
+      - NODE_ENV=production
+      - PORT=5680
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5680/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  commerce-studio:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    volumes:
+      - ../companies/HOJAI-AI/products/commerce-studio/studio-backend:/app
+    ports:
+      - "5750:5750"
+    environment:
+      - NODE_ENV=production
+      - PORT=5750
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5750/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  product-graph:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    volumes:
+      - ../companies/Nexha/services/product-graph:/app
+      - product-graph-data:/tmp/product-graph
+    ports:
+      - "5800:5800"
+    environment:
+      - NODE_ENV=production
+      - PORT=5800
+      - DATA_DIR=/tmp/product-graph
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5800/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  trade-finance:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    volumes:
+      - ../companies/Nexha/services/trade-finance:/app
+    ports:
+      - "5810:5810"
+    environment:
+      - NODE_ENV=production
+      - PORT=5810
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5810/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  cross-border:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    volumes:
+      - ../companies/Nexha/services/cross-border:/app
+    ports:
+      - "5820:5820"
+    environment:
+      - NODE_ENV=production
+      - PORT=5820
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5820/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  universal-distribution:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && node src/index.js"
+    volumes:
+      - ../companies/Nexha/services/universal-distribution:/app
+    ports:
+      - "5830:5830"
+    environment:
+      - NODE_ENV=production
+      - PORT=5830
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5830/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  product-graph-data:

@@ -470,10 +470,184 @@ services:
       - rtmn-core
 
 # ============================================
+
+
+# ============================================
+# PHASE 0-5: COMMERCE STACK
+# ============================================
+
+  rtmn-unified-hub:
+    build:
+      context: ./services/rtmn-unified-hub
+      dockerfile: Dockerfile
+    container_name: rtmn-hub
+    ports:
+      - "4399:4399"
+    environment:
+      - NODE_ENV=production
+      - PORT=4399
+      - HUB_API_KEY=${HUB_API_KEY:-}
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+      - RATE_LIMIT_IP=100
+      - RATE_LIMIT_TOKEN=500
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4399/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
+  template-engine:
+    build:
+      context: ./companies/Nexha/services/template-engine
+      dockerfile: Dockerfile
+    container_name: rtmn-template-engine
+    ports:
+      - "5670:5670"
+    environment:
+      - NODE_ENV=production
+      - PORT=5670
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5670/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
+  vendor-pools:
+    build:
+      context: ./companies/Nexha/services/vendor-liquidity-pools
+      dockerfile: Dockerfile
+    container_name: rtmn-vendor-pools
+    ports:
+      - "5680:5680"
+    environment:
+      - NODE_ENV=production
+      - PORT=5680
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5680/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
+  commerce-studio:
+    build:
+      context: ./companies/HOJAI-AI/products/commerce-studio/studio-backend
+      dockerfile: Dockerfile
+    container_name: rtmn-commerce-studio
+    ports:
+      - "5750:5750"
+    environment:
+      - NODE_ENV=production
+      - PORT=5750
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5750/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
+  product-graph:
+    build:
+      context: ./companies/Nexha/services/product-graph
+      dockerfile: Dockerfile
+    container_name: rtmn-product-graph
+    ports:
+      - "5800:5800"
+    volumes:
+      - product-graph-data:/tmp/product-graph
+    environment:
+      - NODE_ENV=production
+      - PORT=5800
+      - DATA_DIR=/tmp/product-graph
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5800/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
+  trade-finance:
+    build:
+      context: ./companies/Nexha/services/trade-finance
+      dockerfile: Dockerfile
+    container_name: rtmn-trade-finance
+    ports:
+      - "5810:5810"
+    environment:
+      - NODE_ENV=production
+      - PORT=5810
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5810/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
+  cross-border:
+    build:
+      context: ./companies/Nexha/services/cross-border
+      dockerfile: Dockerfile
+    container_name: rtmn-cross-border
+    ports:
+      - "5820:5820"
+    environment:
+      - NODE_ENV=production
+      - PORT=5820
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5820/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
+  universal-distribution:
+    build:
+      context: ./companies/Nexha/services/universal-distribution
+      dockerfile: Dockerfile
+    container_name: rtmn-universal-distribution
+    ports:
+      - "5830:5830"
+    environment:
+      - NODE_ENV=production
+      - PORT=5830
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5830/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rtmn-core
+    restart: unless-stopped
+
 # VOLUMES
 # ============================================
 volumes:
   redis_data:
+    driver: local
+  product-graph-data:
     driver: local
 
 # ============================================
