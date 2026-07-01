@@ -85,6 +85,7 @@ describe('RTMN Unified Hub', () => {
       name: 'Template Engine',
       url: 'http://localhost:5670',
       prefix: '/api/templates',
+      stripPrefix: false,
       healthPath: '/health',
       timeout: 10000,
       category: 'rtmn' as const,
