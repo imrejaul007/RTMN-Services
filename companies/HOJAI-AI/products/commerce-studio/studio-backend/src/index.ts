@@ -15,6 +15,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import { requireInternalAuth } from './middleware/internalAuth.js';
 import axios from 'axios';
 
 import templatesRouter from './routes/templates.js';
@@ -32,6 +33,7 @@ app.use(helmet());
 app.use(cors());
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
+app.use(requireInternalAuth);
 
 // Health
 app.get('/health', (req, res) => {
