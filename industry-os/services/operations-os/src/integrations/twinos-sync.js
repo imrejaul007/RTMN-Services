@@ -3,7 +3,8 @@
  * Syncs Operations twins to central TwinOS (port 4705)
  */
 
-const fetch = require('node-fetch');
+// Use native fetch (Node 18+) or polyfill
+const fetch = globalThis.fetch || require('node-fetch');
 
 class TwinOSSync {
   constructor() {

@@ -28,6 +28,9 @@ const { AdBazaarService } = require('./services/AdBazaarService');
 const { RTMNService } = require('./services/RTMNIntegration');
 const RTMNMarketingHub = require('./services/RTMNMarketingHub');
 const dashboardRoutes = require('./routes/dashboard');
+const creatorRoutes = require('./routes/creator-os');
+const intelligenceRoutes = require('./routes/intelligence-os');
+const socialRoutes = require('./routes/social-os');
 const revenueOS = require('./modules/revenue-os');
 
 const app = express();
@@ -983,6 +986,21 @@ app.get('/api/revenue/channels', authenticate, async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+// ============================================
+// CREATOR OS ROUTES (Phase 4)
+// ============================================
+app.use('/api/creator', creatorRoutes);
+
+// ============================================
+// INTELLIGENCE OS ROUTES (Phase 5)
+// ============================================
+app.use('/api/intelligence', intelligenceRoutes);
+
+// ============================================
+// SOCIAL OS ROUTES (Phase 5)
+// ============================================
+app.use('/api/social', socialRoutes);
 
 // ============================================
 // ERROR HANDLING
