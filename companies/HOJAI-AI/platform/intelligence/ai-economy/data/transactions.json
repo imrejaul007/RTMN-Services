@@ -142,5 +142,53 @@
     "escrow": false,
     "createdAt": "2026-06-30T21:20:37.653Z",
     "completedAt": "2026-06-30T21:20:37.656Z"
+  },
+  {
+    "id": "4218fde0-65b7-4180-85ed-16bf81f6722d",
+    "listingId": "f228b54e-2afe-49e0-ad15-4741c4e8abec",
+    "buyerId": "buyer-x",
+    "sellerId": "seller-y",
+    "amount": 25,
+    "type": "purchase",
+    "status": "pending",
+    "escrow": true,
+    "createdAt": "2026-06-30T22:13:39.512Z",
+    "completedAt": null
+  },
+  {
+    "id": "2d513376-8ecc-4da6-8681-48a4f2d06a84",
+    "listingId": "7c364cd8-a8b9-4db6-abdb-5a703450099b",
+    "buyerId": "b",
+    "sellerId": null,
+    "amount": 10,
+    "type": "purchase",
+    "status": "completed",
+    "escrow": false,
+    "createdAt": "2026-06-30T22:13:39.518Z",
+    "completedAt": "2026-06-30T22:13:39.521Z"
+  },
+  {
+    "id": "cff05499-fd43-4c96-b547-0a4598628f8a",
+    "listingId": "541975ea-b0ca-4060-bd06-7ac76d7e966b",
+    "buyerId": "buyer-x",
+    "sellerId": "seller-y",
+    "amount": 25,
+    "type": "purchase",
+    "status": "pending",
+    "escrow": true,
+    "createdAt": "2026-06-30T22:17:10.600Z",
+    "completedAt": null
+  },
+  {
+    "id": "6db9156a-e1eb-4ce3-9bf3-b5d941e18d44",
+    "listingId": "acec7b83-0992-4d12-93f3-c09320ceb5e7",
+    "buyerId": "b",
+    "sellerId": null,
+    "amount": 10,
+    "type": "purchase",
+    "status": "completed",
+    "escrow": false,
+    "createdAt": "2026-06-30T22:17:10.611Z",
+    "completedAt": "2026-06-30T22:17:10.638Z"
   }
 ]

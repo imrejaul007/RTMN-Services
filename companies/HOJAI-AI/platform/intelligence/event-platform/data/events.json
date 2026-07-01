@@ -38,5 +38,15 @@
     },
     "timestamp": "2026-06-30T21:15:15.162Z",
     "deliveredTo": []
+  },
+  {
+    "id": "2f67ccc7-aa70-42c6-8916-b30bf48d1248",
+    "type": "click",
+    "source": "web",
+    "data": {
+      "x": 1
+    },
+    "timestamp": "2026-06-30T22:20:08.719Z",
+    "deliveredTo": []
   }
 ]

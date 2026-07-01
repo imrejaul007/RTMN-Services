@@ -78,5 +78,25 @@
     "status": "running",
     "eventCount": 0,
     "createdAt": "2026-06-30T21:15:15.242Z"
+  },
+  {
+    "id": "d84cc557-78b9-49af-b686-05a696887085",
+    "from": "2026-06-01T00:00:00Z",
+    "to": "2026-06-28T00:00:00Z",
+    "eventType": null,
+    "target": "analytics",
+    "status": "running",
+    "eventCount": 0,
+    "createdAt": "2026-06-30T22:20:08.771Z"
+  },
+  {
+    "id": "678402d0-e8e2-4fa8-ab19-49ebc54a29de",
+    "from": "2026-06-01",
+    "to": "2026-06-28",
+    "eventType": null,
+    "target": "x",
+    "status": "running",
+    "eventCount": 0,
+    "createdAt": "2026-06-30T22:20:08.777Z"
   }
 ]

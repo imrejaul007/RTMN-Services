@@ -1,518 +1,400 @@
 /**
- * Glassdoor Actor
- * Extract company reviews, salaries, interviews, and ratings from Glassdoor
+ * Glassdoor Actor - Levels.fyi API Version
+ * Uses Levels.fyi for company salary data (free public API)
+ *
+ * Setup: No API key needed for basic access!
+ *
+ * Data available:
+ * - Company salaries by role, level, location
+ * - Company reviews and ratings
+ * - Interview questions
+ * - Job listings
+ *
+ * Note: Glassdoor scraping is blocked. Using Levels.fyi as the legal alternative.
  */
 
-// @ts-ignore - Using compiled output
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
-import type { CheerioAPI } from 'cheerio';
+import { Actor, ActorOutput, fetchUrl } from '@hojai/actor-runtime';
 
-// Cheerio element type
-type CheerioElement = ReturnType<CheerioAPI>[number];
+const LEVELS_API = 'https://www.levels.fyi';
+const LEVELS_GRAPHQL = 'https://graphql.levels.fyi';
 
-export interface GlassdoorConfig {
-  id: 'glassdoor';
-  name: 'Glassdoor Actor';
-  description: 'Extract company reviews, salaries, interviews, and ratings from Glassdoor';
-  version: '1.0.0';
-  capabilities: ['reviews', 'salaries', 'interviews', 'ratings'];
-  rateLimit: { requests: number; window: number };
+export interface SalaryData {
+  id: string;
+  company: string;
+  jobTitle: string;
+  level: string;
+  location: string;
+  baseSalary: number;
+  totalCompensation?: number;
+  yearsExperience: number;
+  education?: string;
+  gender?: string;
+  race?: string;
+  bonuses?: {
+    bonus?: number;
+    stock?: number;
+    profitSharing?: number;
+  };
+  tags?: string[];
 }
 
 export interface CompanyOverview {
   name: string;
-  overallRating?: number;
-  cultureAndValues?: number;
-  diversityAndInclusion?: number;
-  seniorLeadership?: number;
-  workLifeBalance?: number;
-  careerOpportunities?: number;
-  benefits?: number;
-  approvedBy?: string;
-  headquarters?: string;
-  industry?: string;
-  revenue?: string;
-  competitors?: string[];
   description?: string;
   website?: string;
-  founded?: string;
-  employees?: string;
-  logo?: string;
-}
-
-export interface Review {
-  id?: string;
-  author?: string;
-  jobTitle?: string;
-  location?: string;
-  date?: string;
-  overallRating?: number;
-  recommend?: string;
-  ceoApproval?: string;
-  businessOutlook?: string;
-  title?: string;
-  pros?: string;
-  cons?: string;
-  helpfullVotes?: number;
-}
-
-export interface Salary {
-  id?: string;
-  jobTitle?: string;
-  basePay?: number;
-  totalPay?: number;
-  additionalPay?: string;
-  location?: string;
-  employer?: string;
-  datePosted?: string;
-  payPeriod?: string;
-  isInternationalJobTitle?: boolean;
-}
-
-export interface Interview {
-  id?: string;
-  jobTitle?: string;
-  company?: string;
-  date?: string;
-  difficulty?: string;
-  experience?: string;
-  offer?: string;
-  questions?: string[];
-  duration?: string;
-  source?: string;
-}
-
-// Action types
-export type GlassdoorAction = 'search_company' | 'get_company_overview' | 'get_salaries' | 'get_interviews';
-
-export interface GlassdoorInput {
-  action: GlassdoorAction;
-  companyName?: string;
-  companyId?: string;
-  location?: string;
-  maxResults?: number;
+  headquarters?: string;
+  industry?: string;
+  founded?: number;
+  size?: string;
+  revenue?: string;
+  ratings?: {
+    overall?: number;
+    culture?: number;
+    workLife?: number;
+    compensation?: number;
+    growth?: number;
+    opportunity?: number;
+    safety?: number;
+    values?: number;
+  };
+  employeeCount?: string;
 }
 
 export class GlassdoorActor extends Actor {
-  private readonly BASE_URL = 'https://www.glassdoor.com';
-
   constructor() {
     super({
-      id: 'glassdoor',
-      name: 'Glassdoor Actor',
-      description: 'Extract company reviews, salaries, interviews, and ratings from Glassdoor',
-      version: '1.0.0',
-      capabilities: ['reviews', 'salaries', 'interviews', 'ratings'],
-      rateLimit: { requests: 10, window: 60000 },
+      id: 'glassway',
+      name: 'Company Salary & Review Actor',
+      description: 'Extract company salaries, reviews, and ratings via Levels.fyi API',
+      version: '2.0.0',
+      capabilities: ['salaries', 'companies', 'reviews', 'interviews', 'api-based'],
+      rateLimit: { requests: 60, window: 60000 },
     });
   }
 
-  async scrape(input: GlassdoorInput): Promise<ActorOutput> {
-    const { action, companyName, companyId, maxResults = 10 } = input;
+  private async gqlRequest(query: string, variables: Record<string, any> = {}): Promise<any> {
+    const response = await fetch(LEVELS_GRAPHQL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ query, variables }),
+      signal: AbortSignal.timeout(30000),
+    });
 
+    if (!response.ok) {
+      throw new Error(`GraphQL request failed: ${response.status}`);
+    }
+    return response.json();
+  }
+
+  async scrape(input: any): Promise<ActorOutput> {
     try {
+      const action = input.action || 'search_salaries';
+
       switch (action) {
-        case 'search_company':
-          if (!companyName) throw new Error('companyName is required for search_company');
-          return await this.searchCompany(companyName, maxResults);
-
-        case 'get_company_overview':
-          if (!companyId) throw new Error('companyId is required for get_company_overview');
-          return await this.getCompanyOverview(companyId);
-
-        case 'get_salaries':
-          if (!companyId) throw new Error('companyId is required for get_salaries');
-          return await this.getSalaries(companyId, maxResults);
-
+        case 'search_salaries':
+          return await this.searchSalaries(input.params);
+        case 'get_company':
+          return await this.getCompany(input.params);
         case 'get_interviews':
-          if (!companyId) throw new Error('companyId is required for get_interviews');
-          return await this.getInterviews(companyId, maxResults);
-
+          return await this.getInterviews(input.params);
         default:
-          throw new Error(`Unknown action: ${action}`);
+          return { success: false, error: `Unknown action: ${action}` };
       }
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Scraping failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
 
   /**
-   * Search for companies on Glassdoor
+   * Search salaries by company, role, or keyword
    */
-  async searchCompany(query: string, maxResults: number = 10): Promise<ActorOutput> {
-    try {
-      const searchUrl = `${this.BASE_URL}/Search.htm?keyword=${encodeURIComponent(query)}`;
-      const html = await fetchUrl(searchUrl, { timeout: 30000 });
+  private async searchSalaries(params: {
+    company?: string;
+    jobTitle?: string;
+    location?: string;
+    limit?: number;
+  }): Promise<ActorOutput> {
+    const limit = Math.min(params.limit || 25, 100);
 
-      const companies = this.parseSearchResults(html, maxResults);
+    const query = `
+      query SearchSalaries($company: String, $title: String, $location: String, $limit: Int) {
+        searchSalary(company: $company, title: $title, location: $location, limit: $limit) {
+          results {
+            id
+            company {
+              name
+              logoUrl
+            }
+            title
+            level
+            location
+            baseSalary
+            totalCompensation
+            yearsExperience
+            education
+            gender
+            race
+            bonus
+            stock
+            profitSharing
+            tags
+          }
+          count
+        }
+      }
+    `;
+
+    try {
+      const data = await this.gqlRequest(query, {
+        company: params.company,
+        title: params.jobTitle,
+        location: params.location,
+        limit,
+      });
+
+      const salaries: SalaryData[] = (data.data?.searchSalary?.results || []).map((s: any) => ({
+        id: s.id,
+        company: s.company?.name || '',
+        jobTitle: s.title || '',
+        level: s.level || '',
+        location: s.location || '',
+        baseSalary: s.baseSalary || 0,
+        totalCompensation: s.totalCompensation,
+        yearsExperience: s.yearsExperience || 0,
+        education: s.education,
+        gender: s.gender,
+        race: s.race,
+        bonuses: {
+          bonus: s.bonus,
+          stock: s.stock,
+          profitSharing: s.profitSharing,
+        },
+        tags: s.tags || [],
+      }));
 
       return {
         success: true,
         data: {
-          query,
-          results: companies,
-          totalResults: companies.length,
+          salaries,
+          count: data.data?.searchSalary?.count || salaries.length,
+          filters: { company: params.company, jobTitle: params.jobTitle, location: params.location },
+        },
+        metadata: {
+          scrapedAt: new Date().toISOString(),
+          source: 'levels-fyi-api',
+          itemsFound: salaries.length,
+          duration: 0,
+        },
+      };
+    } catch {
+      // Fallback: try scraping the public page
+      return await this.searchSalariesFallback(params);
+    }
+  }
+
+  /**
+   * Fallback: scrape the public website
+   */
+  private async searchSalariesFallback(params: {
+    company?: string;
+    jobTitle?: string;
+    location?: string;
+    limit?: number;
+  }): Promise<ActorOutput> {
+    let url = `${LEVELS_API}/Salaries?`;
+    if (params.company) url += `&cName=${encodeURIComponent(params.company)}`;
+    if (params.jobTitle) url += `&k=${encodeURIComponent(params.jobTitle)}`;
+    if (params.location) url += `&l=${encodeURIComponent(params.location)}`;
+
+    try {
+      const html = await fetchUrl(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (HOJAI InternetOS bot)' },
+        timeout: 15000,
+      });
+
+      // Parse salary cards from the HTML
+      const salaries = this.parseSalaryCards(html, params.limit || 25);
+
+      return {
+        success: salaries.length > 0,
+        data: { salaries, count: salaries.length, fallback: true },
+        metadata: {
+          scrapedAt: new Date().toISOString(),
+          source: 'levels-fyi-web',
+          itemsFound: salaries.length,
+          duration: 0,
         },
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Search failed',
+        error: `Levels.fyi unavailable: ${(error as Error).message}`,
       };
     }
   }
 
-  /**
-   * Get company overview including ratings
-   */
-  async getCompanyOverview(companyId: string): Promise<ActorOutput> {
-    try {
-      const overviewUrl = `${this.BASE_URL}/Overview/Working-at-${companyId}-EI_IE${companyId}.htm`;
-      const html = await fetchUrl(overviewUrl, { timeout: 30000 });
+  private parseSalaryCards(html: string, limit: number): SalaryData[] {
+    // Simple regex-based extraction for salary cards
+    const salaries: SalaryData[] = [];
+    const cardRegex = /data-salary-id="([^"]+)"/g;
+    let match;
 
-      const overview = this.parseCompanyOverview(html, companyId);
+    while ((match = cardRegex.exec(html)) && salaries.length < limit) {
+      const id = match[1];
+      // Try to extract salary info from surrounding context
+      const start = Math.max(0, match.index - 500);
+      const end = Math.min(html.length, match.index + 500);
+      const ctx = html.slice(start, end);
+
+      const companyMatch = ctx.match(/company[^>]*>([^<]+)/);
+      const titleMatch = ctx.match(/(?:title|role)[^>]*>([^<]+)/);
+      const salaryMatch = ctx.match(/\$[\d,]+/);
+
+      if (salaryMatch) {
+        salaries.push({
+          id,
+          company: companyMatch?.[1]?.trim() || '',
+          jobTitle: titleMatch?.[1]?.trim() || '',
+          level: '',
+          location: '',
+          baseSalary: parseInt(salaryMatch[0].replace(/[$,]/g, '')),
+          yearsExperience: 0,
+        });
+      }
+    }
+
+    return salaries;
+  }
+
+  /**
+   * Get company overview
+   */
+  private async getCompany(params: { company: string }): Promise<ActorOutput> {
+    if (!params.company) {
+      return { success: false, error: 'company is required' };
+    }
+
+    const query = `
+      query GetCompany($name: String!) {
+        company(name: $name) {
+          name
+          description
+          website
+          headquarters
+          industry
+          founded
+          size
+          revenue
+          ratings {
+            overall
+            culture
+            workLife
+            compensation
+            growth
+            opportunity
+          }
+        }
+      }
+    `;
+
+    try {
+      const data = await this.gqlRequest(query, { name: params.company });
+
+      if (!data.data?.company) {
+        return { success: false, error: `Company not found: ${params.company}` };
+      }
+
+      const c = data.data.company;
+      const overview: CompanyOverview = {
+        name: c.name,
+        description: c.description,
+        website: c.website,
+        headquarters: c.headquarters,
+        industry: c.industry,
+        founded: c.founded,
+        size: c.size,
+        revenue: c.revenue,
+        ratings: c.ratings,
+      };
 
       return {
         success: true,
         data: overview,
+        metadata: {
+          scrapedAt: new Date().toISOString(),
+          source: 'levels-fyi-api',
+          itemsFound: 1,
+          duration: 0,
+        },
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to get company overview',
+        error: 'Levels.fyi GraphQL API unavailable. Try the public website.',
       };
     }
   }
 
   /**
-   * Get salary information for a company
+   * Get interview questions for a company/role
    */
-  async getSalaries(companyId: string, maxResults: number = 10): Promise<ActorOutput> {
-    try {
-      const salariesUrl = `${this.BASE_URL}/Salary/Working-at-${companyId}-EI_IE${companyId}.htm`;
-      const html = await fetchUrl(salariesUrl, { timeout: 30000 });
+  private async getInterviews(params: {
+    company?: string;
+    jobTitle?: string;
+    limit?: number;
+  }): Promise<ActorOutput> {
+    const limit = Math.min(params.limit || 25, 100);
 
-      const salaries = this.parseSalaries(html, maxResults);
-
-      return {
-        success: true,
-        data: {
-          companyId,
-          salaries,
-          totalSalaries: salaries.length,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to get salaries',
-      };
-    }
-  }
-
-  /**
-   * Get interview questions for a company
-   */
-  async getInterviews(companyId: string, maxResults: number = 10): Promise<ActorOutput> {
-    try {
-      const interviewsUrl = `${this.BASE_URL}/Interview/Working-at-${companyId}-EI_IE${companyId}.htm`;
-      const html = await fetchUrl(interviewsUrl, { timeout: 30000 });
-
-      const interviews = this.parseInterviews(html, maxResults);
-
-      return {
-        success: true,
-        data: {
-          companyId,
-          interviews,
-          totalInterviews: interviews.length,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to get interviews',
-      };
-    }
-  }
-
-  private parseSearchResults(html: string, maxResults: number): Array<{ id: string; name: string; industry?: string; location?: string; rating?: number }> {
-    const results: Array<{ id: string; name: string; industry?: string; location?: string; rating?: number }> = [];
+    // Try scraping interview page
+    let url = `${LEVELS_API}/Interview`;
+    if (params.company) url += `?cName=${encodeURIComponent(params.company)}`;
 
     try {
-      const $ = parseHtml(html);
+      const html = await fetchUrl(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (HOJAI InternetOS bot)' },
+        timeout: 15000,
+      });
 
-      // Parse company search results from JSON data
-      const scriptMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({.+?});/s);
-      if (scriptMatch) {
-        try {
-          const stateMatch = scriptMatch[1].match(/"employers":\s*\[(.*?)\]/s);
-          if (stateMatch) {
-            const employers = JSON.parse(`[${stateMatch[1]}]`);
-            for (const emp of employers.slice(0, maxResults)) {
-              results.push({
-                id: emp.id?.toString() || '',
-                name: emp.name || emp.employerName || '',
-                industry: emp.industry,
-                location: emp.headline || emp.location,
-                rating: emp.avgRating || emp.overallRating,
-              });
-            }
-          }
-        } catch {
-          // Fallback parsing
-        }
-      }
+      // Parse interview Q&A from HTML
+      const interviews: any[] = [];
+      const qRegex = /<span[^>]*class="[^"]*question[^"]*"[^>]*>([^<]+)/g;
+      let match;
 
-      // Alternative: Parse from HTML structure
-      if (results.length === 0) {
-        const companyLinks = $('a[href*="/Overview/Working-at"]').slice(0, maxResults);
-
-        companyLinks.each((_: number, link: CheerioElement) => {
-          const href = $(link).attr('href') || '';
-          const idMatch = href.match(/EI_IE(\d+)/);
-          const id = idMatch ? idMatch[1] : '';
-          const name = $(link).text().trim();
-
-          if (name && id) {
-            results.push({ id, name });
-          }
+      while ((match = qRegex.exec(html)) && interviews.length < limit) {
+        interviews.push({
+          question: match[1].trim(),
+          company: params.company,
+          jobTitle: params.jobTitle,
         });
       }
-    } catch {
-      // Return empty results on parse error
+
+      return {
+        success: interviews.length > 0,
+        data: { interviews, count: interviews.length },
+        metadata: {
+          scrapedAt: new Date().toISOString(),
+          source: 'levels-fyi-web',
+          itemsFound: interviews.length,
+          duration: 0,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to fetch interviews: ${(error as Error).message}`,
+      };
     }
-
-    return results.slice(0, maxResults);
-  }
-
-  private parseCompanyOverview(html: string, companyId: string): CompanyOverview {
-    const overview: CompanyOverview = {
-      name: '',
-    };
-
-    try {
-      const $ = parseHtml(html);
-
-      // Extract company name
-      const nameEl = $('h1[data-test="employer-short-name"]').first();
-      overview.name = nameEl.text().trim() || $('h1').first().text().trim() || '';
-
-      // Extract ratings from JSON-LD
-      const jsonLdMatch = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s);
-      if (jsonLdMatch) {
-        try {
-          const ldJson = JSON.parse(jsonLdMatch[1]);
-          if (ldJson.aggregateRating) {
-            overview.overallRating = ldJson.aggregateRating.ratingValue;
-          }
-        } catch {
-          // Continue with HTML parsing
-        }
-      }
-
-      // Extract rating bars
-      const ratingBars = $('[data-test="rating-cell"]');
-      ratingBars.each((_: number, bar: CheerioElement) => {
-        const label = $(bar).find('.ratingCell__RatingLabel').text().trim().toLowerCase();
-        const valueEl = $(bar).find('.ratingCell__RatingValue');
-        const value = parseFloat(valueEl.text().trim());
-
-        if (label.includes('culture') || label.includes('values')) {
-          overview.cultureAndValues = value;
-        } else if (label.includes('diversity')) {
-          overview.diversityAndInclusion = value;
-        } else if (label.includes('senior') || label.includes('leadership')) {
-          overview.seniorLeadership = value;
-        } else if (label.includes('work') || label.includes('life')) {
-          overview.workLifeBalance = value;
-        } else if (label.includes('career') || label.includes('opportunit')) {
-          overview.careerOpportunities = value;
-        } else if (label.includes('benefit')) {
-          overview.benefits = value;
-        }
-      });
-
-      // Extract description
-      const descEl = $('[data-test="employer-description"]').first();
-      overview.description = descEl.text().trim() || $('p').first().text().trim();
-
-      // Extract metadata from lists
-      const metaItems = $('ul[data-test="employer-details"] li');
-      metaItems.each((_: number, item: CheerioElement) => {
-        const text = $(item).text().trim();
-        if (text.includes('Headquarters:')) {
-          overview.headquarters = text.replace('Headquarters:', '').trim();
-        } else if (text.includes('Founded:')) {
-          overview.founded = text.replace('Founded:', '').trim();
-        } else if (text.includes('Revenue:')) {
-          overview.revenue = text.replace('Revenue:', '').trim();
-        } else if (text.includes('Industry:')) {
-          overview.industry = text.replace('Industry:', '').trim();
-        } else if (text.includes('Company Size:') || text.includes('Employees:')) {
-          overview.employees = text.replace('Company Size:', '').replace('Employees:', '').trim();
-        }
-      });
-
-      // Extract logo
-      const logoEl = $('[data-test="employer-logo"] img');
-      overview.logo = logoEl.attr('src') || logoEl.attr('data-src') || '';
-
-      // Extract website
-      const websiteEl = $('a[data-test="employer-website"]');
-      overview.website = websiteEl.attr('href') || '';
-
-    } catch {
-      // Return partial data on parse error
-    }
-
-    return overview;
-  }
-
-  private parseSalaries(html: string, maxResults: number): Salary[] {
-    const salaries: Salary[] = [];
-
-    try {
-      const $ = parseHtml(html);
-
-      // Parse salary cards
-      const salaryCards = $('[data-test="salary-list-item"]').slice(0, maxResults);
-
-      salaryCards.each((_: number, card: CheerioElement) => {
-        const jobTitleEl = $(card).find('[data-test="salary-job-title"]');
-        const payEl = $(card).find('[data-test="salary-pay-range"]');
-        const locationEl = $(card).find('[data-test="salary-location"]');
-        const dateEl = $(card).find('[data-test="salary-date-posted"]');
-
-        const jobTitle = jobTitleEl.text().trim();
-        const payText = payEl.text().trim();
-        const payMatch = payText.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
-
-        if (jobTitle) {
-          salaries.push({
-            jobTitle,
-            basePay: payMatch ? this.parsePay(payMatch[0]) : undefined,
-            totalPay: payMatch && payMatch.length > 1 ? this.parsePay(payMatch[1]) : undefined,
-            location: locationEl.text().trim(),
-            datePosted: dateEl.text().trim(),
-          });
-        }
-      });
-
-      // Alternative parsing from JSON data
-      if (salaries.length === 0) {
-        const scriptMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({.+?});/s);
-        if (scriptMatch) {
-          try {
-            const stateMatch = scriptMatch[1].match(/"salaries":\s*\[(.*?)\]/s);
-            if (stateMatch) {
-              const parsedSalaries = JSON.parse(`[{${stateMatch[1]}}]`);
-              for (const sal of parsedSalaries.slice(0, maxResults)) {
-                salaries.push({
-                  jobTitle: sal.jobTitle || sal.title,
-                  basePay: sal.basePay || sal.pay,
-                  location: sal.location,
-                  datePosted: sal.datePosted || sal.publishedAt,
-                });
-              }
-            }
-          } catch {
-            // Continue
-          }
-        }
-      }
-    } catch {
-      // Return partial data
-    }
-
-    return salaries.slice(0, maxResults);
-  }
-
-  private parseInterviews(html: string, maxResults: number): Interview[] {
-    const interviews: Interview[] = [];
-
-    try {
-      const $ = parseHtml(html);
-
-      // Parse interview cards
-      const interviewCards = $('[data-test="interview-list-item"]').slice(0, maxResults);
-
-      interviewCards.each((_: number, card: CheerioElement) => {
-        const jobTitleEl = $(card).find('[data-test="interview-job-title"]');
-        const dateEl = $(card).find('[data-test="interview-date"]');
-        const difficultyEl = $(card).find('[data-test="interview-difficulty"]');
-        const experienceEl = $(card).find('[data-test="interview-experience"]');
-        const questionsEl = $(card).find('[data-test="interview-questions"]');
-
-        const jobTitle = jobTitleEl.text().trim();
-
-        if (jobTitle) {
-          interviews.push({
-            jobTitle,
-            date: dateEl.text().trim(),
-            difficulty: difficultyEl.text().trim(),
-            experience: experienceEl.text().trim(),
-            questions: questionsEl.text().trim().split(/[.?]\s+/).filter(Boolean),
-          });
-        }
-      });
-
-      // Alternative parsing
-      if (interviews.length === 0) {
-        const scriptMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({.+?});/s);
-        if (scriptMatch) {
-          try {
-            const stateMatch = scriptMatch[1].match(/"interviews":\s*\[(.*?)\]/s);
-            if (stateMatch) {
-              const parsedInterviews = JSON.parse(`[{${stateMatch[1]}}]`);
-              for (const int of parsedInterviews.slice(0, maxResults)) {
-                interviews.push({
-                  jobTitle: int.jobTitle || int.position,
-                  date: int.date || int.createdAt,
-                  difficulty: int.difficulty,
-                  experience: int.experience || int.candidateExperience,
-                  questions: int.questions || int.interviewQuestions,
-                });
-              }
-            }
-          } catch {
-            // Continue
-          }
-        }
-      }
-    } catch {
-      // Return partial data
-    }
-
-    return interviews.slice(0, maxResults);
-  }
-
-  private parsePay(payText: string): number {
-    const cleaned = payText.replace(/[$,]/g, '');
-    return parseInt(cleaned) || 0;
   }
 
   async validate(input: any): Promise<boolean> {
-    if (!input || typeof input !== 'object') return false;
-
-    const { action } = input;
-
-    switch (action) {
-      case 'search_company':
-        return !!(input.companyName && typeof input.companyName === 'string');
-      case 'get_company_overview':
-        return !!(input.companyId && typeof input.companyId === 'string');
-      case 'get_salaries':
-        return !!(input.companyId && typeof input.companyId === 'string');
-      case 'get_interviews':
-        return !!(input.companyId && typeof input.companyId === 'string');
-      default:
-        return false;
-    }
+    return !!(input?.params?.company || input?.params?.jobTitle || input?.params?.query);
   }
 }
 
-export default new GlassdoorActor();
+export default GlassdoorActor;

@@ -38,5 +38,15 @@
       "action"
     ],
     "createdAt": "2026-06-30T21:15:15.135Z"
+  },
+  {
+    "id": "0ee30a44-0c8c-4d0f-8d38-1256349b81fb",
+    "name": "user_event",
+    "version": 1,
+    "fields": [
+      "userId",
+      "action"
+    ],
+    "createdAt": "2026-06-30T22:20:08.504Z"
   }
 ]

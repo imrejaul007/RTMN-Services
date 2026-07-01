@@ -1373,5 +1373,179 @@
     "createdAt": "2026-06-30T21:10:59.947Z",
     "expiresAt": "2026-06-30T22:10:59.947Z",
     "endedAt": null
+  },
+  "88251889-b95f-4094-9c1e-de14b20d02af": {
+    "id": "88251889-b95f-4094-9c1e-de14b20d02af",
+    "traceId": "5f2b7f58de2a4fb8b9ee542994620635",
+    "spanId": "07bd68aa7a8842b3",
+    "parentSpanId": null,
+    "principal": "user_42",
+    "tenantId": "tenant_acme",
+    "requestId": "6d5e90f8-2293-4e4e-b6a2-06b5c5221bd3",
+    "attributes": {
+      "service.name": "order-os",
+      "deployment.env": "dev"
+    },
+    "baggage": {
+      "user.tier": "gold",
+      "feature.flags": "checkout-v2"
+    },
+    "spans": [
+      {
+        "id": "07bd68aa7a8842b3",
+        "name": "order.process",
+        "kind": "server",
+        "parentSpanId": null,
+        "attributes": {
+          "http.method": "POST",
+          "http.route": "/api/orders"
+        },
+        "startTime": "2026-06-30T22:15:15.582Z",
+        "endTime": "2026-06-30T22:15:16.032Z",
+        "status": "ok",
+        "durationMs": 450
+      },
+      {
+        "id": "55fcfdcbb77146c5",
+        "name": "inventory.reserve",
+        "kind": "client",
+        "parentSpanId": "07bd68aa7a8842b3",
+        "attributes": {
+          "db.system": "mongodb"
+        },
+        "startTime": "2026-06-30T22:15:15.632Z",
+        "endTime": "2026-06-30T22:15:15.762Z",
+        "status": "ok",
+        "durationMs": 130
+      },
+      {
+        "id": "6742d4f7b07a427c",
+        "name": "payment.charge",
+        "kind": "client",
+        "parentSpanId": "07bd68aa7a8842b3",
+        "attributes": {
+          "payment.provider": "stripe"
+        },
+        "startTime": "2026-06-30T22:15:15.782Z",
+        "endTime": "2026-06-30T22:15:16.002Z",
+        "status": "ok",
+        "durationMs": 220
+      },
+      {
+        "id": "9d3b9c12001a4d8f",
+        "name": "wallet.debit",
+        "kind": "internal",
+        "parentSpanId": "6742d4f7b07a427c",
+        "attributes": {
+          "wallet.id": "wal_abc123"
+        },
+        "startTime": "2026-06-30T22:15:15.832Z",
+        "endTime": "2026-06-30T22:15:15.982Z",
+        "status": "ok",
+        "durationMs": 150
+      }
+    ],
+    "logs": [
+      {
+        "id": "05a6a621-db5c-4262-b3bb-28b8c605018e",
+        "level": "info",
+        "message": "Order received",
+        "fields": {
+          "orderId": "ord_777"
+        },
+        "timestamp": "2026-06-30T22:15:15.587Z"
+      }
+    ],
+    "status": "active",
+    "createdAt": "2026-06-30T22:15:15.582Z",
+    "expiresAt": "2026-06-30T23:15:15.582Z",
+    "endedAt": null
+  },
+  "10cc94a7-73ce-435d-8a41-11fe0dcfbf13": {
+    "id": "10cc94a7-73ce-435d-8a41-11fe0dcfbf13",
+    "traceId": "034fc05743434635afacd0ed4ffdeb18",
+    "spanId": "3428d8c99e4b40cd",
+    "parentSpanId": null,
+    "principal": "user_42",
+    "tenantId": "tenant_acme",
+    "requestId": "43605651-c8a7-42a6-aa5b-3894a9e65905",
+    "attributes": {
+      "service.name": "order-os",
+      "deployment.env": "dev"
+    },
+    "baggage": {
+      "user.tier": "gold",
+      "feature.flags": "checkout-v2"
+    },
+    "spans": [
+      {
+        "id": "3428d8c99e4b40cd",
+        "name": "order.process",
+        "kind": "server",
+        "parentSpanId": null,
+        "attributes": {
+          "http.method": "POST",
+          "http.route": "/api/orders"
+        },
+        "startTime": "2026-06-30T22:20:01.902Z",
+        "endTime": "2026-06-30T22:20:02.352Z",
+        "status": "ok",
+        "durationMs": 450
+      },
+      {
+        "id": "678ea48aaa3b4377",
+        "name": "inventory.reserve",
+        "kind": "client",
+        "parentSpanId": "3428d8c99e4b40cd",
+        "attributes": {
+          "db.system": "mongodb"
+        },
+        "startTime": "2026-06-30T22:20:01.952Z",
+        "endTime": "2026-06-30T22:20:02.082Z",
+        "status": "ok",
+        "durationMs": 130
+      },
+      {
+        "id": "d9f82b1197ac41c1",
+        "name": "payment.charge",
+        "kind": "client",
+        "parentSpanId": "3428d8c99e4b40cd",
+        "attributes": {
+          "payment.provider": "stripe"
+        },
+        "startTime": "2026-06-30T22:20:02.102Z",
+        "endTime": "2026-06-30T22:20:02.322Z",
+        "status": "ok",
+        "durationMs": 220
+      },
+      {
+        "id": "5ae44f7a8ed440f1",
+        "name": "wallet.debit",
+        "kind": "internal",
+        "parentSpanId": "d9f82b1197ac41c1",
+        "attributes": {
+          "wallet.id": "wal_abc123"
+        },
+        "startTime": "2026-06-30T22:20:02.152Z",
+        "endTime": "2026-06-30T22:20:02.302Z",
+        "status": "ok",
+        "durationMs": 150
+      }
+    ],
+    "logs": [
+      {
+        "id": "3e8572c3-8852-4cdb-96b3-337916b1ceb6",
+        "level": "info",
+        "message": "Order received",
+        "fields": {
+          "orderId": "ord_777"
+        },
+        "timestamp": "2026-06-30T22:20:01.907Z"
+      }
+    ],
+    "status": "active",
+    "createdAt": "2026-06-30T22:20:01.902Z",
+    "expiresAt": "2026-06-30T23:20:01.902Z",
+    "endedAt": null
   }
 }

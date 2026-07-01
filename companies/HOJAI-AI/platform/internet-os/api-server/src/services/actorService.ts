@@ -47,15 +47,19 @@ export class ActorService {
       'company-intel-actor',
       'justdial-actor',
       'shopify-actor',
-      'amazon-actor',
-      'twitter-actor',
       'reddit-actor',
       'glassdoor-actor',
       'instagram-actor',
       'youtube-actor',
-      'crunchbase-actor',
       'github-actor',
       'google-trends-actor',
+      // Paid API versions (preferred over scrape versions)
+      'twitter-api-actor',
+      'amazon-api-actor',
+      'crunchbase-actor',
+      // Deprecated (still loaded for backward compat)
+      'twitter-actor',
+      'amazon-actor',
     ];
 
     // Path to actors directory (relative to this file)

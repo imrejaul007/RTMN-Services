@@ -700,5 +700,122 @@
     "evalLoss": 1.7978,
     "learningRate": 0.000194,
     "timestamp": "2026-06-30T21:14:00.095Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 1,
+    "epoch": 1,
+    "trainLoss": 3.2267,
+    "evalLoss": 2.7844,
+    "learningRate": 0.000198,
+    "timestamp": "2026-06-30T22:20:22.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 2,
+    "epoch": 1,
+    "trainLoss": 2.9976,
+    "evalLoss": 2.5846,
+    "learningRate": 0.000196,
+    "timestamp": "2026-06-30T22:20:23.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 3,
+    "epoch": 1,
+    "trainLoss": 2.7148,
+    "evalLoss": 2.4475,
+    "learningRate": 0.000194,
+    "timestamp": "2026-06-30T22:20:24.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 4,
+    "epoch": 1,
+    "trainLoss": 2.5227,
+    "evalLoss": 2.1746,
+    "learningRate": 0.000192,
+    "timestamp": "2026-06-30T22:20:25.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 5,
+    "epoch": 1,
+    "trainLoss": 2.2067,
+    "evalLoss": 1.9967,
+    "learningRate": 0.00019,
+    "timestamp": "2026-06-30T22:20:26.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 6,
+    "epoch": 2,
+    "trainLoss": 2.0405,
+    "evalLoss": 1.7747,
+    "learningRate": 0.000188,
+    "timestamp": "2026-06-30T22:20:27.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 7,
+    "epoch": 2,
+    "trainLoss": 1.7731,
+    "evalLoss": 1.6019,
+    "learningRate": 0.000186,
+    "timestamp": "2026-06-30T22:20:28.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 8,
+    "epoch": 2,
+    "trainLoss": 1.5326,
+    "evalLoss": 1.4087,
+    "learningRate": 0.000185,
+    "timestamp": "2026-06-30T22:20:29.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 9,
+    "epoch": 2,
+    "trainLoss": 1.2939,
+    "evalLoss": 1.2123,
+    "learningRate": 0.000183,
+    "timestamp": "2026-06-30T22:20:30.482Z"
+  },
+  {
+    "jobId": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "step": 10,
+    "epoch": 2,
+    "trainLoss": 0.9766,
+    "evalLoss": 1.0094,
+    "learningRate": 0.000181,
+    "timestamp": "2026-06-30T22:20:31.482Z"
+  },
+  {
+    "jobId": "196a9592-9705-458b-b59e-fe25c0aed1a7",
+    "step": 1,
+    "epoch": 1,
+    "trainLoss": 3.0291,
+    "evalLoss": 2.5792,
+    "learningRate": 0.000198,
+    "timestamp": "2026-06-30T22:20:22.503Z"
+  },
+  {
+    "jobId": "196a9592-9705-458b-b59e-fe25c0aed1a7",
+    "step": 2,
+    "epoch": 2,
+    "trainLoss": 2.5158,
+    "evalLoss": 2.2035,
+    "learningRate": 0.000196,
+    "timestamp": "2026-06-30T22:20:23.503Z"
+  },
+  {
+    "jobId": "196a9592-9705-458b-b59e-fe25c0aed1a7",
+    "step": 3,
+    "epoch": 3,
+    "trainLoss": 1.9683,
+    "evalLoss": 1.8108,
+    "learningRate": 0.000194,
+    "timestamp": "2026-06-30T22:20:24.503Z"
   }
 ]

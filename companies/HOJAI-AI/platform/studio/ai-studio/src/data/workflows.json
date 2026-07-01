@@ -1653,5 +1653,336 @@
     "variables": {},
     "createdAt": "2026-06-30T21:13:57.898Z",
     "updatedAt": "2026-06-30T21:13:57.898Z"
+  },
+  {
+    "id": "48a1e2db-378d-4424-ac88-5ef4bd0ea692",
+    "name": "Test Workflow",
+    "description": "A test",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        },
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        },
+        "position": {
+          "x": 100,
+          "y": 0
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.078Z",
+    "updatedAt": "2026-06-30T22:20:21.079Z"
+  },
+  {
+    "id": "5ade4759-ae90-4b65-959d-3216273baedb",
+    "name": "WF1",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.086Z",
+    "updatedAt": "2026-06-30T22:20:21.086Z"
+  },
+  {
+    "id": "71dcde63-203e-4e5c-ad5c-a0c3dc465f41",
+    "name": "Get Test",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.096Z",
+    "updatedAt": "2026-06-30T22:20:21.096Z"
+  },
+  {
+    "id": "3e4cdfc8-5fd5-44ff-81f9-71dd6fa6ed2e",
+    "name": "New Name",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.111Z",
+    "updatedAt": "2026-06-30T22:20:21.117Z"
+  },
+  {
+    "id": "3618e48b-8c78-419e-a047-377a9d19d8e1",
+    "name": "Exec Test",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.132Z",
+    "updatedAt": "2026-06-30T22:20:21.132Z"
+  },
+  {
+    "id": "e9407668-defa-4c3e-9e07-f30560cc9296",
+    "name": "Ex",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.189Z",
+    "updatedAt": "2026-06-30T22:20:21.189Z"
+  },
+  {
+    "id": "3197035f-92c4-4e91-a576-e0212d0c830b",
+    "name": "Export Test",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.252Z",
+    "updatedAt": "2026-06-30T22:20:21.252Z"
+  },
+  {
+    "id": "6adedb81-4a8c-45be-b698-18101d0ea5e4",
+    "name": "Code Export",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.263Z",
+    "updatedAt": "2026-06-30T22:20:21.263Z"
+  },
+  {
+    "id": "deac256f-5b38-4423-847d-67e15d7f0ed6",
+    "name": "Hist",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.280Z",
+    "updatedAt": "2026-06-30T22:20:21.280Z"
+  },
+  {
+    "id": "a17a8cde-def8-4cd5-bb20-269d3dd15e61",
+    "name": "LLM Test",
+    "description": "",
+    "version": "1.0.0",
+    "nodes": [
+      {
+        "id": "n1",
+        "type": "trigger",
+        "data": {
+          "event": "manual"
+        }
+      },
+      {
+        "id": "n2",
+        "type": "llm-call",
+        "data": {
+          "model": "claude-3-5-sonnet",
+          "prompt": "Hello"
+        }
+      },
+      {
+        "id": "n3",
+        "type": "output",
+        "data": {
+          "format": "json"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "n1",
+        "target": "n2"
+      },
+      {
+        "source": "n2",
+        "target": "n3"
+      }
+    ],
+    "variables": {},
+    "createdAt": "2026-06-30T22:20:21.389Z",
+    "updatedAt": "2026-06-30T22:20:21.389Z"
   }
 ]

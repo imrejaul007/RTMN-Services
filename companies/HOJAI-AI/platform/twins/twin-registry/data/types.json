@@ -474,5 +474,124 @@
     "relationships": [],
     "createdAt": "2026-06-30T21:15:15.347Z",
     "updatedAt": "2026-06-30T21:15:15.347Z"
+  },
+  {
+    "id": "c63efd9a-3c86-4d9e-b2ad-0c2bfcaaf537",
+    "name": "Customer",
+    "description": "Customer twin",
+    "schema": {
+      "fields": [
+        "name",
+        "email"
+      ]
+    },
+    "attributes": [
+      "personal"
+    ],
+    "relationships": [
+      "orders"
+    ],
+    "createdAt": "2026-06-30T22:20:10.704Z",
+    "updatedAt": "2026-06-30T22:20:10.704Z"
+  },
+  {
+    "id": "866ca53c-ee37-472e-8101-e01f32c155c6",
+    "name": "Get Type",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.718Z",
+    "updatedAt": "2026-06-30T22:20:10.718Z"
+  },
+  {
+    "id": "535092d0-dda8-4981-afe0-af0706e6164b",
+    "name": "New Type",
+    "description": "Updated",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.894Z",
+    "updatedAt": "2026-06-30T22:20:10.897Z"
+  },
+  {
+    "id": "4a80182a-0caf-481a-aa2f-57324681d6ee",
+    "name": "InstType",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.908Z",
+    "updatedAt": "2026-06-30T22:20:10.908Z"
+  },
+  {
+    "id": "2ce5a710-b93d-40b6-a330-f618a245873c",
+    "name": "IType2",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.923Z",
+    "updatedAt": "2026-06-30T22:20:10.924Z"
+  },
+  {
+    "id": "457a41ff-0d8f-4ff5-baff-feff659e053b",
+    "name": "IType3",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.933Z",
+    "updatedAt": "2026-06-30T22:20:10.933Z"
+  },
+  {
+    "id": "6d742e78-d074-4ba1-b60d-0d158a26dfad",
+    "name": "IType4",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.940Z",
+    "updatedAt": "2026-06-30T22:20:10.940Z"
+  },
+  {
+    "id": "83661a9b-90f2-409f-8927-e81d0a8a3db4",
+    "name": "VType",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.981Z",
+    "updatedAt": "2026-06-30T22:20:10.981Z"
+  },
+  {
+    "id": "a7721a65-b5d2-4cd6-bafd-ece4988c53a5",
+    "name": "RType",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.988Z",
+    "updatedAt": "2026-06-30T22:20:10.988Z"
+  },
+  {
+    "id": "af685600-69d9-4b7b-ba9b-88683b28e088",
+    "name": "RType2",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:10.997Z",
+    "updatedAt": "2026-06-30T22:20:10.997Z"
+  },
+  {
+    "id": "21bd5975-64c2-483f-9a41-e715bd84c6cb",
+    "name": "RType3",
+    "description": "",
+    "schema": {},
+    "attributes": [],
+    "relationships": [],
+    "createdAt": "2026-06-30T22:20:11.002Z",
+    "updatedAt": "2026-06-30T22:20:11.002Z"
   }
 ]

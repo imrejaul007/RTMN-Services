@@ -1,595 +1,307 @@
 /**
- * Crunchbase Actor
- * Extract company, funding, and people information from Crunchbase
+ * Crunchbase Actor - API Version
+ * Uses Crunchbase API for company, funding, and people data
+ *
+ * Setup:
+ * 1. Sign up at https://crunchbase.com/
+ * 2. Get API key from https://crunchbase.com/browse/v4/api-explorer/
+ * 3. Set CRUNCHBASE_API_KEY environment variable
+ *
+ * Free tier: Limited queries
+ * Paid: Full access
+ *
+ * Alternative free sources:
+ * - OpenCorporates (https://opencorporates.com/) - company data
+ * - PitchBook (paid)
+ * - CB Insights (paid)
  */
 
-// @ts-ignore - Using compiled output
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
-import type { CheerioAPI } from 'cheerio';
+import { Actor, ActorOutput, fetchUrl } from '@hojai/actor-runtime';
 
-export interface CrunchbaseConfig {
-  id: 'crunchbase';
-  name: 'Crunchbase Actor';
-  description: 'Extract company, funding, and people information from Crunchbase';
-  version: '1.0.0';
-  capabilities: ['companies', 'funding', 'people', 'acquisitions'];
-  rateLimit: { requests: number; window: number };
-}
+const CB_API = 'https://api.crunchbase.com/api/v4';
 
 export interface CompanyInfo {
-  name?: string;
-  permalink?: string;
-  description?: string;
+  name: string;
+  permalink: string;
   shortDescription?: string;
-  founded?: string;
+  description?: string;
+  foundedOn?: string;
+  closedOn?: string;
+  legalType?: string;
+  locationIdentifiers: string[];
   headquarters?: string;
   city?: string;
-  state?: string;
   country?: string;
-  postalCode?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
   website?: string;
   facebook?: string;
-  twitter?: string;
   linkedin?: string;
-  Crunchbase?: string;
-  categories?: string[];
-  tags?: string[];
-  employeeCount?: string;
-  totalFunding?: string;
-  totalFundingAmount?: number;
-  numberOfFundingRounds?: number;
-  lastFundingType?: string;
-  lastFundingAmount?: string;
-  lastFundingDate?: string;
+  twitter?: string;
+  email?: string;
+  phone?: string;
+  funding?: {
+    totalRaised?: number;
+    fundingType?: string;
+    rounds?: number;
+  };
+  headcount?: string;
   stockSymbol?: string;
   stockExchange?: string;
-  ipoStatus?: string;
-  numExits?: number;
-  acquiredBy?: string;
-  acquiredDate?: string;
-  acquisitionPrice?: string;
-  status?: string;
-  fundingRounds?: FundingRound[];
 }
 
 export interface FundingRound {
-  type?: string;
-  date?: string;
-  amount?: string;
-  amountRaw?: number;
-  currency?: string;
-  stage?: string;
-  investors?: string[];
+  id: string;
+  type: string;
+  announcedOn?: string;
+  raisedAmount?: number;
+  raisedCurrencyCode?: string;
+  valuation?: number;
+  valuationCurrencyCode?: string;
   leadInvestors?: string[];
-  newsUrl?: string;
+  investors?: string[];
+  numInvestors?: number;
 }
 
-export interface PersonInfo {
-  name?: string;
-  permalink?: string;
+export interface PeopleInfo {
+  name: string;
+  permalink: string;
+  firstName?: string;
+  lastName?: string;
   title?: string;
-  organization?: string;
-  organizationPermalink?: string;
+  company?: string;
+  location?: string;
   bio?: string;
-  image?: string;
   linkedin?: string;
   twitter?: string;
-  facebook?: string;
-  location?: string;
-  birthYear?: number;
-  affiliations?: string[];
 }
 
 export class CrunchbaseActor extends Actor {
-  constructor() {
+  private apiKey?: string;
+  private readonly API_URL = 'https://api.crunchbase.com/api/v4';
+
+  constructor(apiKey?: string) {
     super({
       id: 'crunchbase',
-      name: 'Crunchbase Actor',
-      description: 'Extract company, funding, and people information from Crunchbase',
-      version: '1.0.0',
-      capabilities: ['companies', 'funding', 'people', 'acquisitions'],
-      rateLimit: { requests: 10, window: 60000 },
+      name: 'Crunchbase API Actor',
+      description: 'Company, funding, and people data from Crunchbase API',
+      version: '2.0.0',
+      capabilities: ['companies', 'funding', 'people', 'acquisitions', 'api-based'],
+      rateLimit: { requests: 60, window: 60000 },
     });
+    this.apiKey = apiKey || process.env.CRUNCHBASE_API_KEY;
   }
 
-  /**
-   * Search for companies
-   */
-  async search_company(input: {
-    query: string;
-    maxResults?: number;
-    type?: 'companies' | 'people' | 'organizations';
-  }): Promise<ActorOutput> {
-    const { query, maxResults = 10, type = 'companies' } = input;
-
-    try {
-      const searchUrl = `https://www.crunchbase.com/discover/search?query=${encodeURIComponent(query)}&type=${type}`;
-      const html = await fetchUrl(searchUrl, { timeout: 30000 });
-
-      const companies = this.parseSearchResults(html, maxResults);
-
-      return {
-        success: true,
-        data: {
-          query,
-          results: companies,
-          totalResults: companies.length,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Search failed',
-      };
+  private async cbRequest(endpoint: string, postBody?: any): Promise<any> {
+    if (!this.apiKey) {
+      throw new Error(
+        'Crunchbase API key required. Set CRUNCHBASE_API_KEY env var. ' +
+        'Get a key at https://crunchbase.com/browse/v4/api-explorer/'
+      );
     }
+
+    const url = `${this.API_URL}${endpoint}`;
+    const options: any = {
+      headers: {
+        'X-cb-user-key': this.apiKey,
+        'Accept': 'application/json',
+        ...(postBody ? { 'Content-Type': 'application/json' } : {}),
+      },
+      signal: AbortSignal.timeout(30000),
+    };
+    if (postBody) options.body = JSON.stringify(postBody);
+
+    const response = await fetch(url, options);
+    const text = await response.text();
+    return JSON.parse(text);
   }
 
-  /**
-   * Get detailed company information
-   */
-  async get_company(input: {
-    permalink?: string;
-    url?: string;
-    includeFunding?: boolean;
-    includePeople?: boolean;
-  }): Promise<ActorOutput> {
-    const { permalink, url, includeFunding = true, includePeople = false } = input;
-
+  async scrape(input: any): Promise<ActorOutput> {
     try {
-      let companyUrl: string;
-      if (url) {
-        companyUrl = url;
-      } else if (permalink) {
-        companyUrl = `https://www.crunchbase.com/organization/${permalink}`;
-      } else {
+      const action = input.action || 'get_company';
+
+      switch (action) {
+        case 'get_company':
+          return await this.getCompany(input.params);
+        case 'search_companies':
+          return await this.searchCompanies(input.params);
+        case 'get_funding':
+          return await this.getFunding(input.params);
+        case 'get_people':
+          return await this.getPeople(input.params);
+        default:
+          return { success: false, error: `Unknown action: ${action}` };
+      }
+    } catch (error) {
+      const err = error as Error;
+      if (err.message.includes('API key')) {
         return {
           success: false,
-          error: 'Either permalink or url must be provided',
+          error: err.message + '. Use free alternatives: OpenCorporates, PitchBook API, or CB Insights.',
         };
       }
-
-      const html = await fetchUrl(companyUrl, { timeout: 30000 });
-      const company = this.parseCompanyPage(html, companyUrl);
-
-      // Optionally get funding rounds
-      if (includeFunding && company.permalink) {
-        try {
-          const fundingHtml = await fetchUrl(`${companyUrl}/funding_rounds`, { timeout: 30000 });
-          company.fundingRounds = this.parseFundingRounds(fundingHtml);
-        } catch {
-          // Funding rounds are optional
-        }
-      }
-
-      return {
-        success: true,
-        data: company,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to get company info',
-      };
+      return { success: false, error: err.message };
     }
   }
 
-  /**
-   * Get funding rounds for a company
-   */
-  async get_funding(input: {
-    permalink?: string;
-    url?: string;
-  }): Promise<ActorOutput> {
-    const { permalink, url } = input;
-
-    try {
-      let fundingUrl: string;
-      if (url) {
-        fundingUrl = url.includes('funding') ? url : `${url}/funding_rounds`;
-      } else if (permalink) {
-        fundingUrl = `https://www.crunchbase.com/organization/${permalink}/funding_rounds`;
-      } else {
-        return {
-          success: false,
-          error: 'Either permalink or url must be provided',
-        };
-      }
-
-      const html = await fetchUrl(fundingUrl, { timeout: 30000 });
-      const fundingRounds = this.parseFundingRounds(html);
-
-      return {
-        success: true,
-        data: {
-          rounds: fundingRounds,
-          totalRounds: fundingRounds.length,
-          totalFunding: this.calculateTotalFunding(fundingRounds),
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to get funding info',
-      };
+  private async getCompany(params: { name?: string; permalink?: string }): Promise<ActorOutput> {
+    const identifier = params.permalink || params.name;
+    if (!identifier) {
+      return { success: false, error: 'name or permalink is required' };
     }
+
+    const slug = identifier.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const data = await this.cbRequest(`/entities/v4/organizations/${slug}?card_ids=fields`);
+    const org = data.cards?.fields;
+
+    const company: CompanyInfo = {
+      name: org?.name || identifier,
+      permalink: slug,
+      shortDescription: org?.short_description,
+      description: org?.full_description,
+      foundedOn: org?.founded_on,
+      closedOn: org?.closed_on,
+      legalType: org?.legal_type,
+      locationIdentifiers: org?.location_identifiers || [],
+      headquarters: org?.city_name || org?.region_name,
+      city: org?.city_name,
+      country: org?.country_code,
+      website: org?.website,
+      facebook: org?.facebook,
+      linkedin: org?.linkedin,
+      twitter: org?.twitter,
+      email: org?.contact_email,
+      phone: org?.phone_number,
+      headcount: org?.num_employees_enum,
+      stockSymbol: org?.stock_symbol,
+      stockExchange: org?.stock_exchange_mic,
+    };
+
+    return {
+      success: true,
+      data: company,
+      metadata: {
+        scrapedAt: new Date().toISOString(),
+        source: 'crunchbase-api',
+        itemsFound: 1,
+        duration: 0,
+      },
+    };
   }
 
-  /**
-   * Get founders and executives for a company
-   */
-  async get_people(input: {
-    permalink?: string;
-    url?: string;
-    type?: 'founders' | 'executives' | 'all';
-  }): Promise<ActorOutput> {
-    const { permalink, url, type = 'all' } = input;
+  private async searchCompanies(params: { query?: string; limit?: number; after?: string }): Promise<ActorOutput> {
+    const limit = Math.min(params.limit || 25, 100);
 
-    try {
-      let peopleUrl: string;
-      if (url) {
-        peopleUrl = url.includes('people') ? url : `${url}/people`;
-      } else if (permalink) {
-        peopleUrl = `https://www.crunchbase.com/organization/${permalink}/people`;
-      } else {
-        return {
-          success: false,
-          error: 'Either permalink or url must be provided',
-        };
-      }
+    const body = {
+      query: {
+        type: 'Organization',
+        ...(params.query ? { term: params.query } : {}),
+      },
+      field_ids: ['name', 'permalink', 'short_description', 'founded_on', 'location_identifiers', 'website'],
+      order: [{ field_id: 'founded_on', sort: 'desc' }],
+      limit,
+      ...(params.after ? { after: params.after } : {}),
+    };
 
-      const html = await fetchUrl(peopleUrl, { timeout: 30000 });
-      const people = this.parsePeople(html, type);
+    const data = await this.cbRequest('/queries/v2/search', body);
 
-      return {
-        success: true,
-        data: {
-          people,
-          totalPeople: people.length,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to get people info',
-      };
-    }
+    const companies = (data.entities || []).map((e: any) => ({
+      name: e.properties?.name,
+      permalink: e.properties?.permalink,
+      shortDescription: e.properties?.short_description,
+      foundedOn: e.properties?.founded_on,
+      location: e.properties?.location_identifiers?.[0],
+      website: e.properties?.website?.value,
+    }));
+
+    return {
+      success: true,
+      data: {
+        companies,
+        count: companies.length,
+        after: data.paging?.next_page_token,
+      },
+      metadata: {
+        scrapedAt: new Date().toISOString(),
+        source: 'crunchbase-api',
+        itemsFound: companies.length,
+        duration: 0,
+      },
+    };
   }
 
-  private parseSearchResults(html: string, maxResults: number): Partial<CompanyInfo>[] {
-    const results: Partial<CompanyInfo>[] = [];
-
-    try {
-      const $ = parseHtml(html);
-
-      // Try to find company cards
-      const cards = $('[data-test="entity-card"], .profile-card, .search-result');
-
-      cards.slice(0, maxResults).each((_, card) => {
-        const name = $(card).find('[data-test="entity-title"], .entity-title, .title').text().trim();
-        const description = $(card).find('[data-test="entity-description"], .description, .snippet').text().trim();
-        const location = $(card).find('[data-test="entity-location"], .location, .geo').text().trim();
-        const link = $(card).find('a').attr('href') || '';
-        const permalinkMatch = link.match(/organization\/([^/?]+)/);
-
-        if (name) {
-          results.push({
-            name,
-            description,
-            headquarters: location,
-            permalink: permalinkMatch?.[1],
-            website: link.startsWith('/') ? `https://www.crunchbase.com${link}` : link,
-          });
-        }
-      });
-
-      // Fallback: look for any links with organization pattern
-      if (results.length === 0) {
-        const orgLinks = $(`a[href*="/organization/"]`).slice(0, maxResults * 2);
-        const seen = new Set<string>();
-
-        orgLinks.each((_, el) => {
-          const href = $(el).attr('href') || '';
-          const permalinkMatch = href.match(/\/organization\/([^/?]+)/);
-          if (permalinkMatch && !seen.has(permalinkMatch[1])) {
-            seen.add(permalinkMatch[1]);
-            results.push({
-              name: $(el).text().trim() || permalinkMatch[1],
-              permalink: permalinkMatch[1],
-            });
-          }
-        });
-      }
-    } catch {
-      // Return whatever we found
+  private async getFunding(params: { name?: string; permalink?: string }): Promise<ActorOutput> {
+    const identifier = params.permalink || params.name;
+    if (!identifier) {
+      return { success: false, error: 'name or permalink is required' };
     }
 
-    return results.slice(0, maxResults);
+    const slug = identifier.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+    const data = await this.cbRequest(`/entities/v4/funding-rounds?filter.organizations.identifier=${slug}`);
+
+    const rounds: FundingRound[] = (data.entities || []).map((r: any) => ({
+      id: r.properties?.identifier || r.uuid,
+      type: r.properties?.funding_type,
+      announcedOn: r.properties?.announced_on,
+      raisedAmount: r.properties?.raised_amount_value_usd,
+      raisedCurrencyCode: 'USD',
+      valuation: r.properties?.valuation_on_round,
+      valuationCurrencyCode: 'USD',
+      leadInvestors: r.properties?.lead_investor_uuids,
+      investors: r.properties?.investor_uuids,
+      numInvestors: r.properties?.num_investors,
+    }));
+
+    return {
+      success: true,
+      data: { rounds, company: slug, totalRaised: rounds.reduce((sum, r) => sum + (r.raisedAmount || 0), 0) },
+      metadata: {
+        scrapedAt: new Date().toISOString(),
+        source: 'crunchbase-api',
+        itemsFound: rounds.length,
+        duration: 0,
+      },
+    };
   }
 
-  private parseCompanyPage(html: string, url: string): CompanyInfo {
-    const info: CompanyInfo = {};
+  private async getPeople(params: { query?: string; company?: string; limit?: number }): Promise<ActorOutput> {
+    const limit = Math.min(params.limit || 25, 100);
 
-    try {
-      const $ = parseHtml(html);
+    const body = {
+      query: {
+        type: 'Person',
+        ...(params.query ? { term: params.query } : {}),
+        ...(params.company ? { term: params.company } : {}),
+      },
+      field_ids: ['name', 'permalink', 'title', 'organization_name', 'location_identifiers'],
+      order: [{ field_id: 'created_at', sort: 'desc' }],
+      limit,
+    };
 
-      // Extract permalink from URL
-      const permalinkMatch = url.match(/\/organization\/([^/?]+)/);
-      if (permalinkMatch) {
-        info.permalink = permalinkMatch[1];
-      }
+    const data = await this.cbRequest('/queries/v2/search', body);
 
-      // Extract company name
-      const titleMatch = html.match(/"name":"([^"]+)"/);
-      if (titleMatch) {
-        info.name = titleMatch[1];
-      } else {
-        info.name = $('h1, .company-name, .profile-name').first().text().trim();
-      }
+    const people: PeopleInfo[] = (data.entities || []).map((p: any) => ({
+      name: p.properties?.name,
+      permalink: p.properties?.permalink,
+      title: p.properties?.title,
+      company: p.properties?.organization_name,
+      location: p.properties?.location_identifiers?.[0],
+    }));
 
-      // Extract description
-      const descMatch = html.match(/"description":"((?:[^"\\]|\\.)*)"/s);
-      if (descMatch) {
-        info.description = descMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
-      }
-      info.shortDescription = $('[data-test="description"], .description, .short-description').first().text().trim();
-
-      // Extract location
-      info.address = $('[data-test="address"], .address').first().text().trim();
-      info.city = $('[data-test="city"], .city').first().text().trim();
-      info.state = $('[data-test="state"], .state').first().text().trim();
-      info.country = $('[data-test="country"], .country').first().text().trim();
-      info.headquarters = [info.city, info.state, info.country].filter(Boolean).join(', ');
-
-      // Extract founding info
-      const foundedMatch = html.match(/"founded_on":"([^"]+)"/);
-      if (foundedMatch) {
-        info.founded = foundedMatch[1];
-      }
-      info.founded = $('[data-test="founded"], .founded').first().text().trim() || info.founded;
-
-      // Extract contact info
-      info.phone = $('[data-test="phone"], .phone').first().text().trim();
-      info.email = $('[data-test="email"], .email').first().text().trim();
-      info.website = $('a[href*="http"]:not([href*="crunchbase"])').first().attr('href');
-
-      // Extract social links
-      const twitterMatch = html.match(/"twitter":"([^"]+)"/);
-      if (twitterMatch) info.twitter = twitterMatch[1];
-      const linkedinMatch = html.match(/"linkedin":"([^"]+)"/);
-      if (linkedinMatch) info.linkedin = linkedinMatch[1];
-      const facebookMatch = html.match(/"facebook":"([^"]+)"/);
-      if (facebookMatch) info.facebook = facebookMatch[1];
-
-      // Extract social links from DOM
-      info.twitter = $(`a[href*="twitter.com"]`).first().attr('href') || info.twitter;
-      info.linkedin = $(`a[href*="linkedin.com"]`).first().attr('href') || info.linkedin;
-      info.facebook = $(`a[href*="facebook.com"]`).first().attr('href') || info.facebook;
-
-      // Extract categories/tags
-      const categories = $('[data-test="categories"] a, .categories a, .industry-tags a');
-      if (categories.length > 0) {
-        info.categories = categories.map((_, el) => $(el).text().trim()).get();
-      }
-      const tags = $('[data-test="tags"] a, .tags a, .keywords a');
-      if (tags.length > 0) {
-        info.tags = tags.map((_, el) => $(el).text().trim()).get();
-      }
-
-      // Extract employee count
-      const employeeMatch = html.match(/"number_of_employees":(\d+)/);
-      if (employeeMatch) {
-        info.employeeCount = employeeMatch[1];
-      }
-      const employeeRange = $('[data-test="employee_count"], .employee-count').first().text().trim();
-      if (employeeRange) {
-        info.employeeCount = employeeRange;
-      }
-
-      // Extract funding info
-      const fundingMatch = html.match(/"total_funding_usd":(\d+)/);
-      if (fundingMatch) {
-        info.totalFundingAmount = parseInt(fundingMatch[1]);
-        info.totalFunding = `$${this.formatMoney(info.totalFundingAmount)}`;
-      }
-      const totalFundingText = $('[data-test="total_funding"], .total-funding').first().text().trim();
-      if (totalFundingText && !info.totalFunding) {
-        info.totalFunding = totalFundingText;
-      }
-
-      const roundsMatch = html.match(/"number_of_funding_rounds":(\d+)/);
-      if (roundsMatch) {
-        info.numberOfFundingRounds = parseInt(roundsMatch[1]);
-      }
-
-      // Extract stock info
-      const stockSymbolMatch = html.match(/"stock_symbol":"([^"]+)"/);
-      if (stockSymbolMatch) {
-        info.stockSymbol = stockSymbolMatch[1];
-      }
-      const exchangeMatch = html.match(/"stock_exchange":"([^"]+)"/);
-      if (exchangeMatch) {
-        info.stockExchange = exchangeMatch[1];
-      }
-
-      // Extract IPO/acquisition status
-      const statusMatch = html.match(/"ipo_status":"([^"]+)"/);
-      if (statusMatch) {
-        info.ipoStatus = statusMatch[1];
-      }
-      info.status = $('[data-test="status"], .status').first().text().trim() || info.ipoStatus;
-
-      // Extract acquisition info
-      const acquiredByMatch = html.match(/"acquired_by":"([^"]+)"/);
-      if (acquiredByMatch) {
-        info.acquiredBy = acquiredByMatch[1];
-      }
-      const acquiredDateMatch = html.match(/"acquired_on":"([^"]+)"/);
-      if (acquiredDateMatch) {
-        info.acquiredDate = acquiredDateMatch[1];
-      }
-      const acquisitionPriceMatch = html.match(/"acquisition_price_usd":(\d+)/);
-      if (acquisitionPriceMatch) {
-        info.acquisitionPrice = `$${this.formatMoney(parseInt(acquisitionPriceMatch[1]))}`;
-      }
-
-    } catch {
-      // Return whatever we have
-    }
-
-    return info;
-  }
-
-  private parseFundingRounds(html: string): FundingRound[] {
-    const rounds: FundingRound[] = [];
-
-    try {
-      const $ = parseHtml(html);
-
-      // Look for funding round cards
-      const roundCards = $('[data-test="funding-round"], .funding-round, .card');
-
-      roundCards.each((_, card) => {
-        const type = $(card).find('[data-test="round-type"], .round-type, .type').text().trim();
-        const date = $(card).find('[data-test="date"], .date, .funded-date').text().trim();
-        const amountEl = $(card).find('[data-test="amount"], .amount, .raised');
-        const amount = amountEl.text().trim();
-        const investorsEl = $(card).find('[data-test="investors"], .investors, .lead-investors');
-        const investors = investorsEl.text().trim().split(',').map(s => s.trim()).filter(Boolean);
-
-        if (type || amount) {
-          rounds.push({
-            type,
-            date,
-            amount,
-            stage: type,
-            investors,
-          });
-        }
-      });
-
-      // Fallback: parse from HTML patterns
-      if (rounds.length === 0) {
-        // Try to find funding amounts in text
-        const amountMatches = html.match(/\$[\d,.]+\s*(?:USD|usd)?/g);
-        if (amountMatches) {
-          rounds.push({
-            amount: amountMatches[0],
-            type: 'Unknown',
-          });
-        }
-      }
-    } catch {
-      // Return empty array on parse error
-    }
-
-    return rounds;
-  }
-
-  private parsePeople(html: string, type: string): PersonInfo[] {
-    const people: PersonInfo[] = [];
-
-    try {
-      const $ = parseHtml(html);
-
-      // Look for person cards
-      const personCards = $('[data-test="person-card"], .person-card, .profile-card');
-
-      personCards.each((_, card) => {
-        const name = $(card).find('[data-test="person-name"], .name, .person-name').text().trim();
-        const title = $(card).find('[data-test="person-title"], .title, .job-title').text().trim();
-        const org = $(card).find('[data-test="organization"], .organization, .company').text().trim();
-        const link = $(card).find('a').attr('href') || '';
-        const permalinkMatch = link.match(/person\/([^/?]+)/);
-        const image = $(card).find('img').attr('src');
-
-        if (name) {
-          people.push({
-            name,
-            title,
-            organization: org,
-            permalink: permalinkMatch?.[1],
-            image,
-          });
-        }
-      });
-
-      // Filter by type if specified
-      if (type === 'founders') {
-        // Filter for people marked as founders
-        return people.filter(p =>
-          p.title?.toLowerCase().includes('founder') ||
-          p.title?.toLowerCase().includes('co-founder')
-        );
-      } else if (type === 'executives') {
-        // Filter for executives
-        return people.filter(p =>
-          p.title && !p.title.toLowerCase().includes('founder') &&
-          (p.title.toLowerCase().includes('ceo') ||
-           p.title.toLowerCase().includes('cto') ||
-           p.title.toLowerCase().includes('cfo') ||
-           p.title.toLowerCase().includes('vp') ||
-           p.title.toLowerCase().includes('director') ||
-           p.title.toLowerCase().includes('head'))
-        );
-      }
-    } catch {
-      // Return whatever we found
-    }
-
-    return people;
-  }
-
-  private formatMoney(amount: number): string {
-    if (amount >= 1000000000) {
-      return `${(amount / 1000000000).toFixed(1)}B`;
-    }
-    if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-      return `${(amount / 1000).toFixed(1)}K`;
-    }
-    return amount.toString();
-  }
-
-  private calculateTotalFunding(rounds: FundingRound[]): string {
-    const total = rounds.reduce((sum, round) => {
-      if (round.amountRaw) {
-        return sum + round.amountRaw;
-      }
-      // Try to parse amount string
-      const match = round.amount?.match(/[\d,.]+/);
-      if (match) {
-        return sum + parseFloat(match[0].replace(/,/g, ''));
-      }
-      return sum;
-    }, 0);
-
-    return total > 0 ? `$${this.formatMoney(total)}` : 'Unknown';
+    return {
+      success: true,
+      data: { people, count: people.length },
+      metadata: {
+        scrapedAt: new Date().toISOString(),
+        source: 'crunchbase-api',
+        itemsFound: people.length,
+        duration: 0,
+      },
+    };
   }
 
   async validate(input: any): Promise<boolean> {
-    if (!input || typeof input !== 'object') return false;
-
-    // For search - require query
-    if ('query' in input) {
-      const q = input.query;
-      return typeof q === 'string' && q.trim().length > 0;
-    }
-
-    // For company/funding/people - require permalink or url
-    if ('permalink' in input || 'url' in input) {
-      return !!(input.permalink || input.url);
-    }
-
-    // If neither query nor permalink/url, require other valid action fields
-    // get_trending-like actions would be added here
-
-    return false;
+    return !!(input?.params?.name || input?.params?.permalink || input?.params?.query);
   }
 }
 
-export default new CrunchbaseActor();
+export default CrunchbaseActor;

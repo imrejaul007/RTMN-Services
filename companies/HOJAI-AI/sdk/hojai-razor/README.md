@@ -1,6 +1,6 @@
 # @hojai/razor
 
-> The official TypeScript SDK for the **HOJAI RAZO Keyboard Communication OS** (port 4299). The "keyboard that thinks" — transforms text input into actionable intents, routes them across 24 industry operating systems, and manages multi-channel messaging.
+> The official TypeScript SDK for the **HOJAI RAZO Keyboard Communication OS v2.1** (port 4299). The "keyboard that thinks" — now with Magic Wand, Emotion Detection, Voice, i18n, Family Quick Reply, Pay Anyone, Auto Life, Founder Mode, Negotiation Mode, Photo Intelligence, and MemoryOS integration.
 
 [![npm version](https://img.shields.io/npm/v/@hojai/razor.svg)](https://www.npmjs.com/package/@hojai/razor)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
@@ -8,13 +8,20 @@
 
 ## What it does
 
-RAZO Keyboard is the **Communication OS** for the HOJAI ecosystem. Every text input — typed in DO App, in a chat, on a form — is parsed by RAZO into an intent, validated, and routed to the right Department/Industry OS or SUTAR agent. RAZO also manages:
+RAZO Keyboard is the **Communication OS** for the HOJAI ecosystem. v2.1 adds 12 new clients with 84+ endpoints:
 
-- **Multi-channel messaging** — WhatsApp, Telegram, SMS, email, push, web
-- **Conversation sessions** — multi-turn state with accumulated context
-- **Channel connectivity** — verify, activate/deactivate, per-channel send helpers
-
-This SDK wraps all of it into 4 ergonomic sub-clients.
+- **Magic Wand** — One-tap help, let RAZO figure out what you need
+- **Emotion Detection** — Detect emotion, get suggested replies
+- **Voice** — Speech-to-text, text-to-speech, voice sessions
+- **i18n** — 6 languages, cultural translation, festival greetings
+- **Family Quick Reply** — Relationship-aware replies (mother, father, etc.)
+- **Pay Anyone** — Voice, QR, or contact-based payments
+- **Auto Life Assistant** — Proactive suggestions based on context
+- **Founder Mode** — Strategic communications for founders
+- **Negotiation Mode** — Get the best deal with SUTAR-powered bargaining
+- **Photo Intelligence** — Upload images → extract info (receipts, orders, cards)
+- **MemoryOS** — Persistent memory, preferences, learning
+- **TwinOS** — Customer/merchant twin data
 
 ## Install
 
@@ -22,96 +29,289 @@ This SDK wraps all of it into 4 ergonomic sub-clients.
 npm install @hojai/razor
 ```
 
-## Quick start
+## Quick Start
 
-```ts
+```typescript
 import { Razor } from '@hojai/razor';
 
-const razor = new Razor({ apiKey, baseUrl: 'https://api.hojai.ai' });
+const razor = new Razor({ baseUrl: 'http://localhost:4299' });
 
-// 1. One-call: user says something, the right agent executes it
-const result = await razor.intents.handleText('Order a pizza from Dominoes', 'u-1');
-console.log(result.intent.name);   // 'order_food'
-console.log(result.executed?.status); // 'completed'
+// ✨ Magic Wand - One tap help
+const help = await razor.magic.help({ text: 'Order pizza', userId: 'user-1' });
 
-// 2. Send a WhatsApp message
-await razor.messages.send({
-  channelId: 'ch-wa-1',
-  to: '+919876543210',
-  body: 'Hi from HOJAI!'
+// 🆘 Emotion Detection
+const emotion = await razor.emotion.analyze({ message: 'This is RIDICULOUS!!' });
+
+// 🎤 Voice
+const text = await razor.voice.stt({ audio: base64Audio });
+
+// 🌍 i18n
+const lang = await razor.i18n.detect('नमस्ते');
+
+// 👨‍👩‍👧 Family Reply
+const reply = await razor.family.reply({ message: 'When are you coming?', userId: 'user-1' });
+
+// 💰 Pay
+const pay = await razor.pay.voice({ text: 'Send Rahul 500', userId: 'user-1' });
+
+// 🔮 Auto Life
+const suggestions = await razor.life.check({ userId: 'user-1' });
+
+// 👨‍💼 Founder Mode
+const content = await razor.founder.generate({
+  text: 'Weekly metrics',
+  audience: 'investor',
+  tone: 'confident'
 });
 
-// 3. Track a conversation session across turns
-const session = await razor.sessions.create({ userId: 'u-1', channelId: 'ch-1' });
-await razor.sessions.sendMessage(session.id, { body: 'I want to book a flight to Delhi' });
-await razor.sessions.sendMessage(session.id, { body: 'For next Friday' });
-// Session context now has: { destination: 'Delhi', date: 'next Friday' }
+// 💰 Negotiation
+const neg = await razor.negotiation.start({ sellerPrice: 1000, item: 'jacket' });
+
+// 📷 Photo Intelligence
+const photo = await razor.photo.analyze({ imageData: base64, photoType: 'receipt' });
+
+// 🧠 Memory
+const ctx = await razor.memory.getContext('user-1');
 ```
 
-## What's inside
+## API Reference
 
-4 sub-clients, ~40 methods total:
+### Magic Wand
 
-| Sub-client | Wraps | Purpose | Methods |
-|---|---|---|---|
-| `intents` | Intent Router | Detect, parse, validate, execute intents from text | 5 |
-| `messages` | Multi-channel messages | Send, schedule, broadcast, template, render | 9 |
-| `channels` | Connectivity | List, create, activate, verify, per-channel send | 11 |
-| `sessions` | Conversation state | Multi-turn sessions with accumulated context | 7 |
-
-## Subpath imports
-
-For tree-shaking and smaller bundles:
-
-```ts
-import { IntentRouterClient } from '@hojai/razor/intents';
-import { MessagesClient } from '@hojai/razor/messages';
-import { ChannelsClient } from '@hojai/razor/channels';
-import { SessionsClient } from '@hojai/razor/sessions';
+```typescript
+await razor.magic.help({ text, userId, sessionId, context });
+await razor.magic.execute({ actionId, userId, context });
 ```
 
-## Configuration
+### Emotion Detection
 
-```ts
-const razor = new Razor({
-  apiKey: 'hojai_live_...',         // required
-  baseUrl: 'https://api.hojai.ai',  // required
-  timeout: 10_000,                  // optional, default 10s
-  maxRetries: 3,                    // optional, default 3
-  fetchImpl: customFetch,           // optional
-  logger: (level, msg, meta) => {}  // optional
-});
+```typescript
+await razor.emotion.analyze({ message, context });
 ```
 
-When `baseUrl` includes `localhost`, sub-clients automatically target port **4299** (the RAZO Keyboard port). For production, point `baseUrl` at your HOJAI Cloud gateway.
+### Voice
 
-## Error handling
+```typescript
+await razor.voice.stt({ audio, userId, language });
+await razor.voice.tts({ text, userId, voice, speed });
+await razor.voice.startSession(userId);
+await razor.voice.processSession(sessionId, audio);
+await razor.voice.endSession(sessionId);
+```
 
-```ts
+### i18n
+
+```typescript
+await razor.i18n.detect(text);
+await razor.i18n.translate({ text, targetLanguage, sourceLanguage? });
+await razor.i18n.greeting({ userId?, language?, context? });
+await razor.i18n.festival(festival);
+```
+
+### Family
+
+```typescript
+await razor.family.detect({ sender?, userId });
+await razor.family.reply({ message, sender?, relationship?, userId });
+```
+
+### Pay
+
+```typescript
+await razor.pay.voice({ audio?, text?, userId });
+await razor.pay.qr({ qrData, userId });
+await razor.pay.contact({ recipientId, amount, userId, note? });
+await razor.pay.recent(userId);
+await razor.pay.history(userId, limit?);
+```
+
+### Auto Life
+
+```typescript
+await razor.life.check({ userId, categories? });
+await razor.life.snooze(suggestionId, hours?);
+await razor.life.disableCategory(userId, category);
+await razor.life.track(suggestionId, action);
+```
+
+### Founder Mode
+
+```typescript
+await razor.founder.generate({ text?, audience, tone, userId? });
+await razor.founder.templates(audience);
+```
+
+### Negotiation Mode
+
+```typescript
+await razor.negotiation.start({ userId?, sellerPrice, item, category? });
+await razor.negotiation.counter({ negotiationId, yourOffer, message?, tactic? });
+await razor.negotiation.accept(negotiationId);
+await razor.negotiation.walkAway(negotiationId);
+await razor.negotiation.status(negotiationId);
+```
+
+### Photo Intelligence
+
+```typescript
+await razor.photo.analyze({ imageData, photoType, action?, userId? });
+await razor.photo.actions(extractedData);
+// photoType: 'receipt' | 'order' | 'menu' | 'business_card' | 'document' | 'product' | 'price_tag' | 'screenshot'
+```
+
+### MemoryOS
+
+```typescript
+await razor.memory.getContext(userId);
+await razor.memory.saveContext(userId, context);
+await razor.memory.history(userId, limit?);
+await razor.memory.preferences(userId);
+await razor.memory.updatePreferences(userId, preferences);
+await razor.memory.learn(userId, behavior);
+await razor.memory.recommendations(userId);
+await razor.memory.search(userId, query);
+await razor.memory.getCustomerTwin(userId);
+await razor.memory.getMerchantTwin(merchantId);
+```
+
+### Modes
+
+```typescript
+await razor.modes.momMode();
+await razor.modes.actions();
+```
+
+## Clients
+
+| Client | Purpose |
+|--------|---------|
+| `razor.magic` | Magic Wand (one-tap help) |
+| `razor.emotion` | Emotion detection |
+| `razor.voice` | Voice input/output |
+| `razor.i18n` | Translation, greetings |
+| `razor.family` | Family quick reply |
+| `razor.pay` | Payments |
+| `razor.life` | Proactive suggestions |
+| `razor.founder` | Founder communications |
+| `razor.negotiation` | Bargaining |
+| `razor.photo` | Photo analysis |
+| `razor.memory` | Memory & twins |
+| `razor.modes` | Mode configurations |
+
+## Error Handling
+
+All methods throw on network errors. Wrap in try/catch:
+
+```typescript
 try {
-  await razor.intents.detect({ text: 'x' });
-} catch (err) {
-  // err.message = "HTTP 404: ..."
-  // SDK retries 5xx automatically (up to maxRetries)
-  // SDK throws on 4xx immediately
+  const result = await razor.magic.help({ text: 'Order pizza' });
+} catch (error) {
+  console.error('Failed:', error.message);
 }
 ```
 
-## Tests
+## TypeScript
 
-```bash
-cd companies/HOJAI-AI/sdk/hojai-razor
-npm install
-npm run build
-npm test
+Full TypeScript support with typed requests and responses.
+
+```typescript
+import { Razor } from '@hojai/razor';
+const razor = new Razor();
+const result = await razor.magic.help({ text: 'hi' });
 ```
 
-## See also
+## React Hooks (`@hojai/razor/hooks`)
 
-- [RAZO Keyboard service](https://github.com/hojai/razo-keyboard) — the underlying Express service
-- [@hojai/foundation](../hojai-foundation/) — CorpID, Memory, Twin, Trust, Flow, Policy
-- [@hojai/industry](../hojai-industry/) — 26 vertical Industry OSes (intents route here)
-- [@hojai/department](../hojai-department/) — 9 horizontal Department OSes (intents route here)
-- [@hojai/genie](../hojai-genie/) — Personal AI (intents route here too)
+```bash
+npm install @hojai/razor
+```
 
-The SDK family is now **23 deep**.
+### Main Hook
+
+```tsx
+import { useRazo } from '@hojai/razor/hooks';
+
+function App() {
+  const { razor, loading, magic, emotion, voice, photo, negotiation } = useRazo({
+    baseUrl: 'http://localhost:4299',
+    userId: 'user-1',
+  });
+
+  if (loading) return <Spinner />;
+
+  return (
+    <ChatInput>
+      <MagicWandButton razor={razor} userId="user-1" />
+      <EmotionButtons razor={razor} message={message} />
+      <PhotoCapture razor={razor} userId="user-1" photoType="receipt" />
+    </ChatInput>
+  );
+}
+```
+
+### Individual Hooks
+
+```tsx
+import { useMagicWand, useEmotion, useNegotiation, usePhoto } from '@hojai/razor/hooks';
+
+// Magic Wand
+const { help, execute, loading } = useMagicWand(razor, 'user-1');
+await help('Order pizza');
+
+// Emotion
+const { analyze, emotion, buttons } = useEmotion(razor);
+await analyze('This is RIDICULOUS!!');
+
+// Negotiation
+const { start, counter, accept, walkAway } = useNegotiation(razor, 'user-1');
+await start(1000, 'jacket');
+
+// Photo
+const { analyze, result } = usePhoto(razor, 'user-1');
+await analyze(base64Image, 'receipt');
+```
+
+## React Components (`@hojai/razor/components`)
+
+```tsx
+import { MagicWandButton, EmotionButtons, PhotoCapture, MomModeUI, NegotiationUI } from '@hojai/razor/components';
+
+// Magic Wand Button
+<MagicWandButton
+  razor={razor}
+  userId="user-1"
+  onHelp={(result) => console.log(result)}
+  onExecute={(actionId) => handle(actionId)}
+/>
+
+// Emotion Buttons
+<EmotionButtons
+  razor={razor}
+  message="This is RIDICULOUS!!"
+  onReply={(reply) => sendMessage(reply)}
+/>
+
+// Photo Capture
+<PhotoCapture
+  razor={razor}
+  userId="user-1"
+  photoType="receipt"
+  onAnalyze={(result) => console.log(result)}
+/>
+
+// Mom Mode (simplified UI)
+<MomModeUI razor={razor} onAction={(id) => handle(id)} />
+
+// Negotiation UI
+<NegotiationUI
+  razor={razor}
+  userId="user-1"
+  initialItem="jacket"
+  initialPrice={1000}
+  onComplete={(result) => console.log('Deal!', result)}
+/>
+```
+
+## License
+
+MIT

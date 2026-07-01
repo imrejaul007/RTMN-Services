@@ -12,6 +12,8 @@ export * from './hotel-connector';
 export * from './retail-connector';
 export * from './healthcare-connector';
 export * from './education-connector';
+export * from './realestate-connector';
+export * from './manufacturing-connector';
 
 // Factory functions
 export { createRestaurantConnector } from './restaurant-connector';
@@ -20,6 +22,8 @@ export { createHotelConnector } from './hotel-connector';
 export { createRetailConnector } from './retail-connector';
 export { createHealthcareConnector } from './healthcare-connector';
 export { createEducationConnector } from './education-connector';
+export { createRealEstateConnector } from './realestate-connector';
+export { createManufacturingConnector } from './manufacturing-connector';
 
 // ============================================
 // Connector Registry
@@ -33,6 +37,8 @@ import {
   RetailConnector,
   HealthcareConnector,
   EducationConnector,
+  RealEstateConnector,
+  ManufacturingConnector,
 } from './index';
 
 export type IndustryType =
@@ -52,8 +58,8 @@ export interface ConnectorFactory {
   retail: (tenant?: TenantContext) => RetailConnector;
   healthcare: (tenant?: TenantContext) => HealthcareConnector;
   education: (tenant?: TenantContext) => EducationConnector;
-  realestate: (tenant?: TenantContext) => any;
-  manufacturing: (tenant?: TenantContext) => any;
+  realestate: (tenant?: TenantContext) => RealEstateConnector;
+  manufacturing: (tenant?: TenantContext) => ManufacturingConnector;
 }
 
 export const connectors: ConnectorFactory = {
@@ -63,14 +69,8 @@ export const connectors: ConnectorFactory = {
   retail: (tenant?: TenantContext) => new RetailConnector(tenant),
   healthcare: (tenant?: TenantContext) => new HealthcareConnector(tenant),
   education: (tenant?: TenantContext) => new EducationConnector(tenant),
-  realestate: () => {
-    console.warn('Real Estate connector not yet implemented');
-    return {} as any;
-  },
-  manufacturing: () => {
-    console.warn('Manufacturing connector not yet implemented');
-    return {} as any;
-  },
+  realestate: (tenant?: TenantContext) => new RealEstateConnector(tenant),
+  manufacturing: (tenant?: TenantContext) => new ManufacturingConnector(tenant),
 };
 
 /**
@@ -84,5 +84,5 @@ export function getConnector(industry: IndustryType, tenant?: TenantContext) {
  * Get all available industries
  */
 export function getAvailableIndustries(): IndustryType[] {
-  return ['restaurant', 'beauty', 'hotel', 'retail', 'healthcare', 'education'];
+  return ['restaurant', 'beauty', 'hotel', 'retail', 'healthcare', 'education', 'realestate', 'manufacturing'];
 }

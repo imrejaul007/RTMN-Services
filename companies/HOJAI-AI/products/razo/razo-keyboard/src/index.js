@@ -1,5 +1,5 @@
 /**
- * RAZO Keyboard - Communication OS v2.0 (Mass Adoption Ready)
+ * RAZO Keyboard - Communication OS v2.1 (Mass Adoption + Phase 2 + Phase 4)
  * Port 4299
  *
  * The keyboard that thinks — but you don't have to.
@@ -14,6 +14,15 @@
  * - Family Quick Reply: Relationship-aware responses
  * - Pay Anyone: Voice/Photo/Contact money transfer
  * - Auto Life Assistant: Proactive suggestions
+ *
+ * Phase 2 Modules:
+ * - Founder Mode: Strategic communications for founders
+ * - Negotiation Mode: Get the best deal (SUTAR-powered)
+ * - Photo Intelligence: Upload and understand images
+ *
+ * Phase 4 Modules:
+ * - MemoryOS Integration: Persistent memory + learning
+ * - TwinOS Integration: Customer/merchant twin data
  */
 
 const express = require('express');
@@ -51,6 +60,9 @@ const {
   createLifeRoutes
 } = require('./routes/magic');
 
+const { createPhase2Routes } = require('./routes/modes');
+const { createMemoryOSRoutes } = require('./routes/memoryOS');
+
 const app = express();
 
 // ── Middleware ────────────────────────────────────────────────────────
@@ -73,13 +85,15 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     service: 'razo-keyboard',
-    version: '2.0.0',
+    version: '2.1.0',
     tagline: 'Your phone finally understands you.',
     port: PORT,
     timestamp: new Date().toISOString(),
     modules: {
       v1: ['intentRouter', 'contextEngine', 'actionEngine', 'channelBridge'],
-      v2: ['magicWand', 'emotionDetector', 'voiceGateway', 'i18n', 'familyQuickReply', 'payAnyone', 'autoLifeAssistant']
+      v2: ['magicWand', 'emotionDetector', 'voiceGateway', 'i18n', 'familyQuickReply', 'payAnyone', 'autoLifeAssistant'],
+      phase2: ['founderMode', 'negotiationMode', 'photoIntelligence'],
+      phase4: ['memoryOS', 'twinOS']
     }
   });
 });
@@ -88,7 +102,9 @@ app.get('/ready', (req, res) => {
   res.json({
     ready: true,
     v1: { intentRouter: true, contextEngine: true, actionEngine: true, channelBridge: true },
-    v2: { magicWand: true, emotionDetector: true, voiceGateway: true, i18n: true, familyQuickReply: true, payAnyone: true, autoLifeAssistant: true }
+    v2: { magicWand: true, emotionDetector: true, voiceGateway: true, i18n: true, familyQuickReply: true, payAnyone: true, autoLifeAssistant: true },
+    phase2: { founderMode: true, negotiationMode: true, photoIntelligence: true },
+    phase4: { memoryOS: true, twinOS: true }
   });
 });
 
@@ -128,6 +144,12 @@ app.use('/api/i18n', createI18nRoutes(i18n));
 app.use('/api/family', createFamilyRoutes(familyQuickReply));
 app.use('/api/pay', createPayRoutes(payAnyone));
 app.use('/api/life', createLifeRoutes(autoLifeAssistant));
+
+// ── Phase 2 Routes ─────────────────────────────────────────────────────
+app.use('/api/modes', createPhase2Routes(logger));
+
+// ── Phase 4 Routes (MemoryOS/TwinOS) ──────────────────────────────────
+app.use('/api/memory', createMemoryOSRoutes(logger));
 
 // ── Root endpoint ─────────────────────────────────────────────────────
 app.get('/', (req, res) => {

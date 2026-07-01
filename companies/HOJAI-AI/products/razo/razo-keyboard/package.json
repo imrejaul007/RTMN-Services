@@ -1,6 +1,6 @@
 {
   "name": "@rtmn/razo-keyboard",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "RAZO Keyboard - Communication OS v2.0 (Mass Adoption Ready)",
   "main": "src/index.js",
   "scripts": {

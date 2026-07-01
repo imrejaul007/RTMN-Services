@@ -54,5 +54,19 @@
     "event": "on-forget",
     "callback": "console.log",
     "createdAt": "2026-06-30T21:20:37.225Z"
+  },
+  {
+    "id": "fe327a40-b7be-4dae-8677-c3125bec49eb",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-30T22:13:39.459Z"
+  },
+  {
+    "id": "a7c77806-791a-47f5-9462-96bfdc8b099c",
+    "name": "TestHook",
+    "event": "on-forget",
+    "callback": "console.log",
+    "createdAt": "2026-06-30T22:17:10.053Z"
   }
 ]

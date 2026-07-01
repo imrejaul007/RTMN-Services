@@ -286,5 +286,77 @@
     "itemType": "food",
     "context": {},
     "timestamp": "2026-06-30T21:20:37.721Z"
+  },
+  {
+    "id": "5f5e8903-d6f5-42b6-b8e8-9fba9b613e84",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:13:39.615Z"
+  },
+  {
+    "id": "c5e792b0-860f-47fc-a82b-efa51e5d0dc0",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:13:39.633Z"
+  },
+  {
+    "id": "aa0a0daa-3af6-4a98-a9a4-037eec09c3e8",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:13:39.638Z"
+  },
+  {
+    "id": "862bf454-7179-4dda-b284-da5126022c50",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:13:39.645Z"
+  },
+  {
+    "id": "e70d1698-de7c-42d8-95de-70f0667afc0f",
+    "userId": "track-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:17:10.657Z"
+  },
+  {
+    "id": "aa922a64-4330-453a-8d55-f645b73edefe",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-0",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:17:10.665Z"
+  },
+  {
+    "id": "e39dd48d-f434-40f4-a32b-d9c30be5ed6e",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-1",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:17:10.668Z"
+  },
+  {
+    "id": "ae623d61-e8ee-4cab-9328-28ef70479806",
+    "userId": "rec-test",
+    "action": "like",
+    "itemId": "item-2",
+    "itemType": "food",
+    "context": {},
+    "timestamp": "2026-06-30T22:17:10.670Z"
   }
 ]

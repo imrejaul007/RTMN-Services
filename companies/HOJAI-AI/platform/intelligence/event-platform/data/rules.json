@@ -30,5 +30,13 @@
     "condition": null,
     "destination": "logger",
     "createdAt": "2026-06-30T21:15:15.205Z"
+  },
+  {
+    "id": "ca3d9102-087f-4929-bb57-3987f2d20e12",
+    "name": "Log Clicks",
+    "eventType": "click",
+    "condition": null,
+    "destination": "logger",
+    "createdAt": "2026-06-30T22:20:08.757Z"
   }
 ]

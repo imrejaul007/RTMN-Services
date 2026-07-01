@@ -26,5 +26,12 @@
     "type": "use-case",
     "description": "Marketing workflows",
     "createdAt": "2026-06-30T21:15:17.065Z"
+  },
+  {
+    "id": "e7613cbb-bb2b-4d74-be38-49dade2f6047",
+    "name": "Marketing",
+    "type": "use-case",
+    "description": "Marketing workflows",
+    "createdAt": "2026-06-30T22:20:11.028Z"
   }
 ]

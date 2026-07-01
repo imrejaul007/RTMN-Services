@@ -1258,5 +1258,215 @@
     "finalMetrics": null,
     "cost": 0,
     "createdAt": "2026-06-30T21:13:57.090Z"
+  },
+  {
+    "id": "c1f63798-36d8-4321-80ef-947a7b35b375",
+    "name": "Test Job",
+    "datasetId": "c993dbf0-b3a9-4258-ae69-68232082f026",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "draft",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.238Z"
+  },
+  {
+    "id": "1af50668-8d33-4ccd-b05f-06a978737e5e",
+    "name": "J1",
+    "datasetId": "17ee86e4-639d-469a-a650-6757d3323566",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "draft",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.254Z"
+  },
+  {
+    "id": "f9985bbc-fd7a-46e3-bf78-de7b3d77d5f9",
+    "name": "J2",
+    "datasetId": "17ee86e4-639d-469a-a650-6757d3323566",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "draft",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.259Z"
+  },
+  {
+    "id": "9e881f20-f654-466c-8bad-5ebba52034f9",
+    "name": "Get Job",
+    "datasetId": "b5e1d810-b99a-48d7-9734-79f197cc5fda",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "draft",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.286Z"
+  },
+  {
+    "id": "15ac7035-f1a8-4914-814f-daf9ea9d1e35",
+    "name": "Start Me",
+    "datasetId": "2bc50b67-e0d1-404c-9e0e-8ef555063c9c",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "training",
+    "startedAt": "2026-06-30T22:20:21.413Z",
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.409Z"
+  },
+  {
+    "id": "4cd5eaad-de7c-40fb-8e4e-97c91664400f",
+    "name": "Cancel Me",
+    "datasetId": "04079ca2-87b0-4802-9d13-24179cb8da58",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "cancelled",
+    "startedAt": null,
+    "completedAt": "2026-06-30T22:20:21.426Z",
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.423Z"
+  },
+  {
+    "id": "b2955797-d327-4bc4-81ff-7c75a31d3b59",
+    "name": "Queue Me",
+    "datasetId": "9ed6e185-fd2d-4350-89a4-14e7ac621c83",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "queued",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.433Z"
+  },
+  {
+    "id": "7ee2ba3b-4df0-483b-becf-b9cdacbd2064",
+    "name": "M Job",
+    "datasetId": "0b13980b-6852-48d2-8311-889923a9160b",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "draft",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.451Z"
+  },
+  {
+    "id": "5ddc378e-ec8f-4b09-a01a-7fb8c83b6b81",
+    "name": "Seed Job",
+    "datasetId": "903cabf5-740b-482f-bdfb-4cbf4ca2d4cd",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "draft",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.476Z"
+  },
+  {
+    "id": "196a9592-9705-458b-b59e-fe25c0aed1a7",
+    "name": "T Job",
+    "datasetId": "1f70213f-a623-42f7-b50d-25a7a347ae1d",
+    "baseModel": "llama-3-8b",
+    "config": {
+      "epochs": 3,
+      "batchSize": 4,
+      "learningRate": 0.0002,
+      "maxSeqLength": 2048,
+      "loraRank": 16,
+      "quantization": "4bit"
+    },
+    "status": "draft",
+    "startedAt": null,
+    "completedAt": null,
+    "bestCheckpoint": null,
+    "finalMetrics": null,
+    "cost": 0,
+    "createdAt": "2026-06-30T22:20:21.496Z"
   }
 ]

@@ -16,7 +16,8 @@ export async function request<T = unknown>(config: HojaiConfig, method: string, 
   const fetchImpl = config.fetchImpl || globalThis.fetch;
   const timeout = options.timeout ?? config.timeout ?? 10000;
   const maxRetries = options.maxRetries ?? config.maxRetries ?? 3;
-  const url = new URL(path, config.baseUrl).toString();
+  const baseUrl = config.baseUrl || 'http://localhost:4299';
+  const url = new URL(path, baseUrl).toString();
   let lastError: Error | undefined;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const controller = new AbortController();

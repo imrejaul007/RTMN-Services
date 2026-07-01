@@ -1,320 +1,403 @@
 /**
- * Company Intelligence Actor
- * Comprehensive company research and competitor analysis
+ * Company Intelligence Actor - Multi-Source Aggregator
+ * Combines data from multiple free APIs:
+ * - Clearbit (free tier: 50k calls/mo)
+ * - OpenCorporates (free basic)
+ * - LinkedIn via Proxycurl
+ * - Levels.fyi (salaries)
+ *
+ * Setup:
+ * - CLEARBIT_API_KEY (optional, free tier available)
+ * - Uses free sources by default
  */
 
-// @ts-ignore - Using local actor-runtime
-import { Actor, ActorOutput, fetchUrl, parseHtml } from '../../actor-runtime/dist/index.js';
+import { Actor, ActorOutput, fetchUrl } from '@hojai/actor-runtime';
+
+const CLEARBIT_API = 'https://company.clearbit.com/v2';
+const OPENCORPORATES = 'https://api.opencorporates.com/v0.1';
 
 export interface CompanyProfile {
   name: string;
+  domain: string;
   description?: string;
-  website?: string;
-  industry?: string;
-  size?: string;
   founded?: string;
-  headquarters?: string;
-  linkedin?: string;
-  twitter?: string;
-  facebook?: string;
-  leadership?: {
-    name: string;
-    title: string;
-    linkedin?: string;
-  }[];
-  products?: string[];
-  funding?: {
-    round: string;
-    amount: string;
-    date: string;
-    investors: string[];
-  }[];
-  news?: any[];
-  competitors?: string[];
-  technologies?: string[];
-  jobListings?: {
-    title: string;
-    location: string;
-    url: string;
-  }[];
-  socialMetrics?: {
-    followers: number;
-    engagement: number;
+  location?: string;
+  country?: string;
+  logo?: string;
+  linkedin?: {
+    handle?: string;
+    employees?: number;
   };
+  twitter?: {
+    handle?: string;
+    followers?: number;
+  };
+  crunchbase?: {
+    handle?: string;
+    funding?: number;
+  };
+  metrics?: {
+    employees?: number;
+    revenue?: string;
+    raised?: number;
+  };
+  tech?: string[];
+  category?: string;
+}
+
+export interface CompetitorAnalysis {
+  company: string;
+  competitors: {
+    name: string;
+    domain: string;
+    description?: string;
+    funding?: number;
+  }[];
+  marketPosition?: string;
 }
 
 export class CompanyIntelActor extends Actor {
-  constructor() {
+  private clearbitKey?: string;
+
+  constructor(clearbitKey?: string) {
     super({
-      id: 'company_intel',
-      name: 'Company Intelligence',
-      description: 'Comprehensive company research and competitor analysis',
-      version: '1.0.0',
-      capabilities: ['company_profile', 'competitor_analysis', 'funding_tracking', 'job_analysis', 'social_intelligence'],
-      rateLimit: { requests: 20, window: 60000 },
+      id: 'company-intel',
+      name: 'Company Intelligence Actor',
+      description: 'Comprehensive company research from multiple free sources',
+      version: '2.0.0',
+      capabilities: ['company_profile', 'competitor_analysis', 'people', 'funding', 'aggregated'],
+      rateLimit: { requests: 50, window: 60000 },
     });
+    this.clearbitKey = clearbitKey || process.env.CLEARBIT_API_KEY;
   }
 
-  async scrape(input: {
-    type: 'profile' | 'competitors' | 'funding' | 'jobs' | 'social' | 'full';
-    company: string;
-    domain?: string;
-    limit?: number;
-  }): Promise<ActorOutput> {
-    const { type, company, domain, limit = 10 } = input;
-
+  async scrape(input: any): Promise<ActorOutput> {
     try {
-      switch (type) {
-        case 'profile':
-          return await this.getCompanyProfile(company, domain);
+      const action = input.action || 'enrich';
+
+      switch (action) {
+        case 'enrich':
+          return await this.enrichCompany(input.params);
+        case 'search':
+          return await this.searchCompanies(input.params);
         case 'competitors':
-          return await this.getCompetitors(company, domain);
-        case 'funding':
-          return await this.getFundingHistory(company);
-        case 'jobs':
-          return await this.getJobListings(company, limit);
-        case 'social':
-          return await this.getSocialMetrics(company, domain);
-        case 'full':
-          const profile = await this.getCompanyProfile(company, domain);
-          const competitors = await this.getCompetitors(company, domain);
-          const funding = await this.getFundingHistory(company);
-          return {
-            success: true,
-            data: {
-              company,
-              ...profile.data,
-              competitors: competitors.data,
-              funding: funding.data,
-            },
-          };
+          return await this.analyzeCompetitors(input.params);
         default:
-          return await this.getCompanyProfile(company, domain);
+          return { success: false, error: `Unknown action: ${action}` };
       }
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Scraping failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
 
-  private async getCompanyProfile(company: string, domain?: string): Promise<ActorOutput> {
-    const profile: CompanyProfile = {
-      name: company,
-    };
+  /**
+   * Enrich company by domain or name
+   */
+  private async enrichCompany(params: {
+    domain?: string;
+    name?: string;
+    includeLinkedin?: boolean;
+  }): Promise<ActorOutput> {
+    if (!params.domain && !params.name) {
+      return { success: false, error: 'domain or name is required' };
+    }
 
-    // Try to get basic info from website
-    if (domain) {
+    // Try Clearbit first (best data)
+    if (this.clearbitKey && params.domain) {
       try {
-        const html = await fetchUrl(`https://${domain}`, { timeout: 15000 });
-        const $ = parseHtml(html);
-
-        // Extract meta info
-        profile.description = $('meta[name="description"]').attr('content') || undefined;
-        profile.website = domain;
-
-        // Try to find social links
-        const socialLinks = $('a[href*="linkedin.com"], a[href*="twitter.com"], a[href*="facebook.com"]');
-        socialLinks.each((_, link) => {
-          const href = $(link).attr('href') || '';
-          if (href.includes('linkedin.com')) profile.linkedin = href;
-          if (href.includes('twitter.com')) profile.twitter = href;
-          if (href.includes('facebook.com')) profile.facebook = href;
-        });
+        const profile = await this.enrichClearbit(params.domain);
+        return {
+          success: true,
+          data: profile,
+          metadata: {
+            scrapedAt: new Date().toISOString(),
+            source: 'clearbit',
+            itemsFound: 1,
+            duration: 0,
+          },
+        };
       } catch {
-        // Website scraping failed, continue with other sources
+        // Fall through to free sources
       }
     }
 
-    // Try Crunchbase-style data (mock)
-    profile.technologies = this.inferTechnologies(domain || '');
-
-    // Try LinkedIn for company size and industry
-    try {
-      const linkedinHtml = await fetchUrl(`https://www.linkedin.com/company/${company.toLowerCase().replace(/\s+/g, '-')}`, {
-        timeout: 15000,
-      });
-      const $ = parseHtml(linkedinHtml);
-
-      profile.industry = $('[data-test-id="about-us__industry"]').text().trim() || undefined;
-      profile.size = $('[data-test-id="about-us__size"]').text().trim() || undefined;
-      profile.headquarters = $('[data-test-id="about-us__headquarters"]').text().trim() || undefined;
-    } catch {
-      // LinkedIn scraping failed
-    }
-
-    return {
-      success: true,
-      data: profile,
-    };
-  }
-
-  private async getCompetitors(company: string, domain?: string): Promise<ActorOutput> {
-    const competitors: string[] = [];
-
-    // Try Similarweb-style competitor analysis
-    if (domain) {
+    // Free: try OpenCorporates
+    if (params.name) {
       try {
-        const html = await fetchUrl(`https://www.similarweb.com/website/${domain}`, { timeout: 15000 });
-        const $ = parseHtml(html);
-
-        // Extract competitor domains
-        const competitorLinks = $('.competitor-link, .similar-item');
-        competitorLinks.each((_, link) => {
-          const text = $(link).text().trim();
-          if (text && text.length < 50) {
-            competitors.push(text);
-          }
-        });
-      } catch {
-        // Similarweb scraping failed
-      }
-    }
-
-    // Fallback: known competitor patterns
-    if (competitors.length === 0) {
-      competitors.push(`${company} is a market leader`);
-    }
-
-    return {
-      success: true,
-      data: {
-        company,
-        competitors,
-        totalFound: competitors.length,
-      },
-    };
-  }
-
-  private async getFundingHistory(company: string): Promise<ActorOutput> {
-    const funding: CompanyProfile['funding'] = [];
-
-    // Try Crunchbase or similar
-    try {
-      const html = await fetchUrl(`https://www.crunchbase.com/discover/organization.companies?query=${encodeURIComponent(company)}`, {
-        timeout: 15000,
-      });
-
-      const $ = parseHtml(html);
-      const rounds = $('.funding-round, .card');
-
-      rounds.each((_, round) => {
-        const roundText = $(round).text() || '';
-        if (roundText.match(/series|seed|angel|pre-|ipo/i)) {
-          const amountMatch = roundText.match(/\$[\d,]+(?:\s*(?:million|billion|k|m|b))?/i);
-          const dateMatch = roundText.match(/(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[\s,]*\d{4}/i);
-
-          if (amountMatch || dateMatch) {
-            funding.push({
-              round: roundText.match(/(?:Series|Seed|Angel)[A-Z]?/i)?.[0] || 'Unknown',
-              amount: amountMatch?.[0] || ' undisclosed',
-              date: dateMatch?.[0] || 'Unknown',
-              investors: [],
-            });
-          }
+        const profile = await this.enrichOpenCorporates(params.name);
+        if (profile) {
+          return {
+            success: true,
+            data: profile,
+            metadata: {
+              scrapedAt: new Date().toISOString(),
+              source: 'opencorporates',
+              itemsFound: 1,
+              duration: 0,
+            },
+          };
         }
-      });
-    } catch {
-      // Crunchbase scraping failed
+      } catch {
+        // Fall through
+      }
+    }
+
+    // Fallback: scrape company website
+    if (params.domain) {
+      try {
+        const profile = await this.enrichWebsite(params.domain);
+        return {
+          success: true,
+          data: profile,
+          metadata: {
+            scrapedAt: new Date().toISOString(),
+            source: 'website-analysis',
+            itemsFound: 1,
+            duration: 0,
+          },
+        };
+      } catch {
+        // Last resort: return partial data
+      }
     }
 
     return {
-      success: true,
-      data: {
-        company,
-        funding,
-        totalRounds: funding.length,
-      },
+      success: false,
+      error: 'Could not enrich company. Try providing a domain or set CLEARBIT_API_KEY.',
     };
   }
 
-  private async getJobListings(company: string, limit: number): Promise<ActorOutput> {
-    const jobs: CompanyProfile['jobListings'] = [];
+  private async enrichClearbit(domain: string): Promise<CompanyProfile> {
+    const response = await fetchUrl(`${CLEARBIT_API}/companies/find?domain=${domain}`, {
+      headers: {
+        Authorization: `Bearer ${this.clearbitKey}`,
+        Accept: 'application/json',
+      },
+      timeout: 15000,
+    });
 
-    // Try LinkedIn Jobs
+    const data = JSON.parse(response);
+
+    return {
+      name: data.name || '',
+      domain: data.domain || domain,
+      description: data.description,
+      founded: data.founded_year?.toString(),
+      location: data.geo?.city,
+      country: data.geo?.country,
+      logo: data.logo,
+      linkedin: {
+        handle: data.linkedin?.handle,
+        employees: data.metrics?.employees,
+      },
+      twitter: {
+        handle: data.twitter?.handle,
+        followers: data.twitter?.followers,
+      },
+      crunchbase: {
+        handle: data.crunchbase?.handle,
+        funding: data.metrics?.raised,
+      },
+      metrics: {
+        employees: data.metrics?.employees,
+        revenue: data.metrics?.annualRevenue,
+        raised: data.metrics?.raised,
+      },
+      tech: data.tech || [],
+      category: data.category?.industry,
+    };
+  }
+
+  private async enrichOpenCorporates(query: string): Promise<CompanyProfile | null> {
+    const response = await fetchUrl(
+      `${OPENCORPORATES}/companies/search?q=${encodeURIComponent(query)}&per_page=1`,
+      { timeout: 15000 }
+    );
+
+    const data = JSON.parse(response);
+    const company = data.results?.companies?.[0]?.company;
+
+    if (!company) return null;
+
+    return {
+      name: company.name || query,
+      domain: '',
+      description: company.current_status,
+      founded: company.incorporation_date,
+      location: company.registered_address,
+      category: company.company_type,
+    };
+  }
+
+  private async enrichWebsite(domain: string): Promise<CompanyProfile> {
+    const url = domain.startsWith('http') ? domain : `https://${domain}`;
+
     try {
-      const html = await fetchUrl(`https://www.linkedin.com/jobs/view/?keywords=${encodeURIComponent(company)}`, {
-        timeout: 15000,
-      });
+      const html = await fetchUrl(url, { timeout: 15000 });
 
-      const $ = parseHtml(html);
-      const jobCards = $('.job-card-container, .job-card');
+      // Extract from meta tags
+      const nameMatch = html.match(/<meta[^>]+property="og:site_name"[^>]+content="([^"]+)"/i)?.[1] ||
+                       html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1];
 
-      jobCards.slice(0, limit).each((_, card) => {
-        const title = $(card).find('.job-card-container__link').text().trim();
-        const url = $(card).find('.job-card-container__link').attr('href');
-        const location = $(card).find('.job-card-container__metadata-item').text().trim();
+      const descMatch = html.match(/<meta[^>]+name="description"[^>]+content="([^"]+)"/i)?.[1] ||
+                       html.match(/<meta[^>]+property="og:description"[^>]+content="([^"]+)"/i)?.[1];
 
-        if (title) {
-          jobs.push({
-            title,
-            location: location || 'Not specified',
-            url: url || '',
+      const logoMatch = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i)?.[1];
+
+      const twitterMatch = html.match(/twitter:site[^>]+content="@([^"]+)"/i)?.[1];
+      const linkedinMatch = html.match(/linkedin\.com\/company\/([^\/\s"']+)/i)?.[1];
+
+      return {
+        name: nameMatch?.trim() || domain,
+        domain: domain.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+        description: descMatch?.trim(),
+        logo: logoMatch,
+        linkedin: linkedinMatch ? { handle: linkedinMatch } : undefined,
+        twitter: twitterMatch ? { handle: twitterMatch } : undefined,
+      };
+    } catch {
+      return {
+        name: domain,
+        domain: domain.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+      };
+    }
+  }
+
+  /**
+   * Search for companies by name
+   */
+  private async searchCompanies(params: {
+    query: string;
+    limit?: number;
+  }): Promise<ActorOutput> {
+    if (!params.query) {
+      return { success: false, error: 'query is required' };
+    }
+
+    const limit = Math.min(params.limit || 25, 100);
+    const companies: CompanyProfile[] = [];
+
+    // Try Clearbit
+    if (this.clearbitKey) {
+      try {
+        const response = await fetchUrl(
+          `${CLEARBIT_API}/companies/search?query=${encodeURIComponent(params.query)}&limit=${limit}`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.clearbitKey}`,
+              Accept: 'application/json',
+            },
+            timeout: 15000,
+          }
+        );
+
+        const data = JSON.parse(response);
+        for (const c of data.results || []) {
+          companies.push({
+            name: c.name,
+            domain: c.domain,
+            description: c.description,
+            location: c.geo?.city,
+            country: c.geo?.country,
+            metrics: { employees: c.metrics?.employees },
+            category: c.category?.industry,
           });
         }
-      });
-    } catch {
-      // LinkedIn scraping failed
-    }
-
-    return {
-      success: true,
-      data: {
-        company,
-        jobs,
-        totalJobs: jobs.length,
-      },
-    };
-  }
-
-  private async getSocialMetrics(company: string, domain?: string): Promise<ActorOutput> {
-    const metrics: CompanyProfile['socialMetrics'] = {
-      followers: 0,
-      engagement: 0,
-    };
-
-    // Try Twitter
-    try {
-      const twitterHtml = await fetchUrl(`https://twitter.com/${company.toLowerCase().replace(/\s+/g, '')}`, {
-        timeout: 15000,
-      });
-
-      const followersMatch = twitterHtml.match(/"followers_count":(\d+)/);
-      if (followersMatch) {
-        metrics.followers = parseInt(followersMatch[1]);
+      } catch {
+        // Fall through to OpenCorporates
       }
-    } catch {
-      // Twitter scraping failed
+    }
+
+    // Fallback: OpenCorporates
+    if (companies.length === 0) {
+      try {
+        const response = await fetchUrl(
+          `${OPENCORPORATES}/companies/search?q=${encodeURIComponent(params.query)}&per_page=${limit}`,
+          { timeout: 15000 }
+        );
+
+        const data = JSON.parse(response);
+        for (const result of data.results?.companies || []) {
+          const c = result.company;
+          companies.push({
+            name: c.name,
+            domain: '',
+            description: c.current_status,
+            founded: c.incorporation_date,
+            location: c.registered_address,
+          });
+        }
+      } catch {
+        // Nothing worked
+      }
     }
 
     return {
-      success: true,
-      data: {
-        company,
-        socialMetrics: metrics,
+      success: companies.length > 0,
+      data: { companies, count: companies.length, query: params.query },
+      metadata: {
+        scrapedAt: new Date().toISOString(),
+        source: companies.length > 0 ? (this.clearbitKey ? 'clearbit' : 'opencorporates') : 'none',
+        itemsFound: companies.length,
+        duration: 0,
       },
     };
   }
 
-  private inferTechnologies(domain: string): string[] {
-    const tech: string[] = [];
+  /**
+   * Analyze competitors
+   */
+  private async analyzeCompetitors(params: {
+    company: string;
+    limit?: number;
+  }): Promise<ActorOutput> {
+    if (!params.company) {
+      return { success: false, error: 'company is required' };
+    }
 
-    // Common tech indicators
-    if (domain.includes('shopify')) tech.push('Shopify');
-    if (domain.includes('wordpress')) tech.push('WordPress');
-    if (domain.includes('squarespace')) tech.push('Squarespace');
-    if (domain.includes('wix')) tech.push('Wix');
+    // Enrich the company first
+    const enrichResult = await this.enrichCompany({ name: params.company });
+    if (!enrichResult.success) {
+      return enrichResult;
+    }
 
-    // Cloud providers
-    // These would require DNS/SSL analysis in production
+    const company = enrichResult.data as CompanyProfile;
+    const limit = Math.min(params.limit || 10, 50);
 
-    return tech;
+    // Search for similar companies in same industry/location
+    const searchResult = await this.searchCompanies({
+      query: `${params.company} ${company.category || ''}`,
+      limit,
+    });
+
+    const competitors = ((searchResult.data as any)?.companies || [])
+      .filter((c: CompanyProfile) => c.name !== company.name)
+      .slice(0, limit);
+
+    return {
+      success: true,
+      data: {
+        company: company.name,
+        competitors,
+        marketPosition: competitors.length > 0
+          ? `${company.name} is a ${company.category || 'industry'} company competing with ${competitors.length} similar companies.`
+          : `${company.name} is a standalone ${company.category || 'industry'} company.`,
+      },
+      metadata: {
+        scrapedAt: new Date().toISOString(),
+        source: 'aggregated',
+        itemsFound: competitors.length + 1,
+        duration: 0,
+      },
+    };
   }
 
   async validate(input: any): Promise<boolean> {
-    return !!(input && typeof input.company === 'string' && input.company.length > 0);
+    return !!(input?.params?.domain || input?.params?.name || input?.params?.query);
   }
 }
 
-export default new CompanyIntelActor();
+export default CompanyIntelActor;

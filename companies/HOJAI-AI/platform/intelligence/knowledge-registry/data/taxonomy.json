@@ -26,5 +26,12 @@
     "parentId": null,
     "description": "Tech category",
     "createdAt": "2026-06-30T21:15:16.716Z"
+  },
+  {
+    "id": "c3ab5c0b-e81b-4f56-92df-81c0e5a8c9c3",
+    "name": "Technology",
+    "parentId": null,
+    "description": "Tech category",
+    "createdAt": "2026-06-30T22:20:12.253Z"
   }
 ]
