@@ -1,0 +1,19 @@
+{
+  "name": "@rtmn/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities for RTMN Industry OS and Department OS services",
+  "main": "auth-middleware.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["rtmn", "industry-os", "department-os", "shared"],
+  "author": "RTMN",
+  "license": "MIT"
+}
