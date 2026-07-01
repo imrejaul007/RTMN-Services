@@ -158,6 +158,104 @@ paths:
         '404':
           description: Service not found
 
+  # ====== Phase 0-5 Commerce Stack ======
+
+  /api/templates:
+    get:
+      tags: [proxied]
+      summary: List all industry templates (27 templates)
+      responses:
+        '200': { description: Template list }
+        '401': { description: Missing or invalid bearer token }
+        '404': { description: No service registered }
+        '502': { description: Downstream service unavailable }
+
+  /api/templates/{id}:
+    get:
+      tags: [proxied]
+      summary: Get template by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Template detail }
+        '404': { description: Template not found }
+        '502': { description: Downstream service unavailable }
+
+  /api/pools:
+    get:
+      tags: [proxied]
+      summary: List vendor liquidity pools
+      responses:
+        '200': { description: Pool list }
+        '502': { description: Downstream service unavailable }
+
+  /api/products:
+    get:
+      tags: [proxied]
+      summary: List products in graph
+      responses:
+        '200': { description: Product list }
+        '502': { description: Downstream service unavailable }
+    post:
+      tags: [proxied]
+      summary: Create or update product
+      responses:
+        '201': { description: Product created }
+        '502': { description: Downstream service unavailable }
+
+  /api/products/{upid}:
+    get:
+      tags: [proxied]
+      summary: Get product by UPID
+      responses:
+        '200': { description: Product detail }
+        '404': { description: Product not found }
+        '502': { description: Downstream service unavailable }
+
+  /api/products/{upid}/price-comparison:
+    get:
+      tags: [proxied]
+      summary: Compare prices across marketplaces
+      responses:
+        '200': { description: Price comparison }
+        '404': { description: Product not found }
+        '502': { description: Downstream service unavailable }
+
+  /api/trade-finance/stats:
+    get:
+      tags: [proxied]
+      summary: Trade Finance stats
+      responses:
+        '200': { description: Stats }
+        '502': { description: Downstream service unavailable }
+
+  /api/cross-border/stats:
+    get:
+      tags: [proxied]
+      summary: Cross Border Commerce stats
+      responses:
+        '200': { description: Stats }
+        '502': { description: Downstream service unavailable }
+
+  /api/distribution/stats:
+    get:
+      tags: [proxied]
+      summary: Universal Distribution stats
+      responses:
+        '200': { description: Stats }
+        '502': { description: Downstream service unavailable }
+
+  /api/studio:
+    get:
+      tags: [proxied]
+      summary: Commerce Studio backend
+      responses:
+        '200': { description: Studio data }
+        '502': { description: Downstream service unavailable }
+
   /api/genie/dashboard/{userId}:
     get:
       tags: [proxied]
