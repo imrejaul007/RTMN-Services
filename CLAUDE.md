@@ -1,8 +1,8 @@
 # RTMN Ecosystem - Complete Architecture
 
-> **Version:** 5.60
-> **Last Updated:** June 30, 2026
-> **New:** ✅ **🎉🎉🎉 FULLY PRODUCTION-READY!** — All 13 services + startup script + e2e tests + deployment guide + user journey docs
+> **Version:** 5.70
+> **Last Updated:** July 1, 2026
+> **New:** ✅ **Phase 0-5 Commerce Stack COMPLETE** — Hub v2 (stripPrefix routing, auth, rate limiting, correlation IDs, persistence) + 7 commerce services wired + 75 unit tests + 14 integration tests
 > **Status:** ✅ **READY TO DEPLOY** — Run `./scripts/start-commerce-stack.sh start` to launch all services
 
 ---
@@ -70,6 +70,37 @@ cd ../.. && git add -A && git commit && git push
 | `docs/RTMN-V50-COMPLETE-STATUS.md` | **START HERE** — Everything in one doc |
 | `CLAUDE.md` | RTMN master documentation |
 | `.claude/plans/*.md` | Planning docs (keep context) |
+
+---
+
+## Phase 0-5 Commerce Stack — Complete ✅
+
+**Hub (port 4399)** — RTMN Unified Hub v2:
+- **Routing:** `ServiceEntry.stripPrefix` controls path forwarding. Phase 0-5 Nexha services use `stripPrefix: false` (full `/api/<prefix>` path forwarded unchanged)
+- **Auth:** `requireHubAuth` (bearer token, disabled in dev) + `requireInternalAuth` (downstream verifies Hub token)
+- **Rate limiting:** per-IP (100/min) + per-token (500/min), `RATE_LIMIT_IP` / `RATE_LIMIT_TOKEN` env vars
+- **Correlation IDs:** `x-correlation-id` on every request + propagated to downstream
+- **Persistence:** product-graph saves to JSON (`/tmp/product-graph/product-graph.json`)
+- **CI:** GitHub Actions — build → tsc → vitest
+- **Tests:** 33 unit tests + 14 integration tests
+- **OpenAPI:** `GET /api/openapi.yaml` → spec
+
+**7 Phase 0-5 Services:**
+
+| Service | Port | Routes | Tests | Auth |
+|---------|------|--------|-------|------|
+| Template Engine | 5670 | `/api/templates` | 13 unit | ✅ |
+| Vendor Pools | 5680 | `/api/pools` | 15 unit | ✅ |
+| Commerce Studio | 5750 | `/api/studio` | 8 smoke | ✅ |
+| Product Graph | 5800 | `/api/products` | 5 smoke + persistence | ✅ |
+| Trade Finance | 5810 | `/api/trade-finance` | 2 smoke | ✅ |
+| Cross Border | 5820 | `/api/cross-border` | 8 smoke | ✅ |
+| Universal Distribution | 5830 | `/api/distribution` | 2 smoke | ✅ |
+
+**Start:** `bash scripts/start-commerce-stack.sh start` (includes Hub + all 7)
+**Test:** `bash services/rtmn-unified-hub/scripts/integration-test.sh --skip-start`
+**Load test:** `node services/rtmn-unified-hub/scripts/load-test.js`
+**Build:** `npm run build` in each service dir
 
 ---
 
