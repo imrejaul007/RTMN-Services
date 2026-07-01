@@ -1351,10 +1351,10 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **REZ CRM Hub** | 4056 | ✅ | Customer Relations |
 | **REZ Care Service** | 4055 | ✅ | Customer Support |
 
-### Nexha Platform Services (13)
+### Nexha Platform Services (14) — ✅ 100% Audit Complete (July 1, 2026)
 
-| Service | Port | Status | Purpose |
-|---------|------|--------|---------|
+| Service | Port | Tests | Purpose |
+|---------|------|-------|---------|
 | **nexha-capability-os** | 4270 | ✅ | Machine-readable capability schema + registry for federation |
 | **nexha-reputation-os** | 4271 | ✅ | Autonomous Commerce Index (ACI) scoring engine |
 | **nexha-discovery-os** | 4272 | ✅ | Capability search engine with reputation-aware ranking |
@@ -1368,6 +1368,24 @@ The internal HOJAI AI infrastructure used by RTMN consists of:
 | **nexha-trade-finance-network** | 4287 | ✅ | Trade finance, escrow, payment settlement |
 | **nexha-warehouse-network** | 4288 | ✅ | Warehouse slot booking + WMS |
 | **nexha-acp-messaging** | 4340 | ✅ | ACP protocol messaging for agent-to-agent communication |
+| **ecosystem-connector** | 4305 | ✅ | 15 ecosystem integrations (Shopify, Salesforce, Stripe, etc.) |
+
+### Ecosystem Connector — Production Ready (Port 4305)
+
+**Features:** 15 real API integrations, OAuth 2.0, Prometheus metrics, audit logging, rate limiting, Docker, OpenAPI spec, persistent storage.
+
+| Metric | Value |
+|--------|-------|
+| **Ecosystem Integrations** | 15 (100% real API) |
+| **OAuth Flows** | 6 platforms |
+| **Unit Tests** | 71 passing |
+| **CI/CD** | GitHub Actions + Dependabot |
+| **Docker** | Multi-stage production image |
+| **OpenAPI** | Full 3.0.3 spec |
+| **Persistence** | JSON with atomic writes |
+| **Audit Logging** | Full trail |
+
+**Documentation:** [services/ecosystem-connector/README.md](companies/Nexha/services/ecosystem-connector/README.md), [docs/adapters/](companies/Nexha/services/ecosystem-connector/docs/adapters/)
 
 ### HOJAI Cloud Phase 1 (2026-06-25) — 6 New Services
 
