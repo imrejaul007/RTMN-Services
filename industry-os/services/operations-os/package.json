@@ -8,12 +8,21 @@
     "dev": "node --watch src/index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
+    "express": "^4.22.2",
     "helmet": "^7.1.0",
-    "morgan": "^1.10.0"
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.0",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.22.0"
   },
-  "keywords": ["operations", "project-management", "workflow", "ai", "rtmn"],
+  "keywords": [
+    "operations",
+    "project-management",
+    "workflow",
+    "ai",
+    "rtmn"
+  ],
   "author": "RTMN",
   "license": "MIT"
 }

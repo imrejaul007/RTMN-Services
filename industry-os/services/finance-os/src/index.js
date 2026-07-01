@@ -36,6 +36,13 @@ const payments = require('./integrations/paymentIntegration');
 const revenue = require('./integrations/revenueIntegration');
 
 // ============================================================
+// TAX ROUTES
+// ============================================================
+
+const taxRoutes = require('./routes/taxRoutes');
+app.use('/api/tax', taxRoutes);
+
+// ============================================================
 // DATABASE (Fallback when integrations unavailable)
 // ============================================================
 

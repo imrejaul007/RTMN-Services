@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "keywords": [
     "marketing",
@@ -28,5 +30,8 @@
     "mongoose": "^9.7.1",
     "morgan": "^1.10.0",
     "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.9"
   }
 }

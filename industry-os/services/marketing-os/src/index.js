@@ -27,6 +27,8 @@ const { generateToken, authenticate, authorize, optionalAuth, validate, campaign
 const { AdBazaarService } = require('./services/AdBazaarService');
 const { RTMNService } = require('./services/RTMNIntegration');
 const RTMNMarketingHub = require('./services/RTMNMarketingHub');
+const dashboardRoutes = require('./routes/dashboard');
+const revenueOS = require('./modules/revenue-os');
 
 const app = express();
 
@@ -675,6 +677,311 @@ app.get('/api/sales/analytics', authenticate, async (req, res) => {
     const result = await rtmnHub.getSalesAnalytics(orgId || req.organizationId);
     res.json({ success: true, ...result });
   } catch (error) { res.status(500).json({ success: false, error: error.message }); }
+});
+
+// ============================================
+// DASHBOARD ROUTES (Phase 0 - Integration Hub)
+// ============================================
+
+app.use('/api/dashboard', dashboardRoutes);
+
+app.get('/api/dashboard', authenticate, async (req, res) => {
+  res.json({
+    success: true,
+    message: 'Marketing OS Unified Dashboard',
+    version: '2.0.0',
+    endpoints: {
+      overview: '/api/dashboard/overview',
+      campaigns: '/api/dashboard/campaigns',
+      audience: '/api/dashboard/audience',
+      attribution: '/api/dashboard/attribution',
+      leads: '/api/dashboard/leads',
+      growth: '/api/dashboard/growth',
+      crossAnalytics: '/api/dashboard/cross-analytics',
+      aiCommand: '/api/dashboard/ai/command',
+      aiChat: '/api/dashboard/ai/chat',
+      aiAutopilot: '/api/dashboard/ai/autopilot',
+      serviceHealth: '/api/dashboard/services/health'
+    },
+    integratedServices: [
+      'Intent Attribution (port 4803)',
+      'A/B Testing (port 5001)',
+      'CDP (port 4961)',
+      'Marketing Agent (port 4965)',
+      'Lead Scoring (port 5458)',
+      'Growth Engine (port 3002)',
+      'Attribution Engine (port 3004)',
+      'Social Analytics',
+      'Marketing Automation (port 5459)'
+    ]
+  });
+});
+
+// ============================================
+// ATTRIBUTION ROUTES (Phase 0 - Integration)
+// ============================================
+
+// Attribution report
+app.get('/api/attribution/report/:campaignId', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getAttributionReport({ campaignId: req.params.campaignId });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Attribution ROI
+app.get('/api/attribution/roi/:campaignId', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getAttributionROI(req.params.campaignId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// User journey
+app.get('/api/attribution/journey/:userId', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getUserJourney(req.params.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// LEAD SCORING ROUTES (Phase 0 - Integration)
+// ============================================
+
+// Score a lead
+app.post('/api/leads/score', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.scoreLead(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get lead score
+app.get('/api/leads/:id/score', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getLeadScore(req.params.id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get lead recommendations
+app.get('/api/leads/:id/recommendations', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getLeadRecommendations(req.params.id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// A/B TESTING ROUTES (Phase 0 - Integration)
+// ============================================
+
+// Get A/B test results
+app.get('/api/ab-testing/:experimentId/results', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getABTestResults(req.params.experimentId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get significance
+app.get('/api/ab-testing/:experimentId/significance', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getSignificance(req.params.experimentId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// AI MARKETING AGENT ROUTES (Phase 0 - Integration)
+// ============================================
+
+// Send AI command
+app.post('/api/ai/command', authenticate, async (req, res) => {
+  try {
+    const { command } = req.body;
+    if (!command) return res.status(400).json({ success: false, error: 'Command required' });
+    const result = await rtmnHub.sendAgentCommand(command);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Chat with AI
+app.post('/api/ai/chat', authenticate, async (req, res) => {
+  try {
+    const { message, context } = req.body;
+    if (!message) return res.status(400).json({ success: false, error: 'Message required' });
+    const result = await rtmnHub.chatWithAgent(message, context);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get AI insights
+app.get('/api/ai/insights', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getAgentInsights(req.user.merchantId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Start/stop autopilot
+app.post('/api/ai/autopilot', authenticate, async (req, res) => {
+  try {
+    const { action } = req.body;
+    const result = action === 'stop'
+      ? await rtmnHub.stopAutopilot(req.user.merchantId)
+      : await rtmnHub.startAutopilot(req.user.merchantId);
+    res.json({ success: true, data: result, autopilot: action === 'stop' ? 'stopped' : 'started' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// GROWTH ROUTES (Phase 1 - Integration)
+// ============================================
+
+// Get growth metrics
+app.get('/api/growth/metrics', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getGrowthMetrics(req.query.campaignId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get viral coefficients
+app.get('/api/growth/viral', authenticate, async (req, res) => {
+  try {
+    const result = await rtmnHub.getViralCoefficients();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// CDP ROUTES (Phase 0 - Integration)
+// ============================================
+
+// Get customer profile from CDP
+app.get('/api/cdp/profile', authenticate, async (req, res) => {
+  try {
+    const { email, phone, customerId } = req.query;
+    const result = await rtmnHub.getCustomerProfile({ email, phone, customerId });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// REVENUE OS ROUTES (Phase 3 - Revenue Attribution)
+// ============================================
+
+// Revenue Dashboard
+app.get('/api/revenue/dashboard', authenticate, async (req, res) => {
+  try {
+    const { startDate, endDate, channel, campaign } = req.query;
+    const result = await revenueOS.getDashboard({ startDate, endDate, channel, campaign });
+    res.json(result);
+  } catch (error) {
+    logger.error('Revenue dashboard error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// CAC - Customer Acquisition Cost
+app.get('/api/revenue/cac', authenticate, async (req, res) => {
+  try {
+    const { startDate, endDate, channel, campaign, segment } = req.query;
+    const result = await revenueOS.calculateCAC({ startDate, endDate, channel, campaign, segment });
+    res.json(result);
+  } catch (error) {
+    logger.error('CAC calculation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// LTV - Lifetime Value (all customers)
+app.get('/api/revenue/ltv', authenticate, async (req, res) => {
+  try {
+    const result = await revenueOS.calculateLTV();
+    res.json(result);
+  } catch (error) {
+    logger.error('LTV calculation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// LTV - Lifetime Value (specific customer)
+app.get('/api/revenue/ltv/:customerId', authenticate, async (req, res) => {
+  try {
+    const result = await revenueOS.calculateLTV(req.params.customerId);
+    res.json(result);
+  } catch (error) {
+    logger.error('Customer LTV calculation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ROI - Return on Investment
+app.get('/api/revenue/roi', authenticate, async (req, res) => {
+  try {
+    const { startDate, endDate, campaignId, channel } = req.query;
+    const result = await revenueOS.calculateROI({ startDate, endDate, campaignId, channel });
+    res.json(result);
+  } catch (error) {
+    logger.error('ROI calculation error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Pipeline Influence
+app.get('/api/revenue/pipeline', authenticate, async (req, res) => {
+  try {
+    const result = await revenueOS.calculatePipelineInfluence();
+    res.json(result);
+  } catch (error) {
+    logger.error('Pipeline influence error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Top Channels
+app.get('/api/revenue/channels', authenticate, async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const result = await revenueOS.getTopChannels({ startDate, endDate });
+    res.json(result);
+  } catch (error) {
+    logger.error('Top channels error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // ============================================

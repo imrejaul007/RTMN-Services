@@ -379,8 +379,9 @@ class OperationsDigitalTwins {
       operations: 'TWIN-OPERATIONS',
     };
     const twinId = twinMap[type];
-    if (twinId) this.twins.get(twinId)?.lastUpdated = new Date().toISOString();
-    return this.twins.get(twinId) || null;
+    const twin = twinId ? this.twins.get(twinId) : null;
+    if (twin) twin.lastUpdated = new Date().toISOString();
+    return twin;
   }
 
   getTwinHealth() {

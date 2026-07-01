@@ -7,8 +7,8 @@
  * Port: 5250
  */
 
-import express from 'express';
-import cors from 'cors';
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
 app.use(cors());
@@ -186,7 +186,7 @@ const { registerAutomationRoutes } = require('./modules/automation');
 const { registerIntelligenceRoutes } = require('./ai/cooAgent');
 
 // Process Learning
-const ProcessLearning = require('./modules/processLearning');
+const { ProcessLearning } = require('./modules/processLearning');
 
 // ============================================================
 // REGISTER ALL ROUTES
