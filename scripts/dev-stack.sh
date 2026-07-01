@@ -348,11 +348,12 @@ DO_APP_BACKEND_CMD="cd $RTMN_ROOT/companies/do-app/backend && PORT=3001 node dis
 
 # Phase 0-5: Commerce Stack
 TEMPLATE_ENGINE_CMD="cd $RTMN_ROOT/companies/Nexha/services/template-engine && PORT=5670 npm start"
-VENDOR_POOLS_CMD="cd $RTMN_ROOT/companies/Nexha/services/vendor-pools && PORT=5680 npm start"
+VENDOR_POOLS_CMD="cd $RTMN_ROOT/companies/Nexha/services/vendor-liquidity-pools && PORT=5680 npm start"
 COMMERCE_STUDIO_CMD="cd $RTMN_ROOT/companies/HOJAI-AI/products/commerce-studio/studio-backend && PORT=5750 npm start"
 PRODUCT_GRAPH_CMD="cd $RTMN_ROOT/companies/Nexha/services/product-graph && PORT=5800 npm start"
 TRADE_FINANCE_CMD="cd $RTMN_ROOT/companies/Nexha/services/trade-finance && PORT=5810 npm start"
 CROSS_BORDER_CMD="cd $RTMN_ROOT/companies/Nexha/services/cross-border && PORT=5820 npm start"
+UNIVERSAL_DISTRIBUTION_CMD="cd $RTMN_ROOT/companies/Nexha/services/universal-distribution && PORT=5830 npm start"
 
 LOG_DIR="/tmp/rtmn-dev"
 mkdir -p "$LOG_DIR"
@@ -822,6 +823,7 @@ start_all() {
   start_service "product-graph"        "$PRODUCT_GRAPH_CMD"         5800
   start_service "trade-finance"        "$TRADE_FINANCE_CMD"         5810
   start_service "cross-border"         "$CROSS_BORDER_CMD"          5820
+	  start_service "universal-distribution" "$UNIVERSAL_DISTRIBUTION_CMD" 5830
 
   # Hub (must be last so all services are up)
   start_service "hub"                      "$HUB_CMD"                 4399
