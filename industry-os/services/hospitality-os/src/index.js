@@ -21,6 +21,10 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // ============================================
 // LAYER CONFIGURATION
 // ============================================

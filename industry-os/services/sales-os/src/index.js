@@ -57,6 +57,10 @@ app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // ============================================================
 // DATA STORES - Complete Enterprise CRM + CS + CPQ + More
 // ============================================================

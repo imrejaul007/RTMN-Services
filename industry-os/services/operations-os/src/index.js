@@ -13,6 +13,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 const PORT = process.env.PORT || 5250;
 
 // ============================================================

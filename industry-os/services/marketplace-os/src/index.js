@@ -13,6 +13,10 @@ const SERVICE_NAME = 'marketplace-os';
 // Middleware
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // In-memory store for marketplace data
 const store = {
   apps: new Map(),

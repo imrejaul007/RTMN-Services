@@ -19,6 +19,10 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

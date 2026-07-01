@@ -28,6 +28,10 @@ app.use(compression());
 app.use(morgan('combined'));
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // In-memory stores
 const forums = new Map();
 const posts = new Map();

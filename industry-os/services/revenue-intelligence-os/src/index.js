@@ -56,6 +56,10 @@ app.use(compression());
 app.use(morgan('dev'));
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // ============================================================
 // DATABASE - In-Memory Store
 // ============================================================

@@ -23,6 +23,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // ============================================================
 // BAM PROXY - Route to BLR AI Marketplace services
 // ============================================================

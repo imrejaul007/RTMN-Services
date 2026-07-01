@@ -13,6 +13,10 @@ const SERVICE_NAME = 'predictive-maintenance-os';
 // Middleware
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // In-memory store
 const store = {
   devices: new Map(),

@@ -20,6 +20,10 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // ============================================
 // IN-MEMORY STORES (Replace with MongoDB in production)
 // ============================================

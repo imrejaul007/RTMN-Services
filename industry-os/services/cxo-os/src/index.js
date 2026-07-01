@@ -25,6 +25,10 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // ============================================
 // DATA STORES
 // ============================================

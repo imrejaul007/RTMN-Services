@@ -19,6 +19,10 @@ app.use(compression());
 app.use(morgan('combined'));
 app.use(express.json());
 
+// Shared auth middleware
+const { authMiddleware } = require('./shared/auth-middleware');
+app.use('/api', authMiddleware);
+
 // In-memory stores
 const features = new Map();
 const requirements = new Map();
