@@ -13,6 +13,15 @@ export interface ServiceEntry {
   healthPath: string;        // health check path
   timeout: number;
   category: 'genie' | 'rtmn' | 'integration' | 'rabtul';
+  /**
+   * If true (default), strip the matched prefix from the path before forwarding.
+   * Set to false for services that register routes with the full /api/<prefix> baked in.
+   * Currently: Template Engine, Vendor Pools, Product Graph, Universal Distribution,
+   * Commerce Studio use stripPrefix=false.
+   * Trade Finance and Cross Border use the default (true) — they register routes
+   * without the /api/<prefix> prefix.
+   */
+  stripPrefix?: boolean;
 }
 
 export const SERVICE_REGISTRY: ServiceEntry[] = [
@@ -701,6 +710,80 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     category: 'rtmn',
   },
 
+  // ====== Department OS Services (Horizontal Layer) ======
+  {
+    name: 'Sales OS',
+    url: process.env.SALES_OS_URL || 'http://localhost:5055',
+    prefix: '/api/sales',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Marketing OS',
+    url: process.env.MARKETING_OS_URL || 'http://localhost:5500',
+    prefix: '/api/marketing',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Customer Success OS',
+    url: process.env.CUSTOMER_SUCCESS_OS_URL || 'http://localhost:4050',
+    prefix: '/api/customer-success',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Procurement OS',
+    url: process.env.PROCUREMENT_OS_URL || 'http://localhost:5096',
+    prefix: '/api/procurement',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Workforce OS',
+    url: process.env.WORKFORCE_OS_URL || 'http://localhost:5077',
+    prefix: '/api/workforce',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Finance OS',
+    url: process.env.FINANCE_OS_URL || 'http://localhost:4801',
+    prefix: '/api/finance',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Operations OS',
+    url: process.env.OPERATIONS_OS_URL || 'http://localhost:5250',
+    prefix: '/api/operations',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'CXO OS',
+    url: process.env.CXO_OS_URL || 'http://localhost:5100',
+    prefix: '/api/cxo',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+  {
+    name: 'Revenue Intelligence OS',
+    url: process.env.REVENUE_OS_URL || 'http://localhost:5400',
+    prefix: '/api/revenue',
+    healthPath: '/health',
+    timeout: 10000,
+    category: 'rtmn',
+  },
+
   // ====== CompanyOS Services (Phase 0: Week 4) ======
   {
     name: 'Company OS',
@@ -792,6 +875,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     name: 'Template Engine',
     url: process.env.TEMPLATE_ENGINE_URL || 'http://localhost:5670',
     prefix: '/api/templates',
+    stripPrefix: false,
     healthPath: '/health',
     timeout: 10000,
     category: 'rtmn',
@@ -800,6 +884,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     name: 'Vendor Liquidity Pools',
     url: process.env.VENDOR_POOLS_URL || 'http://localhost:5680',
     prefix: '/api/pools',
+    stripPrefix: false,
     healthPath: '/health',
     timeout: 10000,
     category: 'rtmn',
@@ -810,6 +895,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     name: 'Commerce Studio Backend',
     url: process.env.STUDIO_BACKEND_URL || 'http://localhost:5750',
     prefix: '/api/studio',
+    stripPrefix: false,
     healthPath: '/health',
     timeout: 10000,
     category: 'rtmn',
@@ -820,6 +906,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     name: 'Product Graph',
     url: process.env.PRODUCT_GRAPH_URL || 'http://localhost:5800',
     prefix: '/api/products',
+    stripPrefix: false,
     healthPath: '/health',
     timeout: 10000,
     category: 'rtmn',
@@ -828,6 +915,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     name: 'Trade Finance',
     url: process.env.TRADE_FINANCE_URL || 'http://localhost:5810',
     prefix: '/api/trade-finance',
+    stripPrefix: false,
     healthPath: '/health',
     timeout: 10000,
     category: 'rtmn',
@@ -836,6 +924,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     name: 'Cross-Border Commerce',
     url: process.env.CROSS_BORDER_URL || 'http://localhost:5820',
     prefix: '/api/cross-border',
+    stripPrefix: false,
     healthPath: '/health',
     timeout: 10000,
     category: 'rtmn',
@@ -844,6 +933,7 @@ export const SERVICE_REGISTRY: ServiceEntry[] = [
     name: 'Universal Distribution',
     url: process.env.UNIVERSAL_DISTRIBUTION_URL || 'http://localhost:5830',
     prefix: '/api/distribution',
+    stripPrefix: false,
     healthPath: '/health',
     timeout: 10000,
     category: 'rtmn',
