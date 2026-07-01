@@ -1,6 +1,11 @@
 /**
- * RTMN Finance OS v2.0 - Complete with 24 Industry OS Integration
+ * RTMN Finance OS v2.1 - Complete with Real-Time Integration
  * Port: 4801
+ *
+ * This version integrates with:
+ * - RABTUL Treasury OS (4055) - Cash, investments, forecasting
+ * - RABTUL Payment Service (4001) - Payments, transactions
+ * - Revenue Intelligence OS (5400) - AI-powered forecasting
  */
 
 import express from 'express';
@@ -23,7 +28,15 @@ const { authMiddleware } = require('./shared/auth-middleware');
 app.use('/api', authMiddleware);
 
 // ============================================================
-// DATABASE
+// INTEGRATIONS
+// ============================================================
+
+const treasury = require('./integrations/treasuryIntegration');
+const payments = require('./integrations/paymentIntegration');
+const revenue = require('./integrations/revenueIntegration');
+
+// ============================================================
+// DATABASE (Fallback when integrations unavailable)
 // ============================================================
 
 const db = {
@@ -129,14 +142,303 @@ const INDUSTRIES = {
 // ============================================================
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'finance-os', version: '2.0', port: PORT });
+  res.json({ status: 'healthy', service: 'finance-os', version: '2.1', port: PORT });
 });
 
-app.get('/api/status', (req, res) => {
+app.get('/api/status', async (req, res) => {
+  // Check integration health
+  const [treasuryHealth, paymentHealth, revenueHealth] = await Promise.all([
+    treasury.healthCheck(),
+    payments.healthCheck(),
+    revenue.healthCheck()
+  ]);
+
   res.json({
-    modules: { accounting: true, ar: true, ap: true, treasury: true, budget: true, tax: true, audit: true },
-    industries: { connected: 24, type: 'All 24 Industry OS' }
+    version: '2.1',
+    modules: {
+      accounting: true,
+      ar: true,
+      ap: true,
+      treasury: treasuryHealth.healthy,
+      budget: true,
+      tax: true,
+      audit: true,
+      payments: paymentHealth.healthy,
+      revenue: revenueHealth.healthy
+    },
+    industries: { connected: 24, type: 'All 24 Industry OS' },
+    integrations: {
+      treasury: treasuryHealth,
+      payments: paymentHealth,
+      revenue: revenueHealth
+    }
   });
+});
+
+// ============================================================
+// INTEGRATION HEALTH DASHBOARD
+// ============================================================
+
+app.get('/api/integrations/health', async (req, res) => {
+  const [treasuryHealth, paymentHealth, revenueHealth] = await Promise.all([
+    treasury.healthCheck(),
+    payments.healthCheck(),
+    revenue.healthCheck()
+  ]);
+
+  res.json({
+    treasury: treasuryHealth,
+    payments: paymentHealth,
+    revenue: revenueHealth,
+    summary: {
+      allHealthy: treasuryHealth.healthy && paymentHealth.healthy && revenueHealth.healthy,
+      connectedCount: [
+        treasuryHealth.healthy,
+        paymentHealth.healthy,
+        revenueHealth.healthy
+      ].filter(Boolean).length,
+      totalCount: 3
+    }
+  });
+});
+
+// ============================================================
+// UNIFIED FINANCIAL DASHBOARD (with real data)
+// ============================================================
+
+app.get('/api/dashboard/unified', async (req, res) => {
+  const { businessId = 'default', industry = 'restaurant' } = req.query;
+
+  try {
+    // Fetch from all integrations in parallel
+    const [treasuryData, paymentData, revenueData] = await Promise.all([
+      treasury.getTreasuryDashboard(businessId),
+      payments.getPaymentDashboard(businessId),
+      revenue.getRevenueDashboard(businessId, industry)
+    ]);
+
+    // Combine with local data
+    const accounts = Array.from(db.accounts.values());
+    const banks = Array.from(db.bankAccounts.values());
+    const customers = Array.from(db.customers.values());
+    const vendors = Array.from(db.vendors.values());
+    const budgets = Array.from(db.budgets.values());
+
+    // Calculate local metrics
+    const localAssets = accounts.filter(a => a.type === 'asset').reduce((s, a) => s + a.balance, 0);
+    const localRevenue = accounts.filter(a => a.type === 'revenue').reduce((s, a) => s + a.balance, 0);
+    const localExpenses = accounts.filter(a => a.type === 'expense').reduce((s, a) => s + a.balance, 0);
+
+    res.json({
+      // Local accounting data
+      accounting: {
+        assets: localAssets,
+        revenue: localRevenue,
+        expenses: localExpenses,
+        profit: localRevenue - localExpenses
+      },
+
+      // Real cash from Treasury
+      treasury: treasuryData.position ? {
+        totalCash: treasuryData.position.totalBalance,
+        availableCash: treasuryData.position.availableBalance,
+        reservedCash: treasuryData.position.reservedBalance,
+        currency: treasuryData.position.currency,
+        cashFlow: treasuryData.cashFlow,
+        forecast: treasuryData.forecast,
+        investments: treasuryData.investments,
+        connected: true
+      } : {
+        totalCash: banks.reduce((s, b) => s + b.balance, 0),
+        connected: false,
+        note: 'Using local fallback data'
+      },
+
+      // Real payment data
+      payments: paymentData.stats ? {
+        totalVolume: paymentData.stats.totalVolume,
+        successfulCount: paymentData.stats.successfulCount,
+        failedCount: paymentData.stats.failedCount,
+        avgTransactionValue: paymentData.stats.avgTransactionValue,
+        successRate: paymentData.stats.successRate,
+        refundRate: paymentData.stats.refundRate,
+        connected: true
+      } : {
+        connected: false,
+        note: 'Using local fallback data'
+      },
+
+      // AI-powered revenue intelligence
+      revenue: revenueData.metrics ? {
+        mrr: revenueData.metrics.mrr,
+        arr: revenueData.metrics.arr,
+        growthRate: revenueData.metrics.growthRate,
+        churnRate: revenueData.metrics.churnRate,
+        nrr: revenueData.metrics.nrr,
+        ltv: revenueData.metrics.ltv,
+        cac: revenueData.metrics.cac,
+        paybackPeriod: revenueData.metrics.paybackPeriod,
+        forecast: revenueData.forecast,
+        connected: true
+      } : {
+        mrr: localRevenue,
+        connected: false,
+        note: 'Using local fallback data'
+      },
+
+      // Receivables & Payables
+      receivables: customers.reduce((s, c) => s + c.balance, 0),
+      payables: vendors.reduce((s, v) => s + v.balance, 0),
+
+      // Budget status
+      budgets: {
+        allocated: budgets.reduce((s, b) => s + b.allocated, 0),
+        spent: budgets.reduce((s, b) => s + b.spent, 0),
+        utilization: budgets.length > 0
+          ? ((budgets.reduce((s, b) => s + b.spent, 0) / budgets.reduce((s, b) => s + b.allocated, 0)) * 100).toFixed(1)
+          : 0
+      },
+
+      // Integration status
+      integrations: {
+        treasury: treasuryData.connected,
+        payments: !!paymentData.stats,
+        revenue: !!revenueData.metrics
+      },
+
+      // Health score
+      health: {
+        score: calculateHealthScore(treasuryData, paymentData, revenueData),
+        status: treasuryData.connected && paymentData.stats && revenueData.metrics ? 'Excellent' : 'Good'
+      }
+    });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard data', details: error.message });
+  }
+});
+
+// ============================================================
+// TREASURY INTEGRATION ENDPOINTS
+// ============================================================
+
+app.get('/api/treasury/cash-position', async (req, res) => {
+  const { businessId = 'default' } = req.query;
+  const position = await treasury.getCashPosition(businessId);
+
+  if (!position) {
+    // Return local fallback
+    const banks = Array.from(db.bankAccounts.values());
+    return res.json({
+      totalBalance: banks.reduce((s, b) => s + b.balance, 0),
+      availableBalance: banks.reduce((s, b) => s + b.balance, 0),
+      reservedBalance: 0,
+      currency: 'INR',
+      source: 'local_fallback'
+    });
+  }
+
+  res.json({ ...position, source: 'treasury' });
+});
+
+app.get('/api/treasury/cash-flow', async (req, res) => {
+  const { businessId = 'default', period = 'monthly' } = req.query;
+  const cashFlow = await treasury.getCashFlow(businessId, period);
+
+  if (!cashFlow) {
+    return res.json({ error: 'Treasury not connected', source: 'unavailable' });
+  }
+
+  res.json({ ...cashFlow, source: 'treasury' });
+});
+
+app.get('/api/treasury/forecast', async (req, res) => {
+  const { businessId = 'default' } = req.query;
+  const forecast = await treasury.getCashForecast(businessId);
+
+  if (!forecast) {
+    return res.json({ error: 'Treasury forecast not available', source: 'unavailable' });
+  }
+
+  res.json({ ...forecast, source: 'treasury' });
+});
+
+app.get('/api/treasury/investments', async (req, res) => {
+  const { businessId = 'default' } = req.query;
+  const investments = await treasury.getInvestments(businessId);
+
+  res.json({ investments: investments || [], source: investments ? 'treasury' : 'unavailable' });
+});
+
+app.get('/api/treasury/fx-positions', async (req, res) => {
+  const { businessId = 'default' } = req.query;
+  const fx = await treasury.getFXPositions(businessId);
+
+  res.json({ fx: fx || [], source: fx ? 'treasury' : 'unavailable' });
+});
+
+// ============================================================
+// PAYMENT INTEGRATION ENDPOINTS
+// ============================================================
+
+app.get('/api/payments/stats', async (req, res) => {
+  const { businessId = 'default', period = '30d' } = req.query;
+  const stats = await payments.getPaymentStats(businessId, period);
+
+  res.json({ ...stats, source: 'payments' });
+});
+
+app.get('/api/payments/volume', async (req, res) => {
+  const { businessId = 'default', granularity = 'daily' } = req.query;
+  const volume = await payments.getPaymentVolume(businessId, granularity);
+
+  res.json({ volume: volume || [], source: volume ? 'payments' : 'unavailable' });
+});
+
+app.get('/api/payments/recent', async (req, res) => {
+  const { businessId = 'default', limit = 50 } = req.query;
+  const transactions = await payments.getRecentTransactions(businessId, parseInt(limit));
+
+  res.json({ transactions, count: transactions.length, source: 'payments' });
+});
+
+app.get('/api/payments/failed', async (req, res) => {
+  const { businessId = 'default', period = '7d' } = req.query;
+  const failed = await payments.getFailedPayments(businessId, period);
+
+  res.json({ failedPayments: failed, count: failed.length, source: 'payments' });
+});
+
+// ============================================================
+// REVENUE INTEGRATION ENDPOINTS
+// ============================================================
+
+app.get('/api/revenue/metrics', async (req, res) => {
+  const { businessId = 'default' } = req.query;
+  const metrics = await revenue.getRevenueMetrics(businessId);
+
+  res.json({ ...metrics, source: 'revenue_intelligence' });
+});
+
+app.get('/api/revenue/forecast', async (req, res) => {
+  const { businessId = 'default', period = '12m' } = req.query;
+  const forecast = await revenue.getRevenueForecast(businessId, period);
+
+  res.json({ forecast: forecast || [], source: forecast ? 'revenue_intelligence' : 'unavailable' });
+});
+
+app.get('/api/revenue/demand', async (req, res) => {
+  const { industry = 'restaurant', period = '90d' } = req.query;
+  const demand = await revenue.getDemandForecast(industry, period);
+
+  res.json({ ...demand, source: 'revenue_intelligence' });
+});
+
+app.get('/api/revenue/cohorts', async (req, res) => {
+  const { businessId = 'default' } = req.query;
+  const cohorts = await revenue.getCohortAnalysis(businessId);
+
+  res.json({ cohorts: cohorts || [], source: cohorts ? 'revenue_intelligence' : 'unavailable' });
 });
 
 // ============================================================
@@ -216,7 +518,7 @@ app.get('/api/industries/:code', async (req, res) => {
 });
 
 // ============================================================
-// ACCOUNTING
+// ACCOUNTING (Original endpoints)
 // ============================================================
 
 app.get('/api/chart-of-accounts', (req, res) => {
@@ -230,10 +532,7 @@ app.get('/api/trial-balance', (req, res) => {
   res.json({ accounts, debit, credit, balanced: Math.abs(debit - credit) < 1 });
 });
 
-// ============================================================
-// DASHBOARD
-// ============================================================
-
+// Legacy dashboard (kept for backward compatibility)
 app.get('/api/dashboard/overview', (req, res) => {
   const accounts = Array.from(db.accounts.values());
   const banks = Array.from(db.bankAccounts.values());
@@ -260,52 +559,144 @@ app.get('/api/dashboard/overview', (req, res) => {
 });
 
 // ============================================================
-// AI COPILOT
+// AI COPILOT (Enhanced with real data)
 // ============================================================
 
-app.post('/api/copilot/chat', (req, res) => {
+app.post('/api/copilot/chat', async (req, res) => {
   const msg = (req.body.message || '').toLowerCase();
+  const { businessId = 'default' } = req.body;
+
+  // Try to get real data for responses
+  const treasuryData = await treasury.getCashPosition(businessId);
+  const paymentData = await payments.getPaymentStats(businessId);
+  const revenueData = await revenue.getRevenueMetrics(businessId);
 
   if (msg.includes('cash') || msg.includes('bank')) {
-    const banks = Array.from(db.bankAccounts.values());
-    const total = banks.reduce((s, b) => s + b.balance, 0);
-    res.json({
-      response: `Cash Position: Rs.${(total / 100000).toFixed(1)}L\n\n` +
-        banks.map(b => `${b.name}: Rs.${(b.balance / 100000).toFixed(1)}L`).join('\n'),
-      actions: [{ label: 'View Treasury', endpoint: '/api/dashboard/overview' }]
-    });
-  } else if (msg.includes('revenue') || msg.includes('profit')) {
-    const accounts = Array.from(db.accounts.values());
-    const revenue = accounts.filter(a => a.type === 'revenue').reduce((s, a) => s + a.balance, 0);
-    const expenses = accounts.filter(a => a.type === 'expense').reduce((s, a) => s + a.balance, 0);
-    const profit = revenue - expenses;
-    res.json({
-      response: `Revenue: Rs.${(revenue / 100000).toFixed(1)}L\n` +
-        `Expenses: Rs.${(expenses / 100000).toFixed(1)}L\n` +
-        `Net Profit: Rs.${(profit / 100000).toFixed(1)}L`,
-      actions: [{ label: 'View P&L', endpoint: '/api/dashboard/overview' }]
-    });
+    if (treasuryData) {
+      res.json({
+        response: `Real Cash Position from Treasury:\n` +
+          `Total: ${formatCurrency(treasuryData.totalBalance)}\n` +
+          `Available: ${formatCurrency(treasuryData.availableBalance)}\n` +
+          `Reserved: ${formatCurrency(treasuryData.reservedBalance)}`,
+        source: 'treasury',
+        actions: [{ label: 'View Treasury', endpoint: '/api/treasury/cash-position' }]
+      });
+    } else {
+      const banks = Array.from(db.bankAccounts.values());
+      const total = banks.reduce((s, b) => s + b.balance, 0);
+      res.json({
+        response: `Cash Position: ${formatCurrency(total)}\n\n` +
+          banks.map(b => `${b.name}: ${formatCurrency(b.balance)}`).join('\n'),
+        source: 'local',
+        actions: [{ label: 'View Treasury', endpoint: '/api/dashboard/overview' }]
+      });
+    }
+  } else if (msg.includes('revenue') || msg.includes('profit') || msg.includes('mrr')) {
+    if (revenueData && revenueData.mrr) {
+      res.json({
+        response: `Revenue Metrics from AI:\n` +
+          `MRR: ${formatCurrency(revenueData.mrr)}\n` +
+          `ARR: ${formatCurrency(revenueData.arr)}\n` +
+          `Growth: ${revenueData.growthRate}%\n` +
+          `Churn: ${revenueData.churnRate}%\n` +
+          `LTV: ${formatCurrency(revenueData.ltv)}`,
+        source: 'revenue_intelligence',
+        actions: [{ label: 'View Revenue', endpoint: '/api/revenue/metrics' }]
+      });
+    } else {
+      const accounts = Array.from(db.accounts.values());
+      const revenue = accounts.filter(a => a.type === 'revenue').reduce((s, a) => s + a.balance, 0);
+      const expenses = accounts.filter(a => a.type === 'expense').reduce((s, a) => s + a.balance, 0);
+      const profit = revenue - expenses;
+      res.json({
+        response: `Revenue: ${formatCurrency(revenue)}\n` +
+          `Expenses: ${formatCurrency(expenses)}\n` +
+          `Net Profit: ${formatCurrency(profit)}`,
+        source: 'local',
+        actions: [{ label: 'View P&L', endpoint: '/api/dashboard/overview' }]
+      });
+    }
+  } else if (msg.includes('payment') || msg.includes('transaction')) {
+    if (paymentData && paymentData.totalVolume) {
+      res.json({
+        response: `Payment Metrics:\n` +
+          `Total Volume: ${formatCurrency(paymentData.totalVolume)}\n` +
+          `Successful: ${paymentData.successfulCount}\n` +
+          `Failed: ${paymentData.failedCount}\n` +
+          `Success Rate: ${paymentData.successRate}%`,
+        source: 'payments',
+        actions: [{ label: 'View Payments', endpoint: '/api/payments/stats' }]
+      });
+    } else {
+      res.json({
+        response: 'Payment service not connected. Connect RABTUL Payment Service for real metrics.',
+        source: 'unavailable',
+        actions: []
+      });
+    }
   } else if (msg.includes('budget')) {
     const budgets = Array.from(db.budgets.values());
     const allocated = budgets.reduce((s, b) => s + b.allocated, 0);
     const spent = budgets.reduce((s, b) => s + b.spent, 0);
     const pct = allocated > 0 ? ((spent / allocated) * 100).toFixed(0) : 0;
     res.json({
-      response: `Budget: Rs.${(allocated / 100000).toFixed(1)}L\nSpent: Rs.${(spent / 100000).toFixed(1)}L (${pct}%)\n` +
-        `Remaining: Rs.${((allocated - spent) / 100000).toFixed(1)}L`,
+      response: `Budget: ${formatCurrency(allocated)}\nSpent: ${formatCurrency(spent)} (${pct}%)\n` +
+        `Remaining: ${formatCurrency(allocated - spent)}`,
+      source: 'local',
       actions: [{ label: 'View Budgets', endpoint: '/api/dashboard/overview' }]
     });
+  } else if (msg.includes('forecast') || msg.includes('runway')) {
+    const forecast = await treasury.getCashForecast(businessId);
+    if (forecast && forecast.runway) {
+      res.json({
+        response: `Cash Runway: ${forecast.runway} months\n` +
+          `Forecast Period: ${forecast.forecastEndDate}`,
+        source: 'treasury',
+        actions: [{ label: 'View Forecast', endpoint: '/api/treasury/forecast' }]
+      });
+    } else {
+      res.json({
+        response: 'Treasury forecast not available. Connect RABTUL Treasury for runway analysis.',
+        source: 'unavailable',
+        actions: []
+      });
+    }
   } else {
     res.json({
       response: 'Finance OS can answer:\n' +
-        '  Cash/Bank: "How much cash?"\n' +
-        '  Revenue: "What is our revenue?"\n' +
+        '  Cash: "How much cash?"\n' +
+        '  Revenue: "What is our MRR/ARR?"\n' +
+        '  Payments: "Show payment stats"\n' +
         '  Budget: "Are we on budget?"\n' +
+        '  Forecast: "What is our runway?"\n' +
         '  Industries: "Show me all 24 industries"',
+      source: 'local',
       industries: Object.keys(INDUSTRIES)
     });
   }
 });
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+function formatCurrency(amount) {
+  if (!amount) return '₹0';
+  if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)} Cr`;
+  if (amount >= 100000) return `₹${(amount / 100000).toFixed(2)} L`;
+  if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)} K`;
+  return `₹${amount}`;
+}
+
+function calculateHealthScore(treasury, payments, revenue) {
+  let score = 50; // Base score
+
+  if (treasury.connected) score += 20;
+  if (payments.stats && payments.stats.totalVolume > 0) score += 15;
+  if (revenue.metrics && revenue.metrics.mrr > 0) score += 15;
+
+  return Math.min(100, score);
+}
 
 // ============================================================
 // START
@@ -313,9 +704,17 @@ app.post('/api/copilot/chat', (req, res) => {
 
 initData();
 app.listen(PORT, () => {
-  console.log(`\nFinance OS v2.0 running on port ${PORT}`);
+  console.log(`\nFinance OS v2.1 running on port ${PORT}`);
+  console.log(`\nIntegration Status:`);
+  console.log(`  Treasury: ${process.env.TREASURY_URL || 'http://localhost:4055'}`);
+  console.log(`  Payments: ${process.env.PAYMENT_URL || 'http://localhost:4001'}`);
+  console.log(`  Revenue:  ${process.env.REVENUE_URL || 'http://localhost:5400'}`);
+  console.log(`\nNew Unified Dashboard:`);
+  console.log('/api/dashboard/unified - Real-time data from all sources');
+  console.log('/api/integrations/health - Integration status');
+  console.log('/api/treasury/* - Cash, forecasting, investments');
+  console.log('/api/payments/* - Transaction stats');
+  console.log('/api/revenue/* - AI-powered revenue metrics');
   console.log(`\n24 Industry OS Integration:`);
   console.log(Object.entries(INDUSTRIES).map(([k, v]) => `${k}:${v.port}`).join(' | '));
-  console.log(`\nEndpoints:`);
-  console.log('/health | /api/dashboard | /api/industries/health | /api/industries/dashboard | /api/copilot/chat');
 });

@@ -1,153 +1,241 @@
-# Finance OS v1.0.0
+# Finance OS v2.0 — ACTUAL STATE
 
-**Version:** 1.0.0  
+**Version:** 2.0  
 **Port:** 4801  
-**Status:** ✅ **RUNNING**
+**Status:** 🟡 **INTEGRATION NEEDED**
 
 ---
 
-## Overview
+## ⚠️ IMPORTANT: What Actually Exists
 
-Finance OS is a comprehensive financial management system that provides chart of accounts, trial balance, financial dashboards, and consolidated reporting across all 24 Industry Operating Systems. It enables unified financial visibility and AI-powered financial insights.
+FinanceOS is NOT a standalone system. It sits at the center of an **ecosystem of 30+ services**. The key realization:
 
-## Core Modules
+| Category | Service | Port | Status |
+|----------|---------|------|--------|
+| **Treasury** | RABTUL Treasury OS | 4055 | ✅ Production |
+| **Payments** | REZ Payment Service | 4001 | ✅ Production |
+| **Wallet** | REZ Wallet | 4004 | ✅ Production |
+| **Revenue** | Revenue Intelligence OS | 5400 | ✅ Production |
+| **Finance OS** | This service | 4801 | 🟡 Needs integration |
+| **FP&A** | HOJAI FP&A OS | scaffold | 🟡 Needs data |
+| **InvestorOS** | — | 4802 | 🔴 Missing |
 
-| Module | Description | Endpoints |
-|--------|-------------|-----------|
-| **Chart of Accounts** | Account structure, categories | CRUD, search, trial balance |
-| **Trial Balance** | Balance verification | Generate, verify |
-| **Dashboard** | Financial KPIs and metrics | Overview, charts |
-| **Industries** | Cross-industry financial data | Consolidated view, per-industry |
-| **Copilot** | AI finance assistant | Chat interface |
+---
 
-## AI Agents (Finance Copilot)
+## What We Have
 
-| Agent | Purpose |
-|-------|---------|
-| **Finance Copilot** | Natural language financial queries |
+### ✅ Production Services (Already Built)
 
-The copilot can answer questions about:
-- Cash flow status
-- Revenue analysis
-- Budget vs actual
-- Profit margins
-- Expense breakdown
-- Industry comparisons
+#### RABTUL Treasury OS (4055)
+**Location:** `companies/RABTUL-Technologies/REZ-treasury-os/`  
+**Lines:** 6,844 | **Database:** MongoDB + Redis
 
-## Industry Bridges (24 Connections - Full Aggregation)
+| Module | Lines | Status |
+|--------|-------|--------|
+| Cash Management | 491 | ✅ Production |
+| Investment Service | 450 | ✅ Production |
+| Forecast Service | 614 | ✅ Production |
+| Bank Statement Import | 472 | ✅ Production |
+| ML Forecasting | 645 | 🟡 Partial (fallback if AI unavailable) |
+| FX Hedging | 483 | 🟡 Partial (mock FX rates) |
 
-Finance OS connects to ALL 24 Industry Operating Systems for consolidated financial reporting:
+#### REZ Payment Service (4001)
+**Location:** `companies/RABTUL-Technologies/rez-payment-service/`  
+**Lines:** ~13,458
 
-| Industry | Port | Revenue Sync | Expense Sync |
-|----------|------|--------------|--------------|
-| Restaurant OS | 5010 | ✅ | ✅ |
-| Hotel OS | 5025 | ✅ | ✅ |
-| Healthcare OS | 5020 | ✅ | ✅ |
-| Retail OS | 5030 | ✅ | ✅ |
-| Legal OS | 5035 | ✅ | ✅ |
-| Education OS | 5060 | ✅ | ✅ |
-| Sales OS | 5055 | ✅ | ✅ |
-| Automotive OS | 5080 | ✅ | ✅ |
-| Beauty OS | 5090 | ✅ | ✅ |
-| Fashion OS | 5095 | ✅ | ✅ |
-| Fitness OS | 5110 | ✅ | ✅ |
-| Gaming OS | 5120 | ✅ | ✅ |
-| Government OS | 5130 | ✅ | ✅ |
-| HomeServices OS | 5140 | ✅ | ✅ |
-| Manufacturing OS | 5150 | ✅ | ✅ |
-| NonProfit OS | 5160 | ✅ | ✅ |
-| Professional OS | 5170 | ✅ | ✅ |
-| Sports OS | 5180 | ✅ | ✅ |
-| Travel OS | 5190 | ✅ | ✅ |
-| Entertainment OS | 5200 | ✅ | ✅ |
-| Construction OS | 5210 | ✅ | ✅ |
-| Financial OS | 5220 | ✅ | ✅ |
-| RealEstate OS | 5230 | ✅ | ✅ |
-| Transport OS | 5240 | ✅ | ✅ |
-| Energy OS | 5260 | ✅ | ✅ |
-| Exhibition OS | 5270 | ✅ | ✅ |
+| Module | Purpose |
+|--------|---------|
+| paymentService.ts | Order creation, verification |
+| fraudDetection.ts | Fraud scoring |
+| reconciliationService.ts | Auto-reconciliation |
+| webhookService.ts | Webhook handling |
 
-## RTMN Ecosystem Integration
+#### Revenue Intelligence OS (5400)
+**Location:** `industry-os/services/revenue-intelligence-os/`
 
-| Service | Port | Integration |
-|---------|------|-------------|
-| **CorpID** | 4702 | User authentication |
-| **Memory OS** | 4703 | Financial preferences |
-| **TwinOS Hub** | 4705 | Financial twins |
-| **Procurement OS** | 5096 | AP/Procurement |
-| **Workforce OS** | 5077 | Payroll |
-| **RTMN Hub** | 4399 | Unified gateway |
+| Module | Purpose |
+|--------|---------|
+| revenueHub.js | Unified revenue aggregation |
+| demandIntelligence.js | AI demand forecasting (92% accuracy) |
+| pricingIntelligence.js | Dynamic pricing (88% accuracy) |
+| cohortAnalysis.js | LTV prediction |
+
+### 🟡 Finance OS (This Service)
+
+**Location:** `industry-os/services/finance-os/`  
+**Lines:** ~3,205 (main + modules)
+
+| Module | Lines | Status | Gaps |
+|--------|-------|--------|------|
+| financialStatements.js | 555 | 🟡 Good | Needs real data integration |
+| auditModule.js | 401 | 🟡 Partial | SOX controls missing |
+| bankReconciliation.js | 406 | 🟡 Partial | Needs Treasury integration |
+| taxModule.js | 476 | 🟡 Basic | Needs TDS/TCS expansion |
+| payrollModule.js | 411 | 🟡 Basic | Needs HROS integration |
+| expenseModule.js | 237 | 🟡 Basic | Needs OCR, policy engine |
+| assetModule.js | 398 | 🟡 Partial | Depreciation done |
+| aiFinanceAgent.js | 612 | 🟡 AI agent | OpenAI/Anthropic powered |
+
+### 🔴 What's Missing
+
+#### InvestorOS (Port 4802) — CRITICAL
+**Location:** `docs/finance-os-investoros-build-plan.md`
+
+```
+InvestorOS
+├── CapTableOS — Shareholders, equity, dilution
+├── FundraisingOS — Deals, SAFEs, YCCSAs
+├── ESOPOS — Options, vesting, exercise
+├── BoardOS — Meetings, resolutions
+├── InvestorPortalOS — Investor dashboard
+└── DueDiligenceOS — Data room
+```
+
+#### ComplianceOS — SOX/AML/KYC
+- SOX control framework
+- AML transaction monitoring
+- KYC verification
+
+---
+
+## Phase 0: Integration (DO THIS FIRST)
+
+### Week 1: Wire Treasury + Payments → Finance OS
+
+```javascript
+// Add to finance-os/src/integrations/
+// treasuryIntegration.js
+const TREASURY_URL = process.env.TREASURY_URL || 'http://localhost:4055';
+
+async function getCashPosition(businessId) {
+  const res = await fetch(`${TREASURY_URL}/api/v1/accounts/${businessId}/position`);
+  return res.json();
+}
+```
+
+### Week 2: Wire Revenue Intelligence → FP&A
+
+```javascript
+// Add to HOJAI FP&A/src/integrations/
+// revenueIntegration.js
+const REVENUE_URL = process.env.REVENUE_URL || 'http://localhost:5400';
+
+async function getDemandForecast(industry) {
+  const res = await fetch(`${REVENUE_URL}/api/revenue/demand-forecast?industry=${industry}`);
+  return res.json();
+}
+```
+
+---
+
+## Build Plan
+
+| Phase | Name | Duration | Deliverables |
+|-------|------|----------|--------------|
+| **Phase 0** | Integration | 2 weeks | Wire existing services |
+| **Phase 1** | TaxOS Complete | 4 weeks | India GST/TDS + UAE VAT |
+| **Phase 2** | InvestorOS | 6 weeks | Cap table, ESOP, fundraising |
+| **Phase 3** | ComplianceOS | 4 weeks | SOX, AML, KYC |
+| **Phase 4** | ExpenseOS Enhanced | 3 weeks | Cards, OCR, policy |
+| **Phase 5** | FP&A Complete | 3 weeks | Real forecasting, scenarios |
+| **Phase 6** | AgentFin Production | 4 weeks | 15 production agents |
+
+**Total: 26 weeks (~6 months)**
+
+---
+
+## Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    FINANCEOS UNIFIED LAYER                       │
+│                         (Port 4801)                             │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
+│  │   Treasury  │    │   Payments  │    │   Revenue   │      │
+│  │   RABTUL    │    │   RABTUL    │    │  Intelligence│     │
+│  │  (4055) ✅  │    │  (4001) ✅  │    │  (5400) ✅   │      │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘      │
+│         │                  │                  │              │
+│         └──────────────────┼──────────────────┘              │
+│                            │                                  │
+│                    ┌───────▼───────┐                        │
+│                    │  Finance OS   │                        │
+│                    │ Integration   │                        │
+│                    │    Layer      │                        │
+│                    └───────────────┘                        │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## Quick Start
 
 ```bash
+# Start Finance OS
 cd industry-os/services/finance-os
 npm install
 npm start
-# Runs on http://localhost:4801
+
+# Start RABTUL Treasury (required for real data)
+cd companies/RABTUL-Technologies/REZ-treasury-os
+npm start
+
+# Start Revenue Intelligence (required for forecasts)
+cd industry-os/services/revenue-intelligence-os
+npm start
 ```
+
+---
+
+## Environment Variables
+
+```bash
+TREASURY_URL=http://localhost:4055
+PAYMENT_URL=http://localhost:4001
+WALLET_URL=http://localhost:4004
+REVENUE_URL=http://localhost:5400
+TREASURY_INTERNAL_TOKEN=your-token-here
+```
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [docs/finance-os-complete-audit-2026-07-02.md](docs/finance-os-complete-audit-2026-07-02.md) | Complete audit with gap analysis |
+| [docs/finance-os-phase-0-integration.md](docs/finance-os-phase-0-integration.md) | Phase 0 integration plan |
+| [docs/finance-os-investoros-build-plan.md](docs/finance-os-investoros-build-plan.md) | InvestorOS build plan |
+
+---
 
 ## Health Check
 
 ```bash
+# Finance OS
 curl http://localhost:4801/health
+
+# Treasury (for integration)
+curl http://localhost:4055/api/v1/health
+
+# Revenue Intelligence
+curl http://localhost:5400/health
 ```
-
-## API Endpoints
-
-### Chart of Accounts
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/chart-of-accounts | List accounts |
-| POST | /api/chart-of-accounts | Create account |
-| GET | /api/chart-of-accounts/:id | Get account |
-
-### Trial Balance
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/trial-balance | Generate trial balance |
-| POST | /api/trial-balance/verify | Verify balances |
-
-### Dashboard
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/dashboard/overview | Financial KPIs |
-| GET | /api/dashboard/revenue | Revenue breakdown |
-| GET | /api/dashboard/expenses | Expense analysis |
-| GET | /api/dashboard/profit | Profit margins |
-
-### Industry Financials
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/industries/health | All industry status |
-| GET | /api/industries/dashboard | Consolidated view |
-| GET | /api/industries/:code | Industry details |
-| GET | /api/industries/:code/revenue | Revenue |
-| GET | /api/industries/:code/expenses | Expenses |
-
-### AI Copilot
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/copilot/chat | Send query |
-| GET | /api/copilot/history | Chat history |
-
-### Industry Bridges
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/industry-bridges | List connections |
-| POST | /api/industry-bridges/sync | Sync financial data |
-
-## Key Metrics (Consolidated)
-
-| Metric | Description |
-|--------|-------------|
-| Total Assets | Sum across all industries |
-| Total Revenue | Consolidated revenue |
-| Total Expenses | Consolidated expenses |
-| Net Profit | Revenue - Expenses |
-| Budget Utilization | % of budget used |
-| Industry Performance | Per-industry breakdown |
 
 ---
 
-*Finance OS - Unified Financial Management for All Industries*
+## Key Metrics After Integration
+
+| Metric | Source | Status |
+|--------|--------|--------|
+| Cash Position | RABTUL Treasury (4055) | 🔴 Not wired |
+| Payment Volume | REZ Payment (4001) | 🔴 Not wired |
+| Revenue Forecast | Revenue Intelligence (5400) | 🔴 Not wired |
+| Tax Compliance | Finance OS (4801) | 🟡 Partial |
+| AI Insights | Finance Copilot (4930) | 🟡 Partial |
+
+---
+
+*Finance OS v2.0 — Integration Foundation*
+*Updated: July 2, 2026*

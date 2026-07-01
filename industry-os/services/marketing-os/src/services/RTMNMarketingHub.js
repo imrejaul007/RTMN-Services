@@ -39,7 +39,17 @@ class RTMNMarketingHub {
       ADBAZAAR_DSP: process.env.ADBAZAAR_DSP_URL || 'http://localhost:4990',
       ADBAZAAR_AUDIENCE: process.env.ADBAZAAR_AUDIENCE_URL || 'http://localhost:4805',
       ADBAZAAR_ATTRIBUTION: process.env.ADBAZAAR_ATTRIBUTION_URL || 'http://localhost:4803',
-      ADBAZAAR_CDP: process.env.ADBAZAAR_CDP_URL || 'http://localhost:4901',
+      ADBAZAAR_CDP: process.env.ADBAZAAR_CDP_URL || 'http://localhost:4961',
+
+      // Marketing Ecosystem Services (NEW - Phase 0)
+      INTENT_ATTRIBUTION: process.env.INTENT_ATTRIBUTION_URL || 'http://localhost:4803',
+      AB_TESTING: process.env.AB_TESTING_URL || 'http://localhost:5001',
+      MARKETING_AGENT: process.env.MARKETING_AGENT_URL || 'http://localhost:4965',
+      LEAD_SCORING: process.env.LEAD_SCORING_URL || 'http://localhost:5458',
+      GROWTH_ENGINE: process.env.GROWTH_ENGINE_URL || 'http://localhost:3002',
+      ATTRIBUTION_ENGINE: process.env.ATTRIBUTION_ENGINE_URL || 'http://localhost:3004',
+      SOCIAL_ANALYTICS: process.env.SOCIAL_ANALYTICS_URL || 'http://localhost:5003',
+      MARKETING_AUTOMATION: process.env.MARKETING_AUTOMATION_URL || 'http://localhost:5459',
 
       // Z Events
       Z_EVENTS: process.env.Z_EVENTS_URL || 'http://localhost:5040',
@@ -550,6 +560,538 @@ class RTMNMarketingHub {
       return { success: true, deals: response.data };
     } catch (error) {
       return this.handleError('RESTAURANT_OS', 'getRestaurantDeals', error);
+    }
+  }
+
+  // ============================================
+  // INTENT ATTRIBUTION (Phase 0 - NEW)
+  // ============================================
+
+  /**
+   * Get attribution report with multi-touch models
+   * Supports: first_touch, last_touch, linear, time_decay, position_based, data_driven
+   */
+  async getAttributionReport(params = {}) {
+    try {
+      const { campaignId, startDate, endDate, model } = params;
+      const response = await this.clients.INTENT_ATTRIBUTION.get('/api/attribution/report', {
+        params: { campaignId, startDate, endDate, model }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('INTENT_ATTRIBUTION', 'getAttributionReport', error);
+    }
+  }
+
+  /**
+   * Get attribution ROI metrics
+   */
+  async getAttributionROI(campaignId) {
+    try {
+      const response = await this.clients.INTENT_ATTRIBUTION.get('/api/attribution/roi', {
+        params: { campaignId }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('INTENT_ATTRIBUTION', 'getAttributionROI', error);
+    }
+  }
+
+  /**
+   * Get user journey with all touchpoints
+   */
+  async getUserJourney(userId) {
+    try {
+      const response = await this.clients.INTENT_ATTRIBUTION.get(`/api/attribution/journey/${userId}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('INTENT_ATTRIBUTION', 'getUserJourney', error);
+    }
+  }
+
+  /**
+   * Get attribution efficiency metrics
+   */
+  async getAttributionEfficiency(params = {}) {
+    try {
+      const response = await this.clients.INTENT_ATTRIBUTION.get('/api/attribution/efficiency', {
+        params
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('INTENT_ATTRIBUTION', 'getAttributionEfficiency', error);
+    }
+  }
+
+  /**
+   * Report a conversion for attribution tracking
+   */
+  async reportConversion(conversionData) {
+    try {
+      const response = await this.clients.INTENT_ATTRIBUTION.post('/api/attribution/convert', conversionData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('INTENT_ATTRIBUTION', 'reportConversion', error);
+    }
+  }
+
+  // ============================================
+  // A/B TESTING (Phase 0 - NEW)
+  // ============================================
+
+  /**
+   * Create A/B experiment
+   */
+  async createExperiment(experimentData) {
+    try {
+      const response = await this.clients.AB_TESTING.post('/api/experiments', experimentData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('AB_TESTING', 'createExperiment', error);
+    }
+  }
+
+  /**
+   * Get A/B test results
+   */
+  async getABTestResults(experimentId) {
+    try {
+      const response = await this.clients.AB_TESTING.get(`/api/experiments/${experimentId}/results`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('AB_TESTING', 'getABTestResults', error);
+    }
+  }
+
+  /**
+   * Get variant statistics
+   */
+  async getVariantStats(experimentId) {
+    try {
+      const response = await this.clients.AB_TESTING.get(`/api/experiments/${experimentId}/stats`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('AB_TESTING', 'getVariantStats', error);
+    }
+  }
+
+  /**
+   * Check statistical significance
+   */
+  async getSignificance(experimentId) {
+    try {
+      const response = await this.clients.AB_TESTING.get(`/api/experiments/${experimentId}/significance`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('AB_TESTING', 'getSignificance', error);
+    }
+  }
+
+  /**
+   * Allocate user to variant
+   */
+  async allocateToVariant(experimentId, userId) {
+    try {
+      const response = await this.clients.AB_TESTING.post(`/api/experiments/${experimentId}/allocate`, {
+        userId
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('AB_TESTING', 'allocateToVariant', error);
+    }
+  }
+
+  // ============================================
+  // CDP - CUSTOMER DATA PLATFORM (Phase 0 - NEW)
+  // ============================================
+
+  /**
+   * Get audience insights from CDP
+   */
+  async getCDPAudienceInsights(audienceId) {
+    try {
+      const response = await this.clients.ADBAZAAR_CDP.get(`/api/audiences/${audienceId}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('ADBAZAAR_CDP', 'getCDPAudienceInsights', error);
+    }
+  }
+
+  /**
+   * Get unified customer profile
+   */
+  async getCustomerProfile(identifier) {
+    try {
+      const response = await this.clients.ADBAZAAR_CDP.get('/api/profiles', {
+        params: identifier
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('ADBAZAAR_CDP', 'getCustomerProfile', error);
+    }
+  }
+
+  /**
+   * Create/update customer profile
+   */
+  async upsertCustomerProfile(profileData) {
+    try {
+      const response = await this.clients.ADBAZAAR_CDP.post('/api/profiles', profileData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('ADBAZAAR_CDP', 'upsertCustomerProfile', error);
+    }
+  }
+
+  /**
+   * Get customer segments
+   */
+  async getCDPSegments(customerId) {
+    try {
+      const response = await this.clients.ADBAZAAR_CDP.get(`/api/customers/${customerId}/segments`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('ADBAZAAR_CDP', 'getCDPSegments', error);
+    }
+  }
+
+  // ============================================
+  // LEAD SCORING (Phase 0 - NEW)
+  // ============================================
+
+  /**
+   * Score a lead
+   */
+  async scoreLead(leadData) {
+    try {
+      const response = await this.clients.LEAD_SCORING.post('/api/leads/score', leadData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('LEAD_SCORING', 'scoreLead', error);
+    }
+  }
+
+  /**
+   * Get lead score by ID
+   */
+  async getLeadScore(leadId) {
+    try {
+      const response = await this.clients.LEAD_SCORING.get(`/api/leads/${leadId}/score`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('LEAD_SCORING', 'getLeadScore', error);
+    }
+  }
+
+  /**
+   * Get intent level for lead
+   */
+  async getLeadIntent(leadId) {
+    try {
+      const response = await this.clients.LEAD_SCORING.get(`/api/leads/${leadId}/intent`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('LEAD_SCORING', 'getLeadIntent', error);
+    }
+  }
+
+  /**
+   * Get recommended actions for lead
+   */
+  async getLeadRecommendations(leadId) {
+    try {
+      const response = await this.clients.LEAD_SCORING.get(`/api/leads/${leadId}/recommendations`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('LEAD_SCORING', 'getLeadRecommendations', error);
+    }
+  }
+
+  // ============================================
+  // MARKETING AGENT (Phase 0 - NEW)
+  // ============================================
+
+  /**
+   * Send natural language command to marketing agent
+   */
+  async sendAgentCommand(command) {
+    try {
+      const response = await this.clients.MARKETING_AGENT.post('/api/command', { command });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AGENT', 'sendAgentCommand', error);
+    }
+  }
+
+  /**
+   * Chat with marketing agent
+   */
+  async chatWithAgent(message, context = {}) {
+    try {
+      const response = await this.clients.MARKETING_AGENT.post('/api/chat', { message, context });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AGENT', 'chatWithAgent', error);
+    }
+  }
+
+  /**
+   * Get AI insights from marketing agent
+   */
+  async getAgentInsights(merchantId) {
+    try {
+      const response = await this.clients.MARKETING_AGENT.get(`/api/intelligence/insights/${merchantId}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AGENT', 'getAgentInsights', error);
+    }
+  }
+
+  /**
+   * Get purchase predictions
+   */
+  async getAgentPredictions(merchantId) {
+    try {
+      const response = await this.clients.MARKETING_AGENT.get(`/api/intelligence/predictions/${merchantId}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AGENT', 'getAgentPredictions', error);
+    }
+  }
+
+  /**
+   * Start marketing autopilot
+   */
+  async startAutopilot(merchantId) {
+    try {
+      const response = await this.clients.MARKETING_AGENT.post('/api/autopilot/start', { merchantId });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AGENT', 'startAutopilot', error);
+    }
+  }
+
+  /**
+   * Stop marketing autopilot
+   */
+  async stopAutopilot(merchantId) {
+    try {
+      const response = await this.clients.MARKETING_AGENT.post('/api/autopilot/stop', { merchantId });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AGENT', 'stopAutopilot', error);
+    }
+  }
+
+  /**
+   * Get user intent profile
+   */
+  async getUserIntentProfile(userId) {
+    try {
+      const response = await this.clients.MARKETING_AGENT.get(`/api/intelligence/user/${userId}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AGENT', 'getUserIntentProfile', error);
+    }
+  }
+
+  // ============================================
+  // GROWTH ENGINE (Phase 1 - NEW)
+  // ============================================
+
+  /**
+   * Get growth metrics
+   */
+  async getGrowthMetrics(campaignId) {
+    try {
+      const response = await this.clients.GROWTH_ENGINE.get('/api/growth-campaigns', {
+        params: { campaignId }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('GROWTH_ENGINE', 'getGrowthMetrics', error);
+    }
+  }
+
+  /**
+   * Create referral
+   */
+  async createReferral(referralData) {
+    try {
+      const response = await this.clients.GROWTH_ENGINE.post('/api/referrals', referralData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('GROWTH_ENGINE', 'createReferral', error);
+    }
+  }
+
+  /**
+   * Get referral status
+   */
+  async getReferral(referralId) {
+    try {
+      const response = await this.clients.GROWTH_ENGINE.get(`/api/referrals/${referralId}`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('GROWTH_ENGINE', 'getReferral', error);
+    }
+  }
+
+  /**
+   * Get viral coefficients
+   */
+  async getViralCoefficients() {
+    try {
+      const response = await this.clients.GROWTH_ENGINE.get('/api/viral-metrics');
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('GROWTH_ENGINE', 'getViralCoefficients', error);
+    }
+  }
+
+  /**
+   * Create referral code
+   */
+  async createReferralCode(codeData) {
+    try {
+      const response = await this.clients.GROWTH_ENGINE.post('/api/referral-codes', codeData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('GROWTH_ENGINE', 'createReferralCode', error);
+    }
+  }
+
+  // ============================================
+  // ATTRIBUTION ENGINE (Phase 1 - NEW)
+  // ============================================
+
+  /**
+   * Get channel attribution
+   */
+  async getChannelAttribution(params = {}) {
+    try {
+      const response = await this.clients.ATTRIBUTION_ENGINE.get('/api/attribution/channel', {
+        params
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('ATTRIBUTION_ENGINE', 'getChannelAttribution', error);
+    }
+  }
+
+  /**
+   * Get campaign attribution breakdown
+   */
+  async getCampaignAttributionBreakdown(campaignId) {
+    try {
+      const response = await this.clients.ATTRIBUTION_ENGINE.get(`/api/campaigns/${campaignId}/attribution`);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('ATTRIBUTION_ENGINE', 'getCampaignAttributionBreakdown', error);
+    }
+  }
+
+  /**
+   * Get ROI by attribution model
+   */
+  async getModelROI(model) {
+    try {
+      const response = await this.clients.ATTRIBUTION_ENGINE.get('/api/attribution/roi-by-model', {
+        params: { model }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('ATTRIBUTION_ENGINE', 'getModelROI', error);
+    }
+  }
+
+  // ============================================
+  // SOCIAL ANALYTICS (Phase 1 - NEW)
+  // ============================================
+
+  /**
+   * Get social analytics
+   */
+  async getSocialAnalytics(params = {}) {
+    try {
+      const response = await this.clients.SOCIAL_ANALYTICS.get('/api/analytics', {
+        params
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('SOCIAL_ANALYTICS', 'getSocialAnalytics', error);
+    }
+  }
+
+  /**
+   * Get channel-specific analytics
+   */
+  async getChannelAnalytics(channel) {
+    try {
+      const response = await this.clients.SOCIAL_ANALYTICS.get('/api/analytics/channel', {
+        params: { channel }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('SOCIAL_ANALYTICS', 'getChannelAnalytics', error);
+    }
+  }
+
+  // ============================================
+  // MARKETING AUTOMATION (Phase 1 - NEW)
+  // ============================================
+
+  /**
+   * Get automation rules
+   */
+  async getAutomationRules(organizationId) {
+    try {
+      const response = await this.clients.MARKETING_AUTOMATION.get('/api/rules', {
+        params: { organizationId }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AUTOMATION', 'getAutomationRules', error);
+    }
+  }
+
+  /**
+   * Trigger automation event
+   */
+  async triggerAutomation(eventData) {
+    try {
+      const response = await this.clients.MARKETING_AUTOMATION.post('/api/events/trigger', eventData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AUTOMATION', 'triggerAutomation', error);
+    }
+  }
+
+  /**
+   * Get abandoned cart data
+   */
+  async getAbandonedCarts(organizationId) {
+    try {
+      const response = await this.clients.MARKETING_AUTOMATION.get('/api/abandoned-carts', {
+        params: { organizationId }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AUTOMATION', 'getAbandonedCarts', error);
+    }
+  }
+
+  /**
+   * Get replenishment recommendations
+   */
+  async getReplenishmentRecommendations(customerId) {
+    try {
+      const response = await this.clients.MARKETING_AUTOMATION.get('/api/replenishment', {
+        params: { customerId }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      return this.handleError('MARKETING_AUTOMATION', 'getReplenishmentRecommendations', error);
     }
   }
 

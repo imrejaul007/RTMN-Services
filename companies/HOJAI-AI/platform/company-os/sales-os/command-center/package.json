@@ -1,0 +1,15 @@
+{
+  "name": "@hojai/sales-command-center",
+  "version": "1.0.0",
+  "description": "Sales Command Center for SalesOS",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0"
+  }
+}

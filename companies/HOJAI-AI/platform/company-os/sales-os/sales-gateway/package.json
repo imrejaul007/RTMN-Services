@@ -1,0 +1,23 @@
+{
+  "name": "@hojai/sales-os-gateway",
+  "version": "2.0.0",
+  "description": "SalesOS + CustomerJourneyOS Unified Gateway",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "echo \"Tests not configured\" && exit 0"
+  },
+  "keywords": ["sales", "crm", "salesos", "customer-journey"],
+  "author": "HOJAI AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "http-proxy-middleware": "^2.0.6",
+    "uuid": "^9.0.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0"
+  }
+}
